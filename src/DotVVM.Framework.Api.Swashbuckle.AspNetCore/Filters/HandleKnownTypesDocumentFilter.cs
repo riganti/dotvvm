@@ -2,8 +2,11 @@
 using System.Linq;
 using System.Reflection;
 using DotVVM.Core.Common;
+using DotVVM.Framework.Api.Swashbuckle.AspNetCore.Extensions;
 using DotVVM.Framework.ViewModel;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -20,30 +23,31 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
             this.propertySerialization = new DefaultPropertySerialization();
         }
 
-        public void Apply(SwaggerDocument swaggerDoc, DocumentFilterContext context)
+        public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
             var knownTypes = apiOptions.Value;
-            foreach (var schema in swaggerDoc.Definitions.Values)
+            foreach (var schema in swaggerDoc.Components.Schemas.Values)
             {
-                if (schema.Extensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType) && objType is Type underlayingType)
+                if (schema.Extensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType)
+                    && objType is OpenApiCustomObject wrappedTypeKey && wrappedTypeKey.Value is Type underlayingType)
                 {
                     if (knownTypes.IsKnownType(underlayingType))
                     {
                         var name = CreateProperName(underlayingType, swaggerDoc);
-                        schema.Extensions.Add(ApiConstants.DotvvmKnownTypeKey, name);
+                        schema.Extensions.Add(ApiConstants.DotvvmKnownTypeKey, new OpenApiString(name));
 
                         SetDotvvmNameToProperties(schema, underlayingType);
                     }
                 }
             }
 
-            foreach (var definition in swaggerDoc.Definitions)
+            foreach (var definition in swaggerDoc.Components.Schemas)
             {
                 definition.Value.Extensions.Remove(ApiConstants.DotvvmTypeKey);
             }
         }
 
-        private void SetDotvvmNameToProperties(Schema schema, Type underlayingType)
+        private void SetDotvvmNameToProperties(OpenApiSchema schema, Type underlayingType)
         {
             if (schema.Properties == null)
             {
@@ -56,17 +60,17 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
             }
         }
 
-        private void SetDotvvmNameToProperty(Type type, string propertyName, Schema targetSchema)
+        private void SetDotvvmNameToProperty(Type type, string propertyName, OpenApiSchema targetSchema)
         {
             var propertyInfo = type.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
 
             if (propertyInfo != null)
             {
-                targetSchema.Extensions.Add(ApiConstants.DotvvmNameKey, propertySerialization.ResolveName(propertyInfo));
+                targetSchema.Extensions.Add(ApiConstants.DotvvmNameKey, new OpenApiString(propertySerialization.ResolveName(propertyInfo)));
             }
         }
 
-        public string CreateProperName(Type type, SwaggerDocument swaggerDoc)
+        public string CreateProperName(Type type, OpenApiDocument swaggerDoc)
         {
             if (type.GetGenericArguments().Length == 0)
             {
@@ -79,10 +83,10 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
             return type.Namespace + '.' + unmangledName + '<' + string.Join(",", genericArguments) + '>';
         }
 
-        public string CreateNameForGenericParameter(Type type, SwaggerDocument swaggerDoc)
+        public string CreateNameForGenericParameter(Type type, OpenApiDocument swaggerDoc)
         {
-            var definition = swaggerDoc.Definitions
-                .Where(d => d.Value.Extensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType) && (Type)objType == type)
+            var definition = swaggerDoc.Components.Schemas
+                .Where(d => d.Value.Extensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType) && objType is OpenApiCustomObject wrappedType && (Type)wrappedType.Value == type)
                 .FirstOrDefault();
 
             return definition.Key ?? type.FullName;
