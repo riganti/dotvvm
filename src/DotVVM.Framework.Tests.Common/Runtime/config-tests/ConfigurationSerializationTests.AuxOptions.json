@@ -5,7 +5,10 @@
       {
         "namespace": "DotVVM.Framework.Binding.HelperNamespace"
       }
-    ]
+    ],
+    "ViewCompilation": {
+      "compileInParallel": true
+    }
   },
   "resources": {},
   "security": {},

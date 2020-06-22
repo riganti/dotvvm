@@ -4,7 +4,10 @@
       {
         "namespace": "DotVVM.Framework.Binding.HelperNamespace"
       }
-    ]
+    ],
+    "ViewCompilation": {
+      "compileInParallel": true
+    }
   },
   "resources": {
     "DotVVM.Framework.ResourceManagement.InlineScriptResource": {

@@ -68,6 +68,7 @@ namespace Owin
                 s.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
                 s.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
                 s.TryAddScoped<IDotvvmRequestContext>(services => services.GetRequiredService<DotvvmRequestContextStorage>().Context);
+                s.AddSingleton<IDotvvmViewCompilationService, DotvvmViewCompilationService>();
                 configurator?.ConfigureServices(new DotvvmServiceCollection(s));
             }, serviceProviderFactoryMethod);
             config.Debug = debug;
