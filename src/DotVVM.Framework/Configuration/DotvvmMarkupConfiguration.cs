@@ -69,6 +69,9 @@ namespace DotVVM.Framework.Configuration
         }
         private IList<BindingExtensionParameter> _defaultExtensionParameters = new FreezableList<BindingExtensionParameter>();
 
+        public ViewCompilationConfiguration ViewCompilation { get; private set; } = new ViewCompilationConfiguration();
+
+
         public void AddServiceImport(string identifier, Type type)
         {
             ThrowIfFrozen();
@@ -173,7 +176,10 @@ namespace DotVVM.Framework.Configuration
         public void Freeze()
         {
             this.isFrozen = true;
+
+            ViewCompilation.Freeze();
             _controls.Freeze();
+            
             foreach (var c in this.Controls)
                 c.Freeze();
             _assemblies.Freeze();

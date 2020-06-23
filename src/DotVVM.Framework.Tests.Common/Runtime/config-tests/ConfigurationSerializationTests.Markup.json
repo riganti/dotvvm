@@ -60,7 +60,10 @@
         },
         "Inherit": true
       }
-    ]
+    ],
+    "ViewCompilation": {
+      "compileInParallel": true
+    }
   },
   "resources": {},
   "security": {},
