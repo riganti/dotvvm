@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -68,11 +69,23 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var apiDescriptionGroupCollectionProvider = serviceProvider.GetRequiredService<IApiDescriptionGroupCollectionProvider>();
 
+            string CustomSchemaIdSelector(Type modelType)
+            {
+                if (!modelType.IsConstructedGenericType) return modelType.Name.Replace("[]", "Array");
+
+                var generics = modelType.GetGenericArguments()
+                    .Select(genericArg => CustomSchemaIdSelector(genericArg))
+                    .Aggregate((previous, current) => previous + current);
+
+                return $"{modelType.Name.Split('`').First()}[{generics}]";
+            }
+
             var schemaGeneratorOptions = new SchemaGeneratorOptions() {
                 SchemaFilters =
                 {
                     new AddTypeToModelSchemaFilter()
-                }
+                },
+                SchemaIdSelector = CustomSchemaIdSelector
             };
 
             var schemaGenerator = new SchemaGenerator(schemaGeneratorOptions, new JsonSerializerDataContractResolver(new JsonSerializerOptions()));
@@ -86,9 +99,14 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
         {
             var definition = document.Components.Schemas["IPagingOptions"];
 
-            Assert.AreEqual("DotVVM.Framework.Controls.IPagingOptions", definition.Extensions[ApiConstants.DotvvmKnownTypeKey]);
-            Assert.AreEqual("PageIndex", definition.Properties["PageIndex"].Extensions[ApiConstants.DotvvmNameKey]);
-            Assert.AreEqual("PageSize", definition.Properties["PageSize"].Extensions[ApiConstants.DotvvmNameKey]);
+            var knownTypeKeyWrapper = definition.Extensions[ApiConstants.DotvvmKnownTypeKey] as OpenApiString;
+            Assert.AreEqual("DotVVM.Framework.Controls.IPagingOptions", knownTypeKeyWrapper.Value);
+
+            var nameKeyWrapper = definition.Properties["PageIndex"].Extensions[ApiConstants.DotvvmNameKey] as OpenApiString;
+            Assert.AreEqual("PageIndex", nameKeyWrapper.Value);
+
+            nameKeyWrapper = definition.Properties["PageSize"].Extensions[ApiConstants.DotvvmNameKey] as OpenApiString;
+            Assert.AreEqual("PageSize", nameKeyWrapper.Value);
         }
 
         [TestMethod]
@@ -96,11 +114,14 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
         {
             var definition = document.Components.Schemas["GridViewDataSet[Company[String]]"];
 
-            Assert.AreEqual("DotVVM.Framework.Controls.GridViewDataSet<Company[String]>",
-                definition.Extensions[ApiConstants.DotvvmKnownTypeKey]);
+            var knownTypeKeyWrapper = definition.Extensions[ApiConstants.DotvvmKnownTypeKey] as OpenApiString;
+            Assert.AreEqual("DotVVM.Framework.Controls.GridViewDataSet<Company[String]>", knownTypeKeyWrapper.Value);
 
-            Assert.AreEqual("IsRefreshRequired", definition.Properties["IsRefreshRequired"].Extensions[ApiConstants.DotvvmNameKey]);
-            Assert.AreEqual("Items", definition.Properties["Items"].Extensions[ApiConstants.DotvvmNameKey]);
+            var nameKeyWrapper = definition.Properties["IsRefreshRequired"].Extensions[ApiConstants.DotvvmNameKey] as OpenApiString;
+            Assert.AreEqual("IsRefreshRequired", nameKeyWrapper.Value);
+
+            nameKeyWrapper = definition.Properties["Items"].Extensions[ApiConstants.DotvvmNameKey] as OpenApiString;
+            Assert.AreEqual("Items", nameKeyWrapper.Value);
         }
 
         [TestMethod]
@@ -108,8 +129,8 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
         {
             var definition = document.Components.Schemas["Company[String]"];
 
-            Assert.AreEqual("DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>",
-                definition.Extensions[ApiConstants.DotvvmKnownTypeKey]);
+            var wrappedKnownTypeKey = definition.Extensions[ApiConstants.DotvvmKnownTypeKey] as OpenApiString;
+            Assert.AreEqual("DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>", wrappedKnownTypeKey.Value);
         }
 
         [TestMethod]
@@ -117,7 +138,8 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
         {
             var definition = document.Components.Schemas["GridViewDataSet[Company[Boolean]]"];
 
-            Assert.AreEqual("DotVVM.Framework.Controls.GridViewDataSet<Company[Boolean]>", definition.Extensions[ApiConstants.DotvvmKnownTypeKey]);
+            var wrappedKnownTypeKey = definition.Extensions[ApiConstants.DotvvmKnownTypeKey] as OpenApiString;
+            Assert.AreEqual("DotVVM.Framework.Controls.GridViewDataSet<Company[Boolean]>", wrappedKnownTypeKey.Value);
         }
 
         [TestMethod]
