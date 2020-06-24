@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -44,8 +46,20 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
 
             services.Configure<DotvvmApiOptions>(opt => opt.AddKnownType(typeof(Company<string>)));
 
+            string CustomSchemaId(Type modelType)
+            {
+                if (!modelType.IsConstructedGenericType) return modelType.Name.Replace("[]", "Array");
+
+                var generics = modelType.GetGenericArguments()
+                    .Select(genericArg => CustomSchemaId(genericArg))
+                    .Aggregate((previous, current) => previous + current);
+
+                return $"{modelType.Name.Split('`').First()}[{generics}]";
+            }
+
             services.AddSwaggerGen(options => {
-                options.SwaggerDoc("v1", new Info() { Title = "DotVVM Test API", Version = "v1" });
+                options.SwaggerDoc("v1", new OpenApiInfo() { Title = "DotVVM Test API", Version = "v1" });
+                options.CustomSchemaIds(type => CustomSchemaId(type));
 
                 options.EnableDotvvmIntegration();
             });
@@ -63,11 +77,15 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
                 p.AllowAnyHeader();
             });
 
+            app.UseDeveloperExceptionPage();
             app.UseSwagger(options => {
                 options.PreSerializeFilters.Add((swaggerDoc, httpReq) => {
-                    swaggerDoc.Host = "localhost:5001";
-                    swaggerDoc.Schemes = new List<string>() { "http" };
+                    swaggerDoc.Servers = new List<OpenApiServer>()
+                    {
+                        new OpenApiServer { Url = "localhost:5001" }
+                    };
                 });
+                options.SerializeAsV2 = true;
             });
             app.UseSwaggerUI(c => {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Northwind API");
