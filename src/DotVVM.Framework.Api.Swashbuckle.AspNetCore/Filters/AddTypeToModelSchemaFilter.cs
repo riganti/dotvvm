@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using DotVVM.Core.Common;
-using DotVVM.Framework.Api.Swashbuckle.AspNetCore.Extensions;
 using DotVVM.Framework.ViewModel;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
@@ -21,7 +20,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
         {
             if (model.Type == "object")
             {
-                model.Extensions.Add(ApiConstants.DotvvmTypeKey, new OpenApiCustomObject(context.Type));
+                model.Extensions.Add(ApiConstants.DotvvmTypeKey, new OpenApiString(context.Type.FullName + ", " + context.Type.Assembly.GetName().Name));
             }
         }
     }

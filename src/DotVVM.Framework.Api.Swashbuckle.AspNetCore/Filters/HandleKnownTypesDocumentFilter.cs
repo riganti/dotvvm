@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Reflection;
 using DotVVM.Core.Common;
-using DotVVM.Framework.Api.Swashbuckle.AspNetCore.Extensions;
 using DotVVM.Framework.ViewModel;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Any;
@@ -28,9 +27,11 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
             var knownTypes = apiOptions.Value;
             foreach (var schema in swaggerDoc.Components.Schemas.Values)
             {
-                if (schema.Extensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType)
-                    && objType is OpenApiCustomObject wrappedTypeKey && wrappedTypeKey.Value is Type underlayingType)
+                if (schema.Extensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType))
                 {
+                    var typeKeyWrapper = objType as OpenApiString;
+                    var underlayingType = Type.GetType(typeKeyWrapper.Value);
+
                     if (knownTypes.IsKnownType(underlayingType))
                     {
                         var name = CreateProperName(underlayingType, swaggerDoc);
@@ -86,7 +87,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
         public string CreateNameForGenericParameter(Type type, OpenApiDocument swaggerDoc)
         {
             var definition = swaggerDoc.Components.Schemas
-                .Where(d => d.Value.Extensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType) && objType is OpenApiCustomObject wrappedType && (Type)wrappedType.Value == type)
+                .Where(d => d.Value.Extensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType) && objType is OpenApiString wrappedType && Type.GetType(wrappedType.Value) == type)
                 .FirstOrDefault();
 
             return definition.Key ?? type.FullName;
