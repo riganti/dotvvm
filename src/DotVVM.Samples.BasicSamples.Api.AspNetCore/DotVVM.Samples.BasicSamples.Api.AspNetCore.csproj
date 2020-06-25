@@ -26,6 +26,7 @@
     <PackageReference Include="NJsonSchema.CodeGeneration" Version="9.4.5" />
     <PackageReference Include="Faker.NETCore" Version="1.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.4.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.4.1" />
   </ItemGroup>
 
   <ItemGroup>

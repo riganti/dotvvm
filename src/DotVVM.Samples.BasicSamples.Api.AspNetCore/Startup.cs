@@ -60,10 +60,11 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new OpenApiInfo() { Title = "DotVVM Test API", Version = "v1" });
                 options.CustomSchemaIds(type => CustomSchemaId(type));
-                options.SchemaFilter<CamelCaseSchemaFilter>();
+                //options.SchemaFilter<CamelCaseSchemaFilter>();
 
                 options.EnableDotvvmIntegration();
             });
+            services.AddSwaggerGenNewtonsoftSupport();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

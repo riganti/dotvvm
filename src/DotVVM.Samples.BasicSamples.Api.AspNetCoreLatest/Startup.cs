@@ -60,7 +60,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new OpenApiInfo() { Title = "DotVVM Test API", Version = "v1" });
                 options.CustomSchemaIds(type => CustomSchemaId(type));
-                options.SchemaFilter<CamelCaseSchemaFilter>();
+                //options.SchemaFilter<CamelCaseSchemaFilter>();
 
                 options.EnableDotvvmIntegration();
             });
