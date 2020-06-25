@@ -40,9 +40,9 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/BindingSharing/get/{category}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("BindingSharing")]
-        public System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO> GetItems(int? category = null)
+        public System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO> BindingSharingGetGet(int? category = null)
         {
-            return System.Threading.Tasks.Task.Run(async () => await GetItemsAsync(category, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await BindingSharingGetGetAsync(category, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
         /// <returns>Success</returns>
@@ -51,7 +51,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/BindingSharing/get/{category}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("BindingSharing")]
-        public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO>> GetItemsAsync(int? category = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO>> BindingSharingGetGetAsync(int? category = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/BindingSharing/get?");
@@ -123,9 +123,9 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/BindingSharing/getWithRouteParam/{category}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("BindingSharing")]
-        public System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO> GetItemsWithRouteParam(int category)
+        public System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO> BindingSharingGetGetWithRouteParam(int category)
         {
-            return System.Threading.Tasks.Task.Run(async () => await GetItemsWithRouteParamAsync(category, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await BindingSharingGetGetWithRouteParamAsync(category, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
         /// <returns>Success</returns>
@@ -134,7 +134,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/BindingSharing/getWithRouteParam/{category}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("BindingSharing")]
-        public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO>> GetItemsWithRouteParamAsync(int category, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO>> BindingSharingGetGetWithRouteParamAsync(int category, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (category == null)
                 throw new System.ArgumentNullException("category");
@@ -208,9 +208,9 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Post")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/BindingSharing/post/{category}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("BindingSharing")]
-        public System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO> GetItemsWithHttpPost(int? category = null)
+        public System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO> BindingSharingPostPost(int? category = null)
         {
-            return System.Threading.Tasks.Task.Run(async () => await GetItemsWithHttpPostAsync(category, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await BindingSharingPostPostAsync(category, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
         /// <returns>Success</returns>
@@ -219,7 +219,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Post")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/BindingSharing/post/{category}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("BindingSharing")]
-        public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO>> GetItemsWithHttpPostAsync(int? category = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO>> BindingSharingPostPostAsync(int? category = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/BindingSharing/post?");
@@ -292,9 +292,9 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Companies")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Companies")]
-        public System.Collections.ObjectModel.ObservableCollection<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> GetAll()
+        public System.Collections.ObjectModel.ObservableCollection<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> GetCompanies()
         {
-            return System.Threading.Tasks.Task.Run(async () => await GetAllAsync(System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await GetCompaniesAsync(System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
         /// <returns>Success</returns>
@@ -303,7 +303,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Companies")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Companies")]
-        public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> GetAllAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> GetCompaniesAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Companies");
@@ -373,9 +373,9 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Companies/sorted/{sortingOptions}/{sortingOptions_SortDescending}/{sortingOptions_SortExpression}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Companies")]
-        public DotVVM.Framework.Controls.GridViewDataSet<CompanyOfBoolean> GetWithSorting(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null)
+        public DotVVM.Framework.Controls.GridViewDataSet<CompanyOfBoolean> CompaniesGetSorted(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null)
         {
-            return System.Threading.Tasks.Task.Run(async () => await GetWithSortingAsync(sortingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await CompaniesGetSortedAsync(sortingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
         /// <returns>Success</returns>
@@ -384,7 +384,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Companies/sorted/{sortingOptions}/{sortingOptions_SortDescending}/{sortingOptions_SortExpression}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Companies")]
-        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<CompanyOfBoolean>> GetWithSortingAsync(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<CompanyOfBoolean>> CompaniesGetSortedAsync(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var sortingOptions_SortDescending = sortingOptions != null ? sortingOptions.SortDescending : default(bool?);
             var sortingOptions_SortExpression = sortingOptions != null ? sortingOptions.SortExpression : default(string);
@@ -459,9 +459,9 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Companies/paged/{pagingOptions}/{pagingOptions_PageIndex}/{pagingOptions_PageSize}/{pagingOptions_TotalItemsCount}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Companies")]
-        public DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> GetWithPaging(DotVVM.Framework.Controls.IPagingOptions pagingOptions = null)
+        public DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> CompaniesGetPaged(DotVVM.Framework.Controls.IPagingOptions pagingOptions = null)
         {
-            return System.Threading.Tasks.Task.Run(async () => await GetWithPagingAsync(pagingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await CompaniesGetPagedAsync(pagingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
         /// <returns>Success</returns>
@@ -470,7 +470,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Companies/paged/{pagingOptions}/{pagingOptions_PageIndex}/{pagingOptions_PageSize}/{pagingOptions_TotalItemsCount}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Companies")]
-        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> GetWithPagingAsync(DotVVM.Framework.Controls.IPagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> CompaniesGetPagedAsync(DotVVM.Framework.Controls.IPagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var pagingOptions_PageIndex = pagingOptions != null ? pagingOptions.PageIndex : default(int?);
             var pagingOptions_PageSize = pagingOptions != null ? pagingOptions.PageSize : default(int?);
@@ -547,9 +547,9 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Companies/sortedandpaged/{sortingOptions}/{sortingOptions_SortDescending}/{sortingOptions_SortExpression}/{pagingOptions}/{pagingOptions_PageIndex}/{pagingOptions_PageSize}/{pagingOptions_TotalItemsCount}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Companies")]
-        public DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> GetWithSortingAndPaging(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, DotVVM.Framework.Controls.IPagingOptions pagingOptions = null)
+        public DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> CompaniesGetSortedandpaged(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, DotVVM.Framework.Controls.IPagingOptions pagingOptions = null)
         {
-            return System.Threading.Tasks.Task.Run(async () => await GetWithSortingAndPagingAsync(sortingOptions, pagingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await CompaniesGetSortedandpagedAsync(sortingOptions, pagingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
         /// <returns>Success</returns>
@@ -558,7 +558,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Companies/sortedandpaged/{sortingOptions}/{sortingOptions_SortDescending}/{sortingOptions_SortExpression}/{pagingOptions}/{pagingOptions_PageIndex}/{pagingOptions_PageSize}/{pagingOptions_TotalItemsCount}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Companies")]
-        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> GetWithSortingAndPagingAsync(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, DotVVM.Framework.Controls.IPagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> CompaniesGetSortedandpagedAsync(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, DotVVM.Framework.Controls.IPagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var sortingOptions_SortDescending = sortingOptions != null ? sortingOptions.SortDescending : default(bool?);
             var sortingOptions_SortExpression = sortingOptions != null ? sortingOptions.SortExpression : default(string);
@@ -639,9 +639,9 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders/{companyId}/{pageIndex}/{pageSize}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
-        public System.Collections.ObjectModel.ObservableCollection<Order> GetAll2(int? companyId = null, int? pageIndex = null, int? pageSize = null)
+        public System.Collections.ObjectModel.ObservableCollection<Order> GetOrdersAll(int? companyId = null, int? pageIndex = null, int? pageSize = null)
         {
-            return System.Threading.Tasks.Task.Run(async () => await GetAll2Async(companyId, pageIndex, pageSize, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await GetOrdersAllAsync(companyId, pageIndex, pageSize, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
         /// <returns>Success</returns>
@@ -650,7 +650,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders/{companyId}/{pageIndex}/{pageSize}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
-        public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<Order>> GetAll2Async(int? companyId = null, int? pageIndex = null, int? pageSize = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<Order>> GetOrdersAllAsync(int? companyId = null, int? pageIndex = null, int? pageSize = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Orders?");
@@ -724,9 +724,9 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Post")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
-        public void Post(Order order = null)
+        public void PostOrders(Order body = null)
         {
-            System.Threading.Tasks.Task.Run(async () => await PostAsync(order, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            System.Threading.Tasks.Task.Run(async () => await PostOrdersAsync(body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
         /// <returns>Success</returns>
@@ -735,7 +735,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Post")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
-        public async System.Threading.Tasks.Task PostAsync(Order order = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task PostOrdersAsync(Order body = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Orders");
@@ -745,7 +745,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-                    var content_ = new System.Net.Http.StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(order, _settings.Value));
+                    var content_ = new System.Net.Http.StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value));
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
@@ -795,9 +795,9 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders/{orderId}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
-        public Order GetItem(int orderId)
+        public Order GetOrders(int orderId)
         {
-            return System.Threading.Tasks.Task.Run(async () => await GetItemAsync(orderId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await GetOrdersAsync(orderId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
         /// <returns>Success</returns>
@@ -806,7 +806,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders/{orderId}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
-        public async System.Threading.Tasks.Task<Order> GetItemAsync(int orderId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<Order> GetOrdersAsync(int orderId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (orderId == null)
                 throw new System.ArgumentNullException("orderId");
@@ -880,9 +880,9 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Put")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders/{orderId}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
-        public void Put(int orderId, Order order = null)
+        public void PutOrders(int orderId, Order body = null)
         {
-            System.Threading.Tasks.Task.Run(async () => await PutAsync(orderId, order, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            System.Threading.Tasks.Task.Run(async () => await PutOrdersAsync(orderId, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
         /// <returns>Success</returns>
@@ -891,7 +891,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Put")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders/{orderId}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
-        public async System.Threading.Tasks.Task PutAsync(int orderId, Order order = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task PutOrdersAsync(int orderId, Order body = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (orderId == null)
                 throw new System.ArgumentNullException("orderId");
@@ -905,7 +905,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-                    var content_ = new System.Net.Http.StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(order, _settings.Value));
+                    var content_ = new System.Net.Http.StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value));
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
@@ -955,9 +955,9 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Delete")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders/delete/{orderId}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
-        public void Delete(int orderId)
+        public void OrdersDeleteDelete(int orderId)
         {
-            System.Threading.Tasks.Task.Run(async () => await DeleteAsync(orderId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            System.Threading.Tasks.Task.Run(async () => await OrdersDeleteDeleteAsync(orderId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
         /// <returns>Success</returns>
@@ -966,7 +966,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Delete")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders/delete/{orderId}")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
-        public async System.Threading.Tasks.Task DeleteAsync(int orderId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task OrdersDeleteDeleteAsync(int orderId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (orderId == null)
                 throw new System.ArgumentNullException("orderId");
@@ -1029,10 +1029,10 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.24.0 (Newtonsoft.Json v10.0.0.0)")]
     public partial class BindingSharingItemDTO 
     {
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Always)]
+        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.Always)]
         public int Id { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Name { get; set; }
     
         public string ToJson() 
@@ -1049,16 +1049,16 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.24.0 (Newtonsoft.Json v10.0.0.0)")]
     public partial class CompanyOfBoolean 
     {
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Id { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Name { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("owner", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Owner", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Owner { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("department", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Department", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? Department { get; set; }
     
         public string ToJson() 
@@ -1073,50 +1073,21 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.24.0 (Newtonsoft.Json v10.0.0.0)")]
-    public partial class Order 
-    {
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Id { get; set; }
-    
-        [Newtonsoft.Json.JsonProperty("Number", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Number { get; set; }
-    
-        [Newtonsoft.Json.JsonProperty("date", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTime? Date { get; set; }
-    
-        [Newtonsoft.Json.JsonProperty("companyId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? CompanyId { get; set; }
-    
-        [Newtonsoft.Json.JsonProperty("orderItems", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<OrderItem> OrderItems { get; set; }
-    
-        public string ToJson() 
-        {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
-        }
-        
-        public static Order FromJson(string data)
-        {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Order>(data);
-        }
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.24.0 (Newtonsoft.Json v10.0.0.0)")]
     public partial class OrderItem 
     {
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Id { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("text", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Text", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Text { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("amount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Amount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double? Amount { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("discount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Discount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double? Discount { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("isOnStock", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("IsOnStock", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? IsOnStock { get; set; }
     
         public string ToJson() 
@@ -1127,6 +1098,35 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         public static OrderItem FromJson(string data)
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<OrderItem>(data);
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.24.0 (Newtonsoft.Json v10.0.0.0)")]
+    public partial class Order 
+    {
+        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Id { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("Number", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Number { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("Date", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTime? Date { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("CompanyId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? CompanyId { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("OrderItems", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.List<OrderItem> OrderItems { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static Order FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Order>(data);
         }
     }
 

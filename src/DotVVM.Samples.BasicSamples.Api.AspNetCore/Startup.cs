@@ -60,6 +60,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new OpenApiInfo() { Title = "DotVVM Test API", Version = "v1" });
                 options.CustomSchemaIds(type => CustomSchemaId(type));
+                options.SchemaFilter<CamelCaseSchemaFilter>();
 
                 options.EnableDotvvmIntegration();
             });
@@ -82,7 +83,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
                 options.PreSerializeFilters.Add((swaggerDoc, httpReq) => {
                     swaggerDoc.Servers = new List<OpenApiServer>()
                     {
-                        new OpenApiServer { Url = "localhost:5001" }
+                        new OpenApiServer { Url = "http://localhost:5001" }
                     };
                 });
                 options.SerializeAsV2 = true;

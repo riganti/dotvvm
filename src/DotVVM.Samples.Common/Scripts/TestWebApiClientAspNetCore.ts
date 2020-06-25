@@ -28,7 +28,7 @@
          * @category (optional) 
          * @return Success
          */
-        getItems(category?: number): Promise<BindingSharingItemDTO[]> {
+        bindingSharingGetGet(category?: number): Promise<BindingSharingItemDTO[]> {
             let url_ = this.baseUrl + "/api/BindingSharing/get?";
             if (category !== undefined)
                 url_ += "category=" + encodeURIComponent("" + category) + "&"; 
@@ -45,11 +45,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetItems(_response);
+                return this.processBindingSharingGetGet(_response);
             });
         }
     
-        protected processGetItems(response: Response): Promise<BindingSharingItemDTO[]> {
+        protected processBindingSharingGetGet(response: Response): Promise<BindingSharingItemDTO[]> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -74,7 +74,7 @@
         /**
          * @return Success
          */
-        getItemsWithRouteParam(category: number): Promise<BindingSharingItemDTO[]> {
+        bindingSharingGetGetWithRouteParam(category: number): Promise<BindingSharingItemDTO[]> {
             let url_ = this.baseUrl + "/api/BindingSharing/getWithRouteParam/{category}";
             if (category === undefined || category === null)
                 throw new Error("The parameter 'category' must be defined.");
@@ -92,11 +92,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetItemsWithRouteParam(_response);
+                return this.processBindingSharingGetGetWithRouteParam(_response);
             });
         }
     
-        protected processGetItemsWithRouteParam(response: Response): Promise<BindingSharingItemDTO[]> {
+        protected processBindingSharingGetGetWithRouteParam(response: Response): Promise<BindingSharingItemDTO[]> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -122,7 +122,7 @@
          * @category (optional) 
          * @return Success
          */
-        getItemsWithHttpPost(category?: number): Promise<BindingSharingItemDTO[]> {
+        bindingSharingPostPost(category?: number): Promise<BindingSharingItemDTO[]> {
             let url_ = this.baseUrl + "/api/BindingSharing/post?";
             if (category !== undefined)
                 url_ += "category=" + encodeURIComponent("" + category) + "&"; 
@@ -139,11 +139,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetItemsWithHttpPost(_response);
+                return this.processBindingSharingPostPost(_response);
             });
         }
     
-        protected processGetItemsWithHttpPost(response: Response): Promise<BindingSharingItemDTO[]> {
+        protected processBindingSharingPostPost(response: Response): Promise<BindingSharingItemDTO[]> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -168,7 +168,7 @@
         /**
          * @return Success
          */
-        getAll(): Promise<CompanyOfString[]> {
+        getCompanies(): Promise<CompanyOfString[]> {
             let url_ = this.baseUrl + "/api/Companies";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -183,11 +183,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetAll(_response);
+                return this.processGetCompanies(_response);
             });
         }
     
-        protected processGetAll(response: Response): Promise<CompanyOfString[]> {
+        protected processGetCompanies(response: Response): Promise<CompanyOfString[]> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -215,7 +215,7 @@
          * @sortingOptions_SortExpression (optional) 
          * @return Success
          */
-        getWithSorting(sortingOptions?: any): Promise<GridViewDataSetOfCompanyOfBoolean> {
+        companiesGetSorted(sortingOptions?: any): Promise<GridViewDataSetOfCompanyOfBoolean> {
             let sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
             let sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
             let url_ = this.baseUrl + "/api/Companies/sorted?";
@@ -236,11 +236,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetWithSorting(_response);
+                return this.processCompaniesGetSorted(_response);
             });
         }
     
-        protected processGetWithSorting(response: Response): Promise<GridViewDataSetOfCompanyOfBoolean> {
+        protected processCompaniesGetSorted(response: Response): Promise<GridViewDataSetOfCompanyOfBoolean> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -265,7 +265,7 @@
          * @pagingOptions_TotalItemsCount (optional) 
          * @return Success
          */
-        getWithPaging(pagingOptions?: any): Promise<GridViewDataSetOfCompanyOfString> {
+        companiesGetPaged(pagingOptions?: any): Promise<GridViewDataSetOfCompanyOfString> {
             let pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
             let pagingOptions_PageSize = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageSize : null;
             let pagingOptions_TotalItemsCount = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.TotalItemsCount : null;
@@ -289,11 +289,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetWithPaging(_response);
+                return this.processCompaniesGetPaged(_response);
             });
         }
     
-        protected processGetWithPaging(response: Response): Promise<GridViewDataSetOfCompanyOfString> {
+        protected processCompaniesGetPaged(response: Response): Promise<GridViewDataSetOfCompanyOfString> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -321,7 +321,7 @@
          * @pagingOptions_TotalItemsCount (optional) 
          * @return Success
          */
-        getWithSortingAndPaging(sortingOptions?: any, pagingOptions?: any): Promise<GridViewDataSetOfCompanyOfString> {
+        companiesGetSortedandpaged(sortingOptions?: any, pagingOptions?: any): Promise<GridViewDataSetOfCompanyOfString> {
             let sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
             let sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
             let pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
@@ -351,11 +351,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetWithSortingAndPaging(_response);
+                return this.processCompaniesGetSortedandpaged(_response);
             });
         }
     
-        protected processGetWithSortingAndPaging(response: Response): Promise<GridViewDataSetOfCompanyOfString> {
+        protected processCompaniesGetSortedandpaged(response: Response): Promise<GridViewDataSetOfCompanyOfString> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -379,7 +379,7 @@
          * @pageSize (optional) 
          * @return Success
          */
-        getAll2(companyId?: number, pageIndex?: number, pageSize?: number): Promise<Order[]> {
+        getOrdersAll(companyId?: number, pageIndex?: number, pageSize?: number): Promise<Order[]> {
             let url_ = this.baseUrl + "/api/Orders?";
             if (companyId !== undefined)
                 url_ += "companyId=" + encodeURIComponent("" + companyId) + "&"; 
@@ -400,11 +400,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetAll2(_response);
+                return this.processGetOrdersAll(_response);
             });
         }
     
-        protected processGetAll2(response: Response): Promise<Order[]> {
+        protected processGetOrdersAll(response: Response): Promise<Order[]> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -427,14 +427,14 @@
         }
     
         /**
-         * @order (optional) 
+         * @body (optional) 
          * @return Success
          */
-        post(order?: Order): Promise<void> {
+        postOrders(body?: Order): Promise<void> {
             let url_ = this.baseUrl + "/api/Orders";
             url_ = url_.replace(/[?&]$/, "");
     
-            const content_ = JSON.stringify(order);
+            const content_ = JSON.stringify(body);
     
             let options_ = <RequestInit>{
                 body: content_,
@@ -447,11 +447,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processPost(_response);
+                return this.processPostOrders(_response);
             });
         }
     
-        protected processPost(response: Response): Promise<void> {
+        protected processPostOrders(response: Response): Promise<void> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -469,7 +469,7 @@
         /**
          * @return Success
          */
-        getItem(orderId: number): Promise<Order> {
+        getOrders(orderId: number): Promise<Order> {
             let url_ = this.baseUrl + "/api/Orders/{orderId}";
             if (orderId === undefined || orderId === null)
                 throw new Error("The parameter 'orderId' must be defined.");
@@ -487,11 +487,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetItem(_response);
+                return this.processGetOrders(_response);
             });
         }
     
-        protected processGetItem(response: Response): Promise<Order> {
+        protected processGetOrders(response: Response): Promise<Order> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -510,17 +510,17 @@
         }
     
         /**
-         * @order (optional) 
+         * @body (optional) 
          * @return Success
          */
-        put(orderId: number, order?: Order): Promise<void> {
+        putOrders(orderId: number, body?: Order): Promise<void> {
             let url_ = this.baseUrl + "/api/Orders/{orderId}";
             if (orderId === undefined || orderId === null)
                 throw new Error("The parameter 'orderId' must be defined.");
             url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId)); 
             url_ = url_.replace(/[?&]$/, "");
     
-            const content_ = JSON.stringify(order);
+            const content_ = JSON.stringify(body);
     
             let options_ = <RequestInit>{
                 body: content_,
@@ -533,11 +533,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processPut(_response);
+                return this.processPutOrders(_response);
             });
         }
     
-        protected processPut(response: Response): Promise<void> {
+        protected processPutOrders(response: Response): Promise<void> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -555,7 +555,7 @@
         /**
          * @return Success
          */
-        delete(orderId: number): Promise<void> {
+        ordersDeleteDelete(orderId: number): Promise<void> {
             let url_ = this.baseUrl + "/api/Orders/delete/{orderId}";
             if (orderId === undefined || orderId === null)
                 throw new Error("The parameter 'orderId' must be defined.");
@@ -572,11 +572,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processDelete(_response);
+                return this.processOrdersDeleteDelete(_response);
             });
         }
     
-        protected processDelete(response: Response): Promise<void> {
+        protected processOrdersDeleteDelete(response: Response): Promise<void> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -593,8 +593,8 @@
     }
     
     export class BindingSharingItemDTO implements IBindingSharingItemDTO {
-        id: number;
-        name?: string;
+        Id: number;
+        Name?: string;
     
         constructor(data?: IBindingSharingItemDTO) {
             if (data) {
@@ -607,8 +607,8 @@
     
         init(data?: any) {
             if (data) {
-                this.id = data["id"] !== undefined ? data["id"] : <any>null;
-                this.name = data["name"] !== undefined ? data["name"] : <any>null;
+                this.Id = data["Id"] !== undefined ? data["Id"] : <any>null;
+                this.Name = data["Name"] !== undefined ? data["Name"] : <any>null;
             }
         }
     
@@ -621,15 +621,15 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["id"] = this.id !== undefined ? this.id : <any>null;
-            data["name"] = this.name !== undefined ? this.name : <any>null;
+            data["Id"] = this.Id !== undefined ? this.Id : <any>null;
+            data["Name"] = this.Name !== undefined ? this.Name : <any>null;
             return data; 
         }
     }
     
     export interface IBindingSharingItemDTO {
-        id: number;
-        name?: string;
+        Id: number;
+        Name?: string;
     }
     
     export class CompanyOfString implements ICompanyOfString {
@@ -649,10 +649,10 @@
     
         init(data?: any) {
             if (data) {
-                this.Id = data["id"] !== undefined ? data["id"] : <any>null;
-                this.Name = data["name"] !== undefined ? data["name"] : <any>null;
-                this.Owner = data["owner"] !== undefined ? data["owner"] : <any>null;
-                this.Department = data["department"] !== undefined ? data["department"] : <any>null;
+                this.Id = data["Id"] !== undefined ? data["Id"] : <any>null;
+                this.Name = data["Name"] !== undefined ? data["Name"] : <any>null;
+                this.Owner = data["Owner"] !== undefined ? data["Owner"] : <any>null;
+                this.Department = data["Department"] !== undefined ? data["Department"] : <any>null;
             }
         }
     
@@ -665,10 +665,10 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["id"] = this.Id !== undefined ? this.Id : <any>null;
-            data["name"] = this.Name !== undefined ? this.Name : <any>null;
-            data["owner"] = this.Owner !== undefined ? this.Owner : <any>null;
-            data["department"] = this.Department !== undefined ? this.Department : <any>null;
+            data["Id"] = this.Id !== undefined ? this.Id : <any>null;
+            data["Name"] = this.Name !== undefined ? this.Name : <any>null;
+            data["Owner"] = this.Owner !== undefined ? this.Owner : <any>null;
+            data["Department"] = this.Department !== undefined ? this.Department : <any>null;
             return data; 
         }
     }
@@ -680,71 +680,11 @@
         Department?: string;
     }
     
-    export class GridViewDataSetOfCompanyOfBoolean implements IGridViewDataSetOfCompanyOfBoolean {
-        IsRefreshRequired?: boolean;
-        Items?: CompanyOfBoolean[];
-        PagingOptions?: IPagingOptions;
-        RowEditOptions?: IRowEditOptions;
-        SortingOptions?: ISortingOptions;
-    
-        constructor(data?: IGridViewDataSetOfCompanyOfBoolean) {
-            if (data) {
-                for (var property in data) {
-                    if (data.hasOwnProperty(property))
-                        (<any>this)[property] = (<any>data)[property];
-                }
-            }
-        }
-    
-        init(data?: any) {
-            if (data) {
-                this.IsRefreshRequired = data["isRefreshRequired"] !== undefined ? data["isRefreshRequired"] : <any>null;
-                if (data["items"] && data["items"].constructor === Array) {
-                    this.Items = [];
-                    for (let item of data["items"])
-                        this.Items.push(CompanyOfBoolean.fromJS(item));
-                }
-                this.PagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : <any>null;
-                this.RowEditOptions = data["rowEditOptions"] ? IRowEditOptions.fromJS(data["rowEditOptions"]) : <any>null;
-                this.SortingOptions = data["sortingOptions"] ? ISortingOptions.fromJS(data["sortingOptions"]) : <any>null;
-            }
-        }
-    
-        static fromJS(data: any): GridViewDataSetOfCompanyOfBoolean {
-            data = typeof data === 'object' ? data : {};
-            let result = new GridViewDataSetOfCompanyOfBoolean();
-            result.init(data);
-            return result;
-        }
-    
-        toJSON(data?: any) {
-            data = typeof data === 'object' ? data : {};
-            data["isRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : <any>null;
-            if (this.Items && this.Items.constructor === Array) {
-                data["items"] = [];
-                for (let item of this.Items)
-                    data["items"].push(item.toJSON());
-            }
-            data["pagingOptions"] = this.PagingOptions ? this.PagingOptions.toJSON() : <any>null;
-            data["rowEditOptions"] = this.RowEditOptions ? this.RowEditOptions.toJSON() : <any>null;
-            data["sortingOptions"] = this.SortingOptions ? this.SortingOptions.toJSON() : <any>null;
-            return data; 
-        }
-    }
-    
-    export interface IGridViewDataSetOfCompanyOfBoolean {
-        IsRefreshRequired?: boolean;
-        Items?: CompanyOfBoolean[];
-        PagingOptions?: IPagingOptions;
-        RowEditOptions?: IRowEditOptions;
-        SortingOptions?: ISortingOptions;
-    }
-    
     export class CompanyOfBoolean implements ICompanyOfBoolean {
-        id?: number;
-        name?: string;
-        owner?: string;
-        department?: boolean;
+        Id?: number;
+        Name?: string;
+        Owner?: string;
+        Department?: boolean;
     
         constructor(data?: ICompanyOfBoolean) {
             if (data) {
@@ -757,10 +697,10 @@
     
         init(data?: any) {
             if (data) {
-                this.id = data["id"] !== undefined ? data["id"] : <any>null;
-                this.name = data["name"] !== undefined ? data["name"] : <any>null;
-                this.owner = data["owner"] !== undefined ? data["owner"] : <any>null;
-                this.department = data["department"] !== undefined ? data["department"] : <any>null;
+                this.Id = data["Id"] !== undefined ? data["Id"] : <any>null;
+                this.Name = data["Name"] !== undefined ? data["Name"] : <any>null;
+                this.Owner = data["Owner"] !== undefined ? data["Owner"] : <any>null;
+                this.Department = data["Department"] !== undefined ? data["Department"] : <any>null;
             }
         }
     
@@ -773,19 +713,19 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["id"] = this.id !== undefined ? this.id : <any>null;
-            data["name"] = this.name !== undefined ? this.name : <any>null;
-            data["owner"] = this.owner !== undefined ? this.owner : <any>null;
-            data["department"] = this.department !== undefined ? this.department : <any>null;
+            data["Id"] = this.Id !== undefined ? this.Id : <any>null;
+            data["Name"] = this.Name !== undefined ? this.Name : <any>null;
+            data["Owner"] = this.Owner !== undefined ? this.Owner : <any>null;
+            data["Department"] = this.Department !== undefined ? this.Department : <any>null;
             return data; 
         }
     }
     
     export interface ICompanyOfBoolean {
-        id?: number;
-        name?: string;
-        owner?: string;
-        department?: boolean;
+        Id?: number;
+        Name?: string;
+        Owner?: string;
+        Department?: boolean;
     }
     
     export class IPagingOptions implements IIPagingOptions {
@@ -808,15 +748,15 @@
     
         init(data?: any) {
             if (data) {
-                this.PageIndex = data["pageIndex"] !== undefined ? data["pageIndex"] : <any>null;
-                this.PageSize = data["pageSize"] !== undefined ? data["pageSize"] : <any>null;
-                this.TotalItemsCount = data["totalItemsCount"] !== undefined ? data["totalItemsCount"] : <any>null;
-                this.IsFirstPage = data["isFirstPage"] !== undefined ? data["isFirstPage"] : <any>null;
-                this.IsLastPage = data["isLastPage"] !== undefined ? data["isLastPage"] : <any>null;
-                this.PagesCount = data["pagesCount"] !== undefined ? data["pagesCount"] : <any>null;
-                if (data["nearPageIndexes"] && data["nearPageIndexes"].constructor === Array) {
+                this.PageIndex = data["PageIndex"] !== undefined ? data["PageIndex"] : <any>null;
+                this.PageSize = data["PageSize"] !== undefined ? data["PageSize"] : <any>null;
+                this.TotalItemsCount = data["TotalItemsCount"] !== undefined ? data["TotalItemsCount"] : <any>null;
+                this.IsFirstPage = data["IsFirstPage"] !== undefined ? data["IsFirstPage"] : <any>null;
+                this.IsLastPage = data["IsLastPage"] !== undefined ? data["IsLastPage"] : <any>null;
+                this.PagesCount = data["PagesCount"] !== undefined ? data["PagesCount"] : <any>null;
+                if (data["NearPageIndexes"] && data["NearPageIndexes"].constructor === Array) {
                     this.NearPageIndexes = [];
-                    for (let item of data["nearPageIndexes"])
+                    for (let item of data["NearPageIndexes"])
                         this.NearPageIndexes.push(item);
                 }
             }
@@ -831,16 +771,16 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["pageIndex"] = this.PageIndex !== undefined ? this.PageIndex : <any>null;
-            data["pageSize"] = this.PageSize !== undefined ? this.PageSize : <any>null;
-            data["totalItemsCount"] = this.TotalItemsCount !== undefined ? this.TotalItemsCount : <any>null;
-            data["isFirstPage"] = this.IsFirstPage !== undefined ? this.IsFirstPage : <any>null;
-            data["isLastPage"] = this.IsLastPage !== undefined ? this.IsLastPage : <any>null;
-            data["pagesCount"] = this.PagesCount !== undefined ? this.PagesCount : <any>null;
+            data["PageIndex"] = this.PageIndex !== undefined ? this.PageIndex : <any>null;
+            data["PageSize"] = this.PageSize !== undefined ? this.PageSize : <any>null;
+            data["TotalItemsCount"] = this.TotalItemsCount !== undefined ? this.TotalItemsCount : <any>null;
+            data["IsFirstPage"] = this.IsFirstPage !== undefined ? this.IsFirstPage : <any>null;
+            data["IsLastPage"] = this.IsLastPage !== undefined ? this.IsLastPage : <any>null;
+            data["PagesCount"] = this.PagesCount !== undefined ? this.PagesCount : <any>null;
             if (this.NearPageIndexes && this.NearPageIndexes.constructor === Array) {
-                data["nearPageIndexes"] = [];
+                data["NearPageIndexes"] = [];
                 for (let item of this.NearPageIndexes)
-                    data["nearPageIndexes"].push(item);
+                    data["NearPageIndexes"].push(item);
             }
             return data; 
         }
@@ -871,12 +811,12 @@
     
         init(data?: any) {
             if (data) {
-                this.PrimaryKeyPropertyName = data["primaryKeyPropertyName"] !== undefined ? data["primaryKeyPropertyName"] : <any>null;
-                if (data["editRowId"]) {
+                this.PrimaryKeyPropertyName = data["PrimaryKeyPropertyName"] !== undefined ? data["PrimaryKeyPropertyName"] : <any>null;
+                if (data["EditRowId"]) {
                     this.EditRowId = {};
-                    for (let key in data["editRowId"]) {
-                        if (data["editRowId"].hasOwnProperty(key))
-                            this.EditRowId[key] = data["editRowId"][key];
+                    for (let key in data["EditRowId"]) {
+                        if (data["EditRowId"].hasOwnProperty(key))
+                            this.EditRowId[key] = data["EditRowId"][key];
                     }
                 }
             }
@@ -891,12 +831,12 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["primaryKeyPropertyName"] = this.PrimaryKeyPropertyName !== undefined ? this.PrimaryKeyPropertyName : <any>null;
+            data["PrimaryKeyPropertyName"] = this.PrimaryKeyPropertyName !== undefined ? this.PrimaryKeyPropertyName : <any>null;
             if (this.EditRowId) {
-                data["editRowId"] = {};
+                data["EditRowId"] = {};
                 for (let key in this.EditRowId) {
                     if (this.EditRowId.hasOwnProperty(key))
-                        data["editRowId"][key] = this.EditRowId[key] !== undefined ? this.EditRowId[key] : <any>null;
+                        data["EditRowId"][key] = this.EditRowId[key] !== undefined ? this.EditRowId[key] : <any>null;
                 }
             }
             return data; 
@@ -923,8 +863,8 @@
     
         init(data?: any) {
             if (data) {
-                this.SortDescending = data["sortDescending"] !== undefined ? data["sortDescending"] : <any>null;
-                this.SortExpression = data["sortExpression"] !== undefined ? data["sortExpression"] : <any>null;
+                this.SortDescending = data["SortDescending"] !== undefined ? data["SortDescending"] : <any>null;
+                this.SortExpression = data["SortExpression"] !== undefined ? data["SortExpression"] : <any>null;
             }
         }
     
@@ -937,8 +877,8 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["sortDescending"] = this.SortDescending !== undefined ? this.SortDescending : <any>null;
-            data["sortExpression"] = this.SortExpression !== undefined ? this.SortExpression : <any>null;
+            data["SortDescending"] = this.SortDescending !== undefined ? this.SortDescending : <any>null;
+            data["SortExpression"] = this.SortExpression !== undefined ? this.SortExpression : <any>null;
             return data; 
         }
     }
@@ -946,6 +886,66 @@
     export interface IISortingOptions {
         SortDescending?: boolean;
         SortExpression?: string;
+    }
+    
+    export class GridViewDataSetOfCompanyOfBoolean implements IGridViewDataSetOfCompanyOfBoolean {
+        IsRefreshRequired?: boolean;
+        Items?: CompanyOfBoolean[];
+        PagingOptions?: IPagingOptions;
+        RowEditOptions?: IRowEditOptions;
+        SortingOptions?: ISortingOptions;
+    
+        constructor(data?: IGridViewDataSetOfCompanyOfBoolean) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        (<any>this)[property] = (<any>data)[property];
+                }
+            }
+        }
+    
+        init(data?: any) {
+            if (data) {
+                this.IsRefreshRequired = data["IsRefreshRequired"] !== undefined ? data["IsRefreshRequired"] : <any>null;
+                if (data["Items"] && data["Items"].constructor === Array) {
+                    this.Items = [];
+                    for (let item of data["Items"])
+                        this.Items.push(CompanyOfBoolean.fromJS(item));
+                }
+                this.PagingOptions = data["PagingOptions"] ? IPagingOptions.fromJS(data["PagingOptions"]) : <any>null;
+                this.RowEditOptions = data["RowEditOptions"] ? IRowEditOptions.fromJS(data["RowEditOptions"]) : <any>null;
+                this.SortingOptions = data["SortingOptions"] ? ISortingOptions.fromJS(data["SortingOptions"]) : <any>null;
+            }
+        }
+    
+        static fromJS(data: any): GridViewDataSetOfCompanyOfBoolean {
+            data = typeof data === 'object' ? data : {};
+            let result = new GridViewDataSetOfCompanyOfBoolean();
+            result.init(data);
+            return result;
+        }
+    
+        toJSON(data?: any) {
+            data = typeof data === 'object' ? data : {};
+            data["IsRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : <any>null;
+            if (this.Items && this.Items.constructor === Array) {
+                data["Items"] = [];
+                for (let item of this.Items)
+                    data["Items"].push(item.toJSON());
+            }
+            data["PagingOptions"] = this.PagingOptions ? this.PagingOptions.toJSON() : <any>null;
+            data["RowEditOptions"] = this.RowEditOptions ? this.RowEditOptions.toJSON() : <any>null;
+            data["SortingOptions"] = this.SortingOptions ? this.SortingOptions.toJSON() : <any>null;
+            return data; 
+        }
+    }
+    
+    export interface IGridViewDataSetOfCompanyOfBoolean {
+        IsRefreshRequired?: boolean;
+        Items?: CompanyOfBoolean[];
+        PagingOptions?: IPagingOptions;
+        RowEditOptions?: IRowEditOptions;
+        SortingOptions?: ISortingOptions;
     }
     
     export class GridViewDataSetOfCompanyOfString implements IGridViewDataSetOfCompanyOfString {
@@ -966,15 +966,15 @@
     
         init(data?: any) {
             if (data) {
-                this.IsRefreshRequired = data["isRefreshRequired"] !== undefined ? data["isRefreshRequired"] : <any>null;
-                if (data["items"] && data["items"].constructor === Array) {
+                this.IsRefreshRequired = data["IsRefreshRequired"] !== undefined ? data["IsRefreshRequired"] : <any>null;
+                if (data["Items"] && data["Items"].constructor === Array) {
                     this.Items = [];
-                    for (let item of data["items"])
+                    for (let item of data["Items"])
                         this.Items.push(CompanyOfString.fromJS(item));
                 }
-                this.PagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : <any>null;
-                this.RowEditOptions = data["rowEditOptions"] ? IRowEditOptions.fromJS(data["rowEditOptions"]) : <any>null;
-                this.SortingOptions = data["sortingOptions"] ? ISortingOptions.fromJS(data["sortingOptions"]) : <any>null;
+                this.PagingOptions = data["PagingOptions"] ? IPagingOptions.fromJS(data["PagingOptions"]) : <any>null;
+                this.RowEditOptions = data["RowEditOptions"] ? IRowEditOptions.fromJS(data["RowEditOptions"]) : <any>null;
+                this.SortingOptions = data["SortingOptions"] ? ISortingOptions.fromJS(data["SortingOptions"]) : <any>null;
             }
         }
     
@@ -987,15 +987,15 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["isRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : <any>null;
+            data["IsRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : <any>null;
             if (this.Items && this.Items.constructor === Array) {
-                data["items"] = [];
+                data["Items"] = [];
                 for (let item of this.Items)
-                    data["items"].push(item.toJSON());
+                    data["Items"].push(item.toJSON());
             }
-            data["pagingOptions"] = this.PagingOptions ? this.PagingOptions.toJSON() : <any>null;
-            data["rowEditOptions"] = this.RowEditOptions ? this.RowEditOptions.toJSON() : <any>null;
-            data["sortingOptions"] = this.SortingOptions ? this.SortingOptions.toJSON() : <any>null;
+            data["PagingOptions"] = this.PagingOptions ? this.PagingOptions.toJSON() : <any>null;
+            data["RowEditOptions"] = this.RowEditOptions ? this.RowEditOptions.toJSON() : <any>null;
+            data["SortingOptions"] = this.SortingOptions ? this.SortingOptions.toJSON() : <any>null;
             return data; 
         }
     }
@@ -1008,12 +1008,64 @@
         SortingOptions?: ISortingOptions;
     }
     
+    export class OrderItem implements IOrderItem {
+        Id?: number;
+        Text?: string;
+        Amount?: number;
+        Discount?: number;
+        IsOnStock?: boolean;
+    
+        constructor(data?: IOrderItem) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        (<any>this)[property] = (<any>data)[property];
+                }
+            }
+        }
+    
+        init(data?: any) {
+            if (data) {
+                this.Id = data["Id"] !== undefined ? data["Id"] : <any>null;
+                this.Text = data["Text"] !== undefined ? data["Text"] : <any>null;
+                this.Amount = data["Amount"] !== undefined ? data["Amount"] : <any>null;
+                this.Discount = data["Discount"] !== undefined ? data["Discount"] : <any>null;
+                this.IsOnStock = data["IsOnStock"] !== undefined ? data["IsOnStock"] : <any>null;
+            }
+        }
+    
+        static fromJS(data: any): OrderItem {
+            data = typeof data === 'object' ? data : {};
+            let result = new OrderItem();
+            result.init(data);
+            return result;
+        }
+    
+        toJSON(data?: any) {
+            data = typeof data === 'object' ? data : {};
+            data["Id"] = this.Id !== undefined ? this.Id : <any>null;
+            data["Text"] = this.Text !== undefined ? this.Text : <any>null;
+            data["Amount"] = this.Amount !== undefined ? this.Amount : <any>null;
+            data["Discount"] = this.Discount !== undefined ? this.Discount : <any>null;
+            data["IsOnStock"] = this.IsOnStock !== undefined ? this.IsOnStock : <any>null;
+            return data; 
+        }
+    }
+    
+    export interface IOrderItem {
+        Id?: number;
+        Text?: string;
+        Amount?: number;
+        Discount?: number;
+        IsOnStock?: boolean;
+    }
+    
     export class Order implements IOrder {
-        id?: number;
+        Id?: number;
         Number?: string;
-        date?: Date;
-        companyId?: number;
-        orderItems?: OrderItem[];
+        Date?: Date;
+        CompanyId?: number;
+        OrderItems?: OrderItem[];
     
         constructor(data?: IOrder) {
             if (data) {
@@ -1026,14 +1078,14 @@
     
         init(data?: any) {
             if (data) {
-                this.id = data["id"] !== undefined ? data["id"] : <any>null;
+                this.Id = data["Id"] !== undefined ? data["Id"] : <any>null;
                 this.Number = data["Number"] !== undefined ? data["Number"] : <any>null;
-                this.date = data["date"] ? new Date(data["date"].toString()) : <any>null;
-                this.companyId = data["companyId"] !== undefined ? data["companyId"] : <any>null;
-                if (data["orderItems"] && data["orderItems"].constructor === Array) {
-                    this.orderItems = [];
-                    for (let item of data["orderItems"])
-                        this.orderItems.push(OrderItem.fromJS(item));
+                this.Date = data["Date"] ? new Date(data["Date"].toString()) : <any>null;
+                this.CompanyId = data["CompanyId"] !== undefined ? data["CompanyId"] : <any>null;
+                if (data["OrderItems"] && data["OrderItems"].constructor === Array) {
+                    this.OrderItems = [];
+                    for (let item of data["OrderItems"])
+                        this.OrderItems.push(OrderItem.fromJS(item));
                 }
             }
         }
@@ -1047,77 +1099,25 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["id"] = this.id !== undefined ? this.id : <any>null;
+            data["Id"] = this.Id !== undefined ? this.Id : <any>null;
             data["Number"] = this.Number !== undefined ? this.Number : <any>null;
-            data["date"] = this.date ? this.date.toISOString() : <any>null;
-            data["companyId"] = this.companyId !== undefined ? this.companyId : <any>null;
-            if (this.orderItems && this.orderItems.constructor === Array) {
-                data["orderItems"] = [];
-                for (let item of this.orderItems)
-                    data["orderItems"].push(item.toJSON());
+            data["Date"] = this.Date ? this.Date.toISOString() : <any>null;
+            data["CompanyId"] = this.CompanyId !== undefined ? this.CompanyId : <any>null;
+            if (this.OrderItems && this.OrderItems.constructor === Array) {
+                data["OrderItems"] = [];
+                for (let item of this.OrderItems)
+                    data["OrderItems"].push(item.toJSON());
             }
             return data; 
         }
     }
     
     export interface IOrder {
-        id?: number;
+        Id?: number;
         Number?: string;
-        date?: Date;
-        companyId?: number;
-        orderItems?: OrderItem[];
-    }
-    
-    export class OrderItem implements IOrderItem {
-        id?: number;
-        text?: string;
-        amount?: number;
-        discount?: number;
-        isOnStock?: boolean;
-    
-        constructor(data?: IOrderItem) {
-            if (data) {
-                for (var property in data) {
-                    if (data.hasOwnProperty(property))
-                        (<any>this)[property] = (<any>data)[property];
-                }
-            }
-        }
-    
-        init(data?: any) {
-            if (data) {
-                this.id = data["id"] !== undefined ? data["id"] : <any>null;
-                this.text = data["text"] !== undefined ? data["text"] : <any>null;
-                this.amount = data["amount"] !== undefined ? data["amount"] : <any>null;
-                this.discount = data["discount"] !== undefined ? data["discount"] : <any>null;
-                this.isOnStock = data["isOnStock"] !== undefined ? data["isOnStock"] : <any>null;
-            }
-        }
-    
-        static fromJS(data: any): OrderItem {
-            data = typeof data === 'object' ? data : {};
-            let result = new OrderItem();
-            result.init(data);
-            return result;
-        }
-    
-        toJSON(data?: any) {
-            data = typeof data === 'object' ? data : {};
-            data["id"] = this.id !== undefined ? this.id : <any>null;
-            data["text"] = this.text !== undefined ? this.text : <any>null;
-            data["amount"] = this.amount !== undefined ? this.amount : <any>null;
-            data["discount"] = this.discount !== undefined ? this.discount : <any>null;
-            data["isOnStock"] = this.isOnStock !== undefined ? this.isOnStock : <any>null;
-            return data; 
-        }
-    }
-    
-    export interface IOrderItem {
-        id?: number;
-        text?: string;
-        amount?: number;
-        discount?: number;
-        isOnStock?: boolean;
+        Date?: Date;
+        CompanyId?: number;
+        OrderItems?: OrderItem[];
     }
     
     export class SwaggerException extends Error {
