@@ -13,28 +13,28 @@
     <h3>Client rendered</h3>
     <dot:Repeater DataSource="{value: Pages}" RenderSettings.Mode="Client">
         <ItemTemplate>
-            <dot:RouteLink RouteName="ControlSamples_Repeater_RouteLinkQuery" Query-Static="query" Query-Id="{value: Id}" Param-Id="{value: Id}" Text="{value: Name}" />
+            <dot:RouteLink RouteName="ControlSamples_Repeater_RouteLinkQuery-PageDetail" Query-Static="query" Query-Id="{value: Id}" Param-Id="{value: Id}" Text="{value: Name}" />
         </ItemTemplate>
     </dot:Repeater>
 
     <h3>Server rendered</h3>
     <dot:Repeater DataSource="{value: Pages}" RenderSettings.Mode="Server">
         <ItemTemplate>
-            <dot:RouteLink RouteName="ControlSamples_Repeater_RouteLinkQuery" Query-Static="query" Query-Id="{value: Id}" Param-Id="{value: Id}" Text="{value: Name}" />
+            <dot:RouteLink RouteName="ControlSamples_Repeater_RouteLinkQuery-PageDetail" Query-Static="query" Query-Id="{value: Id}" Param-Id="{value: Id}" Text="{value: Name}" />
         </ItemTemplate>
     </dot:Repeater>
 
     <h3>Client rendered with UrlSuffix</h3>
     <dot:Repeater DataSource="{value: Pages}" RenderSettings.Mode="Client">
         <ItemTemplate>
-            <dot:RouteLink RouteName="ControlSamples_Repeater_RouteLinkQuery" Query-Static="query" Query-Id="{value: Id}" Param-Id="{value: Id}" Text="{value: Name}" UrlSuffix="?first=param#test" />
+            <dot:RouteLink RouteName="ControlSamples_Repeater_RouteLinkQuery-PageDetail" Query-Static="query" Query-Id="{value: Id}" Param-Id="{value: Id}" Text="{value: Name}" UrlSuffix="?first=param#test" />
         </ItemTemplate>
     </dot:Repeater>
 
     <h3>Server rendered with UrlSuffix</h3>
     <dot:Repeater DataSource="{value: Pages}" RenderSettings.Mode="Server">
         <ItemTemplate>
-            <dot:RouteLink RouteName="ControlSamples_Repeater_RouteLinkQuery" Query-Static="query" Query-Id="{value: Id}" Param-Id="{value: Id}" Text="{value: Name}" UrlSuffix="?first=param#test" />
+            <dot:RouteLink RouteName="ControlSamples_Repeater_RouteLinkQuery-PageDetail" Query-Static="query" Query-Id="{value: Id}" Param-Id="{value: Id}" Text="{value: Name}" UrlSuffix="?first=param#test" />
         </ItemTemplate>
     </dot:Repeater>
 

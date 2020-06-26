@@ -78,6 +78,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_GridView_GridViewInlineEditingPrimaryKeyString = "ControlSamples/GridView/GridViewInlineEditingPrimaryKeyString";
         public const string ControlSamples_GridView_GridViewInlineEditingValidation = "ControlSamples/GridView/GridViewInlineEditingValidation";
         public const string ControlSamples_GridView_GridViewPagingSorting = "ControlSamples/GridView/GridViewPagingSorting";
+        public const string ControlSamples_GridView_GridViewRowDecoratorEventsPropagation = "ControlSamples/GridView/GridViewRowDecoratorEventsPropagation";
         public const string ControlSamples_GridView_GridViewRowDecorators = "ControlSamples/GridView/GridViewRowDecorators";
         public const string ControlSamples_GridView_GridViewServerRender = "ControlSamples/GridView/GridViewServerRender";
         public const string ControlSamples_GridView_GridViewStaticCommand = "ControlSamples/GridView/GridViewStaticCommand";
@@ -150,6 +151,7 @@ namespace DotVVM.Testing.Abstractions
         public const string Errors_EncryptedPropertyInValueBinding = "Errors/EncryptedPropertyInValueBinding";
         public const string Errors_FieldInValueBinding = "Errors/FieldInValueBinding";
         public const string Errors_InvalidLocationFallback = "Errors/InvalidLocationFallback";
+        public const string Errors_InvalidRouteName = "Errors/InvalidRouteName";
         public const string Errors_InvalidServiceDirective = "Errors/InvalidServiceDirective";
         public const string Errors_InvalidViewModel = "Errors/InvalidViewModel";
         public const string Errors_MalformedBinding = "Errors/MalformedBinding";
@@ -162,6 +164,7 @@ namespace DotVVM.Testing.Abstractions
         public const string Errors_NonExistingProperty = "Errors/NonExistingProperty";
         public const string Errors_NotAllowedHardCodedPropertyValue = "Errors/NotAllowedHardCodedPropertyValue";
         public const string Errors_ResourceCircularDependency = "Errors/ResourceCircularDependency";
+        public const string Errors_UndefinedRouteLinkParameters = "Errors/UndefinedRouteLinkParameters";
         public const string Errors_UnknownInnerControl = "Errors/UnknownInnerControl";
         public const string Errors_WrongPropertyValue = "Errors/WrongPropertyValue";
         public const string FeatureSamples_ActionFilterErrorHandling_ActionFilterErrorHandling = "FeatureSamples/ActionFilterErrorHandling/ActionFilterErrorHandling";
