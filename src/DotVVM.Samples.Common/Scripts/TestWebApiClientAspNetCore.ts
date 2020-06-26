@@ -593,8 +593,8 @@
     }
     
     export class BindingSharingItemDTO implements IBindingSharingItemDTO {
-        Id: number;
-        Name?: string;
+        id: number;
+        name?: string;
     
         constructor(data?: IBindingSharingItemDTO) {
             if (data) {
@@ -607,8 +607,8 @@
     
         init(data?: any) {
             if (data) {
-                this.Id = data["Id"] !== undefined ? data["Id"] : <any>null;
-                this.Name = data["Name"] !== undefined ? data["Name"] : <any>null;
+                this.id = data["id"] !== undefined ? data["id"] : <any>null;
+                this.name = data["name"] !== undefined ? data["name"] : <any>null;
             }
         }
     
@@ -621,15 +621,15 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["Id"] = this.Id !== undefined ? this.Id : <any>null;
-            data["Name"] = this.Name !== undefined ? this.Name : <any>null;
+            data["id"] = this.id !== undefined ? this.id : <any>null;
+            data["name"] = this.name !== undefined ? this.name : <any>null;
             return data; 
         }
     }
     
     export interface IBindingSharingItemDTO {
-        Id: number;
-        Name?: string;
+        id: number;
+        name?: string;
     }
     
     export class CompanyOfString implements ICompanyOfString {
@@ -649,10 +649,10 @@
     
         init(data?: any) {
             if (data) {
-                this.Id = data["Id"] !== undefined ? data["Id"] : <any>null;
-                this.Name = data["Name"] !== undefined ? data["Name"] : <any>null;
-                this.Owner = data["Owner"] !== undefined ? data["Owner"] : <any>null;
-                this.Department = data["Department"] !== undefined ? data["Department"] : <any>null;
+                this.Id = data["id"] !== undefined ? data["id"] : <any>null;
+                this.Name = data["name"] !== undefined ? data["name"] : <any>null;
+                this.Owner = data["owner"] !== undefined ? data["owner"] : <any>null;
+                this.Department = data["department"] !== undefined ? data["department"] : <any>null;
             }
         }
     
@@ -665,10 +665,10 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["Id"] = this.Id !== undefined ? this.Id : <any>null;
-            data["Name"] = this.Name !== undefined ? this.Name : <any>null;
-            data["Owner"] = this.Owner !== undefined ? this.Owner : <any>null;
-            data["Department"] = this.Department !== undefined ? this.Department : <any>null;
+            data["id"] = this.Id !== undefined ? this.Id : <any>null;
+            data["name"] = this.Name !== undefined ? this.Name : <any>null;
+            data["owner"] = this.Owner !== undefined ? this.Owner : <any>null;
+            data["department"] = this.Department !== undefined ? this.Department : <any>null;
             return data; 
         }
     }
@@ -681,10 +681,10 @@
     }
     
     export class CompanyOfBoolean implements ICompanyOfBoolean {
-        Id?: number;
-        Name?: string;
-        Owner?: string;
-        Department?: boolean;
+        id?: number;
+        name?: string;
+        owner?: string;
+        department?: boolean;
     
         constructor(data?: ICompanyOfBoolean) {
             if (data) {
@@ -697,10 +697,10 @@
     
         init(data?: any) {
             if (data) {
-                this.Id = data["Id"] !== undefined ? data["Id"] : <any>null;
-                this.Name = data["Name"] !== undefined ? data["Name"] : <any>null;
-                this.Owner = data["Owner"] !== undefined ? data["Owner"] : <any>null;
-                this.Department = data["Department"] !== undefined ? data["Department"] : <any>null;
+                this.id = data["id"] !== undefined ? data["id"] : <any>null;
+                this.name = data["name"] !== undefined ? data["name"] : <any>null;
+                this.owner = data["owner"] !== undefined ? data["owner"] : <any>null;
+                this.department = data["department"] !== undefined ? data["department"] : <any>null;
             }
         }
     
@@ -713,19 +713,19 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["Id"] = this.Id !== undefined ? this.Id : <any>null;
-            data["Name"] = this.Name !== undefined ? this.Name : <any>null;
-            data["Owner"] = this.Owner !== undefined ? this.Owner : <any>null;
-            data["Department"] = this.Department !== undefined ? this.Department : <any>null;
+            data["id"] = this.id !== undefined ? this.id : <any>null;
+            data["name"] = this.name !== undefined ? this.name : <any>null;
+            data["owner"] = this.owner !== undefined ? this.owner : <any>null;
+            data["department"] = this.department !== undefined ? this.department : <any>null;
             return data; 
         }
     }
     
     export interface ICompanyOfBoolean {
-        Id?: number;
-        Name?: string;
-        Owner?: string;
-        Department?: boolean;
+        id?: number;
+        name?: string;
+        owner?: string;
+        department?: boolean;
     }
     
     export class IPagingOptions implements IIPagingOptions {
@@ -748,15 +748,15 @@
     
         init(data?: any) {
             if (data) {
-                this.PageIndex = data["PageIndex"] !== undefined ? data["PageIndex"] : <any>null;
-                this.PageSize = data["PageSize"] !== undefined ? data["PageSize"] : <any>null;
-                this.TotalItemsCount = data["TotalItemsCount"] !== undefined ? data["TotalItemsCount"] : <any>null;
-                this.IsFirstPage = data["IsFirstPage"] !== undefined ? data["IsFirstPage"] : <any>null;
-                this.IsLastPage = data["IsLastPage"] !== undefined ? data["IsLastPage"] : <any>null;
-                this.PagesCount = data["PagesCount"] !== undefined ? data["PagesCount"] : <any>null;
-                if (data["NearPageIndexes"] && data["NearPageIndexes"].constructor === Array) {
+                this.PageIndex = data["pageIndex"] !== undefined ? data["pageIndex"] : <any>null;
+                this.PageSize = data["pageSize"] !== undefined ? data["pageSize"] : <any>null;
+                this.TotalItemsCount = data["totalItemsCount"] !== undefined ? data["totalItemsCount"] : <any>null;
+                this.IsFirstPage = data["isFirstPage"] !== undefined ? data["isFirstPage"] : <any>null;
+                this.IsLastPage = data["isLastPage"] !== undefined ? data["isLastPage"] : <any>null;
+                this.PagesCount = data["pagesCount"] !== undefined ? data["pagesCount"] : <any>null;
+                if (data["nearPageIndexes"] && data["nearPageIndexes"].constructor === Array) {
                     this.NearPageIndexes = [];
-                    for (let item of data["NearPageIndexes"])
+                    for (let item of data["nearPageIndexes"])
                         this.NearPageIndexes.push(item);
                 }
             }
@@ -771,16 +771,16 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["PageIndex"] = this.PageIndex !== undefined ? this.PageIndex : <any>null;
-            data["PageSize"] = this.PageSize !== undefined ? this.PageSize : <any>null;
-            data["TotalItemsCount"] = this.TotalItemsCount !== undefined ? this.TotalItemsCount : <any>null;
-            data["IsFirstPage"] = this.IsFirstPage !== undefined ? this.IsFirstPage : <any>null;
-            data["IsLastPage"] = this.IsLastPage !== undefined ? this.IsLastPage : <any>null;
-            data["PagesCount"] = this.PagesCount !== undefined ? this.PagesCount : <any>null;
+            data["pageIndex"] = this.PageIndex !== undefined ? this.PageIndex : <any>null;
+            data["pageSize"] = this.PageSize !== undefined ? this.PageSize : <any>null;
+            data["totalItemsCount"] = this.TotalItemsCount !== undefined ? this.TotalItemsCount : <any>null;
+            data["isFirstPage"] = this.IsFirstPage !== undefined ? this.IsFirstPage : <any>null;
+            data["isLastPage"] = this.IsLastPage !== undefined ? this.IsLastPage : <any>null;
+            data["pagesCount"] = this.PagesCount !== undefined ? this.PagesCount : <any>null;
             if (this.NearPageIndexes && this.NearPageIndexes.constructor === Array) {
-                data["NearPageIndexes"] = [];
+                data["nearPageIndexes"] = [];
                 for (let item of this.NearPageIndexes)
-                    data["NearPageIndexes"].push(item);
+                    data["nearPageIndexes"].push(item);
             }
             return data; 
         }
@@ -811,12 +811,12 @@
     
         init(data?: any) {
             if (data) {
-                this.PrimaryKeyPropertyName = data["PrimaryKeyPropertyName"] !== undefined ? data["PrimaryKeyPropertyName"] : <any>null;
-                if (data["EditRowId"]) {
+                this.PrimaryKeyPropertyName = data["primaryKeyPropertyName"] !== undefined ? data["primaryKeyPropertyName"] : <any>null;
+                if (data["editRowId"]) {
                     this.EditRowId = {};
-                    for (let key in data["EditRowId"]) {
-                        if (data["EditRowId"].hasOwnProperty(key))
-                            this.EditRowId[key] = data["EditRowId"][key];
+                    for (let key in data["editRowId"]) {
+                        if (data["editRowId"].hasOwnProperty(key))
+                            this.EditRowId[key] = data["editRowId"][key];
                     }
                 }
             }
@@ -831,12 +831,12 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["PrimaryKeyPropertyName"] = this.PrimaryKeyPropertyName !== undefined ? this.PrimaryKeyPropertyName : <any>null;
+            data["primaryKeyPropertyName"] = this.PrimaryKeyPropertyName !== undefined ? this.PrimaryKeyPropertyName : <any>null;
             if (this.EditRowId) {
-                data["EditRowId"] = {};
+                data["editRowId"] = {};
                 for (let key in this.EditRowId) {
                     if (this.EditRowId.hasOwnProperty(key))
-                        data["EditRowId"][key] = this.EditRowId[key] !== undefined ? this.EditRowId[key] : <any>null;
+                        data["editRowId"][key] = this.EditRowId[key] !== undefined ? this.EditRowId[key] : <any>null;
                 }
             }
             return data; 
@@ -863,8 +863,8 @@
     
         init(data?: any) {
             if (data) {
-                this.SortDescending = data["SortDescending"] !== undefined ? data["SortDescending"] : <any>null;
-                this.SortExpression = data["SortExpression"] !== undefined ? data["SortExpression"] : <any>null;
+                this.SortDescending = data["sortDescending"] !== undefined ? data["sortDescending"] : <any>null;
+                this.SortExpression = data["sortExpression"] !== undefined ? data["sortExpression"] : <any>null;
             }
         }
     
@@ -877,8 +877,8 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["SortDescending"] = this.SortDescending !== undefined ? this.SortDescending : <any>null;
-            data["SortExpression"] = this.SortExpression !== undefined ? this.SortExpression : <any>null;
+            data["sortDescending"] = this.SortDescending !== undefined ? this.SortDescending : <any>null;
+            data["sortExpression"] = this.SortExpression !== undefined ? this.SortExpression : <any>null;
             return data; 
         }
     }
@@ -891,9 +891,9 @@
     export class GridViewDataSetOfCompanyOfBoolean implements IGridViewDataSetOfCompanyOfBoolean {
         IsRefreshRequired?: boolean;
         Items?: CompanyOfBoolean[];
-        PagingOptions?: IPagingOptions;
-        RowEditOptions?: IRowEditOptions;
-        SortingOptions?: ISortingOptions;
+        pagingOptions?: IPagingOptions;
+        rowEditOptions?: IRowEditOptions;
+        sortingOptions?: ISortingOptions;
     
         constructor(data?: IGridViewDataSetOfCompanyOfBoolean) {
             if (data) {
@@ -906,15 +906,15 @@
     
         init(data?: any) {
             if (data) {
-                this.IsRefreshRequired = data["IsRefreshRequired"] !== undefined ? data["IsRefreshRequired"] : <any>null;
-                if (data["Items"] && data["Items"].constructor === Array) {
+                this.IsRefreshRequired = data["isRefreshRequired"] !== undefined ? data["isRefreshRequired"] : <any>null;
+                if (data["items"] && data["items"].constructor === Array) {
                     this.Items = [];
-                    for (let item of data["Items"])
+                    for (let item of data["items"])
                         this.Items.push(CompanyOfBoolean.fromJS(item));
                 }
-                this.PagingOptions = data["PagingOptions"] ? IPagingOptions.fromJS(data["PagingOptions"]) : <any>null;
-                this.RowEditOptions = data["RowEditOptions"] ? IRowEditOptions.fromJS(data["RowEditOptions"]) : <any>null;
-                this.SortingOptions = data["SortingOptions"] ? ISortingOptions.fromJS(data["SortingOptions"]) : <any>null;
+                this.pagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : <any>null;
+                this.rowEditOptions = data["rowEditOptions"] ? IRowEditOptions.fromJS(data["rowEditOptions"]) : <any>null;
+                this.sortingOptions = data["sortingOptions"] ? ISortingOptions.fromJS(data["sortingOptions"]) : <any>null;
             }
         }
     
@@ -927,15 +927,15 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["IsRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : <any>null;
+            data["isRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : <any>null;
             if (this.Items && this.Items.constructor === Array) {
-                data["Items"] = [];
+                data["items"] = [];
                 for (let item of this.Items)
-                    data["Items"].push(item.toJSON());
+                    data["items"].push(item.toJSON());
             }
-            data["PagingOptions"] = this.PagingOptions ? this.PagingOptions.toJSON() : <any>null;
-            data["RowEditOptions"] = this.RowEditOptions ? this.RowEditOptions.toJSON() : <any>null;
-            data["SortingOptions"] = this.SortingOptions ? this.SortingOptions.toJSON() : <any>null;
+            data["pagingOptions"] = this.pagingOptions ? this.pagingOptions.toJSON() : <any>null;
+            data["rowEditOptions"] = this.rowEditOptions ? this.rowEditOptions.toJSON() : <any>null;
+            data["sortingOptions"] = this.sortingOptions ? this.sortingOptions.toJSON() : <any>null;
             return data; 
         }
     }
@@ -943,17 +943,17 @@
     export interface IGridViewDataSetOfCompanyOfBoolean {
         IsRefreshRequired?: boolean;
         Items?: CompanyOfBoolean[];
-        PagingOptions?: IPagingOptions;
-        RowEditOptions?: IRowEditOptions;
-        SortingOptions?: ISortingOptions;
+        pagingOptions?: IPagingOptions;
+        rowEditOptions?: IRowEditOptions;
+        sortingOptions?: ISortingOptions;
     }
     
     export class GridViewDataSetOfCompanyOfString implements IGridViewDataSetOfCompanyOfString {
         IsRefreshRequired?: boolean;
         Items?: CompanyOfString[];
-        PagingOptions?: IPagingOptions;
-        RowEditOptions?: IRowEditOptions;
-        SortingOptions?: ISortingOptions;
+        pagingOptions?: IPagingOptions;
+        rowEditOptions?: IRowEditOptions;
+        sortingOptions?: ISortingOptions;
     
         constructor(data?: IGridViewDataSetOfCompanyOfString) {
             if (data) {
@@ -966,15 +966,15 @@
     
         init(data?: any) {
             if (data) {
-                this.IsRefreshRequired = data["IsRefreshRequired"] !== undefined ? data["IsRefreshRequired"] : <any>null;
-                if (data["Items"] && data["Items"].constructor === Array) {
+                this.IsRefreshRequired = data["isRefreshRequired"] !== undefined ? data["isRefreshRequired"] : <any>null;
+                if (data["items"] && data["items"].constructor === Array) {
                     this.Items = [];
-                    for (let item of data["Items"])
+                    for (let item of data["items"])
                         this.Items.push(CompanyOfString.fromJS(item));
                 }
-                this.PagingOptions = data["PagingOptions"] ? IPagingOptions.fromJS(data["PagingOptions"]) : <any>null;
-                this.RowEditOptions = data["RowEditOptions"] ? IRowEditOptions.fromJS(data["RowEditOptions"]) : <any>null;
-                this.SortingOptions = data["SortingOptions"] ? ISortingOptions.fromJS(data["SortingOptions"]) : <any>null;
+                this.pagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : <any>null;
+                this.rowEditOptions = data["rowEditOptions"] ? IRowEditOptions.fromJS(data["rowEditOptions"]) : <any>null;
+                this.sortingOptions = data["sortingOptions"] ? ISortingOptions.fromJS(data["sortingOptions"]) : <any>null;
             }
         }
     
@@ -987,15 +987,15 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["IsRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : <any>null;
+            data["isRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : <any>null;
             if (this.Items && this.Items.constructor === Array) {
-                data["Items"] = [];
+                data["items"] = [];
                 for (let item of this.Items)
-                    data["Items"].push(item.toJSON());
+                    data["items"].push(item.toJSON());
             }
-            data["PagingOptions"] = this.PagingOptions ? this.PagingOptions.toJSON() : <any>null;
-            data["RowEditOptions"] = this.RowEditOptions ? this.RowEditOptions.toJSON() : <any>null;
-            data["SortingOptions"] = this.SortingOptions ? this.SortingOptions.toJSON() : <any>null;
+            data["pagingOptions"] = this.pagingOptions ? this.pagingOptions.toJSON() : <any>null;
+            data["rowEditOptions"] = this.rowEditOptions ? this.rowEditOptions.toJSON() : <any>null;
+            data["sortingOptions"] = this.sortingOptions ? this.sortingOptions.toJSON() : <any>null;
             return data; 
         }
     }
@@ -1003,17 +1003,17 @@
     export interface IGridViewDataSetOfCompanyOfString {
         IsRefreshRequired?: boolean;
         Items?: CompanyOfString[];
-        PagingOptions?: IPagingOptions;
-        RowEditOptions?: IRowEditOptions;
-        SortingOptions?: ISortingOptions;
+        pagingOptions?: IPagingOptions;
+        rowEditOptions?: IRowEditOptions;
+        sortingOptions?: ISortingOptions;
     }
     
     export class OrderItem implements IOrderItem {
-        Id?: number;
-        Text?: string;
-        Amount?: number;
-        Discount?: number;
-        IsOnStock?: boolean;
+        id?: number;
+        text?: string;
+        amount?: number;
+        discount?: number;
+        isOnStock?: boolean;
     
         constructor(data?: IOrderItem) {
             if (data) {
@@ -1026,11 +1026,11 @@
     
         init(data?: any) {
             if (data) {
-                this.Id = data["Id"] !== undefined ? data["Id"] : <any>null;
-                this.Text = data["Text"] !== undefined ? data["Text"] : <any>null;
-                this.Amount = data["Amount"] !== undefined ? data["Amount"] : <any>null;
-                this.Discount = data["Discount"] !== undefined ? data["Discount"] : <any>null;
-                this.IsOnStock = data["IsOnStock"] !== undefined ? data["IsOnStock"] : <any>null;
+                this.id = data["id"] !== undefined ? data["id"] : <any>null;
+                this.text = data["text"] !== undefined ? data["text"] : <any>null;
+                this.amount = data["amount"] !== undefined ? data["amount"] : <any>null;
+                this.discount = data["discount"] !== undefined ? data["discount"] : <any>null;
+                this.isOnStock = data["isOnStock"] !== undefined ? data["isOnStock"] : <any>null;
             }
         }
     
@@ -1043,29 +1043,29 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["Id"] = this.Id !== undefined ? this.Id : <any>null;
-            data["Text"] = this.Text !== undefined ? this.Text : <any>null;
-            data["Amount"] = this.Amount !== undefined ? this.Amount : <any>null;
-            data["Discount"] = this.Discount !== undefined ? this.Discount : <any>null;
-            data["IsOnStock"] = this.IsOnStock !== undefined ? this.IsOnStock : <any>null;
+            data["id"] = this.id !== undefined ? this.id : <any>null;
+            data["text"] = this.text !== undefined ? this.text : <any>null;
+            data["amount"] = this.amount !== undefined ? this.amount : <any>null;
+            data["discount"] = this.discount !== undefined ? this.discount : <any>null;
+            data["isOnStock"] = this.isOnStock !== undefined ? this.isOnStock : <any>null;
             return data; 
         }
     }
     
     export interface IOrderItem {
-        Id?: number;
-        Text?: string;
-        Amount?: number;
-        Discount?: number;
-        IsOnStock?: boolean;
+        id?: number;
+        text?: string;
+        amount?: number;
+        discount?: number;
+        isOnStock?: boolean;
     }
     
     export class Order implements IOrder {
-        Id?: number;
+        id?: number;
         Number?: string;
-        Date?: Date;
-        CompanyId?: number;
-        OrderItems?: OrderItem[];
+        date?: Date;
+        companyId?: number;
+        orderItems?: OrderItem[];
     
         constructor(data?: IOrder) {
             if (data) {
@@ -1078,14 +1078,14 @@
     
         init(data?: any) {
             if (data) {
-                this.Id = data["Id"] !== undefined ? data["Id"] : <any>null;
+                this.id = data["id"] !== undefined ? data["id"] : <any>null;
                 this.Number = data["Number"] !== undefined ? data["Number"] : <any>null;
-                this.Date = data["Date"] ? new Date(data["Date"].toString()) : <any>null;
-                this.CompanyId = data["CompanyId"] !== undefined ? data["CompanyId"] : <any>null;
-                if (data["OrderItems"] && data["OrderItems"].constructor === Array) {
-                    this.OrderItems = [];
-                    for (let item of data["OrderItems"])
-                        this.OrderItems.push(OrderItem.fromJS(item));
+                this.date = data["date"] ? new Date(data["date"].toString()) : <any>null;
+                this.companyId = data["companyId"] !== undefined ? data["companyId"] : <any>null;
+                if (data["orderItems"] && data["orderItems"].constructor === Array) {
+                    this.orderItems = [];
+                    for (let item of data["orderItems"])
+                        this.orderItems.push(OrderItem.fromJS(item));
                 }
             }
         }
@@ -1099,25 +1099,25 @@
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["Id"] = this.Id !== undefined ? this.Id : <any>null;
+            data["id"] = this.id !== undefined ? this.id : <any>null;
             data["Number"] = this.Number !== undefined ? this.Number : <any>null;
-            data["Date"] = this.Date ? this.Date.toISOString() : <any>null;
-            data["CompanyId"] = this.CompanyId !== undefined ? this.CompanyId : <any>null;
-            if (this.OrderItems && this.OrderItems.constructor === Array) {
-                data["OrderItems"] = [];
-                for (let item of this.OrderItems)
-                    data["OrderItems"].push(item.toJSON());
+            data["date"] = this.date ? this.date.toISOString() : <any>null;
+            data["companyId"] = this.companyId !== undefined ? this.companyId : <any>null;
+            if (this.orderItems && this.orderItems.constructor === Array) {
+                data["orderItems"] = [];
+                for (let item of this.orderItems)
+                    data["orderItems"].push(item.toJSON());
             }
             return data; 
         }
     }
     
     export interface IOrder {
-        Id?: number;
+        id?: number;
         Number?: string;
-        Date?: Date;
-        CompanyId?: number;
-        OrderItems?: OrderItem[];
+        date?: Date;
+        companyId?: number;
+        orderItems?: OrderItem[];
     }
     
     export class SwaggerException extends Error {

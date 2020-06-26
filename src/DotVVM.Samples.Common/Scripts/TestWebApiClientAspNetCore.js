@@ -668,8 +668,8 @@ var DotVVM;
                         }
                         BindingSharingItemDTO.prototype.init = function (data) {
                             if (data) {
-                                this.Id = data["Id"] !== undefined ? data["Id"] : null;
-                                this.Name = data["Name"] !== undefined ? data["Name"] : null;
+                                this.id = data["id"] !== undefined ? data["id"] : null;
+                                this.name = data["name"] !== undefined ? data["name"] : null;
                             }
                         };
                         BindingSharingItemDTO.fromJS = function (data) {
@@ -680,8 +680,8 @@ var DotVVM;
                         };
                         BindingSharingItemDTO.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["Id"] = this.Id !== undefined ? this.Id : null;
-                            data["Name"] = this.Name !== undefined ? this.Name : null;
+                            data["id"] = this.id !== undefined ? this.id : null;
+                            data["name"] = this.name !== undefined ? this.name : null;
                             return data;
                         };
                         return BindingSharingItemDTO;
@@ -698,10 +698,10 @@ var DotVVM;
                         }
                         CompanyOfString.prototype.init = function (data) {
                             if (data) {
-                                this.Id = data["Id"] !== undefined ? data["Id"] : null;
-                                this.Name = data["Name"] !== undefined ? data["Name"] : null;
-                                this.Owner = data["Owner"] !== undefined ? data["Owner"] : null;
-                                this.Department = data["Department"] !== undefined ? data["Department"] : null;
+                                this.Id = data["id"] !== undefined ? data["id"] : null;
+                                this.Name = data["name"] !== undefined ? data["name"] : null;
+                                this.Owner = data["owner"] !== undefined ? data["owner"] : null;
+                                this.Department = data["department"] !== undefined ? data["department"] : null;
                             }
                         };
                         CompanyOfString.fromJS = function (data) {
@@ -712,10 +712,10 @@ var DotVVM;
                         };
                         CompanyOfString.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["Id"] = this.Id !== undefined ? this.Id : null;
-                            data["Name"] = this.Name !== undefined ? this.Name : null;
-                            data["Owner"] = this.Owner !== undefined ? this.Owner : null;
-                            data["Department"] = this.Department !== undefined ? this.Department : null;
+                            data["id"] = this.Id !== undefined ? this.Id : null;
+                            data["name"] = this.Name !== undefined ? this.Name : null;
+                            data["owner"] = this.Owner !== undefined ? this.Owner : null;
+                            data["department"] = this.Department !== undefined ? this.Department : null;
                             return data;
                         };
                         return CompanyOfString;
@@ -732,10 +732,10 @@ var DotVVM;
                         }
                         CompanyOfBoolean.prototype.init = function (data) {
                             if (data) {
-                                this.Id = data["Id"] !== undefined ? data["Id"] : null;
-                                this.Name = data["Name"] !== undefined ? data["Name"] : null;
-                                this.Owner = data["Owner"] !== undefined ? data["Owner"] : null;
-                                this.Department = data["Department"] !== undefined ? data["Department"] : null;
+                                this.id = data["id"] !== undefined ? data["id"] : null;
+                                this.name = data["name"] !== undefined ? data["name"] : null;
+                                this.owner = data["owner"] !== undefined ? data["owner"] : null;
+                                this.department = data["department"] !== undefined ? data["department"] : null;
                             }
                         };
                         CompanyOfBoolean.fromJS = function (data) {
@@ -746,10 +746,10 @@ var DotVVM;
                         };
                         CompanyOfBoolean.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["Id"] = this.Id !== undefined ? this.Id : null;
-                            data["Name"] = this.Name !== undefined ? this.Name : null;
-                            data["Owner"] = this.Owner !== undefined ? this.Owner : null;
-                            data["Department"] = this.Department !== undefined ? this.Department : null;
+                            data["id"] = this.id !== undefined ? this.id : null;
+                            data["name"] = this.name !== undefined ? this.name : null;
+                            data["owner"] = this.owner !== undefined ? this.owner : null;
+                            data["department"] = this.department !== undefined ? this.department : null;
                             return data;
                         };
                         return CompanyOfBoolean;
@@ -766,15 +766,15 @@ var DotVVM;
                         }
                         IPagingOptions.prototype.init = function (data) {
                             if (data) {
-                                this.PageIndex = data["PageIndex"] !== undefined ? data["PageIndex"] : null;
-                                this.PageSize = data["PageSize"] !== undefined ? data["PageSize"] : null;
-                                this.TotalItemsCount = data["TotalItemsCount"] !== undefined ? data["TotalItemsCount"] : null;
-                                this.IsFirstPage = data["IsFirstPage"] !== undefined ? data["IsFirstPage"] : null;
-                                this.IsLastPage = data["IsLastPage"] !== undefined ? data["IsLastPage"] : null;
-                                this.PagesCount = data["PagesCount"] !== undefined ? data["PagesCount"] : null;
-                                if (data["NearPageIndexes"] && data["NearPageIndexes"].constructor === Array) {
+                                this.PageIndex = data["pageIndex"] !== undefined ? data["pageIndex"] : null;
+                                this.PageSize = data["pageSize"] !== undefined ? data["pageSize"] : null;
+                                this.TotalItemsCount = data["totalItemsCount"] !== undefined ? data["totalItemsCount"] : null;
+                                this.IsFirstPage = data["isFirstPage"] !== undefined ? data["isFirstPage"] : null;
+                                this.IsLastPage = data["isLastPage"] !== undefined ? data["isLastPage"] : null;
+                                this.PagesCount = data["pagesCount"] !== undefined ? data["pagesCount"] : null;
+                                if (data["nearPageIndexes"] && data["nearPageIndexes"].constructor === Array) {
                                     this.NearPageIndexes = [];
-                                    for (var _i = 0, _a = data["NearPageIndexes"]; _i < _a.length; _i++) {
+                                    for (var _i = 0, _a = data["nearPageIndexes"]; _i < _a.length; _i++) {
                                         var item = _a[_i];
                                         this.NearPageIndexes.push(item);
                                     }
@@ -789,17 +789,17 @@ var DotVVM;
                         };
                         IPagingOptions.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["PageIndex"] = this.PageIndex !== undefined ? this.PageIndex : null;
-                            data["PageSize"] = this.PageSize !== undefined ? this.PageSize : null;
-                            data["TotalItemsCount"] = this.TotalItemsCount !== undefined ? this.TotalItemsCount : null;
-                            data["IsFirstPage"] = this.IsFirstPage !== undefined ? this.IsFirstPage : null;
-                            data["IsLastPage"] = this.IsLastPage !== undefined ? this.IsLastPage : null;
-                            data["PagesCount"] = this.PagesCount !== undefined ? this.PagesCount : null;
+                            data["pageIndex"] = this.PageIndex !== undefined ? this.PageIndex : null;
+                            data["pageSize"] = this.PageSize !== undefined ? this.PageSize : null;
+                            data["totalItemsCount"] = this.TotalItemsCount !== undefined ? this.TotalItemsCount : null;
+                            data["isFirstPage"] = this.IsFirstPage !== undefined ? this.IsFirstPage : null;
+                            data["isLastPage"] = this.IsLastPage !== undefined ? this.IsLastPage : null;
+                            data["pagesCount"] = this.PagesCount !== undefined ? this.PagesCount : null;
                             if (this.NearPageIndexes && this.NearPageIndexes.constructor === Array) {
-                                data["NearPageIndexes"] = [];
+                                data["nearPageIndexes"] = [];
                                 for (var _i = 0, _a = this.NearPageIndexes; _i < _a.length; _i++) {
                                     var item = _a[_i];
-                                    data["NearPageIndexes"].push(item);
+                                    data["nearPageIndexes"].push(item);
                                 }
                             }
                             return data;
@@ -818,12 +818,12 @@ var DotVVM;
                         }
                         IRowEditOptions.prototype.init = function (data) {
                             if (data) {
-                                this.PrimaryKeyPropertyName = data["PrimaryKeyPropertyName"] !== undefined ? data["PrimaryKeyPropertyName"] : null;
-                                if (data["EditRowId"]) {
+                                this.PrimaryKeyPropertyName = data["primaryKeyPropertyName"] !== undefined ? data["primaryKeyPropertyName"] : null;
+                                if (data["editRowId"]) {
                                     this.EditRowId = {};
-                                    for (var key in data["EditRowId"]) {
-                                        if (data["EditRowId"].hasOwnProperty(key))
-                                            this.EditRowId[key] = data["EditRowId"][key];
+                                    for (var key in data["editRowId"]) {
+                                        if (data["editRowId"].hasOwnProperty(key))
+                                            this.EditRowId[key] = data["editRowId"][key];
                                     }
                                 }
                             }
@@ -836,12 +836,12 @@ var DotVVM;
                         };
                         IRowEditOptions.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["PrimaryKeyPropertyName"] = this.PrimaryKeyPropertyName !== undefined ? this.PrimaryKeyPropertyName : null;
+                            data["primaryKeyPropertyName"] = this.PrimaryKeyPropertyName !== undefined ? this.PrimaryKeyPropertyName : null;
                             if (this.EditRowId) {
-                                data["EditRowId"] = {};
+                                data["editRowId"] = {};
                                 for (var key in this.EditRowId) {
                                     if (this.EditRowId.hasOwnProperty(key))
-                                        data["EditRowId"][key] = this.EditRowId[key] !== undefined ? this.EditRowId[key] : null;
+                                        data["editRowId"][key] = this.EditRowId[key] !== undefined ? this.EditRowId[key] : null;
                                 }
                             }
                             return data;
@@ -860,8 +860,8 @@ var DotVVM;
                         }
                         ISortingOptions.prototype.init = function (data) {
                             if (data) {
-                                this.SortDescending = data["SortDescending"] !== undefined ? data["SortDescending"] : null;
-                                this.SortExpression = data["SortExpression"] !== undefined ? data["SortExpression"] : null;
+                                this.SortDescending = data["sortDescending"] !== undefined ? data["sortDescending"] : null;
+                                this.SortExpression = data["sortExpression"] !== undefined ? data["sortExpression"] : null;
                             }
                         };
                         ISortingOptions.fromJS = function (data) {
@@ -872,8 +872,8 @@ var DotVVM;
                         };
                         ISortingOptions.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["SortDescending"] = this.SortDescending !== undefined ? this.SortDescending : null;
-                            data["SortExpression"] = this.SortExpression !== undefined ? this.SortExpression : null;
+                            data["sortDescending"] = this.SortDescending !== undefined ? this.SortDescending : null;
+                            data["sortExpression"] = this.SortExpression !== undefined ? this.SortExpression : null;
                             return data;
                         };
                         return ISortingOptions;
@@ -890,17 +890,17 @@ var DotVVM;
                         }
                         GridViewDataSetOfCompanyOfBoolean.prototype.init = function (data) {
                             if (data) {
-                                this.IsRefreshRequired = data["IsRefreshRequired"] !== undefined ? data["IsRefreshRequired"] : null;
-                                if (data["Items"] && data["Items"].constructor === Array) {
+                                this.IsRefreshRequired = data["isRefreshRequired"] !== undefined ? data["isRefreshRequired"] : null;
+                                if (data["items"] && data["items"].constructor === Array) {
                                     this.Items = [];
-                                    for (var _i = 0, _a = data["Items"]; _i < _a.length; _i++) {
+                                    for (var _i = 0, _a = data["items"]; _i < _a.length; _i++) {
                                         var item = _a[_i];
                                         this.Items.push(CompanyOfBoolean.fromJS(item));
                                     }
                                 }
-                                this.PagingOptions = data["PagingOptions"] ? IPagingOptions.fromJS(data["PagingOptions"]) : null;
-                                this.RowEditOptions = data["RowEditOptions"] ? IRowEditOptions.fromJS(data["RowEditOptions"]) : null;
-                                this.SortingOptions = data["SortingOptions"] ? ISortingOptions.fromJS(data["SortingOptions"]) : null;
+                                this.pagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : null;
+                                this.rowEditOptions = data["rowEditOptions"] ? IRowEditOptions.fromJS(data["rowEditOptions"]) : null;
+                                this.sortingOptions = data["sortingOptions"] ? ISortingOptions.fromJS(data["sortingOptions"]) : null;
                             }
                         };
                         GridViewDataSetOfCompanyOfBoolean.fromJS = function (data) {
@@ -911,17 +911,17 @@ var DotVVM;
                         };
                         GridViewDataSetOfCompanyOfBoolean.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["IsRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : null;
+                            data["isRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : null;
                             if (this.Items && this.Items.constructor === Array) {
-                                data["Items"] = [];
+                                data["items"] = [];
                                 for (var _i = 0, _a = this.Items; _i < _a.length; _i++) {
                                     var item = _a[_i];
-                                    data["Items"].push(item.toJSON());
+                                    data["items"].push(item.toJSON());
                                 }
                             }
-                            data["PagingOptions"] = this.PagingOptions ? this.PagingOptions.toJSON() : null;
-                            data["RowEditOptions"] = this.RowEditOptions ? this.RowEditOptions.toJSON() : null;
-                            data["SortingOptions"] = this.SortingOptions ? this.SortingOptions.toJSON() : null;
+                            data["pagingOptions"] = this.pagingOptions ? this.pagingOptions.toJSON() : null;
+                            data["rowEditOptions"] = this.rowEditOptions ? this.rowEditOptions.toJSON() : null;
+                            data["sortingOptions"] = this.sortingOptions ? this.sortingOptions.toJSON() : null;
                             return data;
                         };
                         return GridViewDataSetOfCompanyOfBoolean;
@@ -938,17 +938,17 @@ var DotVVM;
                         }
                         GridViewDataSetOfCompanyOfString.prototype.init = function (data) {
                             if (data) {
-                                this.IsRefreshRequired = data["IsRefreshRequired"] !== undefined ? data["IsRefreshRequired"] : null;
-                                if (data["Items"] && data["Items"].constructor === Array) {
+                                this.IsRefreshRequired = data["isRefreshRequired"] !== undefined ? data["isRefreshRequired"] : null;
+                                if (data["items"] && data["items"].constructor === Array) {
                                     this.Items = [];
-                                    for (var _i = 0, _a = data["Items"]; _i < _a.length; _i++) {
+                                    for (var _i = 0, _a = data["items"]; _i < _a.length; _i++) {
                                         var item = _a[_i];
                                         this.Items.push(CompanyOfString.fromJS(item));
                                     }
                                 }
-                                this.PagingOptions = data["PagingOptions"] ? IPagingOptions.fromJS(data["PagingOptions"]) : null;
-                                this.RowEditOptions = data["RowEditOptions"] ? IRowEditOptions.fromJS(data["RowEditOptions"]) : null;
-                                this.SortingOptions = data["SortingOptions"] ? ISortingOptions.fromJS(data["SortingOptions"]) : null;
+                                this.pagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : null;
+                                this.rowEditOptions = data["rowEditOptions"] ? IRowEditOptions.fromJS(data["rowEditOptions"]) : null;
+                                this.sortingOptions = data["sortingOptions"] ? ISortingOptions.fromJS(data["sortingOptions"]) : null;
                             }
                         };
                         GridViewDataSetOfCompanyOfString.fromJS = function (data) {
@@ -959,17 +959,17 @@ var DotVVM;
                         };
                         GridViewDataSetOfCompanyOfString.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["IsRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : null;
+                            data["isRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : null;
                             if (this.Items && this.Items.constructor === Array) {
-                                data["Items"] = [];
+                                data["items"] = [];
                                 for (var _i = 0, _a = this.Items; _i < _a.length; _i++) {
                                     var item = _a[_i];
-                                    data["Items"].push(item.toJSON());
+                                    data["items"].push(item.toJSON());
                                 }
                             }
-                            data["PagingOptions"] = this.PagingOptions ? this.PagingOptions.toJSON() : null;
-                            data["RowEditOptions"] = this.RowEditOptions ? this.RowEditOptions.toJSON() : null;
-                            data["SortingOptions"] = this.SortingOptions ? this.SortingOptions.toJSON() : null;
+                            data["pagingOptions"] = this.pagingOptions ? this.pagingOptions.toJSON() : null;
+                            data["rowEditOptions"] = this.rowEditOptions ? this.rowEditOptions.toJSON() : null;
+                            data["sortingOptions"] = this.sortingOptions ? this.sortingOptions.toJSON() : null;
                             return data;
                         };
                         return GridViewDataSetOfCompanyOfString;
@@ -986,11 +986,11 @@ var DotVVM;
                         }
                         OrderItem.prototype.init = function (data) {
                             if (data) {
-                                this.Id = data["Id"] !== undefined ? data["Id"] : null;
-                                this.Text = data["Text"] !== undefined ? data["Text"] : null;
-                                this.Amount = data["Amount"] !== undefined ? data["Amount"] : null;
-                                this.Discount = data["Discount"] !== undefined ? data["Discount"] : null;
-                                this.IsOnStock = data["IsOnStock"] !== undefined ? data["IsOnStock"] : null;
+                                this.id = data["id"] !== undefined ? data["id"] : null;
+                                this.text = data["text"] !== undefined ? data["text"] : null;
+                                this.amount = data["amount"] !== undefined ? data["amount"] : null;
+                                this.discount = data["discount"] !== undefined ? data["discount"] : null;
+                                this.isOnStock = data["isOnStock"] !== undefined ? data["isOnStock"] : null;
                             }
                         };
                         OrderItem.fromJS = function (data) {
@@ -1001,11 +1001,11 @@ var DotVVM;
                         };
                         OrderItem.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["Id"] = this.Id !== undefined ? this.Id : null;
-                            data["Text"] = this.Text !== undefined ? this.Text : null;
-                            data["Amount"] = this.Amount !== undefined ? this.Amount : null;
-                            data["Discount"] = this.Discount !== undefined ? this.Discount : null;
-                            data["IsOnStock"] = this.IsOnStock !== undefined ? this.IsOnStock : null;
+                            data["id"] = this.id !== undefined ? this.id : null;
+                            data["text"] = this.text !== undefined ? this.text : null;
+                            data["amount"] = this.amount !== undefined ? this.amount : null;
+                            data["discount"] = this.discount !== undefined ? this.discount : null;
+                            data["isOnStock"] = this.isOnStock !== undefined ? this.isOnStock : null;
                             return data;
                         };
                         return OrderItem;
@@ -1022,15 +1022,15 @@ var DotVVM;
                         }
                         Order.prototype.init = function (data) {
                             if (data) {
-                                this.Id = data["Id"] !== undefined ? data["Id"] : null;
+                                this.id = data["id"] !== undefined ? data["id"] : null;
                                 this.Number = data["Number"] !== undefined ? data["Number"] : null;
-                                this.Date = data["Date"] ? new Date(data["Date"].toString()) : null;
-                                this.CompanyId = data["CompanyId"] !== undefined ? data["CompanyId"] : null;
-                                if (data["OrderItems"] && data["OrderItems"].constructor === Array) {
-                                    this.OrderItems = [];
-                                    for (var _i = 0, _a = data["OrderItems"]; _i < _a.length; _i++) {
+                                this.date = data["date"] ? new Date(data["date"].toString()) : null;
+                                this.companyId = data["companyId"] !== undefined ? data["companyId"] : null;
+                                if (data["orderItems"] && data["orderItems"].constructor === Array) {
+                                    this.orderItems = [];
+                                    for (var _i = 0, _a = data["orderItems"]; _i < _a.length; _i++) {
                                         var item = _a[_i];
-                                        this.OrderItems.push(OrderItem.fromJS(item));
+                                        this.orderItems.push(OrderItem.fromJS(item));
                                     }
                                 }
                             }
@@ -1043,15 +1043,15 @@ var DotVVM;
                         };
                         Order.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["Id"] = this.Id !== undefined ? this.Id : null;
+                            data["id"] = this.id !== undefined ? this.id : null;
                             data["Number"] = this.Number !== undefined ? this.Number : null;
-                            data["Date"] = this.Date ? this.Date.toISOString() : null;
-                            data["CompanyId"] = this.CompanyId !== undefined ? this.CompanyId : null;
-                            if (this.OrderItems && this.OrderItems.constructor === Array) {
-                                data["OrderItems"] = [];
-                                for (var _i = 0, _a = this.OrderItems; _i < _a.length; _i++) {
+                            data["date"] = this.date ? this.date.toISOString() : null;
+                            data["companyId"] = this.companyId !== undefined ? this.companyId : null;
+                            if (this.orderItems && this.orderItems.constructor === Array) {
+                                data["orderItems"] = [];
+                                for (var _i = 0, _a = this.orderItems; _i < _a.length; _i++) {
                                     var item = _a[_i];
-                                    data["OrderItems"].push(item.toJSON());
+                                    data["orderItems"].push(item.toJSON());
                                 }
                             }
                             return data;
