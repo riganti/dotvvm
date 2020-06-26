@@ -21,7 +21,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -60,30 +60,24 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new OpenApiInfo() { Title = "DotVVM Test API", Version = "v1" });
                 options.CustomSchemaIds(type => CustomSchemaId(type));
-                //options.SchemaFilter<CamelCaseSchemaFilter>();
-
                 options.EnableDotvvmIntegration();
             });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            //loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            //loggerFactory.AddDebug();
-
             app.UseCors(p => {
                 p.AllowAnyOrigin();
                 p.AllowAnyMethod();
                 p.AllowAnyHeader();
             });
 
-            app.UseDeveloperExceptionPage();
             app.UseSwagger(options => {
                 options.PreSerializeFilters.Add((swaggerDoc, httpReq) => {
                     swaggerDoc.Servers = new List<OpenApiServer>()
                     {
-                        new OpenApiServer { Url = "http://localhost:5001" }
+                        new OpenApiServer { Url = "http://localhost:5003" }
                     };
                 });
                 options.SerializeAsV2 = true;

@@ -60,8 +60,6 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new OpenApiInfo() { Title = "DotVVM Test API", Version = "v1" });
                 options.CustomSchemaIds(type => CustomSchemaId(type));
-                //options.SchemaFilter<CamelCaseSchemaFilter>();
-
                 options.EnableDotvvmIntegration();
             });
             services.AddSwaggerGenNewtonsoftSupport();
@@ -79,7 +77,6 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
                 p.AllowAnyHeader();
             });
 
-            app.UseDeveloperExceptionPage();
             app.UseSwagger(options => {
                 options.PreSerializeFilters.Add((swaggerDoc, httpReq) => {
                     swaggerDoc.Servers = new List<OpenApiServer>()

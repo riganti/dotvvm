@@ -69,12 +69,12 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var apiDescriptionGroupCollectionProvider = serviceProvider.GetRequiredService<IApiDescriptionGroupCollectionProvider>();
 
-            string CustomSchemaId(Type modelType)
+            string GetCustomSchemaId(Type modelType)
             {
                 if (!modelType.IsConstructedGenericType) return modelType.Name.Replace("[]", "Array");
 
                 var generics = modelType.GetGenericArguments()
-                    .Select(genericArg => CustomSchemaId(genericArg))
+                    .Select(genericArg => GetCustomSchemaId(genericArg))
                     .Aggregate((previous, current) => previous + current);
 
                 return $"{modelType.Name.Split('`').First()}[{generics}]";
@@ -85,7 +85,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
                 {
                     new AddTypeToModelSchemaFilter()
                 },
-                SchemaIdSelector = type => CustomSchemaId(type)
+                SchemaIdSelector = type => GetCustomSchemaId(type)
             };
 
             var schemaGenerator = new SchemaGenerator(schemaGeneratorOptions, new JsonSerializerDataContractResolver(new JsonSerializerOptions()));
