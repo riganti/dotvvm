@@ -11,6 +11,7 @@ using System.Reflection;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Hosting.AspNetCore;
+using DotVVM.Framework.Hosting.AspNetCore.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -63,6 +64,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IDotvvmCacheAdapter, AspNetCoreDotvvmCacheAdapter>();
             services.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
             services.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
+            services.TryAddSingleton<IRequestCancellationTokenProvider, RequestCancellationTokenProvider>();
             services.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
             services.TryAddScoped<IDotvvmRequestContext>(s => s.GetRequiredService<DotvvmRequestContextStorage>().Context);
             services.AddSingleton<IDotvvmViewCompilationService, DotvvmViewCompilationService>();
