@@ -33,7 +33,7 @@ public static class DotvvmRequestContextExtensions
     /// </summary>
     public static CancellationToken GetCancellationToken(this IDotvvmRequestContext context)
     {
-        var cancellationService = context.Services.GetService<IRequestCancellationTokenProvider>();
+        var cancellationService = context.Services.GetRequiredService<IRequestCancellationTokenProvider>();
         return cancellationService.GetCancellationToken(context);
     }
 
