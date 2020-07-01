@@ -22,7 +22,7 @@ using System.Text.RegularExpressions;
 
 namespace DotVVM.Framework.Compilation
 {
-    public class DefaultViewCompilerCodeEmitter
+    public class DefaultViewCompilerCodeEmitter : CodeEmitterBase
     {
 
         public DefaultViewCompilerCodeEmitter()
@@ -48,23 +48,7 @@ namespace DotVVM.Framework.Compilation
         public SyntaxTree SyntaxTree { get; private set; }
         public Type BuilderDataContextType { get; set; }
         public string ResultControlType { get; set; }
-
-        private ConcurrentDictionary<Assembly, string> usedAssemblies = new ConcurrentDictionary<Assembly, string>();
-        private static int assemblyIdCtr = 0;
-        public IEnumerable<KeyValuePair<Assembly, string>> UsedAssemblies
-        {
-            get { return usedAssemblies; }
-        }
-
-        public string UseType(Type type)
-        {
-            if (type == null) return null;
-            UseType(type.GetTypeInfo().BaseType);
-            return usedAssemblies.GetOrAdd(type.GetTypeInfo().Assembly, _ => "Asm_" + Interlocked.Increment(ref assemblyIdCtr));
-        }
-
-        private List<MemberDeclarationSyntax> otherDeclarations = new List<MemberDeclarationSyntax>();
-
+        
         public string EmitCreateVariable(ExpressionSyntax expression)
         {
             var name = "c" + CurrentControlIndex;
@@ -689,47 +673,7 @@ namespace DotVVM.Framework.Compilation
                 );
             }
         }
-
-        private TypeSyntax ParseTypeName(Type type)
-        {
-            var asmName = UseType(type);
-            if (type == typeof(void))
-            {
-                return SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
-            }
-            else if (!type.GetTypeInfo().IsGenericType)
-            {
-                return SyntaxFactory.ParseTypeName($"{asmName}::{type.FullName.Replace('+', '.')}");
-            }
-            else
-            {
-                var fullName = type.GetGenericTypeDefinition().FullName;
-                if (fullName.Contains("`"))
-                {
-                    fullName = fullName.Substring(0, fullName.IndexOf("`", StringComparison.Ordinal));
-                }
-
-                var parts = fullName.Split('.');
-                NameSyntax identifier = SyntaxFactory.AliasQualifiedName(
-                    SyntaxFactory.IdentifierName(asmName),
-                    SyntaxFactory.IdentifierName(parts[0]));
-                for (var i = 1; i < parts.Length - 1; i++)
-                {
-                    identifier = SyntaxFactory.QualifiedName(identifier, SyntaxFactory.IdentifierName(parts[i]));
-                }
-
-                var typeArguments = type.GetGenericArguments().Select(ParseTypeName);
-                return SyntaxFactory.QualifiedName(identifier,
-                    SyntaxFactory.GenericName(
-                        SyntaxFactory.Identifier(parts[parts.Length - 1]),
-                        SyntaxFactory.TypeArgumentList(
-                            SyntaxFactory.SeparatedList(typeArguments.ToArray())
-                        )
-                    )
-                );
-            }
-        }
-
+        
         /// <summary>
         /// Emits the return clause.
         /// </summary>
@@ -774,7 +718,7 @@ namespace DotVVM.Framework.Compilation
 
             var root = SyntaxFactory.CompilationUnit()
                 .WithExterns(SyntaxFactory.List(
-                    UsedAssemblies.Select(k => SyntaxFactory.ExternAliasDirective(SyntaxFactory.Identifier(k.Value)))
+                    UsedAssemblies.Select(k => SyntaxFactory.ExternAliasDirective(SyntaxFactory.Identifier(k.Identifier)))
                 ))
                 .WithMembers(
                 SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName)).WithMembers(

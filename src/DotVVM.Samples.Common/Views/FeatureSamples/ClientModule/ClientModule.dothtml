@@ -1,0 +1,28 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ClientModule.ClientModuleViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Hello from DotVVM!</title>
+</head>
+<body> 
+    
+    <p>Value 1: <span class="value1">{{value: Value1}}</span></p>
+    <p>Value 2: <span class="value2">{{value: Value2}}</span></p>
+    
+    <p>
+        <dot:Button Text="Run" Click="{staticCommand: _client.Increment(_this)}" />
+    </p>
+    
+</body>
+</html>
+
+<dot:ClientModule>
+    public void Increment(ClientModuleViewModel module) 
+    {
+        module.Value1 = module.Value1 + 1;
+        module.Value2 = module.Value2 + 2;        
+    }    
+</dot:ClientModule>

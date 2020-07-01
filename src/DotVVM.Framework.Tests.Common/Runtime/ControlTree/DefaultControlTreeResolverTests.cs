@@ -735,6 +735,38 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsFalse(control3[2].DothtmlNode.HasNodeErrors);
         }
 
+
+        [TestMethod]
+        public void DefaultViewCompiler_ClientModule()
+        {
+                var markup = @"
+@viewModel System.Boolean
+<dot:ClientModule>
+public void A(int a) { a.ToString(); }
+</dot:ClientModule>
+";
+            var root = ParseSource(markup);
+
+            var clientModule = root.Content.OfType<ResolvedControl>()
+                .Single(e => e.Metadata.Type == typeof(ClientModule));
+            Assert.IsTrue(clientModule.TryGetProperty(ClientModule.CodeProperty, out var code));
+            Assert.AreEqual(@"
+public void A(int a) { a.ToString(); }
+", ((ResolvedPropertyValue)code).Value);
+        }
+
+        [TestMethod]
+        public void DefaultViewCompiler_ClientModule_SyntaxError()
+        {
+            var markup = @"
+@viewModel System.Boolean
+<dot:ClientModule>
+public xx A(int a) { a.ToString(); }
+</dot:ClientModule>
+";
+            Assert.ThrowsException<DotvvmCompilationException>(() => ParseSource(markup));
+        }
+
         private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml", bool checkErrors = false) =>
             DotvvmTestHelper.ParseResolvedTree(markup, fileName, this.configuration, checkErrors);
 

@@ -15,6 +15,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.ResourceManagement.ClientGlobalize;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.ViewModel;
@@ -58,6 +59,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IAbstractTreeBuilder, ResolvedTreeBuilder>();
             services.TryAddSingleton<Func<ControlUsageValidationVisitor>>(s => () => ActivatorUtilities.CreateInstance<ControlUsageValidationVisitor>(s));
             services.TryAddSingleton<IViewCompiler, DefaultViewCompiler>();
+            services.TryAddSingleton<IClientModuleCompiler, DefaultClientModuleCompiler>();
+            services.TryAddSingleton(s => new Lazy<IClientModuleCompiler>(s.GetRequiredService<IClientModuleCompiler>));
             services.TryAddSingleton<IBindingCompiler, BindingCompiler>();
             services.TryAddSingleton<IBindingExpressionBuilder, BindingExpressionBuilder>();
             services.TryAddSingleton<BindingCompilationService, BindingCompilationService>();
@@ -69,6 +72,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<JavascriptTranslator, JavascriptTranslator>();
             services.TryAddSingleton<IHttpRedirectService, DefaultHttpRedirectService>();
             services.TryAddSingleton<IExpressionToDelegateCompiler, DefaultExpressionToDelegateCompiler>();
+            services.TryAddSingleton<ClientModuleResourceRepository>();
 
             services.TryAddScoped<RuntimeWarningCollector>();
             services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();

@@ -56,6 +56,9 @@ namespace DotVVM.Framework.Controls
 
         public static DotvvmProperty CurrentIndexBindingProperty =
             DotvvmProperty.Register<IValueBinding?, Internal>(() => CurrentIndexBindingProperty);
+
+        public static DotvvmProperty ClientModuleResourceNameProperty =
+            DotvvmProperty.Register<string?, Internal>(() => ClientModuleResourceNameProperty, defaultValue: null, isValueInherited: true);
     }
 
     public static class InternalPropertyExtensions

@@ -35,7 +35,7 @@ namespace DotVVM.Compiler.Compilation
         private IControlTreeResolver controlTreeResolver;
         private IViewCompiler compiler;
         private IMarkupFileLoader fileLoader;
-        private CSharpCompilation compilation;
+        private CompilationBuilder compilationBuilder;
         private CompilationResult result = new CompilationResult();
 
         private void InitOptions()
@@ -98,7 +98,7 @@ namespace DotVVM.Compiler.Compilation
             if (Options.FullCompile)
             {
                 compiler = configuration.ServiceProvider.GetService<IViewCompiler>();
-                compilation = compiler.CreateCompilation(Options.AssemblyName);
+                compilationBuilder = new CompilationBuilder(configuration.Markup, Options.AssemblyName);
             }
         }
 
@@ -113,10 +113,10 @@ namespace DotVVM.Compiler.Compilation
 
                 Program2.WriteInfo($"Bindings saved to {bindingsAssemblyPath}.");
 
-                compilation = compilation.AddReferences(MetadataReference.CreateFromFile(Path.GetFullPath(bindingsAssemblyPath)));
+                compilationBuilder.AddReferences(MetadataReference.CreateFromFile(Path.GetFullPath(bindingsAssemblyPath)));
                 var compiledViewsFileName = Path.Combine(Options.OutputPath, Options.AssemblyName + "_Views" + ".dll");
 
-                var result = compilation.Emit(compiledViewsFileName);
+                var result = compilationBuilder.GetCompilation().Emit(compiledViewsFileName);
                 if (!result.Success)
                 {
                     throw new Exception("The compilation failed!");
@@ -141,15 +141,16 @@ namespace DotVVM.Compiler.Compilation
             Init();
 
             Program2.WriteInfo("Compiling views...");
-            foreach (var file in Options.DothtmlFiles)
+            foreach (var fileName in Options.DothtmlFiles)
             {
                 try
                 {
+                    var file = fileLoader.GetMarkup(configuration, fileName);
                     var viewCompilationResult = CompileFile(file);
                 }
                 catch (DotvvmCompilationException exception)
                 {
-                    result.Files.Add(file, new FileCompilationResult {
+                    result.Files.Add(fileName, new FileCompilationResult {
                         Errors = new List<Exception>() { exception }
                     });
                 }
@@ -177,23 +178,21 @@ namespace DotVVM.Compiler.Compilation
 
         private Dictionary<string, ViewCompilationResult> compiledCache = new Dictionary<string, ViewCompilationResult>();
 
-        public ViewCompilationResult CompileFile(string fileName)
+        public ViewCompilationResult CompileFile(MarkupFile file)
         {
-            if (compiledCache.ContainsKey(fileName)) return compiledCache[fileName];
-            return compiledCache[fileName] = CompileView(fileName);
+            if (compiledCache.ContainsKey(file.FileName)) return compiledCache[file.FileName];
+            return compiledCache[file.FileName] = CompileView(file);
         }
 
-        protected ViewCompilationResult CompileView(string fileName)
+        protected ViewCompilationResult CompileView(MarkupFile file)
         {
-            var file = fileLoader.GetMarkup(configuration, fileName);
-
             // parse the document
             var tokenizer = new DothtmlTokenizer();
             tokenizer.Tokenize(file.ContentsReaderFactory());
             var parser = new DothtmlParser();
             var node = parser.Parse(tokenizer.Tokens);
 
-            var resolvedView = (ResolvedTreeRoot)controlTreeResolver.ResolveTree(node, fileName);
+            var resolvedView = (ResolvedTreeRoot)controlTreeResolver.ResolveTree(node, file);
 
             var errorCheckingVisitor = new ErrorCheckingVisitor();
             resolvedView.Accept(errorCheckingVisitor);
@@ -225,25 +224,27 @@ namespace DotVVM.Compiler.Compilation
             string fullClassName = null;
             if (Options.FullCompile)
             {
-                var namespaceName = DefaultControlBuilderFactory.GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc);
-                var className = DefaultControlBuilderFactory.GetClassFromFileName(file.FileName) + "ControlBuilder";
+                var namespaceName = NamingHelper.GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc, "DotvvmGeneratedViews");
+                var className = NamingHelper.GetClassFromFileName(file.FileName) + "ControlBuilder";
                 fullClassName = namespaceName + "." + className;
                 emitter = new CompileTimeCodeEmitter(configuration.ServiceProvider.GetService<RefObjectSerializer>(), ObjectsClassName);
-                var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceProvider.GetService<IBindingCompiler>(), className);
+                var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceProvider.GetService<IBindingCompiler>(), configuration.ServiceProvider.GetService<IClientModuleCompiler>(), className);
 
                 resolvedView.Accept(compilingVisitor);
 
                 // compile master pages
                 if (resolvedView.Directives.ContainsKey("masterPage"))
-                    CompileFile(resolvedView.Directives["masterPage"].Single().Value);
+                {
+                    var masterPageFileName = resolvedView.Directives["masterPage"].Single().Value;
+                    var masterPageFile = fileLoader.GetMarkup(configuration, masterPageFileName);
+                    CompileFile(masterPageFile);
+                }
 
-                compilation = compilation
-                    .AddSyntaxTrees(emitter.BuildTree(namespaceName, className, fileName))
-                    .AddReferences(emitter.UsedAssemblies
-                        .Select(a => CompiledAssemblyCache.Instance.GetAssemblyMetadata(a.Key)));
+                var trees = emitter.BuildTree(namespaceName, className, file.FileName);
+                compilationBuilder.AddToCompilation(trees, emitter.UsedAssemblies);
             }
 
-            Program2.WriteInfo($"The view { fileName } compiled successfully.");
+            Program2.WriteInfo($"The view { file.FileName } compiled successfully.");
 
             var res = new ViewCompilationResult {
                 BuilderClassName = fullClassName,
@@ -251,7 +252,7 @@ namespace DotVVM.Compiler.Compilation
                 DataContextType = emitter?.BuilderDataContextType,
                 ResolvedTree = Options.OutputResolvedDothtmlMap ? resolvedView : null
             };
-            BuildFileResult(fileName, res);
+            BuildFileResult(file.FileName, res);
             return res;
         }
     }
