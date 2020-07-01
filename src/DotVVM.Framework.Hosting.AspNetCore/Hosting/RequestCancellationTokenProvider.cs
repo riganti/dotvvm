@@ -10,8 +10,7 @@ namespace DotVVM.Framework.Hosting.AspNetCore.Hosting
     {
         public CancellationToken GetCancellationToken(IDotvvmRequestContext context)
         {
-            var httpContext = (DotvvmHttpContext)context.HttpContext;
-            return httpContext.OriginalContext.RequestAborted;
+            return context.GetAspNetCoreContext().RequestAborted;
         }
     }
 }

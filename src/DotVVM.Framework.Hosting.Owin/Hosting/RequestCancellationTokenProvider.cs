@@ -11,8 +11,7 @@ namespace DotVVM.Framework.Hosting.Owin.Hosting
     {
         public CancellationToken GetCancellationToken(IDotvvmRequestContext context)
         {
-            var httpContext = (DotvvmHttpContext)context.HttpContext;
-            return httpContext.OriginalContext.Request.CallCancelled;
+            return context.GetOwinContext().Request.CallCancelled;
         }
     }
 }
