@@ -141,7 +141,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="routeName">Name of the redirection.</param>
         /// <param name="from">The URL to redirect from.</param>
         /// <param name="toUrl">The URL to redirect to.</param>
-        public void AddUrlRedirection(string routeName, string from, string toUrl, bool permanent = false)
+        public void AddUrlRedirection(string routeName, string from, string toUrl, object? defaultValues = null, bool permanent = false)
         {
             ThrowIfFrozen();
             Func<IServiceProvider, IDotvvmPresenter> presenterFactory = (serviceProvider) => GetRedirectionPresenter((context) =>
@@ -151,7 +151,7 @@ namespace DotVVM.Framework.Routing
                 else
                     context.RedirectToUrl(toUrl);
             });
-            Add(routeName, new DotvvmRoute(from, string.Empty, null, presenterFactory, configuration));
+            Add(routeName, new DotvvmRoute(from, string.Empty, defaultValues, presenterFactory, configuration));
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="routeName">Name of the redirection.</param>
         /// <param name="from">The URL to redirect from.</param>
         /// <param name="toRoute">The route to redirect to.</param>
-        public void AddRouteRedirection(string routeName, string from, string toRoute, bool permanent = false)
+        public void AddRouteRedirection(string routeName, string from, string toRoute, object? defaultValues = null, bool permanent = false)
         {
             ThrowIfFrozen();
             Func<IServiceProvider, IDotvvmPresenter> presenterFactory = (serviceProvider) => GetRedirectionPresenter((context) =>
@@ -170,7 +170,7 @@ namespace DotVVM.Framework.Routing
                 else
                     context.RedirectToRoute(toRoute);
             });
-            Add(routeName, new DotvvmRoute(from, string.Empty, null, presenterFactory, configuration));
+            Add(routeName, new DotvvmRoute(from, string.Empty, defaultValues, presenterFactory, configuration));
         }
 
         /// <summary>
