@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Compilation
 
             foreach (var assembly in BuildReferencedAssembliesCache())
             {
-                GetAssemblyMetadata(assembly);
+                cachedAssemblies.GetOrAdd(assembly.FullName, a => assembly);
             }
 
             if (Instance == null)
@@ -108,11 +108,16 @@ namespace DotVVM.Framework.Compilation
         }
 #endif
 
+        public Assembly[] GetReferencedAssemblies()
+        {
+            return cachedAssemblies.Values.ToArray();
+        }
+
         public Assembly[] GetAllAssemblies()
         {
             if (configuration.ExperimentalFeatures.ExplicitAssemblyLoading.Enabled)
             {
-                return cachedAssemblies.Values.ToArray();
+                return GetReferencedAssemblies();
             }
             else
             {
@@ -142,17 +147,15 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public MetadataReference GetAssemblyMetadata(Assembly assembly)
         {
-            cachedAssemblies.GetOrAdd(assembly.FullName, a => assembly);
             return cachedAssemblyMetadata.GetOrAdd(assembly, a => MetadataReference.CreateFromFile(a.Location));
         }
 
         /// <summary>
         /// Adds the assembly to the cache.
         /// </summary>
-        internal void AddAssembly(Assembly assembly, CompilationReference compilationReference)
+        internal void AddAssemblyMetadata(Assembly assembly, CompilationReference compilationReference)
         {
             cachedAssemblyMetadata[assembly] = compilationReference;
-            cachedAssemblies[assembly.FullName] = assembly;
         }
 
 

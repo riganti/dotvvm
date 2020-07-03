@@ -76,7 +76,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                             RuntimeHelpers.RunClassConstructor(tt.TypeHandle);
                             tt = tt.BaseType;
                         }
-                        while (tt != null && tt.IsGenericType);
+                        while (tt != null);
                     }
                 }
             }
@@ -117,7 +117,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                             RuntimeHelpers.RunClassConstructor(tt.TypeHandle);
                             tt = tt.GetTypeInfo().BaseType;
                         }
-                        while (tt != null && tt.GetTypeInfo().IsGenericType);
+                        while (tt != null);
                     }
                 }
             }

@@ -105,7 +105,7 @@ namespace DotVVM.Framework.Compilation
         public virtual CSharpCompilation CreateCompilation(string assemblyName)
         {
             return CSharpCompilation.Create(assemblyName, options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-                .AddReferences(assemblyCache.GetAllAssemblies().Select(a => assemblyCache.GetAssemblyMetadata(a)));
+                .AddReferences(assemblyCache.GetReferencedAssemblies().Select(a => assemblyCache.GetAssemblyMetadata(a)));
         }
 
         protected virtual IControlBuilder GetControlBuilder(Assembly assembly, string namespaceName, string className)
@@ -124,7 +124,7 @@ namespace DotVVM.Framework.Compilation
                 if (result.Success)
                 {
                     var assembly = AssemblyLoader.LoadRaw(ms.ToArray());
-                    assemblyCache.AddAssembly(assembly, compilation.ToMetadataReference());
+                    assemblyCache.AddAssemblyMetadata(assembly, compilation.ToMetadataReference());
                     return assembly;
                 }
                 else
