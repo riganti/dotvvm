@@ -2,7 +2,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 
-namespace DotVVM.Framework.StartupPerfTests
+namespace DotVVM.Tools.StartupPerfTester
 {
     public static class NetworkingHelpers
     {

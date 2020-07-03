@@ -13,7 +13,7 @@ using System.Net.Sockets;
 using System.Threading;
 using Process = System.Diagnostics.Process;
 
-namespace DotVVM.Framework.StartupPerfTests
+namespace DotVVM.Tools.StartupPerfTester
 {
     class Program
     {

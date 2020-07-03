@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Threading;
 
-namespace DotVVM.Framework.StartupPerfTests
+namespace DotVVM.Tools.StartupPerfTester
 {
     static internal class FileSystemHelper
     {

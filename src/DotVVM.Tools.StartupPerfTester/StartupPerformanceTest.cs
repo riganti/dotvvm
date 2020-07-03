@@ -7,7 +7,7 @@ using System.Net.Sockets;
 using System.Threading;
 using Medallion.Shell;
 
-namespace DotVVM.Framework.StartupPerfTests
+namespace DotVVM.Tools.StartupPerfTester
 {
     public class StartupPerformanceTest
     {
