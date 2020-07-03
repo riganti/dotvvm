@@ -81,10 +81,10 @@ namespace Microsoft.AspNetCore.Builder
                 new DotvvmRoutingMiddleware()
             }.Where(t => t != null).ToArray());
 
-            var compilationConfiguration = config.Markup.ViewCompilation;
-            compilationConfiguration.HandleViewCompilation(config);
-
             startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmFinished);
+
+            var compilationConfiguration = config.Markup.ViewCompilation;
+            compilationConfiguration.HandleViewCompilation(config, startupTracer);
 
             if (config.ServiceProvider.GetService<IDiagnosticsInformationSender>() is IDiagnosticsInformationSender sender)
             {

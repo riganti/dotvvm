@@ -23,5 +23,8 @@ namespace DotVVM.Framework.Hosting
         public static readonly string InvokeAllStaticConstructorsFinished = nameof(InvokeAllStaticConstructorsFinished);
 
         public static readonly string UseDotvvmFinished = nameof(UseDotvvmFinished);
+
+        public static readonly string ViewCompilationStarted = nameof(ViewCompilationStarted);
+        public static readonly string ViewCompilationFinished = nameof(ViewCompilationFinished);
     }
 }
