@@ -139,38 +139,44 @@ namespace DotVVM.Framework.Routing
         /// Adds the specified URL redirection entry.
         /// </summary>
         /// <param name="routeName">Name of the redirection.</param>
-        /// <param name="from">The URL to redirect from.</param>
-        /// <param name="toUrl">The URL to redirect to.</param>
-        public void AddUrlRedirection(string routeName, string from, string toUrl, object? defaultValues = null, bool permanent = false)
+        /// <param name="urlPattern">URL pattern to redirect from.</param>
+        /// <param name="urlProvider">URL provider to obtain context-based redirection targets.</param>
+        public void AddUrlRedirection(string routeName, string urlPattern, Func<IDotvvmRequestContext, string> urlProvider, object? defaultValues = null, bool permanent = false)
         {
             ThrowIfFrozen();
             Func<IServiceProvider, IDotvvmPresenter> presenterFactory = (serviceProvider) => GetRedirectionPresenter((context) =>
             {
+                var targetUrl = urlProvider(context);
+
                 if (permanent)
-                    context.RedirectToUrlPermanent(toUrl);
+                    context.RedirectToUrlPermanent(targetUrl);
                 else
-                    context.RedirectToUrl(toUrl);
+                    context.RedirectToUrl(targetUrl);
             });
-            Add(routeName, new DotvvmRoute(from, string.Empty, defaultValues, presenterFactory, configuration));
+            Add(routeName, new DotvvmRoute(urlPattern, string.Empty, defaultValues, presenterFactory, configuration));
         }
 
         /// <summary>
         /// Adds the specified route redirection entry.
         /// </summary>
         /// <param name="routeName">Name of the redirection.</param>
-        /// <param name="from">The URL to redirect from.</param>
-        /// <param name="toRoute">The route to redirect to.</param>
-        public void AddRouteRedirection(string routeName, string from, string toRoute, object? defaultValues = null, bool permanent = false)
+        /// <param name="urlPattern">URL pattern to redirect from.</param>
+        /// <param name="routeNameProvider">Route name provider to obtain context-based redirection targets.</param>
+        public void AddRouteRedirection(string routeName, string urlPattern, Func<IDotvvmRequestContext, string> routeNameProvider,
+            object? defaultValues = null, bool permanent = false, Func<IDictionary<string, object?>, Dictionary<string, object?>>? parametersProvider = null)
         {
             ThrowIfFrozen();
             Func<IServiceProvider, IDotvvmPresenter> presenterFactory = (serviceProvider) => GetRedirectionPresenter((context) =>
             {
+                var targetRouteName = routeNameProvider(context);
+                var newParameterValues = (parametersProvider != null && context.Parameters != null) ? parametersProvider(context.Parameters) : null;
+
                 if (permanent)
-                    context.RedirectToRoutePermanent(toRoute);
+                    context.RedirectToRoutePermanent(targetRouteName, newParameterValues);
                 else
-                    context.RedirectToRoute(toRoute);
+                    context.RedirectToRoute(targetRouteName, newParameterValues);
             });
-            Add(routeName, new DotvvmRoute(from, string.Empty, defaultValues, presenterFactory, configuration));
+            Add(routeName, new DotvvmRoute(urlPattern, string.Empty, defaultValues, presenterFactory, configuration));
         }
 
         /// <summary>
