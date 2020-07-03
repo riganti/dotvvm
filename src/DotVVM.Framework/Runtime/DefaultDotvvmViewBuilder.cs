@@ -70,8 +70,9 @@ namespace DotVVM.Framework.Runtime
             if (context.IsSpaRequest)
             {
                 var spaContentPlaceHolders = page.GetAllDescendants().OfType<SpaContentPlaceHolder>().ToList();
+                var spaContentPlaceHolderIds = context.GetSpaContentPlaceHolderUniqueId().Split(';');
 
-                if (spaContentPlaceHolders.Count == 0 || !context.GetSpaContentPlaceHolderUniqueId().Contains(spaContentPlaceHolders[0].GetSpaContentPlaceHolderUniqueId()))
+                if (spaContentPlaceHolders.Count == 0 || !spaContentPlaceHolderIds.Contains(spaContentPlaceHolders[0].GetSpaContentPlaceHolderUniqueId()))
                 {
                     // the client has loaded different page which does not contain current SpaContentPlaceHolder - he needs to be redirected
                     context.RedirectToUrl(context.HttpContext.Request.Url.AbsoluteUri.Replace("/" + HostingConstants.SpaUrlIdentifier, ""));

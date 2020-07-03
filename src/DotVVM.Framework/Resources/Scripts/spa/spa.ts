@@ -9,27 +9,28 @@ export const isSpaReady = ko.observable(false);
 
 export function init(): void {
     const spaPlaceHolders = getSpaPlaceHolders();
-    if (!spaPlaceHolders) {
+    if (spaPlaceHolders == null || spaPlaceHolders.length == 0) {
         throw new Error("No SpaContentPlaceHolder control was found!");
     }
 
     window.addEventListener("hashchange", event => handleHashChangeWithHistory(spaPlaceHolders, false));
     handleHashChangeWithHistory(spaPlaceHolders, true);
 
-    window.addEventListener('popstate', event => handlePopState(event, spaPlaceHolders[0] != null));
+    window.addEventListener('popstate', event => handlePopState(event, true));
 }
 
 function getSpaPlaceHolders(): NodeListOf<HTMLElement> | null {
     return document.getElementsByName("__dot_SpaContentPlaceHolder");
 }
 
-export function getSpaPlaceHoldersUniqueId(): string {  
-    let identifier = "";
-    getSpaPlaceHolders()!.forEach(function (element) {
-        identifier += element.getAttribute("data-dotvvm-spacontentplaceholder")?.valueOf();
+export function getSpaPlaceHoldersUniqueId(): string {
+    const spas = Array.from(getSpaPlaceHolders()!);
+    const identifiers = spas.map((element) =>
+    {
+        return element.getAttribute("data-dotvvm-spacontentplaceholder")?.valueOf()
     });
 
-    return identifier;
+    return identifiers.join(';');
 }
 
 function handlePopState(event: PopStateEvent, inSpaPage: boolean) {
