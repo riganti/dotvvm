@@ -60,7 +60,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
             services.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
-            services.TryAddSingleton<IDotvvmCacheAdapter, AspNetCoreDotvvmCacheAdapter>();
+            services.TryAddSingleton<IDotvvmCacheAdapter, DefaultDotvvmCacheAdapter>();
             services.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
             services.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
             services.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
