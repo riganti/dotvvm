@@ -17,6 +17,7 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="MedallionShell" Version="1.6.1" />
     <PackageReference Include="system.commandline" Version="2.0.0-beta1.20253.1" />
   </ItemGroup>  
 </Project>

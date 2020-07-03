@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Threading;
+using Medallion.Shell;
 
 namespace DotVVM.Framework.StartupPerfTests
 {
@@ -15,14 +16,16 @@ namespace DotVVM.Framework.StartupPerfTests
         private readonly int repeat;
         private readonly string url;
         private readonly bool verbose;
+        private readonly int timeout;
 
-        public StartupPerformanceTest(FileInfo project, TestTarget type, int repeat, string url, bool verbose)
+        public StartupPerformanceTest(FileInfo project, TestTarget type, int repeat, string url, bool verbose, int timeout)
         {
             this.project = project;
             this.type = type;
             this.repeat = repeat;
             this.url = url;
             this.verbose = verbose;
+            this.timeout = timeout;
         }
 
 
@@ -50,24 +53,27 @@ namespace DotVVM.Framework.StartupPerfTests
             {
                 // OWIN
                 TraceOutput($"Publishing...");
-                RunProcessAndWait(@"c:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe", @$"""{Path.GetFileName(projectPath)}"" /p:DeployOnBuild=true /t:WebPublish /p:WebPublishMethod=FileSystem /p:publishUrl=""{tempDir}""", dir);
+                RunProcessAndWait(@"c:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe",
+                    new[] { Path.GetFileName(projectPath), "/p:DeployOnBuild=true", "/t:WebPublish", "/p:WebPublishMethod=FileSystem", $"/p:publishUrl={tempDir}" }, dir);
 
                 for (var i = 0; i < repeat; i++)
                 {
                     TraceOutput($"Attempt #{i + 1}");
-                    measuredTime += RunProcessAndWaitForHealthCheck(@"C:\Program Files (x86)\IIS Express\iisexpress.exe", $@"""/path:{dir}"" /port:{port}", dir, urlToTest);
+                    measuredTime += RunProcessAndWaitForHealthCheck(@"C:\Program Files (x86)\IIS Express\iisexpress.exe",
+                        new[] { $"/path:{dir}", $"/port:{port}" }, dir, urlToTest, timeout);
                 }
             }
             else if (type == TestTarget.AspNetCore)
             {
                 // ASP.NET Core
                 TraceOutput($"Publishing...");
-                RunProcessAndWait(@"dotnet", $@"publish -c Release -o ""{tempDir}""", dir);
+                RunProcessAndWait(@"dotnet", new[] { "publish", "-c", "Release", "-o", tempDir }, dir);
 
                 for (var i = 0; i < repeat; i++)
                 {
                     TraceOutput($"Attempt #{i + 1}");
-                    measuredTime += RunProcessAndWaitForHealthCheck(@"dotnet", $@"""./{Path.GetFileNameWithoutExtension(projectPath)}.dll"" --urls {urlToTest}", tempDir, urlToTest);
+                    measuredTime += RunProcessAndWaitForHealthCheck(@"dotnet",
+                        new[] { $"./{Path.GetFileNameWithoutExtension(projectPath)}.dll", "--urls", urlToTest }, tempDir, urlToTest, timeout);
                 }
             }
             else
@@ -78,37 +84,37 @@ namespace DotVVM.Framework.StartupPerfTests
             TraceOutput($"Average time: {measuredTime / repeat}");
 
             TraceOutput($"Removing temp dir...");
-            FileSystemHelper.RemoveDir(tempDir);
+            FileSystemHelper.RemoveTempDir(tempDir);
             TraceOutput($"Done");
         }
-
-        private void RunProcessAndWait(string path, string arguments, string workingDirectory)
+        private static Command RunProcess(string path, string[] arguments, string workingDirectory)
         {
-            TraceOutput($"Running {path} {arguments}");
+            return Command.Run(path, arguments, options => options
+                .WorkingDirectory(workingDirectory)
+                .StartInfo(psi => {
+                    psi.CreateNoWindow = true;
+                    psi.UseShellExecute = false;
+                    psi.WindowStyle = ProcessWindowStyle.Hidden;
+                }));
+        }
 
-            var psi = new ProcessStartInfo(path, arguments) {
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                WorkingDirectory = workingDirectory
-            };
-            var process = Process.Start(psi);
-            process.WaitForExit();
-            if (process.ExitCode != 0)
+        private void RunProcessAndWait(string path, string[] arguments, string workingDirectory)
+        {
+            TraceOutput($"Running {path} {string.Join(" ", arguments)}");
+            var command = RunProcess(path, arguments, workingDirectory);
+            command.Wait();
+
+            if (!command.Result.Success)
             {
-                throw new Exception($"Process exited with code {process.ExitCode}!");
+                TraceOutput(command.Result.StandardOutput);
+                throw new Exception($"Process exited with code {command.Result.ExitCode}!");
             }
         }
 
-        private long RunProcessAndWaitForHealthCheck(string path, string arguments, string workingDirectory, string urlToTest)
+        
+        private long RunProcessAndWaitForHealthCheck(string path, string[] arguments, string workingDirectory, string urlToTest, int timeoutSeconds)
         {
-            var psi = new ProcessStartInfo(path, arguments) {
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                WorkingDirectory = workingDirectory
-            };
-            var process = Process.Start(psi);
+            var command = RunProcess(path, arguments, workingDirectory);
 
             var sw = new Stopwatch();
             sw.Start();
@@ -122,18 +128,27 @@ namespace DotVVM.Framework.StartupPerfTests
             catch (WebException ex) when (ex.InnerException is HttpRequestException hrex && (hrex.InnerException is IOException || hrex.InnerException is SocketException))
             {
                 Thread.Sleep(100);
-                goto retry;
-            }
 
-            if (process.HasExited)
-            {
-                throw new Exception("The process has exited!");
+                if (command.Task.IsCompleted)
+                {
+                    TraceOutput(command.Result.StandardOutput);
+                    throw new Exception("The process has exited!");
+                }
+
+                if (sw.Elapsed.TotalSeconds > timeoutSeconds)
+                {
+                    command.Kill();
+                    TraceOutput(command.Result.StandardOutput);
+                    throw new Exception($"The process didn't open the HTTP port withing the timeout of {timeoutSeconds} secs. If this is expected, use --timeout option to increase the timeout.");
+                }
+
+                goto retry;
             }
 
             var time = sw.ElapsedMilliseconds;
             ImportantOutput(time.ToString());
 
-            process.Kill();
+            command.Kill();
             return time;
         }
 

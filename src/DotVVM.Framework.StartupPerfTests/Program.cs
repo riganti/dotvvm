@@ -17,8 +17,6 @@ namespace DotVVM.Framework.StartupPerfTests
 {
     class Program
     {
-        private static TextWriter logWriter;
-
         static void Main(string[] args)
         {
             var rootCommand = new RootCommand
@@ -45,11 +43,16 @@ namespace DotVVM.Framework.StartupPerfTests
                     new [] { "-v", "--verbose" },
                     () => false,
                     "Diagnostics output"
+                ),
+                new Option<int>(
+                    new[] { "--timeout" },
+                    () => 10,
+                    "Timeout for the HTTP interface to start listening."
                 )
             }; 
-            rootCommand.Handler = CommandHandler.Create<FileInfo, TestTarget, int, string, bool>((project, type, repeat, url, verbose) =>
+            rootCommand.Handler = CommandHandler.Create<FileInfo, TestTarget, int, string, bool, int>((project, type, repeat, url, verbose, timeout) =>
             {
-                new StartupPerformanceTest(project, type, repeat, url, verbose).HandleCommand();
+                new StartupPerformanceTest(project, type, repeat, url, verbose, timeout).HandleCommand();
             });
             rootCommand.Invoke(args);
         }

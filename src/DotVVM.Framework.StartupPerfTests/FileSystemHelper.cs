@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading;
 
 namespace DotVVM.Framework.StartupPerfTests
 {
@@ -12,19 +13,27 @@ namespace DotVVM.Framework.StartupPerfTests
             return tempDir;
         }
 
-        public static bool RemoveDir(string dir)
+        public static void RemoveTempDir(string dir)
         {
-            try
+            for (int i = 0; i < 3; i++)
             {
-                if (Directory.Exists(dir))
+                try
                 {
-                    Directory.Delete(dir, true);
+                    if (Directory.Exists(dir))
+                    {
+                        Directory.Delete(dir, true);
+                    }
+                    break;
                 }
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
+                catch (IOException)
+                {
+                    // do nothing when we can't remove the temp directory - some files are locked probably
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // do nothing when we can't remove the temp directory - some files are locked probably
+                }
+                Thread.Sleep(1000);
             }
         }
     }
