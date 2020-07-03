@@ -19,7 +19,10 @@
         },
         "Inherit": true
       }
-    ]
+    ],
+    "ViewCompilation": {
+      "compileInParallel": true
+    }
   },
   "resources": {
     "DotVVM.Framework.ResourceManagement.InlineScriptResource": {

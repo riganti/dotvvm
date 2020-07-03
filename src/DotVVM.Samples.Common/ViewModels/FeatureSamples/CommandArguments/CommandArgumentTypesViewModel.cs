@@ -1,13 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DotVVM.Framework.ViewModel;
+﻿using DotVVM.Framework.ViewModel;
 using DotVVM.Samples.BasicSamples.Controls;
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CommandArguments
 {
-    public class CommandArgumentsViewModel : DotvvmViewModelBase
+    public class CommandArgumentTypesViewModel : DotvvmViewModelBase
     {
         public string Value { get; set; } = "Nothing here";
 

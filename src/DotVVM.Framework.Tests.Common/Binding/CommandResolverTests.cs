@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Tests.Binding
             var context = new TestDotvvmRequestContext() { ViewModel = testObject, ModelState = new ModelState() };
             context.ModelState.ValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(button);
 
-            resolver.GetFunction(viewRoot, context, path.Select(v => v.GetProperty<SimplePathExpressionBindingProperty>().Code.FormatKnockoutScript(button, v)).ToArray(), commandId, new object[0]).Action();
+            resolver.GetFunction(viewRoot, context, path.Select(v => v.GetProperty<SimplePathExpressionBindingProperty>().Code.FormatKnockoutScript(button, v)).ToArray(), commandId, new Func<Type, object>[0]).Action();
 
             Assert.AreEqual(testObject.NumberToPass, testObject.A[0].ResultInt);
             Assert.AreEqual(testObject.A[0].ResultString, testObject.A[0].ResultString);
