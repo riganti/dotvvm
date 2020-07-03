@@ -45,12 +45,12 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
 
                 var symbols = InitSymbols(dataContexts);
-                symbols = options.AddImportedTypes(symbols);
+                symbols = options.AddImportedTypes(symbols, compiledAssemblyCache);
                 symbols = symbols.AddSymbols(options.ExtensionParameters.Select(p => CreateParameter(dataContexts, p.Identifier, p)));
                 symbols = symbols.AddSymbols(additionalSymbols);
 
-                var visitor = new ExpressionBuildingVisitor(symbols, compiledAssemblyCache);
-                visitor.Scope = symbols.Resolve(options.ScopeParameter, compiledAssemblyCache);
+                var visitor = new ExpressionBuildingVisitor(symbols);
+                visitor.Scope = symbols.Resolve(options.ScopeParameter);
                 return visitor.Visit(node);
             }
             catch (Exception ex)
@@ -63,12 +63,12 @@ namespace DotVVM.Framework.Compilation.Binding
             }
         }
 
-        public static TypeRegistry InitSymbols(DataContextStack dataContext)
+        public TypeRegistry InitSymbols(DataContextStack dataContext)
         {
-            return AddTypeSymbols(TypeRegistry.Default.AddSymbols(GetParameters(dataContext).Select(d => new KeyValuePair<string, Expression>(d.Name, d))), dataContext);
+            return AddTypeSymbols(TypeRegistry.Default(compiledAssemblyCache).AddSymbols(GetParameters(dataContext).Select(d => new KeyValuePair<string, Expression>(d.Name, d))), dataContext);
         }
 
-        public static TypeRegistry AddTypeSymbols(TypeRegistry reg, DataContextStack dataContext)
+        public TypeRegistry AddTypeSymbols(TypeRegistry reg, DataContextStack dataContext)
         {
             var namespaces = dataContext.Enumerable().Select(t => t?.Namespace).Except(new[] { "System", null }).Distinct();
             return reg.AddSymbols(new[] {
@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Compilation.Binding
             .AddSymbols(dataContext.Enumerable()
                 .Select((t, i) => new KeyValuePair<string, Expression>($"Parent{i}ViewModel", TypeRegistry.CreateStatic(t))))
             // import all viewModel namespaces
-            .AddSymbols(namespaces.Select(ns => (Func<string, CompiledAssemblyCache, Expression>)((typeName, compiledAssemblyCache) => TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(ns + "." + typeName)))));
+            .AddSymbols(namespaces.Select(ns => (Func<string, Expression>)(typeName => TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(ns + "." + typeName)))));
         }
 
         public static IEnumerable<ParameterExpression> GetParameters(DataContextStack dataContext)

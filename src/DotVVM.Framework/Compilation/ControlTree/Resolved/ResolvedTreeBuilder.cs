@@ -153,14 +153,14 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             {
                 var assemblyQualifiedName = expressionSyntax as AssemblyQualifiedNameBindingParserNode;
                 expressionSyntax = assemblyQualifiedName.TypeName;
-                registry = TypeRegistry.DirectivesDefault(assemblyQualifiedName.AssemblyName.ToDisplayString());
+                registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache, assemblyQualifiedName.AssemblyName.ToDisplayString());
             }
             else
             {
-                registry = TypeRegistry.DirectivesDefault();
+                registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache);
             }
 
-            var visitor = new ExpressionBuildingVisitor(registry, compiledAssemblyCache) {
+            var visitor = new ExpressionBuildingVisitor(registry) {
                 ResolveOnlyTypeName = true,
                 Scope = null
             };
