@@ -8,7 +8,6 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Hosting.Owin.Hosting;
-using DotVVM.Framework.Hosting.Owin.Runtime.Caching;
 using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Security;

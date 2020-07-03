@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Runtime.Caching
     /// Actually, the entries are not removed, the reference is just weakened, so GC can collect it. If the object is actually from another place, it will stay in the cache.
     /// </summary>
     public class SimpleLruDictionary<TKey, TValue>
-        where TValue: class
+        where TValue : class
     {
         // new generation
         private ConcurrentDictionary<TKey, TValue> hot = new ConcurrentDictionary<TKey, TValue>();
@@ -107,17 +107,18 @@ namespace DotVVM.Framework.Runtime.Caching
 
         public TValue GetOrCreate(TKey key, Func<TKey, TValue> factory)
         {
-            if (TryGetValue(key, out var value)) return value;
+            if (TryGetValue(key, out var value) && value is object) return value;
 
             if (this.hot.Count >= this.generationSize)
             {
                 Cleanup(minSize: this.generationSize, minTime: TimeSpan.MinValue);
                 // this took some time, let's check the cache again
-                if (TryGetValue(key, out value)) return value;
+                if (TryGetValue(key, out value) && value is object) return value;
             }
 
             // TODO: do we want to lock the creation?
             var newValue = factory(key);
+            if (newValue == null) return default;
             this.hot.TryAdd(key, newValue);
             // don't return the newValue - in case was another one created in parallel, we want to return the older one
             // so only one permanent instance of this kind is created.
