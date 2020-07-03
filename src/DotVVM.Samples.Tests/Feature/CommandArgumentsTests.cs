@@ -21,14 +21,19 @@ namespace DotVVM.Samples.Tests.Feature
 
                 var text = browser.Single("[data-ui='value']");
                 AssertUI.InnerTextEquals(text, "Nothing here");
+                browser.Single("[data-ui='button1'] button").Click();
 
-                browser.Single("[data-ui='button1'] button").Click().Wait();
-                var alert = browser.GetAlert();
+                OpenQA.Selenium.IAlert alert = null;
+                browser.WaitFor(() => {
+                    alert = browser.GetAlert();
+                }, 2000);
+
                 alert.SendKeys(Value);
                 alert.Accept();
 
-                browser.Wait();
-                AssertUI.InnerTextEquals(text, Value);
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(text, Value);
+                }, 2000);
             });
         }
 
@@ -45,8 +50,9 @@ namespace DotVVM.Samples.Tests.Feature
 
                 browser.Single("[data-ui='button2'] input[type=text]").Clear().SendKeys(Value);
                 browser.Single("[data-ui='button2'] button").Click();
-                browser.Wait();
-                AssertUI.InnerTextEquals(text, Value + "(from second button)");
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(text, Value + "(from second button)");
+                }, 2000);
             });
         }
 
