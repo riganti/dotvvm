@@ -60,8 +60,7 @@ namespace Owin
             var startupTracer = new DiagnosticsStartupTracer();
             startupTracer.TraceEvent(StartupTracingConstants.AddDotvvmStarted);
 
-            var config = DotvvmConfiguration.CreateDefault(s =>
-            {
+            var config = DotvvmConfiguration.CreateDefault(s => {
                 s.TryAddSingleton<IDataProtectionProvider>(p => new DefaultDataProtectionProvider(app));
                 s.TryAddSingleton<IDotvvmCacheAdapter, OwinDotvvmCacheAdapter>();
                 s.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();

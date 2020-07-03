@@ -12,12 +12,14 @@ using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Compilation.Binding;
 using System.Diagnostics;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation
 {
     public class ViewCompilingVisitor : ResolvedControlTreeVisitor
     {
         protected readonly DefaultViewCompilerCodeEmitter emitter;
+        private readonly CompiledAssemblyCache compiledAssemblyCache;
         protected readonly IBindingCompiler bindingCompiler;
 
         protected int currentTemplateIndex;
@@ -25,10 +27,11 @@ namespace DotVVM.Framework.Compilation
         protected ControlResolverMetadata lastMetadata;
         protected string controlName;
 
-        public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, IBindingCompiler bindingCompiler,
+        public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, CompiledAssemblyCache compiledAssemblyCache, IBindingCompiler bindingCompiler,
             string className)
         {
             this.emitter = emitter;
+            this.compiledAssemblyCache = compiledAssemblyCache;
             this.className = className;
             this.bindingCompiler = bindingCompiler;
         }
@@ -39,21 +42,25 @@ namespace DotVVM.Framework.Compilation
 
             var createsCustomDerivedType = view.Metadata.Type == typeof(DotvvmView);
 
+            string resultControlType;
             if (createsCustomDerivedType)
             {
-                emitter.ResultControlType = className + "Control";
-                emitter.EmitControlClass(view.Metadata.Type, emitter.ResultControlType);
+                resultControlType = className + "Control";
+                emitter.EmitControlClass(view.Metadata.Type, resultControlType);
             }
             else
-                emitter.ResultControlType = view.Metadata.Type.FullName;
-
+            {
+                resultControlType = view.Metadata.Type.FullName;
+            }
+            emitter.ResultControlTypeSyntax = ResolveTypeSyntax(resultControlType);
+            
             emitter.UseType(view.Metadata.Type);
             emitter.BuilderDataContextType = view.DataContextTypeStack?.DataContextType;
             // build the statements
             emitter.PushNewMethod(nameof(IControlBuilder.BuildControl), typeof(DotvvmControl), emitter.EmitControlBuilderParameters());
 
             var pageName =
-                createsCustomDerivedType ? emitter.EmitCreateObject(emitter.ResultControlType) :
+                createsCustomDerivedType ? emitter.EmitCreateObject(emitter.ResultControlTypeSyntax) :
                                            this.EmitCreateControl(view.Metadata.Type, new object[0]);
             emitter.RegisterDotvvmProperties(pageName);
 
@@ -82,6 +89,13 @@ namespace DotVVM.Framework.Compilation
 
             emitter.EmitReturnClause(pageName);
             emitter.PopMethod();
+        }
+
+        private TypeSyntax ResolveTypeSyntax(string typeName)
+        {
+            return ReflectionUtils.IsFullName(typeName)
+                ? emitter.ParseTypeName(compiledAssemblyCache.FindType(typeName))
+                : SyntaxFactory.ParseTypeName(typeName);
         }
 
         protected string EmitCreateControl(Type type, object[] arguments)

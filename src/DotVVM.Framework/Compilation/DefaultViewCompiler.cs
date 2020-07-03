@@ -84,8 +84,8 @@ namespace DotVVM.Framework.Compilation
                 var validationVisitor = this.controlValidatorFactory.Invoke();
                 validationVisitor.VisitAndAssert(resolvedView);
 
-                var emitter = new DefaultViewCompilerCodeEmitter(assemblyCache);
-                var compilingVisitor = new ViewCompilingVisitor(emitter, bindingCompiler, className);
+                var emitter = new DefaultViewCompilerCodeEmitter();
+                var compilingVisitor = new ViewCompilingVisitor(emitter, assemblyCache, bindingCompiler, className);
 
                 resolvedView.Accept(compilingVisitor);
 

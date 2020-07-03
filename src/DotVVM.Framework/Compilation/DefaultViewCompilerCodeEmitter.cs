@@ -25,10 +25,9 @@ namespace DotVVM.Framework.Compilation
     public class DefaultViewCompilerCodeEmitter
     {
 
-        public DefaultViewCompilerCodeEmitter(CompiledAssemblyCache compiledAssemblyCache)
+        public DefaultViewCompilerCodeEmitter()
         {
             this.valueEmitter = new RoslynValueEmitter(ParseTypeName);
-            this.compiledAssemblyCache = compiledAssemblyCache;
         }
 
         private int CurrentControlIndex;
@@ -42,14 +41,13 @@ namespace DotVVM.Framework.Compilation
         public const string ServiceProviderParameterName = "services";
         public const string BuildTemplateFunctionName = "BuildTemplate";
         protected readonly RoslynValueEmitter valueEmitter;
-        private readonly CompiledAssemblyCache compiledAssemblyCache;
         private Dictionary<GroupedDotvvmProperty, string> cachedGroupedDotvvmProperties = new Dictionary<GroupedDotvvmProperty, string>();
         private ConcurrentDictionary<(Type obj, string argTypes), string> injectionFactoryCache = new ConcurrentDictionary<(Type obj, string argTypes), string>();
         private Stack<EmitterMethodInfo> methods = new Stack<EmitterMethodInfo>();
         private List<EmitterMethodInfo> outputMethods = new List<EmitterMethodInfo>();
         public SyntaxTree SyntaxTree { get; private set; }
         public Type BuilderDataContextType { get; set; }
-        public string ResultControlType { get; set; }
+        public TypeSyntax ResultControlTypeSyntax { get; set; }
 
         private ConcurrentDictionary<Assembly, string> usedAssemblies = new ConcurrentDictionary<Assembly, string>();
         private static int assemblyIdCtr = 0;
@@ -161,16 +159,12 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Emits the create object expression.
         /// </summary>
-        public string EmitCreateObject(string typeName, object[] constructorArguments = null)
+        public string EmitCreateObject(TypeSyntax typeSyntax, object[] constructorArguments = null)
         {
             if (constructorArguments == null)
             {
                 constructorArguments = new object[] { };
             }
-
-            var typeSyntax = ReflectionUtils.IsFullName(typeName)
-                ? ParseTypeName(compiledAssemblyCache.FindType(typeName))
-                : SyntaxFactory.ParseTypeName(typeName);
 
             return EmitCreateObject(typeSyntax, constructorArguments.Select(EmitValue));
         }
@@ -692,7 +686,7 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
-        private TypeSyntax ParseTypeName(Type type)
+        public TypeSyntax ParseTypeName(Type type)
         {
             var asmName = UseType(type);
             if (type == typeof(void))
@@ -770,10 +764,6 @@ namespace DotVVM.Framework.Compilation
 
             UseType(BuilderDataContextType);
 
-            var controlType = ReflectionUtils.IsFullName(ResultControlType)
-                ? ParseTypeName(compiledAssemblyCache.FindType(ResultControlType))
-                : SyntaxFactory.ParseTypeName(ResultControlType);
-
             var root = SyntaxFactory.CompilationUnit()
                 .WithExterns(SyntaxFactory.List(
                     UsedAssemblies.Select(k => SyntaxFactory.ExternAliasDirective(SyntaxFactory.Identifier(k.Value)))
@@ -819,7 +809,7 @@ namespace DotVVM.Framework.Compilation
                                             SyntaxFactory.PropertyDeclaration(ParseTypeName(typeof(Type)), nameof(IControlBuilder.ControlType))
                                                 .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
                                                 .WithExpressionBody(
-                                                    SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(controlType)))
+                                                    SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(ResultControlTypeSyntax)))
                                                 .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
                                         }).Concat(otherDeclarations)
                                     )

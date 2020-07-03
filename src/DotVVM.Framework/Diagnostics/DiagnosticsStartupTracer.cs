@@ -70,10 +70,12 @@ namespace DotVVM.Framework.Diagnostics
 
         private EventTiming CreateEventTiming(string eventName)
         {
+            var elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
+
             return new EventTiming
             {
-                Duration = stopwatch.ElapsedMilliseconds - ElapsedMillisSinceLastLog,
-                TotalDuration = stopwatch.ElapsedMilliseconds,
+                Duration = elapsedMilliseconds - ElapsedMillisSinceLastLog,
+                TotalDuration = elapsedMilliseconds,
                 EventName = eventName
             };
         }

@@ -25,22 +25,6 @@ namespace DotVVM.Framework.ResourceManagement
             ("null", typeof(NullResource))
         };
 
-        protected virtual IEnumerable<Type> ResolveAllTypesDerivedFromIResource(string dotvvmAssembly, Type resourceBaseType)
-        {
-            // for each type derived from IResource
-            var types = GetAllAssembliesLoadedAssemblies()
-                .Where(a => a.GetReferencedAssemblies().Any(ra => ra.FullName == dotvvmAssembly) ||
-                            a.FullName == dotvvmAssembly)
-                .SelectMany(a => a.GetLoadableTypes().Where(t => t.GetTypeInfo().IsClass && !t.GetTypeInfo().IsAbstract && resourceBaseType.IsAssignableFrom(t)));
-            return types;
-        }
-
-        protected virtual IEnumerable<Assembly> GetAllAssembliesLoadedAssemblies()
-        {
-            return AppDomain.CurrentDomain.GetAssemblies();
-        }
-
-
         public override bool CanConvert(Type objectType)
         {
             return objectType == typeof(DotvvmResourceRepository);
