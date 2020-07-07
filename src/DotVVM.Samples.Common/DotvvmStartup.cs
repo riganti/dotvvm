@@ -36,6 +36,7 @@ namespace DotVVM.Samples.BasicSamples
             AddControls(config);
             AddStyles(config);
 
+            AddRedirections(config);
             AddRoutes(config);
 
             // configure serializer
@@ -108,6 +109,18 @@ namespace DotVVM.Samples.BasicSamples
                     (style) => style.SetDotvvmProperty(ConfirmPostBackHandler.MessageProperty, "ConfirmPostBackHandler Content"));
         }
 
+        private static void AddRedirections(DotvvmConfiguration config)
+        {
+            config.RouteTable.AddUrlRedirection("Redirection1", "FeatureSamples/Redirect/RedirectionHelpers_PageA", (_) => "https://www.dotvvm.com");
+            config.RouteTable.AddRouteRedirection("Redirection2", "FeatureSamples/Redirect/RedirectionHelpers_PageB/{Id}", (_) => "FeatureSamples_Redirect_RedirectionHelpers_PageC-PageDetail", new { Id = 66 });
+            config.RouteTable.AddRouteRedirection("Redirection3", "FeatureSamples/Redirect/RedirectionHelpers_PageD/{Id}", (_) => "FeatureSamples_Redirect_RedirectionHelpers_PageE-PageDetail", new { Id = 77 },
+                parametersProvider: (dict) => {
+                    var newDict = new Dictionary<string, object>();
+                    newDict["Id"] = 1221;
+                    return newDict;
+                });
+        }
+
         private static void AddRoutes(DotvvmConfiguration config)
         {
             config.RouteTable.Add("Default", "", "Views/Default.dothtml");
@@ -130,6 +143,10 @@ namespace DotVVM.Samples.BasicSamples
 
             config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));
 
+            config.RouteTable.Add("FeatureSamples_Redirect_RedirectionHelpers_PageB-PageDetail", "FeatureSamples/Redirect/RedirectionHelpers_PageB/{Id}", "Views/FeatureSamples/Redirect/RedirectionHelpers_PageB.dothtml", new { Id = 22 });
+            config.RouteTable.Add("FeatureSamples_Redirect_RedirectionHelpers_PageC-PageDetail", "FeatureSamples/Redirect/RedirectionHelpers_PageC/{Id}", "Views/FeatureSamples/Redirect/RedirectionHelpers_PageC.dothtml", new { Id = 33 });
+            config.RouteTable.Add("FeatureSamples_Redirect_RedirectionHelpers_PageD-PageDetail", "FeatureSamples/Redirect/RedirectionHelpers_PageD/{Id}", "Views/FeatureSamples/Redirect/RedirectionHelpers_PageD.dothtml", new { Id = 44 });
+            config.RouteTable.Add("FeatureSamples_Redirect_RedirectionHelpers_PageE-PageDetail", "FeatureSamples/Redirect/RedirectionHelpers_PageE/{Id}", "Views/FeatureSamples/Redirect/RedirectionHelpers_PageE.dothtml", new { Id = 55 });
             config.RouteTable.Add("RepeaterRouteLink-PageDetail", "ControlSamples/Repeater/RouteLink/{Id}", "Views/ControlSamples/Repeater/RouteLink.dothtml", new { Id = 0 });
             config.RouteTable.Add("RepeaterRouteLink-PageDetail_IdOptional", "ControlSamples/Repeater/RouteLink/{Id?}", "Views/ControlSamples/Repeater/RouteLink.dothtml");
             config.RouteTable.Add("RepeaterRouteLink-PageDetail_IdOptionalPrefixed", "ControlSamples/Repeater/RouteLink/id-{Id?}", "Views/ControlSamples/Repeater/RouteLink.dothtml");
