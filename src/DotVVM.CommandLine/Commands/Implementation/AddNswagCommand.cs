@@ -12,7 +12,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
     {
         public override string Name => "Add REST API client";
 
-        public override string Usage => "dotvvm api create <http://path/to/swagger.json> <Namespace> <../ApiProject/CSharpClient.cs> <Scripts/TypescriptClient.cs>";
+        public override string Usage => "dotvvm api create <http://path/to/swagger.json> <Namespace> <../ApiProject/CSharpClient.cs> <Scripts/TypescriptClient.cs> --silent";
 
         public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
@@ -30,17 +30,19 @@ namespace DotVVM.CommandLine.Commands.Implementation
         public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
             var swaggerFile = args[0] ??
-                throw new InvalidCommandUsageException("You have to specify the swagger file.");
+                              throw new InvalidCommandUsageException("You have to specify the swagger file.");
             if (!Uri.TryCreate(swaggerFile, UriKind.RelativeOrAbsolute, out var swaggerFileUri))
                 throw new InvalidCommandUsageException($"'{swaggerFile}' is not a valid URI or filesystem path.");
             var @namespace = args[1] ??
-                throw new InvalidCommandUsageException("You have to specify the namespace.");
+                             throw new InvalidCommandUsageException("You have to specify the namespace.");
             var csharpFile = args[2] ??
-                throw new InvalidCommandUsageException("You have to specify the C# output file.");
+                             throw new InvalidCommandUsageException("You have to specify the C# output file.");
             var typescriptFile = args[3] ??
-                throw new InvalidCommandUsageException("You have to specify the TypeScript output file.");
+                                 throw new InvalidCommandUsageException("You have to specify the TypeScript output file.");
 
-            ApiClientManager.AddApiClient(swaggerFileUri, @namespace, csharpFile, typescriptFile, dotvvmProjectMetadata);
-       }
+            var isSilentMode = args.HasOption("--silent");
+
+            ApiClientManager.AddApiClient(swaggerFileUri, @namespace, csharpFile, typescriptFile, dotvvmProjectMetadata, isSilentMode);
+        }
     }
 }

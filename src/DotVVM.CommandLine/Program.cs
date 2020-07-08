@@ -13,22 +13,32 @@ namespace DotVVM.CommandLine
     {
         public static void Main(string[] args)
         {
+            var arguments = new Arguments(args);
+
             // get configuration
             var metadataService = new DotvvmProjectMetadataService();
             var metadata = metadataService.FindInDirectory(Directory.GetCurrentDirectory());
             if (metadata == null)
             {
-                Console.WriteLine("No DotVVM project metadata file (.dotvvm.json) was found on current path.");
-                if (ConsoleHelpers.AskForYesNo("Is the current directory the root directory of DotVVM project?"))
+                if (!arguments.HasOption("--silent"))
                 {
-                    Console.WriteLine();
-                    metadata = metadataService.CreateDefaultConfiguration(Directory.GetCurrentDirectory());
-                    metadataService.Save(metadata);
+                    Console.WriteLine("No DotVVM project metadata file (.dotvvm.json) was found on current path.");
+                    if (ConsoleHelpers.AskForYesNo("Is the current directory the root directory of DotVVM project?"))
+                    {
+                        Console.WriteLine();
+                        metadata = metadataService.CreateDefaultConfiguration(Directory.GetCurrentDirectory());
+                        metadataService.Save(metadata);
+                    }
+                    else
+                    {
+                        Console.WriteLine("There is no DotVVM project metadata file!");
+                        Environment.Exit(1);
+                    }
                 }
                 else
                 {
-                    Console.WriteLine("There is no DotVVM project metadata file!");
-                    Environment.Exit(1);
+                    metadata = metadataService.CreateDefaultConfiguration(Directory.GetCurrentDirectory());
+                    metadataService.Save(metadata);
                 }
             }
 
@@ -44,7 +54,6 @@ namespace DotVVM.CommandLine
 
                 //new GenerateUiTestStubCommand()
             };
-            var arguments = new Arguments(args);
             var command = commands.FirstOrDefault(c => c.TryConsumeArgs(arguments, metadata));
 
             // execute the command

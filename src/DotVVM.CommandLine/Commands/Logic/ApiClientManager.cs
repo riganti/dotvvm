@@ -18,7 +18,7 @@ namespace DotVVM.CommandLine.Commands.Logic
     // this logic should be moved to a script file that would allow anyone to edit or replace the logic easily
     public static class ApiClientManager
     {
-        public static void AddApiClient(Uri swaggerFile, string @namespace, string csharpOutput, string typescriptOutput, DotvvmProjectMetadata project)
+        public static void AddApiClient(Uri swaggerFile, string @namespace, string csharpOutput, string typescriptOutput, DotvvmProjectMetadata project, bool isSilentMode = false)
         {
             var definition = new ApiClientDefinition {
                 CSharpClient = csharpOutput,
@@ -28,7 +28,7 @@ namespace DotVVM.CommandLine.Commands.Logic
             };
 
             project.ApiClients.Add(definition);
-            RegenApiClient(definition, promptOnFileOverwrite: true).Wait();
+            RegenApiClient(definition, promptOnFileOverwrite: !isSilentMode).Wait();
         }
 
         public static async Task RegenApiClient(ApiClientDefinition definition, bool promptOnFileOverwrite)
@@ -100,6 +100,21 @@ namespace DotVVM.CommandLine.Commands.Logic
 
         public static void GenerateTS(SwaggerDocument document, ApiClientDefinition definition, bool promptOnFileOverwrite)
         {
+            var process = Process.Start(new ProcessStartInfo {
+                FileName = "cmd",
+                Arguments = "/C where tsc",
+                UseShellExecute = true,
+                CreateNoWindow = true,
+                WorkingDirectory = Directory.GetCurrentDirectory(),
+                WindowStyle = ProcessWindowStyle.Hidden
+            });
+
+            process.WaitForExit(TimeSpan.FromSeconds(30).Milliseconds);
+            if (!process.HasExited || process.ExitCode != 0)
+            {
+                // todo: end with exit code representing fail in typescript compilation
+            }
+
             var className = Path.GetFileNameWithoutExtension(definition.TypescriptClient);
 
             var settings = new SwaggerToTypeScriptClientGeneratorSettings() {
