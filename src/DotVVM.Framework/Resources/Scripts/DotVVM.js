@@ -1844,7 +1844,9 @@ var DotVVM = /** @class */ (function () {
         this.lastStartedPostack = -1; // this stops further commits
         for (var q in this.postbackQueues) {
             if (this.postbackQueues.hasOwnProperty(q)) {
-                this.postbackQueues[q].queue.length = 0;
+                var postbackQueue = this.postbackQueues[q];
+                postbackQueue.queue.length = 0;
+                postbackQueue.noRunning = 0;
             }
         }
         // disable all other postbacks
