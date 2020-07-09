@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,32 +38,37 @@ namespace DotVVM.Framework.ResourceManagement
             if (resource.Dependencies.Length == 0)
                 return;
 
-            var firstDependency = resource.Dependencies.First();
             var stack = new Stack<string>();
-            var visited = new HashSet<string>() { firstDependency };
-            stack.Push(firstDependency);
+            var visited = new HashSet<string>();
+            stack.Push(name);
 
             while (stack.Count > 0)
             {
-                var currentResource = findResource(stack.Pop());
-                if (currentResource == null)
-                    continue;
+                var currentResourceIdentifier = stack.Peek();
+                var currentResource = findResource(currentResourceIdentifier);
 
-                foreach (var dependencyIdentifier in currentResource.Dependencies)
+                var isProcessed = true;
+                if (currentResource != null)
                 {
-                    var currentDependency = findResource(dependencyIdentifier);
-                    if (currentDependency == null || currentDependency.Dependencies.Length == 0)
-                        continue;
-
-                    if (visited.Contains(dependencyIdentifier))
+                    var nextDependencyIdentifier = currentResource.Dependencies.FirstOrDefault(d => !visited.Contains(d));
+                    if (nextDependencyIdentifier != null)
                     {
-                        // dependency cycle detected
-                        throw new DotvvmResourceException($"Resource \"{name}\" has a cyclic " +
-                            $"dependency.");
-                    }
+                        if (stack.Contains(nextDependencyIdentifier))
+                        {
+                            // dependency cycle detected
+                            throw new DotvvmResourceException($"Resource \"{name}\" has a cyclic " +
+                                $"dependency: {stack.Reverse().StringJoin(" --> ")} --> {nextDependencyIdentifier}");
+                        }
 
-                    visited.Add(dependencyIdentifier);
-                    stack.Push(dependencyIdentifier);
+                        stack.Push(nextDependencyIdentifier);
+                        isProcessed = false;
+                    }
+                }
+
+                if (isProcessed)
+                {
+                    visited.Add(currentResourceIdentifier);
+                    stack.Pop();
                 }
             }
         }
