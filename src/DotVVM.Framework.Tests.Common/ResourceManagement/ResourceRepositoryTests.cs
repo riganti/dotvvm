@@ -16,31 +16,34 @@ namespace DotVVM.Framework.Tests.Common.ResourceManagement
         [TestMethod]
         public void ResourceRepository_CyclicDependency_Throws()
         {
-            Assert.ThrowsException<DotvvmResourceException>(() => {
+            var ex = Assert.ThrowsException<DotvvmResourceException>(() => {
+
                 var configuration = DotvvmConfiguration.CreateDefault();
                 configuration.Resources.Register("one", new NullResource { Dependencies = new[] { "two" } });
                 configuration.Resources.Register("two", new NullResource { Dependencies = new[] { "one" } });
+
                 var manager = configuration.ServiceProvider.GetRequiredService<ResourceManager>();
                 manager.AddRequiredResource("one");
             });
+            Assert.AreEqual("Resource \"two\" has a cyclic dependency: two --> one --> two", ex.Message);
         }
 
         [TestMethod]
         public void ResourceRepository_CyclicDependency2_Throws()
         {
-            Assert.ThrowsException<DotvvmResourceException>(() => {
+            var ex = Assert.ThrowsException<DotvvmResourceException>(() => {
                 var configuration = DotvvmConfiguration.CreateDefault();
-
-                configuration.Resources.Register("three", new ScriptResource {
-                    Location = new FileResourceLocation("C:\\Test\\three.js"),
+ 
+                configuration.Resources.Register("one", new ScriptResource {
+                    Location = new FileResourceLocation("C:\\Test\\one.js"),
                     Dependencies = new[] { "two" }
                 });
                 configuration.Resources.Register("two", new ScriptResource {
                     Location = new FileResourceLocation("C:\\Test\\two.js"),
                     Dependencies = new[] { "three" }
                 });
-                configuration.Resources.Register("one", new ScriptResource {
-                    Location = new FileResourceLocation("C:\\Test\\one.js"),
+                configuration.Resources.Register("three", new ScriptResource {
+                    Location = new FileResourceLocation("C:\\Test\\three.js"),
                     Dependencies = new[] { "two" }
                 });
 
@@ -53,10 +56,87 @@ namespace DotVVM.Framework.Tests.Common.ResourceManagement
                 //<resource being added> -> <dependancy-1> -> ... -> <dependancy-k> ^
                 //
                 //cycle k to k+n does not gent detected and results in an endless loop
-
-                var manager = configuration.ServiceProvider.GetRequiredService<ResourceManager>();
-                manager.AddRequiredResource("one");
             });
+            Assert.AreEqual("Resource \"three\" has a cyclic dependency: three --> two --> three", ex.Message);
+        }
+
+        [TestMethod]
+        public void ResourceRepository_CommonDependency_Ok()
+        {
+            var configuration = DotvvmConfiguration.CreateDefault();
+
+            configuration.Resources.Register("common", new ScriptResource {
+                Location = new FileResourceLocation("C:\\Test\\common.js"),
+            });
+
+            configuration.Resources.Register("up", new ScriptResource {
+                Location = new FileResourceLocation("C:\\Test\\up.js"),
+                Dependencies = new[] { "common" }
+            });
+
+            configuration.Resources.Register("down", new ScriptResource {
+                Location = new FileResourceLocation("C:\\Test\\down.js"),
+                Dependencies = new[] { "common" }
+            });
+
+            configuration.Resources.Register("start", new ScriptResource {
+                Location = new FileResourceLocation("C:\\Test\\start.js"),
+                Dependencies = new[] { "up", "down" }
+            });
+
+            var manager = configuration.ServiceProvider.GetRequiredService<ResourceManager>();
+            manager.AddRequiredResource("start");
+        }
+
+        [TestMethod]
+        public void ResourceRepository_SelfReference_Throws()
+        {
+            var ex = Assert.ThrowsException<DotvvmResourceException>(() => {
+                var configuration = DotvvmConfiguration.CreateDefault();
+         
+                configuration.Resources.Register("one", new NullResource {
+                    Dependencies = new[] { "two" }
+                });
+                configuration.Resources.Register("two", new NullResource {
+                    Dependencies = new[] { "two" }
+                });
+            });
+
+            Assert.AreEqual("Resource \"two\" has a cyclic dependency: two --> two", ex.Message);
+        }
+
+        [TestMethod]
+        public void ResourceRepository_SmallGraphCycle_Throws()
+        {
+            var ex = Assert.ThrowsException<DotvvmResourceException>(() => {
+                var configuration = DotvvmConfiguration.CreateDefault();
+
+                configuration.Resources.Register("six", new NullResource {
+                });
+
+                configuration.Resources.Register("one", new NullResource {
+                    Dependencies = new[] { "two" }
+                });
+
+                configuration.Resources.Register("two", new NullResource {
+                    Dependencies = new[] { "three", "six" }
+                });
+
+                configuration.Resources.Register("four", new NullResource {
+                });
+
+                configuration.Resources.Register("three", new NullResource {
+                    Dependencies = new[] { "five", "four" }
+                });
+
+                configuration.Resources.Register("seven", new NullResource {
+                });
+
+                configuration.Resources.Register("five", new NullResource {
+                    Dependencies = new[] { "seven", "two" }
+                });
+            });
+            Assert.AreEqual("Resource \"five\" has a cyclic dependency: five --> two --> three --> five", ex.Message);
         }
     }
 }

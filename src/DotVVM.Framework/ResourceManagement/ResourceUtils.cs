@@ -44,33 +44,45 @@ namespace DotVVM.Framework.ResourceManagement
 
             while (stack.Count > 0)
             {
-                var currentResourceIdentifier = stack.Peek();
-                var currentResource = findResource(currentResourceIdentifier);
+                var currentResourceName = stack.Peek();
 
-                var isProcessed = true;
-                if (currentResource != null)
+                var currentResource = currentResourceName == name
+                    ? resource
+                    : findResource(currentResourceName);
+
+                var isCurrentResourceProcessingFinished =
+                    currentResource == null ||
+                    ProcessDependencies(name, stack, visited, currentResource);
+
+                if (isCurrentResourceProcessingFinished)
                 {
-                    var nextDependencyIdentifier = currentResource.Dependencies.FirstOrDefault(d => !visited.Contains(d));
-                    if (nextDependencyIdentifier != null)
-                    {
-                        if (stack.Contains(nextDependencyIdentifier))
-                        {
-                            // dependency cycle detected
-                            throw new DotvvmResourceException($"Resource \"{name}\" has a cyclic " +
-                                $"dependency: {stack.Reverse().StringJoin(" --> ")} --> {nextDependencyIdentifier}");
-                        }
-
-                        stack.Push(nextDependencyIdentifier);
-                        isProcessed = false;
-                    }
-                }
-
-                if (isProcessed)
-                {
-                    visited.Add(currentResourceIdentifier);
+                    visited.Add(currentResourceName);
                     stack.Pop();
                 }
             }
+        }
+
+        private static bool ProcessDependencies(string name, Stack<string> stack, HashSet<string> visited, IResource currentResource)
+        {
+            var nextDependencyIdentifier = currentResource.Dependencies.FirstOrDefault(d => !visited.Contains(d));
+            if (nextDependencyIdentifier != null)
+            {
+                if (stack.Contains(nextDependencyIdentifier))
+                {
+                    var dependancyChain = stack
+                        .Reverse()
+                        .Concat(new[] { nextDependencyIdentifier })
+                        .StringJoin(" --> ");
+
+                    // dependency cycle detected
+                    throw new DotvvmResourceException($"Resource \"{name}\" has a cyclic dependency: {dependancyChain}");
+                }
+
+                stack.Push(nextDependencyIdentifier);
+                return false;
+            }
+
+            return true;
         }
     }
 }
