@@ -167,7 +167,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="urlPattern">URL pattern to redirect from.</param>
         /// <param name="targetRouteName">Route name which will be used as a target for redirection.</param>
         public void AddRouteRedirection(string routeName, string urlPattern, string targetRouteName,
-            object? defaultValues = null, bool permanent = false, Func<IDictionary<string, object?>, Dictionary<string, object?>>? parametersProvider = null)
+            object? defaultValues = null, bool permanent = false, Func<IDotvvmRequestContext, Dictionary<string, object?>>? parametersProvider = null)
             => AddRouteRedirection(routeName, urlPattern, (_) => targetRouteName, defaultValues, permanent, parametersProvider);
 
         /// <summary>
@@ -177,13 +177,13 @@ namespace DotVVM.Framework.Routing
         /// <param name="urlPattern">URL pattern to redirect from.</param>
         /// <param name="routeNameProvider">Route name provider to obtain context-based redirection targets.</param>
         public void AddRouteRedirection(string routeName, string urlPattern, Func<IDotvvmRequestContext, string> routeNameProvider,
-            object? defaultValues = null, bool permanent = false, Func<IDictionary<string, object?>, Dictionary<string, object?>>? parametersProvider = null)
+            object? defaultValues = null, bool permanent = false, Func<IDotvvmRequestContext, Dictionary<string, object?>>? parametersProvider = null)
         {
             ThrowIfFrozen();
             IDotvvmPresenter presenterFactory(IServiceProvider serviceProvider) => new DelegatePresenter((context) =>
             {
                 var targetRouteName = routeNameProvider(context);
-                var newParameterValues = (parametersProvider != null && context.Parameters != null) ? parametersProvider(context.Parameters) : null;
+                var newParameterValues = (parametersProvider != null && context.Parameters != null) ? parametersProvider(context) : null;
 
                 if (permanent)
                     context.RedirectToRoutePermanent(targetRouteName, newParameterValues);
