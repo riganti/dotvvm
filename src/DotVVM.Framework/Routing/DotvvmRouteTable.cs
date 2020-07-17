@@ -144,7 +144,7 @@ namespace DotVVM.Framework.Routing
         public void AddUrlRedirection(string routeName, string urlPattern, Func<IDotvvmRequestContext, string> urlProvider, object? defaultValues = null, bool permanent = false)
         {
             ThrowIfFrozen();
-            Func<IServiceProvider, IDotvvmPresenter> presenterFactory = (serviceProvider) => GetRedirectionPresenter((context) =>
+            IDotvvmPresenter presenterFactory(IServiceProvider serviceProvider) => GetRedirectionPresenter((context) =>
             {
                 var targetUrl = urlProvider(context);
 
@@ -166,7 +166,7 @@ namespace DotVVM.Framework.Routing
             object? defaultValues = null, bool permanent = false, Func<IDictionary<string, object?>, Dictionary<string, object?>>? parametersProvider = null)
         {
             ThrowIfFrozen();
-            Func<IServiceProvider, IDotvvmPresenter> presenterFactory = (serviceProvider) => GetRedirectionPresenter((context) =>
+            IDotvvmPresenter presenterFactory(IServiceProvider serviceProvider) => GetRedirectionPresenter((context) =>
             {
                 var targetRouteName = routeNameProvider(context);
                 var newParameterValues = (parametersProvider != null && context.Parameters != null) ? parametersProvider(context.Parameters) : null;
