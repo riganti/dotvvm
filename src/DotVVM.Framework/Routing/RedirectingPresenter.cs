@@ -7,7 +7,7 @@ using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Routing
 {
-    public class RedirectingPresenter : IDotvvmPresenter
+    internal class RedirectingPresenter : IDotvvmPresenter
     {
         private readonly Action<IDotvvmRequestContext> action;
 
