@@ -140,6 +140,15 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         /// <param name="routeName">Name of the redirection.</param>
         /// <param name="urlPattern">URL pattern to redirect from.</param>
+        /// <param name="targetUrl">URL which will be used as a target for redirection.</param>
+        public void AddUrlRedirection(string routeName, string urlPattern, string targetUrl, object? defaultValues = null, bool permanent = false)
+            => AddUrlRedirection(routeName, urlPattern, (_) => targetUrl, defaultValues, permanent);
+
+        /// <summary>
+        /// Adds the specified URL redirection entry.
+        /// </summary>
+        /// <param name="routeName">Name of the redirection.</param>
+        /// <param name="urlPattern">URL pattern to redirect from.</param>
         /// <param name="urlProvider">URL provider to obtain context-based redirection targets.</param>
         public void AddUrlRedirection(string routeName, string urlPattern, Func<IDotvvmRequestContext, string> urlProvider, object? defaultValues = null, bool permanent = false)
         {
@@ -155,6 +164,16 @@ namespace DotVVM.Framework.Routing
             });
             Add(routeName, new DotvvmRoute(urlPattern, string.Empty, defaultValues, presenterFactory, configuration));
         }
+
+        /// <summary>
+        /// Adds the specified route redirection entry.
+        /// </summary>
+        /// <param name="routeName">Name of the redirection.</param>
+        /// <param name="urlPattern">URL pattern to redirect from.</param>
+        /// <param name="targetRouteName">Route name which will be used as a target for redirection.</param>
+        public void AddRouteRedirection(string routeName, string urlPattern, string targetRouteName,
+            object? defaultValues = null, bool permanent = false, Func<IDictionary<string, object?>, Dictionary<string, object?>>? parametersProvider = null)
+            => AddRouteRedirection(routeName, urlPattern, (_) => targetRouteName, defaultValues, permanent, parametersProvider);
 
         /// <summary>
         /// Adds the specified route redirection entry.
