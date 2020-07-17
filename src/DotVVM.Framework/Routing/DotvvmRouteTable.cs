@@ -183,7 +183,7 @@ namespace DotVVM.Framework.Routing
             IDotvvmPresenter presenterFactory(IServiceProvider serviceProvider) => new DelegatePresenter((context) =>
             {
                 var targetRouteName = routeNameProvider(context);
-                var newParameterValues = (parametersProvider != null && context.Parameters != null) ? parametersProvider(context) : null;
+                var newParameterValues = parametersProvider?.Invoke(context);
 
                 if (permanent)
                     context.RedirectToRoutePermanent(targetRouteName, newParameterValues);
