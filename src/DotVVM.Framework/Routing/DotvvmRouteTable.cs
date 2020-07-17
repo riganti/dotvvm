@@ -103,11 +103,6 @@ namespace DotVVM.Framework.Routing
             return provider.GetRequiredService<IDotvvmPresenter>();
         }
 
-        private IDotvvmPresenter GetRedirectionPresenter(Action<IDotvvmRequestContext> action)
-        {
-            return new RedirectingPresenter(action);
-        }
-
         /// <summary>
         /// Adds the specified route name.
         /// </summary>
@@ -153,7 +148,7 @@ namespace DotVVM.Framework.Routing
         public void AddUrlRedirection(string routeName, string urlPattern, Func<IDotvvmRequestContext, string> urlProvider, object? defaultValues = null, bool permanent = false)
         {
             ThrowIfFrozen();
-            IDotvvmPresenter presenterFactory(IServiceProvider serviceProvider) => GetRedirectionPresenter((context) =>
+            IDotvvmPresenter presenterFactory(IServiceProvider serviceProvider) => new DelegatePresenter((context) =>
             {
                 var targetUrl = urlProvider(context);
 
@@ -185,7 +180,7 @@ namespace DotVVM.Framework.Routing
             object? defaultValues = null, bool permanent = false, Func<IDictionary<string, object?>, Dictionary<string, object?>>? parametersProvider = null)
         {
             ThrowIfFrozen();
-            IDotvvmPresenter presenterFactory(IServiceProvider serviceProvider) => GetRedirectionPresenter((context) =>
+            IDotvvmPresenter presenterFactory(IServiceProvider serviceProvider) => new DelegatePresenter((context) =>
             {
                 var targetRouteName = routeNameProvider(context);
                 var newParameterValues = (parametersProvider != null && context.Parameters != null) ? parametersProvider(context.Parameters) : null;
