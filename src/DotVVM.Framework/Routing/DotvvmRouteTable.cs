@@ -137,20 +137,20 @@ namespace DotVVM.Framework.Routing
         /// <param name="urlPattern">URL pattern to redirect from.</param>
         /// <param name="targetUrl">URL which will be used as a target for redirection.</param>
         public void AddUrlRedirection(string routeName, string urlPattern, string targetUrl, object? defaultValues = null, bool permanent = false)
-            => AddUrlRedirection(routeName, urlPattern, (_) => targetUrl, defaultValues, permanent);
+            => AddUrlRedirection(routeName, urlPattern, _ => targetUrl, defaultValues, permanent);
 
         /// <summary>
         /// Adds the specified URL redirection entry.
         /// </summary>
         /// <param name="routeName">Name of the redirection.</param>
         /// <param name="urlPattern">URL pattern to redirect from.</param>
-        /// <param name="urlProvider">URL provider to obtain context-based redirection targets.</param>
-        public void AddUrlRedirection(string routeName, string urlPattern, Func<IDotvvmRequestContext, string> urlProvider, object? defaultValues = null, bool permanent = false)
+        /// <param name="targetUrlProvider">URL provider to obtain context-based redirection targets.</param>
+        public void AddUrlRedirection(string routeName, string urlPattern, Func<IDotvvmRequestContext, string> targetUrlProvider, object? defaultValues = null, bool permanent = false)
         {
             ThrowIfFrozen();
-            IDotvvmPresenter presenterFactory(IServiceProvider serviceProvider) => new DelegatePresenter((context) =>
+            IDotvvmPresenter presenterFactory(IServiceProvider serviceProvider) => new DelegatePresenter(context =>
             {
-                var targetUrl = urlProvider(context);
+                var targetUrl = targetUrlProvider(context);
 
                 if (permanent)
                     context.RedirectToUrlPermanent(targetUrl);
@@ -168,21 +168,21 @@ namespace DotVVM.Framework.Routing
         /// <param name="targetRouteName">Route name which will be used as a target for redirection.</param>
         public void AddRouteRedirection(string routeName, string urlPattern, string targetRouteName,
             object? defaultValues = null, bool permanent = false, Func<IDotvvmRequestContext, Dictionary<string, object?>>? parametersProvider = null)
-            => AddRouteRedirection(routeName, urlPattern, (_) => targetRouteName, defaultValues, permanent, parametersProvider);
+            => AddRouteRedirection(routeName, urlPattern, _ => targetRouteName, defaultValues, permanent, parametersProvider);
 
         /// <summary>
         /// Adds the specified route redirection entry.
         /// </summary>
         /// <param name="routeName">Name of the redirection.</param>
         /// <param name="urlPattern">URL pattern to redirect from.</param>
-        /// <param name="routeNameProvider">Route name provider to obtain context-based redirection targets.</param>
-        public void AddRouteRedirection(string routeName, string urlPattern, Func<IDotvvmRequestContext, string> routeNameProvider,
+        /// <param name="targetRouteNameProvider">Route name provider to obtain context-based redirection targets.</param>
+        public void AddRouteRedirection(string routeName, string urlPattern, Func<IDotvvmRequestContext, string> targetRouteNameProvider,
             object? defaultValues = null, bool permanent = false, Func<IDotvvmRequestContext, Dictionary<string, object?>>? parametersProvider = null)
         {
             ThrowIfFrozen();
-            IDotvvmPresenter presenterFactory(IServiceProvider serviceProvider) => new DelegatePresenter((context) =>
+            IDotvvmPresenter presenterFactory(IServiceProvider serviceProvider) => new DelegatePresenter(context =>
             {
-                var targetRouteName = routeNameProvider(context);
+                var targetRouteName = targetRouteNameProvider(context);
                 var newParameterValues = parametersProvider?.Invoke(context);
 
                 if (permanent)
