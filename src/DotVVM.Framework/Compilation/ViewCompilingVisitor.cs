@@ -42,18 +42,17 @@ namespace DotVVM.Framework.Compilation
 
             var createsCustomDerivedType = view.Metadata.Type == typeof(DotvvmView);
 
-            string resultControlType;
             if (createsCustomDerivedType)
             {
-                resultControlType = className + "Control";
+                var resultControlType = className + "Control";
+                emitter.ResultControlTypeSyntax = SyntaxFactory.ParseTypeName(resultControlType);
                 emitter.EmitControlClass(view.Metadata.Type, resultControlType);
             }
             else
             {
-                resultControlType = view.Metadata.Type.FullName;
+                emitter.ResultControlTypeSyntax = emitter.ParseTypeName(view.Metadata.Type);
             }
-            emitter.ResultControlTypeSyntax = ResolveTypeSyntax(resultControlType);
-            
+
             emitter.UseType(view.Metadata.Type);
             emitter.BuilderDataContextType = view.DataContextTypeStack?.DataContextType;
             // build the statements
