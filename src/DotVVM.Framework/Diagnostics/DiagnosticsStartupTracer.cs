@@ -13,15 +13,14 @@ namespace DotVVM.Framework.Diagnostics
     public class DiagnosticsStartupTracer : IStartupTracer
     {
         private readonly Stopwatch stopwatch = new Stopwatch();
-        private Timer timer;
         private readonly object locker = new object();
 
         private readonly IList<EventTiming> events = new List<EventTiming>();
-        private bool startupCompleted = false;
-        private int sentEventsCount = 0;
+        private bool startupCompleted;
 
-        private long ElapsedMillisSinceLastLog => events.Sum(e => e.Duration);
+        private long ElapsedMillisecondsSinceLastLog => events.Sum(e => e.Duration);
 
+        private event Func<DiagnosticsInformation, Task> LateInfoReported;
 
         public void TraceEvent(string eventName)
         {
@@ -31,40 +30,36 @@ namespace DotVVM.Framework.Diagnostics
             }
 
             var eventTiming = CreateEventTiming(eventName);
+            bool reportLateEvent;
             lock (locker)
             {
                 events.Add(eventTiming);
+                reportLateEvent = startupCompleted;
+            }
+
+            if (reportLateEvent)
+            {
+                LateInfoReported?.Invoke(BuildDiagnosticsInformation(new[] { eventTiming }));
             }
         }
 
         public Task NotifyStartupCompleted(IDiagnosticsInformationSender informationSender)
         {
-            if (startupCompleted)
-            {
-                throw new InvalidOperationException($"{nameof(NotifyStartupCompleted)} cannot be called twice!");
-            }
-            startupCompleted = true;
-
-            // create a timer to report after-startup events regularly
-            this.timer = new Timer(state =>
-            {
-                lock (locker)
-                {
-                    if (sentEventsCount < events.Count)
-                    {
-                        informationSender.SendInformationAsync(BuildDiagnosticsInformation(events.Skip(sentEventsCount).ToList()));
-                        sentEventsCount = events.Count;
-                    }
-                }
-            }, null, 10000, 10000);
-
-            // report startup events
             DiagnosticsInformation info;
             lock (locker)
             {
+                if (startupCompleted)
+                {
+                    throw new InvalidOperationException($"{nameof(NotifyStartupCompleted)} cannot be called twice!");
+                }
+                startupCompleted = true;
+
+                LateInfoReported += i => informationSender.SendInformationAsync(i);
+
                 info = BuildDiagnosticsInformation(events);
-                sentEventsCount = events.Count;
             }
+
+            // report startup events
             return informationSender.SendInformationAsync(info);
         }
 
@@ -72,9 +67,8 @@ namespace DotVVM.Framework.Diagnostics
         {
             var elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
 
-            return new EventTiming
-            {
-                Duration = elapsedMilliseconds - ElapsedMillisSinceLastLog,
+            return new EventTiming {
+                Duration = elapsedMilliseconds - ElapsedMillisecondsSinceLastLog,
                 TotalDuration = elapsedMilliseconds,
                 EventName = eventName
             };
@@ -82,10 +76,8 @@ namespace DotVVM.Framework.Diagnostics
 
         private DiagnosticsInformation BuildDiagnosticsInformation(IList<EventTiming> eventTimings)
         {
-            return new DiagnosticsInformation()
-            {
-                RequestDiagnostics = new RequestDiagnostics()
-                {
+            return new DiagnosticsInformation() {
+                RequestDiagnostics = new RequestDiagnostics() {
                     Url = "{APPLICATION_STARTUP}"
                 },
                 ResponseDiagnostics = new ResponseDiagnostics(),
