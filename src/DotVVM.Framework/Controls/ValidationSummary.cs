@@ -36,6 +36,16 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty IncludeErrorsFromChildrenProperty
             = DotvvmProperty.Register<bool, ValidationSummary>(c => c.IncludeErrorsFromChildren, false);
 
+        /// <summary>
+        /// Gets or sets whether this control is hidden if there are no validation messages
+        /// </summary>
+        public bool HideWhenValid
+        {
+            get { return (bool)GetValue(HideWhenValidProperty)!; }
+            set { SetValue(HideWhenValidProperty, value); }
+        }
+        public static readonly DotvvmProperty HideWhenValidProperty
+            = DotvvmProperty.Register<bool, ValidationSummary>(c => c.HideWhenValid, false);
 
         /// <summary>
         /// Gets or sets whether the errors from the <see cref="Validation.TargetProperty"/> object will be displayed too.
@@ -67,8 +77,14 @@ namespace DotVVM.Framework.Controls
                 group.Add("target", expression);
                 group.Add("includeErrorsFromChildren", IncludeErrorsFromChildren.ToString().ToLower());
                 group.Add("includeErrorsFromTarget", IncludeErrorsFromTarget.ToString().ToLower());
+                group.Add("hideWhenValid", HideWhenValid.ToString().ToLower());
             }
             writer.AddKnockoutDataBind("dotvvm-validationSummary", group);
+
+            if (HideWhenValid)
+            {
+                writer.AddStyleAttribute("display", "none");
+            }
         }
     }
 }

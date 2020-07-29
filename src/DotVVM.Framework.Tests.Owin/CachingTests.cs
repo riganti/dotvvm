@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Hosting.Owin.Runtime.Caching;
 using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Security;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,7 +52,7 @@ namespace DotVVM.Framework.Tests.Owin
         private static DotvvmConfiguration GetConfig()
         {
             var config = DotvvmConfiguration.CreateDefault(services => {
-                services.TryAddSingleton<IDotvvmCacheAdapter, OwinDotvvmCacheAdapter>();
+                services.TryAddSingleton<IDotvvmCacheAdapter, DefaultDotvvmCacheAdapter>();
             });
             return config;
         }

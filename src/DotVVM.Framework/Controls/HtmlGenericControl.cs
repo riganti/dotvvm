@@ -55,11 +55,13 @@ namespace DotVVM.Framework.Controls
         [PropertyGroup(new[] { "", "html:" })]
         public Dictionary<string, object?> Attributes { get; private set; }
 
+        [PropertyGroup("Class-", ValueType = typeof(bool))]
         public VirtualPropertyGroupDictionary<bool> CssClasses => new VirtualPropertyGroupDictionary<bool>(this, CssClassesGroupDescriptor);
 
         public static DotvvmPropertyGroup CssClassesGroupDescriptor =
             DotvvmPropertyGroup.Register<bool, HtmlGenericControl>("Class-", nameof(CssClasses));
 
+        [PropertyGroup("Style-")]
         public VirtualPropertyGroupDictionary<object> CssStyles => new VirtualPropertyGroupDictionary<object>(this, CssStylesGroupDescriptor);
 
         public static DotvvmPropertyGroup CssStylesGroupDescriptor =

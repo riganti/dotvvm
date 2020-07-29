@@ -300,7 +300,6 @@ namespace DotVVM.Framework.Controls
 
             if (DataSource != null)
             {
-                var itemBinding = GetItemBinding();
                 var index = 0;
                 foreach (var item in GetIEnumerableFromDataSource()!)
                 {

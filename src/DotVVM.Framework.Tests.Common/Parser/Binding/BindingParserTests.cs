@@ -744,24 +744,141 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(originalString, node.ToDisplayString());
         }
 
-
         [DataTestMethod]
-        [DataRow("StringProp = StringProp + 1;", DisplayName = "Multiblock expression, bare semicolon at the end.")]
-        [DataRow("StringProp = StringProp + 1; ", DisplayName = "Multiblock expression, semicolon and whitespace at the end.")]
-        public void BindingParser_MultiblockExpression_SemicolonEnd_Invalid(string bindingExpression)
+        [DataRow("A();!IsDisplayed", DisplayName = "Multiblock expression, Operator bunching - no whitespaces")]
+        [DataRow("A(); !IsDisplayed", DisplayName = "Multiblock expression, Operator bunching - with whitespaces")]
+        public void BindingParser_MultiblockExpression_LotOfOperators_Valid(string bindingExpression)
         {
             var parser = bindingParserNodeFactory.SetupParser(bindingExpression);
             var node = parser.ReadExpression();
 
-            var lastId = node.As<BlockBindingParserNode>()?.SecondExpression
-                             .As<VoidBindingParserNode>();
+            var firstExpression =
+                node.As<BlockBindingParserNode>()
+                ?.FirstExpression.As<FunctionCallBindingParserNode>();
 
-            Assert.IsNotNull(lastId, "Expected path was not found in the expression tree.");
+            var secondExpression = node.As<BlockBindingParserNode>()
+                ?.SecondExpression.As<UnaryOperatorBindingParserNode>();
+
+            Assert.IsNotNull(firstExpression, "Expected path was not found in the expression tree.");
+            Assert.IsNotNull(secondExpression, "Expected path was not found in the expression tree.");
+
+            Assert.AreEqual(0, node.StartPosition);
+            Assert.AreEqual(node.EndPosition, secondExpression.EndPosition);
+            Assert.AreEqual(firstExpression.EndPosition + 1, secondExpression.StartPosition);
+
+
+            //display string does not really deal with whitespace tokens, we dont care about those.
+            //Just making sure the expression syntax itself remains the same
+            Assert.AreEqual(SkipWhitespaces(bindingExpression), SkipWhitespaces(node.ToDisplayString()));
+        }
+
+        [DataTestMethod]
+        [DataRow("StringProp = StringProp + 1;", 0, DisplayName = "Multiblock expression, bare semicolon at the end.")]
+        [DataRow("StringProp = StringProp + 1; ", 1, DisplayName = "Multiblock expression, semicolon and whitespace at the end.")]
+        public void BindingParser_MultiblockExpression_SemicolonEnd_Invalid(string bindingExpression, int lastBlockExpectedLenght)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(bindingExpression);
+            var node = parser.ReadExpression();
+
+            var firstExpression =
+                node.As<BlockBindingParserNode>()
+                ?.FirstExpression.As<BinaryOperatorBindingParserNode>();
+
+            var secondExpression = node.As<BlockBindingParserNode>()
+                ?.SecondExpression.As<VoidBindingParserNode>();
+
+            Assert.IsNotNull(firstExpression, "Expected path was not found in the expression tree.");
+            Assert.IsNotNull(secondExpression, "Expected path was not found in the expression tree.");
+
+            Assert.AreEqual(0, node.StartPosition);
+            Assert.AreEqual(node.EndPosition, secondExpression.EndPosition);
+            Assert.AreEqual(firstExpression.EndPosition + 1, secondExpression.StartPosition);
+            Assert.AreEqual(lastBlockExpectedLenght, secondExpression.Length);
+
 
             //display string does not really deal with whitespace tokens, we dont care about those.
             //Just making sure the expression syntax itself remains the same
             Assert.AreEqual(bindingExpression.Trim(), node.ToDisplayString().Trim());
         }
+
+        [DataTestMethod]
+        [DataRow("StringProp = StringProp + 1;;test", 0, DisplayName = "Multiblock expression, bare semicolon in the middle.")]
+        [DataRow("StringProp = StringProp + 1; ;test", 1, DisplayName = "Multiblock expression, semicolon and whitespace in the middle.")]
+        public void BindingParser_MultiblockExpression_EmptyBlockMiddle_Invalid(string bindingExpression, int voidBlockExpectedLenght)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(bindingExpression);
+            var node = parser.ReadExpression();
+
+            var firstExpression =
+                node.As<BlockBindingParserNode>()
+                ?.FirstExpression.As<BinaryOperatorBindingParserNode>();
+
+            var secondBlock =
+                node.As<BlockBindingParserNode>()
+                ?.SecondExpression.As<BlockBindingParserNode>();
+
+            var middleExpression = secondBlock
+                ?.FirstExpression.As<VoidBindingParserNode>();
+
+            var lastExpression = secondBlock
+                ?.SecondExpression.As<BindingParserNode>();
+
+            Assert.IsNotNull(firstExpression, "Expected path was not found in the expression tree.");
+            Assert.IsNotNull(middleExpression, "Expected path was not found in the expression tree.");
+            Assert.IsNotNull(lastExpression, "Expected path was not found in the expression tree.");
+
+            Assert.AreEqual(firstExpression.EndPosition + 1, middleExpression.StartPosition);
+            Assert.AreEqual(middleExpression.EndPosition + 1, lastExpression.StartPosition);
+            Assert.AreEqual(node.EndPosition, lastExpression.EndPosition);
+            Assert.AreEqual(voidBlockExpectedLenght, middleExpression.Length);
+
+            Assert.AreEqual(SkipWhitespaces(bindingExpression), SkipWhitespaces(node.ToDisplayString()));
+        }
+
+        [DataTestMethod]
+        [DataRow("StringProp = StringProp + 1;;test;test2", 0, DisplayName = "Multiblock expression, bare semicolon among four blocks.")]
+        [DataRow("StringProp = StringProp + 1; ;test;test2", 1, DisplayName = "Multiblock expression, semicolon and whitespace among four blocks.")]
+        public void BindingParser_MultiblockExpression_EmptyBlockFourBlocks_Invalid(string bindingExpression, int voidBlockExpectedLenght)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(bindingExpression);
+            var node = parser.ReadExpression();
+
+            var firstExpression =
+                node.As<BlockBindingParserNode>()
+                ?.FirstExpression.As<BinaryOperatorBindingParserNode>();
+
+            var secondBlock =
+                node.As<BlockBindingParserNode>()
+                ?.SecondExpression.As<BlockBindingParserNode>();
+
+            var voidExpression = secondBlock
+                ?.FirstExpression.As<VoidBindingParserNode>();
+
+            var thirdBlock =
+                secondBlock
+                ?.SecondExpression.As<BlockBindingParserNode>();
+
+            var test = thirdBlock
+                ?.FirstExpression.As<IdentifierNameBindingParserNode>();
+
+            var test2 = thirdBlock
+               ?.SecondExpression.As<IdentifierNameBindingParserNode>();
+
+            Assert.IsNotNull(firstExpression, "Expected path was not found in the expression tree.");
+            Assert.IsNotNull(voidExpression, "Expected path was not found in the expression tree.");
+            Assert.IsNotNull(test, "Expected path was not found in the expression tree.");
+            Assert.IsNotNull(test2, "Expected path was not found in the expression tree.");
+
+            Assert.AreEqual(firstExpression.EndPosition + 1, voidExpression.StartPosition);
+            Assert.AreEqual(voidExpression.EndPosition + 1, test.StartPosition);
+            Assert.AreEqual(test.EndPosition + 1, test2.StartPosition);
+            Assert.AreEqual(test2.EndPosition, node.EndPosition);
+            Assert.AreEqual(voidBlockExpectedLenght, voidExpression.Length);
+
+            Assert.AreEqual(SkipWhitespaces(bindingExpression), SkipWhitespaces(node.ToDisplayString()));
+        }
+
+        private static string SkipWhitespaces(string str) => string.Join("", str.Where(c => !char.IsWhiteSpace(c)));
 
         private static void CheckTokenTypes(IEnumerable<BindingToken> bindingTokens, IEnumerable<BindingTokenType> expectedTokenTypes)
         {

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
-using DotVVM.Framework.Hosting.Owin.Runtime.Caching;
+using DotVVM.Framework.Hosting.Owin.Hosting;
 using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Security;
@@ -58,13 +61,15 @@ namespace Owin
         {
             var config = DotvvmConfiguration.CreateDefault(s => {
                 s.TryAddSingleton<IDataProtectionProvider>(p => new DefaultDataProtectionProvider(app));
-                s.TryAddSingleton<IDotvvmCacheAdapter, OwinDotvvmCacheAdapter>();
+                s.TryAddSingleton<IDotvvmCacheAdapter, DefaultDotvvmCacheAdapter>();
                 s.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
                 s.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
                 s.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
                 s.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
+                s.TryAddSingleton<IRequestCancellationTokenProvider, RequestCancellationTokenProvider>();
                 s.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
                 s.TryAddScoped<IDotvvmRequestContext>(services => services.GetRequiredService<DotvvmRequestContextStorage>().Context);
+                s.AddSingleton<IDotvvmViewCompilationService, DotvvmViewCompilationService>();
                 configurator?.ConfigureServices(new DotvvmServiceCollection(s));
             }, serviceProviderFactoryMethod);
             config.Debug = debug;
@@ -79,7 +84,7 @@ namespace Owin
 
             modifyConfiguration?.Invoke(config);
             config.Freeze();
-
+            
             app.Use<DotvvmMiddleware>(config, new List<IMiddleware> {
                 ActivatorUtilities.CreateInstance<DotvvmCsrfTokenMiddleware>(config.ServiceProvider),
                 ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(config.ServiceProvider),
@@ -87,6 +92,10 @@ namespace Owin
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             }.Where(t => t != null).ToArray());
+
+            var compilationConfiguration = config.Markup.ViewCompilation;
+            compilationConfiguration.HandleViewCompilation(config);
+
             return config;
         }
     }

@@ -918,6 +918,8 @@ var DotVVM = /** @class */ (function () {
         var _this = this;
         this.postBackCounter = 0;
         this.lastStartedPostack = 0;
+        // when we perform redirect, we also disable all new postbacks to prevent strange behavior
+        this.arePostbacksDisabled = false;
         this.resourceSigns = {};
         this.isViewModelUpdating = true;
         this.spaHistory = new DotvvmSpaHistory();
@@ -1015,12 +1017,15 @@ var DotVVM = /** @class */ (function () {
             dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() + 1);
             var dispatchNext = function (args) {
                 var drop = function () {
-                    queue.noRunning--;
-                    dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
-                    if (queue.queue.length > 0) {
-                        var callback = queue.queue.shift();
-                        window.setTimeout(callback, 0);
-                    }
+                    // run the next postback after everything about this one is finished (after, error events, ...)
+                    Promise.resolve().then(function () {
+                        queue.noRunning--;
+                        dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
+                        if (queue.queue.length > 0) {
+                            var callback = queue.queue.shift();
+                            callback();
+                        }
+                    });
                 };
                 if (args instanceof DotvvmAfterPostBackWithRedirectEventArgs && args.redirectPromise) {
                     args.redirectPromise.then(drop, drop);
@@ -1449,6 +1454,9 @@ var DotVVM = /** @class */ (function () {
                         reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, null, options.postbackId) });
                         return [2 /*return*/];
                     case 4:
+                        if (this.arePostbacksDisabled) {
+                            reject({ type: 'handler' });
+                        }
                         this.lastStartedPostack = options.postbackId;
                         // perform the postback
                         this.updateDynamicPathFragments(context, path);
@@ -1832,9 +1840,26 @@ var DotVVM = /** @class */ (function () {
         this.events.redirect.trigger(redirectArgs);
         return this.performRedirect(url, replace, resultObject.allowSpa && this.useHistoryApiSpaNavigation);
     };
+    DotVVM.prototype.disablePostbacks = function () {
+        this.lastStartedPostack = -1; // this stops further commits
+        for (var q in this.postbackQueues) {
+            if (this.postbackQueues.hasOwnProperty(q)) {
+                var postbackQueue = this.postbackQueues[q];
+                postbackQueue.queue.length = 0;
+                postbackQueue.noRunning = 0;
+            }
+        }
+        // disable all other postbacks
+        // but not in SPA mode, since we'll need them for the next page
+        // and user might want to try another postback in case this navigation hangs
+        if (!this.getSpaPlaceHolder()) {
+            this.arePostbacksDisabled = true;
+        }
+    };
     DotVVM.prototype.performRedirect = function (url, replace, useHistoryApiSpaRedirect) {
         var _this = this;
         return new Promise(function (resolve, reject) {
+            _this.disablePostbacks();
             if (replace) {
                 location.replace(url);
                 resolve();
@@ -2185,14 +2210,16 @@ var DotVVM = /** @class */ (function () {
             if (!bindingContext)
                 throw new Error();
             var savedNodes;
+            var isInitial = true;
             ko.computed(function () {
                 var rawValue = valueAccessor();
+                ko.unwrap(rawValue); // we have to touch the observable in the binding so that the `getDependenciesCount` call knows about this dependency. If would be unwrapped only later (in the makeContextCallback) we would not have the savedNodes.
                 // Save a copy of the inner nodes on the initial update, but only if we have dependencies.
-                if (!savedNodes && ko.computedContext.getDependenciesCount()) {
+                if (isInitial && ko.computedContext.getDependenciesCount()) {
                     savedNodes = ko.utils.cloneNodes(ko.virtualElements.childNodes(element), true /* shouldCleanNodes */);
                 }
                 if (shouldDisplay(rawValue)) {
-                    if (savedNodes) {
+                    if (!isInitial) {
                         ko.virtualElements.setDomNodeChildren(element, ko.utils.cloneNodes(savedNodes));
                     }
                     ko.applyBindingsToDescendants(makeContextCallback(bindingContext, rawValue), element);
@@ -2200,6 +2227,7 @@ var DotVVM = /** @class */ (function () {
                 else {
                     ko.virtualElements.emptyNode(element);
                 }
+                isInitial = false;
             }, null, { disposeWhenNodeIsRemoved: element });
             return { controlsDescendantBindings: true }; // do not apply binding again
         }; };
@@ -2806,6 +2834,14 @@ var DotvvmValidation = /** @class */ (function () {
                         var item = document.createElement("li");
                         item.innerText = error.errorMessage;
                         element.appendChild(item);
+                    }
+                    if (binding.hideWhenValid) {
+                        if (errors.length > 0) {
+                            element.style.display = "";
+                        }
+                        else {
+                            element.style.display = "none";
+                        }
                     }
                 });
             }

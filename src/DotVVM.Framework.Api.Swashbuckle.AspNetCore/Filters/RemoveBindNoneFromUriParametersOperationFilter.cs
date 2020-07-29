@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.ViewModel;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -10,7 +11,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
 {
     public class RemoveBindNoneFromUriParametersOperationFilter : IOperationFilter
     {
-        public void Apply(Operation operation, OperationFilterContext context)
+        public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             if (operation.Parameters != null)
             {

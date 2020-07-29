@@ -18,14 +18,14 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets the registered control namespaces.
         /// </summary>
-        [JsonProperty("controls", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty("controls")]
         public IList<DotvvmControlConfiguration> Controls => _controls;
         private readonly FreezableList<DotvvmControlConfiguration> _controls;
 
         /// <summary>
         /// Gets or sets the list of referenced assemblies.
         /// </summary>
-        [JsonProperty("assemblies", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty("assemblies")]
         public IList<string> Assemblies => _assemblies;
         private readonly FreezableList<string> _assemblies;
 
@@ -61,12 +61,16 @@ namespace DotVVM.Framework.Configuration
         private readonly Lazy<JavascriptTranslatorConfiguration> _javascriptTranslator;
 
 
+        [JsonProperty("defaultExtensionParameters")]
         public IList<BindingExtensionParameter> DefaultExtensionParameters
         {
             get => _defaultExtensionParameters;
             set { ThrowIfFrozen(); _defaultExtensionParameters = value; }
         }
         private IList<BindingExtensionParameter> _defaultExtensionParameters = new FreezableList<BindingExtensionParameter>();
+
+        public ViewCompilationConfiguration ViewCompilation { get; private set; } = new ViewCompilationConfiguration();
+
 
         public void AddServiceImport(string identifier, Type type)
         {
@@ -172,7 +176,10 @@ namespace DotVVM.Framework.Configuration
         public void Freeze()
         {
             this.isFrozen = true;
+
+            ViewCompilation.Freeze();
             _controls.Freeze();
+            
             foreach (var c in this.Controls)
                 c.Freeze();
             _assemblies.Freeze();

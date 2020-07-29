@@ -194,6 +194,95 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(BindingTokenType.Identifier, tokens[2].Type);
         }
 
+        [DataTestMethod]
+        [DataRow("StringProp = StringProp + 1;;test", false)]
+        [DataRow("StringProp = StringProp + 1; ;test", true)]
+        public void BindingTokenizer_MultiblockExpression_VoidBlockMiddle_Valid(string expression, bool voidWhitespace)
+        {
+            var tokens = Tokenize(expression);
+
+            var index = 0;
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.AssignOperator, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.AddOperator, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.Semicolon, tokens[index++].Type);
+            if (voidWhitespace)
+            {
+                Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
+            }
+            Assert.AreEqual(BindingTokenType.Semicolon, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+
+            Assert.AreEqual(index, tokens.Count);
+        }
+
+        [TestMethod]
+        public void BindingTokenizer_MultiblockExpression_BunchingOperators_Valid()
+        {
+            var tokens = Tokenize("A();!IsDisplayed");
+
+            var index = 0;
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.OpenParenthesis, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.CloseParenthesis, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.Semicolon, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.NotOperator, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual(index, tokens.Count);
+        }
+
+        [TestMethod]
+        public void BindingTokenizer_UnaryOperator_BunchingOperators_Valid()
+        {
+            var tokens = Tokenize("A(!IsDisplayed)");
+
+            var index = 0;
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.OpenParenthesis, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.NotOperator, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.CloseParenthesis, tokens[index++].Type);
+
+            Assert.AreEqual(index, tokens.Count);
+        }
+
+        [DataTestMethod]
+        [DataRow("test;", false)]
+        [DataRow("test; ", true)]
+        public void BindingTokenizer_MultiblockExpression_VoidBlockLast_Valid(string expression, bool voidWhitespace)
+        {
+            var tokens = Tokenize(expression);
+
+            var index = 0;
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.Semicolon, tokens[index++].Type);
+
+            if (voidWhitespace)
+            {
+                Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
+            }
+
+            Assert.AreEqual(index, tokens.Count);
+        }
+
+        [TestMethod]
+        public void BindingTokenizer_MultiblockExpression_Simple_Valid()
+        {
+            var tokens = Tokenize("test;test");
+
+            var index = 0;
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.Semicolon, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual(index, tokens.Count);
+        }
+
         private static List<BindingToken> Tokenize(string expression)
         {
             // tokenize
