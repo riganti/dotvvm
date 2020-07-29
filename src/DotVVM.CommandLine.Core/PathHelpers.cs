@@ -99,7 +99,16 @@ namespace DotVVM.CommandLine.Core
 
         private static StringComparison PathComparison
         {
-            get { return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal; }
+            get
+            {
+#if DotNetCore
+                return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                    ? StringComparison.OrdinalIgnoreCase
+                    : StringComparison.Ordinal;
+#else
+                return StringComparison.OrdinalIgnoreCase;
+#endif
+            }
         }
     }
 }

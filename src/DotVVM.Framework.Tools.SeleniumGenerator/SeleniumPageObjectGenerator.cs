@@ -105,7 +105,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             IEnumerable<string> usedSelectors)
         {
             var masterPagesUsedNames = masterPageObjectDefinitions.SelectMany(m => m.UsedNames);
-            return masterPagesUsedNames.Union(usedSelectors).ToHashSet();
+            return new HashSet<string>(masterPagesUsedNames.Union(usedSelectors));
         }
 
         private HashSet<string> GetUsedSelectors(IAbstractTreeRoot viewTree)
@@ -260,7 +260,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
 
         private static SyntaxList<UsingDirectiveSyntax> GetSeleniumHelpersUsingList(PageObjectDefinition pageObject)
         {
-            var list = new SyntaxList<UsingDirectiveSyntax>(
+            var list = new SyntaxList<UsingDirectiveSyntax>().AddRange(
                 new[]
                 {
                     SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("DotVVM.Framework.Testing.SeleniumHelpers")),
