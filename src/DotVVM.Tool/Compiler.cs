@@ -1,4 +1,6 @@
 using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.IO;
 
 namespace DotVVM.Tool
 {
@@ -6,7 +8,15 @@ namespace DotVVM.Tool
     {
         public static void AddCompiler(Command command)
         {
-            command.AddCommand(new Command("compiler", "Invoke the DotVVM compiler"));
+            var compileCmd = new Command("compile", "Invoke the DotVVM compiler");
+            compileCmd.AddArgument(new Argument<FileSystemInfo>("TARGET", "Path to a DotVVM project"));
+            compileCmd.Handler = CommandHandler.Create(typeof(Compiler).GetMethod(nameof(ExecuteCommand))!);
+            command.AddCommand(compileCmd);
+        }
+
+        public static void ExecuteCommand(FileSystemInfo target)
+        {
+            
         }
     }
 }

@@ -7,10 +7,10 @@ namespace DotVVM.Compiler.Programs
     /// Project that will use Dotvvm will have to use at least the version stated in Dotvvm nuget.
     /// However if versions here are lower, there is no way to ensure them
     /// </summary>
-    internal static class Program
+    public static class Program
     {
 
-        private static void Main(string[] args)
+        public static void Main(string[] args)
         {
             try
             {
