@@ -16,7 +16,7 @@ namespace DotVVM.Tool
 
         public static void ExecuteCommand(FileSystemInfo target)
         {
-            
+            var msbuild = MSBuild.Create(target as FileInfo);
         }
     }
 }
