@@ -43,10 +43,10 @@ namespace DotVVM.Tool
                     {
                         var instance2 = (ISetupInstance2)instances[0];
                         var path = instance2.GetInstallationPath();
-                        var exePath = System.IO.Path.Combine(path, VSRelativePath);
-                        if (File.Exists(exePath))
+                        var exe = new FileInfo(System.IO.Path.Combine(path, VSRelativePath));
+                        if (exe.Exists)
                         {
-                            return new MSBuild(exePath, ImmutableArray.Create<string>());
+                            return new MSBuild(exe.FullName, ImmutableArray.Create<string>());
                         }
                     }
                 }
