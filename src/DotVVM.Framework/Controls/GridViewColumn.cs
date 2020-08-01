@@ -132,7 +132,7 @@ namespace DotVVM.Framework.Controls
 
         public abstract void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container);
 
-        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string?>? sortCommand, HtmlGenericControl cell, IGridViewDataSet? gridViewDataSet)
+        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string?>? sortCommand, HtmlGenericControl cell, IBaseGridViewDataSet<object>? gridViewDataSet)
         {
             if (HeaderTemplate != null)
             {
@@ -167,7 +167,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        public virtual void CreateFilterControls(IDotvvmRequestContext context, GridView gridView, HtmlGenericControl cell, ISortableGridViewDataSet? sortableGridViewDataSet)
+        public virtual void CreateFilterControls(IDotvvmRequestContext context, GridView gridView, HtmlGenericControl cell, IBaseGridViewDataSet<object>? sortableGridViewDataSet)
         {
             if (FilterTemplate != null)
             {
@@ -177,24 +177,27 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void SetSortedCssClass(HtmlGenericControl cell, ISortableGridViewDataSet? sortableGridViewDataSet)
+        private void SetSortedCssClass(HtmlGenericControl cell, object? sortableGridViewDataSet)
         {
-            if (sortableGridViewDataSet != null)
+            // no suppport for sorting
+        }
+        private void SetSortedCssClass<T>(HtmlGenericControl cell, ISortableGridViewDataSet<T, ISingleColumnSorter<T>> sortableGridViewDataSet)
+        {
+            if (sortableGridViewDataSet is null) return;
+
+            if (!RenderOnServer)
             {
-                if (!RenderOnServer)
+                cell.Attributes["data-bind"] = $"css: {{ '{SortDescendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).Sorter().SortExpression) == '{GetSortExpression()}' && ko.unwrap(ko.unwrap($gridViewDataSet).Sorter().SortDescending), '{SortAscendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).Sorter().SortExpression) == '{GetSortExpression()}' && !ko.unwrap(ko.unwrap($gridViewDataSet).Sorter().SortDescending)}}";
+            }
+            else if (sortableGridViewDataSet.Sorter.SortExpression == GetSortExpression())
+            {
+                if (sortableGridViewDataSet.Sorter.SortDescending)
                 {
-                    cell.Attributes["data-bind"] = $"css: {{ '{SortDescendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortExpression) == '{GetSortExpression()}' && ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortDescending), '{SortAscendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortExpression) == '{GetSortExpression()}' && !ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortDescending)}}";
+                    cell.Attributes["class"] = SortDescendingHeaderCssClass;
                 }
-                else if (sortableGridViewDataSet.SortingOptions.SortExpression == GetSortExpression())
+                else
                 {
-                    if (sortableGridViewDataSet.SortingOptions.SortDescending)
-                    {
-                        cell.Attributes["class"] = SortDescendingHeaderCssClass;
-                    }
-                    else
-                    {
-                        cell.Attributes["class"] = SortAscendingHeaderCssClass;
-                    }
+                    cell.Attributes["class"] = SortAscendingHeaderCssClass;
                 }
             }
         }

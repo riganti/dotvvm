@@ -157,6 +157,16 @@ namespace DotVVM.Framework.Controls
             base.OnPreRender(context);
         }
 
+        private Action<string?>? GetSortCommand<T, TSorter>(ISortableGridViewDataSet<T, TSorter> x)
+            where TSorter: IDataSetSorter<T>
+        {
+            return expr => x.Sorter.ColumnSortClick(x, expr);
+        }
+        private Action<string?>? GetSortCommand(object? x)
+        {
+            return SortChanged;
+        }
+
         private void DataBind(IDotvvmRequestContext context)
         {
             Children.Clear();
@@ -166,22 +176,7 @@ namespace DotVVM.Framework.Controls
             var dataSourceBinding = GetDataSourceBinding();
             var dataSource = DataSource;
 
-            var sortCommand =
-                dataSource is ISortableGridViewDataSet sortableSet && sortableSet.SortingOptions is ISortingOptions sortOptions ?
-                    expr => {
-                        if (sortOptions.SortExpression == expr)
-                        {
-                            sortOptions.SortDescending ^= true;
-                        }
-                        else
-                        {
-                            sortOptions.SortExpression = expr;
-                            sortOptions.SortDescending = false;
-                        }
-                        (sortableSet as IPageableGridViewDataSet)?.GoToFirstPage();
-                    }
-            :
-                    SortChanged;
+            Action<string?>? sortCommand = GetSortCommand((dynamic?)dataSource);
 
             // WORKAROUND: DataSource is null => don't throw exception
             if (sortCommand == null && dataSource == null)
@@ -232,7 +227,7 @@ namespace DotVVM.Framework.Controls
             head = new HtmlGenericControl("thead");
             Children.Add(head);
 
-            var gridViewDataSet = DataSource as IGridViewDataSet;
+            var gridViewDataSet = DataSource as IBaseGridViewDataSet<object>;
 
             var headerRow = new HtmlGenericControl("tr");
             head.Children.Add(headerRow);
@@ -297,14 +292,8 @@ namespace DotVVM.Framework.Controls
             var isInEditMode = false;
             if (InlineEditing)
             {
-                // if gridviewdataset is missing throw exception
-                if (!(DataSource is IGridViewDataSet))
-                {
-                    throw new ArgumentException("You have to use GridViewDataSet with InlineEditing enabled.");
-                }
-
                 //checks if row is being edited
-                isInEditMode = IsEditedRow(placeholder);
+                isInEditMode = (bool)IsEditedRow((dynamic?)DataSource, placeholder);
             }
 
             var row = CreateRow(placeholder, isInEditMode);
@@ -347,13 +336,12 @@ namespace DotVVM.Framework.Controls
             return row;
         }
 
-        private PropertyInfo ResolvePrimaryKeyProperty()
+        private PropertyInfo ResolvePrimaryKeyProperty<T>(IRowEditGridViewDataSet<T> dataSet)
         {
-            var dataSet = (IGridViewDataSet)DataSource.NotNull();
             var primaryKeyPropertyName = dataSet.RowEditOptions.PrimaryKeyPropertyName;
             if (string.IsNullOrEmpty(primaryKeyPropertyName))
             {
-                throw new DotvvmControlException(this, $"The {nameof(IGridViewDataSet)} must " +
+                throw new DotvvmControlException(this, $"The IGridViewDataSet must " +
                     $"specify the {nameof(IRowEditOptions.PrimaryKeyPropertyName)} property " +
                     $"when inline editing is enabled on the {nameof(GridView)} control!");
             }
@@ -368,13 +356,19 @@ namespace DotVVM.Framework.Controls
             return property;
         }
 
-        private bool IsEditedRow(DataItemContainer placeholder)
+        private bool IsEditedRow(object? dataSource, DataItemContainer placeholder) =>
+            throw new ArgumentException("You have to use GridViewDataSet with InlineEditing enabled.");
+
+        private bool IsEditedRow<T, TSorter, TPager, TFilter>(IGridViewDataSet<T, TSorter, TPager, TFilter> dataSource, DataItemContainer placeholder)
+            where TPager: IDataSetPager<T>
+            where TSorter: IDataSetSorter<T>
+            where TFilter: IDataSetFilter<T>
         {
-            var property = ResolvePrimaryKeyProperty();
+            var property = ResolvePrimaryKeyProperty(dataSource);
             var value = property.GetValue(placeholder.DataContext);
             if (value != null)
             {
-                var editRowId = ((IGridViewDataSet)DataSource!).RowEditOptions.EditRowId;
+                var editRowId = dataSource.RowEditOptions.EditRowId;
                 if (editRowId != null && value.Equals(ReflectionUtils.ConvertValue(editRowId, property.PropertyType)))
                 {
                     return true;
@@ -436,7 +430,7 @@ namespace DotVVM.Framework.Controls
                 {
                     var propertySerialization = context.Services
                         .GetRequiredService<IPropertySerialization>();
-                    var primaryKeyProperty = ResolvePrimaryKeyProperty();
+                    var primaryKeyProperty = ResolvePrimaryKeyProperty((dynamic?)DataSource);
                     var primaryKeyPropertyName = propertySerialization.ResolveName(primaryKeyProperty);
 
                     var placeholder = new DataItemContainer { DataContext = null };

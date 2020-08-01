@@ -4,14 +4,16 @@ namespace DotVVM.Framework.Controls
     /// Represents a collection of items with paging, sorting and row edit capabilities.
     /// </summary>
     /// <typeparam name="T">The type of the <see cref="IBaseGridViewDataSet{T}.Items" /> elements.</typeparam>
-    public interface IGridViewDataSet<T> : IGridViewDataSet, IBaseGridViewDataSet<T>
-    {
-    }
-
-    /// <summary>
-    /// Represents a collection of items with paging, sorting and row edit capabilities.
-    /// </summary>
-    public interface IGridViewDataSet : IPageableGridViewDataSet, ISortableGridViewDataSet, IRowEditGridViewDataSet, IRefreshableGridViewDataSet
+    public interface IGridViewDataSet<T, out TSorter, out TPager, out TFilter> :
+        IBaseGridViewDataSet<T>,
+        ISortableGridViewDataSet<T, TSorter>,
+        IPageableGridViewDataSet<T, TPager>,
+        IFilterableGridViewDataSet<T, TFilter>,
+        IRowEditGridViewDataSet<T>,
+        IRefreshableGridViewDataSet<T>
+        where TPager: IDataSetPager<T>
+        where TSorter: IDataSetSorter<T>
+        where TFilter: IDataSetFilter<T>
     {
     }
 }

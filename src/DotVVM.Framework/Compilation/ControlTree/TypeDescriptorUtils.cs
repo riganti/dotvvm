@@ -26,9 +26,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
 
             // handle GridViewDataSet
-            if (type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IBaseGridViewDataSet))))
+            if (type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IBaseGridViewDataSet<object>))))
             {
-                var itemsType = type.TryGetPropertyType(nameof(IBaseGridViewDataSet.Items));
+                var itemsType = type.TryGetPropertyType("Items");
                 return itemsType.TryGetArrayElementOrIEnumerableType() ?? throw new Exception("This is strange and should not happen. IBaseGridViewDataSet.Items is not IEnumerable.");
             }
 

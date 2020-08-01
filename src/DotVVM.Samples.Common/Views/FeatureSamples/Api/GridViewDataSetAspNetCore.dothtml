@@ -26,7 +26,7 @@
     <p>&nbsp;</p>
 
     <h1>Grid with paging</h1>
-    <dot:GridView DataSource="{value: _api.Store(_api.RefreshOnEvent(_apiCore.ApiCompaniesPagedGet(DataSet1.PagingOptions), "Refresh2"), DataSet1)}">
+    <dot:GridView DataSource="{value: _api.Store(_api.RefreshOnEvent(_apiCore.ApiCompaniesPagedGet(DataSet1.Pager), "Refresh2"), DataSet1)}">
         <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: Id}" AllowSorting="true" />
         <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="true" />
         <dot:GridViewTextColumn HeaderText="Owner" ValueBinding="{value: Owner}" AllowSorting="true" />
@@ -37,7 +37,7 @@
     <p>&nbsp;</p>
 
     <h1>Grid with paging</h1>
-    <dot:GridView DataSource="{value: _api.Store(_api.RefreshOnEvent(_apiCore.ApiCompaniesSortedandpagedGet(DataSet2.SortingOptions, DataSet2.PagingOptions), "Refresh3"), DataSet2)}">
+    <dot:GridView DataSource="{value: _api.Store(_api.RefreshOnEvent(_apiCore.ApiCompaniesSortedandpagedGet(DataSet2.Sorter, DataSet2.Pager), "Refresh3"), DataSet2)}">
         <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: Id}" AllowSorting="true" />
         <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="true" />
         <dot:GridViewTextColumn HeaderText="Owner" ValueBinding="{value: Owner}" AllowSorting="true" />

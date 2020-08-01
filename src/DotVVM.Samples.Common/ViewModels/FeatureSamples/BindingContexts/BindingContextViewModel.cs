@@ -45,7 +45,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.BindingContexts
                 ChildrenDataSet = new GridViewDataSet<string>
                 {
                     Items = new List<string> {"test"},
-                    PagingOptions = new PagingOptions
+                    Pager =
                     {
                         TotalItemsCount = 1
                     }

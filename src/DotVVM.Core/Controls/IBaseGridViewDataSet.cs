@@ -7,22 +7,11 @@ namespace DotVVM.Framework.Controls
     /// Defines the basic contract for DataSets.
     /// </summary>
     /// <typeparam name="T">The type of the <see cref="Items" /> elements.</typeparam>
-    public interface IBaseGridViewDataSet<T> : IBaseGridViewDataSet
+    public interface IBaseGridViewDataSet<out T>
     {
         /// <summary>
         /// Gets the items for the current page.
         /// </summary>
-        new IList<T> Items { get; }
-    }
-
-    /// <summary>
-    /// Defines the basic contract for DataSets.
-    /// </summary>
-    public interface IBaseGridViewDataSet
-    {
-        /// <summary>
-        /// Gets the items for the current page.
-        /// </summary>
-        IList Items { get; }
+        IReadOnlyList<T> Items { get; }
     }
 }

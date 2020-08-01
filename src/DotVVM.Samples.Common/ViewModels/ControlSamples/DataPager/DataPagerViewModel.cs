@@ -18,7 +18,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.DataPager
         {
             DataSet = new GridViewDataSet<Data>()
             {
-                PagingOptions = new PagingOptions()
+                Pager =
                 {
                     PageSize = 3
                 }

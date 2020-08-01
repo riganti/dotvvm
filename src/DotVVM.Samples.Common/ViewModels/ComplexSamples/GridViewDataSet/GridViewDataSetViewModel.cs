@@ -14,7 +14,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet
         {
             GridData = new GridViewDataSet<GridViewData>()
             {
-                PagingOptions = new PagingOptions()
+                Pager =
                 {
                     PageSize = 10
                 }
