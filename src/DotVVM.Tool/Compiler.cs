@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -9,24 +13,33 @@ namespace DotVVM.Tool
 {
     public static class Compiler
     {
+        public const string CompilerExecutable = "Compiler.dll";
+
         public static void AddCompiler(Command command)
         {
-            var compileCmd = new Command("compile", "Invokes the DotVVM compiler.");
+            var compileCmd = new Command("compile", "Invokes the DotVVM compiler");
             compileCmd.AddArgument(new Argument<FileSystemInfo>(
                 name: "target",
                 getDefaultValue: () => new DirectoryInfo(Environment.CurrentDirectory),
-                description: "Path to a DotVVM project."));
+                description: "Path to a DotVVM project"));
+            compileCmd.AddArgument(new Argument<string[]>(
+                name: "compilerArgs",
+                description: "Arguments passed to the compiler"));
             compileCmd.AddOption(new Option<FileSystemInfo>(
                 alias: "--compiler",
-                description: "Path to the source of DotVVM.Compiler."));
+                description: "Path to the source of DotVVM.Compiler"));
             compileCmd.AddOption(new Option<bool>(
                 alias: "--debug",
-                description: "Builds the compiler shim with the Debug configuration."));
+                description: "Build the compiler shim with the Debug configuration"));
             compileCmd.Handler = CommandHandler.Create(typeof(Compiler).GetMethod(nameof(ExecuteCommand))!);
             command.AddCommand(compileCmd);
         }
 
-        public static int ExecuteCommand(FileSystemInfo target, FileSystemInfo? compiler, bool debug)
+        public static int ExecuteCommand(
+            FileSystemInfo target,
+            string[]? compilerArgs,
+            FileSystemInfo? compiler,
+            bool debug)
         {
             var logger = Program.Logging.CreateLogger("Compiler");
 
@@ -67,7 +80,36 @@ namespace DotVVM.Tool
             }
 
             var shim = CreateCompilerShim(project, compilerPath);
-            return msbuild.TryBuild(shim, debug ? "Debug" : "Release", logger) ? 0 : 1;
+            var configuration = debug ? "Debug" : "Release";
+            if (!msbuild.TryBuild(shim, configuration, logger))
+            {
+                logger.LogCritical("Failed to build the compiler shim.");
+                return 1;
+            }
+
+            var compilerExePath = $"bin/{configuration}/{Templates.Netcoreapp}/{CompilerExecutable}";
+            var compilerExe = new FileInfo(Path.Combine(shim.DirectoryName, compilerExePath));
+            if (!compilerExe.Exists)
+            {
+                logger.LogCritical($"The compiler shim executable could not be found at '{compilerExe}'.");
+                return 1;
+            }
+
+            var sb = new StringBuilder();
+            sb.Append(compilerExe.FullName);
+            if (compilerArgs is object)
+            {
+                sb.Append(' ');
+                sb.AppendJoin(' ', compilerArgs.Select(s => $"\"{s}\""));
+            }
+            var processInfo = new ProcessStartInfo()
+            {
+                FileName = "dotnet",
+                Arguments = sb.ToString()
+            };
+            var process = System.Diagnostics.Process.Start(processInfo);
+            process.WaitForExit();
+            return process.ExitCode;
         }
 
         public static FileInfo CreateCompilerShim(FileInfo projectFile, string? compilerPath = null)

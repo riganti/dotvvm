@@ -77,7 +77,7 @@ namespace DotVVM.Tool
 
             var sb = new StringBuilder();
             sb.AppendJoin(' ', PrefixedArgs);
-            sb.Append(" -target:Clean,Restore,Build");
+            sb.Append(" -target:Restore,Build");
             sb.Append($" -property:Configuration={configuration}");
             sb.Append($" {project.FullName}");
             var args = sb.ToString();

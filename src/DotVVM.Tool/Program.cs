@@ -22,7 +22,7 @@ namespace DotVVM.Tool
             SeleniumGenerator.AddSeleniumGenerator(rootCmd);
             rootCmd.AddGlobalOption(new Option<bool>(
                 aliases: new [] {"-v", VerboseAlias},
-                description: "Shows more verbose output."));
+                description: "Show more verbose output"));
             var builder = new CommandLineBuilder(rootCmd)
                 .UseDefaults()
                 .UseMiddleware(c =>
@@ -33,11 +33,9 @@ namespace DotVVM.Tool
                     Logging = LoggerFactory.Create(b => b.AddConsole().SetMinimumLevel(logLevel));
                 })
                 .Build();
-
-            using(Logging)
-            {
-                return rootCmd.Invoke(args);
-            }
+            var exitCode = rootCmd.Invoke(args);
+            Logging.Dispose();
+            return exitCode;
         }
     }
 }
