@@ -2,6 +2,9 @@ using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.Setup.Configuration;
 
 namespace DotVVM.Tool
@@ -59,13 +62,35 @@ namespace DotVVM.Tool
             }
         }
 
-        public static MSBuild? Create(FileInfo project)
+        public static MSBuild? Create()
         {
             var vs = CreateFromVS();
-            Console.WriteLine($"VS: {vs}");
-            var sdk = CreateFromSdk();
-            Console.WriteLine($"SDK: {sdk}");
-            return null;
+            if (vs is null) {
+                return CreateFromSdk();
+            }
+            return vs;
+        }
+
+        public bool TryBuild(FileInfo project, string configuration, ILogger? logger = null)
+        {
+            logger ??= NullLogger.Instance;
+
+            var sb = new StringBuilder();
+            sb.AppendJoin(' ', PrefixedArgs);
+            sb.Append(" -target:Clean,Restore,Build");
+            sb.Append($" -property:Configuration={configuration}");
+            sb.Append($" {project.FullName}");
+            var args = sb.ToString();
+            logger.LogDebug($"Invoking MSBuild with args: '{args}'.");
+
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = Path,
+                Arguments = args
+            };
+            var process = Process.Start(startInfo);
+            process.WaitForExit();
+            return process.ExitCode == 0;
         }
 
         public override string ToString()

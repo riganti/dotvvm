@@ -6,7 +6,7 @@ namespace DotVVM.Tool
     {
         public static void AddSeleniumGenerator(Command command)
         {
-            command.AddCommand(new Command("uitest", "Invoke the Selenium test generator"));
+            command.AddCommand(new Command("uitest", "Invokes the Selenium test generator."));
         }
     }
 }

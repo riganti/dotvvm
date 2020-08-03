@@ -14,12 +14,15 @@ namespace DotVVM.Tool
 
         public static int Main(string[] args)
         {
-            var rootCmd = new RootCommand("DotVVM Command-line Interface");
+            var rootCmd = new RootCommand("DotVVM Command-line Interface")
+            {
+                Name = "dotvvm"
+            };
             Compiler.AddCompiler(rootCmd);
             SeleniumGenerator.AddSeleniumGenerator(rootCmd);
             rootCmd.AddGlobalOption(new Option<bool>(
                 aliases: new [] {"-v", VerboseAlias},
-                description: "Show more verbose output"));
+                description: "Shows more verbose output."));
             var builder = new CommandLineBuilder(rootCmd)
                 .UseDefaults()
                 .UseMiddleware(c =>
