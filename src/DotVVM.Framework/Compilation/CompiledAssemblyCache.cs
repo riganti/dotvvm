@@ -138,7 +138,7 @@ namespace DotVVM.Framework.Compilation
         public bool IsAssemblyNamespace(string fullName) => cache_AllNamespaces.Value.Contains(fullName);
 
         private HashSet<string> GetAllNamespaces()
-            => new HashSet<string>(GetReferencedAssemblies()
+            => new HashSet<string>(GetAllAssemblies()
                 .SelectMany(a => a.GetLoadableTypes()
                     .Select(t => t.Namespace))
                 .Distinct(), StringComparer.Ordinal);
