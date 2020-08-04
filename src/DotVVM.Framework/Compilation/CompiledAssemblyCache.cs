@@ -48,6 +48,8 @@ namespace DotVVM.Framework.Compilation
                 // normally, the constructor is not called multiple times as this service is singleton; only in unit tests, we create it multiple times
                 Instance = this;
             }
+
+            cache_AllNamespaces = new Lazy<HashSet<string>>(GetAllNamespaces);
         }
 
         private IEnumerable<Assembly> BuildReferencedAssembliesCache()
@@ -131,15 +133,15 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
-        public bool IsAssemblyNamespace(string fullName)
-            => GetAllNamespaces().Contains(fullName, StringComparer.Ordinal);
+        private readonly Lazy<HashSet<string>> cache_AllNamespaces;
 
-        public ISet<string?> GetAllNamespaces()
-            => new HashSet<string?>(GetAllAssemblies()
+        public bool IsAssemblyNamespace(string fullName) => cache_AllNamespaces.Value.Contains(fullName);
+
+        private HashSet<string> GetAllNamespaces()
+            => new HashSet<string>(GetReferencedAssemblies()
                 .SelectMany(a => a.GetLoadableTypes()
-                .Select(t => t.Namespace))
-                .Distinct()
-                .ToList());
+                    .Select(t => t.Namespace))
+                .Distinct(), StringComparer.Ordinal);
 
 
         /// <summary>
