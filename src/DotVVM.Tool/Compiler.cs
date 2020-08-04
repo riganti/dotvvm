@@ -39,7 +39,8 @@ namespace DotVVM.Tool
             FileSystemInfo target,
             string[]? compilerArgs,
             FileSystemInfo? compiler,
-            bool debug)
+            bool debug,
+            bool msbuildOutput)
         {
             var logger = Program.Logging.CreateLogger("Compiler");
 
@@ -81,35 +82,13 @@ namespace DotVVM.Tool
 
             var shim = CreateCompilerShim(project, compilerPath);
             var configuration = debug ? "Debug" : "Release";
-            if (!msbuild.TryBuild(shim, configuration, logger))
+            if (!msbuild.TryBuild(shim, configuration, msbuildOutput, logger))
             {
                 logger.LogCritical("Failed to build the compiler shim.");
                 return 1;
             }
 
-            var compilerExePath = $"bin/{configuration}/{Templates.Netcoreapp}/{CompilerExecutable}";
-            var compilerExe = new FileInfo(Path.Combine(shim.DirectoryName, compilerExePath));
-            if (!compilerExe.Exists)
-            {
-                logger.LogCritical($"The compiler shim executable could not be found at '{compilerExe}'.");
-                return 1;
-            }
-
-            var sb = new StringBuilder();
-            sb.Append(compilerExe.FullName);
-            if (compilerArgs is object)
-            {
-                sb.Append(' ');
-                sb.AppendJoin(' ', compilerArgs.Select(s => $"\"{s}\""));
-            }
-            var processInfo = new ProcessStartInfo()
-            {
-                FileName = "dotnet",
-                Arguments = sb.ToString()
-            };
-            var process = System.Diagnostics.Process.Start(processInfo);
-            process.WaitForExit();
-            return process.ExitCode;
+            return InvokeCompilerShim(shim, configuration, compilerArgs ?? Enumerable.Empty<string>(), logger);
         }
 
         public static FileInfo CreateCompilerShim(FileInfo projectFile, string? compilerPath = null)
@@ -138,6 +117,36 @@ namespace DotVVM.Tool
                 contents: Templates.GetCompilerShimProgram());
 
             return shimFile;
+        }
+
+        public static int InvokeCompilerShim(
+            FileInfo shim,
+            string configuration,
+            IEnumerable<string> compilerArgs,
+            ILogger? logger = null)
+        {
+            logger ??= NullLogger.Instance;
+
+            var compilerExePath = $"bin/{configuration}/{Templates.Netcoreapp}/{CompilerExecutable}";
+            var compilerExe = new FileInfo(Path.Combine(shim.DirectoryName, compilerExePath));
+            if (!compilerExe.Exists)
+            {
+                logger.LogCritical($"The compiler shim executable could not be found at '{compilerExe}'.");
+                return 1;
+            }
+
+            var sb = new StringBuilder();
+            sb.Append(compilerExe.FullName);
+            sb.Append(' ');
+            sb.AppendJoin(' ', compilerArgs.Select(s => $"\"{s}\""));
+            var processInfo = new ProcessStartInfo()
+            {
+                FileName = "dotnet",
+                Arguments = sb.ToString()
+            };
+            var process = System.Diagnostics.Process.Start(processInfo);
+            process.WaitForExit();
+            return process.ExitCode;
         }
     }
 }

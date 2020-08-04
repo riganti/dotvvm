@@ -65,7 +65,8 @@ namespace DotVVM.Compiler.Compilation
                 }
             }
 
-            var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => Assembly.LoadFile(Options.WebSiteAssembly));
+            // var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => Assembly.LoadFile(Options.WebSiteAssembly));
+            var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => Assembly.Load(Options.WebSiteAssembly));
             configuration = GetCachedConfiguration(wsa, Options.WebSitePath,
                 (services) => {
                     if (Options.FullCompile)

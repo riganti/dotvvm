@@ -5,7 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <StartupObject>DotVVM.Compiler.Cli</StartupObject>
+    <StartupObject>DotVVM.Compiler.Program</StartupObject>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -24,21 +24,6 @@
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
     <ProjectReference Include="..\DotVVM.Utils.ConfigurationHost\DotVVM.Utils.ConfigurationHost.csproj" />
   </ItemGroup>
-
-  <!-- <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="1.1.1" />
-    <PackageReference Include="ilmerge" Version="2.14.1208" />
-    <PackageReference Include="Microsoft.Owin" Version="3.0.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="1.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="1.0.0" />
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup> -->
 
   <ItemGroup>
     <None Include="dotvvmwizard.snk" />

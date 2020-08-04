@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.Setup.Configuration;
@@ -71,7 +72,7 @@ namespace DotVVM.Tool
             return vs;
         }
 
-        public bool TryBuild(FileInfo project, string configuration, ILogger? logger = null)
+        public bool TryBuild(FileInfo project, string configuration, bool showOutput = false, ILogger? logger = null)
         {
             logger ??= NullLogger.Instance;
 
@@ -86,16 +87,35 @@ namespace DotVVM.Tool
             var startInfo = new ProcessStartInfo
             {
                 FileName = Path,
-                Arguments = args
+                Arguments = args,
             };
+            if (!showOutput)
+            {
+                startInfo.RedirectStandardOutput = true;
+                startInfo.RedirectStandardError = true;
+            }
             var process = Process.Start(startInfo);
+            if (!showOutput)
+            {
+                Task.Run(() => process.StandardOutput.ReadToEnd());
+                Task.Run(() => process.StandardError.ReadToEnd());
+            }
             process.WaitForExit();
             return process.ExitCode == 0;
         }
 
         public override string ToString()
         {
-            return $"({Path} {string.Join(' ', PrefixedArgs)})";
+            var sb = new StringBuilder();
+            sb.Append('[');
+            sb.Append(Path);
+            if (PrefixedArgs.Length > 0)
+            {
+                sb.Append(' ');
+                sb.AppendJoin(' ', PrefixedArgs);
+            }
+            sb.Append(']');
+            return sb.ToString();
         }
     }
 }

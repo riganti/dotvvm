@@ -24,8 +24,6 @@ namespace DotVVM.Compiler.Programs
 {
     public class Program2
     {
-
-
         internal static CompilerOptions Options { get; private set; }
         internal static HashSet<string> assemblySearchPaths { get; private set; } = new HashSet<string>();
         private static Stopwatch stopwatcher;

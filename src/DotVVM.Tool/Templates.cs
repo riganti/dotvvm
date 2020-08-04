@@ -77,7 +77,7 @@ namespace DotVVM.Compiler.Shim
     {{
         public static int Main(string[] args)
         {{
-            return DotVVM.Compiler.Cli.Main(args);
+            return DotVVM.Compiler.Program.Main(args);
         }}
     }}
 }}

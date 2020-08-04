@@ -9,6 +9,7 @@ namespace DotVVM.Tool
     public static class Program
     {
         public const string VerboseAlias = "--verbose";
+        public const string MSBuildOutputAlias = "--msbuild-output";
 
         public static ILoggerFactory Logging = new NullLoggerFactory();
 
@@ -23,6 +24,9 @@ namespace DotVVM.Tool
             rootCmd.AddGlobalOption(new Option<bool>(
                 aliases: new [] {"-v", VerboseAlias},
                 description: "Show more verbose output"));
+            rootCmd.AddGlobalOption(new Option<bool>(
+                alias: MSBuildOutputAlias,
+                description: "Show output from MSBuild invocations"));
             var builder = new CommandLineBuilder(rootCmd)
                 .UseDefaults()
                 .UseMiddleware(c =>

@@ -13,20 +13,26 @@ namespace DotVVM.Compiler
     public class CompilerOptions
     {
         //optional
-        public string[] DothtmlFiles { get; set; }
+        public string[]? DothtmlFiles { get; set; }
 
-        //required
-        public string WebSiteAssembly { get; set; }
+        /// <summary>
+        /// Assembly that contains DotvvmStartup. Required.
+        /// </summary>
+        public string? WebSiteAssembly { get; set; }
         public bool OutputResolvedDothtmlMap { get; set; } = true;
-        public string BindingsAssemblyName { get; set; }
-        public string BindingClassName { get; set; }
-        public string OutputPath { get; set; }
+        public string? BindingsAssemblyName { get; set; }
+        public string? BindingClassName { get; set; }
+        public string? OutputPath { get; set; }
 
-        public string AssemblyName { get; set; }
-        public string WebSitePath { get; set; } 
+        public string? AssemblyName { get; set; }
+
+        /// <summary>
+        /// Path to the parent directory of Views, Controls, etc.
+        /// <summary>
+        public string? WebSitePath { get; set; } 
         public bool FullCompile { get; set; } = false;
         public bool CheckBindingErrors { get; set; } = true;
         public bool SerializeConfig { get; set; }
-        public string ConfigOutputPath { get; set; }
+        public string? ConfigOutputPath { get; set; }
     }
 }

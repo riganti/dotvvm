@@ -7,13 +7,14 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DotVVM.Compiler
 {
-    public static class Cli
+    public static class Program
     {
         private static ILoggerFactory Logging = new NullLoggerFactory();
 
         public static void Run(
             bool debuggerBreak,
-            bool fullCompile,
+            string assemblyName,
+            string applicationPath,
             ILogger? logger = null)
         {
             logger ??= Logging.CreateLogger("Compiler");
@@ -26,7 +27,8 @@ namespace DotVVM.Compiler
 
             var options = new CompilerOptions
             {
-                FullCompile = fullCompile
+                WebSiteAssembly = assemblyName,
+                WebSitePath = applicationPath
             };
             var compiler = new ViewStaticCompiler
             {
@@ -46,9 +48,10 @@ namespace DotVVM.Compiler
         public static int Main(string[] args)
         {
             var rootCmd = new RootCommand("DotVVM Compiler");
-            rootCmd.AddOption(new Option<bool>("--debugger-break", "Breaks to let a debugger attach to the process."));
-            rootCmd.AddOption(new Option<bool>("--full-compile", "Compiles all views."));
-            rootCmd.Handler = CommandHandler.Create(typeof(Cli).GetMethod(nameof(Run))!);
+            rootCmd.AddOption(new Option<bool>("--debugger-break", "Breaks to let a debugger attach to the process"));
+            rootCmd.AddOption(new Option<string>("--assembly-name", "Name of the assembly with DotvvmStartup"));
+            rootCmd.AddOption(new Option<string>("--application-path", "Path to the parent of Controls, Views, etc."));
+            rootCmd.Handler = CommandHandler.Create(typeof(Program).GetMethod(nameof(Run))!);
             Logging = LoggerFactory.Create(b => b.AddConsole());
             var exitCode = rootCmd.Invoke(args);
             Logging.Dispose();
