@@ -29,14 +29,19 @@ namespace DotVVM.Cli
         public bool FullCompile { get; set; } = false;
         public bool CheckBindingErrors { get; set; } = true;
         public bool SerializeConfig { get; set; }
+
+        /// <summary>
+        /// Path where the results of the compilation in JSON should be written to.
+        /// It's not just the DotvvmConfiguration, no.
+        /// </summary>
         public string? ConfigOutputPath { get; set; }
 
-        public static void ApplyDefaults(CompilerOptions options)
+        public void ApplyDefaults()
         {
-            options.OutputPath ??= "./output";
-            options.AssemblyName ??= "CompiledViews";
-            options.BindingsAssemblyName ??= options.AssemblyName + "Bindings";
-            options.BindingClassName ??= options.BindingsAssemblyName + "." + "CompiledBindings";
+            OutputPath ??= "./output";
+            AssemblyName ??= "CompiledViews";
+            BindingsAssemblyName ??= AssemblyName + "Bindings";
+            BindingClassName ??= BindingsAssemblyName + "." + "CompiledBindings";
         }
     }
 }

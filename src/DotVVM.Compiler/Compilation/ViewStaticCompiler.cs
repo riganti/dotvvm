@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using DotVVM.Cli;
-using DotVVM.Compiler.Programs;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
@@ -18,6 +17,8 @@ using DotVVM.Framework.Hosting;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DotVVM.Compiler.Compilation
 {
@@ -37,13 +38,11 @@ namespace DotVVM.Compiler.Compilation
         private IMarkupFileLoader fileLoader;
         private CSharpCompilation compilation;
         private CompilationResult result = new CompilationResult();
+        private ILogger logger;
 
-        private void InitOptions()
+        public ViewStaticCompiler(ILogger? logger = null)
         {
-            if (Options.OutputPath == null) Options.OutputPath = "./output";
-            if (Options.AssemblyName == null) Options.AssemblyName = "CompiledViews";
-            if (Options.BindingsAssemblyName == null) Options.BindingsAssemblyName = Options.AssemblyName + "Bindings";
-            if (Options.BindingClassName == null) Options.BindingClassName = Options.BindingsAssemblyName + "." + "CompiledBindings";
+            this.logger = logger ?? NullLogger.Instance;
         }
 
         private DotvvmConfiguration GetCachedConfiguration(Assembly assembly, string webSitePath, Action<IServiceCollection> additionalServices)
@@ -58,7 +57,6 @@ namespace DotVVM.Compiler.Compilation
             {
                 // touch assembly
                 SyntaxFactory.Token(SyntaxKind.NullKeyword);
-                InitOptions();
 
                 if (!Directory.Exists(Options.OutputPath))
                 {
@@ -112,7 +110,7 @@ namespace DotVVM.Compiler.Compilation
                 bindingCompiler.AddSerializedObjects(ObjectsClassName, builder, fields);
                 bindingCompiler.SaveAssembly();
 
-                Program2.WriteInfo($"Bindings saved to {bindingsAssemblyPath}.");
+                logger.LogInformation($"Bindings saved to {bindingsAssemblyPath}.");
 
                 compilation = compilation.AddReferences(MetadataReference.CreateFromFile(Path.GetFullPath(bindingsAssemblyPath)));
                 var compiledViewsFileName = Path.Combine(Options.OutputPath, Options.AssemblyName + "_Views" + ".dll");
@@ -132,16 +130,16 @@ namespace DotVVM.Compiler.Compilation
                 //File.Delete(compiledViewsFileName);
                 //File.Delete(bindingsAssemblyPath);
 
-                Program2.WriteInfo($"Compiled views saved to {compiledViewsFileName}.");
+                logger.LogInformation($"Compiled views saved to {compiledViewsFileName}.");
             }
         }
 
         public CompilationResult Execute()
         {
-            Program2.WriteInfo("Initializing...");
+            logger.LogInformation("Initializing...");
             Init();
 
-            Program2.WriteInfo("Compiling views...");
+            logger.LogInformation("Compiling views...");
             foreach (var file in Options.DothtmlFiles)
             {
                 try
@@ -158,11 +156,11 @@ namespace DotVVM.Compiler.Compilation
 
             if (Options.FullCompile)
             {
-                Program2.WriteInfo("Emitting assemblies...");
+                logger.LogInformation("Emitting assemblies...");
                 Save();
             }
 
-            Program2.WriteInfo("Building compilation results...");
+            logger.LogInformation("Building compilation results...");
             return result;
         }
 
@@ -247,7 +245,7 @@ namespace DotVVM.Compiler.Compilation
                         .Select(a => CompiledAssemblyCache.Instance.GetAssemblyMetadata(a.Key)));
             }
 
-            Program2.WriteInfo($"The view { fileName } compiled successfully.");
+            logger.LogInformation($"The view { fileName } compiled successfully.");
 
             var res = new ViewCompilationResult {
                 BuilderClassName = fullClassName,
