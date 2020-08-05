@@ -14,22 +14,49 @@ namespace DotVVM.Tool
 
         public static void AddTemplater(Command command)
         {
-            var addCmd = new Command("add", "Add a DotVVM-related thingy");
-            addCmd.AddArgument(new Argument<FileSystemInfo>(
+            var targetArg = new Argument<FileSystemInfo>(
                 name: "target",
                 getDefaultValue: () => new DirectoryInfo(Environment.CurrentDirectory),
-                description: "Path to a DotVVM project"));
-            addCmd.AddArgument(new Argument<string>(
+                description: "Path to a DotVVM project");
+            var nameArg = new Argument<string>(
                 name: "name",
-                description: "The name of the new page"));
-            addCmd.AddOption(new Option<string>(
-                aliases: new [] {"-m", "--master"},
-                description: "The @master page of the new page"));
-            addCmd.AddOption(new Option<string>(
-                aliases: new [] {"-d", "--directory"},
+                description: "The name of the new thingy");
+            var masterOpt = new Option<string>(
+                aliases: new[] { "-m", "--master" },
+                description: "The @master page of the new page");
+            var directoryOpt = new Option<string>(
+                aliases: new[] { "-d", "--directory" },
                 getDefaultValue: () => "Views/",
-                description: "The directory where the new page is to be placed"));
-            addCmd.Handler = CommandHandler.Create(typeof(Templater).GetMethod(nameof(HandleAddPage))!);
+                description: "The directory where the new page is to be placed");
+            var codeBehindOpt = new Option<bool>(
+                aliases: new [] {"-c", "--code-behind"},
+                description: "Creates a C# code-behind class for the control");
+
+            var pageCmd = new Command("page", "Add a page")
+            {
+                nameArg, masterOpt, directoryOpt
+            };
+            pageCmd.Handler = CommandHandler.Create(typeof(Templater).GetMethod(nameof(HandleAddPage))!);
+
+            var masterCmd = new Command("master", "Add a master page")
+            {
+                nameArg, masterOpt, directoryOpt
+            };
+
+            var viewModelCmd = new Command("viewmodel", "Add a ViewModel")
+            {
+                nameArg
+            };
+
+            var controlCmd = new Command("control", "Add a control")
+            {
+                nameArg, codeBehindOpt
+            };
+
+            var addCmd = new Command("add", "Add a DotVVM-related thingy")
+            {
+                targetArg, pageCmd, masterCmd, viewModelCmd, controlCmd
+            };
             command.AddCommand(addCmd);
         }
 
@@ -51,7 +78,7 @@ namespace DotVVM.Tool
             {
                 logger.LogCritical($"Page '{name}' already exists at '{file.FullName}'.");
             }
-            
+
             var viewModelPath = Names.GetViewModelPath(file.FullName);
             var viewModelName = Names.GetViewModel(viewModelPath);
             var viewModelNamespace = Names.GetNamespace(
