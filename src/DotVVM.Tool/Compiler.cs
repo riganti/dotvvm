@@ -93,7 +93,7 @@ namespace DotVVM.Tool
 
         public static FileInfo CreateCompilerShim(FileInfo projectFile, string? compilerPath = null)
         {
-            var dotvvmDir = new DirectoryInfo(Path.Combine(projectFile.DirectoryName, Templates.DotvvmDirectory));
+            var dotvvmDir = new DirectoryInfo(Path.Combine(projectFile.DirectoryName, Shims.DotvvmDirectory));
             if (!dotvvmDir.Exists)
             {
                 dotvvmDir.Create();
@@ -104,17 +104,17 @@ namespace DotVVM.Tool
                 compilerPath = Path.GetRelativePath(dotvvmDir.FullName, compilerPath);
             }
 
-            var shimFile = new FileInfo(Path.Combine(dotvvmDir.FullName, Templates.CompilerShimProjectFile));
+            var shimFile = new FileInfo(Path.Combine(dotvvmDir.FullName, Shims.CompilerShimProjectFile));
 
             File.WriteAllText(
                 path: shimFile.FullName,
-                contents: Templates.GetCompilerShimProject(
+                contents: Shims.GetCompilerShimProject(
                     project: Path.GetRelativePath(dotvvmDir.FullName, projectFile.FullName),
                     compilerReference: compilerPath));
 
             File.WriteAllText(
-                path: Path.Combine(dotvvmDir.FullName, Templates.CompilerShimProgramFile),
-                contents: Templates.GetCompilerShimProgram());
+                path: Path.Combine(dotvvmDir.FullName, Shims.CompilerShimProgramFile),
+                contents: Shims.GetCompilerShimProgram());
 
             return shimFile;
         }
@@ -127,7 +127,7 @@ namespace DotVVM.Tool
         {
             logger ??= NullLogger.Instance;
 
-            var compilerExePath = $"bin/{configuration}/{Templates.Netcoreapp}/{CompilerExecutable}";
+            var compilerExePath = $"bin/{configuration}/{Shims.Netcoreapp}/{CompilerExecutable}";
             var compilerExe = new FileInfo(Path.Combine(shim.DirectoryName, compilerExePath));
             if (!compilerExe.Exists)
             {

@@ -2,7 +2,7 @@ using System.Text;
 
 namespace DotVVM.Tool
 {
-    public static class Templates
+    public static class Shims
     {
         public const string GeneratorNotice = "NOTICE: This file has been generated automatically.";
 
