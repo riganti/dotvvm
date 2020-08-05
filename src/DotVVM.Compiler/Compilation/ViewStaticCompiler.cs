@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using DotVVM.Cli;
 using DotVVM.Compiler.Programs;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;

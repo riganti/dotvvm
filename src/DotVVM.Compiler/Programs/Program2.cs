@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using DotVVM.Cli;
 using DotVVM.Compiler.Compilation;
 using DotVVM.Compiler.DTOs;
 using DotVVM.Compiler.Fakes;

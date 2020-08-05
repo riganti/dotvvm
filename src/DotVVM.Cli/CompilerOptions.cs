@@ -1,14 +1,10 @@
-﻿//
-// THIS FILE IS LINKED TO DOTVVM CLI TOOL
-//
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Cli
 {
     public class CompilerOptions
     {
@@ -34,5 +30,13 @@ namespace DotVVM.Compiler
         public bool CheckBindingErrors { get; set; } = true;
         public bool SerializeConfig { get; set; }
         public string? ConfigOutputPath { get; set; }
+
+        public static void ApplyDefaults(CompilerOptions options)
+        {
+            options.OutputPath ??= "./output";
+            options.AssemblyName ??= "CompiledViews";
+            options.BindingsAssemblyName ??= options.AssemblyName + "Bindings";
+            options.BindingClassName ??= options.BindingsAssemblyName + "." + "CompiledBindings";
+        }
     }
 }
