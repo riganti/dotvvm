@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Cli;
 using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Logic.Compiler;
 using DotVVM.CommandLine.Core.Arguments;
 using DotVVM.CommandLine.Core.Metadata;
-using DotVVM.Compiler;
 using DotVVM.Utils.ProjectService;
 using DotVVM.Utils.ProjectService.Lookup;
 

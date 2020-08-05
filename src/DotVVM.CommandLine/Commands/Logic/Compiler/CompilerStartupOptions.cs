@@ -1,4 +1,4 @@
-﻿using DotVVM.Compiler;
+﻿using DotVVM.Cli;
 
 namespace DotVVM.CommandLine.Commands.Logic.Compiler
 {

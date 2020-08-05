@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Utils.ConfigurationHost\DotVVM.Utils.ConfigurationHost.csproj" />
+    <ProjectReference Include="..\DotVVM.Utils.ProjectService\DotVVM.Utils.ProjectService.csproj" />
   </ItemGroup>
 
 </Project>

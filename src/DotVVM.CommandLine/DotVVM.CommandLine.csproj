@@ -4,7 +4,7 @@
     <AssemblyTitle>DotVVM.CommandLine</AssemblyTitle>
     <AssemblyName>dotnet-dotvvm</AssemblyName>
     <VersionPrefix>2.4.0-preview01-50213-unstable</VersionPrefix>
-    <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PackAsTool>true</PackAsTool>
@@ -35,7 +35,6 @@
     <None Remove="Templates\TypeScript\FetchClient.liquid" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\DotVVM.Compiler\DTOs\CompilerOptions.cs" Link="Commands\Logic\Compiler\CompilerOptions.cs" />
     <Compile Include="..\DotVVM.Compiler\CompilerConstants.cs" Link="Commands\Logic\Compiler\CompilerConstants.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -46,7 +45,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.CommandLine.Core\DotVVM.CommandLine.Core.csproj" />
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
-    <ProjectReference Include="..\DotVVM.Utils.ProjectService\DotVVM.Utils.ProjectService.csproj" />
+    <ProjectReference Include="..\DotVVM.Cli\DotVVM.Cli.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
