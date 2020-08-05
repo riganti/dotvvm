@@ -11,7 +11,20 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="2.3.2262-g94fae01e" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.6" />
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
+    <PackageReference Include="System.CodeDom" Version="4.7.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../DotVVM.Cli/DotVVM.Cli.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DotvvmTemplate Include="Templates/*.tt" />
+    <DotvvmTemplateCodeBehinds Include="@(DotvvmTemplate->'Templates/%(Filename).cs')" />
+  </ItemGroup>
+
+  <Target BeforeTargets="BeforeBuild" Name="GenerateTemplates" Inputs="@(DotvvmTemplate)" Outputs="@(DotvvmTemplateCodeBehinds)">
+    <Exec Command="dotnet t4 -o Templates/%(DotvvmTemplate.Filename).cs -c %(DotvvmTemplate.Filename) %(DotvvmTemplate.FullPath)" />
+  </Target>
+
 </Project>

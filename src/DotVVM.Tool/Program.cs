@@ -11,8 +11,6 @@ namespace DotVVM.Tool
         public const string VerboseAlias = "--verbose";
         public const string MSBuildOutputAlias = "--msbuild-output";
 
-        public static ILoggerFactory Logging = new NullLoggerFactory();
-
         public static int Main(string[] args)
         {
             var rootCmd = new RootCommand("DotVVM Command-line Interface")
@@ -21,25 +19,16 @@ namespace DotVVM.Tool
             };
             Compiler.AddCompiler(rootCmd);
             SeleniumGenerator.AddSeleniumGenerator(rootCmd);
-            rootCmd.AddGlobalOption(new Option<bool>(
-                aliases: new [] {"-v", VerboseAlias},
-                description: "Show more verbose output"));
+            Templater.AddTemplater(rootCmd);
             rootCmd.AddGlobalOption(new Option<bool>(
                 alias: MSBuildOutputAlias,
                 description: "Show output from MSBuild invocations"));
-            var builder = new CommandLineBuilder(rootCmd)
+            // awkwardly enough, the built parser attaches itself to the command by itself
+            new CommandLineBuilder(rootCmd)
                 .UseDefaults()
-                .UseMiddleware(c =>
-                {
-                    var logLevel = c.ParseResult.ValueForOption<bool>(VerboseAlias)
-                        ? LogLevel.Debug
-                        : LogLevel.Information;
-                    Logging = LoggerFactory.Create(b => b.AddConsole().SetMinimumLevel(logLevel));
-                })
+                .UseLogging()
                 .Build();
-            var exitCode = rootCmd.Invoke(args);
-            Logging.Dispose();
-            return exitCode;
+            return rootCmd.Invoke(args);
         }
     }
 }

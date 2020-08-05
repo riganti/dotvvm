@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using DotVVM.Cli;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -31,19 +32,18 @@ namespace DotVVM.Tool
             compileCmd.AddOption(new Option<bool>(
                 alias: "--debug",
                 description: "Build the compiler shim with the Debug configuration"));
-            compileCmd.Handler = CommandHandler.Create(typeof(Compiler).GetMethod(nameof(ExecuteCommand))!);
+            compileCmd.Handler = CommandHandler.Create(typeof(Compiler).GetMethod(nameof(HandleCompile))!);
             command.AddCommand(compileCmd);
         }
 
-        public static int ExecuteCommand(
+        public static int HandleCompile(
             FileSystemInfo target,
             string[]? compilerArgs,
             FileSystemInfo? compiler,
             bool debug,
-            bool msbuildOutput)
+            bool msbuildOutput,
+            ILogger logger)
         {
-            var logger = Program.Logging.CreateLogger("Compiler");
-
             var project = ProjectFile.FindProjectFile(target);
             if (project is null)
             {
