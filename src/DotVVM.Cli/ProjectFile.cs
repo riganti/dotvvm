@@ -80,6 +80,7 @@ namespace DotVVM.Cli
                 return await CreateProjectMetadata(target, logger, errorLevel);
             }
 
+            logger.LogDebug($"Found DotVVM metadata at '{file}'.");
             return await LoadProjectMetadata(file);
         }
 
@@ -97,6 +98,7 @@ namespace DotVVM.Cli
                 return null;
             }
 
+            logger.LogDebug($"Found a project file at '{projectFile}'.");
             var msbuildInstance = MSBuildLocator.RegisterDefaults();
             if (msbuildInstance is null || string.IsNullOrEmpty(msbuildInstance.MSBuildPath))
             {
@@ -104,15 +106,18 @@ namespace DotVVM.Cli
                 return null;
             }
 
+            logger.LogDebug($"Using MSBuild at '{msbuildInstance.MSBuildPath}' for project file inspection.");
             var metadata = CreateProjectMetadataFromMSBuild(projectFile, logger, errorLevel);
             if (metadata is null)
             {
                 return null;
             }
 
+            var metadataFile = new FileInfo(Path.Combine(projectFile.DirectoryName, DotvvmMetadataFile));
             await SaveProjectMetadata(
-                file: new FileInfo(Path.Combine(projectFile.DirectoryName, DotvvmMetadataFile)),
+                file: metadataFile,
                 metadata: metadata);
+            logger.LogDebug($"Saved DotVVM metadata to '{metadataFile}'.");
             return metadata;
         }
 

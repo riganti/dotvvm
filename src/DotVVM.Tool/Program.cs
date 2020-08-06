@@ -16,6 +16,7 @@ namespace DotVVM.Tool
             Compiler.AddCompiler(rootCmd);
             SeleniumGenerator.AddSeleniumGenerator(rootCmd);
             Templater.AddTemplater(rootCmd);
+            rootCmd.AddVerboseOption();
             rootCmd.AddGlobalOption(new Option<bool>(
                 alias: MSBuildOutputAlias,
                 description: "Show output from MSBuild invocations"));
@@ -23,6 +24,7 @@ namespace DotVVM.Tool
             new CommandLineBuilder(rootCmd)
                 .UseDefaults()
                 .UseLogging()
+                .UseDotvvmMetadata()
                 .Build();
             return rootCmd.Invoke(args);
         }

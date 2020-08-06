@@ -61,14 +61,13 @@ namespace DotVVM.Tool
         }
 
         public static async Task HandleAddPage(
-            FileSystemInfo target,
+            DotvvmProjectMetadata metadata,
             string name,
             string? master,
             string directory,
             ILogger logger)
         {
-            var metadata = await ProjectFile.GetProjectMetadata(target, logger);
-            if (metadata is null || metadata.ProjectDirectory is null || metadata.RootNamespace is null)
+            if (metadata.ProjectDirectory is null || metadata.RootNamespace is null)
             {
                 return;
             }
