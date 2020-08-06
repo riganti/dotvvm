@@ -9,6 +9,9 @@ namespace DotVVM.Cli
         [JsonPropertyName("version")]
         public int Version { get; set; }
 
+        [JsonPropertyName("packageVersion")]
+        public string? PackageVersion { get; set; }
+
         [JsonPropertyName("projectName")]
         public string? ProjectName { get; set; }
 

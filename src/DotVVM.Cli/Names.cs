@@ -50,10 +50,10 @@ namespace DotVVM.Cli
             return String.Join("/", parts);
         }
 
-        public static string GetNamespace(string path, string projectPath, string rootNamespace)
+        public static string GetNamespace(string directory, string projectPath, string rootNamespace)
         {
-            path = Path.GetRelativePath(projectPath, Path.GetFullPath(path));
-            var namespaceName = Path.GetDirectoryName(path)?.Replace("\\", ".").Replace("/", ".");
+            var path = Path.GetRelativePath(projectPath, Path.GetFullPath(directory));
+            var namespaceName = path.Replace("\\", ".").Replace("/", ".");
             return namespaceName is object
                 ? $"{rootNamespace}.{namespaceName}"
                 : rootNamespace;

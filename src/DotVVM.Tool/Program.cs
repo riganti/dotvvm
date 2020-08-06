@@ -1,14 +1,10 @@
-﻿using System;
-using System.CommandLine;
+﻿using System.CommandLine;
 using System.CommandLine.Builder;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DotVVM.Tool
 {
     public static class Program
     {
-        public const string VerboseAlias = "--verbose";
         public const string MSBuildOutputAlias = "--msbuild-output";
 
         public static int Main(string[] args)

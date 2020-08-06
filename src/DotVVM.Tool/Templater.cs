@@ -67,22 +67,25 @@ namespace DotVVM.Tool
             string directory,
             ILogger logger)
         {
-            var metadata = await ProjectFile.LoadProjectMetadata(target, logger);
-            if (metadata is null)
+            var metadata = await ProjectFile.GetProjectMetadata(target, logger);
+            if (metadata is null || metadata.ProjectDirectory is null || metadata.RootNamespace is null)
             {
                 return;
             }
 
-            var file = new FileInfo(Path.Combine(directory, $"{name}{PageFileExtension}"));
+            var file = new FileInfo(Path.Combine(
+                metadata.ProjectDirectory,
+                Path.Combine(
+                    directory,
+                    $"{name}{PageFileExtension}")));
             if (file.Exists)
             {
                 logger.LogCritical($"Page '{name}' already exists at '{file.FullName}'.");
             }
 
-            var viewModelPath = Names.GetViewModelPath(file.FullName);
-            var viewModelName = Names.GetViewModel(viewModelPath);
+            var viewModelName = Names.GetViewModel(name);
             var viewModelNamespace = Names.GetNamespace(
-                viewModelPath,
+                file.DirectoryName,
                 metadata.ProjectDirectory,
                 metadata.RootNamespace);
 
@@ -100,6 +103,36 @@ namespace DotVVM.Tool
                 // pageTemplate.ContentPlaceHolderIds = new MasterPageBuilder().ExtractPlaceHolderIds(masterPagePath);
             }
             await File.WriteAllTextAsync(file.FullName, pageTemplate.TransformText());
+        }
+
+        public static async Task HandleAddMaster(
+            FileSystemInfo target,
+            string name,
+            string? master,
+            string directory,
+            ILogger logger)
+        {
+            
+        }
+
+        public static async Task HandleAddViewModel(
+            FileSystemInfo target,
+            string name,
+            string? master,
+            string directory,
+            ILogger logger)
+        {
+            
+        }
+
+        public static async Task HandleAddControl(
+            FileSystemInfo target,
+            string name,
+            string? master,
+            string directory,
+            ILogger logger)
+        {
+            
         }
     }
 }
