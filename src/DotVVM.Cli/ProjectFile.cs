@@ -62,10 +62,21 @@ namespace DotVVM.Cli
             return metadata.Exists ? metadata : null;
         }
 
-        public static async Task<ProjectMetadata> LoadProjectMetadata(FileInfo file)
+        public static async Task<ProjectMetadata?> LoadProjectMetadata(
+            FileInfo file,
+            ILogger? logger = null,
+            LogLevel errorLevel = LogLevel.Debug)
         {
+            logger ??= NullLogger.Instance;
+
             using var stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
             var json = await JsonSerializer.DeserializeAsync<ProjectMetadataJson>(stream);
+            var error = ProjectMetadata.IsJsonValid(json);
+            if (error is object)
+            {
+                logger.Log(errorLevel, error, "DotVVM metadata are not valid.");
+                return null;
+            }
             return ProjectMetadata.FromJson(json);
         }
 
@@ -83,7 +94,12 @@ namespace DotVVM.Cli
             }
 
             logger.LogDebug($"Found DotVVM metadata at '{file}'.");
-            return await LoadProjectMetadata(file);
+            var metadata = await LoadProjectMetadata(file, logger);
+            if (metadata is null)
+            {
+                return await CreateProjectMetadata(target, logger, errorLevel);
+            }
+            return metadata;
         }
 
         public static async Task<ProjectMetadata?> CreateProjectMetadata(
@@ -127,6 +143,7 @@ namespace DotVVM.Cli
         {
             using var stream = file.Open(FileMode.Create, FileAccess.Write);
             var json = metadata.ToJson();
+            json.Version = 2; // TODO: Why?
             json.MetadataFilePath = file.FullName;
             await JsonSerializer.SerializeAsync(stream, json, new JsonSerializerOptions
             {

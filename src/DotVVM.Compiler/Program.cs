@@ -18,7 +18,7 @@ namespace DotVVM.Compiler
     {
         private static ILoggerFactory Logging = new NullLoggerFactory();
 
-        public static async Task Run(
+        public static async Task<int> Run(
             bool debuggerBreak,
             string? assemblyName,
             string? applicationPath,
@@ -43,6 +43,18 @@ namespace DotVVM.Compiler
             options.WebSiteAssembly = assemblyName ?? options.WebSiteAssembly;
             options.WebSitePath = applicationPath ?? options.WebSitePath;
             options.ApplyDefaults();
+
+            if (options.WebSiteAssembly is null)
+            {
+                logger.LogCritical("A name of the assembly of the DotVVM project is required.");
+                return 1;
+            }
+
+            if (options.WebSitePath is null)
+            {
+                logger.LogCritical("A path to the DotVVM project is required.");
+                return 1;
+            }
 
             CompilationResult result;
             if (options.FullCompile || options.CheckBindingErrors)
@@ -101,6 +113,7 @@ namespace DotVVM.Compiler
                     }
                 }
             }
+            return 0;
         }
 
         public static int Main(string[] args)

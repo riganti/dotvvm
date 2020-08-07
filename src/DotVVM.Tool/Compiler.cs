@@ -15,6 +15,8 @@ namespace DotVVM.Tool
     public static class Compiler
     {
         public const string CompilerExecutable = "Compiler.dll";
+        public const string AssemblyNameOption = "--assembly-name";
+        public const string ApplicationPathOption = "--application-path";
 
         public static void AddCompiler(Command command)
         {
@@ -37,6 +39,7 @@ namespace DotVVM.Tool
         }
 
         public static int HandleCompile(
+            ProjectMetadata metadata,
             FileSystemInfo target,
             string[]? compilerArgs,
             FileSystemInfo? compiler,
@@ -82,13 +85,26 @@ namespace DotVVM.Tool
 
             var shim = CreateCompilerShim(project, compilerPath);
             var configuration = debug ? "Debug" : "Release";
+            logger.LogInformation("Building a compiler shim.");
             if (!msbuild.TryBuild(shim, configuration, msbuildOutput, logger))
             {
                 logger.LogCritical("Failed to build the compiler shim.");
                 return 1;
             }
 
-            return InvokeCompilerShim(shim, configuration, compilerArgs ?? Enumerable.Empty<string>(), logger);
+            var args = new List<string>
+            {
+                AssemblyNameOption,
+                metadata.ProjectName,
+                ApplicationPathOption,
+                metadata.ProjectDirectory
+            };
+            if (compilerArgs is object)
+            {
+                args.AddRange(compilerArgs);
+            }
+
+            return InvokeCompilerShim(shim, configuration, args, logger);
         }
 
         public static FileInfo CreateCompilerShim(FileInfo projectFile, string? compilerPath = null)

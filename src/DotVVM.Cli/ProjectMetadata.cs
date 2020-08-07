@@ -27,30 +27,40 @@ namespace DotVVM.Cli
         /// </summary>
         public string PackageVersion { get; }
 
-        public static ProjectMetadata FromJson(ProjectMetadataJson json)
+        public static Exception? IsJsonValid(ProjectMetadataJson json)
         {
             if (json.ProjectName is null)
             {
-                throw new ArgumentException($"{nameof(json.ProjectName)} is null.", nameof(json));
+                return new ArgumentException($"{nameof(json.ProjectName)} is null.", nameof(json));
             }
             if (json.ProjectDirectory is null)
             {
-                throw new ArgumentException($"{nameof(json.ProjectDirectory)} is null.", nameof(json));
+                return new ArgumentException($"{nameof(json.ProjectDirectory)} is null.", nameof(json));
             }
             if (json.RootNamespace is null)
             {
-                throw new ArgumentException($"{nameof(json.RootNamespace)} is null.", nameof(json));
+                return new ArgumentException($"{nameof(json.RootNamespace)} is null.", nameof(json));
             }
             if (json.PackageVersion is null)
             {
-                throw new ArgumentException($"{nameof(json.PackageVersion)} is null.", nameof(json));
+                return new ArgumentException($"{nameof(json.PackageVersion)} is null.", nameof(json));
+            }
+            return null;
+        }
+
+        public static ProjectMetadata FromJson(ProjectMetadataJson json)
+        {
+            var error = IsJsonValid(json);
+            if (error is object)
+            {
+                throw error;
             }
 
             return new ProjectMetadata(
-                json.ProjectName,
-                json.ProjectDirectory,
-                json.RootNamespace,
-                json.PackageVersion);
+                json.ProjectName!,
+                json.ProjectDirectory!,
+                json.RootNamespace!,
+                json.PackageVersion!);
         }
 
         public ProjectMetadataJson ToJson()
