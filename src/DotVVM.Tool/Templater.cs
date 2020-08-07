@@ -11,6 +11,10 @@ namespace DotVVM.Tool
     public static class Templater
     {
         public const string PageFileExtension = ".dothtml";
+        public const string MasterPageFileExtension = ".dotmaster";
+        public const string ControlFileExtension = ".dotcontrol";
+        public const string ViewModelFileExtensions = ".cs";
+        public const string CodeBehindExtension = ".cs";
 
         public static void AddTemplater(Command command)
         {
@@ -24,34 +28,45 @@ namespace DotVVM.Tool
             var masterOpt = new Option<string>(
                 aliases: new[] { "-m", "--master" },
                 description: "The @master page of the new page");
-            var directoryOpt = new Option<string>(
+            var viewsDirectoryOpt = new Option<string>(
                 aliases: new[] { "-d", "--directory" },
                 getDefaultValue: () => "Views/",
                 description: "The directory where the new page is to be placed");
+            var viewModelsDirectoryOpt = new Option<string>(
+                aliases: new[] { "-d", "--directory" },
+                getDefaultValue: () => "ViewModels/",
+                description: "The directory where the new viewModel is to be placed");
+            var controlsDirectoryOpt = new Option<string>(
+                aliases: new[] { "-d", "--directory" },
+                getDefaultValue: () => "Controls/",
+                description: "The directory where the new control is to be placed");
             var codeBehindOpt = new Option<bool>(
                 aliases: new [] {"-c", "--code-behind"},
                 description: "Creates a C# code-behind class for the control");
 
             var pageCmd = new Command("page", "Add a page")
             {
-                nameArg, masterOpt, directoryOpt
+                nameArg, masterOpt, viewsDirectoryOpt
             };
             pageCmd.Handler = CommandHandler.Create(typeof(Templater).GetMethod(nameof(HandleAddPage))!);
 
             var masterCmd = new Command("master", "Add a master page")
             {
-                nameArg, masterOpt, directoryOpt
+                nameArg, masterOpt, viewsDirectoryOpt
             };
+            masterCmd.Handler = CommandHandler.Create(typeof(Templater).GetMethod(nameof(HandleAddMaster))!);
 
             var viewModelCmd = new Command("viewmodel", "Add a ViewModel")
             {
-                nameArg
+                nameArg, viewModelsDirectoryOpt
             };
+            viewModelCmd.Handler = CommandHandler.Create(typeof(Templater).GetMethod(nameof(HandleAddViewModel))!);
 
             var controlCmd = new Command("control", "Add a control")
             {
-                nameArg, codeBehindOpt
+                nameArg, controlsDirectoryOpt, codeBehindOpt
             };
+            controlCmd.Handler = CommandHandler.Create(typeof(Templater).GetMethod(nameof(HandleAddControl))!);
 
             var addCmd = new Command("add", "Add a DotVVM-related thingy")
             {
@@ -61,25 +76,18 @@ namespace DotVVM.Tool
         }
 
         public static async Task HandleAddPage(
-            DotvvmProjectMetadata metadata,
+            ProjectMetadata metadata,
             string name,
             string? master,
             string directory,
-            ILogger logger)
+            ILogger logger,
+            bool isMaster = false)
         {
-            if (metadata.ProjectDirectory is null || metadata.RootNamespace is null)
+            var extension = isMaster ? MasterPageFileExtension : PageFileExtension;
+            var file = GetFile(metadata.ProjectDirectory, directory, name, extension, logger);
+            if (file is null)
             {
                 return;
-            }
-
-            var file = new FileInfo(Path.Combine(
-                metadata.ProjectDirectory,
-                Path.Combine(
-                    directory,
-                    $"{name}{PageFileExtension}")));
-            if (file.Exists)
-            {
-                logger.LogCritical($"Page '{name}' already exists at '{file.FullName}'.");
             }
 
             var viewModelName = Names.GetViewModel(name);
@@ -92,7 +100,8 @@ namespace DotVVM.Tool
             {
                 ViewModelRootNamespace = metadata.RootNamespace,
                 ViewModelName = viewModelName,
-                ViewModelNamespace = viewModelNamespace
+                ViewModelNamespace = viewModelNamespace,
+                IsMasterPage = isMaster
             };
             if (!string.IsNullOrEmpty(master))
             {
@@ -104,34 +113,114 @@ namespace DotVVM.Tool
             await File.WriteAllTextAsync(file.FullName, pageTemplate.TransformText());
         }
 
-        public static async Task HandleAddMaster(
-            FileSystemInfo target,
+        public static Task HandleAddMaster(
+            ProjectMetadata metadata,
             string name,
             string? master,
             string directory,
             ILogger logger)
         {
-            
+            return HandleAddPage(metadata, name, master, directory, logger, true);
         }
 
         public static async Task HandleAddViewModel(
-            FileSystemInfo target,
+            ProjectMetadata metadata,
             string name,
-            string? master,
             string directory,
             ILogger logger)
         {
-            
+            var file = GetFile(metadata.ProjectDirectory, directory, name, ViewModelFileExtensions, logger);
+            if (file is null)
+            {
+                return;
+            }
+
+            var viewModelName = Names.GetViewModel(name);
+            var viewModelNamespace = Names.GetNamespace(
+                file.DirectoryName,
+                metadata.ProjectDirectory,
+                metadata.RootNamespace);
+
+            var viewModelTemplate = new ViewModelTemplate() {
+                ViewModelName = viewModelName,
+                ViewModelNamespace = viewModelNamespace
+                // TODO: BaseViewModel
+            };
+            await File.WriteAllTextAsync(file.FullName, viewModelTemplate.TransformText());
         }
 
         public static async Task HandleAddControl(
-            FileSystemInfo target,
+            ProjectMetadata metadata,
             string name,
-            string? master,
             string directory,
+            bool codeBehind,
             ILogger logger)
         {
-            
+            var file = GetFile(metadata.ProjectDirectory, directory, name, ControlFileExtension, logger);
+            if (file is null)
+            {
+                return;
+            }
+
+            var @namespace = Names.GetNamespace(
+                file.DirectoryName,
+                metadata.ProjectDirectory,
+                metadata.RootNamespace);
+
+            var controlTemplate = new ControlTemplate()
+            {
+                CreateCodeBehind = codeBehind
+            };
+            if (codeBehind)
+            {
+                controlTemplate.CodeBehindClassName = name;
+                controlTemplate.CodeBehindClassNamespace = @namespace;
+                controlTemplate.CodeBehindClassRootNamespace = metadata.RootNamespace;
+            }
+            await File.WriteAllTextAsync(file.FullName, controlTemplate.TransformText());
+
+            if (codeBehind)
+            {
+                var codeBehindFile = GetFile(
+                    metadata.ProjectDirectory,
+                    directory,
+                    name,
+                    CodeBehindExtension,
+                    logger);
+                if (codeBehindFile is null)
+                {
+                    return;
+                }
+
+                var codeBehindTemplate = new ControlCodeBehindTemplate()
+                {
+                    CodeBehindClassNamespace = @namespace,
+                    CodeBehindClassName = name
+                };
+                await File.WriteAllTextAsync(codeBehindFile.FullName, codeBehindTemplate.TransformText());
+            }
+        }
+
+        private static FileInfo? GetFile(
+            string projectDirectory,
+            string directory,
+            string name,
+            string extension,
+            ILogger logger)
+        {
+            var file = new FileInfo(Path.Combine(
+                projectDirectory,
+                Path.Combine(
+                    directory,
+                    $"{name}{extension}")));
+            if (file.Exists)
+            {
+                logger.LogCritical($"File '{file}' already exists.");
+                return null;
+            }
+
+            Directory.CreateDirectory(file.DirectoryName);
+            return file;
         }
     }
 }

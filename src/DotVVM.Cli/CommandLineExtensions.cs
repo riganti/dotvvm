@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
@@ -7,6 +8,7 @@ using System.Linq;
 using DotVVM.Cli;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging.Console;
 
 namespace System.CommandLine
 {
@@ -34,7 +36,7 @@ namespace System.CommandLine
                     ? LogLevel.Debug
                     : LogLevel.Information;
                 Factory = LoggerFactory.Create(b => b.AddConsole().SetMinimumLevel(logLevel));
-                var loggerName = $"{c.ParseResult.CommandResult.Command.Name}";
+                var loggerName = GetCommandPath(c.ParseResult.CommandResult);
                 c.BindingContext.AddService(_ => Factory.CreateLogger(loggerName));
                 await next(c);
                 Factory.Dispose();
@@ -78,6 +80,19 @@ namespace System.CommandLine
                 current = current.Parent as CommandResult;
             }
             return null;
+        }
+
+        private static string GetCommandPath(CommandResult result)
+        {
+            var names = new List<string>();
+            CommandResult? current = result;
+            while(current is object)
+            {
+                names.Add(current.Symbol.Name);
+                current = current.Parent as CommandResult;
+            }
+            names.Reverse();
+            return string.Join(' ', names);
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace DotVVM.Cli
 {
-    public class DotvvmProjectMetadata
+    public class ProjectMetadataJson
     {
         [JsonPropertyName("version")]
         public int Version { get; set; }

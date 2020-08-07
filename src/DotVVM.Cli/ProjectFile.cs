@@ -19,6 +19,7 @@ namespace DotVVM.Cli
         public const string DotvvmMetadataFile = ".dotvvm.json";
         public const string DotvvmPackage = "DotVVM";
         public const string DotvvmAssembly = "DotVVM.Framework";
+        public const string FallbackDotvvmVersion = "2.4.0.1";
 
         public static FileInfo? FindProjectFile(FileSystemInfo target)
         {
@@ -61,13 +62,14 @@ namespace DotVVM.Cli
             return metadata.Exists ? metadata : null;
         }
 
-        public static async Task<DotvvmProjectMetadata> LoadProjectMetadata(FileInfo file)
+        public static async Task<ProjectMetadata> LoadProjectMetadata(FileInfo file)
         {
             using var stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            return await JsonSerializer.DeserializeAsync<DotvvmProjectMetadata>(stream);
+            var json = await JsonSerializer.DeserializeAsync<ProjectMetadataJson>(stream);
+            return ProjectMetadata.FromJson(json);
         }
 
-        public static async Task<DotvvmProjectMetadata?> GetProjectMetadata(
+        public static async Task<ProjectMetadata?> GetProjectMetadata(
             FileSystemInfo target,
             ILogger? logger = null,
             LogLevel errorLevel = LogLevel.Critical)
@@ -84,7 +86,7 @@ namespace DotVVM.Cli
             return await LoadProjectMetadata(file);
         }
 
-        public static async Task<DotvvmProjectMetadata?> CreateProjectMetadata(
+        public static async Task<ProjectMetadata?> CreateProjectMetadata(
             FileSystemInfo target,
             ILogger? logger = null,
             LogLevel errorLevel = LogLevel.Critical)
@@ -107,7 +109,7 @@ namespace DotVVM.Cli
             }
 
             logger.LogDebug($"Using MSBuild at '{msbuildInstance.MSBuildPath}' for project file inspection.");
-            var metadata = CreateProjectMetadataFromMSBuild(projectFile, logger, errorLevel);
+            var metadata = CreateProjectMetadataFromMSBuild(projectFile);
             if (metadata is null)
             {
                 return null;
@@ -121,33 +123,31 @@ namespace DotVVM.Cli
             return metadata;
         }
 
-        public static async Task SaveProjectMetadata(FileInfo file, DotvvmProjectMetadata metadata)
+        public static async Task SaveProjectMetadata(FileInfo file, ProjectMetadata metadata)
         {
             using var stream = file.Open(FileMode.Create, FileAccess.Write);
-            metadata.MetadataFilePath = file.FullName;
-            await JsonSerializer.SerializeAsync(stream, metadata);
+            var json = metadata.ToJson();
+            json.MetadataFilePath = file.FullName;
+            await JsonSerializer.SerializeAsync(stream, json, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
         }
 
-        private static DotvvmProjectMetadata? CreateProjectMetadataFromMSBuild(
-            FileInfo projectFile,
-            ILogger logger,
-            LogLevel errorLevel)
+        private static ProjectMetadata? CreateProjectMetadataFromMSBuild(FileInfo projectFile)
         {
             var project = Project.FromFile(projectFile.FullName, new ProjectOptions
             {
                 LoadSettings = ProjectLoadSettings.IgnoreInvalidImports
                     | ProjectLoadSettings.IgnoreMissingImports
             });
-            return new DotvvmProjectMetadata
-            {
-                Version = 2, // TODO: Why?
-                ProjectDirectory = projectFile.DirectoryName,
-                RootNamespace = project.GetPropertyValue("RootNamespace"),
-                ProjectName = project.GetPropertyValue("AssemblyName"),
-                PackageVersion = GetDotvvmVersion(project),
-            };
+            return new ProjectMetadata(
+                projectName: project.GetPropertyValue("AssemblyName"),
+                projectDirectory: projectFile.DirectoryName,
+                rootNamespace: project.GetPropertyValue("RootNamespace"),
+                packageVersion: GetDotvvmVersion(project));
         }
-        private static string? GetDotvvmVersion(Project project)
+        private static string GetDotvvmVersion(Project project)
         {
             var package = project.GetItems("PackageReference")
                 .FirstOrDefault(p => p.EvaluatedInclude == DotvvmPackage);
@@ -164,7 +164,7 @@ namespace DotVVM.Cli
                 return reference.Version.ToString();
             }
 
-            return null;
+            return FallbackDotvvmVersion;
         }
     }
 }
