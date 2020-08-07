@@ -6,7 +6,7 @@ using DotVVM.Samples.BasicSamples.Api.Common.DataStore;
 using DotVVM.Samples.BasicSamples.Api.Common.Model;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
+namespace DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest.Controllers
 {
     [Route("api/[controller]")]
     public class OrdersController : Controller

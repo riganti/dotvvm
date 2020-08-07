@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DotVVM.Core.Common;
 using DotVVM.Framework.Api.Swashbuckle.AspNetCore;
 using DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters;
+using DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest.Utilities;
 using DotVVM.Samples.BasicSamples.Api.Common.DataStore;
 using DotVVM.Samples.BasicSamples.Api.Common.Model;
 using Microsoft.AspNetCore.Builder;
@@ -17,11 +18,11 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
 
-namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
+namespace DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -39,7 +40,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
             // Add framework services.
             services.AddMvc().AddJsonOptions(options =>
             {
-                options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                options.JsonSerializerOptions.Converters.Add(new DateTimeConverter());
             }); 
 
             services.AddDotVVM<DotvvmServiceConfigurator>();
@@ -62,15 +63,11 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
                 options.CustomSchemaIds(type => CustomSchemaId(type));
                 options.EnableDotvvmIntegration();
             });
-            services.AddSwaggerGenNewtonsoftSupport();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
-
             app.UseCors(p => {
                 p.AllowAnyOrigin();
                 p.AllowAnyMethod();
@@ -81,7 +78,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
                 options.PreSerializeFilters.Add((swaggerDoc, httpReq) => {
                     swaggerDoc.Servers = new List<OpenApiServer>()
                     {
-                        new OpenApiServer { Url = "http://localhost:5001" }
+                        new OpenApiServer { Url = "http://localhost:5003" }
                     };
                 });
                 options.SerializeAsV2 = true;
@@ -90,7 +87,13 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Northwind API");
             });
 
-            app.UseMvc();
+            app.UseRouting();
+            app.UseCors();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
 
             app.UseDotVVM<DotvvmStartup>(env.ContentRootPath);
 
