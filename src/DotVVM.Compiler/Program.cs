@@ -109,7 +109,7 @@ namespace DotVVM.Compiler
                 {
                     foreach (var error in file.Value.Errors)
                     {
-                        logger.LogError($"{file.Key}: {error}");
+                        logger.LogError($"{file.Key}: {error.Message}");
                     }
                 }
             }

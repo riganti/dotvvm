@@ -83,7 +83,7 @@ namespace DotVVM.Tool
                 logger.LogDebug($"Using the '{msbuild}' msbuild.");
             }
 
-            var shim = CreateCompilerShim(project, compilerPath);
+            var shim = CreateCompilerShim(project, metadata.PackageVersion, compilerPath);
             var configuration = debug ? "Debug" : "Release";
             logger.LogInformation("Building a compiler shim.");
             if (!msbuild.TryBuild(shim, configuration, msbuildOutput, logger))
@@ -107,7 +107,10 @@ namespace DotVVM.Tool
             return InvokeCompilerShim(shim, configuration, args, logger);
         }
 
-        public static FileInfo CreateCompilerShim(FileInfo projectFile, string? compilerPath = null)
+        public static FileInfo CreateCompilerShim(
+            FileInfo projectFile,
+            string dotvvmVersion,
+            string? compilerPath = null)
         {
             var dotvvmDir = new DirectoryInfo(Path.Combine(projectFile.DirectoryName, Shims.DotvvmDirectory));
             if (!dotvvmDir.Exists)
@@ -126,6 +129,7 @@ namespace DotVVM.Tool
                 path: shimFile.FullName,
                 contents: Shims.GetCompilerShimProject(
                     project: Path.GetRelativePath(dotvvmDir.FullName, projectFile.FullName),
+                    dotvvmVersion: dotvvmVersion,
                     compilerReference: compilerPath));
 
             File.WriteAllText(

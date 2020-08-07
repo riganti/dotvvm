@@ -8,16 +8,13 @@ namespace DotVVM.Tool
 
         public const string DotvvmDirectory = ".dotvvm";
         public const string Netcoreapp = "netcoreapp3.1";
-
-        // TODO: Find the referenced version through MSBuild. This might require an additional executable or at least
-        //       MSBuilLocator.
-        public const string CompilerVersion = "2.4.0.1";
         public const string CompilerPackage = "DotVVM.Compiler";
         public const string CompilerShimProgramFile = "Compiler.cs";
         public const string CompilerShimProjectFile = "Compiler.csproj";
 
         public static string GetCompilerShimProject(
             string project,
+            string dotvvmVersion,
             string programFile = CompilerShimProgramFile,
             string? compilerReference = null)
         {
@@ -45,7 +42,7 @@ $@"<Project Sdk=""Microsoft.NET.Sdk"">
                 sb.Append(
 $@"
   <ItemGroup>
-    <PackageReference Include=""{CompilerPackage}"" Version=""{CompilerVersion}"" />
+    <PackageReference Include=""{CompilerPackage}"" Version=""{dotvvmVersion}"" />
   </ItemGroup>
 ");
             }
