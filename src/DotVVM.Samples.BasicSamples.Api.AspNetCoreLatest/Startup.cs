@@ -47,20 +47,8 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest
 
             services.Configure<DotvvmApiOptions>(opt => opt.AddKnownType(typeof(Company<string>)));
 
-            string CustomSchemaId(Type modelType)
-            {
-                if (!modelType.IsConstructedGenericType) return modelType.Name.Replace("[]", "Array");
-
-                var generics = modelType.GetGenericArguments()
-                    .Select(genericArg => CustomSchemaId(genericArg))
-                    .Aggregate((previous, current) => previous + current);
-
-                return $"{modelType.Name.Split('`').First()}[{generics}]";
-            }
-
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new OpenApiInfo() { Title = "DotVVM Test API", Version = "v1" });
-                options.CustomSchemaIds(type => CustomSchemaId(type));
                 options.EnableDotvvmIntegration();
             });
         }

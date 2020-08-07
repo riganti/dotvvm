@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters;
 using DotVVM.Framework.Controls;
+using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore
@@ -18,6 +20,19 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore
 
             options.SchemaFilterDescriptors.Add(new FilterDescriptor() { Type = typeof(AddTypeToModelSchemaFilter), Arguments = new object[] { } });
             options.DocumentFilterDescriptors.Add(new FilterDescriptor() { Type = typeof(HandleKnownTypesDocumentFilter), Arguments = new object[] { } });
+
+            options.CustomSchemaIds(type => GetCustomSchemaId(type));
+        }
+
+        private static string GetCustomSchemaId(Type modelType)
+        {
+            if (!modelType.IsConstructedGenericType) return modelType.Name.Replace("[]", "Array");
+
+            var generics = modelType.GetGenericArguments()
+                .Select(genericArg => GetCustomSchemaId(genericArg))
+                .Aggregate((previous, current) => previous + current);
+
+            return $"{modelType.Name.Split('`').First()}[{generics}]";
         }
     }
 }
