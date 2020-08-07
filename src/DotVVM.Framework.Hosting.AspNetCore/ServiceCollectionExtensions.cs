@@ -11,12 +11,16 @@ using System.Reflection;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Hosting.AspNetCore;
+using DotVVM.Framework.Diagnostics;
+using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Hosting.AspNetCore.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
+        private static readonly DiagnosticsStartupTracer startupTracer = new DiagnosticsStartupTracer();
+
         /// <summary>
         /// Adds DotVVM services with authorization and data protection to the specified <see cref="IServiceCollection" />.
         /// </summary>
@@ -28,7 +32,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var configurator = new TServiceConfigurator();
             var dotvvmServices = new DotvvmServiceCollection(services);
+
+            startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserServicesRegistrationStarted);
             configurator.ConfigureServices(dotvvmServices);
+            startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserServicesRegistrationFinished);
 
             return services;
         }
@@ -47,6 +54,8 @@ namespace Microsoft.Extensions.DependencyInjection
         // ReSharper disable once InconsistentNaming
         private static void AddDotVVMServices(IServiceCollection services)
         {
+            startupTracer.TraceEvent(StartupTracingConstants.AddDotvvmStarted);
+
             var addAuthorizationMethod =
                 Type.GetType("Microsoft.Extensions.DependencyInjection.AuthorizationServiceCollectionExtensions, Microsoft.AspNetCore.Authorization", throwOnError: false)
                     ?.GetMethod("AddAuthorization", new[] { typeof(IServiceCollection) })
@@ -69,6 +78,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddScoped<IDotvvmRequestContext>(s => s.GetRequiredService<DotvvmRequestContextStorage>().Context);
             services.AddSingleton<IDotvvmViewCompilationService, DotvvmViewCompilationService>();
             services.AddTransient<IDotvvmWarningSink, AspNetCoreLoggerWarningSink>();
+
+            services.TryAddSingleton<IStartupTracer>(startupTracer);
         }
     }
 }

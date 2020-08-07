@@ -1,6 +1,7 @@
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Samples.BasicSamples;
@@ -47,6 +48,8 @@ namespace DotVVM.Samples.Common
             services.AddSingleton<CompaniesClient>();
             services.AddSingleton<TestWebApiClientOwin>();
             services.AddSingleton<TestWebApiClientAspNetCore>();
+
+            services.AddSingleton<IDiagnosticsInformationSender, TextFileDiagnosticsInformationSender>();
         }
 
         private static void RegisterResources(DotvvmResourceRepository resources)

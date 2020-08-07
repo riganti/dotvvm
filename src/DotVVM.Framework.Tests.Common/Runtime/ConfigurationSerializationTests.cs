@@ -17,6 +17,11 @@ namespace DotVVM.Framework.Tests.Runtime
     {
         OutputChecker check = new OutputChecker("config-tests");
 
+        public ConfigurationSerializationTests()
+        {
+            DotvvmTestHelper.EnsureCompiledAssemblyCache();
+        }
+
         void checkConfig(DotvvmConfiguration config, string checkName = null, string fileExtension = "json", [CallerMemberName] string memberName = null, [CallerFilePath] string sourceFilePath = null)
         {
             var serialized = DotVVM.Framework.Hosting.VisualStudioHelper.SerializeConfig(config);
