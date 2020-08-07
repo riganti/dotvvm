@@ -65,7 +65,6 @@ namespace DotVVM.Samples.BasicSamples
                 if (c.ExperimentalFeatures.ExplicitAssemblyLoading.Enabled)
                 {
                     c.Markup.AddAssembly(typeof(Startup).Assembly.FullName);
-                    c.Markup.AddAssembly("System.Security.Claims");
                 }
             });
 
