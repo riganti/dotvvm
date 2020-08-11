@@ -34,6 +34,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public void Nest(int property)
         {
+            if (Suppressed)
+                return;
+
             var prop = Property(property);
             if (prop != null)
             {
@@ -51,6 +54,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public void AssertEnd()
         {
+            if (Suppressed)
+                return;
+
             if (virtualNests > 0)
             {
                 virtualNests--;

@@ -189,7 +189,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     body = Expression.IfThenElse(
                         isEVSuppressed,
                         body,
-                        Expression.Default(typeof(void))
+                        Expression.Block(
+                            Expression.IfThen(
+                                ExpressionUtils.Replace((JsonReader rdr) => rdr.TokenType == JsonToken.StartArray || rdr.TokenType == JsonToken.StartConstructor || rdr.TokenType == JsonToken.StartObject, reader),
+                                Expression.Call(reader, "Skip", Type.EmptyTypes)),
+                            Expression.Call(reader, "Read", Type.EmptyTypes))
                     );
                 }
 
