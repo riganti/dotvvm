@@ -11,10 +11,10 @@
         "Identifier": "_testApi",
         "ParameterType": {
           "$type": "DotVVM.Framework.Compilation.ControlTree.Resolved.ResolvedTypeDescriptor, DotVVM.Framework",
-          "Type": "DotVVM.Framework.Tests.Binding.TestApiClient, DotVVM.Framework.Tests.Common, Version=1.0.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da",
+          "Type": "DotVVM.Framework.Tests.Binding.TestApiClient, DotVVM.Framework.Tests.Common, Version=*** Culture=neutral, PublicKeyToken=23f3607db32275da",
           "Name": "TestApiClient",
           "Namespace": "DotVVM.Framework.Tests.Binding",
-          "Assembly": "DotVVM.Framework.Tests.Binding.TestApiClient, DotVVM.Framework.Tests.Common, Version=1.0.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da",
+          "Assembly": "DotVVM.Framework.Tests.Binding.TestApiClient, DotVVM.Framework.Tests.Common, Version=*** Culture=neutral, PublicKeyToken=23f3607db32275da",
           "FullName": "DotVVM.Framework.Tests.Binding.TestApiClient"
         },
         "Inherit": true
