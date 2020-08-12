@@ -2,7 +2,7 @@
 using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Logic;
 using DotVVM.CommandLine.Core.Arguments;
-using DotVVM.CommandLine.Core.Metadata;
+using DotVVM.Cli;
 
 namespace DotVVM.CommandLine.Commands.Handlers
 {
@@ -12,7 +12,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
 
         public override string[] Usages => new []{ "dotvvm api create <http://path/to/swagger.json> <Namespace> <../ApiProject/CSharpClient.cs> <Scripts/TypescriptClient.cs>" };
 
-        public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override bool TryConsumeArgs(Arguments args, ProjectMetadataJson dotvvmProjectMetadata)
         {
             if (string.Equals(args[0], "api", StringComparison.CurrentCultureIgnoreCase)
                 && string.Equals(args[1], "create", StringComparison.CurrentCultureIgnoreCase))
@@ -24,7 +24,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
             return false;
         }
 
-        public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override void Handle(Arguments args, ProjectMetadataJson dotvvmProjectMetadata)
         {
             var swaggerFile = args[0] ??
                 throw new InvalidCommandUsageException("You have to specify the swagger file.");

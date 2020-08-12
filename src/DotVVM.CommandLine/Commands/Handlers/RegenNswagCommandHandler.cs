@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Logic;
 using DotVVM.CommandLine.Core.Arguments;
-using DotVVM.CommandLine.Core.Metadata;
+using DotVVM.Cli;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.CommandLine.Commands.Handlers
@@ -15,7 +15,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
 
         public override string[] Usages => new []{"dotvvm api regen [ swagger metadata URL or swagger JSON path -- if not specified all of them are refreshed ]" };
 
-        public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override bool TryConsumeArgs(Arguments args, ProjectMetadataJson dotvvmProjectMetadata)
         {
             if (string.Equals(args[0], "api", StringComparison.CurrentCultureIgnoreCase)
                 && string.Equals(args[1], "regen", StringComparison.CurrentCultureIgnoreCase))
@@ -27,7 +27,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
             return false;
         }
 
-        public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override void Handle(Arguments args, ProjectMetadataJson dotvvmProjectMetadata)
         {
             var swaggerFile = args[0];
             if (swaggerFile != null)

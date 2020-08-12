@@ -1,8 +1,8 @@
 ﻿using System;
+using DotVVM.Cli;
 using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Core;
 using DotVVM.CommandLine.Core.Arguments;
-using DotVVM.CommandLine.Core.Metadata;
 using DotVVM.CommandLine.Core.Templates;
 
 namespace DotVVM.CommandLine.Commands.Handlers
@@ -13,7 +13,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
 
         public override string[] Usages => new []{ "dotvvm add control <NAME> [-c|--code|--codebehind]", "dotvvm ac <NAME> [-c|--code|--codebehind]"};
 
-        public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override bool TryConsumeArgs(Arguments args, ProjectMetadataJson dotvvmProjectMetadata)
         {
             if (string.Equals(args[0], "add", StringComparison.CurrentCultureIgnoreCase)
                 && string.Equals(args[1], "control", StringComparison.CurrentCultureIgnoreCase))
@@ -31,7 +31,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
             return false;
         }
 
-        public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override void Handle(Arguments args, ProjectMetadataJson dotvvmProjectMetadata)
         {
             var name = args[0];
             if (string.IsNullOrEmpty(name))
@@ -45,7 +45,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
             CreateControl(name, codeBehind, dotvvmProjectMetadata);
         }
 
-        private void CreateControl(string viewPath, bool createCodeBehind, DotvvmProjectMetadata dotvvmProjectMetadata)
+        private void CreateControl(string viewPath, bool createCodeBehind, ProjectMetadataJson dotvvmProjectMetadata)
         {
             var codeBehindPath = PathHelpers.ChangeExtension(viewPath, "cs");
             var codeBehindClassName = NamingHelpers.GetClassNameFromPath(viewPath);

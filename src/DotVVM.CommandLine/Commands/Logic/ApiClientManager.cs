@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.CommandLine.Core;
-using DotVVM.CommandLine.Core.Metadata;
+using DotVVM.Cli;
 using NJsonSchema;
 using NJsonSchema.CodeGeneration.CSharp;
 using NJsonSchema.CodeGeneration.TypeScript;
@@ -17,7 +17,7 @@ namespace DotVVM.CommandLine.Commands.Logic
     // this logic should be moved to a script file that would allow anyone to edit or replace the logic easily
     public static class ApiClientManager
     {
-        public static void AddApiClient(Uri swaggerFile, string @namespace, string csharpOutput, string typescriptOutput, DotvvmProjectMetadata project)
+        public static void AddApiClient(Uri swaggerFile, string @namespace, string csharpOutput, string typescriptOutput, ProjectMetadataJson project)
         {
             var definition = new ApiClientDefinition {
                 CSharpClient = csharpOutput,

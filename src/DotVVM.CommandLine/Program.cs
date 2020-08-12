@@ -5,7 +5,7 @@ using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Handlers;
 using DotVVM.CommandLine.Core;
 using DotVVM.CommandLine.Core.Arguments;
-using DotVVM.CommandLine.Core.Metadata;
+using DotVVM.Cli;
 using Microsoft.Build.Locator;
 
 namespace DotVVM.CommandLine
@@ -96,7 +96,7 @@ namespace DotVVM.CommandLine
             Environment.Exit(0);
         }
 
-        private static DotvvmProjectMetadata SaveDefaultDotvvmMetadata(DotvvmProjectMetadataService metadataService)
+        private static ProjectMetadataJson SaveDefaultDotvvmMetadata(DotvvmProjectMetadataService metadataService)
         {
             var metadata = metadataService.CreateDefaultConfiguration(Directory.GetCurrentDirectory());
             metadataService.Save(metadata);

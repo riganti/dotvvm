@@ -4,7 +4,7 @@ using System.Linq;
 using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Logic.SeleniumGenerator;
 using DotVVM.CommandLine.Core.Arguments;
-using DotVVM.CommandLine.Core.Metadata;
+using DotVVM.Cli;
 using DotVVM.CommandLine.ProjectSystem;
 using DotVVM.Utils.ProjectService.Lookup;
 
@@ -16,7 +16,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
 
         public override string[] Usages => new[] { "dotvvm gen uitest <NAME>", "dotvvm gut <NAME>" };
 
-        public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override bool TryConsumeArgs(Arguments args, ProjectMetadataJson dotvvmProjectMetadata)
         {
             if (string.Equals(args[0], "gen", StringComparison.CurrentCultureIgnoreCase)
                 && string.Equals(args[1], "uitest", StringComparison.CurrentCultureIgnoreCase))
@@ -34,7 +34,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
             return false;
         }
 
-        public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override void Handle(Arguments args, ProjectMetadataJson dotvvmProjectMetadata)
         {
             var appFullPath = Path.GetFullPath(dotvvmProjectMetadata.ProjectDirectory);
             var metadata = ProjectUtils.ResolveMetadata(appFullPath);

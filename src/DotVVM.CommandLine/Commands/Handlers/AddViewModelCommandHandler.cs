@@ -2,7 +2,7 @@
 using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Core;
 using DotVVM.CommandLine.Core.Arguments;
-using DotVVM.CommandLine.Core.Metadata;
+using DotVVM.Cli;
 using DotVVM.CommandLine.Core.Templates;
 
 namespace DotVVM.CommandLine.Commands.Handlers
@@ -13,7 +13,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
 
         public override string[] Usages => new[] { "dotvvm add viewmodel <NAME>", "dotvvm avm <NAME>" };
 
-        public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override bool TryConsumeArgs(Arguments args, ProjectMetadataJson dotvvmProjectMetadata)
         {
             if (string.Equals(args[0], "add", StringComparison.CurrentCultureIgnoreCase)
                 && string.Equals(args[1], "viewmodel", StringComparison.CurrentCultureIgnoreCase))
@@ -31,7 +31,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
             return false;
         }
 
-        public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override void Handle(Arguments args, ProjectMetadataJson dotvvmProjectMetadata)
         {
             var name = args[0];
             if (string.IsNullOrEmpty(name))
@@ -48,7 +48,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
             CreateViewModel(name, dotvvmProjectMetadata);
         }
 
-        private void CreateViewModel(string viewModelPath, DotvvmProjectMetadata dotvvmProjectMetadata)
+        private void CreateViewModel(string viewModelPath, ProjectMetadataJson dotvvmProjectMetadata)
         {
             var viewModelName = NamingHelpers.GetClassNameFromPath(viewModelPath);
             var viewModelNamespace = NamingHelpers.GetNamespaceFromPath(viewModelPath, dotvvmProjectMetadata.ProjectDirectory, dotvvmProjectMetadata.RootNamespace);

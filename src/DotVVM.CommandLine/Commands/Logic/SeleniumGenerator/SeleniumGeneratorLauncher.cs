@@ -6,7 +6,7 @@ using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Logic.Compiler;
 using DotVVM.CommandLine.Core;
 using DotVVM.CommandLine.Core.Arguments;
-using DotVVM.CommandLine.Core.Metadata;
+using DotVVM.Cli;
 using DotVVM.CommandLine.Core.Templates;
 using DotVVM.Compiler;
 using DotVVM.Utils.ProjectService;
@@ -19,7 +19,7 @@ namespace DotVVM.CommandLine.Commands.Logic.SeleniumGenerator
     {
         private const string PageObjectsText = "PageObjects";
 
-        public static void Start(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata,
+        public static void Start(Arguments args, ProjectMetadataJson dotvvmProjectMetadata,
             IResolvedProjectMetadata projectMetadata)
         {
             var metadata = JsonConvert.SerializeObject(JsonConvert.SerializeObject(dotvvmProjectMetadata));

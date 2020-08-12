@@ -3,7 +3,7 @@ using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Logic;
 using DotVVM.CommandLine.Core;
 using DotVVM.CommandLine.Core.Arguments;
-using DotVVM.CommandLine.Core.Metadata;
+using DotVVM.Cli;
 using DotVVM.CommandLine.Core.Templates;
 
 namespace DotVVM.CommandLine.Commands.Handlers
@@ -14,7 +14,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
 
         public override string[] Usages => new []{"dotvvm add master <NAME> [-m|--master|--masterpage <MASTERPAGE>]","dotvvm am <NAME> [-m|--master|--masterpage <MASTERPAGE>]"};
 
-        public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override bool TryConsumeArgs(Arguments args, ProjectMetadataJson dotvvmProjectMetadata)
         {
             if (string.Equals(args[0], "add", StringComparison.CurrentCultureIgnoreCase)
                 && string.Equals(args[1], "master", StringComparison.CurrentCultureIgnoreCase))
@@ -32,7 +32,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
             return false;
         }
 
-        public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override void Handle(Arguments args, ProjectMetadataJson dotvvmProjectMetadata)
         {
             var name = args[0];
             if (string.IsNullOrEmpty(name))
@@ -60,7 +60,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
             CreatePage(name, masterPage, dotvvmProjectMetadata);
         }
 
-        private void CreatePage(string viewPath, string masterPagePath, DotvvmProjectMetadata dotvvmProjectMetadata)
+        private void CreatePage(string viewPath, string masterPagePath, ProjectMetadataJson dotvvmProjectMetadata)
         {
             var viewModelPath = NamingHelpers.GenerateViewModelPath(viewPath);
             var viewModelName = NamingHelpers.GetClassNameFromPath(viewModelPath);

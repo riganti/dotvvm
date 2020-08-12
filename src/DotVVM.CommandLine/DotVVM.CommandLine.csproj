@@ -43,7 +43,6 @@
     <EmbeddedResource Include="Templates\TypeScript\FetchClient.liquid" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.CommandLine.Core\DotVVM.CommandLine.Core.csproj" />
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
     <ProjectReference Include="..\DotVVM.Cli\DotVVM.Cli.csproj" />
   </ItemGroup>
@@ -51,9 +50,6 @@
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build" Version="15.9.20" ExcludeAssets="runtime"/>
-    <PackageReference Include="Microsoft.Build.Framework" Version="15.9.20" ExcludeAssets="runtime" />
-    <PackageReference Include="Microsoft.Build.Locator" Version="1.2.6"/>
     <PackageReference Include="NSwag.CodeGeneration" Version="11.14.1" />
     <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="11.14.1" />
     <PackageReference Include="NSwag.CodeGeneration.Typescript" Version="11.14.1" />
@@ -61,4 +57,73 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="Templates\SeleniumConfigJson.tt">
+      <LastGenOutput>SeleniumConfigJson.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+    <None Update="Templates\ControlCodeBehindTemplate.tt">
+      <LastGenOutput>ControlCodeBehindTemplate.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+    <None Update="Templates\ControlTemplate.tt">
+      <LastGenOutput>ControlTemplate.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+    <None Update="Templates\PageTemplate.tt">
+      <LastGenOutput>PageTemplate.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+    <None Update="Templates\AppSeleniumTestTemplate.tt">
+      <LastGenOutput>seleniumconfig.json.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+    <None Update="Templates\TestProjectTemplate.tt">
+      <LastGenOutput>TestProjectTemplate.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+    <None Update="Templates\ViewModelTemplate.tt">
+      <LastGenOutput>ViewModelTemplate.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Templates\AppSeleniumTestTemplate.cs">
+      <DependentUpon>AppSeleniumTestTemplate.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Templates\ControlCodeBehindTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ControlCodeBehindTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Templates\ControlTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ControlTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Templates\PageTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PageTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Templates\TestProjectTemplate.cs">
+      <DependentUpon>TestProjectTemplate.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Templates\SeleniumConfigJson.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SeleniumConfigJson.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Templates\ViewModelTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ViewModelTemplate.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

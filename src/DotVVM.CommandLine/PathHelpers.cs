@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using DotVVM.CommandLine.Core.Metadata;
+using DotVVM.Cli;
 
 namespace DotVVM.CommandLine.Core
 {
@@ -20,7 +20,7 @@ namespace DotVVM.CommandLine.Core
             return fullPath.Substring(basePath.Length).TrimStart('/', '\\');
         }
 
-        public static string GetDothtmlFileRelativePath(DotvvmProjectMetadata dotvvmProjectMetadata, string file)
+        public static string GetDothtmlFileRelativePath(ProjectMetadataJson dotvvmProjectMetadata, string file)
         {
             var relativePath = PathHelpers.GetRelativePathFrom(dotvvmProjectMetadata.ProjectDirectory, file);
             if (relativePath.StartsWith("views/", StringComparison.CurrentCultureIgnoreCase)

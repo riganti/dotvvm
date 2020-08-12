@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using DotVVM.CommandLine.Core.Metadata;
+using DotVVM.Cli;
 using NJsonSchema;
 using NSwag;
 

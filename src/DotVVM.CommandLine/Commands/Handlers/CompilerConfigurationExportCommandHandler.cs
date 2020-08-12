@@ -5,7 +5,6 @@ using DotVVM.Cli;
 using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Logic.Compiler;
 using DotVVM.CommandLine.Core.Arguments;
-using DotVVM.CommandLine.Core.Metadata;
 using DotVVM.Utils.ProjectService;
 using DotVVM.Utils.ProjectService.Lookup;
 
@@ -16,10 +15,10 @@ namespace DotVVM.CommandLine.Commands.Handlers
         public override string Name => "Export DotVVM configuration";
         public override string[] Usages => new[] { "compiler export-config" };
 
-        public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata) =>
+        public override bool TryConsumeArgs(Arguments args, ProjectMetadataJson dotvvmProjectMetadata) =>
             args[0] == "compiler" && args[1] == "export-config";
 
-        public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override void Handle(Arguments args, ProjectMetadataJson dotvvmProjectMetadata)
         {
             var projectsMetadata = new ProjectSystemProvider().GetProjectMetadata(dotvvmProjectMetadata.ProjectDirectory).ToList();
             WriteVerboseInformation(projectsMetadata);

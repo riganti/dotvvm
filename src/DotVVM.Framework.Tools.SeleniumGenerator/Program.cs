@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using DotVVM.CommandLine.Core;
 using DotVVM.CommandLine.Core.Arguments;
-using DotVVM.CommandLine.Core.Metadata;
+using DotVVM.Cli;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -52,7 +52,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
                     WaitForDebugger();
                 }
 
-                DotvvmProjectMetadata dotvvmProjectMetadata = null;
+                ProjectMetadataJson dotvvmProjectMetadata = null;
                 if (string.Equals(arguments[0], "--json", StringComparison.CurrentCultureIgnoreCase))
                 {
                     dotvvmProjectMetadata = JsonConvert.DeserializeObject<DotvvmProjectMetadata>(arguments[1]);
@@ -92,7 +92,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             Environment.Exit(code);
         }
 
-        private static void GeneratePageObjects(DotvvmProjectMetadata dotvvmProjectMetadata, DotvvmConfiguration dotvvmConfig, Arguments arguments)
+        private static void GeneratePageObjects(ProjectMetadataJson dotvvmProjectMetadata, DotvvmConfiguration dotvvmConfig, Arguments arguments)
         {
             var options = PrepareSeleniumGeneratorOptions(dotvvmConfig);
             var generator = new SeleniumPageObjectGenerator(options, dotvvmConfig);
@@ -197,7 +197,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             return Path.GetFullPath(name);
         }
 
-        private static void ResolveTestProject(DotvvmProjectMetadata dotvvmProjectMetadata)
+        private static void ResolveTestProject(ProjectMetadataJson dotvvmProjectMetadata)
         {
             var metadataService = new DotvvmProjectMetadataService();
 

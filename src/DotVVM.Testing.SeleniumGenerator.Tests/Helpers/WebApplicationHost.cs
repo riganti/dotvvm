@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Buildalyzer;
 using Buildalyzer.Workspaces;
 using DotVVM.CommandLine.Core.Arguments;
-using DotVVM.CommandLine.Core.Metadata;
+using DotVVM.Cli;
 using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -23,7 +23,7 @@ namespace DotVVM.Testing.SeleniumGenerator.Tests.Helpers
         private readonly string testProjectName;
         private readonly string testProjectCsproj;
         private readonly string dotvvmJsonPath;
-        private DotvvmProjectMetadata metadata;
+        private ProjectMetadataJson metadata;
 
         public string TestProjectDirectory { get; private set; }
 
