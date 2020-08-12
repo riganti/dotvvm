@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Cli;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NJsonSchema;
 using NJsonSchema.CodeGeneration.CSharp;
 using NJsonSchema.CodeGeneration.TypeScript;
@@ -21,8 +23,10 @@ namespace DotVVM.Tool.OpenApi
             string @namespace,
             string csharpOutput,
             string typescriptOutput,
-            ProjectMetadata project)
+            ProjectMetadata project,
+            ILogger? logger = null)
         {
+            logger ??= NullLogger.Instance;
             var definition = new ApiClientDefinition {
                 CSharpClient = csharpOutput,
                 TypescriptClient = typescriptOutput,
@@ -30,31 +34,35 @@ namespace DotVVM.Tool.OpenApi
                 Namespace = @namespace
             };
 
-            RegenApiClient(definition, promptOnFileOverwrite: true).Wait();
+            RegenApiClient(definition, logger).Wait();
             return project.WithApiClients(project.ApiClients.Add(definition));
         }
 
-        public static async Task RegenApiClient(ApiClientDefinition definition, bool promptOnFileOverwrite)
+        public static async Task RegenApiClient(
+            ApiClientDefinition definition,
+            ILogger? logger = null)
         {
-            Console.WriteLine($"Regenerating API from {definition.SwaggerFile}");
+            logger ??= NullLogger.Instance;
+            logger.LogInformation($"Loading API from '{definition.SwaggerFile}'.");
             var document = await LoadDocument(definition.SwaggerFile);
 
             document.PopulateOperationIds();
-            var (isSingleClient, typeName) = GenerateCSharp(document, definition, promptOnFileOverwrite);
-            GenerateTS(document, definition, promptOnFileOverwrite);
+            logger.LogInformation($"Generating '{definition.CSharpClient}'.");
+            var (isSingleClient, typeName) = GenerateCSharp(document, definition);
+            logger.LogInformation($"Generating '{definition.TypescriptClient}'.");
+            GenerateTS(document, definition);
 
-            Console.WriteLine($"REST API clients generated. Place the following code snippet to your DotvvmStartup.cs: ");
-            Console.WriteLine($"config.RegisterApi{(isSingleClient ? "Client" : "Group")}"
-                              + $"(typeof({definition.Namespace}.{(definition.GenerateWrapperClass || isSingleClient ? typeName : " ... your client wrapper class ...")}), "
-                              + $"\"{ document.BasePath ?? "... your api endpoint ..." }\", "
-                              + $"\"{(definition.CompileTypescript ? Path.ChangeExtension(definition.TypescriptClient, "js") : "... path to your compiled javascript")}\", "
-                              + $"\"_restApi\");");
+            var snippet = $"config.RegisterApi{(isSingleClient ? "Client" : "Group")}"
+                + $"(typeof({definition.Namespace}.{(definition.GenerateWrapperClass || isSingleClient ? typeName : " ... your client wrapper class ...")}), "
+                + $"\"{ document.BasePath ?? "Your API endpoint" }\", "
+                + $"\"{(definition.CompileTypescript ? Path.ChangeExtension(definition.TypescriptClient, "js") : "... path to your compiled javascript")}\", "
+                + $"\"_restApi\");";
+            logger.LogInformation($"Place the following in your DotvvmStartup: '{snippet}'.");
         }
 
         public static (bool isSingleClient, string typeName) GenerateCSharp(
             OpenApiDocument document,
-            ApiClientDefinition definition,
-            bool promptOnFileOverwrite)
+            ApiClientDefinition definition)
         {
             var className = Path.GetFileNameWithoutExtension(definition.CSharpClient);
 
@@ -109,8 +117,7 @@ namespace DotVVM.Tool.OpenApi
 
         public static void GenerateTS(
             OpenApiDocument document,
-            ApiClientDefinition definition,
-            bool promptOnFileOverwrite)
+            ApiClientDefinition definition)
         {
             var className = Path.GetFileNameWithoutExtension(definition.TypescriptClient);
 

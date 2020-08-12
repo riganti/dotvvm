@@ -88,21 +88,20 @@ namespace DotVVM.Cli
                 json.ProjectDirectory!,
                 json.RootNamespace!,
                 json.PackageVersion!,
-                json.ApiClients.ToImmutableArray());
+                json.ApiClients?.ToImmutableArray() ?? ImmutableArray.Create<ApiClientDefinition>());
         }
 
         public ProjectMetadataJson ToJson()
         {
-            var json = new ProjectMetadataJson
+            return new ProjectMetadataJson
             {
                 MetadataFilePath = Path.FullName,
                 ProjectName = ProjectName,
                 ProjectDirectory = ProjectDirectory,
                 RootNamespace = RootNamespace,
-                PackageVersion = PackageVersion
+                PackageVersion = PackageVersion,
+                ApiClients = ApiClients.ToList()
             };
-            json.ApiClients.AddRange(ApiClients);
-            return json;
         }
     }
 }

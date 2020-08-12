@@ -45,7 +45,7 @@ namespace DotVVM.Cli
 
         [JsonProperty("apiClients")]
         [JsonPropertyName("apiClients")]
-        public List<ApiClientDefinition> ApiClients { get; } = new List<ApiClientDefinition>();
+        public List<ApiClientDefinition>? ApiClients { get; set; }
 
         public string? GetUITestProjectFullPath()
         {

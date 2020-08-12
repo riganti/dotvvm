@@ -80,6 +80,7 @@ namespace DotVVM.Tool
                 logger.LogCritical($"Definition at '{definition.AbsolutePath}' does not exist.");
                 return 1;
             }
+
             @namespace ??= metadata.RootNamespace;
             string name = Path.GetFileNameWithoutExtension(definition.Segments.LastOrDefault()) ?? DefaultClientName;
             name = Names.GetClass(name);
@@ -94,14 +95,49 @@ namespace DotVVM.Tool
                 @namespace,
                 csPath.FullName,
                 tsPath.FullName,
-                metadata);
+                metadata,
+                logger);
             await ProjectFile.SaveProjectMetadata(metadata);
             return 0;
         }
 
-        public static void HandleRegen()
+        public static async Task<int> HandleRegen(
+            ProjectMetadata metadata,
+            Uri? definition,
+            ILogger logger)
         {
+            if (definition is null)
+            {
+                await Task.WhenAll(metadata.ApiClients
+                    .Select(c => ApiClientManager.RegenApiClient(c, logger))
+                    .ToArray());
+                return 0;
+            }
 
+            if (!definition.IsAbsoluteUri)
+            {
+                definition = new Uri(Path.Combine(Environment.CurrentDirectory, definition.OriginalString));
+            }
+
+            if (definition.IsFile && !File.Exists(definition.AbsolutePath))
+            {
+                logger.LogCritical($"Definition at '{definition.AbsolutePath}' does not exist.");
+                return 1;
+            }
+
+            var client = metadata.ApiClients.FirstOrDefault(c =>
+                (c.SwaggerFile is object && c.SwaggerFile == definition)
+                || (c.CSharpClient is object && c.CSharpClient == definition.AbsolutePath)
+                || (c.TypescriptClient is object && c.TypescriptClient == definition.AbsolutePath));
+
+            if (client is null)
+            {
+                logger.LogCritical($"Now API client with the '{definition.AbsolutePath}' path or URL was found.");
+                return 1;
+            }
+
+            await ApiClientManager.RegenApiClient(client, logger);
+            return 0;
         }
     }
 }
