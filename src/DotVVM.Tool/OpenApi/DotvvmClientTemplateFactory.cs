@@ -19,7 +19,7 @@ namespace DotVVM.Tool.OpenApi
 
         protected override string GetEmbeddedLiquidTemplate(string language, string template)
         {
-            var resourceName = "DotVVM.CommandLine.Templates." + language + "." + template + ".liquid";
+            var resourceName = "DotVVM.Tool.OpenApi." + template + ".liquid";
 
             var resource = typeof(ApiClientManager).Assembly.GetManifestResourceStream(resourceName);
             if (resource != null)

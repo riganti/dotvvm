@@ -16,7 +16,7 @@ namespace DotVVM.Tool.OpenApi
     // this logic should be moved to a script file that would allow anyone to edit or replace the logic easily
     public static class ApiClientManager
     {
-        public static void AddApiClient(
+        public static ProjectMetadata AddApiClient(
             Uri swaggerFile,
             string @namespace,
             string csharpOutput,
@@ -30,8 +30,8 @@ namespace DotVVM.Tool.OpenApi
                 Namespace = @namespace
             };
 
-            project.WithApiClients(project.ApiClients.Add(definition));
             RegenApiClient(definition, promptOnFileOverwrite: true).Wait();
+            return project.WithApiClients(project.ApiClients.Add(definition));
         }
 
         public static async Task RegenApiClient(ApiClientDefinition definition, bool promptOnFileOverwrite)
@@ -90,7 +90,7 @@ namespace DotVVM.Tool.OpenApi
                 settings.CodeGeneratorSettings,
                 new[] {
                     typeof(CSharpGeneratorSettings).Assembly,
-                    typeof(CSharpGeneratorSettings).Assembly
+                    typeof(CSharpClientGeneratorSettings).Assembly
                 });
 
             var resolver = new CSharpTypeResolver(settings.CSharpGeneratorSettings);
@@ -143,17 +143,6 @@ namespace DotVVM.Tool.OpenApi
             var baseClass = definition.CreateBaseClass();
             ts = definition.WrapInNamespace(ts, baseClass);
             File.WriteAllText(definition.TypescriptClient, ts);
-
-            if (definition.CompileTypescript)
-            {
-                Process.Start(new ProcessStartInfo() {
-                    FileName = "tsc",
-                    Arguments = definition.TypescriptClient,
-                    UseShellExecute = true,
-                    CreateNoWindow = true,
-                    WindowStyle = ProcessWindowStyle.Hidden
-                }).WaitForExit();
-            }
         }
 
         private static Task<OpenApiDocument> LoadDocument(Uri swaggerUri)

@@ -3,8 +3,10 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using DotVVM.Cli;
 using DotVVM.Tool.OpenApi;
+using Microsoft.Extensions.Logging;
 
 namespace DotVVM.Tool
 {
@@ -60,27 +62,41 @@ namespace DotVVM.Tool
             command.AddCommand(apiCmd);
         }
 
-        public static void HandleCreate(
+        public static async Task<int> HandleCreate(
             ProjectMetadata metadata,
             Uri definition,
             string? @namespace,
             FileInfo? csPath,
-            FileInfo? tsPath)
+            FileInfo? tsPath,
+            ILogger logger)
         {
+            if (!definition.IsAbsoluteUri)
+            {
+                definition = new Uri(Path.Combine(Environment.CurrentDirectory, definition.OriginalString));
+            }
+
+            if (definition.IsFile && !File.Exists(definition.AbsolutePath))
+            {
+                logger.LogCritical($"Definition at '{definition.AbsolutePath}' does not exist.");
+                return 1;
+            }
             @namespace ??= metadata.RootNamespace;
-            string name = Names.GetClass(definition.Segments.LastOrDefault() ?? DefaultClientName);
+            string name = Path.GetFileNameWithoutExtension(definition.Segments.LastOrDefault()) ?? DefaultClientName;
+            name = Names.GetClass(name);
             if (!name.EndsWith(DefaultClientName))
             {
                 name += DefaultClientName;
             }
-            csPath ??= new FileInfo($"{name}.cs");
-            tsPath ??= new FileInfo($"{name}.ts");
-            ApiClientManager.AddApiClient(
+            csPath ??= new FileInfo(Path.Combine(metadata.ProjectDirectory, $"{name}.cs"));
+            tsPath ??= new FileInfo(Path.Combine(metadata.ProjectDirectory, $"{name}.ts"));
+            metadata = ApiClientManager.AddApiClient(
                 definition,
                 @namespace,
                 csPath.FullName,
                 tsPath.FullName,
                 metadata);
+            await ProjectFile.SaveProjectMetadata(metadata);
+            return 0;
         }
 
         public static void HandleRegen()

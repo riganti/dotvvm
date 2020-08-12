@@ -1,23 +1,29 @@
 using System;
 using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
 
 namespace DotVVM.Cli
 {
     public class ProjectMetadata
     {
         public ProjectMetadata(
+            FileInfo path,
             string projectName,
             string projectDirectory,
             string rootNamespace,
             string packageVersion,
-             ImmutableArray<ApiClientDefinition> apiClients)
+            ImmutableArray<ApiClientDefinition> apiClients)
         {
+            Path = path;
             ProjectName = projectName;
             ProjectDirectory = projectDirectory;
             RootNamespace = rootNamespace;
             PackageVersion = packageVersion;
             ApiClients = apiClients;
         }
+
+        public FileInfo Path { get; }
 
         public string ProjectName { get; }
 
@@ -35,6 +41,7 @@ namespace DotVVM.Cli
         public ProjectMetadata WithApiClients(ImmutableArray<ApiClientDefinition> apiClients)
         {
             return new ProjectMetadata(
+                Path,
                 ProjectName,
                 ProjectDirectory,
                 RootNamespace,
@@ -44,6 +51,10 @@ namespace DotVVM.Cli
 
         public static Exception? IsJsonValid(ProjectMetadataJson json)
         {
+            if (json.MetadataFilePath is null)
+            {
+                return new ArgumentException($"{nameof(json.MetadataFilePath)} is null.", nameof(json));
+            }
             if (json.ProjectName is null)
             {
                 return new ArgumentException($"{nameof(json.ProjectName)} is null.", nameof(json));
@@ -72,6 +83,7 @@ namespace DotVVM.Cli
             }
 
             return new ProjectMetadata(
+                new FileInfo(json.MetadataFilePath),
                 json.ProjectName!,
                 json.ProjectDirectory!,
                 json.RootNamespace!,
@@ -81,13 +93,16 @@ namespace DotVVM.Cli
 
         public ProjectMetadataJson ToJson()
         {
-            return new ProjectMetadataJson
+            var json = new ProjectMetadataJson
             {
+                MetadataFilePath = Path.FullName,
                 ProjectName = ProjectName,
                 ProjectDirectory = ProjectDirectory,
                 RootNamespace = RootNamespace,
                 PackageVersion = PackageVersion
             };
+            json.ApiClients.AddRange(ApiClients);
+            return json;
         }
     }
 }

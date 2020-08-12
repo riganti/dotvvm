@@ -70,15 +70,22 @@ namespace DotVVM.Cli
         {
             logger ??= NullLogger.Instance;
 
-            using var stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            var json = await JsonSerializer.DeserializeAsync<ProjectMetadataJson>(stream);
-            var error = ProjectMetadata.IsJsonValid(json);
-            if (error is object)
+            try
             {
-                logger.Log(errorLevel, error, "DotVVM metadata are not valid.");
+                using var stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+                var json = await JsonSerializer.DeserializeAsync<ProjectMetadataJson>(stream);
+                var error = ProjectMetadata.IsJsonValid(json);
+                if (error is object)
+                {
+                    logger.Log(errorLevel, error, "DotVVM metadata are not valid.");
+                    return null;
+                }
+                return ProjectMetadata.FromJson(json);
+            }
+            catch (JsonException)
+            {
                 return null;
             }
-            return ProjectMetadata.FromJson(json);
         }
 
         public static async Task<ProjectMetadata?> GetProjectMetadata(
@@ -132,20 +139,16 @@ namespace DotVVM.Cli
                 return null;
             }
 
-            var metadataFile = new FileInfo(Path.Combine(projectFile.DirectoryName, DotvvmMetadataFile));
-            await SaveProjectMetadata(
-                file: metadataFile,
-                metadata: metadata);
-            logger.LogDebug($"Saved DotVVM metadata to '{metadataFile}'.");
+            await SaveProjectMetadata(metadata);
+            logger.LogDebug($"Saved DotVVM metadata to '{metadata.Path}'.");
             return metadata;
         }
 
-        public static async Task SaveProjectMetadata(FileInfo file, ProjectMetadata metadata)
+        public static async Task SaveProjectMetadata(ProjectMetadata metadata)
         {
-            using var stream = file.Open(FileMode.Create, FileAccess.Write);
+            using var stream = metadata.Path.Open(FileMode.Create, FileAccess.Write);
             var json = metadata.ToJson();
             json.Version = 2; // TODO: Why?
-            json.MetadataFilePath = file.FullName;
             await JsonSerializer.SerializeAsync(stream, json, new JsonSerializerOptions
             {
                 WriteIndented = true
@@ -160,6 +163,7 @@ namespace DotVVM.Cli
                     | ProjectLoadSettings.IgnoreMissingImports
             });
             return new ProjectMetadata(
+                path: new FileInfo(Path.Combine(projectFile.DirectoryName, DotvvmMetadataFile)),
                 projectName: project.GetPropertyValue("AssemblyName"),
                 projectDirectory: projectFile.DirectoryName,
                 rootNamespace: project.GetPropertyValue("RootNamespace"),
