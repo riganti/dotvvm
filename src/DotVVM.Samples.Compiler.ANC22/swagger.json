@@ -1,0 +1,45 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0",
+      "title": "WebApplication1",
+      "description": "This is a description for WebApplication1"
+    },
+    "paths": {
+      "/api/Values": {
+        "get": {
+          "tags": [ "Values" ],
+          "operationId": "Get",
+          "consumes": [],
+          "produces": [ "text/plain", "application/json", "text/json" ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "Success",
+              "schema": {
+                "uniqueItems": false,
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [ "Values" ],
+          "operationId": "Post",
+          "consumes": [ "application/json-patch+json", "application/json", "text/json", "application/*+json" ],
+          "produces": [],
+          "parameters": [
+            {
+              "name": "value",
+              "in": "body",
+              "required": false,
+              "schema": { "type": "string" }
+            }
+          ],
+          "responses": { "200": { "description": "Success" } }
+        }
+      }
+    },
+    "definitions": {}
+  }

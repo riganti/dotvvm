@@ -12,17 +12,17 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DotVVM.Tool
 {
-    public static class Compiler
+    public static class CompilerCommands
     {
         public const string CompilerExecutable = "Compiler.dll";
         public const string AssemblyNameOption = "--assembly-name";
         public const string ApplicationPathOption = "--application-path";
 
-        public static void AddCompiler(Command command)
+        public static void AddCompilerCommands(this Command command)
         {
             var compileCmd = new Command("compile", "Invokes the DotVVM compiler");
             compileCmd.AddArgument(new Argument<FileSystemInfo>(
-                name: "target",
+                name: CommandLineExtensions.TargetArg,
                 getDefaultValue: () => new DirectoryInfo(Environment.CurrentDirectory),
                 description: "Path to a DotVVM project"));
             compileCmd.AddArgument(new Argument<string[]>(
@@ -34,7 +34,7 @@ namespace DotVVM.Tool
             compileCmd.AddOption(new Option<bool>(
                 alias: "--debug",
                 description: "Build the compiler shim with the Debug configuration"));
-            compileCmd.Handler = CommandHandler.Create(typeof(Compiler).GetMethod(nameof(HandleCompile))!);
+            compileCmd.Handler = CommandHandler.Create(typeof(CompilerCommands).GetMethod(nameof(HandleCompile))!);
             command.AddCommand(compileCmd);
         }
 

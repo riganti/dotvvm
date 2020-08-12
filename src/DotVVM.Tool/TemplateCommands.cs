@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DotVVM.Tool
 {
-    public static class Templater
+    public static class TemplateCommands
     {
         public const string PageFileExtension = ".dothtml";
         public const string MasterPageFileExtension = ".dotmaster";
@@ -16,10 +16,10 @@ namespace DotVVM.Tool
         public const string ViewModelFileExtensions = ".cs";
         public const string CodeBehindExtension = ".cs";
 
-        public static void AddTemplater(Command command)
+        public static void AddTemplateCommands(this Command command)
         {
             var targetArg = new Argument<FileSystemInfo>(
-                name: "target",
+                name: CommandLineExtensions.TargetArg,
                 getDefaultValue: () => new DirectoryInfo(Environment.CurrentDirectory),
                 description: "Path to a DotVVM project");
             var nameArg = new Argument<string>(
@@ -48,25 +48,25 @@ namespace DotVVM.Tool
             {
                 nameArg, masterOpt, viewsDirectoryOpt
             };
-            pageCmd.Handler = CommandHandler.Create(typeof(Templater).GetMethod(nameof(HandleAddPage))!);
+            pageCmd.Handler = CommandHandler.Create(typeof(TemplateCommands).GetMethod(nameof(HandleAddPage))!);
 
             var masterCmd = new Command("master", "Add a master page")
             {
                 nameArg, masterOpt, viewsDirectoryOpt
             };
-            masterCmd.Handler = CommandHandler.Create(typeof(Templater).GetMethod(nameof(HandleAddMaster))!);
+            masterCmd.Handler = CommandHandler.Create(typeof(TemplateCommands).GetMethod(nameof(HandleAddMaster))!);
 
             var viewModelCmd = new Command("viewmodel", "Add a ViewModel")
             {
                 nameArg, viewModelsDirectoryOpt
             };
-            viewModelCmd.Handler = CommandHandler.Create(typeof(Templater).GetMethod(nameof(HandleAddViewModel))!);
+            viewModelCmd.Handler = CommandHandler.Create(typeof(TemplateCommands).GetMethod(nameof(HandleAddViewModel))!);
 
             var controlCmd = new Command("control", "Add a control")
             {
                 nameArg, controlsDirectoryOpt, codeBehindOpt
             };
-            controlCmd.Handler = CommandHandler.Create(typeof(Templater).GetMethod(nameof(HandleAddControl))!);
+            controlCmd.Handler = CommandHandler.Create(typeof(TemplateCommands).GetMethod(nameof(HandleAddControl))!);
 
             var addCmd = new Command("add", "Add a DotVVM-related thingy")
             {

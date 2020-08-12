@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -162,7 +163,8 @@ namespace DotVVM.Cli
                 projectName: project.GetPropertyValue("AssemblyName"),
                 projectDirectory: projectFile.DirectoryName,
                 rootNamespace: project.GetPropertyValue("RootNamespace"),
-                packageVersion: GetDotvvmVersion(project));
+                packageVersion: GetDotvvmVersion(project),
+                apiClients: ImmutableArray.Create<ApiClientDefinition>());
         }
         private static string GetDotvvmVersion(Project project)
         {

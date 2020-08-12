@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 
 namespace DotVVM.Cli
 {
@@ -8,12 +9,14 @@ namespace DotVVM.Cli
             string projectName,
             string projectDirectory,
             string rootNamespace,
-            string packageVersion)
+            string packageVersion,
+             ImmutableArray<ApiClientDefinition> apiClients)
         {
             ProjectName = projectName;
             ProjectDirectory = projectDirectory;
             RootNamespace = rootNamespace;
             PackageVersion = packageVersion;
+            ApiClients = apiClients;
         }
 
         public string ProjectName { get; }
@@ -26,6 +29,18 @@ namespace DotVVM.Cli
         /// Version of the DotVVM package or assembly.
         /// </summary>
         public string PackageVersion { get; }
+
+        public ImmutableArray<ApiClientDefinition> ApiClients { get; }
+
+        public ProjectMetadata WithApiClients(ImmutableArray<ApiClientDefinition> apiClients)
+        {
+            return new ProjectMetadata(
+                ProjectName,
+                ProjectDirectory,
+                RootNamespace,
+                PackageVersion,
+                apiClients);
+        }
 
         public static Exception? IsJsonValid(ProjectMetadataJson json)
         {
@@ -60,7 +75,8 @@ namespace DotVVM.Cli
                 json.ProjectName!,
                 json.ProjectDirectory!,
                 json.RootNamespace!,
-                json.PackageVersion!);
+                json.PackageVersion!,
+                json.ApiClients.ToImmutableArray());
         }
 
         public ProjectMetadataJson ToJson()

@@ -9,13 +9,14 @@ namespace DotVVM.Tool
 
         public static int Main(string[] args)
         {
-            var rootCmd = new RootCommand("DotVVM Command-line Interface")
+            var rootCmd = new RootCommand("DotVVM Command-Line Interface")
             {
                 Name = "dotvvm"
             };
-            Compiler.AddCompiler(rootCmd);
-            SeleniumGenerator.AddSeleniumGenerator(rootCmd);
-            Templater.AddTemplater(rootCmd);
+            rootCmd.AddCompilerCommands();
+            rootCmd.AddSeleniumGeneratorCommands();
+            rootCmd.AddTemplateCommands();
+            rootCmd.AddOpenApiCommands();
             rootCmd.AddVerboseOption();
             rootCmd.AddGlobalOption(new Option<bool>(
                 alias: MSBuildOutputAlias,

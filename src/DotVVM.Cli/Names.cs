@@ -19,6 +19,18 @@ namespace DotVVM.Cli
                 GetViewModel(viewName) + ".cs");
         }
 
+        public static string GetClass(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException(nameof(name));
+            }
+
+            var sb = new StringBuilder(name);
+            sb[0] = char.ToUpper(sb[0]);
+            return sb.ToString();
+        }
+
         public static string GetViewModel(string viewName)
         {
             if (string.IsNullOrEmpty(viewName))
