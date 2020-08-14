@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using DotVVM.Framework.Testing.SeleniumHelpers.Proxies.Interfaces;
+using DotVVM.Framework.Testing.Proxies.Interfaces;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 
-namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies.Base
+namespace DotVVM.Framework.Testing.Proxies.Base
 {
     public class SelectBaseProxy : WebElementProxyBase, ISelectProxy
     {

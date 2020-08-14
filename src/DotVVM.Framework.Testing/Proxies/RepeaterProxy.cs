@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using OpenQA.Selenium;
 
-namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
+namespace DotVVM.Framework.Testing.Proxies
 {
     public class RepeaterProxy<TItemHelper> : WebElementProxyBase where TItemHelper : SeleniumHelperBase
     {

@@ -1,4 +1,4 @@
-﻿namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
+﻿namespace DotVVM.Framework.Testing.Proxies
 {
     public class CheckBoxProxy : WebElementProxyBase
     {

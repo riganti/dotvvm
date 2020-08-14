@@ -1,6 +1,6 @@
 ﻿using OpenQA.Selenium;
 
-namespace DotVVM.Framework.Testing.SeleniumHelpers
+namespace DotVVM.Framework.Testing
 {
     public abstract class SeleniumHelperBase
     {

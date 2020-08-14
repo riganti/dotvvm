@@ -1,6 +1,6 @@
 ﻿using OpenQA.Selenium;
 
-namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
+namespace DotVVM.Framework.Testing.Proxies
 {
     public class RadioButtonProxy : WebElementProxyBase
     {

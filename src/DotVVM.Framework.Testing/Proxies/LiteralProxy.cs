@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
+namespace DotVVM.Framework.Testing.Proxies
 {
     public class LiteralProxy : WebElementProxyBase
     {

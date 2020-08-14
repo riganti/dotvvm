@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using OpenQA.Selenium;
 
-namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
+namespace DotVVM.Framework.Testing.Proxies
 {
     public abstract class WebElementProxyBase
     {

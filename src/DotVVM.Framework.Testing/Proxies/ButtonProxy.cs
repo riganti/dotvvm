@@ -1,7 +1,7 @@
-﻿using DotVVM.Framework.Testing.SeleniumHelpers.Proxies.Interfaces;
+﻿using DotVVM.Framework.Testing.Proxies.Interfaces;
 using OpenQA.Selenium.Interactions;
 
-namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
+namespace DotVVM.Framework.Testing.Proxies
 {
     public class ButtonProxy : WebElementProxyBase, IButtonProxyBase
     {
