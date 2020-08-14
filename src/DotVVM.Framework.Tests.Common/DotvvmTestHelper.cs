@@ -117,5 +117,13 @@ namespace DotVVM.Framework.Tests
                 .ApplyAction(new StylingVisitor(configuration).VisitView)
                 .ApplyAction(x => { if (checkErrors) validator.VisitAndAssert(x); else validator.VisitView(x); });
         }
+
+        public static void EnsureCompiledAssemblyCache()
+        {
+            if (CompiledAssemblyCache.Instance == null)
+            {
+                new CompiledAssemblyCache(DefaultConfig);
+            }
+        }
     }
 }

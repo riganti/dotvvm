@@ -13,10 +13,10 @@ namespace DotVVM.Framework.Binding
     public static class ExtensionCommands
     {
         public static CommandBindingExpression RegisterExtensionCommand(this DotvvmControl control, Command action, string methodUsageId)
-            => RegisterExtensionCommand(control, action, methodUsageId);
+            => RegisterExtensionCommand(control, (Delegate)action, methodUsageId);
 
         public static CommandBindingExpression RegisterExtensionCommand(this DotvvmControl control, Action action, string methodUsageId)
-            => RegisterExtensionCommand(control, action, methodUsageId);
+            => RegisterExtensionCommand(control, (Delegate)action, methodUsageId);
 
         public static CommandBindingExpression RegisterExtensionCommand(this DotvvmControl control, Delegate action, string methodUsageId)
         {

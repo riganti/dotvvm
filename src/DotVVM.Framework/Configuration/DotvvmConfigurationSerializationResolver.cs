@@ -25,6 +25,12 @@ namespace DotVVM.Framework.Configuration
                 property.ShouldSerialize = o =>
                     !(prop.GetValue(o) is DotvvmExperimentalFeatureFlag flag) || flag.IsEnabledForAnyRoute();
             }
+            if (property.PropertyType == typeof(DotvvmGlobalExperimentalFeatureFlag) && prop is object)
+            {
+                // ignore defaults for brevity
+                property.ShouldSerialize = o =>
+                    !(prop.GetValue(o) is DotvvmGlobalExperimentalFeatureFlag flag) || flag.Enabled;
+            }
 
             if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType) && property.PropertyType != typeof(string) && prop is object)
             {

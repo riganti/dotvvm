@@ -12,7 +12,7 @@
     <dot:Repeater DataSource="{value: Categories1}">
         <p>
             Category {{value: Category}}: 
-            <dot:ComboBox DataSource="{value: _apiCore.GetItems(Category)}" 
+            <dot:ComboBox DataSource="{value: _apiCore.BindingSharingGetGet(Category)}" 
                           ItemTextBinding="{value: Name}" ItemValueBinding="{value: Id}" SelectedValue="{value: SelectedValue}" />
         </p>
     </dot:Repeater>
@@ -21,7 +21,7 @@
     <dot:Repeater DataSource="{value: Categories2}">
         <p>
             Category {{value: Category}}: 
-            <dot:ComboBox DataSource="{value: _apiCore.GetItemsWithRouteParam(Category)}" 
+            <dot:ComboBox DataSource="{value: _apiCore.BindingSharingGetGetWithRouteParam(Category)}" 
                           ItemTextBinding="{value: Name}" ItemValueBinding="{value: Id}" SelectedValue="{value: SelectedValue}" />
         </p>
     </dot:Repeater>
@@ -30,7 +30,7 @@
     <dot:Repeater DataSource="{value: Categories3}">
         <p>
             Category {{value: Category}}: 
-            <dot:ComboBox DataSource="{value: _apiCore.GetItemsWithHttpPost(Category)}" 
+            <dot:ComboBox DataSource="{value: _apiCore.BindingSharingPostPost(Category)}" 
                           ItemTextBinding="{value: Name}" ItemValueBinding="{value: Id}" SelectedValue="{value: SelectedValue}" />
         </p>
     </dot:Repeater>

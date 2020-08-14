@@ -16,8 +16,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
     /// </summary>
     public class ViewModelJsonConverter : JsonConverter
     {
-
-
         private readonly IViewModelSerializationMapper viewModelSerializationMapper;
 
         public ViewModelJsonConverter(bool isPostback, IViewModelSerializationMapper viewModelSerializationMapper, IServiceProvider services, JObject encryptedValues = null)
@@ -50,12 +48,18 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return viewModelSerializationMapper.GetMap(type);
         }
 
+        public static bool CanConvertType(Type type) =>
+            !ReflectionUtils.IsEnumerable(type) &&
+            ReflectionUtils.IsComplexType(type) &&
+            !ReflectionUtils.IsTupleLike(type) &&
+            type != typeof(object);
+
         /// <summary>
         /// Determines whether this instance can convert the specified object type.
         /// </summary>
         public override bool CanConvert(Type objectType)
         {
-            return !ReflectionUtils.IsEnumerable(objectType) && ReflectionUtils.IsComplexType(objectType) && !ReflectionUtils.IsTuple(objectType) && !ReflectionUtils.IsObject(objectType);
+            return CanConvertType(objectType);
         }
 
         /// <summary>

@@ -402,7 +402,7 @@ namespace DotVVM.Samples.Tests
                 AssertUI.TextEquals(browser.First("exceptionType", By.ClassName),
                     "DotVVM.Framework.ResourceManagement.DotvvmResourceException");
                 AssertUI.TextEquals(browser.First("exceptionMessage", By.ClassName),
-                    "Resource \"Errors_ResourceCircularDependency\" has a cyclic dependency.");
+                    "Resource \"Errors_ResourceCircularDependency\" has a cyclic dependency: Errors_ResourceCircularDependency --> Errors_ResourceCircularDependency");
             });
 
         }
