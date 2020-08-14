@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DotVVM.Tool
 {
-    public static class SeleniumGeneratorCommands
+    public static class UITestCommands
     {
         public const string ShimName = "SeleniumGenerator";
         public const string PackageName = "DotVVM.Framework.Testing.Generator";
@@ -15,7 +15,7 @@ namespace DotVVM.Tool
         public const string ShimProjectFile = "SeleniumGenerator.csproj";
         public const string ProgramClass = "DotVVM.Framework.Testing.Generator.Program";
 
-        public static void AddSeleniumGeneratorCommands(this Command command)
+        public static void AddUITestCommands(this Command command)
         {
             var uiTestCmd = new Command("uitest", "Invokes the UI test generator.");
             uiTestCmd.AddTargetArgument();
@@ -28,7 +28,7 @@ namespace DotVVM.Tool
             uiTestCmd.AddOption(new Option<bool>(
                 alias: "--debug",
                 description: "Build the compiler shim with the Debug configuration"));
-            uiTestCmd.Handler = CommandHandler.Create(typeof(CompilerCommands).GetMethod(nameof(HandleUITest))!);
+            uiTestCmd.Handler = CommandHandler.Create(typeof(UITestCommands).GetMethod(nameof(HandleUITest))!);
             command.AddCommand(uiTestCmd);
         }
 

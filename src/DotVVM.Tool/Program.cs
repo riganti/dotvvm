@@ -14,7 +14,7 @@ namespace DotVVM.Tool
                 Name = "dotvvm"
             };
             rootCmd.AddCompilerCommands();
-            rootCmd.AddSeleniumGeneratorCommands();
+            rootCmd.AddUITestCommands();
             rootCmd.AddTemplateCommands();
             rootCmd.AddOpenApiCommands();
             rootCmd.AddVerboseOption();
