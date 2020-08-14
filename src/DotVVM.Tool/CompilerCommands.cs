@@ -1,22 +1,21 @@
-using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using DotVVM.Cli;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DotVVM.Tool
 {
     public static class CompilerCommands
     {
-        public const string CompilerExecutable = "Compiler.dll";
+        public const string ShimName = "Compiler";
         public const string AssemblyNameOption = "--assembly-name";
         public const string ApplicationPathOption = "--application-path";
+        public const string PackageName = "DotVVM.Compiler";
+        public const string ShimProgramFile = "Compiler.cs";
+        public const string ShimProjectFile = "Compiler.csproj";
+        public const string ProgramClass = "DotVVM.Compiler.Program";
 
         public static void AddCompilerCommands(this Command command)
         {
@@ -44,52 +43,7 @@ namespace DotVVM.Tool
             bool msbuildOutput,
             ILogger logger)
         {
-            var project = ProjectFile.FindProjectFile(target);
-            if (project is null)
-            {
-                logger.LogCritical("No project file could be found.");
-                return 1;
-            }
-            else
-            {
-                logger.LogDebug($"Found the '{project}' project file.");
-            }
-
-            string? compilerPath = null;
-            if (compiler is object)
-            {
-                var compilerProject = ProjectFile.FindProjectFile(compiler);
-                if (compilerProject is null)
-                {
-                    logger.LogError($"DotVVM.Compiler could not be found at '{compiler}'. Ignoring.");
-                }
-                else
-                {
-                    compilerPath = compilerProject.FullName;
-                }
-            }
-
-            var msbuild = MSBuild.Create();
-            if (msbuild is null)
-            {
-                logger.LogCritical("MSBuild could not be found.");
-                return 1;
-            }
-            else
-            {
-                logger.LogDebug($"Using the '{msbuild}' msbuild.");
-            }
-
-            var shim = CreateCompilerShim(project, metadata.PackageVersion, compilerPath);
-            var configuration = debug ? "Debug" : "Release";
-            logger.LogInformation("Building a compiler shim.");
-            if (!msbuild.TryBuild(shim, configuration, msbuildOutput, logger))
-            {
-                logger.LogCritical("Failed to build the compiler shim.");
-                return 1;
-            }
-
-            var args = new List<string>
+            var allArgs = new List<string>
             {
                 AssemblyNameOption,
                 metadata.ProjectName,
@@ -98,72 +52,28 @@ namespace DotVVM.Tool
             };
             if (compilerArgs is object)
             {
-                args.AddRange(compilerArgs);
+                allArgs.AddRange(compilerArgs);
             }
-
-            return InvokeCompilerShim(shim, configuration, args, logger);
-        }
-
-        public static FileInfo CreateCompilerShim(
-            FileInfo projectFile,
-            string dotvvmVersion,
-            string? compilerPath = null)
-        {
-            var dotvvmDir = new DirectoryInfo(Path.Combine(projectFile.DirectoryName, Shims.DotvvmDirectory));
-            if (!dotvvmDir.Exists)
-            {
-                dotvvmDir.Create();
-            }
-
-            if (compilerPath is object)
-            {
-                compilerPath = Path.GetRelativePath(dotvvmDir.FullName, compilerPath);
-            }
-
-            var shimFile = new FileInfo(Path.Combine(dotvvmDir.FullName, Shims.CompilerShimProjectFile));
-
-            File.WriteAllText(
-                path: shimFile.FullName,
-                contents: Shims.GetCompilerShimProject(
-                    project: Path.GetRelativePath(dotvvmDir.FullName, projectFile.FullName),
-                    dotvvmVersion: dotvvmVersion,
-                    compilerReference: compilerPath));
-
-            File.WriteAllText(
-                path: Path.Combine(dotvvmDir.FullName, Shims.CompilerShimProgramFile),
-                contents: Shims.GetCompilerShimProgram());
-
-            return shimFile;
-        }
-
-        public static int InvokeCompilerShim(
-            FileInfo shim,
-            string configuration,
-            IEnumerable<string> compilerArgs,
-            ILogger? logger = null)
-        {
-            logger ??= NullLogger.Instance;
-
-            var compilerExePath = $"bin/{configuration}/{Shims.Netcoreapp}/{CompilerExecutable}";
-            var compilerExe = new FileInfo(Path.Combine(shim.DirectoryName, compilerExePath));
-            if (!compilerExe.Exists)
-            {
-                logger.LogCritical($"The compiler shim executable could not be found at '{compilerExe}'.");
-                return 1;
-            }
-
-            var sb = new StringBuilder();
-            sb.Append(compilerExe.FullName);
-            sb.Append(' ');
-            sb.AppendJoin(' ', compilerArgs.Select(s => $"\"{s}\""));
-            var processInfo = new ProcessStartInfo()
-            {
-                FileName = "dotnet",
-                Arguments = sb.ToString()
-            };
-            var process = System.Diagnostics.Process.Start(processInfo);
-            process.WaitForExit();
-            return process.ExitCode;
+            
+            var success = Shims.TryCreateRunShim(
+                shimName: ShimName,
+                target: target,
+                app: compiler,
+                args: allArgs,
+                createShim: c => Shims.CreateBasicShim(
+                    context: c,
+                    shimName: ShimName,
+                    shimProjectFile: ShimProjectFile,
+                    shimTargetFramework: Shims.Netcoreapp,
+                    shimProgramFile: ShimProgramFile,
+                    appPackage: PackageName,
+                    appPackageVersion: metadata.PackageVersion,
+                    appProgramClass: ProgramClass),
+                isDebug: debug,
+                shouldShowMSBuild: msbuildOutput,
+                logger: logger);
+            
+            return success ? 0 : 1;
         }
     }
 }

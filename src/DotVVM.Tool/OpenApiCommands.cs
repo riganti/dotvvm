@@ -97,7 +97,7 @@ namespace DotVVM.Tool
                 tsPath.FullName,
                 metadata,
                 logger);
-            await ProjectFile.SaveProjectMetadata(metadata);
+            await DotvvmProject.SaveProjectMetadata(metadata);
             return 0;
         }
 
