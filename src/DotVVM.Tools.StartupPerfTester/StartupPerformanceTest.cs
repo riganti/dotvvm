@@ -6,16 +6,21 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Threading;
 using Medallion.Shell;
+using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.Setup.Configuration;
 
 namespace DotVVM.Tools.StartupPerfTester
 {
-    public class StartupPerformanceTest
+    public class StartupPerformanceTest : IDisposable
     {
+        public const string CommandName = "dotvvm-startup-perf";
+
+        private readonly ILoggerFactory loggerFactory;
+        private readonly ILogger logger;
         private readonly FileInfo project;
         private readonly TestTarget type;
         private readonly int repeat;
         private readonly string url;
-        private readonly bool verbose;
         private readonly int timeout;
 
         public StartupPerformanceTest(FileInfo project, TestTarget type, int repeat, string url, bool verbose, int timeout)
@@ -24,12 +29,14 @@ namespace DotVVM.Tools.StartupPerfTester
             this.type = type;
             this.repeat = repeat;
             this.url = url;
-            this.verbose = verbose;
             this.timeout = timeout;
+            var logLevel = verbose ? LogLevel.Debug : LogLevel.Information;
+            loggerFactory = LoggerFactory.Create(b => b.AddConsole().SetMinimumLevel(logLevel));
+            logger = loggerFactory.CreateLogger("dotvvm-startup-perf");
+
         }
 
-
-        public void HandleCommand()
+        public int HandleCommand()
         {
             // test project existence
             var projectPath = project.FullName;
@@ -52,9 +59,28 @@ namespace DotVVM.Tools.StartupPerfTester
             if (type == TestTarget.Owin)
             {
                 // OWIN
+                var msbuildPath = FindVSMSBuild();
+                if (msbuildPath is null)
+                {
+                    logger.LogCritical("A Visual Studio MSBuild could not be found.");
+                    return 1;
+                }
                 TraceOutput($"Publishing...");
-                RunProcessAndWait(@"c:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe",
-                    new[] { Path.GetFileName(projectPath), "/p:DeployOnBuild=true", "/t:WebPublish", "/p:WebPublishMethod=FileSystem", $"/p:publishUrl={tempDir}" }, dir);
+                var success = RunProcessAndWait(
+                    path: msbuildPath,
+                    arguments: new[]
+                    {
+                        Path.GetFileName(projectPath),
+                        "/p:DeployOnBuild=true",
+                        "/t:WebPublish",
+                        "/p:WebPublishMethod=FileSystem",
+                        $"/p:publishUrl={tempDir}"
+                    },
+                    workingDirectory: dir);
+                if (!success)
+                {
+                    return 1;
+                }
 
                 for (var i = 0; i < repeat; i++)
                 {
@@ -67,7 +93,10 @@ namespace DotVVM.Tools.StartupPerfTester
             {
                 // ASP.NET Core
                 TraceOutput($"Publishing...");
-                RunProcessAndWait(@"dotnet", new[] { "publish", "-c", "Release", "-o", tempDir }, dir);
+                if (!RunProcessAndWait(@"dotnet", new[] { "publish", "-c", "Release", "-o", tempDir }, dir))
+                {
+                    return 1;
+                }
 
                 for (var i = 0; i < repeat; i++)
                 {
@@ -86,19 +115,22 @@ namespace DotVVM.Tools.StartupPerfTester
             TraceOutput($"Removing temp dir...");
             FileSystemHelper.RemoveTempDir(tempDir);
             TraceOutput($"Done");
+            return 0;
         }
+
         private static Command RunProcess(string path, string[] arguments, string workingDirectory)
         {
             return Command.Run(path, arguments, options => options
                 .WorkingDirectory(workingDirectory)
-                .StartInfo(psi => {
+                .StartInfo(psi =>
+                {
                     psi.CreateNoWindow = true;
                     psi.UseShellExecute = false;
                     psi.WindowStyle = ProcessWindowStyle.Hidden;
                 }));
         }
 
-        private void RunProcessAndWait(string path, string[] arguments, string workingDirectory)
+        private bool RunProcessAndWait(string path, string[] arguments, string workingDirectory)
         {
             TraceOutput($"Running {path} {string.Join(" ", arguments)}");
             var command = RunProcess(path, arguments, workingDirectory);
@@ -107,19 +139,26 @@ namespace DotVVM.Tools.StartupPerfTester
             if (!command.Result.Success)
             {
                 TraceOutput(command.Result.StandardOutput);
-                throw new Exception($"Process exited with code {command.Result.ExitCode}!");
+                logger.LogCritical($"Process exited with code {command.Result.ExitCode}!");
+                return false;
             }
+            return true;
         }
 
-        
-        private long RunProcessAndWaitForHealthCheck(string path, string[] arguments, string workingDirectory, string urlToTest, int timeoutSeconds)
+
+        private long RunProcessAndWaitForHealthCheck(
+            string path,
+            string[] arguments,
+            string workingDirectory,
+            string urlToTest,
+            int timeoutSeconds)
         {
             var command = RunProcess(path, arguments, workingDirectory);
 
             var sw = new Stopwatch();
             sw.Start();
 
-            retry:
+        retry:
             try
             {
                 var wc = new WebClient();
@@ -154,15 +193,49 @@ namespace DotVVM.Tools.StartupPerfTester
 
         public void ImportantOutput(string message)
         {
-            Console.WriteLine(message);
+            logger.LogInformation(message);
         }
 
         public void TraceOutput(string message)
         {
-            if (verbose)
+            logger.LogDebug(message);
+        }
+
+        private string FindVSMSBuild()
+        {
+            try
             {
-                Console.WriteLine(message);
+                var query = new SetupConfiguration();
+                var query2 = (ISetupConfiguration2)query;
+                var @enum = query2.EnumAllInstances();
+                var instances = new ISetupInstance[1];
+                int fetchedCount;
+                do
+                {
+                    @enum.Next(1, instances, out fetchedCount);
+                    if (fetchedCount > 0)
+                    {
+                        var instance2 = (ISetupInstance2)instances[0];
+                        var path = instance2.GetInstallationPath();
+                        var exe = new FileInfo(Path.Combine(path, "MSBuild/Current/Bin/MSBuild.exe"));
+                        if (exe.Exists)
+                        {
+                            return exe.FullName;
+                        }
+                    }
+                }
+                while (fetchedCount > 0);
+                return null;
             }
+            catch(PlatformNotSupportedException)
+            {
+                return null;
+            }
+        }
+
+        public void Dispose()
+        {
+            loggerFactory.Dispose();
         }
     }
 }

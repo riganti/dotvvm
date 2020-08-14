@@ -7,9 +7,9 @@ using System.CommandLine.Invocation;
 
 namespace DotVVM.Tools.StartupPerfTester
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             var rootCommand = new RootCommand("Measures the performance of DotVVM startup")
             {
@@ -42,10 +42,11 @@ namespace DotVVM.Tools.StartupPerfTester
                     "Timeout for the HTTP interface to start listening"
                 )
             };
-            rootCommand.Name = "dotvvm-startup-perf";
+            rootCommand.Name = StartupPerformanceTest.CommandName;
             rootCommand.Handler = CommandHandler.Create<FileInfo, TestTarget, int, string, bool, int>((project, type, repeat, url, verbose, timeout) =>
             {
-                new StartupPerformanceTest(project, type, repeat, url, verbose, timeout).HandleCommand();
+                using var test = new StartupPerformanceTest(project, type, repeat, url, verbose, timeout);
+                test.HandleCommand();
             });
             rootCommand.Invoke(args);
         }
