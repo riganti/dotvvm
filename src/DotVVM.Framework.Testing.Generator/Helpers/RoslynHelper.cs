@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace DotVVM.Framework.Testing.SeleniumGenerator.Helpers
+namespace DotVVM.Framework.Testing.Generator.Helpers
 {
     public static class RoslynHelper
     {

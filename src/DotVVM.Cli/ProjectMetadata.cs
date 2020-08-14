@@ -13,6 +13,8 @@ namespace DotVVM.Cli
             string projectDirectory,
             string rootNamespace,
             string packageVersion,
+            string? uiTestProjectPath,
+            string? uiTestProjectRootNamespace,
             ImmutableArray<ApiClientDefinition> apiClients)
         {
             Path = path;
@@ -20,6 +22,8 @@ namespace DotVVM.Cli
             ProjectDirectory = projectDirectory;
             RootNamespace = rootNamespace;
             PackageVersion = packageVersion;
+            UITestProjectPath = uiTestProjectPath;
+            UITestProjectRootNamespace = uiTestProjectRootNamespace;
             ApiClients = apiClients;
         }
 
@@ -36,6 +40,10 @@ namespace DotVVM.Cli
         /// </summary>
         public string PackageVersion { get; }
 
+        public string? UITestProjectPath { get; }
+
+        public string? UITestProjectRootNamespace { get; }
+
         public ImmutableArray<ApiClientDefinition> ApiClients { get; }
 
         public ProjectMetadata WithApiClients(ImmutableArray<ApiClientDefinition> apiClients)
@@ -46,7 +54,22 @@ namespace DotVVM.Cli
                 ProjectDirectory,
                 RootNamespace,
                 PackageVersion,
+                UITestProjectPath,
+                UITestProjectRootNamespace,
                 apiClients);
+        }
+
+        public ProjectMetadata WithUITestProject(string uiTestProjectPath, string uiTestProjectRootNamespace)
+        {
+            return new ProjectMetadata(
+                Path,
+                ProjectName,
+                ProjectDirectory,
+                RootNamespace,
+                PackageVersion,
+                uiTestProjectPath,
+                uiTestProjectRootNamespace,
+                ApiClients);
         }
 
         public static Exception? IsJsonValid(ProjectMetadataJson json)
@@ -88,6 +111,8 @@ namespace DotVVM.Cli
                 json.ProjectDirectory!,
                 json.RootNamespace!,
                 json.PackageVersion!,
+                json.UITestProjectPath,
+                json.UITestProjectRootNamespace,
                 json.ApiClients?.ToImmutableArray() ?? ImmutableArray.Create<ApiClientDefinition>());
         }
 
@@ -100,6 +125,8 @@ namespace DotVVM.Cli
                 ProjectDirectory = ProjectDirectory,
                 RootNamespace = RootNamespace,
                 PackageVersion = PackageVersion,
+                UITestProjectPath = UITestProjectPath,
+                UITestProjectRootNamespace = UITestProjectRootNamespace,
                 ApiClients = ApiClients.ToList()
             };
         }

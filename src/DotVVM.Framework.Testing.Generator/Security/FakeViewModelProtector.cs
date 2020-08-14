@@ -1,7 +1,7 @@
 ﻿using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Security;
 
-namespace DotVVM.Framework.Tools.SeleniumGenerator
+namespace DotVVM.Framework.Testing.Generator
 {
     public class FakeViewModelProtector : IViewModelProtector
     {

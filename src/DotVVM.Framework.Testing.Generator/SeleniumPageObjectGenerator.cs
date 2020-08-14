@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DotVVM.CommandLine.Core;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser;
@@ -13,13 +12,13 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Testing.SeleniumGenerator;
+using DotVVM.Framework.Testing.Generator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DotVVM.Framework.Tools.SeleniumGenerator
+namespace DotVVM.Framework.Testing.Generator
 {
     public class SeleniumPageObjectGenerator
     {

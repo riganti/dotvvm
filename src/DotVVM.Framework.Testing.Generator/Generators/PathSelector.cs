@@ -1,4 +1,4 @@
-﻿namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
+﻿namespace DotVVM.Framework.Testing.Generator.Generators
 {
     public class PathSelector
     {

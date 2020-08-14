@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DotVVM.Framework.Tools.SeleniumGenerator.Extensions
+namespace DotVVM.Framework.Testing.Generator.Extensions
 {
     public static class DictionaryExtensions
     {

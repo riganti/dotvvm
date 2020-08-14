@@ -1,4 +1,4 @@
-﻿namespace DotVVM.Framework.Testing.SeleniumGenerator.Modifications
+﻿namespace DotVVM.Framework.Testing.Generator.Modifications
 {
     public class UITestNameMarkupFileInsertText : MarkupFileInsertText
     {

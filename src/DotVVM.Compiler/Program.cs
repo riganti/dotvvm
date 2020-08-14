@@ -1,5 +1,6 @@
 using System;
 using System.CommandLine;
+using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.Diagnostics;
 using System.IO;
@@ -16,24 +17,13 @@ namespace DotVVM.Compiler
 {
     public static class Program
     {
-        private static ILoggerFactory Logging = new NullLoggerFactory();
-
         public static async Task<int> Run(
-            bool debuggerBreak,
             string? assemblyName,
             string? applicationPath,
             bool jsonIn,
             bool jsonOut,
-            ILogger? logger = null)
+            ILogger logger)
         {
-            logger ??= Logging.CreateLogger("Compiler");
-
-            if (debuggerBreak)
-            {
-                logger.LogDebug("Breaking for debugger.");
-                Debugger.Break();
-            }
-
             var options = new CompilerOptions();
             if (jsonIn)
             {
@@ -119,16 +109,20 @@ namespace DotVVM.Compiler
         public static int Main(string[] args)
         {
             var rootCmd = new RootCommand("DotVVM Compiler");
-            rootCmd.AddOption(new Option<bool>("--debugger-break", "Breaks to let a debugger attach to the process"));
             rootCmd.AddOption(new Option<string>("--assembly-name", "Name of the assembly with DotvvmStartup"));
             rootCmd.AddOption(new Option<string>("--application-path", "Path to the parent of Controls, Views, etc."));
             rootCmd.AddOption(new Option<bool>("--json-in", "Read options from stdin in JSON"));
             rootCmd.AddOption(new Option<bool>("--json-out", "Write results to stdout in JSON"));
+            rootCmd.AddVerboseOption();
+            rootCmd.AddDebuggerBreakOption();
             rootCmd.Handler = CommandHandler.Create(typeof(Program).GetMethod(nameof(Run))!);
-            Logging = LoggerFactory.Create(b => b.AddConsole().SetMinimumLevel(LogLevel.Information));
-            var exitCode = rootCmd.Invoke(args);
-            Logging.Dispose();
-            return exitCode;
+
+            new CommandLineBuilder(rootCmd)
+                .UseDefaults()
+                .UseLogging()
+                .UseDebuggerBreak()
+                .Build();
+            return rootCmd.Invoke(args);
         }
     }
 }

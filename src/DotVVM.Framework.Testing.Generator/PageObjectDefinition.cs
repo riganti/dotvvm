@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DotVVM.Framework.Testing.SeleniumGenerator
+namespace DotVVM.Framework.Testing.Generator
 {
     public class PageObjectDefinitionImpl: PageObjectDefinition
     {

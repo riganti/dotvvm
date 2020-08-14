@@ -1,4 +1,4 @@
-﻿namespace DotVVM.Framework.Tools.SeleniumGenerator
+﻿namespace DotVVM.Framework.Testing.Generator
 {
     public class SeleniumGeneratorConfiguration
     {

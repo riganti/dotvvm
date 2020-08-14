@@ -3,7 +3,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
 
-namespace DotVVM.Framework.Tools.SeleniumGenerator
+namespace DotVVM.Framework.Testing.Generator
 {
     public class SeleniumSelectorFinderVisitor : ResolvedControlTreeVisitor
     {

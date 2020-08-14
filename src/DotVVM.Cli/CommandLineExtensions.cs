@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -15,17 +16,37 @@ namespace System.CommandLine
     public static class CommandLineExtensions
     {
         public const string VerboseAlias = "--verbose";
+        public const string DebuggerBreakAlias = "--debugger-break";
         public const string TargetArg = "target";
 
         public static ILoggerFactory Factory = new NullLoggerFactory();
         
         private static readonly Option<bool> verboseOption = new Option<bool>(
-                aliases: new[] { "-v", VerboseAlias },
-                description: "Print more verbose output");
+            aliases: new[] { "-v", VerboseAlias },
+            description: "Print more verbose output");
+
+        private static readonly Option<bool> debuggerBreakOption = new Option<bool>(
+            alias: DebuggerBreakAlias,
+            description: "Breaks to let a debugger attach to the process");
+
+        private static readonly Argument<FileSystemInfo> targetArgument = new Argument<FileSystemInfo>(
+                name: TargetArg,
+                getDefaultValue: () => new DirectoryInfo(Environment.CurrentDirectory),
+                description: "Path to a DotVVM project");
 
         public static void AddVerboseOption(this Command command)
         {
             command.AddGlobalOption(verboseOption);
+        }
+
+        public static void AddDebuggerBreakOption(this Command command)
+        {
+            command.AddGlobalOption(debuggerBreakOption);
+        }
+
+        public static void AddTargetArgument(this Command command)
+        {
+            command.AddArgument(targetArgument);
         }
 
         public static CommandLineBuilder UseLogging(this CommandLineBuilder builder)
@@ -51,7 +72,7 @@ namespace System.CommandLine
                 if (target is object)
                 {
                     var logger = Factory.CreateLogger("project metadata");
-                    var metadata = await ProjectFile.GetProjectMetadata(target, logger);
+                    var metadata = await DotvvmProject.GetProjectMetadata(target, logger);
                     if (metadata is object)
                     {
                         c.BindingContext.AddService(_ => metadata);
@@ -61,6 +82,22 @@ namespace System.CommandLine
                         c.ResultCode = 1;
                         return;
                     }
+                }
+                await next(c);
+            });
+        }
+
+        public static CommandLineBuilder UseDebuggerBreak(this CommandLineBuilder builder)
+        {
+            return builder.UseMiddleware(async (c, next) =>
+            {
+                var shouldBreak = c.ParseResult.ValueForOption<bool>(DebuggerBreakAlias);
+                if (shouldBreak)
+                {
+                    var logger = Factory.CreateLogger("debugging");
+                    var pid = Diagnostics.Process.GetCurrentProcess().Id;
+                    logger.LogInformation($"Started with PID '{pid}'. Waiting for debugger to attach.");
+                    Debugger.Break();
                 }
                 await next(c);
             });

@@ -5,11 +5,11 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Testing.SeleniumGenerator.Helpers;
+using DotVVM.Framework.Testing.Generator.Helpers;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using DotVVM.Framework.Testing.SeleniumGenerator.Modifications;
-namespace DotVVM.Framework.Testing.SeleniumGenerator
+using DotVVM.Framework.Testing.Generator.Modifications;
+namespace DotVVM.Framework.Testing.Generator
 {
     public abstract class SeleniumGenerator<TControl> : ISeleniumGenerator where TControl : DotvvmBindableObject
     {

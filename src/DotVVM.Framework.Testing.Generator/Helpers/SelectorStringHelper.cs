@@ -7,7 +7,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
 
-namespace DotVVM.Framework.Testing.SeleniumGenerator.Helpers
+namespace DotVVM.Framework.Testing.Generator.Helpers
 {
     internal static class SelectorStringHelper
     {

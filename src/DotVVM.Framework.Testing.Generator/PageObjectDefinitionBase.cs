@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using DotVVM.Framework.Testing.SeleniumGenerator.Modifications;
+using DotVVM.Framework.Testing.Generator.Modifications;
 
-namespace DotVVM.Framework.Testing.SeleniumGenerator
+namespace DotVVM.Framework.Testing.Generator
 {
     public abstract class PageObjectDefinition
     {

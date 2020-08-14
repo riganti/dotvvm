@@ -1,15 +1,15 @@
 ﻿using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Tools.SeleniumGenerator.Generators;
+using DotVVM.Framework.Testing.Generator.Generators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Compilation.ControlTree;
-using DotVVM.Framework.Testing.SeleniumGenerator;
-using DotVVM.Framework.Tools.SeleniumGenerator.Extensions;
+using DotVVM.Framework.Testing.Generator;
+using DotVVM.Framework.Testing.Generator.Extensions;
 using DotVVM.Framework.Utils;
 
-namespace DotVVM.Framework.Tools.SeleniumGenerator
+namespace DotVVM.Framework.Testing.Generator
 {
     public class SeleniumPageObjectVisitor : ResolvedControlTreeVisitor, ISeleniumPageObjectVisitor
     {

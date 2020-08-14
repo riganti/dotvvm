@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 
-namespace DotVVM.Framework.Testing.SeleniumGenerator
+namespace DotVVM.Framework.Testing.Generator
 {
     public class SeleniumGeneratorOptions
     {

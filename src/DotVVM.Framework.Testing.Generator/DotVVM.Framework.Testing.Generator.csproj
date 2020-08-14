@@ -3,21 +3,18 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>DotVVM.Framework.Tools.SeleniumGenerator</AssemblyName>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <StartupObject>DotVVM.Framework.Tools.SeleniumGenerator.Program</StartupObject>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
     <ProjectReference Include="..\DotVVM.Cli\DotVVM.Cli.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework.Testing\DotVVM.Framework.Testing.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="**\*.resx" />
-    <EmbeddedResource Include="compiler\resources\**\*" />
   </ItemGroup>
 
 </Project>

@@ -1,9 +1,9 @@
 ﻿using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Testing.SeleniumGenerator;
+using DotVVM.Framework.Testing.Generator;
 
-namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators.Controls
+namespace DotVVM.Framework.Testing.Generator.Generators.Controls
 {
     public class GridViewControlGenerator : SeleniumGenerator<GridView>
     {

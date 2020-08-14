@@ -21,10 +21,7 @@ namespace DotVVM.Tool
         public static void AddCompilerCommands(this Command command)
         {
             var compileCmd = new Command("compile", "Invokes the DotVVM compiler");
-            compileCmd.AddArgument(new Argument<FileSystemInfo>(
-                name: CommandLineExtensions.TargetArg,
-                getDefaultValue: () => new DirectoryInfo(Environment.CurrentDirectory),
-                description: "Path to a DotVVM project"));
+            compileCmd.AddTargetArgument();
             compileCmd.AddArgument(new Argument<string[]>(
                 name: "compilerArgs",
                 description: "Arguments passed to the compiler"));

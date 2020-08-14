@@ -1,5 +1,5 @@
 ﻿using System;
-using DotVVM.Framework.Testing.SeleniumGenerator;
+using DotVVM.Framework.Testing.Generator;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Configuration
