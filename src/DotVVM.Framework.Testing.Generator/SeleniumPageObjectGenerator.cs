@@ -210,7 +210,7 @@ namespace DotVVM.Framework.Testing.Generator
             }));
         }
 
-        private IEnumerable<Testing.SeleniumGenerator.Modifications.MarkupFileModification> GetAllModifications(PageObjectDefinition pageObject)
+        private IEnumerable<Modifications.MarkupFileModification> GetAllModifications(PageObjectDefinition pageObject)
         {
             var modifications = pageObject.MarkupFileModifications;
             foreach (var child in pageObject.Children)
@@ -254,7 +254,8 @@ namespace DotVVM.Framework.Testing.Generator
                     .NormalizeWhitespace()
             );
 
-            FileSystemHelpers.WriteFile(seleniumConfiguration.PageObjectFileFullPath, tree.ToString(), false);
+            
+            File.WriteAllText(seleniumConfiguration.PageObjectFileFullPath, tree.ToString());
         }
 
         private static SyntaxList<UsingDirectiveSyntax> GetSeleniumHelpersUsingList(PageObjectDefinition pageObject)

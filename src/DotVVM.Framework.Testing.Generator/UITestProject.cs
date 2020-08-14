@@ -25,6 +25,7 @@ namespace DotVVM.Framework.Testing.Generator
             var seleniumBaseText = GetSeleniumTestBase(@namespace);
             var seleniumBaseFile = new FileInfo(Path.Combine(directory.FullName, $"{SeleniumTestBaseName}.cs"));
             await File.WriteAllTextAsync(seleniumBaseFile.FullName, seleniumBaseText);
+            return projectFile;
         }
 
         public static string GetProjectFile(string targetFramework, string frameworkTestingVersion, string projectPath)
