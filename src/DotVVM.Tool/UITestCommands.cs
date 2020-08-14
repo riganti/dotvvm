@@ -9,10 +9,10 @@ namespace DotVVM.Tool
 {
     public static class UITestCommands
     {
-        public const string ShimName = "SeleniumGenerator";
+        public const string ShimName = "UITestGenerator";
         public const string PackageName = "DotVVM.Framework.Testing.Generator";
-        public const string ShimProgramFile = "SeleniumGenerator.cs";
-        public const string ShimProjectFile = "SeleniumGenerator.csproj";
+        public const string ShimProgramFile = "UITestGenerator.cs";
+        public const string ShimProjectFile = "UITestGenerator.csproj";
         public const string ProgramClass = "DotVVM.Framework.Testing.Generator.Program";
 
         public static void AddUITestCommands(this Command command)

@@ -1,11 +1,12 @@
 {
   "version": 2,
+  "packageVersion": "2.4.0.1",
   "projectName": "DotVVM.Samples.SeleniumGenerator.ANC",
   "rootNamespace": "DotVVM.Samples.SeleniumGenerator.ANC",
-  "uiTestProjectPath": "..\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\DotVVM.Samples.SeleniumGenerator.ANC.Tests",
-  "uiTestProjectRootNamespace": "DotVVM.Samples.SeleniumGenerator.ANC.Tests",
+  "uiTestProjectPath": null,
+  "uiTestProjectRootNamespace": null,
   "metadataFilePath": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.SeleniumGenerator.ANC\\.dotvvm.json",
   "projectDirectory": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.SeleniumGenerator.ANC",
-  "webAssemblyPath": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.SeleniumGenerator.ANC\\bin\\Debug\\netcoreapp2.0\\DotVVM.Samples.SeleniumGenerator.ANC.dll",
+  "webAssemblyPath": null,
   "apiClients": []
 }
