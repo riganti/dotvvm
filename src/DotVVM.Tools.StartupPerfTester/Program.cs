@@ -28,7 +28,7 @@ namespace DotVVM.Tools.StartupPerfTester
                 new Option<TestTarget>(
                     new [] { "-t", "--type" },
                     "Type of the project - use 'owin' or 'aspnetcore'"
-                ) { Required = true },
+                ) { IsRequired = true },
                 new Option<int>(
                     new [] { "-r", "--repeat" },
                     () => 1,
