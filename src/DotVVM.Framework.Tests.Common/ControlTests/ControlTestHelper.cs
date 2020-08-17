@@ -19,6 +19,10 @@ using AngleSharp.Html.Parser;
 using AngleSharp.Html.Dom;
 using AngleSharp.Html;
 using System.Globalization;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Properties;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Tests.Common.ControlTests
 {
@@ -54,9 +58,38 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
         }
 
         private TestDotvvmRequestContext PrepareRequest(
+            string fileName,
+            PostbackRequestModel postback = null
+        )
+        {
+            var context = DotvvmTestHelper.CreateContext(configuration);
+            context.CsrfToken = null;
+            context.Route = new Framework.Routing.DotvvmRoute(
+                "testpage",
+                fileName,
+                null,
+                null,
+                configuration);
+            var httpContext = (TestHttpContext)context.HttpContext;
+
+            if (postback is object)
+            {
+                httpContext.Request.Method = "POST";
+                httpContext.Request.Headers["X-DotVVM-PostBack"] = new[] { "true" };
+                httpContext.Request.Body = new MemoryStream(
+                    new UTF8Encoding(false).GetBytes(
+                        JsonConvert.SerializeObject(postback)
+                    )
+                );
+            }
+
+            return context;
+        }
+
+        private TestDotvvmRequestContext PreparePage(
             string markup,
-            Dictionary<string, string> markupFiles = null,
-            string fileName = null
+            Dictionary<string, string> markupFiles,
+            string fileName
         )
         {
             CultureInfo.CurrentCulture = new CultureInfo("en-US");
@@ -65,15 +98,7 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
             configuration.Freeze();
             fileName = (fileName ?? "testpage") + ".dothtml";
             var (_, controlBuilder) = CompilePage(markup, fileName, markupFiles);
-            var context = DotvvmTestHelper.CreateContext(configuration);
-            context.Route = new Framework.Routing.DotvvmRoute(
-                "testpage",
-                fileName,
-                null,
-                null,
-                configuration);
-
-            return context;
+            return PrepareRequest(fileName);
         }
 
         public async Task<PageRunResult> RunPage(
@@ -100,45 +125,144 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
                 markup = "<tc:FakeHeadResourceLink />" + markup;
             }
             markup = $"@viewModel {viewModel.ToString().Replace("+", ".")}\n\n{markup}";
-            var request = PrepareRequest(markup);
-            await presenter.ProcessRequestCore(request);
+            var request = PreparePage(markup, markupFiles, fileName);
+            await presenter.ProcessRequest(request);
             return CreatePageResult(request);
         }
+
+        public async Task<CommandRunResult> RunCommand(
+            string filePath,
+            PostbackRequestModel model)
+        {
+            var request = PrepareRequest(filePath, model);
+            await presenter.ProcessRequest(request);
+            return CreateCommandResult(request);
+        }
+
+        private CommandRunResult CreateCommandResult(TestDotvvmRequestContext request)
+        {
+            return new CommandRunResult(
+                request.ViewModelJson
+            );
+        }
+
+        private IEnumerable<(DotvvmControl, DotvvmProperty, ICommandBinding)> FindCommands(DotvvmControl view) =>
+            from control in view.GetThisAndAllDescendants()
+            from property in control.Properties
+            let binding = property.Value as ICommandBinding
+            where binding != null
+            select (view, property.Key, binding);
 
         private PageRunResult CreatePageResult(TestDotvvmRequestContext context)
         {
             var htmlOutput = System.Text.Encoding.UTF8.GetString(context.HttpContext.CastTo<TestHttpContext>().Response.Body.ToArray());
+            var commands = FindCommands(context.View).ToArray();
             var headResources = context.View.GetAllDescendants().OfType<FakeHeadResourceLink>().FirstOrDefault()?.CapturedHtml;
             var bodyResources = context.View.GetAllDescendants().OfType<FakeBodyResourceLink>().FirstOrDefault()?.CapturedHtml;
 
             var p = new HtmlParser();
             var htmlDocument = p.ParseDocument(htmlOutput);
             return new PageRunResult(
+                this,
+                context.Route.VirtualPath,
                 context.ViewModelJson,
                 htmlOutput,
                 headResources,
                 bodyResources,
-                htmlDocument
+                htmlDocument,
+                commands
             );
+        }
+    }
+
+    public class CommandRunResult
+    {
+        public CommandRunResult(JObject resultJson)
+        {
+            this.ResultJson = resultJson;
+
+        }
+        public JObject ResultJson { get; }
+        public JObject ViewModelJson => ResultJson["viewModel"] as JObject ?? ResultJson["viewModelDiff"] as JObject;
+    }
+
+    public class PostbackRequestModel
+    {
+        public PostbackRequestModel(
+            JObject viewModel,
+            string[] currentPath,
+            string command,
+            string controlUniqueId,
+            object[] commandArgs,
+            string validationTargetPath
+        )
+        {
+            ViewModel = viewModel;
+            CurrentPath = currentPath;
+            Command = command;
+            ControlUniqueId = controlUniqueId;
+            CommandArgs = commandArgs;
+            AdditionalData = new AdditionalDataClass(validationTargetPath);
+        }
+
+        [JsonProperty("viewModel")]
+        public JObject ViewModel { get; }
+        [JsonProperty("currentPath")]
+        public string[] CurrentPath { get; }
+        [JsonProperty("command")]
+        public string Command { get; }
+        [JsonProperty("controlUniqueId")]
+        public string ControlUniqueId { get; }
+        [JsonProperty("commandArgs")]
+        public object[] CommandArgs { get; }
+        [JsonProperty("additionalData")]
+        public AdditionalDataClass AdditionalData { get; }
+
+        public class AdditionalDataClass
+        {
+            public AdditionalDataClass(string validationTargetPath)
+            {
+                this.ValidationTargetPath = validationTargetPath;
+            }
+            [JsonProperty("validationTargetPath")]
+            public string ValidationTargetPath { get; }
         }
     }
 
     public class PageRunResult
     {
-        public PageRunResult(JObject viewModel, string outputString, string headResources, string bodyResources, IHtmlDocument html)
+        public PageRunResult(
+            ControlTestHelper testHelper,
+            string filePath,
+            JObject resultJson,
+            string outputString,
+            string headResources,
+            string bodyResources,
+            IHtmlDocument html,
+            (DotvvmControl, DotvvmProperty, ICommandBinding)[] commands
+        )
         {
-            this.ViewModel = viewModel;
+            TestHelper = testHelper;
+            FilePath = filePath;
+            this.ResultJson = resultJson;
             this.OutputString = outputString;
             this.HeadResources = headResources;
             this.BodyResources = bodyResources;
             this.Html = html;
+            this.Commands = commands;
         }
 
-        public JObject ViewModel { get; }
+        public ControlTestHelper TestHelper { get; }
+        public string FilePath { get; }
+        public JObject ResultJson { get; }
+        public JObject ViewModelJson => (JObject)ResultJson["viewModel"];
+        public dynamic ViewModel => ViewModelJson;
         public string OutputString { get; }
         public string HeadResources { get; }
         public string BodyResources { get; }
         public IHtmlDocument Html { get; }
+        public (DotvvmControl control, DotvvmProperty property, ICommandBinding command)[] Commands { get; }
+
         public string FormattedHtml
         {
             get
@@ -146,6 +270,57 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
                 var str = new StringWriter();
                 Html.ToHtml(str, new PrettyMarkupFormatter() { Indentation = "\t", NewLine = "\n" });
                 return str.ToString();
+            }
+        }
+
+        public (DotvvmControl, DotvvmProperty, ICommandBinding) FindCommand(string text, object viewModel = null)
+        {
+            var filtered =
+                this.Commands
+                    .Where(c => c.command.GetProperty<OriginalStringBindingProperty>(ErrorHandlingMode.ReturnNull)?.Code?.Trim() == text.Trim()
+                             && (viewModel is null || viewModel.Equals(c.control.DataContext)))
+                    .ToArray();
+            if (filtered.Length == 0)
+                throw new Exception($"Command '{text}' was not found" + (viewModel is null ? "" : $" on viewModel={viewModel}"));
+            if (filtered.Length > 1)
+                throw new Exception($"Multiple commands '{text}' were found" + (viewModel is null ? "" : $" on viewModel={viewModel}") + $": " + string.Join(", ", filtered.Select(c => c.command)));
+
+            return filtered.Single();
+        }
+
+        public async Task<CommandRunResult> RunCommand(string text, object viewModel = null, bool applyChanges = true, object[] args = null)
+        {
+            var (control, property, binding) = FindCommand(text, viewModel);
+            if (binding is CommandBindingExpression command)
+            {
+                var path = control
+                    .GetAllAncestors(true)
+                    .Select(a => a.GetDataContextPathFragment())
+                    .Where(x => x != null)
+                    .Reverse()
+                    .ToArray();
+                var viewModelJson = this.ViewModelJson; // TODO: process as on client-side
+                var r = await this.TestHelper.RunCommand(this.FilePath, new PostbackRequestModel(
+                    viewModelJson,
+                    path,
+                    command.BindingId,
+                    null,
+                    args ?? new object[0],
+                    KnockoutHelper.GetValidationTargetExpression(control)
+                ));
+
+                if (applyChanges)
+                {
+                    JsonUtils.Patch(
+                        (JObject)this.ResultJson["viewModel"],
+                        r.ViewModelJson
+                    );
+                }
+                return r;
+            }
+            else
+            {
+                throw new NotSupportedException($"{binding} is not supported.");
             }
         }
     }

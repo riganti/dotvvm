@@ -60,6 +60,26 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task CommandBinding()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+            <dot:Button Click={command: Integer = Integer + 1} />
+            <dot:Button Click={command: Integer = Integer - 1} Enabled={value: Integer > 10000000} />
+            ");
+
+            Assert.AreEqual(10000000, (int)r.ViewModel.@int);
+            await r.RunCommand("Integer = Integer + 1");
+            Assert.AreEqual(10000001, (int)r.ViewModel.@int);
+            await r.RunCommand("Integer = Integer - 1");
+            Assert.AreEqual(10000000, (int)r.ViewModel.@int);
+            // invoking command on disabled button should fail
+            var exception = await Assert.ThrowsExceptionAsync<Framework.Runtime.Commands.InvalidCommandInvocationException>(() =>
+                r.RunCommand("Integer = Integer - 1")
+            );
+            Console.WriteLine(exception);
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
