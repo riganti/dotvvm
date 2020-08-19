@@ -1074,6 +1074,7 @@ var DotVVM = /** @class */ (function () {
         this.fileUpload = new DotvvmFileUpload();
         this.extensions = {};
         this.isPostbackRunning = ko.observable(false);
+        this.isSpaNavigationRunning = ko.observable(false);
         this.updateProgressChangeCounter = ko.observable(0);
         this.diffEqual = {};
     }
@@ -1425,6 +1426,8 @@ var DotVVM = /** @class */ (function () {
         if (args === void 0) { args = []; }
         if (context === void 0) { context = ko.contextFor(sender); }
         if (viewModel === void 0) { viewModel = context.$root; }
+        if (dotvvm.isSpaNavigationRunning())
+            return Promise.reject({ type: "handler" });
         var options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName);
         var promise = this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)))
             .then(function (r) { return r(); }, function (r) { return Promise.reject(r); });
@@ -1616,6 +1619,8 @@ var DotVVM = /** @class */ (function () {
     };
     DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, context, handlers, commandArgs) {
         var _this = this;
+        if (dotvvm.isSpaNavigationRunning())
+            return Promise.reject({ type: "handler" });
         context = context || ko.contextFor(sender);
         var preparedHandlers = this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
         if (preparedHandlers.filter(function (h) { return h.name && h.name.indexOf("concurrency-") == 0; }).length == 0) {
@@ -1729,6 +1734,7 @@ var DotVVM = /** @class */ (function () {
             var viewModel = _this.viewModels[viewModelName].viewModel;
             // prevent double postbacks
             var currentPostBackCounter = _this.backUpPostBackConter();
+            _this.isSpaNavigationRunning(true);
             // trigger spaNavigating event
             var spaNavigatingArgs = new DotvvmSpaNavigatingEventArgs(viewModel, viewModelName, url);
             _this.events.spaNavigating.trigger(spaNavigatingArgs);
@@ -1790,17 +1796,19 @@ var DotVVM = /** @class */ (function () {
                         }
                     }
                     else if (resultObject.action === "redirect") {
+                        _this.isSpaNavigationRunning(false);
                         _this.handleRedirect(resultObject, viewModelName, true).then(resolve, reject);
                         return;
                     }
                     // trigger spaNavigated event
                     var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(_this.viewModels[viewModelName].viewModel, viewModelName, resultObject, result);
                     _this.events.spaNavigated.trigger(spaNavigatedArgs);
-                    resolve(spaNavigatedArgs);
+                    _this.isSpaNavigationRunning(false);
                     if (!isSuccess && !spaNavigatedArgs.isHandled) {
                         reject();
                         throw "Invalid response from server!";
                     }
+                    resolve(spaNavigatedArgs);
                 });
             }, function (xhr) {
                 // if another postback has already been passed, don't do anything
@@ -1812,6 +1820,7 @@ var DotVVM = /** @class */ (function () {
                 if (!errArgs.handled) {
                     alert(xhr.responseText);
                 }
+                _this.isSpaNavigationRunning(false);
                 reject(errArgs);
             });
         });

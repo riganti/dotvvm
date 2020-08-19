@@ -17,6 +17,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ComplexSamples_ChangedEvent_ChangedEvent = "ComplexSamples/ChangedEvent/ChangedEvent";
         public const string ComplexSamples_ClassBindings_ClassBindings = "ComplexSamples/ClassBindings/ClassBindings";
         public const string ComplexSamples_EmptyDataTemplate_RepeaterGridView = "ComplexSamples/EmptyDataTemplate/RepeaterGridView";
+        public const string ComplexSamples_EventPropagation_EventPropagation = "ComplexSamples/EventPropagation/EventPropagation";
         public const string ComplexSamples_FileUploadInRepeater_FileUploadInRepeater = "ComplexSamples/FileUploadInRepeater/FileUploadInRepeater";
         public const string ComplexSamples_GridViewDataSet_GridViewDataSet = "ComplexSamples/GridViewDataSet/GridViewDataSet";
         public const string ComplexSamples_InvoiceCalculator_InvoiceCalculator = "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
@@ -237,6 +238,8 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_PostbackConcurrency_RedirectPostbackQueue = "FeatureSamples/PostbackConcurrency/RedirectPostbackQueue";
         public const string FeatureSamples_PostbackConcurrency_RedirectPostbackQueueSpa = "FeatureSamples/PostbackConcurrency/RedirectPostbackQueueSpa";
         public const string FeatureSamples_PostbackConcurrency_StressTest = "FeatureSamples/PostbackConcurrency/StressTest";
+        public const string FeatureSamples_PostbackSpaNavigation_PageA = "FeatureSamples/PostbackSpaNavigation/PageA";
+        public const string FeatureSamples_PostbackSpaNavigation_PageB = "FeatureSamples/PostbackSpaNavigation/PageB";
         public const string FeatureSamples_Redirect_Redirect = "FeatureSamples/Redirect/Redirect";
         public const string FeatureSamples_Redirect_RedirectionHelpers = "FeatureSamples/Redirect/RedirectionHelpers";
         public const string FeatureSamples_Redirect_RedirectionHelpers_PageA = "FeatureSamples/Redirect/RedirectionHelpers_PageA";

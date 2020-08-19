@@ -11,6 +11,7 @@ using DotVVM.Samples.Common.Api.AspNetCore;
 using DotVVM.Samples.Common.Api.Owin;
 using DotVVM.Samples.Common.Utilities;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBackSpaNavigation;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -48,6 +49,8 @@ namespace DotVVM.Samples.Common
             services.AddSingleton<CompaniesClient>();
             services.AddSingleton<TestWebApiClientOwin>();
             services.AddSingleton<TestWebApiClientAspNetCore>();
+
+            services.AddSingleton<DenyPostbacksOnSpaNavigationService>();
 
             services.AddSingleton<IDiagnosticsInformationSender, TextFileDiagnosticsInformationSender>();
         }
