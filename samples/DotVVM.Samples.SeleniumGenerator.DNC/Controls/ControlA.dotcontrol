@@ -1,6 +1,0 @@
-﻿@viewModel SampleApp1.ViewModels.Controls.PageWithControlsViewModel, SampleApp1
-
-<div>
-    Main Counter:
-    <cc:Counter DataContext="{value: MainCounter}"  UITests.Name="Counter"/>
-</div>
