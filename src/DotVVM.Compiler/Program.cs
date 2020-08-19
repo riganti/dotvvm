@@ -66,8 +66,6 @@ namespace DotVVM.Compiler
                 };
             }
 
-            ConfigurationSerialization.PreInit();
-
             if (jsonOut || options.ConfigOutputPath is object)
             {
                 var serializedResult = JsonSerializer.Serialize(

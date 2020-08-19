@@ -15,9 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Framework.Testing.SeleniumGenerator\DotVVM.Framework.Testing.SeleniumGenerator.csproj" />
-    <ProjectReference Include="..\DotVVM.Framework.Testing.SeleniumHelpers\DotVVM.Framework.Testing.SeleniumHelpers.csproj" />
-    <ProjectReference Include="..\DotVVM.Framework.Tools.SeleniumGenerator\DotVVM.Framework.Tools.SeleniumGenerator.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework.Testing\DotVVM.Framework.Testing.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework.Testing.Generator\DotVVM.Framework.Testing.Generator.csproj" />
   </ItemGroup>
 
 </Project>

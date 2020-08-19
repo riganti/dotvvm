@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using DotVVM.Cli;
 using DotVVM.Compiler.Compilation;
 using DotVVM.Compiler.Fakes;
 using DotVVM.Compiler.Resolving;
@@ -22,7 +23,7 @@ namespace DotVVM.Compiler
             ViewStaticCompiler viewStaticCompiler,
             Action<IServiceCollection> additionalServices)
         {
-            return ConfigurationHost.InitDotVVM(assembly, webSitePath, services => {
+            return DotvvmProject.GetConfiguration(assembly, webSitePath, services => {
 
                 if (viewStaticCompiler != null)
                 {

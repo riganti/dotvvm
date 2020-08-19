@@ -8,8 +8,7 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Security;
-using DotVVM.Framework.Testing.SeleniumHelpers.Proxies;
-using DotVVM.Framework.Tools.SeleniumGenerator;
+using DotVVM.Cli;
 using DotVVM.Testing.SeleniumGenerator.Tests.Helpers;
 using DotVVM.Testing.SeleniumGenerator.Tests.Visitors;
 using DotVVM.Utils.ConfigurationHost.Initialization;
@@ -97,7 +96,7 @@ namespace DotVVM.Testing.SeleniumGenerator.Tests
                 compilation.AssertPageObject("SampleApp1.Tests.PageObjects.SimplePage", "PagePageObject");
 
                 // get dotvvm config
-                var config = ConfigurationHost.InitDotVVM(
+                var config = DotvvmProject.GetConfiguration(
                     Assembly.LoadFile(Path.Combine(Path.GetFullPath(webAppDirectory), "bin\\debug\\netcoreapp2.0\\SampleApp1.dll")),
                     webAppDirectory,
                     services => services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>());
@@ -141,7 +140,7 @@ namespace DotVVM.Testing.SeleniumGenerator.Tests
                 compilation.AssertPageObject("SampleApp1.Tests.PageObjects.SimplePage", "PagePageObject");
 
                 // get dotvvm config
-                var config = ConfigurationHost.InitDotVVM(
+                var config = DotvvmProject.GetConfiguration(
                     Assembly.LoadFile(Path.Combine(Path.GetFullPath(webAppDirectory), "bin\\debug\\netcoreapp2.0\\SampleApp1.dll")),
                     webAppDirectory,
                     services => services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>());
