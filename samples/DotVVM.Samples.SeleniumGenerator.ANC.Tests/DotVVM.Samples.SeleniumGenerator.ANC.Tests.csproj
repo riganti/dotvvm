@@ -15,7 +15,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework.Testing.SeleniumHelpers\DotVVM.Framework.Testing.SeleniumHelpers.csproj" />
-    <ProjectReference Include="..\DotVVM.Samples.SeleniumGenerator.ANC\DotVVM.Samples.SeleniumGenerator.ANC.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="seleniumconfig.json">
