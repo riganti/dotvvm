@@ -181,19 +181,19 @@
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.1\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj">
+    <ProjectReference Include="..\..\src\DotVVM.Core\DotVVM.Core.csproj">
       <Project>{45fa2f43-d92b-4a9b-9b93-9ab519ad0127}</Project>
       <Name>DotVVM.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DotVVM.Framework.Hosting.Owin\DotVVM.Framework.Hosting.Owin.csproj">
+    <ProjectReference Include="..\..\src\DotVVM.Framework.Hosting.Owin\DotVVM.Framework.Hosting.Owin.csproj">
       <Project>{f578ac17-9bbf-40fb-b0ee-9059cd08865b}</Project>
       <Name>DotVVM.Framework.Hosting.Owin</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DotVVM.Framework.Testing.SeleniumGenerator\DotVVM.Framework.Testing.SeleniumGenerator.csproj">
+    <ProjectReference Include="..\..\src\DotVVM.Framework.Testing.Generator\DotVVM.Framework.Testing.Generator.csproj">
       <Project>{ff37c654-cbe0-47e2-aa85-f1bdc63b78e6}</Project>
       <Name>DotVVM.Framework.Testing.SeleniumGenerator</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj">
+    <ProjectReference Include="..\..\src\DotVVM.Framework\DotVVM.Framework.csproj">
       <Project>{8bb2217d-0f2d-49d1-97bc-3654ed321f3b}</Project>
       <Name>DotVVM.Framework</Name>
     </ProjectReference>

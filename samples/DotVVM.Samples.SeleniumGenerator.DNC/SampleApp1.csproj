@@ -46,7 +46,7 @@
         <DotNetCliToolReference Include="DotVVM.CommandLine" Version="2.2.0.1" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\..\..\dotvvm\src\DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj" />
-      <ProjectReference Include="..\..\DotVVM.Framework.Testing.SeleniumGenerator\DotVVM.Framework.Testing.SeleniumGenerator.csproj" />
+      <ProjectReference Include="..\..\src\DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj" />
+      <ProjectReference Include="..\..\src\DotVVM.Framework.Testing.Generator\DotVVM.Framework.Testing.Generator.csproj" />
     </ItemGroup>
 </Project>

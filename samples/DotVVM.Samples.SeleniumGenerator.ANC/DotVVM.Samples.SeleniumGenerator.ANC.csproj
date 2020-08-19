@@ -28,8 +28,8 @@
     <None Remove="Views\MasterPage.dotmaster" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../DotVVM.Framework.Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />
-    <ProjectReference Include="../DotVVM.Framework.Testing.SeleniumGenerator/DotVVM.Framework.Testing.SeleniumGenerator.csproj" />
+    <ProjectReference Include="../../src/DotVVM.Framework.Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />
+    <ProjectReference Include="../../src/DotVVM.Framework.Testing.Generator/DotVVM.Framework.Testing.Generator.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
