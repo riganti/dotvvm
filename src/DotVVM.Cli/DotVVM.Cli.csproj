@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -11,6 +11,7 @@
     <PackageReference Include="Microsoft.Build" Version="16.6.0" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.6" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
+    <PackageReference Include="System.Runtime.Extensions" Version="4.3.1" />
     <PackageReference Include="System.Text.Json" Version="4.7.2" />
   </ItemGroup>
 

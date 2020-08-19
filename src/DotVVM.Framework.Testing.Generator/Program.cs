@@ -103,7 +103,7 @@ namespace DotVVM.Framework.Testing.Generator
                 logger.LogInformation($"Generating the '{name}' project stub.");
                 // TODO: Add path to the csproj to ProjectMetadata
                 var projectFile = ProjectFile.FindProjectFile(new DirectoryInfo(metadata.ProjectDirectory))!;
-                var testProjectFile = await UITestProject.GenerateStub(
+                var testProjectFile = UITestProject.GenerateStub(
                     webProjectPath: projectFile.FullName,
                     name: name,
                     directory: directory,

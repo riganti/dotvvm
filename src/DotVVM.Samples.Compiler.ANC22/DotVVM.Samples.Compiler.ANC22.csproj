@@ -27,7 +27,7 @@
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.6" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="wwwroot\" />

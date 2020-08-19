@@ -86,7 +86,7 @@ namespace DotVVM.Compiler
                         {
                             file.Directory.Create();
                         }
-                        await File.WriteAllTextAsync(file.FullName, serializedResult);
+                        File.WriteAllText(file.FullName, serializedResult);
                     }
                 }
             }

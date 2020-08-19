@@ -129,7 +129,7 @@ namespace System.CommandLine
                 current = current.Parent as CommandResult;
             }
             names.Reverse();
-            return string.Join(' ', names);
+            return string.Join(" ", names);
         }
     }
 }

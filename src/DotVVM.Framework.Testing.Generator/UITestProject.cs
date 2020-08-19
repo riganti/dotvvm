@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Testing.Generator
     {
         public const string SeleniumTestBaseName = "AppSeleniumTest";
 
-        public static async Task<FileInfo?> GenerateStub(
+        public static FileInfo? GenerateStub(
             string webProjectPath,
             string name,
             DirectoryInfo directory,
@@ -20,11 +20,11 @@ namespace DotVVM.Framework.Testing.Generator
             var frameworkTestingVersion = "0.0.0";
             var projectFileText = GetProjectFile(targetFramework, frameworkTestingVersion, webProjectPath);
             var projectFile = new FileInfo(Path.Combine(directory.FullName, $"{name}.csproj"));
-            await File.WriteAllTextAsync(projectFile.FullName, projectFileText);
+            File.WriteAllText(projectFile.FullName, projectFileText);
 
             var seleniumBaseText = GetSeleniumTestBase(@namespace);
             var seleniumBaseFile = new FileInfo(Path.Combine(directory.FullName, $"{SeleniumTestBaseName}.cs"));
-            await File.WriteAllTextAsync(seleniumBaseFile.FullName, seleniumBaseText);
+            File.WriteAllText(seleniumBaseFile.FullName, seleniumBaseText);
             return projectFile;
         }
 

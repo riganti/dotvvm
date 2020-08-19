@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <!--Include Views-->
@@ -28,17 +28,17 @@
     <None Remove="Views\MasterPage.dotmaster" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../src/DotVVM.Framework.Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />
-    <ProjectReference Include="../../src/DotVVM.Framework.Testing.Generator/DotVVM.Framework.Testing.Generator.csproj" />
+    <ProjectReference Include="../DotVVM.Framework.Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />
+    <ProjectReference Include="../DotVVM.Framework.Testing.Generator/DotVVM.Framework.Testing.Generator.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.7" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.6" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
 
   </ItemGroup>

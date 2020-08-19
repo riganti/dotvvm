@@ -64,14 +64,19 @@ namespace DotVVM.Cli
 
         public static string GetNamespace(string directory, string projectPath, string rootNamespace)
         {
-            var path = Path.GetRelativePath(projectPath, Path.GetFullPath(directory));
+            var path = GetRelativePath(projectPath, Path.GetFullPath(directory));
             var namespaceName = path.Replace("\\", ".").Replace("/", ".");
             return namespaceName is object
                 ? $"{rootNamespace}.{namespaceName}"
                 : rootNamespace;
         }
 
-        public static string GetPathFromNamespace(string namespaceName, string className, string rootNamespace, string fileExtension, string projectDirectory)
+        public static string GetPathFromNamespace(
+            string namespaceName,
+            string className,
+            string rootNamespace,
+            string fileExtension,
+            string projectDirectory)
         {
             if (!namespaceName.StartsWith(rootNamespace))
             {
@@ -80,6 +85,15 @@ namespace DotVVM.Cli
             var relativeNamespace = namespaceName.Substring(rootNamespace.Length).TrimStart('.');
             var projectRelativePath = Path.Combine(relativeNamespace.Replace('.', '/'), className, fileExtension);
             return Path.Combine(projectDirectory, projectRelativePath);
+        }
+
+        private static string GetRelativePath(string relativeTo, string path)
+        {
+            // TODO: Once .NET Framework is no longer targeted, replace with Path.GetRelativePath
+            var relativeToUri = new Uri(relativeTo);
+            var pathUri = new Uri(path);
+            var resultUri = relativeToUri.MakeRelativeUri(pathUri);
+            return Uri.UnescapeDataString(resultUri.ToString());
         }
     }
 }
