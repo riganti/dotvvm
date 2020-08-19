@@ -15,8 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Utils.ConfigurationHost\DotVVM.Utils.ConfigurationHost.csproj" />
-    <ProjectReference Include="..\DotVVM.Utils.ProjectService\DotVVM.Utils.ProjectService.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
   </ItemGroup>
 
 </Project>
