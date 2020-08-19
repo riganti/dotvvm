@@ -95,6 +95,8 @@ var DotvvmSpaHistory = /** @class */ (function () {
     function DotvvmSpaHistory() {
     }
     DotvvmSpaHistory.prototype.pushPage = function (url) {
+        // pushState doesn't work when the url is empty
+        url = url || "/";
         history.pushState(new HistoryRecord('SPA', url), '', url);
     };
     DotvvmSpaHistory.prototype.replacePage = function (url) {

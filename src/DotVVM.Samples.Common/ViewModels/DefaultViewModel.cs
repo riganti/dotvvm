@@ -1,4 +1,3 @@
-using DotVVM.Framework.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +9,7 @@ using DotVVM.Framework.Routing;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels
 {
-    public class DefaultViewModel : DotvvmViewModelBase
+    public class DefaultViewModel : SamplesViewModel
     {
         public string Title { get; set; }
         public List<RouteData> Routes { get; set; }
