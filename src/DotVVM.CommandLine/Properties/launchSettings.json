@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "DotVVM.CommandLine": {
-      "commandName": "Project",
-      "commandLineArgs": "gut --debugger-break",
-      "workingDirectory": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.SeleniumGenerator.ANC"
-    }
-  }
-}

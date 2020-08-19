@@ -1,23 +1,22 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
-namespace DotVVM.CommandLine.Commands.Logic
+namespace DotVVM.Cli
 {
-    public class MasterPageBuilder
+    public static class Dothtml
     {
-
-        /// <summary>
-        /// Extracts the place holder ids.
-        /// </summary>
-        public List<string> ExtractPlaceHolderIds(string fileName)
+        public static List<string> ExtractPlaceholderIds(string filename, ILogger? logger = null)
         {
+            logger ??= NullLogger.Instance;
             try
             {
-                var sourceText = File.ReadAllText(fileName);
+                var sourceText = File.ReadAllText(filename);
 
                 var tokenizer = new DothtmlTokenizer();
                 tokenizer.Tokenize(sourceText);
@@ -38,11 +37,11 @@ namespace DotVVM.CommandLine.Commands.Logic
                 }
                 return results;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw new Exception($"Cannot extract ContentPlaceHolderIds from a file '{fileName}'!", ex);
+                logger.LogError($"Could not extract ContentPlaceHoldersIds from '{filename}'.");
+                return new List<string>();
             }
         }
-
     }
 }

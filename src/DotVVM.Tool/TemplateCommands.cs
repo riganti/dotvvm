@@ -107,8 +107,7 @@ namespace DotVVM.Tool
             {
                 pageTemplate.EmbedInMasterPage = true;
                 pageTemplate.MasterPageLocation = master;
-                // TODO: extract placeholder ids
-                // pageTemplate.ContentPlaceHolderIds = new MasterPageBuilder().ExtractPlaceHolderIds(masterPagePath);
+                pageTemplate.ContentPlaceHolderIds = Dothtml.ExtractPlaceholderIds(master);
             }
             await File.WriteAllTextAsync(file.FullName, pageTemplate.TransformText());
         }
