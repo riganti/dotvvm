@@ -74,17 +74,21 @@ namespace DotVVM.Cli
 
         public static Exception? IsJsonValid(ProjectMetadataJson json)
         {
-            if (json.MetadataFilePath is null)
+            if (json.MetadataFilePath is null || !File.Exists(json.MetadataFilePath))
             {
-                return new ArgumentException($"{nameof(json.MetadataFilePath)} is null.", nameof(json));
+                return new ArgumentException(
+                    $"{nameof(json.MetadataFilePath)} is null or does not exist.",
+                    nameof(json));
             }
             if (json.ProjectName is null)
             {
                 return new ArgumentException($"{nameof(json.ProjectName)} is null.", nameof(json));
             }
-            if (json.ProjectDirectory is null)
+            if (json.ProjectDirectory is null || !Directory.Exists(json.ProjectDirectory))
             {
-                return new ArgumentException($"{nameof(json.ProjectDirectory)} is null.", nameof(json));
+                return new ArgumentException(
+                    $"{nameof(json.ProjectDirectory)} is null or does not exist.",
+                    nameof(json));
             }
             if (json.RootNamespace is null)
             {
