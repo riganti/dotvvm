@@ -3,8 +3,8 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Binding;
 using System.Collections.Generic;
 using System.Linq;
-using DotVVM.Framework.Testing.SeleniumGenerator;
-using DotVVM.Framework.Testing.SeleniumGenerator.Helpers;
+using DotVVM.Framework.Testing.Generator;
+using DotVVM.Framework.Testing.Generator.Helpers;
 
 namespace DotVVM.Testing.SeleniumGenerator.Tests
 {

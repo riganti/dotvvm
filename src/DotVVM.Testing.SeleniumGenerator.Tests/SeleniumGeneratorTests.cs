@@ -11,10 +11,10 @@ using DotVVM.Framework.Security;
 using DotVVM.Cli;
 using DotVVM.Testing.SeleniumGenerator.Tests.Helpers;
 using DotVVM.Testing.SeleniumGenerator.Tests.Visitors;
-using DotVVM.Utils.ConfigurationHost.Initialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DotVVM.Framework.Testing.Proxies;
 
 namespace DotVVM.Testing.SeleniumGenerator.Tests
 {

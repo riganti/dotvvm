@@ -9,7 +9,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using DotVVM.Cli;
 using DotVVM.Compiler.Compilation;
-using DotVVM.Utils.ConfigurationHost.Initialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 

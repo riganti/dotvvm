@@ -1,4 +1,4 @@
-﻿using DotVVM.Framework.Tools.SeleniumGenerator.Extensions;
+﻿using DotVVM.Framework.Testing.Generator.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 

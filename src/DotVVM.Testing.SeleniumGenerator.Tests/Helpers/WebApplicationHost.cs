@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Buildalyzer;
 using Buildalyzer.Workspaces;
-using DotVVM.CommandLine.Core.Arguments;
 using DotVVM.Cli;
 using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -23,7 +22,7 @@ namespace DotVVM.Testing.SeleniumGenerator.Tests.Helpers
         private readonly string testProjectName;
         private readonly string testProjectCsproj;
         private readonly string dotvvmJsonPath;
-        private ProjectMetadataJson metadata;
+        private ProjectMetadata metadata;
 
         public string TestProjectDirectory { get; private set; }
 
@@ -56,10 +55,8 @@ namespace DotVVM.Testing.SeleniumGenerator.Tests.Helpers
             Process.Start("xcopy", $"/E \"{webApplicationTemplatePath}\" \"{webAppDirectory}\"")?.WaitForExit();
 
             // set test project path in .dotvvm.json
-            var metadataService = new DotvvmProjectMetadataService();
-            metadata = metadataService.LoadFromFile(dotvvmJsonPath);
-            metadata.UITestProjectPath = $"../{testProjectName}";
-            metadata.UITestProjectRootNamespace = testProjectName;
+            metadata = DotvvmProject.GetProjectMetadata(new FileInfo(dotvvmJsonPath)).GetAwaiter().GetResult();
+            metadata = metadata.WithUITestProject($"../{testProjectName}", testProjectName);
 
             // change current directory
             Environment.CurrentDirectory = webAppDirectory;
@@ -72,36 +69,7 @@ namespace DotVVM.Testing.SeleniumGenerator.Tests.Helpers
                 Initialize();
             }
 
-            var args = new Arguments(new[] {markupFilePath});
-
-            try
-            {
-                // process markup file
-
-                var serializedMetadata = JsonConvert.SerializeObject(JsonConvert.SerializeObject(metadata));
-                var executablePath = Path.Combine(webAppDirectory, "bin\\Debug\\netcoreapp2.0\\DotVVM.Framework.Tools.SeleniumGenerator.dll");
-                var serializedPath = JsonConvert.SerializeObject(executablePath);
-                var processInfo = new ProcessStartInfo("dotnet")
-                {
-                    RedirectStandardError = true,
-                    RedirectStandardInput = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true,
-                    Arguments = $"{serializedPath} --json {serializedMetadata} {args[0]}"
-                };
-
-                var process = new Process
-                {
-                    StartInfo = processInfo
-                };
-
-                StartGeneratorProcess(process);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            throw new NotImplementedException("Reimplement WebApplicationHost.ProcessMarkupFile with DotVVM.Tool.");
 
 
             return File.ReadAllText(markupFilePath);

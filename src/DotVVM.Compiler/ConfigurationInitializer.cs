@@ -2,14 +2,12 @@ using System;
 using System.Reflection;
 using DotVVM.Cli;
 using DotVVM.Compiler.Compilation;
-using DotVVM.Compiler.Fakes;
 using DotVVM.Compiler.Resolving;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.Testing;
-using DotVVM.Utils.ConfigurationHost.Initialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
