@@ -13,6 +13,7 @@ namespace DotVVM.Cli
             string projectDirectory,
             string rootNamespace,
             string packageVersion,
+            ImmutableArray<string> targetFrameworks,
             string? uiTestProjectPath,
             string? uiTestProjectRootNamespace,
             ImmutableArray<ApiClientDefinition> apiClients)
@@ -22,6 +23,7 @@ namespace DotVVM.Cli
             ProjectDirectory = projectDirectory;
             RootNamespace = rootNamespace;
             PackageVersion = packageVersion;
+            TargetFrameworks = targetFrameworks;
             UITestProjectPath = uiTestProjectPath;
             UITestProjectRootNamespace = uiTestProjectRootNamespace;
             ApiClients = apiClients;
@@ -40,6 +42,8 @@ namespace DotVVM.Cli
         /// </summary>
         public string PackageVersion { get; }
 
+        public ImmutableArray<string> TargetFrameworks { get; set; }
+
         public string? UITestProjectPath { get; }
 
         public string? UITestProjectRootNamespace { get; }
@@ -54,6 +58,7 @@ namespace DotVVM.Cli
                 ProjectDirectory,
                 RootNamespace,
                 PackageVersion,
+                TargetFrameworks,
                 UITestProjectPath,
                 UITestProjectRootNamespace,
                 apiClients);
@@ -67,6 +72,7 @@ namespace DotVVM.Cli
                 ProjectDirectory,
                 RootNamespace,
                 PackageVersion,
+                TargetFrameworks,
                 uiTestProjectPath,
                 uiTestProjectRootNamespace,
                 ApiClients);
@@ -98,6 +104,12 @@ namespace DotVVM.Cli
             {
                 return new ArgumentException($"{nameof(json.PackageVersion)} is null.", nameof(json));
             }
+            if (json.TargetFrameworks is null || json.TargetFrameworks.Contains(null))
+            {
+                return new ArgumentException(
+                    $"{nameof(json.TargetFrameworks)} is null or contains null.",
+                    nameof(json));
+            }
             return null;
         }
 
@@ -115,6 +127,7 @@ namespace DotVVM.Cli
                 json.ProjectDirectory!,
                 json.RootNamespace!,
                 json.PackageVersion!,
+                json.TargetFrameworks.ToImmutableArray()!,
                 json.UITestProjectPath,
                 json.UITestProjectRootNamespace,
                 json.ApiClients?.ToImmutableArray() ?? ImmutableArray.Create<ApiClientDefinition>());
@@ -129,6 +142,7 @@ namespace DotVVM.Cli
                 ProjectDirectory = ProjectDirectory,
                 RootNamespace = RootNamespace,
                 PackageVersion = PackageVersion,
+                TargetFrameworks = TargetFrameworks.ToList(),
                 UITestProjectPath = UITestProjectPath,
                 UITestProjectRootNamespace = UITestProjectRootNamespace,
                 ApiClients = ApiClients.ToList()

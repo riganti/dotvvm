@@ -96,6 +96,7 @@ namespace DotVVM.Tool
                 metadata.ProjectDirectory,
                 metadata.RootNamespace);
 
+            // TODO: Replace the T4 templates with something a little more contemporary
             var pageTemplate = new PageTemplate()
             {
                 ViewModelRootNamespace = metadata.RootNamespace,

@@ -23,6 +23,10 @@ namespace DotVVM.Cli
         [JsonPropertyName("rootNamespace")]
         public string? RootNamespace { get; set; }
 
+        [JsonProperty("targetFrameworks")]
+        [JsonPropertyName("targetFrameworks")]
+        public List<string>? TargetFrameworks { get; set; }
+
         [JsonProperty("uiTestProjectPath")]
         [JsonPropertyName("uiTestProjectPath")]
         public string? UITestProjectPath { get; set; }
@@ -46,14 +50,5 @@ namespace DotVVM.Cli
         [JsonProperty("apiClients")]
         [JsonPropertyName("apiClients")]
         public List<ApiClientDefinition>? ApiClients { get; set; }
-
-        public string? GetUITestProjectFullPath()
-        {
-            if (ProjectDirectory is null || UITestProjectPath is null)
-            {
-                return null;
-            }
-            return Path.Combine(ProjectDirectory, UITestProjectPath);
-        }
     }
 }

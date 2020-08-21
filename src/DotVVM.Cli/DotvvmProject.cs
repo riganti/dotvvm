@@ -18,6 +18,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.VisualStudio.Setup.Configuration;
+using NuGet.Frameworks;
 
 namespace DotVVM.Cli
 {
@@ -26,7 +28,25 @@ namespace DotVVM.Cli
         public const string DotvvmMetadataFile = ".dotvvm.json";
         public const string DotvvmPackage = "DotVVM";
         public const string DotvvmAssembly = "DotVVM.Framework";
+        public const string DotvvmDirectory = ".dotvvm";
         public const string FallbackDotvvmVersion = "2.4.0.1";
+        public const string PrintTargetFrameworkTarget = "PrintTargetFramework";
+
+        public static DirectoryInfo CreateDotvvmDirectory(FileSystemInfo target)
+        {
+            if (target is FileInfo file)
+            {
+                target = file.Directory;
+            }
+            
+            var dotvvmDir = new DirectoryInfo(Path.Combine(target.FullName, DotvvmDirectory));
+            if (!dotvvmDir.Exists)
+            {
+                dotvvmDir.Create();
+            }
+
+            return dotvvmDir;
+        }
 
         public static FileInfo? FindProjectMetadata(FileSystemInfo target)
         {
@@ -107,6 +127,7 @@ namespace DotVVM.Cli
             }
 
             logger.LogDebug($"Found a project file at '{projectFile}'.");
+            // TODO: Replace MSBuildLocator with a custom target (along with PrintTargetFrameworks)
             var msbuildInstance = MSBuildLocator.RegisterDefaults();
             if (msbuildInstance is null || string.IsNullOrEmpty(msbuildInstance.MSBuildPath))
             {
@@ -115,7 +136,7 @@ namespace DotVVM.Cli
             }
 
             logger.LogDebug($"Using MSBuild at '{msbuildInstance.MSBuildPath}' for project file inspection.");
-            var metadata = CreateProjectMetadataFromMSBuild(projectFile);
+            var metadata = CreateProjectMetadataFromMSBuild(projectFile, logger, errorLevel);
             if (metadata is null)
             {
                 return null;
@@ -186,6 +207,62 @@ namespace DotVVM.Cli
             return dotvvmStartupType.Apply(Activator.CreateInstance)!.CastTo<IDotvvmStartup>();
         }
 
+        public static ImmutableArray<NuGetFramework> GetTargetFrameworks(
+            MSBuild msbuild,
+            FileInfo project,
+            ILogger? logger = null,
+            LogLevel errorLevel = LogLevel.Critical)
+        {
+            logger ??= NullLogger.Instance;
+
+            var dotvvmDir = CreateDotvvmDirectory(project);
+            var printProject = new FileInfo(Path.Combine(
+                dotvvmDir.FullName,
+                $"{PrintTargetFrameworkTarget}.proj"));
+            File.WriteAllText(printProject.FullName, GetPrintTargetFrameworkProject(project.FullName));
+
+            var (success, stdout, stderr) = msbuild.TryInvokeWithOutput(
+                project: printProject,
+                targets: new [] {PrintTargetFrameworkTarget},
+                logger: logger);
+            if (!success)
+            {
+                logger.Log(errorLevel, $"The target framework of '{project}' could not be determined.");
+                logger.LogDebug($"stdout:\n {stdout}");
+                logger.LogDebug($"stderr:\n {stderr}");
+                return ImmutableArray.Create<NuGetFramework>();
+            }
+
+            logger.LogDebug($"Target frameworks of '{project}' are '{stdout}'.");
+
+            return stdout.Trim().Split(';').Select(NuGetFramework.Parse).ToImmutableArray();
+        }
+
+        private static string GetPrintTargetFrameworkProject(string projectPath)
+        {
+            return
+$@"<Project>
+  <Import Project=""{projectPath}"" />
+
+  <Target Name=""{PrintTargetFrameworkTarget}"">
+    <GetProjectTargetFrameworksTask
+      ProjectPath=""$(MSBuildProjectFullPath""
+      TargetFrameworks=""$(TargetFrameworks)""
+      TargetFramework=""$(TargetFramework)""
+      TargetFrameworkMoniker=""$(TargetFrameworkMoniker)""
+      TargetPlatformIdentifier=""$(TargetPlatformIdentifier)""
+      TargetPlatformVersion=""$(TargetPlatformVersion)""
+      TargetPlatformMinVersion=""$(TargetPlatformMinVersion)"">
+      <Output
+        TaskParameter=""ProjectTargetFrameworks""
+        PropertyName=""_ProjectTargetFrameworks""/>
+    </GetProjectTargetFrameworksTask>
+    <Message Text=""$(_ProjectTargetFrameworks)"" Importance=""High"" />
+  </Target>
+</Project>
+";
+        }
+
         private static Type? GetDotvvmStartupType(Assembly assembly)
         {
             var dotvvmStartups = assembly.GetLoadableTypes()
@@ -242,19 +319,38 @@ namespace DotVVM.Cli
             }
         }
 
-        private static ProjectMetadata? CreateProjectMetadataFromMSBuild(FileInfo projectFile)
+        private static ProjectMetadata? CreateProjectMetadataFromMSBuild(
+            FileInfo projectFile,
+            ILogger logger,
+            LogLevel errorLevel)
         {
+            // Don't merge this function with CreateProjectMetadata. MSBuildLocator needs to be used before MSBuild.
             var project = Project.FromFile(projectFile.FullName, new ProjectOptions
             {
                 LoadSettings = ProjectLoadSettings.IgnoreInvalidImports
                     | ProjectLoadSettings.IgnoreMissingImports
             });
+            var msbuild = MSBuild.Create();
+            if (msbuild is null)
+            {
+                logger.Log(errorLevel, "The MSBuild executable could not be found.");
+                return null;
+            }
+            var targetFrameworks = GetTargetFrameworks(msbuild, projectFile, logger, errorLevel)
+                .Select(t => t.GetShortFolderName())
+                .ToImmutableArray();
+            if (targetFrameworks.Length == 0)
+            {
+                return null;
+            }
+
             return new ProjectMetadata(
                 path: new FileInfo(Path.Combine(projectFile.DirectoryName, DotvvmMetadataFile)),
                 projectName: project.GetPropertyValue("AssemblyName"),
                 projectDirectory: projectFile.DirectoryName,
                 rootNamespace: project.GetPropertyValue("RootNamespace"),
                 packageVersion: GetDotvvmVersion(project),
+                targetFrameworks: targetFrameworks,
                 uiTestProjectPath: null,
                 uiTestProjectRootNamespace: null,
                 apiClients: ImmutableArray.Create<ApiClientDefinition>());

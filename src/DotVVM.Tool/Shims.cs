@@ -13,8 +13,6 @@ namespace DotVVM.Tool
     public static class Shims
     {
         public const string GeneratorNotice = "NOTICE: This file has been generated automatically.";
-
-        public const string DotvvmDirectory = ".dotvvm";
         public const string Netcoreapp = "netcoreapp3.1";
 
         public static string GetShimProject(
@@ -133,11 +131,7 @@ namespace DotVVM.{shimName}.Shim
                 logger.LogDebug($"Using the '{msbuild}' msbuild.");
             }
 
-            var dotvvmDir = new DirectoryInfo(Path.Combine(project.DirectoryName, DotvvmDirectory));
-            if (!dotvvmDir.Exists)
-            {
-                dotvvmDir.Create();
-            }
+            var dotvvmDir = DotvvmProject.CreateDotvvmDirectory(project);
 
             var context = new ShimCreationContext(project, dotvvmDir, appProject);
             var shim = createShim(context);
