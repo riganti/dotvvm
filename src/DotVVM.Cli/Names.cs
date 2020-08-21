@@ -87,7 +87,7 @@ namespace DotVVM.Cli
             return Path.Combine(projectDirectory, projectRelativePath);
         }
 
-        private static string GetRelativePath(string relativeTo, string path)
+        public static string GetRelativePath(string relativeTo, string path)
         {
             // TODO: Once .NET Framework is no longer targeted, replace with Path.GetRelativePath
             var relativeToUri = new Uri(relativeTo);

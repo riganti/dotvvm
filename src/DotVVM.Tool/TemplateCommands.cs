@@ -75,7 +75,7 @@ namespace DotVVM.Tool
             command.AddCommand(addCmd);
         }
 
-        public static async Task HandleAddPage(
+        public static void HandleAddPage(
             ProjectMetadata metadata,
             string name,
             string? master,
@@ -109,20 +109,20 @@ namespace DotVVM.Tool
                 pageTemplate.MasterPageLocation = master;
                 pageTemplate.ContentPlaceHolderIds = Dothtml.ExtractPlaceholderIds(master);
             }
-            await File.WriteAllTextAsync(file.FullName, pageTemplate.TransformText());
+            File.WriteAllText(file.FullName, pageTemplate.TransformText());
         }
 
-        public static Task HandleAddMaster(
+        public static void HandleAddMaster(
             ProjectMetadata metadata,
             string name,
             string? master,
             string directory,
             ILogger logger)
         {
-            return HandleAddPage(metadata, name, master, directory, logger, true);
+            HandleAddPage(metadata, name, master, directory, logger, true);
         }
 
-        public static async Task HandleAddViewModel(
+        public static void HandleAddViewModel(
             ProjectMetadata metadata,
             string name,
             string directory,
@@ -145,10 +145,10 @@ namespace DotVVM.Tool
                 ViewModelNamespace = viewModelNamespace
                 // TODO: BaseViewModel
             };
-            await File.WriteAllTextAsync(file.FullName, viewModelTemplate.TransformText());
+            File.WriteAllText(file.FullName, viewModelTemplate.TransformText());
         }
 
-        public static async Task HandleAddControl(
+        public static void HandleAddControl(
             ProjectMetadata metadata,
             string name,
             string directory,
@@ -176,7 +176,7 @@ namespace DotVVM.Tool
                 controlTemplate.CodeBehindClassNamespace = @namespace;
                 controlTemplate.CodeBehindClassRootNamespace = metadata.RootNamespace;
             }
-            await File.WriteAllTextAsync(file.FullName, controlTemplate.TransformText());
+            File.WriteAllText(file.FullName, controlTemplate.TransformText());
 
             if (codeBehind)
             {
@@ -196,7 +196,7 @@ namespace DotVVM.Tool
                     CodeBehindClassNamespace = @namespace,
                     CodeBehindClassName = name
                 };
-                await File.WriteAllTextAsync(codeBehindFile.FullName, codeBehindTemplate.TransformText());
+                File.WriteAllText(codeBehindFile.FullName, codeBehindTemplate.TransformText());
             }
         }
 

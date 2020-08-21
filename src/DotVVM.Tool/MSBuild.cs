@@ -77,7 +77,7 @@ namespace DotVVM.Tool
             logger ??= NullLogger.Instance;
 
             var sb = new StringBuilder();
-            sb.AppendJoin(' ', PrefixedArgs);
+            sb.Append(string.Join(" ", PrefixedArgs));
             sb.Append(" -restore");
             sb.Append(" -verbosity:minimal");
             sb.Append($" -property:Configuration={configuration}");
@@ -113,7 +113,7 @@ namespace DotVVM.Tool
             if (PrefixedArgs.Length > 0)
             {
                 sb.Append(' ');
-                sb.AppendJoin(' ', PrefixedArgs);
+                sb.Append(string.Join(" ", PrefixedArgs));
             }
             sb.Append(']');
             return sb.ToString();

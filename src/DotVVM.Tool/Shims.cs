@@ -174,7 +174,7 @@ namespace DotVVM.{shimName}.Shim
             var sb = new StringBuilder();
             sb.Append(shim.FullName);
             sb.Append(' ');
-            sb.AppendJoin(' ', args.Select(s => $"\"{s}\""));
+            sb.Append(string.Join(" ", args.Select(s => $"\"{s}\"")));
             var processInfo = new ProcessStartInfo()
             {
                 FileName = "dotnet",
@@ -198,7 +198,7 @@ namespace DotVVM.{shimName}.Shim
             string? appPath = null;
             if (context.App is object)
             {
-                appPath = Path.GetRelativePath(context.DotvvmDirectory.FullName, context.App.FullName);
+                appPath = Names.GetRelativePath(context.DotvvmDirectory.FullName, context.App.FullName);
             }
 
             var shimFile = new FileInfo(Path.Combine(context.DotvvmDirectory.FullName, shimProjectFile));
@@ -206,7 +206,7 @@ namespace DotVVM.{shimName}.Shim
             File.WriteAllText(
                 path: shimFile.FullName,
                 contents: GetShimProject(
-                    project: Path.GetRelativePath(context.DotvvmDirectory.FullName, context.Project.FullName),
+                    project: Names.GetRelativePath(context.DotvvmDirectory.FullName, context.Project.FullName),
                     targetFramework: shimTargetFramework,
                     dotvvmVersion: appPackageVersion,
                     programFile: shimProgramFile,
