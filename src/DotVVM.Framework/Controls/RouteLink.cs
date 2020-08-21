@@ -1,10 +1,16 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Validation;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -141,6 +147,41 @@ namespace DotVVM.Framework.Controls
                 onclickAttribute += "return !this.hasAttribute('disabled');";
             }
             writer.AddAttribute("onclick", onclickAttribute);
+        }
+
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control, DotvvmConfiguration configuration)
+        {
+            var routeNameProperty = control.GetValue(RouteNameProperty);
+            if ((routeNameProperty.As<ResolvedPropertyValue>()) == null)
+                yield break;
+
+            var routeName = (string)routeNameProperty.CastTo<ResolvedPropertyValue>().Value;
+            if (!configuration.RouteTable.Contains(routeName))
+            {
+                yield return new ControlUsageError(
+                    $"RouteName \"{routeName}\" does not exist.",
+                    routeNameProperty.DothtmlNode);
+                yield break;
+            }
+
+            var parameterDefinitions = configuration.RouteTable[routeName].ParameterNames;
+            var parameterReferences = control.Properties.Where(i => i.Key is GroupedDotvvmProperty p && p.PropertyGroup == ParamsGroupDescriptor);
+
+            var undefinedReferences =
+                from parameterReference in parameterReferences
+                let parameterGroupName = parameterReference.Value.Property.CastTo<GroupedDotvvmProperty>()?.GroupMemberName
+                let parameterNode = parameterReference.Value.DothtmlNode
+                where parameterGroupName is string && !parameterDefinitions.Contains(parameterGroupName, StringComparer.InvariantCultureIgnoreCase)
+                select (parameterGroupName, parameterNode);
+
+            if (undefinedReferences.Any())
+            {
+                var parameters = string.Join(", ", undefinedReferences.Select(reference => reference.parameterGroupName));
+                yield return new ControlUsageError(
+                    $"The following parameters are not present in route {routeName}: {parameters}",
+                    undefinedReferences.Select(reference => reference.parameterNode));
+            }
         }
     }
 }
