@@ -2,8 +2,8 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
-using System.Threading.Tasks;
 using DotVVM.Cli;
+using DotVVM.Tool.Templates;
 using Microsoft.Extensions.Logging;
 
 namespace DotVVM.Tool
@@ -43,6 +43,9 @@ namespace DotVVM.Tool
             var codeBehindOpt = new Option<bool>(
                 aliases: new [] {"-c", "--code-behind"},
                 description: "Creates a C# code-behind class for the control");
+            var baseOpt = new Option<string>(
+                aliases: new [] {"-b", "--base"},
+                description: "The base class of the ViewModel");
 
             var pageCmd = new Command("page", "Add a page")
             {
@@ -58,7 +61,7 @@ namespace DotVVM.Tool
 
             var viewModelCmd = new Command("viewmodel", "Add a ViewModel")
             {
-                nameArg, viewModelsDirectoryOpt
+                nameArg, viewModelsDirectoryOpt, baseOpt
             };
             viewModelCmd.Handler = CommandHandler.Create(typeof(TemplateCommands).GetMethod(nameof(HandleAddViewModel))!);
 
@@ -96,21 +99,15 @@ namespace DotVVM.Tool
                 metadata.ProjectDirectory,
                 metadata.RootNamespace);
 
-            // TODO: Replace the T4 templates with something a little more contemporary
-            var pageTemplate = new PageTemplate()
-            {
-                ViewModelRootNamespace = metadata.RootNamespace,
-                ViewModelName = viewModelName,
-                ViewModelNamespace = viewModelNamespace,
-                IsMasterPage = isMaster
-            };
-            if (!string.IsNullOrEmpty(master))
-            {
-                pageTemplate.EmbedInMasterPage = true;
-                pageTemplate.MasterPageLocation = master;
-                pageTemplate.ContentPlaceHolderIds = Dothtml.ExtractPlaceholderIds(master);
-            }
-            File.WriteAllText(file.FullName, pageTemplate.TransformText());
+            var placeholderIds = master is object
+                ? Dothtml.ExtractPlaceholderIds(master)
+                : null;
+            var pageText = PageTemplate.TransformText(
+                viewModel: $"{viewModelNamespace}.{viewModelName}",
+                master: master,
+                isMaster: isMaster,
+                contentPlaceholderIds: placeholderIds);
+            File.WriteAllText(file.FullName, pageText);
         }
 
         public static void HandleAddMaster(
@@ -127,6 +124,7 @@ namespace DotVVM.Tool
             ProjectMetadata metadata,
             string name,
             string directory,
+            string? @base,
             ILogger logger)
         {
             var file = GetFile(metadata.ProjectDirectory, directory, name, ViewModelFileExtensions, logger);
@@ -141,12 +139,11 @@ namespace DotVVM.Tool
                 metadata.ProjectDirectory,
                 metadata.RootNamespace);
 
-            var viewModelTemplate = new ViewModelTemplate() {
-                ViewModelName = viewModelName,
-                ViewModelNamespace = viewModelNamespace
-                // TODO: BaseViewModel
-            };
-            File.WriteAllText(file.FullName, viewModelTemplate.TransformText());
+            var viewModelText = ViewModelTemplate.TransformText(
+                @namespace: viewModelNamespace,
+                name: viewModelName,
+                @base: @base);
+            File.WriteAllText(file.FullName, viewModelText);
         }
 
         public static void HandleAddControl(
@@ -167,17 +164,10 @@ namespace DotVVM.Tool
                 metadata.ProjectDirectory,
                 metadata.RootNamespace);
 
-            var controlTemplate = new ControlTemplate()
-            {
-                CreateCodeBehind = codeBehind
-            };
-            if (codeBehind)
-            {
-                controlTemplate.CodeBehindClassName = name;
-                controlTemplate.CodeBehindClassNamespace = @namespace;
-                controlTemplate.CodeBehindClassRootNamespace = metadata.RootNamespace;
-            }
-            File.WriteAllText(file.FullName, controlTemplate.TransformText());
+            var codeBehindName = codeBehind ? $"{@namespace}.{name}" : null;
+
+            var controlText = ControlTemplate.TransformText(codeBehindName);
+            File.WriteAllText(file.FullName, controlText);
 
             if (codeBehind)
             {
@@ -192,12 +182,8 @@ namespace DotVVM.Tool
                     return;
                 }
 
-                var codeBehindTemplate = new ControlCodeBehindTemplate()
-                {
-                    CodeBehindClassNamespace = @namespace,
-                    CodeBehindClassName = name
-                };
-                File.WriteAllText(codeBehindFile.FullName, codeBehindTemplate.TransformText());
+                var codeBehindText = ControlCodeBehindTemplate.TransformText(@namespace, name);
+                File.WriteAllText(codeBehindFile.FullName, codeBehindText);
             }
         }
 
