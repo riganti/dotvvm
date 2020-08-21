@@ -9,6 +9,8 @@ namespace DotVVM.Framework.ResourceManagement
 {
     public enum ResourceRenderPosition
     {
-        Head, Body
+        Head,
+        Body,
+        Anywhere
     }
 }

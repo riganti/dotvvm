@@ -51,5 +51,40 @@
     <dot:Button Text="Fill sample issue" Click="{staticCommand: NewIssue.Title = "Hello."; NewIssue.Body = "This project is simply awesome."}" />
 
     <dot:Button Text="Put star" Click="{staticCommand: _github.User.PutStarred(UserName, Repo)}" />
+
+    <script type="text/javascript">
+function basicAuthenticatedFetch(input, init) {
+    function requestAuth() {
+        const a = prompt("You credentials for " + (input["url"] || input)) || "";
+        sessionStorage.setItem("dotvvm-api-fetch-basic", a);
+        return a;
+    }
+    const auth = sessionStorage.getItem("dotvvm-api-fetch-basic");
+    if (init == null) {
+        init = {};
+    }
+    if (auth != null) {
+        if (init.headers == null) {
+            init.headers = {};
+        }
+        if (!init.headers['Authorization']) {
+            init.headers["Authorization"] = 'Basic ' + btoa(auth);
+        }
+    }
+    if (!init.cache) {
+        init.cache = "no-cache";
+    }
+    return window.fetch(input, init).then(response => {
+        if (response.status === 401 && auth == null) {
+            if (sessionStorage.getItem("dotvvm-api-fetch-basic") == null) {
+                requestAuth();
+            }
+            return basicAuthenticatedFetch(input, init);
+        } else {
+            return response;
+        }
+    });
+}
+    </script>
 </body>
 </html>

@@ -49,7 +49,7 @@ namespace DotVVM.Framework.ResourceManagement
                 ThrowResourceNotFound(name);
             }
 
-            AddRequiredResource(name, resource!);
+            AddRequiredResourceCore(name, resource!);
         }
 
         /// <summary>
@@ -64,22 +64,19 @@ namespace DotVVM.Framework.ResourceManagement
                 var resourceId = Convert.ToBase64String(sha.ComputeHash(Encoding.Unicode.GetBytes(template)));
                 if (!requiredResources.ContainsKey(resourceId))
                 {
-                    AddRequiredResource(resourceId, new TemplateResource(template));
+                    AddRequiredResourceCore(resourceId, new TemplateResource(template));
                 }
 
                 return resourceId;
             }
         }
-        /// <summary>
-        /// Adds the resource with unique name.
-        /// </summary>
-        /// <param name="resource"></param>
-        public void AddRequiredResource(IResource resource) => AddRequiredResource("__noname_" + nonameCtr++, resource);
+
+        private void AddRequiredResourceCore(IResource resource) => AddRequiredResourceCore("__noname_" + nonameCtr++, resource);
 
         /// <summary>
         /// Adds the resource and checks name conflicts.
         /// </summary>
-        public void AddRequiredResource(string name, IResource resource)
+        private void AddRequiredResourceCore(string name, IResource resource)
         {
             if (requiredResources.TryGetValue(name, out var originalResource))
             {
@@ -112,7 +109,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddRequiredScriptFile(string name, string url, params string[] dependentResourceNames)
         {
-            AddRequiredResource(name, new ScriptResource(CreateRelativeResourceLocation(url)) {
+            AddRequiredResourceCore(name, new ScriptResource(CreateRelativeResourceLocation(url)) {
                 Dependencies = dependentResourceNames,
             });
         }
@@ -129,7 +126,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddRequiredStylesheetFile(string name, string url, params string[] dependentResourceNames)
         {
-            AddRequiredResource(name, new StylesheetResource(CreateRelativeResourceLocation(url)) {
+            AddRequiredResourceCore(name, new StylesheetResource(CreateRelativeResourceLocation(url)) {
                 Dependencies = dependentResourceNames,
             });
         }
@@ -139,7 +136,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddStartupScript(string name, string javascriptCode, params string[] dependentResourceNames)
         {
-            AddRequiredResource(name, new InlineScriptResource(javascriptCode) { Dependencies = dependentResourceNames });
+            AddRequiredResourceCore(name, new InlineScriptResource(javascriptCode) { Dependencies = dependentResourceNames });
         }
 
         /// <summary>
@@ -147,7 +144,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddStartupScript(string javascriptCode, params string[] dependentResourceNames)
         {
-            AddRequiredResource(new InlineScriptResource(javascriptCode) { Dependencies = dependentResourceNames });
+            AddRequiredResourceCore(new InlineScriptResource(javascriptCode) { Dependencies = dependentResourceNames });
         }
 
         /// <summary>

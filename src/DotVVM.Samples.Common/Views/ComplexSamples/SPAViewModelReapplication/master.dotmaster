@@ -19,7 +19,7 @@
 	
 	<p ID="test2">{{value: ChangedValue}}</p>
 
-	<dot:SpaContentPlaceHolder ID="MainContent" DefaultRouteName="ComplexSamples_SPAViewModelReapplication_pageA" />
+	<dot:SpaContentPlaceHolder ID="MainContent" />
 
 	<span ID="testResult">{{value: TestResult}}</span>
 

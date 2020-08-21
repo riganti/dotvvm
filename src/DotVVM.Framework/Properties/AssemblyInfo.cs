@@ -31,9 +31,9 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-// [assembly: AssemblyVersion("2.5.0")]
-[assembly: AssemblyVersion("2.5.0")]
-[assembly: AssemblyFileVersion("2.5.0")]
+// [assembly: AssemblyVersion("3.0.0")]
+[assembly: AssemblyVersion("3.0.0")]
+[assembly: AssemblyFileVersion("3.0.0")]
 
 [assembly: InternalsVisibleTo("DotVVM.Framework.Tests.Common, PublicKey=002400000480000094000000060200000024000052534131000400000100010007c544d7dbb49a258f8f7509b74f488534c1872c417b2fba85a66b1fba2465caafbaec56663cab0f072cd801f9e22753a85dc55247d4ace012a5eceac50d84c3b9044b9a37ac8baa5eb24dec644ad9fafcc869ad93b6603ffd5321124362cf0ab3684b89db1ed2aca4f175f6fbfc770bdc076396b36017c6dce5a4385c7b67b7")]
 [assembly: InternalsVisibleTo("DotVVM.Framework.Tests.Owin, PublicKey=002400000480000094000000060200000024000052534131000400000100010007c544d7dbb49a258f8f7509b74f488534c1872c417b2fba85a66b1fba2465caafbaec56663cab0f072cd801f9e22753a85dc55247d4ace012a5eceac50d84c3b9044b9a37ac8baa5eb24dec644ad9fafcc869ad93b6603ffd5321124362cf0ab3684b89db1ed2aca4f175f6fbfc770bdc076396b36017c6dce5a4385c7b67b7")]

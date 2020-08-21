@@ -96,6 +96,7 @@ namespace DotVVM.Framework.Controls
         public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmBindableObject control, PostbackScriptOptions options)
         {
             var expr = GenerateClientPostBackExpression(propertyName, expression, control, options);
+            expr += ".catch(function(){})";
             if (options.ReturnValue == false)
                 return expr + ";event.stopPropagation();return false;";
             else
@@ -161,7 +162,6 @@ namespace DotVVM.Framework.Controls
                 default;
 
             var call = adjustedExpression.ToString(p =>
-                p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("\"root\"", OperatorPrecedence.Max) :
                 p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
                 p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
                     getContextPath(control),
@@ -324,14 +324,6 @@ namespace DotVVM.Framework.Controls
 
             return control.GetValueBinding(Validation.TargetProperty)?.GetKnockoutBindingExpression(control) ??
                    RootValidationTargetExpression;
-        }
-
-        /// <summary>
-        /// Add knockout data bind comment dotvvm_withControlProperties with the specified properties
-        /// </summary>
-        public static void AddCommentAliasBinding(IHtmlWriter writer, IDictionary<string, string> properties)
-        {
-            writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias", "{" + string.Join(", ", properties.Select(p => JsonConvert.ToString(p.Key, '"', StringEscapeHandling.EscapeHtml) + ":" + properties.Values)) + "}");
         }
 
         /// <summary>

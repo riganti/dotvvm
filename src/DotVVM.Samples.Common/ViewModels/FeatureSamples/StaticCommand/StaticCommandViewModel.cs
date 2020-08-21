@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Binding;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand
         [AllowStaticCommand]
         public static string GetGreeting(string name)
         {
+            Thread.Sleep(20000);
             return "Hello " + name + "!";
         }
     }

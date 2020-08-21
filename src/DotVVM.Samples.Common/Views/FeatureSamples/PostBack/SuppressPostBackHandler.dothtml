@@ -10,6 +10,7 @@
 </head>
 <body ClientIDMode="Static">
 
+    <div>
         <p>
             <dot:Button Text="Static Suppress Value" Click="{command: PostBack()}" data-ui="static-suppress-value">
                 <PostBack.Handlers>

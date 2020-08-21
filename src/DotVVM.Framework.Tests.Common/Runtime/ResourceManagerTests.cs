@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Tests.Runtime
             manager.AddRequiredResource(ResourceConstants.DotvvmResourceName);
             var resourcesInCorrectOrder = manager.GetResourcesInOrder().ToList();
             Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.KnockoutJSResourceName), resourcesInCorrectOrder[0]);
-            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.PolyfillResourceName), resourcesInCorrectOrder[1]);
+            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.PolyfillBundleResourceName), resourcesInCorrectOrder[1]);
             Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.DotvvmResourceName + ".internal"), resourcesInCorrectOrder[2]);
             Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.DotvvmResourceName), resourcesInCorrectOrder[3]);
         }
@@ -69,7 +69,6 @@ namespace DotVVM.Framework.Tests.Runtime
             {
                 LocationFallback = new ResourceLocationFallback("condition", new FileResourceLocation("file1.js"))
             });
-            config1.Resources.Register("rs7", new PolyfillResource(){ RenderPosition =  ResourceRenderPosition.Head});
             config1.Resources.Register("rs8", new ScriptResource(new JQueryGlobalizeResourceLocation(CultureInfo.GetCultureInfo("en-US"))));
 
             // serialize & deserialize
@@ -97,7 +96,6 @@ namespace DotVVM.Framework.Tests.Runtime
                 rs6.LocationFallback.JavascriptCondition == "condition" &&
                 rs6.LocationFallback.AlternativeLocations.Single() is FileResourceLocation rs6loc2 &&
                 rs6loc2.FilePath == "file1.js");
-            Assert.IsTrue(config2.Resources.FindResource("rs7") is PolyfillResource rs7 && rs7.RenderPosition == ResourceRenderPosition.Head);
             Assert.IsTrue(config2.Resources.FindResource("rs8") is ScriptResource rs8 && rs8.Location is JQueryGlobalizeResourceLocation rs8loc);
         }
 

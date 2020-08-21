@@ -24,7 +24,7 @@ function dotvvmSubmit() {
 	if (window.FormData) {
 		
 		// send the form using AJAX
-		var xhr = parent.window.dotvvm.getXHR();
+		var xhr = XMLHttpRequest ? new XMLHttpRequest() : new (window["ActiveXObject"])("Microsoft.XMLHTTP");
 		xhr.open("POST", form.action, true);
 		xhr.setRequestHeader("X-DotVVM-AsyncUpload", "true");
 		xhr.upload.onprogress = function (e) {

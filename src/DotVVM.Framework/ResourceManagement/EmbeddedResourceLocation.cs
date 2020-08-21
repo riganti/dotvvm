@@ -22,7 +22,7 @@ namespace DotVVM.Framework.ResourceManagement
         public string? DebugFilePath { get; set; }
         public EmbeddedResourceLocation(Assembly assembly, string name, string? debugFileName = null)
         {
-            if (assembly.GetManifestResourceInfo(name) == null) throw new ArgumentException($"Could not find resource '{name}' in assembly {assembly.GetName().Name}", nameof(name));
+            if (assembly.GetManifestResourceInfo(name) == null) throw new ArgumentException($"Could not find resource '{name}' in assembly {assembly.GetName().Name}. Did you mean one of {string.Join(", ", assembly.GetManifestResourceNames())}?", nameof(name));
 
             this.Name = name;
             this.Assembly = assembly;
