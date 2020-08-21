@@ -78,7 +78,7 @@ namespace DotVVM.Cli
                 ApiClients);
         }
 
-        public static Exception? IsJsonValid(ProjectMetadataJson json)
+        public static Exception? IsJsonValid(ProjectMetadataJsonOld json)
         {
             if (json.MetadataFilePath is null || !File.Exists(json.MetadataFilePath))
             {
@@ -113,7 +113,7 @@ namespace DotVVM.Cli
             return null;
         }
 
-        public static ProjectMetadata FromJson(ProjectMetadataJson json)
+        public static ProjectMetadata FromJson(ProjectMetadataJsonOld json)
         {
             var error = IsJsonValid(json);
             if (error is object)
@@ -133,9 +133,9 @@ namespace DotVVM.Cli
                 json.ApiClients?.ToImmutableArray() ?? ImmutableArray.Create<ApiClientDefinition>());
         }
 
-        public ProjectMetadataJson ToJson()
+        public ProjectMetadataJsonOld ToJson()
         {
-            return new ProjectMetadataJson
+            return new ProjectMetadataJsonOld
             {
                 MetadataFilePath = Path.FullName,
                 ProjectName = ProjectName,

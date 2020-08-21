@@ -13,7 +13,7 @@ namespace DotVVM.Cli
 {
     public class MSBuild
     {
-        public const string DefaultTargetFramework = "netcoreapp3.1";
+        public const string FallbackTargetFramework = "netcoreapp3.1";
         public const string VSRelativePath = "./MSBuild/Current/Bin/MSBuild.exe";
 
         public string Path { get; } = string.Empty;

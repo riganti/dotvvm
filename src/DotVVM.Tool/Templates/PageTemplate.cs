@@ -8,7 +8,7 @@ namespace DotVVM.Tool.Templates
         public static string TransformText(
             string viewModel,
             string? master,
-            bool isMaster
+            bool isMaster,
             IEnumerable<string>? contentPlaceholderIds)
         {
             var sb = new StringBuilder();
@@ -19,7 +19,7 @@ namespace DotVVM.Tool.Templates
                 sb.AppendLine();
                 if (contentPlaceholderIds is object)
                 {
-                    foreach(var placeholderId in contentPlaceholderIds)
+                    foreach (var placeholderId in contentPlaceholderIds)
                     {
                         sb.Append(
 $@"<dot:Content ContentPlaceHolderID=""{placeholderId}"">
@@ -48,7 +48,7 @@ $@"
                 sb.Append(
 $@"</body>
 </html>
-")
+");
             }
             sb.AppendLine();
             return sb.ToString();
