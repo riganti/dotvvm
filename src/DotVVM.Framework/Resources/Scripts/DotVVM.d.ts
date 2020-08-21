@@ -332,6 +332,7 @@ declare class DotVVM {
     extensions: IDotvvmExtensions;
     useHistoryApiSpaNavigation: boolean;
     isPostbackRunning: KnockoutObservable<boolean>;
+    isSpaNavigationRunning: KnockoutObservable<boolean>;
     updateProgressChangeCounter: KnockoutObservable<number>;
     init(viewModelName: string, culture: string): void;
     private handlePopState;

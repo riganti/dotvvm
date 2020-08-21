@@ -242,6 +242,7 @@ class DotVVM {
 
     public useHistoryApiSpaNavigation: boolean;
     public isPostbackRunning = ko.observable(false);
+    public isSpaNavigationRunning = ko.observable(false);
     public updateProgressChangeCounter = ko.observable(0);
 
     public init(viewModelName: string, culture: string): void {
@@ -564,6 +565,8 @@ class DotVVM {
     }
 
     public applyPostbackHandlers(callback: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args: any[] = [], context = ko.contextFor(sender), viewModel = context.$root, viewModelName?: string): Promise<DotvvmAfterPostBackEventArgs> {
+        if (dotvvm.isSpaNavigationRunning()) return Promise.reject({ type: "handler" });
+
         const options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName)
         const promise = this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)))
             .then(r => r(), r => Promise.reject(r))
@@ -758,6 +761,8 @@ class DotVVM {
     }
 
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs> {
+        if (dotvvm.isSpaNavigationRunning()) return Promise.reject({ type: "handler" });
+
         context = context || ko.contextFor(sender);
 
         const preparedHandlers = this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
@@ -881,6 +886,7 @@ class DotVVM {
 
             // prevent double postbacks
             var currentPostBackCounter = this.backUpPostBackConter();
+            this.isSpaNavigationRunning(true);
 
             // trigger spaNavigating event
             var spaNavigatingArgs = new DotvvmSpaNavigatingEventArgs(viewModel, viewModelName, url);
@@ -953,19 +959,23 @@ class DotVVM {
                             this.isViewModelUpdating = false;
                         }
                     } else if (resultObject.action === "redirect") {
+                        this.isSpaNavigationRunning(false);
                         this.handleRedirect(resultObject, viewModelName, true).then(resolve, reject);
                         return;
                     }
-
+                    
                     // trigger spaNavigated event
                     var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(this.viewModels[viewModelName].viewModel, viewModelName, resultObject, result);
                     this.events.spaNavigated.trigger(spaNavigatedArgs);
-                    resolve(spaNavigatedArgs);
+
+                    this.isSpaNavigationRunning(false);
 
                     if (!isSuccess && !spaNavigatedArgs.isHandled) {
                         reject();
                         throw "Invalid response from server!";
                     }
+
+                    resolve(spaNavigatedArgs);
                 });
             }, xhr => {
                 // if another postback has already been passed, don't do anything
@@ -977,6 +987,8 @@ class DotVVM {
                 if (!errArgs.handled) {
                     alert(xhr.responseText);
                 }
+
+                this.isSpaNavigationRunning(false);
                 reject(errArgs);
             });
         });
