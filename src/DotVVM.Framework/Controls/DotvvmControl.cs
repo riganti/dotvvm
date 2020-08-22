@@ -217,6 +217,7 @@ namespace DotVVM.Framework.Controls
             internal object? IncludeInPage;
             internal IValueBinding? DataContext;
             internal bool HasActives;
+            internal bool HasActiveGroups;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -228,6 +229,8 @@ namespace DotVVM.Framework.Controls
                 r.DataContext = val as IValueBinding;
             else if (property is ActiveDotvvmProperty)
                 r.HasActives = true;
+            else if (property is GroupedDotvvmProperty groupedProperty && groupedProperty.PropertyGroup is ActiveDotvvmPropertyGroup)
+                r.HasActiveGroups = true;
             else return false;
             return true;
         }
@@ -256,8 +259,20 @@ namespace DotVVM.Framework.Controls
                 }
             }
 
+            if (r.HasActiveGroups)
+            {
+                var groups = properties
+                    .Where(p => p.Key is GroupedDotvvmProperty gp && gp.PropertyGroup is ActiveDotvvmPropertyGroup)
+                    .GroupBy(p => ((GroupedDotvvmProperty)p.Key).PropertyGroup);
+                foreach (var item in groups)
+                {
+                    ((ActiveDotvvmPropertyGroup)item.Key).AddAttributesToRender(writer, context, this, item.Select(i => i.Key));
+                }
+            }
+
             return false;
         }
+
         protected void RenderAfterControl(in RenderState r, IHtmlWriter writer)
         {
             if (r.DataContext != null)
@@ -283,6 +298,7 @@ namespace DotVVM.Framework.Controls
             this.properties.TryGet(DataContextProperty, out var dc);
             r.DataContext = dc as IValueBinding;
             r.HasActives = true;
+            r.HasActiveGroups = true;
             if (RenderBeforeControl(in r, writer, context))
                 return;
 

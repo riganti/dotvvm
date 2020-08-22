@@ -144,6 +144,20 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         public IPropertyDescriptor FindProperty(IControlResolverMetadata controlMetadata, string name)
         {
+            if (name.Contains("."))
+            {
+                // try to find an attached property
+                return FindGlobalPropertyOrGroup(name);
+            }
+            else
+            {
+                // find normal property
+                return FindControlPropertyOrGroup(controlMetadata, name);
+            }
+        }
+
+        private IPropertyDescriptor FindControlPropertyOrGroup(IControlResolverMetadata controlMetadata, string name)
+        {
             // try to find the property in metadata
             IPropertyDescriptor property;
             if (controlMetadata.TryGetProperty(name, out property))
@@ -151,19 +165,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 return property;
             }
 
-            // try to find an attached property
-            if (name.Contains("."))
-            {
-                return FindGlobalProperty(name);
-            }
-
             // try property group
             foreach (var group in controlMetadata.PropertyGroups)
             {
-                if (name.StartsWith(group.Prefix, StringComparison.OrdinalIgnoreCase))
+                if (name.StartsWith(@group.Prefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    var concreteName = name.Substring(group.Prefix.Length);
-                    return group.PropertyGroup.GetDotvvmProperty(concreteName);
+                    var concreteName = name.Substring(@group.Prefix.Length);
+                    return @group.PropertyGroup.GetDotvvmProperty(concreteName);
                 }
             }
 
@@ -174,7 +182,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Finds the DotVVM property in the global property store.
         /// </summary>
-        protected abstract IPropertyDescriptor FindGlobalProperty(string name);
+        protected abstract IPropertyDescriptor FindGlobalPropertyOrGroup(string name);
 
         /// <summary>
         /// Finds the compiled control.
