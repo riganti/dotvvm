@@ -1,5 +1,6 @@
 #nullable enable
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
@@ -47,6 +48,19 @@ namespace DotVVM.Framework.Controls
             checkBox.SetBinding(CheckBox.CheckedProperty, valueBinding);
             Validator.Place(checkBox, container.Children, valueBinding, ValidatorPlacement);
             container.Children.Add(checkBox);
+        }
+
+        protected override string? GetSortExpression()
+        {
+            if (string.IsNullOrEmpty(SortExpression))
+            {
+                return GetValueBinding(ValueBindingProperty)?.GetProperty<OriginalStringBindingProperty>()?.Code ??
+                       throw new DotvvmControlException(this, $"The 'ValueBinding' property must be set on the '{GetType()}' control!");
+            }
+            else
+            {
+                return SortExpression;
+            }
         }
     }
 }

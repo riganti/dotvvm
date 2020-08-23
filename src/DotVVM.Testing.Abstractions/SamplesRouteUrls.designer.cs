@@ -17,6 +17,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ComplexSamples_ChangedEvent_ChangedEvent = "ComplexSamples/ChangedEvent/ChangedEvent";
         public const string ComplexSamples_ClassBindings_ClassBindings = "ComplexSamples/ClassBindings/ClassBindings";
         public const string ComplexSamples_EmptyDataTemplate_RepeaterGridView = "ComplexSamples/EmptyDataTemplate/RepeaterGridView";
+        public const string ComplexSamples_EventPropagation_EventPropagation = "ComplexSamples/EventPropagation/EventPropagation";
         public const string ComplexSamples_FileUploadInRepeater_FileUploadInRepeater = "ComplexSamples/FileUploadInRepeater/FileUploadInRepeater";
         public const string ComplexSamples_GridViewDataSet_GridViewDataSet = "ComplexSamples/GridViewDataSet/GridViewDataSet";
         public const string ComplexSamples_InvoiceCalculator_InvoiceCalculator = "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
@@ -80,6 +81,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_GridView_GridViewPagingSorting = "ControlSamples/GridView/GridViewPagingSorting";
         public const string ControlSamples_GridView_GridViewRowDecorators = "ControlSamples/GridView/GridViewRowDecorators";
         public const string ControlSamples_GridView_GridViewServerRender = "ControlSamples/GridView/GridViewServerRender";
+        public const string ControlSamples_GridView_GridViewSortChanged = "ControlSamples/GridView/GridViewSortChanged";
         public const string ControlSamples_GridView_GridViewStaticCommand = "ControlSamples/GridView/GridViewStaticCommand";
         public const string ControlSamples_GridView_InvalidCssClass = "ControlSamples/GridView/InvalidCssClass";
         public const string ControlSamples_GridView_LargeGrid = "ControlSamples/GridView/LargeGrid";
