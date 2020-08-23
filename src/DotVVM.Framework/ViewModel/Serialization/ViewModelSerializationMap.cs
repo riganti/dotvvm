@@ -404,12 +404,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
                             Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.WriteValue), Type.EmptyTypes, Expression.Constant(propertyIndex), Expression.Convert(prop, typeof(object))));
                     }
 
-                    var propertyBlock = new List<Expression>();
-                    var propertyFinally = new List<Expression>();
 
                     if (property.ViewModelProtection == ProtectMode.None ||
                         property.ViewModelProtection == ProtectMode.SignData)
                     {
+                        var propertyBlock = new List<Expression>();
                         var checkEV = CanContainEncryptedValues(property.Type);
                         if (checkEV)
                         {
@@ -432,34 +431,35 @@ namespace DotVVM.Framework.ViewModel.Serialization
                         // serializer.Serialize(serializer, writer, {property}, (object)value.{property.PropertyInfo.Name});
                         propertyBlock.Add(GetSerializeExpression(property, writer, prop, serializer));
 
+                        Expression propertyFinally = Expression.Default(typeof(void));
                         if (checkEV)
                         {
                             if (writeEV)
                             {
                                 // encryptedValuesWriter.EndSuppress();
-                                propertyFinally.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.EndSuppress), Type.EmptyTypes));
+                                propertyFinally = Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.EndSuppress), Type.EmptyTypes);
                             }
                             // encryption is worthless if the property is not being transfered both ways
                             // therefore ClearEmptyNest throws exception if the property contains encrypted values
                             else if (!property.IsFullyTransferred())
                             {
                                 // encryptedValuesWriter.ClearEmptyNest();
-                                propertyFinally.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.ClearEmptyNest), Type.EmptyTypes));
+                                propertyFinally = Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.ClearEmptyNest), Type.EmptyTypes);
                             }
                             else
                             {
                                 // encryptedValuesWriter.End();
-                                propertyFinally.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.End), Type.EmptyTypes));
+                                propertyFinally = Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.End), Type.EmptyTypes);
                             }
                         }
-                    }
 
-                    block.Add(
-                        Expression.TryFinally(
-                            Expression.Block(propertyBlock),
-                            Expression.Block(propertyFinally)
-                        )
-                    );
+                        block.Add(
+                            Expression.TryFinally(
+                                Expression.Block(propertyBlock),
+                                propertyFinally
+                            )
+                        );
+                    }
 
                     if (!property.TransferToServer)
                     {
