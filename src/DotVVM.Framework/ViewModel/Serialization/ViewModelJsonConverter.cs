@@ -91,7 +91,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 // safety check: we are not leaking suppressed reader accidentally
                 if (evSuppressed != evReader.Value.Suppressed)
+                {
+                    // Newtonsoft.Json may catch and consume the exception - kill the reader to be sure that deserialization can not continue
+                    reader.Close();
                     throw new SecurityException("encrypted values state corrupted.");
+                }
             }
         }
 
@@ -111,7 +115,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 // safety check: we are not leaking suppressed reader accidentally
                 if (evSuppressLevel != evWriter.Value.SuppressedLevel)
+                {
+                    // Newtonsoft.Json may catch and consume the exception - kill the writer to be sure that serialization can not continue
+                    writer.Close();
                     throw new SecurityException("encrypted values state corrupted.");
+                }
             }
         }
 
@@ -131,7 +139,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 // safety check: we are not leaking suppressed reader accidentally
                 if (evSuppressed != evReader.Value.Suppressed)
+                {
+                    // Newtonsoft.Json may catch and consume the exception - kill the reader to be sure that deserialization can not continue
+                    reader.Close();
                     throw new SecurityException("encrypted values state corrupted.");
+                }
             }
         }
     }
