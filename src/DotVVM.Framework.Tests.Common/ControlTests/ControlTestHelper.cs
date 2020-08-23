@@ -23,6 +23,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Properties;
 using Newtonsoft.Json;
+using DotVVM.Framework.ResourceManagement;
 
 namespace DotVVM.Framework.Tests.Common.ControlTests
 {
@@ -34,15 +35,17 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
 
         IControlBuilderFactory controlBuilderFactory => configuration.ServiceProvider.GetRequiredService<IControlBuilderFactory>();
 
-        public ControlTestHelper(bool debug = true)
+        public ControlTestHelper(bool debug = true, Action<DotvvmConfiguration> config = null, Action<IServiceCollection> services = null)
         {
             fileLoader = new FakeMarkupFileLoader(null);
-            this.configuration = DotvvmTestHelper.CreateConfiguration(services => {
-                services.AddSingleton<IMarkupFileLoader>(fileLoader);
+            this.configuration = DotvvmTestHelper.CreateConfiguration(s => {
+                s.AddSingleton<IMarkupFileLoader>(fileLoader);
+                services?.Invoke(s);
             });
             this.configuration.Markup.AddCodeControls("tc", exampleControl: typeof(FakeHeadResourceLink));
             this.configuration.ApplicationPhysicalPath = Path.GetTempPath();
             this.configuration.Debug = debug;
+            config?.Invoke(this.configuration);
             presenter = (DotvvmPresenter)this.configuration.ServiceProvider.GetRequiredService<IDotvvmPresenter>();
         }
 
@@ -334,6 +337,10 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
             var fakeWriter = new HtmlWriter(str, context);
             base.RenderControl(fakeWriter, context);
             this.CapturedHtml = str.ToString();
+
+            ResourcesRenderer.RenderResources(
+                context.ResourceManager.GetNamedResourcesInOrder().Where(r => r.Resource is TemplateResource),
+                writer, context, ResourceRenderPosition.Body);
         }
     }
 
