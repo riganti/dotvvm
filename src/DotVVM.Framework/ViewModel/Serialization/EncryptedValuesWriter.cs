@@ -13,6 +13,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         int virtualNests = 0;
         int lastPropertyIndex = -1;
         int suppress = 0;
+        public int SuppressedLevel => suppress;
 
         public EncryptedValuesWriter(JsonWriter jsonWriter)
         {
