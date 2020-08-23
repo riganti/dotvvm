@@ -168,10 +168,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
             // try property group
             foreach (var group in controlMetadata.PropertyGroups)
             {
-                if (name.StartsWith(@group.Prefix, StringComparison.OrdinalIgnoreCase))
+                if (name.StartsWith(group.Prefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    var concreteName = name.Substring(@group.Prefix.Length);
-                    return @group.PropertyGroup.GetDotvvmProperty(concreteName);
+                    var concreteName = name.Substring(group.Prefix.Length);
+                    return group.PropertyGroup.GetDotvvmProperty(concreteName);
                 }
             }
 
