@@ -10,7 +10,7 @@ namespace DotVVM.Framework.ResourceManagement
     /// <summary>
     /// Reference to a CSS file.
     /// </summary>
-    public class StylesheetResource : LinkResourceBase
+    public class StylesheetResource : LinkResourceBase, IPreloadResource
     {
         public StylesheetResource(IResourceLocation location)
             : base(ResourceRenderPosition.Head, "text/css", location)
@@ -26,6 +26,16 @@ namespace DotVVM.Framework.ResourceManagement
             writer.AddAttribute("rel", "stylesheet");
             writer.AddAttribute("type", MimeType);
             writer.RenderSelfClosingTag("link");
+        }
+
+        public void RenderPreloadLink(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
+        {
+            writer.AddAttribute("rel", "preload");
+            writer.AddAttribute("href", Location.GetUrl(context, resourceName));
+            writer.AddAttribute("as", "style");
+
+            writer.RenderBeginTag("link");
+            writer.RenderEndTag();
         }
     }
 }

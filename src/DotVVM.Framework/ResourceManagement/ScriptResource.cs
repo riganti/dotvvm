@@ -12,6 +12,8 @@ namespace DotVVM.Framework.ResourceManagement
     /// </summary>
     public class ScriptResource : LinkResourceBase, IPreloadResource
     {
+        public ScriptType ScriptType { get; set; } = ScriptType.Standard;
+
         public ScriptResource(IResourceLocation location)
             : base(ResourceRenderPosition.Body, "text/javascript", location)
         { }
@@ -25,6 +27,17 @@ namespace DotVVM.Framework.ResourceManagement
         {
             AddSrcAndIntegrity(writer, context, location.GetUrl(context, resourceName), "src");
             writer.AddAttribute("type", MimeType);
+            switch (ScriptType)
+            {
+                case ScriptType.Defer:
+                    writer.AddAttribute("defer",null);
+                    break;
+                case ScriptType.Async:
+                    writer.AddAttribute("async", null);
+                    break;
+                default:
+                    break;
+            }
             writer.RenderBeginTag("script");
             writer.RenderEndTag();
         }
