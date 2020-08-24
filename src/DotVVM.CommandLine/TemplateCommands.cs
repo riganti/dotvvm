@@ -79,7 +79,7 @@ namespace DotVVM.CommandLine
         }
 
         public static void HandleAddPage(
-            ProjectMetadata metadata,
+            ProjectMetadataOld metadata,
             string name,
             string? master,
             string directory,
@@ -111,7 +111,7 @@ namespace DotVVM.CommandLine
         }
 
         public static void HandleAddMaster(
-            ProjectMetadata metadata,
+            ProjectMetadataOld metadata,
             string name,
             string? master,
             string directory,
@@ -121,7 +121,7 @@ namespace DotVVM.CommandLine
         }
 
         public static void HandleAddViewModel(
-            ProjectMetadata metadata,
+            ProjectMetadataOld metadata,
             string name,
             string directory,
             string? @base,
@@ -147,7 +147,7 @@ namespace DotVVM.CommandLine
         }
 
         public static void HandleAddControl(
-            ProjectMetadata metadata,
+            ProjectMetadataOld metadata,
             string name,
             string directory,
             bool codeBehind,

@@ -1,5 +1,6 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 
 namespace DotVVM.CommandLine
@@ -20,7 +21,13 @@ namespace DotVVM.CommandLine
             ProjectMetadata metadata,
             ILogger logger)
         {
-            logger.LogInformation($"DotVVM Project at '{metadata.ProjectDirectory}'");
+            logger.LogInformation(
+$@"Project metadata from '{metadata.MetadataFilePath}':
+    ProjectFilePath: '{metadata.ProjectFilePath}'
+    AssemblyName: {metadata.AssemblyName}
+    RootNamespace: {metadata.RootNamespace}
+    PackageVersion: {metadata.PackageVersion}
+    TargetFrameworks: {string.Join(", ", metadata.TargetFrameworks.Select(s => s.GetShortFolderName()))}");
         }
     }
 }

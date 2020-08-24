@@ -22,7 +22,7 @@ namespace DotVVM.Testing.SeleniumGenerator.Tests.Helpers
         private readonly string testProjectName;
         private readonly string testProjectCsproj;
         private readonly string dotvvmJsonPath;
-        private ProjectMetadata metadata;
+        private ProjectMetadataOld metadata;
 
         public string TestProjectDirectory { get; private set; }
 

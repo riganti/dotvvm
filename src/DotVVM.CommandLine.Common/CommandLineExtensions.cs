@@ -71,8 +71,8 @@ namespace System.CommandLine
                 var target = FindTarget(c.ParseResult);
                 if (target is object)
                 {
-                    var logger = Factory.CreateLogger("project metadata");
-                    var metadata = await DotvvmProject.GetProjectMetadata(target, logger);
+                    var logger = Factory.CreateLogger("metadata");
+                    var metadata = await ProjectMetadata.LoadOrCreate(target, logger);
                     if (metadata is object)
                     {
                         c.BindingContext.AddService(_ => metadata);

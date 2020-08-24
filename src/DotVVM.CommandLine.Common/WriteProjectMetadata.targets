@@ -42,7 +42,7 @@ if (reference is object && reference.Version is object)
 }
 
 var package = PackageReferences
-    .FirstOrDefault(p => p.ItemSpec == "DotVVM");
+    .FirstOrDefault(p => p.ItemSpec == "DotVVM" || p.ItemSpec == "DotVVM.AspNetCore" || p.ItemSpec == "DotVVM.Owin");
 if (package is object)
 {
   version = package.GetMetadata("Version");

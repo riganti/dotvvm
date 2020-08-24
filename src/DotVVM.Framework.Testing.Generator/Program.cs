@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Testing.Generator
         public static async Task<bool> TryGeneratePageObjects(
             DirectoryInfo testDirectory,
             DotvvmConfiguration config,
-            ProjectMetadata metadata,
+            ProjectMetadataOld metadata,
             string[]? dothtmlFiles,
             bool force,
             ILogger logger)
@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Testing.Generator
         }
 
         public static async Task<int> Run(
-            ProjectMetadata metadata,
+            ProjectMetadataOld metadata,
             string[]? views,
             string? name,
             DirectoryInfo directory,

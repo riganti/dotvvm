@@ -1,152 +1,235 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using NuGet.Frameworks;
 
 namespace DotVVM.CommandLine
 {
     public class ProjectMetadata
     {
+        public const string MetadataFilename = "metadata.json";
+        public const string WriteDotvvmMetadataTarget = "_WriteProjectMetadata";
+
         public ProjectMetadata(
-            FileInfo path,
-            string projectName,
-            string projectDirectory,
+            string assemblyName,
             string rootNamespace,
+            ImmutableArray<NuGetFramework> targetFrameworks,
             string packageVersion,
-            ImmutableArray<string> targetFrameworks,
-            string? uiTestProjectPath,
-            string? uiTestProjectRootNamespace,
-            ImmutableArray<ApiClientDefinition> apiClients)
+            string projectFilePath,
+            string metadataFilePath)
         {
-            Path = path;
-            ProjectName = projectName;
-            ProjectDirectory = projectDirectory;
+            AssemblyName = assemblyName;
             RootNamespace = rootNamespace;
-            PackageVersion = packageVersion;
             TargetFrameworks = targetFrameworks;
-            UITestProjectPath = uiTestProjectPath;
-            UITestProjectRootNamespace = uiTestProjectRootNamespace;
-            ApiClients = apiClients;
+            PackageVersion = packageVersion;
+            ProjectFilePath = projectFilePath;
+            MetadataFilePath = metadataFilePath;
         }
 
-        public FileInfo Path { get; }
-
-        public string ProjectName { get; }
-
-        public string ProjectDirectory { get; }
+        public string AssemblyName { get; }
 
         public string RootNamespace { get; }
 
-        /// <summary>
-        /// Version of the DotVVM package or assembly.
-        /// </summary>
+        public ImmutableArray<NuGetFramework> TargetFrameworks { get; }
+
         public string PackageVersion { get; }
 
-        public ImmutableArray<string> TargetFrameworks { get; set; }
+        public string ProjectFilePath { get; }
 
-        public string? UITestProjectPath { get; }
+        public string MetadataFilePath { get; }
 
-        public string? UITestProjectRootNamespace { get; }
-
-        public ImmutableArray<ApiClientDefinition> ApiClients { get; }
-
-        public ProjectMetadata WithApiClients(ImmutableArray<ApiClientDefinition> apiClients)
+        public static bool TryCreateFromJson(
+            ProjectMetadataJson json,
+            [NotNullWhen(true)] out ProjectMetadata? metadata,
+            [NotNullWhen(false)] out string? error)
         {
-            return new ProjectMetadata(
-                Path,
-                ProjectName,
-                ProjectDirectory,
-                RootNamespace,
-                PackageVersion,
-                TargetFrameworks,
-                UITestProjectPath,
-                UITestProjectRootNamespace,
-                apiClients);
-        }
+            error = null;
+            metadata = null;
 
-        public ProjectMetadata WithUITestProject(string uiTestProjectPath, string uiTestProjectRootNamespace)
-        {
-            return new ProjectMetadata(
-                Path,
-                ProjectName,
-                ProjectDirectory,
-                RootNamespace,
-                PackageVersion,
-                TargetFrameworks,
-                uiTestProjectPath,
-                uiTestProjectRootNamespace,
-                ApiClients);
-        }
-
-        public static Exception? IsJsonValid(ProjectMetadataJsonOld json)
-        {
             if (json.MetadataFilePath is null || !File.Exists(json.MetadataFilePath))
             {
-                return new ArgumentException(
-                    $"{nameof(json.MetadataFilePath)} is null or does not exist.",
-                    nameof(json));
+                error = $"{nameof(json.MetadataFilePath)} is null or does not exist.";
             }
-            if (json.ProjectName is null)
+            if (json.ProjectFilePath is null || !File.Exists(json.ProjectFilePath))
             {
-                return new ArgumentException($"{nameof(json.ProjectName)} is null.", nameof(json));
+                error = $"{nameof(json.ProjectFilePath)} is null or does not exist.";
             }
-            if (json.ProjectDirectory is null || !Directory.Exists(json.ProjectDirectory))
+            if (json.AssemblyName is null)
             {
-                return new ArgumentException(
-                    $"{nameof(json.ProjectDirectory)} is null or does not exist.",
-                    nameof(json));
+                error = $"{nameof(json.AssemblyName)} is null.";
             }
             if (json.RootNamespace is null)
             {
-                return new ArgumentException($"{nameof(json.RootNamespace)} is null.", nameof(json));
+                error = $"{nameof(json.RootNamespace)} is null.";
             }
             if (json.PackageVersion is null)
             {
-                return new ArgumentException($"{nameof(json.PackageVersion)} is null.", nameof(json));
+                error = $"{nameof(json.PackageVersion)} is null.";
             }
-            if (json.TargetFrameworks is null || json.TargetFrameworks.Contains(null))
+            if (json.TargetFrameworks is null || json.TargetFrameworks.Contains(null!))
             {
-                return new ArgumentException(
-                    $"{nameof(json.TargetFrameworks)} is null or contains null.",
-                    nameof(json));
+                error = $"{nameof(TargetFrameworks)} is null or contains null.";
             }
-            return null;
-        }
-
-        public static ProjectMetadata FromJson(ProjectMetadataJsonOld json)
-        {
-            var error = IsJsonValid(json);
             if (error is object)
             {
-                throw error;
+                return false;
             }
 
-            return new ProjectMetadata(
-                new FileInfo(json.MetadataFilePath),
-                json.ProjectName!,
-                json.ProjectDirectory!,
+            metadata = new ProjectMetadata(
+                json.AssemblyName!,
                 json.RootNamespace!,
+                json.TargetFrameworks.Select(t => NuGetFramework.Parse(t)).ToImmutableArray(),
                 json.PackageVersion!,
-                json.TargetFrameworks.ToImmutableArray()!,
-                json.UITestProjectPath,
-                json.UITestProjectRootNamespace,
-                json.ApiClients?.ToImmutableArray() ?? ImmutableArray.Create<ApiClientDefinition>());
+                json.ProjectFilePath!,
+                json.MetadataFilePath!);
+            return true;
         }
 
-        public ProjectMetadataJsonOld ToJson()
+        public static FileInfo? Find(FileSystemInfo target)
         {
-            return new ProjectMetadataJsonOld
+            if (!target.Exists)
             {
-                MetadataFilePath = Path.FullName,
-                ProjectName = ProjectName,
-                ProjectDirectory = ProjectDirectory,
-                RootNamespace = RootNamespace,
-                PackageVersion = PackageVersion,
-                TargetFrameworks = TargetFrameworks.ToList(),
-                UITestProjectPath = UITestProjectPath,
-                UITestProjectRootNamespace = UITestProjectRootNamespace,
-                ApiClients = ApiClients.ToList()
-            };
+                return null;
+            }
+
+            var metadata = DotvvmProject.GetCliFile(target, MetadataFilename);
+            return metadata.Exists ? metadata : null;
+        }
+
+        public static async Task<ProjectMetadata?> Load(
+            FileInfo file,
+            ILogger? logger = null,
+            LogLevel errorLevel = LogLevel.Debug)
+        {
+            logger ??= NullLogger.Instance;
+
+            try
+            {
+                using var stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+                var json = await JsonSerializer.DeserializeAsync<ProjectMetadataJson>(stream);
+                if (TryCreateFromJson(json, out var metadata, out var error))
+                {
+                    return metadata;
+                }
+                else
+                {
+                    logger.Log(errorLevel, error);
+                    return null;
+                }
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+        }
+
+        public static async Task<ProjectMetadata?> LoadOrCreate(
+            FileSystemInfo target,
+            ILogger? logger = null,
+            LogLevel errorLevel = LogLevel.Critical)
+        {
+            logger ??= NullLogger.Instance;
+
+            var file = Find(target);
+            if (file is null)
+            {
+                logger.LogDebug($"Creating DotVVM metadata at '{file}'.");
+                file = Create(target, true, logger, errorLevel);
+                if (file is null)
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                logger.LogDebug($"Found DotVVM metadata at '{file}'.");
+            }
+
+            return await Load(file, logger);
+        }
+
+        public static FileInfo? Create(
+            FileSystemInfo target,
+            bool showMSBuildOutput = false,
+            ILogger? logger = null,
+            LogLevel errorLevel = LogLevel.Critical)
+        {
+            logger ??= NullLogger.Instance;
+
+            var projectFile = ProjectFile.FindProjectFile(target);
+            if (projectFile is null)
+            {
+                logger.Log(errorLevel, $"No project could be found at '{target}'.");
+                return null;
+            }
+
+            logger.LogDebug($"Found a project file at '{projectFile}'.");
+            var msbuild = MSBuild.Create();
+            if (msbuild is null)
+            {
+                logger.Log(errorLevel, "Could not found an MSBuild executable.");
+                return null;
+            }
+            logger.LogDebug($"Found the '{msbuild}' MSBuild executable.");
+
+            var metadataFile = WriteDotvvmMetadata(msbuild, projectFile, showMSBuildOutput, logger, errorLevel);
+            if (metadataFile is null)
+            {
+                return null;
+            }
+            return metadataFile;
+        }
+
+        private static FileInfo? WriteDotvvmMetadata(
+            MSBuild msbuild,
+            FileInfo project,
+            bool showMSBuildOutput,
+            ILogger? logger = null,
+            LogLevel errorLevel = LogLevel.Critical)
+        {
+            logger ??= NullLogger.Instance;
+
+            var writeMetadataProjectFile = DotvvmProject.GetCliFile(project, $"{WriteDotvvmMetadataTarget}.proj");
+            File.WriteAllText(writeMetadataProjectFile.FullName, GetWriteDotvvmMetadataProject());
+
+            var success = msbuild.TryInvoke(
+                project: project,
+                properties: new[]
+                {
+                    new KeyValuePair<string, string>(
+                        "CustomBeforeMicrosoftCommonTargets",
+                        writeMetadataProjectFile.FullName),
+                    new KeyValuePair<string, string>("IsCrossTargetingBuild", "false")
+                },
+                targets: new[] { WriteDotvvmMetadataTarget },
+                showOutput: showMSBuildOutput,
+                logger: logger);
+            if (!success)
+            {
+                logger.Log(errorLevel, $"The DotVVM metadata of '{project}' could not be determined.");
+                return null;
+            }
+
+            return DotvvmProject.GetCliFile(project, MetadataFilename);
+        }
+
+        private static string GetWriteDotvvmMetadataProject()
+        {
+            using var stream = typeof(DotvvmProject).Assembly
+                .GetManifestResourceStream("DotVVM.CommandLine.Common.WriteProjectMetadata.targets");
+            if (stream is null)
+            {
+                throw new InvalidOperationException("Could not read the embedded WriteProjectMetadata.targets file.");
+            }
+            using var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
         }
     }
 }

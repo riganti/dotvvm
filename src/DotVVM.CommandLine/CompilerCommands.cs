@@ -35,7 +35,7 @@ namespace DotVVM.CommandLine
         }
 
         public static int HandleCompile(
-            ProjectMetadata metadata,
+            ProjectMetadataOld metadata,
             FileSystemInfo target,
             string[]? compilerArgs,
             FileSystemInfo? compiler,

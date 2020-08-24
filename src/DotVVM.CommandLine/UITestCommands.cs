@@ -33,7 +33,7 @@ namespace DotVVM.CommandLine
         }
 
         public static int HandleUITest(
-            ProjectMetadata metadata,
+            ProjectMetadataOld metadata,
             FileSystemInfo target,
             string[]? generatorArgs,
             FileSystemInfo? generator,

@@ -63,7 +63,7 @@ namespace DotVVM.CommandLine
         }
 
         public static async Task<int> HandleCreate(
-            ProjectMetadata metadata,
+            ProjectMetadataOld metadata,
             Uri definition,
             string? @namespace,
             FileInfo? csPath,
@@ -97,12 +97,12 @@ namespace DotVVM.CommandLine
                 tsPath.FullName,
                 metadata,
                 logger);
-            await DotvvmProject.SaveProjectMetadata(metadata);
+            throw new NotImplementedException("TODO: Implement ApiClient saving mechanism");
             return 0;
         }
 
         public static async Task<int> HandleRegen(
-            ProjectMetadata metadata,
+            ProjectMetadataOld metadata,
             Uri? definition,
             ILogger logger)
         {
