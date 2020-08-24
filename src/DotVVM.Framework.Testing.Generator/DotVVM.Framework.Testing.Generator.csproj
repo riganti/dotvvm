@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Cli\DotVVM.Cli.csproj" />
+    <ProjectReference Include="..\DotVVM.CommandLine.Common\DotVVM.CommandLine.Common.csproj" />
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
     <ProjectReference Include="..\DotVVM.Framework.Testing\DotVVM.Framework.Testing.csproj" />
   </ItemGroup>

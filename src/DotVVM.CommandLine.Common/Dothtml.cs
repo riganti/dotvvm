@@ -7,7 +7,7 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace DotVVM.Cli
+namespace DotVVM.CommandLine
 {
     public static class Dothtml
     {

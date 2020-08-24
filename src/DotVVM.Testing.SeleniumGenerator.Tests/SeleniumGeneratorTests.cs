@@ -8,7 +8,7 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Security;
-using DotVVM.Cli;
+using DotVVM.CommandLine;
 using DotVVM.Testing.SeleniumGenerator.Tests.Helpers;
 using DotVVM.Testing.SeleniumGenerator.Tests.Visitors;
 using Microsoft.Extensions.DependencyInjection;

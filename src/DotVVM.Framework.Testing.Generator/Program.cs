@@ -6,7 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-using DotVVM.Cli;
+using DotVVM.CommandLine;
 using DotVVM.Framework.Configuration;
 using System.Collections.Generic;
 using System.Linq;

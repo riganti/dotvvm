@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 
-namespace DotVVM.Cli
+namespace DotVVM.CommandLine
 {
     public class ProjectMetadata
     {

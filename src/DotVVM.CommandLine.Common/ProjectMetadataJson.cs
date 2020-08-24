@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-namespace DotVVM.Cli
+namespace DotVVM.CommandLine
 {
     public class ProjectMetadataJson
     {

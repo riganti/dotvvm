@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../DotVVM.Cli/DotVVM.Cli.csproj" />
+    <ProjectReference Include="../DotVVM.CommandLine.Common/DotVVM.CommandLine.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

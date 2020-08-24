@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 
-namespace DotVVM.Cli
+namespace DotVVM.CommandLine
 {
     public class ApiClientDefinition
     {

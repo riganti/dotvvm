@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NuGet.Frameworks;
 
-namespace DotVVM.Cli
+namespace DotVVM.CommandLine
 {
     public static class DotvvmProject
     {

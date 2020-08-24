@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace DotVVM.Cli
+namespace DotVVM.CommandLine
 {
     public static class ProjectFile
     {

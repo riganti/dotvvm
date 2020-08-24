@@ -3,7 +3,7 @@ using System.IO;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace DotVVM.Cli
+namespace DotVVM.CommandLine
 {
     public class ProjectMetadataJsonOld
     {

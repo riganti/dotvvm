@@ -7,7 +7,7 @@ using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
-using DotVVM.Cli;
+using DotVVM.CommandLine;
 using DotVVM.Compiler.Compilation;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;

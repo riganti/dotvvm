@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace DotVVM.Cli
+namespace DotVVM.CommandLine
 {
     public static class Names
     {

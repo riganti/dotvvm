@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.Setup.Configuration;
 
-namespace DotVVM.Cli
+namespace DotVVM.CommandLine
 {
     public class MSBuild
     {

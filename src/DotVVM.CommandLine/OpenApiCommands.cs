@@ -4,7 +4,7 @@ using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using DotVVM.Cli;
+using DotVVM.CommandLine;
 using DotVVM.CommandLine.OpenApi;
 using Microsoft.Extensions.Logging;
 

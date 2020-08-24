@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DotVVM.Cli
+namespace DotVVM.CommandLine
 {
     public class CompilerOptions
     {

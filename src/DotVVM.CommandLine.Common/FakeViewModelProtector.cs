@@ -1,7 +1,7 @@
 ﻿using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Security;
 
-namespace DotVVM.Cli
+namespace DotVVM.CommandLine
 {
     public class FakeViewModelProtector : IViewModelProtector
     {

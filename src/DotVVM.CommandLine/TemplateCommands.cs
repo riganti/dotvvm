@@ -2,7 +2,7 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
-using DotVVM.Cli;
+using DotVVM.CommandLine;
 using DotVVM.CommandLine.Templates;
 using Microsoft.Extensions.Logging;
 

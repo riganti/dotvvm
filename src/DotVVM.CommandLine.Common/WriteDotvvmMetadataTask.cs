@@ -6,7 +6,7 @@ using System.Text.Json;
 using Microsoft.Build.Framework;
 using NuGet.Frameworks;
 
-namespace DotVVM.Cli
+namespace DotVVM.CommandLine
 {
     public class WriteDotvvmMetadataTask : ITask
     {

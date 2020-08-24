@@ -1,6 +1,6 @@
 using System;
 using System.Reflection;
-using DotVVM.Cli;
+using DotVVM.CommandLine;
 using DotVVM.Compiler.Compilation;
 using DotVVM.Compiler.Resolving;
 using DotVVM.Framework.Compilation.ControlTree;
