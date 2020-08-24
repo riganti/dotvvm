@@ -90,6 +90,12 @@ namespace DotVVM.Cli
         public static string GetRelativePath(string relativeTo, string path)
         {
             // TODO: Once .NET Framework is no longer targeted, replace with Path.GetRelativePath
+            if (!relativeTo.EndsWith("\\")
+                && !relativeTo.EndsWith("/")
+                && Directory.Exists(relativeTo))
+            {
+                relativeTo = $"{relativeTo}{Path.DirectorySeparatorChar}";
+            }
             var relativeToUri = new Uri(relativeTo);
             var pathUri = new Uri(path);
             var resultUri = relativeToUri.MakeRelativeUri(pathUri);
