@@ -13,6 +13,7 @@ namespace DotVVM.CommandLine
             {
                 Name = "dotvvm"
             };
+            rootCmd.AddInfoCommands();
             rootCmd.AddCompilerCommands();
             rootCmd.AddUITestCommands();
             rootCmd.AddTemplateCommands();

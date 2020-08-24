@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -19,11 +20,9 @@ namespace DotVVM.CommandLine
     public static class DotvvmProject
     {
         public const string MetadataFilename = "metadata.json";
-        public const string PackageName = "DotVVM";
-        public const string AssemblyName = "DotVVM.Framework";
         public const string CliDirectoryName = ".dotvvm";
         public const string FallbackVersion = "2.4.0.1";
-        public const string WriteDotvvmMetadataTarget = "WriteDotvvmMetadata";
+        public const string WriteDotvvmMetadataTarget = "_WriteProjectMetadata";
 
         public static DirectoryInfo CreateDotvvmDirectory(FileSystemInfo target)
         {
@@ -48,13 +47,7 @@ namespace DotVVM.CommandLine
                 return null;
             }
 
-            var directory = target switch
-            {
-                DirectoryInfo dir => dir,
-                FileInfo file => file.Directory,
-                _ => throw new NotImplementedException()
-            };
-            var metadata = new FileInfo(Path.Combine(directory.FullName, MetadataFilename));
+            var metadata = GetCliFile(target, MetadataFilename);
             return metadata.Exists ? metadata : null;
         }
 
@@ -222,10 +215,17 @@ namespace DotVVM.CommandLine
             logger ??= NullLogger.Instance;
 
             var writeMetadataProjectFile = GetCliFile(project, $"{WriteDotvvmMetadataTarget}.proj");
-            File.WriteAllText(writeMetadataProjectFile.FullName, GetWriteDotvvmMetadataProject(project.FullName));
+            File.WriteAllText(writeMetadataProjectFile.FullName, GetWriteDotvvmMetadataProject());
 
             var success = msbuild.TryInvoke(
-                project: writeMetadataProjectFile,
+                project: project,
+                properties: new []
+                {
+                    new KeyValuePair<string, string>(
+                        "CustomBeforeMicrosoftCommonTargets",
+                        writeMetadataProjectFile.FullName),
+                    new KeyValuePair<string, string>("IsCrossTargetingBuild", "false")
+                },
                 targets: new [] {WriteDotvvmMetadataTarget},
                 showOutput: showMSBuildOutput,
                 logger: logger);
@@ -238,40 +238,16 @@ namespace DotVVM.CommandLine
             return FindProjectMetadata(project);
         }
 
-        private static string GetWriteDotvvmMetadataProject(string projectPath)
+        private static string GetWriteDotvvmMetadataProject()
         {
-            return
-$@"<Project>
-  <UsingTask
-    TaskName=""{nameof(WriteDotvvmMetadataTask)}""
-    AssemblyFile=""{typeof(DotvvmProject).Assembly.Location}"" />
-
-  <Import Project=""{projectPath}"" />
-
-  <Target Name=""{WriteDotvvmMetadataTarget}"">
-    <GetProjectTargetFrameworksTask
-      ProjectPath=""{projectPath}""
-      TargetFrameworks=""$(TargetFrameworks)""
-      TargetFramework=""$(TargetFramework)""
-      TargetFrameworkMoniker=""$(TargetFrameworkMoniker)""
-      TargetPlatformIdentifier=""$(TargetPlatformIdentifier)""
-      TargetPlatformVersion=""$(TargetPlatformVersion)""
-      TargetPlatformMinVersion=""$(TargetPlatformMinVersion)"">
-      <Output
-        TaskParameter=""ProjectTargetFrameworks""
-        PropertyName=""_ProjectTargetFrameworks""/>
-    </GetProjectTargetFrameworksTask>
-    <{nameof(WriteDotvvmMetadataTask)}
-      TargetFrameworksString=""$(_ProjectTargetFrameworks)""
-      AssemblyName=""$(AssemblyName)""
-      RootNamespace=""$(RootNamespace)""
-      ProjectFilePath=""{projectPath}""
-      References=""@(Reference)""
-      PackageReferences=""@(PackageReference)""
-      MetadataFilePath=""$(MSBuildProjectDirectory)/{DotvvmProject.MetadataFilename}""/>
-  </Target>
-</Project>
-";
+            using var stream = typeof(DotvvmProject).Assembly
+                .GetManifestResourceStream("DotVVM.CommandLine.Common.WriteProjectMetadata.targets");
+            if (stream is null)
+            {
+                throw new InvalidOperationException("Could not read the embedded WriteProjectMetadata.targets file.");
+            }
+            using var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
         }
 
         private static Type? GetDotvvmStartupType(Assembly assembly)

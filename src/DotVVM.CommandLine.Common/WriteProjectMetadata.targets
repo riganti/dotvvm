@@ -1,0 +1,87 @@
+<Project>
+  <UsingTask TaskName="_WriteProjectMetadataTask"
+    TaskFactory="RoslynCodeTaskFactory"
+    AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <TargetFrameworksString ParameterType="System.String"
+        Required="true" />
+      <AssemblyName ParameterType="System.String"
+        Required="true" />
+      <RootNamespace ParameterType="System.String"
+        Required="true" />
+      <ProjectFilePath ParameterType="System.String"
+        Required="true" />
+      <MetadataFilePath ParameterType="System.String"
+        Required="true" />
+      <References ParameterType="Microsoft.Build.Framework.ITaskItem[]"
+        Required="true" />
+      <PackageReferences ParameterType="Microsoft.Build.Framework.ITaskItem[]"
+        Required="true" />
+    </ParameterGroup>
+    <Task>
+      <!-- <Reference Include="$(MSBuildToolsPath)\NuGet.Frameworks.dll" /> -->
+      <Using Namespace="System.Collections.Generic" />
+      <Using Namespace="System.Text" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Reflection" />
+      <!-- <Using Namespace="NuGet.Frameworks" /> -->
+      <Code Type="Fragment"
+        Language="cs">
+<![CDATA[
+var targetFrameworksEnumerable = TargetFrameworksString.Trim()
+  .Split(';')
+  .Select(t => $"\"{t}\"");
+var targetFrameworks = string.Join(", ", targetFrameworksEnumerable);
+var version = string.Empty;
+var reference = References
+  .Select(r => new AssemblyName(r.ItemSpec))
+  .FirstOrDefault(n => n.Name == "DotVVM.Framework");
+if (reference is object && reference.Version is object)
+{
+  version = reference.Version.ToString();
+}
+
+var package = PackageReferences
+    .FirstOrDefault(p => p.ItemSpec == "DotVVM");
+if (package is object)
+{
+  version = package.GetMetadata("Version");
+}
+var projectFilePath = ProjectFilePath.Replace("\\", "\\\\");
+var metadataFilePath = MetadataFilePath.Replace("\\", "\\\\");
+
+var sb = new StringBuilder();
+sb.AppendLine("{");
+sb.AppendLine($"  \"AssemblyName\": \"{AssemblyName}\",");
+sb.AppendLine($"  \"RootNamespace\": \"{RootNamespace}\",");
+sb.AppendLine($"  \"TargetFrameworks\": [{targetFrameworks}],");
+sb.AppendLine($"  \"PackageVersion\": \"{version}\",");
+sb.AppendLine($"  \"ProjectFilePath\": \"{projectFilePath}\",");
+sb.AppendLine($"  \"MetadataFilePath\": \"{metadataFilePath}\"");
+sb.AppendLine("}");
+File.WriteAllText(MetadataFilePath, sb.ToString());
+]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="_WriteProjectMetadata">
+    <GetProjectTargetFrameworksTask ProjectPath="$(MSBuildProjectFullPath)"
+      TargetFrameworks="$(TargetFrameworks)"
+      TargetFramework="$(TargetFramework)"
+      TargetFrameworkMoniker="$(TargetFrameworkMoniker)"
+      TargetPlatformIdentifier="$(TargetPlatformIdentifier)"
+      TargetPlatformVersion="$(TargetPlatformVersion)"
+      TargetPlatformMinVersion="$(TargetPlatformMinVersion)">
+      <Output TaskParameter="ProjectTargetFrameworks"
+        PropertyName="_TargetFrameworksString" />
+    </GetProjectTargetFrameworksTask>
+    <_WriteProjectMetadataTask TargetFrameworksString="$(_TargetFrameworksString)"
+      AssemblyName="$(AssemblyName)"
+      RootNamespace="$(RootNamespace)"
+      ProjectFilePath="$(MSBuildProjectFullPath)"
+      MetadataFilePath="$(MSBuildThisFileDirectory)metadata.json"
+      References="@(Reference)"
+      PackageReferences="@(PackageReference)" />
+  </Target>
+</Project>
