@@ -204,3 +204,4 @@ FakesAssemblies/
 /src/DotVVM.Framework/package-lock.json
 
 .dotvvm/
+.dotvvm.json
