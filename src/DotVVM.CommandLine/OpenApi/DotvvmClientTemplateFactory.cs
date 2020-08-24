@@ -6,7 +6,7 @@ using System.Reflection;
 using NJsonSchema.CodeGeneration;
 using DefaultTemplateFactory = NSwag.CodeGeneration.DefaultTemplateFactory;
 
-namespace DotVVM.Tool.OpenApi
+namespace DotVVM.CommandLine.OpenApi
 {
     public class DotvvmClientTemplateFactory : DefaultTemplateFactory
     {
@@ -19,7 +19,7 @@ namespace DotVVM.Tool.OpenApi
 
         protected override string GetEmbeddedLiquidTemplate(string language, string template)
         {
-            var resourceName = "DotVVM.Tool.OpenApi." + template + ".liquid";
+            var resourceName = "DotVVM.CommandLine.OpenApi." + template + ".liquid";
 
             var resource = typeof(ApiClientManager).Assembly.GetManifestResourceStream(resourceName);
             if (resource != null)

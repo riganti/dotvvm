@@ -5,10 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Cli;
-using DotVVM.Tool.OpenApi;
+using DotVVM.CommandLine.OpenApi;
 using Microsoft.Extensions.Logging;
 
-namespace DotVVM.Tool
+namespace DotVVM.CommandLine
 {
     public static class OpenApiCommands
     {

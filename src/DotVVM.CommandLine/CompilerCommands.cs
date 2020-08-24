@@ -5,7 +5,7 @@ using System.IO;
 using DotVVM.Cli;
 using Microsoft.Extensions.Logging;
 
-namespace DotVVM.Tool
+namespace DotVVM.CommandLine
 {
     public static class CompilerCommands
     {

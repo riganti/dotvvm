@@ -7,7 +7,7 @@ using NJsonSchema;
 using NJsonSchema.CodeGeneration.CSharp;
 using NSwag;
 
-namespace DotVVM.Tool.OpenApi
+namespace DotVVM.CommandLine.OpenApi
 {
     public class DotvmmCSharpTypeNameGenerator : DefaultTypeNameGenerator
     {

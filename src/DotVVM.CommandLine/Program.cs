@@ -1,7 +1,7 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Builder;
 
-namespace DotVVM.Tool
+namespace DotVVM.CommandLine
 {
     public static class Program
     {

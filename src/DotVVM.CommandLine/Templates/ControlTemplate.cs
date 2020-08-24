@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace DotVVM.Tool.Templates
+namespace DotVVM.CommandLine.Templates
 {
     public static class ControlTemplate
     {

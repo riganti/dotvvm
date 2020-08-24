@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Collections.Generic;
 
-namespace DotVVM.Tool.Templates
+namespace DotVVM.CommandLine.Templates
 {
     public static class PageTemplate
     {

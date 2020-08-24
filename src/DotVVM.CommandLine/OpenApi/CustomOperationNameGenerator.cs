@@ -4,7 +4,7 @@ using NJsonSchema;
 using NSwag;
 using NSwag.CodeGeneration.OperationNameGenerators;
 
-namespace DotVVM.Tool.OpenApi
+namespace DotVVM.CommandLine.OpenApi
 {
     public class CustomOperationNameGenerator : IOperationNameGenerator
     {

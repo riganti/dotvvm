@@ -69,7 +69,7 @@ namespace DotVVM.Testing.SeleniumGenerator.Tests.Helpers
                 Initialize();
             }
 
-            throw new NotImplementedException("Reimplement WebApplicationHost.ProcessMarkupFile with DotVVM.Tool.");
+            throw new NotImplementedException("Reimplement WebApplicationHost.ProcessMarkupFile with DotVVM.CommandLine.");
 
 
             return File.ReadAllText(markupFilePath);

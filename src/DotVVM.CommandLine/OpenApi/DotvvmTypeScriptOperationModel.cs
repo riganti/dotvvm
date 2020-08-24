@@ -6,7 +6,7 @@ using NSwag;
 using NSwag.CodeGeneration.TypeScript;
 using NSwag.CodeGeneration.TypeScript.Models;
 
-namespace DotVVM.Tool.OpenApi
+namespace DotVVM.CommandLine.OpenApi
 {
     public class DotvvmTypeScriptOperationModel : TypeScriptOperationModel
     {

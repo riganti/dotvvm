@@ -13,7 +13,7 @@ using NSwag;
 using NSwag.CodeGeneration.CSharp;
 using NSwag.CodeGeneration.TypeScript;
 
-namespace DotVVM.Tool.OpenApi
+namespace DotVVM.CommandLine.OpenApi
 {
     // this logic should be moved to a script file that would allow anyone to edit or replace the logic easily
     public static class ApiClientManager

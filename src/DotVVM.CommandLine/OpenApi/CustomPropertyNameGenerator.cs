@@ -5,7 +5,7 @@ using DotVVM.Core.Common;
 using NJsonSchema;
 using NJsonSchema.CodeGeneration;
 
-namespace DotVVM.Tool.OpenApi
+namespace DotVVM.CommandLine.OpenApi
 {
     public class CustomPropertyNameGenerator : IPropertyNameGenerator
     {

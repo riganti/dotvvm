@@ -6,7 +6,7 @@ using NSwag;
 using NSwag.CodeGeneration;
 using NSwag.CodeGeneration.CSharp.Models;
 
-namespace DotVVM.Tool.OpenApi
+namespace DotVVM.CommandLine.OpenApi
 {
     public class DotvvmCSharpParameterModel : CSharpParameterModel
     {

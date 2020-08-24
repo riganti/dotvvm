@@ -3,10 +3,10 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using DotVVM.Cli;
-using DotVVM.Tool.Templates;
+using DotVVM.CommandLine.Templates;
 using Microsoft.Extensions.Logging;
 
-namespace DotVVM.Tool
+namespace DotVVM.CommandLine
 {
     public static class TemplateCommands
     {

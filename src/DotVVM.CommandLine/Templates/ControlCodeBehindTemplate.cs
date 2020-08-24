@@ -1,4 +1,4 @@
-﻿namespace DotVVM.Tool.Templates
+﻿namespace DotVVM.CommandLine.Templates
 {
     public static class ControlCodeBehindTemplate
     {

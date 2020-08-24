@@ -3,7 +3,7 @@ using DotVVM.Cli;
 using NJsonSchema;
 using NSwag;
 
-namespace DotVVM.Tool.OpenApi
+namespace DotVVM.CommandLine.OpenApi
 {
     internal static class ApiClientUtils
     {

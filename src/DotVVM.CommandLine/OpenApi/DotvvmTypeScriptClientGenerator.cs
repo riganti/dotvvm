@@ -9,7 +9,7 @@ using NSwag.CodeGeneration;
 using NSwag.CodeGeneration.TypeScript;
 using NSwag.CodeGeneration.TypeScript.Models;
 
-namespace DotVVM.Tool.OpenApi
+namespace DotVVM.CommandLine.OpenApi
 {
     public class DotvvmTypeScriptClientGenerator : TypeScriptClientGenerator
     {

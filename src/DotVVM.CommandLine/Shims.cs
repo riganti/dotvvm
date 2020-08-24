@@ -8,7 +8,7 @@ using DotVVM.Cli;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace DotVVM.Tool
+namespace DotVVM.CommandLine
 {
     public static class Shims
     {

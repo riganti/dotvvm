@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace DotVVM.Tool
+namespace DotVVM.CommandLine
 {
     public class ShimCreationContext
     {
