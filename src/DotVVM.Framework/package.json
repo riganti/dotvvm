@@ -14,6 +14,7 @@
   "scripts": {
     "build": "npm run build-production && npm run build-polyfills",
     "build-production": "rollup -c --environment BUILD:production",
+    "build-dev": "rollup -c",
     "tsc-build": "tsc -p .",
     "build-polyfills": "terser -o obj/javascript/polyfill.bundle.js -c -m -- Resources/Scripts/Polyfills/promise.js Resources/Scripts/Polyfills/fetch.js node_modules/systemjs/dist/system.js"
   }

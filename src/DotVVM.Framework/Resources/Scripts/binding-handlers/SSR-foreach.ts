@@ -1,4 +1,4 @@
-const foreachCollectionSymbol = "$foreachCollectionSymbol"
+const foreachCollectionSymbol = "$foreachCollectionSymbol" // knockout does not support symbols ;(
 
 ko.virtualElements.allowedBindings["dotvvm-SSR-foreach"] = true;
 ko.virtualElements.allowedBindings["dotvvm-SSR-item"] = true;

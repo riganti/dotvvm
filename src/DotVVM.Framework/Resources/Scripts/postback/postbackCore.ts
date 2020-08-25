@@ -98,7 +98,7 @@ async function processPostbackResponse(options: PostbackOptions, postedViewModel
 
     let isSuccess = false;
     if (result.action == "successfulCommand") {
-        updater.updateViewModelAndControls(result, false);
+        updater.updateViewModelAndControls(result);
         events.postbackViewModelUpdated.trigger({});
         isSuccess = true;
     } else if (result.action == "redirect") {

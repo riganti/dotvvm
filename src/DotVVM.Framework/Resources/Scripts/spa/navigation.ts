@@ -48,7 +48,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
         await loadResourceList(resultObject.resources);
 
         if (resultObject.action === "successfulCommand" || !resultObject.action) {
-            updater.updateViewModelAndControls(resultObject, true);
+            updater.updateViewModelAndControls(resultObject);
             isSpaReady(true);
         } else if (resultObject.action === "redirect") {
             const x = await handleRedirect(resultObject, true) as DotvvmNavigationEventArgs

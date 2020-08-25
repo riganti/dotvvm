@@ -61,7 +61,7 @@ export function restoreUpdatedControls(resultObject: any, updatedControls: any, 
     }
 }
 
-export function updateViewModelAndControls(resultObject: any, clearViewModel: boolean) {
+export function updateViewModelAndControls(resultObject: any) {
     try {
         isViewModelUpdating = true;
 
@@ -76,16 +76,7 @@ export function updateViewModelAndControls(resultObject: any, clearViewModel: bo
         const updatedControls = cleanUpdatedControls(resultObject);
 
         // update viewmodel
-        if (clearViewModel) {
-            const vm = {};
-            deserialize(resultObject.viewModel, vm);
-            replaceViewModel(vm);
-        }
-        else {
-            ko.delaySync.pause();
-            deserialize(resultObject.viewModel, getViewModel());
-            ko.delaySync.resume();
-        }
+        replaceViewModel(resultObject.viewModel);
 
         // remove updated controls which were previously removed from DOM
         cleanUpdatedControls(resultObject, updatedControls);

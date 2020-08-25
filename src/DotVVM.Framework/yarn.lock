@@ -1393,6 +1393,11 @@ supports-color@^6.1.0:
   dependencies:
     has-flag "^3.0.0"
 
+systemjs@^6.1.9:
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/systemjs/-/systemjs-6.5.0.tgz#42e5e19e324e99b6e96a946697fddb3de9f6f3d5"
+  integrity sha512-B+NzKJD1srC/URfNVBdDExAUAsAVXpVQxZxX54AtqU0xiK9imkqurQu3qi6JdyA2GBAw2ssjolYIa7kh+xY1uw==
+
 tar@^4:
   version "4.4.13"
   resolved "https://registry.yarnpkg.com/tar/-/tar-4.4.13.tgz#43b364bc52888d555298637b10d60790254ab525"
