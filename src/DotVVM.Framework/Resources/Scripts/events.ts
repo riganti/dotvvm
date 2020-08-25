@@ -1,5 +1,6 @@
 ﻿
 // DotvvmEvent is used because CustomEvent is not browser compatible and does not support
+
 // calling missed events for handler that subscribed too late.
 export class DotvvmEvent<T> {
     private handlers: Array<DotvvmEventHandler<T>> = [];
@@ -60,6 +61,7 @@ export const postbackRejected = new DotvvmEvent<{}>("dotvvm.events.postbackRejec
 export const staticCommandMethodInvoking = new DotvvmEvent<{ args: any[], command: string }>("dotvvm.events.staticCommandMethodInvoking");
 export const staticCommandMethodInvoked = new DotvvmEvent<{ args: any[], command: string, result: any, xhr: XMLHttpRequest }>("dotvvm.events.staticCommandMethodInvoked");
 export const staticCommandMethodFailed = new DotvvmEvent<{ args: any[], command: string, xhr: XMLHttpRequest, error?: any }>("dotvvm.events.staticCommandMethodInvoked");
+export const newState = new DotvvmEvent<RootViewModel>("dotvvm.events.newState");
 
 class DotvvmEventHandler<T> {
     constructor(public handler: (f: T) => void, public isOneTime: boolean) {

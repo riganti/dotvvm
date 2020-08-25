@@ -42,6 +42,9 @@ export function getVirtualDirectory(): string {
 export function replaceViewModel(vm: RootViewModel): void {
     getStateManager().setState(vm);
 }
+export function getState(): RootViewModel {
+    return getStateManager().state
+}
 export function updateViewModelCache(viewModelCacheId: string, viewModelCache: any) {
     currentState!._viewModelCacheId = viewModelCacheId;
     currentState!._viewModelCache = viewModelCache;
@@ -71,7 +74,7 @@ export function initCore(culture: string): void {
 
     setIdFragment(thisViewModel.resultIdFragment);
 
-    const manager = new StateManager<RootViewModel>(thisViewModel.viewModel)
+    const manager = new StateManager<RootViewModel>(thisViewModel.viewModel, events.newState)
 
     currentState = {
         _culture: culture,
@@ -114,7 +117,7 @@ const getViewModelStorageElement = () =>
     <HTMLInputElement> document.getElementById("__dot_viewmodel_root")
 
 function persistViewModel() {
-    const viewModel = getStateManager().state
+    const viewModel = getState()
     const persistedViewModel = {...initialViewModelWrapper, viewModel };
 
     getViewModelStorageElement().value = JSON.stringify(persistedViewModel);

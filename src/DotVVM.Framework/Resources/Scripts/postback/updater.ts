@@ -1,6 +1,5 @@
 import { getElementByDotvvmId } from '../utils/dom'
-import { getViewModel, replaceViewModel, updateViewModelCache, clearViewModelCache } from '../dotvvm-base'
-import { deserialize } from '../serialization/deserialize'
+import { replaceViewModel, updateViewModelCache, clearViewModelCache } from '../dotvvm-base'
 import { keys } from '../utils/objects';
 
 const diffEqual = {};

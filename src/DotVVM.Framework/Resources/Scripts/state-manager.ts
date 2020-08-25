@@ -59,11 +59,11 @@ export class StateManager<TViewModel> {
     public get isDirty() {
         return this._isDirty
     }
-    public stateUpdateEvent = new DotvvmEvent<TViewModel>("stateUpdateEvent")
     private _currentFrameNumber : number | null = 0;
 
     constructor(
         initialState: TViewModel,
+        public stateUpdateEvent: DotvvmEvent<TViewModel>
     ) {
         this._state = initialState
         this.stateObservable = createWrappedObservable(initialState, u => this.update(u))
