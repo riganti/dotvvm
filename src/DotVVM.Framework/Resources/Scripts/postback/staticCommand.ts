@@ -1,8 +1,6 @@
 import { serialize } from '../serialization/serialize';
-import { deserialize } from '../serialization/deserialize';
-import { getViewModel, getInitialUrl } from '../dotvvm-base';
+import { getInitialUrl } from '../dotvvm-base';
 import * as events from '../events';
-import * as updater from './updater';
 import * as http from './http'
 import { handleRedirect } from './redirect';
 import { DotvvmPostbackError } from '../shared-classes';

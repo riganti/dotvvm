@@ -1,6 +1,5 @@
-import { serialize } from '../serialization/serialize';
-import { deserialize } from '../serialization/deserialize';
-import { getViewModel, getInitialUrl, getViewModelCache, getViewModelCacheId, clearViewModelCache } from '../dotvvm-base';
+import { serializeCore } from '../serialization/serialize';
+import { getInitialUrl, getViewModelCache, getViewModelCacheId, clearViewModelCache, getState } from '../dotvvm-base';
 import { loadResourceList, RenderedResourceList, getRenderedResources } from './resourceLoader';
 import * as events from '../events';
 import { createPostbackArgs } from "../createPostbackArgs";
@@ -10,6 +9,7 @@ import { DotvvmPostbackError } from '../shared-classes';
 import { setIdFragment } from '../utils/dom';
 import { handleRedirect } from './redirect';
 import * as evaluator from '../utils/evaluator'
+import { isPrimitive } from '../utils/objects';
 
 let lastStartedPostbackId: number;
 
@@ -42,7 +42,7 @@ export async function postbackCore(
 
         updateDynamicPathFragments(context, path);
 
-        const postedViewModel = serialize(getViewModel(), {
+        const postedViewModel = serializeCore(getState(), {
             pathMatcher: val => context && val == context.$data
         });
 
@@ -158,7 +158,7 @@ function processPassedId(id: any, context: any): string {
     if (typeof id == "string" || id == null) {
         return id;
     }
-    if (typeof id == "object" && id.expr) {
+    if (!isPrimitive(id) && id.expr) {
         return evaluator.evaluateOnViewModel(context, id.expr);
     }
     throw new Error("invalid argument");

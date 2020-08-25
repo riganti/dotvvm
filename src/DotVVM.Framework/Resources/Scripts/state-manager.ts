@@ -1,8 +1,8 @@
 /// Holds the dotvvm viewmodel
 
-import { createArray, hasOwnProperty, symbolOrDollar } from "./utils/objects";
+import { createArray, hasOwnProperty, symbolOrDollar, isPrimitive, keys } from "./utils/objects";
 import { DotvvmEvent } from "./events";
-import { init } from "./spa/spa";
+import { serializeDate } from "./serialization/date";
 
 
 const currentStateSymbol = Symbol("currentState")
@@ -116,7 +116,7 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
         this[currentStateSymbol] = newValue
 
         const c = this[internalPropCache]
-        for (const p of Object.keys(c)) {
+        for (const p of keys(c)) {
             const observable = c[p]
             if (observable) {
                 observable[notifySymbol]((newValue as any)[p])
@@ -156,20 +156,36 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
     }
 }
 
-function unwrapInputObject(obj: any) {
-    if (!obj || typeof obj != "object") {
-        return obj
+export function unmapKnockoutObservables(viewModel: any): any {
+    viewModel = ko.unwrap(viewModel)
+    if (isPrimitive(viewModel)) {
+        return viewModel
     }
 
-    else if (currentStateSymbol in obj) {
-        return obj[currentStateSymbol]
+    if (currentStateSymbol in viewModel) {
+        return viewModel[currentStateSymbol]
     }
 
-    else return dotvvm.serialization.serialize(obj) // TODO: hmm, separate KO unwrapping
+    if (viewModel instanceof Array) {
+        return viewModel.map(unmapKnockoutObservables)
+    }
+
+    if (viewModel instanceof Date) {
+        return serializeDate(viewModel)
+    }
+
+    const result: any = {};
+    for (const prop of keys(viewModel)) {
+        const value = ko.unwrap(viewModel[prop])
+        if (typeof value != "function") {
+            result[prop] = unmapKnockoutObservables(value)
+        }
+    }
+    return result
 }
 
 function createObservableObject<T extends object>(initialObject: T, update: ((updater: StateUpdate<any>) => void)): FakeObservableObject<T> {
-    const properties = Object.keys(initialObject)
+    const properties = keys(initialObject)
 
     return new FakeObservableObject(initialObject, update, properties)
 }
@@ -184,7 +200,7 @@ function createObservableArray<T>(initialValue: T[] | null, updater: UpdateDispa
 
     rr.subscribe((newVal) => {
         if (isUpdating) { return }
-        updater(_ => unwrapInputObject(newVal))
+        updater(_ => unmapKnockoutObservables(newVal))
     })
 
     function notify(newVal: T[] | null) {
@@ -246,7 +262,7 @@ function createWrappedObservable<T>(value: T, updater: UpdateDispatcher<T>): Dee
 
         rr.subscribe((newVal) => {
             if (isUpdating) { return }
-            updater(_ => unwrapInputObject(newVal))
+            updater(_ => unmapKnockoutObservables(newVal))
         })
 
         function notify(newVal: T) {
@@ -254,13 +270,13 @@ function createWrappedObservable<T>(value: T, updater: UpdateDispatcher<T>): Dee
             if (newVal === currentValue) { return }
 
             let newContents
-            if (!newVal || typeof newVal != "object") {
+            if (isPrimitive(newVal)) {
                 // primitive value
                 newContents = newVal
             } else {
                 // object
                 console.assert(!(newVal instanceof Array))
-                console.assert(typeof newVal == "object")
+                console.assert(!isPrimitive(newVal))
 
                 const oldContents = rr.peek()
                 // TODO: change when type changes

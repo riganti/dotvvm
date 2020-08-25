@@ -1,5 +1,5 @@
 export function isPrimitive(viewModel: any) {
-    return !(viewModel instanceof Object);
+    return !viewModel || typeof viewModel != "object";
 }
 
 export const createArray =
@@ -17,5 +17,5 @@ export const symbolOrDollar : (name: string) => symbol =
 
 export const keys =
     compileConstants.nomodules ?
-    ((o: any) => typeof o == "object" && o != null ? Object.keys(o) : []) :
+    ((o: any) => isPrimitive(o) ? [] : Object.keys(o)) :
     Object.keys

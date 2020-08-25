@@ -30,7 +30,6 @@ if (window["dotvvm"]) {
     throw new Error('DotVVM is already loaded!')
 }
 function init(culture: string) {
-
     initCore(culture)
     registerBindingHandlers()
     validation.init()
