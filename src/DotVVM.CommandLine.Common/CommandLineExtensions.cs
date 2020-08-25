@@ -17,6 +17,7 @@ namespace System.CommandLine
     {
         public const string VerboseAlias = "--verbose";
         public const string DebuggerBreakAlias = "--debugger-break";
+        public const string MSBuildOutputAlias = "--msbuild-output";
         public const string TargetArg = "target";
 
         public static ILoggerFactory Factory = new NullLoggerFactory();
@@ -29,10 +30,14 @@ namespace System.CommandLine
             alias: DebuggerBreakAlias,
             description: "Breaks to let a debugger attach to the process");
 
+        private static readonly Option<bool> msbuildOutputOption = new Option<bool>(
+            alias: MSBuildOutputAlias,
+            description: "Show output from MSBuild invocations");
+
         private static readonly Argument<FileSystemInfo> targetArgument = new Argument<FileSystemInfo>(
-                name: TargetArg,
-                getDefaultValue: () => new DirectoryInfo(Environment.CurrentDirectory),
-                description: "Path to a DotVVM project");
+            name: TargetArg,
+            getDefaultValue: () => new DirectoryInfo(Environment.CurrentDirectory),
+            description: "Path to a DotVVM project");
 
         public static void AddVerboseOption(this Command command)
         {
@@ -42,6 +47,11 @@ namespace System.CommandLine
         public static void AddDebuggerBreakOption(this Command command)
         {
             command.AddGlobalOption(debuggerBreakOption);
+        }
+
+        public static void AddMSBuildOutputOption(this Command command)
+        {
+            command.AddGlobalOption(msbuildOutputOption);
         }
 
         public static void AddTargetArgument(this Command command)
@@ -72,7 +82,18 @@ namespace System.CommandLine
                 if (target is object)
                 {
                     var logger = Factory.CreateLogger("metadata");
-                    var metadata = await ProjectMetadata.LoadOrCreate(target, logger);
+                    var msbuild = MSBuild.Create();
+                    if (msbuild is null)
+                    {
+                        logger.LogError("MSBuild could not be found.");
+                        c.ResultCode = 1;
+                        return;
+                    }
+
+                    logger.LogDebug($"Found the '{msbuild}' MSBuild.");
+                    c.BindingContext.AddService(_ => msbuild);
+                    var msbuildOutput = c.ParseResult.ValueForOption(msbuildOutputOption);
+                    var metadata = await ProjectMetadata.LoadOrCreate(target, msbuild, msbuildOutput, logger);
                     if (metadata is object)
                     {
                         c.BindingContext.AddService(_ => metadata);

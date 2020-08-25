@@ -13,7 +13,7 @@ namespace DotVVM.CommandLine
     public class MSBuild
     {
         public const string FallbackTargetFramework = "netcoreapp3.1";
-        public const string VSRelativePath = "./MSBuild/Current/Bin/MSBuild.exe";
+        public const string VSRelativePath = "MSBuild/Current/Bin/MSBuild.exe";
 
         public string Path { get; } = string.Empty;
         public ImmutableArray<string> PrefixedArgs { get; } = ImmutableArray.Create<string>();
@@ -44,11 +44,14 @@ namespace DotVVM.CommandLine
             {
                 Arguments = "-property installationPath",
                 RedirectStandardOutput = true,
-                FileName = vswhere.FullName
+                FileName = vswhere.FullName,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden
             };
 
             var process = Process.Start(startInfo);
-            var stdout = process.StandardOutput.ReadToEnd();
+            var stdout = process.StandardOutput.ReadToEnd().Trim();
             process.WaitForExit();
             if (process.ExitCode != 0)
             {
@@ -181,7 +184,7 @@ namespace DotVVM.CommandLine
             return new ProcessStartInfo
             {
                 FileName = Path,
-                Arguments = sb.ToString(),
+                Arguments = sb.ToString()
             };
         }
     }

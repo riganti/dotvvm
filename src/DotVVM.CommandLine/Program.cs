@@ -5,8 +5,6 @@ namespace DotVVM.CommandLine
 {
     public static class Program
     {
-        public const string MSBuildOutputAlias = "--msbuild-output";
-
         public static int Main(string[] args)
         {
             var rootCmd = new RootCommand("DotVVM Command-Line Interface")
@@ -19,9 +17,7 @@ namespace DotVVM.CommandLine
             rootCmd.AddTemplateCommands();
             rootCmd.AddOpenApiCommands();
             rootCmd.AddVerboseOption();
-            rootCmd.AddGlobalOption(new Option<bool>(
-                alias: MSBuildOutputAlias,
-                description: "Show output from MSBuild invocations"));
+            rootCmd.AddMSBuildOutputOption();
             // awkwardly enough, the built parser attaches itself to the command by itself
             new CommandLineBuilder(rootCmd)
                 .UseDefaults()

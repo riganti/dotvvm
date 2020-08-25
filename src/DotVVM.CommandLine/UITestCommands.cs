@@ -35,6 +35,7 @@ namespace DotVVM.CommandLine
         public static int HandleUITest(
             ProjectMetadataOld metadata,
             FileSystemInfo target,
+            MSBuild msbuild,
             string[]? generatorArgs,
             FileSystemInfo? generator,
             bool debug,
@@ -67,6 +68,7 @@ namespace DotVVM.CommandLine
                     appPackageVersion: metadata.PackageVersion,
                     appProgramClass: ProgramClass),
                 isDebug: debug,
+                msbuild: msbuild,
                 shouldShowMSBuild: msbuildOutput,
                 logger: logger);
             return success ? 0 : 1;

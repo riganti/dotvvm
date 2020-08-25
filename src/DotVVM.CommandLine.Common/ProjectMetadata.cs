@@ -132,6 +132,8 @@ namespace DotVVM.CommandLine
 
         public static async Task<ProjectMetadata?> LoadOrCreate(
             FileSystemInfo target,
+            MSBuild msbuild,
+            bool showMSBuildOutput = false,
             ILogger? logger = null,
             LogLevel errorLevel = LogLevel.Critical)
         {
@@ -141,7 +143,7 @@ namespace DotVVM.CommandLine
             if (file is null)
             {
                 logger.LogDebug($"Creating DotVVM metadata at '{file}'.");
-                file = Create(target, true, logger, errorLevel);
+                file = Create(target, msbuild, showMSBuildOutput, logger, errorLevel);
                 if (file is null)
                 {
                     return null;
@@ -157,6 +159,7 @@ namespace DotVVM.CommandLine
 
         public static FileInfo? Create(
             FileSystemInfo target,
+            MSBuild msbuild,
             bool showMSBuildOutput = false,
             ILogger? logger = null,
             LogLevel errorLevel = LogLevel.Critical)
@@ -171,13 +174,6 @@ namespace DotVVM.CommandLine
             }
 
             logger.LogDebug($"Found a project file at '{projectFile}'.");
-            var msbuild = MSBuild.Create();
-            if (msbuild is null)
-            {
-                logger.Log(errorLevel, "Could not found an MSBuild executable.");
-                return null;
-            }
-            logger.LogDebug($"Found the '{msbuild}' MSBuild executable.");
 
             var metadataFile = WriteDotvvmMetadata(msbuild, projectFile, showMSBuildOutput, logger, errorLevel);
             if (metadataFile is null)

@@ -95,6 +95,7 @@ namespace DotVVM.{shimName}.Shim
             IEnumerable<string> args,
             Func<ShimCreationContext, FileInfo?> createShim,
             bool isDebug,
+            MSBuild msbuild,
             bool shouldShowMSBuild,
             ILogger? logger)
         {
@@ -118,17 +119,6 @@ namespace DotVVM.{shimName}.Shim
                 {
                     logger.LogError($"{shimName} could not be found at '{app}'. Ignoring.");
                 }
-            }
-
-            var msbuild = MSBuild.Create();
-            if (msbuild is null)
-            {
-                logger.LogCritical("MSBuild could not be found.");
-                return false;
-            }
-            else
-            {
-                logger.LogDebug($"Using the '{msbuild}' msbuild.");
             }
 
             var dotvvmDir = DotvvmProject.CreateDotvvmDirectory(project);

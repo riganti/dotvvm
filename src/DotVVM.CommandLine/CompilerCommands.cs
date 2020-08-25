@@ -35,8 +35,9 @@ namespace DotVVM.CommandLine
         }
 
         public static int HandleCompile(
-            ProjectMetadataOld metadata,
+            ProjectMetadata metadata,
             FileSystemInfo target,
+            MSBuild msbuild,
             string[]? compilerArgs,
             FileSystemInfo? compiler,
             bool debug,
@@ -46,9 +47,9 @@ namespace DotVVM.CommandLine
             var allArgs = new List<string>
             {
                 AssemblyNameOption,
-                metadata.ProjectName,
+                metadata.AssemblyName,
                 ApplicationPathOption,
-                metadata.ProjectDirectory
+                Path.GetDirectoryName(metadata.ProjectFilePath)
             };
             if (compilerArgs is object)
             {
@@ -70,6 +71,7 @@ namespace DotVVM.CommandLine
                     appPackageVersion: metadata.PackageVersion,
                     appProgramClass: ProgramClass),
                 isDebug: debug,
+                msbuild: msbuild,
                 shouldShowMSBuild: msbuildOutput,
                 logger: logger);
             
