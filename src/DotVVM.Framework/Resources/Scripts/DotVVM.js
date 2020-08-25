@@ -3118,8 +3118,6 @@ var DotvvmEvaluator = /** @class */ (function () {
             return [];
         return ko.unwrap(value.Items || value);
     };
-    DotvvmEvaluator.prototype.getGridViewDataSetColumnName = function () {
-    };
     DotvvmEvaluator.prototype.tryEval = function (func) {
         try {
             return func();

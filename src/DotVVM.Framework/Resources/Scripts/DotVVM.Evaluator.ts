@@ -32,10 +32,6 @@
         return ko.unwrap(value.Items || value);
     }
 
-    public getGridViewDataSetColumnName() {
-
-    }
-
     public tryEval(func: () => any): any {
         try {
             return func();
