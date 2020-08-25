@@ -56,6 +56,8 @@ namespace DotVVM.CommandLine
                 allArgs.AddRange(compilerArgs);
             }
             
+            var targetFramework = Shims.GetSuitableTargetFramework(metadata.TargetFrameworks).GetShortFolderName();
+
             var success = Shims.TryCreateRunShim(
                 shimName: ShimName,
                 target: target,
@@ -65,7 +67,7 @@ namespace DotVVM.CommandLine
                     context: c,
                     shimName: ShimName,
                     shimProjectFile: ShimProjectFile,
-                    shimTargetFramework: Shims.Netcoreapp,
+                    shimTargetFramework: targetFramework,
                     shimProgramFile: ShimProgramFile,
                     appPackage: PackageName,
                     appPackageVersion: metadata.PackageVersion,

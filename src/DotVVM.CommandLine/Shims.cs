@@ -7,6 +7,7 @@ using System.Text;
 using DotVVM.CommandLine;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using NuGet.Frameworks;
 
 namespace DotVVM.CommandLine
 {
@@ -204,6 +205,31 @@ namespace DotVVM.{shimName}.Shim
                     appProgramClass: appProgramClass));
 
             return shimFile;
+        }
+
+        public static NuGetFramework GetSuitableTargetFramework(IEnumerable<NuGetFramework> frameworks)
+        {
+            var netCoreApp = frameworks
+                .Where(f => f.Framework == FrameworkConstants.FrameworkIdentifiers.NetCoreApp)
+                .OrderBy(f => f.Version.Minor)
+                .OrderBy(f => f.Version.Major)
+                .FirstOrDefault();
+            if (netCoreApp is object)
+            {
+                return netCoreApp;
+            }
+
+            var net = frameworks
+                .Where(f => f.Framework == FrameworkConstants.FrameworkIdentifiers.Net)
+                .OrderBy(f => f.Version.Minor)
+                .OrderBy(f => f.Version.Minor)
+                .FirstOrDefault();
+            if (net is object)
+            {
+                return net;
+            }
+
+            return FrameworkConstants.CommonFrameworks.NetCoreApp21;
         }
     }
 }

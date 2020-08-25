@@ -136,10 +136,7 @@ namespace DotVVM.Compiler.Compilation
 
         public CompilationResult Execute()
         {
-            logger.LogInformation("Initializing...");
             Init();
-
-            logger.LogInformation("Compiling views...");
             foreach (var file in Options.DothtmlFiles)
             {
                 try
@@ -156,11 +153,9 @@ namespace DotVVM.Compiler.Compilation
 
             if (Options.FullCompile)
             {
-                logger.LogInformation("Emitting assemblies...");
                 Save();
             }
 
-            logger.LogInformation("Building compilation results...");
             return result;
         }
 
