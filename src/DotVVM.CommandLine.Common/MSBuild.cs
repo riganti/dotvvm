@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.VisualStudio.Setup.Configuration;
 
 namespace DotVVM.CommandLine
 {
@@ -34,34 +33,35 @@ namespace DotVVM.CommandLine
 
         public static MSBuild? CreateFromVS()
         {
-            try
-            {
-                var query = new SetupConfiguration();
-                var query2 = (ISetupConfiguration2)query;
-                var @enum = query2.EnumAllInstances();
-                var instances = new ISetupInstance[1];
-                int fetchedCount;
-                do
-                {
-                    @enum.Next(1, instances, out fetchedCount);
-                    if (fetchedCount > 0)
-                    {
-                        var instance2 = (ISetupInstance2)instances[0];
-                        var path = instance2.GetInstallationPath();
-                        var exe = new FileInfo(System.IO.Path.Combine(path, VSRelativePath));
-                        if (exe.Exists)
-                        {
-                            return new MSBuild(exe.FullName, ImmutableArray.Create("-noLogo"));
-                        }
-                    }
-                }
-                while (fetchedCount > 0);
-                return null;
-            }
-            catch(PlatformNotSupportedException)
+            var dir = System.IO.Path.GetDirectoryName(typeof(MSBuild).Assembly.Location);
+            var vswhere = new FileInfo(System.IO.Path.Combine(dir, "vswhere.exe"));
+            if (!vswhere.Exists)
             {
                 return null;
             }
+
+            var startInfo = new ProcessStartInfo
+            {
+                Arguments = "-property installationPath",
+                RedirectStandardOutput = true,
+                FileName = vswhere.FullName
+            };
+
+            var process = Process.Start(startInfo);
+            var stdout = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+            if (process.ExitCode != 0)
+            {
+                return null;
+            }
+
+            var msbuildExe = new FileInfo(System.IO.Path.Combine(stdout, VSRelativePath));
+            if (!msbuildExe.Exists)
+            {
+                return null;
+            }
+
+            return new MSBuild(msbuildExe.FullName, ImmutableArray.Create("-noLogo"));
         }
 
         public static MSBuild? Create()

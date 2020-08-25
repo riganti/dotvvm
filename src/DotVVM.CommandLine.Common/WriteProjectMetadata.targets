@@ -19,12 +19,10 @@
         Required="true" />
     </ParameterGroup>
     <Task>
-      <!-- <Reference Include="$(MSBuildToolsPath)\NuGet.Frameworks.dll" /> -->
       <Using Namespace="System.Collections.Generic" />
       <Using Namespace="System.Text" />
       <Using Namespace="System.IO" />
       <Using Namespace="System.Reflection" />
-      <!-- <Using Namespace="NuGet.Frameworks" /> -->
       <Code Type="Fragment"
         Language="cs">
 <![CDATA[
