@@ -1,0 +1,63 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView.NestedGridViewInlineEditingViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:GridView DataSource="{value: Customers}" InlineEditing="true">
+        <Columns>
+            <dot:GridViewTextColumn ValueBinding="{value: Id}" HeaderText="Id" IsEditable="false" />
+            <dot:GridViewTextColumn ValueBinding="{value: Name}" HeaderText="Name" IsEditable="true" />
+            <dot:GridViewTemplateColumn HeaderText="Shopping Cart" IsEditable="true">
+                <EditTemplate>
+                    <dot:GridView DataSource="{value: ShoppingCartItems}" InlineEditing="true">
+                        <Columns>
+                            <dot:GridViewTextColumn ValueBinding="{value: Item}" HeaderText="Item" IsEditable="false" />
+                            <dot:GridViewTextColumn ValueBinding="{value: Quantity}" HeaderText="Quantity" IsEditable="true" />
+                            <dot:GridViewTemplateColumn>
+                                <ContentTemplate>
+                                    <dot:Button Text="Edit Cart-item" Click="{command: _root.EditShoppingCart(_parent, _this)}" />
+                                </ContentTemplate>
+                                <EditTemplate>
+                                    <dot:Button Text="Save Cart-item" Click="{command: _root.UpdateShoppingCart(_parent, _this)}" />
+                                    <dot:Button Text="Cancel Edit Cart-item" Click="{command: _root.CancelEditShoppingCart()}" />
+                                </EditTemplate>
+                            </dot:GridViewTemplateColumn>
+                        </Columns>
+                    </dot:GridView>
+                </EditTemplate>
+                <ContentTemplate>
+                    <dot:GridView DataSource="{value: ShoppingCartItems}" InlineEditing="true">
+                        <Columns>
+                            <dot:GridViewTextColumn ValueBinding="{value: Item}" HeaderText="Item" IsEditable="false" />
+                            <dot:GridViewTextColumn ValueBinding="{value: Quantity}" HeaderText="Quantity" IsEditable="true" />
+                            <dot:GridViewTemplateColumn>
+                                <ContentTemplate>
+                                    <dot:Button Text="Edit Cart-item" Click="{command: _root.EditShoppingCart(_parent, _this)}" />
+                                </ContentTemplate>
+                                <EditTemplate>
+                                    <dot:Button Text="Save Cart-item" Click="{command: _root.UpdateShoppingCart(_parent, _this)}" />
+                                    <dot:Button Text="Cancel Cart-item" Click="{command: _root.CancelEditShoppingCart()}" />
+                                </EditTemplate>
+                            </dot:GridViewTemplateColumn>
+                        </Columns>
+                    </dot:GridView>
+                </ContentTemplate>
+            </dot:GridViewTemplateColumn>
+            <dot:GridViewTemplateColumn>
+                <ContentTemplate>
+                    <dot:Button Text="Edit Customer" Click="{command: _root.EditCustomer(_this)}" />
+                </ContentTemplate>
+                <EditTemplate>
+                    <dot:Button Text="Save Customer" Click="{command: _root.UpdateCustomer(_this)}" />
+                    <dot:Button Text="Cancel Customer" Click="{command: _root.CancelEditCustomer()}" />
+                </EditTemplate>
+            </dot:GridViewTemplateColumn>
+        </Columns>
+    </dot:GridView>
+</body>
+</html>
