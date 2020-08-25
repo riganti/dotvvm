@@ -2233,7 +2233,7 @@ var DotVVM = /** @class */ (function () {
                     if (!isInitial) {
                         ko.virtualElements.setDomNodeChildren(element, ko.utils.cloneNodes(savedNodes));
                     }
-                    ko.applyBindingsToDescendants(makeContextCallback(bindingContext, rawValue), element);
+                    ko.applyBindingsToDescendants(makeContextCallback(bindingContext, rawValue, _allBindings), element);
                 }
                 else {
                     ko.virtualElements.emptyNode(element);
@@ -2271,9 +2271,21 @@ var DotVVM = /** @class */ (function () {
         };
         ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
         ko.bindingHandlers["withGridViewDataSet"] = {
-            init: makeUpdatableChildrenContextHandler(function (bindingContext, value) {
+            init: makeUpdatableChildrenContextHandler(function (bindingContext, value, allBindings) {
                 var _a;
-                return bindingContext.extend((_a = { $gridViewDataSet: value }, _a[foreachCollectionSymbol] = dotvvm.evaluator.getDataSourceItems(value), _a));
+                return bindingContext.extend((_a = {
+                        $gridViewDataSet: value
+                    },
+                    _a[foreachCollectionSymbol] = dotvvm.evaluator.getDataSourceItems(value),
+                    _a.$gridViewDataSetHelper = {
+                        columnMapping: allBindings.get("gridViewDataSetColumnMapping"),
+                        isInEditMode: function ($context) {
+                            var columnName = $context.$gridViewDataSet().RowEditOptions().PrimaryKeyPropertyName();
+                            columnName = this.columnMapping[columnName] || columnName;
+                            return ko.unwrap($context.$gridViewDataSet().RowEditOptions().EditRowId) === ko.unwrap($context.$data[columnName]);
+                        }
+                    },
+                    _a));
             }, function (_) { return true; })
         };
         ko.bindingHandlers['dotvvmEnable'] = {
@@ -3105,6 +3117,8 @@ var DotvvmEvaluator = /** @class */ (function () {
         if (typeof value === "undefined" || value == null)
             return [];
         return ko.unwrap(value.Items || value);
+    };
+    DotvvmEvaluator.prototype.getGridViewDataSetColumnName = function () {
     };
     DotvvmEvaluator.prototype.tryEval = function (func) {
         try {

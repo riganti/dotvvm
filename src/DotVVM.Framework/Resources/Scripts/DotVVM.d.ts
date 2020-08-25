@@ -496,6 +496,7 @@ declare class DotvvmEvaluator {
     evaluateOnViewModel(context: any, expression: any): any;
     evaluateOnContext(context: any, expression: string): any;
     getDataSourceItems(viewModel: any): any;
+    getGridViewDataSetColumnName(): void;
     tryEval(func: () => any): any;
     isObservableArray(instance: any): instance is KnockoutObservableArray<any>;
     wrapObservable(func: () => any, isArray?: boolean): KnockoutComputed<any>;
