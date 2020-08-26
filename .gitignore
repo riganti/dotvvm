@@ -205,3 +205,6 @@ FakesAssemblies/
 
 .dotvvm/
 .dotvvm.json
+
+
+*.binlog

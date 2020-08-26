@@ -19,7 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../DotVVM.CommandLine.Common/DotVVM.CommandLine.Common.csproj" />
+    <ProjectReference Include="..\DotVVM.CommandLine.Common\DotVVM.CommandLine.Common.csproj" />
+    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,9 +31,5 @@
     <DotvvmTemplate Include="Templates/*.tt" />
     <DotvvmTemplateCodeBehinds Include="@(DotvvmTemplate->'Templates/%(Filename).cs')" />
   </ItemGroup>
-
-  <Target BeforeTargets="BeforeBuild" Name="GenerateTemplates" Inputs="@(DotvvmTemplate)" Outputs="@(DotvvmTemplateCodeBehinds)">
-    <Exec Command="dotnet t4 -o Templates/%(DotvvmTemplate.Filename).cs -c %(DotvvmTemplate.Filename) %(DotvvmTemplate.FullPath)" />
-  </Target>
 
 </Project>

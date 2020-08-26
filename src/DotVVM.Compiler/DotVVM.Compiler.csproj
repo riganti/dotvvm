@@ -1,11 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <!-- <OutputType>Exe</OutputType>
+    <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
+    <StartupObject>DotVVM.Compiler.Program</StartupObject>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType> -->
     <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <!-- C# related -->
+  <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <StartupObject>DotVVM.Compiler.Program</StartupObject>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -14,15 +21,35 @@
     <Version>2.2.0</Version>
   </PropertyGroup>
 
+  <!-- See DotVVM.CommandLine.Common.csproj for explanation. -->
+  <!-- <ItemDefinitionGroup>
+    <ProjectReference>
+      <IncludeAssets>all</IncludeAssets>
+      <ExcludeAssets>runtime</ExcludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+      <Private>false</Private>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.6" />
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
+    <ProjectReference Include="..\DotVVM.CommandLine.Common\DotVVM.CommandLine.Common.csproj">
+      <ExcludeAssets>none</ExcludeAssets>
+      <PrivateAssets>contentfiles;analyzers;build</PrivateAssets>
+      <Private>true</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
+  </ItemGroup> -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\DotVVM.CommandLine.Common\DotVVM.CommandLine.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
-    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
-    <ProjectReference Include="..\DotVVM.CommandLine.Common\DotVVM.CommandLine.Common.csproj" />
+    <PackageReference Include="DotVVM" Version="2.0.0">
+      <IncludeAssets>all</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

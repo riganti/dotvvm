@@ -5,7 +5,6 @@ using DotVVM.Compiler.Compilation;
 using DotVVM.Compiler.Resolving;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,7 +28,7 @@ namespace DotVVM.Compiler
                     services.AddSingleton<IControlResolver, OfflineCompilationControlResolver>();
                     services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
                     services.AddSingleton(new RefObjectSerializer());
-                    services.AddSingleton<IDotvvmCacheAdapter, SimpleDictionaryCacheAdapter>();
+                    // services.AddSingleton<IDotvvmCacheAdapter, SimpleDictionaryCacheAdapter>();
                 }
 
                 additionalServices?.Invoke(services);

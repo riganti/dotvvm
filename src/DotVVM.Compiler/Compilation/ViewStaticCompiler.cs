@@ -30,7 +30,7 @@ namespace DotVVM.Compiler.Compilation
         private static ConcurrentDictionary<string, Assembly> assemblyDictionary = new ConcurrentDictionary<string, Assembly>();
         private static ConcurrentDictionary<string, DotvvmConfiguration> cachedConfig = new ConcurrentDictionary<string, DotvvmConfiguration>();
 
-        public CompilerOptions Options { get; set; }
+        public CompilerOptions Options { get; }
         private DotvvmConfiguration configuration;
         private AssemblyBindingCompiler bindingCompiler;
         private IControlTreeResolver controlTreeResolver;
@@ -38,10 +38,13 @@ namespace DotVVM.Compiler.Compilation
         private IMarkupFileLoader fileLoader;
         private CSharpCompilation compilation;
         private CompilationResult result = new CompilationResult();
+        private Assembly websiteAssembly;
         private ILogger logger;
 
-        public ViewStaticCompiler(ILogger? logger = null)
+        public ViewStaticCompiler(Assembly websiteAssembly, CompilerOptions options, ILogger? logger = null)
         {
+            this.websiteAssembly = websiteAssembly;
+            Options = options;
             this.logger = logger ?? NullLogger.Instance;
         }
 
@@ -64,18 +67,17 @@ namespace DotVVM.Compiler.Compilation
                 }
             }
 
-            // var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => Assembly.LoadFile(Options.WebSiteAssembly));
-            var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => Assembly.Load(Options.WebSiteAssembly));
-            configuration = GetCachedConfiguration(wsa, Options.WebSitePath,
-                (services) => {
-                    if (Options.FullCompile)
-                    {
-                        throw new NotImplementedException();
-                        //TODO: LAST PARAMETER | bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"), null);
-                        services.AddSingleton<IBindingCompiler>(bindingCompiler);
-                        services.AddSingleton<IExpressionToDelegateCompiler>(bindingCompiler.GetExpressionToDelegateCompiler());
-                    }
-                });
+            var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => websiteAssembly);
+            configuration = GetCachedConfiguration(wsa, Options.WebSitePath, (services) =>
+            {
+                if (Options.FullCompile)
+                {
+                    throw new NotImplementedException();
+                    //TODO: LAST PARAMETER | bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"), null);
+                    services.AddSingleton<IBindingCompiler>(bindingCompiler);
+                    services.AddSingleton<IExpressionToDelegateCompiler>(bindingCompiler.GetExpressionToDelegateCompiler());
+                }
+            });
             if (Options.SerializeConfig)
             {
                 result.Configuration = configuration;

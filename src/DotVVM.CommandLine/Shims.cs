@@ -34,6 +34,8 @@ $@"<Project Sdk=""Microsoft.NET.Sdk"">
     <OutputType>Exe</OutputType>
     <TargetFramework>{targetFramework}</TargetFramework>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -64,6 +66,20 @@ $@"
 
             sb.Append(
 $@"
+  <ItemGroup>
+    <PackageReference Include=""DotVVM"" Version=""{dotvvmVersion}"" />
+    <PackageReference Include=""DotVVM.Core"" Version=""{dotvvmVersion}"" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SuggestedBindingRedirects Include=""DotVVM.Framework, Culture=neutral, PublicKeyToken=23f3607db32275da"">
+      <MaxVersion>{dotvvmVersion}</MaxVersion>
+    </SuggestedBindingRedirects>
+    <SuggestedBindingRedirects Include=""DotVVM.Core, Culture=neutral, PublicKeyToken=23f3607db32275da"">
+      <MaxVersion>{dotvvmVersion}</MaxVersion>
+    </SuggestedBindingRedirects>
+  </ItemGroup>
+
 </Project>
 ");
             return sb.ToString();
