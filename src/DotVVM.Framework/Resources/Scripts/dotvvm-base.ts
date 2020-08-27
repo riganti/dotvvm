@@ -42,7 +42,7 @@ export function getVirtualDirectory(): string {
 export function replaceViewModel(vm: RootViewModel): void {
     getStateManager().setState(vm);
 }
-export function getState(): RootViewModel {
+export function getState(): Readonly<RootViewModel> {
     return getStateManager().state
 }
 export function updateViewModelCache(viewModelCacheId: string, viewModelCache: any) {

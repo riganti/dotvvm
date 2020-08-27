@@ -162,16 +162,17 @@ export function unmapKnockoutObservables(viewModel: any): any {
         return viewModel
     }
 
+    if (viewModel instanceof Date) {
+        // return serializeDate(viewModel)
+        return viewModel
+    }
+
     if (currentStateSymbol in viewModel) {
         return viewModel[currentStateSymbol]
     }
 
     if (viewModel instanceof Array) {
         return viewModel.map(unmapKnockoutObservables)
-    }
-
-    if (viewModel instanceof Date) {
-        return serializeDate(viewModel)
     }
 
     const result: any = {};
@@ -184,10 +185,10 @@ export function unmapKnockoutObservables(viewModel: any): any {
     return result
 }
 
-function createObservableObject<T extends object>(initialObject: T, update: ((updater: StateUpdate<any>) => void)): FakeObservableObject<T> {
+function createObservableObject<T extends object>(initialObject: T, update: ((updater: StateUpdate<any>) => void)) {
     const properties = keys(initialObject)
 
-    return new FakeObservableObject(initialObject, update, properties)
+    return new FakeObservableObject(initialObject, update, properties) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
 }
 
 
@@ -257,10 +258,10 @@ function createWrappedObservable<T>(value: T, updater: UpdateDispatcher<T>): Dee
     else {
         let isUpdating = false
 
-        const rr = ko.observable() as DeepKnockoutWrapped<T>
+        const rr = ko.observable() as any
         rr[updateSymbol] = updater
 
-        rr.subscribe((newVal) => {
+        rr.subscribe((newVal: any) => {
             if (isUpdating) { return }
             updater(_ => unmapKnockoutObservables(newVal))
         })

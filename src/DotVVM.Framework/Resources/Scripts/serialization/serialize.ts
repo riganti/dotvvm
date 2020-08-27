@@ -22,12 +22,12 @@ export function serializeCore(viewModel: any, opt: ISerializationOptions = {}): 
         opt.pathOnly = false;
     }
 
-    if (isPrimitive(viewModel)) {
-        return viewModel;
-    }
-
     if (typeof (viewModel) == "function") {
         return null;
+    }
+
+    if (isPrimitive(viewModel)) {
+        return viewModel ?? null;
     }
 
     if (viewModel instanceof Array) {
@@ -63,9 +63,6 @@ export function serializeCore(viewModel: any, opt: ISerializationOptions = {}): 
             continue;
         }
         if (!opt.serializeAll && (/\$options$/.test(prop) || prop === "$validationErrors")) {
-            continue;
-        }
-        if (typeof (value) == "undefined") {
             continue;
         }
         if (typeof (value) == "function") {
