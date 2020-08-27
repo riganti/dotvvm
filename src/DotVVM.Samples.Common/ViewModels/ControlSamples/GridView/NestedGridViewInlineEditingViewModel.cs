@@ -12,13 +12,15 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 {
     public class Customer
     {
-        public int Id { get; set; }
+        [Bind(Name = "CoolId")]
+        public int Id { get; set; }      
         public string Name { get; set; }
         public GridViewDataSet<ShoppingCartItem> ShoppingCartItems { get; set; }
     }
 
     public class ShoppingCartItem
     {
+        [JsonProperty("CoolItem")]
         public string Item { get; set; }
         public int Quantity { get; set; }
     }
