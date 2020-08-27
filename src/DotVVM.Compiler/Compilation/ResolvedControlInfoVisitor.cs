@@ -4,7 +4,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Compiler.Compilation
 {
-    class ResolvedControlInfoVisitor: ResolvedControlTreeVisitor
+    public class ResolvedControlInfoVisitor: ResolvedControlTreeVisitor
     {
         public AssemblyBindingCompiler BindingCompiler { get; set; }
         public FileCompilationResult Result { get; set; }

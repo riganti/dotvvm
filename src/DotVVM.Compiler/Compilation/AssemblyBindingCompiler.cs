@@ -12,7 +12,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Compiler.Compilation
 {
-    internal class AssemblyBindingCompiler : BindingCompiler
+    public class AssemblyBindingCompiler : BindingCompiler
     {
 
 #if NET461

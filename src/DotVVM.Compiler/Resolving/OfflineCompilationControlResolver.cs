@@ -5,7 +5,7 @@ using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Compiler.Resolving
 {
-    class OfflineCompilationControlResolver : DefaultControlResolver
+    public class OfflineCompilationControlResolver : DefaultControlResolver
     {
         private ViewStaticCompiler compiler;
 

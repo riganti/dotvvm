@@ -3,7 +3,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Compiler
 {
-    internal class ViewCompilationResult
+    public class ViewCompilationResult
     {
         public string BuilderClassName { get; set; }
         public Type ControlType { get; set; }

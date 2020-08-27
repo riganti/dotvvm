@@ -22,8 +22,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DotVVM.Compiler.Compilation
 {
-
-    internal class ViewStaticCompiler
+    public class ViewStaticCompiler
     {
         private const string ObjectsClassName = "SerializedObjects";
 

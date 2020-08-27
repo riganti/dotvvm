@@ -21,25 +21,6 @@
     <Version>2.2.0</Version>
   </PropertyGroup>
 
-  <!-- See DotVVM.CommandLine.Common.csproj for explanation. -->
-  <!-- <ItemDefinitionGroup>
-    <ProjectReference>
-      <IncludeAssets>all</IncludeAssets>
-      <ExcludeAssets>runtime</ExcludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-      <Private>false</Private>
-    </ProjectReference>
-  </ItemDefinitionGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\DotVVM.CommandLine.Common\DotVVM.CommandLine.Common.csproj">
-      <ExcludeAssets>none</ExcludeAssets>
-      <PrivateAssets>contentfiles;analyzers;build</PrivateAssets>
-      <Private>true</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
-  </ItemGroup> -->
-
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.CommandLine.Common\DotVVM.CommandLine.Common.csproj" />
   </ItemGroup>

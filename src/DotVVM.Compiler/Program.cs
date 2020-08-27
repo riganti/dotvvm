@@ -33,7 +33,7 @@ namespace DotVVM.Compiler
             ILogger logger)
         {
             var config = ConfigurationInitializer
-                    .InitDotVVM(assembly, options.WebSitePath, null, collection => { });
+                .InitDotVVM(assembly, options.WebSitePath, null, collection => { });
             var result = new CompilationResult
             {
                 Configuration = config
