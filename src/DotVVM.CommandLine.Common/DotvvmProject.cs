@@ -20,7 +20,6 @@ namespace DotVVM.CommandLine
     public static class DotvvmProject
     {
         public const string CliDirectoryName = ".dotvvm";
-        public const string FallbackVersion = "2.4.0.1";
 
         public static DirectoryInfo CreateDotvvmDirectory(FileSystemInfo target)
         {
@@ -57,20 +56,23 @@ namespace DotVVM.CommandLine
                 ? GetConfigureServicesMethod(configuratorType) 
                 : null;
 
-            var config = DotvvmConfiguration.CreateDefault(services => {
-                if (configureServicesMethod is object)
+            var config = (DotvvmConfiguration)Mirror.Invoke(
+                type: typeof(DotvvmConfiguration),
+                name: nameof(DotvvmConfiguration.CreateDefault),
+                args: new []
                 {
-                    InvokeConfigureServices(configureServicesMethod, services);
-                }
-                configureServices?.Invoke(services);
-            });
+                    new Action<IServiceCollection>(services =>
+                    {
+                        if (configureServicesMethod is object)
+                        {
+                            InvokeConfigureServices(configureServicesMethod, services);
+                        }
+                        configureServices?.Invoke(services);
+                    })
+                });
 
             config.ApplicationPhysicalPath = webSitePath;
-            config.CompiledViewsAssemblies = null!;
-
-            //configure dotvvm startup
             dotvvmStartup?.Configure(config, webSitePath);
-
             return config;
         }
 

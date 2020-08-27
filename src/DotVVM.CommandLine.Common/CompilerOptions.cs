@@ -23,7 +23,7 @@ namespace DotVVM.CommandLine
         public string? AssemblyName { get; set; }
 
         /// <summary>
-        /// Path to the parent directory of Views, Controls, etc.
+        /// Path to the parent directory of Views, Controls, etc. Required.
         /// <summary>
         public string? WebSitePath { get; set; } 
         public bool FullCompile { get; set; } = false;
