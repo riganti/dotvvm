@@ -1,18 +1,15 @@
 using System;
 using System.Reflection;
 using DotVVM.CommandLine;
-using DotVVM.Compiler.Compilation;
-using DotVVM.Compiler.Resolving;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Security;
-using DotVVM.Framework.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace DotVVM.Compiler
 {
-    internal class ConfigurationInitializer
+    public class ConfigurationInitializer
     {
         public static DotvvmConfiguration InitDotVVM(
             Assembly assembly,

@@ -2,7 +2,7 @@
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
-namespace DotVVM.Compiler.Compilation
+namespace DotVVM.Compiler
 {
     public class ResolvedControlInfoVisitor: ResolvedControlTreeVisitor
     {

@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace DotVVM.Compiler.Compilation
+namespace DotVVM.Compiler
 {
     public class UnallowedConstantRemover : ExpressionVisitor
     {

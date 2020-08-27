@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace DotVVM.Compiler.Compilation
+namespace DotVVM.Compiler
 {
     public class CompileTimeCodeEmitter : DefaultViewCompilerCodeEmitter
     {

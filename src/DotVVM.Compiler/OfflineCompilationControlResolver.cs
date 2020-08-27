@@ -1,9 +1,8 @@
-﻿using DotVVM.Compiler.Compilation;
-using DotVVM.Framework.Compilation;
+﻿using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 
-namespace DotVVM.Compiler.Resolving
+namespace DotVVM.Compiler
 {
     public class OfflineCompilationControlResolver : DefaultControlResolver
     {

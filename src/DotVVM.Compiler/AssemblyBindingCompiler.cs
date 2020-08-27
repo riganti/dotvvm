@@ -10,7 +10,7 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 
-namespace DotVVM.Compiler.Compilation
+namespace DotVVM.Compiler
 {
     public class AssemblyBindingCompiler : BindingCompiler
     {

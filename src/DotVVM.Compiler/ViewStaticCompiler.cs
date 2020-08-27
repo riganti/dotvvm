@@ -20,7 +20,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace DotVVM.Compiler.Compilation
+namespace DotVVM.Compiler
 {
     public class ViewStaticCompiler
     {
