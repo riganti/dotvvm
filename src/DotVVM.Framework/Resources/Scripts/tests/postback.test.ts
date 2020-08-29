@@ -1,12 +1,12 @@
 // Typescript could not find the module, IDK why...
-import fc_types from '../../../node_modules/fast-check/lib/types/fast-check'
+import fc_types, { func, json } from '../../../node_modules/fast-check/lib/types/fast-check'
 import { initDotvvm, watchEvents } from './helper';
 import { postBack } from '../postback/postback';
 import { getStateManager } from '../dotvvm-base';
 import { keys } from '../utils/objects';
 import { DotvvmPostbackError } from '../shared-classes';
 import enable from '../binding-handlers/enable';
-import { getPostbackQueue } from '../postback/queue';
+import { getPostbackQueue, postbackQueues } from '../postback/queue';
 
 var fetchJson = async function<T>(url: string, init: RequestInit): Promise<T> {
     // the implementation is replaced by individual tests
@@ -115,6 +115,55 @@ function cancerPostbackHandler(s: fc_types.Scheduler, lbl: string): DotvvmPostba
 
 initDotvvm(originalViewModel)
 
+async function waitForEnd<T>(result: Promise<T>[], s: fc_types.Scheduler, assert: () => void) {
+    const noFailResult = result.map(r => r.then(result => ({ result, ok: true }), result => ({ result, ok: false })))
+    const aggResult = Promise.all(noFailResult)
+
+    let done = false
+    aggResult.then(_ => done = true, _ => {
+        console.error("The promise should not be allowed to fail")
+        done = true
+    })
+    await delay(1)
+
+    while (!done) {
+        // console.log(s.report())
+        expect(s.count()).toBeGreaterThan(0)
+        await s.waitOne()
+
+        assert()
+
+        await delay(1)
+    }
+
+    return await aggResult
+}
+
+function makeRange<T>(num: number, create: (i: number) => T): T[] {
+    return Array.from(new Array(num)).map((_, i) => create(i))
+}
+
+function makeEventRange<T>(num: number, scheduler: fc_types.Scheduler, label: string, create: (i: number) => Promise<T>): Promise<T>[] {
+    return Array.from(new Array(num)).map((_, i) =>
+        scheduler.schedule(Promise.resolve(i), `INIT ${label} ${i}`).then(create)
+    )
+}
+
+function resetQueues() {
+    for (const q of keys(postbackQueues)) {
+        delete postbackQueues[q]
+    }
+}
+
+function makeResponse(viewModelDiff: any): any {
+    return {
+        viewModelDiff,
+        action: "successfulCommand",
+        updatedControls: {},
+        resources: {}
+    }
+}
+
 test("Postback: sanity check", async () => {
 
     fetchJson = async <T>(url: string, init: RequestInit) => {
@@ -145,66 +194,184 @@ test("Postback: sanity check", async () => {
     expect(state().Property2).toBe(0)
 })
 
+// test("Test runAllTimers", () => {
+//     // check that https://github.com/facebook/jest/pull/6876 is not an issue
+//     let x = false
+//     Promise.resolve().then(() => x = true)
+//     jest.runAllTimers()
+//     expect(x).toBe(true)
+// })
+
 test("Run postbacks [Queue | no failures]", async () => {
-    jest.setTimeout(120_0000);
+    jest.setTimeout(120_000);
 
     // watchEvents()
 
     await fc.assert(fc.asyncProperty(
-        fc.integer(2, 30),
+        fc.integer(1, 30),
         fc.scheduler(),
-        limitRuntime(600, async (parallelism, s) => {
-            getStateManager().update(x => ({...x, Property1: 0}))
-            // console.debug("Starting new test ", parallelism)
-            let index = 0
-            let enableScheduling = false
-            fetchJson = async(url: string, init: RequestInit) => {
-                if (enableScheduling)
-                    await s.schedule(Promise.resolve(), `POST request ${url} ${init.body}`)
-                return {
-                    viewModelDiff: {
-                        Property1: ++index
-                    },
-                    action: "successfulCommand",
-                    updatedControls: {},
-                    resources: {}
-                } as any
-            }
-
+        async (parallelism, s) => {
             // wait for stuff to settle down
             // postbacks from the previous run may have been running or so
-            delay(1)
-            const queue = getPostbackQueue("default")
-            queue.queue.length = 0
-            queue.noRunning = 0
-            await postBack(window.document.body, [], "c", "", undefined, [ "concurrency-queue" ])
+            await delay(1)
+            resetQueues()
+
+            // console.debug("Starting new test ", parallelism)
+            let index = 0
+            fetchJson = async(url: string, init: RequestInit) => {
+                return makeResponse({
+                    Property1: ++index
+                })
+            }
+
             getStateManager().update(x => ({...x, Property1: 0}))
-            index = 0
-            enableScheduling = true
 
             const postbacks =
-                Array.from(
-                    new Array(parallelism)
-                ).map((_, i) => postBack(window.document.body, [], "c", "", undefined, [ "concurrency-queue", cancerPostbackHandler(s, i + "") ]))
+                makeRange(parallelism, i =>
+                    postBack(window.document.body, [], "c", "", undefined, [ "concurrency-queue", cancerPostbackHandler(s, i + "") ])
+                )
 
-            let done = false
-            Promise.all(postbacks).then(_ => done = true, _ => done = true)
-            await delay(1)
-
-            while (!done) {
-                // console.log(s.report())
-                expect(s.count()).toBeGreaterThan(0)
-                await s.waitOne()
-
+            await waitForEnd(postbacks, s, () => {
                 expect(state().Property1).toBeLessThanOrEqual(index)
                 // another postback did not start before committing the original one
                 expect(state().Property1).toBeGreaterThanOrEqual(index - 1)
+            })
 
-                if (s.count() == 0) {
-                    await delay(1)
-                }
-            }
+
             expect(state().Property1).toBe(parallelism)
         }
-    )))
+    ), { timeout: 500 })
+})
+
+test("Run postbacks [Queue + Deny | no failures]", async () => {
+    jest.setTimeout(120_000);
+
+    // watchEvents()
+
+    await fc.assert(fc.asyncProperty(
+        fc.integer(1, 10),
+        fc.integer(0, 10),
+        fc.scheduler(),
+        async (parallelismQ, parallelismD, s) => {
+            // wait for stuff to settle down
+            // postbacks from the previous run may have been running or so
+            await delay(1)
+            resetQueues()
+
+            // console.debug("Starting new test ", parallelismQ, parallelismD)
+            let index = 0
+            let index2 = 0
+            fetchJson = async(url: string, init: RequestInit) => {
+                const { command } = JSON.parse(init.body as string)
+                if (command == "queue") {
+                    return makeResponse({
+                        Property1: ++index
+                    })
+                } else if (command == "deny") {
+                    return makeResponse({
+                        Property2: ++index2
+                    })
+                }
+            }
+
+            getStateManager().update(x => ({...x, Property1: 0, Property2: 0}))
+
+            const queuePostbacks =
+                makeEventRange(parallelismQ, s, "queue postback", i =>
+                    postBack(window.document.body, [], "queue", "", undefined, [ "concurrency-queue", cancerPostbackHandler(s, i + "Q") ])
+                )
+
+            const initDenyPostback = postBack(window.document.body, [], "deny", "", undefined, [ "concurrency-deny", cancerPostbackHandler(s, "initial D") ])
+
+            const denyPostbacks =
+                makeEventRange(parallelismD, s, "deny postback", i =>
+                    postBack(window.document.body, [], "deny", "", undefined, [ "concurrency-deny", cancerPostbackHandler(s, i + "D") ])
+                )
+
+            await waitForEnd(queuePostbacks.concat(denyPostbacks).concat([initDenyPostback]), s, () => {
+                expect(state().Property1).toBeLessThanOrEqual(index)
+                // another postback did not start before committing the original one
+                expect(state().Property1).toBeGreaterThanOrEqual(index - 1)
+            })
+
+            // all Queue postback got through
+            expect(state().Property1).toBe(parallelismQ)
+            // no results were dropped
+            expect(state().Property1).toBe(index)
+            expect(state().Property2).toBe(index2)
+            // the initDenyPostback should get through
+            expect(state().Property2).toBeGreaterThan(0)
+            await initDenyPostback
+        }
+    ), { timeout: 500 })
+})
+
+test("Run postbacks [Queue + Default | no failures]", async () => {
+    jest.setTimeout(120_000);
+
+    // watchEvents()
+
+    await fc.assert(fc.asyncProperty(
+        fc.integer(1, 10),
+        fc.integer(1, 10),
+        fc.scheduler(),
+        async (parallelismQ, parallelismD, s) => {
+            // wait for stuff to settle down
+            // postbacks from the previous run may have been running or so
+            await delay(1)
+            resetQueues()
+
+            // console.debug("Starting new test ", parallelismQ, parallelismD)
+            let index = 0
+            let index2 = 0
+            fetchJson = async(url: string, init: RequestInit) => {
+                const { command } = JSON.parse(init.body as string)
+                if (command == "queue") {
+                    return makeResponse({
+                        Property1: ++index
+                    })
+                } else if (command == "default") {
+                    return makeResponse({
+                        Property2: ++index2
+                    })
+                }
+            }
+
+            getStateManager().update(x => ({...x, Property1: 0, Property2: 0}))
+
+            const queuePostbacks =
+                makeEventRange(parallelismQ, s, "queue postback", i =>
+                    postBack(window.document.body, [], "queue", "", undefined, [ "concurrency-queue", cancerPostbackHandler(s, i + "Q") ])
+                )
+
+            const defaultPostbacks =
+                makeEventRange(parallelismD, s, "default postback", i =>
+                    postBack(window.document.body, [], "default", "", undefined, [ "concurrency-default", cancerPostbackHandler(s, i + "D") ])
+                )
+
+            // queuePostbacks.map((p, i) => p.catch(err => console.error("Queue postback failed", i, err)))
+
+            await waitForEnd(queuePostbacks.concat(defaultPostbacks), s, () => {
+                expect(state().Property1).toBeLessThanOrEqual(index)
+                expect(state().Property2).toBeLessThanOrEqual(index2)
+
+                // another postback did not start before committing the original one, oh NO
+                // expect(state().Property1).toBeGreaterThanOrEqual(index - 1)
+            })
+
+            // console.log(queuePostbacks, defaultPostbacks)
+
+            // all Queue postback got through, oh NO
+            // expect(state().Property1).toBe(parallelismQ)
+            // no postbacks were dropped
+            expect(index).toBe(parallelismQ)
+            expect(index2).toBe(parallelismD)
+
+            // try one more without the concurrency
+            // that one must get through just fine
+            await waitForEnd([postBack(window.document.body, [], "default", "", undefined, [ "concurrency-default" ])], s, () => { })
+            expect(index2).toBe(parallelismD + 1)
+            expect(state().Property2).toBe(index2)
+        }
+    ), { timeout: 500 })
 })
