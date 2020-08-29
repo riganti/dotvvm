@@ -42,8 +42,7 @@ export async function fetchJson<T>(url: string, init: RequestInit): Promise<T> {
 }
 
 export async function fetchCsrfToken(): Promise<string> {
-    const viewModel = getViewModel()
-    let token = viewModel.$csrfToken
+    const viewModel = getViewModel();
     if (viewModel.$csrfToken == null) {
         let response;
         try {
@@ -59,7 +58,6 @@ export async function fetchCsrfToken(): Promise<string> {
             throw new DotvvmPostbackError({ type: "csrfToken" });
         }
 
-        token = await response.text()
         viewModel.$csrfToken = await response.text();
     }
     return ko.unwrap(viewModel.$csrfToken);
@@ -76,7 +74,7 @@ export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => P
             if (err.reason.type === "serverError") {
                 if (err.reason.responseObject?.action === "invalidCsrfToken") {
                     console.log("Resending postback due to invalid CSRF token.");
-                    getViewModel().$csrfToken = undefined
+                    getViewModel().$csrfToken = undefined;
 
                     if (iteration < 3) {
                         return await retryOnInvalidCsrfToken(postbackFunction, iteration + 1);

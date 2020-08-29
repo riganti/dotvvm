@@ -1,3 +1,8 @@
+// use polyfill promise, so Jest fake timers work
+// see https://github.com/facebook/jest/issues/7151#issuecomment-429377276
+// this PR should solve this in the future: https://github.com/facebook/jest/pull/6876
+// global.Promise = require('promise');
+
 global.compileConstants = { isSpa: false, nomodules: false }
 global.ko = require("../knockout-latest.debug")
 global.dotvvm_Globalize = require("../Globalize/globalize")
