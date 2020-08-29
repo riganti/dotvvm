@@ -18,7 +18,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand
         [AllowStaticCommand]
         public static string GetGreeting(string name)
         {
-            Thread.Sleep(20000);
             return "Hello " + name + "!";
         }
     }

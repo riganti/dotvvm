@@ -12,7 +12,7 @@ type PostbackRejectionReason =
     | { type: "handler", handlerName: string, message?: string }
     | { type: 'network', err?: any }
     | { type: 'gate' }
-    | { type: 'commit', args: DotvvmErrorEventArgs }
+    | { type: 'commit', args?: DotvvmErrorEventArgs }
     | { type: 'csrfToken' }
     | { type: 'serverError', status?: number, responseObject: any, response?: Response }
     | { type: 'event' }
