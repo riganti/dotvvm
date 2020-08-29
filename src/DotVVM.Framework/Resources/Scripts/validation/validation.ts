@@ -16,7 +16,8 @@ import { getValidationRules } from "../dotvvm-base"
 type ValidationSummaryBinding = {
     target: KnockoutObservable<any>,
     includeErrorsFromChildren: boolean,
-    includeErrorsFromTarget: boolean
+    includeErrorsFromTarget: boolean,
+    hideWhenValid: boolean
 }
 
 const validationErrorsChanged = new DotvvmEvent<DotvvmEventArgs>("dotvvm.validation.events.validationErrorsChanged");
@@ -107,6 +108,10 @@ export function init() {
                     const item = document.createElement("li");
                     item.innerText = error.errorMessage;
                     element.appendChild(item);
+                }
+                
+                if (binding.hideWhenValid) {
+                    element.style.display = errors.length > 0 ? "" : "none";
                 }
             });
         }

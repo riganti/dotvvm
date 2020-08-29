@@ -1,0 +1,19 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBackSpaNavigation.PageAViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/PostbackSpaNavigation/DenyPostbacksOnSpaNavigation.dotmaster
+@service _vm = DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBackSpaNavigation.DenyPostbacksOnSpaNavigationService
+
+<dot:Content ContentPlaceHolderID="MainContent">
+
+    <p>
+        <dot:RouteLink RouteName="FeatureSamples_PostbackSpaNavigation_PageB" Text="Navigate with success" />
+    </p>
+    <p>
+        <dot:RouteLink RouteName="FeatureSamples_PostbackSpaNavigation_PageB" Query-fail="true" Text="Navigate with failure" />
+    </p>
+
+    <span class="result">{{value: Result}}</span>
+
+    <dot:Button Click="{command: Command()}" Text="Command" />
+    <dot:Button Click="{staticCommand: Result = _vm.StaticCommand(Result)}" Text="Static Command" />
+
+</dot:Content>

@@ -1,0 +1,43 @@
+@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.GridView.GridViewSortChangedViewModel, DotVVM.Samples.Common
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+	<div class="container">
+        <h1>GridView with default sorting logic</h1>
+        <ul>
+            <li>Clicking on the column header sorts the data using the particular column in the ascending order.</li>
+            <li>Subsequent clicks on the column header alternates the changes the order from ascending to descending and vice versa.</li>
+        </ul>
+		<dot:GridView DataSource="{value: CustomersDataSet}" class="table table-bordered">
+			<Columns>
+				<dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
+				<dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+				<dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+				<dot:GridViewCheckBoxColumn HeaderText="Message received" ValueBinding="{value: MessageReceived}" AllowSorting="True" />
+			</Columns>
+		</dot:GridView>
+
+		<h1>GridView with custom sorting logic</h1>
+        <ul>
+            <li>Clicking on the column header sorts the data using the particular column in the ascending order.</li>
+            <li>Subsequent clicks on the column header do nothing special - the order is always ascending.</li>
+        </ul>
+		<dot:GridView DataSource="{value: CustomersDataSet}" SortChanged="{command: CustomSort}" class="table table-bordered">
+			<Columns>
+				<dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
+				<dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+				<dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+				<dot:GridViewCheckBoxColumn HeaderText="Message received" ValueBinding="{value: MessageReceived}" AllowSorting="True" />
+			</Columns>
+		</dot:GridView>
+
+        <p>
+            Sort Expression: <span class="result-sortexpression">{{value: CustomersDataSet.SortingOptions.SortExpression}}</span><br />
+            Sort Descending: <span class="result-sortdescending">{{value: CustomersDataSet.SortingOptions.SortDescending}}</span>
+        </p>
+	</div>
+</body>
+</html>

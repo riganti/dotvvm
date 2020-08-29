@@ -28,7 +28,7 @@
          * @category (optional) 
          * @return Success
          */
-        getItems(category?: number): Promise<BindingSharingItemDTO[]> {
+        bindingSharingGetGet(category?: number): Promise<BindingSharingItemDTO[]> {
             let url_ = this.baseUrl + "/api/BindingSharing/get?";
             if (category !== undefined)
                 url_ += "category=" + encodeURIComponent("" + category) + "&"; 
@@ -45,11 +45,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetItems(_response);
+                return this.processBindingSharingGetGet(_response);
             });
         }
     
-        protected processGetItems(response: Response): Promise<BindingSharingItemDTO[]> {
+        protected processBindingSharingGetGet(response: Response): Promise<BindingSharingItemDTO[]> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -74,7 +74,7 @@
         /**
          * @return Success
          */
-        getItemsWithRouteParam(category: number): Promise<BindingSharingItemDTO[]> {
+        bindingSharingGetGetWithRouteParam(category: number): Promise<BindingSharingItemDTO[]> {
             let url_ = this.baseUrl + "/api/BindingSharing/getWithRouteParam/{category}";
             if (category === undefined || category === null)
                 throw new Error("The parameter 'category' must be defined.");
@@ -92,11 +92,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetItemsWithRouteParam(_response);
+                return this.processBindingSharingGetGetWithRouteParam(_response);
             });
         }
     
-        protected processGetItemsWithRouteParam(response: Response): Promise<BindingSharingItemDTO[]> {
+        protected processBindingSharingGetGetWithRouteParam(response: Response): Promise<BindingSharingItemDTO[]> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -122,7 +122,7 @@
          * @category (optional) 
          * @return Success
          */
-        getItemsWithHttpPost(category?: number): Promise<BindingSharingItemDTO[]> {
+        bindingSharingPostPost(category?: number): Promise<BindingSharingItemDTO[]> {
             let url_ = this.baseUrl + "/api/BindingSharing/post?";
             if (category !== undefined)
                 url_ += "category=" + encodeURIComponent("" + category) + "&"; 
@@ -139,11 +139,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetItemsWithHttpPost(_response);
+                return this.processBindingSharingPostPost(_response);
             });
         }
     
-        protected processGetItemsWithHttpPost(response: Response): Promise<BindingSharingItemDTO[]> {
+        protected processBindingSharingPostPost(response: Response): Promise<BindingSharingItemDTO[]> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -168,7 +168,7 @@
         /**
          * @return Success
          */
-        getAll(): Promise<CompanyOfString[]> {
+        getCompanies(): Promise<CompanyOfString[]> {
             let url_ = this.baseUrl + "/api/Companies";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -183,11 +183,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetAll(_response);
+                return this.processGetCompanies(_response);
             });
         }
     
-        protected processGetAll(response: Response): Promise<CompanyOfString[]> {
+        protected processGetCompanies(response: Response): Promise<CompanyOfString[]> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -215,7 +215,7 @@
          * @sortingOptions_SortExpression (optional) 
          * @return Success
          */
-        getWithSorting(sortingOptions?: any): Promise<GridViewDataSetOfCompanyOfBoolean> {
+        companiesGetSorted(sortingOptions?: any): Promise<GridViewDataSetOfCompanyOfBoolean> {
             let sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
             let sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
             let url_ = this.baseUrl + "/api/Companies/sorted?";
@@ -236,11 +236,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetWithSorting(_response);
+                return this.processCompaniesGetSorted(_response);
             });
         }
     
-        protected processGetWithSorting(response: Response): Promise<GridViewDataSetOfCompanyOfBoolean> {
+        protected processCompaniesGetSorted(response: Response): Promise<GridViewDataSetOfCompanyOfBoolean> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -265,7 +265,7 @@
          * @pagingOptions_TotalItemsCount (optional) 
          * @return Success
          */
-        getWithPaging(pagingOptions?: any): Promise<GridViewDataSetOfCompanyOfString> {
+        companiesGetPaged(pagingOptions?: any): Promise<GridViewDataSetOfCompanyOfString> {
             let pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
             let pagingOptions_PageSize = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageSize : null;
             let pagingOptions_TotalItemsCount = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.TotalItemsCount : null;
@@ -289,11 +289,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetWithPaging(_response);
+                return this.processCompaniesGetPaged(_response);
             });
         }
     
-        protected processGetWithPaging(response: Response): Promise<GridViewDataSetOfCompanyOfString> {
+        protected processCompaniesGetPaged(response: Response): Promise<GridViewDataSetOfCompanyOfString> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -321,7 +321,7 @@
          * @pagingOptions_TotalItemsCount (optional) 
          * @return Success
          */
-        getWithSortingAndPaging(sortingOptions?: any, pagingOptions?: any): Promise<GridViewDataSetOfCompanyOfString> {
+        companiesGetSortedandpaged(sortingOptions?: any, pagingOptions?: any): Promise<GridViewDataSetOfCompanyOfString> {
             let sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
             let sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
             let pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
@@ -351,11 +351,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetWithSortingAndPaging(_response);
+                return this.processCompaniesGetSortedandpaged(_response);
             });
         }
     
-        protected processGetWithSortingAndPaging(response: Response): Promise<GridViewDataSetOfCompanyOfString> {
+        protected processCompaniesGetSortedandpaged(response: Response): Promise<GridViewDataSetOfCompanyOfString> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -379,7 +379,7 @@
          * @pageSize (optional) 
          * @return Success
          */
-        getAll2(companyId?: number, pageIndex?: number, pageSize?: number): Promise<Order[]> {
+        getOrdersAll(companyId?: number, pageIndex?: number, pageSize?: number): Promise<Order[]> {
             let url_ = this.baseUrl + "/api/Orders?";
             if (companyId !== undefined)
                 url_ += "companyId=" + encodeURIComponent("" + companyId) + "&"; 
@@ -400,11 +400,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetAll2(_response);
+                return this.processGetOrdersAll(_response);
             });
         }
     
-        protected processGetAll2(response: Response): Promise<Order[]> {
+        protected processGetOrdersAll(response: Response): Promise<Order[]> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -427,14 +427,14 @@
         }
     
         /**
-         * @order (optional) 
+         * @body (optional) 
          * @return Success
          */
-        post(order?: Order): Promise<void> {
+        postOrders(body?: Order): Promise<void> {
             let url_ = this.baseUrl + "/api/Orders";
             url_ = url_.replace(/[?&]$/, "");
     
-            const content_ = JSON.stringify(order);
+            const content_ = JSON.stringify(body);
     
             let options_ = <RequestInit>{
                 body: content_,
@@ -447,11 +447,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processPost(_response);
+                return this.processPostOrders(_response);
             });
         }
     
-        protected processPost(response: Response): Promise<void> {
+        protected processPostOrders(response: Response): Promise<void> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -469,7 +469,7 @@
         /**
          * @return Success
          */
-        getItem(orderId: number): Promise<Order> {
+        getOrders(orderId: number): Promise<Order> {
             let url_ = this.baseUrl + "/api/Orders/{orderId}";
             if (orderId === undefined || orderId === null)
                 throw new Error("The parameter 'orderId' must be defined.");
@@ -487,11 +487,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetItem(_response);
+                return this.processGetOrders(_response);
             });
         }
     
-        protected processGetItem(response: Response): Promise<Order> {
+        protected processGetOrders(response: Response): Promise<Order> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -510,17 +510,17 @@
         }
     
         /**
-         * @order (optional) 
+         * @body (optional) 
          * @return Success
          */
-        put(orderId: number, order?: Order): Promise<void> {
+        putOrders(orderId: number, body?: Order): Promise<void> {
             let url_ = this.baseUrl + "/api/Orders/{orderId}";
             if (orderId === undefined || orderId === null)
                 throw new Error("The parameter 'orderId' must be defined.");
             url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId)); 
             url_ = url_.replace(/[?&]$/, "");
     
-            const content_ = JSON.stringify(order);
+            const content_ = JSON.stringify(body);
     
             let options_ = <RequestInit>{
                 body: content_,
@@ -533,11 +533,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processPut(_response);
+                return this.processPutOrders(_response);
             });
         }
     
-        protected processPut(response: Response): Promise<void> {
+        protected processPutOrders(response: Response): Promise<void> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -555,7 +555,7 @@
         /**
          * @return Success
          */
-        delete(orderId: number): Promise<void> {
+        ordersDeleteDelete(orderId: number): Promise<void> {
             let url_ = this.baseUrl + "/api/Orders/delete/{orderId}";
             if (orderId === undefined || orderId === null)
                 throw new Error("The parameter 'orderId' must be defined.");
@@ -572,11 +572,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processDelete(_response);
+                return this.processOrdersDeleteDelete(_response);
             });
         }
     
-        protected processDelete(response: Response): Promise<void> {
+        protected processOrdersDeleteDelete(response: Response): Promise<void> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -678,66 +678,6 @@
         Name?: string;
         Owner?: string;
         Department?: string;
-    }
-    
-    export class GridViewDataSetOfCompanyOfBoolean implements IGridViewDataSetOfCompanyOfBoolean {
-        IsRefreshRequired?: boolean;
-        Items?: CompanyOfBoolean[];
-        PagingOptions?: IPagingOptions;
-        RowEditOptions?: IRowEditOptions;
-        SortingOptions?: ISortingOptions;
-    
-        constructor(data?: IGridViewDataSetOfCompanyOfBoolean) {
-            if (data) {
-                for (var property in data) {
-                    if (data.hasOwnProperty(property))
-                        (<any>this)[property] = (<any>data)[property];
-                }
-            }
-        }
-    
-        init(data?: any) {
-            if (data) {
-                this.IsRefreshRequired = data["isRefreshRequired"] !== undefined ? data["isRefreshRequired"] : <any>null;
-                if (data["items"] && data["items"].constructor === Array) {
-                    this.Items = [];
-                    for (let item of data["items"])
-                        this.Items.push(CompanyOfBoolean.fromJS(item));
-                }
-                this.PagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : <any>null;
-                this.RowEditOptions = data["rowEditOptions"] ? IRowEditOptions.fromJS(data["rowEditOptions"]) : <any>null;
-                this.SortingOptions = data["sortingOptions"] ? ISortingOptions.fromJS(data["sortingOptions"]) : <any>null;
-            }
-        }
-    
-        static fromJS(data: any): GridViewDataSetOfCompanyOfBoolean {
-            data = typeof data === 'object' ? data : {};
-            let result = new GridViewDataSetOfCompanyOfBoolean();
-            result.init(data);
-            return result;
-        }
-    
-        toJSON(data?: any) {
-            data = typeof data === 'object' ? data : {};
-            data["isRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : <any>null;
-            if (this.Items && this.Items.constructor === Array) {
-                data["items"] = [];
-                for (let item of this.Items)
-                    data["items"].push(item.toJSON());
-            }
-            data["pagingOptions"] = this.PagingOptions ? this.PagingOptions.toJSON() : <any>null;
-            data["rowEditOptions"] = this.RowEditOptions ? this.RowEditOptions.toJSON() : <any>null;
-            data["sortingOptions"] = this.SortingOptions ? this.SortingOptions.toJSON() : <any>null;
-            return data; 
-        }
-    }
-    
-    export interface IGridViewDataSetOfCompanyOfBoolean {
-        IsRefreshRequired?: boolean;
-        Items?: CompanyOfBoolean[];
-        PagingOptions?: IPagingOptions;
-        RowEditOptions?: IRowEditOptions;
-        SortingOptions?: ISortingOptions;
     }
     
     export class CompanyOfBoolean implements ICompanyOfBoolean {
@@ -948,12 +888,72 @@
         SortExpression?: string;
     }
     
+    export class GridViewDataSetOfCompanyOfBoolean implements IGridViewDataSetOfCompanyOfBoolean {
+        IsRefreshRequired?: boolean;
+        Items?: CompanyOfBoolean[];
+        pagingOptions?: IPagingOptions;
+        rowEditOptions?: IRowEditOptions;
+        sortingOptions?: ISortingOptions;
+    
+        constructor(data?: IGridViewDataSetOfCompanyOfBoolean) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        (<any>this)[property] = (<any>data)[property];
+                }
+            }
+        }
+    
+        init(data?: any) {
+            if (data) {
+                this.IsRefreshRequired = data["isRefreshRequired"] !== undefined ? data["isRefreshRequired"] : <any>null;
+                if (data["items"] && data["items"].constructor === Array) {
+                    this.Items = [];
+                    for (let item of data["items"])
+                        this.Items.push(CompanyOfBoolean.fromJS(item));
+                }
+                this.pagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : <any>null;
+                this.rowEditOptions = data["rowEditOptions"] ? IRowEditOptions.fromJS(data["rowEditOptions"]) : <any>null;
+                this.sortingOptions = data["sortingOptions"] ? ISortingOptions.fromJS(data["sortingOptions"]) : <any>null;
+            }
+        }
+    
+        static fromJS(data: any): GridViewDataSetOfCompanyOfBoolean {
+            data = typeof data === 'object' ? data : {};
+            let result = new GridViewDataSetOfCompanyOfBoolean();
+            result.init(data);
+            return result;
+        }
+    
+        toJSON(data?: any) {
+            data = typeof data === 'object' ? data : {};
+            data["isRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : <any>null;
+            if (this.Items && this.Items.constructor === Array) {
+                data["items"] = [];
+                for (let item of this.Items)
+                    data["items"].push(item.toJSON());
+            }
+            data["pagingOptions"] = this.pagingOptions ? this.pagingOptions.toJSON() : <any>null;
+            data["rowEditOptions"] = this.rowEditOptions ? this.rowEditOptions.toJSON() : <any>null;
+            data["sortingOptions"] = this.sortingOptions ? this.sortingOptions.toJSON() : <any>null;
+            return data; 
+        }
+    }
+    
+    export interface IGridViewDataSetOfCompanyOfBoolean {
+        IsRefreshRequired?: boolean;
+        Items?: CompanyOfBoolean[];
+        pagingOptions?: IPagingOptions;
+        rowEditOptions?: IRowEditOptions;
+        sortingOptions?: ISortingOptions;
+    }
+    
     export class GridViewDataSetOfCompanyOfString implements IGridViewDataSetOfCompanyOfString {
         IsRefreshRequired?: boolean;
         Items?: CompanyOfString[];
-        PagingOptions?: IPagingOptions;
-        RowEditOptions?: IRowEditOptions;
-        SortingOptions?: ISortingOptions;
+        pagingOptions?: IPagingOptions;
+        rowEditOptions?: IRowEditOptions;
+        sortingOptions?: ISortingOptions;
     
         constructor(data?: IGridViewDataSetOfCompanyOfString) {
             if (data) {
@@ -972,9 +972,9 @@
                     for (let item of data["items"])
                         this.Items.push(CompanyOfString.fromJS(item));
                 }
-                this.PagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : <any>null;
-                this.RowEditOptions = data["rowEditOptions"] ? IRowEditOptions.fromJS(data["rowEditOptions"]) : <any>null;
-                this.SortingOptions = data["sortingOptions"] ? ISortingOptions.fromJS(data["sortingOptions"]) : <any>null;
+                this.pagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : <any>null;
+                this.rowEditOptions = data["rowEditOptions"] ? IRowEditOptions.fromJS(data["rowEditOptions"]) : <any>null;
+                this.sortingOptions = data["sortingOptions"] ? ISortingOptions.fromJS(data["sortingOptions"]) : <any>null;
             }
         }
     
@@ -993,9 +993,9 @@
                 for (let item of this.Items)
                     data["items"].push(item.toJSON());
             }
-            data["pagingOptions"] = this.PagingOptions ? this.PagingOptions.toJSON() : <any>null;
-            data["rowEditOptions"] = this.RowEditOptions ? this.RowEditOptions.toJSON() : <any>null;
-            data["sortingOptions"] = this.SortingOptions ? this.SortingOptions.toJSON() : <any>null;
+            data["pagingOptions"] = this.pagingOptions ? this.pagingOptions.toJSON() : <any>null;
+            data["rowEditOptions"] = this.rowEditOptions ? this.rowEditOptions.toJSON() : <any>null;
+            data["sortingOptions"] = this.sortingOptions ? this.sortingOptions.toJSON() : <any>null;
             return data; 
         }
     }
@@ -1003,9 +1003,61 @@
     export interface IGridViewDataSetOfCompanyOfString {
         IsRefreshRequired?: boolean;
         Items?: CompanyOfString[];
-        PagingOptions?: IPagingOptions;
-        RowEditOptions?: IRowEditOptions;
-        SortingOptions?: ISortingOptions;
+        pagingOptions?: IPagingOptions;
+        rowEditOptions?: IRowEditOptions;
+        sortingOptions?: ISortingOptions;
+    }
+    
+    export class OrderItem implements IOrderItem {
+        id?: number;
+        text?: string;
+        amount?: number;
+        discount?: number;
+        isOnStock?: boolean;
+    
+        constructor(data?: IOrderItem) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        (<any>this)[property] = (<any>data)[property];
+                }
+            }
+        }
+    
+        init(data?: any) {
+            if (data) {
+                this.id = data["id"] !== undefined ? data["id"] : <any>null;
+                this.text = data["text"] !== undefined ? data["text"] : <any>null;
+                this.amount = data["amount"] !== undefined ? data["amount"] : <any>null;
+                this.discount = data["discount"] !== undefined ? data["discount"] : <any>null;
+                this.isOnStock = data["isOnStock"] !== undefined ? data["isOnStock"] : <any>null;
+            }
+        }
+    
+        static fromJS(data: any): OrderItem {
+            data = typeof data === 'object' ? data : {};
+            let result = new OrderItem();
+            result.init(data);
+            return result;
+        }
+    
+        toJSON(data?: any) {
+            data = typeof data === 'object' ? data : {};
+            data["id"] = this.id !== undefined ? this.id : <any>null;
+            data["text"] = this.text !== undefined ? this.text : <any>null;
+            data["amount"] = this.amount !== undefined ? this.amount : <any>null;
+            data["discount"] = this.discount !== undefined ? this.discount : <any>null;
+            data["isOnStock"] = this.isOnStock !== undefined ? this.isOnStock : <any>null;
+            return data; 
+        }
+    }
+    
+    export interface IOrderItem {
+        id?: number;
+        text?: string;
+        amount?: number;
+        discount?: number;
+        isOnStock?: boolean;
     }
     
     export class Order implements IOrder {
@@ -1066,58 +1118,6 @@
         date?: Date;
         companyId?: number;
         orderItems?: OrderItem[];
-    }
-    
-    export class OrderItem implements IOrderItem {
-        id?: number;
-        text?: string;
-        amount?: number;
-        discount?: number;
-        isOnStock?: boolean;
-    
-        constructor(data?: IOrderItem) {
-            if (data) {
-                for (var property in data) {
-                    if (data.hasOwnProperty(property))
-                        (<any>this)[property] = (<any>data)[property];
-                }
-            }
-        }
-    
-        init(data?: any) {
-            if (data) {
-                this.id = data["id"] !== undefined ? data["id"] : <any>null;
-                this.text = data["text"] !== undefined ? data["text"] : <any>null;
-                this.amount = data["amount"] !== undefined ? data["amount"] : <any>null;
-                this.discount = data["discount"] !== undefined ? data["discount"] : <any>null;
-                this.isOnStock = data["isOnStock"] !== undefined ? data["isOnStock"] : <any>null;
-            }
-        }
-    
-        static fromJS(data: any): OrderItem {
-            data = typeof data === 'object' ? data : {};
-            let result = new OrderItem();
-            result.init(data);
-            return result;
-        }
-    
-        toJSON(data?: any) {
-            data = typeof data === 'object' ? data : {};
-            data["id"] = this.id !== undefined ? this.id : <any>null;
-            data["text"] = this.text !== undefined ? this.text : <any>null;
-            data["amount"] = this.amount !== undefined ? this.amount : <any>null;
-            data["discount"] = this.discount !== undefined ? this.discount : <any>null;
-            data["isOnStock"] = this.isOnStock !== undefined ? this.isOnStock : <any>null;
-            return data; 
-        }
-    }
-    
-    export interface IOrderItem {
-        id?: number;
-        text?: string;
-        amount?: number;
-        discount?: number;
-        isOnStock?: boolean;
     }
     
     export class SwaggerException extends Error {

@@ -10,9 +10,9 @@
 <body>
     <p>Value:</p>
     <p data-ui="value">{{value: Value}}</p>
-    <div data-ui="button">
+    <div data-ui="button1">
         <cc:PromptButton Click="{command: Command}">
-            Button
+            Button Parametrized by string
         </cc:PromptButton>
     </div>
 </body>

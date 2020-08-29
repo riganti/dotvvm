@@ -311,7 +311,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var path = data["currentPath"].Values<string>().ToArray();
             var command = data["command"].Value<string>();
             var controlUniqueId = data["controlUniqueId"]?.Value<string>();
-            var args = data["commandArgs"]?.ToObject<object[]>() ?? new object[0];
+            var args = data["commandArgs"] is JArray argsJson ?
+                       argsJson.Select(a => (Func<Type, object>)(t => a.ToObject(t))).ToArray() :
+                       new Func<Type, object>[0];
 
             // empty command
             if (string.IsNullOrEmpty(command)) return null;

@@ -10,7 +10,6 @@ namespace DotVVM.Framework.ResourceManagement
     /// <summary>
     /// Reference to a CSS file.
     /// </summary>
-    [ResourceConfigurationCollectionName("stylesheets")]
     public class StylesheetResource : LinkResourceBase
     {
         public StylesheetResource(IResourceLocation location)

@@ -26,7 +26,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
         }
 
         [HttpGet]
-        [Route("{orderId}", Name = nameof(GetItem))]
+        [Route("{orderId}")]
         public Order GetItem(int orderId)
         {
             lock (Database.Instance)

@@ -117,8 +117,11 @@ function commonConcurrencyHandler<T>(promise: Promise<PostbackCommitFunction>, o
 
     const dispatchNext = (args: DotvvmAfterPostBackEventArgs | undefined) => {
         const drop = () => {
-            leaveActivePostback(queueName);
-            runNextInQueue(queueName);
+            // run the next postback after everything about this one is finished (after, error events, ...)
+            Promise.resolve().then(() => {
+                leaveActivePostback(queueName);
+                runNextInQueue(queueName);
+            });
         }
         if (args && args.redirectPromise) {
             args.redirectPromise.then(drop, drop);

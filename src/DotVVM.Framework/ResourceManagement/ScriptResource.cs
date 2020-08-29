@@ -10,7 +10,6 @@ namespace DotVVM.Framework.ResourceManagement
     /// <summary>
     /// Reference to a javascript file.
     /// </summary>
-    [ResourceConfigurationCollectionName("scripts")]
     public class ScriptResource : LinkResourceBase, IPreloadResource, IDeferableResource
     {
         public bool Defer { get; }

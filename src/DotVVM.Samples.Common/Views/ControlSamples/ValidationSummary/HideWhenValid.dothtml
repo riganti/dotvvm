@@ -1,0 +1,25 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.ValidationSummary.HideWhenValidViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>ValidationSummary Hide When ModelState Valid Test</title>
+		<style>
+			ul 
+			{
+				border: solid 5px red;
+			}
+		</style>
+	</head>
+	<body>
+		<form>
+			<dot:TextBox Text="{value: Text}" />
+			<dot:Button Text="Validate" Click="{command: Validate()}" />
+		
+			<dot:ValidationSummary 
+				IncludeErrorsFromChildren = "true"
+				IncludeErrorsFromTarget = "true"
+				HideWhenValid = "true" />
+		</form>
+	</body>
+</html>

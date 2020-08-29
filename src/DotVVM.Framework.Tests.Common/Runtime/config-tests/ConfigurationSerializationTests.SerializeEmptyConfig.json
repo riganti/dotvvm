@@ -1,0 +1,18 @@
+{
+  "markup": {
+    "importedNamespaces": [
+      {
+        "namespace": "DotVVM.Framework.Binding.HelperNamespace"
+      }
+    ],
+    "ViewCompilation": {
+      "compileInParallel": true
+    }
+  },
+  "resources": {},
+  "security": {},
+  "runtime": {},
+  "defaultCulture": "en-US",
+  "experimentalFeatures": {},
+  "debug": false
+}

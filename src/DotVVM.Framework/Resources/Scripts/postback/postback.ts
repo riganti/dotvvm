@@ -5,6 +5,7 @@ import { defaultConcurrencyPostbackHandler, postbackHandlers, getPostbackHandler
 import * as internalHandlers from './internal-handlers';
 import { DotvvmPostbackError } from '../shared-classes';
 import * as events from '../events';
+import * as gate from './gate';
 import { createPostbackArgs } from '../createPostbackArgs';
 
 const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
@@ -25,6 +26,7 @@ export async function postBack(
         handlers?: ClientFriendlyPostbackHandlerConfiguration[],
         commandArgs?: any[]
     ): Promise<DotvvmAfterPostBackEventArgs> {
+    if (gate.isSpaNavigationRunning()) return Promise.reject({ type: "gate" });
 
     context = context || ko.contextFor(sender);
 
@@ -110,6 +112,8 @@ export async function applyPostbackHandlers(
     context = ko.contextFor(sender),
     viewModel = context.$root
 ): Promise<DotvvmAfterPostBackEventArgs> {
+    if (gate.isSpaNavigationRunning()) return Promise.reject({ type: "gate" });
+
     const saneNext = (o: PostbackOptions) => {
         return wrapCommitFunction(next(o), o);
     }

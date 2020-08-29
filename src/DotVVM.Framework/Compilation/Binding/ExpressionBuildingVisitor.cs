@@ -17,7 +17,6 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private List<Exception> currentErrors;
 
-
         public ExpressionBuildingVisitor(TypeRegistry registry)
         {
             Registry = registry;
