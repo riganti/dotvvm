@@ -124,7 +124,8 @@ function commonConcurrencyHandler<T>(promise: Promise<PostbackCommitFunction>, o
             });
         }
         if (args && args.redirectPromise) {
-            args.redirectPromise.then(drop, drop);
+            // TODO: this should probably be deleted
+            //args.redirectPromise.then(drop, drop);
         } else {
             drop();
         }
