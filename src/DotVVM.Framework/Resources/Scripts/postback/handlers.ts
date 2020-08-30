@@ -26,7 +26,7 @@ class SuppressPostBackHandler implements DotvvmPostbackHandler {
 function createWindowSetTimeoutHandler(time: number): DotvvmPostbackHandler {
     return {
         name: "timeout",
-        before: ["eventInvoke-postbackHandlersStarted", "setIsPostbackRunning"],
+        before: ["setIsPostbackRunning"],
         async execute(next: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
             await new Promise((resolve, reject) => window.setTimeout(resolve, time))
             return await next()

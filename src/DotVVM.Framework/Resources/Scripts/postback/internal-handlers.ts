@@ -28,7 +28,6 @@ export const suppressOnDisabledElementHandler: DotvvmPostbackHandler = {
 
 export const isPostBackRunningHandler: DotvvmPostbackHandler = {
     name: "setIsPostbackRunning",
-    before: ["eventInvoke-postbackHandlersStarted"],
     async execute(next: () => Promise<PostbackCommitFunction>) {
         isPostbackRunning(true)
         postbackCount++
@@ -37,23 +36,6 @@ export const isPostBackRunningHandler: DotvvmPostbackHandler = {
         } finally {
             isPostbackRunning(!!--postbackCount);
         }
-    }
-};
-
-export const postbackHandlersStartedEventHandler: DotvvmPostbackHandler = {
-    name: "eventInvoke-postbackHandlersStarted",
-    execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
-        events.postbackHandlersStarted.trigger(options);
-        return callback()
-    }
-};
-
-export const postbackHandlersCompletedEventHandler: DotvvmPostbackHandler = {
-    name: "eventInvoke-postbackHandlersCompleted",
-    after: ["eventInvoke-postbackHandlersStarted"],
-    execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
-        events.postbackHandlersCompleted.trigger(options);
-        return callback()
     }
 };
 

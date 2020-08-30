@@ -137,12 +137,15 @@ export async function applyPostbackHandlers(
 }
 
 function applyPostbackHandlersCore(next: (options: PostbackOptions) => Promise<PostbackCommitFunction>, options: PostbackOptions, handlers: DotvvmPostbackHandler[]): Promise<PostbackCommitFunction> {
+    events.postbackHandlersStarted.trigger(options);
+
     let fired = false
     const nextWithCheck = (o: PostbackOptions) => {
         if (fired) {
             throw new Error("The same postback can't run twice.");
         }
         fired = true;
+        events.postbackHandlersCompleted.trigger(options);
         return next(o);
     }
 
