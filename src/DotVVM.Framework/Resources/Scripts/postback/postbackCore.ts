@@ -102,6 +102,9 @@ async function processPostbackResponse(options: PostbackOptions, postedViewModel
 
     await loadResourceList(result.resources);
 
+    if (gate.isPostbackDisabled(options.postbackId))
+        throw "Postbacks are disabled"
+
     let isSuccess = false;
     if (result.action == "successfulCommand") {
         updater.updateViewModelAndControls(result, false);
