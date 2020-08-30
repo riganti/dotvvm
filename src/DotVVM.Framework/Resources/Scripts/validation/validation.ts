@@ -33,6 +33,7 @@ export const globalValidationObject = {
 }
 
 const createValidationHandler = (path: string) => ({
+    name: "validate",
     execute: (callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) => {
         if (path) {
             options.additionalPostbackData.validationTargetPath = path;
@@ -58,22 +59,6 @@ export function init() {
     postbackHandlers["validate-root"] = () => createValidationHandler("dotvvm.viewModelObservables['root']");
     postbackHandlers["validate-this"] = () => createValidationHandler("$data");
 
-    dotvvmEvents.afterPostback.subscribe(args => {
-        if (!args.wasInterrupted && args.serverResponseObject) {
-            if (args.serverResponseObject.action === "successfulCommand") {
-                // merge validation rules from postback with those we already have (required when a new type appears in the view model)
-                mergeValidationRules(args);
-                args.handled = true;
-            } else if (args.serverResponseObject.action === "validationErrors") {
-                // apply validation errors from server
-                detachAllErrors();
-                showValidationErrorsFromServer(args);
-                validationErrorsChanged.trigger(args);
-                args.handled = true;
-            }
-        }
-
-    });
     if (compileConstants.isSpa) {
         spaEvents.spaNavigating.subscribe(_ => {
             detachAllErrors();
@@ -194,8 +179,8 @@ function validateProperty(viewModel: any, property: KnockoutObservable<any>, val
 }
 
 /** Adds validation rules from the serverResponseObject into our global validation rule collection */
-function mergeValidationRules(args: DotvvmAfterPostBackEventArgs) {
-    const newRules = args.serverResponseObject.validationRules;
+export function mergeValidationRules(serverResponseObject: any) {
+    const newRules = serverResponseObject.validationRules;
     if (newRules) {
         const existingRules = getValidationRules();
         for (const type of keys(newRules)) {
@@ -268,18 +253,18 @@ function getValidationErrors<T>(
 /**
  * Adds validation errors from the server to the appropriate arrays
  */
-function showValidationErrorsFromServer(args: DotvvmAfterPostBackEventArgs) {
+export function showValidationErrorsFromServer(dataContext: any, path: string, serverResponseObject: any) {
+    detachAllErrors()
     // resolve validation target
-    const dataContext = ko.contextFor(args.sender);
     const validationTarget = <KnockoutObservable<any>> evaluator.evaluateOnViewModel(
         dataContext,
-        args.postbackOptions.additionalPostbackData.validationTargetPath!);
+        path!);
     if (!validationTarget) {
         return;
     }
 
     // add validation errors
-    for (const prop of args.serverResponseObject.modelState) {
+    for (const prop of serverResponseObject.modelState) {
         // find the property
         const propertyPath = prop.propertyPath;
         const property =
@@ -289,6 +274,7 @@ function showValidationErrorsFromServer(args: DotvvmAfterPostBackEventArgs) {
 
         ValidationError.attach(prop.errorMessage, property);
     }
+    validationErrorsChanged.trigger({})
 }
 
 function applyValidatorActions(

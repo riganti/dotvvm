@@ -11,6 +11,7 @@ import { setIdFragment } from '../utils/dom';
 import { handleRedirect } from './redirect';
 import * as evaluator from '../utils/evaluator'
 import * as gate from './gate'
+import { mergeValidationRules, showValidationErrorsFromServer } from '../validation/validation';
 
 let lastStartedPostbackId: number;
 
@@ -82,7 +83,7 @@ export async function postbackCore(
 
         return async () => {
             try {
-                return await processPostbackResponse(options, postedViewModel, result);
+                return await processPostbackResponse(options, context, postedViewModel, result);
             } catch (err) {
                 // TODO: don't eat the inner error and change the type
                 throw new DotvvmPostbackError({ type: "commit", args: { serverResponseObject: err.reason.responseObject, handled: false } });
@@ -91,7 +92,7 @@ export async function postbackCore(
     });
 }
 
-async function processPostbackResponse(options: PostbackOptions, postedViewModel: any, result: PostbackResponse): Promise<DotvvmAfterPostBackEventArgs> {
+async function processPostbackResponse(options: PostbackOptions, context: any, postedViewModel: any, result: PostbackResponse): Promise<DotvvmAfterPostBackEventArgs> {
     events.postbackCommitInvoked.trigger({});
 
     processViewModelDiff(result, postedViewModel);
@@ -103,6 +104,7 @@ async function processPostbackResponse(options: PostbackOptions, postedViewModel
 
     let isSuccess = false;
     if (result.action == "successfulCommand") {
+        mergeValidationRules(result)
         updater.updateViewModelAndControls(result, false);
         events.postbackViewModelUpdated.trigger({});
         isSuccess = true;
@@ -116,6 +118,8 @@ async function processPostbackResponse(options: PostbackOptions, postedViewModel
             handled: false,
             wasInterrupted: false
         };
+    } else if (result.action == "validationErrors") {
+        showValidationErrorsFromServer(context, options.additionalPostbackData.validationTargetPath!, result)
     }
 
     setIdFragment(result.resultIdFragment)
