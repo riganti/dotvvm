@@ -11,15 +11,11 @@ import { getSpaPlaceHolderUniqueId, isSpaReady } from './spa';
 import { handleRedirect } from '../postback/redirect';
 import * as gate from '../postback/gate';
 
+let lastStartedNavigation = -1
+
 export async function navigateCore(url: string, handlePageNavigating?: (url: string) => void): Promise<DotvvmNavigationEventArgs> {
-
+    const currentPostBackCounter = counter.backUpPostBackCounter();
     try {
-        // TODO: counter
-        gate.isSpaNavigationRunning(true);
-
-        // prevent double postbacks
-        const currentPostBackCounter = counter.backUpPostBackCounter();
-
         // trigger spaNavigating event
         const spaNavigatingArgs: DotvvmSpaNavigatingEventArgs = {
             viewModel: getViewModel(),
@@ -31,6 +27,9 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
             throw new DotvvmPostbackError({ type: "event" });
         }
 
+        lastStartedNavigation = currentPostBackCounter
+        gate.disablePostbacks()
+
         // compose URLs
         // TODO: get rid of ___dotvvm-spa___
         const spaFullUrl = uri.addVirtualDirectoryToUrl("/___dotvvm-spa___" + uri.addLeadingSlash(url));
@@ -40,7 +39,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
         const resultObject = await http.getJSON<any>(spaFullUrl, getSpaPlaceHolderUniqueId());
 
         // if another postback has already been passed, don't do anything
-        if (!counter.isPostBackStillActive(currentPostBackCounter)) {
+        if (currentPostBackCounter < lastStartedNavigation) {
             return <DotvvmNavigationEventArgs> { }; // TODO: what here https://github.com/riganti/dotvvm/pull/787/files#diff-edefee5e25549b2a6ed0136e520e009fR852
         }
 
@@ -70,6 +69,9 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
         return spaNavigatedArgs;
 
     } finally {
-        gate.isSpaNavigationRunning(false);
+        // when no other navigation is running, enable postbacks again
+        if (currentPostBackCounter == lastStartedNavigation) {
+            gate.enablePostbacks()
+        }
     }
 }

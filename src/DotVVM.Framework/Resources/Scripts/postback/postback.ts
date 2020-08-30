@@ -112,8 +112,6 @@ export async function applyPostbackHandlers(
     context = ko.contextFor(sender),
     viewModel = context.$root
 ): Promise<DotvvmAfterPostBackEventArgs> {
-    if (gate.isSpaNavigationRunning()) return Promise.reject({ type: "gate" });
-
     const saneNext = (o: PostbackOptions) => {
         return wrapCommitFunction(next(o), o);
     }
@@ -153,6 +151,9 @@ function applyPostbackHandlersCore(next: (options: PostbackOptions) => Promise<P
     const sortedHandlers = sortHandlers(handlers)
 
     function recursiveCore(index: number): Promise<PostbackCommitFunction> {
+        if (gate.isPostbackDisabled(options.postbackId)) {
+            throw new DotvvmPostbackError({ type: "gate" })
+        }
         if (index == sortedHandlers.length) {
             return nextWithCheck(options);
         } else {
