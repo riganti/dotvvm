@@ -62,8 +62,6 @@ type DotvvmAfterPostBackEventArgs = PostbackEventArgs & {
     readonly serverResponseObject: any
     readonly commandResult: any
     readonly response?: Response
-    /** In SPA mode, this promise is set when the result of a postback is a redirection. */
-    readonly redirectPromise?: Promise<DotvvmNavigationEventArgs>
 }
 type DotvvmSpaNavigatingEventArgs = DotvvmEventArgs & {
     /** When set to true by an event handler, it  */

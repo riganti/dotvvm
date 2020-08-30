@@ -111,14 +111,12 @@ async function processPostbackResponse(options: PostbackOptions, postedViewModel
         events.postbackViewModelUpdated.trigger({});
         isSuccess = true;
     } else if (result.action == "redirect") {
-        // redirect
-        const redirectPromise = handleRedirect(result);
+        handleRedirect(result);
 
         return {
             ...createPostbackArgs(options),
             serverResponseObject: result,
             commandResult: result.commandResult,
-            redirectPromise,
             handled: false,
             wasInterrupted: false
         };
