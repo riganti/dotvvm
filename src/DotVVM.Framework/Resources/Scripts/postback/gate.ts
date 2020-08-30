@@ -1,5 +1,6 @@
 import { resetPostBackCounter } from './counter';
 import { postbackQueues } from './queue';
+import { keys } from '../utils/objects';
 
 var postbacksDisabled = false;
 
@@ -10,13 +11,12 @@ export function arePostbacksDisabled() {
 }
 
 export function disablePostbacks() {
+    // TODO: reimplement - noRunning can get lower than zero
     resetPostBackCounter();
-    for (const q in postbackQueues) {
-        if (postbackQueues.hasOwnProperty(q)) {
-            let postbackQueue = postbackQueues[q];
-            postbackQueue.queue.length = 0;
-            postbackQueue.noRunning = 0;
-        }
+    for (const q of keys(postbackQueues)) {
+        let postbackQueue = postbackQueues[q];
+        postbackQueue.queue.length = 0;
+        postbackQueue.noRunning = 0;
     }
 
     // disable all other postbacks
