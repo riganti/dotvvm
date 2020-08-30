@@ -26,8 +26,6 @@ export async function postBack(
         handlers?: ClientFriendlyPostbackHandlerConfiguration[],
         commandArgs?: any[]
     ): Promise<DotvvmAfterPostBackEventArgs> {
-    if (gate.isSpaNavigationRunning()) return Promise.reject({ type: "gate" });
-
     context = context || ko.contextFor(sender);
 
     const preparedHandlers = findPostbackHandlers(context, globalPostbackHandlers.concat(handlers || []).concat(globalLaterPostbackHandlers));
@@ -36,13 +34,13 @@ export async function postBack(
         preparedHandlers.push(defaultConcurrencyPostbackHandler);
     }
 
-    const options: PostbackOptions = {
+    const options: PostbackOptions = Object.freeze({
         postbackId: counter.backUpPostBackCounter(),
         sender,
         args: commandArgs || [],
         viewModel: context.$data,
         additionalPostbackData: {}
-    };
+    })
 
     const coreCallback = (o: PostbackOptions) => postbackCore(o, path, command, controlUniqueId, context, commandArgs);
 
@@ -116,13 +114,13 @@ export async function applyPostbackHandlers(
         return wrapCommitFunction(next(o), o);
     }
 
-    const options: PostbackOptions = {
+    const options: PostbackOptions = Object.freeze({
         postbackId: counter.backUpPostBackCounter(),
         sender,
         args: [],
         viewModel: context.$data,
         additionalPostbackData: {}
-    };
+    })
 
     const handlers = findPostbackHandlers(context, globalPostbackHandlers.concat(handlerConfigurations || []).concat(globalLaterPostbackHandlers));
 
