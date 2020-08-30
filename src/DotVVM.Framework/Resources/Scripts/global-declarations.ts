@@ -11,7 +11,8 @@ type DotvvmPostbackHandler = {
 type PostbackRejectionReason =
     | { type: "handler", handlerName: string, message?: string }
     | { type: 'network', err?: any }
-    | { type: 'commit', args: DotvvmErrorEventArgs }
+    | { type: 'gate' }
+    | { type: 'commit', args?: DotvvmErrorEventArgs }
     | { type: 'csrfToken' }
     | { type: 'serverError', status?: number, responseObject: any, response?: Response }
     | { type: 'event' }

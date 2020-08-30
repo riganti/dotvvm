@@ -103,6 +103,9 @@ class HistoryRecord {
 }
 
 function pushPage(url: string): void {
+    // pushState doesn't work when the url is empty
+    url = url || "/";
+    
     history.pushState(new HistoryRecord('SPA', url), '', url);
 }
 

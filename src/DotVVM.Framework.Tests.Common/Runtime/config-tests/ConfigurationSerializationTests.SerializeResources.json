@@ -1,0 +1,95 @@
+{
+  "markup": {
+    "importedNamespaces": [
+      {
+        "namespace": "DotVVM.Framework.Binding.HelperNamespace"
+      }
+    ],
+    "ViewCompilation": {
+      "compileInParallel": true
+    }
+  },
+  "resources": {
+    "DotVVM.Framework.ResourceManagement.InlineScriptResource": {
+      "r6": {
+        "Code": "alert(1)",
+        "RenderPosition": "Body"
+      },
+      "r7": {
+        "RenderPosition": "Body"
+      }
+    },
+    "DotVVM.Framework.ResourceManagement.InlineStylesheetResource": {
+      "r4": {
+        "Code": "body { display: none }"
+      },
+      "r5": {}
+    },
+    "DotVVM.Framework.ResourceManagement.TemplateResource": {
+      "r9": {
+        "RenderPosition": "Body",
+        "Template": "<div></div>"
+      }
+    },
+    "null": {
+      "r8": {
+        "RenderPosition": "Body"
+      }
+    },
+    "scripts": {
+      "r1": {
+        "Location": {
+          "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
+          "Url": "x"
+        },
+        "MimeType": "text/javascript",
+        "VerifyResourceIntegrity": true,
+        "IntegrityHash": "hash, maybe"
+      },
+      "r2": {
+        "Location": {
+          "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
+          "Url": "x"
+        },
+        "LocationFallback": {
+          "JavascriptCondition": "window.x",
+          "AlternativeLocations": [
+            {
+              "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
+              "Url": "y"
+            },
+            {
+              "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
+              "Url": "z"
+            },
+            {
+              "$type": "DotVVM.Framework.ResourceManagement.FileResourceLocation, DotVVM.Framework",
+              "FilePath": "some-script.js"
+            }
+          ]
+        },
+        "MimeType": "text/javascript",
+        "Dependencies": [
+          "r1"
+        ],
+        "RenderPosition": "Body"
+      }
+    },
+    "stylesheets": {
+      "r3": {
+        "Location": {
+          "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
+          "Url": "s"
+        },
+        "MimeType": "text/css",
+        "VerifyResourceIntegrity": true,
+        "IntegrityHash": "hash, maybe"
+      }
+    }
+  },
+  "security": {},
+  "runtime": {},
+  "defaultCulture": "en-US",
+  "experimentalFeatures": {},
+  "debug": false
+}

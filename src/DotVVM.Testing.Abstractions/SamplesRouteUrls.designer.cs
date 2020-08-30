@@ -8,6 +8,7 @@ namespace DotVVM.Testing.Abstractions
     {
     
         public const string Default = "Default";
+        public const string SpaNavigationToEmptyUrl = "SpaNavigationToEmptyUrl";
         public const string ComplexSamples_Auth_Login = "ComplexSamples/Auth/Login";
         public const string ComplexSamples_Auth_SecuredPage = "ComplexSamples/Auth/SecuredPage";
         public const string ComplexSamples_ButtonInMarkupControl_Enabled = "ComplexSamples/ButtonInMarkupControl/Enabled";
@@ -17,6 +18,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ComplexSamples_ChangedEvent_ChangedEvent = "ComplexSamples/ChangedEvent/ChangedEvent";
         public const string ComplexSamples_ClassBindings_ClassBindings = "ComplexSamples/ClassBindings/ClassBindings";
         public const string ComplexSamples_EmptyDataTemplate_RepeaterGridView = "ComplexSamples/EmptyDataTemplate/RepeaterGridView";
+        public const string ComplexSamples_EventPropagation_EventPropagation = "ComplexSamples/EventPropagation/EventPropagation";
         public const string ComplexSamples_FileUploadInRepeater_FileUploadInRepeater = "ComplexSamples/FileUploadInRepeater/FileUploadInRepeater";
         public const string ComplexSamples_GridViewDataSet_GridViewDataSet = "ComplexSamples/GridViewDataSet/GridViewDataSet";
         public const string ComplexSamples_InvoiceCalculator_InvoiceCalculator = "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
@@ -81,6 +83,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_GridView_GridViewRowDecoratorEventsPropagation = "ControlSamples/GridView/GridViewRowDecoratorEventsPropagation";
         public const string ControlSamples_GridView_GridViewRowDecorators = "ControlSamples/GridView/GridViewRowDecorators";
         public const string ControlSamples_GridView_GridViewServerRender = "ControlSamples/GridView/GridViewServerRender";
+        public const string ControlSamples_GridView_GridViewSortChanged = "ControlSamples/GridView/GridViewSortChanged";
         public const string ControlSamples_GridView_GridViewStaticCommand = "ControlSamples/GridView/GridViewStaticCommand";
         public const string ControlSamples_GridView_InvalidCssClass = "ControlSamples/GridView/InvalidCssClass";
         public const string ControlSamples_GridView_LargeGrid = "ControlSamples/GridView/LargeGrid";
@@ -137,6 +140,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_UpdateProgress_UpdateProgressRedirect2 = "ControlSamples/UpdateProgress/UpdateProgressRedirect2";
         public const string ControlSamples_UpdateProgress_UpdateProgressRedirectSPA1 = "ControlSamples/UpdateProgress/UpdateProgressRedirectSPA1";
         public const string ControlSamples_UpdateProgress_UpdateProgressRedirectSPA2 = "ControlSamples/UpdateProgress/UpdateProgressRedirectSPA2";
+        public const string ControlSamples_ValidationSummary_HideWhenValid = "ControlSamples/ValidationSummary/HideWhenValid";
         public const string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNotNull = "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNotNull";
         public const string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNull = "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNull";
         public const string ControlSamples_ValidationSummary_MessagesRendering = "ControlSamples/ValidationSummary/MessagesRendering";
@@ -187,6 +191,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods = "FeatureSamples/ChildViewModelInvokeMethods/ChildViewModelInvokeMethods";
         public const string FeatureSamples_ClientExtenders_PasswordStrength = "FeatureSamples/ClientExtenders/PasswordStrength";
         public const string FeatureSamples_CommandArguments_CommandArguments = "FeatureSamples/CommandArguments/CommandArguments";
+        public const string FeatureSamples_CommandArguments_CommandArgumentTypes = "FeatureSamples/CommandArguments/CommandArgumentTypes";
         public const string FeatureSamples_CommandArguments_ReturnValue = "FeatureSamples/CommandArguments/ReturnValue";
         public const string FeatureSamples_ConditionalCssClasses_ConditionalCssClasses = "FeatureSamples/ConditionalCssClasses/ConditionalCssClasses";
         public const string FeatureSamples_DateTimeSerialization_DateTimeSerialization = "FeatureSamples/DateTimeSerialization/DateTimeSerialization";
@@ -230,7 +235,18 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_PostBack_SuppressPostBackHandler = "FeatureSamples/PostBack/SuppressPostBackHandler";
         public const string FeatureSamples_PostBack_UniqueIdGenerationOnPostbackUpdate = "FeatureSamples/PostBack/UniqueIdGenerationOnPostbackUpdate";
         public const string FeatureSamples_PostbackConcurrency_PostbackConcurrencyMode = "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode";
+        public const string FeatureSamples_PostbackConcurrency_RedirectPostbackQueue = "FeatureSamples/PostbackConcurrency/RedirectPostbackQueue";
+        public const string FeatureSamples_PostbackConcurrency_RedirectPostbackQueueSpa = "FeatureSamples/PostbackConcurrency/RedirectPostbackQueueSpa";
+        public const string FeatureSamples_PostbackConcurrency_StressTest = "FeatureSamples/PostbackConcurrency/StressTest";
+        public const string FeatureSamples_PostbackSpaNavigation_PageA = "FeatureSamples/PostbackSpaNavigation/PageA";
+        public const string FeatureSamples_PostbackSpaNavigation_PageB = "FeatureSamples/PostbackSpaNavigation/PageB";
         public const string FeatureSamples_Redirect_Redirect = "FeatureSamples/Redirect/Redirect";
+        public const string FeatureSamples_Redirect_RedirectionHelpers = "FeatureSamples/Redirect/RedirectionHelpers";
+        public const string FeatureSamples_Redirect_RedirectionHelpers_PageA = "FeatureSamples/Redirect/RedirectionHelpers_PageA";
+        public const string FeatureSamples_Redirect_RedirectionHelpers_PageB = "FeatureSamples/Redirect/RedirectionHelpers_PageB";
+        public const string FeatureSamples_Redirect_RedirectionHelpers_PageC = "FeatureSamples/Redirect/RedirectionHelpers_PageC";
+        public const string FeatureSamples_Redirect_RedirectionHelpers_PageD = "FeatureSamples/Redirect/RedirectionHelpers_PageD";
+        public const string FeatureSamples_Redirect_RedirectionHelpers_PageE = "FeatureSamples/Redirect/RedirectionHelpers_PageE";
         public const string FeatureSamples_Redirect_Redirect_StaticCommand = "FeatureSamples/Redirect/Redirect_StaticCommand";
         public const string FeatureSamples_RenderSettingsModeServer_RenderSettingModeServerProperty = "FeatureSamples/RenderSettingsModeServer/RenderSettingModeServerProperty";
         public const string FeatureSamples_RenderSettingsModeServer_RepeaterCollectionExchange = "FeatureSamples/RenderSettingsModeServer/RepeaterCollectionExchange";

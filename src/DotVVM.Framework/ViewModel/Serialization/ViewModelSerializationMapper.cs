@@ -59,7 +59,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     TransferFirstRequest = property.GetMethod != null && property.GetMethod.IsPublic,
                     TransferToServer = property.SetMethod != null && property.SetMethod.IsPublic,
                     JsonConverter = GetJsonConverter(property),
-                    Populate = ReflectionUtils.IsComplexType(property.PropertyType) && !ReflectionUtils.IsEnumerable(property.PropertyType) && !ReflectionUtils.IsObject(property.PropertyType) && property.GetMethod != null
+                    Populate = ViewModelJsonConverter.CanConvertType(property.PropertyType) && property.GetMethod != null
                 };
 
                 foreach (ISerializationInfoAttribute attr in property.GetCustomAttributes().OfType<ISerializationInfoAttribute>())

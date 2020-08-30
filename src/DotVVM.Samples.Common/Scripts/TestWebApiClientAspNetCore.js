@@ -50,7 +50,7 @@ var DotVVM;
                          * @category (optional)
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.getItems = function (category) {
+                        TestWebApiClientAspNetCore.prototype.bindingSharingGetGet = function (category) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/BindingSharing/get?";
                             if (category !== undefined)
@@ -66,10 +66,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processGetItems(_response);
+                                return _this.processBindingSharingGetGet(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processGetItems = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processBindingSharingGetGet = function (response) {
                             var _this = this;
                             var status = response.status;
                             var _headers = {};
@@ -101,7 +101,7 @@ var DotVVM;
                         /**
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.getItemsWithRouteParam = function (category) {
+                        TestWebApiClientAspNetCore.prototype.bindingSharingGetGetWithRouteParam = function (category) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/BindingSharing/getWithRouteParam/{category}";
                             if (category === undefined || category === null)
@@ -118,10 +118,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processGetItemsWithRouteParam(_response);
+                                return _this.processBindingSharingGetGetWithRouteParam(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processGetItemsWithRouteParam = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processBindingSharingGetGetWithRouteParam = function (response) {
                             var _this = this;
                             var status = response.status;
                             var _headers = {};
@@ -154,7 +154,7 @@ var DotVVM;
                          * @category (optional)
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.getItemsWithHttpPost = function (category) {
+                        TestWebApiClientAspNetCore.prototype.bindingSharingPostPost = function (category) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/BindingSharing/post?";
                             if (category !== undefined)
@@ -170,10 +170,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processGetItemsWithHttpPost(_response);
+                                return _this.processBindingSharingPostPost(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processGetItemsWithHttpPost = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processBindingSharingPostPost = function (response) {
                             var _this = this;
                             var status = response.status;
                             var _headers = {};
@@ -205,7 +205,7 @@ var DotVVM;
                         /**
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.getAll = function () {
+                        TestWebApiClientAspNetCore.prototype.getCompanies = function () {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/Companies";
                             url_ = url_.replace(/[?&]$/, "");
@@ -219,10 +219,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processGetAll(_response);
+                                return _this.processGetCompanies(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processGetAll = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processGetCompanies = function (response) {
                             var _this = this;
                             var status = response.status;
                             var _headers = {};
@@ -257,7 +257,7 @@ var DotVVM;
                          * @sortingOptions_SortExpression (optional)
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.getWithSorting = function (sortingOptions) {
+                        TestWebApiClientAspNetCore.prototype.companiesGetSorted = function (sortingOptions) {
                             var _this = this;
                             var sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
                             var sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
@@ -277,10 +277,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processGetWithSorting(_response);
+                                return _this.processCompaniesGetSorted(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processGetWithSorting = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processCompaniesGetSorted = function (response) {
                             var _this = this;
                             var status = response.status;
                             var _headers = {};
@@ -310,7 +310,7 @@ var DotVVM;
                          * @pagingOptions_TotalItemsCount (optional)
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.getWithPaging = function (pagingOptions) {
+                        TestWebApiClientAspNetCore.prototype.companiesGetPaged = function (pagingOptions) {
                             var _this = this;
                             var pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
                             var pagingOptions_PageSize = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageSize : null;
@@ -333,10 +333,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processGetWithPaging(_response);
+                                return _this.processCompaniesGetPaged(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processGetWithPaging = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processCompaniesGetPaged = function (response) {
                             var _this = this;
                             var status = response.status;
                             var _headers = {};
@@ -369,7 +369,7 @@ var DotVVM;
                          * @pagingOptions_TotalItemsCount (optional)
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.getWithSortingAndPaging = function (sortingOptions, pagingOptions) {
+                        TestWebApiClientAspNetCore.prototype.companiesGetSortedandpaged = function (sortingOptions, pagingOptions) {
                             var _this = this;
                             var sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
                             var sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
@@ -398,10 +398,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processGetWithSortingAndPaging(_response);
+                                return _this.processCompaniesGetSortedandpaged(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processGetWithSortingAndPaging = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processCompaniesGetSortedandpaged = function (response) {
                             var _this = this;
                             var status = response.status;
                             var _headers = {};
@@ -430,7 +430,7 @@ var DotVVM;
                          * @pageSize (optional)
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.getAll2 = function (companyId, pageIndex, pageSize) {
+                        TestWebApiClientAspNetCore.prototype.getOrdersAll = function (companyId, pageIndex, pageSize) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/Orders?";
                             if (companyId !== undefined)
@@ -450,10 +450,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processGetAll2(_response);
+                                return _this.processGetOrdersAll(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processGetAll2 = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processGetOrdersAll = function (response) {
                             var _this = this;
                             var status = response.status;
                             var _headers = {};
@@ -483,14 +483,14 @@ var DotVVM;
                             return Promise.resolve(null);
                         };
                         /**
-                         * @order (optional)
+                         * @body (optional)
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.post = function (order) {
+                        TestWebApiClientAspNetCore.prototype.postOrders = function (body) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/Orders";
                             url_ = url_.replace(/[?&]$/, "");
-                            var content_ = JSON.stringify(order);
+                            var content_ = JSON.stringify(body);
                             var options_ = {
                                 body: content_,
                                 method: "POST",
@@ -501,10 +501,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processPost(_response);
+                                return _this.processPostOrders(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processPost = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processPostOrders = function (response) {
                             var status = response.status;
                             var _headers = {};
                             if (response.headers && response.headers.forEach) {
@@ -526,7 +526,7 @@ var DotVVM;
                         /**
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.getItem = function (orderId) {
+                        TestWebApiClientAspNetCore.prototype.getOrders = function (orderId) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/Orders/{orderId}";
                             if (orderId === undefined || orderId === null)
@@ -543,10 +543,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processGetItem(_response);
+                                return _this.processGetOrders(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processGetItem = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processGetOrders = function (response) {
                             var _this = this;
                             var status = response.status;
                             var _headers = {};
@@ -570,17 +570,17 @@ var DotVVM;
                             return Promise.resolve(null);
                         };
                         /**
-                         * @order (optional)
+                         * @body (optional)
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.put = function (orderId, order) {
+                        TestWebApiClientAspNetCore.prototype.putOrders = function (orderId, body) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/Orders/{orderId}";
                             if (orderId === undefined || orderId === null)
                                 throw new Error("The parameter 'orderId' must be defined.");
                             url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId));
                             url_ = url_.replace(/[?&]$/, "");
-                            var content_ = JSON.stringify(order);
+                            var content_ = JSON.stringify(body);
                             var options_ = {
                                 body: content_,
                                 method: "PUT",
@@ -591,10 +591,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processPut(_response);
+                                return _this.processPutOrders(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processPut = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processPutOrders = function (response) {
                             var status = response.status;
                             var _headers = {};
                             if (response.headers && response.headers.forEach) {
@@ -616,7 +616,7 @@ var DotVVM;
                         /**
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype["delete"] = function (orderId) {
+                        TestWebApiClientAspNetCore.prototype.ordersDeleteDelete = function (orderId) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/Orders/delete/{orderId}";
                             if (orderId === undefined || orderId === null)
@@ -632,10 +632,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processDelete(_response);
+                                return _this.processOrdersDeleteDelete(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processDelete = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processOrdersDeleteDelete = function (response) {
                             var status = response.status;
                             var _headers = {};
                             if (response.headers && response.headers.forEach) {
@@ -721,54 +721,6 @@ var DotVVM;
                         return CompanyOfString;
                     }());
                     AspNetCore.CompanyOfString = CompanyOfString;
-                    var GridViewDataSetOfCompanyOfBoolean = /** @class */ (function () {
-                        function GridViewDataSetOfCompanyOfBoolean(data) {
-                            if (data) {
-                                for (var property in data) {
-                                    if (data.hasOwnProperty(property))
-                                        this[property] = data[property];
-                                }
-                            }
-                        }
-                        GridViewDataSetOfCompanyOfBoolean.prototype.init = function (data) {
-                            if (data) {
-                                this.IsRefreshRequired = data["isRefreshRequired"] !== undefined ? data["isRefreshRequired"] : null;
-                                if (data["items"] && data["items"].constructor === Array) {
-                                    this.Items = [];
-                                    for (var _i = 0, _a = data["items"]; _i < _a.length; _i++) {
-                                        var item = _a[_i];
-                                        this.Items.push(CompanyOfBoolean.fromJS(item));
-                                    }
-                                }
-                                this.PagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : null;
-                                this.RowEditOptions = data["rowEditOptions"] ? IRowEditOptions.fromJS(data["rowEditOptions"]) : null;
-                                this.SortingOptions = data["sortingOptions"] ? ISortingOptions.fromJS(data["sortingOptions"]) : null;
-                            }
-                        };
-                        GridViewDataSetOfCompanyOfBoolean.fromJS = function (data) {
-                            data = typeof data === 'object' ? data : {};
-                            var result = new GridViewDataSetOfCompanyOfBoolean();
-                            result.init(data);
-                            return result;
-                        };
-                        GridViewDataSetOfCompanyOfBoolean.prototype.toJSON = function (data) {
-                            data = typeof data === 'object' ? data : {};
-                            data["isRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : null;
-                            if (this.Items && this.Items.constructor === Array) {
-                                data["items"] = [];
-                                for (var _i = 0, _a = this.Items; _i < _a.length; _i++) {
-                                    var item = _a[_i];
-                                    data["items"].push(item.toJSON());
-                                }
-                            }
-                            data["pagingOptions"] = this.PagingOptions ? this.PagingOptions.toJSON() : null;
-                            data["rowEditOptions"] = this.RowEditOptions ? this.RowEditOptions.toJSON() : null;
-                            data["sortingOptions"] = this.SortingOptions ? this.SortingOptions.toJSON() : null;
-                            return data;
-                        };
-                        return GridViewDataSetOfCompanyOfBoolean;
-                    }());
-                    AspNetCore.GridViewDataSetOfCompanyOfBoolean = GridViewDataSetOfCompanyOfBoolean;
                     var CompanyOfBoolean = /** @class */ (function () {
                         function CompanyOfBoolean(data) {
                             if (data) {
@@ -927,6 +879,54 @@ var DotVVM;
                         return ISortingOptions;
                     }());
                     AspNetCore.ISortingOptions = ISortingOptions;
+                    var GridViewDataSetOfCompanyOfBoolean = /** @class */ (function () {
+                        function GridViewDataSetOfCompanyOfBoolean(data) {
+                            if (data) {
+                                for (var property in data) {
+                                    if (data.hasOwnProperty(property))
+                                        this[property] = data[property];
+                                }
+                            }
+                        }
+                        GridViewDataSetOfCompanyOfBoolean.prototype.init = function (data) {
+                            if (data) {
+                                this.IsRefreshRequired = data["isRefreshRequired"] !== undefined ? data["isRefreshRequired"] : null;
+                                if (data["items"] && data["items"].constructor === Array) {
+                                    this.Items = [];
+                                    for (var _i = 0, _a = data["items"]; _i < _a.length; _i++) {
+                                        var item = _a[_i];
+                                        this.Items.push(CompanyOfBoolean.fromJS(item));
+                                    }
+                                }
+                                this.pagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : null;
+                                this.rowEditOptions = data["rowEditOptions"] ? IRowEditOptions.fromJS(data["rowEditOptions"]) : null;
+                                this.sortingOptions = data["sortingOptions"] ? ISortingOptions.fromJS(data["sortingOptions"]) : null;
+                            }
+                        };
+                        GridViewDataSetOfCompanyOfBoolean.fromJS = function (data) {
+                            data = typeof data === 'object' ? data : {};
+                            var result = new GridViewDataSetOfCompanyOfBoolean();
+                            result.init(data);
+                            return result;
+                        };
+                        GridViewDataSetOfCompanyOfBoolean.prototype.toJSON = function (data) {
+                            data = typeof data === 'object' ? data : {};
+                            data["isRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : null;
+                            if (this.Items && this.Items.constructor === Array) {
+                                data["items"] = [];
+                                for (var _i = 0, _a = this.Items; _i < _a.length; _i++) {
+                                    var item = _a[_i];
+                                    data["items"].push(item.toJSON());
+                                }
+                            }
+                            data["pagingOptions"] = this.pagingOptions ? this.pagingOptions.toJSON() : null;
+                            data["rowEditOptions"] = this.rowEditOptions ? this.rowEditOptions.toJSON() : null;
+                            data["sortingOptions"] = this.sortingOptions ? this.sortingOptions.toJSON() : null;
+                            return data;
+                        };
+                        return GridViewDataSetOfCompanyOfBoolean;
+                    }());
+                    AspNetCore.GridViewDataSetOfCompanyOfBoolean = GridViewDataSetOfCompanyOfBoolean;
                     var GridViewDataSetOfCompanyOfString = /** @class */ (function () {
                         function GridViewDataSetOfCompanyOfString(data) {
                             if (data) {
@@ -946,9 +946,9 @@ var DotVVM;
                                         this.Items.push(CompanyOfString.fromJS(item));
                                     }
                                 }
-                                this.PagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : null;
-                                this.RowEditOptions = data["rowEditOptions"] ? IRowEditOptions.fromJS(data["rowEditOptions"]) : null;
-                                this.SortingOptions = data["sortingOptions"] ? ISortingOptions.fromJS(data["sortingOptions"]) : null;
+                                this.pagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : null;
+                                this.rowEditOptions = data["rowEditOptions"] ? IRowEditOptions.fromJS(data["rowEditOptions"]) : null;
+                                this.sortingOptions = data["sortingOptions"] ? ISortingOptions.fromJS(data["sortingOptions"]) : null;
                             }
                         };
                         GridViewDataSetOfCompanyOfString.fromJS = function (data) {
@@ -967,14 +967,50 @@ var DotVVM;
                                     data["items"].push(item.toJSON());
                                 }
                             }
-                            data["pagingOptions"] = this.PagingOptions ? this.PagingOptions.toJSON() : null;
-                            data["rowEditOptions"] = this.RowEditOptions ? this.RowEditOptions.toJSON() : null;
-                            data["sortingOptions"] = this.SortingOptions ? this.SortingOptions.toJSON() : null;
+                            data["pagingOptions"] = this.pagingOptions ? this.pagingOptions.toJSON() : null;
+                            data["rowEditOptions"] = this.rowEditOptions ? this.rowEditOptions.toJSON() : null;
+                            data["sortingOptions"] = this.sortingOptions ? this.sortingOptions.toJSON() : null;
                             return data;
                         };
                         return GridViewDataSetOfCompanyOfString;
                     }());
                     AspNetCore.GridViewDataSetOfCompanyOfString = GridViewDataSetOfCompanyOfString;
+                    var OrderItem = /** @class */ (function () {
+                        function OrderItem(data) {
+                            if (data) {
+                                for (var property in data) {
+                                    if (data.hasOwnProperty(property))
+                                        this[property] = data[property];
+                                }
+                            }
+                        }
+                        OrderItem.prototype.init = function (data) {
+                            if (data) {
+                                this.id = data["id"] !== undefined ? data["id"] : null;
+                                this.text = data["text"] !== undefined ? data["text"] : null;
+                                this.amount = data["amount"] !== undefined ? data["amount"] : null;
+                                this.discount = data["discount"] !== undefined ? data["discount"] : null;
+                                this.isOnStock = data["isOnStock"] !== undefined ? data["isOnStock"] : null;
+                            }
+                        };
+                        OrderItem.fromJS = function (data) {
+                            data = typeof data === 'object' ? data : {};
+                            var result = new OrderItem();
+                            result.init(data);
+                            return result;
+                        };
+                        OrderItem.prototype.toJSON = function (data) {
+                            data = typeof data === 'object' ? data : {};
+                            data["id"] = this.id !== undefined ? this.id : null;
+                            data["text"] = this.text !== undefined ? this.text : null;
+                            data["amount"] = this.amount !== undefined ? this.amount : null;
+                            data["discount"] = this.discount !== undefined ? this.discount : null;
+                            data["isOnStock"] = this.isOnStock !== undefined ? this.isOnStock : null;
+                            return data;
+                        };
+                        return OrderItem;
+                    }());
+                    AspNetCore.OrderItem = OrderItem;
                     var Order = /** @class */ (function () {
                         function Order(data) {
                             if (data) {
@@ -1023,42 +1059,6 @@ var DotVVM;
                         return Order;
                     }());
                     AspNetCore.Order = Order;
-                    var OrderItem = /** @class */ (function () {
-                        function OrderItem(data) {
-                            if (data) {
-                                for (var property in data) {
-                                    if (data.hasOwnProperty(property))
-                                        this[property] = data[property];
-                                }
-                            }
-                        }
-                        OrderItem.prototype.init = function (data) {
-                            if (data) {
-                                this.id = data["id"] !== undefined ? data["id"] : null;
-                                this.text = data["text"] !== undefined ? data["text"] : null;
-                                this.amount = data["amount"] !== undefined ? data["amount"] : null;
-                                this.discount = data["discount"] !== undefined ? data["discount"] : null;
-                                this.isOnStock = data["isOnStock"] !== undefined ? data["isOnStock"] : null;
-                            }
-                        };
-                        OrderItem.fromJS = function (data) {
-                            data = typeof data === 'object' ? data : {};
-                            var result = new OrderItem();
-                            result.init(data);
-                            return result;
-                        };
-                        OrderItem.prototype.toJSON = function (data) {
-                            data = typeof data === 'object' ? data : {};
-                            data["id"] = this.id !== undefined ? this.id : null;
-                            data["text"] = this.text !== undefined ? this.text : null;
-                            data["amount"] = this.amount !== undefined ? this.amount : null;
-                            data["discount"] = this.discount !== undefined ? this.discount : null;
-                            data["isOnStock"] = this.isOnStock !== undefined ? this.isOnStock : null;
-                            return data;
-                        };
-                        return OrderItem;
-                    }());
-                    AspNetCore.OrderItem = OrderItem;
                     var SwaggerException = /** @class */ (function (_super) {
                         __extends(SwaggerException, _super);
                         function SwaggerException(message, status, response, headers, result) {

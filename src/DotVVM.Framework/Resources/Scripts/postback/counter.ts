@@ -8,3 +8,6 @@ export function isPostBackStillActive(currentPostBackCounter: number): boolean {
     return postBackCounter === currentPostBackCounter;
 }
 
+export function resetPostBackCounter() {
+    postBackCounter = -1;
+}

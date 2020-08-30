@@ -12,6 +12,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
         Stack<int> propertyIndices = new Stack<int>();
         int virtualNests = 0;
         int lastPropertyIndex = -1;
+        int suppress = 0;
+        public int SuppressedLevel => suppress;
 
         public EncryptedValuesWriter(JsonWriter jsonWriter)
         {
@@ -27,9 +29,21 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         public void Nest(int property)
         {
+            if (suppress > 0) return;
+
             propertyIndices.Push(property);
             lastPropertyIndex = -1;
             virtualNests++;
+        }
+
+        public void Suppress()
+        {
+            suppress++;
+        }
+
+        public void EndSuppress()
+        {
+            suppress--;
         }
 
         /// <summary>
@@ -38,6 +52,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         public void End()
         {
+            if (suppress > 0) return;
+
             if (virtualNests > 0)
             {
                 virtualNests--;
@@ -54,6 +70,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         public void ClearEmptyNest()
         {
+            if (suppress > 0) return;
+
             if (virtualNests <= 0) throw new NotSupportedException("There is no empty (virtual) nest to be cleared.");
             virtualNests--;
             lastPropertyIndex = propertyIndices.Pop();
@@ -84,6 +102,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         public void WriteValue(int propertyIndex, object value)
         {
+            if (suppress > 0) return;
+
             EnsureObjectStarted();
             WritePropertyName(propertyIndex);
             lastPropertyIndex = propertyIndex;

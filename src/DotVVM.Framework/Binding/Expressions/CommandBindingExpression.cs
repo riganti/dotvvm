@@ -70,6 +70,8 @@ namespace DotVVM.Framework.Binding.Expressions
         public static CodeSymbolicParameter CurrentPathParameter = new CodeSymbolicParameter("CommandBindingExpression.CurrentPathParameter");
         public static CodeSymbolicParameter CommandIdParameter = new CodeSymbolicParameter("CommandBindingExpression.CommandIdParameter");
         public static CodeSymbolicParameter ControlUniqueIdParameter = new CodeSymbolicParameter("CommandBindingExpression.ControlUniqueIdParameter");
+        /// Knockout context passed as postback argument. May be null, when it's the same as ko.contextFor(element).
+        public static CodeSymbolicParameter OptionalKnockoutContextParameter = new CodeSymbolicParameter("CommandBindingExpression.OptionalKnockoutContextParameter", CodeParameterAssignment.FromIdentifier("null"));
         public static CodeSymbolicParameter PostbackHandlersParameter = new CodeSymbolicParameter("CommandBindingExpression.PostbackHandlersParameter");
         public static CodeSymbolicParameter CommandArgumentsParameter = new CodeSymbolicParameter("CommandBindingExpression.CommandArgumentsParameter");
 
@@ -79,7 +81,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 new JsSymbolicParameter(CurrentPathParameter),
                 new JsSymbolicParameter(CommandIdParameter),
                 new JsSymbolicParameter(ControlUniqueIdParameter),
-                new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter, CodeParameterAssignment.FromIdentifier("null")),
+                new JsSymbolicParameter(OptionalKnockoutContextParameter),
                 new JsSymbolicParameter(PostbackHandlersParameter),
                 commandArgs
             ).FormatParametrizedScript();

@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Configuration
 
                 if (obj.GetTypeInfo().Assembly != typeof(string).GetTypeInfo().Assembly &&
                     !obj.IsGenericParameter &&
-                    !ReflectionUtils.IsEnumerable(obj) && ReflectionUtils.IsComplexType(obj) && !ReflectionUtils.IsTuple(obj))
+                    ViewModelJsonConverter.CanConvertType(obj))
                 {
 
                     config.GetSerializationMapper().Map(obj, m => {

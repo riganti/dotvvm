@@ -8,6 +8,8 @@ using DotVVM.Framework.ViewModel;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -24,7 +26,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
             this.propertySerialization = new DefaultPropertySerialization();
         }
 
-        public void Apply(Operation operation, OperationFilterContext context)
+        public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             if (context.ApiDescription.ActionDescriptor is ControllerActionDescriptor)
             {
@@ -32,7 +34,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
             }
         }
 
-        private void ApplyControllerAction(Operation operation, ApiDescription apiDescription)
+        private void ApplyControllerAction(OpenApiOperation operation, ApiDescription apiDescription)
         {
             // all properties of objects with FromQuery parameters have the same ParameterDescriptor
             var groups = apiDescription.ParameterDescriptions.GroupBy(p => p.ParameterDescriptor);
@@ -59,7 +61,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
                         var parameterType = attribute.ClientType ?? param.ParameterDescriptor.ParameterType;
 
                         jsonParam.Name = parameterDescriptor.Name + '.' + GetPropertyName(parameterType, jsonParam.Name);
-                        jsonParam.Extensions.Add(ApiConstants.DotvvmWrapperTypeKey, parameterType.FullName + ", " + parameterType.Assembly.GetName().Name);
+                        jsonParam.Extensions.Add(ApiConstants.DotvvmWrapperTypeKey, new OpenApiString(parameterType.FullName + ", " + parameterType.Assembly.GetName().Name));
                     }
                 }
             }

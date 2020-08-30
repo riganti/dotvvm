@@ -1,0 +1,59 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.PostbackConcurrency.StressTestViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>Value: <span class="result-value">{{value: Value}}</span></h1>
+    <p>beforePostback count: <span class="result-before">{{value: BeforePostback}}</span></p>
+    <p>postbackRejected count: <span class="result-rejected">{{value: RejectedCount}}</span></p>
+    <p>afterPostback count: <span class="result-after">{{value: AfterPostback}}</span></p>
+
+    <div PostBack.Concurrency="Default">
+        <dot:Button Text="Default Mode" Click="{command: Increment()}" ID="DefaultButton" />
+        <input type="button" value="Trigger 100x" onclick="trigger100('DefaultButton');" />
+    </div>
+    <div PostBack.Concurrency="Deny">
+        <dot:Button Text="Deny Mode" Click="{command: Increment()}" ID="DenyButton" />
+        <input type="button" value="Trigger 100x" onclick="trigger100('DenyButton');" />
+    </div>
+    <div PostBack.Concurrency="Queue">
+        <dot:Button Text="Queue Mode" Click="{command: Increment()}" ID="QueueButton" />
+        <input type="button" value="Trigger 100x" onclick="trigger100('QueueButton');" />
+    </div>
+
+    <dot:InlineScript Dependencies="dotvvm">
+dotvvm.events.postbackRejected.subscribe(function () {
+    dotvvm.viewModels.root.viewModel.RejectedCount(dotvvm.viewModels.root.viewModel.RejectedCount() + 1);
+});
+dotvvm.events.beforePostback.subscribe(function () {
+    dotvvm.viewModels.root.viewModel.BeforePostback(dotvvm.viewModels.root.viewModel.BeforePostback() + 1);
+});
+dotvvm.events.afterPostback.subscribe(function (args) {
+    dotvvm.viewModels.root.viewModel.AfterPostback(dotvvm.viewModels.root.viewModel.AfterPostback() + 1);
+    console.log(args);
+});
+    
+function trigger100(buttonId) {
+    var button = document.getElementById(buttonId);
+    var next = function(j) {
+        if (j < 100) {
+            window.setTimeout(function () {
+                button.click();
+                next(j + 1);
+            }, Math.random() * 1);
+        }
+    }
+    next(0);
+}   
+    </dot:InlineScript>
+
+</body>
+</html>
+
+

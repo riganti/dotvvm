@@ -9,6 +9,7 @@ import * as counter from '../postback/counter';
 import * as events from './events';
 import { getSpaPlaceHolderUniqueId, isSpaReady } from './spa';
 import { handleRedirect } from '../postback/redirect';
+import * as gate from '../postback/gate';
 
 export async function navigateCore(url: string, handlePageNavigating?: (url: string) => void): Promise<DotvvmNavigationEventArgs> {
 
@@ -16,6 +17,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
 
         // prevent double postbacks
         const currentPostBackCounter = counter.backUpPostBackCounter();
+        gate.isSpaNavigationRunning(true);
 
         // trigger spaNavigating event
         const spaNavigatingArgs: DotvvmSpaNavigatingEventArgs = {
@@ -51,6 +53,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
             updater.updateViewModelAndControls(resultObject, true);
             isSpaReady(true);
         } else if (resultObject.action === "redirect") {
+            gate.isSpaNavigationRunning(false);
             const x = await handleRedirect(resultObject, true) as DotvvmNavigationEventArgs
             return x
         }
@@ -63,6 +66,11 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
             isHandled: true
         };
         events.spaNavigated.trigger(spaNavigatedArgs);
+
+        gate.isSpaNavigationRunning(false);
+
         return spaNavigatedArgs
+    }, 0, () => {
+        gate.isSpaNavigationRunning(false);
     });
 }

@@ -35,6 +35,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddOptions();
 
+            services.TryAddSingleton<CompiledAssemblyCache>();
             services.TryAddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
             services.TryAddSingleton<IViewModelSerializer, DefaultViewModelSerializer>();
             services.TryAddSingleton<IViewModelLoader, DefaultViewModelLoader>();

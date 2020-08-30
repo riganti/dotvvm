@@ -1,9 +1,11 @@
 ﻿#nullable enable
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -33,30 +35,54 @@ namespace DotVVM.Framework.ResourceManagement
             string name,
             Func<string, IResource?> findResource)
         {
-            var queue = new Queue<string>();
-            foreach (var dependency in resource.Dependencies)
-            {
-                queue.Enqueue(dependency);
-            }
-            while (queue.Count > 0)
-            {
-                var currentName = queue.Dequeue();
-                var current = findResource(currentName);
+            if (resource.Dependencies.Length == 0)
+                return;
 
-                if (current is null)
-                    continue;
+            var stack = new Stack<string>();
+            var visited = new HashSet<string>();
+            stack.Push(name);
 
-                if (resource == current)
+            while (stack.Count > 0)
+            {
+                var currentResourceName = stack.Peek();
+
+                var currentResource = currentResourceName == name
+                    ? resource
+                    : findResource(currentResourceName);
+
+                var isCurrentResourceProcessingFinished =
+                    currentResource == null ||
+                    ProcessDependencies(name, stack, visited, currentResource);
+
+                if (isCurrentResourceProcessingFinished)
                 {
+                    visited.Add(currentResourceName);
+                    stack.Pop();
+                }
+            }
+        }
+
+        private static bool ProcessDependencies(string name, Stack<string> stack, HashSet<string> visited, IResource currentResource)
+        {
+            var nextDependencyIdentifier = currentResource.Dependencies.FirstOrDefault(d => !visited.Contains(d));
+            if (nextDependencyIdentifier != null)
+            {
+                if (stack.Contains(nextDependencyIdentifier))
+                {
+                    var dependancyChain = stack
+                        .Reverse()
+                        .Concat(new[] { nextDependencyIdentifier })
+                        .StringJoin(" --> ");
+
                     // dependency cycle detected
-                    throw new DotvvmResourceException($"Resource \"{name}\" has a cyclic " +
-                        $"dependency.");
+                    throw new DotvvmResourceException($"Resource \"{name}\" has a cyclic dependency: {dependancyChain}");
                 }
-                foreach (var dependency in current.Dependencies)
-                {
-                    queue.Enqueue(dependency);
-                }
+
+                stack.Push(nextDependencyIdentifier);
+                return false;
             }
+
+            return true;
         }
     }
 }
