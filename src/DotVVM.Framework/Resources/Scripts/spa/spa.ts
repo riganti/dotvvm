@@ -79,7 +79,7 @@ export async function handleSpaNavigation(element: HTMLElement): Promise<DotvvmN
         };
         events.error.trigger(errArgs);
         if (!errArgs.handled) {
-            alert("SPA Navigation Error");
+            console.error("SPA Navigation Error", errArgs);
         }
         throw err;
     }

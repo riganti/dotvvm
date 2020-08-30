@@ -134,7 +134,7 @@ export async function applyPostbackHandlers(
         return result;
     } catch (reason) {
         if (reason) {
-            console.log("Rejected: " + reason);
+            console.error("Rejected: ", reason);
         }
         throw reason
     }
