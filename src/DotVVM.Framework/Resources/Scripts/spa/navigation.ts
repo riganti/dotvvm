@@ -13,11 +13,12 @@ import * as gate from '../postback/gate';
 
 export async function navigateCore(url: string, handlePageNavigating?: (url: string) => void): Promise<DotvvmNavigationEventArgs> {
 
-    return await http.retryOnInvalidCsrfToken<DotvvmNavigationEventArgs>(async () => {
+    try {
+        // TODO: counter
+        gate.isSpaNavigationRunning(true);
 
         // prevent double postbacks
         const currentPostBackCounter = counter.backUpPostBackCounter();
-        gate.isSpaNavigationRunning(true);
 
         // trigger spaNavigating event
         const spaNavigatingArgs: DotvvmSpaNavigatingEventArgs = {
@@ -31,6 +32,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
         }
 
         // compose URLs
+        // TODO: get rid of ___dotvvm-spa___
         const spaFullUrl = uri.addVirtualDirectoryToUrl("/___dotvvm-spa___" + uri.addLeadingSlash(url));
         const displayUrl = uri.addVirtualDirectoryToUrl(url);
 
@@ -49,11 +51,10 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
 
         await loadResourceList(resultObject.resources);
 
-        if (resultObject.action === "successfulCommand" || !resultObject.action) {
+        if (resultObject.action === "successfulCommand") {
             updater.updateViewModelAndControls(resultObject, true);
             isSpaReady(true);
         } else if (resultObject.action === "redirect") {
-            gate.isSpaNavigationRunning(false);
             const x = await handleRedirect(resultObject, true) as DotvvmNavigationEventArgs
             return x
         }
@@ -66,11 +67,9 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
             isHandled: true
         };
         events.spaNavigated.trigger(spaNavigatedArgs);
+        return spaNavigatedArgs;
 
+    } finally {
         gate.isSpaNavigationRunning(false);
-
-        return spaNavigatedArgs
-    }, 0, () => {
-        gate.isSpaNavigationRunning(false);
-    });
+    }
 }
