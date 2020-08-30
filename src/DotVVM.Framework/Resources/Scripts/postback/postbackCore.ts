@@ -69,7 +69,7 @@ export async function postbackCore(
         }
 
         const initialUrl = getInitialUrl();
-        let result = await http.postJSON<PostbackResponse>(initialUrl, ko.toJSON(data));
+        let result = await http.postJSON<PostbackResponse>(initialUrl, JSON.stringify(data));
 
         if (result.action == "viewModelNotCached") {
             // repeat the request with full viewmodel
@@ -79,7 +79,7 @@ export async function postbackCore(
             delete data.viewModelCache;
             data.viewModel = postedViewModel;
 
-            result = await http.postJSON<PostbackResponse>(initialUrl, ko.toJSON(data));
+            result = await http.postJSON<PostbackResponse>(initialUrl, JSON.stringify(data));
         }
 
         events.postbackResponseReceived.trigger({});
@@ -88,6 +88,7 @@ export async function postbackCore(
             try {
                 return await processPostbackResponse(options, postedViewModel, result);
             } catch (err) {
+                // TODO: don't eat the inner error and change the type
                 throw new DotvvmPostbackError({ type: "commit", args: { serverResponseObject: err.reason.responseObject, handled: false } });
             }
         };

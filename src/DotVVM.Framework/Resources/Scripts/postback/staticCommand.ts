@@ -7,13 +7,6 @@ import * as http from './http'
 import { handleRedirect } from './redirect';
 import { DotvvmPostbackError } from '../shared-classes';
 
-export function staticCommandPostback_old(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = (a: any) => { }, errorCallback = (errorInfo: { xhr?: XMLHttpRequest, error?: any }) => { }) {
-    return staticCommandPostback(sender, command, args).then(
-        callback,
-        errorCallback
-    );
-}
-
 export async function staticCommandPostback(sender: HTMLElement, command: string, args: any[]): Promise<any> {
 
     let data: any;
@@ -27,7 +20,7 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
 
             const response = await http.postJSON<any>(
                 getInitialUrl(),
-                ko.toJSON(data),
+                JSON.stringify(data),
                 { "X-PostbackType": "StaticCommand" }
             );
 
