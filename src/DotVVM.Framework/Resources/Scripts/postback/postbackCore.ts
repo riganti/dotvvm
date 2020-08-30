@@ -41,10 +41,6 @@ export async function postbackCore(
     return await http.retryOnInvalidCsrfToken(async () => {
         await http.fetchCsrfToken();
 
-        if (gate.arePostbacksDisabled()) {
-            throw new DotvvmPostbackError({ type: "gate" });
-        }
-
         updateDynamicPathFragments(context, path);
 
         const postedViewModel = serialize(getViewModel(), {
