@@ -571,7 +571,7 @@ class DotVVM {
         const promise = this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)))
             .then(r => r(), r => Promise.reject(r))
 
-        promise.catch(reason => { if (reason) console.log("Rejected: " + reason) });
+        promise.catch(reason => { if (reason) console.log("Promise rejected. ", reason) });
 
         return promise;
     }
@@ -612,7 +612,7 @@ class DotVVM {
                 data.viewModelDiff = this.diff(this.viewModels[viewModelName].viewModelCache, completeViewModel);
                 data.viewModelCacheId = this.viewModels[viewModelName].viewModelCacheId;
             } else {
-                data.viewModel = completeViewModel;    
+                data.viewModel = completeViewModel;
             }
 
             const errorAction = xhr => {
@@ -637,7 +637,7 @@ class DotVVM {
                     dotvvm.events.postbackResponseReceived.trigger({})
                     resolve(() => new Promise((resolve, reject) => {
                         dotvvm.events.postbackCommitInvoked.trigger({})
-                        
+
                         if (!resultObject.viewModel && resultObject.viewModelDiff) {
                             // TODO: patch (~deserialize) it to ko.observable viewModel
                             resultObject.viewModel = this.patch(completeViewModel, resultObject.viewModelDiff);
@@ -731,7 +731,7 @@ class DotVVM {
                 else {
                     // process the response
                     successAction(result);
-                }                
+                }
             }, errorAction);
         });
     }
@@ -963,7 +963,7 @@ class DotVVM {
                         this.handleRedirect(resultObject, viewModelName, true).then(resolve, reject);
                         return;
                     }
-                    
+
                     // trigger spaNavigated event
                     var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(this.viewModels[viewModelName].viewModel, viewModelName, resultObject, result);
                     this.events.spaNavigated.trigger(spaNavigatedArgs);
@@ -1125,7 +1125,7 @@ class DotVVM {
     public diff(source: any, modified: any): any {
         if (source instanceof Array && modified instanceof Array) {
             var diffArray = modified.map((el, index) => this.diff(source[index], el));
-            if (source.length === modified.length 
+            if (source.length === modified.length
                 && diffArray.every((el, index) => el === this.diffEqual || source[index] === modified[index])) {
                 return this.diffEqual;
             } else {
@@ -1157,7 +1157,7 @@ class DotVVM {
             if (typeof source == "object") {
                 return this.diffEqual;
             } else {
-                return source; 
+                return source;
             }
         } else {
             return modified;
