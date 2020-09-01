@@ -10,12 +10,9 @@ import { createPostbackArgs } from '../createPostbackArgs';
 
 const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
     internalHandlers.suppressOnDisabledElementHandler,
-    internalHandlers.isPostBackRunningHandler,
-    internalHandlers.postbackHandlersStartedEventHandler
+    internalHandlers.isPostBackRunningHandler
 ];
-const globalLaterPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
-    internalHandlers.postbackHandlersCompletedEventHandler,
-];
+const globalLaterPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [];
 
 export async function postBack(
         sender: HTMLElement,
