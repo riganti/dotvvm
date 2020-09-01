@@ -12,6 +12,7 @@
     "systemjs": "^6.1.9"
   },
   "scripts": {
+    "build-development": "rollup -c",
     "build": "npm run build-production && npm run build-polyfills",
     "build-production": "rollup -c --environment BUILD:production",
     "tsc-build": "tsc -p .",
