@@ -103,14 +103,16 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB);
-                browser.Wait(2000);
+                browser.WaitFor(browser.HasAlert, 10000);
 
                 // verify the URL after redirect to the DefaultRoute
                 AssertUI.AlertTextEquals(browser, "javascript resource loaded!");
                 browser.ConfirmAlert();
-                browser.Wait(2000);
+
+                browser.WaitFor(browser.HasAlert, 10000);
                 AssertUI.AlertTextEquals(browser, "javascript 2 resource loaded!");
                 browser.ConfirmAlert();
+
                 AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB);
 
                 // go to first page
@@ -184,18 +186,21 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageB);
-                browser.Wait(2000);
+                browser.WaitFor(browser.HasAlert, 10000);
 
                 // verify the URL after redirect to the DefaultRoute
                 AssertUI.AlertTextEquals(browser, "javascript resource loaded!");
                 browser.ConfirmAlert();
-                browser.Wait(2000);
+
+                browser.WaitFor(browser.HasAlert, 10000);
                 AssertUI.AlertTextEquals(browser, "javascript 2 resource loaded!");
                 browser.ConfirmAlert();
-                browser.Wait(2000);
+
+                browser.WaitFor(browser.HasAlert, 10000);
                 AssertUI.AlertTextEquals(browser, "javascript 2 resource loaded!");
                 browser.ConfirmAlert();
-                browser.Wait(2000);
+
+                browser.WaitFor(browser.HasAlert, 10000);
                 AssertUI.AlertTextEquals(browser, "javascript resource loaded!");
                 browser.ConfirmAlert();
                 AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageB);
