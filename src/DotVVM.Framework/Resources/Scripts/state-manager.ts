@@ -3,6 +3,8 @@
 import { createArray, hasOwnProperty, symbolOrDollar, isPrimitive, keys } from "./utils/objects";
 import { DotvvmEvent } from "./events";
 import { serializeDate } from "./serialization/date";
+import { func } from "../../node_modules/fast-check/lib/types/fast-check";
+import { extendToObservableArrayIfRequired, isOptionsProperty } from "./serialization/deserialize"
 
 
 const currentStateSymbol = Symbol("currentState")
@@ -135,22 +137,37 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
 
         for (const p of properties) {
             this[internalPropCache][p] = null
-            Object.defineProperty(this, p, {
-                enumerable: true,
-                configurable: false,
-                get() {
-                    const cached = this[internalPropCache][p]
-                    if (cached) return cached
+            // TODO: remove condition, options will not exist
+            if (isOptionsProperty(p)) {
+                // options are not wrapped in observables
+                Object.defineProperty(this, p, {
+                    enumerable: true,
+                    configurable: false,
+                    get() {
+                        return this[currentStateSymbol][p]
+                    },
+                    set(newVal) {
+                        console.warn(`Setting ${p} is not supported, please do not do that`, newVal)
+                    }
+                })
+            } else {
+                Object.defineProperty(this, p, {
+                    enumerable: true,
+                    configurable: false,
+                    get() {
+                        const cached = this[internalPropCache][p]
+                        if (cached) return cached
 
-                    const newObs = createWrappedObservable(
-                        this[currentStateSymbol][p],
-                        u => this[updatePropertySymbol](p, u)
-                    )
+                        const newObs = createWrappedObservable(
+                            this[currentStateSymbol][p],
+                            u => this[updatePropertySymbol](p, u)
+                        )
 
-                    this[internalPropCache][p] = newObs
-                    return newObs
-                }
-            })
+                        this[internalPropCache][p] = newObs
+                        return newObs
+                    }
+                })
+            }
         }
         Object.seal(this)
     }
@@ -191,118 +208,98 @@ function createObservableObject<T extends object>(initialObject: T, update: ((up
     return new FakeObservableObject(initialObject, update, properties) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
 }
 
+function type(o: any) {
+    const k = keys(o)
+    k.sort()
+    return k.join("|")
+}
 
-function createObservableArray<T>(initialValue: T[] | null, updater: UpdateDispatcher<T[] | null>): KnockoutObservableArray<any> & UpdatableObjectExtensions<T[] | null> {
-    let isUpdating = false;
+function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T>): DeepKnockoutWrapped<T> {
 
-    const result = []
-    const rr = ko.observableArray() as (KnockoutObservableArray<any> & UpdatableObjectExtensions<T[] | null>)
+    let isUpdating = false
+
+    const rr = initialValue instanceof Array ? ko.observableArray() : ko.observable() as any
     rr[updateSymbol] = updater
 
-    rr.subscribe((newVal) => {
+    rr.subscribe((newVal: any) => {
         if (isUpdating) { return }
         updater(_ => unmapKnockoutObservables(newVal))
     })
 
-    function notify(newVal: T[] | null) {
+    function notify(newVal: any) {
         const currentValue = rr[currentStateSymbol]
         if (newVal === currentValue) { return }
-        if (!newVal || !currentValue || newVal.length != currentValue.length)
-        {
-            // must update the collection itself
-            try {
-                isUpdating = true;
-                if (!newVal) rr(newVal);
-                else {
-                    const oldValue = rr.peek()
-                    const result: any[] = [ ...oldValue]
-                    for (let index = result.length; index < newVal.length; index++) {
-                        const indexForClosure = index
-                        result.push(createWrappedObservable(newVal[index], update => updater(viewModelArray => {
-                            const newElement = update(viewModelArray![indexForClosure])
-                            const newArray = createArray(viewModelArray!)
-                            newArray[indexForClosure] = newElement
-                            return Object.freeze(newArray)
-                        })))
-                    }
-                    rr(result)
-                }
-
-            }
-            finally {
-                isUpdating = false;
-            }
-        }
         rr[currentStateSymbol] = newVal
 
-        if (newVal)
-        {
-            // notify child objects
-            const arr = rr.peek()
-            for (let index = 0; index < arr.length; index++) {
-                arr[index][notifySymbol as any](newVal[index])
+        let newContents
+        const oldContents = rr.peek()
+        if (isPrimitive(newVal)) {
+            // primitive value
+            newContents = newVal
+        }
+        else if (newVal instanceof Array) {
+            extendToObservableArrayIfRequired(rr)
+
+            const skipUpdate = false && oldContents instanceof Array && oldContents.length == newVal.length
+
+            if (!skipUpdate) {
+                // take at most newVal.length from the old value
+                newContents = oldContents instanceof Array ? oldContents.slice(0, newVal.length) : []
+                // then append (potential) new values into the array
+                for (let index = 0; index < newVal.length; index++) {
+                    if (newContents[index] && newContents[index][notifySymbol as any]) {
+                        continue
+                    }
+                    if (newContents[index]) {
+                        // TODO: remove eventually
+                        console.warn(`Replacing old knockout observable with a new one, just because it is not created by DotVVM. Please do not assign objects into the knockout tree directly. The object is `, unmapKnockoutObservables(newContents[index]))
+                    }
+                    const indexForClosure = index
+                    newContents[index] = createWrappedObservable(newVal[index], update => updater((viewModelArray: any) => {
+                        const newElement = update(viewModelArray![indexForClosure])
+                        const newArray = createArray(viewModelArray!)
+                        newArray[indexForClosure] = newElement
+                        return Object.freeze(newArray) as any
+                    }))
+                }
             }
+            else {
+                newContents = oldContents
+            }
+
+            // notify child objects
+            for (let index = 0; index < newContents.length; index++) {
+                newContents[index][notifySymbol as any](newVal[index])
+            }
+
+            if (skipUpdate) {
+                return
+            }
+        }
+        else if (oldContents && oldContents[notifySymbol] && type(currentValue) == type(newVal)) {
+            // smart object, supports the notification by itself
+            oldContents[notifySymbol as any](newVal)
+
+            // don't update the observable itself
+            return
+        }
+        else {
+            // create new object and replace
+
+            console.debug("Creating new KO object for", newVal)
+            newContents = createObservableObject(newVal, updater)
+        }
+
+        try {
+            isUpdating = true
+            rr(newContents)
+        }
+        finally {
+            isUpdating = false
         }
     }
 
     rr[notifySymbol] = notify
     notify(initialValue)
     return rr
-}
-
-function createWrappedObservable<T>(value: T, updater: UpdateDispatcher<T>): DeepKnockoutWrapped<T> {
-
-    if (value instanceof Array) {
-        return createObservableArray(value, updater as any) as any
-    }
-    else {
-        let isUpdating = false
-
-        const rr = ko.observable() as any
-        rr[updateSymbol] = updater
-
-        rr.subscribe((newVal: any) => {
-            if (isUpdating) { return }
-            updater(_ => unmapKnockoutObservables(newVal))
-        })
-
-        function notify(newVal: T) {
-            const currentValue = rr[currentStateSymbol]
-            if (newVal === currentValue) { return }
-
-            let newContents
-            if (isPrimitive(newVal)) {
-                // primitive value
-                newContents = newVal
-            } else {
-                // object
-                console.assert(!(newVal instanceof Array))
-                console.assert(!isPrimitive(newVal))
-
-                const oldContents = rr.peek()
-                // TODO: change when type changes
-                if (oldContents && oldContents[notifySymbol]) {
-                    // smart object, supports the notification by itself
-                    oldContents[notifySymbol as any](newVal)
-                    return
-                } else {
-                    // create new object and replace
-
-                    console.debug("Creating new KO object for", newVal)
-                    newContents = createObservableObject(newVal as any, updater)
-                }
-            }
-
-            try {
-                isUpdating = true
-                rr(newContents)
-            } finally {
-                isUpdating = false
-            }
-        }
-
-        rr[notifySymbol] = notify
-        notify(value)
-        return rr
-    }
 }
