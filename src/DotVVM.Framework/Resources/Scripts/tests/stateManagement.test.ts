@@ -94,6 +94,48 @@ test("Add type properties", () => {
     expect("P4" in vm.Inner()).toBeTruthy()
 })
 
+test("Should not change object reference", () => {
+
+    const innerObs = vm.Inner
+    const innerObj = vm.Inner()
+
+    let changed = false
+
+    innerObs.subscribe(() => changed = true)
+
+    s.update(x => ({ ...x, Inner: { P1: 1, P4: null } }))
+    s.doUpdateNow()
+
+    expect(changed).toBeFalsy()
+    expect((dotvvm.viewModels.root.viewModel as any).Inner).toBe(innerObs)
+    expect((dotvvm.viewModels.root.viewModel as any).Inner()).toBe(innerObj)
+    expect(innerObj.P1()).toBe(1)
+    expect(innerObj.P4()).toBe(null)
+})
+
+test("Should change object reference when type changes", () => {
+
+    const innerObs = vm.Inner
+    const innerObj = vm.Inner()
+
+    let changed = false
+
+    innerObs.subscribe(() => changed = true)
+
+    s.update(x => ({ ...x, Inner: { P1: 4, P5: 2 } }))
+    s.doUpdateNow()
+
+    expect(changed).toBeTruthy()
+    // observable should be the same, but object should be different
+    expect((dotvvm.viewModels.root.viewModel as any).Inner).toBe(innerObs)
+    const innerObj2 = (dotvvm.viewModels.root.viewModel as any).Inner()
+    expect(innerObj2).not.toBe(innerObj)
+    expect(innerObj.P1()).toBe(1)
+    expect(innerObj.P4()).toBe(null)
+    expect(innerObj2.P1()).toBe(4)
+    expect(innerObj2.P5()).toBe(2)
+})
+
 test("Propagate knockout observable change", () => {
 
     vm.Inner(null)
