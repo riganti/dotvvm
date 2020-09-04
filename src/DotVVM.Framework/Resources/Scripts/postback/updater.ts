@@ -1,5 +1,5 @@
 import { getElementByDotvvmId } from '../utils/dom'
-import { replaceViewModel, updateViewModelCache, clearViewModelCache } from '../dotvvm-base'
+import { replaceViewModel, updateViewModelCache, clearViewModelCache, getStateManager } from '../dotvvm-base'
 import { keys } from '../utils/objects';
 
 const diffEqual = {};
@@ -23,7 +23,7 @@ export function cleanUpdatedControls(resultObject: any, updatedControls: any = {
     return updatedControls;
 }
 
-export function restoreUpdatedControls(resultObject: any, updatedControls: any, applyBindingsOnEachControl: boolean) {
+export function restoreUpdatedControls(resultObject: any, updatedControls: any) {
     for (const id of keys(resultObject.updatedControls)) {
         const updatedControl = updatedControls[id];
         if (updatedControl) {
@@ -45,18 +45,8 @@ export function restoreUpdatedControls(resultObject: any, updatedControls: any, 
             } else {
                 updatedControl.parent.appendChild(element);
             }
+            Promise.resolve().then(() => ko.applyBindings(updatedControl.dataContext, element))
         }
-    }
-
-    if (applyBindingsOnEachControl) {
-        Promise.resolve(0).then(_ => {
-            for (const id of keys(resultObject.updatedControls)) {
-                const updatedControl = getElementByDotvvmId(id);
-                if (updatedControl) {
-                    ko.applyBindings(updatedControls[id].dataContext, updatedControl);
-                }
-            }
-        });
     }
 }
 
@@ -80,8 +70,11 @@ export function updateViewModelAndControls(resultObject: any) {
         // remove updated controls which were previously removed from DOM
         cleanUpdatedControls(resultObject, updatedControls);
 
+        // we have to update knockout viewmodel before we try to apply new data into the observables
+        getStateManager().doUpdateNow()
+
         // add new updated controls
-        restoreUpdatedControls(resultObject, updatedControls, true);
+        restoreUpdatedControls(resultObject, updatedControls);
     }
     finally {
         isViewModelUpdating = false;
