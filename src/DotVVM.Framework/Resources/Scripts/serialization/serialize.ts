@@ -21,12 +21,12 @@ export function serialize(viewModel: any, opt: ISerializationOptions = {}): any 
         opt.pathOnly = false;
     }
 
-    if (isPrimitive(viewModel)) {
-        return viewModel;
-    }
-
     if (typeof (viewModel) == "function") {
         return null;
+    }
+
+    if (isPrimitive(viewModel)) {
+        return viewModel ?? null;
     }
 
     if (viewModel instanceof Array) {
