@@ -10,6 +10,7 @@ import { setIdFragment } from '../utils/dom';
 import { handleRedirect } from './redirect';
 import * as evaluator from '../utils/evaluator'
 import { isPrimitive } from '../utils/objects';
+import * as stateManager from '../state-manager'
 
 let lastStartedPostbackId: number;
 
@@ -42,8 +43,9 @@ export async function postbackCore(
 
         updateDynamicPathFragments(context, path);
 
-        const postedViewModel = serializeCore(getState(), {
-            pathMatcher: val => context && val == context.$data
+        const initialState = getState()
+        const postedViewModel = serializeCore(initialState, {
+            pathMatcher: val => context && val == context.$data[stateManager.currentStateSymbol]
         });
 
         const data: any = {
@@ -81,7 +83,7 @@ export async function postbackCore(
 
         return async () => {
             try {
-                return await processPostbackResponse(options, postedViewModel, result);
+                return await processPostbackResponse(options, initialState, result);
             } catch (err) {
                 throw new DotvvmPostbackError({ type: "commit", args: { serverResponseObject: err.reason.responseObject, handled: false } });
             }
@@ -89,10 +91,10 @@ export async function postbackCore(
     });
 }
 
-async function processPostbackResponse(options: PostbackOptions, postedViewModel: any, result: PostbackResponse): Promise<DotvvmAfterPostBackEventArgs> {
+async function processPostbackResponse(options: PostbackOptions, initialState: any, result: PostbackResponse): Promise<DotvvmAfterPostBackEventArgs> {
     events.postbackCommitInvoked.trigger({});
 
-    processViewModelDiff(result, postedViewModel);
+    processViewModelDiff(result, initialState);
 
     await loadResourceList(result.resources);
 

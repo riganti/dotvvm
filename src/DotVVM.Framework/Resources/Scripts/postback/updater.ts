@@ -77,14 +77,9 @@ export function patchViewModel(source: any, patch: any): any {
         return patch;
     }
     else if (typeof source == "object" && typeof patch == "object" && source && patch) {
+        source = {...source}
         for (const p of keys(patch)) {
-            if (patch[p] == null) {
-                source[p] = null;
-            } else if (source[p] == null) {
-                source[p] = patch[p];
-            } else {
-                source[p] = patchViewModel(source[p], patch[p]);
-            }
+            source[p] = patchViewModel(source[p], patch[p]);
         }
         return source;
     }

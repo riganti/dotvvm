@@ -7,7 +7,7 @@ import { func } from "../../node_modules/fast-check/lib/types/fast-check";
 import { extendToObservableArrayIfRequired, isOptionsProperty } from "./serialization/deserialize"
 
 
-const currentStateSymbol = Symbol("currentState")
+export const currentStateSymbol = Symbol("currentState")
 const notifySymbol = Symbol("notify")
 
 const internalPropCache = Symbol("internalPropCache")
@@ -216,7 +216,15 @@ export function unmapKnockoutObservables(viewModel: any): any {
 function createObservableObject<T extends object>(initialObject: T, update: ((updater: StateUpdate<any>) => void)) {
     const properties = keys(initialObject)
 
-    return new FakeObservableObject(initialObject, update, properties) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
+    // TODO: temporary hack until types are checked and enforced
+    // adds properties that are missing but have the Prop$options defined
+    const pSet = new Set(properties)
+    const optionsOnlyProperties =
+        properties.filter(isOptionsProperty)
+                  .map(p => p.substring(0, p.length - "$options".length))
+                  .filter(p => !pSet.has(p))
+
+    return new FakeObservableObject(initialObject, update, properties.concat(optionsOnlyProperties)) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
 }
 
 function type(o: any) {

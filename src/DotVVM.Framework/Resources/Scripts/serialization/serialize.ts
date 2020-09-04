@@ -103,11 +103,13 @@ function findObject(obj: any, matcher: (o: any) => boolean): string[] | null {
     if (matcher(obj)) {
         return [];
     }
-    for (const p of keys(obj)) {
-        const match = findObject(obj[p], matcher);
-        if (match) {
-            match.push(p);
-            return match;
+    if (!isPrimitive(obj)) {
+        for (const p of keys(obj)) {
+            const match = findObject(obj[p], matcher);
+            if (match) {
+                match.push(p);
+                return match;
+            }
         }
     }
     return null;
