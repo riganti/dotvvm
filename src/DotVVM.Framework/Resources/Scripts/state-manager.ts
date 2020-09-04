@@ -169,10 +169,18 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
                         const cached = this[internalPropCache][p]
                         if (cached) return cached
 
+                        const currentState = this[currentStateSymbol]
                         const newObs = createWrappedObservable(
-                            this[currentStateSymbol][p],
+                            currentState[p],
                             u => this[updatePropertySymbol](p, u)
                         )
+
+                        const options = currentState[p + "$options"]
+                        if (options && options.clientExtenders) {
+                            for (const e of options.clientExtenders) {
+                                (ko.extenders as any)[e.name](newObs, e.parameter)
+                            }
+                        }
 
                         this[internalPropCache][p] = newObs
                         return newObs
