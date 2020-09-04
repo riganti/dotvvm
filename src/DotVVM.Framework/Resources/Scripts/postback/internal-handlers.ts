@@ -3,7 +3,7 @@ import { DotvvmPostbackError } from "../shared-classes";
 import { isElementDisabled } from "../utils/dom";
 import { getPostbackQueue, enterActivePostback, leaveActivePostback, runNextInQueue } from "./queue";
 import { getLastStartedPostbackId } from "./postbackCore";
-import { getIsViewModelUpdating } from "./updater";
+import { getIsViewModelUpdating } from "../state-manager";
 
 let postbackCount = 0;
 

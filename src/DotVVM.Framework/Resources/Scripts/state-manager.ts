@@ -14,6 +14,12 @@ const internalPropCache = Symbol("internalPropCache")
 const updateSymbol = Symbol("update")
 const updatePropertySymbol = Symbol("updateProperty")
 
+let isViewModelUpdating: boolean = false;
+
+export function getIsViewModelUpdating() {
+    return isViewModelUpdating;
+}
+
 export type UpdatableObjectExtensions<T> = {
     [notifySymbol]: (newValue: T) => void
     [currentStateSymbol]: T
@@ -92,9 +98,14 @@ export class StateManager<TViewModel> {
         this._isDirty = false
 
         this.stateUpdateEvent.trigger(this._state)
+        isViewModelUpdating = true
         ko.delaySync.pause()
-        this.stateObservable[notifySymbol](this._state)
-        ko.delaySync.resume()
+        try {
+            this.stateObservable[notifySymbol](this._state)
+        } finally {
+            isViewModelUpdating = false
+            ko.delaySync.resume()
+        }
         // console.log("New state dispatched, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart)
     }
 

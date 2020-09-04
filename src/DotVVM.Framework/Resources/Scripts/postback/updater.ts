@@ -2,12 +2,7 @@ import { getElementByDotvvmId } from '../utils/dom'
 import { replaceViewModel, updateViewModelCache, clearViewModelCache, getStateManager } from '../dotvvm-base'
 import { keys } from '../utils/objects';
 
-const diffEqual = {};
-let isViewModelUpdating: boolean = false;
-
-export function getIsViewModelUpdating() {
-    return isViewModelUpdating;
-}
+const diffEqual = {}
 
 export function cleanUpdatedControls(resultObject: any, updatedControls: any = {}) {
     for (const id of keys(resultObject.updatedControls)) {
@@ -51,34 +46,27 @@ export function restoreUpdatedControls(resultObject: any, updatedControls: any) 
 }
 
 export function updateViewModelAndControls(resultObject: any) {
-    try {
-        isViewModelUpdating = true;
-
-        // store server-side cached viewmodel
-        if (resultObject.viewModelCacheId) {
-            updateViewModelCache(resultObject.viewModelCacheId, resultObject.viewModel);
-        } else {
-            clearViewModelCache();
-        }
-
-        // remove updated controls
-        const updatedControls = cleanUpdatedControls(resultObject);
-
-        // update viewmodel
-        replaceViewModel(resultObject.viewModel);
-
-        // remove updated controls which were previously removed from DOM
-        cleanUpdatedControls(resultObject, updatedControls);
-
-        // we have to update knockout viewmodel before we try to apply new data into the observables
-        getStateManager().doUpdateNow()
-
-        // add new updated controls
-        restoreUpdatedControls(resultObject, updatedControls);
+    // store server-side cached viewmodel
+    if (resultObject.viewModelCacheId) {
+        updateViewModelCache(resultObject.viewModelCacheId, resultObject.viewModel);
+    } else {
+        clearViewModelCache();
     }
-    finally {
-        isViewModelUpdating = false;
-    }
+
+    // remove updated controls
+    const updatedControls = cleanUpdatedControls(resultObject);
+
+    // update viewmodel
+    replaceViewModel(resultObject.viewModel);
+
+    // remove updated controls which were previously removed from DOM
+    cleanUpdatedControls(resultObject, updatedControls);
+
+    // we have to update knockout viewmodel before we try to apply new data into the observables
+    getStateManager().doUpdateNow()
+
+    // add new updated controls
+    restoreUpdatedControls(resultObject, updatedControls);
 }
 
 export function patchViewModel(source: any, patch: any): any {
