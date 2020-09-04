@@ -203,9 +203,11 @@ export function unmapKnockoutObservables(viewModel: any): any {
         return viewModel
     }
 
-    if (currentStateSymbol in viewModel) {
-        return viewModel[currentStateSymbol]
-    }
+    // This is a bad idea as it does not register in the knockout dependency tracker and the caller is not triggered on change
+
+    // if (currentStateSymbol in viewModel) {
+    //     return viewModel[currentStateSymbol]
+    // }
 
     if (viewModel instanceof Array) {
         return viewModel.map(unmapKnockoutObservables)
