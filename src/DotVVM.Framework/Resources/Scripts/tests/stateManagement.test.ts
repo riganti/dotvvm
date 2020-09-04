@@ -6,6 +6,7 @@ import { StateManager } from "../state-manager";
 initDotvvm({
     viewModel: {
         Int: 1,
+        Str: "A",
         Array: [ {
             Id: 1
         } ],
@@ -14,7 +15,8 @@ initDotvvm({
             P1: 1,
             P2: 2,
             P3: 3
-        }
+        },
+        Inner2: null
     }
 })
 
@@ -38,6 +40,16 @@ test("Initial knockout ViewModel", () => {
     expect(vm.Inner().P1()).toBe(1)
     expect(vm.Inner().P2()).toBe(2)
     expect(vm.Inner().P3()).toBe(3)
+})
+
+test("Dirty flag", () => {
+    expect(s.isDirty).toBeFalsy()
+    s.setState(s.state) // same state should do nothing
+    expect(s.isDirty).toBeFalsy()
+    s.setState({ ...s.state, Str: "B" })
+    expect(s.isDirty).toBeTruthy()
+    s.doUpdateNow()
+    expect(s.isDirty).toBeFalsy()
 })
 
 test("Upgrade null to observableArray", () => {
@@ -175,4 +187,12 @@ test("Propagate knockout array assignment", () => {
     expect(vm.ArrayWillBe()[0]().B()).toBe("hmm")
     vm.ArrayWillBe()[0]().B("hmm2")
     expect(s.state.ArrayWillBe).toStrictEqual([ { B: "hmm2" } ])
+})
+
+test("Prop$options should not be observable", () => {
+    s.update(x => ({ ...x, Inner: { P$options: { isDate: true } } }))
+    s.doUpdateNow()
+
+    expect(vm.Inner().P$options).not.observable()
+    expect(vm.Inner().P$options).toStrictEqual({ isDate: true })
 })
