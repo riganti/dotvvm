@@ -248,8 +248,11 @@ function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T
     const rr = initialValue instanceof Array ? ko.observableArray() : ko.observable() as any
     rr[updateSymbol] = updater
 
+    let updatedObservable = false
+
     rr.subscribe((newVal: any) => {
         if (isUpdating) { return }
+        updatedObservable = true
         updater(_ => unmapKnockoutObservables(newVal))
     })
 
@@ -257,6 +260,8 @@ function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T
         const currentValue = rr[currentStateSymbol]
         if (newVal === currentValue) { return }
         rr[currentStateSymbol] = newVal
+        const observableWasSetFromOutside = updatedObservable
+        updatedObservable = false
 
         let newContents
         const oldContents = rr.peek()
@@ -267,7 +272,11 @@ function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T
         else if (newVal instanceof Array) {
             extendToObservableArrayIfRequired(rr)
 
-            const skipUpdate = false && oldContents instanceof Array && oldContents.length == newVal.length
+            // when the observable is updated from the outside, we have to rebuild it to make sure that it contains
+            // notifiable observables
+            // otherwise, we want to skip the big update whenever possible - Knockout tends to update everything in the DOM when
+            // we update the observableArray
+            const skipUpdate = !observableWasSetFromOutside && oldContents instanceof Array && oldContents.length == newVal.length
 
             if (!skipUpdate) {
                 // take at most newVal.length from the old value
