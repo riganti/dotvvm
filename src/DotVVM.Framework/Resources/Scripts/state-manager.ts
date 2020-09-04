@@ -95,7 +95,7 @@ export class StateManager<TViewModel> {
         ko.delaySync.pause()
         this.stateObservable[notifySymbol](this._state)
         ko.delaySync.resume()
-        console.log("New state dispatched, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart)
+        // console.log("New state dispatched, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart)
     }
 
     public setState(newState: TViewModel) {
