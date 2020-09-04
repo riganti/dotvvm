@@ -244,7 +244,7 @@ function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T
 
         let newContents
         const oldContents = rr.peek()
-        if (isPrimitive(newVal)) {
+        if (isPrimitive(newVal) || newVal instanceof Date) {
             // primitive value
             newContents = newVal
         }

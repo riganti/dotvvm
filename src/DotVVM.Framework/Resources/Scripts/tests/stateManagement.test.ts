@@ -189,6 +189,15 @@ test("Propagate knockout array assignment", () => {
     expect(s.state.ArrayWillBe).toStrictEqual([ { B: "hmm2" } ])
 })
 
+test("Propagate Date assignment", () => {
+    const val = new Date(2000, 3, 3, 3, 3, 3)
+    vm.Str(val)
+
+    expect(s.state.Str).toBe(val)
+    s.doUpdateNow()
+    expect(vm.Str()).toBe(val)
+})
+
 test("Prop$options should not be observable", () => {
     s.update(x => ({ ...x, Inner: { P$options: { isDate: true } } }))
     s.doUpdateNow()
