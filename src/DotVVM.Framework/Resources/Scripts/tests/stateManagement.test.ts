@@ -2,6 +2,7 @@ import { initDotvvm } from "./helper";
 import dotvvm from '../dotvvm-root'
 import { getStateManager } from "../dotvvm-base";
 import { StateManager } from "../state-manager";
+import { serialize } from "../serialization/serialize";
 
 initDotvvm({
     viewModel: {
@@ -107,7 +108,6 @@ test("Add type properties", () => {
 })
 
 test("Should not change object reference", () => {
-
     const innerObs = vm.Inner
     const innerObj = vm.Inner()
 
@@ -125,27 +125,47 @@ test("Should not change object reference", () => {
     expect(innerObj.P4()).toBe(null)
 })
 
-test("Should change object reference when type changes", () => {
+test("Should not change array reference", () => {
+    s.setState({ ...s.state, Array: [{ Id: 1 }] })
+    s.doUpdateNow()
 
-    const innerObs = vm.Inner
-    const innerObj = vm.Inner()
+    const arrayObs = vm.Array
+    const arrayObj = vm.Array()
 
     let changed = false
+    arrayObs.subscribe(() => changed = true)
 
-    innerObs.subscribe(() => changed = true)
+    s.setState({ ...s.state, Array: [{ Id: 2 }] })
+    s.doUpdateNow()
 
-    s.update(x => ({ ...x, Inner: { P1: 4, P5: 2 } }))
+    expect(changed).toBeFalsy()
+    expect((dotvvm.viewModels.root.viewModel as any).Array).toBe(arrayObs)
+    expect((dotvvm.viewModels.root.viewModel as any).Array()).toBe(arrayObj)
+    expect(arrayObj[0]().Id()).toBe(2)
+})
+
+test("Should change array reference when length changes", () => {
+    // this behavior is not strictly needed, we could do with one array
+    // However, the changed variable MUST be set to true
+
+    const arrayObs = vm.Array
+    const arrayObj = vm.Array()
+
+    let changed = false
+    arrayObs.subscribe(() => changed = true)
+
+    s.setState({ ...s.state, Array: [{ Id: 3 }, { Id: 4 }] })
     s.doUpdateNow()
 
     expect(changed).toBeTruthy()
     // observable should be the same, but object should be different
-    expect((dotvvm.viewModels.root.viewModel as any).Inner).toBe(innerObs)
-    const innerObj2 = (dotvvm.viewModels.root.viewModel as any).Inner()
-    expect(innerObj2).not.toBe(innerObj)
-    expect(innerObj.P1()).toBe(1)
-    expect(innerObj.P4()).toBe(null)
-    expect(innerObj2.P1()).toBe(4)
-    expect(innerObj2.P5()).toBe(2)
+    expect((dotvvm.viewModels.root.viewModel as any).Array).toBe(arrayObs)
+    const arrayObj2 = (dotvvm.viewModels.root.viewModel as any).Array()
+    expect(arrayObj2).not.toBe(arrayObj) // | these lines are not strictly needed. Rest of the test is essential
+    expect(arrayObj.length).toBe(1)      // |
+    expect(arrayObj2.length).toBe(2)
+    expect(arrayObj2[0]().Id()).toBe(3)
+    expect(arrayObj2[1]().Id()).toBe(4)
 })
 
 test("Propagate knockout observable change", () => {
@@ -204,4 +224,16 @@ test("Prop$options should not be observable", () => {
 
     expect(vm.Inner().P$options).not.observable()
     expect(vm.Inner().P$options).toStrictEqual({ isDate: true })
+})
+
+test("Serialized computed updates on changes", () => {
+    const computed = ko.pureComputed(() => serialize(vm))
+
+    let lastValue = null
+    computed.subscribe(val => lastValue = val.Str)
+    vm.Str("a")
+    expect(lastValue).toBe("a")
+    s.setState({...s.state, Str: "b"})
+    s.doUpdateNow()
+    expect(lastValue).toBe("b")
 })
