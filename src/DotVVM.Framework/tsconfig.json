@@ -13,6 +13,7 @@
     "strictNullChecks": true,
     "lib": ["dom", "es2015.promise", "es5", "es6"],
     "module": "System",
+    "esModuleInterop":true,
 
     "outFile": "obj/typescript-raw-build-file"
   },
