@@ -21,8 +21,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotVVM.Owin" Version="2.4.0" />
-    <PackageReference Include="MiniProfiler" Version="4.0.180" />
+    <PackageReference Include="DotVVM.Owin" Version="2.5.0-preview03-final" />
+    <PackageReference Include="MiniProfiler" Version="4.2.1" />
   </ItemGroup>
 
   <ItemGroup>

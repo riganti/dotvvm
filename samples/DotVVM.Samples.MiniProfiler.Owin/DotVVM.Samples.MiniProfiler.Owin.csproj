@@ -42,14 +42,15 @@
     <Reference Include="Ben.Demystifier, Version=0.1.0.0, Culture=neutral, PublicKeyToken=a6d206e05440431a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Ben.Demystifier.0.1.0\lib\net45\Ben.Demystifier.dll</HintPath>
     </Reference>
-    <Reference Include="DotVVM.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\DotVVM.Core.2.4.0\lib\net451\DotVVM.Core.dll</HintPath>
+    <Reference Include="DotVVM.Core, Version=2.5.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DotVVM.Core.2.5.0-preview03-final\lib\net451\DotVVM.Core.dll</HintPath>
     </Reference>
-    <Reference Include="DotVVM.Framework, Version=2.4.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\DotVVM.2.4.0\lib\net451\DotVVM.Framework.dll</HintPath>
+    <Reference Include="DotVVM.Framework, Version=2.5.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DotVVM.2.5.0-preview03-final\lib\net451\DotVVM.Framework.dll</HintPath>
     </Reference>
-    <Reference Include="DotVVM.Framework.Hosting.Owin, Version=2.4.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\DotVVM.Owin.2.4.0\lib\net451\DotVVM.Framework.Hosting.Owin.dll</HintPath>
+    <Reference Include="DotVVM.Framework.Hosting.Owin, Version=2.5.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DotVVM.Owin.2.5.0-preview03-final\lib\net451\DotVVM.Framework.Hosting.Owin.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.CodeAnalysis.Common.1.0.1\lib\net45\Microsoft.CodeAnalysis.dll</HintPath>
@@ -85,10 +86,10 @@
       <HintPath>..\..\packages\Microsoft.Owin.StaticFiles.3.0.1\lib\net45\Microsoft.Owin.StaticFiles.dll</HintPath>
     </Reference>
     <Reference Include="MiniProfiler, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b44f9351044011a3, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\MiniProfiler.4.0.180\lib\net461\MiniProfiler.dll</HintPath>
+      <HintPath>..\..\packages\MiniProfiler.4.2.1\lib\net461\MiniProfiler.dll</HintPath>
     </Reference>
     <Reference Include="MiniProfiler.Shared, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b44f9351044011a3, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\MiniProfiler.Shared.4.0.180\lib\net461\MiniProfiler.Shared.dll</HintPath>
+      <HintPath>..\..\packages\MiniProfiler.Shared.4.2.1\lib\net461\MiniProfiler.Shared.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
