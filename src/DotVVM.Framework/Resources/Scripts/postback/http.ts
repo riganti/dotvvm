@@ -1,8 +1,12 @@
 import { getVirtualDirectory, getViewModel } from '../dotvvm-base';
-import { DotvvmPostbackError } from '../shared-classes';
 import { keys } from '../utils/objects';
 
-export async function getJSON<T>(url: string, spaPlaceHolderUniqueId?: string, additionalHeaders?: { [key: string]: string }): Promise<T> {
+export type WrappedResponse<T> = {
+    readonly result: T,
+    readonly response?: Response
+}
+
+export async function getJSON<T>(url: string, spaPlaceHolderUniqueId?: string, additionalHeaders?: { [key: string]: string }): Promise<WrappedResponse<T>> {
     const headers = new Headers();
     headers.append('Accept', 'application/json');
     if (compileConstants.isSpa && spaPlaceHolderUniqueId) {
@@ -13,7 +17,7 @@ export async function getJSON<T>(url: string, spaPlaceHolderUniqueId?: string, a
     return await fetchJson<T>(url, { headers: headers });
 }
 
-export async function postJSON<T>(url: string, postData: any, additionalHeaders?: { [key: string]: string }): Promise<T> {
+export async function postJSON<T>(url: string, postData: any, additionalHeaders?: { [key: string]: string }): Promise<WrappedResponse<T>> {
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
     headers.append('X-DotVVM-PostBack', 'true');
@@ -22,7 +26,7 @@ export async function postJSON<T>(url: string, postData: any, additionalHeaders?
     return await fetchJson<T>(url, { body: postData, headers: headers, method: "POST" });
 }
 
-export async function fetchJson<T>(url: string, init: RequestInit): Promise<T> {
+export async function fetchJson<T>(url: string, init: RequestInit): Promise<WrappedResponse<T>> {
     let response: Response;
     try {
         response = await fetch(url, init);
@@ -38,7 +42,7 @@ export async function fetchJson<T>(url: string, init: RequestInit): Promise<T> {
         throw new DotvvmPostbackError({ type: "serverError", status: response.status, responseObject: (isJson ? await response.json() : null), response });
     }
 
-    return response.json();
+    return { result: await response.json(), response };
 }
 
 export async function fetchCsrfToken(): Promise<string> {

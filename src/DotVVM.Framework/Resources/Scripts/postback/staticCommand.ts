@@ -5,51 +5,63 @@ import * as events from '../events';
 import * as updater from './updater';
 import * as http from './http'
 import { handleRedirect } from './redirect';
-import { DotvvmPostbackError } from '../shared-classes';
 
-export async function staticCommandPostback(sender: HTMLElement, command: string, args: any[]): Promise<any> {
+export async function staticCommandPostback(sender: HTMLElement, command: string, args: any[], options: PostbackOptions): Promise<any> {
 
     let data: any;
-    try {
-        return await http.retryOnInvalidCsrfToken(async () => {
-            const csrfToken = await http.fetchCsrfToken();
+    let response: http.WrappedResponse<any>;
 
-            data = serialize({ args, command, $csrfToken: csrfToken });
+    return (async () => {
+        try {
+            await http.retryOnInvalidCsrfToken(async () => {
+                const csrfToken = await http.fetchCsrfToken();
+                data = serialize({ args, command, $csrfToken: csrfToken });
+            });
 
-            events.staticCommandMethodInvoking.trigger(data);
+            events.staticCommandMethodInvoking.trigger({
+                ...options,
+                command,
+                args
+            });
 
-            const response = await http.postJSON<any>(
+            response = await http.postJSON<any>(
                 getInitialUrl(),
                 JSON.stringify(data),
                 { "X-PostbackType": "StaticCommand" }
             );
 
-            const result = response.result;
-            if ("action" in response) {
-                if (response.action == "redirect") {
+            if ("action" in response.result) {
+                if (response.result.action == "redirect") {
                     // redirect
                     handleRedirect(response);
                     return;
                 } else {
-                    throw new Error(`Invalid action ${response.action}`);
+                    throw new Error(`Invalid action ${response.result.action}`);
                 }
             }
-            events.staticCommandMethodInvoked.trigger({ ...data, result });
 
-            return result;
-        });
-    } catch (err) {
-        events.staticCommandMethodFailed.trigger({ ...data, error: err })
-        
-        if (err instanceof DotvvmPostbackError) {
-            const r = err.reason;
-            if (r.type == "network") {
-                events.error.trigger({ sender, handled: false, serverResponseObject: r.err });
-                return;
-            }
+            events.staticCommandMethodInvoked.trigger({ 
+                ...options, 
+                command,
+                args,
+                serverResponseObject: response.result,
+                result: (response as any).result.result, 
+                response: (response as any).response
+            });
+
+            return response.result;
+            
+        } catch (err) {
+            events.staticCommandMethodFailed.trigger({ 
+                ...options, 
+                command,
+                args,
+                error: err,
+                result: (response as any).result.result, 
+                response: (response as any).response 
+            })
+            
+            throw err;
         }
-        events.error.trigger({ sender, handled: false, serverResponseObject: err });
-
-        throw err;
-    }
+    });
 }

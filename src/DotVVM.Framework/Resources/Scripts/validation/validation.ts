@@ -5,7 +5,6 @@ import { allErrors, detachAllErrors, ValidationError, getErrors } from "./error"
 import { DotvvmEvent } from '../events'
 import * as dotvvmEvents from '../events'
 import * as spaEvents from '../spa/events'
-import { DotvvmPostbackError } from "../shared-classes"
 import { postbackHandlers } from "../postback/handlers"
 import { DotvvmValidationContext, ErrorsPropertyName } from "./common"
 import { hasOwnProperty, isPrimitive, keys } from "../utils/objects"
@@ -20,7 +19,11 @@ type ValidationSummaryBinding = {
     hideWhenValid: boolean
 }
 
-const validationErrorsChanged = new DotvvmEvent<DotvvmEventArgs>("dotvvm.validation.events.validationErrorsChanged");
+type DotvvmValidationErrorsChangedEventArgs = PostbackOptions & {
+    readonly allErrors: ValidationError[]
+}
+
+const validationErrorsChanged = new DotvvmEvent<DotvvmValidationErrorsChangedEventArgs>("dotvvm.validation.events.validationErrorsChanged");
 
 export const events = {
     validationErrorsChanged
@@ -36,7 +39,7 @@ const createValidationHandler = (path: string) => ({
     name: "validate",
     execute: (callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) => {
         if (path) {
-            options.additionalPostbackData.validationTargetPath = path;
+            options.validationTargetPath = path;
             // resolve target
             const context = ko.contextFor(options.sender);
             const validationTarget = evaluator.evaluateOnViewModel(context, path);
@@ -44,7 +47,7 @@ const createValidationHandler = (path: string) => ({
             detachAllErrors();
             validateViewModel(validationTarget);
 
-            validationErrorsChanged.trigger({ });
+            validationErrorsChanged.trigger({ ...options, allErrors });
             if (allErrors.length > 0) {
                 console.log("Validation failed: postback aborted; errors: ", allErrors);
                 return Promise.reject(new DotvvmPostbackError({ type: "handler", handlerName: "validation", message: "Validation failed" }))
@@ -60,9 +63,9 @@ export function init() {
     postbackHandlers["validate-this"] = () => createValidationHandler("$data");
 
     if (compileConstants.isSpa) {
-        spaEvents.spaNavigating.subscribe(_ => {
+        spaEvents.spaNavigating.subscribe(args => {
             detachAllErrors();
-            validationErrorsChanged.trigger({ });
+            validationErrorsChanged.trigger({ ...args, allErrors });
         });
     }
 

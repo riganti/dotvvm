@@ -3,10 +3,8 @@ import { deserialize } from '../serialization/deserialize';
 import { getViewModel, getInitialUrl, getViewModelCache, getViewModelCacheId, clearViewModelCache } from '../dotvvm-base';
 import { loadResourceList, RenderedResourceList, getRenderedResources } from './resourceLoader';
 import * as events from '../events';
-import { createPostbackArgs } from "../createPostbackArgs";
 import * as updater from './updater';
 import * as http from './http';
-import { DotvvmPostbackError } from '../shared-classes';
 import { setIdFragment } from '../utils/dom';
 import { handleRedirect } from './redirect';
 import * as evaluator from '../utils/evaluator'
@@ -31,7 +29,7 @@ export async function postbackCore(
     lastStartedPostbackId = options.postbackId;
 
     const beforePostbackArgs: DotvvmBeforePostBackEventArgs = {
-        ...createPostbackArgs(options),
+        ...options,
         cancel: false
     };
     events.beforePostback.trigger(beforePostbackArgs);
@@ -52,7 +50,7 @@ export async function postbackCore(
             currentPath: path,
             command: command,
             controlUniqueId: processPassedId(controlUniqueId, context),
-            additionalData: options.additionalPostbackData,
+            validationTargetPath: options.validationTargetPath,
             renderedResources: getRenderedResources(),
             commandArgs: commandArgs
         };
@@ -66,9 +64,9 @@ export async function postbackCore(
         }
 
         const initialUrl = getInitialUrl();
-        let result = await http.postJSON<PostbackResponse>(initialUrl, JSON.stringify(data));
+        let response = await http.postJSON<PostbackResponse>(initialUrl, JSON.stringify(data));
 
-        if (result.action == "viewModelNotCached") {
+        if (response.result.action == "viewModelNotCached") {
             // repeat the request with full viewmodel
             clearViewModelCache();
 
@@ -76,24 +74,30 @@ export async function postbackCore(
             delete data.viewModelCache;
             data.viewModel = postedViewModel;
 
-            result = await http.postJSON<PostbackResponse>(initialUrl, JSON.stringify(data));
+            response = await http.postJSON<PostbackResponse>(initialUrl, JSON.stringify(data));
         }
 
-        events.postbackResponseReceived.trigger({});
+        events.postbackResponseReceived.trigger({
+            ...options,
+            response: response.response!
+        });
 
         return async () => {
             try {
-                return await processPostbackResponse(options, context, postedViewModel, result);
+                return await processPostbackResponse(options, context, postedViewModel, response.result, response.response!);
             } catch (err) {
                 // TODO: don't eat the inner error and change the type
-                throw new DotvvmPostbackError({ type: "commit", args: { serverResponseObject: err.reason.responseObject, handled: false } });
+                throw new DotvvmPostbackError({ type: "commit", args: { ...options, serverResponseObject: err.reason.responseObject, handled: false, error: err } });
             }
         };
     });
 }
 
-async function processPostbackResponse(options: PostbackOptions, context: any, postedViewModel: any, result: PostbackResponse): Promise<DotvvmAfterPostBackEventArgs> {
-    events.postbackCommitInvoked.trigger({});
+async function processPostbackResponse(options: PostbackOptions, context: any, postedViewModel: any, result: PostbackResponse, response: Response): Promise<DotvvmAfterPostBackEventArgs> {
+    events.postbackCommitInvoked.trigger({
+        ...options,
+        response
+    });
 
     processViewModelDiff(result, postedViewModel);
 
@@ -106,20 +110,22 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
     if (result.action == "successfulCommand") {
         mergeValidationRules(result)
         updater.updateViewModelAndControls(result, false);
-        events.postbackViewModelUpdated.trigger({});
+        events.postbackViewModelUpdated.trigger({
+            ...options,
+            response
+        });
         isSuccess = true;
     } else if (result.action == "redirect") {
         handleRedirect(result);
 
         return {
-            ...createPostbackArgs(options),
+            ...options,
             serverResponseObject: result,
             commandResult: result.commandResult,
-            handled: false,
             wasInterrupted: false
         };
     } else if (result.action == "validationErrors") {
-        showValidationErrorsFromServer(context, options.additionalPostbackData.validationTargetPath!, result)
+        showValidationErrorsFromServer(context, options.validationTargetPath!, result)
     }
 
     setIdFragment(result.resultIdFragment)
@@ -131,10 +137,9 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
         });
     } else {
         return {
-            ...createPostbackArgs(options),
+            ...options,
             serverResponseObject: result,
             commandResult: result.commandResult,
-            handled: false,
             wasInterrupted: false
         }
     }

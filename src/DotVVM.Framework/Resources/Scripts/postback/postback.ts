@@ -1,12 +1,10 @@
 import * as counter from './counter'
 import { postbackCore } from './postbackCore'
 import { getViewModel } from '../dotvvm-base'
-import { defaultConcurrencyPostbackHandler, postbackHandlers, getPostbackHandler } from './handlers';
+import { defaultConcurrencyPostbackHandler, getPostbackHandler } from './handlers';
 import * as internalHandlers from './internal-handlers';
-import { DotvvmPostbackError } from '../shared-classes';
 import * as events from '../events';
 import * as gate from './gate';
-import { createPostbackArgs } from '../createPostbackArgs';
 
 const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
     internalHandlers.suppressOnDisabledElementHandler,
@@ -36,7 +34,7 @@ export async function postBack(
         sender,
         args: ko.toJS(commandArgs) || [],  // TODO: consult with @exyi to fix it properly. Whether commandArgs should or not be serialized via dotvvm serializer.
         viewModel: context.$data,
-        additionalPostbackData: {}
+        commandType: "postback"
     })
 
     const coreCallback = (o: PostbackOptions) => postbackCore(o, path, command, controlUniqueId, context, options.args);
@@ -58,22 +56,40 @@ export async function postBack(
                     r.type == "network" ? r.err :
                         r.type == "serverError" ? r.responseObject :
                             null;
+            
+            if (wasInterrupted) {
+                // trigger postbackRejected event
+                const postbackRejectedEventArgs: DotvvmPostbackRejectedEventArgs = {
+                    ...options,
+                    serverResponseObject,
+                    response: (r as any).response,
+                    error: err
+                };
+                events.postbackRejected.trigger(postbackRejectedEventArgs)
+
+            } else if (r.type == "network" || r.type == "serverError") {
+                // trigger error event
+                const errorEventArgs: DotvvmErrorEventArgs = {
+                    ...options,
+                    serverResponseObject,
+                    response: (r as any).response,
+                    error: err,
+                    handled: false
+                }
+                events.error.trigger(errorEventArgs);
+                if (!errorEventArgs.handled) {
+                    console.error("Postback failed", errorEventArgs);
+                }
+            }
+
+            // trigger afterPostback event
             const eventArgs: DotvvmAfterPostBackEventArgs = {
-                ...createPostbackArgs(options),
+                ...options,
                 serverResponseObject,
-                handled: false,
                 wasInterrupted,
                 commandResult: null,
-                response: (r as any).response
-            }
-            if (wasInterrupted) {
-                // trigger afterPostback event
-                events.postbackRejected.trigger(eventArgs)
-            } else if (r.type == "network" || r.type == "serverError") {
-                events.error.trigger(eventArgs);
-                if (!eventArgs.handled) {
-                    console.error("Postback failed", eventArgs);
-                }
+                response: (r as any).response,
+                error: err
             }
             events.afterPostback.trigger(eventArgs);
         }
@@ -113,10 +129,10 @@ export async function applyPostbackHandlers(
 
     const options: PostbackOptions = Object.freeze({
         postbackId: counter.backUpPostBackCounter(),
+        commandType: "staticCommand",
         sender,
         args: [],
-        viewModel: context.$data,
-        additionalPostbackData: {}
+        viewModel: context.$data
     })
 
     const handlers = findPostbackHandlers(context, globalPostbackHandlers.concat(handlerConfigurations || []).concat(globalLaterPostbackHandlers));
@@ -125,11 +141,19 @@ export async function applyPostbackHandlers(
         const commit = await applyPostbackHandlersCore(saneNext, options, handlers);
         const result = await commit();
         return result;
-    } catch (reason) {
-        if (reason) {
-            console.error("Rejected: ", reason);
+    } catch (err) {
+        
+        events.error.trigger({
+            ...options,
+            handled: false,
+            error: err
+        });
+
+        if (!err.handled) {
+            console.error("Error: ", err);
         }
-        throw reason
+
+        throw err
     }
 }
 
@@ -171,13 +195,9 @@ function wrapCommitFunction(value: MaybePromise<PostbackCommitFunction | any>, o
             return <PostbackCommitFunction>value;
         } else {
             return () => Promise.resolve<DotvvmAfterPostBackEventArgs>({
-                postbackOptions: options,
-                postbackClientId: options.postbackId,
-                serverResponseObject: null,
+                ...options,
                 commandResult: v,
-                wasInterrupted: false,
-                handled: true,
-                viewModel: options.viewModel!
+                wasInterrupted: false
             });
         }
     });

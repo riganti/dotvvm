@@ -2,7 +2,6 @@
 import * as uri from '../utils/uri';
 import * as http from '../postback/http';
 import { getViewModel } from '../dotvvm-base';
-import { DotvvmPostbackError } from '../shared-classes';
 import { loadResourceList } from '../postback/resourceLoader';
 import * as updater from '../postback/updater';
 import * as counter from '../postback/counter';
@@ -15,11 +14,20 @@ let lastStartedNavigation = -1
 
 export async function navigateCore(url: string, handlePageNavigating?: (url: string) => void): Promise<DotvvmNavigationEventArgs> {
     const currentPostBackCounter = counter.backUpPostBackCounter();
+    
+    const options: PostbackOptions = {
+        commandType: "spaNavigation",
+        postbackId: currentPostBackCounter,
+        args: []
+    };
+    let response: http.WrappedResponse<any> | undefined;
+
     try {
         // trigger spaNavigating event
         const spaNavigatingArgs: DotvvmSpaNavigatingEventArgs = {
+            ...options,
             viewModel: getViewModel(),
-            newUrl: url,
+            url,
             cancel: false
         };
         events.spaNavigating.trigger(spaNavigatingArgs);
@@ -36,7 +44,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
         const displayUrl = uri.addVirtualDirectoryToUrl(url);
 
         // send the request
-        const resultObject = await http.getJSON<any>(spaFullUrl, getSpaPlaceHolderUniqueId());
+        response = await http.getJSON<any>(spaFullUrl, getSpaPlaceHolderUniqueId());
 
         // if another postback has already been passed, don't do anything
         if (currentPostBackCounter < lastStartedNavigation) {
@@ -48,26 +56,37 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
             handlePageNavigating(displayUrl);
         }
 
-        await loadResourceList(resultObject.resources);
+        await loadResourceList(response.result.resources);
 
-        if (resultObject.action === "successfulCommand") {
-            updater.updateViewModelAndControls(resultObject, true);
+        if (response.result.action === "successfulCommand") {
+            updater.updateViewModelAndControls(response.result, true);
             isSpaReady(true);
-        } else if (resultObject.action === "redirect") {
-            const x = await handleRedirect(resultObject, true) as DotvvmNavigationEventArgs
+        } else if (response.result.action === "redirect") {
+            const x = await handleRedirect(response.result, true) as DotvvmNavigationEventArgs
             return x
         }
 
         // trigger spaNavigated event
         const spaNavigatedArgs: DotvvmSpaNavigatedEventArgs = {
+            ...options,
+            url,
             viewModel: getViewModel(),
-            serverResponseObject: resultObject,
-            isSpa: true,
-            isHandled: true
+            serverResponseObject: response.result,
+            response: response.response
         };
         events.spaNavigated.trigger(spaNavigatedArgs);
+
         return spaNavigatedArgs;
 
+    } catch (err) {
+        // trigger spaNavigationFailed event
+        let spaNavigationFailedArgs: DotvvmSpaNavigatedEventArgs = { ...options, url, viewModel: getViewModel() };
+        if (response) {
+            spaNavigationFailedArgs = { ...spaNavigationFailedArgs, serverResponseObject: response.result, response: response.response };
+        }
+        events.spaNavigationFailed.trigger(spaNavigationFailedArgs);
+
+        throw err;
     } finally {
         // when no other navigation is running, enable postbacks again
         if (currentPostBackCounter == lastStartedNavigation) {
