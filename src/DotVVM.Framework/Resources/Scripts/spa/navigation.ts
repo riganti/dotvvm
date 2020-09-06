@@ -4,7 +4,6 @@ import * as http from '../postback/http';
 import { getViewModel } from '../dotvvm-base';
 import { loadResourceList } from '../postback/resourceLoader';
 import * as updater from '../postback/updater';
-import * as counter from '../postback/counter';
 import * as events from './events';
 import { getSpaPlaceHolderUniqueId, isSpaReady } from './spa';
 import { handleRedirect } from '../postback/redirect';
@@ -12,14 +11,8 @@ import * as gate from '../postback/gate';
 
 let lastStartedNavigation = -1
 
-export async function navigateCore(url: string, handlePageNavigating?: (url: string) => void): Promise<DotvvmNavigationEventArgs> {
-    const currentPostBackCounter = counter.backUpPostBackCounter();
+export async function navigateCore(url: string, options: PostbackOptions, handlePageNavigating: (url: string) => void): Promise<DotvvmNavigationEventArgs> {
     
-    const options: PostbackOptions = {
-        commandType: "spaNavigation",
-        postbackId: currentPostBackCounter,
-        args: []
-    };
     let response: http.WrappedResponse<any> | undefined;
 
     try {
@@ -35,7 +28,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
             throw new DotvvmPostbackError({ type: "event" });
         }
 
-        lastStartedNavigation = currentPostBackCounter
+        lastStartedNavigation = options.postbackId
         gate.disablePostbacks()
 
         // compose URLs
@@ -47,7 +40,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
         response = await http.getJSON<any>(spaFullUrl, getSpaPlaceHolderUniqueId());
 
         // if another postback has already been passed, don't do anything
-        if (currentPostBackCounter < lastStartedNavigation) {
+        if (options.postbackId < lastStartedNavigation) {
             return <DotvvmNavigationEventArgs> { }; // TODO: what here https://github.com/riganti/dotvvm/pull/787/files#diff-edefee5e25549b2a6ed0136e520e009fR852
         }
 
@@ -62,8 +55,8 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
             updater.updateViewModelAndControls(response.result, true);
             isSpaReady(true);
         } else if (response.result.action === "redirect") {
-            const x = await handleRedirect(response.result, true) as DotvvmNavigationEventArgs
-            return x
+            handleRedirect(options, response.result, true);
+            return { ...options, url };
         }
 
         // trigger spaNavigated event
@@ -89,7 +82,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
         throw err;
     } finally {
         // when no other navigation is running, enable postbacks again
-        if (currentPostBackCounter == lastStartedNavigation) {
+        if (options.postbackId == lastStartedNavigation) {
             gate.enablePostbacks()
         }
     }

@@ -256,7 +256,7 @@ function getValidationErrors<T>(
 /**
  * Adds validation errors from the server to the appropriate arrays
  */
-export function showValidationErrorsFromServer(dataContext: any, path: string, serverResponseObject: any) {
+export function showValidationErrorsFromServer(dataContext: any, path: string, serverResponseObject: any, options: PostbackOptions) {
     detachAllErrors()
     // resolve validation target
     const validationTarget = <KnockoutObservable<any>> evaluator.evaluateOnViewModel(
@@ -277,7 +277,7 @@ export function showValidationErrorsFromServer(dataContext: any, path: string, s
 
         ValidationError.attach(prop.errorMessage, property);
     }
-    validationErrorsChanged.trigger({})
+    validationErrorsChanged.trigger({ ...options, allErrors })
 }
 
 function applyValidatorActions(

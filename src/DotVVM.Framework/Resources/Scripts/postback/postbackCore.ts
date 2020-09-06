@@ -116,7 +116,7 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
         });
         isSuccess = true;
     } else if (result.action == "redirect") {
-        handleRedirect(result);
+        handleRedirect(options, result);
 
         return {
             ...options,
@@ -125,7 +125,7 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
             wasInterrupted: false
         };
     } else if (result.action == "validationErrors") {
-        showValidationErrorsFromServer(context, options.validationTargetPath!, result)
+        showValidationErrorsFromServer(context, options.validationTargetPath!, result, options)
     }
 
     setIdFragment(result.resultIdFragment)

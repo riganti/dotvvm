@@ -3,7 +3,8 @@ import * as http from '../postback/http';
 import { getViewModel } from '../dotvvm-base';
 import * as events from '../events';
 import { navigateCore } from './navigation';
-import { DotvvmPostbackError } from '../shared-classes';
+import * as counter from '../postback/counter';
+import { options } from 'knockout';
 
 export const isSpaReady = ko.observable(false);
 
@@ -35,7 +36,7 @@ function handlePopState(event: PopStateEvent, inSpaPage: boolean) {
     if (isSpaPage(event.state)) {
         const historyRecord = <HistoryRecord> (event.state);
         if (inSpaPage) {
-            navigateCore(historyRecord.url);
+            handleSpaNavigationCore(historyRecord.url);
         } else {
             location.replace(historyRecord.url);
         }
@@ -47,7 +48,7 @@ function handlePopState(event: PopStateEvent, inSpaPage: boolean) {
 function handleHashChangeWithHistory(spaPlaceHolder: HTMLElement, isInitialPageLoad: boolean) {
     if (document.location.hash.indexOf("#!/") === 0) {
         // the user requested navigation to another SPA page
-        navigateCore(
+        handleSpaNavigationCore(
             document.location.hash.substring(2),
             (url) => { replacePage(url); }
         );
@@ -60,22 +61,43 @@ function handleHashChangeWithHistory(spaPlaceHolder: HTMLElement, isInitialPageL
     }
 }
 
-export async function handleSpaNavigation(element: HTMLElement): Promise<DotvvmNavigationEventArgs> {
+export async function handleSpaNavigation(element: HTMLElement): Promise<DotvvmNavigationEventArgs | undefined> {
     const target = element.getAttribute('target');
     if (target == "_blank") {
-        return { viewModel: getViewModel(), serverResponseObject: null };
+        return;     // TODO: shall we return result if the target is _blank? And what about other targets?
     }
 
+    return await handleSpaNavigationCore(element.getAttribute('href'));
+}
+
+export async function handleSpaNavigationCore(url: string | null, handlePageNavigating?: (url: string) => void): Promise<DotvvmNavigationEventArgs> {
+
+    if (!url || url.indexOf("/") !== 0) {
+        throw new Error("Invalid url for SPAN navigation!");
+    }
+
+    const currentPostBackCounter = counter.backUpPostBackCounter();
+
+    const options: PostbackOptions = {
+        commandType: "spaNavigation",
+        postbackId: currentPostBackCounter,
+        args: []
+    };
+
     try {
-        return await handleSpaNavigationCore(element.getAttribute('href'));
+
+        url = uri.removeVirtualDirectoryFromUrl(url);
+        return await navigateCore(url, options, handlePageNavigating || defaultHandlePageNavigating);
+
     } catch (err) {
-        // execute error handlers
+
+        // execute error handler
         const errArgs: DotvvmErrorEventArgs = {
-            sender: element,
-            viewModel: getViewModel(),
-            handled: false,
-            isSpaNavigationError: true,
-            serverResponseObject: err
+            ...options,
+            error: err,
+            response: (err as any).response,
+            serverResponseObject: (err as any).result,
+            handled: false
         };
         events.error.trigger(errArgs);
         if (!errArgs.handled) {
@@ -85,16 +107,9 @@ export async function handleSpaNavigation(element: HTMLElement): Promise<DotvvmN
     }
 }
 
-export async function handleSpaNavigationCore(url: string | null): Promise<DotvvmNavigationEventArgs> {
-    if (url && url.indexOf("/") === 0) {
-        url = uri.removeVirtualDirectoryFromUrl(url);
-        return await navigateCore(url, (navigatedUrl) => {
-            if (!history.state || history.state.url != navigatedUrl) {
-                pushPage(navigatedUrl);
-            }
-        });
-    } else {
-        throw new Error("invalid url");
+function defaultHandlePageNavigating(navigatedUrl: string) {
+    if (!history.state || history.state.url != navigatedUrl) {
+        pushPage(navigatedUrl);
     }
 }
 
