@@ -11,6 +11,7 @@ import { hasOwnProperty, isPrimitive, keys } from "../utils/objects"
 import { validateType } from "../serialization/typeValidation"
 import { elementActions } from "./actions"
 import { getValidationRules } from "../dotvvm-base"
+import { DotvvmPostbackError } from "../shared-classes"
 
 type ValidationSummaryBinding = {
     target: KnockoutObservable<any>,

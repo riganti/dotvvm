@@ -9,9 +9,8 @@ type DotvvmPostbackHandler = {
     before?: Array<string | DotvvmPostbackHandler>
 }
 
-class DotvvmPostbackError {
-    constructor(public reason: DotvvmPostbackErrorReason) {
-    }
+type DotvvmPostbackErrorLike = {
+    readonly reason: DotvvmPostbackErrorReason
 }
 
 type DotvvmPostbackErrorReason =
@@ -38,7 +37,7 @@ type PostbackOptions = {
 
 type DotvvmErrorEventArgs = PostbackOptions & {
     readonly response?: Response
-    readonly error: DotvvmPostbackError
+    readonly error: DotvvmPostbackErrorLike
     handled: boolean
 }
 
@@ -51,7 +50,7 @@ type DotvvmAfterPostBackEventArgs = PostbackOptions & {
     readonly wasInterrupted: boolean;
     readonly commandResult: any
     readonly response?: Response
-    readonly error?: DotvvmPostbackError
+    readonly error?: DotvvmPostbackErrorLike
 }
 
 type DotvvmNavigationEventArgs = PostbackOptions & {
@@ -68,7 +67,7 @@ type DotvvmSpaNavigatedEventArgs = DotvvmNavigationEventArgs & {
 
 type DotvvmSpaNavigationFailedEventArgs = DotvvmNavigationEventArgs & {
     readonly response?: Response
-    readonly error?: DotvvmPostbackError
+    readonly error?: DotvvmPostbackErrorLike
 }
 
 type DotvvmRedirectEventArgs = DotvvmNavigationEventArgs & {
@@ -96,7 +95,7 @@ type DotvvmPostbackViewModelUpdatedEventArgs = PostbackOptions & {
 
 type DotvvmPostbackRejectedEventArgs = PostbackOptions & {
     readonly response?: Response
-    readonly error: DotvvmPostbackError
+    readonly error: DotvvmPostbackErrorLike
 }
 
 type DotvvmStaticCommandMethodEventArgs = PostbackOptions & {
@@ -115,7 +114,7 @@ type DotvvmStaticCommandMethodInvokedEventArgs = DotvvmStaticCommandMethodEventA
 type DotvvmStaticCommandMethodFailedEventArgs = DotvvmStaticCommandMethodEventArgs & {
     readonly result?: any
     readonly response?: Response
-    readonly error: DotvvmPostbackError
+    readonly error: DotvvmPostbackErrorLike
 }
 
 type DotvvmInitEventArgs = {

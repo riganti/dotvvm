@@ -1,5 +1,6 @@
 import { getVirtualDirectory, getViewModel } from '../dotvvm-base';
 import { keys } from '../utils/objects';
+import { DotvvmPostbackError } from '../shared-classes';
 
 export type WrappedResponse<T> = {
     readonly result: T,

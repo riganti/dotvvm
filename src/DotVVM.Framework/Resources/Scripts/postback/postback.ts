@@ -5,6 +5,7 @@ import { defaultConcurrencyPostbackHandler, getPostbackHandler } from './handler
 import * as internalHandlers from './internal-handlers';
 import * as events from '../events';
 import * as gate from './gate';
+import { DotvvmPostbackError } from '../shared-classes';
 
 const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
     internalHandlers.suppressOnDisabledElementHandler,
@@ -29,13 +30,13 @@ export async function postBack(
         preparedHandlers.push(defaultConcurrencyPostbackHandler);
     }
 
-    const options: PostbackOptions = Object.freeze({
+    const options: PostbackOptions = {
         postbackId: counter.backUpPostBackCounter(),
         sender,
         args: ko.toJS(commandArgs) || [],  // TODO: consult with @exyi to fix it properly. Whether commandArgs should or not be serialized via dotvvm serializer.
         viewModel: context.$data,
         commandType: "postback"
-    })
+    }
 
     const coreCallback = (o: PostbackOptions) => postbackCore(o, path, command, controlUniqueId, context, options.args);
 
@@ -127,13 +128,13 @@ export async function applyPostbackHandlers(
         return wrapCommitFunction(next(o), o);
     }
 
-    const options: PostbackOptions = Object.freeze({
+    const options: PostbackOptions = {
         postbackId: counter.backUpPostBackCounter(),
         commandType: "staticCommand",
         sender,
         args: [],
         viewModel: context.$data
-    })
+    }
 
     const handlers = findPostbackHandlers(context, globalPostbackHandlers.concat(handlerConfigurations || []).concat(globalLaterPostbackHandlers));
 

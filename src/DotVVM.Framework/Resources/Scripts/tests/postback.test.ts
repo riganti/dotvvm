@@ -4,10 +4,11 @@ import { initDotvvm, watchEvents } from './helper';
 import { postBack } from '../postback/postback';
 import { getViewModel } from '../dotvvm-base';
 import { keys } from '../utils/objects';
-import { DotvvmPostbackError } from '../shared-classes';
 import enable from '../binding-handlers/enable';
 import { serialize } from '../serialization/serialize';
 import { getPostbackQueue, postbackQueues } from '../postback/queue';
+import { DotvvmPostbackError } from '../shared-classes';
+import { WrappedResponse } from '../postback/http';
 
 var fetchJson = async function<T>(url: string, init: RequestInit): Promise<T> {
     // the implementation is replaced by individual tests
@@ -50,7 +51,7 @@ jest.mock("../postback/http", () => ({
         return postbackFunction()
     },
 
-    async getJSON<T>(url: string, spaPlaceHolderUniqueId?: string, additionalHeaders?: { [key: string]: string }): Promise<T> {
+    async getJSON<T>(url: string, spaPlaceHolderUniqueId?: string, additionalHeaders?: { [key: string]: string }): Promise<WrappedResponse<T>> {
         const headers = new Headers();
         headers.append('Accept', 'application/json');
         if (compileConstants.isSpa && spaPlaceHolderUniqueId) {
@@ -58,16 +59,16 @@ jest.mock("../postback/http", () => ({
         }
         appendAdditionalHeaders(headers, additionalHeaders);
 
-        return await fetchJson<T>(url, { headers: headers });
+        return { response: { fake: "get" } as any as Response, result: await fetchJson<T>(url, { headers: headers }) };
     },
 
-    async postJSON<T>(url: string, postData: any, additionalHeaders?: { [key: string]: string }): Promise<T> {
+    async postJSON<T>(url: string, postData: any, additionalHeaders?: { [key: string]: string }): Promise<WrappedResponse<T>> {
         const headers = new Headers();
         headers.append('Content-Type', 'application/json');
         headers.append('X-DotVVM-PostBack', 'true');
         appendAdditionalHeaders(headers, additionalHeaders);
 
-        return await fetchJson<T>(url, { body: postData, headers: headers, method: "POST" });
+        return { response: { fake: "post" } as any as Response, result: await fetchJson<T>(url, { body: postData, headers: headers, method: "POST" }) };
     }
 }));
 
@@ -172,7 +173,7 @@ test("Postback: sanity check", async () => {
         const obj = JSON.parse(init.body as string)
         expect(obj.command).toBe("c")
         expect(obj.renderedResources).toStrictEqual(["resource1", "resource2"])
-        expect(obj.additionalData.validationTargetPath).toBe("$data")
+        expect(obj.validationTargetPath).toBe("$data")
         expect(obj.viewModel.$csrfToken).toBe("test token")
         expect(obj.viewModel.Property1).toBe(0)
 

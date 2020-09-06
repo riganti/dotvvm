@@ -10,6 +10,7 @@ import { handleRedirect } from './redirect';
 import * as evaluator from '../utils/evaluator'
 import * as gate from './gate'
 import { mergeValidationRules, showValidationErrorsFromServer } from '../validation/validation';
+import { DotvvmPostbackError } from '../shared-classes';
 
 let lastStartedPostbackId: number;
 

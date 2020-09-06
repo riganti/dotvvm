@@ -8,6 +8,7 @@ import * as events from './events';
 import { getSpaPlaceHolderUniqueId, isSpaReady } from './spa';
 import { handleRedirect } from '../postback/redirect';
 import * as gate from '../postback/gate';
+import { DotvvmPostbackError } from '../shared-classes';
 
 let lastStartedNavigation = -1
 
