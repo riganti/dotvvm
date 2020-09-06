@@ -74,17 +74,25 @@ namespace DotVVM.Framework.Compilation
                     typeof(List<>).Assembly
 #endif
                 });
-            
-            try
+
+
+            // Once netstandard assembly is loaded you cannot load it again! 
+            var netstandardAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == "netstandard");
+            if (netstandardAssembly != null)
             {
-                // netstandard assembly is required for netstandard 2.0 and in some cases
-                // for netframework461 and newer. netstandard is not included in netframework452
-                // and will throw FileNotFoundException. Instead of detecting current netframework
-                // version, the exception is swallowed.
-                references = references.Concat(new[] { Assembly.Load(new AssemblyName("netstandard")) });
+                references = references.Concat(new[] { netstandardAssembly });
             }
-            catch (FileNotFoundException)
+            else
             {
+                try
+                {
+                    // netstandard assembly is required for netstandard 2.0 and in some cases
+                    // for netframework461 and newer. netstandard is not included in netframework452
+                    // and will throw FileNotFoundException. Instead of detecting current netframework
+                    // version, the exception is swallowed.
+                    references = references.Concat(new[] { Assembly.Load(new AssemblyName("netstandard")) });
+                }
+                catch (FileNotFoundException) { }
             }
 
             return references.Distinct().ToList();
