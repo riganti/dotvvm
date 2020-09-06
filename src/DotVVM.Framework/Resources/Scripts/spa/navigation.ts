@@ -56,7 +56,7 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
             updater.updateViewModelAndControls(response.result, true);
             isSpaReady(true);
         } else if (response.result.action === "redirect") {
-            handleRedirect(options, response.result, true);
+            handleRedirect(options, response.result, response.response!, true);
             return { ...options, url };
         }
 

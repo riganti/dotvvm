@@ -67,8 +67,20 @@ export async function postBack(
                     error: err
                 };
                 events.postbackRejected.trigger(postbackRejectedEventArgs)
+            }
 
-            } else if (r.type == "network" || r.type == "serverError") {
+            // trigger afterPostback event
+            const eventArgs: DotvvmAfterPostBackEventArgs = {
+                ...options,
+                serverResponseObject,
+                wasInterrupted,
+                commandResult: null,
+                response: (r as any).response,
+                error: err
+            }
+            events.afterPostback.trigger(eventArgs);
+
+            if (!wasInterrupted && (r.type == "network" || r.type == "serverError")) {
                 // trigger error event
                 const errorEventArgs: DotvvmErrorEventArgs = {
                     ...options,
@@ -82,17 +94,6 @@ export async function postBack(
                     console.error("Postback failed", errorEventArgs);
                 }
             }
-
-            // trigger afterPostback event
-            const eventArgs: DotvvmAfterPostBackEventArgs = {
-                ...options,
-                serverResponseObject,
-                wasInterrupted,
-                commandResult: null,
-                response: (r as any).response,
-                error: err
-            }
-            events.afterPostback.trigger(eventArgs);
         }
         throw err;
     }

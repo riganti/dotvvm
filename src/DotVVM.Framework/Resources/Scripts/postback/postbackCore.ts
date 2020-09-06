@@ -80,7 +80,8 @@ export async function postbackCore(
 
         events.postbackResponseReceived.trigger({
             ...options,
-            response: response.response!
+            response: response.response!,
+            serverResponseObject: response.result
         });
 
         return async () => {
@@ -97,7 +98,8 @@ export async function postbackCore(
 async function processPostbackResponse(options: PostbackOptions, context: any, postedViewModel: any, result: PostbackResponse, response: Response): Promise<DotvvmAfterPostBackEventArgs> {
     events.postbackCommitInvoked.trigger({
         ...options,
-        response
+        response,
+        serverResponseObject: result
     });
 
     processViewModelDiff(result, postedViewModel);
@@ -113,14 +115,16 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
         updater.updateViewModelAndControls(result, false);
         events.postbackViewModelUpdated.trigger({
             ...options,
-            response
+            response,
+            serverResponseObject: result
         });
         isSuccess = true;
     } else if (result.action == "redirect") {
-        handleRedirect(options, result);
+        handleRedirect(options, result, response);
 
         return {
             ...options,
+            response,
             serverResponseObject: result,
             commandResult: result.commandResult,
             wasInterrupted: false
@@ -139,6 +143,7 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
     } else {
         return {
             ...options,
+            response,
             serverResponseObject: result,
             commandResult: result.commandResult,
             wasInterrupted: false

@@ -33,7 +33,7 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
             if ("action" in response.result) {
                 if (response.result.action == "redirect") {
                     // redirect
-                    handleRedirect(options, response);
+                    handleRedirect(options, response.result, response.response!);
                     return;
                 } else {
                     throw new Error(`Invalid action ${response.result.action}`);

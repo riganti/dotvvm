@@ -48,7 +48,7 @@ type DotvvmBeforePostBackEventArgs = PostbackOptions & {
 type DotvvmAfterPostBackEventArgs = PostbackOptions & {
     /** Set to true in case the postback did not finish and it was cancelled by an event or a postback handler */
     readonly wasInterrupted: boolean;
-    readonly commandResult: any
+    readonly commandResult?: any
     readonly response?: Response
     readonly error?: DotvvmPostbackErrorLike
 }
@@ -72,6 +72,7 @@ type DotvvmSpaNavigationFailedEventArgs = DotvvmNavigationEventArgs & {
 
 type DotvvmRedirectEventArgs = DotvvmNavigationEventArgs & {
     /** Whether the new url should replace the current url in the browsing history */
+    readonly response?: Response
     readonly replace: boolean
 }
 

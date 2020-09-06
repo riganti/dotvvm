@@ -15,7 +15,7 @@ export function performRedirect(url: string, replace: boolean, allowSpa: boolean
     }
 }
 
-export function handleRedirect(options: PostbackOptions, resultObject: any, replace: boolean = false): void {
+export function handleRedirect(options: PostbackOptions, resultObject: any, response: Response, replace: boolean = false): void {
     if (resultObject.replace != null) {
         replace = resultObject.replace || replace;
     }
@@ -25,7 +25,9 @@ export function handleRedirect(options: PostbackOptions, resultObject: any, repl
     const redirectArgs: DotvvmRedirectEventArgs = {
         ...options,
         url,
-        replace
+        replace,
+        serverResponseObject: resultObject,
+        response: response
     }
     events.redirect.trigger(redirectArgs);
 
