@@ -1,6 +1,6 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>2.5.0-preview03-final</VersionPrefix>
+    <VersionPrefix>2.5.0-preview04-final</VersionPrefix>
     <TargetFramework>net451</TargetFramework>
     <RuntimeIdentifiers>win7-x64;win7-x86</RuntimeIdentifiers>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -17,7 +17,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <PackageId>DotVVM.Owin</PackageId>
-    <PackageVersion>2.5.0-preview03-final</PackageVersion>
+    <PackageVersion>2.5.0-preview04-final</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>
       This package contains OWIN middleware and hosting infrastructure for DotVVM apps.
