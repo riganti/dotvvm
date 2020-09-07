@@ -148,7 +148,9 @@ export async function applyPostbackHandlers(
         events.error.trigger({
             ...options,
             handled: false,
-            error: err
+            error: err,
+            serverResponseObject: (err.reason as any).responseObject, 
+            response: (err.reason as any).response 
         });
 
         if (!err.handled) {

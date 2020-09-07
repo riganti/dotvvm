@@ -3,19 +3,21 @@ import * as magicNavigator from '../utils/magic-navigator'
 import { handleSpaNavigationCore } from "../spa/spa";
 import { disablePostbacks } from './gate';
 
-export function performRedirect(url: string, replace: boolean, allowSpa: boolean): void {
+export function performRedirect(url: string, replace: boolean, allowSpa: boolean): Promise<any> {
     disablePostbacks();
 
     if (replace) {
         location.replace(url);
+        return Promise.resolve();
     } else if (compileConstants.isSpa && allowSpa) {
-        handleSpaNavigationCore(url)
+        return handleSpaNavigationCore(url);
     } else {
         magicNavigator.navigate(url);
+        return Promise.resolve();
     }
 }
 
-export function handleRedirect(options: PostbackOptions, resultObject: any, response: Response, replace: boolean = false): void {
+export async function handleRedirect(options: PostbackOptions, resultObject: any, response: Response, replace: boolean = false): Promise<DotvvmRedirectEventArgs> {
     if (resultObject.replace != null) {
         replace = resultObject.replace || replace;
     }
@@ -31,5 +33,7 @@ export function handleRedirect(options: PostbackOptions, resultObject: any, resp
     }
     events.redirect.trigger(redirectArgs);
 
-    performRedirect(url, replace, resultObject.allowSpa);
+    await performRedirect(url, replace, resultObject.allowSpa);
+
+    return redirectArgs;
 }

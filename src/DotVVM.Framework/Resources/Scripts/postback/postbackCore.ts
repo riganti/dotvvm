@@ -120,7 +120,7 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
         });
         isSuccess = true;
     } else if (result.action == "redirect") {
-        handleRedirect(options, result, response);
+        await handleRedirect(options, result, response);
 
         return {
             ...options,

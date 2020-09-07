@@ -20,7 +20,6 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
         // trigger spaNavigating event
         const spaNavigatingArgs: DotvvmSpaNavigatingEventArgs = {
             ...options,
-            viewModel: getViewModel(),
             url,
             cancel: false
         };
@@ -56,7 +55,7 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
             updater.updateViewModelAndControls(response.result, true);
             isSpaReady(true);
         } else if (response.result.action === "redirect") {
-            handleRedirect(options, response.result, response.response!, true);
+            await handleRedirect(options, response.result, response.response!);
             return { ...options, url };
         }
 
@@ -74,10 +73,13 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
 
     } catch (err) {
         // trigger spaNavigationFailed event
-        let spaNavigationFailedArgs: DotvvmSpaNavigatedEventArgs = { ...options, url, viewModel: getViewModel() };
-        if (response) {
-            spaNavigationFailedArgs = { ...spaNavigationFailedArgs, serverResponseObject: response.result, response: response.response };
-        }
+        let spaNavigationFailedArgs: DotvvmSpaNavigationFailedEventArgs = { 
+            ...options, 
+            url, 
+            serverResponseObject: (err.reason as any).responseObject,
+            response: (err.reason as any).response,
+            error: err
+        };
         events.spaNavigationFailed.trigger(spaNavigationFailedArgs);
 
         throw err;

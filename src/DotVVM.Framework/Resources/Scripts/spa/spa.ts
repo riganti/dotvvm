@@ -50,6 +50,7 @@ function handleHashChangeWithHistory(spaPlaceHolder: HTMLElement, isInitialPageL
         // the user requested navigation to another SPA page
         handleSpaNavigationCore(
             document.location.hash.substring(2),
+            undefined,
             (url) => { replacePage(url); }
         );
     } else {
@@ -67,10 +68,10 @@ export async function handleSpaNavigation(element: HTMLElement): Promise<DotvvmN
         return;     // TODO: shall we return result if the target is _blank? And what about other targets?
     }
 
-    return await handleSpaNavigationCore(element.getAttribute('href'));
+    return await handleSpaNavigationCore(element.getAttribute('href'), element);
 }
 
-export async function handleSpaNavigationCore(url: string | null, handlePageNavigating?: (url: string) => void): Promise<DotvvmNavigationEventArgs> {
+export async function handleSpaNavigationCore(url: string | null, sender?: HTMLElement, handlePageNavigating?: (url: string) => void): Promise<DotvvmNavigationEventArgs> {
 
     if (!url || url.indexOf("/") !== 0) {
         throw new Error("Invalid url for SPAN navigation!");
@@ -79,8 +80,10 @@ export async function handleSpaNavigationCore(url: string | null, handlePageNavi
     const currentPostBackCounter = counter.backUpPostBackCounter();
 
     const options: PostbackOptions = {
+        sender,
         commandType: "spaNavigation",
         postbackId: currentPostBackCounter,
+        viewModel: getViewModel(),
         args: []
     };
 
@@ -95,8 +98,8 @@ export async function handleSpaNavigationCore(url: string | null, handlePageNavi
         const errArgs: DotvvmErrorEventArgs = {
             ...options,
             error: err,
-            response: (err as any).response,
-            serverResponseObject: (err as any).result,
+            response: (err.reason as any).response,
+            serverResponseObject: (err.reason as any).responseObject,
             handled: false
         };
         events.error.trigger(errArgs);
