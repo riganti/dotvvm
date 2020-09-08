@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.DotVVM;
 using Xunit;
@@ -741,6 +743,39 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(result, "1");
                 counterButton.Click();
                 AssertUI.InnerTextEquals(result, "2");
+            });
+        }
+
+        [Theory]
+        [InlineData("butNo",6)]
+        [InlineData("butVM", 6)]
+        [InlineData("butData", 1, "innerProp")]
+        [InlineData("butData", 1, "dataContext")]
+        [InlineData("butData", 3, "repeater")]
+        public void Feature_Validation_ValidationPathResolving(string buttonSelector,int expectedCountOfValidationAsterisks, string sectionSelector=null)
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidationPropertyPathResolving);
+                var button = browser.Single(buttonSelector, SelectByDataUi);
+
+                if (sectionSelector!=null)
+                {
+
+                    var section = browser.Single(sectionSelector, SelectByDataUi);
+                    var validationAsterisks = section.FindElements("span", By.TagName);
+                    foreach (var asterisk in validationAsterisks) AssertUI.IsNotDisplayed(asterisk);
+                    button.Click();
+                    foreach (var asterisk in validationAsterisks) AssertUI.IsDisplayed(asterisk);
+                }
+                else
+                {
+                    button.Click();
+                }
+
+
+
+                var countOfDisplayedAsterisks = browser.FindElements("div > span").Where(t => t.GetInnerText() == "*").Count(t => !t.IsDisplayed());
+                Assert.Equal(expectedCountOfValidationAsterisks, countOfDisplayedAsterisks);
             });
         }
 
