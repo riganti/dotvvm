@@ -750,8 +750,8 @@ namespace DotVVM.Samples.Tests.Feature
         [InlineData("butNo",6)]
         [InlineData("butVM", 6)]
         [InlineData("butData", 1, "innerProp")]
-        [InlineData("butData", 1, "dataContext")]
-        [InlineData("butData", 3, "repeater")]
+        [InlineData("butData2", 1, "dataContext")]
+        [InlineData("butCol", 3, "repeater")]
         public void Feature_Validation_ValidationPathResolving(string buttonSelector,int expectedCountOfValidationAsterisks, string sectionSelector=null)
         {
             RunInAllBrowsers(browser => {
@@ -774,7 +774,7 @@ namespace DotVVM.Samples.Tests.Feature
 
 
 
-                var countOfDisplayedAsterisks = browser.FindElements("div > span").Where(t => t.GetInnerText() == "*").Count(t => !t.IsDisplayed());
+                var countOfDisplayedAsterisks = browser.FindElements("div > span",By.CssSelector).Where(t=>t.GetInnerText()=="*").Count(t => t.IsDisplayed());
                 Assert.Equal(expectedCountOfValidationAsterisks, countOfDisplayedAsterisks);
             });
         }
