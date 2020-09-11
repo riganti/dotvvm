@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
 
@@ -35,7 +36,8 @@ namespace DotVVM.Framework.Storage
         /// Initializes new instance of <see cref="FileSystemReturnedFileStorage"/> class with default interval for deleting old files.
         /// </summary>
         /// <param name="directory">Temp directory for storing files.</param>
-        public FileSystemReturnedFileStorage(string directory) : this(directory, new TimeSpan(0, 5, 0))
+        public FileSystemReturnedFileStorage(string directory)
+            : this(directory, new TimeSpan(0, 5, 0))
         {
         }
 
@@ -83,7 +85,8 @@ namespace DotVVM.Framework.Storage
         private void StoreMetadata(Guid id, ReturnedFileMetadata metadata)
         {
             var metadataFilePath = GetMetadataFilePath(id);
-            File.WriteAllText(metadataFilePath, JsonConvert.SerializeObject(metadata), Encoding.UTF8);
+            var settings = DefaultSerializerSettingsProvider.Instance.Settings;
+            File.WriteAllText(metadataFilePath, JsonConvert.SerializeObject(metadata, settings), Encoding.UTF8);
         }
 
         private string GetDataFilePath(Guid id)

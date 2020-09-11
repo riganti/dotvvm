@@ -152,17 +152,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return response.ToString(JsonFormatting);
         }
 
-        public static JsonSerializerSettings CreateDefaultSettings()
-        {
-            var s = new JsonSerializerSettings() {
-                DateTimeZoneHandling = DateTimeZoneHandling.Unspecified
-            };
-            s.Converters.Add(new DotvvmDateTimeConverter());
-            s.Converters.Add(new StringEnumConverter());
-            return s;
-        }
-
-        protected virtual JsonSerializer CreateJsonSerializer() => CreateDefaultSettings().Apply(JsonSerializer.Create);
+        protected virtual JsonSerializer CreateJsonSerializer() => DefaultSerializerSettingsProvider.Instance.Settings.Apply(JsonSerializer.Create);
 
         public JObject BuildResourcesJson(IDotvvmRequestContext context, Func<string, bool> predicate)
         {
