@@ -1,5 +1,5 @@
 import { postBack, applyPostbackHandlers } from "../postback/postback";
-import { initDotvvm, watchEvents, getEventHistory } from "./helper";
+import { initDotvvmWithSpa, watchEvents, getEventHistory } from "./helper";
 import { getViewModel, updateViewModelCache, replaceViewModel } from "../dotvvm-base";
 import { DotvvmPostbackError } from "../shared-classes";
 import { keys } from "../utils/objects";
@@ -229,7 +229,7 @@ const originalViewModel = {
     virtualDirectory: "",
     renderedResources: ["resource1", "resource2"]
 };
-initDotvvm(originalViewModel);
+initDotvvmWithSpa(originalViewModel);
 
 
 
@@ -603,7 +603,7 @@ test("staticCommand (with server call) + server error", async () => {
 
     fetchJson = fetchDefinitions.staticCommandServerError;
 
-    const cleanup = watchEvents(true);
+    const cleanup = watchEvents(false);
     try {
 
         await expect(

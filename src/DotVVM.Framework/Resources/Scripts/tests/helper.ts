@@ -9,13 +9,24 @@ type EventHistoryEntry = {
 const eventHistory: EventHistoryEntry[] = [];
 
 export function initDotvvm(viewModel: any, culture: string = "en-US") {
+    window.compileConstants.isSpa = false;
+    
     const input = window.document.createElement("input")
     input.value = JSON.stringify(viewModel)
     input.id = "__dot_viewmodel_root"
     document.body.appendChild(input)
 
     dotvvm.init(culture)
+}
 
+export function initDotvvmWithSpa(viewModel: any, culture: string = "en-US") {
+    window.compileConstants.isSpa = true;
+
+    const input = window.document.createElement("input")
+    input.value = JSON.stringify(viewModel)
+    input.id = "__dot_viewmodel_root"
+    document.body.appendChild(input)
+    dotvvm.init(culture)
 }
 
 export function watchEvents(consoleOutput: boolean = true) {
