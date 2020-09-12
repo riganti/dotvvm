@@ -48,7 +48,7 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
             response: (response as any).response
         });
 
-        return response.result;
+        return response.result.result;
         
     } catch (err) {
         events.staticCommandMethodFailed.trigger({ 

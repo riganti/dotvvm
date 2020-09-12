@@ -50,20 +50,15 @@ export async function postBack(
     } catch (err) {
 
         if (err instanceof DotvvmPostbackError) {
-            const r = err.reason;
-            const wasInterrupted = r.type == "handler" || r.type == "event";
-            const serverResponseObject =
-                r.type == "commit" && r.args ? r.args.serverResponseObject :
-                    r.type == "network" ? r.err :
-                        r.type == "serverError" ? r.responseObject :
-                            null;
+            const wasInterrupted = isInterruptingErrorReason(err);
+            const serverResponseObject = extractServerResponseObject(err);
             
             if (wasInterrupted) {
                 // trigger postbackRejected event
                 const postbackRejectedEventArgs: DotvvmPostbackRejectedEventArgs = {
                     ...options,
                     serverResponseObject,
-                    response: (r as any).response,
+                    response: (err.reason as any).response,
                     error: err
                 };
                 events.postbackRejected.trigger(postbackRejectedEventArgs)
@@ -75,23 +70,31 @@ export async function postBack(
                 serverResponseObject,
                 wasInterrupted,
                 commandResult: null,
-                response: (r as any).response,
+                response: (err.reason as any).response,
                 error: err
             }
             events.afterPostback.trigger(eventArgs);
 
-            if (!wasInterrupted && (r.type == "network" || r.type == "serverError")) {
+            if (shouldTriggerErrorEvent(err)) {
                 // trigger error event
                 const errorEventArgs: DotvvmErrorEventArgs = {
                     ...options,
                     serverResponseObject,
-                    response: (r as any).response,
+                    response: (err.reason as any).response,
                     error: err,
                     handled: false
                 }
                 events.error.trigger(errorEventArgs);
                 if (!errorEventArgs.handled) {
-                    console.error("Postback failed", errorEventArgs);
+                    console.error("Postback failed", errorEventArgs);                    
+                } else {
+                    return {
+                        ...options,
+                        serverResponseObject,
+                        response: (err.reason as any).response,
+                        error: err,
+                        wasInterrupted: isInterruptingErrorReason(err),
+                    };
                 }
             }
         }
@@ -145,18 +148,33 @@ export async function applyPostbackHandlers(
         return result;
     } catch (err) {
         
-        events.error.trigger({
-            ...options,
-            handled: false,
-            error: err,
-            serverResponseObject: (err.reason as any).responseObject, 
-            response: (err.reason as any).response 
-        });
+        if (err instanceof DotvvmPostbackError) {
 
-        if (!err.handled) {
-            console.error("Error: ", err);
+            if (shouldTriggerErrorEvent(err)) {
+                // trigger error event
+                const serverResponseObject = extractServerResponseObject(err);
+                const errorEventArgs: DotvvmErrorEventArgs = {
+                    ...options,
+                    serverResponseObject,
+                    response: (err.reason as any).response,
+                    error: err,
+                    handled: false
+                }
+                events.error.trigger(errorEventArgs);
+
+                if (!errorEventArgs.handled) {
+                    console.error("StaticCommand failed", errorEventArgs);
+                } else {
+                    return {
+                        ...options,
+                        serverResponseObject,
+                        response: (err.reason as any).response,
+                        error: err,
+                        wasInterrupted: isInterruptingErrorReason(err),
+                    };
+                }
+            }
         }
-
         throw err
     }
 }
@@ -259,4 +277,23 @@ export function sortHandlers(handlers: DotvvmPostbackHandler[]): DotvvmPostbackH
         addToResult(i);
     }
     return result;
+}
+
+function isInterruptingErrorReason(err: DotvvmPostbackError) {
+    return err.reason.type == "handler" || err.reason.type == "event";
+}
+function shouldTriggerErrorEvent(err: DotvvmPostbackError) {
+    return !isInterruptingErrorReason(err) &&
+        (err.reason.type == "network" || err.reason.type == "serverError");
+}
+function extractServerResponseObject(err: DotvvmPostbackError) {
+    if (err.reason.type == "commit" && err.reason.args) {
+        return err.reason.args.serverResponseObject;
+    } 
+    else if (err.reason.type == "network") {
+        return err.reason.err;
+    } else if (err.reason.type == "serverError") {
+        return err.reason.responseObject;
+    }
+    return null;
 }
