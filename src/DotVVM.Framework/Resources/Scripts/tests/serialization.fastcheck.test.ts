@@ -11,7 +11,7 @@ test('Serialize and parse date', () => {
     fc.assert(fc.property(
         reasonableDate,
         date => {
-            const serialized = serializeDate(date)
+            const serialized = serializeDate(date, false)
             const parsedDate = parseDate(serialized!)
             expect(date).toStrictEqual(parsedDate)
 
@@ -19,7 +19,7 @@ test('Serialize and parse date', () => {
             const normalParsed = new Date(serialized!)
             expect(normalParsed).toStrictEqual(date)
 
-            expect(serializeDate(serialized)).toBe(serialized)
+            expect(serializeDate(serialized, false)).toBe(serialized)
         }
     ))
 
