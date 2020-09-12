@@ -242,7 +242,7 @@ test("Run postbacks [Queue | no failures]", async () => {
 
             expect(state().Property1).toBe(parallelism)
         }
-    ), { timeout: 500 })
+    ), { timeout: 2000 })
 })
 
 test("Run postbacks [Queue + Deny | no failures]", async () => {
@@ -306,7 +306,7 @@ test("Run postbacks [Queue + Deny | no failures]", async () => {
             expect(state().Property2).toBeGreaterThan(0)
             await initDenyPostback
         }
-    ), { timeout: 500 })
+    ), { timeout: 2000 })
 })
 
 test("Run postbacks [Queue + Default | no failures]", async () => {
@@ -377,5 +377,5 @@ test("Run postbacks [Queue + Default | no failures]", async () => {
             expect(index2).toBe(parallelismD + 1)
             expect(state().Property2).toBe(index2)
         }
-    ), { timeout: 500 })
+    ), { timeout: 2000 })
 })
