@@ -21,6 +21,7 @@ type DotvvmPostbackErrorReason =
     | { type: 'csrfToken' }
     | { type: 'serverError', status?: number, responseObject: any, response?: Response }
     | { type: 'event' }
+    | { type: 'validation', responseObject: any, response?: Response }
     & { options?: PostbackOptions }
 
 type PostbackCommandType = "postback" | "staticCommand" | "spaNavigation"

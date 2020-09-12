@@ -35,7 +35,7 @@ export async function postbackCore(
     };
     events.beforePostback.trigger(beforePostbackArgs);
     if (beforePostbackArgs.cancel) {
-        throw new DotvvmPostbackError({ type: "event", options });
+        throw new DotvvmPostbackError({ type: "event" });
     }
 
     return await http.retryOnInvalidCsrfToken(async () => {
@@ -88,8 +88,20 @@ export async function postbackCore(
             try {
                 return await processPostbackResponse(options, context, postedViewModel, response.result, response.response!);
             } catch (err) {
-                // TODO: don't eat the inner error and change the type
-                throw new DotvvmPostbackError({ type: "commit", args: { ...options, serverResponseObject: err.reason.responseObject, handled: false, error: err } });
+                if (err instanceof DotvvmPostbackError) {
+                    throw err;
+                }
+                
+                throw new DotvvmPostbackError({ 
+                    type: "commit", 
+                    args: { 
+                        ...options, 
+                        serverResponseObject: response.result, 
+                        response: response.response,
+                        handled: false, 
+                        error: err 
+                    } 
+                });
             }
         };
     });
@@ -130,7 +142,12 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
             wasInterrupted: false
         };
     } else if (result.action == "validationErrors") {
-        showValidationErrorsFromServer(context, options.validationTargetPath!, result, options)
+        showValidationErrorsFromServer(context, options.validationTargetPath!, result, options);
+        throw new DotvvmPostbackError({
+            type: "validation",
+            response,
+            responseObject: result
+        });
     }
 
     setIdFragment(result.resultIdFragment)
@@ -138,6 +155,7 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
     if (!isSuccess) {
         throw new DotvvmPostbackError({
             type: "serverError",
+            response,
             responseObject: result
         });
     } else {

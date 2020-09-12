@@ -6,6 +6,7 @@ import { keys } from "../utils/objects";
 import { WrappedResponse } from "../postback/http";
 import { spaNavigationFailed } from "../spa/events";
 import { updateViewModelAndControls } from "../postback/updater";
+import { detachAllErrors } from "../validation/error";
 
 
 jest.unmock("../spa/spa");
@@ -138,6 +139,17 @@ const fetchDefinitions = {
             responseObject: null, 
             response: { fake: "error" } as any as Response 
         });
+    },
+    postbackValidationErrors: async <T>(url: string, init: RequestInit) => {
+        return {
+            modelState: [
+                {
+                    propertyPath: "Property1",
+                    errorMessage: "Property 1 is required!"
+                }
+            ],
+            action: "validationErrors"
+        } as any;
     },
     networkError: async <T>(url: string, init: RequestInit) => {
         throw new DotvvmPostbackError({ 
@@ -322,6 +334,33 @@ test("PostBack + redirect", async () => {
 
 });
 
+test("PostBack + validation errors", async () => {
+    fetchJson = fetchDefinitions.postbackValidationErrors;
+
+    const cleanup = watchEvents(false);
+    try {
+
+        await expect(postBack(window.document.body, ["$root"], "c", "", undefined, [ "concurrency-default", [ "validate", { path: "$root" } ] ])).rejects.toBeInstanceOf(DotvvmPostbackError);
+
+        var history = getEventHistory();
+
+        let i = 1;  // skip the "init" event
+        validateEvent(history[i++], "postbackHandlersStarted", "postback", validations.hasSender);
+        validateEvent(history[i++], "postbackHandlersCompleted", "postback", validations.hasSender);
+        validateEvent(history[i++], "beforePostback", "postback", validations.hasSender, validations.hasCancel);
+        validateEvent(history[i++], "postbackResponseReceived", "postback", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject);
+        validateEvent(history[i++], "postbackCommitInvoked", "postback", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject);
+        validateEvent(history[i++], "validationErrorsChanged", "postback");
+        validateEvent(history[i++], "afterPostback", "postback", validations.hasSender, validations.hasWasInterrupted, validations.hasResponse, validations.hasServerResponseObject);
+        
+        expect(history.length).toBe(i);
+    }
+    finally {
+        cleanup();
+    }
+
+});
+
 test("PostBack + server error", async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -382,6 +421,8 @@ test("PostBack + network error", async () => {
 test("spaNavigation + success", async () => {
     fetchJson = fetchDefinitions.spaNavigateSuccess;
 
+    detachAllErrors();
+    
     const cleanup = watchEvents(false);
     try {
 

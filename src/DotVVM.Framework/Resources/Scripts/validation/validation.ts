@@ -45,10 +45,11 @@ const createValidationHandler = (path: string) => ({
             const context = ko.contextFor(options.sender);
             const validationTarget = evaluator.evaluateOnViewModel(context, path);
 
-            detachAllErrors();
-            validateViewModel(validationTarget);
+            watchAndTriggerValidationErrorChanged(options, () => {
+                detachAllErrors();
+                validateViewModel(validationTarget);
+            });
 
-            validationErrorsChanged.trigger({ ...options, allErrors });
             if (allErrors.length > 0) {
                 console.log("Validation failed: postback aborted; errors: ", allErrors);
                 return Promise.reject(new DotvvmPostbackError({ type: "handler", handlerName: "validation", message: "Validation failed" }))
@@ -65,8 +66,9 @@ export function init() {
 
     if (compileConstants.isSpa) {
         spaEvents.spaNavigating.subscribe(args => {
-            detachAllErrors();
-            validationErrorsChanged.trigger({ ...args, allErrors });
+            watchAndTriggerValidationErrorChanged(args, () => {
+                detachAllErrors();
+            });
         });
     }
 
@@ -258,27 +260,28 @@ function getValidationErrors<T>(
  * Adds validation errors from the server to the appropriate arrays
  */
 export function showValidationErrorsFromServer(dataContext: any, path: string, serverResponseObject: any, options: PostbackOptions) {
-    detachAllErrors()
-    // resolve validation target
-    const validationTarget = <KnockoutObservable<any>> evaluator.evaluateOnViewModel(
-        dataContext,
-        path!);
-    if (!validationTarget) {
-        return;
-    }
+    watchAndTriggerValidationErrorChanged(options, () => {
+        detachAllErrors()
+        // resolve validation target
+        const validationTarget = <KnockoutObservable<any>> evaluator.evaluateOnViewModel(
+            dataContext,
+            path!);
+        if (!validationTarget) {
+            return;
+        }
 
-    // add validation errors
-    for (const prop of serverResponseObject.modelState) {
-        // find the property
-        const propertyPath = prop.propertyPath;
-        const property =
-            propertyPath ?
-            evaluator.evaluateOnViewModel(ko.unwrap(validationTarget), propertyPath) :
-            validationTarget;
+        // add validation errors
+        for (const prop of serverResponseObject.modelState) {
+            // find the property
+            const propertyPath = prop.propertyPath;
+            const property =
+                propertyPath ?
+                evaluator.evaluateOnViewModel(ko.unwrap(validationTarget), propertyPath) :
+                validationTarget;
 
-        ValidationError.attach(prop.errorMessage, property);
-    }
-    validationErrorsChanged.trigger({ ...options, allErrors })
+            ValidationError.attach(prop.errorMessage, property);
+        }
+    });
 }
 
 function applyValidatorActions(
@@ -294,4 +297,17 @@ function applyValidatorActions(
             errorMessages,
             validatorOptions[option]);
     }
+}
+
+function watchAndTriggerValidationErrorChanged(options: PostbackOptions, action: () => void) {
+    const originalErrorsCount = allErrors.length;
+    action();
+
+    const currentErrorsCount = allErrors.length;
+    if (originalErrorsCount === 0 && currentErrorsCount === 0) {
+        // no errors before, no errors now
+        return;
+    }
+
+    validationErrorsChanged.trigger({ ...options, allErrors });
 }
