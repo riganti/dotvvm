@@ -1434,7 +1434,7 @@ var DotVVM = /** @class */ (function () {
         var promise = this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)))
             .then(function (r) { return r(); }, function (r) { return Promise.reject(r); });
         promise.catch(function (reason) { if (reason)
-            console.log("Rejected: " + reason); });
+            console.log("Promise rejected. ", reason); });
         return promise;
     };
     DotVVM.prototype.postbackCore = function (options, path, command, controlUniqueId, context, commandArgs) {
