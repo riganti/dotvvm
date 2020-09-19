@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Runtime.Caching
         {
             this.generationSize = generationSize;
             this.generationTickTime = generationTickTime;
-            SetupTimer();
+            Task.Factory.StartNew(SetupTimer); 
         }
 
         private object locker = new object();
