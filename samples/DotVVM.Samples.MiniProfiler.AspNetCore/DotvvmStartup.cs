@@ -1,5 +1,4 @@
 using DotVVM.Framework.Configuration;
-using DotVVM.Tracing.MiniProfiler.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Samples.MiniProfiler.AspNetCore

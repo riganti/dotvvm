@@ -1,7 +1,8 @@
 ﻿using System;
 using DotVVM.Framework.Runtime.Tracing;
-using DotVVM.Tracing.MiniProfiler.AspNetCore;
+using DotVVM.Tracing.MiniProfiler;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using StackExchange.Profiling;
 
 namespace DotVVM.Framework.Configuration
@@ -15,7 +16,9 @@ namespace DotVVM.Framework.Configuration
         /// <returns></returns>
         public static IDotvvmServiceCollection AddMiniProfilerEventTracing(this IDotvvmServiceCollection services)
         {
-            services.Services.AddTransient<IRequestTracer, MiniProfilerTracer>();
+            services.Services.AddScoped<IRequestTracer, MiniProfilerTracer>();
+            services.Services.AddScoped<IMiniProfilerRequestTracer, MiniProfilerTracer>();
+            services.Services.AddScoped<IRequestTimingStorage, DotvvmTimingStorage>();
 
             services.Services.Configure((MiniProfilerOptions opt) =>
             {

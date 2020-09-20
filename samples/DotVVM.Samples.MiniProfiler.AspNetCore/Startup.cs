@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using StackExchange.Profiling;
 using DotVVM.Samples.MiniProfiler.AspNetCore.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace DotVVM.Samples.MiniProfiler.AspNetCore
 {
@@ -25,6 +26,13 @@ namespace DotVVM.Samples.MiniProfiler.AspNetCore
 
             services.AddMiniProfiler(options =>
             {
+                options.ResultsAuthorizeAsync = async (e) =>
+                {
+                    await Task.Delay(100).ConfigureAwait(true);
+                    await Task.Delay(50).ConfigureAwait(false);
+                    await Task.Yield();
+                    return true;
+                };
                 options.RouteBasePath = "/profiler";
             }).AddEntityFramework();
         }

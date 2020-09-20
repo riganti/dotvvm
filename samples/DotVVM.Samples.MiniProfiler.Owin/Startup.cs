@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Tracing.MiniProfiler.Owin;
 using StackExchange.Profiling;
 using StackExchange.Profiling.Storage;
+using DotVVM.Samples.MiniProfiler.Owin.ViewModels;
 
 [assembly: OwinStartup(typeof(DotVVM.Samples.MiniProfiler.Owin.Startup))]
 

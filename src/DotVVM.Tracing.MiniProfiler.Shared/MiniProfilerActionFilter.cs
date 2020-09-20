@@ -3,22 +3,15 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Binding;
-using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Profiling;
-using Microsoft.Owin;
+using Microsoft.Extensions.Options;
 
-namespace DotVVM.Tracing.MiniProfiler.Owin
+namespace DotVVM.Tracing.MiniProfiler
 {
     public class MiniProfilerActionFilter : ActionFilterAttribute
     {
-        //private readonly PathString resultsLink;
-
         public MiniProfilerActionFilter()
         {
-            //var basePath = new PathString(
-            //    StackExchange.Profiling.MiniProfiler.DefaultOptions.ProfilerProvider. .RouteBasePath.Replace("~/", "/"));
-
-            //resultsLink = basePath.Add(new PathString("/results-index"));
         }
 
         protected override Task OnPresenterExecutingAsync(IDotvvmRequestContext context)
@@ -38,7 +31,7 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
             var commandCode = actionInfo.Binding
                 ?.GetProperty<OriginalStringBindingProperty>(Framework.Binding.Expressions.ErrorHandlingMode.ReturnNull)?.Code;
 
-            var postbackSuffix = commandCode != null ? $"(PostBack {commandCode})" : "(StaticCommand)";
+            var postbackSuffix = commandCode != null ? $"({(actionInfo.IsControlCommand ? "Control Command:" : "Command:")} {commandCode})" : "(Static Command)";
 
             AddMiniProfilerName(context, context.HttpContext.Request.Url.AbsoluteUri, postbackSuffix);
 
@@ -47,7 +40,8 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
 
         private void AddMiniProfilerName(IDotvvmRequestContext context, params string[] nameParts)
         {
-            var currentMiniProfiler = StackExchange.Profiling.MiniProfiler.StartNew();
+            var currentMiniProfiler = StackExchange.Profiling.MiniProfiler.Current;
+
             if (currentMiniProfiler != null)
             {
                 currentMiniProfiler.Name = string.Join(" ", nameParts);

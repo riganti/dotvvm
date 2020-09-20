@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2003
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30509.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3EEC22A8-7E7E-40CA-8A1D-2E85C424BDF7}"
 EndProject
@@ -25,7 +25,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.MiniProfiler
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.ApplicationInsights.AspNetCore", "samples\DotVVM.Samples.ApplicationInsights.AspNetCore\DotVVM.Samples.ApplicationInsights.AspNetCore.csproj", "{A131A581-E190-444E-AF7A-784A041B972D}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DotVVM.Tracing.MiniProfiler.Shared", "src\DotVVM.Tracing.MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.shproj", "{407D8620-72C2-454C-945D-840130D80D0B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Tracing.MiniProfiler.Tests", "src\DotVVM.Tracing.MiniProfiler.Tests\DotVVM.Tracing.MiniProfiler.Tests\DotVVM.Tracing.MiniProfiler.Tests.csproj", "{269134A7-D0E7-4659-BC40-674D70440D29}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		src\DotVVM.Tracing.MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.projitems*{407d8620-72c2-454c-945d-840130d80d0b}*SharedItemsImports = 13
+		src\DotVVM.Tracing.MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.projitems*{a1ce25dd-997b-41a3-96d2-31bc8a46be25}*SharedItemsImports = 5
+		src\DotVVM.Tracing.MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.projitems*{f17c971a-6bb4-4fc7-95f8-617256e08575}*SharedItemsImports = 5
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -67,6 +76,10 @@ Global
 		{A131A581-E190-444E-AF7A-784A041B972D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A131A581-E190-444E-AF7A-784A041B972D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A131A581-E190-444E-AF7A-784A041B972D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{269134A7-D0E7-4659-BC40-674D70440D29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{269134A7-D0E7-4659-BC40-674D70440D29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{269134A7-D0E7-4659-BC40-674D70440D29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{269134A7-D0E7-4659-BC40-674D70440D29}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

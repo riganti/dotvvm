@@ -15,7 +15,15 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
         /// <returns></returns>
         public static IDotvvmServiceCollection AddMiniProfilerEventTracing(this IDotvvmServiceCollection services)
         {
-            services.Services.AddTransient<IRequestTracer, MiniProfilerTracer>();
+            services.Services.AddScoped<IRequestTracer, MiniProfilerTracer>();
+            services.Services.AddScoped<IMiniProfilerRequestTracer, MiniProfilerTracer>();
+            services.Services.AddScoped<IRequestTimingStorage, DotvvmTimingStorage>();
+
+            services.Services.Configure((MiniProfilerOptions opt) =>
+            {
+                opt.IgnoredPaths.Add("/dotvvmResource/");
+            });
+
             services.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, MiniProfilerSetup>();
             return services;
         }
@@ -27,9 +35,6 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
         {
             options.Markup.AddCodeControls(DotvvmConfiguration.DotvvmControlTagPrefix, typeof(MiniProfilerWidget));
             options.Runtime.GlobalFilters.Add(new MiniProfilerActionFilter());
-
-            var currentProfiler = StackExchange.Profiling.MiniProfiler.DefaultOptions.ProfilerProvider ?? new DefaultProfilerProvider();
-            StackExchange.Profiling.MiniProfiler.DefaultOptions.ProfilerProvider = new DotVVMProfilerProvider(currentProfiler);
         }
     }
 }

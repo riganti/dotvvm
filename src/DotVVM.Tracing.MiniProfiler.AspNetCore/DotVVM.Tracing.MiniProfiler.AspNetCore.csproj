@@ -17,11 +17,13 @@
     <PackageTags>dotvvm;asp.net;mvvm;owin</PackageTags>
     <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PreserveCompilationContext>true</PreserveCompilationContext>  
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <DefineConstants>TRACE;AspNetCore</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotVVM.AspNetCore" Version="2.5.0-preview03-final" />
+    <PackageReference Include="DotVVM.AspNetCore" Version="2.5.0-preview04-final" />
     <PackageReference Include="MiniProfiler.AspNetCore" Version="4.2.1" />
   </ItemGroup>
+  <Import Project="..\DotVVM.Tracing.MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.projitems" Label="Shared" />
 </Project>

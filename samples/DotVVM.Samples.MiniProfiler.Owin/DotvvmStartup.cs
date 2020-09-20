@@ -1,4 +1,5 @@
 using DotVVM.Framework.Configuration;
+using DotVVM.Samples.MiniProfiler.Owin.ViewModels;
 using DotVVM.Tracing.MiniProfiler.Owin;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,6 +11,7 @@ namespace DotVVM.Samples.MiniProfiler.Owin
         {
             options.AddDefaultTempStorages("Temp");
             options.AddMiniProfilerEventTracing();
+            options.Services.AddTransient<DefaultStaticCommandService>();
         }
 
         // For more information about this class, visit https://dotvvm.com/docs/tutorials/basics-project-structure
