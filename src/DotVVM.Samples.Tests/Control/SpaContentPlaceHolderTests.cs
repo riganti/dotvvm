@@ -132,12 +132,13 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_PageB);
-                browser.Wait(2000);
+                browser.WaitFor(browser.HasAlert, 10000);
 
                 // verify the URL after redirect to the DefaultRoute
                 AssertUI.AlertTextEquals(browser, "javascript resource loaded!");
                 browser.ConfirmAlert();
-                browser.Wait(2000);
+
+                browser.WaitFor(browser.HasAlert, 10000);
                 AssertUI.AlertTextEquals(browser, "javascript 2 resource loaded!");
                 browser.ConfirmAlert();
                 AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_PageB);
