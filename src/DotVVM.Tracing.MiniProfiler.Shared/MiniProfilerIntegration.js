@@ -16,12 +16,12 @@
 
     var dotvvmInitialized = false;
     dotvvm.events.init.subscribe(function () {
-        mPt.end('DotVVM Init');
+        try { mPt.end('DotVVM Init'); } catch (e) { console.error(e); }
         dotvvmInitialized = true;
     });
 
     window.dotvvm.domUtils.onDocumentReady(function () {
-        mPt.start('DotVVM Init');
+        try { mPt.start('DotVVM Init'); } catch (e) { console.error(e); }
     });
 
     window.document.getElementById('mini-profiler').addEventListener('load', function () {
