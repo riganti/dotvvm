@@ -95,9 +95,9 @@ namespace DotVVM.Tracing.MiniProfiler
         {
             var authorized = false;
 #if OWIN
-            authorized =(StackExchange.Profiling.MiniProfiler.Current.Options as MiniProfilerOptions)?.ResultsAuthorize?.Invoke(HttpContext.Current.Request) ?? false;
+            authorized = (StackExchange.Profiling.MiniProfiler.Current?.Options as MiniProfilerOptions)?.ResultsAuthorize?.Invoke(HttpContext.Current.Request) ?? false;
 #else
-            var options = (StackExchange.Profiling.MiniProfiler.Current.Options as MiniProfilerOptions);
+            var options = (StackExchange.Profiling.MiniProfiler.Current?.Options as MiniProfilerOptions);
             if (options != null)
             {
                 authorized = options.ResultsAuthorize?.Invoke(context.GetAspNetCoreContext().Request) ?? false;
@@ -125,6 +125,11 @@ namespace DotVVM.Tracing.MiniProfiler
 
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            writer.WriteUnencodedText(ClientTimingHelper.InitScript);
+
+            if (StackExchange.Profiling.MiniProfiler.Current is object)
+            {
+
 #if AspNetCore
             var html = StackExchange.Profiling.MiniProfiler.Current.RenderIncludes(
                           context.GetAspNetCoreContext(),
@@ -135,18 +140,18 @@ namespace DotVVM.Tracing.MiniProfiler
                           showControls: ShowControls,
                           startHidden: StartHidden);
 #else
-            var html = StackExchange.Profiling.MiniProfiler.Current.RenderIncludes(
-                          position: Position,
-                          showTrivial: ShowTrivial,
-                          showTimeWithChildren: ShowTimeWithChildren,
-                          maxTracesToShow: MaxTraces,
-                          showControls: ShowControls,
-                          startHidden: StartHidden);
+                var html = StackExchange.Profiling.MiniProfiler.Current.RenderIncludes(
+                              position: Position,
+                              showTrivial: ShowTrivial,
+                              showTimeWithChildren: ShowTimeWithChildren,
+                              maxTracesToShow: MaxTraces,
+                              showControls: ShowControls,
+                              startHidden: StartHidden);
 
 
 #endif
-            writer.WriteUnencodedText(ClientTimingHelper.InitScript);
-            writer.WriteUnencodedText(html.ToString());
+                writer.WriteUnencodedText(html.ToString());
+            }
 
             base.RenderControl(writer, context);
         }
