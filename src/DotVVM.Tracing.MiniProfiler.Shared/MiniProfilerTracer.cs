@@ -71,5 +71,11 @@ namespace DotVVM.Tracing.MiniProfiler
             EnsureProfilerStarted();
             return GetProfilerCurrent().Step(name);
         }
+
+        public Timing StepIf(string name, long minDuration, bool includeChildren = false)
+        {
+            EnsureProfilerStarted();
+            return GetProfilerCurrent().StepIf(name, minDuration, includeChildren);
+        }
     }
 }
