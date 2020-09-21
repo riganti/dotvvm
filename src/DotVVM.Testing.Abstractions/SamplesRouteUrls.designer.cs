@@ -82,6 +82,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_GridView_GridViewPagingSorting = "ControlSamples/GridView/GridViewPagingSorting";
         public const string ControlSamples_GridView_GridViewRowDecorators = "ControlSamples/GridView/GridViewRowDecorators";
         public const string ControlSamples_GridView_GridViewServerRender = "ControlSamples/GridView/GridViewServerRender";
+        public const string ControlSamples_GridView_GridViewSortChanged = "ControlSamples/GridView/GridViewSortChanged";
         public const string ControlSamples_GridView_GridViewStaticCommand = "ControlSamples/GridView/GridViewStaticCommand";
         public const string ControlSamples_GridView_InvalidCssClass = "ControlSamples/GridView/InvalidCssClass";
         public const string ControlSamples_GridView_LargeGrid = "ControlSamples/GridView/LargeGrid";

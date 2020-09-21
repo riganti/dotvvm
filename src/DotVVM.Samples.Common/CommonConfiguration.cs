@@ -90,7 +90,7 @@ namespace DotVVM.Samples.Common
             };
             resources.Register("Errors_ResourceCircularDependency2", circular2);
             circular.Dependencies = new[] { "Errors_ResourceCircularDependency" };
-            
+
 
             resources.Register("extenders", new ScriptResource {
                 Location = new FileResourceLocation("Scripts/ClientExtenders.js")
@@ -110,11 +110,6 @@ namespace DotVVM.Samples.Common
             resources.SetEmbeddedResourceDebugFile("dotvvm.internal", "../DotVVM.Framework/Resources/Scripts/DotVVM.js");
             resources.SetEmbeddedResourceDebugFile("dotvvm.debug", "../DotVVM.Framework/Resources/Scripts/DotVVM.Debug.js");
             resources.SetEmbeddedResourceDebugFile("dotvvm.fileupload-css", "../DotVVM.Framework/Resources/Scripts/DotVVM.FileUploads.css");
-
-            // test debug version of knockout
-            //((ScriptResource)config.Resources.FindResource("knockout"))
-            //    .Location = new FileResourceLocation("..\\DotVVM.Framework\\Resources\\Scripts\\knockout-latest.debug.js");
-
         }
     }
 }

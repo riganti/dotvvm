@@ -614,5 +614,59 @@ namespace DotVVM.Samples.Tests.Control
                 browser.WaitFor(() => AssertUI.HasClass(gridview.First(".is-standalone > span"), "invalid"), 1000);
             });
         }
+
+        [Fact]
+        public void Control_GridView_GridViewSortChanged()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewSortChanged);
+                browser.WaitUntilDotvvmInited();
+
+                var tables = browser.FindElements("table");
+                var sortExpression = browser.Single(".result-sortexpression");
+                var sortDescending = browser.Single(".result-sortdescending");
+
+                // click the Name column in the first table
+                tables[0].ElementAt("th", 1).Single("a").Click().Wait();
+                AssertUI.TextEquals(sortExpression, "Name");
+                AssertUI.TextEquals(sortDescending, "false");
+
+                // click the Name column in the first table again to change sort direction
+                tables[0].ElementAt("th", 1).Single("a").Click().Wait();
+                AssertUI.TextEquals(sortExpression, "Name");
+                AssertUI.TextEquals(sortDescending, "true");
+
+                // click the Message received column in the first table
+                tables[0].ElementAt("th", 3).Single("a").Click().Wait();
+                AssertUI.TextEquals(sortExpression, "MessageReceived");
+                AssertUI.TextEquals(sortDescending, "false");
+
+                // click the Message received column in the first table again to change sort direction
+                tables[0].ElementAt("th", 3).Single("a").Click().Wait();
+                AssertUI.TextEquals(sortExpression, "MessageReceived");
+                AssertUI.TextEquals(sortDescending, "true");
+
+
+                // click the Name column in the second table
+                tables[1].ElementAt("th", 1).Single("a").Click().Wait();
+                AssertUI.TextEquals(sortExpression, "Name");
+                AssertUI.TextEquals(sortDescending, "false");
+
+                // click the Name column in the second table again - sort direction should remain unchanged
+                tables[1].ElementAt("th", 1).Single("a").Click().Wait();
+                AssertUI.TextEquals(sortExpression, "Name");
+                AssertUI.TextEquals(sortDescending, "false");
+
+                // click the Message received column in the first table
+                tables[1].ElementAt("th", 3).Single("a").Click().Wait();
+                AssertUI.TextEquals(sortExpression, "MessageReceived");
+                AssertUI.TextEquals(sortDescending, "false");
+
+                // click the Message received column in the second table again - sort direction should remain unchanged
+                tables[1].ElementAt("th", 3).Single("a").Click().Wait();
+                AssertUI.TextEquals(sortExpression, "MessageReceived");
+                AssertUI.TextEquals(sortDescending, "false");
+            });
+        }
     }
 }
