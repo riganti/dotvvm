@@ -95,9 +95,10 @@ namespace DotVVM.Tracing.MiniProfiler
         {
             var authorized = false;
 #if OWIN
-            authorized = (StackExchange.Profiling.MiniProfiler.Current?.Options as MiniProfilerOptions)?.ResultsAuthorize?.Invoke(HttpContext.Current.Request) ?? false;
+            var options = (StackExchange.Profiling.MiniProfiler.Current?.Options ?? StackExchange.Profiling.MiniProfiler.DefaultOptions) as MiniProfilerOptions;
+            authorized = options?.ResultsAuthorize?.Invoke(HttpContext.Current.Request) ?? false;
 #else
-            var options = (StackExchange.Profiling.MiniProfiler.Current?.Options as MiniProfilerOptions);
+            var options = (StackExchange.Profiling.MiniProfiler.Current?.Options ?? StackExchange.Profiling.MiniProfiler.DefaultOptions) as MiniProfilerOptions;
             if (options != null)
             {
                 authorized = options.ResultsAuthorize?.Invoke(context.GetAspNetCoreContext().Request) ?? false;
