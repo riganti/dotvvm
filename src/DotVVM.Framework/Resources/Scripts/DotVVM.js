@@ -2217,7 +2217,7 @@ var DotVVM = /** @class */ (function () {
                 return { controlsDescendantBindings: true }; // do not apply binding again
             }
         };
-        var makeUpdatableChildrenContextHandler = function (makeContextCallback, shouldDisplay) { return function (element, valueAccessor, _allBindings, _viewModel, bindingContext) {
+        var makeUpdatableChildrenContextHandler = function (makeContextCallback, shouldDisplay) { return function (element, valueAccessor, allBindings, _viewModel, bindingContext) {
             if (!bindingContext)
                 throw new Error();
             var savedNodes;
@@ -2233,7 +2233,7 @@ var DotVVM = /** @class */ (function () {
                     if (!isInitial) {
                         ko.virtualElements.setDomNodeChildren(element, ko.utils.cloneNodes(savedNodes));
                     }
-                    ko.applyBindingsToDescendants(makeContextCallback(bindingContext, rawValue), element);
+                    ko.applyBindingsToDescendants(makeContextCallback(bindingContext, rawValue, allBindings), element);
                 }
                 else {
                     ko.virtualElements.emptyNode(element);
@@ -2271,9 +2271,21 @@ var DotVVM = /** @class */ (function () {
         };
         ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
         ko.bindingHandlers["withGridViewDataSet"] = {
-            init: makeUpdatableChildrenContextHandler(function (bindingContext, value) {
+            init: makeUpdatableChildrenContextHandler(function (bindingContext, value, allBindings) {
                 var _a;
-                return bindingContext.extend((_a = { $gridViewDataSet: value }, _a[foreachCollectionSymbol] = dotvvm.evaluator.getDataSourceItems(value), _a));
+                return bindingContext.extend((_a = {
+                        $gridViewDataSet: value
+                    },
+                    _a[foreachCollectionSymbol] = dotvvm.evaluator.getDataSourceItems(value),
+                    _a.$gridViewDataSetHelper = {
+                        columnMapping: allBindings.get("gridViewDataSetColumnMapping"),
+                        isInEditMode: function ($context) {
+                            var columnName = $context.$gridViewDataSet().RowEditOptions().PrimaryKeyPropertyName();
+                            columnName = this.columnMapping[columnName] || columnName;
+                            return $context.$gridViewDataSet().RowEditOptions().EditRowId() === $context.$data[columnName]();
+                        }
+                    },
+                    _a));
             }, function (_) { return true; })
         };
         ko.bindingHandlers['dotvvmEnable'] = {

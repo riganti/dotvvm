@@ -1388,9 +1388,9 @@ class DotVVM {
         }
 
         const makeUpdatableChildrenContextHandler = (
-            makeContextCallback: (bindingContext: KnockoutBindingContext, value: any) => any,
+            makeContextCallback: (bindingContext: KnockoutBindingContext, value: any, _allBindings: KnockoutAllBindingsAccessor) => any,
             shouldDisplay: (value: any) => boolean
-        ) => (element: Node, valueAccessor, _allBindings, _viewModel, bindingContext: KnockoutBindingContext) => {
+        ) => (element: Node, valueAccessor, allBindings: KnockoutAllBindingsAccessor, _viewModel, bindingContext: KnockoutBindingContext) => {
             if (!bindingContext) throw new Error()
 
             var savedNodes: Node[] | undefined;
@@ -1408,7 +1408,7 @@ class DotVVM {
                     if (!isInitial) {
                         ko.virtualElements.setDomNodeChildren(element, ko.utils.cloneNodes(savedNodes!));
                     }
-                    ko.applyBindingsToDescendants(makeContextCallback(bindingContext, rawValue), element);
+                    ko.applyBindingsToDescendants(makeContextCallback(bindingContext, rawValue, allBindings), element);
                 } else {
                     ko.virtualElements.emptyNode(element);
                 }
@@ -1447,7 +1447,18 @@ class DotVVM {
         ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
         ko.bindingHandlers["withGridViewDataSet"] = {
             init: makeUpdatableChildrenContextHandler(
-                (bindingContext, value) => bindingContext.extend({ $gridViewDataSet: value, [foreachCollectionSymbol]: dotvvm.evaluator.getDataSourceItems(value) }),
+                (bindingContext, value, allBindings) => bindingContext.extend({
+                    $gridViewDataSet: value,
+                    [foreachCollectionSymbol]: dotvvm.evaluator.getDataSourceItems(value),
+                    $gridViewDataSetHelper: {
+                        columnMapping: allBindings.get("gridViewDataSetColumnMapping"),
+                        isInEditMode: function ($context) {
+                            let columnName = $context.$gridViewDataSet().RowEditOptions().PrimaryKeyPropertyName();
+                            columnName = this.columnMapping[columnName] || columnName;
+                            return $context.$gridViewDataSet().RowEditOptions().EditRowId() === $context.$data[columnName]();
+                        }
+                    }
+                }),
                 _ => true
             )
         };
