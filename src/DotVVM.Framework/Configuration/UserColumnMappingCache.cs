@@ -6,36 +6,40 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Configuration
 {
     public class UserColumnMappingCache
     {
         private ConcurrentDictionary<Type, Dictionary<string, string>> mappingCache;
-        private IPropertySerialization propertySerialization;
+        private IViewModelSerializationMapper serializationMapper;
 
-        public UserColumnMappingCache(IPropertySerialization propertySerialization)
+        public UserColumnMappingCache(IViewModelSerializationMapper serializationMapper)
         {
-            this.propertySerialization = propertySerialization;
+            this.serializationMapper = serializationMapper;
             this.mappingCache = new ConcurrentDictionary<Type, Dictionary<string, string>>();       
         }
 
-        public Dictionary<string, string> GetMapping(Type type)
+        public IReadOnlyDictionary<string, string> GetMapping(Type type)
         {
-            if (mappingCache.TryGetValue(type, out var mapping))
-                return mapping;
+            if (mappingCache.TryGetValue(type, out var columnsMapping))
+                return columnsMapping;
 
-            mapping = new Dictionary<string, string>();
-            foreach (var property in type.GetProperties())
+            var serializationMap = serializationMapper.GetMap(type);
+
+            columnsMapping = new Dictionary<string, string>();
+            foreach (var property in serializationMap.Properties)
             {
-                var resolvedName = propertySerialization.ResolveName(property);
-                if (resolvedName == property.Name)
+                var resolvedName = property.Name;               
+                if (resolvedName == property.PropertyInfo.Name)
                     continue;
 
-                mapping.Add(property.Name, resolvedName);
+                // Store only remapped columns
+                columnsMapping.Add(property.PropertyInfo.Name, resolvedName);
             }
-            mappingCache.TryAdd(type, mapping);
-            return mapping;
+            mappingCache.TryAdd(type, columnsMapping);
+            return columnsMapping;
         }
     }
 }
