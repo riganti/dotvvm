@@ -293,12 +293,8 @@ namespace DotVVM.Framework.Controls
         protected virtual void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             RenderState r = default;
-            var ip = GetValueRaw(IncludeInPageProperty);
-            r.IncludeInPage = true.Equals(ip) ? null : ip;
-            this.properties.TryGet(DataContextProperty, out var dc);
-            r.DataContext = dc as IValueBinding;
-            r.HasActives = true;
-            r.HasActiveGroups = true;
+            foreach (var (prop, value) in properties)
+                TouchProperty(prop, value, ref r);
             if (RenderBeforeControl(in r, writer, context))
                 return;
 
