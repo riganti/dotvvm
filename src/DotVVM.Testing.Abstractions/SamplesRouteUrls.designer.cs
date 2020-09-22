@@ -123,8 +123,13 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_RouteLink_RouteLinkUrlGen = "ControlSamples/RouteLink/RouteLinkUrlGen";
         public const string ControlSamples_RouteLink_TestRoute = "ControlSamples/RouteLink/TestRoute";
         public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_Default = "ControlSamples/SpaContentPlaceHolder_HistoryApi/Default";
+        public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_MultiSpaDefault = "ControlSamples/SpaContentPlaceHolder_HistoryApi/MultiSpaDefault";
         public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_PageA = "ControlSamples/SpaContentPlaceHolder_HistoryApi/PageA";
         public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_PageB = "ControlSamples/SpaContentPlaceHolder_HistoryApi/PageB";
+        public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa1PageA = "ControlSamples/SpaContentPlaceHolder_HistoryApi/Spa1PageA";
+        public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa1PageB = "ControlSamples/SpaContentPlaceHolder_HistoryApi/Spa1PageB";
+        public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa2PageA = "ControlSamples/SpaContentPlaceHolder_HistoryApi/Spa2PageA";
+        public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa2PageB = "ControlSamples/SpaContentPlaceHolder_HistoryApi/Spa2PageB";
         public const string ControlSamples_TextBox_IntBoundTextBox = "ControlSamples/TextBox/IntBoundTextBox";
         public const string ControlSamples_TextBox_SelectAllOnFocus = "ControlSamples/TextBox/SelectAllOnFocus";
         public const string ControlSamples_TextBox_SimpleDateBox = "ControlSamples/TextBox/SimpleDateBox";

@@ -8,27 +8,29 @@ import { DotvvmPostbackError } from '../shared-classes';
 export const isSpaReady = ko.observable(false);
 
 export function init(): void {
-    const spaPlaceHolder = getSpaPlaceHolder();
-    if (spaPlaceHolder == null) {
-        throw new Error("The SpaContentPlaceHolder control was not found!");
+    const spaPlaceHolders = getSpaPlaceHolders();
+    if (spaPlaceHolders.length == 0) {
+        throw new Error("No SpaContentPlaceHolder control was found!");
     }
 
-    window.addEventListener("hashchange", event => handleHashChangeWithHistory(spaPlaceHolder, false));
-    handleHashChangeWithHistory(spaPlaceHolder, true);
+    window.addEventListener("hashchange", event => handleHashChangeWithHistory(spaPlaceHolders, false));
+    handleHashChangeWithHistory(spaPlaceHolders, true);
 
-    window.addEventListener('popstate', event => handlePopState(event, spaPlaceHolder != null));
+    window.addEventListener('popstate', event => handlePopState(event, true));
 }
 
-function getSpaPlaceHolder(): HTMLElement | null {
-    const elements = document.getElementsByName("__dot_SpaContentPlaceHolder");
-    if (elements.length == 1) {
-        return <HTMLElement> elements[0];
-    }
-    return null;
+function getSpaPlaceHolders(): NodeListOf<HTMLElement> {
+    return document.getElementsByName("__dot_SpaContentPlaceHolder");
 }
 
-export function getSpaPlaceHolderUniqueId(): string {
-    return getSpaPlaceHolder()!.getAttribute("data-dotvvm-spacontentplaceholder")!;
+export function getSpaPlaceHoldersUniqueId(): string {
+    const spas = Array.from(getSpaPlaceHolders());
+    const identifiers = spas.map((element) =>
+    {
+        return element.getAttribute("data-dotvvm-spacontentplaceholder")?.valueOf()
+    });
+
+    return identifiers.join(';');
 }
 
 function handlePopState(event: PopStateEvent, inSpaPage: boolean) {
@@ -44,7 +46,7 @@ function handlePopState(event: PopStateEvent, inSpaPage: boolean) {
     }
 }
 
-function handleHashChangeWithHistory(spaPlaceHolder: HTMLElement, isInitialPageLoad: boolean) {
+function handleHashChangeWithHistory(spaPlaceHolders: NodeListOf<HTMLElement>, isInitialPageLoad: boolean) {
     if (document.location.hash.indexOf("#!/") === 0) {
         // the user requested navigation to another SPA page
         navigateCore(
@@ -53,7 +55,9 @@ function handleHashChangeWithHistory(spaPlaceHolder: HTMLElement, isInitialPageL
         );
     } else {
         isSpaReady(true);
-        spaPlaceHolder.style.display = "";
+        spaPlaceHolders.forEach(function (element) {
+            element.style.display = "";
+        });
 
         const currentRelativeUrl = location.pathname + location.search + location.hash
         replacePage(currentRelativeUrl);

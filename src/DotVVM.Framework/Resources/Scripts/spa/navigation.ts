@@ -7,7 +7,7 @@ import { loadResourceList } from '../postback/resourceLoader';
 import * as updater from '../postback/updater';
 import * as counter from '../postback/counter';
 import * as events from './events';
-import { getSpaPlaceHolderUniqueId, isSpaReady } from './spa';
+import { getSpaPlaceHoldersUniqueId, isSpaReady } from './spa';
 import { handleRedirect } from '../postback/redirect';
 import * as gate from '../postback/gate';
 
@@ -35,7 +35,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
         const displayUrl = uri.addVirtualDirectoryToUrl(url);
 
         // send the request
-        const resultObject = await http.getJSON<any>(spaFullUrl, getSpaPlaceHolderUniqueId());
+        const resultObject = await http.getJSON<any>(spaFullUrl, getSpaPlaceHoldersUniqueId());
 
         // if another postback has already been passed, don't do anything
         if (!counter.isPostBackStillActive(currentPostBackCounter)) {
