@@ -1390,7 +1390,7 @@ class DotVVM {
         const makeUpdatableChildrenContextHandler = (
             makeContextCallback: (bindingContext: KnockoutBindingContext, value: any, _allBindings: KnockoutAllBindingsAccessor) => any,
             shouldDisplay: (value: any) => boolean
-        ) => (element: Node, valueAccessor, _allBindings: KnockoutAllBindingsAccessor, _viewModel, bindingContext: KnockoutBindingContext) => {
+        ) => (element: Node, valueAccessor, allBindings: KnockoutAllBindingsAccessor, _viewModel, bindingContext: KnockoutBindingContext) => {
             if (!bindingContext) throw new Error()
 
             var savedNodes: Node[] | undefined;
@@ -1408,7 +1408,7 @@ class DotVVM {
                     if (!isInitial) {
                         ko.virtualElements.setDomNodeChildren(element, ko.utils.cloneNodes(savedNodes!));
                     }
-                    ko.applyBindingsToDescendants(makeContextCallback(bindingContext, rawValue, _allBindings), element);
+                    ko.applyBindingsToDescendants(makeContextCallback(bindingContext, rawValue, allBindings), element);
                 } else {
                     ko.virtualElements.emptyNode(element);
                 }
@@ -1455,7 +1455,7 @@ class DotVVM {
                         isInEditMode: function ($context) {
                             let columnName = $context.$gridViewDataSet().RowEditOptions().PrimaryKeyPropertyName();
                             columnName = this.columnMapping[columnName] || columnName;
-                            return ko.unwrap($context.$gridViewDataSet().RowEditOptions().EditRowId) === ko.unwrap($context.$data[columnName]);
+                            return $context.$gridViewDataSet().RowEditOptions().EditRowId() === $context.$data[columnName]();
                         }
                     }
                 }),
