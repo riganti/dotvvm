@@ -82,7 +82,7 @@ namespace DotVVM.Framework.Controls
         {
             if (ContainsPropertyStaticValue(property))
             {
-                var settings = DefaultSerializerSettingsProvider.Instance.Settings;
+                var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
                 settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
 
                 return new PropertySerializeInfo(
