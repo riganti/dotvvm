@@ -1,0 +1,11 @@
+<html>
+	<head></head>
+	<body>
+		<input type="button" value="Classic Btn" onclick="alert('Runs before the command');dotvvm.postBack(&quot;root&quot;,this,[],&quot;uR4/0WBE50UnjuV8&quot;,&quot;&quot;,null,[&quot;validate-root&quot;]);event.stopPropagation();return false;">
+		<a href="javascript:;" onclick="alert('Runs before the command');dotvvm.postBack(&quot;root&quot;,this,[],&quot;sCV+WqL3sroJS0YF&quot;,&quot;&quot;,null,[&quot;validate-root&quot;]);event.stopPropagation();return false;">Link Btn</a>
+		<div onclick="dotvvm.applyPostbackHandlers(function(){return Promise.resolve(0)}.bind(this),this,[]);event.stopPropagation();return false;">
+		</div>
+		<div ondblclick="dotvvm.applyPostbackHandlers(function(){return Promise.resolve(0)}.bind(this),this,[]);event.stopPropagation();return false;">
+		</div>
+	</body>
+</html>
