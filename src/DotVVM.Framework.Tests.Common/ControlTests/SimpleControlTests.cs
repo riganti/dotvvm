@@ -87,7 +87,7 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
             [Bind(Name = "float")]
             public double Float { get; set; } = 0.11111;
             [Bind(Name = "date")]
-            public DateTime DateTime { get; set; } = DateTime.Parse("2020-08-11T16:01:44.5141480+00:00");
+            public DateTime DateTime { get; set; } = DateTime.Parse("2020-08-11T16:01:44.5141480");
         }
     }
 }
