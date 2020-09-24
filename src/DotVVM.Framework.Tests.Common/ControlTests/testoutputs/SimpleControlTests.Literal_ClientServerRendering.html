@@ -45,5 +45,13 @@
 			<span>11.11%</span>
 			<span>Tuesday</span>
 		</span>
+		
+		<!-- IncludeInPage=false -->                                  
+		<!-- DataContext, Events.Click -->                 
+		<!-- ko with: float -->
+		<!-- ko if: $parent.int() > 400 -->
+		<span onclick="dotvvm.applyPostbackHandlers(function(){return Promise.resolve(0)}.bind(this),this,[]);event.stopPropagation();return false;" data-bind="text: dotvvm.globalize.formatString(&quot;&quot;, $rawData)"></span>
+		<!-- /ko -->
+		<!-- /ko -->
 	</body>
 </html>

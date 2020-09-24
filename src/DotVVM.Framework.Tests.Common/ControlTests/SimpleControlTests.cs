@@ -6,6 +6,7 @@ using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Controls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 
 namespace DotVVM.Framework.Tests.Common.ControlTests
 {
@@ -55,6 +56,10 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
                     <dot:Literal Text={value: Float} FormatString=P2 />
                     <dot:Literal Text={value: DateTime} FormatString=dddd />
                 </span>
+                <!-- IncludeInPage=false -->
+                <dot:Literal Text=XX IncludeInPage={resource: false} RenderSettings.Mode=Client />
+                <!-- DataContext, Events.Click -->
+                <dot:Literal DataContext={value: Float} Text={value: _this} IncludeInPage={value: _parent.Integer > 400} Events.Click={staticCommand: 0} />
                 "
             );
 
@@ -119,6 +124,32 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
                 <dot:EmptyData IncludeInPage={resource: true} DataSource={value: NonEmptyDataSet} RenderSettings.Mode=Client>
                     Data is empty
                 </dot:EmptyData>
+            ");
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task HtmlElements()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- InnerText -->
+                <div InnerText={value: Integer}></div>
+                <div InnerText={value: Integer} RenderSettings.Mode=Server>Something different</div>
+                <div InnerText='My Inner Text'>another text</div>
+
+                <!-- css classes -->
+                <div class-staticClass1 Class-staticClass2=true class=staticClass3 class-dynamicClass={value: Integer > 200} />
+                <!-- binding attributes -->
+                <div class={value: Integer > 200 ? 'class1' : 'class2'} data-x={value: Integer > 200 ? 'x1' : 'x2'} />
+                <!-- binding attributes, SSR -->
+                <div class={value: Integer > 200 ? 'class1' : 'class2'} data-x={value: Integer > 200 ? 'x1' : 'x2'} RenderSettings.Mode=Server />
+                <!-- css style -->
+                <div style-background-color=red style-border-width={value: Integer} style-border-radius={resource: Integer} />
+
+                <!-- visible -->
+                <div Visible={value: !True} />
+                <div Visible={resource: !True} />
             ");
 
             check.CheckString(r.FormattedHtml, fileExtension: "html");
