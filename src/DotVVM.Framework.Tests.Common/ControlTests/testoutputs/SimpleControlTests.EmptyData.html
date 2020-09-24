@@ -1,0 +1,37 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- empty data, server -->                 
+		<!-- ko if: True -->
+		<div>
+			Data is empty
+		</div>
+		<!-- /ko -->                 
+		<!-- empty data, client -->                 
+		<!-- ko if: (function(a) {
+	return True() && !(((a = EmptyDataSet() && EmptyDataSet().Items()) == null ? null : a.length) > 0);
+}()) -->
+		<div>
+			Data is empty
+		</div>
+		<!-- /ko -->                 
+		<!-- non empty data, server -->                                  
+		<!-- non empty data, client -->                 
+		<!-- ko if: (function(a) {
+	return True() && !(((a = NonEmptyDataSet() && NonEmptyDataSet().Items()) == null ? null : a.length) > 0);
+}()) -->
+		<div>
+			Data is empty
+		</div>
+		<!-- /ko -->                  
+		<!-- non empty data, client -->                 
+		<!-- ko if: (function(a) {
+	return !(((a = NonEmptyDataSet() && NonEmptyDataSet().Items()) == null ? null : a.length) > 0);
+}()) -->
+		<div>
+			Data is empty
+		</div>
+		<!-- /ko -->
+	</body>
+</html>

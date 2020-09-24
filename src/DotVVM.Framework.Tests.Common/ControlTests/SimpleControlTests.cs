@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CheckTestOutput;
 using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.Controls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Framework.Tests.Common.ControlTests
@@ -92,6 +93,37 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
 
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
+
+        [TestMethod]
+        public async Task EmptyData()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- empty data, server -->
+                <dot:EmptyData IncludeInPage={value: True} DataSource={value: EmptyDataSet} RenderSettings.Mode=Server>
+                    Data is empty
+                </dot:EmptyData>
+                <!-- empty data, client -->
+                <dot:EmptyData IncludeInPage={value: True} DataSource={value: EmptyDataSet} RenderSettings.Mode=Client>
+                    Data is empty
+                </dot:EmptyData>
+                <!-- non empty data, server -->
+                <dot:EmptyData IncludeInPage={value: True} DataSource={value: NonEmptyDataSet} RenderSettings.Mode=Server>
+                    Data is empty
+                </dot:EmptyData>
+                <!-- non empty data, client -->
+                <dot:EmptyData IncludeInPage={value: True} DataSource={value: NonEmptyDataSet} RenderSettings.Mode=Client>
+                    Data is empty
+                </dot:EmptyData>
+
+                <!-- non empty data, client -->
+                <dot:EmptyData IncludeInPage={resource: true} DataSource={value: NonEmptyDataSet} RenderSettings.Mode=Client>
+                    Data is empty
+                </dot:EmptyData>
+            ");
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
@@ -100,6 +132,13 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
             public double Float { get; set; } = 0.11111;
             [Bind(Name = "date")]
             public DateTime DateTime { get; set; } = DateTime.Parse("2020-08-11T16:01:44.5141480");
+
+            public bool True { get; set; } = true;
+
+            public GridViewDataSet<string> EmptyDataSet { get; set; } = new GridViewDataSet<string>();
+            public GridViewDataSet<string> NonEmptyDataSet { get; set; } = new GridViewDataSet<string> {
+                Items = { "yayay" }
+            };
         }
     }
 }
