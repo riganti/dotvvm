@@ -30,11 +30,6 @@ namespace DotVVM.Framework.Controls
         public DefaultGridPager<T, DistanceNearPageIndexesProvider<T>> PagingOptions => Pager;
 
         /// <summary>
-        /// Gets or sets the settings for row (item) edit feature.
-        /// </summary>
-        public IRowEditOptions RowEditOptions { get; set; } = new RowEditOptions();
-
-        /// <summary>
         /// Gets or sets the settings for sorting.
         /// </summary>
         [Bind(Direction.None)]
