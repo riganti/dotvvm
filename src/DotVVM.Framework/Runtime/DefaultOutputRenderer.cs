@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Runtime
         protected virtual MemoryStream RenderPage(IDotvvmRequestContext context, DotvvmView view)
         {
             var outStream = new MemoryStream();
-            using (var textWriter = new StreamWriter(outStream, Encoding.UTF8, 4096, leaveOpen: true))
+            using (var textWriter = new StreamWriter(outStream, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), 4096, leaveOpen: true))
             {
                 var htmlWriter = new HtmlWriter(textWriter, context);
                 view.Render(htmlWriter, context);
