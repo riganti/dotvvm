@@ -43,14 +43,15 @@ namespace DotVVM.Framework.Binding
             }
             else
             {
+                var currentValue = (object?)obj.GetValueBinding(property) ?? obj.GetValue(property);
                 if (value is bool b && !b)
                     obj.SetValue(property, false);
-                else if (obj.GetValue(property) is bool b2 && b2)
+                else if (currentValue is bool b2 && b2)
                     obj.SetValue(property, value);
                 else
                     obj.SetValue(property,
                         AndAlsoCombination.GetCombination(
-                            obj.GetValue(property) as IBinding ??
+                            currentValue as IBinding ??
                                 throw new NotSupportedException($"A IBinding instance or bool was expected in property {property}, got {obj.GetValue(property)?.GetType().Name ?? "null"}"),
                             value as IBinding ??
                                 throw new NotSupportedException($"A IBinding instance or bool was expected to AndAssign to property {property}, got {obj.GetValue(property)?.GetType().Name ?? "null"}")
