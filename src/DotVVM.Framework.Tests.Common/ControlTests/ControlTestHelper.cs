@@ -280,7 +280,8 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
         {
             var filtered =
                 this.Commands
-                    .Where(c => c.command.GetProperty<OriginalStringBindingProperty>(ErrorHandlingMode.ReturnNull)?.Code?.Trim() == text.Trim()
+                    .Where(c => (c.command.GetProperty<OriginalStringBindingProperty>(ErrorHandlingMode.ReturnNull)?.Code?.Trim() == text.Trim() ||
+                                 c.command.GetProperty<IdBindingProperty>(ErrorHandlingMode.ReturnNull)?.Id == text)
                              && (viewModel is null || viewModel.Equals(c.control.DataContext)))
                     .ToArray();
             if (filtered.Length == 0)

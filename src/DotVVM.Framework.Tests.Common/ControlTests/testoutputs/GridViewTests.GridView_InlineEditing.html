@@ -1,0 +1,53 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- ko if: (function(a) {
+	return (a = DataSet() && DataSet().Items()) == null ? null : a.length;
+}()) -->
+		<table data-bind="withGridViewDataSet: DataSet, gridViewDataSetColumnMapping: {&quot;StringProperty&quot;:&quot;strprop&quot;}">
+			<thead>
+				<tr>
+					<th>
+						<span>Id</span>
+					</th>
+					<th>
+						<span></span>
+					</th>
+					<th>
+						<span>Bool</span>
+					</th>
+				</tr>
+			</thead>
+			<tbody data-bind="foreach: dotvvm.evaluator.getDataSourceItems($gridViewDataSet)">
+				<!-- ko if: !$gridViewDataSetHelper.isInEditMode($context) -->
+				<tr>
+					<td>
+						<span data-bind="text: Id"></span>
+					</td>
+					<td>
+						<span data-bind="text: strprop"></span>
+					</td>
+					<td>
+						<input disabled="disabled" type="checkbox" data-bind="dotvvm-CheckState: BoolProperty, checkedValue: true">
+					</td>
+				</tr>
+				<!-- /ko -->
+				<!-- ko if: $gridViewDataSetHelper.isInEditMode($context) -->
+				<tr>
+					<td>
+						<span data-bind="text: Id"></span>
+					</td>
+					<td>
+						<input type="text" data-bind="value: strprop">
+					</td>
+					<td>
+						<input type="checkbox" data-bind="dotvvm-CheckState: BoolProperty, checkedValue: true">
+					</td>
+				</tr>
+				<!-- /ko -->
+			</tbody>
+		</table>
+		<!-- /ko -->
+	</body>
+</html>
