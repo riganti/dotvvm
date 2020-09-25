@@ -8,7 +8,8 @@
 		<div>My Inner Text</div>
 		
 		<!-- css classes -->
-		<div class="staticClass1 dynamicClass staticClass2 staticClass3" data-bind="css: { 'dynamicClass': int() > 200 }"></div>
+		<div class="staticClass1 staticClass3"></div>
+		<div class="dynamicClass" data-bind="css: { 'dynamicClass': int() > 200 }"></div>
 		
 		<!-- binding attributes -->
 		<div data-bind="class: int() > 200 ? &quot;class1&quot; : &quot;class2&quot;, attr: { 'data-x': int() > 200 ? &quot;x1&quot; : &quot;x2&quot; }"></div>
@@ -17,7 +18,9 @@
 		<div class="class1" data-x="x1" data-bind="class: int() > 200 ? &quot;class1&quot; : &quot;class2&quot;, attr: { 'data-x': int() > 200 ? &quot;x1&quot; : &quot;x2&quot; }"></div>
 		
 		<!-- css style -->
-		<div style="background-color:red;border-radius:10000000;border-width:10000000" data-bind="style: { 'border-width': int }"></div>
+		<div style="background-color:red"></div>
+		<div style="border-width:10000000" data-bind="style: { 'border-width': int }"></div>
+		<div style="border-radius:10000000"></div>
 		
 		<!-- visible -->
 		<div style="display:none" data-bind="visible: !True()"></div>

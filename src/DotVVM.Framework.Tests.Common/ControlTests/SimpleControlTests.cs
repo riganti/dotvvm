@@ -139,13 +139,16 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
                 <div InnerText='My Inner Text'>another text</div>
 
                 <!-- css classes -->
-                <div class-staticClass1 Class-staticClass2=true class=staticClass3 class-dynamicClass={value: Integer > 200} />
+                <div class-staticClass1 class=staticClass3 />
+                <div class-dynamicClass={value: Integer > 200} />
                 <!-- binding attributes -->
                 <div class={value: Integer > 200 ? 'class1' : 'class2'} data-x={value: Integer > 200 ? 'x1' : 'x2'} />
                 <!-- binding attributes, SSR -->
                 <div class={value: Integer > 200 ? 'class1' : 'class2'} data-x={value: Integer > 200 ? 'x1' : 'x2'} RenderSettings.Mode=Server />
                 <!-- css style -->
-                <div style-background-color=red style-border-width={value: Integer} style-border-radius={resource: Integer} />
+                <div style-background-color=red />
+                <div style-border-width={value: Integer} />
+                <div style-border-radius={resource: Integer} />
 
                 <!-- visible -->
                 <div Visible={value: !True} />
