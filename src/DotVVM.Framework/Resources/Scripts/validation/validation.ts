@@ -304,7 +304,7 @@ function watchAndTriggerValidationErrorChanged(options: PostbackOptions, action:
     action();
 
     const currentErrorsCount = allErrors.length;
-    if (originalErrorsCount === 0 && currentErrorsCount === 0) {
+    if (originalErrorsCount == 0 && currentErrorsCount == 0) {
         // no errors before, no errors now
         return;
     }

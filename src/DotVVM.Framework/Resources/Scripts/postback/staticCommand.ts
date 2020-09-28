@@ -19,8 +19,8 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
 
         events.staticCommandMethodInvoking.trigger({
             ...options,
-            command,
-            args
+            methodId: command,
+            methodArgs: args,
         });
 
         response = await http.postJSON<any>(
@@ -41,8 +41,8 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
 
         events.staticCommandMethodInvoked.trigger({ 
             ...options, 
-            command,
-            args,
+            methodId: command,
+            methodArgs: args,
             serverResponseObject: response.result,
             result: (response as any).result.result, 
             response: (response as any).response
@@ -53,8 +53,8 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
     } catch (err) {
         events.staticCommandMethodFailed.trigger({ 
             ...options, 
-            command,
-            args,
+            methodId: command,
+            methodArgs: args,
             error: err,
             result: (err.reason as any).responseObject, 
             response: (err.reason as any).response 

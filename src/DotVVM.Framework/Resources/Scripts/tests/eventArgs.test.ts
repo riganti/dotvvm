@@ -110,8 +110,11 @@ const validations = {
     hasReplace(args: any) {
         expect(args.replace).toBeDefined();
     },
-    hasCommand(args: any) {
-        expect(args.command).toBeDefined();
+    hasMethodId(args: any) {
+        expect(args.methodId).toBeDefined();
+    },
+    hasMethodArgs(args: any) {
+        expect(args.methodArgs).toBeDefined();
     },
     hasArgs(args: any) {
         expect(args.args).toBeDefined();
@@ -593,8 +596,8 @@ test("staticCommand (with server call) + success", async () => {
         let i = 1;  // skip the "init" event
         validateEvent(history[i++], "postbackHandlersStarted", "staticCommand", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "staticCommand", validations.hasSender);
-        validateEvent(history[i++], "staticCommandMethodInvoking", "staticCommand", validations.hasSender, validations.hasCommand, validations.hasArgs);
-        validateEvent(history[i++], "staticCommandMethodInvoked", "staticCommand", validations.hasSender, validations.hasCommand, validations.hasArgs, validations.hasResult, validations.hasResponse);
+        validateEvent(history[i++], "staticCommandMethodInvoking", "staticCommand", validations.hasSender, validations.hasMethodId, validations.hasMethodArgs);
+        validateEvent(history[i++], "staticCommandMethodInvoked", "staticCommand", validations.hasSender, validations.hasMethodId, validations.hasMethodArgs, validations.hasResult, validations.hasResponse);
 
         expect(history.length).toBe(i);
     }
@@ -625,10 +628,10 @@ test("staticCommand (with two server call) + success", async () => {
         let i = 1;  // skip the "init" event
         validateEvent(history[i++], "postbackHandlersStarted", "staticCommand", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "staticCommand", validations.hasSender);
-        validateEvent(history[i++], "staticCommandMethodInvoking", "staticCommand", validations.hasSender, validations.hasCommand, validations.hasArgs);
-        validateEvent(history[i++], "staticCommandMethodInvoked", "staticCommand", validations.hasSender, validations.hasCommand, validations.hasArgs, validations.hasResult, validations.hasResponse);
-        validateEvent(history[i++], "staticCommandMethodInvoking", "staticCommand", validations.hasSender, validations.hasCommand, validations.hasArgs);
-        validateEvent(history[i++], "staticCommandMethodInvoked", "staticCommand", validations.hasSender, validations.hasCommand, validations.hasArgs, validations.hasResult, validations.hasResponse);
+        validateEvent(history[i++], "staticCommandMethodInvoking", "staticCommand", validations.hasSender, validations.hasMethodId, validations.hasMethodArgs, validations.hasArgs);
+        validateEvent(history[i++], "staticCommandMethodInvoked", "staticCommand", validations.hasSender, validations.hasMethodId, validations.hasMethodArgs, validations.hasArgs, validations.hasResult, validations.hasResponse);
+        validateEvent(history[i++], "staticCommandMethodInvoking", "staticCommand", validations.hasSender, validations.hasMethodId, validations.hasMethodArgs, validations.hasArgs);
+        validateEvent(history[i++], "staticCommandMethodInvoked", "staticCommand", validations.hasSender, validations.hasMethodId, validations.hasMethodArgs, validations.hasArgs, validations.hasResult, validations.hasResponse);
 
         expect(history.length).toBe(i);
     }
@@ -660,8 +663,8 @@ test("staticCommand (with server call) + server error", async () => {
         let i = 1;  // skip the "init" event
         validateEvent(history[i++], "postbackHandlersStarted", "staticCommand", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "staticCommand", validations.hasSender);
-        validateEvent(history[i++], "staticCommandMethodInvoking", "staticCommand", validations.hasSender, validations.hasCommand, validations.hasArgs);
-        validateEvent(history[i++], "staticCommandMethodFailed", "staticCommand", validations.hasSender, validations.hasCommand, validations.hasArgs, validations.hasError, validations.hasResponse);
+        validateEvent(history[i++], "staticCommandMethodInvoking", "staticCommand", validations.hasSender, validations.hasMethodId, validations.hasMethodArgs, validations.hasArgs);
+        validateEvent(history[i++], "staticCommandMethodFailed", "staticCommand", validations.hasSender, validations.hasMethodId, validations.hasMethodArgs, validations.hasArgs, validations.hasError, validations.hasResponse);
         validateEvent(history[i++], "error", "staticCommand", validations.hasSender, validations.hasHandled, validations.hasResponse, validations.hasError, validations.hasServerResponseObject);
 
         expect(history.length).toBe(i);

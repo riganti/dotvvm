@@ -57,8 +57,6 @@ export async function postBack(
                 // trigger postbackRejected event
                 const postbackRejectedEventArgs: DotvvmPostbackRejectedEventArgs = {
                     ...options,
-                    serverResponseObject,
-                    response: (err.reason as any).response,
                     error: err
                 };
                 events.postbackRejected.trigger(postbackRejectedEventArgs)
@@ -92,8 +90,7 @@ export async function postBack(
                         ...options,
                         serverResponseObject,
                         response: (err.reason as any).response,
-                        error: err,
-                        wasInterrupted: isInterruptingErrorReason(err),
+                        error: err
                     };
                 }
             }
@@ -136,7 +133,7 @@ export async function applyPostbackHandlers(
         postbackId: counter.backUpPostBackCounter(),
         commandType: "staticCommand",
         sender,
-        args: [],
+        args,
         viewModel: context.$data
     }
 
@@ -169,8 +166,7 @@ export async function applyPostbackHandlers(
                         ...options,
                         serverResponseObject,
                         response: (err.reason as any).response,
-                        error: err,
-                        wasInterrupted: isInterruptingErrorReason(err),
+                        error: err
                     };
                 }
             }
@@ -283,8 +279,7 @@ function isInterruptingErrorReason(err: DotvvmPostbackError) {
     return err.reason.type == "handler" || err.reason.type == "event";
 }
 function shouldTriggerErrorEvent(err: DotvvmPostbackError) {
-    return !isInterruptingErrorReason(err) &&
-        (err.reason.type == "network" || err.reason.type == "serverError");
+    return err.reason.type == "network" || err.reason.type == "serverError";
 }
 function extractServerResponseObject(err: DotvvmPostbackError) {
     if (err.reason.type == "commit" && err.reason.args) {
