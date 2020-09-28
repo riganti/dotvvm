@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Tests.Common.Runtime.ControlTree
         [TestMethod]
         public void TypeDescriptorUtils_GetPropertyOnInterface()
         {
-            var type = typeof(IGridViewDataSet<ITestDataSource>);
+            var type = typeof(IBaseGridViewDataSet<ITestDataSource>);
             var value = TypeDescriptorUtils.GetCollectionItemType(new ResolvedTypeDescriptor(type));
 
             Assert.IsNotNull(value);
