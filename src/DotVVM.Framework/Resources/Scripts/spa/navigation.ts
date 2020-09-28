@@ -5,7 +5,7 @@ import { getViewModel } from '../dotvvm-base';
 import { loadResourceList } from '../postback/resourceLoader';
 import * as updater from '../postback/updater';
 import * as events from './events';
-import { getSpaPlaceHolderUniqueId, isSpaReady } from './spa';
+import { getSpaPlaceHoldersUniqueId, isSpaReady } from './spa';
 import { handleRedirect } from '../postback/redirect';
 import * as gate from '../postback/gate';
 import { DotvvmPostbackError } from '../shared-classes';
@@ -37,7 +37,7 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
         const displayUrl = uri.addVirtualDirectoryToUrl(url);
 
         // send the request
-        response = await http.getJSON<any>(spaFullUrl, getSpaPlaceHolderUniqueId());
+        response = await http.getJSON<any>(spaFullUrl, getSpaPlaceHoldersUniqueId());
 
         // if another postback has already been passed, don't do anything
         if (options.postbackId < lastStartedNavigation) {
