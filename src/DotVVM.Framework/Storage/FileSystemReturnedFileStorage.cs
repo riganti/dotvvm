@@ -102,7 +102,8 @@ namespace DotVVM.Framework.Storage
         public Stream GetFile(Guid id, out ReturnedFileMetadata metadata)
         {
             var metadataJson = File.ReadAllText(GetMetadataFilePath(id), Encoding.UTF8);
-            metadata = JsonConvert.DeserializeObject<ReturnedFileMetadata>(metadataJson);
+            var settings = DefaultSerializerSettingsProvider.Instance.Settings;
+            metadata = JsonConvert.DeserializeObject<ReturnedFileMetadata>(metadataJson, settings);
 
             return new FileStream(GetDataFilePath(id), FileMode.Open);
         }
