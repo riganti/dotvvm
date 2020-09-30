@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
             };
         }
 
-        string Serialize<T>(T viewModel, out JObject encryptedValues, bool isPostback = false)
+        static string Serialize<T>(T viewModel, out JObject encryptedValues, bool isPostback = false)
         {
             encryptedValues = new JObject();
             var settings = DefaultSerializerSettingsProvider.Instance.Settings;
@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
             return output.ToString();
         }
 
-        T Populate<T>(string json, JObject encryptedValues = null)
+        static T Populate<T>(string json, JObject encryptedValues = null)
         {
             var settings = DefaultSerializerSettingsProvider.Instance.Settings;
             var serializer = JsonSerializer.Create(settings);
