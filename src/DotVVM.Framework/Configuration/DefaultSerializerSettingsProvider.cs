@@ -11,15 +11,28 @@ namespace DotVVM.Framework.Configuration
 {
     public sealed class DefaultSerializerSettingsProvider
     {
-        public JsonSerializerSettings Settings { get; private set; }
+        public readonly JsonSerializerSettings Settings;
 
         public JsonSerializerSettings GetSettingsCopy()
         {
-            var clone = JsonConvert.SerializeObject(Settings, Settings);
-            return JsonConvert.DeserializeObject<JsonSerializerSettings>(clone, Settings);
+            return CreateSettings();
         }
 
-        public static DefaultSerializerSettingsProvider Instance {
+        private JsonSerializerSettings CreateSettings()
+        {
+            return new JsonSerializerSettings()
+            {
+                DateTimeZoneHandling = DateTimeZoneHandling.Unspecified,
+                Converters = new List<JsonConverter>
+                {
+                    new DotvvmDateTimeConverter(),
+                    new StringEnumConverter()
+                }
+            };
+        }
+
+        public static DefaultSerializerSettingsProvider Instance
+        {
             get
             {
                 if (instance == null)
@@ -31,12 +44,7 @@ namespace DotVVM.Framework.Configuration
 
         private DefaultSerializerSettingsProvider()
         {
-            Settings = new JsonSerializerSettings()
-            {
-                DateTimeZoneHandling = DateTimeZoneHandling.Unspecified
-            };
-            Settings.Converters.Add(new DotvvmDateTimeConverter());
-            Settings.Converters.Add(new StringEnumConverter());
+            Settings = CreateSettings();
         }
     }
 }
