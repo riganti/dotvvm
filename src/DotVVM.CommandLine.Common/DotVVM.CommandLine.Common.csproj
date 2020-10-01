@@ -19,25 +19,6 @@
     </PackageReference>
   </ItemGroup>
 
-  <!-- The following would be a great way to reference the source of DotVVM.Framework as a build dependency.
-       However, I don't know how to force MSBuild to not require version 3.0.0.0. This causes the DotVVM.Compiler to
-       fail if the app it compiles references a lower version of DotVVM since the runtime does not allow
-       assembly downgrades. So instead I reference the DotVVM 2.0.0.0 package as a build dependency. -->
-  <!-- <ItemDefinitionGroup>
-    <ProjectReference>
-      <IncludeAssets>all</IncludeAssets>
-      <ExcludeAssets>runtime</ExcludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-      <Private>false</Private>
-      <SpecificVersion>false</SpecificVersion>
-    </ProjectReference>
-  </ItemDefinitionGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj"
-      FusionName="DotVVM.Framework, Version=0.0.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da"/>
-  </ItemGroup> -->
-
   <ItemGroup>
     <PackageReference Include="DotVVM" Version="2.0.0">
       <IncludeAssets>all</IncludeAssets>

@@ -8,8 +8,8 @@ namespace DotVVM.Compiler
     {
         private ViewStaticCompiler compiler;
 
-        public OfflineCompilationControlResolver(DotvvmConfiguration config, IControlBuilderFactory controlBuilderFactory, ViewStaticCompiler compiler, CompiledAssemblyCache compiledAssemblyCache)
-            : base(config, controlBuilderFactory, compiledAssemblyCache)
+        public OfflineCompilationControlResolver(DotvvmConfiguration config, IControlBuilderFactory controlBuilderFactory, ViewStaticCompiler compiler)
+            : base(config.Markup, controlBuilderFactory)
         {
             this.compiler = compiler;
         }

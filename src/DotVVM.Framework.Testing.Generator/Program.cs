@@ -113,7 +113,7 @@ namespace DotVVM.Framework.Testing.Generator
                     return 1;
                 }
                 metadata = metadata.WithUITestProject(testProjectFile.FullName, name);
-                await DotvvmProject.SaveProjectMetadata(metadata);
+                // TODO: await DotvvmProject.SaveProjectMetadata(metadata);
             }
 
             var config = DotvvmProject.GetConfiguration(metadata.ProjectName, metadata.ProjectDirectory);

@@ -7,6 +7,7 @@ using System.Threading;
 using DotVVM.Framework.Compilation.Parser;
 using System.Globalization;
 using System.Text;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -28,6 +29,7 @@ namespace DotVVM.Framework.ResourceManagement
 
         internal bool HeadRendered;
         internal bool BodyRendered;
+        private HashSet<string> renderedResources = new HashSet<string>();
 
 
         /// <summary>
@@ -37,6 +39,25 @@ namespace DotVVM.Framework.ResourceManagement
         {
             this.repository = repository;
         }
+
+        internal void MarkRendered(NamedResource resource)
+        {
+            renderedResources.Add(resource.Name);
+            switch (resource.Resource.RenderPosition)
+            {
+                case ResourceRenderPosition.Head:
+                    Debug.Assert(HeadRendered);
+                    break;
+                case ResourceRenderPosition.Body:
+                    Debug.Assert(BodyRendered);
+                    break;
+                case ResourceRenderPosition.Anywhere:
+                    Debug.Assert(HeadRendered);
+                    break;
+            }
+        }
+
+        public bool IsRendered(string resourceName) => renderedResources.Contains(resourceName);
 
         /// <summary>
         /// Adds the required resource with specified name.
@@ -49,7 +70,7 @@ namespace DotVVM.Framework.ResourceManagement
                 ThrowResourceNotFound(name);
             }
 
-            AddRequiredResourceCore(name, resource!);
+            AddRequiredResource(name, resource!);
         }
 
         /// <summary>
@@ -64,19 +85,22 @@ namespace DotVVM.Framework.ResourceManagement
                 var resourceId = Convert.ToBase64String(sha.ComputeHash(Encoding.Unicode.GetBytes(template)));
                 if (!requiredResources.ContainsKey(resourceId))
                 {
-                    AddRequiredResourceCore(resourceId, new TemplateResource(template));
+                    AddRequiredResource(resourceId, new TemplateResource(template));
                 }
 
                 return resourceId;
             }
         }
-
-        private void AddRequiredResourceCore(IResource resource) => AddRequiredResourceCore("__noname_" + nonameCtr++, resource);
+        /// <summary>
+        /// Adds the resource with unique name.
+        /// </summary>
+        /// <param name="resource"></param>
+        public void AddRequiredResource(IResource resource) => AddRequiredResource("__noname_" + nonameCtr++, resource);
 
         /// <summary>
         /// Adds the resource and checks name conflicts.
         /// </summary>
-        private void AddRequiredResourceCore(string name, IResource resource)
+        public void AddRequiredResource(string name, IResource resource)
         {
             if (requiredResources.TryGetValue(name, out var originalResource))
             {
@@ -102,7 +126,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// Checks whether the resource position is already rendered.
         private bool IsAlreadyRendered(ResourceRenderPosition position) =>
             position == ResourceRenderPosition.Head && HeadRendered ||
-            position == ResourceRenderPosition.Body && BodyRendered;
+            (position == ResourceRenderPosition.Body || position == ResourceRenderPosition.Anywhere) && BodyRendered;
 
         /// <summary>
         /// Adds the required script file.
@@ -127,10 +151,12 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddRequiredStylesheetFile(string name, string url, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(name, new StylesheetResource(CreateRelativeResourceLocation(url)) {
+            AddRequiredResource(name, new StylesheetResource(CreateRelativeResourceLocation(url)) {
                 Dependencies = dependentResourceNames,
             });
         }
+
+        bool IsDeferred(string name) => this.FindResource(name) is IDeferableResource r && r.Defer;
 
         /// <summary>
         /// Adds the specified piece of javascript that will be executed when the page is loaded.
