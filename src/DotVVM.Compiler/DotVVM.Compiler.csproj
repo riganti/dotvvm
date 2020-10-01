@@ -1,24 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- Related to compilation -->
   <PropertyGroup>
-    <!-- <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
-    <StartupObject>DotVVM.Compiler.Program</StartupObject>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType> -->
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
-
-  <!-- C# related -->
-  <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
+  <!-- Related to packaging -->
   <PropertyGroup>
     <Authors>RIGANTI</Authors>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
-    <Version>2.2.0</Version>
+    <RuntimeIdentifiers>win10-x64;ubuntu.16.10-x64</RuntimeIdentifiers>
+    <AssemblyTitle>DotVVM.Compiler</AssemblyTitle>
+    <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
   </PropertyGroup>
 
   <ItemGroup>
