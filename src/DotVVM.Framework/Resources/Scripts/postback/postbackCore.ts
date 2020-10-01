@@ -10,6 +10,7 @@ import { DotvvmPostbackError } from '../shared-classes';
 import { setIdFragment } from '../utils/dom';
 import { handleRedirect } from './redirect';
 import * as evaluator from '../utils/evaluator'
+import * as gate from './gate'
 
 let lastStartedPostbackId: number;
 
@@ -39,6 +40,10 @@ export async function postbackCore(
 
     return await http.retryOnInvalidCsrfToken(async () => {
         await http.fetchCsrfToken();
+
+        if (gate.arePostbacksDisabled()) {
+            throw new DotvvmPostbackError({ type: "gate" });
+        }
 
         updateDynamicPathFragments(context, path);
 

@@ -63,7 +63,7 @@ export async function fetchCsrfToken(): Promise<string> {
     return ko.unwrap(viewModel.$csrfToken);
 }
 
-export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => Promise<TResult>, iteration: number = 0): Promise<TResult> {
+export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => Promise<TResult>, iteration: number = 0, customErrorHandler: () => void = () => {}): Promise<TResult> {
     try {
         const result = await postbackFunction();
         return result;
@@ -82,6 +82,7 @@ export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => P
                 }
             }
         }
+        customErrorHandler();
         throw err;
     }
 }

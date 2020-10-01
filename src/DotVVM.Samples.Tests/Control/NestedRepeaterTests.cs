@@ -76,6 +76,7 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_NestedRepeaterWithControl);
                 browser.WaitUntilDotvvmInited();
+                browser.Wait(500);
 
                 var result = browser.First("#result");
                 var buttons = browser.FindElements("input[type=button]");
@@ -83,7 +84,7 @@ namespace DotVVM.Samples.Tests.Control
                 int count = 1;
                 foreach (var button in buttons)
                 {
-                    browser.WaitFor(() => AssertUI.InnerTextEquals(result, count.ToString()), 500);
+                    browser.WaitFor(() => AssertUI.InnerTextEquals(result, count.ToString()), 1000);
                     button?.Click();
                     count++;
                 }

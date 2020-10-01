@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Controls;
@@ -23,22 +24,6 @@ namespace DotVVM.Framework.ResourceManagement
             ("stylesheets", typeof(StylesheetResource)),
             ("null", typeof(NullResource))
         };
-
-        protected virtual IEnumerable<Type> ResolveAllTypesDerivedFromIResource(string dotvvmAssembly, Type resourceBaseType)
-        {
-            // for each type derived from IResource
-            var types = GetAllAssembliesLoadedAssemblies()
-                .Where(a => a.GetReferencedAssemblies().Any(ra => ra.FullName == dotvvmAssembly) ||
-                            a.FullName == dotvvmAssembly)
-                .SelectMany(a => a.GetLoadableTypes().Where(t => t.GetTypeInfo().IsClass && !t.GetTypeInfo().IsAbstract && resourceBaseType.IsAssignableFrom(t)));
-            return types;
-        }
-
-        protected virtual IEnumerable<Assembly> GetAllAssembliesLoadedAssemblies()
-        {
-            return ReflectionUtils.GetAllAssemblies();
-        }
-
 
         public override bool CanConvert(Type objectType)
         {
@@ -60,7 +45,7 @@ namespace DotVVM.Framework.ResourceManagement
                 {
                     DeserializeResources((JObject)prop.Value, r.type, serializer, repo);
                 }
-                else if (ReflectionUtils.FindType(prop.Key) is Type resourceType)
+                else if (CompiledAssemblyCache.Instance.FindType(prop.Key) is Type resourceType)
                 {
                     DeserializeResources((JObject)prop.Value, resourceType, serializer, repo);
                 }

@@ -103,3 +103,5 @@ declare global {
 }
 
 window.dotvvm = dotvvmExports;
+
+export default dotvvmExports

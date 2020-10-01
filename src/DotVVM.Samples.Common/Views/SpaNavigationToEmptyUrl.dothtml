@@ -1,0 +1,7 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.SpaNavigationToEmptyUrlViewModel, DotVVM.Samples.Common
+@masterPage Views/Samples.dotmaster
+
+<dot:Content ContentPlaceHolderID="Main">
+    <dot:RouteLink RouteName="Default" Text="Navigate to page with empty URL" />
+    <dot:Button Text="Redirect to page with empty URL" Click="{command: Redirect()}" />
+</dot:Content>

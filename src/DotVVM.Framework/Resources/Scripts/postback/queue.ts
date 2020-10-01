@@ -31,6 +31,6 @@ export function runNextInQueue(queueName: string) {
     const queue = getPostbackQueue(queueName);
     if (queue.queue.length > 0) {
         const callback = queue.queue.shift()!;
-        window.setTimeout(callback, 0);
+        Promise.resolve().then(callback)
     }
 }

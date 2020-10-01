@@ -1,0 +1,23 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect.RedirectionHelpersViewModel , DotVVM.Samples.Common
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Redirection helpers test</h1>
+        <p>
+            <dot:RouteLink Text="URL Redirect" RouteName="FeatureSamples_Redirect_RedirectionHelpers_PageA" />
+            <dot:Literal Text="(Redirected to https://www.dotvvm.com/)" />
+        </p>
+        <p>
+            <dot:RouteLink Text="Route Redirect #1" RouteName="FeatureSamples_Redirect_RedirectionHelpers_PageB-PageDetail" Param-Id="111" />
+            <dot:Literal Text="(Redirected to FeatureSamples_Redirect_RedirectionHelpers_PageC-PageDetail)" />
+        </p>
+        <p>
+            <dot:RouteLink Text="Route Redirect #2" RouteName="FeatureSamples_Redirect_RedirectionHelpers_PageD-PageDetail" Param-Id="1111" />
+            <dot:Literal Text="(Redirected to FeatureSamples_Redirect_RedirectionHelpers_PageE-PageDetail with parameter changed)" />
+        </p>
+    </div>
+</body>
+</html>

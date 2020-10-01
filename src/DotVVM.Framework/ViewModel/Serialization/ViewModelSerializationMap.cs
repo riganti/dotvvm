@@ -84,6 +84,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var encryptedValuesReader = Expression.Parameter(typeof(EncryptedValuesReader), "encryptedValuesReader");
             var value = Expression.Variable(Type, "value");
             var currentProperty = Expression.Variable(typeof(string), "currentProperty");
+            var readerTmp = Expression.Variable(typeof(JsonReader), "readerTmp");
 
             // add current object to encrypted values, this is needed because one property can potentially contain more objects (is a collection)
             block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes));
@@ -108,65 +109,107 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     continue;
                 }
 
-                if (property.ViewModelProtection == ProtectMode.EncryptData || property.ViewModelProtection == ProtectMode.SignData)
+                var existingValue =
+                    property.Populate ?
+                    (Expression)Expression.Convert(Expression.Property(value, property.PropertyInfo), typeof(object)) :
+                    Expression.Constant(null, typeof(object));
+
+                // when suppressed, we read from the standard properties, because the object is nested in the
+                var isEVSuppressed = Expression.Property(encryptedValuesReader, "Suppressed");
+
+                var readEncrypted =
+                    property.ViewModelProtection == ProtectMode.EncryptData || property.ViewModelProtection == ProtectMode.SignData;
+
+                if (readEncrypted)
                 {
+                    // encryptedValuesReader.Suppress()
                     // value.{property} = ({property.Type})Deserialize(serializer, encryptedValuesReader.ReadValue({propertyIndex}), {property}, (object)value.{PropertyInfo});
-                    block.Add(Expression.Call(
-                        value,
-                        property.PropertyInfo.SetMethod,
-                        Expression.Convert(
+                    // encryptedValuesReader.EndSuppress()
+                    Expression readEncryptedValue = Expression.Block(
+                        Expression.Assign(
+                            readerTmp,
                             ExpressionUtils.Replace(
-                                (JsonSerializer s, EncryptedValuesReader ev, object existing) => Deserialize(s, ev.ReadValue(propertyIndex).CreateReader(), property, existing),
-                                serializer, encryptedValuesReader,
-                                    Expression.Convert(Expression.Property(value, property.PropertyInfo), typeof(object))),
-                            property.Type)
-                        ).OptimizeConstants());
+                                (EncryptedValuesReader ev) => ev.ReadValue(propertyIndex).CreateReader(),
+                                encryptedValuesReader).OptimizeConstants()
+                        ),
+                        Expression.Call(encryptedValuesReader, "Suppress", Type.EmptyTypes),
+                        Expression.Assign(
+                            Expression.Property(value, property.PropertyInfo),
+                            Expression.Convert(
+                                ExpressionUtils.Replace(
+                                    (JsonSerializer s, JsonReader reader, object existing) => Deserialize(s, reader, property, existing),
+                                    serializer, readerTmp, existingValue),
+                                property.Type)
+                            ).OptimizeConstants()
+                    );
+
+                    readEncryptedValue = Expression.TryFinally(
+                        readEncryptedValue,
+                        Expression.Call(encryptedValuesReader, "EndSuppress", Type.EmptyTypes)
+                    );
+
+
+                    // if (!encryptedValuesReader.Suppressed)
+                    block.Add(Expression.IfThen(
+                        Expression.Not(isEVSuppressed),
+                        readEncryptedValue
+                    ));
                 }
-                else
+                // propertyBlock is the body of this currentProperty's switch case
+                var propertyblock = new List<Expression>();
+                var checkEV = CanContainEncryptedValues(property.Type) && !readEncrypted;
+                if (checkEV)
                 {
-                    // propertyBlock is the body of this currentProperty's switch case
-                    var propertyblock = new List<Expression>();
-                    var checkEV = CanContainEncryptedValues(property.Type);
-                    if (checkEV)
-                    {
-                        // encryptedValuesReader.Nest({propertyIndex});
-                        propertyblock.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes, Expression.Constant(propertyIndex)));
-                    }
-
-                    // existing value is either null or the value {property} depending on property.Populate
-                    // value.{property} = ({property.Type})Deserialize(serializer, reader, existing value);
-                    propertyblock.Add(
-                        Expression.Call(
-                        value,
-                        property.PropertyInfo.SetMethod,
-                        Expression.Convert(
-                            ExpressionUtils.Replace((JsonSerializer s, JsonReader j, object existingValue) =>
-                                Deserialize(s, j, property, existingValue),
-                                serializer, reader,
-                                property.Populate ?
-                                    (Expression)Expression.Convert(Expression.Property(value, property.PropertyInfo), typeof(object)) :
-                                    Expression.Constant(null, typeof(object))),
-                            property.Type)
-                    ));
-
-                    // reader.Read();
-                    propertyblock.Add(
-                        Expression.Call(reader, "Read", Type.EmptyTypes));
-
-                    if (checkEV)
-                    {
-                        // encryptedValuesReader.AssertEnd();
-                        propertyblock.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.AssertEnd), Type.EmptyTypes));
-                    }
-
-                    // create this currentProperty's switch case
-                    // case {property.Name}:
-                    //     {propertyBlock}
-                    propertiesSwitch.Add(Expression.SwitchCase(
-                        Expression.Block(typeof(void), propertyblock),
-                        Expression.Constant(property.Name)
-                    ));
+                    // encryptedValuesReader.Nest({propertyIndex});
+                    propertyblock.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes, Expression.Constant(propertyIndex)));
                 }
+
+                // existing value is either null or the value {property} depending on property.Populate
+                // value.{property} = ({property.Type})Deserialize(serializer, reader, existing value);
+                propertyblock.Add(
+                    Expression.Assign(
+                    Expression.Property(value, property.PropertyInfo),
+                    Expression.Convert(
+                        ExpressionUtils.Replace((JsonSerializer s, JsonReader j, object existingValue) =>
+                            Deserialize(s, j, property, existingValue),
+                            serializer, reader, existingValue),
+                        property.Type)
+                ));
+
+                // reader.Read();
+                propertyblock.Add(
+                    Expression.Call(reader, "Read", Type.EmptyTypes));
+
+                if (checkEV)
+                {
+                    // encryptedValuesReader.AssertEnd();
+                    propertyblock.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.AssertEnd), Type.EmptyTypes));
+                }
+
+                Expression body = Expression.Block(typeof(void), propertyblock);
+
+                if (readEncrypted)
+                {
+                    // only read the property when the reader is suppressed, otherwise do nothing
+                    body = Expression.IfThenElse(
+                        isEVSuppressed,
+                        body,
+                        Expression.Block(
+                            Expression.IfThen(
+                                ExpressionUtils.Replace((JsonReader rdr) => rdr.TokenType == JsonToken.StartArray || rdr.TokenType == JsonToken.StartConstructor || rdr.TokenType == JsonToken.StartObject, reader),
+                                Expression.Call(reader, "Skip", Type.EmptyTypes)),
+                            Expression.Call(reader, "Read", Type.EmptyTypes))
+                    );
+                }
+
+
+                // create this currentProperty's switch case
+                // case {property.Name}:
+                //     {propertyBlock}
+                propertiesSwitch.Add(Expression.SwitchCase(
+                    body,
+                    Expression.Constant(property.Name)
+                ));
             }
 
             // WARNING: the following code is not commented out. It's a transcription of the expression below it. Yes, it's long.
@@ -200,13 +243,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // encryptedValuesReader.AssertEnd();
             block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.AssertEnd), Type.EmptyTypes));
 
-            //TODO: find out why this is here
+            // return value
             block.Add(value);
 
             // build the lambda expression
             var ex = Expression.Lambda<ReaderDelegate>(
                 Expression.Convert(
-                    Expression.Block(Type, new[] { value, currentProperty }, block),
+                    Expression.Block(Type, new[] { value, currentProperty, readerTmp }, block),
                     typeof(object)).OptimizeConstants(),
                 reader, serializer, valueParam, encryptedValuesReader);
             return ex.Compile();
@@ -351,46 +394,71 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     // (object)value.{property.PropertyInfo.Name}
                     var prop = Expression.Property(value, property.PropertyInfo);
 
-                    if (property.ViewModelProtection == ProtectMode.EncryptData ||
-                        property.ViewModelProtection == ProtectMode.SignData)
+                    var writeEV = property.ViewModelProtection == ProtectMode.EncryptData ||
+                        property.ViewModelProtection == ProtectMode.SignData;
+
+                    if (writeEV)
                     {
-                        // encryptedValuesWriter.Value({propertyIndex}, (object)value.{property.PropertyInfo.Name});
+                        // encryptedValuesWriter.WriteValue({propertyIndex}, (object)value.{property.PropertyInfo.Name});
                         block.Add(
                             Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.WriteValue), Type.EmptyTypes, Expression.Constant(propertyIndex), Expression.Convert(prop, typeof(object))));
                     }
 
+
                     if (property.ViewModelProtection == ProtectMode.None ||
                         property.ViewModelProtection == ProtectMode.SignData)
                     {
+                        var propertyBlock = new List<Expression>();
                         var checkEV = CanContainEncryptedValues(property.Type);
                         if (checkEV)
                         {
-                            // encryptedValuesWriter.Nest({propertyIndex});
-                            block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.Nest), Type.EmptyTypes, Expression.Constant(propertyIndex)));
+                            if (writeEV)
+                            {
+                                // encryptedValuesWriter.Suppress();
+                                propertyBlock.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.Suppress), Type.EmptyTypes));
+                            }
+                            else
+                            {
+                                // encryptedValuesWriter.Nest({propertyIndex});
+                                propertyBlock.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.Nest), Type.EmptyTypes, Expression.Constant(propertyIndex)));
+                            }
                         }
 
                         // writer.WritePropertyName({property.Name});
-                        block.Add(Expression.Call(writer, nameof(JsonWriter.WritePropertyName), Type.EmptyTypes,
+                        propertyBlock.Add(Expression.Call(writer, nameof(JsonWriter.WritePropertyName), Type.EmptyTypes,
                             Expression.Constant(property.Name)));
 
                         // serializer.Serialize(serializer, writer, {property}, (object)value.{property.PropertyInfo.Name});
-                        block.Add(GetSerializeExpression(property, writer, prop, serializer));
+                        propertyBlock.Add(GetSerializeExpression(property, writer, prop, serializer));
 
+                        Expression propertyFinally = Expression.Default(typeof(void));
                         if (checkEV)
                         {
+                            if (writeEV)
+                            {
+                                // encryptedValuesWriter.EndSuppress();
+                                propertyFinally = Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.EndSuppress), Type.EmptyTypes);
+                            }
                             // encryption is worthless if the property is not being transfered both ways
                             // therefore ClearEmptyNest throws exception if the property contains encrypted values
-                            if (!property.IsFullyTransferred())
+                            else if (!property.IsFullyTransferred())
                             {
                                 // encryptedValuesWriter.ClearEmptyNest();
-                                block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.ClearEmptyNest), Type.EmptyTypes));
+                                propertyFinally = Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.ClearEmptyNest), Type.EmptyTypes);
                             }
                             else
                             {
                                 // encryptedValuesWriter.End();
-                                block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.End), Type.EmptyTypes));
+                                propertyFinally = Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.End), Type.EmptyTypes);
                             }
                         }
+
+                        block.Add(
+                            Expression.TryFinally(
+                                Expression.Block(propertyBlock),
+                                propertyFinally
+                            )
+                        );
                     }
 
                     if (!property.TransferToServer)

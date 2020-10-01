@@ -32,6 +32,7 @@ namespace DotVVM.Compiler
         public CompilerOptions Options { get; }
         private DotvvmConfiguration configuration;
         private AssemblyBindingCompiler bindingCompiler;
+        private CompiledAssemblyCache compiledAssemblyCache;
         private IControlTreeResolver controlTreeResolver;
         private IViewCompiler compiler;
         private IMarkupFileLoader fileLoader;
@@ -90,7 +91,7 @@ namespace DotVVM.Compiler
 
             if (Options.FullCompile || Options.CheckBindingErrors)
             {
-
+                compiledAssemblyCache = configuration.ServiceProvider.GetService<CompiledAssemblyCache>();
                 controlTreeResolver = configuration.ServiceProvider.GetService<IControlTreeResolver>();
                 fileLoader = configuration.ServiceProvider.GetService<IMarkupFileLoader>();
             }
@@ -227,7 +228,7 @@ namespace DotVVM.Compiler
                 var className = DefaultControlBuilderFactory.GetClassFromFileName(file.FileName) + "ControlBuilder";
                 fullClassName = namespaceName + "." + className;
                 emitter = new CompileTimeCodeEmitter(configuration.ServiceProvider.GetService<RefObjectSerializer>(), ObjectsClassName);
-                var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceProvider.GetService<IBindingCompiler>(), className);
+                var compilingVisitor = new ViewCompilingVisitor(emitter, compiledAssemblyCache, configuration.ServiceProvider.GetService<IBindingCompiler>(), className);
 
                 resolvedView.Accept(compilingVisitor);
 
@@ -238,7 +239,7 @@ namespace DotVVM.Compiler
                 compilation = compilation
                     .AddSyntaxTrees(emitter.BuildTree(namespaceName, className, fileName))
                     .AddReferences(emitter.UsedAssemblies
-                        .Select(a => CompiledAssemblyCache.Instance.GetAssemblyMetadata(a.Key)));
+                        .Select(a => compiledAssemblyCache.GetAssemblyMetadata(a.Key)));
             }
 
             logger.LogInformation($"The view { fileName } compiled successfully.");

@@ -14,10 +14,12 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
     public class ResolvedTreeBuilder : IAbstractTreeBuilder
     {
         private readonly BindingCompilationService bindingService;
+        private readonly CompiledAssemblyCache compiledAssemblyCache;
 
-        public ResolvedTreeBuilder(BindingCompilationService bindingService)
+        public ResolvedTreeBuilder(BindingCompilationService bindingService, CompiledAssemblyCache compiledAssemblyCache)
         {
             this.bindingService = bindingService;
+            this.compiledAssemblyCache = compiledAssemblyCache;
         }
 
         public IAbstractTreeRoot BuildTreeRoot(IControlTreeResolver controlTreeResolver, IControlResolverMetadata metadata, DothtmlRootNode node, IDataContextStack dataContext, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives)
@@ -102,7 +104,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             {
                 var namespaceValid = expression
                     .CastTo<UnknownStaticClassIdentifierExpression>().Name
-                    .Apply(ReflectionUtils.IsAssemblyNamespace);
+                    .Apply(compiledAssemblyCache.IsAssemblyNamespace);
 
                 if (!namespaceValid)
                 {
@@ -133,7 +135,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return new ResolvedBaseTypeDirective(nameSyntax, type) { DothtmlNode = directive };
         }
 
-        static ResolvedTypeDescriptor ResolveTypeNameDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
+        private ResolvedTypeDescriptor ResolveTypeNameDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
         {
             var expression = ParseDirectiveExpression(directive, nameSyntax) as StaticClassIdentifierExpression;
             if (expression == null)
@@ -144,18 +146,18 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             else return new ResolvedTypeDescriptor(expression.Type);
         }
 
-        static Expression ParseDirectiveExpression(DothtmlDirectiveNode directive, BindingParserNode expressionSyntax)
+        private Expression ParseDirectiveExpression(DothtmlDirectiveNode directive, BindingParserNode expressionSyntax)
         {
             TypeRegistry registry;
             if (expressionSyntax is AssemblyQualifiedNameBindingParserNode)
             {
                 var assemblyQualifiedName = expressionSyntax as AssemblyQualifiedNameBindingParserNode;
                 expressionSyntax = assemblyQualifiedName.TypeName;
-                registry = TypeRegistry.DirectivesDefault(assemblyQualifiedName.AssemblyName.ToDisplayString());
+                registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache, assemblyQualifiedName.AssemblyName.ToDisplayString());
             }
             else
             {
-                registry = TypeRegistry.DirectivesDefault();
+                registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache);
             }
 
             var visitor = new ExpressionBuildingVisitor(registry) {

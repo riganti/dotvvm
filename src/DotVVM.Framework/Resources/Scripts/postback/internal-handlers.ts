@@ -70,11 +70,11 @@ export const concurrencyDeny = (o: any) => ({
     execute(next: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
         const queue = o.q || "default";
         if (getPostbackQueue(queue).noRunning > 0) {
-            return Promise.reject({
+            return Promise.reject(new DotvvmPostbackError({
                 type: "handler",
                 handlerName: "concurrency-deny",
                 message: "An postback is already running"
-            });
+            }));
         }
         return commonConcurrencyHandler(next(), options, queue);
     }
@@ -101,11 +101,11 @@ export const suppressOnUpdating = (o: any) => ({
     before: ["setIsPostbackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
     execute(next: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
         if (getIsViewModelUpdating()) {
-            return Promise.reject({
+            return Promise.reject(new DotvvmPostbackError({
                 type: "handler",
                 handlerName: "suppressOnUpdating",
                 message: "ViewModel is updating, so it's probably false onchange event"
-            });
+            }));
         } else {
             return next();
         }
@@ -117,8 +117,11 @@ function commonConcurrencyHandler<T>(promise: Promise<PostbackCommitFunction>, o
 
     const dispatchNext = (args: DotvvmAfterPostBackEventArgs | undefined) => {
         const drop = () => {
-            leaveActivePostback(queueName);
-            runNextInQueue(queueName);
+            // run the next postback after everything about this one is finished (after, error events, ...)
+            Promise.resolve().then(() => {
+                leaveActivePostback(queueName);
+                runNextInQueue(queueName);
+            });
         }
         if (args && args.redirectPromise) {
             args.redirectPromise.then(drop, drop);
@@ -128,7 +131,7 @@ function commonConcurrencyHandler<T>(promise: Promise<PostbackCommitFunction>, o
     }
 
     return promise.then(result => {
-        const p = getLastStartedPostbackId() == options.postbackId ? result : () => Promise.reject(null);
+        const p = getLastStartedPostbackId() == options.postbackId ? result : () => Promise.reject(new DotvvmPostbackError({ type: "commit" }));
         return () => {
             const pr = p();
             pr.then(dispatchNext, dispatchNext);

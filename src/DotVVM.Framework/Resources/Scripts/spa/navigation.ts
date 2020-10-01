@@ -7,8 +7,9 @@ import { loadResourceList } from '../postback/resourceLoader';
 import * as updater from '../postback/updater';
 import * as counter from '../postback/counter';
 import * as events from './events';
-import { getSpaPlaceHolderUniqueId, isSpaReady } from './spa';
+import { getSpaPlaceHoldersUniqueId, isSpaReady } from './spa';
 import { handleRedirect } from '../postback/redirect';
+import * as gate from '../postback/gate';
 
 export async function navigateCore(url: string, handlePageNavigating?: (url: string) => void): Promise<DotvvmNavigationEventArgs> {
 
@@ -16,6 +17,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
 
         // prevent double postbacks
         const currentPostBackCounter = counter.backUpPostBackCounter();
+        gate.isSpaNavigationRunning(true);
 
         // trigger spaNavigating event
         const spaNavigatingArgs: DotvvmSpaNavigatingEventArgs = {
@@ -33,7 +35,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
         const displayUrl = uri.addVirtualDirectoryToUrl(url);
 
         // send the request
-        const resultObject = await http.getJSON<any>(spaFullUrl, getSpaPlaceHolderUniqueId());
+        const resultObject = await http.getJSON<any>(spaFullUrl, getSpaPlaceHoldersUniqueId());
 
         // if another postback has already been passed, don't do anything
         if (!counter.isPostBackStillActive(currentPostBackCounter)) {
@@ -51,6 +53,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
             updater.updateViewModelAndControls(resultObject, true);
             isSpaReady(true);
         } else if (resultObject.action === "redirect") {
+            gate.isSpaNavigationRunning(false);
             const x = await handleRedirect(resultObject, true) as DotvvmNavigationEventArgs
             return x
         }
@@ -63,6 +66,11 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
             isHandled: true
         };
         events.spaNavigated.trigger(spaNavigatedArgs);
+
+        gate.isSpaNavigationRunning(false);
+
         return spaNavigatedArgs
+    }, 0, () => {
+        gate.isSpaNavigationRunning(false);
     });
 }
