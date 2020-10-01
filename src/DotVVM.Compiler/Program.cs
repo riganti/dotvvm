@@ -5,121 +5,90 @@ using System.CommandLine.Invocation;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Text.Json;
 using System.Threading.Tasks;
 using DotVVM.CommandLine;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Security;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DotVVM.Compiler
 {
     public static class Program
     {
-        public static int CompileViews(
-            Assembly assembly,
-            CompilerOptions options,
-            ILogger logger)
+        public static void RegisterAssemblyDeps(FileInfo assembly)
         {
-            var compiler = new ViewStaticCompiler(assembly, options, logger);
-            var result = compiler.Execute();
-            
-            return result.Files.Count == 0 ? 0 : 1;
+            var depsFile = new FileInfo(Path.Combine(
+                assembly.DirectoryName,
+                $"{Path.GetFileNameWithoutExtension(assembly.Name)}.deps.json"));
+            if (!depsFile.Exists)
+            {
+                return;
+            }
+
+            DependencyContext? context = null;
+            using(var stream = depsFile.OpenRead())
+            using(var reader = new DependencyContextJsonReader())
+            {
+                context = reader.Read(stream);
+            }
         }
 
-        public static int ExportConfiguration(
-            Assembly assembly,
-            CompilerOptions options,
+        public static void Run(
+            FileInfo assembly,
+            DirectoryInfo? projectDir,
+            string? rootNamespace,
             ILogger logger)
         {
-            var config = ConfigurationInitializer
-                .InitDotVVM(assembly, options.WebSitePath, null, collection => { });
-            var result = new CompilationResult
+            var projectAssembly = Assembly.LoadFrom(assembly.FullName);
+            var webSitePath = projectDir?.FullName ?? Directory.GetCurrentDirectory();
+            var configuration = DotvvmProject.GetConfiguration(projectAssembly, webSitePath, services =>
             {
-                Configuration = config
-            };
-            LogResult(result, logger);
-            return 0;
-        }
-
-        public static void LogResult(CompilationResult result, ILogger logger)
-        {
-            foreach (var file in result.Files)
+                services.AddSingleton<IControlResolver, OfflineCompilationControlResolver>();
+                services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
+                services.AddSingleton(new RefObjectSerializer());
+                // services.AddSingleton<IDotvvmCacheAdapter, SimpleDictionaryCacheAdapter>();
+                // TODO: LAST PARAMETER
+                var bindingCompiler = new AssemblyBindingCompiler(
+                    assemblyName: null,
+                    className: null,
+                    outputFileName: null,
+                    configuration: null);
+                services.AddSingleton<IBindingCompiler>(bindingCompiler);
+                services.AddSingleton<IExpressionToDelegateCompiler>(bindingCompiler.GetExpressionToDelegateCompiler());
+            });
+            var compiler = new StaticViewCompiler(configuration, false);
+            var views = compiler.GetAllViews();
+            foreach(var view in views)
             {
-                foreach (var error in file.Value.Errors)
+                foreach(var report in view.Reports)
                 {
-                    logger.LogError($"{file.Key}: {error.Message}");
+                    logger.LogError($"{report.ViewPath}({report.Line},{report.Column}): {report.Message}");
                 }
             }
-        }
-
-        public static async Task<int> Run(
-            string? assemblyName,
-            string? applicationPath,
-            bool jsonIn,
-            bool jsonOut,
-            ILogger logger)
-        {
-            var options = new CompilerOptions();
-            if (jsonIn)
-            {
-                using var stdin = Console.OpenStandardInput();
-                options = await JsonSerializer.DeserializeAsync<CompilerOptions>(stdin);
-            }
-            options.WebSiteAssembly = assemblyName ?? options.WebSiteAssembly;
-            options.WebSitePath = applicationPath ?? options.WebSitePath;
-            options.ApplyDefaults();
-
-            if (options.WebSiteAssembly is null)
-            {
-                logger.LogCritical("A name of the assembly of the DotVVM project is required.");
-                return 1;
-            }
-
-            if (options.WebSitePath is null)
-            {
-                logger.LogCritical("A path to the DotVVM project is required.");
-                return 1;
-            }
-
-            var websiteAssembly = Assembly.Load(options.WebSiteAssembly);
-            return options.FullCompile || options.CheckBindingErrors
-                ? CompileViews(websiteAssembly, options, logger)
-                : ExportConfiguration(websiteAssembly, options, logger);
-
-            // if (jsonOut || options.ConfigOutputPath is object)
-            // {
-            //     var serializedResult = JsonSerializer.Serialize(
-            //         value: result,
-            //         options: new JsonSerializerOptions
-            //         {
-            //             WriteIndented = true
-            //         });
-            //     if (jsonOut)
-            //     {
-            //         Console.WriteLine(serializedResult);
-            //     }
-            //     if (options.ConfigOutputPath is object)
-            //     {
-            //         if (options.ConfigOutputPath is object)
-            //         {
-            //             var file = new FileInfo(options.ConfigOutputPath);
-            //             if (!file.Directory.Exists)
-            //             {
-            //                 file.Directory.Create();
-            //             }
-            //             File.WriteAllText(file.FullName, serializedResult);
-            //         }
-            //     }
-            // }
         }
 
         public static int Main(string[] args)
         {
             var rootCmd = new RootCommand("DotVVM Compiler");
-            rootCmd.AddOption(new Option<string>("--assembly-name", "Name of the assembly with DotvvmStartup"));
-            rootCmd.AddOption(new Option<string>("--application-path", "Path to the parent of Controls, Views, etc."));
-            rootCmd.AddOption(new Option<bool>("--json-in", "Read options from stdin in JSON"));
-            // rootCmd.AddOption(new Option<bool>("--json-out", "Write results to stdout in JSON"));
+            rootCmd.AddOption(new Option<FileInfo>(
+                aliases: new[] { "-a", "--assembly" },
+                description: "Path to the assembly of the DotVVM project")
+            {
+                IsRequired = true
+            });
+            rootCmd.AddOption(new Option<DirectoryInfo>(
+                alias: "--project-dir",
+                description: "The directory of the DotVVM project"));
+            rootCmd.AddOption(new Option<string>(
+                alias: "--root-namespace",
+                description: "The root namespace of the DotVVM project"));
             rootCmd.AddVerboseOption();
             rootCmd.AddDebuggerBreakOption();
             rootCmd.Handler = CommandHandler.Create(typeof(Program).GetMethod(nameof(Run))!);
