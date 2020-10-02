@@ -12,8 +12,8 @@ namespace DotVVM.Compiler
             Message = message;
         }
 
-        public Report(DotvvmCompilationException exception)
-            : this(exception.FileName, exception.LineNumber ?? -1, exception.ColumnNumber ?? -1, exception.Message)
+        public Report(string viewPath, DotvvmCompilationException exception)
+            : this(viewPath, exception.LineNumber ?? -1, exception.ColumnNumber ?? -1, exception.Message)
         {
         }
 

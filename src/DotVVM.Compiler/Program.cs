@@ -2,12 +2,10 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
-using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
-using System.Text.Json;
-using System.Threading.Tasks;
 using DotVVM.CommandLine;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
@@ -15,30 +13,17 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Security;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.Logging;
 
 namespace DotVVM.Compiler
 {
     public static class Program
     {
-        public static void RegisterAssemblyDeps(FileInfo assembly)
-        {
-            var depsFile = new FileInfo(Path.Combine(
-                assembly.DirectoryName,
-                $"{Path.GetFileNameWithoutExtension(assembly.Name)}.deps.json"));
-            if (!depsFile.Exists)
-            {
-                return;
-            }
+        private const string IDotvvmCacheAdapterName
+            = "DotVVM.Framework.Runtime.Caching.IDotvvmCacheAdapter, DotVVM.Framework";
+        private const string SimpleDictionaryCacheAdapterName
+            = "DotVVM.Framework.Testing.SimpleDictionaryCacheAdapter, DotVVM.Framework";
 
-            DependencyContext? context = null;
-            using(var stream = depsFile.OpenRead())
-            using(var reader = new DependencyContextJsonReader())
-            {
-                context = reader.Read(stream);
-            }
-        }
 
         public static void Run(
             FileInfo assembly,
@@ -46,15 +31,48 @@ namespace DotVVM.Compiler
             string? rootNamespace,
             ILogger logger)
         {
-            var projectAssembly = Assembly.LoadFrom(assembly.FullName);
-            var webSitePath = projectDir?.FullName ?? Directory.GetCurrentDirectory();
-            var configuration = DotvvmProject.GetConfiguration(projectAssembly, webSitePath, services =>
+#if NETCOREAPP3_1
+            var dependencyResolver = new AssemblyDependencyResolver(assembly.FullName);
+            AssemblyLoadContext.Default.Resolving += (c, n) =>
             {
-                services.AddSingleton<IControlResolver, OfflineCompilationControlResolver>();
+                var path = dependencyResolver.ResolveAssemblyToPath(n);
+                return path is object
+                    ? c.LoadFromAssemblyPath(path)
+                    : null;
+            };
+            var projectAssembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assembly.FullName);
+            Compile(projectAssembly, projectDir, rootNamespace, logger);
+#elif NETCOREAPP2_1
+            var plugin = McMaster.NETCore.Plugins.PluginLoader.CreateFromAssemblyFile(
+                assembly.FullName,
+                new Type[] { typeof(ILogger) });
+            var projectAssembly = plugin.LoadDefaultAssembly();
+            var thisAssembly = plugin.LoadAssemblyFromPath(typeof(Program).Assembly.Location);
+            thisAssembly.GetType(typeof(Program).FullName).GetMethod(nameof(Compile))
+                .Invoke(null, new object?[] { projectAssembly, projectDir, rootNamespace, logger });
+#endif
+        }
+
+        public static void Compile(
+            Assembly assembly,
+            DirectoryInfo? projectDir,
+            string? rootNamespace,
+            ILogger logger)
+        {
+            var webSitePath = projectDir?.FullName ?? Directory.GetCurrentDirectory();
+            var configuration = DotvvmProject.GetConfiguration(assembly, webSitePath, services =>
+            {
+                services.AddSingleton<IControlResolver, StaticViewControlResolver>();
                 services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
                 services.AddSingleton(new RefObjectSerializer());
-                // services.AddSingleton<IDotvvmCacheAdapter, SimpleDictionaryCacheAdapter>();
-                // TODO: LAST PARAMETER
+
+                // NB: IDotvvmCacheAdapter is not in v2.0.0 that's why it's hacked this way.
+                var iCacheAdapter = Type.GetType(IDotvvmCacheAdapterName);
+                if (iCacheAdapter is object)
+                {
+                    services.AddSingleton(iCacheAdapter, Type.GetType(SimpleDictionaryCacheAdapterName));
+                }
+
                 var bindingCompiler = new AssemblyBindingCompiler(
                     assemblyName: null,
                     className: null,
@@ -65,9 +83,9 @@ namespace DotVVM.Compiler
             });
             var compiler = new StaticViewCompiler(configuration, false);
             var views = compiler.GetAllViews();
-            foreach(var view in views)
+            foreach (var view in views)
             {
-                foreach(var report in view.Reports)
+                foreach (var report in view.Reports)
                 {
                     logger.LogError($"{report.ViewPath}({report.Line},{report.Column}): {report.Message}");
                 }

@@ -50,6 +50,8 @@ namespace DotVVM.Compiler
 
         public IEnumerable<StaticView> GetAllViews()
         {
+            // TODO: Compile markup controls
+
             return configuration.RouteTable
                 .Where(r => !string.IsNullOrWhiteSpace(r.VirtualPath))
                 .Select(r => GetView(r.VirtualPath));
@@ -112,7 +114,7 @@ namespace DotVVM.Compiler
             }
             catch(DotvvmCompilationException e)
             {
-                reports.Add(new Report(e));
+                reports.Add(new Report(viewPath, e));
                 // the error is too severe for compilation to continue 
                 return view.WithReports(reports);
             }
