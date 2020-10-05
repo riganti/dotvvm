@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Configuration
 {
     public sealed class DefaultSerializerSettingsProvider
     {
-        public readonly JsonSerializerSettings Settings;
+        internal readonly JsonSerializerSettings Settings;
 
         public JsonSerializerSettings GetSettingsCopy()
         {
