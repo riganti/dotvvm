@@ -123,19 +123,6 @@ class DotVVM {
         }
     }
 
-    private beforePostbackEventPostbackHandler: DotvvmPostbackHandler = {
-        execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
-
-            // trigger beforePostback event
-            var beforePostbackArgs = new DotvvmBeforePostBackEventArgs(options.sender!, options.viewModel, options.viewModelName!, options.postbackId);
-            this.events.beforePostback.trigger(beforePostbackArgs);
-            if (beforePostbackArgs.cancel) {
-                return Promise.reject({ type: "event", options: options });
-            }
-            return callback();
-        }
-    }
-
     private isPostBackRunningHandler: DotvvmPostbackHandler = (() => {
         let postbackCount = 0;
         return {
@@ -230,7 +217,7 @@ class DotVVM {
     }
 
     public globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [this.suppressOnDisabledElementHandler, this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler]
-    public globalLaterPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [this.postbackHandlersCompletedEventHandler, this.beforePostbackEventPostbackHandler]
+    public globalLaterPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [this.postbackHandlersCompletedEventHandler]
 
     public events = new DotvvmEvents();
     public globalize = new DotvvmGlobalize();
@@ -581,6 +568,14 @@ class DotVVM {
             const viewModelName = options.viewModelName!;
             const viewModel = this.viewModels[viewModelName].viewModel;
 
+            // trigger beforePostback event
+            const beforePostbackArgs = new DotvvmBeforePostBackEventArgs(options.sender!, options.viewModel, options.viewModelName!, options.postbackId);
+            this.events.beforePostback.trigger(beforePostbackArgs);
+            if (beforePostbackArgs.cancel) {
+                reject({ type: "event", options: options });
+                return;
+            }
+
             try {
                 await this.fetchCsrfToken(viewModelName);
             }
@@ -590,7 +585,8 @@ class DotVVM {
             }
 
             if (this.arePostbacksDisabled) {
-                reject({ type: 'handler' })
+                reject({ type: 'handler' });
+                return;
             }
 
             this.lastStartedPostack = options.postbackId

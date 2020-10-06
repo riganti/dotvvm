@@ -987,17 +987,6 @@ var DotVVM = /** @class */ (function () {
                     return callback();
             }
         };
-        this.beforePostbackEventPostbackHandler = {
-            execute: function (callback, options) {
-                // trigger beforePostback event
-                var beforePostbackArgs = new DotvvmBeforePostBackEventArgs(options.sender, options.viewModel, options.viewModelName, options.postbackId);
-                _this.events.beforePostback.trigger(beforePostbackArgs);
-                if (beforePostbackArgs.cancel) {
-                    return Promise.reject({ type: "event", options: options });
-                }
-                return callback();
-            }
-        };
         this.isPostBackRunningHandler = (function () {
             var postbackCount = 0;
             return {
@@ -1068,7 +1057,7 @@ var DotVVM = /** @class */ (function () {
             }
         };
         this.globalPostbackHandlers = [this.suppressOnDisabledElementHandler, this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler];
-        this.globalLaterPostbackHandlers = [this.postbackHandlersCompletedEventHandler, this.beforePostbackEventPostbackHandler];
+        this.globalLaterPostbackHandlers = [this.postbackHandlersCompletedEventHandler];
         this.events = new DotvvmEvents();
         this.globalize = new DotvvmGlobalize();
         this.evaluator = new DotvvmEvaluator();
@@ -1440,13 +1429,19 @@ var DotVVM = /** @class */ (function () {
     DotVVM.prototype.postbackCore = function (options, path, command, controlUniqueId, context, commandArgs) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var viewModelName, viewModel, err_2, data, completeViewModel, errorAction;
+            var viewModelName, viewModel, beforePostbackArgs, err_2, data, completeViewModel, errorAction;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         viewModelName = options.viewModelName;
                         viewModel = this.viewModels[viewModelName].viewModel;
+                        beforePostbackArgs = new DotvvmBeforePostBackEventArgs(options.sender, options.viewModel, options.viewModelName, options.postbackId);
+                        this.events.beforePostback.trigger(beforePostbackArgs);
+                        if (beforePostbackArgs.cancel) {
+                            reject({ type: "event", options: options });
+                            return [2 /*return*/];
+                        }
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -1461,6 +1456,7 @@ var DotVVM = /** @class */ (function () {
                     case 4:
                         if (this.arePostbacksDisabled) {
                             reject({ type: 'handler' });
+                            return [2 /*return*/];
                         }
                         this.lastStartedPostack = options.postbackId;
                         // perform the postback

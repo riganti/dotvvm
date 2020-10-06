@@ -308,7 +308,6 @@ declare class DotVVM {
     serialization: DotvvmSerialization;
     postbackHandlers: IDotvvmPostbackHandlerCollection;
     private suppressOnDisabledElementHandler;
-    private beforePostbackEventPostbackHandler;
     private isPostBackRunningHandler;
     private createWindowSetTimeoutHandler;
     private windowSetTimeoutHandler;
