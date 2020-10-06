@@ -55,9 +55,24 @@ namespace DotVVM.Framework.Tests
             }
         }
 
+        class FakeCsrfProtector : ICsrfProtector
+        {
+            public string GenerateToken(IDotvvmRequestContext context)
+            {
+                return "Not a CSRF token.";
+            }
+
+            public void VerifyToken(IDotvvmRequestContext context, string token)
+            {
+                if (token != "Not a CSRF token.")
+                    throw new Exception();
+            }
+        }
+
         public static void RegisterMoqServices(IServiceCollection services)
         {
             services.TryAddSingleton<IViewModelProtector, FakeProtector>();
+            services.TryAddSingleton<ICsrfProtector, FakeCsrfProtector>();
             services.TryAddSingleton<IDotvvmCacheAdapter, SimpleDictionaryCacheAdapter>();
         }
 
