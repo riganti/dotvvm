@@ -69,36 +69,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Owin", "Samples\Owin\DotVVM.Samples.BasicSamples.Owin.csproj", "{1C7A9914-8CDC-4075-9422-37BD0E51C076}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DynamicData", "DynamicData", "{72211E6B-8744-42B5-BA3C-C86ED4344789}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Controls.DynamicData", "DynamicData\DynamicData\DotVVM.Framework.Controls.DynamicData.csproj", "{5EED6F19-632D-467F-9F1A-57DA8C555CC9}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Controls.DynamicData.Annotations", "DynamicData\Annotations\DotVVM.Framework.Controls.DynamicData.Annotations.csproj", "{8371BE0F-CC94-4236-BA32-A2C0B8B486FA}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tracing", "Tracing", "{C68603A3-5E43-46CF-AE6C-1463BDDF7948}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Tracing.ApplicationInsights", "Tracing\ApplicationInsights\DotVVM.Tracing.ApplicationInsights.csproj", "{99F82F2A-1239-441C-93C8-B07099FE7576}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Tracing.ApplicationInsights.AspNetCore", "Tracing\ApplicationInsights.AspNetCore\DotVVM.Tracing.ApplicationInsights.AspNetCore.csproj", "{30F2B334-EA62-4C2C-8362-320A08CAFBF4}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Tracing.MiniProfiler.AspNetCore", "Tracing\MiniProfiler.AspNetCore\DotVVM.Tracing.MiniProfiler.AspNetCore.csproj", "{C474EF4C-8D49-4983-8D20-5BEFF46F2A19}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Tracing.MiniProfiler.Owin", "Tracing\MiniProfiler.Owin\DotVVM.Tracing.MiniProfiler.Owin.csproj", "{35F3D396-E702-4ACB-BE7E-301E52561559}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DotVVM.Tracing.MiniProfiler.Shared", "Tracing\MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.shproj", "{407D8620-72C2-454C-945D-840130D80D0B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Tracing.MiniProfiler.Tests", "Tracing\MiniProfiler.Tests\DotVVM.Tracing.MiniProfiler.Tests.csproj", "{5C30A2AD-1921-4E71-A449-BDC75F4017B5}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Tracing.ApplicationInsights.Owin", "Tracing\ApplicationInsights.Owin\DotVVM.Tracing.ApplicationInsights.Owin.csproj", "{9FD298FC-CB6D-4C61-B266-742B66F15A85}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.ApplicationInsights.AspNetCore", "Samples\ApplicationInsights.AspNetCore\DotVVM.Samples.ApplicationInsights.AspNetCore.csproj", "{C988A081-663F-4F4B-9302-50735C07FD18}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.MiniProfiler.AspNetCore", "Samples\MiniProfiler.AspNetCore\DotVVM.Samples.MiniProfiler.AspNetCore.csproj", "{2ACC89F1-F7CA-4406-ACD7-3B62DE20686F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.ApplicationInsights.Owin", "Samples\ApplicationInsights.Owin\DotVVM.Samples.ApplicationInsights.Owin.csproj", "{85617AC0-D0A5-40B8-8C81-4B13877E7837}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.MiniProfiler.Owin", "Samples\MiniProfiler.Owin\DotVVM.Samples.MiniProfiler.Owin.csproj", "{24B04C26-27FB-423A-813D-662B5176F836}"
-EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Tracing\MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.projitems*{35f3d396-e702-4acb-be7e-301e52561559}*SharedItemsImports = 5
