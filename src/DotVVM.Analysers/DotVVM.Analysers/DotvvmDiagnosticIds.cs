@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DotVVM.Analysers
 {
-    internal static class DotvvmDiagnosticIds
+    public static class DotvvmDiagnosticIds
     {
         public const string PropertiesSerializabilityRuleId = "DotVVM01";
     }

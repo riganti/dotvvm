@@ -17,7 +17,7 @@ namespace DotVVM.Analysers.Serializability
         private static readonly LocalizableResourceString localizableMessage = new LocalizableResourceString(nameof(Resources.ViewModelSerializabilityMessage), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableResourceString localizableDescription = new LocalizableResourceString(nameof(Resources.ViewModelSerializabilityDescription), Resources.ResourceManager, typeof(Resources));
 
-        internal static DiagnosticDescriptor UseSerializablePropertiesRule = new DiagnosticDescriptor(
+        public static DiagnosticDescriptor UseSerializablePropertiesRule = new DiagnosticDescriptor(
             DotvvmDiagnosticIds.PropertiesSerializabilityRuleId,
             localizableTitle,
             localizableMessage,
