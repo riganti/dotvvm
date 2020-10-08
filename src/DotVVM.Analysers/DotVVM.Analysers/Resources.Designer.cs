@@ -63,27 +63,27 @@ namespace DotVVM.Analysers {
         /// <summary>
         ///   Looks up a localized string similar to Bindable properties must be serializable..
         /// </summary>
-        internal static string AnalyzerDescription {
+        internal static string ViewModelSerializabilityDescription {
             get {
-                return ResourceManager.GetString("AnalyzerDescription", resourceCulture);
+                return ResourceManager.GetString("ViewModelSerializabilityDescription", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Property of type &apos;{0}&apos; is not serializable.
         /// </summary>
-        internal static string AnalyzerMessageFormat {
+        internal static string ViewModelSerializabilityMessage {
             get {
-                return ResourceManager.GetString("AnalyzerMessageFormat", resourceCulture);
+                return ResourceManager.GetString("ViewModelSerializabilityMessage", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Property not serializable.
         /// </summary>
-        internal static string AnalyzerTitle {
+        internal static string ViewModelSerializabilityTitle {
             get {
-                return ResourceManager.GetString("AnalyzerTitle", resourceCulture);
+                return ResourceManager.GetString("ViewModelSerializabilityTitle", resourceCulture);
             }
         }
     }

@@ -117,16 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AnalyzerDescription" xml:space="preserve">
+  <data name="ViewModelSerializabilityDescription" xml:space="preserve">
     <value>Bindable properties must be serializable.</value>
-    <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
-  <data name="AnalyzerMessageFormat" xml:space="preserve">
+  <data name="ViewModelSerializabilityMessage" xml:space="preserve">
     <value>Property of type '{0}' is not serializable</value>
-    <comment>The format-able message the diagnostic displays.</comment>
   </data>
-  <data name="AnalyzerTitle" xml:space="preserve">
+  <data name="ViewModelSerializabilityTitle" xml:space="preserve">
     <value>Property not serializable</value>
-    <comment>The title of the diagnostic.</comment>
   </data>
 </root>
