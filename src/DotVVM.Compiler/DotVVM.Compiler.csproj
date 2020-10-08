@@ -2,8 +2,7 @@
 
   <!-- Related to compilation -->
   <PropertyGroup>
-    <!-- <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks> -->
-    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net461</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
