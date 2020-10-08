@@ -32,7 +32,6 @@ namespace DotVVM.Samples.BasicSamples
         {
             config.DefaultCulture = "en-US";
             config.UseHistoryApiSpaNavigation = true;
-            config.ExperimentalFeatures.KnockoutDefferUpdating.Enable();
 
             AddControls(config);
             AddStyles(config);

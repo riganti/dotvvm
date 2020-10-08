@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Controls
             writer.RenderSelfClosingTag("input");
 
             // init on load
-            var koDeffer = $@"ko.options.deffer = {(context.Configuration.ExperimentalFeatures.KnockoutDefferUpdating.Enabled ? "true": "false")};";
+            var koDeffer = $@"ko.options.deffer = {(context.Configuration.ExperimentalFeatures.KnockoutDeferredUpdating.Enabled ? "true": "false")};";
             var initCode = $@"{koDeffer}
 window.dotvvm.init({JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});
 ";
