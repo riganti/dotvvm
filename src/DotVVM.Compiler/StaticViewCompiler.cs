@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -14,7 +15,6 @@ using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Emit;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Compiler
@@ -24,16 +24,16 @@ namespace DotVVM.Compiler
         public const string ObjectsClassName = "SerializedObjects";
 
         private readonly DotvvmConfiguration configuration;
-        // controls and master pages justify the need for a cache
+
+        // NB: Currently, an Assembly must be built for each view/markup control (i.e. IControlBuilder) and then merged
+        //     into one assembly. It's horrible, I know, but the compiler is riddled with references to System.Type
+        //     that make it presently impossible to compile it all in one go.
         private readonly ConcurrentDictionary<string, StaticView> viewCache
             = new ConcurrentDictionary<string, StaticView>();
 
-        private bool canCompile;
-
-        public StaticViewCompiler(DotvvmConfiguration configuration, bool canCompile = true)
+        public StaticViewCompiler(DotvvmConfiguration configuration)
         {
             this.configuration = configuration;
-            this.canCompile = canCompile;
         }
 
         public StaticView GetView(string viewPath)
@@ -48,41 +48,22 @@ namespace DotVVM.Compiler
             return viewCache.GetOrAdd(viewPath, view);
         }
 
-        public IEnumerable<StaticView> GetAllViews()
+        public IEnumerable<StaticView> Compile(string assemblyName, Stream stream)
         {
-            // TODO: Compile markup controls
+            var markupControls = CompileViews(configuration.Markup.Controls.Select(c => c.Src));
+            var views = CompileViews(configuration.RouteTable.Select(r => r.VirtualPath));
 
-            return configuration.RouteTable
-                .Where(r => !string.IsNullOrWhiteSpace(r.VirtualPath))
-                .Select(r => GetView(r.VirtualPath));
-        }
-
-        public (IEnumerable<StaticView>, EmitResult?) CompileAllViews(string assemblyName, Stream stream)
-        {
-            var views = GetAllViews().ToImmutableArray();
-            if (views.Any(v => !v.Reports.IsEmpty))
-            {
-                // there are errors in the views
-                stream.Close();
-                return (views, null);
-            }
-
-            foreach(var view in views)
-            {
-                if (view.SyntaxTree is null)
-                {
-                    throw new ArgumentException(
-                        $"The SyntaxTree of '{view.ViewPath}' is null although there are no errors.");
-                }
-            }
-
-            var trees = views.Select(v => v.SyntaxTree);
-            var references = views.SelectMany(v => v.RequiredReferences);
             var viewCompiler = configuration.ServiceProvider.GetRequiredService<IViewCompiler>();
             var compilation = viewCompiler.CreateCompilation(assemblyName);
-            compilation = compilation.WithReferences(references).AddSyntaxTrees(trees);
-            var result = compilation.Emit(stream);
-            return (views, result);
+            return markupControls.Concat(views).ToImmutableArray();
+        }
+
+        private ImmutableArray<StaticView> CompileViews(IEnumerable<string> paths)
+        {
+            return paths
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Select(p => GetView(p))
+                .ToImmutableArray();
         }
 
         private StaticView CompileView(string viewPath)
@@ -154,12 +135,10 @@ namespace DotVVM.Compiler
                 return view.WithReports(reports);
             }
 
-            // no compilation errors beyond this point
+            // no dothtml compilation errors beyond this point
 
-            if (!canCompile)
-            {
-                return view;
-            }
+            // NOTE: Markup controls referenced in the view have already been compiled "thanks" to the circular
+            //       dependency in StaticViewControlResolver.
 
             var namespaceName = DefaultControlBuilderFactory.GetNamespaceFromFileName(
                 file.FileName,

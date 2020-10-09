@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Reflection;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace DotVVM.Compiler
 {
@@ -10,7 +13,10 @@ namespace DotVVM.Compiler
             string viewPath,
             ImmutableArray<Report> reports = default,
             SyntaxTree? syntaxTree = default,
-            ImmutableArray<MetadataReference> requiredReferences = default)
+            ImmutableArray<MetadataReference> requiredReferences = default,
+            Assembly? assembly = default,
+            Type? viewType = default,
+            Type? dataContextType = default)
         {
             ViewPath = viewPath;
             Reports = reports.IsDefault ? ImmutableArray.Create<Report>() : reports;
@@ -18,7 +24,9 @@ namespace DotVVM.Compiler
             RequiredReferences = requiredReferences.IsDefault
                 ? ImmutableArray.Create<MetadataReference>()
                 : requiredReferences;
-
+            Assembly = assembly;
+            ViewType = viewType;
+            DataContextType = dataContextType;
         }
 
         public string ViewPath { get; }
@@ -29,19 +37,82 @@ namespace DotVVM.Compiler
 
         public ImmutableArray<MetadataReference> RequiredReferences { get; }
 
+        public Assembly? Assembly { get; }
+
+        public Type? ViewType { get; }
+
+        public Type? DataContextType { get; }
+
         public StaticView WithReports(IEnumerable<Report> reports)
         {
-            return new StaticView(ViewPath, reports.ToImmutableArray(), SyntaxTree, RequiredReferences);
+            return new StaticView(
+                ViewPath,
+                reports.ToImmutableArray(),
+                SyntaxTree,
+                RequiredReferences,
+                Assembly,
+                ViewType,
+                DataContextType);
         }
 
         public StaticView WithSyntaxTree(SyntaxTree syntaxTree)
         {
-            return new StaticView(ViewPath, Reports, syntaxTree, RequiredReferences);
+            return new StaticView(
+                ViewPath,
+                Reports,
+                syntaxTree,
+                RequiredReferences,
+                Assembly,
+                ViewType,
+                DataContextType);
         }
 
         public StaticView WithRequiredReferences(IEnumerable<MetadataReference> requiredReferences)
         {
-            return new StaticView(ViewPath, Reports, SyntaxTree, requiredReferences.ToImmutableArray());
+            return new StaticView(
+                ViewPath,
+                Reports,
+                SyntaxTree,
+                requiredReferences.ToImmutableArray(),
+                Assembly,
+                ViewType,
+                DataContextType);
+        }
+
+        public StaticView WithAssembly(Assembly assembly)
+        {
+            return new StaticView(
+                ViewPath,
+                Reports,
+                SyntaxTree,
+                RequiredReferences,
+                Assembly,
+                ViewType,
+                DataContextType);
+        }
+
+        public StaticView WithViewType(Type viewType)
+        {
+            return new StaticView(
+                ViewPath,
+                Reports,
+                SyntaxTree,
+                RequiredReferences,
+                Assembly,
+                viewType,
+                DataContextType);
+        }
+
+        public StaticView WithDataContextType(Type dataContextType)
+        {
+            return new StaticView(
+                ViewPath,
+                Reports,
+                SyntaxTree,
+                RequiredReferences,
+                Assembly,
+                ViewType,
+                dataContextType);
         }
     }
 }

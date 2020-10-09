@@ -104,6 +104,9 @@ namespace DotVVM.Compiler
                 services.AddSingleton<IControlResolver, StaticViewControlResolver>();
                 services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
                 services.AddSingleton(new RefObjectSerializer());
+                // NB: Yes, this is here so that there can be a circular dependency in StaticViewControlResolver.
+                //     I'm not happy about it, no, but the alternative is a more-or-less complete rewrite.
+                services.AddSingleton<StaticViewCompiler>();
 
                 // NB: IDotvvmCacheAdapter is not in v2.0.0 that's why it's hacked this way.
                 var iCacheAdapter = Type.GetType(IDotvvmCacheAdapterName);
@@ -120,8 +123,11 @@ namespace DotVVM.Compiler
                 services.AddSingleton<IBindingCompiler>(bindingCompiler);
                 services.AddSingleton<IExpressionToDelegateCompiler>(bindingCompiler.GetExpressionToDelegateCompiler());
             });
-            var compiler = new StaticViewCompiler(configuration, false);
-            var views = compiler.GetAllViews();
+            var compiler = configuration.ServiceProvider.GetRequiredService<StaticViewCompiler>();
+            var memoryStream = new MemoryStream();
+            var views = compiler.Compile(
+                Path.GetFileNameWithoutExtension(assembly.FullName) + ".Views",
+                memoryStream);
             foreach (var view in views)
             {
                 foreach (var report in view.Reports)

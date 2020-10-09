@@ -22,7 +22,6 @@ namespace DotVVM.Compiler
                 if (viewStaticCompiler != null)
                 {
                     services.AddSingleton(viewStaticCompiler);
-                    services.AddSingleton<IControlResolver, OfflineCompilationControlResolver>();
                     services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
                     services.AddSingleton(new RefObjectSerializer());
                     // services.AddSingleton<IDotvvmCacheAdapter, SimpleDictionaryCacheAdapter>();
