@@ -72,8 +72,8 @@ namespace DotVVM.Framework.Tests.Runtime
             config1.Resources.Register("rs7", new PolyfillResource(){ RenderPosition =  ResourceRenderPosition.Head});
             config1.Resources.Register("rs8", new ScriptResource(new JQueryGlobalizeResourceLocation(CultureInfo.GetCultureInfo("en-US"))));
 
-            // serialize & deserialize
-            JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
+            var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
+            settings.TypeNameHandling = TypeNameHandling.Auto;
             var config2 = JsonConvert.DeserializeObject<DotvvmConfiguration>(JsonConvert.SerializeObject(config1, settings), settings);
 
             //test 

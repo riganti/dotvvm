@@ -176,7 +176,7 @@ namespace DotVVM.Framework.Controls
         {
             // render result
             writer.AddAttribute("class", "dotvvm-upload-result");
-            writer.AddKnockoutDataBind("html", $"Error() ? {JsonConvert.SerializeObject(UploadErrorMessageText)} : {JsonConvert.SerializeObject(SuccessMessageText)}");
+            writer.AddKnockoutDataBind("html", $"Error() ? {KnockoutHelper.MakeStringLiteral(UploadErrorMessageText!)} : {KnockoutHelper.MakeStringLiteral(SuccessMessageText!)}");
             writer.AddKnockoutDataBind("attr", "{ title: Error }");
             writer.AddKnockoutDataBind("css", "{ 'dotvvm-upload-result-success': !Error(), 'dotvvm-upload-result-error': Error }");
             writer.AddKnockoutDataBind("visible", "!IsBusy() && Files().length > 0");
@@ -201,7 +201,7 @@ namespace DotVVM.Framework.Controls
         {
             // render upload files
             writer.AddAttribute("class", "dotvvm-upload-files");
-            writer.AddKnockoutDataBind("html", $"dotvvm.globalize.format({JsonConvert.SerializeObject(NumberOfFilesIndicatorText)}, Files().length)");
+            writer.AddKnockoutDataBind("html", $"dotvvm.globalize.format({KnockoutHelper.MakeStringLiteral(NumberOfFilesIndicatorText!)}, Files().length)");
             writer.RenderBeginTag("span");
             writer.RenderEndTag();
         }
