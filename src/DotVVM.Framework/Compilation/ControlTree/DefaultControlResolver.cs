@@ -166,9 +166,17 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return new ControlResolverMetadata((ControlType) type);
         }
 
-        protected override IPropertyDescriptor FindGlobalProperty(string name)
+        protected override IPropertyDescriptor FindGlobalPropertyOrGroup(string name)
         {
-            return DotvvmProperty.ResolveProperty(name, caseSensitive: false);
+            // try to find property
+            var property = DotvvmProperty.ResolveProperty(name, caseSensitive: false);
+            if (property != null)
+            {
+                return property;
+            }
+
+            // try to find property group
+            return DotvvmPropertyGroup.ResolvePropertyGroup(name, caseSensitive: false);
         }
     }
 }
