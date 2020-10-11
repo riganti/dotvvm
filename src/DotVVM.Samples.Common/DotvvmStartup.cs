@@ -22,12 +22,16 @@ using System.Linq;
 using DotVVM.Samples.Common.Api.AspNetCore;
 using DotVVM.Samples.Common.Api.Owin;
 using DotVVM.Samples.Common.Controls;
+using DotVVM.Framework.Utils;
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation;
 
 namespace DotVVM.Samples.BasicSamples
 {
     public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
     {
-        
+
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
             config.DefaultCulture = "en-US";
@@ -55,6 +59,14 @@ namespace DotVVM.Samples.BasicSamples
             config.RegisterApiClient(typeof(AzureFunctionsApi.Client), "https://dotvvmazurefunctionstest.azurewebsites.net/", "Scripts/AzureFunctionsApiClient.js", "_azureFuncApi");
 
             LoadSampleConfiguration(config, applicationPath);
+
+            config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(typeof(JavascriptTranslationTestMethods),
+                    nameof(JavascriptTranslationTestMethods.Unwrap),
+                         new GenericMethodCompiler((a) =>
+                            new JsIdentifierExpression("unwrap")
+                                            .Invoke(a[1])
+                                    ), allowGeneric: true, allowMultipleMethods: true);
+
         }
 
         private void LoadSampleConfiguration(DotvvmConfiguration config, string applicationPath)
@@ -67,7 +79,7 @@ namespace DotVVM.Samples.BasicSamples
 
             var profiles = json.Value<JArray>("profiles");
             var profile = profiles.Single(p => p.Value<string>("name") == activeProfile);
-            
+
             JsonConvert.PopulateObject(profile.Value<JObject>("config").ToString(), config);
 
             SampleConfiguration.Initialize(

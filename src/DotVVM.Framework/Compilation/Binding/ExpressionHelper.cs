@@ -10,6 +10,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CSharp.RuntimeBinder;
 
 namespace DotVVM.Framework.Compilation.Binding
@@ -210,7 +211,8 @@ namespace DotVVM.Framework.Compilation.Binding
             // resolve generic parameters
             if (method.ContainsGenericParameters)
             {
-                var typeArgs = new Type[method.GetGenericArguments().Length];
+                var genericArguments = method.GetGenericArguments();
+                var typeArgs = new Type[genericArguments.Length];
                 if (typeArguments != null)
                 {
                     if (typeArguments.Length > typeArgs.Length) return null;
@@ -221,9 +223,10 @@ namespace DotVVM.Framework.Compilation.Binding
                     if (typeArgs[i] == null)
                     {
                         // try to resolve from arguments
-                        var arg = Array.FindIndex(parameters, p => p.ParameterType.IsGenericParameter && p.ParameterType.GenericParameterPosition == i);
+
+                        var argType = ResolveGenericTypeFromGivenExpressions(i, genericArguments[i], parameters, args);
                         automaticTypeArgs++;
-                        if (arg >= 0) typeArgs[i] = args[arg].Type;
+                        if (argType != null) typeArgs[i] = argType;
                         else return null;
                     }
                 }
@@ -252,6 +255,48 @@ namespace DotVVM.Framework.Compilation.Binding
             };
         }
 
+        private static Type ResolveGenericTypeFromGivenExpressions(int i, Type genericArgument, ParameterInfo[] parameters, Expression[] args)
+        {
+            for (var j = 0; j < parameters.Length; j++)
+            {
+                var parameter = parameters[j];
+                if (parameter.ParameterType.IsGenericParameter && parameter.ParameterType.GenericParameterPosition == i)
+                {
+                    return args[i].Type;
+                }
+                if (parameter.ParameterType.IsArray)
+                {
+                    var elementType = parameter.ParameterType.GetElementType();
+                    var genericArgName = elementType.Name;
+                    var genericParameterPosition = elementType.GenericParameterPosition;
+                }
+                else if (parameter.ParameterType.IsGenericType)
+                {
+                    var value = GetGenericParameterType(genericArgument, parameter.ParameterType.GetGenericArguments(), args[j].Type);
+                    if (value is Type) return value;
+                }
+            }
+            return null;
+        }
+
+        private static Type GetGenericParameterType(Type genericArg, Type[] searchedGenericTypes, Type expressionType)
+        {
+            if (searchedGenericTypes is object && searchedGenericTypes.Length > 0)
+            {
+                for (var i = 0; i < searchedGenericTypes.Length; i++)
+                {
+                    var sgt = searchedGenericTypes[i];
+                    if (sgt.IsGenericParameter && sgt.GenericParameterPosition == genericArg.GenericParameterPosition)
+                    {
+                        var expressionTypes = expressionType.GetGenericArguments();
+                        var expression = expressionTypes[i];
+                        return expression;
+                    }
+                }
+                return null;
+            }
+            return null;
+        }
 
         public static Expression EqualsMethod(Expression left, Expression right)
         {

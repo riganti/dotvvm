@@ -1,0 +1,15 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation.GenericMethodTranslationViewModel, DotVVM.Samples.Common
+@masterPage Views/ComplexSamples/SPA/site.dotmaster
+@import DotVVM.Samples.BasicSamples
+
+<dot:Content ContentPlaceHolderID="Container">
+    <script>
+    function unwrap() {
+        return "result";
+    }
+    </script>
+    <span data-ui="result">
+        {{value: JavascriptTranslationTestMethods.Unwrap(_this.Model, _this.Model2)}}
+    </span>
+</dot:Content>
+
