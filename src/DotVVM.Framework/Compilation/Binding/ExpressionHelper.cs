@@ -160,8 +160,12 @@ namespace DotVVM.Framework.Compilation.Binding
         private static MethodRecognitionResult FindValidMethodOveloads(Type type, string name, BindingFlags flags, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
         {
             var methods = FindValidMethodOveloads(type.GetAllMembers(flags).OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, arguments, namedArgs);
+            if (methods.Count() > 1)
+                // TODO: this behavior is not completed. Implement the same behavior as in roslyn.
+                throw new InvalidOperationException($"Found ambiguous overloads of method '{name}'.");
             var method = methods.FirstOrDefault();
-            if (method == null) throw new InvalidOperationException($"Could not find overload of method '{name}'.");
+            if (method == null)
+                throw new InvalidOperationException($"Could not find overload of method '{name}'.");
             return method;
         }
 
@@ -283,14 +287,19 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             if (searchedGenericTypes is object && searchedGenericTypes.Length > 0)
             {
+                var expressionGenericArgs = expressionType.GetGenericArguments();
                 for (var i = 0; i < searchedGenericTypes.Length; i++)
                 {
                     var sgt = searchedGenericTypes[i];
                     if (sgt.IsGenericParameter && sgt.GenericParameterPosition == genericArg.GenericParameterPosition)
                     {
-                        var expressionTypes = expressionType.GetGenericArguments();
-                        var expression = expressionTypes[i];
-                        return expression;
+                        if (expressionGenericArgs.Length == 0) return expressionType;
+                        return expressionGenericArgs[i];
+                    }
+                    else if (sgt.IsGenericType)
+                    {
+                        var value = GetGenericParameterType(genericArg, sgt.GetGenericArguments(), expressionGenericArgs[i]);
+                        if (value is Type) return value;
                     }
                 }
                 return null;
