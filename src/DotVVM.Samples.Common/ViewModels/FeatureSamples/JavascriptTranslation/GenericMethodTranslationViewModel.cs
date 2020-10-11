@@ -12,6 +12,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation
     {
         public JavascriptTranslationModel<string, JavascriptTranslationInnerTestModel<JavascriptTranslationInnerTestModel<int>>> Model { get; set; } = new JavascriptTranslationModel<string, JavascriptTranslationInnerTestModel<JavascriptTranslationInnerTestModel<int>>>() { VModel2 = "Some data", VModel = new JavascriptTranslationInnerTestModel<JavascriptTranslationInnerTestModel<int>>() { Value = new JavascriptTranslationInnerTestModel<int>() { Value = 20 } } };
         public JavascriptTranslationModel<bool, JavascriptTranslationInnerTestModel<double[]>> Model2 { get; set; } = new JavascriptTranslationModel<bool, JavascriptTranslationInnerTestModel<double[]>>() { VModel2 = true, VModel = new JavascriptTranslationInnerTestModel<double[]>() { Value = new[] { 20d } } };
+        public JavascriptTranslationModel<bool> Model3 { get; set; } = new JavascriptTranslationModel<bool>() { Model = true };
 
         public override Task Load()
         {
