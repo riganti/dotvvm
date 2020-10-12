@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DotVVM.Compiler": {
+      "commandName": "Project",
+      "commandLineArgs": "--assembly C:/dev/riganti/northwind/src/NorthwindStore.App/bin/Debug/netcoreapp2.0/NorthwindStore.App.dll --project-dir C:/dev/riganti/northwind/src/NorthwindStore.App --root-namespace NorthwindStore.App"
+    }
+  }
+}

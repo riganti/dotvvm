@@ -5,6 +5,8 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using DotVVM.CommandLine;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -14,14 +16,20 @@ using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Security;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace DotVVM.Compiler
 {
     public class StaticViewCompiler
     {
         public const string ObjectsClassName = "SerializedObjects";
+        private const string IDotvvmCacheAdapterName
+            = "DotVVM.Framework.Runtime.Caching.IDotvvmCacheAdapter, DotVVM.Framework";
+        private const string SimpleDictionaryCacheAdapterName
+            = "DotVVM.Framework.Testing.SimpleDictionaryCacheAdapter, DotVVM.Framework";
 
         private readonly DotvvmConfiguration configuration;
 
@@ -36,6 +44,37 @@ namespace DotVVM.Compiler
             this.configuration = configuration;
         }
 
+        public static DotvvmConfiguration CreateConfiguration(
+            Assembly dotvvmProjectAssembly,
+            string dotvvmProjectDir)
+        {
+            return DotvvmProject.GetConfiguration(dotvvmProjectAssembly, dotvvmProjectDir, services =>
+            {
+                services.AddSingleton<IControlResolver, StaticViewControlResolver>();
+                services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
+                services.AddSingleton(new RefObjectSerializer());
+                // NB: Yes, this is here so that there can be a circular dependency in StaticViewControlResolver.
+                //     I'm not happy about it, no, but the alternative is a more-or-less complete rewrite.
+                services.AddSingleton<StaticViewCompiler>();
+
+                // NB: IDotvvmCacheAdapter is not in v2.0.0 that's why it's hacked this way.
+                var iCacheAdapter = Type.GetType(IDotvvmCacheAdapterName);
+                if (iCacheAdapter is object)
+                {
+                    services.AddSingleton(iCacheAdapter, Type.GetType(SimpleDictionaryCacheAdapterName));
+                }
+
+                // TODO: Uncomment when the views can actually be compiled into one assembly.
+                // var bindingCompiler = new AssemblyBindingCompiler(
+                //     assemblyName: null,
+                //     className: null,
+                //     outputFileName: null,
+                //     configuration: null);
+                // services.AddSingleton<IBindingCompiler>(bindingCompiler);
+                // services.AddSingleton<IExpressionToDelegateCompiler>(bindingCompiler.GetExpressionToDelegateCompiler());
+            });
+        }
+
         public StaticView GetView(string viewPath)
         {
             if (viewCache.ContainsKey(viewPath))
@@ -48,17 +87,14 @@ namespace DotVVM.Compiler
             return viewCache.GetOrAdd(viewPath, view);
         }
 
-        public IEnumerable<StaticView> Compile(string assemblyName, Stream stream)
+        public IEnumerable<StaticView> CompileAllViews()
         {
             var markupControls = CompileViews(configuration.Markup.Controls.Select(c => c.Src));
             var views = CompileViews(configuration.RouteTable.Select(r => r.VirtualPath));
-
-            var viewCompiler = configuration.ServiceProvider.GetRequiredService<IViewCompiler>();
-            var compilation = viewCompiler.CreateCompilation(assemblyName);
             return markupControls.Concat(views).ToImmutableArray();
         }
 
-        private ImmutableArray<StaticView> CompileViews(IEnumerable<string> paths)
+        private ImmutableArray<StaticView> CompileViews(IEnumerable<string?> paths)
         {
             return paths
                 .Where(p => !string.IsNullOrWhiteSpace(p))
@@ -146,7 +182,7 @@ namespace DotVVM.Compiler
             var className = DefaultControlBuilderFactory.GetClassFromFileName(file.FileName) + "ControlBuilder";
             string fullClassName = namespaceName + "." + className;
             var refObjectSerializer = configuration.ServiceProvider.GetRequiredService<RefObjectSerializer>();
-            var emitter = new CompileTimeCodeEmitter(refObjectSerializer, ObjectsClassName);
+            var emitter = new DefaultViewCompilerCodeEmitter();
             var bindingCompiler = configuration.ServiceProvider.GetRequiredService<IBindingCompiler>();
             var compilingVisitor = new ViewCompilingVisitor(emitter, bindingCompiler, className);
             resolvedView.Accept(compilingVisitor);

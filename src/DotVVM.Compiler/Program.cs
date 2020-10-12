@@ -18,12 +18,6 @@ namespace DotVVM.Compiler
 {
     public static class Program
     {
-        private const string IDotvvmCacheAdapterName
-            = "DotVVM.Framework.Runtime.Caching.IDotvvmCacheAdapter, DotVVM.Framework";
-        private const string SimpleDictionaryCacheAdapterName
-            = "DotVVM.Framework.Testing.SimpleDictionaryCacheAdapter, DotVVM.Framework";
-
-
         public static void Run(
             FileInfo assembly,
             DirectoryInfo? projectDir,
@@ -98,36 +92,10 @@ namespace DotVVM.Compiler
             string? rootNamespace,
             ILogger logger)
         {
-            var webSitePath = projectDir?.FullName ?? Directory.GetCurrentDirectory();
-            var configuration = DotvvmProject.GetConfiguration(assembly, webSitePath, services =>
-            {
-                services.AddSingleton<IControlResolver, StaticViewControlResolver>();
-                services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
-                services.AddSingleton(new RefObjectSerializer());
-                // NB: Yes, this is here so that there can be a circular dependency in StaticViewControlResolver.
-                //     I'm not happy about it, no, but the alternative is a more-or-less complete rewrite.
-                services.AddSingleton<StaticViewCompiler>();
-
-                // NB: IDotvvmCacheAdapter is not in v2.0.0 that's why it's hacked this way.
-                var iCacheAdapter = Type.GetType(IDotvvmCacheAdapterName);
-                if (iCacheAdapter is object)
-                {
-                    services.AddSingleton(iCacheAdapter, Type.GetType(SimpleDictionaryCacheAdapterName));
-                }
-
-                var bindingCompiler = new AssemblyBindingCompiler(
-                    assemblyName: null,
-                    className: null,
-                    outputFileName: null,
-                    configuration: null);
-                services.AddSingleton<IBindingCompiler>(bindingCompiler);
-                services.AddSingleton<IExpressionToDelegateCompiler>(bindingCompiler.GetExpressionToDelegateCompiler());
-            });
+            var projectDirPath = projectDir?.FullName ?? Directory.GetCurrentDirectory();
+            var configuration = StaticViewCompiler.CreateConfiguration(assembly, projectDirPath);
             var compiler = configuration.ServiceProvider.GetRequiredService<StaticViewCompiler>();
-            var memoryStream = new MemoryStream();
-            var views = compiler.Compile(
-                Path.GetFileNameWithoutExtension(assembly.FullName) + ".Views",
-                memoryStream);
+            var views = compiler.CompileAllViews();
             foreach (var view in views)
             {
                 foreach (var report in view.Reports)
