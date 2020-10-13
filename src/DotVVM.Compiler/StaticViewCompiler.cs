@@ -15,8 +15,10 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Security;
+using DotVVM.Framework.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -32,6 +34,7 @@ namespace DotVVM.Compiler
             = "DotVVM.Framework.Testing.SimpleDictionaryCacheAdapter, DotVVM.Framework";
 
         private readonly DotvvmConfiguration configuration;
+        private readonly Assembly dotvvmProjectAssembly;
 
         // NB: Currently, an Assembly must be built for each view/markup control (i.e. IControlBuilder) and then merged
         //     into one assembly. It's horrible, I know, but the compiler is riddled with references to System.Type
@@ -39,9 +42,10 @@ namespace DotVVM.Compiler
         private readonly ConcurrentDictionary<string, StaticView> viewCache
             = new ConcurrentDictionary<string, StaticView>();
 
-        public StaticViewCompiler(DotvvmConfiguration configuration)
+        public StaticViewCompiler(DotvvmConfiguration configuration, Assembly dotvvmProjectAssembly)
         {
             this.configuration = configuration;
+            this.dotvvmProjectAssembly = dotvvmProjectAssembly;
         }
 
         public static DotvvmConfiguration CreateConfiguration(
@@ -55,7 +59,9 @@ namespace DotVVM.Compiler
                 services.AddSingleton(new RefObjectSerializer());
                 // NB: Yes, this is here so that there can be a circular dependency in StaticViewControlResolver.
                 //     I'm not happy about it, no, but the alternative is a more-or-less complete rewrite.
-                services.AddSingleton<StaticViewCompiler>();
+                services.AddSingleton(p => new StaticViewCompiler(
+                    p.GetRequiredService<DotvvmConfiguration>(),
+                    dotvvmProjectAssembly));
 
                 // NB: IDotvvmCacheAdapter is not in v2.0.0 that's why it's hacked this way.
                 var iCacheAdapter = Type.GetType(IDotvvmCacheAdapterName);
@@ -175,7 +181,6 @@ namespace DotVVM.Compiler
 
             // NOTE: Markup controls referenced in the view have already been compiled "thanks" to the circular
             //       dependency in StaticViewControlResolver.
-
             var namespaceName = DefaultControlBuilderFactory.GetNamespaceFromFileName(
                 file.FileName,
                 file.LastWriteDateTimeUtc);
@@ -186,6 +191,14 @@ namespace DotVVM.Compiler
             var bindingCompiler = configuration.ServiceProvider.GetRequiredService<IBindingCompiler>();
             var compilingVisitor = new ViewCompilingVisitor(emitter, bindingCompiler, className);
             resolvedView.Accept(compilingVisitor);
+
+            // HACK: In 2.4.0, ReflectionUtils.FindType expects to find the controls in the current assembly,
+            //       which is bollocks.
+            if (resolvedView.Metadata.Type != typeof(DotvvmView))
+            {
+                emitter.ResultControlType = resolvedView.Metadata.Type.AssemblyQualifiedName;
+            }
+
             if (resolvedView.Directives.ContainsKey("masterPage"))
             {
                 // make sure that the masterpage chain is already compiled
