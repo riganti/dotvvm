@@ -23,8 +23,8 @@ namespace DotVVM.Compiler
             var view = compiler.GetView(file);
             if (view.ViewType is null)
             {
-                throw new InvalidOperationException(
-                    $"The '{file}' markup control was not compiled. This is likely a compiler bug.");
+                throw new DotvvmCompilationException(
+                    $"The referenced markup control at '{file}' could not be compiled.");
             }
             return new ControlType(view.ViewType, file, view.DataContextType);
         }

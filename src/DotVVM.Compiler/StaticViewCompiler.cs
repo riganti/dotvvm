@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using DotVVM.CommandLine;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
@@ -15,6 +16,7 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Security;
@@ -52,18 +54,19 @@ namespace DotVVM.Compiler
             Assembly dotvvmProjectAssembly,
             string dotvvmProjectDir)
         {
+            InitializeDotvvmControls(dotvvmProjectAssembly);
             return DotvvmProject.GetConfiguration(dotvvmProjectAssembly, dotvvmProjectDir, services =>
             {
                 services.AddSingleton<IControlResolver, StaticViewControlResolver>();
                 services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
                 services.AddSingleton(new RefObjectSerializer());
-                // NB: Yes, this is here so that there can be a circular dependency in StaticViewControlResolver.
-                //     I'm not happy about it, no, but the alternative is a more-or-less complete rewrite.
+                // Yes, this is here so that there can be a circular dependency in StaticViewControlResolver.
+                // I'm not happy about it, no, but the alternative is a more-or-less complete rewrite.
                 services.AddSingleton(p => new StaticViewCompiler(
                     p.GetRequiredService<DotvvmConfiguration>(),
                     dotvvmProjectAssembly));
 
-                // NB: IDotvvmCacheAdapter is not in v2.0.0 that's why it's hacked this way.
+                // HACK: IDotvvmCacheAdapter is not in v2.0.0 that's why it's hacked this way.
                 var iCacheAdapter = Type.GetType(IDotvvmCacheAdapterName);
                 if (iCacheAdapter is object)
                 {
@@ -104,7 +107,7 @@ namespace DotVVM.Compiler
         {
             return paths
                 .Where(p => !string.IsNullOrWhiteSpace(p))
-                .Select(p => GetView(p))
+                .Select(p => GetView(p!))
                 .ToImmutableArray();
         }
 
@@ -135,7 +138,7 @@ namespace DotVVM.Compiler
                 var errorCheckingVisitor = new ErrorCheckingVisitor();
                 resolvedView.Accept(errorCheckingVisitor);
             }
-            catch(DotvvmCompilationException e)
+            catch (DotvvmCompilationException e)
             {
                 reports.Add(new Report(viewPath, e));
                 // the error is too severe for compilation to continue 
@@ -164,10 +167,10 @@ namespace DotVVM.Compiler
             var usageValidator = configuration.ServiceProvider.GetRequiredService<IControlUsageValidator>();
             var validationVisitor = new ControlUsageValidationVisitor(usageValidator);
             resolvedView.Accept(validationVisitor);
-            foreach(var error in validationVisitor.Errors)
+            foreach (var error in validationVisitor.Errors)
             {
                 var line = error.Nodes.FirstOrDefault()?.Tokens?.FirstOrDefault()?.LineNumber ?? -1;
-                var column = error.Nodes.FirstOrDefault()?.Tokens?.FirstOrDefault().ColumnNumber ?? -1;
+                var column = error.Nodes.FirstOrDefault()?.Tokens?.FirstOrDefault()?.ColumnNumber ?? -1;
 
                 reports.Add(new Report(viewPath, line, column, error.ErrorMessage));
             }
@@ -208,6 +211,39 @@ namespace DotVVM.Compiler
             var syntaxTree = emitter.BuildTree(namespaceName, className, viewPath).Single();
             var references = emitter.UsedAssemblies.Select(a => MetadataReference.CreateFromFile(a.Key.Location));
             return view.WithSyntaxTree(syntaxTree).WithRequiredReferences(references);
+        }
+
+        /// <summary>
+        /// HACK: Because as of 2.4.0, DotVVM gets a list of all assemblies only from the Default DependencyContext,
+        ///       a problem arises, because in this Compiler, DotVVM itself isn't in the Default DependencyContext, thus
+        ///       I need to invoke the static oonstructors of controls myself.
+        /// </summary>
+        private static void InitializeDotvvmControls(Assembly rootAssembly)
+        {
+            var dotvvmAssemblyName = typeof(DotvvmControl).Assembly.GetName().Name;
+
+            var candidateAssemblies = rootAssembly.GetReferencedAssemblies()
+                .Select(Assembly.Load)
+                .Where(a => a.GetReferencedAssemblies().Any(s => s.Name == dotvvmAssemblyName))
+                .ToArray();
+
+            var types = candidateAssemblies
+                .Concat(new[] { typeof(DotvvmControl).Assembly })
+                .SelectMany(a => a.GetLoadableTypes()
+                    .Where(t => t.IsClass && t.GetCustomAttribute<ContainsDotvvmPropertiesAttribute>() is object))
+                .ToArray();
+
+            foreach (var type in types)
+            {
+                var tt = type;
+                do
+                {
+                    RuntimeHelpers.RunClassConstructor(tt.TypeHandle);
+                    tt = tt.GetTypeInfo().BaseType;
+                }
+                while (tt != null && tt.GetTypeInfo().IsGenericType);
+            }
+
         }
     }
 }
