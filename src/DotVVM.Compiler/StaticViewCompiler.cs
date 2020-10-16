@@ -22,6 +22,8 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.Utils;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CSharp.RuntimeBinder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -34,6 +36,7 @@ namespace DotVVM.Compiler
             = "DotVVM.Framework.Runtime.Caching.IDotvvmCacheAdapter, DotVVM.Framework";
         private const string SimpleDictionaryCacheAdapterName
             = "DotVVM.Framework.Testing.SimpleDictionaryCacheAdapter, DotVVM.Framework";
+        private readonly ImmutableArray<MetadataReference> baseReferences;
 
         private readonly DotvvmConfiguration configuration;
         private readonly Assembly dotvvmProjectAssembly;
@@ -48,6 +51,7 @@ namespace DotVVM.Compiler
         {
             this.configuration = configuration;
             this.dotvvmProjectAssembly = dotvvmProjectAssembly;
+            baseReferences = GetBaseReferences(configuration);
         }
 
         public static DotvvmConfiguration CreateConfiguration(
@@ -209,14 +213,33 @@ namespace DotVVM.Compiler
             }
 
             var syntaxTree = emitter.BuildTree(namespaceName, className, viewPath).Single();
-            var references = emitter.UsedAssemblies.Select(a => MetadataReference.CreateFromFile(a.Key.Location));
-            return view.WithSyntaxTree(syntaxTree).WithRequiredReferences(references);
+            var references = emitter.UsedAssemblies.Select(a =>
+                MetadataReference.CreateFromFile(a.Key.Location).WithAliases(new[] { a.Value, "global" }));
+
+            var compilation = CSharpCompilation.Create(
+                assemblyName: $"{fullClassName}.Compiled",
+                syntaxTrees: new[] { syntaxTree },
+                references: baseReferences.Concat(references),
+                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            using var memoryStream = new MemoryStream();
+            var result = compilation.Emit(memoryStream);
+            if (!result.Success)
+            {
+                reports.Add(new Report(viewPath, -1, -1, "Compilation failed. This is likely a bug in the DotVVM compiler."));
+                return view.WithReports(reports);
+            }
+
+            var assembly = Assembly.Load(memoryStream.ToArray());
+            var viewType = assembly.GetType(fullClassName);
+            return view.WithAssembly(assembly)
+                .WithViewType(viewType!)
+                .WithDataContextType(resolvedView.DataContextTypeStack.DataContextType);
         }
 
         /// <summary>
         /// HACK: Because as of 2.4.0, DotVVM gets a list of all assemblies only from the Default DependencyContext,
         ///       a problem arises, because in this Compiler, DotVVM itself isn't in the Default DependencyContext, thus
-        ///       I need to invoke the static oonstructors of controls myself.
+        ///       I need to invoke the static constructors of controls myself.
         /// </summary>
         private static void InitializeDotvvmControls(Assembly rootAssembly)
         {
@@ -243,7 +266,54 @@ namespace DotVVM.Compiler
                 }
                 while (tt != null && tt.GetTypeInfo().IsGenericType);
             }
+        }
 
+        private static ImmutableArray<MetadataReference> GetBaseReferences(DotvvmConfiguration configuration)
+        {
+            // TODO: This method is a dupe of a part of DefaultViewCompiler
+            var diAssembly = typeof(ServiceCollection).Assembly;
+            var builder = ImmutableArray.CreateBuilder<Assembly>();
+            builder.AddRange(diAssembly.GetReferencedAssemblies().Select(Assembly.Load));
+            builder.Add(diAssembly);
+            builder.AddRange(configuration.Markup.Assemblies.Select(n => Assembly.Load(new AssemblyName(n))));
+            builder.Add(Assembly.Load(new AssemblyName("mscorlib")));
+            builder.Add(Assembly.Load(new AssemblyName("System.ValueTuple")));
+            builder.Add(typeof(IServiceProvider).Assembly);
+            builder.Add(typeof(RuntimeBinderException).Assembly);
+            builder.Add(typeof(DynamicAttribute).Assembly);
+            builder.Add(typeof(DotvvmConfiguration).Assembly);
+#if NETCOREAPP3_1
+            builder.Add(Assembly.Load(new AssemblyName("System.Runtime")));
+            builder.Add(Assembly.Load(new AssemblyName("System.Collections.Concurrent")));
+            builder.Add(Assembly.Load(new AssemblyName("System.Collections")));
+#elif NET461
+            builder.Add(typeof(List<>).Assembly);
+
+#else
+#error Fix TargetFrameworks.
+#endif
+
+            var netstandardAssembly = AppDomain.CurrentDomain.GetAssemblies()
+                .FirstOrDefault(a => a.GetName().Name == "netstandard");
+            if (netstandardAssembly is object)
+            {
+                builder.Add(netstandardAssembly);
+            }
+            else
+            {
+                try
+                {
+                    // netstandard assembly is required for netstandard 2.0 and in some cases
+                    // for netframework461 and newer. netstandard is not included in netframework452
+                    // and will throw FileNotFoundException. Instead of detecting current netframework
+                    // version, the exception is swallowed.
+                    builder.Add(Assembly.Load(new AssemblyName("netstandard")));
+                }
+                catch (FileNotFoundException) { }
+            }
+
+            return builder.Select(a => (MetadataReference)MetadataReference.CreateFromFile(a.Location))
+                .ToImmutableArray();
         }
     }
 }
