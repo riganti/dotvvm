@@ -3,9 +3,6 @@
   "version": "3.0.0-preview01",
   "description": "MVVM framework for ASP.NET",
   "types": "index.d.ts",
-  "scripts": {
-    "build": "tsc --project tsconfig.json"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/riganti/dotvvm.git"
