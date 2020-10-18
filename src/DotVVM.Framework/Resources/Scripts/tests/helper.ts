@@ -15,9 +15,9 @@ export function watchEvents() {
     const handlers: any = {}
     for (const event of keys(dotvvm.events)) {
         if ("subscribe" in (dotvvm.events as any)[event]) {
-            function h(args: any) {
+            var h = function (args: any) {
                 console.debug("Event " + event, args.postbackClientId ?? args.postbackId ?? "")
-            }
+            };
             (dotvvm.events as any)[event].subscribe(h)
             handlers[event] = h
         }

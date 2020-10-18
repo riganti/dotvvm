@@ -1,4 +1,4 @@
-import typescript from 'rollup-plugin-typescript'
+import typescript from '@rollup/plugin-typescript'
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
@@ -15,13 +15,17 @@ const config = ({ minify, input, output, spa, legacy }) => ({
         {
             format: legacy ? 'iife' : 'esm',
             dir: `./obj/javascript/${output}`,
-            sourcemap: !production
+            sourcemap: true,
+            name: 'dotvvm'
         },
     ],
 
     // treeshake: false,
     plugins: [
-        typescript({ target: legacy ? "es5" : "es2018" }),
+        typescript({ 
+            target: legacy ? "es5" : "es2018", 
+            declaration: false
+        }),
         resolve({ browser: true }),
         commonjs(),
         replace({
@@ -74,7 +78,7 @@ const config = ({ minify, input, output, spa, legacy }) => ({
                 ascii_only: true
             }
         }),
-        // !production && livereload('public')
+        !production && livereload('public')
     ]
 })
 
@@ -113,5 +117,5 @@ export default [
     //  input: ['./Resources/Scripts/dotvvm-light.ts'],
     //  output: "root-light",
     //  spa: false
-    //}),
+    //})
 ]
