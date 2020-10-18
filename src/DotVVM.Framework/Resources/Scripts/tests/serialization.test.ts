@@ -2,6 +2,7 @@
 import { validateType } from '../serialization/typeValidation'
 import { deserialize } from '../serialization/deserialize'
 import { serialize } from '../serialization/serialize'
+import { serializeDate } from '../serialization/date'
 
 const assertObservable = (object: any): any => {
     expect(object).observable()
@@ -1231,7 +1232,7 @@ class TestData {
     boolVm: boolean = true
     stringVm: string = "viewmodel"
     dateVm: Date = new Date(1995, 11, 17)
-    dateVmString: string = "1995-12-17T00:00:00.0000000"
+    dateVmString: string = serializeDate(new Date(1995, 11, 17))!   // "new Date(1995, 11, 17)" depends on the local timezone, we need the the string representation to correspond with that
     array2Vm = ["aa", "bb"]
     array3Vm = ["aa", "bb", "cc"]
     objectVm = { Prop1: "aa", Prop2: "bb" }

@@ -162,6 +162,7 @@ namespace DotVVM.Framework.Controls
                 default;
 
             var call = adjustedExpression.ToString(p =>
+                p == CommandBindingExpression.PostbackOptionsParameter ? new CodeParameterAssignment("options", OperatorPrecedence.Max) :
                 p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
                 p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
                     getContextPath(control),
@@ -176,7 +177,7 @@ namespace DotVVM.Framework.Controls
                 default(CodeParameterAssignment)
             );
             if (generatedPostbackHandlers == null && options.AllowPostbackHandlers)
-                return $"dotvvm.applyPostbackHandlers(function(){{return {call}}}.bind(this),{options.ElementAccessor.Code!.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()})";
+                return $"dotvvm.applyPostbackHandlers(function(options){{return {call}}}.bind(this),{options.ElementAccessor.Code!.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()})";
             else return call;
         }
 
