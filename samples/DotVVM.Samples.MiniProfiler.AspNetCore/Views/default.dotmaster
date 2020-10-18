@@ -21,7 +21,7 @@
 
     <dot:Button Text="Command" Click="{command:  Command()}" />
     <dot:Button Text="Static Command" Click="{staticCommand: DefaultViewModel.StaticCommand()}" />
-    <dot:SpaContentPlaceHolder ID="ContentPlaceHolder" DefaultRouteName="Page1" />
+    <dot:SpaContentPlaceHolder ID="ContentPlaceHolder"  />
 
 </body>
 </html>
