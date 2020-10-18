@@ -1,0 +1,22 @@
+{
+  "name": "dotvvm-types",
+  "version": "3.0.0-preview01",
+  "description": "MVVM framework for ASP.NET",
+  "types": "index.d.ts",
+  "scripts": {
+    "build": "tsc --project tsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/riganti/dotvvm.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/riganti/dotvvm/issues"
+  },
+  "homepage": "https://github.com/riganti/dotvvm#readme",
+  "devDependencies": {
+    "typescript": "^4.0.3"
+  }
+}

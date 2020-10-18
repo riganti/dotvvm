@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+	"emitDeclarationOnly": true,
+    "sourceMap": true,
+	"outFile": "index.d.ts",
+    
+    "target": "ES2018",    
+	"module": "ESNext",
+    "lib": ["dom", "es2015.promise", "es5", "es6"],
+    "esModuleInterop": true,
+	
+    "noImplicitAny": true,
+    "strictFunctionTypes": true,
+    "strict": true,
+    "noImplicitThis": true,
+    "noEmitOnError": false,
+    "removeComments": false,
+    "strictNullChecks": true
+  },
+  "include": ["../../../DotVVM.Framework/Resources/Scripts/**/*"],
+  "exclude": ["../../../DotVVM.Framework/Resources/Scripts/tests"]
+}
