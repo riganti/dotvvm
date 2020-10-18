@@ -35,7 +35,7 @@ export function watchEvents(consoleOutput: boolean = true) {
     const allEvents = { ...dotvvm.events, ...validationEvents };
     for (const event of keys(allEvents)) {
         if ("subscribe" in (allEvents as any)[event]) {
-            function h(args: any) {
+            var h = function (args: any) {
                 if (consoleOutput) {
                     console.debug("Event " + event, args.postbackId ?? "")
                 }
