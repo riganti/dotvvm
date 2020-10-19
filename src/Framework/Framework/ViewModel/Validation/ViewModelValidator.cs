@@ -25,7 +25,7 @@ namespace DotVVM.Framework.ViewModel.Validation
         /// </summary>
         public IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel)
         {
-            return ValidateViewModel(viewModel, "", new HashSet<object>());
+            return ValidateViewModel(viewModel, "/", new HashSet<object>());
         }
 
         /// <summary>
@@ -49,13 +49,12 @@ namespace DotVVM.Framework.ViewModel.Validation
             if (ReflectionUtils.IsEnumerable(viewModelType))
             {
                 if (pathPrefix.Length == 0) pathPrefix = "$data";
-                else pathPrefix += "()";
 
                 // collections
                 var index = 0;
                 foreach (var item in (IEnumerable)viewModel)
                 {
-                    foreach (var error in ValidateViewModel(item, pathPrefix + "[" + index + "]()", alreadyValidated))
+                    foreach (var error in ValidateViewModel(item, pathPrefix + "[" + index + "]", alreadyValidated))
                     {
                         yield return error;
                     }
@@ -139,15 +138,15 @@ namespace DotVVM.Framework.ViewModel.Validation
         {
             if (string.IsNullOrEmpty(prefix))
             {
-                return path;
+                return $"/{path}";
             }
-            else if (!prefix.EndsWith("()", StringComparison.Ordinal))
+            else if (prefix.Last() == '/')
             {
-                return prefix + "()." + path;
+                return prefix + path;
             }
             else
             {
-                return prefix + "." + path;
+                return prefix + "/" + path;
             }
         }
     }
