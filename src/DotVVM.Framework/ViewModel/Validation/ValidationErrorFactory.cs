@@ -88,10 +88,12 @@ namespace DotVVM.Framework.ViewModel.Validation
             expr = (LambdaExpression)new LocalVariableExpansionVisitor().Visit(expr);
             return exprCache.GetOrAdd((translator, expr), e => {
                 var dataContext = DataContextStack.Create(e.expression.Parameters.Single().Type);
-                var expression = ExpressionUtils.Replace(e.expression, BindingExpressionBuilder.GetParameters(dataContext).First(p => p.Name == "_this")).ToString();
-                expression = expression.Remove(expression.IndexOf("_this"), "_this".Length);
-                expression = expression.Replace('.', '/');
-                return expression;
+                var expression = ExpressionUtils.Replace(e.expression, BindingExpressionBuilder.GetParameters(dataContext).First(p => p.Name == "_this"));
+                var jExpression = translator.CompileToJavascript(expression, dataContext).ToString();
+
+                jExpression = jExpression.Substring(jExpression.IndexOf("."));
+                jExpression = jExpression.Replace('.', '/');
+                return jExpression;
             });
         }
 
