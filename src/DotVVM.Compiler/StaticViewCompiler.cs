@@ -230,9 +230,8 @@ namespace DotVVM.Compiler
             }
 
             var assembly = Assembly.Load(memoryStream.ToArray());
-            var viewType = assembly.GetType(fullClassName);
             return view.WithAssembly(assembly)
-                .WithViewType(viewType!)
+                .WithViewType(resolvedView.Metadata.Type)
                 .WithDataContextType(resolvedView.DataContextTypeStack.DataContextType);
         }
 
