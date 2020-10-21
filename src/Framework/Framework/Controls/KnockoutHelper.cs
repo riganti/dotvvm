@@ -351,7 +351,20 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private const string RootValidationTargetExpression = "dotvvm.viewModelObservables['root']";
+        public static IEnumerable<string> GetContextPath(DotvvmBindableObject? control)
+        {
+            while (control != null)
+            {
+                var pathFragment = control.GetDataContextPathFragment();
+                if (pathFragment != null)
+                {
+                    yield return pathFragment;
+                }
+                control = control.Parent;
+            }
+        }
+
+        private const string RootValidationTargetExpression = @"/";
 
         /// <summary>
         /// Gets the validation target expression.

@@ -62,8 +62,8 @@ const createValidationHandler = (path: string) => ({
 
 export function init() {
     postbackHandlers["validate"] = (opt) => createValidationHandler(opt.path);
-    postbackHandlers["validate-root"] = () => createValidationHandler("dotvvm.viewModelObservables['root']");
-    postbackHandlers["validate-this"] = () => createValidationHandler("$data");
+    postbackHandlers["validate-root"] = () => createValidationHandler("/");
+    postbackHandlers["validate-this"] = () => createValidationHandler("$data"); //TODO
 
     if (compileConstants.isSpa) {
         spaEvents.spaNavigating.subscribe(args => {
