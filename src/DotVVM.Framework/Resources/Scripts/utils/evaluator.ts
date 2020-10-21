@@ -1,17 +1,25 @@
 import { isObservableArray } from "./knockout";
 
 export function evaluateOnViewModel(context: any, expression: string): any {
-    // todo: reimplement
-    let result;
-    if (context && context.$data) {
-        result = new Function("$context", "with($context) { with ($data) { return " + expression + "; } }")(context);
-    } else {
-        result = new Function("$context", "var $data=$context; with($context) { return " + expression + "; }")(context);
+    var parts = expression.split(/[/[\]]+/);
+    var currentLevel = context["$data"]!=undefined ? context["$data"] : context;
+    var currentPath = "";
+    for (var i = 0; i < parts.length; i++) {
+        let expressionPart = parts[i];
+        if (expressionPart === "")
+            continue;
+
+        var currentLevelExpanded = currentLevel instanceof Function ? currentLevel() : currentLevel;
+
+        var nextNode = currentLevelExpanded[expressionPart];
+        if (nextNode==undefined) {
+            throw `Validation error could not been applied to property specified by propertyPath ${expression}. Property with name ${expressionPart} does not exist on ${currentPath}.`;
+        }
+        currentPath += "/"+expressionPart;
+        currentLevel = nextNode;
     }
-    if (result && result.$data) {
-        result = result.$data;
-    }
-    return result;
+
+    return currentLevel;
 }
 
 export function getDataSourceItems(viewModel: any): Array<KnockoutObservable<any>> {

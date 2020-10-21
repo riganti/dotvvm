@@ -778,6 +778,29 @@ namespace DotVVM.Samples.Tests.Feature
                 Assert.Equal(expectedCountOfValidationAsterisks, countOfDisplayedAsterisks);
             });
         }
+        [Theory]
+        [InlineData("/Text")]
+        [InlineData("/Data/Text")]
+        [InlineData("/Data2/Text")]
+        [InlineData("/Col[0]/Text")]
+        [InlineData("/Col[1]/Text")]
+        [InlineData("/Co[2]/Text")]
+        public void Feature_Validation_ValidationPaths(string validationPath)
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidationPropertyPathResolving);
+
+                var button = browser.Single("butNo", SelectByDataUi);
+                var validationPathsList = browser.Single("ValidationErrors", SelectBy.Id);
+
+                button.Click();
+
+                var validationPaths = validationPathsList.FindElements("li").Select(t => t.GetInnerText()).ToList();
+
+                bool hasCorrectValidationPath = validationPaths.Any(t => t == validationPath);
+                Assert.True(hasCorrectValidationPath,"None of the errors has expected validation path.");
+            });
+        }
 
         public ValidationTests(ITestOutputHelper output) : base(output)
         {

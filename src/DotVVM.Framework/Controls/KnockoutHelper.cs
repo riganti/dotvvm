@@ -299,7 +299,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private const string RootValidationTargetExpression = "dotvvm.viewModelObservables['root']";
+        private const string RootValidationTargetExpression = @"/";
 
         /// <summary>
         /// Gets the validation target expression.

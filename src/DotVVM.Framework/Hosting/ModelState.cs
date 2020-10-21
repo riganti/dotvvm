@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Hosting
         public ModelState()
         {
             Errors = new List<ViewModelValidationError>();
-            ValidationTargetPath = "dotvvm.viewModelObservables['root']";
+            ValidationTargetPath = @"/";
         }
 
     }

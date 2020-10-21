@@ -45,7 +45,8 @@ function init(culture: string) {
 const dotvvmExports = {
     evaluator: {
         getDataSourceItems: evaluator.getDataSourceItems,
-        wrapObservable: evaluator.wrapObservable
+        wrapObservable: evaluator.wrapObservable,
+        evaluateOnViewModel: evaluator.evaluateOnViewModel
     },
     fileUpload: {
         reportProgress: fileUpload.reportProgress,
