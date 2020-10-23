@@ -21,6 +21,8 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Validation
             new Data(),
             new Data()
         };
+
+        public InnerVM InnerVm { get; set; } = new InnerVM();
     }
 
     public class Fail : ValidationAttribute
@@ -29,6 +31,14 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Validation
         protected override ValidationResult IsValid(object value, ValidationContext validationContext) => new ValidationResult("FAIL");
     }
 
+    public class InnerVM
+    {
+        [Fail]
+        public string InnerVmText { get; set; }
+
+        public Data InnerVmData { get; set; } = new Data();
+
+    }
     public class Data
     {
         [Fail]
