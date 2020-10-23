@@ -17,9 +17,8 @@ namespace DotVVM.Compiler
             DirectoryInfo? projectDir,
             string? rootNamespace)
         {
-            var logger = CommandLineExtensions.Factory.CreateLogger("DotVVM.Compiler");
             var projectAssembly = Assembly.LoadFrom(assembly.FullName);
-            Program.Compile(projectAssembly, projectDir, rootNamespace, logger);
+            Program.Compile(projectAssembly, projectDir, rootNamespace);
         }
     }
 }

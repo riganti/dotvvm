@@ -35,7 +35,7 @@ namespace DotVVM.Compiler
             };
             var projectAssembly = System.Runtime.Loader.AssemblyLoadContext.Default
                 .LoadFromAssemblyPath(assembly.FullName);
-            Compile(projectAssembly, projectDir, rootNamespace, logger);
+            Compile(projectAssembly, projectDir, rootNamespace);
 
 #elif NETCOREAPP2_1
             // NB: This currently *almost* works for .NET Core 2.1. It tries to load a "DotVVM.Framework.resources"
@@ -67,7 +67,7 @@ namespace DotVVM.Compiler
                     : null;
             };
             var projectAssembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assembly.FullName);
-            Compile(projectAssembly, projectDir, rootNamespace, logger);
+            Compile(projectAssembly, projectDir, rootNamespace);
 
 #elif NET461
             var setup = new AppDomainSetup { ApplicationBase = Path.GetDirectoryName(assembly.FullName) };
@@ -89,20 +89,15 @@ namespace DotVVM.Compiler
         public static void Compile(
             Assembly assembly,
             DirectoryInfo? projectDir,
-            string? rootNamespace,
-            ILogger logger)
+            string? rootNamespace)
         {
             var projectDirPath = projectDir?.FullName ?? Directory.GetCurrentDirectory();
             var configuration = StaticViewCompiler.CreateConfiguration(assembly, projectDirPath);
             var compiler = configuration.ServiceProvider.GetRequiredService<StaticViewCompiler>();
             var views = compiler.CompileAllViews();
-            foreach (var view in views)
-            {
-                foreach (var report in view.Reports)
-                {
-                    logger.LogError($"{report.ViewPath}({report.Line},{report.Column}): {report.Message}");
-                }
-            }
+            var logger = new TextReportLogger();
+            using var err = Console.OpenStandardError();
+            logger.Log(err, views.SelectMany(s => s.Reports));
         }
 
         public static int Main(string[] args)
