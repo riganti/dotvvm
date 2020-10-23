@@ -267,6 +267,15 @@ namespace DotVVM.Compiler
             }
         }
 
+        /// <summary>
+        /// HACK: In 2.4.0, TypeRegistry uses ReflectionUtils.FindType. It therefore assumes that DotVVM is running the
+        ///       Default DependencyContext, which in Compiler it is not. This function replaces to 
+        /// </summary>
+        private static void ReplaceDefaultTypeRegistry()
+        {
+
+        }
+
         private static ImmutableArray<MetadataReference> GetBaseReferences(DotvvmConfiguration configuration)
         {
             // TODO: This method is a dupe of a part of DefaultViewCompiler
