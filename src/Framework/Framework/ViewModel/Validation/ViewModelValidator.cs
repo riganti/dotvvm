@@ -13,6 +13,7 @@ namespace DotVVM.Framework.ViewModel.Validation
     {
         private readonly IViewModelSerializationMapper viewModelSerializationMapper;
         private readonly Dictionary<object, object> validationItems;
+        private const string defaultValidationTargetPath = "/";
 
         public ViewModelValidator(IViewModelSerializationMapper viewModelMapper, DotvvmConfiguration dotvvmConfiguration)
         {
@@ -23,9 +24,12 @@ namespace DotVVM.Framework.ViewModel.Validation
         /// <summary>
         /// Validates the view model.
         /// </summary>
-        public IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel)
+        public IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel, string validationTargetPath = defaultValidationTargetPath)
         {
-            return ValidateViewModel(viewModel, "", new HashSet<object>());
+            if (validationTargetPath.First() != '/')
+                validationTargetPath = $"/{validationTargetPath}";
+
+            return ValidateViewModel(viewModel, validationTargetPath, new HashSet<object>());
         }
 
         /// <summary>
@@ -48,7 +52,7 @@ namespace DotVVM.Framework.ViewModel.Validation
 
             if (ReflectionUtils.IsEnumerable(viewModelType))
             {
-                if (pathPrefix.Length == 0) pathPrefix = "/";
+                if (pathPrefix.Length == 0) pathPrefix = defaultValidationTargetPath;
 
                 // collections
                 var index = 0;
@@ -110,9 +114,9 @@ namespace DotVVM.Framework.ViewModel.Validation
                     var paths = new List<string>();
                     if (error.MemberNames != null)
                     {
-                        foreach (var memberName in error.MemberNames)
+                        foreach (var memberPath in error.MemberNames)
                         {
-                            paths.Add(CombinePath(pathPrefix, memberName));
+                            paths.Add(CombinePath(pathPrefix, memberPath));
                         }
                     }
                     if (!paths.Any())
@@ -136,13 +140,20 @@ namespace DotVVM.Framework.ViewModel.Validation
         /// </summary>
         private string CombinePath(string prefix, string path)
         {
-            if (path.First() == '/')
+            if (prefix == defaultValidationTargetPath && path.First() == '/')
             {
-                return prefix + path;
+                return path;
             }
             else
             {
-                return prefix + "/" + path;
+                if (path.First() == '/' || prefix.Last() == '/')
+                {
+                    return prefix + path;
+                }
+                else
+                {
+                    return $"{prefix}/{path}";
+                }
             }
         }
     }
