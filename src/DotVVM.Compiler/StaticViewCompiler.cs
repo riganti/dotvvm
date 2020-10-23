@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using DotVVM.CommandLine;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
@@ -58,6 +60,7 @@ namespace DotVVM.Compiler
             Assembly dotvvmProjectAssembly,
             string dotvvmProjectDir)
         {
+            ReplaceDefaultTypeRegistry(dotvvmProjectAssembly);
             InitializeDotvvmControls(dotvvmProjectAssembly);
             return DotvvmProject.GetConfiguration(dotvvmProjectAssembly, dotvvmProjectDir, services =>
             {
@@ -268,12 +271,36 @@ namespace DotVVM.Compiler
         }
 
         /// <summary>
-        /// HACK: In 2.4.0, TypeRegistry uses ReflectionUtils.FindType. It therefore assumes that DotVVM is running the
-        ///       Default DependencyContext, which in Compiler it is not. This function replaces to 
+        /// HACK: In 2.4.0, TypeRegistry uses ReflectionUtils.FindType. It therefore assumes that DotVVM is running in
+        ///       the Default DependencyContext, which in Compiler it is not. This function replaces the Default
+        ///       TypeRegistry with a custom one that searches the non-default DependencyContext as well.
         /// </summary>
-        private static void ReplaceDefaultTypeRegistry()
+        private static ImmutableArray<Assembly> projectReferences;
+        private static void ReplaceDefaultTypeRegistry(Assembly projectAssembly)
         {
-
+#if NET461
+            return;
+#else
+            var projectContext = Microsoft.Extensions.DependencyModel.DependencyContext.Load(projectAssembly);
+            var builder = ImmutableArray.CreateBuilder<Assembly>();
+            builder.Add(projectAssembly);
+            builder.AddRange(Microsoft.Extensions.DependencyModel.DependencyContextExtensions
+                .GetDefaultAssemblyNames(projectContext)
+                .Select(Assembly.Load));
+            projectReferences = builder.ToImmutable();
+            var registryType = typeof(TypeRegistry);
+            var resolversField = registryType
+                .GetField("resolvers", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var resolvers = (ImmutableList<Func<string, Expression>>)resolversField
+                .GetValue(TypeRegistry.Default)!;
+            resolvers = resolvers.Add(typeName =>
+            {
+                var type = projectReferences.Select(a => a.GetType(typeName))
+                    .FirstOrDefault(t => t is object);
+                return TypeRegistry.CreateStatic(type);
+            });
+            resolversField.SetValue(TypeRegistry.Default, resolvers);
+#endif
         }
 
         private static ImmutableArray<MetadataReference> GetBaseReferences(DotvvmConfiguration configuration)
