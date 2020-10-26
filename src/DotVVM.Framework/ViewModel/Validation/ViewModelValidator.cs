@@ -53,13 +53,11 @@ namespace DotVVM.Framework.ViewModel.Validation
 
             if (ReflectionUtils.IsEnumerable(viewModelType))
             {
-                if (pathPrefix.Length == 0) pathPrefix = defaultValidationTargetPath;
-
                 // collections
                 var index = 0;
                 foreach (var item in (IEnumerable)viewModel)
                 {
-                    foreach (var error in ValidateViewModel(item, pathPrefix + "[" + index + "]", alreadyValidated))
+                    foreach (var error in ValidateViewModel(item, CombinePath(pathPrefix, $"/{index}/"), alreadyValidated))
                     {
                         yield return error;
                     }

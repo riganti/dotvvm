@@ -52,7 +52,7 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
         [TestMethod]
         public void ModelState_ArrayAccessExpression()
         {
-            Assert.AreEqual("/AnotherProperty/TestViewModel2/Collection[0]/StringValue", ValidationErrorFactory.CreateModelError(viewModel, v => v.AnotherProperty.TestViewModel2.Collection[0].StringValue, "").PropertyPath);
+            Assert.AreEqual("/AnotherProperty/TestViewModel2/Collection/0/StringValue", ValidationErrorFactory.CreateModelError(viewModel, v => v.AnotherProperty.TestViewModel2.Collection[0].StringValue, "").PropertyPath);
         }
 
         [TestMethod]
