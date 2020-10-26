@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var expression = ValidationErrorFactory.GetPathFromExpression(
                 DotvvmTestHelper.DefaultConfig,
                 (Expression<Func<TestViewModel, int>>)(vm => vm.Numbers[index]));
-            Assert.AreEqual("/Numbers[1]", expression);
+            Assert.AreEqual("/Numbers/1", expression);
         }
 
         [TestMethod]
@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var complex = ValidationErrorFactory.GetPathFromExpression(
                 DotvvmTestHelper.DefaultConfig,
                 (Expression<Func<TestViewModel, int>>)(vm => vm.Numbers[sample.Index]));
-            Assert.AreEqual("/Numbers[42]", complex);
+            Assert.AreEqual("/Numbers/42", complex);
         }
 
         [TestMethod]
@@ -40,9 +40,9 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             // test that the cache built into ValidationErrorFactory does not leak
 
-            Assert.AreEqual("/Numbers[1]", GetNumbers(1));
-            Assert.AreEqual("/Numbers[2]", GetNumbers(2));
-            Assert.AreEqual("/Numbers[3]", GetNumbers(3));
+            Assert.AreEqual("/Numbers/1", GetNumbers(1));
+            Assert.AreEqual("/Numbers/2", GetNumbers(2));
+            Assert.AreEqual("/Numbers/3", GetNumbers(3));
         }
 
         [TestMethod]

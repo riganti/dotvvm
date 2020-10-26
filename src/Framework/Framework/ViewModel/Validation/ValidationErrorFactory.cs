@@ -92,7 +92,10 @@ namespace DotVVM.Framework.ViewModel.Validation
                 var jExpression = translator.CompileToJavascript(expression, dataContext).ToString();
 
                 jExpression = jExpression.Substring(jExpression.IndexOf("."));
-                jExpression = jExpression.Replace('.', '/');
+                // Replace . (dot), [ (left bracket) with / (slash)
+                // Delete ] (right bracket)
+                jExpression = System.Text.RegularExpressions.Regex.Replace(jExpression, @"\.|\[", "/");
+                jExpression = jExpression.Replace("]", "");
                 return jExpression;
             });
         }
