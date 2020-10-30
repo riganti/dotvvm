@@ -10,7 +10,9 @@ namespace DotVVM.Compiler
     {
         public static void Run(FileInfo assembly, DirectoryInfo? projectDir, string? rootNamespace)
         {
-            ProjectLoader.GetExecutor(assembly.FullName).ExecuteCompile(assembly, projectDir, rootNamespace);
+            var executor = (AppDomainCompilerExecutor)ProjectLoader.GetExecutor(assembly.FullName);
+            //executor.ExecuteCompile(assembly, projectDir, rootNamespace);
+            executor.ExecuteCompile(assembly, projectDir, rootNamespace);
         }
 
         public static int Main(string[] args)

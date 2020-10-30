@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Reflection;
 
 namespace DotVVM.Compiler
 {
@@ -53,16 +54,22 @@ namespace DotVVM.Compiler
             return new DefaultCompilerExecutor();
 
 #elif NET461
-            var setup = new AppDomainSetup { ApplicationBase = Path.GetDirectoryName(assemblyPath) };
+            var setup = new AppDomainSetup
+            {
+                ApplicationBase = Path.GetDirectoryName(assemblyPath)
+            };
             var configPath = assemblyPath + ".config";
             if (File.Exists(configPath))
             {
                 setup.ConfigurationFile = configPath;
             }
             var domain = AppDomain.CreateDomain("DotVVM.Compiler.AppDomain", null, setup);
+            //var compilerPath = typeof(ProjectLoader).Assembly.Location;
+            //var newCompilerPath = Path.Combine(setup.ApplicationBase, Path.GetFileName(compilerPath));
+            //File.Copy(compilerPath, newCompilerPath, true);
             return (ICompilerExecutor)domain.CreateInstanceFromAndUnwrap(
-                assemblyName: typeof(DefaultCompilerExecutor).Assembly.Location,
-                typeName: typeof(DefaultCompilerExecutor).FullName);
+                assemblyName: typeof(AppDomainCompilerExecutor).Assembly.Location,
+                typeName: typeof(AppDomainCompilerExecutor).FullName); ;
 #else
 #error Fix TargetFrameworks.
 #endif

@@ -2,12 +2,12 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using DotVVM.Framework.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Compiler
 {
-    [Serializable]
-    public class DefaultCompilerExecutor : MarshalByRefObject, ICompilerExecutor
+    public class DefaultCompilerExecutor : ICompilerExecutor
     {
         public void ExecuteCompile(FileInfo assemblyFile, DirectoryInfo? projectDir, string? rootNamespace)
         {

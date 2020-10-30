@@ -271,39 +271,6 @@ namespace DotVVM.Compiler
             }
         }
 
-        /// <summary>
-        /// HACK: In 2.4.0, TypeRegistry uses ReflectionUtils.FindType. It therefore assumes that DotVVM is running in
-        ///       the Default DependencyContext, which in Compiler it is not. This function replaces the Default
-        ///       TypeRegistry with a custom one that searches the non-default DependencyContext as well.
-        /// </summary>
-        private static ImmutableArray<Assembly> projectReferences;
-        private static void ReplaceDefaultTypeRegistry(Assembly projectAssembly)
-        {
-#if NET461
-            return;
-#else
-            var projectContext = Microsoft.Extensions.DependencyModel.DependencyContext.Load(projectAssembly);
-            var builder = ImmutableArray.CreateBuilder<Assembly>();
-            builder.Add(projectAssembly);
-            builder.AddRange(Microsoft.Extensions.DependencyModel.DependencyContextExtensions
-                .GetDefaultAssemblyNames(projectContext)
-                .Select(Assembly.Load));
-            projectReferences = builder.ToImmutable();
-            var registryType = typeof(TypeRegistry);
-            var resolversField = registryType
-                .GetField("resolvers", BindingFlags.Instance | BindingFlags.NonPublic)!;
-            var resolvers = (ImmutableList<Func<string, Expression>>)resolversField
-                .GetValue(TypeRegistry.Default)!;
-            resolvers = resolvers.Add(typeName =>
-            {
-                var type = projectReferences.Select(a => a.GetType(typeName))
-                    .FirstOrDefault(t => t is object);
-                return TypeRegistry.CreateStatic(type);
-            });
-            resolversField.SetValue(TypeRegistry.Default, resolvers);
-#endif
-        }
-
         private static void ReplaceDefaultDependencyContext(Assembly projectAssembly)
         {
 #if NET461
