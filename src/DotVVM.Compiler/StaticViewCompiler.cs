@@ -60,7 +60,8 @@ namespace DotVVM.Compiler
             Assembly dotvvmProjectAssembly,
             string dotvvmProjectDir)
         {
-            ReplaceDefaultTypeRegistry(dotvvmProjectAssembly);
+            // ReplaceDefaultTypeRegistry(dotvvmProjectAssembly);
+            ReplaceDefaultDependencyContext(dotvvmProjectAssembly);
             InitializeDotvvmControls(dotvvmProjectAssembly);
             return DotvvmProject.GetConfiguration(dotvvmProjectAssembly, dotvvmProjectDir, services =>
             {
@@ -300,6 +301,24 @@ namespace DotVVM.Compiler
                 return TypeRegistry.CreateStatic(type);
             });
             resolversField.SetValue(TypeRegistry.Default, resolvers);
+#endif
+        }
+
+        private static void ReplaceDefaultDependencyContext(Assembly projectAssembly)
+        {
+#if NET461
+            return;
+#else
+            var projectContext = Microsoft.Extensions.DependencyModel.DependencyContext.Load(projectAssembly);
+            var mergedContext = Microsoft.Extensions.DependencyModel.DependencyContext.Default.Merge(projectContext);
+            var fields = typeof(Microsoft.Extensions.DependencyModel.DependencyContext)
+                 .GetFields(BindingFlags.NonPublic | BindingFlags.Instance)!;
+            foreach (var field in fields)
+            {
+                field.SetValue(
+                    Microsoft.Extensions.DependencyModel.DependencyContext.Default,
+                    field.GetValue(mergedContext));
+            }
 #endif
         }
 
