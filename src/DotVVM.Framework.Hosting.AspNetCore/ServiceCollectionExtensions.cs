@@ -29,7 +29,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddDotVVM<TServiceConfigurator>(this IServiceCollection services) where TServiceConfigurator : IDotvvmServiceConfigurator, new()
         {
             var configurator = new TServiceConfigurator();
-            return services.AddDotVvm(configurator);
+            return services.AddDotVVM(configurator);
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="configurator">Configurator instance</param>
-        public static IServiceCollection AddDotVvm<TServiceConfigurator>(this IServiceCollection services, TServiceConfigurator configurator) where TServiceConfigurator : IDotvvmServiceConfigurator, new()
+        public static IServiceCollection AddDotVVM<TServiceConfigurator>(this IServiceCollection services, TServiceConfigurator configurator) where TServiceConfigurator : IDotvvmServiceConfigurator, new()
         {
             AddDotVVMServices(services);
 
