@@ -28,9 +28,19 @@ namespace Microsoft.Extensions.DependencyInjection
         // ReSharper disable once InconsistentNaming
         public static IServiceCollection AddDotVVM<TServiceConfigurator>(this IServiceCollection services) where TServiceConfigurator : IDotvvmServiceConfigurator, new()
         {
+            var configurator = new TServiceConfigurator();
+            return services.AddDotVvm(configurator);
+        }
+
+        /// <summary>
+        /// Adds DotVVM services with authorization and data protection to the specified <see cref="IServiceCollection" />.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
+        /// <param name="configurator">Configurator instance</param>
+        public static IServiceCollection AddDotVvm<TServiceConfigurator>(this IServiceCollection services, TServiceConfigurator configurator) where TServiceConfigurator : IDotvvmServiceConfigurator, new()
+        {
             AddDotVVMServices(services);
 
-            var configurator = new TServiceConfigurator();
             var dotvvmServices = new DotvvmServiceCollection(services);
 
             startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserServicesRegistrationStarted);
