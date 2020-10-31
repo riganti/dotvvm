@@ -29,7 +29,7 @@ namespace Microsoft.AspNetCore.Builder
         /// A value indicating whether to show detailed error page if an exception occurs. It is enabled by default
         /// if <see cref="HostingEnvironmentExtensions.IsDevelopment" /> returns <c>true</c>.
         /// </param>
-        /// <param name="modifyConfiguration">Delegate is called before configuration is freeze</param>
+        /// <param name="modifyConfiguration">Delegate is called before configuration is frozen</param>
         public static DotvvmConfiguration UseDotVVM<TStartup>(this IApplicationBuilder app, string applicationRootPath = null, bool? useErrorPages = null, Action<DotvvmConfiguration> modifyConfiguration = null)
             where TStartup : IDotvvmStartup, new()
         {
@@ -49,7 +49,7 @@ namespace Microsoft.AspNetCore.Builder
         /// A value indicating whether to show detailed error page if an exception occurs. It is enabled by default
         /// if <see cref="HostingEnvironmentExtensions.IsDevelopment" /> returns <c>true</c>.
         /// </param>
-        /// <param name="modifyConfiguration">Delegate is called before configuration is freeze</param>
+        /// <param name="modifyConfiguration">Delegate is called before configuration is frozen</param>
         public static DotvvmConfiguration UseDotVVM<TStartup>(this IApplicationBuilder app, TStartup startup, string applicationRootPath, bool? useErrorPages, Action<DotvvmConfiguration> modifyConfiguration = null)
             where TStartup : IDotvvmStartup, new()
         {
