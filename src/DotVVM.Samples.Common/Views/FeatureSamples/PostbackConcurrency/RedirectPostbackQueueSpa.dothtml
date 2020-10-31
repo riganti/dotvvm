@@ -1,0 +1,19 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.PostbackConcurrency.RedirectPostbackQueueViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/PostbackConcurrency/RedirectPostbackQueueSpaMaster.dotmaster
+
+<dot:Content ContentPlaceHolderID="MainContent">
+
+    <h1>Redirect should cancel waiting postbacks in SPA</h1>
+    
+    <h2>Value: <span class="result">{{value: Value}}</span></h2>
+
+    <p>Click the first button and the second button immediately - the value should not be incremented to 1 when the page is reloading.</p>
+    <p>Click the first button and the third button immediately - the value should not be incremented to 1 after the page is reloaded.</p>
+
+    <div PostBack.Concurrency="Queue">
+        <dot:Button Text="Redirect (blocks for 2 + 5 seconds)" Click="{command: Redirect()}" />
+        <dot:Button Text="Increment" Click="{command: Increment()}" />
+        <dot:Button Text="Increment (after 5 seconds)" Click="{command: IncrementWithWait()}" />
+    </div>
+
+</dot:Content>

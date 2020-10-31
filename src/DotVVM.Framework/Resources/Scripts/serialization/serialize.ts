@@ -22,6 +22,10 @@ export function serializeCore(viewModel: any, opt: ISerializationOptions = {}): 
         opt.pathOnly = false;
     }
 
+    if (isPrimitive(viewModel)) {
+        return viewModel ?? null;
+    }
+
     if (typeof (viewModel) == "function") {
         return null;
     }

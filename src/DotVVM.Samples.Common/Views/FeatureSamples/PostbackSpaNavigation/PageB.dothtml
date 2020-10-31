@@ -1,0 +1,8 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBackSpaNavigation.PageBViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/PostbackSpaNavigation/DenyPostbacksOnSpaNavigation.dotmaster
+
+<dot:Content ContentPlaceHolderID="MainContent">
+
+    <p>Navigation success</p>
+
+</dot:Content>

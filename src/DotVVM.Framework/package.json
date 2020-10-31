@@ -1,26 +1,27 @@
 {
   "devDependencies": {
-    "@rollup/plugin-replace": "^2.2.0",
-    "@types/jest": "^26.0.10",
-    "fast-check": "^2.2.0",
-    "jest": "^26.4.2",
-    "promise": "^8.1.0",
-    "rollup": "^1.25.2",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-livereload": "^1.0.4",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-terser": "^5.1.2",
-    "rollup-plugin-typescript": "^1.0.1",
-    "systemjs": "^6.1.9",
-    "ts-jest": "^26.3.0",
-    "tslib": "^1.10.0",
-    "typescript": "^3.7.1-rc"
+    "@rollup/plugin-replace": "2.3.3",
+    "@types/jest": "26.0.14",
+    "fast-check": "2.5.0",
+    "jest": "26.5.3",
+    "promise": "8.1.0",
+    "rollup": "2.32.0",
+    "rollup-plugin-commonjs": "10.1.0",
+    "rollup-plugin-livereload": "2.0.0",
+    "rollup-plugin-node-resolve": "5.2.0",
+    "rollup-plugin-terser": "7.0.2",
+    "@rollup/plugin-typescript": "6.0.0",
+    "systemjs": "6.7.1",
+    "ts-jest": "26.4.1",
+    "tslib": "2.0.3",
+    "typescript": "4.0.3"
   },
   "scripts": {
+    "build-development": "rollup -c",
     "build": "npm run build-production && npm run build-polyfills",
     "build-production": "rollup -c --environment BUILD:production",
-    "build-dev": "rollup -c",
     "tsc-build": "tsc -p .",
+    "tsc-types": "tsc -d -p . --outFile ./obj/typescript-types/dotvvm.d.ts --emitDeclarationOnly --skipLibCheck",
     "build-polyfills": "terser -o obj/javascript/polyfill.bundle.js -c -m -- Resources/Scripts/Polyfills/promise.js Resources/Scripts/Polyfills/fetch.js node_modules/systemjs/dist/system.js"
   }
 }

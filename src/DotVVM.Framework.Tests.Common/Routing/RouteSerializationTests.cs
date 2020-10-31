@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
@@ -17,6 +18,8 @@ namespace DotVVM.Framework.Tests.Common.Routing
         [TestMethod]
         public void RouteTable_Deserialization()
         {
+            DotvvmTestHelper.EnsureCompiledAssemblyCache();
+
             var config1 = DotvvmTestHelper.CreateConfiguration();
             config1.RouteTable.Add("route1", "url1", "file1.dothtml", new { a = "ccc" });
             config1.RouteTable.Add("route2", "url2/{int:posint}", "file1.dothtml", new { a = "ccc" });

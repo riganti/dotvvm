@@ -7,16 +7,12 @@
     "noEmitOnError": false,
     "removeComments": false,
     "sourceMap": true,
-    "target": "es2018",
-    // "outDir": "obj/typescript-raw-build",
+    "target": "ES2018",
     "declaration": true,
     "strictNullChecks": true,
-    "lib": ["dom", "es2015.promise", "es5", "es6"],
-    "module": "System",
-    "esModuleInterop":true,
-
-    "outFile": "obj/typescript-raw-build-file"
+    "lib": [ "dom", "es2015.promise", "es5", "es6" ],
+    "module": "ES2015"
   },
-  "exclude": ["obj/**", "Resources/Scripts/dotvvm-light.ts"],
-  "compileOnSave": true
+  "exclude": ["*.d.ts", "obj/**", "Resources/Scripts/tests", "node_modules/**"],
+  "compileOnSave": false
 }

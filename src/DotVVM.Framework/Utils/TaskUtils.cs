@@ -28,9 +28,10 @@ namespace DotVVM.Framework.Utils
         {
             var type = task.GetType();
 
-            if (type != typeof(Task))
+            var resultProperty = type.GetProperty("Result");
+            if (type != typeof(Task) && resultProperty != null)
             {
-                var taskResultPropertyName = type.GetProperty("Result")!.PropertyType.Name;
+                var taskResultPropertyName = resultProperty.PropertyType.Name;
                 return taskResultPropertyName == "VoidTaskResult" || taskResultPropertyName == "VoidResult";
             }
 

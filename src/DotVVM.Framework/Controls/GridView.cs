@@ -166,30 +166,14 @@ namespace DotVVM.Framework.Controls
             var dataSourceBinding = GetDataSourceBinding();
             var dataSource = DataSource;
 
-            var sortCommand =
-                dataSource is ISortableGridViewDataSet sortableSet && sortableSet.SortingOptions is ISortingOptions sortOptions ?
-                    expr => {
-                        if (sortOptions.SortExpression == expr)
-                        {
-                            sortOptions.SortDescending ^= true;
-                        }
-                        else
-                        {
-                            sortOptions.SortExpression = expr;
-                            sortOptions.SortDescending = false;
-                        }
-                        (sortableSet as IPageableGridViewDataSet)?.GoToFirstPage();
-                    }
-            :
-                    SortChanged;
+            var sortCommand = SortChanged;
+            sortCommand ??=
+                typeof(ISortableGridViewDataSet).IsAssignableFrom((GetBinding(DataSourceProperty) as IStaticValueBinding)?.ResultType)
+                  ? (Action<string?>)SortChangedCommand
+                  : null;
 
-            // WORKAROUND: DataSource is null => don't throw exception
-            if (sortCommand == null && dataSource == null)
-            {
-                sortCommand = s => {
-                    throw new DotvvmControlException(this, "Cannot sort when DataSource is null.");
-                };
-            }
+            sortCommand ??= s =>
+                throw new DotvvmControlException(this, "Cannot sort when DataSource is null.");
 
             CreateHeaderRow(context, sortCommand);
 
@@ -225,6 +209,26 @@ namespace DotVVM.Framework.Controls
                 EmptyDataTemplate.BuildContent(context, emptyDataContainer);
                 Children.Add(emptyDataContainer);
             }
+        }
+
+        protected virtual void SortChangedCommand(string? expr)
+        {
+            var dataSource = this.DataSource;
+            if (dataSource is null)
+                throw new DotvvmControlException(this, "Can not execute sort command, DataSource is null");
+            var sortOptions = (dataSource as ISortableGridViewDataSet)?.SortingOptions;
+            if (sortOptions is null)
+                throw new DotvvmControlException(this, "Can not execute sort command, DataSource does not have sorting options");
+            if (sortOptions.SortExpression == expr)
+            {
+                sortOptions.SortDescending ^= true;
+            }
+            else
+            {
+                sortOptions.SortExpression = expr;
+                sortOptions.SortDescending = false;
+            }
+            (dataSource as IPageableGridViewDataSet)?.GoToFirstPage();
         }
 
         protected virtual void CreateHeaderRow(IDotvvmRequestContext context, Action<string?>? sortCommand)
