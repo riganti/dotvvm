@@ -21,7 +21,7 @@
     <DefineConstants>TRACE;OWIN</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="DotVVM.Owin" Version="2.5.0-preview04-final" />
+    <PackageReference Include="DotVVM.Owin" Version="2.5.0" />
     <PackageReference Include="MiniProfiler" Version="4.2.1" />
   </ItemGroup>
 
