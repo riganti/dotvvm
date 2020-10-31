@@ -50,8 +50,7 @@ namespace Microsoft.AspNetCore.Builder
         /// if <see cref="HostingEnvironmentExtensions.IsDevelopment" /> returns <c>true</c>.
         /// </param>
         /// <param name="modifyConfiguration">Delegate is called before configuration is freeze</param>
-        public static DotvvmConfiguration UseDotVVM<TStartup>(this IApplicationBuilder app, TStartup startup, string applicationRootPath, bool? useErrorPages, Action<DotvvmConfiguration> modifyConfiguration = null)
-            where TStartup : IDotvvmStartup, new()
+        public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, IDotvvmStartup startup, string applicationRootPath, bool? useErrorPages, Action<DotvvmConfiguration> modifyConfiguration = null)
         {
             var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
             var config = app.ApplicationServices.GetRequiredService<DotvvmConfiguration>();

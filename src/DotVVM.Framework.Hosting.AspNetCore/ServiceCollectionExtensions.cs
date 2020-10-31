@@ -38,8 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="configurator">The <see cref="IDotvvmServiceConfigurator"/> instance.</param>
-        public static IServiceCollection AddDotVVM<TServiceConfigurator>(this IServiceCollection services, TServiceConfigurator configurator)
-            where TServiceConfigurator : IDotvvmServiceConfigurator, new()
+        public static IServiceCollection AddDotVVM(this IServiceCollection services, IDotvvmServiceConfigurator configurator)
         {
             AddDotVVMServices(services);
 
