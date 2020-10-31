@@ -2,8 +2,8 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net451;netcoreapp2.0</TargetFrameworks>
     <PackageId>DotVVM.DynamicData</PackageId>
-    <PackageVersion>2.4.0</PackageVersion>
-    <VersionPrefix>2.4.0</VersionPrefix>
+    <PackageVersion>2.5.0</PackageVersion>
+    <VersionPrefix>2.5.0</VersionPrefix>
     <Authors>RIGANTI</Authors>
     <Description>Dynamic Data implementation for DotVVM.
     DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.</Description>
