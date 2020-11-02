@@ -29,16 +29,18 @@ namespace Microsoft.AspNetCore.Builder
         /// A value indicating whether to show detailed error page if an exception occurs. It is enabled by default
         /// if <see cref="HostingEnvironmentExtensions.IsDevelopment" /> returns <c>true</c>.
         /// </param>
+        /// <param name="modifyConfiguration">An action that allows modifying configuration before it's frozen.</param>
         public static DotvvmConfiguration UseDotVVM<TStartup>(this IApplicationBuilder app, string applicationRootPath = null, bool? useErrorPages = null, Action<DotvvmConfiguration> modifyConfiguration = null)
             where TStartup : IDotvvmStartup, new()
         {
-            return app.UseDotVVM(applicationRootPath, useErrorPages, new TStartup(), modifyConfiguration);
+            return app.UseDotVVM(new TStartup(), applicationRootPath, useErrorPages, modifyConfiguration);
         }
 
         /// <summary>
         /// Adds DotVVM to the <see cref="IApplicationBuilder" /> request execution pipeline.
         /// </summary>
         /// <param name="app">The <see cref="IApplicationBuilder" /> instance.</param>
+        /// <param name="startup">The <see cref="IDotvvmStartup" /> instance.</param>
         /// <param name="applicationRootPath">
         /// The path to application's root directory. It is used to resolve paths to views, etc.
         /// The default value is equal to <see cref="IHostingEnvironment.ContentRootPath" />.
@@ -47,12 +49,8 @@ namespace Microsoft.AspNetCore.Builder
         /// A value indicating whether to show detailed error page if an exception occurs. It is enabled by default
         /// if <see cref="HostingEnvironmentExtensions.IsDevelopment" /> returns <c>true</c>.
         /// </param>
-        public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, string applicationRootPath, bool? useErrorPages, Action<DotvvmConfiguration> modifyConfiguration = null)
-        {
-            return UseDotVVM(app, applicationRootPath, useErrorPages, null, modifyConfiguration);
-        }
-
-        private static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, string applicationRootPath, bool? useErrorPages, IDotvvmStartup startup, Action<DotvvmConfiguration> modifyConfiguration)
+        /// <param name="modifyConfiguration">An action that allows modifying configuration before it's frozen.</param>
+        public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, IDotvvmStartup startup, string applicationRootPath, bool? useErrorPages, Action<DotvvmConfiguration> modifyConfiguration = null)
         {
             var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
             var config = app.ApplicationServices.GetRequiredService<DotvvmConfiguration>();
