@@ -1,11 +1,8 @@
 /// Holds the dotvvm viewmodel
 
-import { createArray, hasOwnProperty, symbolOrDollar, isPrimitive, keys } from "./utils/objects";
+import { createArray, isPrimitive, keys } from "./utils/objects";
 import { DotvvmEvent } from "./events";
-import { serializeDate } from "./serialization/date";
-import { func } from "../../node_modules/fast-check/lib/types/fast-check";
 import { extendToObservableArrayIfRequired, isOptionsProperty } from "./serialization/deserialize"
-
 
 export const currentStateSymbol = Symbol("currentState")
 const notifySymbol = Symbol("notify")
@@ -111,7 +108,7 @@ export class StateManager<TViewModel> {
 
     public setState(newState: TViewModel) {
         if (newState == null) throw new Error("State can't be null or undefined.")
-        if (newState == this._state) return
+        if (newState === this._state) return
         this.dispatchUpdate();
         return this._state = newState
     }
@@ -247,32 +244,32 @@ function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T
 
     let isUpdating = false
 
-    const rr = initialValue instanceof Array ? ko.observableArray() : ko.observable() as any
-    rr[updateSymbol] = updater
+    const obs = initialValue instanceof Array ? ko.observableArray() : ko.observable() as any
+    obs[updateSymbol] = updater
 
     let updatedObservable = false
 
-    rr.subscribe((newVal: any) => {
+    obs.subscribe((newVal: any) => {
         if (isUpdating) { return }
         updatedObservable = true
         updater(_ => unmapKnockoutObservables(newVal))
     })
 
     function notify(newVal: any) {
-        const currentValue = rr[currentStateSymbol]
+        const currentValue = obs[currentStateSymbol]
         if (newVal === currentValue) { return }
-        rr[currentStateSymbol] = newVal
+        obs[currentStateSymbol] = newVal
         const observableWasSetFromOutside = updatedObservable
         updatedObservable = false
 
         let newContents
-        const oldContents = rr.peek()
+        const oldContents = obs.peek()
         if (isPrimitive(newVal) || newVal instanceof Date) {
             // primitive value
             newContents = newVal
         }
         else if (newVal instanceof Array) {
-            extendToObservableArrayIfRequired(rr)
+            extendToObservableArrayIfRequired(obs)
 
             // when the observable is updated from the outside, we have to rebuild it to make sure that it contains
             // notifiable observables
@@ -318,7 +315,7 @@ function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T
             // smart object, supports the notification by itself
             oldContents[notifySymbol as any](newVal)
 
-            // don't update the observable itself
+            // don't update the observable itself (the object itself doesn't change, only its properties)
             return
         }
         else {
@@ -330,14 +327,14 @@ function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T
 
         try {
             isUpdating = true
-            rr(newContents)
+            obs(newContents)
         }
         finally {
             isUpdating = false
         }
     }
 
-    rr[notifySymbol] = notify
+    obs[notifySymbol] = notify
     notify(initialValue)
-    return rr
+    return obs
 }
