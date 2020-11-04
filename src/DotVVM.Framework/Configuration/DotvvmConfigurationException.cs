@@ -69,13 +69,14 @@ namespace DotVVM.Framework.Configuration
         {
             if (controls != null && controls.Any())
             {
+                var settings = DefaultSerializerSettingsProvider.Instance.Settings;
                 sb.AppendLine("Invalid control registrations: ");
                 foreach (var control in controls)
                 {
                     if (control.Reason == DotvvmConfigurationAssertReason.InvalidCombination)
                     {
                         sb.Append("Control '");
-                        sb.Append(JsonConvert.SerializeObject(control.Value));
+                        sb.Append(JsonConvert.SerializeObject(control.Value, settings));
                         sb.Append("' has set invalid combination of properties.");
                     }
 

@@ -41,10 +41,12 @@ namespace DotVVM.Framework.ResourceManagement
             return true;
         }
 
-        public static void RenderResources(ResourceManager resourceManager, IHtmlWriter writer, IDotvvmRequestContext context, ResourceRenderPosition position)
+        public static void RenderResources(ResourceManager resourceManager, IHtmlWriter writer, IDotvvmRequestContext context, ResourceRenderPosition position) =>
+            RenderResources(resourceManager, resourceManager.GetNamedResourcesInOrder(), writer, context, position);
+        public static void RenderResources(ResourceManager resourceManager, IEnumerable<NamedResource> resources, IHtmlWriter writer, IDotvvmRequestContext context, ResourceRenderPosition position)
         {
             var writeDebugInfo = context.Configuration.Debug;
-            foreach (var resource in resourceManager.GetNamedResourcesInOrder())
+            foreach (var resource in resources)
             {
                 var resourcePosition = resource.Resource.RenderPosition;
                 if (resourcePosition == position || resourcePosition == ResourceRenderPosition.Anywhere)

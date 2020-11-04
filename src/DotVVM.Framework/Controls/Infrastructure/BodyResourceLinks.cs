@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Controls
             ResourcesRenderer.RenderResources(resourceManager, writer, context, ResourceRenderPosition.Body);
 
             // render the serialized viewmodel
-            var serializedViewModel = ((DotvvmRequestContext) context).GetSerializedViewModel();
+            var serializedViewModel = context.GetSerializedViewModel();
             writer.AddAttribute("type", "hidden");
             writer.AddAttribute("id", "__dot_viewmodel_root");
             writer.AddAttribute("value", serializedViewModel);
