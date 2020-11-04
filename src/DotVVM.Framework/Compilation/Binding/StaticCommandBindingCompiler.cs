@@ -89,7 +89,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
                 var invocationExpressions =
                     methodInvocation is JsInvocationExpression invocation && invocation.Target.ToString() == "dotvvm.staticCommandPostback" ?
-                    (JsArrayExpression)invocation.Arguments.ElementAt(3) :
+                    (JsArrayExpression)invocation.Arguments.ElementAt(2) :
                     methodInvocation;
                 var preCommandExpressions = new List<(CodeSymbolicParameter parameter, JsNode node)>();
                 if (replacedNode != null)
@@ -188,7 +188,9 @@ namespace DotVVM.Framework.Compilation.Binding
             var encryptedPlan = EncryptJson(SerializePlan(plan), protector).Apply(Convert.ToBase64String);
 
             return new JsIdentifierExpression("dotvvm").Member("staticCommandPostback")
-                .Invoke(new JsSymbolicParameter(CommandBindingExpression.ViewModelNameParameter), new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter), new JsLiteral(encryptedPlan), new JsArrayExpression(args), callbackFunction, errorCallback)
+                .Invoke(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter), new JsLiteral(encryptedPlan), new JsArrayExpression(args), new JsSymbolicParameter(CommandBindingExpression.PostbackOptionsParameter))
+                .Member("then")
+                .Invoke(callbackFunction, errorCallback)
                 .WithAnnotation(new StaticCommandInvocationJsAnnotation(plan));
         }
 

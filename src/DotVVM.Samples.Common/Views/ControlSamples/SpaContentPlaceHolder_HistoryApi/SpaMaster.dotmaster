@@ -26,7 +26,7 @@
 
         </fieldset>
 
-        <dot:SpaContentPlaceHolder ID="MainContent" DefaultRouteName="ControlSamples_SpaContentPlaceHolder_HistoryApi_PageB" />
+        <dot:SpaContentPlaceHolder ID="MainContent" />
 
         <dot:RequiredResource Name="ControlSamples_SpaContentPlaceHolder_MasterPageResource" />
     </div>

@@ -13,16 +13,7 @@ namespace DotVVM.Framework.ResourceManagement
         public ResourceRenderPosition RenderPosition => ResourceRenderPosition.Body;
         public string[] Dependencies { get; } = new string[0];
 
-        private string? _template;
-        public string? Template
-        {
-            get => _template;
-            set
-            {
-                InlineScriptResource.InlineScriptContentGuard(value);
-                _template = value;
-            }
-        }
+        public string? Template { get; set; }
 
         public TemplateResource(string template)
         {
@@ -31,12 +22,16 @@ namespace DotVVM.Framework.ResourceManagement
 
         public void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
         {
-            if (string.IsNullOrWhiteSpace(Template)) return;
+            var template = Template;
+            var needBase64Hack = InlineScriptResource.InlineScriptContentGuard(template);
+
             writer.AddAttribute("type", "text/html");
             writer.AddAttribute("id", resourceName);
-            writer.RenderBeginTag("script");
-            writer.WriteUnencodedText(Template);
-            writer.RenderEndTag();
+
+            if (needBase64Hack)
+                InlineScriptResource.RenderDataUriString(writer, template);
+            else
+                InlineScriptResource.RenderClassicScript(writer, template);
         }
     }
 }

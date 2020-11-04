@@ -338,7 +338,7 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
             base.RenderControl(fakeWriter, context);
             this.CapturedHtml = str.ToString();
 
-            ResourcesRenderer.RenderResources(
+            ResourcesRenderer.RenderResources(context.ResourceManager,
                 context.ResourceManager.GetNamedResourcesInOrder().Where(r => r.Resource is TemplateResource),
                 writer, context, ResourceRenderPosition.Body);
         }

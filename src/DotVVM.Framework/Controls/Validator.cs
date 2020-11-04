@@ -84,7 +84,7 @@ namespace DotVVM.Framework.Controls
 
         private static void AddValidatedValue(IHtmlWriter writer, IDotvvmRequestContext context, DotvvmProperty prop, DotvvmControl control)
         {
-            writer.AddKnockoutDataBind("dotvvmValidation", control, ValueProperty, renderEvenInServerRenderingMode: true);
+            writer.AddKnockoutDataBind("dotvvm-validation", control, ValueProperty, renderEvenInServerRenderingMode: true);
 
             // render options
             var bindingGroup = new KnockoutBindingGroup();
@@ -98,7 +98,7 @@ namespace DotVVM.Framework.Controls
                     bindingGroup.Add(javascriptName, JsonConvert.SerializeObject(optionValue, settings));
                 }
             }
-            writer.AddKnockoutDataBind("dotvvmValidationOptions", bindingGroup);
+            writer.AddKnockoutDataBind("dotvvm-validationOptions", bindingGroup);
         }
 
         /// <summary>

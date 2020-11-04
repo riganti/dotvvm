@@ -81,14 +81,13 @@ namespace DotVVM.Samples.Tests.Control
                 var incrementButtons = repeater.FindElements("increment-button", this.SelectByDataUi);
 
                 var counterValue = browser.Single("counter-value", this.SelectByDataUi);
-
                 AssertUI.InnerTextEquals(counterValue, "0");
 
                 var counter = 1;
                 foreach (var button in incrementButtons)
                 {
                     button.Click();
-                    AssertUI.InnerTextEquals(counterValue, counter.ToString());
+                    browser.WaitFor(() => AssertUI.InnerTextEquals(counterValue, counter.ToString()), 2000, "Counter value invalid!");
                     counter++;
                 }
 
@@ -98,7 +97,7 @@ namespace DotVVM.Samples.Tests.Control
                 foreach (var button in incrementButtons)
                 {
                     button.Click();
-                    AssertUI.InnerTextEquals(counterValue, counter.ToString());
+                    browser.WaitFor(() => AssertUI.InnerTextEquals(counterValue, counter.ToString()), 2000, "Counter value invalid!");
                     counter++;
                 }
             });

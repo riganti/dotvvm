@@ -1,5 +1,6 @@
 <#@ template language="C#" #>
 <#@ import namespace="DotVVM.Framework.Hosting.ErrorPages" #>
+<#@ import namespace="DotVVM.Framework.ResourceManagement" #>
 <#@ import namespace="System" #>
 <#@ import namespace="System.IO" #>
 <#@ import namespace="System.Linq" #>
@@ -102,184 +103,222 @@ hr{
 
 
 <#+
-	public int ErrorCode { get; set; }
+    public int ErrorCode { get; set; }
 
-	public string ErrorDescription { get; set; }
+    public string ErrorDescription { get; set; }
 
-	public string Summary { get; set; }
+    public string Summary { get; set; }
 
-	public IErrorSectionFormatter[] Formatters { get; set; }
+    public IErrorSectionFormatter[] Formatters { get; set; }
 
-	public void WriteText(string str) {
-		Write(WebUtility.HtmlEncode(str));
-	}
+    public void WriteText(string str)
+    {
+        Write(WebUtility.HtmlEncode(str));
+    }
 
-	public void WriteUnencoded(string str) {
-		Write(str);
-	}
+    public void WriteUnencoded(string str)
+    {
+        Write(str);
+    }
 
-	private void WriteException(Exception ex) 
-	{
-		using (var sr = new StringReader(ex.ToString()))
-		{
-			string line;
-			while ((line = sr.ReadLine()) != null)
-			{
-				this.Write(WebUtility.HtmlEncode(line));
-				this.Write("<br />");
-			}
-		}
-	}
+    private void WriteException(Exception ex)
+    {
+        using (var sr = new StringReader(ex.ToString()))
+        {
+            string line;
+            while ((line = sr.ReadLine()) != null)
+            {
+                this.WriteText(line);
+                this.Write("<br />");
+            }
+        }
+    }
 
-	public void ObjectBrowser(object obj)
-	{
-		var jobject = JObject.FromObject(obj);
-		ObjectBrowser(jobject);
-	}
+    public void ObjectBrowser(object obj)
+    {
+        var settings = new JsonSerializerSettings() {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            Converters = {
+                new ReflectionAssemblyJsonConverter()
+            },
+            // suppress any errors that occur during serialization (getters may throw exception, ...)
+            Error = (sender, args) => {
+                args.ErrorContext.Handled = true;
+            }
+        };
+        var jobject = JObject.FromObject(obj, JsonSerializer.Create(settings));
+        ObjectBrowser(jobject);
+    }
 
-	public void ObjectBrowser(JArray arr)
-	{
-		this.Write(@"
-		<div class='object-browser code'>
-			<label>
-			<input type='checkbox' class='collapse' />
-			<span class='collapse-off'>&gt; { ... } </span>
-			<span class='collapse-on'>[
-				<div class='object-arr'> ");
-					foreach(var p in arr) {
-						if(p is JObject) {
-							ObjectBrowser((JObject)p);
-						} else if (p is JArray) {
-							ObjectBrowser((JArray)p);
-						} else {
-							this.WriteText(p.ToString());
-						}
-					}
-			
-			this.Write(@"</div>]</span></div>");
-	}
+    public void ObjectBrowser(JArray arr)
+    {
+        if (arr.Count == 0)
+        {
+            this.WriteText(arr.ToString());
+        }
+        else
+        {
+            this.Write(@"
+    <div class='object-browser code'>
+        <label>
+        <input type='checkbox' class='collapse' />
+        <span class='collapse-off'>&gt; [ ... ] </span>
+        <span class='collapse-on'>[
+            <div class='object-arr'> ");
+            foreach (var p in arr)
+            {
+                if (p is JObject)
+                {
+                    ObjectBrowser((JObject)p);
+                }
+                else if (p is JArray)
+                {
+                    ObjectBrowser((JArray)p);
+                }
+                else
+                {
+                    this.WriteText(p.ToString());
+                }
+            }
+            this.Write(@"</div>]</span></div>");
+        }
+    }
 
-	public void ObjectBrowser(JObject obj)
-	{
-		this.Write(@"<div class='object-browser code'>
-			<label>
-			<input type='checkbox' class='collapse' />
-			<span class='collapse-off'>&gt; { ... } </span>
-			<span class='collapse-on'>{
-				<div class='object-obj'>");
-					foreach(var p in obj) {
-						Write("<div class='prop'><span class='propname'>");
-						this.WriteText(p.Key);
-						Write("</span>:");
-						if(p.Value is JObject) {
-							ObjectBrowser((JObject)p.Value);
-						} else if (p.Value is JArray) {
-							ObjectBrowser((JArray)p.Value);
-						} else {
-							this.WriteText(p.Value.ToString());
-						}
-						this.Write("</div>");
-					}
-		this.Write("</div>}</span></div>");
-	}
+    public void ObjectBrowser(JObject obj)
+    {
+        if (obj.Count == 0)
+        {
+            this.WriteText(obj.ToString());
+        }
+        else
+        {
+            this.Write(@"<div class='object-browser code'>
+        <label>
+        <input type='checkbox' class='collapse' />
+        <span class='collapse-off'>&gt; { ... } </span>
+        <span class='collapse-on'>{
+            <div class='object-obj'>");
+            foreach (var p in obj)
+            {
+                Write("<div class='prop'><span class='propname'>");
+                this.WriteText(p.Key);
+                Write("</span>:");
+                if (p.Value is JObject)
+                {
+                    ObjectBrowser((JObject)p.Value);
+                }
+                else if (p.Value is JArray)
+                {
+                    ObjectBrowser((JArray)p.Value);
+                }
+                else
+                {
+                    this.WriteText(p.Value.ToString(Formatting.None));
+                }
+                this.Write("</div>");
+            }
+            this.Write("</div>}</span></div>");
+        }
+    }
 
 
-	public void WriteSourceCode(SourceModel source, bool collapse = true)
-	{
-		this.Write(@"
-		<div class='source code'>
-			<label>");
-				if(collapse){ this.Write(@"<input type='checkbox' class='collapse' />"); }
-				Write(@"<div class='source-prelines collapse-on'>");
-				if(source.PreLines != null) WriteSourceLines(source.LineNumber - source.PreLines.Length, source.PreLines);
-				Write(@"</div><div class='source-errorLine'>");
-				if(source.CurrentLine != null) WriteErrorLine(source.LineNumber, source.CurrentLine, source.ErrorColumn, source.ErrorLength);
-				this.Write(@"</div><div class='source-postlines collapse-on'>");
-				if(source.PostLines != null) WriteSourceLines(source.LineNumber + 1, source.PostLines);
-	    Write(@"</div></label></div>");
-		if (!string.IsNullOrEmpty(source.FileName)) {
-			Write("<p class='source file'>Source File: <strong>");
-			WriteText(source.SystemFileName);
-			Write($"</strong> +{source.LineNumber}</p>");;
-		}
-	}
+    public void WriteSourceCode(SourceModel source, bool collapse = true)
+    {
+        this.Write(@"
+    <div class='source code'>
+        <label>");
+        if (collapse) { this.Write(@"<input type='checkbox' class='collapse' />"); }
+        Write(@"<div class='source-prelines collapse-on'>");
+        if (source.PreLines != null) WriteSourceLines(source.LineNumber - source.PreLines.Length, source.PreLines);
+        Write(@"</div><div class='source-errorLine'>");
+        if (source.CurrentLine != null) WriteErrorLine(source.LineNumber, source.CurrentLine, source.ErrorColumn, source.ErrorLength);
+        this.Write(@"</div><div class='source-postlines collapse-on'>");
+        if (source.PostLines != null) WriteSourceLines(source.LineNumber + 1, source.PostLines);
+        Write(@"</div></label></div>");
+        if (!string.IsNullOrEmpty(source.FileName))
+        {
+            Write("<p class='source file'>Source File: <strong>");
+            WriteText(source.SystemFileName);
+            Write($"</strong> +{source.LineNumber}</p>");
+        }
+    }
 
     private void WriteSourceLines(int startLine, params string[] lines)
-	{
-		Write("<pre>");
-		for(var i = 0; i < lines.Length; i++)
-		{
-			Write("<span class='lineNumber'>");
-			Write(startLine + i + ": ");
-			Write("</span><span class='codeLine'>");
-			Write(WebUtility.HtmlEncode(lines[i]));
-			WriteLine("</span>");
-		}
-		Write("</pre>");
-	}
+    {
+        Write("<pre>");
+        for (var i = 0; i < lines.Length; i++)
+        {
+            Write("<span class='lineNumber'>");
+            Write(startLine + i + ": ");
+            Write("</span><span class='codeLine'>");
+            WriteText(lines[i]);
+            WriteLine("</span>");
+        }
+        Write("</pre>");
+    }
 
-	private void WriteErrorLine(int lineNumber, string line, int errorColumn, int errorLength)
-	{
+    private void WriteErrorLine(int lineNumber, string line, int errorColumn, int errorLength)
+    {
 
-		if (errorColumn >= line.Length) 
-		{
-			errorColumn = line.Length - 1;
-			errorLength = 0;
-		    if (errorColumn < 0)
-		    {
-		        errorColumn = 0;
-		    }
-		}
-		Write("<pre>");
-		Write("<span class='lineNumber'>");
-		Write(lineNumber + ": ");
-		Write("</span><span class='codeLine'>");
-		Write(WebUtility.HtmlEncode(errorColumn == 0 ? "" : line.Remove(errorColumn)));
+        if (errorColumn >= line.Length)
+        {
+            errorColumn = line.Length - 1;
+            errorLength = 0;
+            if (errorColumn < 0)
+            {
+                errorColumn = 0;
+            }
+        }
+        Write("<pre>");
+        Write("<span class='lineNumber'>");
+        Write(lineNumber + ": ");
+        Write("</span><span class='codeLine'>");
+        Write(WebUtility.HtmlEncode(errorColumn == 0 ? "" : line.Remove(errorColumn)));
 
-	    var errorUnderline =WebUtility.HtmlEncode(line.Substring(errorColumn, Math.Min(line.Length - errorColumn, errorLength)));
-	    if (!string.IsNullOrWhiteSpace(errorUnderline))
-	    {
-	        Write("<span class='errorUnderline'>");
-			WriteText(errorUnderline );
-			Write("</span>");    
-	    }
-		
-		
-		Write(WebUtility.HtmlEncode(line.Substring(Math.Min(line.Length, errorColumn + errorLength))));
-		WriteLine("</span>");
-		Write("</pre>");
-	}
+        var errorUnderline = WebUtility.HtmlEncode(line.Substring(errorColumn, Math.Min(line.Length - errorColumn, errorLength)));
+        if (!string.IsNullOrWhiteSpace(errorUnderline))
+        {
+            Write("<span class='errorUnderline'>");
+            Write(errorUnderline);
+            Write("</span>");
+        }
 
-	public void WriteKVTable(IEnumerable keys, IEnumerable values)
-	{
-		var zip = keys.Cast<object>().Zip(values.Cast<object>(), (k, v) => new KeyValuePair<object, object>(k, v));
+        Write(WebUtility.HtmlEncode(line.Substring(Math.Min(line.Length, errorColumn + errorLength))));
+        WriteLine("</span>");
+        Write("</pre>");
+    }
 
-		Write(@"
-		<table class='kvtable'>
-			<tr>
-				<th> Variable </th>
-				<th> Value </th>
-			</tr>");
-		foreach(var kvp in zip) {
-			Write("<tr><td>");
-			WriteObject(kvp.Key);
-			Write("</td><td>");
-			WriteObject(kvp.Value);
-			Write("</td></tr>");
-		}
-		Write("</table>");
-	}
+    public void WriteKVTable(IEnumerable keys, IEnumerable values)
+    {
+        var zip = keys.Cast<object>().Zip(values.Cast<object>(), (k, v) => new KeyValuePair<object, object>(k, v));
 
-	public void WriteObject(object obj) 
-	{
-		if (obj is IEnumerable<string>) WriteText(string.Concat((IEnumerable<string>)obj));
-		else WriteText(Convert.ToString(obj)); 
-	}
+        Write(@"
+    <table class='kvtable'>
+        <tr>
+            <th> Variable </th>
+            <th> Value </th>
+        </tr>");
+        foreach (var kvp in zip)
+        {
+            Write("<tr><td>");
+            WriteObject(kvp.Key);
+            Write("</td><td>");
+            WriteObject(kvp.Value);
+            Write("</td></tr>");
+        }
+        Write("</table>");
+    }
+
+    public void WriteObject(object obj)
+    {
+        if (obj is IEnumerable<string>) WriteText(string.Concat((IEnumerable<string>)obj));
+        else WriteText(Convert.ToString(obj));
+    }
 
     class SourceLine
     {
         public int? LineNumber { get; set; }
 
         public string Text { get; set; }
-	}
+    }
 #>

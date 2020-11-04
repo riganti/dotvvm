@@ -28,6 +28,7 @@
     "DotVVM.Framework.ResourceManagement.InlineScriptResource": {
       "apiInit_testApi": {
         "Code": "dotvvm.api._testApi=new DotVVM.Framework.Tests.Binding.TestApiClient(\"http://server/api\");",
+        "Defer": true,
         "Dependencies": [
           "dotvvm",
           "apiClient_testApi"
@@ -37,12 +38,13 @@
     },
     "scripts": {
       "apiClient_testApi": {
+        "Defer": true,
         "Location": {
           "$type": "DotVVM.Framework.ResourceManagement.FileResourceLocation, DotVVM.Framework",
           "FilePath": "./apiscript.js"
         },
         "MimeType": "text/javascript",
-        "RenderPosition": "Body"
+        "RenderPosition": "Anywhere"
       }
     }
   },

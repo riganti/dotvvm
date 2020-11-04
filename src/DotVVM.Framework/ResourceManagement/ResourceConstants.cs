@@ -14,7 +14,6 @@ namespace DotVVM.Framework.ResourceManagement
         public const string GlobalizeResourceName = "globalize";
         public const string GlobalizeCultureResourceName = "globalize:{0}";
         public const string PolyfillBundleResourceName = "dotvvm.polyfill.bundle";
-        public const string PolyfillResourceName = "dotvvm.polyfill";
 
         public const string DotvvmFileUploadCssResourceName = "dotvvm.fileUpload-css";
     }
