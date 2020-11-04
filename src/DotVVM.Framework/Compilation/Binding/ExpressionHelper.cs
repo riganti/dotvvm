@@ -273,7 +273,7 @@ namespace DotVVM.Framework.Compilation.Binding
             for (var j = 0; j < parameters.Length; j++)
             {
                 var parameter = parameters[j];
-                if (parameter.ParameterType.IsGenericParameter && parameter.ParameterType.GenericParameterPosition == i)
+                if (parameter.ParameterType == genericArgument)
                 {
                     return args[j].Type;
                 }
