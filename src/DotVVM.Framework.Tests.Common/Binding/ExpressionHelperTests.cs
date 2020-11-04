@@ -111,19 +111,19 @@ namespace DotVVM.Framework.Tests.Common.Binding
 
         [TestMethod]
         [DataRow(typeof(GenericTestResult1), new Type[] { typeof(int[]), typeof(string[]) }, new Type[] { typeof(string[]), typeof(int[]) })]
-        public void Call_FindOverload_Array(Type resultIdentifierType, Type[] argTypes, Type[] expectedGenericArgs)
+        public void Call_FindOverload_Generic_Array_Order(Type resultIdentifierType, Type[] argTypes, Type[] expectedGenericArgs)
         {
             Call_FindOverload_Generic(typeof(MethodsGenericArgumentsResolvingSampleObject3), MethodsGenericArgumentsResolvingSampleObject3.MethodName, argTypes, resultIdentifierType, expectedGenericArgs);
         }
         [TestMethod]
         [DataRow(typeof(int[]), new Type[] { typeof(int[]) }, new Type[] { typeof(int) })]
-        public void Call_FindOverload_Array2(Type resultIdentifierType, Type[] argTypes, Type[] expectedGenericArgs)
+        public void Call_FindOverload_Generic_Array(Type resultIdentifierType, Type[] argTypes, Type[] expectedGenericArgs)
         {
             Call_FindOverload_Generic(typeof(MethodsGenericArgumentsResolvingSampleObject4), MethodsGenericArgumentsResolvingSampleObject4.MethodName, argTypes, resultIdentifierType, expectedGenericArgs);
         }
         [TestMethod]
         [DataRow(typeof(GenericTestResult1), new Type[] { typeof(GenericModelSampleObject<int[]>) }, new Type[] { typeof(int) })]
-        public void Call_FindOverload_Array_Recursive(Type resultIdentifierType, Type[] argTypes, Type[] expectedGenericArgs)
+        public void Call_FindOverload_Generic_Array_Recursive(Type resultIdentifierType, Type[] argTypes, Type[] expectedGenericArgs)
         {
             Call_FindOverload_Generic(typeof(MethodsGenericArgumentsResolvingSampleObject5), MethodsGenericArgumentsResolvingSampleObject5.MethodName, argTypes, resultIdentifierType, expectedGenericArgs);
         }

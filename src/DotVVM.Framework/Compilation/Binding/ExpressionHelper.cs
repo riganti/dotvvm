@@ -299,27 +299,23 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private static Type GetGenericParameterType(Type genericArg, Type[] searchedGenericTypes, Type[] expressionTypes)
         {
-            if (searchedGenericTypes is object && searchedGenericTypes.Length > 0)
+            for (var i = 0; i < searchedGenericTypes.Length; i++)
             {
-                for (var i = 0; i < searchedGenericTypes.Length; i++)
+                if (expressionTypes.Length <= i) return null;
+                var sgt = searchedGenericTypes[i];
+                if (sgt == genericArg)
                 {
-                    if (expressionTypes.Length <= i) return null;
-                    var sgt = searchedGenericTypes[i];
-                    if (sgt == genericArg)
-                    {
-                        return expressionTypes[i];
-                    }
-                    if (sgt.IsArray && sgt.GetElementType() == genericArg)
-                    {
-                        return expressionTypes[i].GetElementType();
-                    }
-                    else if (sgt.IsGenericType)
-                    {
-                        var value = GetGenericParameterType(genericArg, sgt.GetGenericArguments(), expressionTypes[i].GetGenericArguments());
-                        if (value is Type) return value;
-                    }
+                    return expressionTypes[i];
                 }
-                return null;
+                if (sgt.IsArray && sgt.GetElementType() == genericArg)
+                {
+                    return expressionTypes[i].GetElementType();
+                }
+                else if (sgt.IsGenericType)
+                {
+                    var value = GetGenericParameterType(genericArg, sgt.GetGenericArguments(), expressionTypes[i].GetGenericArguments());
+                    if (value is Type) return value;
+                }
             }
             return null;
         }
