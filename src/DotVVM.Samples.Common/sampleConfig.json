@@ -1,5 +1,5 @@
 {
-  "activeProfile": "ExplicitAssemblyLoading",
+  "activeProfile": "KnockoutDeferredUpdating",
   "profiles": [
     {
       "name": "Default",
@@ -32,6 +32,16 @@
       "config": {
         "experimentalFeatures": {
           "explicitAssemblyLoading": {
+            "enabled": true
+          }
+        }
+      }
+    },
+    {
+      "name": "KnockoutDeferredUpdating",
+      "config": {
+        "experimentalFeatures": {
+          "knockoutDeferredUpdating": {
             "enabled": true
           }
         }

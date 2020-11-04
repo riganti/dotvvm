@@ -18,11 +18,15 @@ namespace DotVVM.Framework.Configuration
         [JsonProperty("explicitAssemblyLoading")]
         public DotvvmGlobalExperimentalFeatureFlag ExplicitAssemblyLoading { get; private set; } = new DotvvmGlobalExperimentalFeatureFlag();
 
+        [JsonProperty("knockoutDeferredUpdating ")]
+        public DotvvmGlobalExperimentalFeatureFlag KnockoutDeferredUpdating { get; private set; } = new DotvvmGlobalExperimentalFeatureFlag();
+
         public void Freeze()
         {
             LazyCsrfToken.Freeze();
             ServerSideViewModelCache.Freeze();
             ExplicitAssemblyLoading.Freeze();
+            KnockoutDeferredUpdating.Freeze();
         }
     }
 
