@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Metadata;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
@@ -237,7 +238,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     {
                         // try to resolve from arguments
 
-                        var argType = ResolveGenericTypeFromGivenExpressions(genericArgumentPosition, genericArguments[genericArgumentPosition], parameters, args);
+                        var argType = ResolveGenericTypeFromGivenExpressions(genericArguments[genericArgumentPosition], parameters, args);
                         automaticTypeArgs++;
                         if (argType != null) typeArgs[genericArgumentPosition] = argType;
                         else return null;
@@ -268,7 +269,7 @@ namespace DotVVM.Framework.Compilation.Binding
             };
         }
 
-        private static Type ResolveGenericTypeFromGivenExpressions(int genericArgumentPosition, Type genericArgument, ParameterInfo[] parameters, Expression[] args)
+        private static Type ResolveGenericTypeFromGivenExpressions(Type genericArgument, ParameterInfo[] parameters, Expression[] args)
         {
             for (var j = 0; j < parameters.Length; j++)
             {
@@ -304,9 +305,13 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     if (expressionTypes.Length <= i) return null;
                     var sgt = searchedGenericTypes[i];
-                    if (sgt.IsGenericParameter && sgt.GenericParameterPosition == genericArg.GenericParameterPosition)
+                    if (sgt == genericArg)
                     {
                         return expressionTypes[i];
+                    }
+                    if (sgt.IsArray && sgt.GetElementType() == genericArg)
+                    {
+                        return expressionTypes[i].GetElementType();
                     }
                     else if (sgt.IsGenericType)
                     {
