@@ -277,12 +277,12 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     return args[j].Type;
                 }
-                if (parameter.ParameterType.IsArray)
-                {
-                    var elementType = parameter.ParameterType.GetElementType();
-                    var genericArgName = elementType.Name;
-                    var genericParameterPosition = elementType.GenericParameterPosition;
-                }
+                //if (parameter.ParameterType.IsArray)
+                //{
+                //    var elementType = parameter.ParameterType.GetElementType();
+                //    var genericArgName = elementType.Name;
+                //    var genericParameterPosition = elementType.GenericParameterPosition;
+                //}
                 else if (parameter.ParameterType.IsGenericType)
                 {
                     var value = GetGenericParameterType(genericArgument, parameter.ParameterType.GetGenericArguments(), args[j].Type.GetGenericArguments());
