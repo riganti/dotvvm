@@ -231,15 +231,15 @@ namespace DotVVM.Framework.Compilation.Binding
                     if (typeArguments.Length > typeArgs.Length) return null;
                     Array.Copy(typeArguments, typeArgs, typeArgs.Length);
                 }
-                for (int i = 0; i < typeArgs.Length; i++)
+                for (int genericArgumentPosition = 0; genericArgumentPosition < typeArgs.Length; genericArgumentPosition++)
                 {
-                    if (typeArgs[i] == null)
+                    if (typeArgs[genericArgumentPosition] == null)
                     {
                         // try to resolve from arguments
 
-                        var argType = ResolveGenericTypeFromGivenExpressions(i, genericArguments[i], parameters, args);
+                        var argType = ResolveGenericTypeFromGivenExpressions(genericArgumentPosition, genericArguments[genericArgumentPosition], parameters, args);
                         automaticTypeArgs++;
-                        if (argType != null) typeArgs[i] = argType;
+                        if (argType != null) typeArgs[genericArgumentPosition] = argType;
                         else return null;
                     }
                 }
