@@ -5,6 +5,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
@@ -159,14 +160,22 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private static MethodRecognitionResult FindValidMethodOveloads(Type type, string name, BindingFlags flags, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
         {
-            var methods = FindValidMethodOveloads(type.GetAllMembers(flags).OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, arguments, namedArgs);
-            if (methods.Count() > 1)
-                // TODO: this behavior is not completed. Implement the same behavior as in roslyn.
-                throw new InvalidOperationException($"Found ambiguous overloads of method '{name}'.");
-            var method = methods.FirstOrDefault();
-            if (method == null)
-                throw new InvalidOperationException($"Could not find overload of method '{name}'.");
-            return method;
+            var methods = FindValidMethodOveloads(type.GetAllMembers(flags).OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, arguments, namedArgs).ToList();
+
+            if (methods.Count == 1) return methods.FirstOrDefault();
+            if (methods.Count == 0) throw new InvalidOperationException($"Could not find overload of method '{name}'.");
+            else
+            {
+                methods = methods.OrderBy(s => s.CastCount).ThenBy(s => s.AutomaticTypeArgCount).ToList();
+                var method = methods.FirstOrDefault();
+                var method2 = methods.Skip(1).FirstOrDefault();
+                if (method.AutomaticTypeArgCount == method2.AutomaticTypeArgCount && method.CastCount == method2.CastCount)
+                {
+                    // TODO: this behavior is not completed. Implement the same behavior as in roslyn.
+                    throw new InvalidOperationException($"Found ambiguous overloads of method '{name}'.");
+                }
+                return method;
+            }
         }
 
         private static IEnumerable<MethodRecognitionResult> FindValidMethodOveloads(IEnumerable<MethodInfo> methods, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
@@ -266,7 +275,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 var parameter = parameters[j];
                 if (parameter.ParameterType.IsGenericParameter && parameter.ParameterType.GenericParameterPosition == i)
                 {
-                    return args[i].Type;
+                    return args[j].Type;
                 }
                 if (parameter.ParameterType.IsArray)
                 {
@@ -276,29 +285,28 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else if (parameter.ParameterType.IsGenericType)
                 {
-                    var value = GetGenericParameterType(genericArgument, parameter.ParameterType.GetGenericArguments(), args[j].Type);
+                    var value = GetGenericParameterType(genericArgument, parameter.ParameterType.GetGenericArguments(), args[j].Type.GetGenericArguments());
                     if (value is Type) return value;
                 }
             }
             return null;
         }
 
-        private static Type GetGenericParameterType(Type genericArg, Type[] searchedGenericTypes, Type expressionType)
+        private static Type GetGenericParameterType(Type genericArg, Type[] searchedGenericTypes, Type[] expressionTypes)
         {
             if (searchedGenericTypes is object && searchedGenericTypes.Length > 0)
             {
-                var expressionGenericArgs = expressionType.GetGenericArguments();
                 for (var i = 0; i < searchedGenericTypes.Length; i++)
                 {
+                    if (expressionTypes.Length <= i) return null;
                     var sgt = searchedGenericTypes[i];
                     if (sgt.IsGenericParameter && sgt.GenericParameterPosition == genericArg.GenericParameterPosition)
                     {
-                        if (expressionGenericArgs.Length == 0) return expressionType;
-                        return expressionGenericArgs[i];
+                        return expressionTypes[i];
                     }
                     else if (sgt.IsGenericType)
                     {
-                        var value = GetGenericParameterType(genericArg, sgt.GetGenericArguments(), expressionGenericArgs[i]);
+                        var value = GetGenericParameterType(genericArg, sgt.GetGenericArguments(), expressionTypes[i].GetGenericArguments());
                         if (value is Type) return value;
                     }
                 }
