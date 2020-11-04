@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Tests.Common.ViewModel
 {
@@ -31,7 +32,8 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
         static string Serialize<T>(T viewModel, out JObject encryptedValues, bool isPostback = false)
         {
             encryptedValues = new JObject();
-            var serializer = JsonSerializer.Create(DefaultViewModelSerializer.CreateDefaultSettings());
+            var settings = DefaultSerializerSettingsProvider.Instance.Settings;
+            var serializer = JsonSerializer.Create(settings);
             serializer.Converters.Add(CreateConverter(isPostback, encryptedValues));
 
             var output = new StringWriter();
@@ -41,7 +43,8 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
 
         static T Populate<T>(string json, JObject encryptedValues = null)
         {
-            var serializer = JsonSerializer.Create(DefaultViewModelSerializer.CreateDefaultSettings());
+            var settings = DefaultSerializerSettingsProvider.Instance.Settings;
+            var serializer = JsonSerializer.Create(settings);
             serializer.Converters.Add(CreateConverter(true, encryptedValues));
 
             //serializer.Populate(new StringReader(json), viewModel);

@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Binding.Properties;
 using System.Linq;
 using DotVVM.Framework.DependencyInjection;
+using System.Collections.Concurrent;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -612,21 +613,21 @@ test <dot:Literal><a /></dot:Literal>";
 
     public class FakeMarkupFileLoader : IMarkupFileLoader
     {
-        private readonly Dictionary<string, string> markupFiles;
+        public readonly ConcurrentDictionary<string, string> MarkupFiles;
 
         public FakeMarkupFileLoader(Dictionary<string, string> markupFiles = null)
         {
-            this.markupFiles = markupFiles ?? new Dictionary<string, string>();
+            this.MarkupFiles = new ConcurrentDictionary<string, string>(markupFiles ?? new Dictionary<string, string>());
         }
 
         public MarkupFile GetMarkup(DotvvmConfiguration configuration, string virtualPath)
         {
-            return new MarkupFile(virtualPath, virtualPath, markupFiles[virtualPath]);
+            return new MarkupFile(virtualPath, virtualPath, MarkupFiles[virtualPath]);
         }
 
         public string GetMarkupFileVirtualPath(Hosting.IDotvvmRequestContext context)
         {
-            throw new NotImplementedException();
+            return context.Route.VirtualPath;
         }
     }
 

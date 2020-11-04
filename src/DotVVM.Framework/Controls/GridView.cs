@@ -14,6 +14,8 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.ViewModel;
+using Newtonsoft.Json;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Controls
 {
@@ -62,7 +64,6 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty EmptyDataTemplateProperty =
             DotvvmProperty.Register<ITemplate?, GridView>(t => t.EmptyDataTemplate, null);
-
 
         /// <summary>
         /// Gets or sets a collection of columns that will be placed inside the grid.
@@ -443,22 +444,13 @@ namespace DotVVM.Framework.Controls
                 // render on client
                 if (InlineEditing)
                 {
-                    var propertySerialization = context.Services
-                        .GetRequiredService<IPropertySerialization>();
-                    var primaryKeyProperty = ResolvePrimaryKeyProperty();
-                    var primaryKeyPropertyName = propertySerialization.ResolveName(primaryKeyProperty);
-
-
                     var placeholder = new DataItemContainer { DataContext = null };
                     placeholder.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty).NotNull());
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
                     placeholder.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
-                    Children.Add(placeholder);
+                    writer.WriteKnockoutDataBindComment("if", "!$gridViewDataSetHelper.isInEditMode($context)");
                     CreateTemplates(context, placeholder);
-
-                    var gridViewDataSetExpr = GetValueBinding(DataSourceProperty).GetKnockoutBindingExpression(placeholder, unwrapped: true);
-                    writer.WriteKnockoutDataBindComment("if", $"({gridViewDataSetExpr}).RowEditOptions().EditRowId() " +
-                        $"!== ko.unwrap($data['{primaryKeyPropertyName}'])");
+                    Children.Add(placeholder);
                     placeholder.Render(writer, context);
                     writer.WriteKnockoutDataBindEndComment();
 
@@ -466,8 +458,7 @@ namespace DotVVM.Framework.Controls
                     placeholderEdit.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty).NotNull());
                     placeholderEdit.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
                     placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
-                    writer.WriteKnockoutDataBindComment("if", $"({gridViewDataSetExpr}).RowEditOptions().EditRowId() " +
-                        $"=== ko.unwrap($data['{primaryKeyPropertyName}'])");
+                    writer.WriteKnockoutDataBindComment("if", "$gridViewDataSetHelper.isInEditMode($context)");
                     CreateTemplates(context, placeholderEdit, true);
                     Children.Add(placeholderEdit);
                     placeholderEdit.Render(writer, context);
@@ -526,6 +517,12 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            var itemType = ReflectionUtils.GetEnumerableType(GetDataSourceBinding().ResultType);
+            var userColumnMappingService = context.Services.GetRequiredService<UserColumnMappingCache>();
+            var mapping = userColumnMappingService.GetMapping(itemType!);
+            var mappingJson = JsonConvert.SerializeObject(mapping);
+            
+            writer.AddKnockoutDataBind("dotvvm-gridviewdataset", $"{{'mapping':{mappingJson},'dataSet':{GetDataSourceBinding().GetKnockoutBindingExpression(this, unwrapped: true)}}}");
             base.AddAttributesToRender(writer, context);
         }
 

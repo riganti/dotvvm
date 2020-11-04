@@ -6,6 +6,7 @@ import columnVisible from './table-columnvisible'
 import enable from './enable'
 import checkbox from './checkbox'
 import updateProgress from './update-progress'
+import gridviewdataset from './gridviewdataset'
 
 type KnockoutHandlerDictionary = {
     [name: string]: KnockoutBindingHandler
@@ -18,7 +19,8 @@ const allHandlers: KnockoutHandlerDictionary = {
     ...columnVisible,
     ...enable,
     ...checkbox,
-    ...updateProgress
+    ...updateProgress,
+    ...gridviewdataset
 }
 
 export default allHandlers

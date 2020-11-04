@@ -12,6 +12,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Controls
 {
@@ -367,7 +368,7 @@ namespace DotVVM.Framework.Controls
         {
             var binding = obj.GetValueBinding(property);
             if (binding != null) return binding.GetKnockoutBindingExpression(obj);
-            return JsonConvert.SerializeObject(obj.GetValue(property), DefaultViewModelSerializer.CreateDefaultSettings());
+            return JsonConvert.SerializeObject(obj.GetValue(property), DefaultSerializerSettingsProvider.Instance.Settings);
         }
 
         /// <summary>
