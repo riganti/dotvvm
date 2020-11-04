@@ -2,8 +2,8 @@
   <!--Related to compilation-->
   <PropertyGroup>
     <AssemblyTitle>DotVVM.CommandLine</AssemblyTitle>
-    <AssemblyName>dotvvm-cli</AssemblyName>
-    <VersionPrefix>3.0.0-preview01-76100-alpha01</VersionPrefix>
+    <AssemblyName>dotnet-dotvvm</AssemblyName>
+    <VersionPrefix>3.0.0-preview01-93143-alpha04</VersionPrefix>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <OutputType>Exe</OutputType>
@@ -18,7 +18,7 @@
     <ToolCommandName>dotvvm</ToolCommandName>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.CommandLine</PackageId>
-    <PackageVersion>3.0.0-preview01-76100-alpha01</PackageVersion>
+    <PackageVersion>3.0.0-preview01-93143-alpha04</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>Command-line tools for DotVVM.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

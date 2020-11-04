@@ -29,7 +29,8 @@ namespace DotVVM.Framework.Tests.Common.Routing
             typeof(RouteBase).GetProperty("Url").SetMethod.Invoke(r, new[] { "url3/{a:unsuppotedConstraint}" });
             config1.RouteTable.Add("route3", r);
 
-            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
+            var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
+            settings.TypeNameHandling = TypeNameHandling.Auto;
             var config2 = JsonConvert.DeserializeObject<DotvvmConfiguration>(JsonConvert.SerializeObject(config1, settings), settings);
 
             Assert.AreEqual(config2.RouteTable["route1"].Url, "url1");

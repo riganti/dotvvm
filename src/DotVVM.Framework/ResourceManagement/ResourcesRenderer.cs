@@ -33,10 +33,20 @@ namespace DotVVM.Framework.ResourceManagement
             //                                    we don't have any better way to know how we should indent
         }
 
-        public static void RenderResources(ResourceManager resourceManager, IHtmlWriter writer, IDotvvmRequestContext context, ResourceRenderPosition position)
+        static bool HasAllDependencies(ResourceManager manager, IResource resource)
+        {
+            foreach (var d in resource.Dependencies)
+                if (!manager.IsRendered(d))
+                    return false;
+            return true;
+        }
+
+        public static void RenderResources(ResourceManager resourceManager, IHtmlWriter writer, IDotvvmRequestContext context, ResourceRenderPosition position) =>
+            RenderResources(resourceManager, resourceManager.GetNamedResourcesInOrder(), writer, context, position);
+        public static void RenderResources(ResourceManager resourceManager, IEnumerable<NamedResource> resources, IHtmlWriter writer, IDotvvmRequestContext context, ResourceRenderPosition position)
         {
             var writeDebugInfo = context.Configuration.Debug;
-            foreach (var resource in resourceManager.GetNamedResourcesInOrder())
+            foreach (var resource in resources)
             {
                 if (resource.Resource.RenderPosition == position)
                 {

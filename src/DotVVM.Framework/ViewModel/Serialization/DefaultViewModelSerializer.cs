@@ -154,17 +154,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return response.ToString(JsonFormatting);
         }
 
-        public static JsonSerializerSettings CreateDefaultSettings()
-        {
-            var s = new JsonSerializerSettings() {
-                DateTimeZoneHandling = DateTimeZoneHandling.Unspecified
-            };
-            s.Converters.Add(new DotvvmDateTimeConverter());
-            s.Converters.Add(new StringEnumConverter());
-            return s;
-        }
-
-        protected virtual JsonSerializer CreateJsonSerializer() => CreateDefaultSettings().Apply(JsonSerializer.Create);
+        protected virtual JsonSerializer CreateJsonSerializer() => DefaultSerializerSettingsProvider.Instance.Settings.Apply(JsonSerializer.Create);
 
         public JObject BuildResourcesJson(IDotvvmRequestContext context, Func<string, bool> predicate)
         {
@@ -286,7 +276,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             else viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services);
 
             // get validation path
-            context.ModelState.ValidationTargetPath = data.SelectToken("additionalData.validationTargetPath")?.Value<string>();
+            context.ModelState.ValidationTargetPath = (string)data["validationTargetPath"];
 
             // populate the ViewModel
             var serializer = CreateJsonSerializer();

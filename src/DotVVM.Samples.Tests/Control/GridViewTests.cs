@@ -668,5 +668,28 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.TextEquals(sortDescending, "false");
             });
         }
+
+        [Fact]
+        public void Control_GridView_NestedGridViewsWithInlineEditing()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_NestedGridViewInlineEditing);
+                browser.WaitUntilDotvvmInited();
+
+                // Edit customer
+                browser.FindElements("input[type=button]").First(b => b.GetText() == "Edit Customer").Click().Wait();
+                // Edit customer name
+                browser.First("input[type=text]").ClearInputByKeyboard().SendKeys("NewName");
+                // Save customer
+                browser.FindElements("input[type=button]").First(b => b.GetText() == "Save Customer").Click().Wait();
+
+                // Edit shopping cart-item
+                browser.FindElements("input[type=button]").First(b => b.GetText() == "Edit Cart-item").Click().Wait();
+                // Edit quantity
+                browser.First("input[type=text]").ClearInputByKeyboard().SendKeys("1111");
+                // Save shooping cart-item
+                browser.FindElements("input[type=button]").First(b => b.GetText() == "Save Cart-item").Click().Wait();
+            });
+        }
     }
 }
