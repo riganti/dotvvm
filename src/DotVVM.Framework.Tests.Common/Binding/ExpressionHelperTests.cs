@@ -49,9 +49,9 @@ namespace DotVVM.Framework.Tests.Common.Binding
 
         [TestMethod]
         [DataRow(typeof(GenericTestResult1), typeof(int), new Type[0])]
-        //[DataRow(typeof(GenericTestResult2), typeof(Uri), new Type[] { typeof(Uri) })]
-        //[DataRow(typeof(GenericTestResult3), typeof(object), new Type[0])]
-        //[DataRow(typeof(GenericTestResult5), typeof(GenericModelSampleObject<int>), new Type[0])]
+        [DataRow(typeof(GenericTestResult2), typeof(Uri), new Type[] { typeof(Uri) })]
+        [DataRow(typeof(GenericTestResult3), typeof(object), new Type[0])]
+        [DataRow(typeof(GenericTestResult5), typeof(GenericModelSampleObject<int>), new Type[0])]
         public void Call_FindOverload_Generic_FirstLevel(Type resultIdentifierType, Type argType, Type[] expectedGenericArgs)
         {
             Call_FindOverload_Generic(typeof(MethodsGenericArgumentsResolvingSampleObject), MethodsGenericArgumentsResolvingSampleObject.MethodName, new[] { argType }, resultIdentifierType, expectedGenericArgs);
@@ -115,8 +115,19 @@ namespace DotVVM.Framework.Tests.Common.Binding
         {
             Call_FindOverload_Generic(typeof(MethodsGenericArgumentsResolvingSampleObject3), MethodsGenericArgumentsResolvingSampleObject3.MethodName, argTypes, resultIdentifierType, expectedGenericArgs);
         }
+        [TestMethod]
+        [DataRow(typeof(int[]), new Type[] { typeof(int[]) }, new Type[] { typeof(int) })]
+        public void Call_FindOverload_Array2(Type resultIdentifierType, Type[] argTypes, Type[] expectedGenericArgs)
+        {
+            Call_FindOverload_Generic(typeof(MethodsGenericArgumentsResolvingSampleObject4), MethodsGenericArgumentsResolvingSampleObject4.MethodName, argTypes, resultIdentifierType, expectedGenericArgs);
+        }
     }
 
+    public static class MethodsGenericArgumentsResolvingSampleObject4
+    {
+        public const string MethodName = nameof(TestMethod);
+        public static T1[] TestMethod<T1>(T1[] a) => null;
+    }
     public static class MethodsGenericArgumentsResolvingSampleObject3
     {
         public const string MethodName = nameof(TestMethod);

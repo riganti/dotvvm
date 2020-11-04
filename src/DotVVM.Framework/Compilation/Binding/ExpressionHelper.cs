@@ -268,24 +268,28 @@ namespace DotVVM.Framework.Compilation.Binding
             };
         }
 
-        private static Type ResolveGenericTypeFromGivenExpressions(int i, Type genericArgument, ParameterInfo[] parameters, Expression[] args)
+        private static Type ResolveGenericTypeFromGivenExpressions(int genericArgumentPosition, Type genericArgument, ParameterInfo[] parameters, Expression[] args)
         {
             for (var j = 0; j < parameters.Length; j++)
             {
                 var parameter = parameters[j];
-                if (parameter.ParameterType == genericArgument)
+                var parameterType = parameter.ParameterType;
+
+                if (parameterType == genericArgument)
                 {
                     return args[j].Type;
                 }
-                //if (parameter.ParameterType.IsArray)
-                //{
-                //    var elementType = parameter.ParameterType.GetElementType();
-                //    var genericArgName = elementType.Name;
-                //    var genericParameterPosition = elementType.GenericParameterPosition;
-                //}
-                else if (parameter.ParameterType.IsGenericType)
+                if (parameterType.IsArray)
                 {
-                    var value = GetGenericParameterType(genericArgument, parameter.ParameterType.GetGenericArguments(), args[j].Type.GetGenericArguments());
+                    parameterType = parameter.ParameterType.GetElementType();
+                    if (parameterType == genericArgument && args[j].Type.IsArray)
+                    {
+                        return args[j].Type.GetElementType();
+                    }
+                }
+                else if (parameterType.IsGenericType || parameterType.IsArray)
+                {
+                    var value = GetGenericParameterType(genericArgument, parameterType.GetGenericArguments(), args[j].Type.GetGenericArguments());
                     if (value is Type) return value;
                 }
             }
