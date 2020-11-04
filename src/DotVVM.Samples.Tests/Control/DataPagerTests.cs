@@ -57,18 +57,17 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Wait();
 
                 // the first li should be visible because it contains text, the second with the link should be hidden
-                var pageIndex1 = browser.ElementAt(".pagination", 0).ElementAt("li", 2);
+                var pageIndex1 = browser.First("#pager1").ElementAt("li", 2);
                 AssertUI.NotContainsElement(pageIndex1, "a");
                 AssertUI.HasClass(pageIndex1, "active");
                 AssertUI.IsDisplayed(pageIndex1);
 
-                var pageIndex2 = browser.ElementAt(".pagination", 0).ElementAt("li", 3);
+                var pageIndex2 = browser.First("#pager1").ElementAt("li", 3);
                 AssertUI.ContainsElement(pageIndex2, "a");
-                AssertUI.HasClass(pageIndex2, "active");
                 AssertUI.IsNotDisplayed(pageIndex2);
 
                 // the first li should note be there because only hyperlinks are rendered
-                var pageIndex3 = browser.ElementAt(".pagination", 2).ElementAt("li", 2);
+                var pageIndex3 = browser.First("#pager3").ElementAt("li", 2);
                 AssertUI.ContainsElement(pageIndex3, "a");
                 AssertUI.HasClass(pageIndex3, "active");
                 AssertUI.IsDisplayed(pageIndex3);

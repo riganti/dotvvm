@@ -97,6 +97,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
         private async Task RenderResponse(IHttpContext context, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
         {
+            var settings = DefaultSerializerSettingsProvider.Instance.Settings;
             if (isPost && ShouldReturnJsonResponse(context))
             {
                 // modern browser - return JSON
@@ -105,7 +106,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
                     if (context.Request.Query["iframe"] == "true")
                     {
                         // IE will otherwise try to download the response as JSON file
-                        await outputRenderer.RenderPlainTextResponse(context, JsonConvert.SerializeObject(uploadedFiles));
+                        await outputRenderer.RenderPlainTextResponse(context, JsonConvert.SerializeObject(uploadedFiles, settings));
                     }
                     else
                     {
@@ -132,12 +133,12 @@ namespace DotVVM.Framework.Hosting.Middlewares
                     if (string.IsNullOrEmpty(errorMessage))
                     {
                         template.StartupScript = string.Format("reportProgress(false, 100, {0})",
-                            JsonConvert.SerializeObject(uploadedFiles));
+                            JsonConvert.SerializeObject(uploadedFiles, settings));
                     }
                     else
                     {
                         template.StartupScript = string.Format("reportProgress(false, 100, {0})",
-                            JsonConvert.SerializeObject(errorMessage));
+                            JsonConvert.SerializeObject(errorMessage, settings));
                     }
                 }
 

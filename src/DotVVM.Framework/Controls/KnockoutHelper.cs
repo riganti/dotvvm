@@ -12,6 +12,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Controls
 {
@@ -96,6 +97,7 @@ namespace DotVVM.Framework.Controls
         public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmBindableObject control, PostbackScriptOptions options)
         {
             var expr = GenerateClientPostBackExpression(propertyName, expression, control, options);
+            expr += ".catch(function(){})";
             if (options.ReturnValue == false)
                 return expr + ";event.stopPropagation();return false;";
             else
@@ -161,7 +163,7 @@ namespace DotVVM.Framework.Controls
                 default;
 
             var call = adjustedExpression.ToString(p =>
-                p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("\"root\"", OperatorPrecedence.Max) :
+                p == CommandBindingExpression.PostbackOptionsParameter ? new CodeParameterAssignment("options", OperatorPrecedence.Max) :
                 p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
                 p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
                     getContextPath(control),
@@ -176,7 +178,7 @@ namespace DotVVM.Framework.Controls
                 default(CodeParameterAssignment)
             );
             if (generatedPostbackHandlers == null && options.AllowPostbackHandlers)
-                return $"dotvvm.applyPostbackHandlers(function(){{return {call}}}.bind(this),{options.ElementAccessor.Code!.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()})";
+                return $"dotvvm.applyPostbackHandlers(function(options){{return {call}}}.bind(this),{options.ElementAccessor.Code!.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()})";
             else return call;
         }
 
@@ -327,14 +329,6 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Add knockout data bind comment dotvvm_withControlProperties with the specified properties
-        /// </summary>
-        public static void AddCommentAliasBinding(IHtmlWriter writer, IDictionary<string, string> properties)
-        {
-            writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias", "{" + string.Join(", ", properties.Select(p => JsonConvert.ToString(p.Key, '"', StringEscapeHandling.EscapeHtml) + ":" + properties.Values)) + "}");
-        }
-
-        /// <summary>
         /// Writes text iff the property contains hard-coded value OR
         /// writes knockout text binding iff the property contains binding
         /// </summary>
@@ -374,7 +368,7 @@ namespace DotVVM.Framework.Controls
         {
             var binding = obj.GetValueBinding(property);
             if (binding != null) return binding.GetKnockoutBindingExpression(obj);
-            return JsonConvert.SerializeObject(obj.GetValue(property), DefaultViewModelSerializer.CreateDefaultSettings());
+            return JsonConvert.SerializeObject(obj.GetValue(property), DefaultSerializerSettingsProvider.Instance.Settings);
         }
 
         /// <summary>

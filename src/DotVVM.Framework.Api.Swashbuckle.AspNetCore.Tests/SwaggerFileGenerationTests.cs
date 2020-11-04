@@ -8,11 +8,9 @@ using DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters;
 using DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers;
 using DotVVM.Samples.BasicSamples.Api.Common.Model;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.Extensions.Options;
@@ -59,7 +57,6 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
 
             var serviceCollection = new ServiceCollection()
                 .AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>()
-                .AddSingleton<IHostingEnvironment, HostingEnvironment>()
                 .AddSingleton<DiagnosticSource>(p => new DiagnosticListener("test"))
                 .AddLogging();
 

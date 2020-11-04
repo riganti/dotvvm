@@ -27,7 +27,7 @@ namespace DotVVM.Samples.BasicSamples
 {
     public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
     {
-        
+
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
             config.DefaultCulture = "en-US";
@@ -67,7 +67,7 @@ namespace DotVVM.Samples.BasicSamples
 
             var profiles = json.Value<JArray>("profiles");
             var profile = profiles.Single(p => p.Value<string>("name") == activeProfile);
-            
+
             JsonConvert.PopulateObject(profile.Value<JObject>("config").ToString(), config);
 
             SampleConfiguration.Initialize(
@@ -143,6 +143,7 @@ namespace DotVVM.Samples.BasicSamples
 
             config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));
 
+            config.RouteTable.Add("ControlSamples_Repeater_RouteLinkQuery-PageDetail", "ControlSamples/Repeater/RouteLinkQuery/{Id}", "Views/ControlSamples/Repeater/RouteLinkQuery.dothtml", new { Id = 0 });
             config.RouteTable.Add("FeatureSamples_Redirect_RedirectionHelpers_PageB-PageDetail", "FeatureSamples/Redirect/RedirectionHelpers_PageB/{Id}", "Views/FeatureSamples/Redirect/RedirectionHelpers_PageB.dothtml", new { Id = 22 });
             config.RouteTable.Add("FeatureSamples_Redirect_RedirectionHelpers_PageC-PageDetail", "FeatureSamples/Redirect/RedirectionHelpers_PageC/{Id}", "Views/FeatureSamples/Redirect/RedirectionHelpers_PageC.dothtml", new { Id = 33 });
             config.RouteTable.Add("FeatureSamples_Redirect_RedirectionHelpers_PageD-PageDetail", "FeatureSamples/Redirect/RedirectionHelpers_PageD/{Id}", "Views/FeatureSamples/Redirect/RedirectionHelpers_PageD.dothtml", new { Id = 44 });
@@ -157,6 +158,7 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("FeatureSamples_EmbeddedResourceControls_EmbeddedResourceView", "FeatureSamples/EmbeddedResourceControls/EmbeddedResourceView", "embedded://EmbeddedResourceControls/EmbeddedResourceView.dothtml");
             config.RouteTable.Add("FeatureSamples_PostBack_PostBackHandlers_Localized", "FeatureSamples/PostBack/PostBackHandlers_Localized", "Views/FeatureSamples/PostBack/ConfirmPostBackHandler.dothtml", presenterFactory: LocalizablePresenter.BasedOnQuery("lang"));
 
+            config.RouteTable.Add("Errors_UndefinedRouteLinkParameters-PageDetail", "Erros/UndefinedRouteLinkParameters/{Id}", "Views/UndefinedRouteLinkParameters.dothtml", new { Id = 0 });
             config.RouteTable.Add("Errors_Routing_NonExistingView", "Errors/Routing/NonExistingView", "Views/Errors/Routing/NonExistingView.dothml");
         }
 

@@ -15,18 +15,22 @@ namespace DotVVM.Framework.Tests.Common.Runtime
         // it can't tests that it's not XSS proof, but can at least stop someone from accidentally removing these checks
 
         [DataTestMethod]
-        [DataRow("</script>")]
+        [DataRow("</script>   ")]
         [DataRow("djsfkjdsfksdhfk</script  ")]
         [DataRow("fjhdsfkjdskjfh</scrip</SCriPT  ")]
         [DataRow("</sc</script>ript>")] // none of these is somehow special, just want to take a bit more of them
         public void TestResources(string forbiddenString)
         {
-            Assert.ThrowsException<Exception>(() => new TemplateResource(forbiddenString));
-            Assert.ThrowsException<Exception>(() => new InlineScriptResource(forbiddenString));
-            var template = new TemplateResource("");
-            Assert.ThrowsException<Exception>(() => template.Template = forbiddenString);
-            var inlineScript = new InlineScriptResource("");
-            Assert.ThrowsException<Exception>(() => inlineScript.Code = forbiddenString);
+            var cx = DotvvmTestHelper.CreateContext(DotvvmTestHelper.DefaultConfig);
+            var output = new StringWriter();
+            var writer = new HtmlWriter(output, cx);
+
+            var template = new TemplateResource(forbiddenString);
+            var inlineScript = new InlineScriptResource(forbiddenString);
+
+            template.Render(writer, cx, "a");
+            inlineScript.Render(writer, cx, "b");
+            Assert.IsFalse(output.ToString().Contains(forbiddenString));
         }
 
         [DataTestMethod]

@@ -421,6 +421,31 @@ namespace DotVVM.Samples.Tests
             });
         }
 
+        [Fact]
+        public void Error_RouteLinkUndefinedParameters()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_UndefinedRouteLinkParameters);
+
+                AssertUI.TextEquals(browser.First("exceptionType", By.ClassName), "DotVVM.Framework.Compilation.DotvvmCompilationException");
+                AssertUI.InnerText(browser.First(".exceptionMessage"),
+                    s => s.Contains("The following parameters are not present in route", StringComparison.OrdinalIgnoreCase),
+                    "Exception should contain information about the route name and undefined parameters");
+            });
+        }
+
+        [Fact]
+        public void Error_RouteLinkInvalidRouteName()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_InvalidRouteName);
+
+                AssertUI.TextEquals(browser.First("exceptionType", By.ClassName), "DotVVM.Framework.Compilation.DotvvmCompilationException");
+                AssertUI.TextEquals(browser.First(".exceptionMessage"), "RouteName \"NonExistingRouteName\" does not exist.",
+                   failureMessage: "Exception should contain information about the undefined route name");
+            });
+        }
+
         public ErrorsTests(ITestOutputHelper output) : base(output)
         {
         }

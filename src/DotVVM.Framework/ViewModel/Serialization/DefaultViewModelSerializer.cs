@@ -117,7 +117,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else
             {
-                result["renderedResources"] = JArray.FromObject(context.ResourceManager.RequiredResources);
+                result["renderedResources"] = JArray.FromObject(context.ResourceManager.GetNamedResourcesInOrder().Select(r => r.Name));
             }
             // TODO: do not send on postbacks
             if (validationRules?.Count > 0) result["validationRules"] = validationRules;
@@ -128,7 +128,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public void AddNewResources(IDotvvmRequestContext context)
         {
             var renderedResources = new HashSet<string>(context.ReceivedViewModelJson?["renderedResources"]?.Values<string>() ?? new string[] { });
-            context.ViewModelJson["resources"] = BuildResourcesJson(context, rn => !renderedResources.Contains(rn));
+            var resourcesObject = BuildResourcesJson(context, rn => !renderedResources.Contains(rn));
+            if (resourcesObject.Count > 0)
+                context.ViewModelJson["resources"] = resourcesObject;
         }
 
         public string BuildStaticCommandResponse(IDotvvmRequestContext context, object result)
@@ -152,17 +154,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return response.ToString(JsonFormatting);
         }
 
-        public static JsonSerializerSettings CreateDefaultSettings()
-        {
-            var s = new JsonSerializerSettings() {
-                DateTimeZoneHandling = DateTimeZoneHandling.Unspecified
-            };
-            s.Converters.Add(new DotvvmDateTimeConverter());
-            s.Converters.Add(new StringEnumConverter());
-            return s;
-        }
-
-        protected virtual JsonSerializer CreateJsonSerializer() => CreateDefaultSettings().Apply(JsonSerializer.Create);
+        protected virtual JsonSerializer CreateJsonSerializer() => DefaultSerializerSettingsProvider.Instance.Settings.Apply(JsonSerializer.Create);
 
         public JObject BuildResourcesJson(IDotvvmRequestContext context, Func<string, bool> predicate)
         {
@@ -284,7 +276,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             else viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services);
 
             // get validation path
-            context.ModelState.ValidationTargetPath = data.SelectToken("additionalData.validationTargetPath")?.Value<string>();
+            context.ModelState.ValidationTargetPath = (string)data["validationTargetPath"];
 
             // populate the ViewModel
             var serializer = CreateJsonSerializer();

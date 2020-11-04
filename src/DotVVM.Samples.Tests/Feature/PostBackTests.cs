@@ -1,4 +1,5 @@
-﻿using DotVVM.Samples.Tests.Base;
+﻿using System.Threading;
+using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
@@ -229,6 +230,78 @@ namespace DotVVM.Samples.Tests.Feature
 
                 browser.First("input[data-ui=value-binding-suppress]").Click();
                 AssertUI.InnerTextEquals(counter, "1");
+            });
+        }
+
+        [Fact]
+        public void Feature_PostBack_PostBackHandlerCommandTypes()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_PostBackHandlerCommandTypes);
+
+                var counter = browser.First("span.result");
+                AssertUI.InnerTextEquals(counter, "0");
+
+                // command: success
+                var button = browser.ElementAt("input[type=button]", 0);
+                button.Click();
+                AssertUI.HasClass(button, "pending");
+                Thread.Sleep(3000);
+                AssertUI.HasClass(button, "success");
+                AssertUI.InnerTextEquals(counter, "1");
+
+                // command: client validation
+                button = browser.ElementAt("input[type=button]", 1);
+                button.Click();
+                AssertUI.HasClass(button, "error");
+                AssertUI.InnerTextEquals(counter, "1");
+
+                browser.Wait(1000);
+                browser.Single("#debugNotification").Click();
+
+                // command: server validation
+                button = browser.ElementAt("input[type=button]", 2);
+                button.Click();
+                AssertUI.HasClass(button, "pending");
+                Thread.Sleep(3000);
+                AssertUI.HasClass(button, "success");       // TODO: we should change the behavior so server-side validation will reject the promise
+                AssertUI.InnerTextEquals(counter, "1");
+
+                // command: server exception
+                button = browser.ElementAt("input[type=button]", 3);
+                button.Click();
+                AssertUI.HasClass(button, "pending");
+                Thread.Sleep(3000);
+                AssertUI.HasClass(button, "error");
+                AssertUI.InnerTextEquals(counter, "1");
+
+                browser.Wait(1000);
+                browser.Single("#closeDebugWindow").Click();
+
+                // staticCommand server call: success
+                button = browser.ElementAt("input[type=button]", 4);
+                button.Click();
+                AssertUI.HasClass(button, "pending");
+                Thread.Sleep(3000);
+                AssertUI.HasClass(button, "success");
+                AssertUI.InnerTextEquals(counter, "2");
+
+                // staticCommand server call: server exception
+                button = browser.ElementAt("input[type=button]", 5);
+                button.Click();
+                AssertUI.HasClass(button, "pending");
+                Thread.Sleep(3000);
+                AssertUI.HasClass(button, "error");
+                AssertUI.InnerTextEquals(counter, "2");
+
+                browser.Wait(1000);
+                browser.Single("#closeDebugWindow").Click();
+
+                // staticCommand local-only action: success
+                button = browser.ElementAt("input[type=button]", 6);
+                button.Click();
+                AssertUI.HasClass(button, "success");
+                AssertUI.InnerTextEquals(counter, "3");
             });
         }
 

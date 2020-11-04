@@ -11,6 +11,7 @@ using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Controls
 {
@@ -18,6 +19,8 @@ namespace DotVVM.Framework.Controls
     {
         public static void WriteRouteLinkHrefAttribute(RouteLink control, IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            EnsureUsesOnlyDefinedParameters(control, context);
+
             // Render client-side knockout expression only if there exists a parameter with value binding
             var containsBinding =
                 control.QueryParameters.RawValues.Any(p => p.Value is IValueBinding) ||
@@ -34,6 +37,21 @@ namespace DotVVM.Framework.Controls
             if (control.RenderOnServer || !containsBinding)
             {
                 writer.AddAttribute("href", EvaluateRouteUrl(control.RouteName, control, context));
+            }
+        }
+
+        private static void EnsureUsesOnlyDefinedParameters(RouteLink control, IDotvvmRequestContext context)
+        {
+            var parameterReferences = control.Params;
+            var parameterDefinitions = context.Configuration.RouteTable[control.RouteName].ParameterNames;           
+
+            var invalidReferences = parameterReferences.Where(param =>
+                !parameterDefinitions.Contains(param.Key, StringComparer.InvariantCultureIgnoreCase));
+
+            if (invalidReferences.Any())
+            {
+                var parameters = string.Join(", ", invalidReferences.Select(kv => kv.Key));
+                throw new DotvvmRouteException($"The following parameters are not present in route {control.RouteName}: {parameters}");
             }
         }
 
@@ -99,7 +117,7 @@ namespace DotVVM.Framework.Controls
             var urlSuffixBase =
                 control.GetValueBinding(RouteLink.UrlSuffixProperty)
                 ?.Apply(binding => binding.GetKnockoutBindingExpression(control))
-                ?? JsonConvert.SerializeObject(control.UrlSuffix ?? "");
+                ?? KnockoutHelper.MakeStringLiteral(control.UrlSuffix ?? "");
             var queryParams =
                 control.QueryParameters.RawValues.Select(p => TranslateRouteParameter(control, p, true)).StringJoin(",");
 
@@ -132,13 +150,13 @@ namespace DotVVM.Framework.Controls
                 EnsureValidBindingType(binding);
 
                 expression = (param.Value as IValueBinding)?.GetKnockoutBindingExpression(control)
-                    ?? JsonConvert.SerializeObject((param.Value as IStaticValueBinding)?.Evaluate(control), DefaultViewModelSerializer.CreateDefaultSettings());
+                    ?? JsonConvert.SerializeObject((param.Value as IStaticValueBinding)?.Evaluate(control), DefaultSerializerSettingsProvider.Instance.Settings);
             }
             else
             {
-                expression = JsonConvert.SerializeObject(param.Value, DefaultViewModelSerializer.CreateDefaultSettings());
+                expression = JsonConvert.SerializeObject(param.Value, DefaultSerializerSettingsProvider.Instance.Settings);
             }
-            return JsonConvert.SerializeObject(caseSensitive ? param.Key : param.Key.ToLower()) + ": " + expression;
+            return KnockoutHelper.MakeStringLiteral(caseSensitive ? param.Key : param.Key.ToLower()) + ": " + expression;
         }
 
         private static void EnsureValidBindingType(IBinding binding)

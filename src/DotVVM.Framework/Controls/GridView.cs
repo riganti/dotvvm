@@ -417,9 +417,14 @@ namespace DotVVM.Framework.Controls
             head?.Render(writer, context);
 
             // render body
-            if (!RenderOnServer)
+            var foreachBinding = GetForeachDataBindExpression().GetKnockoutBindingExpression(this);
+            if (RenderOnServer)
             {
-                writer.AddKnockoutForeachDataBind("dotvvm.evaluator.getDataSourceItems($gridViewDataSet)");
+                writer.AddKnockoutDataBind("dotvvm-SSR-foreach", "{data:" + foreachBinding + "}");
+            }
+            else
+            {
+                writer.AddKnockoutForeachDataBind(foreachBinding);
             }
             writer.RenderBeginTag("tbody");
 
@@ -515,10 +520,9 @@ namespace DotVVM.Framework.Controls
             var itemType = ReflectionUtils.GetEnumerableType(GetDataSourceBinding().ResultType);
             var userColumnMappingService = context.Services.GetRequiredService<UserColumnMappingCache>();
             var mapping = userColumnMappingService.GetMapping(itemType!);
-            var columnsMappingJson = JsonConvert.SerializeObject(mapping);
+            var mappingJson = JsonConvert.SerializeObject(mapping);
             
-            writer.AddKnockoutDataBind("withGridViewDataSet", GetDataSourceBinding().GetKnockoutBindingExpression(this));
-            writer.AddKnockoutDataBind("gridViewDataSetColumnMapping", columnsMappingJson);
+            writer.AddKnockoutDataBind("dotvvm-gridviewdataset", $"{{'mapping':{mappingJson},'dataSet':{GetDataSourceBinding().GetKnockoutBindingExpression(this, unwrapped: true)}}}");
             base.AddAttributesToRender(writer, context);
         }
 
