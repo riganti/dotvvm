@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using DotVVM.CommandLine;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
@@ -51,7 +50,7 @@ namespace DotVVM.Compiler
         private DotvvmConfiguration GetCachedConfiguration(Assembly assembly, string webSitePath, Action<IServiceCollection> additionalServices)
         {
             return cachedConfig.GetOrAdd($"{assembly.GetName().Name}|{webSitePath}",
-                key => ConfigurationInitializer.InitDotVVM(assembly, webSitePath, this, additionalServices));
+                key => DotvvmProject.InitDotVVM(assembly, webSitePath, this, additionalServices));
         }
 
         private void Init()

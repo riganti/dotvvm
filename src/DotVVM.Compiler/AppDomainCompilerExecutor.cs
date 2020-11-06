@@ -12,17 +12,24 @@ namespace DotVVM.Compiler
         {
             AppDomain.CurrentDomain.AssemblyResolve += (s, e) =>
             {
-                var assemblyName = new AssemblyName(e.Name);
-                try
-                {
-                    return Assembly.LoadFrom(Path.Combine(
-                        AppDomain.CurrentDomain.SetupInformation.ApplicationBase,
-                        assemblyName.Name + ".dll"));
-                }
-                catch(FileNotFoundException)
+                if (string.IsNullOrEmpty(e.Name))
                 {
                     return null;
                 }
+
+                var assemblyName = new AssemblyName(e.Name);
+                var assemblyPath = Path.Combine(
+                        AppDomain.CurrentDomain.SetupInformation.ApplicationBase!,
+                        assemblyName.Name + ".dll");
+                if (File.Exists(assemblyPath))
+                {
+                    return Assembly.LoadFrom(assemblyPath);
+                }
+
+                // Don't worry about the missing DotVVM.Framework.resources assembly, mate. The runtime defaults to
+                // invariant resource culture anyway and find the proper resources in the already loaded
+                // DotVVM.Framework assembly.
+                return null;
             };
         }
 

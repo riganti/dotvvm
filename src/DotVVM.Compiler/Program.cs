@@ -11,7 +11,6 @@ namespace DotVVM.Compiler
         public static void Run(FileInfo assembly, DirectoryInfo? projectDir, string? rootNamespace)
         {
             var executor = (AppDomainCompilerExecutor)ProjectLoader.GetExecutor(assembly.FullName);
-            //executor.ExecuteCompile(assembly, projectDir, rootNamespace);
             executor.ExecuteCompile(assembly, projectDir, rootNamespace);
         }
 
@@ -30,14 +29,10 @@ namespace DotVVM.Compiler
             rootCmd.AddOption(new Option<string>(
                 alias: "--root-namespace",
                 description: "The root namespace of the DotVVM project"));
-            rootCmd.AddVerboseOption();
-            rootCmd.AddDebuggerBreakOption();
             rootCmd.Handler = CommandHandler.Create(typeof(Program).GetMethod(nameof(Run))!);
 
             new CommandLineBuilder(rootCmd)
                 .UseDefaults()
-                .UseLogging()
-                .UseDebuggerBreak()
                 .Build();
             return rootCmd.Invoke(args);
         }
