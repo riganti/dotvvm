@@ -54,23 +54,18 @@ namespace DotVVM.Compiler
             var configureServicesMethod = configuratorType is object
                 ? GetConfigureServicesMethod(configuratorType)
                 : null;
-            var wut = typeof(IServiceCollection);
-            var wat = ((MethodInfo)typeof(DotvvmConfiguration).GetMember("CreateDefault")[0]).GetParameters()[0].ParameterType.GenericTypeArguments[0];
 
-            //var config = DotvvmConfiguration.CreateDefault();
+            var config = DotvvmConfiguration.CreateDefault(services => {
+                if (configureServicesMethod is object)
+                {
+                    InvokeConfigureServices(configureServicesMethod, services);
+                }
+                configureServices?.Invoke(services);
+            });
 
-            //var config = DotvvmConfiguration.CreateDefault(services => {
-            //    if (configureServicesMethod is object)
-            //    {
-            //        InvokeConfigureServices(configureServicesMethod, services);
-            //    }
-            //    configureServices?.Invoke(services);
-            //});
-            return null;
-
-            //config.ApplicationPhysicalPath = webSitePath;
-            //dotvvmStartup?.Configure(config, webSitePath);
-            //return config;
+            config.ApplicationPhysicalPath = webSitePath;
+            dotvvmStartup?.Configure(config, webSitePath);
+            return config;
         }
 
         public static DirectoryInfo CreateDotvvmDirectory(FileSystemInfo target)

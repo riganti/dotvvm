@@ -18,12 +18,21 @@ namespace DotVVM.Compiler
                 }
 
                 var assemblyName = new AssemblyName(e.Name);
-                var assemblyPath = Path.Combine(
+
+                var projectRelatedPath = Path.Combine(
                         AppDomain.CurrentDomain.SetupInformation.ApplicationBase!,
                         assemblyName.Name + ".dll");
-                if (File.Exists(assemblyPath))
+                if (File.Exists(projectRelatedPath))
                 {
-                    return Assembly.LoadFrom(assemblyPath);
+                    return Assembly.LoadFrom(projectRelatedPath);
+                }
+
+                var compilerRelatedPath = Path.Combine(
+                    Path.GetDirectoryName(typeof(AppDomainCompilerExecutor).Assembly.Location)!,
+                    assemblyName.Name + ".dll");
+                if (File.Exists(compilerRelatedPath))
+                {
+                    return Assembly.LoadFrom(compilerRelatedPath);
                 }
 
                 // Don't worry about the missing DotVVM.Framework.resources assembly, mate. The runtime defaults to

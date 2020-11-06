@@ -16,8 +16,6 @@ using DotVVM.Framework.Hosting;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DotVVM.Compiler
 {
@@ -38,13 +36,11 @@ namespace DotVVM.Compiler
         private CSharpCompilation compilation;
         private CompilationResult result = new CompilationResult();
         private Assembly websiteAssembly;
-        private ILogger logger;
 
-        public ViewStaticCompiler(Assembly websiteAssembly, CompilerOptions options, ILogger? logger = null)
+        public ViewStaticCompiler(Assembly websiteAssembly, CompilerOptions options)
         {
             this.websiteAssembly = websiteAssembly;
             Options = options;
-            this.logger = logger ?? NullLogger.Instance;
         }
 
         private DotvvmConfiguration GetCachedConfiguration(Assembly assembly, string webSitePath, Action<IServiceCollection> additionalServices)
@@ -111,7 +107,7 @@ namespace DotVVM.Compiler
                 bindingCompiler.AddSerializedObjects(ObjectsClassName, builder, fields);
                 bindingCompiler.SaveAssembly();
 
-                logger.LogInformation($"Bindings saved to {bindingsAssemblyPath}.");
+                Console.WriteLine($"[info] Bindings saved to {bindingsAssemblyPath}.");
 
                 compilation = compilation.AddReferences(MetadataReference.CreateFromFile(Path.GetFullPath(bindingsAssemblyPath)));
                 var compiledViewsFileName = Path.Combine(Options.OutputPath, Options.AssemblyName + "_Views" + ".dll");
@@ -131,7 +127,7 @@ namespace DotVVM.Compiler
                 //File.Delete(compiledViewsFileName);
                 //File.Delete(bindingsAssemblyPath);
 
-                logger.LogInformation($"Compiled views saved to {compiledViewsFileName}.");
+                Console.WriteLine($"[info] Compiled views saved to {compiledViewsFileName}.");
             }
         }
 
@@ -241,7 +237,7 @@ namespace DotVVM.Compiler
                         .Select(a => compiledAssemblyCache.GetAssemblyMetadata(a.Key)));
             }
 
-            logger.LogInformation($"The view { fileName } compiled successfully.");
+            Console.WriteLine($"[info] The view { fileName } compiled successfully.");
 
             var res = new ViewCompilationResult {
                 BuilderClassName = fullClassName,

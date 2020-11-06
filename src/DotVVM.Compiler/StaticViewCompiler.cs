@@ -61,30 +61,30 @@ namespace DotVVM.Compiler
             InitializeDotvvmControls(dotvvmProjectAssembly);
             return DotvvmProject.GetConfiguration(dotvvmProjectAssembly, dotvvmProjectDir, services =>
             {
-                //services.AddSingleton<IControlResolver, StaticViewControlResolver>();
-                //services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
-                //services.AddSingleton(new RefObjectSerializer());
-                //// Yes, this is here so that there can be a circular dependency in StaticViewControlResolver.
-                //// I'm not happy about it, no, but the alternative is a more-or-less complete rewrite.
-                //services.AddSingleton(p => new StaticViewCompiler(
-                //    p.GetRequiredService<DotvvmConfiguration>(),
-                //    dotvvmProjectAssembly));
+                services.AddSingleton<IControlResolver, StaticViewControlResolver>();
+                services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
+                services.AddSingleton(new RefObjectSerializer());
+                // Yes, this is here so that there can be a circular dependency in StaticViewControlResolver.
+                // I'm not happy about it, no, but the alternative is a more-or-less complete rewrite.
+                services.AddSingleton(p => new StaticViewCompiler(
+                    p.GetRequiredService<DotvvmConfiguration>(),
+                    dotvvmProjectAssembly));
 
-                //// HACK: IDotvvmCacheAdapter is not in v2.0.0 that's why it's hacked this way.
-                //var iCacheAdapter = Type.GetType(IDotvvmCacheAdapterName);
-                //if (iCacheAdapter is object)
-                //{
-                //    services.AddSingleton(iCacheAdapter, Type.GetType(SimpleDictionaryCacheAdapterName));
-                //}
+                // HACK: IDotvvmCacheAdapter is not in v2.0.0 that's why it's hacked this way.
+                var iCacheAdapter = Type.GetType(IDotvvmCacheAdapterName);
+                if (iCacheAdapter is object)
+                {
+                    services.AddSingleton(iCacheAdapter, Type.GetType(SimpleDictionaryCacheAdapterName));
+                }
 
-                //// TODO: Uncomment when the views can actually be compiled into one assembly.
-                //// var bindingCompiler = new AssemblyBindingCompiler(
-                ////     assemblyName: null,
-                ////     className: null,
-                ////     outputFileName: null,
-                ////     configuration: null);
-                //// services.AddSingleton<IBindingCompiler>(bindingCompiler);
-                //// services.AddSingleton<IExpressionToDelegateCompiler>(bindingCompiler.GetExpressionToDelegateCompiler());
+                // TODO: Uncomment when the views can actually be compiled into one assembly.
+                // var bindingCompiler = new AssemblyBindingCompiler(
+                //     assemblyName: null,
+                //     className: null,
+                //     outputFileName: null,
+                //     configuration: null);
+                // services.AddSingleton<IBindingCompiler>(bindingCompiler);
+                // services.AddSingleton<IExpressionToDelegateCompiler>(bindingCompiler.GetExpressionToDelegateCompiler());
             });
         }
 
