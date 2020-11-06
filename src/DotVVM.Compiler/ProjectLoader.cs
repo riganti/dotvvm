@@ -32,9 +32,6 @@ namespace DotVVM.Compiler
                 setup.ConfigurationFile = configPath;
             }
             var domain = AppDomain.CreateDomain("DotVVM.Compiler.AppDomain", null, setup);
-            //var compilerPath = typeof(ProjectLoader).Assembly.Location;
-            //var newCompilerPath = Path.Combine(setup.ApplicationBase, Path.GetFileName(compilerPath));
-            //File.Copy(compilerPath, newCompilerPath, true);
             return (ICompilerExecutor)domain.CreateInstanceFromAndUnwrap(
                 assemblyName: typeof(AppDomainCompilerExecutor).Assembly.Location,
                 typeName: typeof(AppDomainCompilerExecutor).FullName); ;

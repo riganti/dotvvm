@@ -7,6 +7,8 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
+    <TargetLatestDotNetRuntime>false</TargetLatestDotNetRuntime>
+    <CheckEolTargetFramework>False</CheckEolTargetFramework>
   </PropertyGroup>
 
   <!-- Related to packaging -->
@@ -38,7 +40,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+    <Reference Include="Microsoft.CSharp" />
+    <!-- <Reference Include="System.Configuration" /> -->
   </ItemGroup>
 
   <ItemGroup>
