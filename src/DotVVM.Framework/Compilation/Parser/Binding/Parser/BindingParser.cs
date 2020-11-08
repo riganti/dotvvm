@@ -370,12 +370,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var startIndex = CurrentIndex;
             var waitingForParameter = false;
             parameters = new List<LambdaParameterBindingParserNode>();
-            if (Peek()!.Type == BindingTokenType.OpenParenthesis)
+            if (Peek()?.Type == BindingTokenType.OpenParenthesis)
             {
                 // Begin parameters parsing - read opening parenthesis
                 Read();
                 SkipWhiteSpace();
-
 
                 while (Peek()?.Type != BindingTokenType.CloseParenthesis)
                 {
@@ -407,7 +406,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             else
             {
                 // Support lambdas with single implicit parameter and no parentheses: arg => Method(arg)
-                parameters.Add(new LambdaParameterBindingParserNode(null, CreateNode(ReadIdentifierExpression(false), startIndex)));
+                var parameter = ReadIdentifierExpression(false);
+                if (parameter.HasNodeErrors)
+                    return false;
+
+                parameters.Add(new LambdaParameterBindingParserNode(null, CreateNode(parameter, startIndex)));
             }
 
             if (waitingForParameter)
