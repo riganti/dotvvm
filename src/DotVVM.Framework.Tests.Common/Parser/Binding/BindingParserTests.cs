@@ -725,6 +725,106 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
+        [DataRow("(arg) => Method(arg)", DisplayName = "Simple implicit single-parameter lambda expression with parentheses.")]
+        [DataRow("arg => Method(arg)", DisplayName = "Simple implicit single-parameter lambda expression without parentheses.")]
+        [DataRow("  arg    =>   Method   (   arg  )", DisplayName = "Simple lambda with various whitespaces.")]
+        public void BindingParser_Lambda_SingleAutoParameter(string expression)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(expression);
+            var node = parser.ReadExpression();
+
+            var lambda = node.CastTo<LambdaBindingParserNode>();
+            var body = lambda.BodyExpression;
+            var parameters = lambda.ParameterExpressions;
+
+            Assert.AreEqual(1, parameters.Count);
+            Assert.IsNull(parameters[0].Type);
+            Assert.AreEqual("arg", parameters[0].Name.ToDisplayString());           
+
+            Assert.AreEqual("Method", body.MethodIdentifierExpression.ToDisplayString());
+            Assert.AreEqual(1, body.ArgumentExpressions.Count);
+            Assert.AreEqual("arg", body.ArgumentExpressions[0].ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_Lambda_MultipleAutoParameters()
+        {
+            var parser = bindingParserNodeFactory.SetupParser("(arg1, arg2) => Method(arg1, arg2)");
+            var node = parser.ReadExpression();
+
+            var lambda = node.CastTo<LambdaBindingParserNode>();
+            var body = lambda.BodyExpression;
+            var parameters = lambda.ParameterExpressions;
+
+            Assert.AreEqual(2, parameters.Count);
+            Assert.IsNull(parameters[0].Type);
+            Assert.IsNull(parameters[1].Type);
+            Assert.AreEqual("arg1", parameters[0].Name.ToDisplayString());
+            Assert.AreEqual("arg2", parameters[1].Name.ToDisplayString());
+
+            Assert.AreEqual("Method", body.MethodIdentifierExpression.ToDisplayString());
+            Assert.AreEqual(2, body.ArgumentExpressions.Count);
+            Assert.AreEqual("arg1", body.ArgumentExpressions[0].ToDisplayString());
+            Assert.AreEqual("arg2", body.ArgumentExpressions[1].ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_Lambda_MultipleExplicitParameters()
+        {
+            var parser = bindingParserNodeFactory.SetupParser("(string arg1, int arg2) => Method(arg1, arg2)");
+            var node = parser.ReadExpression();
+
+            var lambda = node.CastTo<LambdaBindingParserNode>();
+            var body = lambda.BodyExpression;
+            var parameters = lambda.ParameterExpressions;
+
+            Assert.AreEqual(2, parameters.Count);
+            Assert.AreEqual("string", parameters[0].Type.ToDisplayString());
+            Assert.AreEqual("arg1", parameters[0].Name.ToDisplayString());
+            Assert.AreEqual("int", parameters[1].Type.ToDisplayString());
+            Assert.AreEqual("arg2", parameters[1].Name.ToDisplayString());
+
+            Assert.AreEqual("Method", body.MethodIdentifierExpression.ToDisplayString());
+            Assert.AreEqual(2, body.ArgumentExpressions.Count);
+            Assert.AreEqual("arg1", body.ArgumentExpressions[0].ToDisplayString());
+            Assert.AreEqual("arg2", body.ArgumentExpressions[1].ToDisplayString());
+        }
+
+        [TestMethod]
+        [DataRow("(arg1, arg2) => Method", "Expected '(', but instead found", DisplayName = "Invalid method invocation")]
+        [DataRow("(arg1, arg2) =>", "Expected method identifier, but instead found", DisplayName = "Missing method identifier")]
+        [DataRow("(arg1, arg2) => ;", "Expected method identifier, but instead found", DisplayName = "Semicolon instead of method invocation")]
+        [DataRow("(arg1, arg2) => arg = arg2", "Expected '(', but instead found", DisplayName = "Assignment instead of method invocation")]
+        [DataRow("(arg1, arg2) => ;Method(arg1, arg2)", "Expected method identifier, but instead found", DisplayName = "Lambdas can contain only a single method invocation")]
+        [DataRow("(arg1, arg2) => Method(arg1, arg2", "Expected ')', but instead found", DisplayName = "Missing closing parenthesis")]
+        [DataRow("(arg1, arg2) => Method(arg1,)", "Expected argument after ',', but instead found", DisplayName = "Missing argument after comma")]
+        public void BindingParser_Lambda_InvalidLambdaBody(string expression, string errorSegment)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(expression);
+            var node = parser.ReadExpression().EnumerateChildNodes().SkipWhile(n => n as LambdaBindingParserNode == null).First();
+
+            var lambda = node.CastTo<LambdaBindingParserNode>();
+            var body = lambda.BodyExpression;
+            var parameters = lambda.ParameterExpressions;
+
+            Assert.IsNotNull(parameters);
+            Assert.IsNotNull(body);
+            Assert.IsTrue(body.HasNodeErrors);
+            Assert.IsTrue(body.NodeErrors.First().Contains(errorSegment));
+        }
+
+        [TestMethod]
+        [DataRow("(arg1, arg2) Method", DisplayName = "Missing lambda operator")]
+        [DataRow("(arg1, arg2)", DisplayName = "Missing lambda operator")]
+        [DataRow("string arg => Method(arg)", DisplayName = "Use parenthesis when explicitely defining parameter types")]
+        public void BindingParser_Lambda_InvalidLambdaDeclaration(string expression)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(expression);
+            var node = parser.ReadExpression().EnumerateChildNodes().SkipWhile(n => n as LambdaBindingParserNode == null).FirstOrDefault();
+            Assert.IsNull(node);
+        }
+
+        [TestMethod]
         public void BindingParser_MultiblockExpression_TreeCorrect()
         {
             var originalString = "StringProp = StringProp + 1; SetStringProp2(StringProp + 7); StringProp = 5; StringProp2 + 4 + StringProp";
