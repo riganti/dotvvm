@@ -5,16 +5,22 @@ import * as events from '../events';
 import * as updater from './updater';
 import * as http from './http'
 import { handleRedirect } from './redirect';
+import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
 
 export async function staticCommandPostback(sender: HTMLElement, command: string, args: any[], options: PostbackOptions): Promise<any> {
 
     let data: any;
-    let response: http.WrappedResponse<any>;
+    let response: http.WrappedResponse<StaticCommandResponse>;
 
     try {
         await http.retryOnInvalidCsrfToken(async () => {
             const csrfToken = await http.fetchCsrfToken();
-            data = serialize({ args, command, $csrfToken: csrfToken });
+            data = serialize({ 
+                args, 
+                command, 
+                $csrfToken: csrfToken,
+                knownTypeMetadata: getKnownTypes()
+            });
         });
 
         events.staticCommandMethodInvoking.trigger({
@@ -23,7 +29,7 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
             methodArgs: args,
         });
 
-        response = await http.postJSON<any>(
+        response = await http.postJSON<StaticCommandResponse>(
             getInitialUrl(),
             JSON.stringify(data),
             { "X-PostbackType": "StaticCommand" }
@@ -38,6 +44,8 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
                 throw new Error(`Invalid action ${response.result.action}`);
             }
         }
+
+        updateTypeInfo(response.result.typeMetadata);
 
         events.staticCommandMethodInvoked.trigger({ 
             ...options, 
@@ -63,3 +71,13 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
         throw err;
     }
 }
+
+type StaticCommandResponse = {
+    result: any,
+    typeMetadata?: TypeMap
+} | {
+    action: "redirect",
+    url: string,
+    replace?: boolean,
+    allowSpa?: boolean
+};

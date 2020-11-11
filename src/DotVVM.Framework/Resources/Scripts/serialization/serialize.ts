@@ -2,6 +2,7 @@ import { wrapObservable } from '../utils/knockout'
 import { serializeDate } from './date'
 import { isPrimitive, keys } from '../utils/objects'
 import { validateType } from './typeValidation'
+import { getTypeInfo } from '../metadata/typeMap'
 
 interface ISerializationOptions {
     serializeAll?: boolean;
@@ -55,6 +56,9 @@ export function serialize(viewModel: any, opt: ISerializationOptions = {}): any 
 
     const pathProp = opt.path && opt.path.pop();
 
+    const typeId = ko.unwrap(viewModel["$type"]);
+    const typeInfo = getTypeInfo(typeId);
+
     const result: any = {};
     for (const prop of keys(viewModel)) {
         if (opt.pathOnly && prop !== pathProp) {
@@ -65,7 +69,7 @@ export function serialize(viewModel: any, opt: ISerializationOptions = {}): any 
         if (opt.ignoreSpecialProperties && prop[0] === "$") {
             continue;
         }
-        if (!opt.serializeAll && (/\$options$/.test(prop) || prop === "$validationErrors")) {
+        if (!opt.serializeAll && prop === "$validationErrors") {
             continue;
         }
         if (typeof (value) === "undefined") {
@@ -75,16 +79,13 @@ export function serialize(viewModel: any, opt: ISerializationOptions = {}): any 
             continue;
         }
 
-        const options = viewModel[prop + "$options"];
-        if (!opt.serializeAll && options && options.doNotPost) {
+        const propInfo = typeInfo[prop];
+        if (!opt.serializeAll && propInfo && propInfo.post == "no") {
             // continue
         } else if (opt.oneLevel) {
             result[prop] = ko.unwrap(value);
-        } else if (!opt.serializeAll && options && options.pathOnly && opt.pathMatcher) {
-            let path = options.pathOnly;
-            if (!(path instanceof Array)) {
-                path = opt.path || findObject(value, opt.pathMatcher);
-            }
+        } else if (!opt.serializeAll && propInfo && propInfo.post == "pathOnly" && opt.pathMatcher) {
+            let path = opt.path || findObject(value, opt.pathMatcher);
             if (path) {
                 if (path.length === 0) {
                     result[prop] = serialize(value, opt);
@@ -94,12 +95,7 @@ export function serialize(viewModel: any, opt: ISerializationOptions = {}): any 
             }
         } else {
             result[prop] = serialize(value, opt);
-        }
-
-        if (options && options.type && !validateType(result[prop], options.type)) {
-            delete result[prop];
-            options.wasInvalid = true;
-        }
+        }        
     }
     if (pathProp && opt.path) {
         opt.path.push(pathProp);

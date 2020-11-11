@@ -16,6 +16,7 @@ namespace DotVVM.Framework.Utils
             var diff = new JObject();
             foreach (var item in target)
             {
+                // TODO: read options from type metadata
                 if (target[item.Key + "$options"] is JObject options)
                 {
                     if (options["pathOnly"]?.Value<bool?>() == true || options["doNotPost"]?.Value<bool?>() == true)
@@ -107,6 +108,7 @@ namespace DotVVM.Framework.Utils
                 }
             }
 
+            // TODO: remove items for first request only
             foreach (var item in Enumerable.ToArray<KeyValuePair<string, JToken>>(diff))
             {
                 if (item.Key.EndsWith("$options", StringComparison.Ordinal))

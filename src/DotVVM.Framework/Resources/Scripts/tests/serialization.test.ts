@@ -4,6 +4,12 @@ import { deserialize } from '../serialization/deserialize'
 import { serialize } from '../serialization/serialize'
 import { serializeDate } from '../serialization/date'
 
+jest.mock("../metadata/typeMap", () => ({
+    getTypeInfo(typeId: string) {
+        return testTypeMap[typeId];
+    }
+}));
+
 const assertObservable = (object: any): any => {
     expect(object).observable()
     return object()
@@ -43,21 +49,21 @@ describe("DotVVM.Serialization - deserialize", () => {
     })
 
     test("Deserialize object with one property", () => {
-        const obj = deserialize({ a: "aaa" })
+        const obj = deserialize({ a: "aaa", $type: "t1" })
         expect(ko.isObservable(obj)).toBeFalsy()
         expect(ko.isObservable(obj.a)).toBeTruthy()
         expect(obj.a()).toBe("aaa")
     })
 
     test("Deserialize object with doNotUpdate option", () => {
-        const obj = deserialize({ a: "aaa", "a$options": { doNotUpdate: true } })
+        const obj = deserialize({ a: "aaa", "$type": "t2" })
         expect(ko.isObservable(obj)).toBeFalsy()
         expect(ko.isObservable(obj.a)).toBeTruthy()
         expect(obj.a()).toBeUndefined()
     })
 
     test("Deserialize object with isDate option", () => {
-        const obj = deserialize({ a: "2015-08-01T13:56:42.000", "a$options": { isDate: true } })
+        const obj = deserialize({ a: "2015-08-01T13:56:42.000", "$type": "t3" })
         expect(ko.isObservable(obj)).toBeFalsy()
         expect(ko.isObservable(obj.a)).toBeTruthy()
         expect(typeof obj.a()).toBe("string")
@@ -71,26 +77,8 @@ describe("DotVVM.Serialization - deserialize", () => {
         expect(obj).toBe("2015-08-01T13:56:42.0000000")
     })
 
-    test("Deserialize object with Date (it should set the options.isDate)", () => {
-        const obj = deserialize({ a: new Date(Date.UTC(2015, 7, 1, 13, 56, 42)), a$options: {} })
-        expect(ko.isObservable(obj)).toBeFalsy()
-        expect(ko.isObservable(obj.a)).toBeTruthy()
-        expect(typeof obj.a()).toBe("string")
-        expect(obj.a()).toBe("2015-08-01T13:56:42.0000000")
-        expect(obj.a$options.isDate).toBeTruthy()
-    })
-
-    test("Deserialize object with Date (it should create the options.isDate)", () => {
-        const obj = deserialize({ a: new Date(Date.UTC(2015, 7, 1, 13, 56, 42)) })
-        expect(ko.isObservable(obj)).toBeFalsy()
-        expect(ko.isObservable(obj.a)).toBeTruthy()
-        expect(typeof obj.a()).toBe("string")
-        expect(obj.a()).toBe("2015-08-01T13:56:42.0000000")
-        expect(obj.a$options.isDate).toBeTruthy()
-    })
-
     test("Deserialize object with array", () => {
-        const obj = deserialize({ a: ["aaa", "bbb", "ccc"] })
+        const obj = deserialize({ a: ["aaa", "bbb", "ccc"], "$type": "t4" })
         expect(ko.isObservable(obj)).toBeFalsy()
         expect(ko.isObservable(obj.a)).toBeTruthy()
         expect(obj.a() instanceof Array).toBeTruthy()
@@ -180,9 +168,11 @@ describe("DotVVM.Serialization - deserialize", () => {
 
     test("Deserialize array inside object to target object with observable string property", function () {
         const target = {
+            $type: ko.observable("t13"),
             Prop: ko.observable("a")
         }
         const viewmodel = {
+            $type: ko.observable("t14"),
             Prop: [ko.observable("bb")]
         }
 
@@ -407,7 +397,16 @@ describe("DotVVM.Serialization - deserialize", () => {
 
 
     test("Deserialize object with arrays and subobjects", () => {
-        const obj = deserialize({ a: [{ b: 1, c: [0, 1] }] })
+        const obj = deserialize({ 
+            $type: "t6",
+            a: [
+                { 
+                    $type: "t6_a",
+                    b: 1, 
+                    c: [0, 1] 
+                }
+            ]
+        })
         expect(ko.isObservable(obj)).toBeFalsy()
         expect(ko.isObservable(obj.a)).toBeTruthy()
         expect(obj.a() instanceof Array).toBeTruthy()
@@ -432,8 +431,9 @@ describe("DotVVM.Serialization - deserialize", () => {
     })
 
     test("Deserialize into an existing instance - updating the observable property", () => {
-        const obj = { a: "bbb" }
+        const obj = { a: "bbb", $type: "t1" }
         const existing = {
+            $type: ko.observable("t1"),
             a: ko.observable("aaa")
         }
 
@@ -447,9 +447,17 @@ describe("DotVVM.Serialization - deserialize", () => {
     })
 
     test("Deserialize into an existing instance with hierarchy - updating only the inner the observable property", () => {
-        const obj = { a: { b: "bbb" } }
+        const obj = { 
+            $type: "t7",
+            a: { 
+                $type: "t7_a",
+                b: "bbb" 
+            } 
+        }
         const existing = {
+            $type: ko.observable("t7"),
             a: ko.observable({
+                $type: ko.observable("t7_a"),
                 b: ko.observable("aaa")
             })
         }
@@ -467,8 +475,9 @@ describe("DotVVM.Serialization - deserialize", () => {
     })
 
     test("Deserialize into an existing instance - updating the observable array", () => {
-        const obj = { a: ["bbb", "ccc"] }
+        const obj = { a: ["bbb", "ccc"], $type: "t4" }
         const existing = {
+            $type: ko.observable("t4"),
             a: ko.observableArray([ko.observable("aaa")])
         }
 
@@ -488,8 +497,9 @@ describe("DotVVM.Serialization - deserialize", () => {
     })
 
     test("Deserialize into an existing instance - updating the observable array with same number of elements - the array itself must not change", () => {
-        const obj = { a: ["bbb", "ccc"] }
+        const obj = { a: ["bbb", "ccc"], $type: "t4" }
         const existing = {
+            $type: ko.observable("t4"),
             a: ko.observableArray([ko.observable("aaa"), ko.observable("aaa2")])
         }
 
@@ -509,11 +519,30 @@ describe("DotVVM.Serialization - deserialize", () => {
     })
 
     test("Deserialize into an existing instance - updating the observable array of objects - one element is the same as before", () => {
-        const obj = { a: [{ b: 1 }, { b: 2 }] }
+        const obj = { 
+            $type: "t8",
+            a: [
+                { 
+                    $type: "t8_a",
+                    b: 1 
+                }, 
+                { 
+                    $type: "t8_a",
+                    b: 2 
+                }
+            ] 
+        }
         const existing = {
+            $type: ko.observable("t8"),
             a: ko.observableArray([
-                ko.observable({ b: ko.observable(2) }),
-                ko.observable({ b: ko.observable(2) })
+                ko.observable({ 
+                    $type: ko.observable("t8_a"),
+                    b: ko.observable(2) 
+                }),
+                ko.observable({ 
+                    $type: ko.observable("t8_a"),
+                    b: ko.observable(2) 
+                })
             ])
         }
 
@@ -547,20 +576,14 @@ describe("DotVVM.Serialization - deserialize", () => {
     })
 
     test("Deserialize into an existing instance - doNotUpdate is ignored in the deserializeAll mode", () => {
-        const obj = { a: "bbb", "a$options": { doNotUpdate: true } }
+        const obj = { a: "bbb", "$type": "t2" }
         const existing = {
+            $type: ko.observable("t2"),
             a: ko.observable("aaa")
         }
 
         deserialize(obj, existing, true)
         expect(existing.a()).toBe("bbb")
-    })
-
-    test("Deserialize object - check whether the options are copied", () => {
-        const obj = deserialize({ a: "aaa", "a$options": { myCustomOption: 1 } })
-        expect(ko.isObservable(obj)).toBeFalsy()
-        expect(ko.isObservable(obj.a)).toBeTruthy()
-        expect(obj["a$options"].myCustomOption).toBe(1)
     })
 })
 
@@ -630,6 +653,7 @@ describe("DotVVM.Serialization - serialize", () => {
 
     test("Serialize object with one property", () => {
         const obj = serialize({
+            $type: ko.observable("t1"),
             a: ko.observable("aaa")
         })
         expect(obj.a).toBe("aaa")
@@ -637,11 +661,10 @@ describe("DotVVM.Serialization - serialize", () => {
 
     test("Serialize object with doNotPost option", () => {
         const obj = serialize({
-            a: ko.observable("aaa"),
-            "a$options": { doNotPost: true }
+            $type: ko.observable("t2"),
+            a: ko.observable("aaa")
         })
         expect(obj.a).toBeUndefined()
-        expect(obj["a$options"]).toBeUndefined()
     })
 
     test("Serialize Date into string", () => {
@@ -651,28 +674,27 @@ describe("DotVVM.Serialization - serialize", () => {
 
     test("Serialize object with Date property", () => {
         const obj = serialize({
-            a: ko.observable(new Date(Date.UTC(2015, 7, 1, 13, 56, 42))),
-            "a$options": { isDate: true }
+            $type: ko.observable("t3"),
+            a: ko.observable(new Date(Date.UTC(2015, 7, 1, 13, 56, 42)))
         })
         expect(typeof obj.a).toBe("string")
         expect(new Date(obj.a).getTime()).toBe(new Date(2015, 7, 1, 13, 56, 42).getTime())
-        expect(obj["a$options"]).toBeUndefined()
     })
 
     test("Serialize object with Date property for REST API", () => {
         const obj = serialize({
-            a: ko.observable(new Date(Date.UTC(2015, 7, 1, 13, 56, 42))),
-            "a$options": { isDate: true }
+            $type: ko.observable("t3"),
+            a: ko.observable(new Date(Date.UTC(2015, 7, 1, 13, 56, 42)))
         }, {
             restApiTarget: true
         })
         expect(obj.a).toBeInstanceOf(Date)
         expect(obj.a.getTime()).toBe(new Date(Date.UTC(2015, 7, 1, 13, 56, 42)).getTime())
-        expect(obj["a$options"]).toBeUndefined()
     })
 
     test("Serialize object with array", () => {
         const obj = serialize({
+            $type: ko.observable("t4"),
             a: ko.observableArray([
                 ko.observable("aaa"),
                 ko.observable("bbb"),
@@ -688,8 +710,10 @@ describe("DotVVM.Serialization - serialize", () => {
 
     test("Serialize object with arrays and subobjects", () => {
         const obj = serialize({
+            $type: ko.observable("t6"),
             a: ko.observableArray([
                 ko.observable({
+                    $type: ko.observable("t6_a"),
                     b: ko.observable(1),
                     c: ko.observableArray([
                         ko.observable(0),
@@ -708,15 +732,15 @@ describe("DotVVM.Serialization - serialize", () => {
 
     test("Serialize - doNotPost is ignored in the serializeAll mode", () => {
         const obj = serialize({
-            a: ko.observable("bbb"),
-            "a$options": { doNotPost: true }
+            $type: ko.observable("t2"),
+            a: ko.observable("bbb")
         }, { serializeAll: true })
 
         expect(obj.a).toBe("bbb")
-        expect(obj["a$options"].doNotPost).toBeTruthy()
     })
     test("Serialize - zero should remain zero", () => {
         const obj = serialize({
+            $type: ko.observable("t9"),
             a: ko.observable(0)
         }, { serializeAll: true })
 
@@ -724,6 +748,7 @@ describe("DotVVM.Serialization - serialize", () => {
     })
     test("Serialize - ko.observable with undefined should be converted to null", () => {
         const obj = serialize({
+            $type: ko.observable("t10"),
             a: ko.observable(undefined)
         }, { serializeAll: true })
 
@@ -733,15 +758,19 @@ describe("DotVVM.Serialization - serialize", () => {
     test("Deserialize - null replaced with object",
         () => {
             const viewModel = {
+                $type: ko.observable("t11"),
                 selected: ko.observable<any>(null),
                 items: ko.observable([
                     ko.observable({
+                        $type: ko.observable("t11_a"),
                         id: ko.observable(1)
                     }),
                     ko.observable({
+                        $type: ko.observable("t11_a"),
                         id: ko.observable(2)
                     }),
                     ko.observable({
+                        $type: ko.observable("t11_a"),
                         id: ko.observable(3)
                     })
                 ])
@@ -756,15 +785,19 @@ describe("DotVVM.Serialization - serialize", () => {
     test("Deserialize - null replaced with object and then with another object",
         () => {
             const viewModel = {
+                $type: ko.observable("t11"),
                 selected: ko.observable<any>(null),
                 items: ko.observable([
                     ko.observable({
+                        $type: ko.observable("t11_a"),
                         id: ko.observable(1)
                     }),
                     ko.observable({
+                        $type: ko.observable("t11_a"),
                         id: ko.observable(2)
                     }),
                     ko.observable({
+                        $type: ko.observable("t11_a"),
                         id: ko.observable(3)
                     })
                 ])
@@ -1034,6 +1067,7 @@ function assertSubHierarchiesNotLinked(viewmodel: ObservableSubHierarchy, target
     expect(target.Prop21()).toBe("bb")
     //array not linked
     viewmodel.Prop23.push(ko.observable({
+        $type: ko.observable("t5_a_a"),
         Prop231: ko.observable("ff")
     }))
     expect(target.Prop23().length).toBe(2)
@@ -1060,15 +1094,19 @@ function assertSubHierarchy(prop2Object: ObservableSubHierarchy) {
 
 function createComplexObservableTarget(): KnockoutObservable<ObservableHierarchy> {
     return ko.observable({
+        $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
+            $type: ko.observable("t5_a"),
             Prop21: ko.observable("b"),
             Prop22: ko.observable("c"),
             Prop23: ko.observableArray([
                 ko.observable({
+                    $type: ko.observable("t5_a_a"),
                     Prop231: ko.observable("d")
                 }),
                 ko.observable({
+                    $type: ko.observable("t5_a_a"),
                     Prop231: ko.observable("e")
                 })
             ])
@@ -1078,13 +1116,16 @@ function createComplexObservableTarget(): KnockoutObservable<ObservableHierarchy
 
 function createComplexObservableTargetWithNullArrayElement(): KnockoutObservable<ObservableHierarchy> {
     return ko.observable({
+        $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
+            $type: ko.observable("t5_a"),
             Prop21: ko.observable("b"),
             Prop22: ko.observable("c"),
             Prop23: ko.observableArray([
                 null,
                 ko.observable({
+                    $type: ko.observable("t5_a_a"),
                     Prop231: ko.observable("e")
                 })
             ])
@@ -1094,14 +1135,18 @@ function createComplexObservableTargetWithNullArrayElement(): KnockoutObservable
 
 function createComplexObservableTargetWithArrayElementPropertyMissing(): KnockoutObservable<any> {
     return ko.observable({
+        $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
+            $type: ko.observable("t5_a"),
             Prop21: ko.observable("b"),
             Prop22: ko.observable("c"),
             Prop23: ko.observableArray([
                 ko.observable({
+                    $type: ko.observable("t5_a_a"),
                 }),
                 ko.observable({
+                    $type: ko.observable("t5_a_a"),
                     Prop231: ko.observable("e")
                 })
             ])
@@ -1111,15 +1156,19 @@ function createComplexObservableTargetWithArrayElementPropertyMissing(): Knockou
 
 function createComplexObservableTargetWithArrayElementPropertyNull(): KnockoutObservable<ObservableHierarchy> {
     return ko.observable({
+        $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
+            $type: ko.observable("t5_a"),
             Prop21: ko.observable("b"),
             Prop22: ko.observable("c"),
             Prop23: ko.observableArray([
                 ko.observable({
+                    $type: ko.observable("t5_a_a"),
                     Prop231: null
                 }),
                 ko.observable({
+                    $type: ko.observable("t5_a_a"),
                     Prop231: ko.observable("e")
                 })
             ])
@@ -1129,8 +1178,10 @@ function createComplexObservableTargetWithArrayElementPropertyNull(): KnockoutOb
 
 function createComplexObservableTargetWithArrayElementMissingAndNull(): KnockoutObservable<ObservableHierarchy> {
     return ko.observable({
+        $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
+            $type: ko.observable("t5_a"),
             Prop21: ko.observable("b"),
             Prop22: ko.observable("c"),
             Prop23: ko.observableArray([
@@ -1142,15 +1193,19 @@ function createComplexObservableTargetWithArrayElementMissingAndNull(): Knockout
 
 function createComplexObservableTargetWithArrayElementPropertyObservableNull(): KnockoutObservable<ObservableHierarchy> {
     return ko.observable({
+        $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
+            $type: ko.observable("t5_a"),
             Prop21: ko.observable("b"),
             Prop22: ko.observable("c"),
             Prop23: ko.observableArray([
                 ko.observable({
+                    $type: ko.observable("t5_a_a"),
                     Prop231: ko.observable(null)
                 }),
                 ko.observable({
+                    $type: ko.observable("t5_a_a"),
                     Prop231: ko.observable("e")
                 })
             ])
@@ -1160,12 +1215,15 @@ function createComplexObservableTargetWithArrayElementPropertyObservableNull(): 
 
 function createComplexObservableTargetWithMissingArrayElement(): KnockoutObservable<ObservableHierarchy> {
     return ko.observable({
+        $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: ko.observable({
+            $type: ko.observable("t5_a"),
             Prop21: ko.observable("b"),
             Prop22: ko.observable("c"),
             Prop23: ko.observableArray([
                 ko.observable({
+                    $type: ko.observable("t5_a_a"),
                     Prop231: ko.observable("e")
                 })
             ])
@@ -1175,6 +1233,7 @@ function createComplexObservableTargetWithMissingArrayElement(): KnockoutObserva
 
 function createComplexObservableTargetWithNullSubHierarchy(): KnockoutObservable<ObservableHierarchy> {
     return ko.observable({
+        $type: ko.observable("t5"),
         Prop1: ko.observable("a"),
         Prop2: null
     })
@@ -1182,12 +1241,14 @@ function createComplexObservableTargetWithNullSubHierarchy(): KnockoutObservable
 
 function createComplexObservableTargetWithMissingSubHierarchy(): KnockoutObservable<any> {
     return ko.observable({
+        $type: ko.observable("t5"),
         Prop1: ko.observable("a")
     })
 }
 
 function createComplexObservableViewmodel(): ObservableHierarchy {
     return {
+        $type: ko.observable("t5"),
         Prop1: ko.observable("aa"),
         Prop2: ko.observable(createComplexObservableSubViewmodel())
     }
@@ -1195,13 +1256,16 @@ function createComplexObservableViewmodel(): ObservableHierarchy {
 
 function createComplexObservableSubViewmodel(): ObservableSubHierarchy {
     return {
+        $type: ko.observable("t5_a"),
         Prop21: ko.observable("bb"),
         Prop22: ko.observable("cc"),
         Prop23: ko.observableArray([
             ko.observable({
+                $type: ko.observable("t5_a_a"),
                 Prop231: ko.observable("dd")
             }),
             ko.observable({
+                $type: ko.observable("t5_a_a"),
                 Prop231: ko.observable("ee")
             })
         ])
@@ -1210,15 +1274,19 @@ function createComplexObservableSubViewmodel(): ObservableSubHierarchy {
 
 function createComplexNonObservableViewmodel() {
     return {
+        $type: "t5",
         Prop1: "aa",
         Prop2: {
+            $type: "t5_a",
             Prop21: "bb",
             Prop22: "cc",
             Prop23: [
                 {
+                    $type: "t5_a_a",
                     Prop231: "dd"
                 },
                 {
+                    $type: "t5_a_a",
                     Prop231: "ee"
                 }
             ]
@@ -1235,7 +1303,7 @@ class TestData {
     dateVmString: string = serializeDate(new Date(1995, 11, 17))!   // "new Date(1995, 11, 17)" depends on the local timezone, we need the the string representation to correspond with that
     array2Vm = ["aa", "bb"]
     array3Vm = ["aa", "bb", "cc"]
-    objectVm = { Prop1: "aa", Prop2: "bb" }
+    objectVm = { $type: "t12", Prop1: "aa", Prop2: "bb" }
 
     getNumericTg(): number {
         return 7
@@ -1254,6 +1322,7 @@ class TestData {
     }
     getObjectTg(): any {
         return {
+            $type: "t12",
             Prop1: "a",
             Prop2: "b"
         }
@@ -1296,12 +1365,142 @@ class TestData {
 }
 
 interface ObservableHierarchy {
+    $type: string | KnockoutObservable<string>
     Prop1: KnockoutObservable<string>
     Prop2: null | KnockoutObservable<ObservableSubHierarchy>
 }
 
 interface ObservableSubHierarchy {
+    $type: string | KnockoutObservable<string>
     Prop21: KnockoutObservable<string>
     Prop22: KnockoutObservable<string>
-    Prop23: KnockoutObservableArray<null | KnockoutObservable<{ Prop231: null | KnockoutObservable<null | string> }>>
+    Prop23: KnockoutObservableArray<null | KnockoutObservable<{ 
+        Prop231: null | KnockoutObservable<null | string>,
+        $type: string | KnockoutObservable<string>
+    }>>
 }
+
+var testTypeMap: TypeMap = {
+    t1: {
+        a: {
+            type: "String"
+        }
+    },
+    t2: {
+        a: {
+            type: "String",
+            update: "no",
+            post: "no"
+        }
+    },
+    t3: {
+        a: {
+            type: "DateTime"
+        }
+    },
+    t4: {
+        a: {
+            type: [ "String" ]
+        }
+    },
+    t5: {
+        Prop1: {
+            type: "String"
+        },
+        Prop2: {
+            type: "t5_a"
+        }
+    },
+    t5_a: {
+        Prop21: {
+            type: "String"
+        },
+        Prop22: {
+            type: "String"
+        },
+        Prop23: {
+            type: [ "t5_a_a" ]
+        }
+    },
+    t5_a_a: {
+        Prop231: {
+            type: "String"
+        }
+    },
+    t6: {
+        a: {
+            type: [ "t6_a" ]
+        }
+    },
+    t6_a: {
+        b: {
+            type: "Int32"
+        },
+        c: {
+            type: [ "Int32" ]
+        }
+    },
+    t7: {
+        a: {
+            type: "t7_a"
+        }
+    },
+    t7_a: {
+        b: {
+            type: "String"
+        }
+    },
+    t8: {
+        a: {
+            type: [ "t8_a" ]
+        }
+    },
+    t8_a: {
+        b: {
+            type: "Int32"
+        }
+    },
+    t9: {
+        a: {
+            type: "Int32"
+        }
+    },
+    t10: {
+        a: {
+            type: "t10_a"
+        }
+    },
+    t10_a: {
+    },
+    t11: {
+        selected: {
+            type: "t11_a"
+        },
+        items: {
+            type: [ "t11_a" ]
+        }
+    },
+    t11_a: {
+        id: {
+            type: "Int32"
+        }
+    },
+    t12: {
+        Prop1: {
+            type: "String"
+        },
+        Prop2: {
+            type: "String"
+        }
+    },
+    t13: {
+        Prop: {
+            type: "String"
+        }
+    },
+    t14: {
+        Prop: {
+            type: [ "String" ]
+        }
+    }
+};

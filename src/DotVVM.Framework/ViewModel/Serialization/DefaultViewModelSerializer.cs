@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using DotVVM.Framework.ResourceManagement;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -26,7 +27,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private readonly IViewModelProtector viewModelProtector;
         private readonly IViewModelSerializationMapper viewModelMapper;
         private readonly IViewModelServerCache viewModelServerCache;
-        private readonly ViewModelTypeMetadataSerializer viewModelTypeMetadataSerializer;
+        private readonly IViewModelTypeMetadataSerializer viewModelTypeMetadataSerializer;
 
         public bool SendDiff { get; set; } = true;
 
@@ -36,7 +37,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultViewModelSerializer"/> class.
         /// </summary>
-        public DefaultViewModelSerializer(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper, IViewModelServerCache viewModelServerCache, ViewModelTypeMetadataSerializer viewModelTypeMetadataSerializer)
+        public DefaultViewModelSerializer(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper, IViewModelServerCache viewModelServerCache, IViewModelTypeMetadataSerializer viewModelTypeMetadataSerializer)
         {
             this.viewModelProtector = protector;
             this.JsonFormatting = configuration.Debug ? Formatting.Indented : Formatting.None;
@@ -122,8 +123,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private JToken SerializeTypeMetadata(IDotvvmRequestContext context, ViewModelJsonConverter viewModelJsonConverter)
         {
-            var knownTypes = context.ReceivedViewModelJson?["knownTypeMetadata"]?.Values<string>().ToLookup(v => v);
-            return viewModelTypeMetadataSerializer.SerializeTypeMetadata(viewModelJsonConverter.UsedSerializationMaps, knownTypes);
+            var knownTypeIds = context.ReceivedViewModelJson?["knownTypeMetadata"]?.Values<string>().ToImmutableHashSet();
+            return viewModelTypeMetadataSerializer.SerializeTypeMetadata(viewModelJsonConverter.UsedSerializationMaps, knownTypeIds);
         }
 
         public void AddNewResources(IDotvvmRequestContext context)

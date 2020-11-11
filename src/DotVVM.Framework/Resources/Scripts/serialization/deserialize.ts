@@ -1,6 +1,7 @@
 import { serializeDate } from './date'
 import { isObservableArray, wrapObservableObjectOrArray } from '../utils/knockout'
 import { isPrimitive, keys } from '../utils/objects'
+import { getTypeInfo } from '../metadata/typeMap';
 
 export function deserialize(viewModel: any, target?: any, deserializeAll: boolean = false): any {
     if (ko.isObservable(viewModel)) {
@@ -85,13 +86,22 @@ function updateArrayItems(viewModel: any, target: KnockoutObservable<any>, deser
 export function deserializeObject(viewModel: any, target: any, deserializeAll: boolean): any {
     let unwrappedTarget = ko.unwrap(target);
 
+    const typeId = ko.unwrap(viewModel["$type"]);
+    const typeInfo = getTypeInfo(typeId);
+
     if (isPrimitive(unwrappedTarget)) {
         unwrappedTarget = {};
     }
+    unwrappedTarget["$type"] = unwrappedTarget["$type"] || ko.observable();
+    unwrappedTarget["$type"](typeId);
 
     for (const prop of keys(viewModel)) {
-        if (isOptionsProperty(prop)) {
+        if (isTypeIdProperty(prop)) {
             continue;
+        }
+
+        if (unwrappedTarget[prop] === undefined) {
+            unwrappedTarget[prop] = ko.observable();
         }
 
         const value = viewModel[prop];
@@ -101,21 +111,13 @@ export function deserializeObject(viewModel: any, target: any, deserializeAll: b
         if (!ko.isObservable(value) && typeof (value) === "function") {
             continue;
         }
-        const options = viewModel[prop + "$options"] || (unwrappedTarget && unwrappedTarget[prop + "$options"]);
-        if (!deserializeAll && options && options.doNotUpdate) {
+
+        const propInfo = typeInfo[prop];
+        if (!deserializeAll && propInfo && propInfo.update == "no") {
             continue;
         }
 
-        copyProperty(value, unwrappedTarget, prop, deserializeAll, options);
-    }
-
-    // copy the property options metadata
-    for (const prop of Object.getOwnPropertyNames(viewModel)) {
-        if (!isOptionsProperty(prop)) {
-            continue;
-        }
-
-        copyPropertyMetadata(unwrappedTarget, prop, viewModel);
+        copyProperty(value, unwrappedTarget, prop, deserializeAll, propInfo);
     }
 
     if (ko.isObservable(target)) {
@@ -130,17 +132,9 @@ export function deserializeObject(viewModel: any, target: any, deserializeAll: b
     return target;
 }
 
-function copyProperty(value: any, unwrappedTarget: any, prop: string, deserializeAll: boolean, options: any) {
+function copyProperty(value: any, unwrappedTarget: any, prop: string, deserializeAll: boolean, propInfo: PropertyMetadata) {
     const deserialized = deserialize(ko.unwrap(value), unwrappedTarget[prop], deserializeAll);
-    if (value instanceof Date) {
-        // if we get Date value from API, it was converted to string, but we should note that it was date to convert it back
-        unwrappedTarget[prop + "$options"] = {
-            ...unwrappedTarget[prop + "$options"],
-            isDate: true
-        };
-    }
-
-    // update the property
+    
     if (ko.isObservable(deserialized)) { // deserialized is observable <=> its input target is observable
         if (deserialized() !== unwrappedTarget[prop]()) {
             unwrappedTarget[prop] = extendToObservableArrayIfRequired(unwrappedTarget[prop]);
@@ -150,24 +144,13 @@ function copyProperty(value: any, unwrappedTarget: any, prop: string, deserializ
         unwrappedTarget[prop] = wrapObservableObjectOrArray(deserialized);
     }
 
-    if (options && options.clientExtenders && ko.isObservable(unwrappedTarget[prop])) {
-        for (let j = 0; j < options.clientExtenders.length; j++) {
+    if (propInfo && propInfo.clientExtenders && ko.isObservable(unwrappedTarget[prop])) {
+        for (let j = 0; j < propInfo.clientExtenders.length; j++) {
             const extenderOptions: any = {};
-            const extenderInfo = options.clientExtenders[j];
+            const extenderInfo = propInfo.clientExtenders[j];
             extenderOptions[extenderInfo.name] = extenderInfo.parameter;
             unwrappedTarget[prop].extend(extenderOptions);
         }
-    }
-}
-
-function copyPropertyMetadata(unwrappedTarget: any, prop: string, viewModel: any) {
-    unwrappedTarget[prop] = {
-        ...unwrappedTarget[prop],
-        ...viewModel[prop]
-    }
-    const originalName = prop.substring(0, prop.length - "$options".length);
-    if (unwrappedTarget[originalName] === undefined) {
-        unwrappedTarget[originalName] = ko.observable();
     }
 }
 
@@ -183,6 +166,6 @@ function extendToObservableArrayIfRequired(observable: any) {
     return observable;
 }
 
-function isOptionsProperty(prop: string) {
-    return /\$options$/.test(prop);
+function isTypeIdProperty(prop: string) {
+    return prop == "$type";
 }

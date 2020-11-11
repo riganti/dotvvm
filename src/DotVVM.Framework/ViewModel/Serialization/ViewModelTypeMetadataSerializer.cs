@@ -8,7 +8,7 @@ using Newtonsoft.Json.Linq;
 namespace DotVVM.Framework.ViewModel.Serialization
 {
 
-    public class ViewModelTypeMetadataSerializer
+    public class ViewModelTypeMetadataSerializer : IViewModelTypeMetadataSerializer
     {
         private static readonly HashSet<Type> supportedPrimitiveTypes = new HashSet<Type>()
         {
@@ -33,7 +33,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private static readonly ConcurrentDictionary<ViewModelSerializationMap, JObject> cachedJson = new ConcurrentDictionary<ViewModelSerializationMap, JObject>();
 
-        public JToken SerializeTypeMetadata(IEnumerable<ViewModelSerializationMap> usedSerializationMaps, ILookup<string, string> ignoredTypes = null)
+        public JToken SerializeTypeMetadata(IEnumerable<ViewModelSerializationMap> usedSerializationMaps, ISet<string> ignoredTypes = null)
         {
             var types = new JObject();
             foreach (var map in usedSerializationMaps)
@@ -80,6 +80,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 if (property.ValidationRules.Any() && property.ClientValidationRules.Any())
                 {
                     prop["validationRules"] = JToken.FromObject(property.ClientValidationRules);
+                }
+
+                if (property.ClientExtenders.Any())
+                {
+                    prop["clientExtenders"] = JToken.FromObject(property.ClientExtenders);
                 }
 
                 type[property.Name] = prop;

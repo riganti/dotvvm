@@ -129,6 +129,7 @@ interface DotvvmViewModelInfo {
     renderedResources?: string[]
     url?: string
     virtualDirectory?: string
+    typeMetadata: TypeMap
 }
 
 interface DotvvmViewModels {
@@ -173,4 +174,30 @@ type ValidationRuleTable = {
 
 type RootViewModel = {
     $csrfToken?: string | KnockoutObservable<string>,
+}
+
+type TypeMap = {
+    [typeId: string]: TypeMetadata
+}
+
+type TypeMetadata = {
+    [prop: string]: PropertyMetadata
+}
+
+type PropertyMetadata = {
+    type: TypeDefinition;
+    post?: "always" | "pathOnly" | "no";
+    update?: "always" | "firstRequest" | "no";
+    validationRules?: PropertyValidationRuleInfo[];
+    clientExtenders?: ClientExtenderInfo[]
+}
+
+type TypeDefinition = string |
+  { type: "nullable", inner: TypeDefinition } |
+  { type: "enum", values: { [name: string]: number } } |
+  TypeDefinition[];
+
+type ClientExtenderInfo = {
+    name: string,
+    parameter: any
 }

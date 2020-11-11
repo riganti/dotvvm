@@ -10,8 +10,8 @@ import { DotvvmValidationContext, ErrorsPropertyName } from "./common"
 import { hasOwnProperty, isPrimitive, keys } from "../utils/objects"
 import { validateType } from "../serialization/typeValidation"
 import { elementActions } from "./actions"
-import { getValidationRules } from "../dotvvm-base"
 import { DotvvmPostbackError } from "../shared-classes"
+import { getTypeInfo } from "../metadata/typeMap"
 
 type ValidationSummaryBinding = {
     target: KnockoutObservable<any>,
@@ -118,9 +118,8 @@ function validateViewModel(viewModel: any): void {
     }
 
     // find validation rules for the property type
-    const rootRules = getValidationRules();
-    const type = ko.unwrap(viewModel.$type);
-    const rules = rootRules[type] || {};
+    const typeId = ko.unwrap(viewModel.$type);
+    const typeInfo = getTypeInfo(typeId);
 
     // validate all properties
     for (const propertyName of keys(viewModel)) {
@@ -136,17 +135,15 @@ function validateViewModel(viewModel: any): void {
         const propertyValue = observable();
 
         // run validators
-        if (hasOwnProperty(rules, propertyName)) {
-            validateProperty(viewModel, observable, propertyValue, rules[propertyName]);
+        const propInfo = typeInfo[propertyName];
+        if (propInfo.validationRules) {
+            validateProperty(viewModel, observable, propertyValue, propInfo.validationRules);
         }
 
         // check the value is even valid for the given type
-        const options = viewModel[propertyName + "$options"];
-        if (options
-            && options.type
-            && getErrors(observable).length == 0
-            && !validateType(propertyValue, options.type)) {
-            ValidationError.attach(`The value of property ${propertyName} (${propertyValue}) is invalid value for type ${options.type}.`, observable);
+        if (getErrors(observable).length == 0
+            && !validateType(propertyValue, typeId)) {
+            ValidationError.attach(`The value of property ${propertyName} (${propertyValue}) is invalid value for type ${typeId}.`, observable);
         }
 
         if (!propertyValue) {
@@ -180,17 +177,6 @@ function validateProperty(viewModel: any, property: KnockoutObservable<any>, val
 
         if (!validator.isValid(value, context, property)) {
             ValidationError.attach(rule.errorMessage, property);
-        }
-    }
-}
-
-/** Adds validation rules from the serverResponseObject into our global validation rule collection */
-export function mergeValidationRules(serverResponseObject: any) {
-    const newRules = serverResponseObject.validationRules;
-    if (newRules) {
-        const existingRules = getValidationRules();
-        for (const type of keys(newRules)) {
-            existingRules[type] = newRules[type];
         }
     }
 }
