@@ -1,4 +1,4 @@
-<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <!--Related to compilation-->
   <PropertyGroup>
     <AssemblyTitle>DotVVM.CommandLine</AssemblyTitle>
@@ -7,7 +7,7 @@
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -15,7 +15,9 @@
   <!--Related to packaging-->
   <PropertyGroup>
     <PackAsTool>true</PackAsTool>
+    <!-- <PackageType>DotnetTool</PackageType> -->
     <ToolCommandName>dotvvm</ToolCommandName>
+    <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.CommandLine</PackageId>
     <PackageVersion>3.0.0-preview01-93143-alpha04</PackageVersion>
@@ -37,9 +39,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="13.7.0" />
-    <PackageReference Include="NSwag.CodeGeneration.Typescript" Version="13.7.0" />
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">
+    <PackageReference Include="NSwag.CodeGeneration.CSharp"
+      Version="13.7.0" />
+    <PackageReference Include="NSwag.CodeGeneration.Typescript"
+      Version="13.7.0" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies"
+      Version="1.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -51,6 +56,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DotVVM.Compiler\DotVVM.Compiler.csproj"
+      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="**/*.liquid" />
   </ItemGroup>
 
@@ -59,4 +69,50 @@
     <DotvvmTemplateCodeBehinds Include="@(DotvvmTemplate->'Templates/%(Filename).cs')" />
   </ItemGroup>
 
+  <!-- This target is heavily based on the project file of dotnet-ef and a workaround from dotnet/arcade -->
+  <Target Name="SetPackageProperties"
+    BeforeTargets="GenerateNuspec"
+    DependsOnTargets="BuiltProjectOutputGroup;DebugSymbolsProjectOutputGroup">
+    <PropertyGroup>
+      <_CommonMetadataElements>
+        <id>$(PackageId)</id>
+        <description>$(PackageDescription)</description>
+        <version>$(PackageVersion)</version>
+        <authors>$(Authors)</authors>
+        <requireLicenseAcceptance>$(PackageRequireLicenseAcceptance)</requireLicenseAcceptance>
+        $(_TagsElement)
+        $(_LicenseElement)
+        $(_IconElement)
+        $(_IconUrlElement)
+        $(_ReleaseNotesElement)
+      </_CommonMetadataElements>
+      <_CompilerPath>..\DotVVM.Compiler\bin\$(Configuration)\</_CompilerPath>
+    </PropertyGroup>
+    <ItemGroup>
+      <NuspecProperty Include="PackageType=$(PackageType)" />
+      <NuspecProperty Include="TargetFramework=$(TargetFramework)" />
+      <NuspecProperty Include="CommonMetadataElements=$(_CommonMetadataElements)" />
+      <NuspecProperty Include="PackageId=$(PackageId)" />
+      <NuspecProperty Include="Version=$(PackageVersion)" />
+      <NuspecProperty Include="ProjectDirectory=$(MSBuildProjectDirectory)" />
+
+      <NuspecProperty Include="SettingsFile=$(_ToolsSettingsFilePath)" />
+      <!-- globbing breaks the property if PublishDir is relative, which in our case it is (but not in dotnet-ef) -->
+      <NuspecProperty Include="Output=$(PublishDir)%2A%2A\%2A" />
+      <NuspecProperty Include="CompilerCoreBin=$(_CompilerPath)netcoreapp3.1\DotVVM.Compiler.dll" />
+      <NuspecProperty>
+        <Include>CompilerCoreRuntimeConfig=$(_CompilerPath)netcoreapp3.1\DotVVM.Compiler.runtimeconfig.json</Include>
+      </NuspecProperty>
+      <!-- <NuspecProperty Include="OutputSymbol=$(_CompilerPath)\netcoreapp3.1\DotVVM.Compiler.deps.json" /> -->
+
+      <NuspecProperty Include="CompilerCorePdb=$(_CompilerPath)netcoreapp3.1\DotVVM.Compiler.pdb" />
+      <NuspecProperty Include="CompilerFrameworkBin=$(_CompilerPath)net461\DotVVM.Compiler.exe" />
+      <NuspecProperty Include="CompilerFrameworkPdb=$(_CompilerPath)net461\DotVVM.Compiler.pdb" />
+      <!-- <NuspecProperty Include="CompilerFrameworkConfig=$(_CompilerPath)net461\DotVVM.Compiler.exe.config" /> -->
+    </ItemGroup>
+    <PropertyGroup Condition="'$(NuspecFile)' != '' and '$(NuspecProperties)' == ''">
+      <NuspecProperties>@(NuspecProperty, ';')</NuspecProperties>
+    </PropertyGroup>
+    <Message Importance="High" Text="Output=$(PublishDir)**\*" />
+  </Target>
 </Project>
