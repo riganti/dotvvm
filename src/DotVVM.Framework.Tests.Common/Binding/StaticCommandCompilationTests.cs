@@ -131,6 +131,34 @@ namespace DotVVM.Framework.Tests.Binding
             var result = CompileBinding("_parent2.IntProp = _index", new [] { typeof(TestViewModel), typeof(object), typeof(string) });
             Assert.AreEqual("(function(a){return Promise.resolve(a.$parents[1].IntProp(a.$parentContext.$parentContext.$index()).IntProp());}(ko.contextFor(this)))", result);
         }
+
+        [TestMethod]
+        public void StaticCommandCompilation_ExpressionBetweenPostbacks_WithParameters()
+        {
+            var result = CompileBinding("StringProp = injectedService.Load(StringProp, StringProp); \"Test\"; StringProp = injectedService.Load(StringProp)", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("(function(a,c,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiTG9hZCIsW10sIkFRQUEiXQ==\",[c.$data.StringProp(),c.$data.StringProp()],options).then(function(r_0){(b=(c.$data.StringProp(r_0).StringProp(),\"Test\"),dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiTG9hZCIsW10sIkFRQT0iXQ==\",[c.$data.StringProp()],options).then(function(r_1){resolve((b,c.$data.StringProp(r_1).StringProp()));},reject));},reject);});}(this,ko.contextFor(this)))", result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_ExpressionBetweenPostbacks_NoParametersLast()
+        {
+            var result = CompileBinding("StringProp = injectedService.Load(IntProp); \"Test\"; StringProp2 = injectedService.Load()", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("(function(a,c,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiTG9hZCIsW10sIkFRQT0iXQ==\",[c.$data.IntProp()],options).then(function(r_0){(b=(c.$data.StringProp(r_0).StringProp(),\"Test\"),dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiTG9hZCIsW10sIkFRPT0iXQ==\",[],options).then(function(r_1){resolve((b,c.$data.StringProp2(r_1).StringProp2()));},reject));},reject);});}(this,ko.contextFor(this)))", result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_ExpressionBetweenPostbacks_VoidTypeFirst()
+        {
+            var result = CompileBinding("injectedService.Save(IntProp); \"Test\"; StringProp = injectedService.Load()", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("FIXME", result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_ExpressionBetweenAsyncPostbacks_TaskTypeFirst()
+        {
+            var result = CompileBinding("injectedService.SaveAsync(IntProp); \"Test\"; StringProp = injectedService.LoadAsync().Result", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("FIXME", result);
+        }
     }
 
     public class FakeCommandBinding : ICommandBinding
@@ -181,5 +209,15 @@ namespace DotVVM.Framework.Tests.Binding
         public override string Load(string text) => null;
         [AllowStaticCommand]
         public override string Load(string text1, string text2) => null;
+        [AllowStaticCommand]
+        public string Load(int integer) => null;
+        [AllowStaticCommand]
+        public string Load() => null;
+        [AllowStaticCommand]
+        public void Save(int integer) { }
+        [AllowStaticCommand]
+        public Task SaveAsync(int integer) => Task.CompletedTask;
+        [AllowStaticCommand]
+        public Task<string> LoadAsync() => Task.FromResult("");
     }
 }
