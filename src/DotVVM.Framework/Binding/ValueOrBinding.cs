@@ -7,37 +7,69 @@ using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Binding
 {
-    public abstract class ValueOrBinding
+    public interface ValueOrBinding
     {
-        public abstract IBinding BindingOrDefault { get; }
-        public abstract object BoxedValue { get; }
+        IBinding BindingOrDefault { get; }
+        object BoxedValue { get; }
     }
 
-    public class ValueOrBinding<T> : ValueOrBinding
+    public struct ValueOrBinding<T> : ValueOrBinding
     {
         private readonly IBinding binding;
         private readonly T value;
+
+        private ValueOrBinding(IBinding binding, T value)
+        {
+            this.binding = binding;
+            this.value = value;
+        }
 
         public ValueOrBinding(IBinding binding)
         {
             if (binding == null) throw new ArgumentNullException(nameof(binding));
             if (binding.GetProperty<ResultTypeBindingProperty>(ErrorHandlingMode.ReturnNull) is ResultTypeBindingProperty resultType &&
                     !typeof(T).IsAssignableFrom(resultType.Type))
-                    throw new ArgumentException($"The binding result type {resultType.Type.FullName} is not assignable to {typeof(T).FullName}");
+                throw new ArgumentException($"The binding result type {resultType.Type.FullName} is not assignable to {typeof(T).FullName}");
             this.binding = binding;
+            this.value = default;
+        }
+
+        public ValueOrBinding(IStaticValueBinding<T> binding)
+        {
+            if (binding == null) throw new ArgumentNullException(nameof(binding));
+            // result type check is unnecesary when binding is generic
+            this.binding = binding;
+            this.value = default;
         }
 
         public ValueOrBinding(T value)
         {
             this.value = value;
+            this.binding = default;
         }
+
+        public static ValueOrBinding<T> FromBoxedValue(object value) =>
+            value is IBinding binding ? new ValueOrBinding<T>(binding) :
+            value is ValueOrBinding vob ? new ValueOrBinding<T>(vob.BindingOrDefault, (T)vob.BoxedValue) :
+            new ValueOrBinding<T>((T)value);
+
 
         public T Evaluate(DotvvmBindableObject control) =>
             binding != null ? (T)binding.GetBindingValue(control) : value;
 
         public T ValueOrDefault => value;
-        public override IBinding BindingOrDefault => binding;
-        public override object BoxedValue => (object)value;
+        public IBinding BindingOrDefault => binding;
+        public object BoxedValue => (object)value;
+
+        public static ValueOrBinding<T> DownCast<T2>(ValueOrBinding<T2> createFrom)
+            where T2 : T => new ValueOrBinding<T>(createFrom.binding, createFrom.value);
+
+
+        public ValueOrBinding<T2> UpCast<T2>()
+            where T2 : T =>
+            this.binding != null ?
+            new ValueOrBinding<T2>(this.binding) :
+            new ValueOrBinding<T2>((T2)this.value);
 
         public ParametrizedCode GetParametrizedJsExpression(DotvvmBindableObject control, bool unwrapped = false) =>
             ProcessValueBinding(control,
@@ -94,5 +126,15 @@ namespace DotVVM.Framework.Binding
             else
                 return processValue(this.Evaluate(control));
         }
+
+        public static implicit operator ValueOrBinding<T>(T val) => new ValueOrBinding<T>(val);
+
+        public const string EqualsDisabledReason = "Equals is disabled on ValueOrBinding<T> as it may lead to unexpected behavior. Please use object.ReferenceEquals for reference comparison or evalate the ValueOrBinding<T> and compare the value.";
+        [Obsolete(EqualsDisabledReason, error: true)]
+        public static bool operator ==(ValueOrBinding<T> a, ValueOrBinding<T> b) =>
+            throw new NotSupportedException(EqualsDisabledReason);
+        [Obsolete(EqualsDisabledReason, error: true)]
+        public static bool operator !=(ValueOrBinding<T> a, ValueOrBinding<T> b) =>
+            throw new NotSupportedException(EqualsDisabledReason);
     }
 }

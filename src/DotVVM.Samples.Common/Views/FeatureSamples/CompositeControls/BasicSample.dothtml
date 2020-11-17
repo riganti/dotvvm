@@ -19,6 +19,8 @@
         {{value: EditableNumber}}
     </dot:Repeater>
 
+    <dot:CheckBox Checked="{value: Visible}" Text="Visible" />
+
 </body>
 </html>
 

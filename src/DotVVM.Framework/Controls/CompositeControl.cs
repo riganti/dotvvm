@@ -87,12 +87,6 @@ namespace DotVVM.Framework.Controls
                     if (typeof(DotvvmBindableObject).IsAssignableFrom(type))
                         dotvvmProperty.MarkupOptions.MappingMode = MappingMode.Both;
 
-                    if (typeof(IBinding).IsAssignableFrom(parameter.ParameterType))
-                        return (_, control) => control.GetBinding(dotvvmProperty);
-                    else if (typeof(ValueOrBinding).IsAssignableFrom(parameter.ParameterType))
-                        return (_, control) => typeof(DotvvmBindableObject).GetMethod("GetValueOrBinding").MakeGenericMethod(new [] { type }).Invoke(control, new object[]{ dotvvmProperty, true });
-                    else return (_, control) => control.GetValue(dotvvmProperty);
-                }
             }
 
             lock(registrationLock)

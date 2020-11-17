@@ -66,6 +66,11 @@ namespace DotVVM.Framework.Binding
         public ICustomAttributeProvider AttributeProvider { get; private set; }
 
         /// <summary>
+        /// Provider of custom attributes for this property.
+        /// </summary>
+        public ICustomAttributeProvider AttributeProvider { get; private set; }
+
+        /// <summary>
         /// Gets or sets the markup options.
         /// </summary>
         public MarkupOptionsAttribute MarkupOptions { get; set; }

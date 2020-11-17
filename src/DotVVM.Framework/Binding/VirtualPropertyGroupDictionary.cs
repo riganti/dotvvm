@@ -8,8 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
 using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Utils;
-using System.Diagnostics.CodeAnalysis;
 using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Binding
@@ -211,14 +209,16 @@ namespace DotVVM.Framework.Binding
         {
             get
             {
-                foreach (var (p, value) in control.properties)
+                if (control.properties == null) yield break;
+                foreach (var p in control.properties.Keys)
                 {
                     if (p is GroupedDotvvmProperty pg && pg.PropertyGroup == group)
                     {
-                        yield return new KeyValuePair<string, object>(pg.GroupMemberName, value!);
+                        yield return new KeyValuePair<string, object>(pg.GroupMemberName, control.GetValueRaw(p));
                     }
                 }
             }
+            return result;
         }
 
         public static IDictionary<string, TValue> CreateValueDictionary(DotvvmBindableObject control, DotvvmPropertyGroup group)
