@@ -122,7 +122,7 @@ namespace DotVVM.Framework.Tests.Common.Binding
             Call_FindOverload_Generic(typeof(MethodsGenericArgumentsResolvingSampleObject4), MethodsGenericArgumentsResolvingSampleObject4.MethodName, argTypes, resultIdentifierType, expectedGenericArgs);
         }
         [TestMethod]
-//        [DataRow(typeof(GenericTestResult1), new Type[] { typeof(GenericModelSampleObject<int[]>) }, new Type[] { typeof(int) })]
+        [DataRow(typeof(GenericTestResult1), new Type[] { typeof(GenericModelSampleObject<int[]>) }, new Type[] { typeof(int) })]
         [DataRow(typeof(GenericTestResult2), new Type[] { typeof(List<int>[]) }, new Type[] { typeof(int) })]
         public void Call_FindOverload_Generic_Array_Recursive(Type resultIdentifierType, Type[] argTypes, Type[] expectedGenericArgs)
         {
