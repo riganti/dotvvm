@@ -145,6 +145,20 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(viewModel.StringProp, "hulabula13");
         }
 
+        [TestMethod]
+        public void BindingCompiler_Valid_LambdaTest()
+        {
+            var viewModel = new TestViewModel { StringProp = "abc" };
+            var function1 = (Func<string, string>)ExecuteBinding("(string arg) => SetStringProp(arg, 123)", viewModel);
+            var result1 = function1("test");
+            Assert.AreEqual("abc", result1);
+            Assert.AreEqual("test123", viewModel.StringProp);
+
+            var function2 = (Func<char, int>)ExecuteBinding("(char arg) => GetCharCode(arg)", viewModel);
+            var result2 = function2('A');
+            Assert.AreEqual(65, result2);
+        }
+
         class MoqComponent : DotvvmBindableObject
         {
             public object Property
