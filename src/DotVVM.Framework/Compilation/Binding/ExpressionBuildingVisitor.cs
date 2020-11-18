@@ -279,8 +279,6 @@ namespace DotVVM.Framework.Compilation.Binding
 
             // Register lambda parameters as new symbols
             Registry = Registry.AddSymbols(lambdaParameters);
-            var resolvedThis = Registry.Resolve("_this");
-            var resolvedArg = Registry.Resolve("arg");
 
             // Create lambda body
             var body = Visit(node.BodyExpression);
