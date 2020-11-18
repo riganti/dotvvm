@@ -433,56 +433,21 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 type = null;
                 return true;
             }
-            name = ReadIdentifierExpression(true);
+            else
+            {
+                name = ReadIdentifierExpression(true);
+            }
+
+            // Name must always be a simple name binding
+            if (!(name is SimpleNameBindingParserNode))
+                return false;
+
             return true;
         }
 
-        private InvocationBindingParserNode ReadLambdaBodyExpression()
+        private BindingParserNode ReadLambdaBodyExpression()
         {
-            // Read method identifier
-            if (Peek()?.Type != BindingTokenType.Identifier)
-                return CreateNode(new InvocationBindingParserNode(null, null), CurrentIndex, $"Expected method identifier, but instead found {Peek()?.Text}.");
-            var methodIdentifier = ReadIdentifierExpression(true);
-
-            if (Peek()?.Type != BindingTokenType.OpenParenthesis)
-                return CreateNode(new InvocationBindingParserNode(methodIdentifier, null), CurrentIndex, $"Expected '(', but instead found {Peek()?.Text}.");
-            // Read opening parenthesis
-            Read();
-            SkipWhiteSpace();
-
-            var arguments = new List<BindingParserNode>();
-            var waitingForArgument = false;
-            while (Peek()?.Type != BindingTokenType.CloseParenthesis)
-            {
-                // Read argument
-                var argument = ReadIdentifierExpression(false);
-                arguments.Add(argument);
-                waitingForArgument = false;
-
-                if (Peek()?.Type == BindingTokenType.Comma)
-                {
-                    // Read comma
-                    Read();                   
-                    SkipWhiteSpace();
-                    waitingForArgument = true;
-                }
-                else
-                {
-                    // If next is not comma then we must be finished
-                    break;
-                }
-            }
-
-            if (waitingForArgument)
-                return CreateNode(new InvocationBindingParserNode(methodIdentifier, null), CurrentIndex, $"Expected argument after ',', but instead found {Peek()?.Text}.");
-
-            if (Peek()?.Type != BindingTokenType.CloseParenthesis)
-                return CreateNode(new InvocationBindingParserNode(methodIdentifier, null), CurrentIndex, $"Expected ')', but instead found {Peek()?.Text}.");
-            // Read closing parenthesis
-            Read();
-            SkipWhiteSpace();
-
-            return new InvocationBindingParserNode(methodIdentifier, arguments);
+            return ReadExpression();
         }
 
         private BindingParserNode ReadIdentifierExpression(bool onlyTypeName)

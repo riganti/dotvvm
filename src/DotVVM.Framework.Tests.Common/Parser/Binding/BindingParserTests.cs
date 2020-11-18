@@ -739,11 +739,9 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             Assert.AreEqual(1, parameters.Count);
             Assert.IsNull(parameters[0].Type);
-            Assert.AreEqual("arg", parameters[0].Name.ToDisplayString());           
+            Assert.AreEqual("arg", parameters[0].Name.ToDisplayString());
 
-            Assert.AreEqual("Method", body.MethodIdentifierExpression.ToDisplayString());
-            Assert.AreEqual(1, body.ArgumentExpressions.Count);
-            Assert.AreEqual("arg", body.ArgumentExpressions[0].ToDisplayString());
+            Assert.AreEqual("Method(arg)", body.ToDisplayString());
         }
 
         [TestMethod]
@@ -761,11 +759,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.IsNull(parameters[1].Type);
             Assert.AreEqual("arg1", parameters[0].Name.ToDisplayString());
             Assert.AreEqual("arg2", parameters[1].Name.ToDisplayString());
-
-            Assert.AreEqual("Method", body.MethodIdentifierExpression.ToDisplayString());
-            Assert.AreEqual(2, body.ArgumentExpressions.Count);
-            Assert.AreEqual("arg1", body.ArgumentExpressions[0].ToDisplayString());
-            Assert.AreEqual("arg2", body.ArgumentExpressions[1].ToDisplayString());
+            Assert.AreEqual("Method(arg1, arg2)", body.ToDisplayString());
         }
 
         [TestMethod]
@@ -783,34 +777,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual("arg1", parameters[0].Name.ToDisplayString());
             Assert.AreEqual("int", parameters[1].Type.ToDisplayString());
             Assert.AreEqual("arg2", parameters[1].Name.ToDisplayString());
-
-            Assert.AreEqual("Method", body.MethodIdentifierExpression.ToDisplayString());
-            Assert.AreEqual(2, body.ArgumentExpressions.Count);
-            Assert.AreEqual("arg1", body.ArgumentExpressions[0].ToDisplayString());
-            Assert.AreEqual("arg2", body.ArgumentExpressions[1].ToDisplayString());
-        }
-
-        [TestMethod]
-        [DataRow("(arg1, arg2) => Method", "Expected '(', but instead found", DisplayName = "Invalid method invocation")]
-        [DataRow("(arg1, arg2) =>", "Expected method identifier, but instead found", DisplayName = "Missing method identifier")]
-        [DataRow("(arg1, arg2) => ;", "Expected method identifier, but instead found", DisplayName = "Semicolon instead of method invocation")]
-        [DataRow("(arg1, arg2) => arg = arg2", "Expected '(', but instead found", DisplayName = "Assignment instead of method invocation")]
-        [DataRow("(arg1, arg2) => ;Method(arg1, arg2)", "Expected method identifier, but instead found", DisplayName = "Lambdas can contain only a single method invocation")]
-        [DataRow("(arg1, arg2) => Method(arg1, arg2", "Expected ')', but instead found", DisplayName = "Missing closing parenthesis")]
-        [DataRow("(arg1, arg2) => Method(arg1,)", "Expected argument after ',', but instead found", DisplayName = "Missing argument after comma")]
-        public void BindingParser_Lambda_InvalidLambdaBody(string expression, string errorSegment)
-        {
-            var parser = bindingParserNodeFactory.SetupParser(expression);
-            var node = parser.ReadExpression().EnumerateChildNodes().SkipWhile(n => n as LambdaBindingParserNode == null).First();
-
-            var lambda = node.CastTo<LambdaBindingParserNode>();
-            var body = lambda.BodyExpression;
-            var parameters = lambda.ParameterExpressions;
-
-            Assert.IsNotNull(parameters);
-            Assert.IsNotNull(body);
-            Assert.IsTrue(body.HasNodeErrors);
-            Assert.IsTrue(body.NodeErrors.First().Contains(errorSegment));
+            Assert.AreEqual("Method(arg1, arg2)", body.ToDisplayString());
         }
 
         [TestMethod]

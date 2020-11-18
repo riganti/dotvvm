@@ -14,9 +14,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     public class LambdaBindingParserNode : BindingParserNode
     {
         public List<LambdaParameterBindingParserNode> ParameterExpressions { get; private set; }
-        public InvocationBindingParserNode BodyExpression { get; private set; }
+        public BindingParserNode BodyExpression { get; private set; }
 
-        public LambdaBindingParserNode(List<LambdaParameterBindingParserNode> parameters, InvocationBindingParserNode body)
+        public LambdaBindingParserNode(List<LambdaParameterBindingParserNode> parameters, BindingParserNode body)
         {
             this.ParameterExpressions = parameters;
             this.BodyExpression = body;
