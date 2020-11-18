@@ -60,7 +60,7 @@ namespace DotVVM.Framework.Routing
                     // Get relative path from applicationPhysicalPath to markup file
                     AppRelativePath = GetRelativePathBetween(applicationPhysicalPath, file.FullName),
                     // Get relative path from viewsFolderDirectory to markup file
-                    ViewsFolderRelativePath = GetRelativePathBetween(viewsFolderDirectoryInfo.FullName, file.FullName)
+                    ViewsFolderRelativePath = GetRelativePathBetween(viewsFolderDirectoryInfo.FullName, file.FullName).TrimStart('/')
                 });
         }
 
@@ -85,7 +85,7 @@ namespace DotVVM.Framework.Routing
             var goBack = Enumerable.Repeat("..", fromPathSegments.Length - index) ?? Enumerable.Empty<string>();
             var goForward = Enumerable.Skip(toPathSegments, index) ?? Enumerable.Empty<string>();
             var resultPathSegments = goBack.Concat(goForward).ToArray();
-            return Path.Combine(resultPathSegments);
+            return Path.Combine(resultPathSegments).Replace('\\', '/');
         }
 
         /// <summary>
