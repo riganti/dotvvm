@@ -270,6 +270,31 @@ namespace DotVVM.Framework.Compilation.Binding
             return GetMemberOrTypeExpression(node, typeParameters);
         }
 
+        protected override Expression VisitLambda(LambdaBindingParserNode node)
+        {
+            // Create lambda definition
+            var lambdaParameters = new ParameterExpression[node.ParameterExpressions.Count];
+            for (var i = 0; i < lambdaParameters.Length; i++)
+                lambdaParameters[i] = (ParameterExpression)HandleErrors(node.ParameterExpressions[i], Visit);
+
+            // Register lambda parameters as new symbols
+            Registry = Registry.AddSymbols(lambdaParameters);
+            var resolvedThis = Registry.Resolve("_this");
+            var resolvedArg = Registry.Resolve("arg");
+
+            // Create lambda body
+            var body = Visit(node.BodyExpression);
+
+            ThrowOnErrors();
+            return Expression.Lambda(body, lambdaParameters);
+        }
+
+        protected override Expression VisitLambdaParameter(LambdaParameterBindingParserNode node)
+        {
+            var parameterType = Visit(node.Type).Type;
+            return Expression.Parameter(parameterType, node.Name.ToDisplayString());
+        }
+
         protected override Expression VisitBlock(BlockBindingParserNode node)
         {
             var left = HandleErrors(node.FirstExpression, Visit) ?? Expression.Default(typeof(void));
