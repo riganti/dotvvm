@@ -46,7 +46,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         protected virtual IEnumerable<ViewModelPropertyMap> GetProperties(Type type)
         {
-            foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance).OrderBy(p => p.Name))
+            foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance).OrderBy(p => p.Name, StringComparer.Ordinal))
             {
                 if (property.GetCustomAttribute<JsonIgnoreAttribute>() != null) continue;
 
