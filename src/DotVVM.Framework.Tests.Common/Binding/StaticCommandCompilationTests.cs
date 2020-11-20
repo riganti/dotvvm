@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Runtime.Filters;
 using System.Collections.Immutable;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -26,21 +27,42 @@ namespace DotVVM.Framework.Tests.Binding
         public string CompileBinding(string expression, Type[] contexts, Type expectedType)
         {
             var configuration = DotvvmTestHelper.CreateConfiguration();
+
             configuration.RegisterApiClient(typeof(TestApiClient), "http://server/api", "./apiscript.js", "_api");
             configuration.Markup.ImportedNamespaces.Add(new NamespaceImport("DotVVM.Framework.Tests.Binding"));
+            configuration.Markup.ImportedNamespaces.Add(new NamespaceImport(typeof(JsMethodsExtensions).FullName, "_ext"));
+            configuration.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(
+                                              typeof(JsMethodsExtensions),
+                                             nameof(JsMethodsExtensions.Test),
+                                             new GenericMethodCompiler((a) =>
+                                             new JsIdentifierExpression("MethodExtensions")
+                                                            .Member("test")
+                                                            .Invoke(
+                                                            a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
+                                                            a[2].WithAnnotation(ShouldBeObservableAnnotation.Instance))
+                                                             .WithAnnotation(new ResultIsPromiseAnnotation(e => e))
+                                                       ), 2, allowMultipleMethods: true);
 
-            var context = DataContextStack.Create(contexts.FirstOrDefault() ?? typeof(object), extensionParameters: new BindingExtensionParameter[]{
-                new CurrentCollectionIndexExtensionParameter(),
-                new BindingPageInfoExtensionParameter(),
-                new InjectedServiceExtensionParameter("injectedService", new ResolvedTypeDescriptor(typeof(TestService))),
-                }.Concat(configuration.Markup.DefaultExtensionParameters).ToArray());
+            var context = DataContextStack.Create(
+                contexts.FirstOrDefault() ?? typeof(object),
+                extensionParameters: new BindingExtensionParameter[]{
+                    new CurrentCollectionIndexExtensionParameter(),
+                    new BindingPageInfoExtensionParameter(),
+                    new InjectedServiceExtensionParameter("injectedService", new ResolvedTypeDescriptor(typeof(TestService)))
+
+                }.Concat(configuration.Markup.DefaultExtensionParameters).ToArray(),
+                imports: configuration.Markup.ImportedNamespaces.ToImmutableList());
+
             for (int i = 1; i < contexts.Length; i++)
             {
                 context = DataContextStack.Create(contexts[i], context);
             }
 
+            var options = BindingParserOptions.Create<ValueBindingExpression>()
+                .AddImports(configuration.Markup.ImportedNamespaces);
+
             var parser = new BindingExpressionBuilder(configuration.ServiceProvider.GetRequiredService<CompiledAssemblyCache>());
-            var expressionTree = parser.ParseWithLambdaConversion(expression, context, BindingParserOptions.Create<ValueBindingExpression>(), expectedType);
+            var expressionTree = parser.ParseWithLambdaConversion(expression, context, options, expectedType);
             var jsExpression =
                 configuration.ServiceProvider.GetRequiredService<StaticCommandBindingCompiler>().CompileToJavascript(context, expressionTree);
             return KnockoutHelper.GenerateClientPostBackExpression(
@@ -106,7 +128,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void StaticCommandCompilation_CommandArgumentUsage()
         {
-            var result = CompileBinding("StringProp = arg.ToString()", new [] { typeof(TestViewModel) }, typeof(Func<int, Task>));
+            var result = CompileBinding("StringProp = arg.ToString()", new[] { typeof(TestViewModel) }, typeof(Func<int, Task>));
             Assert.AreEqual("(function(a){return Promise.resolve(a.$data.StringProp(dotvvm.globalize.bindingNumberToString(commandArguments[0])()).StringProp());}(ko.contextFor(this)))", result);
         }
 
@@ -121,14 +143,14 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void StaticCommandCompilation_IndexParameter()
         {
-            var result = CompileBinding("IntProp = _index", new [] { typeof(TestViewModel) });
+            var result = CompileBinding("IntProp = _index", new[] { typeof(TestViewModel) });
             Assert.AreEqual("(function(a){return Promise.resolve(a.$data.IntProp(a.$index()).IntProp());}(ko.contextFor(this)))", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_IndexParameterInParent()
         {
-            var result = CompileBinding("_parent2.IntProp = _index", new [] { typeof(TestViewModel), typeof(object), typeof(string) });
+            var result = CompileBinding("_parent2.IntProp = _index", new[] { typeof(TestViewModel), typeof(object), typeof(string) });
             Assert.AreEqual("(function(a){return Promise.resolve(a.$parents[1].IntProp(a.$parentContext.$parentContext.$index()).IntProp());}(ko.contextFor(this)))", result);
         }
 
@@ -157,6 +179,27 @@ namespace DotVVM.Framework.Tests.Binding
         public void StaticCommandCompilation_ExpressionBetweenAsyncPostbacks_TaskTypeFirst()
         {
             var result = CompileBinding("injectedService.SaveAsync(IntProp); \"Test\"; StringProp = injectedService.LoadAsync().Result", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("FIXME", result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_DependentPostbacks_TaskTypeFirst()
+        {
+            var result = CompileBinding("StringProp = injectedService.Load(IntProp); StringProp = injectedService.Load(StringProp)", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("FIXME", result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_PromiseReturningTranslatedCall_NoReorder()
+        {
+            var result = CompileBinding("StringProp = _ext.Test(StringProp, StringProp = injectedService.Load(StringProp))", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("FIXME", result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_PromiseReturningTranslatedCall_NeedsReorder()
+        {
+            var result = CompileBinding("StringProp = _ext.Test(StringProp, \"a\") + injectedService.Load(StringProp)", new[] { typeof(TestViewModel) });
             Assert.AreEqual("FIXME", result);
         }
     }
@@ -196,7 +239,7 @@ namespace DotVVM.Framework.Tests.Binding
         public static DateTime GetDate() => DateTime.UtcNow;
     }
 
-    public abstract class TestInnerService<TOutput> 
+    public abstract class TestInnerService<TOutput>
     {
         public abstract TOutput Load(string text);
         public abstract TOutput Load(string text1, string text2);
@@ -220,4 +263,13 @@ namespace DotVVM.Framework.Tests.Binding
         [AllowStaticCommand]
         public Task<string> LoadAsync() => Task.FromResult("");
     }
+
+    public static class JsMethodsExtensions
+    {
+        public static string Test(string param, string param2)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
 }
