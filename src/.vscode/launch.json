@@ -1,0 +1,76 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+
+        // {
+        //     "name": "Tests",
+        //     "type": "coreclr",
+        //     "request": "launch",
+        //     "preLaunchTask": "build-tests",
+        //     "program": "dotnet",
+        //     "args": [ "test", "${workspaceRoot}/DotVVM.Framework.Tests.Common" ],
+        //     "cwd": "${workspaceRoot}",
+        //     "stopAtEntry": false,
+        //     "console": "internalConsole"
+        // },
+        {
+            "name": ".NET Core Launch (web)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceRoot}/DotVVM.Samples.BasicSamples.AspNetCore/bin/Debug/netcoreapp2.0/DotVVM.Samples.BasicSamples.AspNetCore.dll",
+            "args": [ "--framework", "netcoreapp2.0" ],
+            "cwd": "${workspaceRoot}/DotVVM.Samples.BasicSamples.AspNetCore/",
+            "stopAtEntry": false,
+            "launchBrowser": {
+                "enabled": true,
+                "args": "${auto-detect-url}",
+                "windows": {
+                    "command": "cmd.exe",
+                    "args": "/C start ${auto-detect-url}"
+                },
+                "osx": {
+                    "command": "open"
+                },
+                "linux": {
+                    "command": "xdg-open"
+                }
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceRoot}/Views"
+            }
+        },
+        {
+            "name": "DotVVM CLI on .NET Core Launch",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-cli",
+            "program": "${workspaceRoot}/DotVVM.CommandLine/bin/Debug/netcoreapp1.0/dotnet-dotvvm.dll",
+            "args": [ "api", "create-webapi", "../WebApiResearch/swag/bin/Debug/netcoreapp1.1/swag.dll", "MyNS", "./ApiClient3.cs", "./ApiClient3.ts" ],
+            "cwd": "${workspaceRoot}/DotVVM.CommandLine",
+            "stopAtEntry": false
+        },
+        {
+            "name": ".NET Core Attach",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickProcess}"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Jest Tests",
+            "cwd": "${workspaceFolder}/DotVVM.Framework",
+            "program": "node_modules/jest/bin/jest.js",
+            "args": [
+                //"Resources/Scripts/tests/postback.test.ts",
+                "-i"
+            ],
+            "internalConsoleOptions": "openOnSessionStart",
+            "envFile": "${workspaceRoot}/.env"            
+        }
+    ]
+}
