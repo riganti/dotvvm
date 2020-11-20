@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Utils
                 return assembly.GetTypes();
             }
             catch (ReflectionTypeLoadException e)
-            { 
+            {
                 return e.Types.Where(t => t != null);
             }
         }
