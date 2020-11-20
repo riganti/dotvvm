@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "packageVersion": "2.4.0.1",
+  "projectName": "DotVVM.Samples.Compiler.Net461.Owin",
+  "rootNamespace": "DotVVM.Samples.Compiler.Net461.Owin",
+  "uiTestProjectPath": null,
+  "uiTestProjectRootNamespace": null,
+  "metadataFilePath": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.Compiler.Net461.Owin\\.dotvvm.json",
+  "projectDirectory": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.Compiler.Net461.Owin",
+  "webAssemblyPath": null,
+  "apiClients": []
+}

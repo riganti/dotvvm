@@ -1,0 +1,10 @@
+﻿@viewModel DotVVM.Samples.Compiler.Net461.Owin.ViewModels.DefaultViewModel, DotVVM.Samples.Compiler.Net461.Owin
+@masterPage Views/master.dotmaster
+
+<dot:Content ContentPlaceHolderID="MainContent">
+    <h1>
+        Compiler Tests
+    </h1>
+
+</dot:Content>
+

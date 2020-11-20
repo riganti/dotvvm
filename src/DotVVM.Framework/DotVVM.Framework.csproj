@@ -65,6 +65,12 @@
       <PackagePath>tools\dnc\DotVVM.Compiler.deps.json</PackagePath>
       <Visible>false</Visible>
     </Content>
+    <Content Include="..\DotVVM.Framework.Tools.SeleniumGenerator\bin\Debug\netcoreapp2.0\publish\**">
+      <Pack>true</Pack>
+      <InProject>false</InProject>
+      <PackagePath>tools\selenium\netcoreapp2.0\</PackagePath>
+      <Visible>false</Visible>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="node_modules\**" />

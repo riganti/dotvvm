@@ -69,6 +69,7 @@ function SetVersion() {
     }  
 }
 
+
 function BuildPackages() {
     Write-Host "Build started"
     foreach ($package in $packages) {
@@ -160,7 +161,10 @@ $packages = @(
     [pscustomobject]@{ Package = "DotVVM.Tools.StartupPerf"; Directory = "DotVVM.Tools.StartupPerfTester" },
     [pscustomobject]@{ Package = "DotVVM.Compiler.Light"; Directory = "DotVVM.Compiler.Light" },
     [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.AspNetCore"; Directory = "DotVVM.Framework.Api.Swashbuckle.AspNetCore" },
-    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.Owin"; Directory = "DotVVM.Framework.Api.Swashbuckle.Owin" }
+    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.Owin"; Directory = "DotVVM.Framework.Api.Swashbuckle.Owin" },
+    [pscustomobject]@{ Package = "DotVVM.Framework.Testing.SeleniumGenerator"; Directory = "DotVVM.Framework.Testing.SeleniumGenerator" },
+	[pscustomobject]@{ Package = "DotVVM.Framework.Testing.SeleniumHelpers"; Directory = "DotVVM.Framework.Testing.SeleniumHelpers" }
+
 )
 
 
