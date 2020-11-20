@@ -48,17 +48,34 @@ namespace DotVVM.Framework.ResourceManagement
             var writeDebugInfo = context.Configuration.Debug;
             foreach (var resource in resources)
             {
-                if (resource.Resource.RenderPosition == position)
+                var resourcePosition = resource.Resource.RenderPosition;
+                if (resourcePosition == position || resourcePosition == ResourceRenderPosition.Anywhere)
                 {
+                    if (resourceManager.IsRendered(resource.Name)) continue;
+
+                    // check for all dependencies of Anywhere resource
+                    if (resourcePosition == ResourceRenderPosition.Anywhere && position != ResourceRenderPosition.Body)
+                    {
+                        if (!HasAllDependencies(resourceManager, resource.Resource))
+                            continue;
+                    }
+
                     if (writeDebugInfo) WriteResourceInfo(resource, writer, preload: false);
+                    // TODO: warning for missing dependencies
+                    resourceManager.MarkRendered(resource);
                     resource.RenderResourceCached(writer, context);
                 }
-                else if (position == ResourceRenderPosition.Head && resource.Resource.RenderPosition != ResourceRenderPosition.Head && resource.Resource is IPreloadResource preloadResource)
+                else if (position == ResourceRenderPosition.Head && resourcePosition != ResourceRenderPosition.Head && resource.Resource is IPreloadResource preloadResource)
                 {
+                    if (resourceManager.IsRendered(resource.Name)) continue;
+
                     if (writeDebugInfo) WriteResourceInfo(resource, writer, preload: true);
                     preloadResource.RenderPreloadLink(writer, context, resource.Name);
                 }
             }
+
+            if (writeDebugInfo)
+                writer.WriteUnencodedText("\n");
         }
 
         public static string GetRenderedTextCached(this NamedResource resource, IDotvvmRequestContext context) =>

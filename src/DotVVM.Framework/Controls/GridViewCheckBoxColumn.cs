@@ -1,5 +1,4 @@
 #nullable enable
-using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Hosting;
@@ -45,13 +44,6 @@ namespace DotVVM.Framework.Controls
         private void CreateControlsCore(DotvvmControl container, bool enabled)
         {
             var checkBox = new CheckBox { Enabled = enabled };
-
-            // TODO: rewrite this
-            if (Properties.TryGetValue(Properties.First(p => p.Key.ToString() == "UITests.Name").Key, out var property))
-            {
-                checkBox.Properties.Add(Properties.First(p => p.Key.ToString() == "UITests.Name").Key, property);
-            }
-
             var valueBinding = GetValueBinding(ValueBindingProperty);
             checkBox.SetBinding(CheckBox.CheckedProperty, valueBinding);
             Validator.Place(checkBox, container.Children, valueBinding, ValidatorPlacement);

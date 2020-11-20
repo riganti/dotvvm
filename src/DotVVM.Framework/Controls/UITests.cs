@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Controls
         [AttachedProperty(typeof(bool))]
         public static readonly DotvvmProperty GenerateStubProperty =
             DotvvmProperty.Register<bool, UITests>(() => GenerateStubProperty, defaultValue: true, isValueInherited: true);
-
+        
         /// <summary>
         /// Gets or sets a name rendered as data-uitest-name attribute which is used by Selenium to identify the control in the page.
         /// </summary>
@@ -26,9 +26,9 @@ namespace DotVVM.Framework.Controls
 
         private static void AddNameProperty(IHtmlWriter writer, IDotvvmRequestContext context, DotvvmProperty prop, DotvvmControl control)
         {
-            if (context.Configuration.Debug && control is HtmlGenericControl htmlControl)
+            if (context.Configuration.Debug && control is HtmlGenericControl)
             {
-                htmlControl.Attributes["data-uitest-name"] = prop.GetValue(control);
+                ((HtmlGenericControl) control).Attributes["data-uitest-name"] = prop.GetValue(control);
             }
         }
     }
