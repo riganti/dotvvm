@@ -172,5 +172,5 @@ type ValidationRuleTable = {
 }
 
 type RootViewModel = {
-    $csrfToken?: string | KnockoutObservable<string>,
+    $csrfToken?: string,
 }

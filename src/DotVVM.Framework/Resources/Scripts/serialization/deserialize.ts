@@ -171,7 +171,7 @@ function copyPropertyMetadata(unwrappedTarget: any, prop: string, viewModel: any
     }
 }
 
-function extendToObservableArrayIfRequired(observable: any) {
+export function extendToObservableArrayIfRequired(observable: any) {
     if (!ko.isObservable(observable)) {
         throw new Error("Trying to extend a non-observable to an observable array.");
     }
@@ -183,6 +183,6 @@ function extendToObservableArrayIfRequired(observable: any) {
     return observable;
 }
 
-function isOptionsProperty(prop: string) {
+export function isOptionsProperty(prop: string) {
     return /\$options$/.test(prop);
 }

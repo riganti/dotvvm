@@ -52,7 +52,7 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
         await loadResourceList(response.result.resources);
 
         if (response.result.action === "successfulCommand") {
-            updater.updateViewModelAndControls(response.result, true);
+            updater.updateViewModelAndControls(response.result);
             isSpaReady(true);
         } else if (response.result.action === "redirect") {
             await handleRedirect(options, response.result, response.response!);
