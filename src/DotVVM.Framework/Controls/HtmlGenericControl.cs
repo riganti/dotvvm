@@ -7,6 +7,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Controls

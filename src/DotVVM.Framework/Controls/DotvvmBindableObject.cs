@@ -92,9 +92,9 @@ namespace DotVVM.Framework.Controls
                 if (property == DataContextProperty)
                     control = control.Parent ?? throw new DotvvmControlException(this, "Can not set DataContext binding on the root control");
                 // handle binding
-                if (value is IStaticValueBinding binding)
+                if (value is IStaticValueBinding svbinding)
                 {
-                    value = binding.Evaluate(control);
+                    value = svbinding.Evaluate(control);
                 }
                 else if (value is ICommandBinding command)
                 {

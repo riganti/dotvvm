@@ -102,18 +102,6 @@ namespace DotVVM.Framework.Controls
             RenderSpanElement = renderSpan;
         }
 
-        public Literal(ValueOrBinding text, bool renderSpan = false): this()
-        {
-            SetValue(TextProperty, text);
-            RenderSpanElement = renderSpan;
-        }
-
-        public Literal(IStaticValueBinding text, bool renderSpan = false): this()
-        {
-            SetBinding(TextProperty, text);
-            RenderSpanElement = renderSpan;
-        }
-
         public static bool NeedsFormatting(IValueBinding binding) => binding != null && (binding.ResultType == typeof(DateTime) || binding.ResultType == typeof(DateTime?)
             || binding.ResultType.IsNumericType() || Nullable.GetUnderlyingType(binding.ResultType).IsNumericType());
 

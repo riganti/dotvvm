@@ -12,8 +12,14 @@ namespace DotVVM.Framework.Binding
     {
         private Action<IHtmlWriter, IDotvvmRequestContext, DotvvmPropertyGroup, DotvvmControl, IEnumerable<DotvvmProperty>> func;
 
-
-        public DelegateActionPropertyGroup(PrefixArray prefixes, Type valueType, FieldInfo descriptorField, string name, object defaultValue, Action<IHtmlWriter, IDotvvmRequestContext, DotvvmPropertyGroup, DotvvmControl, IEnumerable<DotvvmProperty>> func) : base(prefixes, valueType, descriptorField, name, defaultValue)
+        public DelegateActionPropertyGroup(PrefixArray prefixes,
+            Type valueType,
+            Type declaringType,
+            FieldInfo descriptorField,
+            string name,
+            object defaultValue,
+            Action<IHtmlWriter, IDotvvmRequestContext, DotvvmPropertyGroup, DotvvmControl, IEnumerable<DotvvmProperty>> func)
+            : base(prefixes, valueType, declaringType, descriptorField, descriptorField, name, defaultValue)
         {
             this.func = func;
         }
@@ -23,10 +29,15 @@ namespace DotVVM.Framework.Binding
             if (func != null) func(writer, context, this, control, properties);
         }
 
-        public static DelegateActionPropertyGroup<TValue> Register<TDeclaringType>(PrefixArray prefixes, string name, Action<IHtmlWriter, IDotvvmRequestContext, DotvvmPropertyGroup, DotvvmControl, IEnumerable<DotvvmProperty>> func, TValue defaultValue = default(TValue))
+        public static DelegateActionPropertyGroup<TValue> Register<TDeclaringType>(
+            PrefixArray prefixes,
+            string name,
+            Action<IHtmlWriter, IDotvvmRequestContext, DotvvmPropertyGroup, DotvvmControl, IEnumerable<DotvvmProperty>> func,
+            TValue defaultValue = default(TValue))
         {
             var descriptorField = DotvvmPropertyGroup.FindDescriptorField(typeof(TDeclaringType), name);
-            return (DelegateActionPropertyGroup<TValue>)DotvvmPropertyGroup.Register(new DelegateActionPropertyGroup<TValue>(prefixes, typeof(TValue), descriptorField, name, defaultValue, func));
+            return (DelegateActionPropertyGroup<TValue>)DotvvmPropertyGroup.Register(
+                new DelegateActionPropertyGroup<TValue>(prefixes, typeof(TValue), typeof(TDeclaringType), descriptorField, name, defaultValue, func));
         }
 
     }

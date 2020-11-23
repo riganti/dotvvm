@@ -125,13 +125,12 @@ namespace DotVVM.Framework.Compilation
                     })))
                 .Apply(a => SyntaxFactory.CastExpression(ParseTypeName(controlType), a))
                 .Apply(EmitCreateVariable);
-        
+
         public string EmitInjectionFactoryInvocation(
             Type type,
             (Type type, ExpressionSyntax expression)[] arguments,
             Func<Type, Type[], ExpressionSyntax> factoryInvocation) =>
-                this.injectionFactoryCache.GetOrAdd((type, string.Join(";", arguments.Select(i => i.type))), _ =>
-                {
+                this.injectionFactoryCache.GetOrAdd((type, string.Join(";", arguments.Select(i => i.type))), _ => {
                     var fieldName = "Obj_" + type.Name + "_Factory_" + otherDeclarations.Count;
                     otherDeclarations.Add(SyntaxFactory.FieldDeclaration(SyntaxFactory.VariableDeclaration(
                             this.ParseTypeName(typeof(ObjectFactory)))
@@ -155,7 +154,7 @@ namespace DotVVM.Framework.Compilation
                     })))
                 .Apply(a => SyntaxFactory.CastExpression(ParseTypeName(type), a))
                 .Apply(EmitCreateVariable);
-        
+
         /// <summary>
         /// Emits the create object expression.
         /// </summary>
@@ -367,9 +366,10 @@ namespace DotVVM.Framework.Compilation
             }
             else
             {
+                //throw new NotImplementedException();
                 return SyntaxFactory.CastExpression(
                     this.ParseTypeName(typeof(DotvvmProperty)),
-                    this.EmitValueReference(property));
+                    this.valueEmitter.EmitValueReference(property));
             }
         }
 
@@ -755,7 +755,7 @@ namespace DotVVM.Framework.Compilation
         //         .Where(g => g.Count() > 2);
         //     foreach (var ng in nodes)
         //     {
-                
+
         //     }
         // }
 

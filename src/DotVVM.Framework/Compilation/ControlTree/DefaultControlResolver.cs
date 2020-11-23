@@ -73,6 +73,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         var tt = type;
                         do
                         {
+                            RegisterCompositeControlProperties(tt);
                             RuntimeHelpers.RunClassConstructor(tt.TypeHandle);
                             tt = tt.BaseType;
                         }
@@ -84,6 +85,35 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 // keep the old way as it was
                 // PERF: too many allocations - type.GetCustomAttribute<T> does ~220k allocs -> 4MB, get all types allocates additional 1.5MB
+                var allTypes = GetAllLoadableTypes(dotvvmAssembly);
+                foreach (var type in allTypes)
+                {
+                    if (type.GetTypeInfo().GetCustomAttribute<ContainsDotvvmPropertiesAttribute>(true) != null)
+                    {
+                        var tt = type;
+                        do
+                        {
+                            RegisterCompositeControlProperties(tt);
+                            RuntimeHelpers.RunClassConstructor(tt.TypeHandle);
+                            tt = tt.GetTypeInfo().BaseType;
+
+                        }
+                        while (tt != null);
+                    }
+                }
+            }
+        }
+
+        private static void RegisterCompositeControlProperties(Type type)
+        {
+            if (type is object && !type.IsAbstract && typeof(CompositeControl).IsAssignableFrom(type))
+            {
+                CompositeControl.RegisterProperties(type);
+            }
+        }
+
+        private IEnumerable<Type> GetAllLoadableTypes(string dotvvmAssembly)
+        {
 
 #if DotNetCore
                 var allTypes = compiledAssemblyCache.GetAllAssemblies()
@@ -92,72 +122,29 @@ namespace DotVVM.Framework.Compilation.ControlTree
                    .SelectMany(a => a.GetLoadableTypes()).Where(t => t.GetTypeInfo().IsClass).ToList();
 #else
 
-                var loadedAssemblies = compiledAssemblyCache.GetAllAssemblies()
-                    .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly));
+            var loadedAssemblies = compiledAssemblyCache.GetAllAssemblies()
+                .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly));
 
-                var visitedAssemblies = new HashSet<string>();
+            var visitedAssemblies = new HashSet<string>();
 
-                // ReflectionUtils.GetAllAssemblies() in netframework returns only assemblies which have already been loaded into
-                // the current AppDomain, to return all assemblies we traverse recursively all referenced Assemblies
-                var allTypes = loadedAssemblies
-                    .SelectRecursively(a => a.GetReferencedAssemblies().Where(an => visitedAssemblies.Add(an.FullName)).Select(an => Assembly.Load(an)))
-                    .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly))
-                    .Distinct()
-                    .Concat(new[] { typeof(DotvvmControl).GetTypeInfo().Assembly })
-                    .SelectMany(a => a.GetLoadableTypes()).Where(t => t.GetTypeInfo().IsClass);
+            // ReflectionUtils.GetAllAssemblies() in netframework returns only assemblies which have already been loaded into
+            // the current AppDomain, to return all assemblies we traverse recursively all referenced Assemblies
+            var allTypes = loadedAssemblies
+                .SelectRecursively(a => a.GetReferencedAssemblies().Where(an => visitedAssemblies.Add(an.FullName)).Select(an => Assembly.Load(an)))
+                .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly))
+                .Distinct()
+                .Concat(new[] { typeof(DotvvmControl).GetTypeInfo().Assembly })
+                .SelectMany(a => a.GetLoadableTypes()).Where(t => t.GetTypeInfo().IsClass);
 #endif
-
-                foreach (var type in allTypes)
-                {
-                    if (type.GetTypeInfo().GetCustomAttribute<ContainsDotvvmPropertiesAttribute>(true) != null)
-                    {
-                        var tt = type;
-                        do
-                        {
-                            RuntimeHelpers.RunClassConstructor(tt.TypeHandle);
-                            tt = tt.GetTypeInfo().BaseType;
-                        }
-                        while (tt != null);
-                    }
-                }
-            }
-            //TODO: MERGE CONFLICT
-            //private static void InvokeStaticConstructorsOnAllControls()
-            //{
-            //    // PERF: too many allocations - type.GetCustomAttribute<T> does ~220k allocs -> 4MB, get all types allocates additional 1.5MB
-            //    var dotvvmAssembly = typeof(DotvvmControl).GetTypeInfo().Assembly.GetName().Name;
-            //    var allTypes = ReflectionUtils.GetAllAssemblies()
-            //        .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly))
-            //        .Concat(new[] { typeof(DotvvmControl).GetTypeInfo().Assembly })
-            //        .SelectMany(a => a.GetLoadableTypes()).Where(t => t.GetTypeInfo().IsClass).ToList();
-            //    foreach (var type in allTypes)
-            //    {
-            //        if (type.GetTypeInfo().GetCustomAttribute<ContainsDotvvmPropertiesAttribute>(true) != null)
-            //        {
-            //            var tt = type;
-            //            do
-            //            {
-            //                RuntimeHelpers.RunClassConstructor(tt.TypeHandle);
-            //                tt = tt.GetTypeInfo().BaseType;
-            //            }
-            //            while (tt != null && tt.GetTypeInfo().IsGenericType);
-
-            //            if (!type.IsAbstract && typeof(EpicCoolControl).IsAssignableFrom(type))
-            //            {
-            //                EpicCoolControl.RegisterProperties(type);
-            //            }
-            //        }
-            //    }
-
-
-            //}
+            return allTypes;
+        }
 
         /// <summary>
         /// Resolves the control metadata for specified type.
         /// </summary>
         public override IControlResolverMetadata ResolveControl(ITypeDescriptor controlType)
         {
-            var type = ((ResolvedTypeDescriptor) controlType).Type;
+            var type = ((ResolvedTypeDescriptor)controlType).Type;
             return ResolveControl(new ControlType(type));
         }
 
@@ -192,7 +179,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         public override IControlResolverMetadata BuildControlMetadata(IControlType type)
         {
-            return new ControlResolverMetadata((ControlType) type);
+            return new ControlResolverMetadata((ControlType)type);
         }
 
         protected override IPropertyDescriptor FindGlobalPropertyOrGroup(string name)

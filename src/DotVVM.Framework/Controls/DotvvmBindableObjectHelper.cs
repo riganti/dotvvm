@@ -60,7 +60,6 @@ namespace DotVVM.Framework.Controls
         public static ValueOrBinding<TProperty> GetValueOrBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject
             => control.GetValueOrBinding<TProperty>(control.GetDotvvmProperty(prop));
-            => control.GetValue<TProperty>(control.GetDotvvmProperty(prop))!;
 
         internal static object? TryGeyValue(this DotvvmBindableObject control, DotvvmProperty property)
         {
