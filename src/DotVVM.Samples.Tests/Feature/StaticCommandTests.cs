@@ -69,7 +69,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.IsDotvvmPage();
 
                 var name = browser.First("name", SelectByDataUi);
-                var value= browser.First("value", SelectByDataUi);
+                var value = browser.First("value", SelectByDataUi);
 
                 var a = browser.First("service-object", SelectByDataUi);
                 a.Click();
@@ -214,16 +214,33 @@ namespace DotVVM.Samples.Tests.Feature
                 var textBox = browser.Single("input[type=text]");
                 var commandButton = browser.ElementAt("input[type=button]", 0);
                 var staticCommandButton = browser.ElementAt("input[type=button]", 1);
+                var internalSequenceStaticCommandButton = browser.ElementAt("input[type=button]", 2);
+                void resetTextbox()
+                {
+                    textBox.Clear();
+                    textBox.SendKeys("0");
+                    textBox.SendKeys(Keys.Tab);
+                }
 
-                commandButton.Click().Wait();
-                AssertUI.Value(textBox, "55");
+                commandButton.Click();
+                browser.WaitFor(() => {
+                    AssertUI.Value(textBox, "55");
+                }, 500);
 
-                textBox.Clear();
-                textBox.SendKeys("0");
-                textBox.SendKeys(Keys.Tab);
 
-                staticCommandButton.Click().Wait(1000);
-                AssertUI.Value(textBox, "55");
+                resetTextbox();
+                staticCommandButton.Click();
+
+                browser.WaitFor(() => {
+                    AssertUI.Value(textBox, "55");
+                }, 500);
+
+                resetTextbox();
+                internalSequenceStaticCommandButton.Click();
+
+                browser.WaitFor(() => {
+                    AssertUI.Value(textBox, "2");
+                }, 500);
             });
         }
 
