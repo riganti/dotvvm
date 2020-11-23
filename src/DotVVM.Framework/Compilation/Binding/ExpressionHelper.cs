@@ -237,8 +237,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     if (typeArgs[genericArgumentPosition] == null)
                     {
                         // try to resolve from arguments
-
-                        var argType = ResolveGenericTypeFromGivenExpressions(genericArguments[genericArgumentPosition], parameters, args);
+                        var argType = GetGenericParameterType(genericArguments[genericArgumentPosition], parameters.Select(s => s.ParameterType).ToArray(), args.Select(s => s.Type).ToArray());
                         automaticTypeArgs++;
                         if (argType != null) typeArgs[genericArgumentPosition] = argType;
                         else return null;
@@ -269,34 +268,6 @@ namespace DotVVM.Framework.Compilation.Binding
             };
         }
 
-        private static Type ResolveGenericTypeFromGivenExpressions(Type genericArgument, ParameterInfo[] parameters, Expression[] args)
-        {
-            for (var j = 0; j < parameters.Length; j++)
-            {
-                var parameter = parameters[j];
-                var parameterType = parameter.ParameterType;
-
-                if (parameterType == genericArgument)
-                {
-                    return args[j].Type;
-                }
-                if (parameterType.IsArray)
-                {
-                    parameterType = parameter.ParameterType.GetElementType();
-                    if (parameterType == genericArgument && args[j].Type.IsArray)
-                    {
-                        return args[j].Type.GetElementType();
-                    }
-                }
-                else if (parameterType.IsGenericType || parameterType.IsArray)
-                {
-                    var value = GetGenericParameterType(genericArgument, parameterType.GetGenericArguments(), args[j].Type.GetGenericArguments());
-                    if (value is Type) return value;
-                }
-            }
-            return null;
-        }
-
         private static Type GetGenericParameterType(Type genericArg, Type[] searchedGenericTypes, Type[] expressionTypes)
         {
             for (var i = 0; i < searchedGenericTypes.Length; i++)
@@ -307,9 +278,14 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     return expressionTypes[i];
                 }
-                if (sgt.IsArray && sgt.GetElementType() == genericArg)
+                if (sgt.IsArray)
                 {
-                    return expressionTypes[i].GetElementType();
+                    var elementType = sgt.GetElementType();
+                    var expressionElementType = expressionTypes[i].GetElementType();
+                    if (elementType == genericArg)
+                        return expressionElementType;
+                    else
+                        return GetGenericParameterType(genericArg, searchedGenericTypes[i].GetGenericArguments(), expressionTypes[i].GetGenericArguments());
                 }
                 else if (sgt.IsGenericType)
                 {
