@@ -1,0 +1,20 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules.PageModulesViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:RequiredResource Name="FeatureSamples_Resources_TestPageModule"/>
+    <script type="module">
+    import * as testModule from 'http://localhost:5407//dotvvmResource/FeatureSamples_Resources_TestPageModule/FeatureSamples_Resources_TestPageModule'
+        dotvvm.viewModules.register('testModule', testModule);
+    </script>
+
+</body>
+</html>
+
+
