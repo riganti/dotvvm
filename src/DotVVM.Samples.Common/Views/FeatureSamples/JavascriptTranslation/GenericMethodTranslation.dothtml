@@ -1,0 +1,39 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation.GenericMethodTranslationViewModel, DotVVM.Samples.Common
+@masterPage Views/ComplexSamples/SPA/site.dotmaster
+@import DotVVM.Samples.BasicSamples
+
+<dot:Content ContentPlaceHolderID="Container">
+    <script>
+        function unwrap() {
+            return "translated";
+        }
+    </script>
+    <div RenderSettings.Mode="Server">
+        <p>
+            Result - Model:
+            <span data-ui="result">
+                {{value: JavascriptTranslationTestMethods.Unwrap(_this.Model, _this.Model2)}}
+            </span>
+        </p>
+
+        <p>
+            RESULT - BOOL:
+            <span data-ui="result2">
+                {{value: JavascriptTranslationTestMethods.Unwrap(_this.Model3)}}
+            </span>
+        </p>
+        <%--<p>
+            RESULT - Recursive:
+            <span data-ui="result3">
+                {{value: JavascriptTranslationTestMethods.Unwrap(_this.Model4)}}
+            </span>
+        </p>--%>
+        <p>
+            RESULT - Array:
+            <span data-ui="result3">
+                {{value: JavascriptTranslationTestMethods.Unwrap(_this.Model5)[0].Model[1]}}
+            </span>
+        </p>
+    </div>
+</dot:Content>
+
