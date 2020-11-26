@@ -6,6 +6,7 @@ using System.Linq;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Runtime.Caching
 {
@@ -16,6 +17,7 @@ namespace DotVVM.Framework.Runtime.Caching
     /// </summary>
     public class SimpleLruDictionary<TKey, TValue>
         where TValue : class
+        where TKey : notnull
     {
         // new generation
         private ConcurrentDictionary<TKey, TValue> hot = new ConcurrentDictionary<TKey, TValue>();
@@ -33,7 +35,7 @@ namespace DotVVM.Framework.Runtime.Caching
         {
             this.generationSize = generationSize;
             this.generationTickTime = generationTickTime;
-            Task.Factory.StartNew(SetupTimer); 
+            Task.Factory.StartNew(SetupTimer);
         }
 
         private object locker = new object();
@@ -72,7 +74,7 @@ namespace DotVVM.Framework.Runtime.Caching
             }
         }
 
-        public bool TryGetValue(TKey key, out TValue value)
+        public bool TryGetValue(TKey key, [NotNullWhen(true)] out TValue? value)
         {
             if (hot.TryGetValue(key, out value))
                 return true;
@@ -118,7 +120,7 @@ namespace DotVVM.Framework.Runtime.Caching
 
             // TODO: do we want to lock the creation?
             var newValue = factory(key);
-            if (newValue == null) return default;
+            if (newValue == null) return default!;
             this.hot.TryAdd(key, newValue);
             // don't return the newValue - in case was another one created in parallel, we want to return the older one
             // so only one permanent instance of this kind is created.

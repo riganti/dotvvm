@@ -198,7 +198,7 @@ namespace DotVVM.Framework.Compilation
             }).Where(t => t.attribute != null);
             foreach (var builder in builders)
             {
-                RegisterControlBuilder(builder.attribute.FilePath, (IControlBuilder)Activator.CreateInstance(builder.type).NotNull());
+                RegisterControlBuilder(builder.attribute!.FilePath, (IControlBuilder)Activator.CreateInstance(builder.type).NotNull());
             }
         }
 
