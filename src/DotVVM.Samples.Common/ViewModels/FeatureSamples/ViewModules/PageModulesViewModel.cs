@@ -9,7 +9,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules
 {
     public class PageModulesViewModel : DotvvmViewModelBase
     {
-        
+        public bool Toggle { get; set; } = true;
     }
 }
 

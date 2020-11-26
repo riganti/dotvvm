@@ -25,6 +25,8 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
 
     const elementContext = ko.contextFor(rootElement);
 
+    console.info(rootElement);
+
     let exportedCommands: { [name: string]: (context: ModuleContext, ...args: any[]) => any; } = {};
 
     if (handler.module.commands && typeof (handler.module.commands) === 'object') {
@@ -41,8 +43,11 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
         }
     }
 
+    setupModuleDisposeHandlers(name, rootElement);
+
     handler.context = new ModuleContext(
         exportedCommands,
+        {},
         {},
         viewId,
         rootElement,
@@ -58,7 +63,7 @@ export function callViewModuleCommand(moduleName: string, commandName: string, .
     if (commandName == null) { throw new Error("commandName has to have a value"); }
 
     const handler = ensureInitializedModuleHandler(moduleName);
-    const command = handler.context?.namedCommands[commandName];
+    const command = handler.context?.moduleCommands[commandName];
 
     if (!command) {
         throw new Error('Command ' + commandName + 'could not be found in module ' + moduleName + '.');
@@ -67,10 +72,19 @@ export function callViewModuleCommand(moduleName: string, commandName: string, .
     command(handler.context as ModuleContext, args);
 }
 
+function setupModuleDisposeHandlers(name: string, rootElement: HTMLElement) {
+    function elementDisposeCallback() {
+        disposeModule(name);
+        ko.utils.domNodeDisposal.removeDisposeCallback(rootElement, elementDisposeCallback);
+    }
+    ko.utils.domNodeDisposal.addDisposeCallback(rootElement, elementDisposeCallback);
+}
+
 function disposeModule(name: string) {
     const handler = ensureInitializedModuleHandler(name);
 
-    callIfDefined(handler.module, 'dispose', handler.context)
+    callIfDefined(handler.module, 'dispose', handler.context);
+    delete registeredModules[name];
     handler.isDisposed = true;
 }
 
@@ -86,6 +100,8 @@ function ensureModuleHandler(name: string): ModuleHandler {
     if (name == null) { throw new Error("name has to have a value"); }
 
     const handler = registeredModules[name];
+
+    console.info(!handler || handler.isDisposed);
 
     if (!handler || handler.isDisposed) {
         throw new Error('Could not find module ' + name + '. Module is not registered, or has been disposed.');
@@ -112,7 +128,8 @@ class ModuleHandler {
 
 export class ModuleContext {
     constructor(
-        public readonly namedCommands: { [name: string]: (context: ModuleContext, ...args: any[]) => Promise<any> },
+        public readonly moduleCommands: { [name: string]: (context: ModuleContext, ...args: any[]) => Promise<any> },
+        public readonly namedCommands: { [name: string]: (...args: any[]) => Promise<any> },
         public readonly state: any,
         public readonly viewId: string,
         public readonly element: HTMLElement,

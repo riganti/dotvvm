@@ -7,6 +7,7 @@ import enable from './enable'
 import checkbox from './checkbox'
 import updateProgress from './update-progress'
 import gridviewdataset from './gridviewdataset'
+import withViewModules from './with-view-modules'
 
 type KnockoutHandlerDictionary = {
     [name: string]: KnockoutBindingHandler
@@ -20,7 +21,8 @@ const allHandlers: KnockoutHandlerDictionary = {
     ...enable,
     ...checkbox,
     ...updateProgress,
-    ...gridviewdataset
+    ...gridviewdataset,
+    ...withViewModules
 }
 
 export default allHandlers
