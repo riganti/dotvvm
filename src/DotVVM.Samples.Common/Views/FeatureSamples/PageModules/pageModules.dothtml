@@ -1,4 +1,5 @@
 ﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules.PageModulesViewModel, DotVVM.Samples.Common
+@js testModule ../bla/testModule.js
 
 <!DOCTYPE html>
 
@@ -8,15 +9,17 @@
     <title></title>
 </head>
 <body>
-    <dot:Button Text="toggle module holding element" Click="{staticCommand: Toggle= !Toggle}"/>
+    <dot:Button Text="toggle module holding element" Click="{staticCommand: Toggle= !Toggle}" />
     <div IncludeInPage="{value: Toggle}">
-        <div class="module-holder" data-bind="dotvvm-with-view-modules: {viewId: 'test-view-id', modules: ['testModule']}">
+        <!-- ko dotvvm-with-view-modules: {viewId: 'test-view-id', modules: ['testModule']}, dotvvm-with-control-properties: {  } -->
+        <div class="module-holder">
             <dot:RequiredResource Name="FeatureSamples_Resources_TestPageModule" />
             <script type="module" defer>
                 import * as testModule from 'http://localhost:5407//dotvvmResource/FeatureSamples_Resources_TestPageModule/FeatureSamples_Resources_TestPageModule'
                 dotvvm.viewModules.register('testModule', testModule);
             </script>
         </div>
+        <!-- /ko -->
     </div>
 </body>
 </html>

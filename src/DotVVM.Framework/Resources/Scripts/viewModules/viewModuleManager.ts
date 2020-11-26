@@ -19,7 +19,7 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
 
     console.info(handler);
 
-    if (handler.isInitialized) {
+    if (handler.contexts[viewId]) {
         throw new Error('Handler '+name+ ' has already been initialized.');
     }
 
@@ -43,9 +43,10 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
         }
     }
 
-    setupModuleDisposeHandlers(name, rootElement);
+    setupModuleDisposeHandlers(viewId, name, rootElement);
 
-    handler.context = new ModuleContext(
+    var context = new ModuleContext(
+        handler.module,
         exportedCommands,
         {},
         {},
@@ -54,46 +55,48 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
         elementContext.$data,
         { ...elementContext.$control }
     );
+    handler.contexts[viewId] = context;
 
-    callIfDefined(handler.module, 'init', handler.context);
-    handler.isInitialized = true;
+    callIfDefined(handler.module, 'init', context);
 }
 
-export function callViewModuleCommand(moduleName: string, commandName: string, ...args: any[]) {
+export function callViewModuleCommand(viewId: string, moduleName: string, commandName: string, ...args: any[]) {
     if (commandName == null) { throw new Error("commandName has to have a value"); }
 
-    const handler = ensureInitializedModuleHandler(moduleName);
-    const command = handler.context?.moduleCommands[commandName];
+    const context = ensureViewModuleContext(viewId, moduleName);
+    const command = context.moduleCommands[commandName];
 
     if (!command) {
-        throw new Error('Command ' + commandName + 'could not be found in module ' + moduleName + '.');
+        throw new Error('Command ' + commandName + 'could not be found in module ' + moduleName + ' view '+viewId+'.');
     }
 
-    command(handler.context as ModuleContext, args);
+    command(context, args);
 }
 
-function setupModuleDisposeHandlers(name: string, rootElement: HTMLElement) {
+function setupModuleDisposeHandlers(viewId: string,  name: string, rootElement: HTMLElement) {
     function elementDisposeCallback() {
-        disposeModule(name);
+        disposeModule(viewId, name);
         ko.utils.domNodeDisposal.removeDisposeCallback(rootElement, elementDisposeCallback);
     }
     ko.utils.domNodeDisposal.addDisposeCallback(rootElement, elementDisposeCallback);
 }
 
-function disposeModule(name: string) {
-    const handler = ensureInitializedModuleHandler(name);
+function disposeModule(viewId: string, name: string) {
+    const handler = ensureModuleHandler(name);
+    const context = ensureViewModuleContext(viewId, name);
 
-    callIfDefined(handler.module, 'dispose', handler.context);
-    delete registeredModules[name];
-    handler.isDisposed = true;
+    callIfDefined(handler.module, 'dispose', context);
+    delete handler.contexts[viewId];
 }
 
-function ensureInitializedModuleHandler(name: string): ModuleHandler {
+function ensureViewModuleContext(viewId: string, name: string): ModuleContext {
     const handler = ensureModuleHandler(name);
-    if (!handler.isInitialized) {
-        throw new Error('Module ' + name + 'has not been initialized.');
+    const context = handler.contexts[viewId]; 
+
+    if (!context) {
+        throw new Error('Module ' + name + 'has not been initialized for view ' + viewId + ', or the view has been disposed');
     }
-    return handler;
+    return context;
 }
 
 function ensureModuleHandler(name: string): ModuleHandler {
@@ -101,9 +104,7 @@ function ensureModuleHandler(name: string): ModuleHandler {
 
     const handler = registeredModules[name];
 
-    console.info(!handler || handler.isDisposed);
-
-    if (!handler || handler.isDisposed) {
+    if (!handler) {
         throw new Error('Could not find module ' + name + '. Module is not registered, or has been disposed.');
     }
     return handler;
@@ -116,18 +117,14 @@ function callIfDefined(module: any, name: string, ...args: any[]) {
 }
 
 class ModuleHandler {
-    public isInitialized: boolean;
-    public isDisposed: boolean;
-    public context: ModuleContext | null;
+    public contexts: { [viewId: string]: ModuleContext } = {};
     constructor(public readonly name: string, public readonly module: any) {
-        this.isInitialized = false;
-        this.isDisposed = false;
-        this.context = null;
     }
 }
 
 export class ModuleContext {
     constructor(
+        public readonly module: any,
         public readonly moduleCommands: { [name: string]: (context: ModuleContext, ...args: any[]) => Promise<any> },
         public readonly namedCommands: { [name: string]: (...args: any[]) => Promise<any> },
         public readonly state: any,

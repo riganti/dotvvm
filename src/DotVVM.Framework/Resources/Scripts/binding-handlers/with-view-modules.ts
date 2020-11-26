@@ -24,7 +24,7 @@ export default {
             for (const viewModuleName of value.modules) {
                 manger.initViewModule(viewModuleName, value.viewId, element)
             }
-            return { controlsDescendantBindings: true }; // do not apply binding again
+            return { controlsDescendantBindings: false }; // do not apply binding again
         }
     }
 };
