@@ -136,11 +136,11 @@ const fetchDefinitions = {
         } as any;
     },
     postbackServerError: async <T>(url: string, init: RequestInit) => {
-        throw new DotvvmPostbackError({
-            type: "serverError",
-            status: 500,
-            responseObject: null,
-            response: { fake: "error" } as any as Response
+        throw new DotvvmPostbackError({ 
+            type: "serverError", 
+            status: 500, 
+            responseObject: null, 
+            response: { fake: "error" } as any as Response 
         });
     },
     postbackValidationErrors: async <T>(url: string, init: RequestInit) => {
@@ -155,9 +155,9 @@ const fetchDefinitions = {
         } as any;
     },
     networkError: async <T>(url: string, init: RequestInit) => {
-        throw new DotvvmPostbackError({
-            type: "network",
-            err: { fake: "error" }
+        throw new DotvvmPostbackError({ 
+            type: "network", 
+            err: { fake: "error" } 
         });
     },
     postbackViewModelNotCached: async <T>(url: string, init: RequestInit) => {
@@ -208,27 +208,27 @@ const fetchDefinitions = {
         } as any;
     },
     spaNavigateError: async <T>(url: string, init: RequestInit) => {
-        throw new DotvvmPostbackError({
-            type: "serverError",
-            status: 500,
-            responseObject: null,
-            response: { fake: "error" } as any as Response
+        throw new DotvvmPostbackError({ 
+            type: "serverError", 
+            status: 500, 
+            responseObject: null, 
+            response: { fake: "error" } as any as Response 
         });
     },
 
     staticCommandSuccess: async <T>(url: string, init: RequestInit) => {
-        return {
-            type: "successfulCommand",
-            result: 1,
-            response: { fake: "error" } as any as Response
-        } as any;
+        return { 
+            type: "successfulCommand", 
+            result: 1, 
+            response: { fake: "error" } as any as Response 
+        } as any; 
     },
     staticCommandServerError: async <T>(url: string, init: RequestInit) => {
-        throw new DotvvmPostbackError({
-            type: "serverError",
-            status: 500,
-            responseObject: null,
-            response: { fake: "error" } as any as Response
+        throw new DotvvmPostbackError({ 
+            type: "serverError", 
+            status: 500, 
+            responseObject: null, 
+            response: { fake: "error" } as any as Response 
         });
     }
 };
@@ -256,7 +256,7 @@ test("PostBack + success", async () => {
     try {
 
         await postBack(window.document.body, [], "c", "", undefined, [ "concurrency-default" ]);
-
+        
         var history = getEventHistory();
 
         let i = 2;  // skip the "init" and "initCompleted" event
@@ -281,7 +281,7 @@ test("PostBack + viewModelCache", async () => {
     var fetchSpy = jest.spyOn(fetchDefinitions, 'postbackViewModelNotCached');
 
     fetchJson = fetchDefinitions.postbackViewModelNotCached;
-
+    
     const cleanup = watchEvents(false);
     try {
 
@@ -312,7 +312,7 @@ test("PostBack + viewModelCache", async () => {
 
 test("PostBack + redirect", async () => {
     fetchJson = fetchDefinitions.postbackRedirect;
-
+    
     const cleanup = watchEvents(false);
     try {
 
@@ -355,7 +355,7 @@ test("PostBack + validation errors", async () => {
         validateEvent(history[i++], "postbackCommitInvoked", "postback", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject);
         validateEvent(history[i++], "validationErrorsChanged", "postback");
         validateEvent(history[i++], "afterPostback", "postback", validations.hasSender, validations.hasWasInterrupted, validations.hasResponse, validations.hasServerResponseObject);
-
+        
         expect(history.length).toBe(i);
     }
     finally {
@@ -393,7 +393,7 @@ test("PostBack + server error", async () => {
 
 test("PostBack + network error", async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
-
+    
     fetchJson = fetchDefinitions.networkError;
 
     const cleanup = watchEvents(false);
@@ -425,7 +425,7 @@ test("spaNavigation + success", async () => {
     fetchJson = fetchDefinitions.spaNavigateSuccess;
 
     detachAllErrors();
-
+    
     const cleanup = watchEvents(false);
     try {
 
@@ -561,8 +561,8 @@ test("staticCommand (JS only) + success", async () => {
     const cleanup = watchEvents(false);
     try {
 
-        await applyPostbackHandlers(options => (function(a,b) {
-            return Promise.resolve(a.$data.Property1(b));
+        await applyPostbackHandlers(options => (function(a,b) { 
+            return Promise.resolve(a.$data.Property1(b)); 
         })(ko.contextFor(window.document.body)), window.document.body, [], [1]);
 
         var history = getEventHistory();
@@ -590,7 +590,7 @@ test("staticCommand (with server call) + success", async () => {
                 dotvvm.staticCommandPostback(a,"test",[],options).then(function(r_0){resolve(r_0);},reject);
             });
         }(window.document.body, ko.contextFor(window.document.body))), window.document.body, [], []);
-
+        
         var history = getEventHistory();
 
         let i = 2;  // skip the "init" and "initCompleted" event
@@ -657,7 +657,7 @@ test("staticCommand (with server call) + server error", async () => {
                 });
             }(window.document.body, ko.contextFor(window.document.body))), window.document.body, [], [])
         ).rejects.toBeInstanceOf(DotvvmPostbackError);;
-
+        
         var history = getEventHistory();
 
         let i = 2;  // skip the "init" and "initCompleted" event
