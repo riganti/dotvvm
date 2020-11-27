@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Compilation.Binding
             //Result of the call will be saved in auxiliary variable and the wariable is then used in original text
             //example:
             //vm.D = A(B("a"), C("b")) ---> r_0 = B("a"), r_1 = C("b"), r_2 = A(r_0, r_1), vm.D = r_2
-            var visitor = new ExtractExpressionVisitor(ex => CreatePromiseMethodCallAnnotatorFactory(dataContext, ex));
+            var visitor = new ExtractExpressionVisitor(ex => CreatePromiseMethodCallAnnotationFactory(dataContext, ex));
             var rootCallback = visitor.Visit(expression);
 
             var errorCallback = new JsIdentifierExpression("reject");
@@ -132,7 +132,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
         }
 
-        private Func<ParameterExpression, BindingParameterAnnotation> CreatePromiseMethodCallAnnotatorFactory(DataContextStack dataContext, Expression ex)
+        private Func<ParameterExpression, BindingParameterAnnotation> CreatePromiseMethodCallAnnotationFactory(DataContextStack dataContext, Expression ex)
         {
             if (ex.NodeType != ExpressionType.Call || !(ex is MethodCallExpression methodCall)) { return null; }
 
