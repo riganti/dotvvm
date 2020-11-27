@@ -13,6 +13,7 @@ export const commands = {
     testMe: function (context) {
         console.info("Hello from the command");
         console.info(context);
+        context.callNamedCommand('MyCommand');
     }
 }
 

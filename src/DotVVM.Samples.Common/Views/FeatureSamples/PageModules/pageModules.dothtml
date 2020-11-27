@@ -13,6 +13,7 @@
     <div IncludeInPage="{value: Toggle}">
         <!-- ko dotvvm-with-view-modules: {viewId: 'test-view-id', modules: ['testModule']}, dotvvm-with-control-properties: {  } -->
         <div class="module-holder">
+            Test view #1
             <dot:RequiredResource Name="FeatureSamples_Resources_TestPageModule" />
             <script type="module" defer>
                 import * as testModule from 'http://localhost:5407//dotvvmResource/FeatureSamples_Resources_TestPageModule/FeatureSamples_Resources_TestPageModule'
@@ -21,6 +22,16 @@
         </div>
         <!-- /ko -->
     </div>
+    <!-- ko dotvvm-with-view-modules: {viewId: 'test-view-id-2', modules: ['testModule']}, dotvvm-with-control-properties: {  } -->
+    <div class="module-holder">
+        Test view #2
+        <dot:RequiredResource Name="FeatureSamples_Resources_TestPageModule" />
+        <script type="module" defer>
+            import * as testModule from 'http://localhost:5407//dotvvmResource/FeatureSamples_Resources_TestPageModule/FeatureSamples_Resources_TestPageModule'
+            dotvvm.viewModules.register('testModule', testModule);
+        </script>
+    </div>
+    <!-- /ko -->
 </body>
 </html>
 

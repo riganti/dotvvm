@@ -1,3 +1,4 @@
+import register from "../binding-handlers/register";
 import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture } from "../dotvvm-base"
 import { keys } from "../utils/objects";
 
@@ -7,7 +8,11 @@ export function registerViewModule(name: string, moduleObject: any) {
     if (name == null) { throw new Error("Parameter name has to have a value"); }
     if (moduleObject == null) { throw new Error("Parameter moduleObject has to have a value"); }
 
-    registeredModules[name] = new ModuleHandler(name, moduleObject);
+    //If multiple views on the same page use the module, we only want to register it the first time,
+    //the other views then get initialized on their own
+    if (!registeredModules[name]) {
+        registeredModules[name] = new ModuleHandler(name, moduleObject);
+    }
 }
 
 export function initViewModule(name: string, viewId: string, rootElement: HTMLElement) {
@@ -20,7 +25,7 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
     console.info(handler);
 
     if (handler.contexts[viewId]) {
-        throw new Error('Handler '+name+ ' has already been initialized.');
+        throw new Error('Handler ' + name + ' has already been initialized.');
     }
 
     const elementContext = ko.contextFor(rootElement);
@@ -46,10 +51,9 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
     setupModuleDisposeHandlers(viewId, name, rootElement);
 
     var context = new ModuleContext(
+        name,
         handler.module,
         exportedCommands,
-        {},
-        {},
         viewId,
         rootElement,
         elementContext.$data,
@@ -67,13 +71,27 @@ export function callViewModuleCommand(viewId: string, moduleName: string, comman
     const command = context.moduleCommands[commandName];
 
     if (!command) {
-        throw new Error('Command ' + commandName + 'could not be found in module ' + moduleName + ' view '+viewId+'.');
+        throw new Error('Command ' + commandName + 'could not be found in module ' + moduleName + ' view ' + viewId + '.');
     }
 
     command(context, args);
 }
 
-function setupModuleDisposeHandlers(viewId: string,  name: string, rootElement: HTMLElement) {
+export function registerNamedCommand(viewId: string, commandName: string, command: (context: ModuleContext, ...args: any[]) => Promise<any>) {
+    if (viewId == null) { throw new Error("Parameter viewId has to have a value"); }
+    if (commandName == null) { throw new Error("Parameter commandName has to have a value"); }
+
+    for (const moduleName of keys(registeredModules)) {
+        const module = registeredModules[moduleName];
+
+        var context = module.contexts[viewId];
+        if (context) {
+            context.registerNamedCommand(commandName, command);
+        }
+    }
+}
+
+function setupModuleDisposeHandlers(viewId: string, name: string, rootElement: HTMLElement) {
     function elementDisposeCallback() {
         disposeModule(viewId, name);
         ko.utils.domNodeDisposal.removeDisposeCallback(rootElement, elementDisposeCallback);
@@ -91,7 +109,7 @@ function disposeModule(viewId: string, name: string) {
 
 function ensureViewModuleContext(viewId: string, name: string): ModuleContext {
     const handler = ensureModuleHandler(name);
-    const context = handler.contexts[viewId]; 
+    const context = handler.contexts[viewId];
 
     if (!context) {
         throw new Error('Module ' + name + 'has not been initialized for view ' + viewId + ', or the view has been disposed');
@@ -123,15 +141,42 @@ class ModuleHandler {
 }
 
 export class ModuleContext {
+    private readonly namedCommands: { [name: string]: (...args: any[]) => Promise<any> } = {};
+    public readonly state: any = {};
+
     constructor(
+        public readonly moduleName: string,
         public readonly module: any,
         public readonly moduleCommands: { [name: string]: (context: ModuleContext, ...args: any[]) => Promise<any> },
-        public readonly namedCommands: { [name: string]: (...args: any[]) => Promise<any> },
-        public readonly state: any,
         public readonly viewId: string,
         public readonly element: HTMLElement,
         public readonly viewModel: any,
         public readonly properties: { [name: string]: any }) {
+    }
 
+    public callNamedCommand = (commandName: string, ...args: any[]) => {
+        if (!commandName) { throw new Error("Parameter commandName has to have a value"); }
+
+        var command = this.namedCommands[commandName];
+
+        if (!command) {
+            throw new Error('Could not find named command ' + commandName + ' registered for view ' + this.viewId + '. Make sure your named command registration is on the same view as the @js directive that imports module ' + this.moduleName + '.');
+        }
+
+        command(...args);
+    };
+
+    public registerNamedCommand = (name: string, command: (...args: any[]) => Promise<any>) => {
+        if (name == null) {
+            throw new Error("Parameter name has to have a value");
+        }
+        if (!command || typeof (command) !== 'function') {
+            throw new Error('Named command has to be a function');
+        }
+        if (this.namedCommands[name]) {
+            throw new Error('A named command is already registered under the name: ' + name + '. The conflict occured in: ' + this.moduleName + ' view ' + this.viewId + '.');
+        }
+
+        this.namedCommands[name] = command;
     }
 }
