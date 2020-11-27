@@ -19,41 +19,24 @@ namespace DotVVM.CommandLine
 
         public static void AddCompilerCommands(this Command command)
         {
-            var compileCmd = new Command("compile", "Invokes the DotVVM compiler");
-            // rootCmd.AddOption(new Option<FileSystemInfo>(
-            //     aliases: new [] {"-p", "--project"},
-            //     description: "The DotVVM project to be compiled.",
-            //     getDefaultValue: () => new DirectoryInfo(Directory.GetCurrentDirectory())));
-            // rootCmd.AddOption(new Option<string>(
-            //     alias: "--configuration",
-            //     description: "Configuration used to build the project."));
-            // rootCmd.AddOption(new Option<string>(
-            //     alias: "--framework",
-            //     description: "The target framework used to build the project."));
-            // rootCmd.AddOption(new Option<string>(
-            //     alias: "--runtime",
-            //     description: "The runtime ID used to build the project."));
-            // rootCmd.AddOption(new Option<bool>(
-            //     alias: "--no-build",
-            //     description: "Don't build the project."));
-            compileCmd.AddTargetArgument();
-            compileCmd.AddArgument(new Argument<string[]>(
+            var lintCmd = new Command("lint", "Look for compiler errors in Views and Markup Controls");
+            lintCmd.AddTargetArgument();
+            lintCmd.AddArgument(new Argument<string[]>(
                 name: "compilerArgs",
                 description: "Arguments passed to the compiler"));
-            compileCmd.AddOption(new Option<FileSystemInfo>(
+            lintCmd.AddOption(new Option<FileSystemInfo>(
                 alias: "--compiler",
                 description: "Path to the source of DotVVM.Compiler"));
-            compileCmd.AddOption(new Option<bool>(
+            lintCmd.AddOption(new Option<bool>(
                 alias: "--debug",
                 description: "Build the compiler shim with the Debug configuration"));
-            compileCmd.Handler = CommandHandler.Create(typeof(CompilerCommands).GetMethod(nameof(HandleCompile))!);
-            command.AddCommand(compileCmd);
+            lintCmd.Handler = CommandHandler.Create(typeof(CompilerCommands).GetMethod(nameof(HandleLint))!);
+            command.AddCommand(lintCmd);
         }
 
-        public static int HandleCompile(
-            ProjectMetadata metadata,
+        public static int HandleLint(
+            DotvvmProject project,
             FileSystemInfo target,
-            MSBuild msbuild,
             string[]? compilerArgs,
             FileSystemInfo? compiler,
             bool debug,
@@ -63,16 +46,16 @@ namespace DotVVM.CommandLine
             var allArgs = new List<string>
             {
                 AssemblyNameOption,
-                metadata.AssemblyName,
+                project.AssemblyName,
                 ApplicationPathOption,
-                Path.GetDirectoryName(metadata.ProjectFilePath)
+                Path.GetDirectoryName(project.ProjectFilePath)!
             };
             if (compilerArgs is object)
             {
                 allArgs.AddRange(compilerArgs);
             }
             
-            var targetFramework = Shims.GetSuitableTargetFramework(metadata.TargetFrameworks).GetShortFolderName();
+            var targetFramework = Shims.GetSuitableTargetFramework(project.TargetFrameworks).GetShortFolderName();
 
             var success = Shims.TryCreateRunShim(
                 shimName: ShimName,

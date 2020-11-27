@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <!--Related to compilation-->
   <PropertyGroup>
     <AssemblyTitle>DotVVM.CommandLine</AssemblyTitle>
@@ -39,25 +39,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NSwag.CodeGeneration.CSharp"
-      Version="13.7.0" />
-    <PackageReference Include="NSwag.CodeGeneration.Typescript"
-      Version="13.7.0" />
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies"
-      Version="1.0.0">
+    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="13.7.0" />
+    <PackageReference Include="NSwag.CodeGeneration.Typescript" Version="13.7.0" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="NuGet.Frameworks" Version="5.8.0" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.CommandLine.Common\DotVVM.CommandLine.Common.csproj" />
-    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Compiler\DotVVM.Compiler.csproj"
-      ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\DotVVM.Compiler\DotVVM.Compiler.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
@@ -66,13 +60,16 @@
 
   <ItemGroup>
     <DotvvmTemplate Include="Templates/*.tt" />
+    <None Remove="Resources\DotVVMCommandLine.targets" />
     <DotvvmTemplateCodeBehinds Include="@(DotvvmTemplate->'Templates/%(Filename).cs')" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\DotVVMCommandLine.targets" />
+  </ItemGroup>
+
   <!-- This target is heavily based on the project file of dotnet-ef and a workaround from dotnet/arcade -->
-  <Target Name="SetPackageProperties"
-    BeforeTargets="GenerateNuspec"
-    DependsOnTargets="BuiltProjectOutputGroup;DebugSymbolsProjectOutputGroup">
+  <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="BuiltProjectOutputGroup;DebugSymbolsProjectOutputGroup">
     <PropertyGroup>
       <_CommonMetadataElements>
         <id>$(PackageId)</id>
