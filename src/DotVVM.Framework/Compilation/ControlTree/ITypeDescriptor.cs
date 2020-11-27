@@ -1,3 +1,4 @@
+#nullable enable
 using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Compilation.ControlTree
@@ -6,9 +7,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
     {
         string Name { get; }
 
-        string Namespace { get; }
+        string? Namespace { get; }
 
-        string Assembly { get; }
+        string? Assembly { get; }
 
         string FullName { get; }
 
@@ -16,13 +17,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         bool IsAssignableFrom(ITypeDescriptor typeDescriptor);
 
-        ControlMarkupOptionsAttribute GetControlMarkupOptionsAttribute();
+        ControlMarkupOptionsAttribute? GetControlMarkupOptionsAttribute();
 
         bool IsEqualTo(ITypeDescriptor other);
 
-        ITypeDescriptor TryGetArrayElementOrIEnumerableType();
+        ITypeDescriptor? TryGetArrayElementOrIEnumerableType();
 
-        ITypeDescriptor TryGetPropertyType(string propertyName);
+        ITypeDescriptor? TryGetPropertyType(string propertyName);
 
         ITypeDescriptor MakeGenericType(params ITypeDescriptor[] typeArguments);
     }
