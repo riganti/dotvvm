@@ -678,7 +678,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             error = null;
             if (method(text, styles, CultureInfo.InvariantCulture, out var result)) return result;
-            error = $"could not parse { text } using { method.GetMethodInfo().DeclaringType.FullName + "." + method.GetMethodInfo().Name }";
+            error = $"could not parse { text } using { method.GetMethodInfo()?.DeclaringType?.FullName + "." + method.GetMethodInfo()?.Name }";
             return null;
         }
 

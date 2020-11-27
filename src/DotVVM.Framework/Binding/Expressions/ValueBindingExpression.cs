@@ -133,7 +133,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 return c.NotNull();
             }
 
-            public void ValidateDataContext(DataContextStack dataContext)
+            public void ValidateDataContext(DataContextStack? dataContext)
             {
                 for (int i = 0; i < VmTypes.Count; i++, dataContext = dataContext.Parent)
                 {

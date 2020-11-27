@@ -91,7 +91,7 @@ namespace DotVVM.Framework.Controls
             var delayProperty = control.GetValue(DelayProperty) as ResolvedPropertyValue;
             if (delayProperty != null)
             {
-                if ((int)delayProperty.Value < 0)
+                if ((int)delayProperty.Value! < 0)
                 {
                     yield return new ControlUsageError($"{nameof(Delay)} cannot be set to negative number.");
                 }
