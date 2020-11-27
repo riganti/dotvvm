@@ -1,4 +1,5 @@
-﻿using System;
+#nullable enable
+using System;
 using System.Collections.Generic;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
     public class ResolvedTreeRoot : ResolvedContentNode, IAbstractTreeRoot
     {
         public Dictionary<string, List<IAbstractDirective>> Directives { get; set; } = new Dictionary<string, List<IAbstractDirective>>(StringComparer.OrdinalIgnoreCase);
-        public string FileName { get; set; }
+        public string? FileName { get; set; }
 
         public ResolvedTreeRoot(ControlResolverMetadata metadata, DothtmlNode node, DataContextStack dataContext, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives)
             : base(metadata, node, null, dataContext)
