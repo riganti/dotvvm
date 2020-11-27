@@ -136,11 +136,11 @@ const fetchDefinitions = {
         } as any;
     },
     postbackServerError: async <T>(url: string, init: RequestInit) => {
-        throw new DotvvmPostbackError({ 
-            type: "serverError", 
-            status: 500, 
-            responseObject: null, 
-            response: { fake: "error" } as any as Response 
+        throw new DotvvmPostbackError({
+            type: "serverError",
+            status: 500,
+            responseObject: null,
+            response: { fake: "error" } as any as Response
         });
     },
     postbackValidationErrors: async <T>(url: string, init: RequestInit) => {
@@ -155,9 +155,9 @@ const fetchDefinitions = {
         } as any;
     },
     networkError: async <T>(url: string, init: RequestInit) => {
-        throw new DotvvmPostbackError({ 
-            type: "network", 
-            err: { fake: "error" } 
+        throw new DotvvmPostbackError({
+            type: "network",
+            err: { fake: "error" }
         });
     },
     postbackViewModelNotCached: async <T>(url: string, init: RequestInit) => {
@@ -208,27 +208,27 @@ const fetchDefinitions = {
         } as any;
     },
     spaNavigateError: async <T>(url: string, init: RequestInit) => {
-        throw new DotvvmPostbackError({ 
-            type: "serverError", 
-            status: 500, 
-            responseObject: null, 
-            response: { fake: "error" } as any as Response 
+        throw new DotvvmPostbackError({
+            type: "serverError",
+            status: 500,
+            responseObject: null,
+            response: { fake: "error" } as any as Response
         });
     },
 
     staticCommandSuccess: async <T>(url: string, init: RequestInit) => {
-        return { 
-            type: "successfulCommand", 
-            result: 1, 
-            response: { fake: "error" } as any as Response 
-        } as any; 
+        return {
+            type: "successfulCommand",
+            result: 1,
+            response: { fake: "error" } as any as Response
+        } as any;
     },
     staticCommandServerError: async <T>(url: string, init: RequestInit) => {
-        throw new DotvvmPostbackError({ 
-            type: "serverError", 
-            status: 500, 
-            responseObject: null, 
-            response: { fake: "error" } as any as Response 
+        throw new DotvvmPostbackError({
+            type: "serverError",
+            status: 500,
+            responseObject: null,
+            response: { fake: "error" } as any as Response
         });
     }
 };
@@ -256,10 +256,10 @@ test("PostBack + success", async () => {
     try {
 
         await postBack(window.document.body, [], "c", "", undefined, [ "concurrency-default" ]);
-        
+
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "postback", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "postback", validations.hasSender);
         validateEvent(history[i++], "beforePostback", "postback", validations.hasSender, validations.hasCancel);
@@ -281,7 +281,7 @@ test("PostBack + viewModelCache", async () => {
     var fetchSpy = jest.spyOn(fetchDefinitions, 'postbackViewModelNotCached');
 
     fetchJson = fetchDefinitions.postbackViewModelNotCached;
-    
+
     const cleanup = watchEvents(false);
     try {
 
@@ -292,7 +292,7 @@ test("PostBack + viewModelCache", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "postback", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "postback", validations.hasSender);
         validateEvent(history[i++], "beforePostback", "postback", validations.hasSender, validations.hasCancel);
@@ -312,7 +312,7 @@ test("PostBack + viewModelCache", async () => {
 
 test("PostBack + redirect", async () => {
     fetchJson = fetchDefinitions.postbackRedirect;
-    
+
     const cleanup = watchEvents(false);
     try {
 
@@ -320,7 +320,7 @@ test("PostBack + redirect", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "postback", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "postback", validations.hasSender);
         validateEvent(history[i++], "beforePostback", "postback", validations.hasSender, validations.hasCancel);
@@ -347,7 +347,7 @@ test("PostBack + validation errors", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "postback", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "postback", validations.hasSender);
         validateEvent(history[i++], "beforePostback", "postback", validations.hasSender, validations.hasCancel);
@@ -355,7 +355,7 @@ test("PostBack + validation errors", async () => {
         validateEvent(history[i++], "postbackCommitInvoked", "postback", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject);
         validateEvent(history[i++], "validationErrorsChanged", "postback");
         validateEvent(history[i++], "afterPostback", "postback", validations.hasSender, validations.hasWasInterrupted, validations.hasResponse, validations.hasServerResponseObject);
-        
+
         expect(history.length).toBe(i);
     }
     finally {
@@ -376,7 +376,7 @@ test("PostBack + server error", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "postback", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "postback", validations.hasSender);
         validateEvent(history[i++], "beforePostback", "postback", validations.hasSender, validations.hasCancel);
@@ -393,7 +393,7 @@ test("PostBack + server error", async () => {
 
 test("PostBack + network error", async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
-    
+
     fetchJson = fetchDefinitions.networkError;
 
     const cleanup = watchEvents(false);
@@ -403,7 +403,7 @@ test("PostBack + network error", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "postback", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "postback", validations.hasSender);
         validateEvent(history[i++], "beforePostback", "postback", validations.hasSender, validations.hasCancel);
@@ -425,7 +425,7 @@ test("spaNavigation + success", async () => {
     fetchJson = fetchDefinitions.spaNavigateSuccess;
 
     detachAllErrors();
-    
+
     const cleanup = watchEvents(false);
     try {
 
@@ -435,7 +435,7 @@ test("spaNavigation + success", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasSender, validations.hasCancel, validations.hasUrl);
         validateEvent(history[i++], "spaNavigated", "spaNavigation", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject, validations.hasUrl);
 
@@ -459,7 +459,7 @@ test("spaNavigation + redirect", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasSender, validations.hasCancel, validations.hasUrl);
         validateEvent(history[i++], "redirect", "spaNavigation", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject, validations.hasUrl, validations.hasReplace);
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasCancel, validations.hasUrl);
@@ -487,7 +487,7 @@ test("spaNavigation + redirect with replace (new page is loaded without SPA)", a
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasSender, validations.hasCancel, validations.hasUrl);
         validateEvent(history[i++], "redirect", "spaNavigation", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject, validations.hasUrl, validations.hasReplace);
 
@@ -515,7 +515,7 @@ test("spaNavigation + network error", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasSender, validations.hasCancel);
         validateEvent(history[i++], "spaNavigationFailed", "spaNavigation", validations.hasSender, validations.hasError, validations.hasUrl);
         validateEvent(history[i++], "error", "spaNavigation", validations.hasSender, validations.hasHandled, validations.hasError);
@@ -542,7 +542,7 @@ test("spaNavigation + server error", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasSender, validations.hasCancel);
         validateEvent(history[i++], "spaNavigationFailed", "spaNavigation", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject, validations.hasError, validations.hasUrl);
         validateEvent(history[i++], "error", "spaNavigation", validations.hasSender, validations.hasHandled, validations.hasResponse, validations.hasError, validations.hasServerResponseObject);
@@ -561,13 +561,13 @@ test("staticCommand (JS only) + success", async () => {
     const cleanup = watchEvents(false);
     try {
 
-        await applyPostbackHandlers(options => (function(a,b) { 
-            return Promise.resolve(a.$data.Property1(b)); 
+        await applyPostbackHandlers(options => (function(a,b) {
+            return Promise.resolve(a.$data.Property1(b));
         })(ko.contextFor(window.document.body)), window.document.body, [], [1]);
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "staticCommand", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "staticCommand", validations.hasSender);
 
@@ -590,10 +590,10 @@ test("staticCommand (with server call) + success", async () => {
                 dotvvm.staticCommandPostback(a,"test",[],options).then(function(r_0){resolve(r_0);},reject);
             });
         }(window.document.body, ko.contextFor(window.document.body))), window.document.body, [], []);
-        
+
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "staticCommand", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "staticCommand", validations.hasSender);
         validateEvent(history[i++], "staticCommandMethodInvoking", "staticCommand", validations.hasSender, validations.hasMethodId, validations.hasMethodArgs);
@@ -625,7 +625,7 @@ test("staticCommand (with two server call) + success", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "staticCommand", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "staticCommand", validations.hasSender);
         validateEvent(history[i++], "staticCommandMethodInvoking", "staticCommand", validations.hasSender, validations.hasMethodId, validations.hasMethodArgs, validations.hasArgs);
@@ -657,10 +657,10 @@ test("staticCommand (with server call) + server error", async () => {
                 });
             }(window.document.body, ko.contextFor(window.document.body))), window.document.body, [], [])
         ).rejects.toBeInstanceOf(DotvvmPostbackError);;
-        
+
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "staticCommand", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "staticCommand", validations.hasSender);
         validateEvent(history[i++], "staticCommandMethodInvoking", "staticCommand", validations.hasSender, validations.hasMethodId, validations.hasMethodArgs, validations.hasArgs);
