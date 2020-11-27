@@ -1,13 +1,15 @@
 #nullable enable
 using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
     public static class DothtmlNodeHelper
     {
-        public static bool IsNotEmpty(this DothtmlNode node)
+        public static bool IsNotEmpty([NotNullWhen(true)] this DothtmlNode? node)
         {
-            return !(node is DotHtmlCommentNode) &&
+            return node is object &&
+                   !(node is DotHtmlCommentNode) &&
                    !(node is DothtmlLiteralNode literalNode && string.IsNullOrWhiteSpace(literalNode.Value));
         }
 

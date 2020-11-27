@@ -1,4 +1,5 @@
-﻿using System;
+#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -19,26 +20,26 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public BindingCompilationService BindingService { get; }
 
-        public DothtmlBindingNode BindingNode => (DothtmlBindingNode)DothtmlNode;
+        public DothtmlBindingNode? BindingNode => (DothtmlBindingNode?)DothtmlNode;
 
         public Type BindingType => Binding.GetType();
 
         public string Value => Binding.GetProperty<OriginalStringBindingProperty>().Code;
 
-        public Expression Expression => Binding.GetProperty<ParsedExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression;
+        public Expression? Expression => Binding.GetProperty<ParsedExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression;
 
         public DataContextStack DataContextTypeStack => Binding.GetProperty<DataContextStack>();
 
         public BindingErrorReporterProperty Errors => Binding.GetProperty<BindingErrorReporterProperty>();
 
-        public ITypeDescriptor ResultType => ResolvedTypeDescriptor.Create(Binding.GetProperty<ResultTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type);
+        public ITypeDescriptor? ResultType => ResolvedTypeDescriptor.Create(Binding.GetProperty<ResultTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type);
 
         IDataContextStack IAbstractBinding.DataContextTypeStack => DataContextTypeStack;
 
-        IAbstractTreeNode IAbstractTreeNode.Parent => Parent;
+        IAbstractTreeNode? IAbstractTreeNode.Parent => Parent;
 
 
-        public ResolvedBinding(BindingCompilationService bindingService, BindingParserOptions bindingOptions, DataContextStack dataContext, string code = null, Expression parsedExpression = null, DotvvmProperty property = null)
+        public ResolvedBinding(BindingCompilationService bindingService, BindingParserOptions bindingOptions, DataContextStack dataContext, string? code = null, Expression? parsedExpression = null, DotvvmProperty? property = null)
         {
             var bindingType = bindingOptions.BindingType;
             var properties = new List<object> {

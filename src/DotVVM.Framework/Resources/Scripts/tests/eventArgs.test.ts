@@ -261,7 +261,7 @@ test("PostBack + success", async () => {
         
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "postback", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "postback", validations.hasSender);
         validateEvent(history[i++], "beforePostback", "postback", validations.hasSender, validations.hasCancel);
@@ -295,7 +295,7 @@ test("PostBack + viewModelCache", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "postback", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "postback", validations.hasSender);
         validateEvent(history[i++], "beforePostback", "postback", validations.hasSender, validations.hasCancel);
@@ -324,7 +324,7 @@ test("PostBack + redirect", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "postback", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "postback", validations.hasSender);
         validateEvent(history[i++], "beforePostback", "postback", validations.hasSender, validations.hasCancel);
@@ -351,7 +351,7 @@ test("PostBack + validation errors", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "postback", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "postback", validations.hasSender);
         validateEvent(history[i++], "beforePostback", "postback", validations.hasSender, validations.hasCancel);
@@ -380,7 +380,7 @@ test("PostBack + server error", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "postback", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "postback", validations.hasSender);
         validateEvent(history[i++], "beforePostback", "postback", validations.hasSender, validations.hasCancel);
@@ -407,7 +407,7 @@ test("PostBack + network error", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "postback", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "postback", validations.hasSender);
         validateEvent(history[i++], "beforePostback", "postback", validations.hasSender, validations.hasCancel);
@@ -439,7 +439,7 @@ test("spaNavigation + success", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasSender, validations.hasCancel, validations.hasUrl);
         validateEvent(history[i++], "newState", "postback");
         validateEvent(history[i++], "spaNavigated", "spaNavigation", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject, validations.hasUrl);
@@ -464,7 +464,7 @@ test("spaNavigation + redirect", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasSender, validations.hasCancel, validations.hasUrl);
         validateEvent(history[i++], "redirect", "spaNavigation", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject, validations.hasUrl, validations.hasReplace);
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasCancel, validations.hasUrl);
@@ -493,7 +493,7 @@ test("spaNavigation + redirect with replace (new page is loaded without SPA)", a
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasSender, validations.hasCancel, validations.hasUrl);
         validateEvent(history[i++], "redirect", "spaNavigation", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject, validations.hasUrl, validations.hasReplace);
 
@@ -521,7 +521,7 @@ test("spaNavigation + network error", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasSender, validations.hasCancel);
         validateEvent(history[i++], "spaNavigationFailed", "spaNavigation", validations.hasSender, validations.hasError, validations.hasUrl);
         validateEvent(history[i++], "error", "spaNavigation", validations.hasSender, validations.hasHandled, validations.hasError);
@@ -548,7 +548,7 @@ test("spaNavigation + server error", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasSender, validations.hasCancel);
         validateEvent(history[i++], "spaNavigationFailed", "spaNavigation", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject, validations.hasError, validations.hasUrl);
         validateEvent(history[i++], "error", "spaNavigation", validations.hasSender, validations.hasHandled, validations.hasResponse, validations.hasError, validations.hasServerResponseObject);
@@ -573,7 +573,7 @@ test("staticCommand (JS only) + success", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "staticCommand", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "staticCommand", validations.hasSender);
 
@@ -599,7 +599,7 @@ test("staticCommand (with server call) + success", async () => {
         
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "staticCommand", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "staticCommand", validations.hasSender);
         validateEvent(history[i++], "staticCommandMethodInvoking", "staticCommand", validations.hasSender, validations.hasMethodId, validations.hasMethodArgs);
@@ -631,7 +631,7 @@ test("staticCommand (with two server call) + success", async () => {
 
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "staticCommand", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "staticCommand", validations.hasSender);
         validateEvent(history[i++], "staticCommandMethodInvoking", "staticCommand", validations.hasSender, validations.hasMethodId, validations.hasMethodArgs, validations.hasArgs);
@@ -666,7 +666,7 @@ test("staticCommand (with server call) + server error", async () => {
         
         var history = getEventHistory();
 
-        let i = 1;  // skip the "init" event
+        let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "postbackHandlersStarted", "staticCommand", validations.hasSender);
         validateEvent(history[i++], "postbackHandlersCompleted", "staticCommand", validations.hasSender);
         validateEvent(history[i++], "staticCommandMethodInvoking", "staticCommand", validations.hasSender, validations.hasMethodId, validations.hasMethodArgs, validations.hasArgs);

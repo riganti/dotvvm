@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Compilation
 
             foreach (var assembly in BuildReferencedAssembliesCache())
             {
-                cachedAssemblies.GetOrAdd(assembly.FullName, a => assembly);
+                cachedAssemblies.GetOrAdd(assembly.FullName.NotNull(), a => assembly);
             }
 
             if (Instance == null)
@@ -103,10 +103,9 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Tries to resolve compiled assembly.
         /// </summary>
-        private Assembly DefaultOnResolving(System.Runtime.Loader.AssemblyLoadContext assemblyLoadContext, AssemblyName assemblyName)
+        private Assembly? DefaultOnResolving(System.Runtime.Loader.AssemblyLoadContext assemblyLoadContext, AssemblyName assemblyName)
         {
-            Assembly assembly;
-            return cachedAssemblies.TryGetValue(assemblyName.FullName, out assembly) ? assembly : null;
+            return cachedAssemblies.TryGetValue(assemblyName.FullName, out var assembly) ? assembly : null;
         }
 #else
         /// <summary>
@@ -148,7 +147,8 @@ namespace DotVVM.Framework.Compilation
         private HashSet<string> GetAllNamespaces()
             => new HashSet<string>(GetAllAssemblies()
                 .SelectMany(a => a.GetLoadableTypes()
-                    .Select(t => t.Namespace))
+                    .Select(t => t.Namespace!)
+                    .Where(ns => ns is object))
                 .Distinct(), StringComparer.Ordinal);
 
 
