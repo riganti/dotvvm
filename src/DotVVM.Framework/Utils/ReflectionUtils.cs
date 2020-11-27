@@ -3,7 +3,6 @@ using DotVVM.Framework.Controls;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -15,36 +14,14 @@ using System.Text;
 using System.Globalization;
 using System.Collections.Concurrent;
 
-#if DotNetCore
-using Microsoft.Extensions.DependencyModel;
-#endif
-
 namespace DotVVM.Framework.Utils
 {
     public static class ReflectionUtils
     {
-        public static IEnumerable<Assembly> GetAllAssemblies()
-        {
-#if DotNetCore
-            return DependencyContext.Default.GetDefaultAssemblyNames().Select(Assembly.Load);
-#else
-            return AppDomain.CurrentDomain.GetAssemblies();
-#endif
-        }
 
         public static bool IsFullName(string typeName)
             => typeName.Contains(".");
-
-        public static bool IsAssemblyNamespace(string fullName)
-            => GetAllNamespaces().Contains(fullName, StringComparer.Ordinal);
-
-        public static ISet<string?> GetAllNamespaces()
-            => new HashSet<string?>(GetAllAssemblies()
-                .SelectMany(a => a.GetLoadableTypes()
-                .Select(t => t.Namespace))
-                .Distinct()
-                .ToList());
-
+        
         /// <summary>
         /// Gets the property name from lambda expression, e.g. 'a => a.FirstName'
         /// </summary>
@@ -231,43 +208,7 @@ namespace DotVVM.Framework.Utils
             // convert
             return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
         }
-
-        private static ConcurrentDictionary<string, Type?> cache_FindTypeHash = new ConcurrentDictionary<string, Type?>(StringComparer.Ordinal);
-        private static ConcurrentDictionary<string, Type?> cache_FindTypeHashIgnoreCase = new ConcurrentDictionary<string, Type?>(StringComparer.OrdinalIgnoreCase);
-        public static Type? FindType(string name, bool ignoreCase = false)
-        {
-            if (ignoreCase)
-            {
-                return cache_FindTypeHashIgnoreCase.GetOrAdd(name, a => FindTypeCore(a, true));
-            }
-            return cache_FindTypeHash.GetOrAdd(name, a => FindTypeCore(a, false));
-        }
-
-        private static Type? FindTypeCore(string name, bool ignoreCase)
-        {
-            var stringComparison = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-
-            // Type.GetType might sometimes work well
-            var type = Type.GetType(name, false, ignoreCase);
-            if (type != null) return type;
-
-            var split = name.Split(',');
-            name = split[0];
-
-            var assemblies = ReflectionUtils.GetAllAssemblies().ToList();
-            if (split.Length > 1)
-            {
-                var assembly = split[1];
-                return assemblies.Where(a => a.GetName().Name == assembly).Select(a => a.GetType(name))
-                    .FirstOrDefault(t => t != null);
-            }
-
-            type = assemblies.Where(a => a.GetName().Name is string assemblyName && name.StartsWith(assemblyName, stringComparison))
-                .Select(a => a.GetType(name, false, ignoreCase)).FirstOrDefault(t => t != null);
-            if (type != null) return type;
-            return assemblies.Select(a => a.GetType(name, false, ignoreCase)).FirstOrDefault(t => t != null);
-        }
-
+        
         public static Type? GetEnumerableType(this Type collectionType)
         {
             var result = TypeDescriptorUtils.GetCollectionItemType(new ResolvedTypeDescriptor(collectionType));
@@ -317,8 +258,13 @@ namespace DotVVM.Framework.Utils
             return DateTimeTypes.Contains(type);
         }
 
-        public static bool IsTuple(Type type) =>
-            type.FullName!.StartsWith(typeof(Tuple).FullName + "`");
+        /// <summary> Return true for Tuple, ValueTuple, KeyValuePair </summary>
+        public static bool IsTupleLike(Type type) =>
+            type.IsGenericType && (
+            type.FullName!.StartsWith(typeof(Tuple).FullName + "`") ||
+            type.FullName!.StartsWith(typeof(ValueTuple).FullName + "`") ||
+            type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)
+            );
 
         public static bool IsEnumerable(Type type)
         {
@@ -400,11 +346,6 @@ namespace DotVVM.Framework.Utils
         public static bool IsDynamic(this Type type)
         {
             return type.GetInterfaces().Contains(typeof(IDynamicMetaObjectProvider));
-        }
-
-        public static bool IsObject(this Type type)
-        {
-            return type == typeof(Object);
         }
 
         public static bool IsNullable(this Type type)

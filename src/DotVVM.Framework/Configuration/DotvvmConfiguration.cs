@@ -29,6 +29,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Compilation.Javascript;
+using System.ComponentModel;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -40,7 +41,8 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets the application physical path.
         /// </summary>
-        [JsonIgnore]
+        [JsonProperty("applicationPhysicalPath")]
+        [DefaultValue(".")]
         public string ApplicationPhysicalPath
         {
             get { return _applicationPhysicalPath; }
@@ -51,7 +53,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets the settings of the markup.
         /// </summary>
-        [JsonProperty("markup", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty("markup")]
         public DotvvmMarkupConfiguration Markup { get; private set; }
 
         /// <summary>
@@ -64,7 +66,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets the configuration of resources.
         /// </summary>
-        [JsonProperty("resources", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty("resources")]
         [JsonConverter(typeof(ResourceRepositoryJsonConverter))]
         public DotvvmResourceRepository Resources { get; private set; } = new DotvvmResourceRepository();
 
@@ -77,13 +79,13 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets the runtime configuration.
         /// </summary>
-        [JsonProperty("runtime", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty("runtime")]
         public DotvvmRuntimeConfiguration Runtime { get; private set; } = new DotvvmRuntimeConfiguration();
 
         /// <summary>
         /// Gets or sets the default culture.
         /// </summary>
-        [JsonProperty("defaultCulture", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty("defaultCulture")]
         public string DefaultCulture
         {
             get { return _defaultCulture; }
@@ -95,6 +97,7 @@ namespace DotVVM.Framework.Configuration
         /// Gets or sets whether the client side validation rules should be enabled.
         /// </summary>
         [JsonProperty("clientSideValidation", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [DefaultValue(true)]
         public bool ClientSideValidation
         {
             get { return _clientSideValidation; }
@@ -106,6 +109,7 @@ namespace DotVVM.Framework.Configuration
         /// Gets or sets whether navigation in the SPA pages should use History API. Default value is <c>true</c>.
         /// </summary>
         [JsonProperty("useHistoryApiSpaNavigation", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [DefaultValue(true)]
         public bool UseHistoryApiSpaNavigation
         {
             get { return _useHistoryApiSpaNavigation; }
@@ -116,7 +120,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets the configuration for experimental features.
         /// </summary>
-        [JsonProperty("experimentalFeatures", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty("experimentalFeatures")]
         public DotvvmExperimentalFeaturesConfiguration ExperimentalFeatures
         {
             get => _experimentalFeatures;
@@ -128,7 +132,7 @@ namespace DotVVM.Framework.Configuration
         /// Gets or sets whether the application should run in debug mode.
         /// For ASP.NET Core checkout <see cref="!:https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments" >https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments</see>
         /// </summary>
-        [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Include)]
         public bool Debug
         {
             get => _debug;
@@ -166,6 +170,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Whether DotVVM compiler should generate runtime debug info for bindings. It can be useful, but may also cause unexpected problems.
         /// </summary>
+        [JsonIgnore]
         public bool AllowBindingDebugging
         {
             get { return _allowBindingDebugging; }

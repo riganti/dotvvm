@@ -8,82 +8,121 @@ type DotvvmPostbackHandler = {
     after?: Array<string | DotvvmPostbackHandler>
     before?: Array<string | DotvvmPostbackHandler>
 }
-type PostbackRejectionReason =
-    | { type: "handler", handlerName: string, message?: string }
+
+type DotvvmPostbackErrorLike = {
+    readonly reason: DotvvmPostbackErrorReason
+}
+
+type DotvvmPostbackErrorReason =
+    | { type: 'handler', handlerName: string, message?: string }
     | { type: 'network', err?: any }
-    | { type: 'commit', args: DotvvmErrorEventArgs }
+    | { type: 'gate' }
+    | { type: 'commit', args?: DotvvmErrorEventArgs }
     | { type: 'csrfToken' }
     | { type: 'serverError', status?: number, responseObject: any, response?: Response }
     | { type: 'event' }
+    | { type: 'validation', responseObject: any, response?: Response }
     & { options?: PostbackOptions }
 
-interface AdditionalPostbackData {
-    [key: string]: any
+type PostbackCommandType = "postback" | "staticCommand" | "spaNavigation"
+
+type PostbackOptions = {
+    readonly postbackId: number
+    readonly commandType: PostbackCommandType
+    readonly args: any[]
+    readonly sender?: HTMLElement
+    readonly viewModel?: any
+    serverResponseObject?: any
     validationTargetPath?: string
 }
 
-type PostbackOptions = {
-    readonly additionalPostbackData: AdditionalPostbackData
-    readonly postbackId: number
-    readonly sender?: HTMLElement
-    readonly args: any[]
-    readonly viewModel?: any
-}
-
-type PostbackEventArgs = DotvvmEventArgs & {
-    readonly postbackClientId: number
-    readonly sender?: Element
-    readonly xhr?: XMLHttpRequest
-    readonly serverResponseObject?: any
-    readonly postbackOptions: PostbackOptions
-}
-
-type DotvvmEventArgs = {
-    /** The global view model */
-    readonly viewModel?: any
-}
-
-type DotvvmErrorEventArgs = {
-    readonly sender?: Element
-    readonly serverResponseObject?: any
-    readonly viewModel?: any
-    readonly isSpaNavigationError?: true
-    handled: boolean
-}
-
-type DotvvmBeforePostBackEventArgs = PostbackEventArgs & {
-    cancel: boolean
-}
-type DotvvmAfterPostBackEventArgs = PostbackEventArgs & {
-    handled: boolean
-    /** Set to true in case the postback did not finish and it was cancelled by an event or a postback handler */
-    readonly wasInterrupted: boolean;
-    readonly serverResponseObject: any
-    readonly commandResult: any
+type DotvvmErrorEventArgs = PostbackOptions & {
     readonly response?: Response
-    /** In SPA mode, this promise is set when the result of a postback is a redirection. */
-    readonly redirectPromise?: Promise<DotvvmNavigationEventArgs>
+    readonly error: DotvvmPostbackErrorLike
+    handled: boolean
 }
-type DotvvmSpaNavigatingEventArgs = DotvvmEventArgs & {
-    /** When set to true by an event handler, it  */
+
+type DotvvmBeforePostBackEventArgs = PostbackOptions & {
     cancel: boolean
-    /** The url we are navigating to */
-    readonly newUrl: string
 }
-type DotvvmNavigationEventArgs = DotvvmEventArgs & {
-    readonly serverResponseObject: any
-    readonly xhr?: XMLHttpRequest // TODO:
-    readonly isSpa?: true
+
+type DotvvmAfterPostBackEventArgs = PostbackOptions & {
+    /** Set to true in case the postback did not finish and it was cancelled by an event or a postback handler */
+    readonly wasInterrupted?: boolean;
+    readonly commandResult?: any
+    readonly response?: Response
+    readonly error?: DotvvmPostbackErrorLike
 }
-type DotvvmSpaNavigatedEventArgs = DotvvmNavigationEventArgs & {
-    /** When error occurs, this is set to false and gives the event handlers a possibility to mark the error as handled */
-    isHandled: boolean
-}
-type DotvvmRedirectEventArgs = DotvvmEventArgs & {
-    /** The url of the page we are navigating to */
+
+type DotvvmNavigationEventArgs = PostbackOptions & {
     readonly url: string
+}
+
+type DotvvmSpaNavigatingEventArgs = DotvvmNavigationEventArgs & {
+    cancel: boolean
+}
+
+type DotvvmSpaNavigatedEventArgs = DotvvmNavigationEventArgs & {
+    readonly response?: Response
+}
+
+type DotvvmSpaNavigationFailedEventArgs = DotvvmNavigationEventArgs & {
+    readonly response?: Response
+    readonly error?: DotvvmPostbackErrorLike
+}
+
+type DotvvmRedirectEventArgs = DotvvmNavigationEventArgs & {
+    readonly response?: Response
     /** Whether the new url should replace the current url in the browsing history */
     readonly replace: boolean
+}
+
+type DotvvmPostbackHandlersStartedEventArgs = PostbackOptions & {
+}
+
+type DotvvmPostbackHandlersCompletedEventArgs = PostbackOptions & {
+}
+
+type DotvvmPostbackResponseReceivedEventArgs = PostbackOptions & {
+    readonly response: Response
+}
+
+type DotvvmPostbackCommitInvokedEventArgs = PostbackOptions & {
+    readonly response: Response
+}
+
+type DotvvmPostbackViewModelUpdatedEventArgs = PostbackOptions & {
+    readonly response: Response
+}
+
+type DotvvmPostbackRejectedEventArgs = PostbackOptions & {
+    readonly error: DotvvmPostbackErrorLike
+}
+
+type DotvvmStaticCommandMethodEventArgs = PostbackOptions & {
+    readonly methodId: string
+    readonly methodArgs: any[]
+}
+
+type DotvvmStaticCommandMethodInvokingEventArgs = DotvvmStaticCommandMethodEventArgs & {
+}
+
+type DotvvmStaticCommandMethodInvokedEventArgs = DotvvmStaticCommandMethodEventArgs & {
+    readonly result: any
+    readonly response?: Response
+}
+
+type DotvvmStaticCommandMethodFailedEventArgs = DotvvmStaticCommandMethodEventArgs & {
+    readonly result?: any
+    readonly response?: Response
+    readonly error: DotvvmPostbackErrorLike
+}
+
+type DotvvmInitEventArgs = {
+    readonly viewModel: any
+}
+
+type DotvvmInitCompletedEventArgs = {
 }
 
 interface DotvvmViewModelInfo {

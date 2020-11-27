@@ -37,12 +37,23 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Gets or sets the javascript code that will be embedded in the page.
         /// </summary>
-        public string Code { get; set; }
+        public string Code
+        {
+            get => code?.Value ?? throw new Exception("`ILocalResourceLocation` can not be read using property `Code`.");
+            set
+            {
+                InlineScriptContentGuard(value);
+                this.resourceLocation = new InlineResourceLocation(value);
+                this.code = new Lazy<string>(() => value);
+                _ = this.code.Value;
+            }
+        }
 
         /// <summary> If the script should be executed after the page loads (using the `defer` attribute). </summary>
         public bool Defer { get; }
+        public bool ShouldSerializeCode() => code?.IsValueCreated == true;
 
-        internal static bool IsUnsafeInlineScript(string? code)
+        internal static bool InlineScriptContentGuard(string? code)
         {
             // We have to make sure, that the element is not ended in the middle.
             // <style> and <script> tags have "raw text" content - https://html.spec.whatwg.org/multipage/syntax.html#raw-text-elements
@@ -60,7 +71,7 @@ namespace DotVVM.Framework.ResourceManagement
 
             var needBase64Hack =
                 Defer || // browsers don't support `defer` attribute on inline script. We can overcome this limitation by using base64 data URI
-                IsUnsafeInlineScript(code); // or, when the script is XSS-unsafe, we can do the same
+                InlineScriptContentGuard(code); // or, when the script is XSS-unsafe, we can do the same
 
             if (Defer)
                 writer.AddAttribute("defer", null);

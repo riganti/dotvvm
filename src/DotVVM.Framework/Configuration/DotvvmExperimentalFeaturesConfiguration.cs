@@ -9,15 +9,20 @@ namespace DotVVM.Framework.Configuration
     {
 
         // Add a DotvvmExperimentalFeatureFlag property for each experimental feature here
-        [JsonProperty("lazyCsrfToken", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty("lazyCsrfToken")]
         public DotvvmExperimentalFeatureFlag LazyCsrfToken { get; private set; } = new DotvvmExperimentalFeatureFlag();
 
-        [JsonProperty("serverSideViewModelCache", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty("serverSideViewModelCache")]
         public DotvvmExperimentalFeatureFlag ServerSideViewModelCache { get; private set; } = new DotvvmExperimentalFeatureFlag();
+
+        [JsonProperty("explicitAssemblyLoading")]
+        public DotvvmGlobalExperimentalFeatureFlag ExplicitAssemblyLoading { get; private set; } = new DotvvmGlobalExperimentalFeatureFlag();
 
         public void Freeze()
         {
             LazyCsrfToken.Freeze();
+            ServerSideViewModelCache.Freeze();
+            ExplicitAssemblyLoading.Freeze();
         }
     }
 

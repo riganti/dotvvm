@@ -1,17 +1,20 @@
-﻿using System;
+#nullable enable
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     public class ResolvedTypeDescriptor : ITypeDescriptor
     {
-        private static ConcurrentDictionary<Type, ResolvedTypeDescriptor> cache = new ConcurrentDictionary<Type, ResolvedTypeDescriptor>();
+        private static ConcurrentDictionary<(Type, string), ResolvedTypeDescriptor?> cache = new ConcurrentDictionary<(Type, string), ResolvedTypeDescriptor?>();
         public Type Type { get; }
 
         public ResolvedTypeDescriptor(Type type)
@@ -21,9 +24,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public string Name => Type.Name;
 
-        public string Namespace => Type.Namespace;
+        public string? Namespace => Type.Namespace;
 
-        public string Assembly => Type.AssemblyQualifiedName;
+        public string? Assembly => Type.AssemblyQualifiedName;
 
         public string FullName => string.IsNullOrEmpty(Namespace) ? Name : (Namespace + "." + Name);
 
@@ -37,9 +40,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return Type.IsAssignableFrom(ToSystemType(typeDescriptor));
         }
 
-        public ControlMarkupOptionsAttribute GetControlMarkupOptionsAttribute()
+        public ControlMarkupOptionsAttribute? GetControlMarkupOptionsAttribute()
         {
-            return Type.GetTypeInfo().GetCustomAttribute<ControlMarkupOptionsAttribute>();
+            return Type.GetCustomAttribute<ControlMarkupOptionsAttribute>();
         }
 
         public bool IsEqualTo(ITypeDescriptor other)
@@ -47,12 +50,12 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return Name == other.Name && Namespace == other.Namespace && Assembly == other.Assembly;
         }
 
-        public ITypeDescriptor TryGetArrayElementOrIEnumerableType()
+        public ITypeDescriptor? TryGetArrayElementOrIEnumerableType()
         {
             // handle array
             if (Type.IsArray)
             {
-                return new ResolvedTypeDescriptor(Type.GetElementType());
+                return new ResolvedTypeDescriptor(Type.GetElementType()!);
             }
 
             // handle iEnumerables
@@ -79,9 +82,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return null;
         }
 
-        public ITypeDescriptor TryGetPropertyType(string propertyName)
+        public ITypeDescriptor? TryGetPropertyType(string propertyName)
         {
-            return cache.GetOrAdd(Type, type => {
+            return cache.GetOrAdd((Type, propertyName), type => {
                 if (!Type.IsInterface)
                 {
                     var propertyType = Type.GetProperty(propertyName)?.PropertyType;
@@ -118,7 +121,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public override string ToString() => Type.ToString();
 
-        public static Type ToSystemType(ITypeDescriptor typeDescriptor)
+
+        [return: NotNullIfNotNull("typeDescriptor")]
+        public static Type? ToSystemType(ITypeDescriptor? typeDescriptor)
         {
             if (typeDescriptor == null) return null;
             else if (typeDescriptor is ResolvedTypeDescriptor)
@@ -127,10 +132,14 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             }
             else
             {
-                return Type.GetType(typeDescriptor.FullName + ", " + typeDescriptor.Assembly);
+                return
+                    Type.GetType(typeDescriptor.FullName + ", " + typeDescriptor.Assembly)
+                    ?? throw new InvalidOperationException($"Type {typeDescriptor.FullName} could not be found using reflection.");
             }
         }
 
-        public static ITypeDescriptor Create(Type t) => t == null ? null : new ResolvedTypeDescriptor(t);
+
+        [return: NotNullIfNotNull("t")]
+        public static ITypeDescriptor? Create(Type? t) => t is null ? null : new ResolvedTypeDescriptor(t);
     }
 }

@@ -18,6 +18,9 @@ using DotVVM.Framework.Utils;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Tests.Binding;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 
 namespace DotVVM.Framework.Tests
 {
@@ -55,9 +58,24 @@ namespace DotVVM.Framework.Tests
             }
         }
 
+        class FakeCsrfProtector : ICsrfProtector
+        {
+            public string GenerateToken(IDotvvmRequestContext context)
+            {
+                return "Not a CSRF token.";
+            }
+
+            public void VerifyToken(IDotvvmRequestContext context, string token)
+            {
+                if (token != "Not a CSRF token.")
+                    throw new Exception();
+            }
+        }
+
         public static void RegisterMoqServices(IServiceCollection services)
         {
             services.TryAddSingleton<IViewModelProtector, FakeProtector>();
+            services.TryAddSingleton<ICsrfProtector, FakeCsrfProtector>();
             services.TryAddSingleton<IDotvvmCacheAdapter, SimpleDictionaryCacheAdapter>();
         }
 
@@ -116,6 +134,14 @@ namespace DotVVM.Framework.Tests
                 .ApplyAction(x => { if (checkErrors) CheckForErrors(x.DothtmlNode); })
                 .ApplyAction(new StylingVisitor(configuration).VisitView)
                 .ApplyAction(x => { if (checkErrors) validator.VisitAndAssert(x); else validator.VisitView(x); });
+        }
+
+        public static void EnsureCompiledAssemblyCache()
+        {
+            if (CompiledAssemblyCache.Instance == null)
+            {
+                new CompiledAssemblyCache(DefaultConfig);
+            }
         }
     }
 }

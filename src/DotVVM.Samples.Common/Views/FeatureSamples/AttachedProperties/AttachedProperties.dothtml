@@ -1,0 +1,14 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.AttachedProperties.AttachedPropertiesViewModel
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    
+    <div class="div" AttachedProperties.Bind-Value="test" AttachedProperties.Bind-Value2="{value: Test}">
+    </div>
+    
+    <dot:TextBox Text="{value: Test}" />
+</body>
+</html>

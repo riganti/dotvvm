@@ -62,10 +62,12 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty TextProperty =
             DotvvmProperty.Register<string, RouteLink>(c => c.Text, "");
 
+        [PropertyGroup("Param-")]
         public VirtualPropertyGroupDictionary<object> Params => new VirtualPropertyGroupDictionary<object>(this, ParamsGroupDescriptor);
         public static DotvvmPropertyGroup ParamsGroupDescriptor =
             DotvvmPropertyGroup.Register<object, RouteLink>("Param-", "Params");
 
+        [PropertyGroup("Query-")]
         public VirtualPropertyGroupDictionary<object> QueryParameters => new VirtualPropertyGroupDictionary<object>(this, QueryParametersGroupDescriptor);
         public static DotvvmPropertyGroup QueryParametersGroupDescriptor =
             DotvvmPropertyGroup.Register<object, RouteLink>("Query-", "QueryParameters");
@@ -154,7 +156,7 @@ namespace DotVVM.Framework.Controls
             if ((routeNameProperty.As<ResolvedPropertyValue>()) == null)
                 yield break;
 
-            var routeName = (string)routeNameProperty.CastTo<ResolvedPropertyValue>().Value;
+            var routeName = (string)routeNameProperty.CastTo<ResolvedPropertyValue>().Value!;
             if (!configuration.RouteTable.Contains(routeName))
             {
                 yield return new ControlUsageError(

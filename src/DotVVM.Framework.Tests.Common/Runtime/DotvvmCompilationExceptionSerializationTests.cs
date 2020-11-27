@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
@@ -16,9 +17,10 @@ namespace DotVVM.Framework.Tests.Common.Runtime
             var compilationException =
                 new DotvvmCompilationException("Compilation error", new Exception("inner exception"));
 
-            var serializedObject = JsonConvert.SerializeObject(compilationException);
+            var settings = DefaultSerializerSettingsProvider.Instance.Settings;
+            var serializedObject = JsonConvert.SerializeObject(compilationException, settings);
 
-            var deserializedObject = JsonConvert.DeserializeObject<DotvvmCompilationException>(serializedObject);
+            var deserializedObject = JsonConvert.DeserializeObject<DotvvmCompilationException>(serializedObject, settings);
         }
     }
 }

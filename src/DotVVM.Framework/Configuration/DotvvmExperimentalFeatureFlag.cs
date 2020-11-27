@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Configuration
@@ -8,7 +9,7 @@ namespace DotVVM.Framework.Configuration
     public class DotvvmExperimentalFeatureFlag
     {
 
-        [JsonProperty("enabled", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty("enabled")]
         public bool Enabled
         {
             get => _enabled;
@@ -20,7 +21,7 @@ namespace DotVVM.Framework.Configuration
         }
         private bool _enabled = false;
 
-        [JsonProperty("includedRoutes", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty("includedRoutes")]
         public ISet<string> IncludedRoutes
         {
             get => _includedRoutes;
@@ -32,7 +33,7 @@ namespace DotVVM.Framework.Configuration
         }
         private ISet<string> _includedRoutes = new FreezableSet<string>();
 
-        [JsonProperty("excludedRoutes", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty("excludedRoutes")]
         public ISet<string> ExcludedRoutes
         {
             get => _excludedRoutes;
@@ -101,5 +102,4 @@ namespace DotVVM.Framework.Configuration
             FreezableSet.Freeze(ref this._includedRoutes);
         }
     }
-
 }

@@ -1,6 +1,7 @@
 {
     "version": "0.2.0",
     "configurations": [
+
         // {
         //     "name": "Tests",
         //     "type": "coreclr",
@@ -57,6 +58,19 @@
             "type": "coreclr",
             "request": "attach",
             "processId": "${command:pickProcess}"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Jest Tests",
+            "cwd": "${workspaceFolder}/DotVVM.Framework",
+            "program": "node_modules/jest/bin/jest.js",
+            "args": [
+                //"Resources/Scripts/tests/postback.test.ts",
+                "-i"
+            ],
+            "internalConsoleOptions": "openOnSessionStart",
+            "envFile": "${workspaceRoot}/.env"            
         }
     ]
 }

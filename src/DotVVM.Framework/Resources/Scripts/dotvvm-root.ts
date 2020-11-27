@@ -1,11 +1,11 @@
-import { initCore, getViewModel, getViewModelObservable, initBindings } from "./dotvvm-base"
+import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture } from "./dotvvm-base"
 import addPolyfills from './DotVVM.Polyfills'
 import * as events from './events'
 import * as spa from "./spa/spa"
 import * as validation from './validation/validation'
 import { postBack } from './postback/postback'
 import { serialize } from './serialization/serialize'
-import { serializeDate } from './serialization/date'
+import { serializeDate, parseDate } from './serialization/date'
 import { deserialize } from './serialization/deserialize'
 import registerBindingHandlers from './binding-handlers/register'
 import * as evaluator from './utils/evaluator'
@@ -40,9 +40,12 @@ function init(culture: string) {
     }
 
     initBindings()
+
+    events.initCompleted.trigger({})
 }
 
 const dotvvmExports = {
+    getCulture: getCulture,
     evaluator: {
         getDataSourceItems: evaluator.getDataSourceItems,
         wrapObservable: evaluator.wrapObservable,
@@ -53,7 +56,6 @@ const dotvvmExports = {
         showUploadDialog: fileUpload.showUploadDialog,
         createUploadId: fileUpload.createUploadId
     },
-    // getXHR,
     api: {
         invoke: api.invoke,
         refreshOn: api.refreshOn
@@ -86,6 +88,7 @@ const dotvvmExports = {
     serialization: {
         serialize,
         serializeDate,
+        parseDate,
         deserialize
     }
 }
@@ -104,3 +107,5 @@ declare global {
 }
 
 window.dotvvm = dotvvmExports;
+
+export default dotvvmExports

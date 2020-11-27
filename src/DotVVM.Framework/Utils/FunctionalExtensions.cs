@@ -74,7 +74,7 @@ namespace DotVVM.Framework.Utils
             }
         }
 
-        public static string StringJoin(this IEnumerable<string> enumerable, string separator) =>
+        public static string StringJoin(this IEnumerable<string?> enumerable, string separator) =>
             string.Join(separator, enumerable);
 
         public static void Deconstruct<K, V>(this KeyValuePair<K, V> pair, out K key, out V value)
