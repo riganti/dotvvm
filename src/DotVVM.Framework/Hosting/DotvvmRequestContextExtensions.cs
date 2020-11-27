@@ -23,7 +23,7 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Gets the unique id of the SpaContentPlaceHolder that should be loaded.
     /// </summary>
-    public static string GetSpaContentPlaceHolderUniqueId(this IDotvvmRequestContext context)
+    public static string? GetSpaContentPlaceHolderUniqueId(this IDotvvmRequestContext context)
     {
         return DotvvmPresenter.DetermineSpaContentPlaceHolderUniqueId(context.HttpContext);
     }

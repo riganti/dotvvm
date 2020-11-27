@@ -205,7 +205,7 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
             Command = command;
             ControlUniqueId = controlUniqueId;
             CommandArgs = commandArgs;
-            AdditionalData = new AdditionalDataClass(validationTargetPath);
+            ValidationTargetPath = validationTargetPath;
         }
 
         [JsonProperty("viewModel")]
@@ -218,18 +218,8 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
         public string ControlUniqueId { get; }
         [JsonProperty("commandArgs")]
         public object[] CommandArgs { get; }
-        [JsonProperty("additionalData")]
-        public AdditionalDataClass AdditionalData { get; }
-
-        public class AdditionalDataClass
-        {
-            public AdditionalDataClass(string validationTargetPath)
-            {
-                this.ValidationTargetPath = validationTargetPath;
-            }
-            [JsonProperty("validationTargetPath")]
-            public string ValidationTargetPath { get; }
-        }
+        [JsonProperty("validationTargetPath")]
+        public string ValidationTargetPath { get; }
     }
 
     public class PageRunResult
