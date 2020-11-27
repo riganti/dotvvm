@@ -33,7 +33,7 @@ namespace DotVVM.Framework.ResourceManagement
             this.Location = null!; // TODO: deprecate this overload
         }
 
-        public virtual IEnumerable<IResourceLocation> GetLocations(string type = null)
+        public virtual IEnumerable<IResourceLocation> GetLocations(string? type = null)
         {
             if (type is object) yield break;
 

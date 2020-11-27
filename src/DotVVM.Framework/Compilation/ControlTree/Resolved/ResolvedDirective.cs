@@ -1,4 +1,5 @@
-﻿using System;
+#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     public class ResolvedDirective : ResolvedTreeNode, IAbstractDirective
     {
-        public string Value => ((DothtmlDirectiveNode)DothtmlNode).Value;
+        public string Value => ((DothtmlDirectiveNode)DothtmlNode!).Value;
 
         public override void Accept(IResolvedControlTreeVisitor visitor)
         {
