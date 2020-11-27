@@ -1,0 +1,16 @@
+﻿@viewModel DotVVM.Samples.SeleniumGenerator.Owin.ViewModels.MasterPageViewModel, DotVVM.Samples.SeleniumGenerator.Owin
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>DotVVM.Samples.SeleniumGenerator.Owin</title>
+</head>
+<body>
+
+ 	
+
+	<dot:ContentPlaceHolder ID="MainContent" />
+
+</body>
+</html>

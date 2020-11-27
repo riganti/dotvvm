@@ -1,0 +1,32 @@
+﻿@viewModel DotVVM.Samples.SeleniumGenerator.ANC.ViewModels.MasterPageViewModel, DotVVM.Samples.SeleniumGenerator.ANC
+@import DotVVM.Samples.SeleniumGenerator.ANC.Resources
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>DotVVM.Samples.SeleniumGenerator.ANC</title>
+	<dot:RequiredResource Name="Styles"/>
+</head>
+<body>
+
+ 	<div class="page-top">
+		<span class="page-top-left"> 
+            <dot:RouteLink Text="Home" RouteName="Default" class="page-button-text"  UITests.Name="Home"/>
+        <span class="clear-both"></span>
+		</span>
+		
+		<dot:AuthenticatedView>
+	        <AuthenticatedTemplate>
+		        <dot:LinkButton Text="{resource: Texts.Label_SignOut}" Click="{command: SignOut()}" class="page-button-text"  UITests.Name="Header_SignOut"/>
+	        </AuthenticatedTemplate>
+			<NotAuthenticatedTemplate>
+	            <dot:RouteLink Text="{resource: Texts.Label_SignIn}" RouteName="Authentication_SignIn" class="page-button-text" UITests.Name="Header_SignIn"/>
+			</NotAuthenticatedTemplate>
+		</dot:AuthenticatedView>
+	</div>
+
+	<dot:ContentPlaceHolder ID="MainContent" />
+    <uc:NestedUserControl UITests.Name="NestedUserControl"></uc:NestedUserControl>
+</body>
+</html>
