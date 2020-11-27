@@ -40,6 +40,8 @@ function init(culture: string) {
     }
 
     initBindings()
+
+    events.initCompleted.trigger({})
 }
 
 const dotvvmExports = {
