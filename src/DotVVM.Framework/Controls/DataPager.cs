@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using DotVVM.Framework.Binding;
@@ -171,7 +171,7 @@ namespace DotVVM.Framework.Controls
 
             var bindings = context.Services.GetRequiredService<CommonBindings>();
 
-            object enabledValue = GetValueRaw(EnabledProperty);
+            object enabledValue = GetValueRaw(EnabledProperty)!;
 
             GoToFirstPageButton = CreateNavigationButton("««", FirstPageTemplate, enabledValue, bindings.GoToFirstPageCommand,context);
             ContentWrapper.Children.Add(GoToFirstPageButton);
@@ -379,7 +379,7 @@ namespace DotVVM.Framework.Controls
             link.SetDataContextType(currentPageTextContext);
             link.SetBinding(ButtonBase.TextProperty, currentPageTextBinding);
             link.SetBinding(ButtonBase.ClickProperty, commonBindings.GoToThisPageCommand);
-            object enabledValue = GetValueRaw(EnabledProperty);
+            object enabledValue = GetValueRaw(EnabledProperty)!;
             if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
 
             li.Render(writer, context);

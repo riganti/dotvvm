@@ -105,11 +105,11 @@ namespace DotVVM.Framework.Binding
         }
 
         protected Exception GetException(IBinding binding, string message) =>
-            binding.GetProperty<ResolvedBinding>(ErrorHandlingMode.ReturnNull) is ResolvedBinding resolvedBinding ?
+            binding.GetProperty<ResolvedBinding>(ErrorHandlingMode.ReturnNull) is ResolvedBinding resolvedBinding && resolvedBinding.DothtmlNode is object ?
                 new DotvvmCompilationException(message, resolvedBinding.DothtmlNode.Tokens) :
             binding.GetProperty<LocationInfoBindingProperty>(ErrorHandlingMode.ReturnNull) is LocationInfoBindingProperty locationInfo ?
                 new DotvvmControlException(message, null, locationInfo.ControlType, locationInfo.LineNumber, locationInfo.FileName, locationInfo.Ranges) :
-            new Exception(null);
+            new Exception(message);
 
         ConcurrentDictionary<Type, BindingResolverCollection> bindingResolverCache = new ConcurrentDictionary<Type, BindingResolverCollection>();
         BindingResolverCollection GetResolversForBinding(Type bindingType)

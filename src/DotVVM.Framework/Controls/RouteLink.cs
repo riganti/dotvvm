@@ -156,7 +156,7 @@ namespace DotVVM.Framework.Controls
             if ((routeNameProperty.As<ResolvedPropertyValue>()) == null)
                 yield break;
 
-            var routeName = (string)routeNameProperty.CastTo<ResolvedPropertyValue>().Value;
+            var routeName = (string)routeNameProperty.CastTo<ResolvedPropertyValue>().Value!;
             if (!configuration.RouteTable.Contains(routeName))
             {
                 yield return new ControlUsageError(
