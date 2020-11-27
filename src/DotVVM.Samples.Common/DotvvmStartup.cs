@@ -22,6 +22,10 @@ using System.Linq;
 using DotVVM.Samples.Common.Api.AspNetCore;
 using DotVVM.Samples.Common.Api.Owin;
 using DotVVM.Samples.Common.Controls;
+using DotVVM.Framework.Utils;
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -55,6 +59,14 @@ namespace DotVVM.Samples.BasicSamples
             config.RegisterApiClient(typeof(AzureFunctionsApi.Client), "https://dotvvmazurefunctionstest.azurewebsites.net/", "Scripts/AzureFunctionsApiClient.js", "_azureFuncApi");
 
             LoadSampleConfiguration(config, applicationPath);
+
+            config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(typeof(JavascriptTranslationTestMethods),
+                    nameof(JavascriptTranslationTestMethods.Unwrap),
+                         new GenericMethodCompiler((a) =>
+                            new JsIdentifierExpression("unwrap")
+                                            .Invoke(a[1])
+                                    ), allowGeneric: true, allowMultipleMethods: true);
+
         }
 
         private void LoadSampleConfiguration(DotvvmConfiguration config, string applicationPath)

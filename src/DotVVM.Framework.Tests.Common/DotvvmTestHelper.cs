@@ -18,6 +18,9 @@ using DotVVM.Framework.Utils;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Tests.Binding;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 
 namespace DotVVM.Framework.Tests
 {
