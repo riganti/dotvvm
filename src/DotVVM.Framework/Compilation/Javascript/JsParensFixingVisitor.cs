@@ -7,7 +7,7 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
-    public struct OperatorPrecedence
+    public readonly struct OperatorPrecedence
     {
         public readonly byte Precedence;
         public readonly bool IsPreferedSide;
@@ -22,6 +22,30 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             return Precedence < parentPrecedence ||
                 (Precedence == parentPrecedence & !IsPreferedSide);
+        }
+
+        public override string ToString()
+        {
+            var name = Precedence switch {
+                20 => "max",
+                17 => "postfix unary",
+                16 => "prefix unary",
+                14 => "*",
+                13 => "+",
+                12 => ">>",
+                11 => "<=",
+                10 => "==",
+                9 => "&&",
+                8 => "^",
+                7 => "|",
+                6 => "&&",
+                5 => "||",
+                4 => "? :",
+                3 => "=",
+                0 => ",",
+                _ => "?"
+            };
+            return Precedence + (IsPreferedSide ? "+" : "-") + " (" + name + ")";
         }
 
         public static readonly OperatorPrecedence Max = new OperatorPrecedence(20, true);

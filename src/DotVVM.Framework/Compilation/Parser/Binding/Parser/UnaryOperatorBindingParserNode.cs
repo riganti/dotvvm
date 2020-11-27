@@ -28,6 +28,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             => new[] { InnerExpression };
 
         public override string ToDisplayString()
-            => $"{Operator.ToDisplayString()}{InnerExpression}";
+            => $"{Operator.ToDisplayString()}{InnerExpression.ToDisplayString()}";
     }
 }

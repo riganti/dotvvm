@@ -157,7 +157,7 @@ namespace DotVVM.Framework.Controls
                 var binding = new CommandBindingExpression(context.Services.GetRequiredService<BindingCompilationService>().WithoutInitialization(), h => sortCommand(sortExpression), bindingId);
                 linkButton.SetBinding(ButtonBase.ClickProperty, binding);
 
-                SetSortedCssClass(cell, gridViewDataSet, gridView.GetValueBinding(GridView.DataSourceProperty));
+                SetSortedCssClass(cell, gridViewDataSet, gridView.GetValueBinding(GridView.DataSourceProperty)!);
             }
             else
             {

@@ -92,7 +92,8 @@ namespace DotVVM.Framework.Hosting
                 // TODO this should be done by IOutputRender or something like that. IOutputRenderer does not support that, so should we make another IJsonErrorOutputWriter?
                 context.HttpContext.Response.StatusCode = 400;
                 context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
-                await context.HttpContext.Response.WriteAsync(JsonConvert.SerializeObject(new { action = "invalidCsrfToken", message = ex.Message }));
+                var settings = DefaultSerializerSettingsProvider.Instance.Settings;
+                await context.HttpContext.Response.WriteAsync(JsonConvert.SerializeObject(new { action = "invalidCsrfToken", message = ex.Message }, settings));
             }
             catch (DotvvmControlException ex)
             {
@@ -451,7 +452,7 @@ namespace DotVVM.Framework.Hosting
             return DetermineIsPostBack(context) || DetermineSpaRequest(context);
         }
 
-        public static string DetermineSpaContentPlaceHolderUniqueId(IHttpContext context)
+        public static string? DetermineSpaContentPlaceHolderUniqueId(IHttpContext context)
         {
             return context.Request.Headers[HostingConstants.SpaContentPlaceHolderHeaderName];
         }

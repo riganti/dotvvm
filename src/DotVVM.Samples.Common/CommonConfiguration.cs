@@ -1,6 +1,7 @@
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Samples.BasicSamples;
@@ -11,6 +12,7 @@ using DotVVM.Samples.Common.Api.Owin;
 using DotVVM.Samples.Common.Utilities;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBack;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBackSpaNavigation;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -48,6 +50,10 @@ namespace DotVVM.Samples.Common
             services.AddSingleton<CompaniesClient>();
             services.AddSingleton<TestWebApiClientOwin>();
             services.AddSingleton<TestWebApiClientAspNetCore>();
+
+            services.AddSingleton<DenyPostbacksOnSpaNavigationService>();
+
+            services.AddSingleton<IDiagnosticsInformationSender, TextFileDiagnosticsInformationSender>();
         }
 
         private static void RegisterResources(DotvvmResourceRepository resources)
@@ -85,7 +91,7 @@ namespace DotVVM.Samples.Common
             };
             resources.Register("Errors_ResourceCircularDependency2", circular2);
             circular.Dependencies = new[] { "Errors_ResourceCircularDependency" };
-            
+
 
             resources.Register("extenders", new ScriptResource(
                 defer: true,
@@ -116,11 +122,6 @@ namespace DotVVM.Samples.Common
             resources.SetEmbeddedResourceDebugFile("dotvvm.debug", "../DotVVM.Framework/Resources/Scripts/DotVVM.Debug.js");
             resources.SetEmbeddedResourceDebugFile("dotvvm.fileupload-css", "../DotVVM.Framework/Resources/Scripts/DotVVM.FileUploads.css");
             resources.SetEmbeddedResourceDebugFile("dotvvm.polyfill.bundle", "../DotVVM.Framework/obj/javascript/polyfill.bundle.js");
-
-            // test debug version of knockout
-            //((ScriptResource)config.Resources.FindResource("knockout"))
-            //    .Location = new FileResourceLocation("..\\DotVVM.Framework\\Resources\\Scripts\\knockout-latest.debug.js");
-
         }
     }
 }

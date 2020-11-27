@@ -46,20 +46,21 @@ export class DotvvmEvent<T> {
     }
 }
 
-export const init = new DotvvmEvent<DotvvmEventArgs>("dotvvm.events.init", true);
+export const init = new DotvvmEvent<DotvvmInitEventArgs>("dotvvm.events.init", true);
+export const initCompleted = new DotvvmEvent<DotvvmInitCompletedEventArgs>("dotvvm.events.initCompleted", true);
 export const beforePostback = new DotvvmEvent<DotvvmBeforePostBackEventArgs>("dotvvm.events.beforePostback");
 export const afterPostback = new DotvvmEvent<DotvvmAfterPostBackEventArgs>("dotvvm.events.afterPostback");
 export const error = new DotvvmEvent<DotvvmErrorEventArgs>("dotvvm.events.error");
 export const redirect = new DotvvmEvent<DotvvmRedirectEventArgs>("dotvvm.events.redirect");
-export const postbackHandlersStarted = new DotvvmEvent<{}>("dotvvm.events.postbackHandlersStarted");
-export const postbackHandlersCompleted = new DotvvmEvent<{}>("dotvvm.events.postbackHandlersCompleted");
-export const postbackResponseReceived = new DotvvmEvent<{}>("dotvvm.events.postbackResponseReceived");
-export const postbackCommitInvoked = new DotvvmEvent<{}>("dotvvm.events.postbackCommitInvoked");
-export const postbackViewModelUpdated = new DotvvmEvent<{}>("dotvvm.events.postbackViewModelUpdated");
-export const postbackRejected = new DotvvmEvent<{}>("dotvvm.events.postbackRejected");
-export const staticCommandMethodInvoking = new DotvvmEvent<{ args: any[], command: string }>("dotvvm.events.staticCommandMethodInvoking");
-export const staticCommandMethodInvoked = new DotvvmEvent<{ args: any[], command: string, result: any, xhr: XMLHttpRequest }>("dotvvm.events.staticCommandMethodInvoked");
-export const staticCommandMethodFailed = new DotvvmEvent<{ args: any[], command: string, xhr: XMLHttpRequest, error?: any }>("dotvvm.events.staticCommandMethodInvoked");
+export const postbackHandlersStarted = new DotvvmEvent<DotvvmPostbackHandlersStartedEventArgs>("dotvvm.events.postbackHandlersStarted");
+export const postbackHandlersCompleted = new DotvvmEvent<DotvvmPostbackHandlersCompletedEventArgs>("dotvvm.events.postbackHandlersCompleted");
+export const postbackResponseReceived = new DotvvmEvent<DotvvmPostbackResponseReceivedEventArgs>("dotvvm.events.postbackResponseReceived");
+export const postbackCommitInvoked = new DotvvmEvent<DotvvmPostbackCommitInvokedEventArgs>("dotvvm.events.postbackCommitInvoked");
+export const postbackViewModelUpdated = new DotvvmEvent<DotvvmPostbackViewModelUpdatedEventArgs>("dotvvm.events.postbackViewModelUpdated");
+export const postbackRejected = new DotvvmEvent<DotvvmPostbackRejectedEventArgs>("dotvvm.events.postbackRejected");
+export const staticCommandMethodInvoking = new DotvvmEvent<DotvvmStaticCommandMethodInvokingEventArgs>("dotvvm.events.staticCommandMethodInvoking");
+export const staticCommandMethodInvoked = new DotvvmEvent<DotvvmStaticCommandMethodInvokedEventArgs>("dotvvm.events.staticCommandMethodInvoked");
+export const staticCommandMethodFailed = new DotvvmEvent<DotvvmStaticCommandMethodFailedEventArgs>("dotvvm.events.staticCommandMethodInvoked");
 
 class DotvvmEventHandler<T> {
     constructor(public handler: (f: T) => void, public isOneTime: boolean) {

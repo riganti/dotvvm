@@ -5,58 +5,61 @@ import * as events from '../events';
 import * as updater from './updater';
 import * as http from './http'
 import { handleRedirect } from './redirect';
-import { DotvvmPostbackError } from '../shared-classes';
 
-export function staticCommandPostback_old(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = (a: any) => { }, errorCallback = (errorInfo: { xhr?: XMLHttpRequest, error?: any }) => { }) {
-    return staticCommandPostback(sender, command, args).then(
-        callback,
-        errorCallback
-    );
-}
-
-export async function staticCommandPostback(sender: HTMLElement, command: string, args: any[]): Promise<any> {
+export async function staticCommandPostback(sender: HTMLElement, command: string, args: any[], options: PostbackOptions): Promise<any> {
 
     let data: any;
+    let response: http.WrappedResponse<any>;
+
     try {
-        return await http.retryOnInvalidCsrfToken(async () => {
+        await http.retryOnInvalidCsrfToken(async () => {
             const csrfToken = await http.fetchCsrfToken();
-
             data = serialize({ args, command, $csrfToken: csrfToken });
-
-            events.staticCommandMethodInvoking.trigger(data);
-
-            const response = await http.postJSON<any>(
-                getInitialUrl(),
-                ko.toJSON(data),
-                { "X-PostbackType": "StaticCommand" }
-            );
-
-            const result = response.result;
-            if ("action" in response) {
-                if (response.action == "redirect") {
-                    // redirect
-                    handleRedirect(response);
-                    return;
-                } else {
-                    throw new Error(`Invalid action ${response.action}`);
-                }
-            }
-            events.staticCommandMethodInvoked.trigger({ ...data, result });
-
-            return result;
         });
-    } catch (err) {
-        events.staticCommandMethodFailed.trigger({ ...data, error: err })
-        
-        if (err instanceof DotvvmPostbackError) {
-            const r = err.reason;
-            if (r.type == "network") {
-                events.error.trigger({ sender, handled: false, serverResponseObject: r.err });
+
+        events.staticCommandMethodInvoking.trigger({
+            ...options,
+            methodId: command,
+            methodArgs: args,
+        });
+
+        response = await http.postJSON<any>(
+            getInitialUrl(),
+            JSON.stringify(data),
+            { "X-PostbackType": "StaticCommand" }
+        );
+
+        if ("action" in response.result) {
+            if (response.result.action == "redirect") {
+                // redirect
+                await handleRedirect(options, response.result, response.response!);
                 return;
+            } else {
+                throw new Error(`Invalid action ${response.result.action}`);
             }
         }
-        events.error.trigger({ sender, handled: false, serverResponseObject: err });
 
+        events.staticCommandMethodInvoked.trigger({ 
+            ...options, 
+            methodId: command,
+            methodArgs: args,
+            serverResponseObject: response.result,
+            result: (response as any).result.result, 
+            response: (response as any).response
+        });
+
+        return response.result.result;
+        
+    } catch (err) {
+        events.staticCommandMethodFailed.trigger({ 
+            ...options, 
+            methodId: command,
+            methodArgs: args,
+            error: err,
+            result: (err.reason as any).responseObject, 
+            response: (err.reason as any).response 
+        })
+        
         throw err;
     }
 }

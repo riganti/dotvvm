@@ -22,7 +22,7 @@ export function serialize(viewModel: any, opt: ISerializationOptions = {}): any 
     }
 
     if (isPrimitive(viewModel)) {
-        return viewModel;
+        return viewModel ?? null;
     }
 
     if (typeof (viewModel) == "function") {

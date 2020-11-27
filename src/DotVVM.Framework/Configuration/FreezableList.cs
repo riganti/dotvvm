@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Configuration
                 list = new FreezableList<T>(list, frozen: true);
         }
     }
-    sealed class FreezableList<T> : IList<T>
+    sealed class FreezableList<T> : IList<T>, IReadOnlyList<T>
     {
         private readonly List<T> list;
         private bool isFrozen;
@@ -89,5 +89,6 @@ namespace DotVVM.Framework.Configuration
             list.RemoveAt(index);
         }
         IEnumerator IEnumerable.GetEnumerator() => list.GetEnumerator();
+        public void CopyTo(Array array, int index) => ((ICollection)list).CopyTo(array, index);
     }
 }

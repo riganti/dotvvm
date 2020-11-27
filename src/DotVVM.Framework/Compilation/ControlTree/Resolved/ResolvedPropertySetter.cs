@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Binding;
+#nullable enable
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
@@ -11,6 +12,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public ResolvedPropertySetter(DotvvmProperty property)
         {
             Property = property;
-        }    
+        }
     }
 }

@@ -107,23 +107,36 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
         private BindingParserNode ReadSemicolonSeparatedExpression()
         {
-            var startIndex = CurrentIndex;
+            var startFirstIndex = CurrentIndex;
             var first = ReadUnsupportedOperatorExpression();
             if (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.Semicolon)
             {
-                Read();
+                first = CreateVoidBlockIfBlankIdentifier(first, startFirstIndex);
 
+                Read();
+                var secondStartIndex = CurrentIndex;
                 var second = Peek() == null
-                    ? new VoidBindingParserNode()
+                    ? CreateNode(new VoidBindingParserNode(), secondStartIndex)
                     : ReadSemicolonSeparatedExpression();
 
-                if (second is IdentifierNameBindingParserNode identifier && identifier.Name.Length == 0)
-                    second = new VoidBindingParserNode();
+                second = CreateVoidBlockIfBlankIdentifier(second, secondStartIndex);
 
-                first = CreateNode(new BlockBindingParserNode(first, second), startIndex);
+                first = CreateNode(new BlockBindingParserNode(first, second), startFirstIndex);
             }
             return first;
         }
+
+        private BindingParserNode CreateVoidBlockIfBlankIdentifier(BindingParserNode originalNode, int startIndex)
+        {
+            if (IsBlankIdentifier(originalNode))
+            {
+                originalNode = CreateNode(new VoidBindingParserNode(), startIndex);
+            }
+
+            return originalNode;
+        }
+
+        private bool IsBlankIdentifier(BindingParserNode second) => second is IdentifierNameBindingParserNode identifier && identifier.Name.Length == 0;
 
         private BindingParserNode ReadUnsupportedOperatorExpression()
         {
@@ -421,6 +434,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             else if (token != null && token.Type == BindingTokenType.StringLiteralToken)
             {
                 // string literal
+
                 Read();
                 SkipWhiteSpace();
 
@@ -664,7 +678,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             error = null;
             if (method(text, styles, CultureInfo.InvariantCulture, out var result)) return result;
-            error = $"could not parse { text } using { method.GetMethodInfo().DeclaringType.FullName + "." + method.GetMethodInfo().Name }";
+            error = $"could not parse { text } using { method.GetMethodInfo()?.DeclaringType?.FullName + "." + method.GetMethodInfo()?.Name }";
             return null;
         }
 

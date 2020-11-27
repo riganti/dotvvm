@@ -11,6 +11,7 @@ using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Controls
 {
@@ -116,7 +117,7 @@ namespace DotVVM.Framework.Controls
             var urlSuffixBase =
                 control.GetValueBinding(RouteLink.UrlSuffixProperty)
                 ?.Apply(binding => binding.GetKnockoutBindingExpression(control))
-                ?? JsonConvert.SerializeObject(control.UrlSuffix ?? "");
+                ?? KnockoutHelper.MakeStringLiteral(control.UrlSuffix ?? "");
             var queryParams =
                 control.QueryParameters.RawValues.Select(p => TranslateRouteParameter(control, p, true)).StringJoin(",");
 
@@ -149,13 +150,13 @@ namespace DotVVM.Framework.Controls
                 EnsureValidBindingType(binding);
 
                 expression = (param.Value as IValueBinding)?.GetKnockoutBindingExpression(control)
-                    ?? JsonConvert.SerializeObject((param.Value as IStaticValueBinding)?.Evaluate(control), DefaultViewModelSerializer.CreateDefaultSettings());
+                    ?? JsonConvert.SerializeObject((param.Value as IStaticValueBinding)?.Evaluate(control), DefaultSerializerSettingsProvider.Instance.Settings);
             }
             else
             {
-                expression = JsonConvert.SerializeObject(param.Value, DefaultViewModelSerializer.CreateDefaultSettings());
+                expression = JsonConvert.SerializeObject(param.Value, DefaultSerializerSettingsProvider.Instance.Settings);
             }
-            return JsonConvert.SerializeObject(caseSensitive ? param.Key : param.Key.ToLower()) + ": " + expression;
+            return KnockoutHelper.MakeStringLiteral(caseSensitive ? param.Key : param.Key.ToLower()) + ": " + expression;
         }
 
         private static void EnsureValidBindingType(IBinding binding)
