@@ -1,4 +1,6 @@
-﻿namespace DotVVM.Framework.Compilation.ControlTree.Resolved
+#nullable enable
+
+namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     public interface IResolvedTreeNode
     {

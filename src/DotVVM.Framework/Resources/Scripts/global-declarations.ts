@@ -122,6 +122,9 @@ type DotvvmInitEventArgs = {
     readonly viewModel: any
 }
 
+type DotvvmInitCompletedEventArgs = {
+}
+
 interface DotvvmViewModelInfo {
     viewModel?: any
     viewModelCacheId?: string

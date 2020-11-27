@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public static bool ContainsInvocation(JsNode node) => node.DescendantNodesAndSelf().Any(n => n is JsInvocationExpression);
 
-        /// Checks if the specified <see cref="JsNode" /> has any dependencies on the specified mutated variables and if thus if it can be reordered.
+        /// Checks if the specified <see cref="JsNode" /> has any dependencies on the specified mutated variables and if so if it can be reordered.
         public static bool MayReorder(JsNode expression, IEnumerable<JsNode> beforeExpressions)
         {
             // if both contain invocation, reorder can't happen

@@ -25,11 +25,6 @@ namespace DotVVM.Framework.Hosting
                 return null;
             }
 
-            if (!fullPath.Replace('\\', '/').StartsWith(configuration.ApplicationPhysicalPath.Replace('\\', '/'), StringComparison.CurrentCultureIgnoreCase))
-            {
-                return null;
-            }
-
             if (File.Exists(fullPath))
             {
                 // load the file

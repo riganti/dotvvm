@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
@@ -39,12 +39,12 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             DefaultVisit(propertyControl);
         }
 
-        public void VisitBinding(ResolvedBinding binding)
+        public virtual void VisitBinding(ResolvedBinding binding)
         {
             DefaultVisit(binding);
         }
 
-        public void VisitDirective(ResolvedDirective directive)
+        public virtual void VisitDirective(ResolvedDirective directive)
         {
             DefaultVisit(directive);
         }

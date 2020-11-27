@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
@@ -5,9 +6,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
 {
     public interface IDataContextStack
     {
-        ITypeDescriptor DataContextType { get; } 
+        ITypeDescriptor DataContextType { get; }
 
-        IDataContextStack Parent { get; }
+        IDataContextStack? Parent { get; }
 
         IReadOnlyList<NamespaceImport> NamespaceImports { get; }
 
