@@ -1,6 +1,5 @@
-import { serialize } from '../serialization/serialize';
-import { deserialize } from '../serialization/deserialize';
-import { getViewModel, getInitialUrl, getViewModelCache, getViewModelCacheId, clearViewModelCache } from '../dotvvm-base';
+import { serializeCore } from '../serialization/serialize';
+import { getInitialUrl, getViewModelCache, getViewModelCacheId, clearViewModelCache, getState } from '../dotvvm-base';
 import { loadResourceList, RenderedResourceList, getRenderedResources } from './resourceLoader';
 import * as events from '../events';
 import * as updater from './updater';
@@ -12,6 +11,8 @@ import * as gate from './gate'
 import { showValidationErrorsFromServer } from '../validation/validation';
 import { DotvvmPostbackError } from '../shared-classes';
 import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
+import { isPrimitive } from '../utils/objects';
+import * as stateManager from '../state-manager'
 
 let lastStartedPostbackId: number;
 
@@ -44,8 +45,9 @@ export async function postbackCore(
 
         updateDynamicPathFragments(context, path);
 
-        const postedViewModel = serialize(getViewModel(), {
-            pathMatcher: val => context && val == context.$data
+        const initialState = getState()
+        const postedViewModel = serializeCore(initialState, {
+            pathMatcher: val => context && val == context.$data[stateManager.currentStateSymbol]
         });
 
         const data: any = {
@@ -88,7 +90,7 @@ export async function postbackCore(
 
         return async () => {
             try {
-                return await processPostbackResponse(options, context, postedViewModel, response.result, response.response!);
+                return await processPostbackResponse(options, context, postedViewModel, initialState, response.result, response.response!);
             } catch (err) {
                 if (err instanceof DotvvmPostbackError) {
                     throw err;
@@ -109,14 +111,14 @@ export async function postbackCore(
     });
 }
 
-async function processPostbackResponse(options: PostbackOptions, context: any, postedViewModel: any, result: PostbackResponse, response: Response): Promise<DotvvmAfterPostBackEventArgs> {
+async function processPostbackResponse(options: PostbackOptions, context: any, postedViewModel: any, initialState: any, result: PostbackResponse, response: Response): Promise<DotvvmAfterPostBackEventArgs> {
     events.postbackCommitInvoked.trigger({
         ...options,
         response,
         serverResponseObject: result
     });
 
-    processViewModelDiff(result, postedViewModel);
+    processViewModelDiff(result, initialState);
 
     await loadResourceList(result.resources);
 
@@ -126,7 +128,7 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
     let isSuccess = false;
     if (result.action == "successfulCommand") {
         updateTypeInfo(result.typeMetadata)
-        updater.updateViewModelAndControls(result, false);
+        updater.updateViewModelAndControls(result);
         events.postbackViewModelUpdated.trigger({
             ...options,
             response,
@@ -196,7 +198,7 @@ function processPassedId(id: any, context: any): string {
     if (typeof id == "string" || id == null) {
         return id;
     }
-    if (typeof id == "object" && id.expr) {
+    if (!isPrimitive(id) && id.expr) {
         return evaluator.evaluateOnViewModel(context, id.expr);
     }
     throw new Error("invalid argument");

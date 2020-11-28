@@ -92,8 +92,11 @@ export function deserializeObject(viewModel: any, target: any, deserializeAll: b
     if (isPrimitive(unwrappedTarget)) {
         unwrappedTarget = {};
     }
-    unwrappedTarget["$type"] = unwrappedTarget["$type"] || ko.observable();
-    unwrappedTarget["$type"](typeId);
+    if (!ko.isObservable(unwrappedTarget["$type"])) {
+        unwrappedTarget["$type"] = ko.observable(typeId);
+    } else {
+        unwrappedTarget["$type"](typeId);
+    }
 
     for (const prop of keys(viewModel)) {
         if (isTypeIdProperty(prop)) {
@@ -154,7 +157,7 @@ function copyProperty(value: any, unwrappedTarget: any, prop: string, deserializ
     }
 }
 
-function extendToObservableArrayIfRequired(observable: any) {
+export function extendToObservableArrayIfRequired(observable: any) {
     if (!ko.isObservable(observable)) {
         throw new Error("Trying to extend a non-observable to an observable array.");
     }

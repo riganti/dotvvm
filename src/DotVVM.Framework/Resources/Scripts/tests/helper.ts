@@ -35,12 +35,12 @@ export function watchEvents(consoleOutput: boolean = true) {
     const allEvents = { ...dotvvm.events, ...validationEvents };
     for (const event of keys(allEvents)) {
         if ("subscribe" in (allEvents as any)[event]) {
-            var h = function (args: any) {
+            const h = function (args: any): void {
                 if (consoleOutput) {
                     console.debug("Event " + event, args.postbackId ?? "")
                 }
                 eventHistory.push({ event, args })
-            }
+            };
             (allEvents as any)[event].subscribe(h)
             handlers[event] = h
         }

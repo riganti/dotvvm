@@ -1,8 +1,8 @@
 ﻿import dotvvm from '../dotvvm-root'
-import { validateType } from '../serialization/typeValidation'
 import { deserialize } from '../serialization/deserialize'
 import { serialize } from '../serialization/serialize'
 import { serializeDate } from '../serialization/date'
+import { tryCoerce } from '../metadata/coercer';
 
 jest.mock("../metadata/typeMap", () => ({
     getTypeInfo(typeId: string) {
@@ -589,41 +589,41 @@ describe("DotVVM.Serialization - deserialize", () => {
 
 describe("Dotvvm.Deserialization - value type validation", () => {
     const supportedTypes = [
-        "int64", "int32", "int16", "int8", "uint64", "uint32", "uint16", "uint8", "decimal", "double", "single"
+        "Int64", "Int32", "Int16", "SByte", "UInt64", "UInt32", "UInt16", "Byte", "Decimal", "Double", "Single"
     ]
 
     test("null is invalid",
         () => {
             for (const type in supportedTypes) {
-                expect(validateType(null, supportedTypes[type])).toBe(false)
+                expect(tryCoerce(null, supportedTypes[type])).toBeUndefined()
             }
         })
 
     test("undefined is invalid",
         () => {
             for (const type in supportedTypes) {
-                expect(validateType(undefined, supportedTypes[type])).toBe(false)
+                expect(tryCoerce(undefined, supportedTypes[type])).toBeUndefined()
             }
         })
 
     test("null is valid for nullable",
         () => {
             for (const type in supportedTypes) {
-                expect(validateType(null, supportedTypes[type] + "?")).toBe(true)
+                expect(tryCoerce(null, { type: "nullable", inner: supportedTypes[type] })).toBeTruthy()
             }
         })
 
     test("undefined is valid for nullable",
         () => {
             for (const type in supportedTypes) {
-                expect(validateType(undefined, supportedTypes[type] + "?")).toBe(true)
+                expect(tryCoerce(undefined, { type: "nullable", inner: supportedTypes[type] })).toBeTruthy()
             }
         })
 
     test("string is invalid",
         () => {
             for (const type in supportedTypes) {
-                expect(validateType("string123", supportedTypes[type])).toBe(false)
+                expect(tryCoerce("string123", supportedTypes[type])).toBeUndefined()
             }
         })
 })
@@ -1380,7 +1380,7 @@ interface ObservableSubHierarchy {
     }>>
 }
 
-var testTypeMap: TypeMap = {
+const testTypeMap: TypeMap = {
     t1: {
         a: {
             type: "String"

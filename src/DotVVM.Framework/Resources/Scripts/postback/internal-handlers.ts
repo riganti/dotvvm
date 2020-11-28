@@ -3,8 +3,8 @@ import * as gate from "./gate";
 import { isElementDisabled } from "../utils/dom";
 import { getPostbackQueue, enterActivePostback, leaveActivePostback, runNextInQueue } from "./queue";
 import { getLastStartedPostbackId } from "./postbackCore";
-import { getIsViewModelUpdating } from "./updater";
 import { DotvvmPostbackError } from "../shared-classes";
+import { getIsViewModelUpdating } from "../state-manager";
 
 let postbackCount = 0;
 

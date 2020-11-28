@@ -1,8 +1,6 @@
 import { serialize } from '../serialization/serialize';
-import { deserialize } from '../serialization/deserialize';
-import { getViewModel, getInitialUrl } from '../dotvvm-base';
+import { getInitialUrl } from '../dotvvm-base';
 import * as events from '../events';
-import * as updater from './updater';
 import * as http from './http'
 import { handleRedirect } from './redirect';
 import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
@@ -15,12 +13,12 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
     try {
         await http.retryOnInvalidCsrfToken(async () => {
             const csrfToken = await http.fetchCsrfToken();
-            data = serialize({ 
-                args, 
+            data = { 
+                args: args.map(a => serialize(a)), 
                 command, 
                 $csrfToken: csrfToken,
                 knownTypeMetadata: getKnownTypes()
-            });
+            };
         });
 
         events.staticCommandMethodInvoking.trigger({

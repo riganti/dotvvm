@@ -176,7 +176,7 @@ type ValidationRuleTable = {
 }
 
 type RootViewModel = {
-    $csrfToken?: string | KnockoutObservable<string>,
+    $csrfToken?: string,
 }
 
 type TypeMap = {
@@ -204,3 +204,5 @@ type ClientExtenderInfo = {
     name: string,
     parameter: any
 }
+
+type CoerceResult = undefined | { value: any, wasCoerced?: boolean };

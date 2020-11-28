@@ -7,6 +7,7 @@ import { WrappedResponse } from "../postback/http";
 import { spaNavigationFailed } from "../spa/events";
 import { updateViewModelAndControls } from "../postback/updater";
 import { detachAllErrors } from "../validation/error";
+import { getStateManager } from '../dotvvm-base';
 
 
 jest.unmock("../spa/spa");
@@ -30,7 +31,7 @@ function appendAdditionalHeaders(headers: Headers, additionalHeaders?: { [key: s
 
 jest.mock("../postback/http", () => ({
     async fetchCsrfToken() {
-        getViewModel().$csrfToken = "test token"
+        getStateManager().update(vm => ({ ...vm, $csrfToken: "test token" }))
     },
 
     retryOnInvalidCsrfToken<TResult>(postbackFunction: () => Promise<TResult>) {
@@ -66,11 +67,12 @@ jest.mock("../postback/gate", () => ({
 function validateEvent(actual: { event: string, args: any }, expectedEvent: string, expectedCommandType: PostbackCommandType, ...extraValidations: ((args: any) => void)[]) {
     expect(actual.event).toBe(expectedEvent);
 
-    expect(actual.args.postbackId).toBeGreaterThan(0);
-    expect(actual.args.commandType).toBe(expectedCommandType);
-    expect(actual.args.args).toBeDefined();
-    expect(actual.args.viewModel).toBeDefined();
-
+    if (actual.event != "newState") {
+        expect(actual.args.postbackId).toBeGreaterThan(0);
+        expect(actual.args.commandType).toBe(expectedCommandType);
+        expect(actual.args.args).toBeDefined();
+        expect(actual.args.viewModel).toBeDefined();
+    }
     for (let validation of extraValidations) {
         validation(actual.args);
     }
@@ -178,8 +180,19 @@ const fetchDefinitions = {
     spaNavigateSuccess: async <T>(url: string, init: RequestInit) => {
         return {
             viewModel: {
+                $type: "t2",
                 PropertyA: 1,
                 PropertyB: 2
+            },
+            typeMetadata: {
+                t2: {
+                    Property1: {
+                        type: "Int32"
+                    },
+                    Property2: {
+                        type: "Int32"
+                    }
+                }
             },
             action: "successfulCommand",
             virtualDirectory: "",
@@ -237,8 +250,19 @@ const fetchDefinitions = {
 
 const originalViewModel = {
     viewModel: {
+        $type: "t1",
         Property1: 0,
         Property2: 0
+    },
+    typeMetadata: {
+        t1: {
+            Property1: {
+                type: "Int32"
+            },
+            Property2: {
+                type: "Int32"
+            }
+        }
     },
     url: "/myPage",
     virtualDirectory: "",
@@ -265,6 +289,7 @@ test("PostBack + success", async () => {
         validateEvent(history[i++], "beforePostback", "postback", validations.hasSender, validations.hasCancel);
         validateEvent(history[i++], "postbackResponseReceived", "postback", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject);
         validateEvent(history[i++], "postbackCommitInvoked", "postback", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject);
+        validateEvent(history[i++], "newState", "postback");
         validateEvent(history[i++], "postbackViewModelUpdated", "postback", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject);
         validateEvent(history[i++], "afterPostback", "postback", validations.hasSender, validations.hasWasInterrupted, validations.hasResponse, validations.hasServerResponseObject);
 
@@ -298,6 +323,7 @@ test("PostBack + viewModelCache", async () => {
         validateEvent(history[i++], "beforePostback", "postback", validations.hasSender, validations.hasCancel);
         validateEvent(history[i++], "postbackResponseReceived", "postback", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject);
         validateEvent(history[i++], "postbackCommitInvoked", "postback", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject);
+        validateEvent(history[i++], "newState", "postback");
         validateEvent(history[i++], "postbackViewModelUpdated", "postback", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject);
         validateEvent(history[i++], "afterPostback", "postback", validations.hasSender, validations.hasWasInterrupted, validations.hasResponse, validations.hasServerResponseObject);
 
@@ -437,6 +463,7 @@ test("spaNavigation + success", async () => {
 
         let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasSender, validations.hasCancel, validations.hasUrl);
+        validateEvent(history[i++], "newState", "postback");
         validateEvent(history[i++], "spaNavigated", "spaNavigation", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject, validations.hasUrl);
 
         expect(history.length).toBe(i);
@@ -463,6 +490,7 @@ test("spaNavigation + redirect", async () => {
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasSender, validations.hasCancel, validations.hasUrl);
         validateEvent(history[i++], "redirect", "spaNavigation", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject, validations.hasUrl, validations.hasReplace);
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasCancel, validations.hasUrl);
+        validateEvent(history[i++], "newState", "postback");
         validateEvent(history[i++], "spaNavigated", "spaNavigation", validations.hasResponse, validations.hasServerResponseObject, validations.hasUrl);
 
         expect(history.length).toBe(i);

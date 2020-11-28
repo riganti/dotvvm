@@ -8,10 +8,10 @@ import * as spaEvents from '../spa/events'
 import { postbackHandlers } from "../postback/handlers"
 import { DotvvmValidationContext, ErrorsPropertyName } from "./common"
 import { hasOwnProperty, isPrimitive, keys } from "../utils/objects"
-import { validateType } from "../serialization/typeValidation"
 import { elementActions } from "./actions"
 import { DotvvmPostbackError } from "../shared-classes"
 import { getTypeInfo } from "../metadata/typeMap"
+import { tryCoerce } from "../metadata/coercer"
 
 type ValidationSummaryBinding = {
     target: KnockoutObservable<any>,
@@ -142,8 +142,8 @@ function validateViewModel(viewModel: any): void {
 
         // check the value is even valid for the given type
         if (getErrors(observable).length == 0
-            && !validateType(propertyValue, typeId)) {
-            ValidationError.attach(`The value of property ${propertyName} (${propertyValue}) is invalid value for type ${typeId}.`, observable);
+            && !tryCoerce(propertyValue, propInfo.type)) {
+            ValidationError.attach(`The value of property ${propertyName} (${propertyValue}) is invalid value for type ${propInfo.type}.`, observable);
         }
 
         if (!propertyValue) {
