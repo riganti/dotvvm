@@ -69,13 +69,3 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
         throw err;
     }
 }
-
-type StaticCommandResponse = {
-    result: any,
-    typeMetadata?: TypeMap
-} | {
-    action: "redirect",
-    url: string,
-    replace?: boolean,
-    allowSpa?: boolean
-};

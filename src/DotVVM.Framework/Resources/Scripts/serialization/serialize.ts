@@ -93,10 +93,11 @@ export function serializeCore(viewModel: any, opt: ISerializationOptions = {}): 
             result[prop] = serializeCore(value, opt);
         }
 
-        if (propInfo && propInfo.type && !tryCoerce(result[prop], propInfo.type)) {
-            delete result[prop];
-            //options.wasInvalid = true;   // TODO - where do we need this?
-        }
+        // TODO - do we need this?
+        // if (propInfo && propInfo.type && !tryCoerce(result[prop], propInfo.type)) {
+        //     delete result[prop];
+        //     //options.wasInvalid = true;   
+        // }
     }
     if (pathProp && opt.path) {
         opt.path.push(pathProp);

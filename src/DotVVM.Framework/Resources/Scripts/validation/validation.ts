@@ -12,6 +12,7 @@ import { elementActions } from "./actions"
 import { DotvvmPostbackError } from "../shared-classes"
 import { getTypeInfo } from "../metadata/typeMap"
 import { tryCoerce } from "../metadata/coercer"
+import { primitiveTypes } from "../metadata/primitiveTypes"
 
 type ValidationSummaryBinding = {
     target: KnockoutObservable<any>,
@@ -142,8 +143,9 @@ function validateViewModel(viewModel: any): void {
 
         // check the value is even valid for the given type
         if (getErrors(observable).length == 0
-            && !tryCoerce(propertyValue, propInfo.type)) {
+            && typeof propInfo.type === "string" && propInfo.type in primitiveTypes && !primitiveTypes[propInfo.type].tryCoerce(propertyValue)) {
             ValidationError.attach(`The value of property ${propertyName} (${propertyValue}) is invalid value for type ${propInfo.type}.`, observable);
+            // TODO: we may not need to validate primitive types any more
         }
 
         if (!propertyValue) {
