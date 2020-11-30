@@ -427,6 +427,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 return false;
 
             type = ReadIdentifierExpression(true);
+            SkipWhiteSpace();
+
             if (Peek()?.Type != BindingTokenType.Identifier)
             {
                 name = type;

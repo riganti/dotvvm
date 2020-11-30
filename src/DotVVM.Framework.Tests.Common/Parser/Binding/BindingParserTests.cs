@@ -796,10 +796,11 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        [DataRow("(string arg1, int arg2) => Method(arg1, arg2)", "string", "int")]
-        [DataRow("(string arg1, List<DateTime> arg2) => Method(arg1, arg2)", "string", "List<DateTime>")]
-        [DataRow("   (   float arg1  ,  double arg2) =>  Method(arg1, arg2)", "float", "double")]
-        public void BindingParser_Lambda_WithTypeInfo_MultipleParameters(string expr, string type1, string type2)
+        [DataRow("(string arg) => Method(arg)", "string")]
+        [DataRow("(float arg) => Method(arg)", "float")]
+        [DataRow("(decimal arg) => Method(arg)", "decimal")]
+        [DataRow("(System.Collections.Generic.List<int> arg) => Method(arg)", "System.Collections.Generic.List<int>")]
+        public void BindingParser_Lambda_WithTypeInfo_SingleParameter(string expr, string type)
         {
             var parser = bindingParserNodeFactory.SetupParser(expr);
             var node = parser.ReadExpression();
@@ -808,12 +809,10 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var body = lambda.BodyExpression;
             var parameters = lambda.ParameterExpressions;
 
-            Assert.AreEqual(2, parameters.Count);
-            Assert.AreEqual(type1, parameters[0].Type.ToDisplayString());
-            Assert.AreEqual("arg1", parameters[0].Name.ToDisplayString());
-            Assert.AreEqual(type2, parameters[1].Type.ToDisplayString());
-            Assert.AreEqual("arg2", parameters[1].Name.ToDisplayString());
-            Assert.AreEqual("Method(arg1, arg2)", body.ToDisplayString());
+            Assert.AreEqual(1, parameters.Count);
+            Assert.AreEqual(type, parameters[0].Type.ToDisplayString());
+            Assert.AreEqual("arg", parameters[0].Name.ToDisplayString());
+            Assert.AreEqual("Method(arg)", body.ToDisplayString());
         }
 
         [TestMethod]
