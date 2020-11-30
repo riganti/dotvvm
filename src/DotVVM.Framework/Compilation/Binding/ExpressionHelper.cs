@@ -5,11 +5,14 @@ using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Metadata;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CSharp.RuntimeBinder;
 
 namespace DotVVM.Framework.Compilation.Binding
@@ -158,10 +161,22 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private static MethodRecognitionResult FindValidMethodOveloads(Type type, string name, BindingFlags flags, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
         {
-            var methods = FindValidMethodOveloads(type.GetAllMembers(flags).OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, arguments, namedArgs);
-            var method = methods.FirstOrDefault();
-            if (method == null) throw new InvalidOperationException($"Could not find overload of method '{name}'.");
-            return method;
+            var methods = FindValidMethodOveloads(type.GetAllMembers(flags).OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, arguments, namedArgs).ToList();
+
+            if (methods.Count == 1) return methods.FirstOrDefault();
+            if (methods.Count == 0) throw new InvalidOperationException($"Could not find overload of method '{name}'.");
+            else
+            {
+                methods = methods.OrderBy(s => s.CastCount).ThenBy(s => s.AutomaticTypeArgCount).ToList();
+                var method = methods.FirstOrDefault();
+                var method2 = methods.Skip(1).FirstOrDefault();
+                if (method.AutomaticTypeArgCount == method2.AutomaticTypeArgCount && method.CastCount == method2.CastCount)
+                {
+                    // TODO: this behavior is not completed. Implement the same behavior as in roslyn.
+                    throw new InvalidOperationException($"Found ambiguous overloads of method '{name}'.");
+                }
+                return method;
+            }
         }
 
         private static IEnumerable<MethodRecognitionResult> FindValidMethodOveloads(IEnumerable<MethodInfo> methods, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
@@ -210,20 +225,21 @@ namespace DotVVM.Framework.Compilation.Binding
             // resolve generic parameters
             if (method.ContainsGenericParameters)
             {
-                var typeArgs = new Type[method.GetGenericArguments().Length];
+                var genericArguments = method.GetGenericArguments();
+                var typeArgs = new Type[genericArguments.Length];
                 if (typeArguments != null)
                 {
                     if (typeArguments.Length > typeArgs.Length) return null;
                     Array.Copy(typeArguments, typeArgs, typeArgs.Length);
                 }
-                for (int i = 0; i < typeArgs.Length; i++)
+                for (int genericArgumentPosition = 0; genericArgumentPosition < typeArgs.Length; genericArgumentPosition++)
                 {
-                    if (typeArgs[i] == null)
+                    if (typeArgs[genericArgumentPosition] == null)
                     {
                         // try to resolve from arguments
-                        var arg = Array.FindIndex(parameters, p => p.ParameterType.IsGenericParameter && p.ParameterType.GenericParameterPosition == i);
+                        var argType = GetGenericParameterType(genericArguments[genericArgumentPosition], parameters.Select(s => s.ParameterType).ToArray(), args.Select(s => s.Type).ToArray());
                         automaticTypeArgs++;
-                        if (arg >= 0) typeArgs[i] = args[arg].Type;
+                        if (argType != null) typeArgs[genericArgumentPosition] = argType;
                         else return null;
                     }
                 }
@@ -252,6 +268,33 @@ namespace DotVVM.Framework.Compilation.Binding
             };
         }
 
+        private static Type GetGenericParameterType(Type genericArg, Type[] searchedGenericTypes, Type[] expressionTypes)
+        {
+            for (var i = 0; i < searchedGenericTypes.Length; i++)
+            {
+                if (expressionTypes.Length <= i) return null;
+                var sgt = searchedGenericTypes[i];
+                if (sgt == genericArg)
+                {
+                    return expressionTypes[i];
+                }
+                if (sgt.IsArray)
+                {
+                    var elementType = sgt.GetElementType();
+                    var expressionElementType = expressionTypes[i].GetElementType();
+                    if (elementType == genericArg)
+                        return expressionElementType;
+                    else
+                        return GetGenericParameterType(genericArg, searchedGenericTypes[i].GetGenericArguments(), expressionTypes[i].GetGenericArguments());
+                }
+                else if (sgt.IsGenericType)
+                {
+                    var value = GetGenericParameterType(genericArg, sgt.GetGenericArguments(), expressionTypes[i].GetGenericArguments());
+                    if (value is Type) return value;
+                }
+            }
+            return null;
+        }
 
         public static Expression EqualsMethod(Expression left, Expression right)
         {

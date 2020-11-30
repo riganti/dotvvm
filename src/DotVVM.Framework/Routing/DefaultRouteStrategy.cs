@@ -57,9 +57,35 @@ namespace DotVVM.Framework.Routing
                 .Select(file => new RouteStrategyMarkupFileInfo()
                 {
                     AbsolutePath = file.FullName,
-                    AppRelativePath = file.FullName.Substring(applicationPhysicalPath.Length).Replace('\\', '/').TrimStart('/'),
-                    ViewsFolderRelativePath = file.FullName.Substring(viewsFolderDirectoryInfo.FullName.Length).Replace('\\', '/').TrimStart('/')
+                    // Get relative path from applicationPhysicalPath to markup file
+                    AppRelativePath = GetRelativePathBetween(applicationPhysicalPath, file.FullName),
+                    // Get relative path from viewsFolderDirectory to markup file
+                    ViewsFolderRelativePath = GetRelativePathBetween(viewsFolderDirectoryInfo.FullName, file.FullName).TrimStart('/')
                 });
+        }
+
+        private string GetRelativePathBetween(string from, string to)
+        {
+            var fromPath = from.Replace('\\', '/');
+            var toPath = to.Replace('\\', '/');
+            var fromPathSegments = fromPath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            var toPathSegments = toPath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+            // Find index of the first path segments where they differ
+            var index = 0;
+            for (index = 0; index < Math.Min(fromPathSegments.Length, toPathSegments.Length); index++)
+            {
+                if (fromPathSegments[index] == toPathSegments[index])
+                    continue;
+
+                break;
+            }
+
+            // Construct path
+            var goBack = Enumerable.Repeat("..", fromPathSegments.Length - index) ?? Enumerable.Empty<string>();
+            var goForward = Enumerable.Skip(toPathSegments, index) ?? Enumerable.Empty<string>();
+            var resultPathSegments = goBack.Concat(goForward).ToArray();
+            return Path.Combine(resultPathSegments).Replace('\\', '/');
         }
 
         /// <summary>
