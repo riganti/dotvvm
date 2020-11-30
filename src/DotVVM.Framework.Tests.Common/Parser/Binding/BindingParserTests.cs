@@ -726,9 +726,11 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
         [TestMethod]
         [DataRow("(arg) => Method(arg)", DisplayName = "Simple implicit single-parameter lambda expression with parentheses.")]
-        [DataRow("arg => Method(arg)", DisplayName = "Simple implicit single-parameter lambda expression without parentheses.")]
+        [DataRow("arg => Method(arg)", DisplayName = "Simple implicit single-parameter lambda expression without parentheses.")]           
         [DataRow("  arg    =>   Method   (   arg  )", DisplayName = "Simple lambda with various whitespaces.")]
-        public void BindingParser_Lambda_SingleAutoParameter(string expression)
+        [DataRow("arg =>Method(arg)", DisplayName = "Simple lambda with various whitespaces.")]
+        [DataRow("arg=>Method(arg)", DisplayName = "Simple lambda with various whitespaces.")]
+        public void BindingParser_Lambda_NoTypeInfo_SingleParameter(string expression)
         {
             var parser = bindingParserNodeFactory.SetupParser(expression);
             var node = parser.ReadExpression();
@@ -740,12 +742,43 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(1, parameters.Count);
             Assert.IsNull(parameters[0].Type);
             Assert.AreEqual("arg", parameters[0].Name.ToDisplayString());
-
             Assert.AreEqual("Method(arg)", body.ToDisplayString());
         }
 
         [TestMethod]
-        public void BindingParser_Lambda_MultipleAutoParameters()
+        [DataRow("_ => Method()", DisplayName = "Simple implicit single-parameter lambda expression without parentheses")]
+        public void BindingParser_Lambda_NoTypeInfo_SingleIgnoredParameter(string expression)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(expression);
+            var node = parser.ReadExpression();
+
+            var lambda = node.CastTo<LambdaBindingParserNode>();
+            var body = lambda.BodyExpression;
+            var parameters = lambda.ParameterExpressions;
+
+            Assert.AreEqual(1, parameters.Count);
+            Assert.IsNull(parameters[0].Type);
+            Assert.AreEqual("_", parameters[0].Name.ToDisplayString());
+            Assert.AreEqual("Method()", body.ToDisplayString());
+        }
+
+        [TestMethod]
+        [DataRow("() => Method()", DisplayName = "Simple implicit zero-parameter lambda expression")]
+        public void BindingParser_Lambda_NoParameters(string expression)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(expression);
+            var node = parser.ReadExpression();
+
+            var lambda = node.CastTo<LambdaBindingParserNode>();
+            var body = lambda.BodyExpression;
+            var parameters = lambda.ParameterExpressions;
+
+            Assert.AreEqual(0, parameters.Count);
+            Assert.AreEqual("Method()", body.ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_Lambda_NoTypeInfo_MultipleParameters()
         {
             var parser = bindingParserNodeFactory.SetupParser("(arg1, arg2) => Method(arg1, arg2)");
             var node = parser.ReadExpression();
@@ -763,9 +796,12 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        public void BindingParser_Lambda_MultipleExplicitParameters()
+        [DataRow("(string arg1, int arg2) => Method(arg1, arg2)", "string", "int")]
+        [DataRow("(string arg1, List<DateTime> arg2) => Method(arg1, arg2)", "string", "List<DateTime>")]
+        [DataRow("   (   float arg1  ,  double arg2) =>  Method(arg1, arg2)", "float", "double")]
+        public void BindingParser_Lambda_WithTypeInfo_MultipleParameters(string expr, string type1, string type2)
         {
-            var parser = bindingParserNodeFactory.SetupParser("(string arg1, int arg2) => Method(arg1, arg2)");
+            var parser = bindingParserNodeFactory.SetupParser(expr);
             var node = parser.ReadExpression();
 
             var lambda = node.CastTo<LambdaBindingParserNode>();
@@ -773,9 +809,9 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var parameters = lambda.ParameterExpressions;
 
             Assert.AreEqual(2, parameters.Count);
-            Assert.AreEqual("string", parameters[0].Type.ToDisplayString());
+            Assert.AreEqual(type1, parameters[0].Type.ToDisplayString());
             Assert.AreEqual("arg1", parameters[0].Name.ToDisplayString());
-            Assert.AreEqual("int", parameters[1].Type.ToDisplayString());
+            Assert.AreEqual(type2, parameters[1].Type.ToDisplayString());
             Assert.AreEqual("arg2", parameters[1].Name.ToDisplayString());
             Assert.AreEqual("Method(arg1, arg2)", body.ToDisplayString());
         }
