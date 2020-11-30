@@ -277,6 +277,18 @@ namespace DotVVM.Framework.Compilation.Binding
             for (var i = 0; i < lambdaParameters.Length; i++)
                 lambdaParameters[i] = (ParameterExpression)HandleErrors(node.ParameterExpressions[i], Visit);
 
+            // Make sure that parameter identifiers are distinct
+            if (lambdaParameters.GroupBy(param => param.Name).Any(group => group.Count() > 1))
+                throw new BindingCompilationException("Parameter identifiers must be unique.", node);
+
+            // Make sure that parameter identifiers do not collide with existing symbols within registry
+            var collision = lambdaParameters.FirstOrDefault(param => Registry.Resolve(param.Name, false) != null);
+            if (collision != null)
+            {
+                throw new BindingCompilationException($"Identifier \"{collision.Name}\" is already in use. Choose a different " +
+                    $"identifier for the parameter with index {Array.IndexOf(lambdaParameters, collision)}.", node);
+            }
+
             // Register lambda parameters as new symbols
             Registry = Registry.AddSymbols(lambdaParameters);
 
