@@ -146,7 +146,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void BindingCompiler_Valid_LambdaTest()
+        public void BindingCompiler_Valid_Lambda_Test()
         {
             var viewModel = new TestViewModel { StringProp = "abc" };
             var function1 = (Func<string, string>)ExecuteBinding("(string arg) => SetStringProp(arg, 123)", viewModel);
@@ -157,6 +157,48 @@ namespace DotVVM.Framework.Tests.Binding
             var function2 = (Func<char, int>)ExecuteBinding("(char arg) => GetCharCode(arg)", viewModel);
             var result2 = function2('A');
             Assert.AreEqual(65, result2);
+        }
+
+        [TestMethod]
+        [DataRow("() => ;", typeof(Action), null)]
+        [DataRow("() => \"HelloWorld\"", typeof(Func<string>), typeof(string))]
+        [DataRow("() => 11", typeof(Func<int>), typeof(int))]
+        [DataRow("() => 4.5f", typeof(Func<float>), typeof(float))]
+        [DataRow("() => 4.5", typeof(Func<double>), typeof(double))]
+        [DataRow("() => 11 + 4.5", typeof(Func<double>), typeof(double))]
+        [DataRow("() => new System.Collections.Generic.List<int>()", typeof(Func<List<int>>), typeof(List<int>))]
+        public void BindingCompiler_Valid_LambdaReturnType(string expr, Type lambdaType, Type returnType)
+        {
+            var viewModel = new TestViewModel();
+            var binding = ExecuteBinding(expr, viewModel);
+            Assert.IsTrue(binding is Delegate);
+            Assert.AreEqual(lambdaType, binding.GetType());        
+            Assert.AreEqual(returnType, ((Delegate)binding).DynamicInvoke()?.GetType());
+        }
+
+        [TestMethod]
+        [DataRow("(int arg) => ;", typeof(int))]
+        [DataRow("(string arg1, float arg2) => ;", typeof(string), typeof(float))]
+        [DataRow("(System.Collections.Generic.List<int> arg) => ;", typeof(List<int>))]
+        public void BindingCompiler_Valid_LambdaParameterType(string expr, params Type[] parameterTypes)
+        {
+            var viewModel = new TestViewModel();
+            var binding = ExecuteBinding(expr, viewModel);
+            Assert.IsTrue(binding is Delegate);
+            var generics = ((Delegate)binding).GetType().GenericTypeArguments;
+
+            var index = 0;
+            foreach (var paramType in generics)
+                Assert.AreEqual(parameterTypes[index++], paramType);
+        }
+
+        [TestMethod]
+        [DataRow("(int arg, float arg) => ;", DisplayName = "Can not use same identifier for multiple parameters")]
+        [DataRow("(object _this) => ;", DisplayName = "Can not use already used identifiers for parameters")]
+        public void BindingCompiler_Invalid_LambdaParameters(string expr)
+        {
+            var viewModel = new TestViewModel();
+            Assert.ThrowsException<AggregateException>(() => ExecuteBinding(expr, viewModel));         
         }
 
         class MoqComponent : DotvvmBindableObject
