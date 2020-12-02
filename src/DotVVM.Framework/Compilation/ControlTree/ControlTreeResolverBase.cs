@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -64,6 +64,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var viewModelType = ResolveViewModelType(directives, root, fileName);
             var namespaceImports = ResolveNamespaceImports(directives, root);
             var injectedServices = ResolveInjectDirectives(directives);
+            IAbstractControlBuilderDescriptor? masterPage = null;
+            if (directives.TryGetValue(ParserConstants.MasterPageDirective, out var masterPageDirective))
+            {
+                masterPage = ResolveMasterPage(fileName, masterPageDirective.First());
+            }
+            var viewModule = ResolveImportedViewModules(AssignViewModuleId(masterPage), directives);
 
             // We need to call BuildControlMetadata instead of ResolveControl. The control builder for the control doesn't have to be compiled yet so the
             // metadata would be incomplete and ResolveControl caches them internally. BuildControlMetadata just builds the metadata and the control is
@@ -73,11 +79,21 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var dataContextTypeStack = CreateDataContextTypeStack(viewModelType, null, namespaceImports, new BindingExtensionParameter[] {
                 new CurrentMarkupControlExtensionParameter(wrapperType),
                 new BindingPageInfoExtensionParameter(),
-                new BindingApiExtensionParameter()
-            }.Concat(injectedServices).ToArray());
+                new BindingApiExtensionParameter(),
+            }.Concat(injectedServices)
+             .Concat(viewModule is null ? new BindingExtensionParameter[0] : new [] { viewModule.Value.extensionParameter }).ToArray());
 
-            var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directives);
+
+            var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directives, masterPage);
             view.FileName = fileName;
+            var resourceList = viewModule == null ? ImmutableList<ViewModuleReferenceInfo>.Empty : ImmutableList<ViewModuleReferenceInfo>.Empty.Add(viewModule.Value.resource);
+            treeBuilder.AddProperty(
+                view,
+                treeBuilder.BuildPropertyValue(Internal.ReferencedViewModuleInfoProperty, resourceList, null),
+                out _
+            );
+
+            ValidateMasterPage(view, masterPage, masterPageDirective?.First());
 
             ResolveRootContent(root, view, viewMetadata);
 
@@ -155,6 +171,43 @@ namespace DotVVM.Framework.Compilation.ControlTree
             .Select(d => new InjectedServiceExtensionParameter(d.NameSyntax.Name, d.Type))
             .ToImmutableList();
 
+        private (JsExtensionParameter extensionParameter, ViewModuleReferenceInfo resource)? ResolveImportedViewModules(string id, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives)
+        {
+            if (!directives.TryGetValue(ParserConstants.ViewModuleDirective, out var moduleDirectives))
+                return null;
+
+            var resources =
+                moduleDirectives
+                .Cast<IAbstractViewModuleDirective>()
+                .Select(x => x.ImportedResourceName)
+                .ToArray();
+
+            return (new JsExtensionParameter(id), new ViewModuleReferenceInfo(id, resources));
+        }
+
+        protected virtual string AssignViewModuleId(IAbstractControlBuilderDescriptor? masterPage)
+        {
+            var numberOfMasterPages = 0;
+            while (masterPage != null)
+            {
+                masterPage = masterPage.MasterPage;
+                numberOfMasterPages += 1;
+            }
+            return "p" + numberOfMasterPages;
+        }
+
+        protected abstract IAbstractControlBuilderDescriptor? ResolveMasterPage(string currentFile, IAbstractDirective masterPageDirective);
+
+        protected virtual void ValidateMasterPage(IAbstractTreeRoot root, IAbstractControlBuilderDescriptor? masterPage, IAbstractDirective? masterPageDirective)
+        {
+            if (masterPage == null)
+                return;
+            var viewModel = root.DataContextTypeStack.DataContextType;
+            if (!masterPage.DataContextType.IsAssignableFrom(viewModel))
+            {
+                masterPageDirective!.DothtmlNode!.AddError($"Viewmodel {viewModel.Name} is not assignable to the masterPage viewmodel {masterPage.DataContextType.Name}");
+            }
+        }
 
         protected virtual ImmutableList<NamespaceImport> ResolveNamespaceImports(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, DothtmlRootNode root)
             => ResolveNamespaceImportsCore(directives).ToImmutableList();
@@ -365,6 +418,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 return ProcessServiceInjectDirective(directiveNode);
             }
+            else if (string.Equals(ParserConstants.ViewModuleDirective, directiveNode.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                return ProcessViewModuleDirective(directiveNode);
+            }
 
             return treeBuilder.BuildDirective(directiveNode);
         }
@@ -448,6 +505,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 directiveNode.AddError($"Assignment operation expected - the correct form is `@{ParserConstants.ServiceInjectDirective} myStringService = ISomeService<string>`");
                 return treeBuilder.BuildServiceInjectDirective(directiveNode, new SimpleNameBindingParserNode("service"), valueSyntaxRoot);
             }
+        }
+
+        protected virtual IAbstractDirective ProcessViewModuleDirective(DothtmlDirectiveNode directiveNode)
+        {
+            return treeBuilder.BuildViewModuleDirective(directiveNode, modulePath: directiveNode.Value, resourceName: directiveNode.Value);
         }
 
         static HashSet<string> treatBindingAsHardCodedValue = new HashSet<string> { "resource" };

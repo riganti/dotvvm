@@ -178,4 +178,21 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return new JsObjectExpression();
         }
     }
+
+    public class JsExtensionParameter : BindingExtensionParameter
+    {
+        public string Id { get; }
+        public JsExtensionParameter(string id) : base("_js", new ResolvedTypeDescriptor(typeof(JsBindingApi)), true)
+        {
+        }
+        public override Expression GetServerEquivalent(Expression controlParameter)
+        {
+            throw new Exception("Can not invoke JS command server-side. You can only use the _js identifier in staticCommands.");
+        }
+
+        public override JsExpression GetJsTranslation(JsExpression dataContext)
+        {
+            return new JsIdentifierExpression("dotvvm").Member("getJsModule").Invoke(new JsLiteral(Id));
+        }
+    }
 }

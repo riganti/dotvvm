@@ -1,9 +1,11 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
@@ -36,17 +38,17 @@ namespace DotVVM.Framework.Runtime
             var markup = markupFileLoader.GetMarkupFileVirtualPath(context);
 
             // build the page
-            var (_, pageBuilder) = controlBuilderFactory.GetControlBuilder(markup);
+            var (pageDescriptor, pageBuilder) = controlBuilderFactory.GetControlBuilder(markup);
             var contentPage = (DotvvmView)pageBuilder.Value.BuildControl(controlBuilderFactory, context.Services);
 
             FillsDefaultDirectives(contentPage);
 
             // check for master page and perform composition recursively
-            while (IsNestedInMasterPage(contentPage))
+            while (pageDescriptor.MasterPage is object)
             {
                 // load master page
-                var masterPageFile = contentPage.Directives![ParserConstants.MasterPageDirective];
-                var masterPage = (DotvvmView)controlBuilderFactory.GetControlBuilder(masterPageFile).builder.Value.BuildControl(controlBuilderFactory, context.Services);
+                (pageDescriptor, pageBuilder) = controlBuilderFactory.GetControlBuilder(pageDescriptor.MasterPage!.FileName!);
+                var masterPage = (DotvvmView)pageBuilder.Value.BuildControl(controlBuilderFactory, context.Services);
 
                 FillsDefaultDirectives(masterPage);
                 PerformMasterPageComposition(contentPage, masterPage);
@@ -70,7 +72,7 @@ namespace DotVVM.Framework.Runtime
             if (context.IsSpaRequest)
             {
                 var spaContentPlaceHolders = page.GetAllDescendants().OfType<SpaContentPlaceHolder>().ToList();
-                var spaContentPlaceHolderIds = context.GetSpaContentPlaceHolderUniqueId().Split(';');
+                var spaContentPlaceHolderIds = context.GetSpaContentPlaceHolderUniqueId()!.Split(';');
 
                 if (spaContentPlaceHolders.Count == 0 || !spaContentPlaceHolderIds.Contains(spaContentPlaceHolders[0].GetSpaContentPlaceHolderUniqueId()))
                 {
@@ -78,14 +80,6 @@ namespace DotVVM.Framework.Runtime
                     context.RedirectToUrl(context.HttpContext.Request.Url.AbsoluteUri.Replace("/" + HostingConstants.SpaUrlIdentifier, ""));
                 }
             }
-        }
-
-        /// <summary>
-        /// Determines whether the page is nested in master page.
-        /// </summary>
-        private bool IsNestedInMasterPage(DotvvmView page)
-        {
-            return page.Directives!.ContainsKey(ParserConstants.MasterPageDirective);
         }
 
         /// <summary>
@@ -139,6 +133,12 @@ namespace DotVVM.Framework.Runtime
                 content.SetValue(DotvvmView.DirectivesProperty, childPage.Directives);
                 content.SetValue(Internal.MarkupFileNameProperty, childPage.GetValue(Internal.MarkupFileNameProperty));
             }
+
+            masterPage.SetValue(
+                Internal.ReferencedViewModuleInfoProperty,
+                masterPage.GetValue<ImmutableList<ViewModuleReferenceInfo>>(Internal.ReferencedViewModuleInfoProperty)!.AddRange(
+                    childPage.GetValue<ImmutableList<ViewModuleReferenceInfo>>(Internal.ReferencedViewModuleInfoProperty)
+                ));
 
             // copy the directives from content page to the master page (except the @masterpage)
             masterPage.ViewModelType = childPage.ViewModelType;

@@ -7,6 +7,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.ResourceManagement;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Controls.Infrastructure
 {
@@ -45,6 +46,10 @@ namespace DotVVM.Framework.Controls.Infrastructure
             if (context.Configuration.Debug)
             {
                 context.ResourceManager.AddRequiredResource(ResourceConstants.DotvvmDebugResourceName);
+            }
+            foreach (var viewModule in this.GetValue<ImmutableList<ViewModuleReferenceInfo>>(Internal.ReferencedViewModuleInfoProperty)!)
+            {
+                context.ResourceManager.AddRequiredResource(viewModule.Resource);
             }
             base.OnPreRender(context);
         }
