@@ -108,6 +108,7 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
             Type viewModel,
             string markup,
             Dictionary<string, string> markupFiles = null,
+            string directives = "",
             bool renderResources = false,
             [CallerMemberName] string fileName = null)
         {
@@ -127,7 +128,7 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
             {
                 markup = "<tc:FakeHeadResourceLink />" + markup;
             }
-            markup = $"@viewModel {viewModel.ToString().Replace("+", ".")}\n\n{markup}";
+            markup = $"@viewModel {viewModel.ToString().Replace("+", ".")}\n{directives}\n\n{markup}";
             var request = PreparePage(markup, markupFiles, fileName);
             await presenter.ProcessRequest(request);
             return CreatePageResult(request);
