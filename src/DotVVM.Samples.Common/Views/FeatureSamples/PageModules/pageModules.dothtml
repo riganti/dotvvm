@@ -1,5 +1,4 @@
 ﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules.PageModulesViewModel, DotVVM.Samples.Common
-@js testModule ../bla/testModule.js
 
 <!DOCTYPE html>
 
