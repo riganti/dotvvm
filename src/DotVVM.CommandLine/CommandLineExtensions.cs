@@ -36,7 +36,6 @@ namespace System.CommandLine
 
         private static readonly Argument<FileSystemInfo> targetArgument = new Argument<FileSystemInfo>(
             name: TargetArg,
-            getDefaultValue: () => new DirectoryInfo(Environment.CurrentDirectory),
             description: "Path to a DotVVM project");
 
         public static void AddVerboseOption(this Command command)
@@ -81,7 +80,7 @@ namespace System.CommandLine
                 var target = FindTarget(c.ParseResult);
                 if (target is object)
                 {
-                    var logger = Factory.CreateLogger("metadata");
+                    var logger = Factory.CreateLogger("Project Metadata");
                     var project = DotvvmProject.FromCsproj(target.FullName, logger);
                     if (project is object)
                     {
@@ -122,7 +121,9 @@ namespace System.CommandLine
                     && arg.Name == TargetArg);
                 if (target is object)
                 {
-                    return result.ValueForArgument((Argument<FileSystemInfo>)target.Symbol);
+                    var fsInfo = result.ValueForArgument((Argument<FileSystemInfo>)target.Symbol);
+                    fsInfo ??= new DirectoryInfo(Environment.CurrentDirectory);
+                    return fsInfo;
                 }
                 current = current.Parent as CommandResult;
             }

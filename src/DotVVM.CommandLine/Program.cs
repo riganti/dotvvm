@@ -13,7 +13,6 @@ namespace DotVVM.CommandLine
             };
             rootCmd.AddInfoCommands();
             rootCmd.AddCompilerCommands();
-            //rootCmd.AddUITestCommands(); // uncomment when the Selenium generator is ready
             rootCmd.AddTemplateCommands();
             rootCmd.AddOpenApiCommands();
             rootCmd.AddVerboseOption();

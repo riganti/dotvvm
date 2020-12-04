@@ -55,24 +55,18 @@ namespace DotVVM.CommandLine
             using var reader = new StreamReader(embeddedTargets);
             File.WriteAllText(targetsPath, reader.ReadToEnd());
 
-            var args = new List<string> {
-                "msbuild",
-                "/verbosity:quiet",
-                "/nologo",
-                $"/target:{WriteDotvvmProjectMetadataTarget}",
-                $"/property:CustomBeforeMicrosoftCommonTargets='{targetsPath}';IsCrossTargetingBuild=false"
-            };
+            var msbuild = MSBuild.CreateFromSdk();
+            var success = msbuild.TryInvoke(
+                project: new FileInfo(csprojPath),
+                properties: new Dictionary<string, string> {
+                    ["CustomBeforeMicrosoftCommonTargets"] = targetsPath,
+                    ["IsCrossTargetingBuild"] = "false"
+                },
+                targets: new[] { WriteDotvvmProjectMetadataTarget },
+                verbosity: "quiet",
+                logger: logger);
 
-            var pinfo = new ProcessStartInfo {
-                FileName = "dotnet",
-                Arguments = string.Join(' ', args),
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                WindowStyle = ProcessWindowStyle.Hidden
-            };
-            var process = Process.Start(pinfo);
-            process.WaitForExit();
-            if (process.ExitCode != 0)
+            if (!success)
             {
                 logger.LogError("The project metadata could not be obtained.");
                 return null;

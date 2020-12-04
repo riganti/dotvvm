@@ -18,26 +18,6 @@ namespace DotVVM.CommandLine.OpenApi
     // this logic should be moved to a script file that would allow anyone to edit or replace the logic easily
     public static class ApiClientManager
     {
-        public static ProjectMetadataOld AddApiClient(
-            Uri swaggerFile,
-            string @namespace,
-            string csharpOutput,
-            string typescriptOutput,
-            ProjectMetadataOld project,
-            ILogger? logger = null)
-        {
-            logger ??= NullLogger.Instance;
-            var definition = new ApiClientDefinition {
-                CSharpClient = csharpOutput,
-                TypescriptClient = typescriptOutput,
-                SwaggerFile = swaggerFile,
-                Namespace = @namespace
-            };
-
-            RegenApiClient(definition, logger).Wait();
-            return project.WithApiClients(project.ApiClients.Add(definition));
-        }
-
         public static async Task RegenApiClient(
             ApiClientDefinition definition,
             ILogger? logger = null)

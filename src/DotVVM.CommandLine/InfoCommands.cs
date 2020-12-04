@@ -18,16 +18,14 @@ namespace DotVVM.CommandLine
         }
 
         public static void HandleInfo(
-            ProjectMetadata metadata,
+            DotvvmProject project,
             ILogger logger)
         {
             logger.LogInformation(
-$@"Project metadata from '{metadata.MetadataFilePath}':
-    ProjectFilePath: '{metadata.ProjectFilePath}'
-    AssemblyName: {metadata.AssemblyName}
-    RootNamespace: {metadata.RootNamespace}
-    PackageVersion: {metadata.PackageVersion}
-    TargetFrameworks: {string.Join(", ", metadata.TargetFrameworks.Select(s => s.GetShortFolderName()))}");
-        }
+$@"Project metadata of '{project.ProjectFilePath}':
+    AssemblyName: {project.AssemblyName}
+    RootNamespace: {project.RootNamespace}
+    PackageVersion: {project.PackageVersion}
+    TargetFrameworks: {string.Join(", ", project.TargetFrameworks.Select(s => s.GetShortFolderName()))}");        }
     }
 }

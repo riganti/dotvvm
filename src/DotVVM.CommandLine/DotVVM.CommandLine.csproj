@@ -52,11 +52,28 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Compiler\DotVVM.Compiler.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj"/>
+    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj"/>
   </ItemGroup>
 
+  <Target Name="BuildCompiler" BeforeTargets="BeforeBuild">
+    <MSBuild Projects="..\DotVVM.Compiler\DotVVM.Compiler.csproj"
+      Targets="Restore;Build"
+      Properties="TargetFramework=netcoreapp3.1;Configuration=$(Configuration);OutputPath=$(ProjectDir)$(OutputPath)tools\netcoreapp3.1\any"/>
+    <MSBuild Projects="..\DotVVM.Compiler\DotVVM.Compiler.csproj"
+      Targets="Restore;Build"
+      Properties="TargetFramework=net461;Configuration=$(Configuration);OutputPath=$(ProjectDir)$(OutputPath)tools\net461\any"/>
+  </Target>
+
+  <Target Name="AddCompilerToPublish" BeforeTargets="Publish">
+    <ItemGroup>
+      <Content Include="$(OutputPath)/tools/**" CopyToOutputDirectory="Always" CopyToPublishDirectory="Always" />
+    </ItemGroup>
+    <Message Text="@(Content)" Importance="High" />
+  </Target>
+
   <ItemGroup>
-    <EmbeddedResource Include="**/*.liquid" />
+    <EmbeddedResource Include="**/z*.liquid" />
   </ItemGroup>
 
   <ItemGroup>
@@ -96,7 +113,7 @@
 
       <NuspecProperty Include="SettingsFile=$(_ToolsSettingsFilePath)" />
       <!-- globbing breaks the property if PublishDir is relative, which in our case it is (but not in dotnet-ef) -->
-      <NuspecProperty Include="Output=$(PublishDir)%2A%2A\%2A" />
+      <NuspecProperty Include="Output=$(OutputPath)%2A%2A\%2A" />
       <NuspecProperty Include="CompilerCoreBin=$(_CompilerPath)netcoreapp3.1\DotVVM.Compiler.dll" />
       <NuspecProperty>
         <Include>CompilerCoreRuntimeConfig=$(_CompilerPath)netcoreapp3.1\DotVVM.Compiler.runtimeconfig.json</Include>
@@ -111,6 +128,5 @@
     <PropertyGroup Condition="'$(NuspecFile)' != '' and '$(NuspecProperties)' == ''">
       <NuspecProperties>@(NuspecProperty, ';')</NuspecProperties>
     </PropertyGroup>
-    <Message Importance="High" Text="Output=$(PublishDir)**\*" />
   </Target>
 </Project>

@@ -79,15 +79,16 @@ namespace DotVVM.CommandLine
         }
 
         public static void HandleAddPage(
-            ProjectMetadataOld metadata,
+            DotvvmProject metadata,
             string name,
             string? master,
             string directory,
             ILogger logger,
             bool isMaster = false)
         {
+            var projectDir = Path.GetDirectoryName(metadata.ProjectFilePath)!;
             var extension = isMaster ? MasterPageFileExtension : PageFileExtension;
-            var file = GetFile(metadata.ProjectDirectory, directory, name, extension, logger);
+            var file = GetFile(projectDir, directory, name, extension, logger);
             if (file is null)
             {
                 return;
@@ -96,7 +97,7 @@ namespace DotVVM.CommandLine
             var viewModelName = Names.GetViewModel(name);
             var viewModelNamespace = Names.GetNamespace(
                 file.DirectoryName,
-                metadata.ProjectDirectory,
+                projectDir,
                 metadata.RootNamespace);
 
             var placeholderIds = master is object
@@ -111,7 +112,7 @@ namespace DotVVM.CommandLine
         }
 
         public static void HandleAddMaster(
-            ProjectMetadataOld metadata,
+            DotvvmProject metadata,
             string name,
             string? master,
             string directory,
@@ -121,13 +122,14 @@ namespace DotVVM.CommandLine
         }
 
         public static void HandleAddViewModel(
-            ProjectMetadataOld metadata,
+            DotvvmProject metadata,
             string name,
             string directory,
             string? @base,
             ILogger logger)
         {
-            var file = GetFile(metadata.ProjectDirectory, directory, name, ViewModelFileExtensions, logger);
+            var projectDir = Path.GetDirectoryName(metadata.ProjectFilePath)!;
+            var file = GetFile(projectDir, directory, name, ViewModelFileExtensions, logger);
             if (file is null)
             {
                 return;
@@ -136,7 +138,7 @@ namespace DotVVM.CommandLine
             var viewModelName = Names.GetViewModel(name);
             var viewModelNamespace = Names.GetNamespace(
                 file.DirectoryName,
-                metadata.ProjectDirectory,
+                projectDir,
                 metadata.RootNamespace);
 
             var viewModelText = ViewModelTemplate.TransformText(
@@ -147,13 +149,14 @@ namespace DotVVM.CommandLine
         }
 
         public static void HandleAddControl(
-            ProjectMetadataOld metadata,
+            DotvvmProject metadata,
             string name,
             string directory,
             bool codeBehind,
             ILogger logger)
         {
-            var file = GetFile(metadata.ProjectDirectory, directory, name, ControlFileExtension, logger);
+            var projectDir = Path.GetDirectoryName(metadata.ProjectFilePath)!;
+            var file = GetFile(projectDir, directory, name, ControlFileExtension, logger);
             if (file is null)
             {
                 return;
@@ -161,7 +164,7 @@ namespace DotVVM.CommandLine
 
             var @namespace = Names.GetNamespace(
                 file.DirectoryName,
-                metadata.ProjectDirectory,
+                projectDir,
                 metadata.RootNamespace);
 
             var codeBehindName = codeBehind ? $"{@namespace}.{name}" : null;
@@ -172,7 +175,7 @@ namespace DotVVM.CommandLine
             if (codeBehind)
             {
                 var codeBehindFile = GetFile(
-                    metadata.ProjectDirectory,
+                    projectDir,
                     directory,
                     name,
                     CodeBehindExtension,
