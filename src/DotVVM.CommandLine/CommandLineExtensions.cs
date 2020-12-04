@@ -82,16 +82,22 @@ namespace System.CommandLine
                 if (target is object)
                 {
                     var logger = Factory.CreateLogger("Project Metadata");
-                    var project = DotvvmProject.FromCsproj(target.FullName, logger);
-                    if (project is object)
+                    var csproj = DotvvmProject.FindProjectFile(target.FullName);
+                    if (csproj is null)
                     {
-                        c.BindingContext.AddService(_ => project);
+                        logger.LogError($"No project could be found in '{target}'.");
+                        c.ResultCode = 1;
+                        return;
                     }
-                    else
+
+                    var project = DotvvmProject.FromCsproj(csproj.FullName, logger);
+                    if (project is null)
                     {
                         c.ResultCode = 1;
                         return;
                     }
+
+                    c.BindingContext.AddService(_ => project);
                 }
                 await next(c);
             });

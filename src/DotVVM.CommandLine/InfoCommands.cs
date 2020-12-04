@@ -24,6 +24,7 @@ namespace DotVVM.CommandLine
             logger.LogInformation(
 $@"Project metadata of '{project.ProjectFilePath}':
     AssemblyName: {project.AssemblyName}
+    OutputPath: {project.OutputPath}
     RootNamespace: {project.RootNamespace}
     PackageVersion: {project.PackageVersion}
     TargetFrameworks: {string.Join(", ", project.TargetFrameworks.Select(s => s.GetShortFolderName()))}");        }

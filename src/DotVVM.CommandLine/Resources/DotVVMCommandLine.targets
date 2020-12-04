@@ -7,6 +7,8 @@
         Required="true" />
       <AssemblyName ParameterType="System.String"
         Required="true" />
+      <OutputPath ParameterType="System.String"
+        Required="true" />
       <RootNamespace ParameterType="System.String"
         Required="true" />
       <ProjectFilePath ParameterType="System.String"
@@ -45,12 +47,15 @@ if (package is object)
 {
   version = package.GetMetadata("Version");
 }
+
+var outputPath = OutputPath.Replace("\\", "\\\\");
 var projectFilePath = ProjectFilePath.Replace("\\", "\\\\");
 var metadataFilePath = MetadataFilePath.Replace("\\", "\\\\");
 
 var sb = new StringBuilder();
 sb.AppendLine("{");
 sb.AppendLine($"  \"AssemblyName\": \"{AssemblyName}\",");
+sb.AppendLine($"  \"OutputPath\": \"{outputPath}\",");
 sb.AppendLine($"  \"RootNamespace\": \"{RootNamespace}\",");
 sb.AppendLine($"  \"TargetFrameworks\": [{targetFrameworks}],");
 sb.AppendLine($"  \"PackageVersion\": \"{version}\",");
@@ -76,9 +81,10 @@ File.WriteAllText(MetadataFilePath, sb.ToString());
     </GetProjectTargetFrameworksTask>
     <_WriteProjectMetadataTask TargetFrameworksString="$(_TargetFrameworksString)"
       AssemblyName="$(AssemblyName)"
+      OutputPath="$(OutputPath)"
       RootNamespace="$(RootNamespace)"
       ProjectFilePath="$(MSBuildProjectFullPath)"
-      MetadataFilePath="$(MSBuildThisFileDirectory)metadata.json"
+      MetadataFilePath="$(MSBuildThisFileDirectory)dotvvm-cli.json"
       References="@(Reference)"
       PackageReferences="@(PackageReference)" />
   </Target>

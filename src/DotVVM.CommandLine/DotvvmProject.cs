@@ -23,12 +23,14 @@ namespace DotVVM.CommandLine
 
         private DotvvmProject(
             string assemblyName,
+            string outputPath,
             string rootNamespace,
             ImmutableArray<NuGetFramework> targetFrameworks,
             string packageVersion,
             string projectFilePath)
         {
             AssemblyName = assemblyName;
+            OutputPath = outputPath;
             RootNamespace = rootNamespace;
             TargetFrameworks = targetFrameworks;
             PackageVersion = packageVersion;
@@ -36,6 +38,8 @@ namespace DotVVM.CommandLine
         }
 
         public string AssemblyName { get; }
+
+        public string OutputPath { get; }
 
         public string RootNamespace { get; }
 
@@ -92,6 +96,11 @@ namespace DotVVM.CommandLine
                 logger.LogError($"{nameof(raw.AssemblyName)} is null.");
                 return null;
             }
+            else if (raw?.OutputPath is null)
+            {
+                logger.LogError($"{nameof(raw.OutputPath)} is null.");
+                return null;
+            }
             else if (raw?.RootNamespace is null)
             {
                 logger.LogError($"{nameof(raw.RootNamespace)} is null.");
@@ -115,16 +124,42 @@ namespace DotVVM.CommandLine
 
             return new DotvvmProject(
                 raw!.AssemblyName,
+                raw!.OutputPath,
                 raw!.RootNamespace,
                 raw!.TargetFrameworks.Select(t => NuGetFramework.Parse(t)).ToImmutableArray(),
                 raw!.PackageVersion,
                 raw!.ProjectFilePath);
         }
 
+        public const string ProjectFileExtension = ".csproj";
+
+        public static FileInfo? FindProjectFile(string target)
+        {
+            var file = new FileInfo(target);
+            if (file.Exists && file.Extension == ProjectFileExtension)
+            {
+                return file;
+            }
+
+            var dir = new DirectoryInfo(target);
+            if (dir.Exists)
+            {
+                var projectFiles = dir.GetFiles($"*{ProjectFileExtension}");
+                if (projectFiles.Length == 1)
+                {
+                    return projectFiles[0];
+                }
+            }
+
+            return null;
+        }
+
         // The following class should be in sync with the DotVVMConmandLine.targets file.
         private class DotvvmProjectMetadata
         {
             public string? AssemblyName { get; set; }
+
+            public string? OutputPath { get; set; }
 
             public string? RootNamespace { get; set; }
 
