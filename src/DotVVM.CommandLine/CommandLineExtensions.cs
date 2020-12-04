@@ -17,11 +17,10 @@ namespace System.CommandLine
     {
         public const string VerboseAlias = "--verbose";
         public const string DebuggerBreakAlias = "--debugger-break";
-        public const string MSBuildOutputAlias = "--msbuild-output";
         public const string TargetArg = "target";
 
         public static ILoggerFactory Factory = new NullLoggerFactory();
-        
+
         private static readonly Option<bool> verboseOption = new Option<bool>(
             aliases: new[] { "-v", VerboseAlias },
             description: "Print more verbose output");
@@ -30,13 +29,20 @@ namespace System.CommandLine
             alias: DebuggerBreakAlias,
             description: "Breaks to let a debugger attach to the process");
 
-        private static readonly Option<bool> msbuildOutputOption = new Option<bool>(
-            alias: MSBuildOutputAlias,
-            description: "Show output from MSBuild invocations");
-
         private static readonly Argument<FileSystemInfo> targetArgument = new Argument<FileSystemInfo>(
             name: TargetArg,
-            description: "Path to a DotVVM project");
+            description: "Path to a DotVVM project")
+        {
+            Arity = ArgumentArity.ZeroOrOne
+        };
+
+        public static void AddRange(this Command command, params Symbol[] symbols)
+        {
+            foreach (var symbol in symbols)
+            {
+                command.Add(symbol);
+            }
+        }
 
         public static void AddVerboseOption(this Command command)
         {
@@ -46,11 +52,6 @@ namespace System.CommandLine
         public static void AddDebuggerBreakOption(this Command command)
         {
             command.AddGlobalOption(debuggerBreakOption);
-        }
-
-        public static void AddMSBuildOutputOption(this Command command)
-        {
-            command.AddGlobalOption(msbuildOutputOption);
         }
 
         public static void AddTargetArgument(this Command command)
@@ -134,7 +135,7 @@ namespace System.CommandLine
         {
             var names = new List<string>();
             CommandResult? current = result;
-            while(current is object)
+            while (current is object)
             {
                 names.Add(current.Symbol.Name);
                 current = current.Parent as CommandResult;

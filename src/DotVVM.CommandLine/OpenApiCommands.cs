@@ -35,13 +35,11 @@ namespace DotVVM.CommandLine
             {
                 createDefinitionArg, namespaceOpt, csPathOpt, tsPathOpt
             };
-            createCmd.AddTargetArgument();
             createCmd.Handler = CommandHandler.Create(typeof(OpenApiCommands).GetMethod(nameof(HandleCreate))!);
 
-            var apiCmd = new Command("api", "Manage REST API clients")
-            {
-                createCmd
-            };
+            var apiCmd = new Command("api", "Manage REST API clients");
+            apiCmd.AddTargetArgument();
+            apiCmd.Add(createCmd);
             command.AddCommand(apiCmd);
         }
 

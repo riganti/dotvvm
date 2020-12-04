@@ -16,7 +16,6 @@ namespace DotVVM.CommandLine
             rootCmd.AddTemplateCommands();
             rootCmd.AddOpenApiCommands();
             rootCmd.AddVerboseOption();
-            rootCmd.AddMSBuildOutputOption();
             // awkwardly enough, the built parser attaches itself to the command by itself
             new CommandLineBuilder(rootCmd)
                 .UseDefaults()

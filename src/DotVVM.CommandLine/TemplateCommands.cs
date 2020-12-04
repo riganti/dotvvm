@@ -18,10 +18,6 @@ namespace DotVVM.CommandLine
 
         public static void AddTemplateCommands(this Command command)
         {
-            var targetArg = new Argument<FileSystemInfo>(
-                name: CommandLineExtensions.TargetArg,
-                getDefaultValue: () => new DirectoryInfo(Environment.CurrentDirectory),
-                description: "Path to a DotVVM project");
             var nameArg = new Argument<string>(
                 name: "name",
                 description: "The name of the new thingy");
@@ -71,10 +67,9 @@ namespace DotVVM.CommandLine
             };
             controlCmd.Handler = CommandHandler.Create(typeof(TemplateCommands).GetMethod(nameof(HandleAddControl))!);
 
-            var addCmd = new Command("add", "Add a DotVVM-related thingy")
-            {
-                targetArg, pageCmd, masterCmd, viewModelCmd, controlCmd
-            };
+            var addCmd = new Command("add", "Add a DotVVM-related thingy");
+            addCmd.AddTargetArgument();
+            addCmd.AddRange(pageCmd, masterCmd, viewModelCmd, controlCmd);
             command.AddCommand(addCmd);
         }
 
