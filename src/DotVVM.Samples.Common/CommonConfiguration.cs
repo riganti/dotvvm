@@ -82,6 +82,9 @@ namespace DotVVM.Samples.Common
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
             });
 
+            resources.Register("testJsModule", new ScriptModuleResource(new InlineResourceLocation("export const commands = { myCommand() { console.info(\"Hello from page module\") } }")));
+
+
             // resource that triggers the circular dependency check in the render phase
             var circular = new ScriptResource { Location = new FileResourceLocation("~/Scripts/testResource.js") };
             resources.Register("Errors_ResourceCircularDependency", circular);

@@ -15,7 +15,7 @@ namespace DotVVM.Framework.ResourceManagement
         public ResourceRenderPosition RenderPosition => ResourceRenderPosition.Anywhere;
         public string[] ReferencedModules { get; }
 
-        public string[] Dependencies => Array.Empty<string>();
+        public string[] Dependencies => new string [] { };
 
         private string registrationScript;
 
