@@ -124,11 +124,10 @@ namespace System.CommandLine
             CommandResult? current = result.CommandResult;
             while (current is object)
             {
-                var target = current.Children.FirstOrDefault(c => c.Symbol is Argument<FileSystemInfo> arg
-                    && arg.Name == TargetArg);
+                var target = current.Command.Arguments.FirstOrDefault(c => c.Name == TargetArg);
                 if (target is object)
                 {
-                    var fsInfo = result.ValueForArgument((Argument<FileSystemInfo>)target.Symbol);
+                    var fsInfo = result.ValueForArgument((Argument<FileSystemInfo>)target);
                     fsInfo ??= new DirectoryInfo(Environment.CurrentDirectory);
                     return fsInfo;
                 }
