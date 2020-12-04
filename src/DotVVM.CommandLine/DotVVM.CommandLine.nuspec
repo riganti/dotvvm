@@ -9,11 +9,6 @@
 
   <files>
     <file src="$SettingsFile$" target="tools\$TargetFramework$\any" />
-    <file src="$Output$" target="tools\$TargetFramework$\any" />
-    <file src="$CompilerCoreBin$" target="tools\$TargetFramework$\any\tools\netcoreapp3.1\any" />
-    <file src="$CompilerCoreRuntimeConfig$" target="tools\$TargetFramework$\any\tools\netcoreapp3.1\any" />
-    <file src="$CompilerCorePdb$" target="tools\$TargetFramework$\any\tools\netcoreapp3.1\any" />
-    <file src="$CompilerFrameworkBin$" target="tools\$TargetFramework$\any\tools\net461\any" />
-    <file src="$CompilerFrameworkPdb$" target="tools\$TargetFramework$\any\tools\net461\any" />
+    <file src="$Output$**\*" target="tools\$TargetFramework$\any" />
   </files>
 </package>
