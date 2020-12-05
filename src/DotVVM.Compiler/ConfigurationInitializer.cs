@@ -12,38 +12,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace DotVVM.Compiler
 {
-    public static class DotvvmProject
+    public static class ConfigurationInitializer
     {
-        public const string CliDirectoryName = ".dotvvm";
-
-        public static DotvvmConfiguration InitDotVVM(
-            Assembly assembly,
-            string webSitePath,
-            ViewStaticCompiler viewStaticCompiler,
-            Action<IServiceCollection> additionalServices)
-        {
-            return DotvvmProject.GetConfiguration(assembly, webSitePath, services => {
-
-                if (viewStaticCompiler != null)
-                {
-                    services.AddSingleton(viewStaticCompiler);
-                    services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
-                    services.AddSingleton(new RefObjectSerializer());
-                    // services.AddSingleton<IDotvvmCacheAdapter, SimpleDictionaryCacheAdapter>();
-                }
-
-                additionalServices?.Invoke(services);
-            });
-        }
-
-        public static DotvvmConfiguration GetConfiguration(string projectName, string projectDirectory)
-        {
-            return GetConfiguration(
-                webSiteAssembly: Assembly.Load(projectName),
-                webSitePath: projectDirectory,
-                configureServices: c => c.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>());
-        }
-
         public static DotvvmConfiguration GetConfiguration(
             Assembly webSiteAssembly,
             string webSitePath,
@@ -68,22 +38,6 @@ namespace DotVVM.Compiler
             return config;
         }
 
-        public static DirectoryInfo CreateDotvvmDirectory(FileSystemInfo target)
-        {
-            if (target is FileInfo file)
-            {
-                target = file.Directory;
-            }
-
-            var dotvvmDir = new DirectoryInfo(Path.Combine(target.FullName, CliDirectoryName));
-            if (!dotvvmDir.Exists)
-            {
-                dotvvmDir.Create();
-            }
-
-            return dotvvmDir;
-        }
-
         public static IDotvvmStartup GetDotvvmStartup(Assembly assembly)
         {
             //find all implementations of IDotvvmStartup
@@ -95,12 +49,6 @@ namespace DotVVM.Compiler
             }
 
             return dotvvmStartupType.Apply(Activator.CreateInstance)!.CastTo<IDotvvmStartup>();
-        }
-
-        public static FileInfo GetCliFile(FileSystemInfo target, string relativePath)
-        {
-            var dir = CreateDotvvmDirectory(target);
-            return new FileInfo(Path.Combine(dir.FullName, relativePath));
         }
 
         private static Type? GetDotvvmStartupType(Assembly assembly)

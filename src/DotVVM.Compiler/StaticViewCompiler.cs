@@ -59,7 +59,7 @@ namespace DotVVM.Compiler
             // ReplaceDefaultTypeRegistry(dotvvmProjectAssembly);
             ReplaceDefaultDependencyContext(dotvvmProjectAssembly);
             InitializeDotvvmControls(dotvvmProjectAssembly);
-            return DotvvmProject.GetConfiguration(dotvvmProjectAssembly, dotvvmProjectDir, services =>
+            return ConfigurationInitializer.GetConfiguration(dotvvmProjectAssembly, dotvvmProjectDir, services =>
             {
                 services.AddSingleton<IControlResolver, StaticViewControlResolver>();
                 services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
