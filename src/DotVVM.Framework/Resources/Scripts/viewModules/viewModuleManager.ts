@@ -15,6 +15,13 @@ export function registerViewModule(name: string, moduleObject: any) {
     }
 }
 
+export function registerViewModules(modules: { [name: string]: any }) {
+    for (const moduleName of keys(modules)) {
+        const moduleObject = modules[moduleName];
+        registerViewModule(moduleName, moduleObject);
+    }
+}
+
 export function initViewModule(name: string, viewId: string, rootElement: HTMLElement) {
 
     if (viewId == null) { throw new Error("viewId has to have a value"); }

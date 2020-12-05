@@ -24,7 +24,7 @@ namespace DotVVM.Framework.ResourceManagement
             this.ReferencedModules = referencedModules;
 
             this.registrationScript =
-                $"dotvvm.registerViewModules({{{string.Join(", ", this.ReferencedModules.Select((m, i) => JsonConvert.ToString(m, '\'', StringEscapeHandling.EscapeHtml) + ": m" + i))}}});";
+                $"dotvvm.viewModules.registerMany({{{string.Join(", ", this.ReferencedModules.Select((m, i) => JsonConvert.ToString(m, '\'', StringEscapeHandling.EscapeHtml) + ": m" + i))}}});";
         }
 
         public void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)

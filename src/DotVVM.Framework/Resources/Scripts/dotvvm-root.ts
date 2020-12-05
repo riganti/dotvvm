@@ -92,10 +92,11 @@ const dotvvmExports = {
         deserialize
     },
     viewModules: {
-        register: viewModuleManager.registerViewModule,
+        registerOne: viewModuleManager.registerViewModule,
         init: viewModuleManager.initViewModule,
         call: viewModuleManager.callViewModuleCommand,
-        registerNamedCommand: viewModuleManager.registerNamedCommand
+        registerNamedCommand: viewModuleManager.registerNamedCommand,
+        registerMany: viewModuleManager.registerViewModules
     }
 }
 
