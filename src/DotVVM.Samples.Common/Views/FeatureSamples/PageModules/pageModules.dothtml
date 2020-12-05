@@ -1,0 +1,37 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules.PageModulesViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:Button Text="toggle module holding element" Click="{staticCommand: Toggle= !Toggle}" />
+    <div IncludeInPage="{value: Toggle}">
+        <!-- ko dotvvm-with-view-modules: {viewId: 'test-view-id', modules: ['testModule']}, dotvvm-with-control-properties: {  } -->
+        <div class="module-holder">
+            Test view #1
+            <dot:RequiredResource Name="FeatureSamples_Resources_TestPageModule" />
+            <script type="module" defer>
+                import * as testModule from 'http://localhost:5407//dotvvmResource/FeatureSamples_Resources_TestPageModule/FeatureSamples_Resources_TestPageModule'
+                dotvvm.viewModules.register('testModule', testModule);
+            </script>
+        </div>
+        <!-- /ko -->
+    </div>
+    <!-- ko dotvvm-with-view-modules: {viewId: 'test-view-id-2', modules: ['testModule']}, dotvvm-with-control-properties: {  } -->
+    <div class="module-holder">
+        Test view #2
+        <dot:RequiredResource Name="FeatureSamples_Resources_TestPageModule" />
+        <script type="module" defer>
+            import * as testModule from 'http://localhost:5407//dotvvmResource/FeatureSamples_Resources_TestPageModule/FeatureSamples_Resources_TestPageModule'
+            dotvvm.viewModules.register('testModule', testModule);
+        </script>
+    </div>
+    <!-- /ko -->
+</body>
+</html>
+
+

@@ -82,6 +82,9 @@ namespace DotVVM.Samples.Common
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
             });
 
+            resources.Register("FeatureSamples_Resources_TestPageModule", new ScriptModuleResource(new FileResourceLocation("~/Scripts/testPageModule.js")));
+
+
             resources.Register("testJsModule", new ScriptModuleResource(new InlineResourceLocation("export const commands = { myCommand() { console.info(\"Hello from page module\") } }")));
 
 
