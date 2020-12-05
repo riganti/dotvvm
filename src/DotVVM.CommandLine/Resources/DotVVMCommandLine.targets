@@ -81,7 +81,7 @@ File.WriteAllText(MetadataFilePath, sb.ToString());
     </GetProjectTargetFrameworksTask>
     <_WriteProjectMetadataTask TargetFrameworksString="$(_TargetFrameworksString)"
       AssemblyName="$(AssemblyName)"
-      OutputPath="$(OutputPath)"
+      OutputPath="$(BaseOutputPath)"
       RootNamespace="$(RootNamespace)"
       ProjectFilePath="$(MSBuildProjectFullPath)"
       MetadataFilePath="$(MSBuildThisFileDirectory)dotvvm-cli.json"

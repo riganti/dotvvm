@@ -40,7 +40,7 @@ namespace DotVVM.CommandLine
             string? framework,
             ILogger logger)
         {
-            framework ??= project.TargetFrameworks.FirstOrDefault()?.Framework;
+            framework ??= project.TargetFrameworks.FirstOrDefault()?.GetShortFolderName();
             if (framework is null)
             {
                 logger.LogError("A target framework could not be determined automatically. "
@@ -78,11 +78,17 @@ namespace DotVVM.CommandLine
                 var compilerDir = Path.Combine(cliDirectory, "tools/netcoreapp3.1/any");
                 compilerArgs.Add("exec");
                 compilerArgs.Add(Path.Combine(compilerDir, "DotVVM.Compiler.dll"));
-                compilerArgs.Add("--");
             }
 
-            compilerArgs.Add(project.AssemblyName);
-            compilerArgs.Add(Path.GetDirectoryName(project.ProjectFilePath)!);
+            var projectDir = Path.GetDirectoryName(project.ProjectFilePath)!;
+            var outputDir = Path.Combine(projectDir, project.OutputPath, configuration, framework);
+            if (!Directory.Exists(outputDir))
+            {
+                outputDir = Directory.GetParent(outputDir).FullName;
+            }
+
+            compilerArgs.Add(Path.Combine(outputDir, $"{project.AssemblyName}.dll"));
+            compilerArgs.Add(projectDir);
 
             var pinfo = new ProcessStartInfo {
                 FileName = executable,

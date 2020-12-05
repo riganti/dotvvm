@@ -12,7 +12,7 @@ namespace DotVVM.Compiler
 
         public static void Run(FileInfo assembly, DirectoryInfo? projectDir)
         {
-            var executor = (AppDomainCompilerExecutor)ProjectLoader.GetExecutor(assembly.FullName);
+            var executor = ProjectLoader.GetExecutor(assembly.FullName);
             executor.ExecuteCompile(assembly, projectDir, null);
         }
 
