@@ -127,7 +127,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 context.View.GetValue(Internal.ReferencedViewModuleInfoProperty) is ImmutableList<ViewModuleReferenceInfo> viewModuleInfo &&
                 viewModuleInfo.Count > 0)
             {
-                result["viewModules"] = JArray.FromObject(viewModuleInfo.SelectMany(m => m.ReferencedModules));
+                result["viewModules"] = JArray.FromObject(viewModuleInfo.Select(m => new {
+                    viewId = m.SpaceId,
+                    modules = m.ReferencedModules
+                }).ToArray());
             }
 
             // TODO: do not send on postbacks
