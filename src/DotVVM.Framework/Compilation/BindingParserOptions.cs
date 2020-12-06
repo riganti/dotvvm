@@ -24,16 +24,16 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public ImmutableList<BindingExtensionParameter> ExtensionParameters { get; }
 
-        public virtual TypeRegistry AddImportedTypes(TypeRegistry reg)
+        public virtual TypeRegistry AddImportedTypes(TypeRegistry reg, CompiledAssemblyCache compiledAssemblyCache)
         {
             if (ImportNamespaces != null)
             {
-                return reg.AddSymbols(ImportNamespaces.Select(CreateTypeLoader));
+                return reg.AddSymbols(ImportNamespaces.Select(ns => CreateTypeLoader(ns, compiledAssemblyCache)));
             }
             else return reg;
         }
 
-        private static Func<string, Expression> CreateTypeLoader(NamespaceImport import)
+        private static Func<string, Expression> CreateTypeLoader(NamespaceImport import, CompiledAssemblyCache compiledAssemblyCache)
         {
             if (import.HasAlias)
                 return t => {
@@ -43,11 +43,11 @@ namespace DotVVM.Framework.Compilation
                         if (t == import.Alias) name = import.Namespace;
                         else if (t.Length > import.Alias.Length + 1 && t[import.Alias.Length] == '.') name = import.Namespace + "." + t.Substring(import.Alias.Length + 1);
                         else return null;
-                        return TypeRegistry.CreateStatic(ReflectionUtils.FindType(name));
+                        return TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(name));
                     }
                     else return null;
                 };
-            else return t => TypeRegistry.CreateStatic(ReflectionUtils.FindType(import.Namespace + "." + t));
+            else return t => TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(import.Namespace + "." + t));
         }
 
         public BindingParserOptions(Type bindingType, string scopeParameter = "_this", ImmutableList<NamespaceImport> importNamespaces = null, ImmutableList<BindingExtensionParameter> extParameters = null)

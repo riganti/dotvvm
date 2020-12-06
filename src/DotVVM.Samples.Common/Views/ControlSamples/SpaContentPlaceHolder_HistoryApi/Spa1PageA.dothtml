@@ -1,0 +1,8 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceHolder_HistoryApi.Spa1PageAViewModel, DotVVM.Samples.Common
+@masterPage Views/ControlSamples/SpaContentPlaceHolder_HistoryApi/MultiSpaMaster.dotmaster
+
+<dot:Content ContentPlaceHolderID="FirstSpa">
+    
+    <dot:RouteLink RouteName="ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa1PageB" Text="SPA1: Go to Second Page" />
+
+</dot:Content>

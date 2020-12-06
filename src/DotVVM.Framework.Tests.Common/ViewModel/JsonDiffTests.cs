@@ -18,6 +18,11 @@ namespace DotVVM.Framework.Tests.ViewModel
 
         private JsonSerializer serializer = new JsonSerializer { TypeNameHandling = TypeNameHandling.Auto };
 
+        public JsonDiffTests()
+        {
+            DotvvmTestHelper.EnsureCompiledAssemblyCache();
+        }
+
         [TestMethod]
         public void JsonDiff_SimpleTest()
         {

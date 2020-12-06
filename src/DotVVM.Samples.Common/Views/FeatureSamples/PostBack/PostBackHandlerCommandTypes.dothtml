@@ -1,0 +1,97 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack.PostBackHandlerCommandTypesViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    
+    <style>
+input[type=button] {
+    background-color: lightgray;
+    padding: 10px;
+    border: solid 1px black;
+}
+input[type=button].pending {
+    background-color: lightblue;
+}
+input[type=button].success {
+    background-color: lightgreen;
+}
+input[type=button].error {
+    background-color: lightcoral;
+}
+    </style>
+</head>
+<body>
+    <h1>PostBackHandler event &amp; error tests for all command types</h1>
+		
+    <p>Value: <span class="result">{{value: Value}}</span></p>
+        
+    <div>
+        <h2>Command Binding</h2>
+        
+        <p>
+            <dot:Button Text="Successful" Click="{command: SuccessfulAction()}" Validation.Target="{value: ValidValue}">
+                <PostBack.Handlers>
+                    <cc:PostBackHandlerCommandTypes />
+                </PostBack.Handlers>    
+            </dot:Button>
+        </p>
+        <p>
+            <dot:Button Text="Client validation error" Click="{command: ValidationFailAction()}" Validation.Target="{value: InvalidValue}">
+                <PostBack.Handlers>
+                    <cc:PostBackHandlerCommandTypes />
+                </PostBack.Handlers>    
+            </dot:Button>
+        </p>
+        <p>
+            <dot:Button Text="Server validation error" Click="{command: ValidationFailAction()}" Validation.Target="{value: ValidValue}">
+                <PostBack.Handlers>
+                    <cc:PostBackHandlerCommandTypes />
+                </PostBack.Handlers>    
+            </dot:Button>
+        </p>
+        <p>
+            <dot:Button Text="Server exception" Click="{command: ErrorAction()}" Validation.Target="{value: ValidValue}">
+                <PostBack.Handlers>
+                    <cc:PostBackHandlerCommandTypes />
+                </PostBack.Handlers>    
+            </dot:Button>
+        </p>
+    </div>
+		
+    <div>
+        <h2>Static Command Binding with server call</h2>
+        
+        <p>
+            <dot:Button Text="Successful" Click="{staticCommand: Value = Increment(Value)}">
+                <PostBack.Handlers>
+                    <cc:PostBackHandlerCommandTypes />
+                </PostBack.Handlers>    
+            </dot:Button>
+        </p>
+        <p>
+            <dot:Button Text="Server exception" Click="{staticCommand: Value = ErrorAction()}">
+                <PostBack.Handlers>
+                    <cc:PostBackHandlerCommandTypes />
+                </PostBack.Handlers>    
+            </dot:Button>
+        </p>
+    </div>
+	
+    <div>
+        <h2>Static Command Binding with client-only call</h2>
+        
+        <p>
+            <dot:Button Text="Successful" Click="{staticCommand: Value = Value + 1}">
+                <PostBack.Handlers>
+                    <cc:PostBackHandlerCommandTypes />
+                </PostBack.Handlers>    
+            </dot:Button>
+        </p>
+    </div>	
+
+    <dot:RequiredResource Name="PostBackHandlerCommandTypes" />
+
+</body>
+</html>

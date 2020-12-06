@@ -19,13 +19,14 @@ namespace DotVVM.Framework.Compilation
     {
         private readonly DotvvmConfiguration configuration;
         private readonly IMarkupFileLoader markupFileLoader;
+        private readonly CompiledAssemblyCache compiledAssemblyCache;
 
         public Func<IViewCompiler> ViewCompilerFactory { get; private set; }
 
         private ConcurrentDictionary<MarkupFile, (ControlBuilderDescriptor, Lazy<IControlBuilder>)> controlBuilders = new ConcurrentDictionary<MarkupFile, (ControlBuilderDescriptor, Lazy<IControlBuilder>)>();
 
 
-        public DefaultControlBuilderFactory(DotvvmConfiguration configuration, IMarkupFileLoader markupFileLoader)
+        public DefaultControlBuilderFactory(DotvvmConfiguration configuration, IMarkupFileLoader markupFileLoader, CompiledAssemblyCache compiledAssemblyCache)
         {
             for (int i = 0; i < compilationLocks.Length; i++)
             {
@@ -38,7 +39,7 @@ namespace DotVVM.Framework.Compilation
             // TODO: get rid of that
             this.ViewCompilerFactory = () => configuration.ServiceProvider.GetRequiredService<IViewCompiler>();
             this.markupFileLoader = markupFileLoader;
-
+            this.compiledAssemblyCache = compiledAssemblyCache;
             if (configuration.CompiledViewsAssemblies != null)
                 foreach (var assembly in configuration.CompiledViewsAssemblies)
                 {
@@ -158,7 +159,7 @@ namespace DotVVM.Framework.Compilation
             if (File.Exists(fileName)) return AssemblyLoader.LoadFile(fileName);
             if (Path.IsPathRooted(fileName)) return null;
             var cleanName = Path.GetFileNameWithoutExtension(Path.GetFileName(fileName));
-            var assemblies = ReflectionUtils.GetAllAssemblies().ToList();
+            var assemblies = compiledAssemblyCache.GetAllAssemblies();
             foreach (var assembly in assemblies)
             {
                 // get already loaded assembly
@@ -174,15 +175,6 @@ namespace DotVVM.Framework.Compilation
                 {
                     var possibleFileName = Path.Combine(assemblyDirectory, fileName);
                     if (File.Exists(possibleFileName)) return AssemblyLoader.LoadFile(possibleFileName);
-                }
-            }
-            foreach (var assembly in assemblies)
-            {
-                // get already loaded assembly
-                if (assembly.GetName().Name == cleanName)
-                {
-                    var codeBase = assembly.GetCodeBasePath();
-                    if (codeBase!.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) return assembly;
                 }
             }
             return null;
@@ -206,7 +198,7 @@ namespace DotVVM.Framework.Compilation
             }).Where(t => t.attribute != null);
             foreach (var builder in builders)
             {
-                RegisterControlBuilder(builder.attribute.FilePath, (IControlBuilder)Activator.CreateInstance(builder.type).NotNull());
+                RegisterControlBuilder(builder.attribute!.FilePath, (IControlBuilder)Activator.CreateInstance(builder.type).NotNull());
             }
         }
 

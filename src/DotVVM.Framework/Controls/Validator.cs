@@ -8,6 +8,8 @@ using Newtonsoft.Json;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Binding.Expressions;
+using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Controls
 {
@@ -82,7 +84,7 @@ namespace DotVVM.Framework.Controls
 
         private static void AddValidatedValue(IHtmlWriter writer, IDotvvmRequestContext context, DotvvmProperty prop, DotvvmControl control)
         {
-            writer.AddKnockoutDataBind("dotvvmValidation", control, ValueProperty, renderEvenInServerRenderingMode: true);
+            writer.AddKnockoutDataBind("dotvvm-validation", control, ValueProperty, renderEvenInServerRenderingMode: true);
 
             // render options
             var bindingGroup = new KnockoutBindingGroup();
@@ -92,10 +94,11 @@ namespace DotVVM.Framework.Controls
                 var optionValue = control.GetValue(property);
                 if (!object.Equals(optionValue, property.DefaultValue))
                 {
-                    bindingGroup.Add(javascriptName, JsonConvert.SerializeObject(optionValue, DefaultViewModelSerializer.CreateDefaultSettings()));
+                    var settings = DefaultSerializerSettingsProvider.Instance.Settings;
+                    bindingGroup.Add(javascriptName, JsonConvert.SerializeObject(optionValue, settings));
                 }
             }
-            writer.AddKnockoutDataBind("dotvvmValidationOptions", bindingGroup);
+            writer.AddKnockoutDataBind("dotvvm-validationOptions", bindingGroup);
         }
 
         /// <summary>

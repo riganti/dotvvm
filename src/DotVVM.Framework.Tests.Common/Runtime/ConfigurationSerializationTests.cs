@@ -17,10 +17,15 @@ namespace DotVVM.Framework.Tests.Runtime
     {
         OutputChecker check = new OutputChecker("config-tests");
 
+        public ConfigurationSerializationTests()
+        {
+            DotvvmTestHelper.EnsureCompiledAssemblyCache();
+        }
+
         void checkConfig(DotvvmConfiguration config, string checkName = null, string fileExtension = "json", [CallerMemberName] string memberName = null, [CallerFilePath] string sourceFilePath = null)
         {
             var serialized = DotVVM.Framework.Hosting.VisualStudioHelper.SerializeConfig(config);
-            serialized = Regex.Replace(serialized, "DotVVM\\.Framework, Version=[0-9.]+,", "DotVVM.Framework, Version=2.4.0.2,");
+            serialized = Regex.Replace(serialized, "Version=[0-9.]+", "Version=***");
             check.CheckString(serialized, checkName, fileExtension, memberName, sourceFilePath);
         }
 

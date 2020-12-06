@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
@@ -17,6 +18,8 @@ namespace DotVVM.Framework.Tests.Common.Routing
         [TestMethod]
         public void RouteTable_Deserialization()
         {
+            DotvvmTestHelper.EnsureCompiledAssemblyCache();
+
             var config1 = DotvvmTestHelper.CreateConfiguration();
             config1.RouteTable.Add("route1", "url1", "file1.dothtml", new { a = "ccc" });
             config1.RouteTable.Add("route2", "url2/{int:posint}", "file1.dothtml", new { a = "ccc" });
@@ -26,7 +29,8 @@ namespace DotVVM.Framework.Tests.Common.Routing
             typeof(RouteBase).GetProperty("Url").SetMethod.Invoke(r, new[] { "url3/{a:unsuppotedConstraint}" });
             config1.RouteTable.Add("route3", r);
 
-            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
+            var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
+            settings.TypeNameHandling = TypeNameHandling.Auto;
             var config2 = JsonConvert.DeserializeObject<DotvvmConfiguration>(JsonConvert.SerializeObject(config1, settings), settings);
 
             Assert.AreEqual(config2.RouteTable["route1"].Url, "url1");

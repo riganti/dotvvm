@@ -52,24 +52,30 @@
     iframe.style.flex = "1 100 auto";
     iframe.style.width = "100%";
 
-    dotvvm.evaluator.tryEval = function(func) {
-        try {
-            return func();
-        } catch (error) {
-            console.warn("Error '" + error + "' occurred while evaluating " + func + ".");
-            return null;
-        }
-    }
-
     dotvvm.events.error.subscribe(function (e) {
         console.error("DotVVM: An " + (e.handled ? "" : "un") + "handled exception returned from the server command.");
-        console.log("XmlHttpRequest: ", e.xhr);
+        console.log("Response: ", e.response);
         console.log("ViewModel: ", e.viewModel);
         if (e.handled) return;
-        debugWindow.querySelector("h1").textContent = "DotVVM Debugger: Error " + (e.xhr && e.xhr.status ? e.xhr.status + ": " + e.xhr.statusText + "" : "XmlHttpRequest failed, maybe internet connection is lost or url is malformed");
+        debugWindow.querySelector("h1").textContent = "DotVVM Debugger: Error " +
+           (e.response && e.response.status ? e.response.status + ": " + e.response.statusText + "" :
+            e.responseObject ? "DotVVM error response" :
+            "HTTP request failed, maybe internet connection is lost or url is malformed");
         var iframe = debugWindow.querySelector("iframe");
         var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-        iframeDocument.querySelector('html').innerHTML = e.xhr ? e.xhr.responseText : "";
+        if (e.responseObject) {
+            iframeDocument.querySelector('body').innerHTML = "<code><pre></pre></code>";
+            iframeDocument.querySelector('pre').innerText = JSON.stringify(e.responseObject, null, "   ");
+        } else if (e.response && e.response.bodyUsed) {
+            iframeDocument.querySelector('html').innerText = "Server returned something, but the resource body was already used by another handler. You can use your browser's devtools to inspect the request content.";
+        } else if (e.response) {
+            iframeDocument.querySelector('html').innerHTML = "";
+            e.response.text().then(function (text) {
+                iframeDocument.querySelector('html').innerHTML = text;
+            });
+        } else {
+            iframeDocument.querySelector('html').innerHTML = "";
+        }
         // debugWindow.height = window.innerHeight;
         debugWindow.style.display = "flex";
         e.handled = true;
@@ -109,9 +115,19 @@
                 displayPostbackAbortedWarning("Postback aborted because validation failed.");
             } else displayPostbackAbortedWarning("Postback interrupted");
         }
-        setDebugMapProperty(dotvvm.viewModels[e.viewModelName]);
+        setDebugMapProperty(dotvvm.viewModels.root);
     });
     dotvvm.events.init.subscribe(function() {
-        setDebugMapProperty(dotvvm.viewModels["root"])
+        setDebugMapProperty(dotvvm.viewModels.root)
     });
+
+    for (var event in dotvvm.events) {
+        if ("subscribe" in dotvvm.events[event]) {
+            (function (event) {
+                dotvvm.events[event].subscribe(function (e) {
+                    console.log("Event " + event, e);
+                });
+            })(event);
+        }
+    }
 })();

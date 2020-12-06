@@ -149,7 +149,7 @@ namespace DotVVM.Samples.Tests.Control
                     Assert.Equal(2, checkBoxes.Count);
                     AssertUI.IsChecked(checkBoxes[0]);
                     AssertUI.IsNotChecked(checkBoxes[1]);
-                }, 1000);
+                }, 10000, "Error!");
                 UpdateData();
                 checkBoxes[0].Click();
                 checkBoxes[1].Click();

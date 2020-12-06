@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using DotVVM.Framework.Configuration;
 using System.Reflection;
 using DotVVM.Framework.Utils;
+using System.Security;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -76,11 +77,26 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 return null;
             }
 
-            // deserialize
-            var serializationMap = GetSerializationMapForType(objectType);
-            var instance = serializationMap.ConstructorFactory(Services);
-            serializationMap.ReaderFactory(reader, serializer, instance, evReader.Value);
-            return instance;
+            var evSuppressed = evReader.Value.Suppressed;
+
+            try
+            {
+                // deserialize
+                var serializationMap = GetSerializationMapForType(objectType);
+                var instance = serializationMap.ConstructorFactory(Services);
+                serializationMap.ReaderFactory(reader, serializer, instance, evReader.Value);
+                return instance;
+            }
+            finally
+            {
+                // safety check: we are not leaking suppressed reader accidentally
+                if (evSuppressed != evReader.Value.Suppressed)
+                {
+                    // Newtonsoft.Json may catch and consume the exception - kill the reader to be sure that deserialization can not continue
+                    reader.Close();
+                    throw new SecurityException("encrypted values state corrupted.");
+                }
+            }
         }
 
         /// <summary>
@@ -88,9 +104,23 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var serializationMap = GetSerializationMapForType(value.GetType());
-            UsedSerializationMaps.Add(serializationMap);
-            serializationMap.WriterFactory(writer, value, serializer, evWriter.Value, IsPostback);
+            var evSuppressLevel = evWriter.Value.SuppressedLevel;
+            try
+            {
+                var serializationMap = GetSerializationMapForType(value.GetType());
+                UsedSerializationMaps.Add(serializationMap);
+                serializationMap.WriterFactory(writer, value, serializer, evWriter.Value, IsPostback);
+            }
+            finally
+            {
+                // safety check: we are not leaking suppressed reader accidentally
+                if (evSuppressLevel != evWriter.Value.SuppressedLevel)
+                {
+                    // Newtonsoft.Json may catch and consume the exception - kill the writer to be sure that serialization can not continue
+                    writer.Close();
+                    throw new SecurityException("encrypted values state corrupted.");
+                }
+            }
         }
 
         /// <summary>
@@ -98,10 +128,23 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         public virtual void Populate(JsonReader reader, JsonSerializer serializer, object value)
         {
-            if (reader.TokenType == JsonToken.None) reader.Read();
-            var serializationMap = GetSerializationMapForType(value.GetType());
-            serializationMap.ReaderFactory(reader, serializer, value, evReader.Value);
+            var evSuppressed = evReader.Value.Suppressed;
+            try
+            {
+                if (reader.TokenType == JsonToken.None) reader.Read();
+                var serializationMap = GetSerializationMapForType(value.GetType());
+                serializationMap.ReaderFactory(reader, serializer, value, evReader.Value);
+            }
+            finally
+            {
+                // safety check: we are not leaking suppressed reader accidentally
+                if (evSuppressed != evReader.Value.Suppressed)
+                {
+                    // Newtonsoft.Json may catch and consume the exception - kill the reader to be sure that deserialization can not continue
+                    reader.Close();
+                    throw new SecurityException("encrypted values state corrupted.");
+                }
+            }
         }
-
     }
 }
