@@ -184,10 +184,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public string Id { get; }
         public JsExtensionParameter(string id) : base("_js", new ResolvedTypeDescriptor(typeof(JsBindingApi)), true)
         {
+            this.Id = id;
         }
         public override Expression GetServerEquivalent(Expression controlParameter)
         {
-            throw new Exception("Can not invoke JS command server-side. You can only use the _js identifier in staticCommands.");
+            return Expression.New(typeof(JsBindingApi));
         }
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
