@@ -1,0 +1,7 @@
+﻿@viewModel object
+@js FeatureSamples_Resources_TestPageModule
+
+<div class="module-holder">
+    Test moduled control
+    <dot:Button Text="The command" Click="{staticCommand: _js.Invoke("testMe", "John")}" />
+</div>

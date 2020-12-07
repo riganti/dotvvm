@@ -8,19 +8,16 @@
     <title></title>
 </head>
 <body>
+    Page:
+    <dot:Button Text="The command" Click="{staticCommand: _js.Invoke("testMe","Mary")}" />
+
     <dot:Button Text="toggle module holding element" Click="{staticCommand: Toggle= !Toggle}" />
     <div IncludeInPage="{value: Toggle}">
-        <!-- ko dotvvm-with-view-modules: {viewId: 'test-view-id', modules: ['FeatureSamples_Resources_TestPageModule']}, dotvvm-with-control-properties: {  } -->
-        <div class="module-holder">
-            Test view #1
-        </div>
-        <!-- /ko -->
+        control #1
+        <cc:ModuleControl />
     </div>
-    <!-- ko dotvvm-with-view-modules: {viewId: 'test-view-id-2', modules: ['FeatureSamples_Resources_TestPageModule']}, dotvvm-with-control-properties: {  } -->
-    <div class="module-holder">
-        Test view #2
-    </div>
-    <!-- /ko -->
+    <%--control #2
+    <cc:ModuleControl />--%>
 </body>
 </html>
 

@@ -2,6 +2,9 @@ import register from "../binding-handlers/register";
 import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture } from "../dotvvm-base"
 import { keys } from "../utils/objects";
 
+type ModuleCommand = (context: ModuleContext, ...args: any[]) => Promise<any>;
+type ModuleCommandDictionary = { [name: string]: ModuleCommand };
+
 let registeredModules: { [name: string]: ModuleHandler } = {};
 
 export function registerViewModule(name: string, moduleObject: any) {
@@ -39,7 +42,7 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
 
     console.info(rootElement);
 
-    let exportedCommands: { [name: string]: (context: ModuleContext, ...args: any[]) => any; } = {};
+    let exportedCommands: ModuleCommandDictionary = {};
 
     if (handler.module.commands && typeof (handler.module.commands) === 'object') {
         var commandNames = keys(handler.module.commands);
@@ -71,20 +74,41 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
     callIfDefined(handler.module, 'init', context);
 }
 
-export function callViewModuleCommand(viewId: string, moduleName: string, commandName: string, ...args: any[]) {
+export function callViewModuleCommand(viewId: string, commandName: string, ...args: any[]) {
     if (commandName == null) { throw new Error("commandName has to have a value"); }
 
-    const context = ensureViewModuleContext(viewId, moduleName);
-    const command = context.moduleCommands[commandName];
+    const moduleNames: string[] = [];
 
-    if (!command) {
-        throw new Error('Command ' + commandName + 'could not be found in module ' + moduleName + ' view ' + viewId + '.');
+    const foundCommands: {
+        command: ModuleCommand,
+        context: ModuleContext
+    }[] = [];
+
+    for (const moduleName of keys(registeredModules)) {
+        const context = ensureViewModuleContext(viewId, moduleName);
+        const command: ModuleCommand = context.moduleCommands[commandName];
+
+        moduleNames.push(moduleName);
+        foundCommands.push({ command, context });
     }
 
-    command(context, args);
+    if (foundCommands.length < 1) {
+        throw new Error('Command ' + commandName + 'could not be found in any of the imported modules in view ' + viewId + '.');
+    }
+
+    if (foundCommands.length > 1) {
+        throw new Error(
+            'Conflict: There were multiple commands named '
+            + commandName +
+            ' the in imported modules in view '
+            + viewId +
+            '. Check modules: ' + moduleNames.join(', ') + '.');
+    }
+
+    foundCommands[0].command(foundCommands[0].context, args);
 }
 
-export function registerNamedCommand(viewId: string, commandName: string, command: (context: ModuleContext, ...args: any[]) => Promise<any>) {
+export function registerNamedCommand(viewId: string, commandName: string, command: ModuleCommand) {
     if (viewId == null) { throw new Error("Parameter viewId has to have a value"); }
     if (commandName == null) { throw new Error("Parameter commandName has to have a value"); }
 
@@ -154,7 +178,7 @@ export class ModuleContext {
     constructor(
         public readonly moduleName: string,
         public readonly module: any,
-        public readonly moduleCommands: { [name: string]: (context: ModuleContext, ...args: any[]) => Promise<any> },
+        public readonly moduleCommands: ModuleCommandDictionary,
         public readonly viewId: string,
         public readonly element: HTMLElement,
         public readonly viewModel: any,

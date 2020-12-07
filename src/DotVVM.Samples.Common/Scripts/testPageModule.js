@@ -10,8 +10,8 @@ export function dispose(context) {
 }
 
 export const commands = {
-    testMe: function (context) {
-        console.info("Hello from the command");
+    testMe: function (context, personName) {
+        console.info("Hello from the command: " + personName + ".");
         console.info(context);
         context.callNamedCommand('MyCommand');
     }

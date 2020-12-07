@@ -193,7 +193,16 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
         {
-            return new JsIdentifierExpression("dotvvm").Member("getJsModule").Invoke(new JsLiteral(Id));
+            return new JsIdentifierExpression("dotvvm").Member("viewModules").WithAnnotation(new ViewModuleAnnotation(Id));
+        }
+
+        public class ViewModuleAnnotation
+        {
+            public ViewModuleAnnotation(string id)
+            {
+                Id = id;
+            }
+            public string Id { get; }
         }
     }
 }
