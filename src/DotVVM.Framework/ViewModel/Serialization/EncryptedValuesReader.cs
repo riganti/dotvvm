@@ -14,6 +14,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         Stack<(int prop, JObject obj)> stack = new Stack<(int prop, JObject obj)>();
         int virtualNests = 0;
         int lastPropertyIndex = -1;
+        public bool Suppressed { get; private set; } = false;
 
         public EncryptedValuesReader(JObject json)
         {
@@ -33,6 +34,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public void Nest(int property)
         {
+            if (Suppressed)
+                return;
+
             var prop = Property(property);
             if (prop != null)
             {
@@ -50,6 +54,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public void AssertEnd()
         {
+            if (Suppressed)
+                return;
+
             if (virtualNests > 0)
             {
                 virtualNests--;
@@ -62,8 +69,22 @@ namespace DotVVM.Framework.ViewModel.Serialization
             lastPropertyIndex = stack.Pop().prop;
         }
 
+        public void Suppress()
+        {
+            if (Suppressed) throw SecurityError();
+            Suppressed = true;
+        }
+
+        public void EndSuppress()
+        {
+            if (!Suppressed) throw SecurityError();
+            Suppressed = false;
+        }
+
         public JToken ReadValue(int property)
         {
+            if (Suppressed) throw SecurityError();
+
             var prop = Property(property);
             if (prop == null) throw SecurityError();
             prop.Remove();

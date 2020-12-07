@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Diagnostics.Models;
 using Newtonsoft.Json;
 
@@ -32,7 +33,8 @@ namespace DotVVM.Framework.Diagnostics
                         await client.ConnectAsync(hostname, port.Value);
                         using (var stream = new StreamWriter(client.GetStream()))
                         {
-                            await stream.WriteAsync(JsonConvert.SerializeObject(information));
+                            var settings = DefaultSerializerSettingsProvider.Instance.Settings;
+                            await stream.WriteAsync(JsonConvert.SerializeObject(information, settings));
                             await stream.FlushAsync();
                         }
                     }

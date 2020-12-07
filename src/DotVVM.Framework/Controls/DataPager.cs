@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using DotVVM.Framework.Binding;
@@ -10,6 +10,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
@@ -170,18 +171,12 @@ namespace DotVVM.Framework.Controls
 
             var bindings = context.Services.GetRequiredService<CommonBindings>();
 
-            object enabledValue = (GetValueBinding(EnabledProperty) is IValueBinding enabledBinding ?
-                (object)ValueBindingExpression.CreateBinding<bool>(
-                    bindingService.WithoutInitialization(),
-                    h => (bool)enabledBinding.Evaluate(this)!,
-                    new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$pagerEnabled")) :
-                Enabled);
+            object enabledValue = GetValueRaw(EnabledProperty)!;
 
-            
-            GoToFirstPageButton = CreateNavigationButton("««", FirstPageTemplate,enabledValue, bindings.GoToFirstPageCommand,context);
+            GoToFirstPageButton = CreateNavigationButton("««", FirstPageTemplate, enabledValue, bindings.GoToFirstPageCommand,context);
             ContentWrapper.Children.Add(GoToFirstPageButton);
 
-            GoToPreviousPageButton = CreateNavigationButton("«", PreviousPageTemplate,enabledValue, bindings.GoToPrevPageCommand,context);
+            GoToPreviousPageButton = CreateNavigationButton("«", PreviousPageTemplate, enabledValue, bindings.GoToPrevPageCommand,context);
             ContentWrapper.Children.Add(GoToPreviousPageButton);
 
             // number fields
@@ -277,7 +272,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (IsPropertySet(VisibleProperty))
                     throw new Exception("Visible can't be set on a DataPager when HideWhenOnlyOnePage is true. You can wrap it in an element that hide that or set HideWhenOnlyOnePage to false");
-                writer.AddKnockoutDataBind("visible", $"ko.unwrap({GetDataSetBinding().GetKnockoutBindingExpression(this)}).PagingOptions().PagesCount() > 1");
+                writer.AddKnockoutDataBind("visible", $"({GetDataSetBinding().GetKnockoutBindingExpression(this, unwrapped: true)}).PagingOptions().PagesCount() > 1");
             }
         }
 
@@ -285,17 +280,12 @@ namespace DotVVM.Framework.Controls
         {
             if (GetValueBinding(EnabledProperty) is IValueBinding enabledBinding)
             {
-                writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias",
-                    $"{{ '$pagerEnabled': { enabledBinding.GetKnockoutBindingExpression(this) }}}");
+                var disabledBinding = enabledBinding.GetProperty<NegatedBindingExpression>().Binding.CastTo<IValueBinding>();
+                AddKnockoutDisabledCssDataBind(writer, context, disabledBinding.GetKnockoutBindingExpression(this));
             }
-
-            if (HasBinding(EnabledProperty))
+            else if (!Enabled)
             {
-                AddKnockoutDisabledCssDataBind(writer, context, "$pagerEnabled()");
-            }
-            else
-            {
-                AddKnockoutDisabledCssDataBind(writer, context, (!Enabled).ToString().ToLower());
+                writer.AddAttribute("class", "disabled", true, " ");
             }
 
             writer.AddKnockoutDataBind("with", this, DataSetProperty, renderEvenInServerRenderingMode: true);
@@ -333,8 +323,7 @@ namespace DotVVM.Framework.Controls
 
             // render page number
             NumberButtonsPlaceHolder!.Children.Clear();
-            var li = CreatePageNumberButton(writer, context);
-            li.Render(writer, context);
+            RenderPageNumberButton(writer, context);
 
             writer.WriteKnockoutDataBindEndComment();
 
@@ -347,10 +336,12 @@ namespace DotVVM.Framework.Controls
             GoToLastPageButton!.Render(writer, context);
         }
 
-        protected virtual HtmlGenericControl CreatePageNumberButton(IHtmlWriter writer, IDotvvmRequestContext context)
+        protected virtual void RenderPageNumberButton(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            HtmlGenericControl li;
+            HtmlGenericControl li = new HtmlGenericControl("li");
             var currentPageTextContext = DataContextStack.Create(typeof(int), NumberButtonsPlaceHolder!.GetDataContextType());
+            li.SetDataContextType(currentPageTextContext);
+            li.DataContext = null;
             var currentPageTextBinding = ValueBindingExpression.CreateBinding(bindingService.WithoutInitialization(),
                 vm => ((int) vm[0]! + 1).ToString(),
                 currentPageTextJs,
@@ -360,43 +351,43 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddKnockoutDataBind("visible", "$data == $parent.PagingOptions().PageIndex()");
                 AddItemCssClass(writer, context);
-                AddKnockoutActiveCssDataBind(writer, context, "$data == $parent.PagingOptions().PageIndex()");
-                li = new HtmlGenericControl("li");
+                writer.AddAttribute("class", "active");
                 var literal = new Literal();
                 literal.DataContext = 0;
-                literal.SetDataContextType(currentPageTextContext);
-
                 literal.SetBinding(Literal.TextProperty, currentPageTextBinding);
                 li.Children.Add(literal);
                 NumberButtonsPlaceHolder!.Children.Add(li);
+
                 li.Render(writer, context);
 
                 writer.AddKnockoutDataBind("visible", "$data != $parent.PagingOptions().PageIndex()");
             }
 
-            AddItemCssClass(writer, context);
-            AddKnockoutActiveCssDataBind(writer, context, "$data == $parent.PagingOptions().PageIndex()");
             li = new HtmlGenericControl("li");
+            li.SetDataContextType(currentPageTextContext);
+            li.DataContext = null;
+
+            NumberButtonsPlaceHolder.Children.Add(li);
+            AddItemCssClass(writer, context);
+
+            if (RenderLinkForCurrentPage)
+                AddKnockoutActiveCssDataBind(writer, context, "$data == $parent.PagingOptions().PageIndex()");
+
             li.SetValue(Internal.PathFragmentProperty, "PagingOptions.NearPageIndexes[$index]");
             var link = new LinkButton();
             li.Children.Add(link);
             link.SetDataContextType(currentPageTextContext);
             link.SetBinding(ButtonBase.TextProperty, currentPageTextBinding);
             link.SetBinding(ButtonBase.ClickProperty, commonBindings.GoToThisPageCommand);
-            object enabledValue = GetValueBinding(EnabledProperty) is IValueBinding enabledBinding
-                ? (object) ValueBindingExpression.CreateBinding(bindingService.WithoutInitialization(),
-                    h => enabledBinding.Evaluate(this),
-                    new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$pagerEnabled"))
-                : Enabled;
+            object enabledValue = GetValueRaw(EnabledProperty)!;
             if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
-            NumberButtonsPlaceHolder!.Children.Add(li);
-            return li;
+
+            li.Render(writer, context);
         }
 
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.RenderEndTag();
-            if (HasValueBinding(EnabledProperty)) writer.WriteKnockoutDataBindEndComment();
         }
 
         private IValueBinding GetDataSetBinding()

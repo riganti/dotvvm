@@ -12,6 +12,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Controls
 {
@@ -96,11 +97,15 @@ namespace DotVVM.Framework.Controls
         public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmBindableObject control, PostbackScriptOptions options)
         {
             var expr = GenerateClientPostBackExpression(propertyName, expression, control, options);
+            expr += ".catch(function(){})";
             if (options.ReturnValue == false)
                 return expr + ";event.stopPropagation();return false;";
             else
                 return expr;
         }
+
+        static ParametrizedCode KnockoutContextDataAccess = new ParametrizedCode.Builder { new CodeParameterInfo(JavascriptTranslator.KnockoutContextParameter, isSafeMemberAccess: true), ".$data" }.Build(OperatorPrecedence.Max);
+
         public static string GenerateClientPostBackExpression(string propertyName, ICommandBinding expression, DotvvmBindableObject control, PostbackScriptOptions options)
         {
             var target = (DotvvmControl?)control.GetClosestControlBindingTarget();
@@ -147,12 +152,18 @@ namespace DotVVM.Framework.Controls
             var adjustedExpression = expression.GetParametrizedCommandJavascript(control);
             // when the expression changes the dataContext, we need to override the default knockout context fo the command binding.
             var knockoutContext = options.KoContext ?? (
-                adjustedExpression != expression.CommandJavascript ?
-                new CodeParameterAssignment(new ParametrizedCode.Builder { "ko.contextFor(", options.ElementAccessor.Code, ")" }.Build(OperatorPrecedence.Max)) :
-                default);
+                // adjustedExpression != expression.CommandJavascript ?
+                new CodeParameterAssignment(new ParametrizedCode.Builder { "ko.contextFor(", options.ElementAccessor.Code!, ")" }.Build(OperatorPrecedence.Max))
+                // default
+            );
+
+            var optionalKnockoutContext =
+                options.KoContext is object && adjustedExpression != expression.CommandJavascript ?
+                knockoutContext :
+                default;
 
             var call = adjustedExpression.ToString(p =>
-                p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("\"root\"", OperatorPrecedence.Max) :
+                p == CommandBindingExpression.PostbackOptionsParameter ? new CodeParameterAssignment("options", OperatorPrecedence.Max) :
                 p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
                 p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
                     getContextPath(control),
@@ -160,12 +171,14 @@ namespace DotVVM.Framework.Controls
                 p == CommandBindingExpression.ControlUniqueIdParameter ? new CodeParameterAssignment(
                     (uniqueControlId is IValueBinding ? "{ expr: " + JsonConvert.ToString(((IValueBinding)uniqueControlId).GetKnockoutBindingExpression(control)) + "}" : '"' + (string?)uniqueControlId + '"'), OperatorPrecedence.Max) :
                 p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
+                p == JavascriptTranslator.KnockoutViewModelParameter ? KnockoutContextDataAccess :
+                p == CommandBindingExpression.OptionalKnockoutContextParameter ? optionalKnockoutContext :
                 p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? default :
                 p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHandlers ?? (generatedPostbackHandlers = getHandlerScript()), OperatorPrecedence.Max) :
                 default(CodeParameterAssignment)
             );
             if (generatedPostbackHandlers == null && options.AllowPostbackHandlers)
-                return $"dotvvm.applyPostbackHandlers(function(){{return {call}}}.bind(this),{options.ElementAccessor.Code.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()})";
+                return $"dotvvm.applyPostbackHandlers(function(options){{return {call}}}.bind(this),{options.ElementAccessor.Code!.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()})";
             else return call;
         }
 
@@ -316,14 +329,6 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Add knockout data bind comment dotvvm_withControlProperties with the specified properties
-        /// </summary>
-        public static void AddCommentAliasBinding(IHtmlWriter writer, IDictionary<string, string> properties)
-        {
-            writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias", "{" + string.Join(", ", properties.Select(p => JsonConvert.ToString(p.Key, '"', StringEscapeHandling.EscapeHtml) + ":" + properties.Values)) + "}");
-        }
-
-        /// <summary>
         /// Writes text iff the property contains hard-coded value OR
         /// writes knockout text binding iff the property contains binding
         /// </summary>
@@ -363,7 +368,7 @@ namespace DotVVM.Framework.Controls
         {
             var binding = obj.GetValueBinding(property);
             if (binding != null) return binding.GetKnockoutBindingExpression(obj);
-            return JsonConvert.SerializeObject(obj.GetValue(property), DefaultViewModelSerializer.CreateDefaultSettings());
+            return JsonConvert.SerializeObject(obj.GetValue(property), DefaultSerializerSettingsProvider.Instance.Settings);
         }
 
         /// <summary>

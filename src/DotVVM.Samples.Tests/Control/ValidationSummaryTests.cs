@@ -31,6 +31,25 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
+        [Fact]
+        public void Control_ValidationSummary_HideWhenValid()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ValidationSummary_HideWhenValid);
+
+                AssertUI.IsNotDisplayed(browser.ElementAt("ul", 0));
+
+                // Generate error
+                browser.ElementAt("input[type=button]", 0).Click().Wait();
+                AssertUI.IsDisplayed(browser.ElementAt("ul", 0));
+
+                // Fix the error
+                browser.SendKeys("input[type=text]", "message");
+                browser.ElementAt("input[type=button]", 0).Click().Wait();
+                AssertUI.IsNotDisplayed(browser.ElementAt("ul", 0));
+            });
+        }
+
         public ValidationSummaryTests(ITestOutputHelper output) : base(output)
         {
         }

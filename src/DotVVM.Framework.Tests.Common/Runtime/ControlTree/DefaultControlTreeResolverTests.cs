@@ -649,7 +649,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         {
             var root = ParseSource(@"@viewModel System.String, whatever");
             Assert.IsTrue(root.Directives.Any(d => d.Value.Any(dd => dd.DothtmlNode.HasNodeErrors)));
-            Assert.AreEqual(null, root.DataContextTypeStack.DataContextType);
+            Assert.AreEqual(typeof(ExpressionHelper.UnknownTypeSentinel), root.DataContextTypeStack.DataContextType);
         }
 
         private ResolvedBinding[] GetLiteralBindings(ResolvedContentNode node) =>

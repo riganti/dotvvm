@@ -20,6 +20,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             => Enumerable.Empty<BindingParserNode>();
 
         public override string ToDisplayString()
-            => Value is null ? "<null>" : Value.ToString();
+            => Value is null ? "<null>" : Value.ToString()!;
     }
 }

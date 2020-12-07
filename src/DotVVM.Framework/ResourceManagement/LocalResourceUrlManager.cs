@@ -73,8 +73,9 @@ namespace DotVVM.Framework.ResourceManagement
 
             var name = DecodeResourceName((string)parameters![NameParameterName]!);
             var hash = (string)parameters[HashParameterName].NotNull();
+            var type = context.Query.TryGetValue("type", out var x) ? x : null;
             if (resources.FindResource(name) is IResource resource &&
-                FindLocation(resource, out mimeType) is ILocalResourceLocation location)
+                FindLocation(resource, type, out mimeType) is ILocalResourceLocation location)
             {
                 if (GetVersionHash(location, context, name) == hash) // check if the resource matches so that nobody can guess the url by chance
                 {
@@ -107,7 +108,7 @@ namespace DotVVM.Framework.ResourceManagement
             return null;
         }
 
-        protected ILocalResourceLocation? FindLocation(IResource resource, out string? mimeType)
+        protected ILocalResourceLocation? FindLocation(IResource resource, string? type, out string? mimeType)
         {
             if (!(resource is ILinkResource link))
             {
@@ -117,7 +118,7 @@ namespace DotVVM.Framework.ResourceManagement
 
             mimeType = link.MimeType;
             return link
-                .GetLocations()
+                .GetLocations(type)
                 .OfType<ILocalResourceLocation>()
                 .FirstOrDefault();
         }

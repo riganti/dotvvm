@@ -37,13 +37,21 @@ namespace DotVVM.Samples.Tests.Feature
                 // tamper with viewmodel cache id - it should do two requests but it should still work
                 browser.ElementAt("input[type=button]", 1).Click().Wait(1000);
                 browser.ElementAt("input[type=button]", 0).Click().Wait(1000);
-                AssertUI.TextEquals(result, "2");
-                AssertUI.TextEquals(requestCount, cacheEnabled ? "3" : "2");
 
-                // normal postback
-                browser.ElementAt("input[type=button]", 0).Click().Wait(1000);
-                AssertUI.TextEquals(result, "3");
-                AssertUI.TextEquals(requestCount, cacheEnabled ? "4" : "3");
+                if (cacheEnabled)
+                {
+                    AssertUI.TextEquals(result, "2");
+                    AssertUI.TextEquals(requestCount, "3");
+
+                    // normal postback
+                    browser.ElementAt("input[type=button]", 0).Click().Wait(1000);
+                    AssertUI.TextEquals(result, "3");
+                    AssertUI.TextEquals(requestCount, "4");
+                }
+                else
+                {
+                    AssertUI.IsDisplayed(browser.FindElements("#debugWindow").First());
+                }
             });
         }
     }

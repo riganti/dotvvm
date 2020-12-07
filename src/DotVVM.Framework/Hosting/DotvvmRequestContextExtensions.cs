@@ -23,11 +23,19 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Gets the unique id of the SpaContentPlaceHolder that should be loaded.
     /// </summary>
-    public static string GetSpaContentPlaceHolderUniqueId(this IDotvvmRequestContext context)
+    public static string? GetSpaContentPlaceHolderUniqueId(this IDotvvmRequestContext context)
     {
         return DotvvmPresenter.DetermineSpaContentPlaceHolderUniqueId(context.HttpContext);
     }
 
+    /// <summary>
+    /// Gets cancellation token for the request
+    /// </summary>
+    public static CancellationToken GetCancellationToken(this IDotvvmRequestContext context)
+    {
+        var cancellationService = context.Services.GetRequiredService<IRequestCancellationTokenProvider>();
+        return cancellationService.GetCancellationToken(context);
+    }
 
     /// <summary>
     /// Changes the current culture of this HTTP request.

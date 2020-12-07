@@ -94,7 +94,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Services.TryAddSingleton<IDiagnosticsInformationSender, DiagnosticsInformationSender>();
 
             services.Services.TryAddSingleton<IOutputRenderer, DiagnosticsRenderer>();
-            services.Services.AddScoped<DiagnosticsRequestTracer>(s => new DiagnosticsRequestTracer(s.GetRequiredService<IDiagnosticsInformationSender>()));
+
+            services.Services.AddScoped<DiagnosticsRequestTracer>();
             services.Services.AddScoped<IRequestTracer>(s => {
                 var config = s.GetRequiredService<DotvvmConfiguration>();
                 return (config.Debug ? (IRequestTracer)s.GetService<DiagnosticsRequestTracer>() : null) ?? new NullRequestTracer();

@@ -1,5 +1,6 @@
 using System;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
 using Newtonsoft.Json;
@@ -9,7 +10,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 {
     public static class JavascriptCompilationHelper
     {
-        public static string CompileConstant(object obj) => JsonConvert.SerializeObject(obj, new StringEnumConverter());
+        public static string CompileConstant(object obj) => JsonConvert.SerializeObject(obj, DefaultSerializerSettingsProvider.Instance.Settings);
 
         private static readonly CodeSymbolicParameter indexerTargetParameter = new CodeSymbolicParameter("JavascriptCompilationHelper.indexerTargetParameter");
         private static readonly CodeSymbolicParameter indexerExpressionParameter = new CodeSymbolicParameter("JavascriptCompilationHelper.indexerExpressionParameter");

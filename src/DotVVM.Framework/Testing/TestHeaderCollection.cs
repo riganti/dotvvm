@@ -36,10 +36,10 @@ namespace DotVVM.Framework.Testing
         {
         }
 
-        string IHeaderCollection.this[string key]
+        string? IHeaderCollection.this[string key]
         {
-            get => string.Join("; ", this[key]);
-            set => this[key] = new string[] { value };
+            get => this.TryGetValue(key, out var headers) ? string.Join("; ", headers) : null;
+            set => this[key] = value is null ? new string[0] : new string[] { value };
         }
 
         public void Append(string key, string value)

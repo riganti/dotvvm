@@ -88,8 +88,8 @@ namespace DotVVM.Compiler.Resolving
                 tmpDir = tmpDir.Parent;
             }
 
-            var x64 = Path.Combine(dotnetRootPath, "store\\x64");
-            var x86 = Path.Combine(dotnetRootPath, "store\\x64");
+            var x64 = Path.Combine(dotnetRootPath, "store/x64");
+            var x86 = Path.Combine(dotnetRootPath, "store/x64");
             if (Directory.Exists(x64))
             {
                 info.Store = x64;

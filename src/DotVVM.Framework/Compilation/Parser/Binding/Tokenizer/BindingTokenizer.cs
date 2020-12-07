@@ -229,7 +229,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                     case ';':
                         FinishIncompleteIdentifier();
                         Read();
-                        EnsureUnsupportedOperator(BindingTokenType.Semicolon);
+                        CreateToken(BindingTokenType.Semicolon);
                         break;
 
                     default:

@@ -1,8 +1,12 @@
-﻿using DotVVM.Samples.Tests.Base;
+﻿using System;
+using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -71,7 +75,8 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_NestedRepeaterWithControl);
-                browser.Wait();
+                browser.WaitUntilDotvvmInited();
+                browser.Wait(500);
 
                 var result = browser.First("#result");
                 var buttons = browser.FindElements("input[type=button]");
@@ -79,8 +84,8 @@ namespace DotVVM.Samples.Tests.Control
                 int count = 1;
                 foreach (var button in buttons)
                 {
-                    browser.WaitFor(() => AssertUI.InnerTextEquals(result, count.ToString()), 500);
-                    button.Click();
+                    browser.WaitFor(() => AssertUI.InnerTextEquals(result, count.ToString()), 1000);
+                    button?.Click();
                     count++;
                 }
             });

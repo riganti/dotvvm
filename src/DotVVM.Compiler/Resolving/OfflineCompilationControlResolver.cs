@@ -9,8 +9,8 @@ namespace DotVVM.Compiler.Resolving
     {
         private ViewStaticCompiler compiler;
 
-        public OfflineCompilationControlResolver(DotvvmMarkupConfiguration config, IControlBuilderFactory controlBuilderFactory, ViewStaticCompiler compiler)
-            : base(config, controlBuilderFactory)
+        public OfflineCompilationControlResolver(DotvvmConfiguration config, IControlBuilderFactory controlBuilderFactory, ViewStaticCompiler compiler, CompiledAssemblyCache compiledAssemblyCache)
+            : base(config, controlBuilderFactory, compiledAssemblyCache)
         {
             this.compiler = compiler;
         }

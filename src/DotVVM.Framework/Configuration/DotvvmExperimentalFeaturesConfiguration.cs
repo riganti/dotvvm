@@ -15,9 +15,14 @@ namespace DotVVM.Framework.Configuration
         [JsonProperty("serverSideViewModelCache")]
         public DotvvmExperimentalFeatureFlag ServerSideViewModelCache { get; private set; } = new DotvvmExperimentalFeatureFlag();
 
+        [JsonProperty("explicitAssemblyLoading")]
+        public DotvvmGlobalExperimentalFeatureFlag ExplicitAssemblyLoading { get; private set; } = new DotvvmGlobalExperimentalFeatureFlag();
+
         public void Freeze()
         {
             LazyCsrfToken.Freeze();
+            ServerSideViewModelCache.Freeze();
+            ExplicitAssemblyLoading.Freeze();
         }
     }
 

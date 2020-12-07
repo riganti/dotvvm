@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using CheckTestOutput;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
@@ -16,9 +17,15 @@ namespace DotVVM.Framework.Tests.Runtime
     {
         OutputChecker check = new OutputChecker("config-tests");
 
+        public ConfigurationSerializationTests()
+        {
+            DotvvmTestHelper.EnsureCompiledAssemblyCache();
+        }
+
         void checkConfig(DotvvmConfiguration config, string checkName = null, string fileExtension = "json", [CallerMemberName] string memberName = null, [CallerFilePath] string sourceFilePath = null)
         {
             var serialized = DotVVM.Framework.Hosting.VisualStudioHelper.SerializeConfig(config);
+            serialized = Regex.Replace(serialized, "Version=[0-9.]+", "Version=***");
             check.CheckString(serialized, checkName, fileExtension, memberName, sourceFilePath);
         }
 

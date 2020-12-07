@@ -62,7 +62,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.FileUpload
 
         private string GetUploadPath()
         {
-            var uploadPath = Path.Combine(Context.Configuration.ApplicationPhysicalPath, "Temp\\Upload");
+            var uploadPath = Path.Combine(Context.Configuration.ApplicationPhysicalPath, "Temp/Upload");
             if (!Directory.Exists(uploadPath))
             {
                 Directory.CreateDirectory(uploadPath);

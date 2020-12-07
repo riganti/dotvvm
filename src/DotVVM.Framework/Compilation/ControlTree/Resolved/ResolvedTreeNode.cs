@@ -1,16 +1,17 @@
-﻿using System.Collections.Generic;
+#nullable enable
+using System.Collections.Generic;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     public abstract class ResolvedTreeNode : IAbstractTreeNode, IResolvedTreeNode
     {
-        public virtual DothtmlNode DothtmlNode { get; set; }
+        public virtual DothtmlNode? DothtmlNode { get; set; }
 
-        public ResolvedTreeNode Parent { get; set; }
+        public ResolvedTreeNode? Parent { get; set; }
 
-        private ResolvedTreeRoot treeRoot;
-        public ResolvedTreeRoot TreeRoot => treeRoot ?? (treeRoot = Parent?.TreeRoot ?? this as ResolvedTreeRoot);
+        private ResolvedTreeRoot? treeRoot;
+        public ResolvedTreeRoot TreeRoot => treeRoot ?? (treeRoot = Parent?.TreeRoot ?? this as ResolvedTreeRoot)!;
 
         public IEnumerable<ResolvedTreeNode> GetAncestors(bool includeThis = true)
         {
@@ -22,7 +23,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             }
         }
 
-        IAbstractTreeNode IAbstractTreeNode.Parent => Parent;
+        IAbstractTreeNode? IAbstractTreeNode.Parent => Parent;
         IAbstractTreeRoot IAbstractTreeNode.TreeRoot => TreeRoot;
 
 
