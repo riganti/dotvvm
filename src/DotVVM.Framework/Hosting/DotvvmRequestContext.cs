@@ -118,6 +118,9 @@ namespace DotVVM.Framework.Hosting
 
         public IHttpContext HttpContext { get; set; }
 
+        public object? CommandResult { get; set; }
+        public object? CustomData { get; set; }
+
         public DotvvmRequestContext(
             IHttpContext httpContext,
             DotvvmConfiguration configuration,

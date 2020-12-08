@@ -133,25 +133,32 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 context.ViewModelJson["resources"] = resourcesObject;
         }
 
-        public string BuildStaticCommandResponse(IDotvvmRequestContext context, object result)
+        public string BuildStaticCommandResponse(IDotvvmRequestContext context)
         {
             var serializer = CreateJsonSerializer();
             var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services) {
                 UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
             };
             serializer.Converters.Add(viewModelConverter);
-            var writer = new JTokenWriter();
             var response = new JObject();
+            response["result"] = WriteCommandData(context.CommandResult, serializer, "result");
+            response["customData"] = WriteCommandData(context.CustomData, serializer, "custom data");
+            return response.ToString(JsonFormatting);
+        }
+
+        private static JToken WriteCommandData(object data, JsonSerializer serializer, string description)
+        {
+            var writer = new JTokenWriter();
             try
             {
-                serializer.Serialize(writer, result);
+                serializer.Serialize(writer, data);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
+                throw new Exception($"Could not serialize static command {description} of type '{ data.GetType().FullName}'. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
             }
-            response["result"] = writer.Token;
-            return response.ToString(JsonFormatting);
+
+            return writer.Token;
         }
 
         protected virtual JsonSerializer CreateJsonSerializer() => DefaultSerializerSettingsProvider.Instance.Settings.Apply(JsonSerializer.Create);
