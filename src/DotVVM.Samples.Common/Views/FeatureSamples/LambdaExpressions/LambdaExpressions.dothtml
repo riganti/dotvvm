@@ -1,0 +1,46 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.LambdaExpressions.LambdaExpressionsViewModel, DotVVM.Samples.Common
+@import DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Hello from DotVVM!</title>
+        <dot:RequiredResource Name="globalize:cs-CZ" />
+    </head>
+    <body>
+        <h1>Lambda expressions testing</h1>
+
+        <div>
+            <h2>Test collection</h2>
+            <dot:Repeater DataSource="{value: Array}">
+                <ItemTemplate>
+                    <div data-ui="client-rendered-item">
+                        <span>[{{value: _index.ToString()}}] = </span>
+                        <span>{{value: _this.ToString()}}</span>
+                    </div>
+                </ItemTemplate>
+            </dot:Repeater>
+        </div>
+
+        <div>
+            <h2>Operations</h2>
+            <dot:Button Text="Get all even numbers" Validation.Enabled="false"
+                        Click="{command: SetResult(Enumerable.Where(Array, (int item) => item % 2 == 0))}" />
+            <dot:Button Text="Get all odd numbers" Validation.Enabled="false"
+                        Click="{command: SetResult(Enumerable.Where(Array, (int item) => item % 2 == 1))}" />
+        </div>
+
+        <div>
+            <h2>Result collection</h2>
+            <dot:Repeater DataSource="{value: Result}">
+                <ItemTemplate>
+                    <div data-ui="client-rendered-item">
+                        <span>[{{value: _index.ToString()}}] = </span>
+                        <span>{{value: _this.ToString()}}</span>
+                    </div>
+                </ItemTemplate>
+            </dot:Repeater>
+        </div>
+
+    </body>
+</html>
