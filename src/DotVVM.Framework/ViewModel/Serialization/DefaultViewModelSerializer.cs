@@ -123,7 +123,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 result["renderedResources"] = JArray.FromObject(context.ResourceManager.GetNamedResourcesInOrder().Select(r => r.Name));
             }
 
-            if (context.IsPostBack &&
+            if (!context.IsPostBack &&
                 context.View.GetValue(Internal.ReferencedViewModuleInfoProperty) is ImmutableList<ViewModuleReferenceInfo> viewModuleInfo &&
                 viewModuleInfo.Count > 0)
             {

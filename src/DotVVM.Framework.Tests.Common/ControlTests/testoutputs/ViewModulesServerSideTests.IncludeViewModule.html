@@ -16,7 +16,7 @@
 		<script src="/dotvvmResource/dotvvm--debug/dotvvm--debug" defer=""></script>
 		
 		<!-- Resource __noname_0 of type ViewModuleImportResource. -->
-		<script type="module">import * as m0 from '/dotvvmResource/myModule/myModule';dotvvm.registerViewModules({'myModule': m0});</script>
+		<script type="module">import * as m0 from '/dotvvmResource/myModule/myModule';dotvvm.viewModules.registerMany({'myModule': m0});</script>
 	</head>
 	<body>
 		<input type="hidden" id="__dot_viewmodel_root" value="{
@@ -32,6 +32,14 @@
     &quot;dotvvm&quot;,
     &quot;dotvvm.debug&quot;,
     &quot;__noname_0&quot;
+  ],
+  &quot;viewModules&quot;: [
+    {
+      &quot;viewId&quot;: &quot;p0&quot;,
+      &quot;modules&quot;: [
+        &quot;myModule&quot;
+      ]
+    }
   ]
 }">
 		<script defer="" src="data:text/javascript;base64,CndpbmRvdy5kb3R2dm0uaW5pdCgiZW4tVVMiKTsK"></script>
