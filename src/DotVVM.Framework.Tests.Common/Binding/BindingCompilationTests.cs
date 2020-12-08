@@ -166,7 +166,6 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("() => 4.5f", typeof(Func<float>), typeof(float))]
         [DataRow("() => 4.5", typeof(Func<double>), typeof(double))]
         [DataRow("() => 11 + 4.5", typeof(Func<double>), typeof(double))]
-        [DataRow("() => new System.Collections.Generic.List<int>()", typeof(Func<List<int>>), typeof(List<int>))]
         public void BindingCompiler_Valid_LambdaReturnType(string expr, Type lambdaType, Type returnType)
         {
             var viewModel = new TestViewModel();
