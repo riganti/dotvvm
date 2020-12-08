@@ -28,6 +28,8 @@
                         Click="{command: SetResult(Enumerable.Where(Array, (int item) => item % 2 == 0))}" />
             <dot:Button Text="Get all odd numbers" Validation.Enabled="false"
                         Click="{command: SetResult(Enumerable.Where(Array, (int item) => item % 2 == 1))}" />
+            <dot:Button Text="Negate numbers" Validation.Enabled="false"
+                        Click="{command: SetResult(Enumerable.Select(Array, (int item) => -item))}" />
         </div>
 
         <div>
