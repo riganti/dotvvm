@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
@@ -59,7 +60,8 @@ namespace DotVVM.Framework.Controls
 
             foreach (var viewModule in this.GetValue<ImmutableList<ViewModuleReferenceInfo>>(Internal.ReferencedViewModuleInfoProperty)!)
             {
-                context.ResourceManager.AddRequiredResource(viewModule.Resource);
+                Debug.Assert(viewModule.IsMarkupControl);
+                context.ResourceManager.AddRequiredResource(viewModule.Resource.ResourceName, viewModule.Resource);
             }
 
             base.OnPreInit(context);
@@ -81,12 +83,15 @@ namespace DotVVM.Framework.Controls
             writer.WriteKnockoutDataBindComment("dotvvm-with-control-properties", "{ " + string.Join(", ", properties) + " }");
             if (viewModule is object)
             {
+                var viewId = this.GetDotvvmUniqueId();
+                var viewIdJs = (viewId as IValueBinding)?.GetKnockoutBindingExpression(this) ??
+                               JsonConvert.ToString((string)viewId, '"', StringEscapeHandling.EscapeHtml);
                 var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
                 settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
-                writer.WriteKnockoutDataBindComment("dotvvm-with-view-modules", JsonConvert.SerializeObject(
-                    new { viewId = viewModule.SpaceId, modules = viewModule.ReferencedModules },
-                    Formatting.None, settings
-                ));
+
+                writer.WriteKnockoutDataBindComment("dotvvm-with-view-modules",
+                    $"{{ viewId: {viewIdJs}, modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}"
+                );
             }
             base.RenderContents(writer, context);
             writer.WriteKnockoutDataBindEndComment();

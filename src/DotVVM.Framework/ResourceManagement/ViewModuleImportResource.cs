@@ -1,6 +1,8 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using Newtonsoft.Json;
@@ -17,11 +19,17 @@ namespace DotVVM.Framework.ResourceManagement
 
         public string[] Dependencies => new string [] { "dotvvm" };
 
+        public string ResourceName { get; }
+
         private string registrationScript;
 
         public ViewModuleImportResource(string[] referencedModules)
         {
-            this.ReferencedModules = referencedModules;
+            this.ReferencedModules = referencedModules.ToArray();
+            Array.Sort(this.ReferencedModules, StringComparer.Ordinal); // generate unique ids across
+
+            using var sha = System.Security.Cryptography.SHA256.Create();
+            this.ResourceName = Convert.ToBase64String(sha.ComputeHash(Encoding.Unicode.GetBytes(string.Join("\0", this.ReferencedModules))));
 
             this.registrationScript =
                 $"dotvvm.viewModules.registerMany({{{string.Join(", ", this.ReferencedModules.Select((m, i) => JsonConvert.ToString(m, '\'', StringEscapeHandling.EscapeHtml) + ": m" + i))}}});";

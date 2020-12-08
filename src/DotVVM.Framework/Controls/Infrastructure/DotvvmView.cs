@@ -8,6 +8,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.ResourceManagement;
 using System.Collections.Immutable;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Controls.Infrastructure
 {
@@ -49,7 +50,8 @@ namespace DotVVM.Framework.Controls.Infrastructure
             }
             foreach (var viewModule in this.GetValue<ImmutableList<ViewModuleReferenceInfo>>(Internal.ReferencedViewModuleInfoProperty)!)
             {
-                context.ResourceManager.AddRequiredResource(viewModule.Resource);
+                Debug.Assert(!viewModule.IsMarkupControl);
+                context.ResourceManager.AddRequiredResource(viewModule.Resource.ResourceName, viewModule.Resource);
             }
             base.OnPreRender(context);
         }

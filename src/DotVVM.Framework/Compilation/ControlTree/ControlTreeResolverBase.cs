@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 masterPage = ResolveMasterPage(fileName, masterPageDirective.First());
             }
-            var viewModule = ResolveImportedViewModules(AssignViewModuleId(masterPage), directives);
+            var viewModule = ResolveImportedViewModules(AssignViewModuleId(masterPage), directives, isMarkupControl: !wrapperType.IsEqualTo(ResolvedTypeDescriptor.Create(typeof(DotvvmView))));
 
             // We need to call BuildControlMetadata instead of ResolveControl. The control builder for the control doesn't have to be compiled yet so the
             // metadata would be incomplete and ResolveControl caches them internally. BuildControlMetadata just builds the metadata and the control is
@@ -171,7 +171,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             .Select(d => new InjectedServiceExtensionParameter(d.NameSyntax.Name, d.Type))
             .ToImmutableList();
 
-        private (JsExtensionParameter extensionParameter, ViewModuleReferenceInfo resource)? ResolveImportedViewModules(string id, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives)
+        private (JsExtensionParameter extensionParameter, ViewModuleReferenceInfo resource)? ResolveImportedViewModules(string id, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, bool isMarkupControl)
         {
             if (!directives.TryGetValue(ParserConstants.ViewModuleDirective, out var moduleDirectives))
                 return null;
@@ -182,7 +182,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 .Select(x => x.ImportedResourceName)
                 .ToArray();
 
-            return (new JsExtensionParameter(id), new ViewModuleReferenceInfo(id, resources));
+            return (new JsExtensionParameter(id, isMarkupControl), new ViewModuleReferenceInfo(id, resources, isMarkupControl));
         }
 
         protected virtual string AssignViewModuleId(IAbstractControlBuilderDescriptor? masterPage)

@@ -57,6 +57,12 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
             if (!fileLoader.MarkupFiles.TryAdd(fileName, markup))
                 throw new Exception($"File {fileName} already exists");
 
+            if (markupFiles is object) foreach (var markupFile in markupFiles)
+            {
+                if (!fileLoader.MarkupFiles.TryAdd(markupFile.Key, markupFile.Value))
+                    throw new Exception($"File {markupFile.Value} already exists");
+            }
+
             return controlBuilderFactory.GetControlBuilder(fileName);
         }
 

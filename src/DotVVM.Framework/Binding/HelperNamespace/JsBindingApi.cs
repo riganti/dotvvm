@@ -1,4 +1,5 @@
 using System;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
@@ -16,10 +17,10 @@ namespace DotVVM.Framework.Binding.HelperNamespace
         {
             collection.AddMethodTranslator(typeof(JsBindingApi), nameof(Invoke), new GenericMethodCompiler(
                 a => {
-                    var viewId = a[0].Annotation<JsExtensionParameter.ViewModuleAnnotation>().Id;
+                    var annotation = a[0].Annotation<JsExtensionParameter.ViewModuleAnnotation>();
+                    var viewIdExpr = annotation.IsMarkupControl ? new JsSymbolicParameter(CommandBindingExpression.ControlUniqueIdParameter) : (JsExpression)new JsLiteral(annotation.Id);
 
-                    return a[0].Member("call")
-                    .Invoke(new JsLiteral(viewId), a[1], a[2]);
+                    return a[0].Member("call").Invoke(viewIdExpr, a[1], a[2]);
                 }), null, true, true);
         }
     }

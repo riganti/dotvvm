@@ -15,7 +15,9 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
     {
         ControlTestHelper cth = new ControlTestHelper(config: config => {
             config.Resources.Register("myModule", new ScriptModuleResource(new InlineResourceLocation("export const jsCommand = { myCommand() { } }")));
-            // config.Markup.AddMarkupControl("cc", "CustomControl", "custom.dotcontrol");
+            config.Resources.Register("pageModule", new ScriptModuleResource(new InlineResourceLocation("export const jsCommand = { myCommand() { } }")));
+            config.Resources.Register("controlModule", new ScriptModuleResource(new InlineResourceLocation("export const jsCommand = { myCommand() { } }")));
+            config.Markup.AddMarkupControl("cc", "CustomControlWithModule", "CustomControlWithModule.dotcontrol");
             // config.Resources.Register
         });
         OutputChecker check = new OutputChecker("testoutputs");
@@ -23,7 +25,7 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
         [TestMethod]
         public async Task IncludeViewModule()
         {
-            var r = await cth.RunPage(typeof(TestViewModel), @"
+            var r = await cth.RunPage(typeof(object), @"
                 ",
                 directives: "@js myModule",
                 renderResources: true
@@ -31,8 +33,33 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task IncludeViewModuleInControl()
+        {
+            var r = await cth.RunPage(typeof(TestViewModel), @"
+
+                <cc:CustomControlWithModule />
+
+                <dot:Repeater DataSource={value: Collection}>
+                    <cc:CustomControlWithModule />
+                </dot:Repeater>
+                ",
+                directives: "@js pageModule",
+                renderResources: true,
+                markupFiles: new Dictionary<string, string> {
+                    ["CustomControlWithModule.dotcontrol"] = @"
+                        @js controlModule
+                        @viewModel object
+                        @wrapperTag div
+                        <dot:Button Click={staticCommand: _js.Invoke('name', 1)} />"
+                }
+            );
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class TestViewModel: DotvvmViewModelBase
         {
+            public List<string> Collection { get; set; } = new List<string> { "A", "B" };
         }
     }
 }
