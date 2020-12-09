@@ -268,7 +268,6 @@ namespace DotVVM.Framework.Hosting
                 await requestTracer.TraceEvent(RequestTracingConstants.ViewModelSerialized, context);
 
                 ViewModelSerializer.BuildViewModel(context);
-                if (context.CommandResult != null) context.ViewModelJson!["commandResult"] = JToken.FromObject(context.CommandResult);
 
                 if (!context.IsInPartialRenderingMode)
                 {

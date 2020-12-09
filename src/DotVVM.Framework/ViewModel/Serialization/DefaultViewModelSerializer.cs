@@ -123,6 +123,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (validationRules?.Count > 0) result["validationRules"] = validationRules;
 
             context.ViewModelJson = result;
+            if (context.CommandResult != null) context.ViewModelJson!["commandResult"] = JToken.FromObject(context.CommandResult);
         }
 
         public void AddNewResources(IDotvvmRequestContext context)
