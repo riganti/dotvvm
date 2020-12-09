@@ -1,0 +1,10 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommandResult.SimpleExceptionFilterViewModel, DotVVM.Samples.Common
+@import model = DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommandResult.SimpleExceptionFilterViewModel
+
+<html>
+<head></head>
+<body>
+    <dot:Button Click="{staticCommand: model.StaticCommand()}" Text="Test" />
+</body>
+</html>
+
