@@ -43,6 +43,12 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommandResult
         {
             throw new UIException("Problem!");
         }
+
+        [ClientExceptionFilter]
+        public void Command()
+        {
+            throw new UIException("Problem!");
+        }
     }
 }
 

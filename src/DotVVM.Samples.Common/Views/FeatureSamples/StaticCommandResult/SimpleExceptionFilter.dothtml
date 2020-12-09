@@ -4,7 +4,8 @@
 <html>
 <head></head>
 <body>
-    <dot:Button Click="{staticCommand: model.StaticCommand()}" Text="Test" />
+    <dot:Button Click="{staticCommand: model.StaticCommand()}" Text="Static Command Test" />
+    <dot:Button Click="{command: Command()}" Text="Command Test" />
 </body>
 </html>
 
