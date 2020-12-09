@@ -123,7 +123,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (validationRules?.Count > 0) result["validationRules"] = validationRules;
 
             context.ViewModelJson = result;
-            if (context.CommandResult != null) context.ViewModelJson!["commandResult"] = JToken.FromObject(context.CommandResult);
+            if (context.CommandResult != null) context.ViewModelJson!["commandResult"] = WriteCommandData(context.CommandResult, serializer, "result");
+            if (context.CustomData != null) context.ViewModelJson!["customData"] = WriteCommandData(context.CustomData, serializer, "custom data");
         }
 
         public void AddNewResources(IDotvvmRequestContext context)
@@ -143,7 +144,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             serializer.Converters.Add(viewModelConverter);
             var response = new JObject();
             response["result"] = WriteCommandData(context.CommandResult, serializer, "result");
-            response["customData"] = WriteCommandData(context.CustomData, serializer, "custom data");
+            if (context.CustomData != null) response["customData"] = WriteCommandData(context.CustomData, serializer, "custom data");
             return response.ToString(JsonFormatting);
         }
 
