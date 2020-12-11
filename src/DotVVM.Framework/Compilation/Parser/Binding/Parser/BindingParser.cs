@@ -361,7 +361,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             SkipWhiteSpace();
             ClearRestorePoint();
 
-            var body = ReadLambdaBodyExpression();
+            // Read lambda body expression
+            var body = ReadExpression();
             return CreateNode(new LambdaBindingParserNode(parameters, body), startIndex);
         }
 
@@ -445,11 +446,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 return false;
 
             return true;
-        }
-
-        private BindingParserNode ReadLambdaBodyExpression()
-        {
-            return ReadExpression();
         }
 
         private BindingParserNode ReadIdentifierExpression(bool onlyTypeName)
