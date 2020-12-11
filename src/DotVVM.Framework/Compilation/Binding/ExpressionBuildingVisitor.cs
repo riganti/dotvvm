@@ -301,6 +301,9 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitLambdaParameter(LambdaParameterBindingParserNode node)
         {
+            if (node.Type == null)
+                throw new BindingCompilationException($"Could not infer type of parameter.", node);
+
             var parameterType = Visit(node.Type).Type;
             return Expression.Parameter(parameterType, node.Name.ToDisplayString());
         }
