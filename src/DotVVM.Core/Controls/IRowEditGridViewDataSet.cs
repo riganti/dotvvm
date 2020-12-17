@@ -1,9 +1,9 @@
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Extends the <see cref="IBaseGridViewDataSet" /> with row edit functionality.
+    /// Extends the <see cref="IBaseGridViewDataSet{T}" /> with row edit functionality.
     /// </summary>
-    public interface IRowEditGridViewDataSet : IBaseGridViewDataSet
+    public interface IRowEditGridViewDataSet<T> : IBaseGridViewDataSet<T>
     {
         /// <summary>
         /// Gets the settings for row (item) edit feature.

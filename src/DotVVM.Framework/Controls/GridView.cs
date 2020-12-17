@@ -158,6 +158,16 @@ namespace DotVVM.Framework.Controls
             base.OnPreRender(context);
         }
 
+        private Action<string?>? GetSortCommand<T, TSorter>(ISortableGridViewDataSet<T, TSorter> x)
+            where TSorter: IDataSetSorter<T>
+        {
+            return expr => x.Sorter.ColumnSortClick(x, expr);
+        }
+        private Action<string?>? GetSortCommand(object? x)
+        {
+            return SortChanged;
+        }
+
         private void DataBind(IDotvvmRequestContext context)
         {
             Children.Clear();
@@ -167,11 +177,7 @@ namespace DotVVM.Framework.Controls
             var dataSourceBinding = GetDataSourceBinding();
             var dataSource = DataSource;
 
-            var sortCommand = SortChanged;
-            sortCommand ??=
-                typeof(ISortableGridViewDataSet).IsAssignableFrom((GetBinding(DataSourceProperty) as IStaticValueBinding)?.ResultType)
-                  ? (Action<string?>)SortChangedCommand
-                  : null;
+            Action<string?>? sortCommand = GetSortCommand((dynamic?)dataSource);
 
             sortCommand ??= s =>
                 throw new DotvvmControlException(this, "Cannot sort when DataSource is null.");
@@ -212,33 +218,14 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected virtual void SortChangedCommand(string? expr)
-        {
-            var dataSource = this.DataSource;
-            if (dataSource is null)
-                throw new DotvvmControlException(this, "Can not execute sort command, DataSource is null");
-            var sortOptions = (dataSource as ISortableGridViewDataSet)?.SortingOptions;
-            if (sortOptions is null)
-                throw new DotvvmControlException(this, "Can not execute sort command, DataSource does not have sorting options");
-            if (sortOptions.SortExpression == expr)
-            {
-                sortOptions.SortDescending ^= true;
-            }
-            else
-            {
-                sortOptions.SortExpression = expr;
-                sortOptions.SortDescending = false;
-            }
-            (dataSource as IPageableGridViewDataSet)?.GoToFirstPage();
-        }
-
         protected virtual void CreateHeaderRow(IDotvvmRequestContext context, Action<string?>? sortCommand)
         {
             head = new HtmlGenericControl("thead");
             Children.Add(head);
 
-            var gridViewDataSet = DataSource as IGridViewDataSet;
-
+            var gridViewDataSet = DataSource as IBaseGridViewDataSet<object>;
+            var handler = GridViewDataSetHelper.GetHandler(gridViewDataSet, context);
+                
             var headerRow = new HtmlGenericControl("tr");
             head.Children.Add(headerRow);
             foreach (var column in Columns.NotNull("GridView.Columns must be set"))
@@ -247,7 +234,7 @@ namespace DotVVM.Framework.Controls
                 SetCellAttributes(column, cell, true);
                 headerRow.Children.Add(cell);
 
-                column.CreateHeaderControls(context, this, sortCommand, cell, gridViewDataSet);
+                column.CreateHeaderControls(context, this, sortCommand, cell, gridViewDataSet, handler);
                 if (FilterPlacement == GridViewFilterPlacement.HeaderRow)
                 {
                     column.CreateFilterControls(context, this, cell, gridViewDataSet);
@@ -302,14 +289,8 @@ namespace DotVVM.Framework.Controls
             var isInEditMode = false;
             if (InlineEditing)
             {
-                // if gridviewdataset is missing throw exception
-                if (!(DataSource is IGridViewDataSet))
-                {
-                    throw new ArgumentException("You have to use GridViewDataSet with InlineEditing enabled.");
-                }
-
                 //checks if row is being edited
-                isInEditMode = IsEditedRow(placeholder);
+                isInEditMode = (bool)IsEditedRow((dynamic?)DataSource, placeholder);
             }
 
             var row = CreateRow(placeholder, isInEditMode);
@@ -352,13 +333,12 @@ namespace DotVVM.Framework.Controls
             return row;
         }
 
-        private PropertyInfo ResolvePrimaryKeyProperty()
+        private PropertyInfo ResolvePrimaryKeyProperty<T>(IRowEditGridViewDataSet<T> dataSet)
         {
-            var dataSet = (IGridViewDataSet)DataSource.NotNull();
             var primaryKeyPropertyName = dataSet.RowEditOptions.PrimaryKeyPropertyName;
             if (string.IsNullOrEmpty(primaryKeyPropertyName))
             {
-                throw new DotvvmControlException(this, $"The {nameof(IGridViewDataSet)} must " +
+                throw new DotvvmControlException(this, $"The IGridViewDataSet must " +
                     $"specify the {nameof(IRowEditOptions.PrimaryKeyPropertyName)} property " +
                     $"when inline editing is enabled on the {nameof(GridView)} control!");
             }
@@ -373,13 +353,19 @@ namespace DotVVM.Framework.Controls
             return property;
         }
 
-        private bool IsEditedRow(DataItemContainer placeholder)
+        private bool IsEditedRow(object? dataSource, DataItemContainer placeholder) =>
+            throw new ArgumentException("You have to use GridViewDataSet with InlineEditing enabled.");
+
+        private bool IsEditedRow<T, TSorter, TPager, TFilter>(IGridViewDataSet<T, TSorter, TPager, TFilter> dataSource, DataItemContainer placeholder)
+            where TPager: IDataSetPager<T>
+            where TSorter: IDataSetSorter<T>
+            where TFilter: IDataSetFilter<T>
         {
-            var property = ResolvePrimaryKeyProperty();
+            var property = ResolvePrimaryKeyProperty(dataSource);
             var value = property.GetValue(placeholder.DataContext);
             if (value != null)
             {
-                var editRowId = ((IGridViewDataSet)DataSource!).RowEditOptions.EditRowId;
+                var editRowId = dataSource.RowEditOptions.EditRowId;
                 if (editRowId != null && value.Equals(ReflectionUtils.ConvertValue(editRowId, property.PropertyType)))
                 {
                     return true;

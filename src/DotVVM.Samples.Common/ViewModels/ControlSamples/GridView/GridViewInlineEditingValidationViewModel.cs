@@ -37,7 +37,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
         {
             CustomersDataSet = new GridViewDataSet<CustomerDataValidation>()
             {
-                PagingOptions = new PagingOptions()
+                Pager =
                 {
                     PageSize = 10
                 },

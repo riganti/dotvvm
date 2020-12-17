@@ -3,9 +3,9 @@
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Extends the <see cref="IBaseGridViewDataSet" /> with refresh functionality.
+    /// Extends the <see cref="IBaseGridViewDataSet{T}" /> with refresh functionality.
     /// </summary>
-    public interface IRefreshableGridViewDataSet : IBaseGridViewDataSet
+    public interface IRefreshableGridViewDataSet<T> : IBaseGridViewDataSet<T>
     {
         /// <summary>
         /// Gets whether the data should be refreshed. This property is set to true automatically
@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Controls
         bool IsRefreshRequired { get; }
 
         /// <summary>
-        /// Requests to reload data into the <see cref="IRefreshableGridViewDataSet" />.
+        /// Requests to reload data into the <see cref="IRefreshableGridViewDataSet{T}" />.
         /// </summary>
         void RequestRefresh();
     }

@@ -22,13 +22,13 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
 
         [HttpGet]
         [Route("sorted")]
-        public GridViewDataSet<Company<bool>> GetWithSorting([FromQuery, AsObject(typeof(ISortingOptions))]SortingOptions sortingOptions)
+        public GridViewDataSet<Company<bool>> GetWithSorting([FromQuery, AsObject(typeof(ISortingOptions))]DefaultGridSorter<Company<bool>> sortingOptions)
         {
             lock (Database.Instance)
             {
                 var dataSet = new GridViewDataSet<Company<bool>>()
                 {
-                    SortingOptions = sortingOptions
+                    Sorter = sortingOptions
                 };
                 dataSet.LoadFromQueryable(Database.Instance.Companies2.AsQueryable());
                 return dataSet;
@@ -37,13 +37,13 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
 
         [HttpGet]
         [Route("paged")]
-        public GridViewDataSet<Company<string>> GetWithPaging([FromQuery, AsObject(typeof(IPagingOptions))]PagingOptions pagingOptions)
+        public GridViewDataSet<Company<string>> GetWithPaging([FromQuery, AsObject(typeof(IPagingOptions))] DefaultGridPager<Company<string>, DistanceNearPageIndexesProvider<Company<string>>> pagingOptions)
         {
             lock (Database.Instance)
             {
                 var dataSet = new GridViewDataSet<Company<string>>()
                 {
-                    PagingOptions = pagingOptions
+                    Pager = pagingOptions
                 };
                 dataSet.LoadFromQueryable(Database.Instance.Companies.AsQueryable());
                 return dataSet;
@@ -52,14 +52,14 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
 
         [HttpGet]
         [Route("sortedandpaged")]
-        public GridViewDataSet<Company<string>> GetWithSortingAndPaging([FromQuery, AsObject(typeof(ISortingOptions))]SortingOptions sortingOptions, [FromQuery, AsObject(typeof(IPagingOptions))]PagingOptions pagingOptions)
+        public GridViewDataSet<Company<string>> GetWithSortingAndPaging([FromQuery, AsObject(typeof(ISortingOptions))]DefaultGridSorter<Company<string>> sortingOptions, [FromQuery, AsObject(typeof(IPagingOptions))]DefaultGridPager<Company<string>, DistanceNearPageIndexesProvider<Company<string>>> pagingOptions)
         {
             lock (Database.Instance)
             {
                 var dataSet = new GridViewDataSet<Company<string>>()
                 {
-                    PagingOptions = pagingOptions,
-                    SortingOptions = sortingOptions
+                    Pager = pagingOptions,
+                    Sorter = sortingOptions
                 };
                 dataSet.LoadFromQueryable(Database.Instance.Companies.AsQueryable());
                 return dataSet;

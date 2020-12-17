@@ -37,11 +37,11 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.GridView
 
         public GridViewDataSet<CustomerData> CustomersDataSet { get; set; } = new GridViewDataSet<CustomerData>()
         {
-            PagingOptions = new PagingOptions()
+            Pager = 
             {
                 PageSize = 10
             },
-            SortingOptions = new SortingOptions()
+            Sorter = 
             {
                 SortExpression = nameof(CustomerData.CustomerId)
             }
@@ -59,8 +59,8 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.GridView
 
         public void CustomSort(string column)
         {
-            CustomersDataSet.SortingOptions.SortExpression = column;
-            CustomersDataSet.SortingOptions.SortDescending = false;
+            CustomersDataSet.Sorter.SortExpression = column;
+            CustomersDataSet.Sorter.SortDescending = false;
         }
     }
 }

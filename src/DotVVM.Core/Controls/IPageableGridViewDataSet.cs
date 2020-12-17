@@ -1,19 +1,16 @@
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Extends the <see cref="IBaseGridViewDataSet" /> with paging functionality.
+    /// Extends the <see cref="IBaseGridViewDataSet{T}" /> with paging functionality.
     /// </summary>
-    public interface IPageableGridViewDataSet : IBaseGridViewDataSet
+    public interface IPageableGridViewDataSet<T, out TPager> : IBaseGridViewDataSet<T>
+        where TPager: IDataSetPager<T>
     {
         /// <summary>
         /// Gets the settings for paging.
         /// </summary>
-        IPagingOptions PagingOptions { get; }
-
-        /// <summary>
-        /// Navigates to the specific page.
-        /// </summary>
-        /// <param name="index">The zero-based index of the page to navigate to.</param>
-        void GoToPage(int index);
+        TPager Pager { get; }
     }
+
+    // public interface IPageableGridViewDataSet<T> : IPageableGridViewDataSet<T, IDataSetPager<T>> { }
 }

@@ -1,0 +1,48 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.GenericGridViewDataSet.PagingViewModel, DotVVM.Samples.Common
+@import DotVVM.Samples.Common.ViewModels.FeatureSamples.GenericGridViewDataSet
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>Using commands</h1>
+
+    <dot:GridView DataSource="{value: TwitterDataSet}">
+        <dot:GridViewTextColumn HeaderText="ID" ValueBinding="{value: Id}" />
+        <dot:GridViewTextColumn HeaderText="Text" ValueBinding="{value: Text}" />
+    </dot:GridView>
+
+    <dot:Button Text="Previous"
+                Enabled="{value: TwitterDataSet.Pager.CanGoToPreviousPage}"
+                Click="{command: GoToPreviousPage()}" />
+
+    <dot:Button Text="Next"
+                Enabled="{value: TwitterDataSet.Pager.CanGoToNextPage}"
+                Click="{command: GoToNextPage()}" />
+
+    <hr />
+
+    <h1>Using static commands</h1>
+
+    <dot:GridView DataSource="{value: TwitterDataSet2}">
+        <dot:GridViewTextColumn HeaderText="ID" ValueBinding="{value: Id}" />
+        <dot:GridViewTextColumn HeaderText="Text" ValueBinding="{value: Text}" />
+    </dot:GridView>
+
+    <dot:Button Text="Previous"
+                Enabled="{value: TwitterDataSet2.Pager.CanGoToPreviousPage}"
+                Click="{staticCommand: TwitterDataSet2 = PagingViewModel.GoToPreviousPage(TwitterDataSet2.Pager).Result}" />
+
+    <dot:Button Text="Next"
+                Enabled="{value: TwitterDataSet2.Pager.CanGoToNextPage}"
+                Click="{staticCommand: TwitterDataSet2 = PagingViewModel.GoToNextPage(TwitterDataSet2.Pager).Result}" />
+
+</body>
+</html>
+
+

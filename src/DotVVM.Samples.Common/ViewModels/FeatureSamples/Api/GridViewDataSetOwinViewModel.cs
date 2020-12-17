@@ -11,7 +11,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Api
     public class GridViewDataSetOwinViewModel : DotvvmViewModelBase
     {
 
-        public SortingOptions SortingOptions1 { get; set; } = new SortingOptions()
+        public DefaultGridSorter<Company<string>> SortingOptions1 { get; set; } = new DefaultGridSorter<Company<string>>()
         {
             SortExpression = nameof(Company<string>.Id)
         };
@@ -19,11 +19,11 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Api
         [Bind(Direction.ServerToClientFirstRequest)]
         public GridViewDataSet<Company<string>> DataSet1 { get; set; } = new GridViewDataSet<Company<string>>()
         {
-            SortingOptions =
+            Sorter =
             {
                 SortExpression = nameof(Company<string>.Id)
             },
-            PagingOptions =
+            Pager =
             {
                 PageSize = 10
             },
@@ -33,11 +33,11 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Api
         [Bind(Direction.ServerToClientFirstRequest)]
         public GridViewDataSet<Company<string>> DataSet2 { get; set; } = new GridViewDataSet<Company<string>>()
         {
-            SortingOptions =
+            Sorter =
             {
                 SortExpression = nameof(Company<string>.Id)
             },
-            PagingOptions =
+            Pager =
             {
                 PageSize = 10
             }

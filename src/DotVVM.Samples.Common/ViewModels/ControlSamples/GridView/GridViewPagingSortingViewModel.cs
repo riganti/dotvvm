@@ -36,14 +36,14 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 
         public GridViewDataSet<CustomerData> CustomersDataSet { get; set; } = new GridViewDataSet<CustomerData>()
         {
-            PagingOptions = new PagingOptions()
+            Pager =
             {
                 PageSize = 10
             }
         };
         public GridViewDataSet<CustomerData> EmptyCustomersDataSet { get; set; } = new GridViewDataSet<CustomerData>()
         {
-            PagingOptions = new PagingOptions()
+            Pager =
             {
                 PageSize = 10
             }
@@ -81,7 +81,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 
         public void TestCommand()
         {
-            CustomersDataSet.SetSortExpression("BirthDate");
+            CustomersDataSet.Sorter.ColumnSortClick(CustomersDataSet, "BirthDate");
         }
 
         public void SortCustomers(string column)
