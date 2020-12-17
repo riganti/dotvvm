@@ -132,7 +132,7 @@ namespace DotVVM.Framework.Controls
 
         public abstract void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container);
 
-        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string?>? sortCommand, HtmlGenericControl cell, IBaseGridViewDataSet<object>? gridViewDataSet)
+        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string?>? sortCommand, HtmlGenericControl cell, IBaseGridViewDataSet<object>? gridViewDataSet, IGridViewDataSetHandler handler)
         {
             if (HeaderTemplate != null)
             {
@@ -152,10 +152,7 @@ namespace DotVVM.Framework.Controls
                 var linkButton = new LinkButton();
                 linkButton.SetValue(LinkButton.TextProperty, GetValueRaw(HeaderTextProperty));
                 cell.Children.Add(linkButton);
-
-                var bindingId = linkButton.GetDotvvmUniqueId() + "_sortBinding";
-                var binding = new CommandBindingExpression(context.Services.GetRequiredService<BindingCompilationService>().WithoutInitialization(), h => sortCommand(sortExpression), bindingId);
-                linkButton.SetBinding(ButtonBase.ClickProperty, binding);
+                handler.SetCommand(GridViewDataSetHelper.SorterCommands.SortByColumn, linkButton, ButtonBase.ClickProperty, h => sortCommand(sortExpression));
 
                 SetSortedCssClass(cell, gridViewDataSet);
             }

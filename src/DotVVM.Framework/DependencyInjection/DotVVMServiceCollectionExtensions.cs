@@ -63,7 +63,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IBindingCompiler, BindingCompiler>();
             services.TryAddSingleton<IBindingExpressionBuilder, BindingExpressionBuilder>();
             services.TryAddSingleton<BindingCompilationService, BindingCompilationService>();
-            services.TryAddSingleton<DataPager.CommonBindings>();
             services.TryAddSingleton<IControlUsageValidator, DefaultControlUsageValidator>();
             services.TryAddSingleton<ILocalResourceUrlManager, LocalResourceUrlManager>();
             services.TryAddSingleton<IResourceHashService, DefaultResourceHashService>();

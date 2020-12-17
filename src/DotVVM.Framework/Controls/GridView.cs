@@ -224,7 +224,8 @@ namespace DotVVM.Framework.Controls
             Children.Add(head);
 
             var gridViewDataSet = DataSource as IBaseGridViewDataSet<object>;
-
+            var handler = GridViewDataSetHelper.GetHandler(gridViewDataSet, context);
+                
             var headerRow = new HtmlGenericControl("tr");
             head.Children.Add(headerRow);
             foreach (var column in Columns.NotNull("GridView.Columns must be set"))
@@ -233,7 +234,7 @@ namespace DotVVM.Framework.Controls
                 SetCellAttributes(column, cell, true);
                 headerRow.Children.Add(cell);
 
-                column.CreateHeaderControls(context, this, sortCommand, cell, gridViewDataSet);
+                column.CreateHeaderControls(context, this, sortCommand, cell, gridViewDataSet, handler);
                 if (FilterPlacement == GridViewFilterPlacement.HeaderRow)
                 {
                     column.CreateFilterControls(context, this, cell, gridViewDataSet);

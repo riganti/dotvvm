@@ -21,31 +21,11 @@ namespace DotVVM.Framework.Controls
     [ControlMarkupOptions(AllowContent = false)]
     public class DataPager : HtmlGenericControl
     {
-        public class CommonBindings
-        {
-            public readonly CommandBindingExpression GoToNextPageCommand;
-            public readonly CommandBindingExpression GoToThisPageCommand;
-            public readonly CommandBindingExpression GoToPrevPageCommand;
-            public readonly CommandBindingExpression GoToFirstPageCommand;
-            public readonly CommandBindingExpression GoToLastPageCommand;
-
-            public CommonBindings(BindingCompilationService service)
-            {
-                GoToNextPageCommand = new CommandBindingExpression(service, h => { GridViewDataSetExtensions.GoToNextPage((dynamic)h[0]); }, "__$DataPager_GoToNextPage");
-                GoToThisPageCommand = new CommandBindingExpression(service, h => {  GridViewDataSetExtensions.GoToPage((dynamic)h[1], (int)h[0]); }, "__$DataPager_GoToThisPage");
-                GoToPrevPageCommand = new CommandBindingExpression(service, h => { GridViewDataSetExtensions.GoToPreviousPage((dynamic)h[0]); }, "__$DataPager_GoToPrevPage");
-                GoToFirstPageCommand = new CommandBindingExpression(service, h => { GridViewDataSetExtensions.GoToFirstPage((dynamic)h[0]); }, "__$DataPager_GoToFirstPage");
-                GoToLastPageCommand = new CommandBindingExpression(service, h => { GridViewDataSetExtensions.GoToLastPage((dynamic)h[0]); }, "__$DataPager_GoToLastPage");
-            }
-        }
-
-        private readonly CommonBindings commonBindings;
         private readonly BindingCompilationService bindingService;
 
-        public DataPager(CommonBindings commonBindings, BindingCompilationService bindingService)
+        public DataPager(BindingCompilationService bindingService)
             : base("div")
         {
-            this.commonBindings = commonBindings;
             this.bindingService = bindingService;
         }
 
@@ -176,11 +156,12 @@ namespace DotVVM.Framework.Controls
                     new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$pagerEnabled")) :
                 Enabled);
 
+            var handler = GridViewDataSetHelper.GetHandler(DataSet, context);
 
-            GoToFirstPageButton = CreateNavigationButton("««", FirstPageTemplate, enabledValue, commonBindings.GoToFirstPageCommand, context);
+            GoToFirstPageButton = CreateNavigationButton("««", FirstPageTemplate, enabledValue, GridViewDataSetHelper.PagerCommands.GoToFirstPage, handler, context);
             ContentWrapper.Children.Add(GoToFirstPageButton);
 
-            GoToPreviousPageButton = CreateNavigationButton("«", PreviousPageTemplate, enabledValue, commonBindings.GoToPrevPageCommand, context);
+            GoToPreviousPageButton = CreateNavigationButton("«", PreviousPageTemplate, enabledValue, GridViewDataSetHelper.PagerCommands.GoToPrevPage, handler, context);
             ContentWrapper.Children.Add(GoToPreviousPageButton);
 
             // number fields
@@ -190,19 +171,19 @@ namespace DotVVM.Framework.Controls
             var dataSet = DataSet;
             if (dataSet != null)
             {
-                ((dynamic)this).BuildInnerList((dynamic)dataSet, NumberButtonsPlaceHolder, dataContextType, enabledValue);
+                ((dynamic)this).BuildInnerList((dynamic)dataSet, NumberButtonsPlaceHolder, dataContextType, enabledValue, handler);
             }
 
-            GoToNextPageButton = CreateNavigationButton("»", NextPageTemplate, enabledValue, commonBindings.GoToNextPageCommand, context);
+            GoToNextPageButton = CreateNavigationButton("»", NextPageTemplate, enabledValue, GridViewDataSetHelper.PagerCommands.GoToNextPage, handler, context);
             ContentWrapper.Children.Add(GoToNextPageButton);
 
-            GoToLastPageButton = CreateNavigationButton("»»", LastPageTemplate, enabledValue, commonBindings.GoToLastPageCommand, context);
+            GoToLastPageButton = CreateNavigationButton("»»", LastPageTemplate, enabledValue, GridViewDataSetHelper.PagerCommands.GoToLastPage, handler, context);
             ContentWrapper.Children.Add(GoToLastPageButton);
         }
 
         private void BuildInnerList<T>(IBaseGridViewDataSet<T> dataSet, DotvvmControl placeholder, DataContextStack dataContextType, object enabledValue) =>
             throw new NotSupportedException($"DotVVM.Framework.Controls.DataPager does not support dataset of type {dataSet.GetType()}");
-        private void BuildInnerList<T, TNearIndex>(IPageableGridViewDataSet<T, DefaultGridPager<T, TNearIndex>> dataSet, DotvvmControl placeholder, DataContextStack dataContextType, object enabledValue)
+        private void BuildInnerList<T, TNearIndex>(IPageableGridViewDataSet<T, DefaultGridPager<T, TNearIndex>> dataSet, DotvvmControl placeholder, DataContextStack dataContextType, object enabledValue, IGridViewDataSetHandler handler)
             where TNearIndex: INearPageIndexesProvider<T, DefaultGridPager<T, TNearIndex>>
         {
             var i = 0;
@@ -215,7 +196,7 @@ namespace DotVVM.Framework.Controls
                     li.Attributes["class"] = "active";
                 }
                 var link = new LinkButton() { Text = (number + 1).ToString() };
-                link.SetBinding(ButtonBase.ClickProperty, commonBindings.GoToThisPageCommand);
+                handler.SetCommand(GridViewDataSetHelper.PagerCommands.GoToThisPage, link, ButtonBase.ClickProperty);
                 if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
                 li.Children.Add(link);
                 placeholder.Children.Add(li);
@@ -232,12 +213,12 @@ namespace DotVVM.Framework.Controls
             return list;
         }
 
-        protected virtual HtmlGenericControl CreateNavigationButton(string defaultText, ITemplate? userDefinedContentTemplate, object enabledValue, ICommandBinding clickCommandBindingExpression,IDotvvmRequestContext context)
+        protected virtual HtmlGenericControl CreateNavigationButton(string defaultText, ITemplate? userDefinedContentTemplate, object enabledValue, string commandName, IGridViewDataSetHandler handler, IDotvvmRequestContext context)
         {
             var li = new HtmlGenericControl("li");
             var link = new LinkButton();
             SetButtonContent(context, link, defaultText, userDefinedContentTemplate);
-            link.SetBinding(ButtonBase.ClickProperty, clickCommandBindingExpression);
+            handler.SetCommand(commandName, link, ButtonBase.ClickProperty);
             if (!true.Equals(enabledValue))
                 link.SetValue(LinkButton.EnabledProperty, enabledValue);
             li.Children.Add(link);
@@ -375,6 +356,8 @@ namespace DotVVM.Framework.Controls
 
                 writer.AddKnockoutDataBind("visible", "$data != $parent.Pager().PageIndex()");
             }
+
+            var handler = GridViewDataSetHelper.GetHandler(DataSet, context);
             
             AddItemCssClass(writer, context);
             AddKnockoutActiveCssDataBind(writer, context, "$data == $parent.Pager().PageIndex()");
@@ -384,7 +367,7 @@ namespace DotVVM.Framework.Controls
             li.Children.Add(link);
             link.SetDataContextType(currentPageTextContext);
             link.SetBinding(ButtonBase.TextProperty, currentPageTextBinding);
-            link.SetBinding(ButtonBase.ClickProperty, commonBindings.GoToThisPageCommand);
+            handler.SetCommand(GridViewDataSetHelper.PagerCommands.GoToThisPage, link, ButtonBase.ClickProperty);
             object enabledValue = GetValueRaw(EnabledProperty)!;
             if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
             NumberButtonsPlaceHolder.Children.Add(li);

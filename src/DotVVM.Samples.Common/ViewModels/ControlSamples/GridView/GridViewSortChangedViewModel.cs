@@ -59,8 +59,8 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.GridView
 
         public void CustomSort(string column)
         {
-            CustomersDataSet.SortingOptions.SortExpression = column;
-            CustomersDataSet.SortingOptions.SortDescending = false;
+            CustomersDataSet.Sorter.SortExpression = column;
+            CustomersDataSet.Sorter.SortDescending = false;
         }
     }
 }
