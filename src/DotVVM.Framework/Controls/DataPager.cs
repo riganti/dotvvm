@@ -351,10 +351,8 @@ namespace DotVVM.Framework.Controls
 
         protected virtual void RenderPageNumberButton(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            HtmlGenericControl li = new HtmlGenericControl("li");
+            HtmlGenericControl li;
             var currentPageTextContext = DataContextStack.Create(typeof(int), NumberButtonsPlaceHolder!.GetDataContextType());
-            li.SetDataContextType(currentPageTextContext);
-            li.DataContext = null;
             var currentPageTextBinding = ValueBindingExpression.CreateBinding(bindingService.WithoutInitialization(),
                 vm => ((int) vm[0]! + 1).ToString(),
                 currentPageTextJs,
@@ -368,6 +366,7 @@ namespace DotVVM.Framework.Controls
                 li = new HtmlGenericControl("li");
                 var literal = new Literal();
                 literal.DataContext = 0;
+                literal.SetDataContextType(currentPageTextContext);
                 literal.SetBinding(Literal.TextProperty, currentPageTextBinding);
                 li.Children.Add(literal);
                 NumberButtonsPlaceHolder!.Children.Add(li);
@@ -376,12 +375,7 @@ namespace DotVVM.Framework.Controls
 
                 writer.AddKnockoutDataBind("visible", "$data != $parent.Pager().PageIndex()");
             }
-
-            li = new HtmlGenericControl("li");
-            li.SetDataContextType(currentPageTextContext);
-            li.DataContext = null;
-
-            NumberButtonsPlaceHolder.Children.Add(li);
+            
             AddItemCssClass(writer, context);
             AddKnockoutActiveCssDataBind(writer, context, "$data == $parent.Pager().PageIndex()");
             li = new HtmlGenericControl("li");
@@ -393,7 +387,7 @@ namespace DotVVM.Framework.Controls
             link.SetBinding(ButtonBase.ClickProperty, commonBindings.GoToThisPageCommand);
             object enabledValue = GetValueRaw(EnabledProperty)!;
             if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
-
+            NumberButtonsPlaceHolder.Children.Add(li);
             li.Render(writer, context);
         }
 
