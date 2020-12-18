@@ -9,11 +9,11 @@
 </head>
 <body>
 
-    <h1>Redirect should cancel waiting postbacks</h1>
+    <h1>Redirect should not cancel waiting postbacks</h1>
 
     <h2>Value: <span class="result">{{value: Value}}</span></h2>
 
-    <p>Click the first button and the second button immediately - the value should not be incremented to 1 when the page is reloading.</p>
+    <p>Click the first button and the second button immediately - the value will incremented to 1 while the new page is loading.</p>
 
     <div PostBack.Concurrency="Queue">
         <dot:Button Text="Redirect (blocks for 2 + 5 seconds)" Click="{command: Redirect()}" />
