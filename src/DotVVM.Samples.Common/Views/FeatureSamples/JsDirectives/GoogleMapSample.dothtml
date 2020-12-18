@@ -1,0 +1,22 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JsDirectives.GoogleMapSampleViewModel, DotVVM.Samples.Common
+@js FeatureSamples_Resources_GoogleMapSample
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>Google Map Sample</h1>
+
+    <div ID="map"></div>
+
+</body>
+</html>
+
+
+
+
