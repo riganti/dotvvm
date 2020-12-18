@@ -107,7 +107,9 @@ function validateFloat(value: any): CoerceResult {
 
 function validateString(value: any): CoerceResult {
     let wasCoerced = false;
-    if (typeof value === "number") {
+    if (value === null) {
+        wasCoerced = false;
+    } else if (typeof value === "number") {
         value = formatString("n", value);
         wasCoerced = true;
     } else if (value instanceof Date) {
