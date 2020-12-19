@@ -100,15 +100,15 @@ declare class DotvvmAfterPostBackEventArgs implements PostbackEventArgs {
     xhr?: XMLHttpRequest | undefined;
     isHandled: boolean;
     wasInterrupted: boolean;
-    get postbackClientId(): number;
-    get viewModelName(): string;
-    get viewModel(): any;
-    get sender(): HTMLElement | undefined;
+    readonly postbackClientId: number;
+    readonly viewModelName: string;
+    readonly viewModel: any;
+    readonly sender: HTMLElement | undefined;
     constructor(postbackOptions: PostbackOptions, serverResponseObject: any, commandResult?: any, xhr?: XMLHttpRequest | undefined);
 }
 declare class DotvvmAfterPostBackWithRedirectEventArgs extends DotvvmAfterPostBackEventArgs {
     private _redirectPromise?;
-    get redirectPromise(): Promise<DotvvmNavigationEventArgs> | undefined;
+    readonly redirectPromise: Promise<DotvvmNavigationEventArgs> | undefined;
     constructor(postbackOptions: PostbackOptions, serverResponseObject: any, commandResult?: any, xhr?: XMLHttpRequest, _redirectPromise?: Promise<DotvvmNavigationEventArgs> | undefined);
 }
 declare class DotvvmSpaNavigatingEventArgs implements DotvvmEventArgs {
@@ -164,12 +164,12 @@ declare class DotvvmFileSize {
 declare class DotvvmGlobalize {
     private getGlobalize;
     format(format: string, ...values: any[]): string;
-    formatString(format: string, value: any): string;
+    formatString(format: string, value: any): any;
     parseDotvvmDate(value: string): Date | null;
     parseNumber(value: string): number;
-    parseDate(value: string, format: string, previousValue?: Date): Date | null;
-    bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format?: string): "" | KnockoutComputed<string>;
-    bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format?: string): "" | KnockoutComputed<string>;
+    parseDate(value: string, format: string, previousValue?: Date): any;
+    bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format?: string): "" | KnockoutComputed<any>;
+    bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format?: string): "" | KnockoutComputed<any>;
 }
 declare type DotvvmPostbackHandler = {
     execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions): Promise<PostbackCommitFunction>;
@@ -344,7 +344,7 @@ declare class DotVVM {
     private isPostBackStillActive;
     private fetchCsrfToken;
     staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback?: (_: any) => void, errorCallback?: (errorInfo: {
-        xhr?: XMLHttpRequest;
+        xhr?: XMLHttpRequest | undefined;
         error?: any;
     }) => void): void;
     private processPassedId;
