@@ -49,6 +49,7 @@ interface IDotvvmPostbackHandlerCollection {
 
 class DotVVM {
     private postBackCounter = 0;
+    private lastDisabledPostBack = -1;
     private lastStartedPostack = 0;
     // when we perform redirect, we also disable all new postbacks to prevent strange behavior
     private arePostbacksDisabled = false;
@@ -177,7 +178,7 @@ class DotVVM {
         }
 
         return promise.then(result => {
-            var p = this.lastStartedPostack == options.postbackId ?
+            var p = (this.lastStartedPostack == options.postbackId && options.postbackId >= this.lastDisabledPostBack) ?
                 result :
                 () => Promise.reject(null);
             return () => {
@@ -379,6 +380,10 @@ class DotVVM {
 
     private backUpPostBackConter(): number {
         return ++this.postBackCounter;
+    }
+
+    private setLastDisabledPostBack(currentPostBackCounter: number) {
+        this.lastDisabledPostBack = currentPostBackCounter;
     }
 
     private isPostBackStillActive(currentPostBackCounter: number): boolean {
@@ -882,6 +887,7 @@ class DotVVM {
 
             // prevent double postbacks
             var currentPostBackCounter = this.backUpPostBackConter();
+            this.setLastDisabledPostBack(currentPostBackCounter);
             this.isSpaNavigationRunning(true);
 
             // trigger spaNavigating event
@@ -1016,26 +1022,8 @@ class DotVVM {
         return this.performRedirect(url, replace, resultObject.allowSpa && this.useHistoryApiSpaNavigation);
     }
 
-    private disablePostbacks() {
-        this.lastStartedPostack = -1 // this stops further commits
-        for (const q in this.postbackQueues) {
-            if (this.postbackQueues.hasOwnProperty(q)) {
-                let postbackQueue = this.postbackQueues[q];
-                postbackQueue.queue.length = 0;
-                postbackQueue.noRunning = 0;
-            }
-        }
-        // disable all other postbacks
-        // but not in SPA mode, since we'll need them for the next page
-        // and user might want to try another postback in case this navigation hangs
-        if (!this.getSpaPlaceHolder()) {
-            this.arePostbacksDisabled = true
-        }
-    }
-
     private performRedirect(url: string, replace: boolean, useHistoryApiSpaRedirect?: boolean): Promise<DotvvmNavigationEventArgs> {
         return new Promise((resolve, reject) => {
-            this.disablePostbacks()
             if (replace) {
                 location.replace(url);
                 resolve();
