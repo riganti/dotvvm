@@ -220,30 +220,40 @@ namespace DotVVM.Samples.Tests.Feature
                 // withnout nested test
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
                 withOutBtn.Click();
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
                 withBtn.Click();
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 AssertUI.InnerTextEquals(browser.First("li"), "The NullableIntegerProperty field is required.");
                 withOutBtn.Click();                                         // should not remove the validation error
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 browser.First(".nullableInt input[type=text]").SendKeys("5");
                 withOutBtn.Click();                                         // should not remove the validation error
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 withBtn.Click();                                            // should remove the validation error
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
 
                 // with nested test
                 browser.First(".nullableInt input[type=text]").Clear();
                 addNestedBtn.Click();
+                browser.WaitForPostback();
                 withOutBtn.Click();
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
                 withBtn.Click();
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(4);
                 browser.ElementAt(".nullableInt input[type=text]", 0).SendKeys("10");
                 browser.ElementAt(".nullableInt input[type=text]", 2).SendKeys("10");
                 withOutBtn.Click();
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(4);
                 withBtn.Click();
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(2);
 
                 // wrong value test
@@ -258,8 +268,10 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.First(".NaNTest input[type=text]").SendKeys("55");
                 browser.ElementAt(".nullableInt input[type=text]", 1).SendKeys("15");
                 withOutBtn.Click();
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(2);
                 withBtn.Click();
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
             });
         }
