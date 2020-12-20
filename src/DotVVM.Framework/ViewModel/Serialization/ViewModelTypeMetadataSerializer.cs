@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 using DotVVM.Framework.Utils;
 using Newtonsoft.Json.Linq;
 
@@ -31,7 +33,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             typeof(TimeSpan)
         };
 
-        private static readonly ConcurrentDictionary<ViewModelSerializationMap, JObject> cachedJson = new ConcurrentDictionary<ViewModelSerializationMap, JObject>();
+        private static readonly ConcurrentDictionary<ViewModelSerializationMapWithCulture, JObject> cachedJson = new ConcurrentDictionary<ViewModelSerializationMapWithCulture, JObject>();
 
         public JToken SerializeTypeMetadata(IEnumerable<ViewModelSerializationMap> usedSerializationMaps, ISet<string> ignoredTypes = null)
         {
@@ -49,7 +51,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private JObject GetTypeMetadataCopy(ViewModelSerializationMap map)
         {
-            var obj = cachedJson.GetOrAdd(map, BuildTypeMetadata);
+            var key = new ViewModelSerializationMapWithCulture(map, CultureInfo.CurrentUICulture.Name);
+            var obj = cachedJson.GetOrAdd(key, BuildTypeMetadata(map));
             return (JObject)obj.DeepClone();
         }
 
@@ -57,7 +60,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             var type = new JObject();
 
-            foreach (var property in map.Properties)
+            foreach (var property in map.Properties.Where(p => p.IsAvailableOnClient()))
             {
                 var prop = new JObject();
 
@@ -144,6 +147,33 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private string GetPrimitiveTypeName(Type type) => type.Name.ToString();
 
+
+
+        struct ViewModelSerializationMapWithCulture : IEquatable<ViewModelSerializationMapWithCulture>
+        {
+            ViewModelSerializationMap Map { get; }
+            string CultureName { get; }
+
+            public ViewModelSerializationMapWithCulture(ViewModelSerializationMap map, string cultureName)
+            {
+                Map = map;
+                CultureName = cultureName;
+            }
+
+            public override bool Equals(object obj) => obj is ViewModelSerializationMapWithCulture culture && Equals(culture);
+            public bool Equals(ViewModelSerializationMapWithCulture other) => EqualityComparer<ViewModelSerializationMap>.Default.Equals(Map, other.Map) && CultureName == other.CultureName;
+
+            public override int GetHashCode()
+            {
+                var hashCode = 692496131;
+                hashCode = hashCode * -1521134295 + EqualityComparer<ViewModelSerializationMap>.Default.GetHashCode(Map);
+                hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(CultureName);
+                return hashCode;
+            }
+
+            public static bool operator ==(ViewModelSerializationMapWithCulture left, ViewModelSerializationMapWithCulture right) => left.Equals(right);
+            public static bool operator !=(ViewModelSerializationMapWithCulture left, ViewModelSerializationMapWithCulture right) => !(left == right);
+        }
     }
 
 }
