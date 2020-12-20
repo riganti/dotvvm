@@ -24,24 +24,30 @@ namespace DotVVM.Samples.Tests.Feature
                 {
                     // load section 1 and validate it
                     switchTestsButton.Click();
+                    browser.WaitForPostback();
                     AssertUI.TextEquals(browser.Single("*[data-id=validator1]"), "");
 
                     postbackButton.Click();
+                    browser.WaitForPostback();
                     AssertUI.TextEquals(browser.Single("*[data-id=validator1]"), "The Text field is not a valid e-mail address.");
 
                     browser.Single("input[data-id=textbox1]").Clear();
                     postbackButton.Click();
+                    browser.WaitForPostback();
                     AssertUI.TextEquals(browser.Single("*[data-id=validator1]"), "The Text field is required. The Text field is not a valid e-mail address.");
 
                     // load section 2 and validate it
                     switchTestsButton.Click();
+                    browser.WaitForPostback();
                     AssertUI.TextEquals(browser.Single("*[data-id=validator2]"), "");
 
                     postbackButton.Click();
+                    browser.WaitForPostback();
                     AssertUI.TextEquals(browser.Single("*[data-id=validator2]"), "The Text field is required. The Text field is not a valid e-mail address.");
 
                     browser.Single("input[data-id=textbox2]").SendKeys("t@t.tt");
                     postbackButton.Click();
+                    browser.WaitForPostback();
                     AssertUI.TextEquals(browser.Single("*[data-id=validator2]"), "");
                 }
             });
@@ -92,7 +98,7 @@ namespace DotVVM.Samples.Tests.Feature
                     {
                         textBox.Clear().SendKeys(value);
                     }
-                    button.Click();
+                    button.Click().Wait();
                 }
                 void assertValidators(params bool[] states)
                 {
@@ -116,7 +122,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // empty field - Required validators should be triggered
                 testValue("");
-                assertValidators(false, false, true, false, true);
+                assertValidators(false, false, true, true, true);
 
                 // correct value - no error
                 testValue("06/14/2017 8:10:35 AM");
@@ -689,19 +695,25 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_Localization);
 
+                browser.ElementAt("button[type=submit]", 0).Click();
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(browser.Single(".result-code"), "This comes from resource file!");
+                    AssertUI.TextEquals(browser.Single(".result-markup"), "This comes from resource file!");
+                }, 2000);
 
+                browser.ElementAt("a", 1).Click().Wait();
                 browser.ElementAt("button[type=submit]", 0).Click();
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(browser.Single(".result-code"), "Tohle pochází z resource souboru!");
+                    AssertUI.TextEquals(browser.Single(".result-markup"), "Tohle pochází z resource souboru!");
+                }, 2000);
 
-                AssertUI.TextEquals(browser.Single(".result-code"), "This comes from resource file!");
-                AssertUI.TextEquals(browser.Single(".result-markup"), "This comes from resource file!");
-                browser.ElementAt("a", 1).Click();
+                browser.ElementAt("a", 0).Click().Wait();
                 browser.ElementAt("button[type=submit]", 0).Click();
-                AssertUI.TextEquals(browser.Single(".result-code"), "Tohle pochází z resource souboru!");
-                AssertUI.TextEquals(browser.Single(".result-markup"), "Tohle pochází z resource souboru!");
-                browser.ElementAt("a", 0).Click();
-                browser.ElementAt("button[type=submit]", 0).Click();
-                AssertUI.TextEquals(browser.Single(".result-code"), "This comes from resource file!");
-                AssertUI.TextEquals(browser.Single(".result-markup"), "This comes from resource file!");
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(browser.Single(".result-code"), "This comes from resource file!");
+                    AssertUI.TextEquals(browser.Single(".result-markup"), "This comes from resource file!");
+                }, 2000);
             });
         }
 
