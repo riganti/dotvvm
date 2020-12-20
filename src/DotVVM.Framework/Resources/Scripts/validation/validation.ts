@@ -137,32 +137,42 @@ function validateViewModel(viewModel: any): void {
 
         // run validators
         const propInfo = typeInfo[propertyName];
+    
         if (propInfo.validationRules) {
             validateProperty(viewModel, observable, propertyValue, propInfo.validationRules);
         }
 
-        // check the value is even valid for the given type
-        if (getErrors(observable).length == 0
-            && typeof propInfo.type === "string" && propInfo.type in primitiveTypes && !primitiveTypes[propInfo.type].tryCoerce(propertyValue)) {
-            ValidationError.attach(`The value of property ${propertyName} (${propertyValue}) is invalid value for type ${propInfo.type}.`, observable);
-            // TODO: we may not need to validate primitive types any more
+        // validate primitive type
+        if ((typeof propInfo.type === "string" && propInfo.type in primitiveTypes)
+            || typeof propInfo.type === "object" && !Array.isArray(propInfo.type) && (propInfo.type.type === "enum" || propInfo.type.type == "nullable")) {
+            validatePrimitiveType(propertyName, observable, propertyValue, propInfo.type);
+        } else {
+            validateRecursive(propertyValue, propInfo.type);
         }
+    }
+}
 
-        if (!propertyValue) {
-            continue;
+function validateRecursive(propertyValue: any, type: TypeDefinition) {
+    if (typeof type === "string") {
+        validateViewModel(propertyValue);
+    } else if (Array.isArray(type)) {
+        for (const item of propertyValue) {
+            validateRecursive(ko.unwrap(item), type[0]);
         }
+    }
+}
 
-        // recurse
-        if (Array.isArray(propertyValue)) {
-            // handle collections
-            for (const item of propertyValue) {
-                validateViewModel(item);
-            }
-        }
-        else if (propertyValue instanceof Object) {
-            // handle nested objects
-            validateViewModel(propertyValue);
-        }
+function validatePrimitiveType(propertyName: string, observable: KnockoutObservable<any>, propertyValue: any, type: TypeDefinition) {
+    if (getErrors(observable).length == 0 && !tryCoerce(propertyValue, type)) {
+        ValidationError.attach(`The value of property ${propertyName} (${propertyValue}) is invalid value for type ${type}.`, observable);
+        // TODO: we may not need to validate primitive types any more
+    }
+}
+
+function validateArray(propertyValue: any[], type: TypeDefinition) {
+    // handle collections
+    for (const item of propertyValue) {
+        validateViewModel(item);
     }
 }
 
