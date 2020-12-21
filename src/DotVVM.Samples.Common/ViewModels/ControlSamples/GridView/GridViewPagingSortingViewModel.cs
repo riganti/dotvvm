@@ -81,7 +81,15 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 
         public void TestCommand()
         {
-            CustomersDataSet.SetSortExpression("BirthDate");
+            if (CustomersDataSet.SortingOptions.SortExpression == "BirthDate")
+            {
+                CustomersDataSet.SortingOptions.SortDescending = !CustomersDataSet.SortingOptions.SortDescending;
+            }
+            else
+            {
+                CustomersDataSet.SortingOptions.SortExpression = "BirthDate";
+                CustomersDataSet.SortingOptions.SortDescending = false;
+            }
         }
 
         public void SortCustomers(string column)

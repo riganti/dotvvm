@@ -10,6 +10,9 @@
     <TargetLatestDotNetRuntime>false</TargetLatestDotNetRuntime>
     <CheckEolTargetFramework>False</CheckEolTargetFramework>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net461'">
+    <RuntimeIdentifiers>win7-x86;win7-x64</RuntimeIdentifiers>
+  </PropertyGroup>
 
   <!-- Related to packaging -->
   <PropertyGroup>

@@ -41,8 +41,6 @@ namespace DotVVM.Framework.Tests.Runtime
                 services.AddSingleton<ICookieManager, ChunkingCookieManager>();
                 services.AddSingleton<IDotvvmCacheAdapter, DefaultDotvvmCacheAdapter>();
             });
-			configuration.Security.SigningKey = Convert.FromBase64String("Uiq1FXs016lC6QaWIREB7H2P/sn4WrxkvFkqaIKpB27E7RPuMipsORgSgnT+zJmUu8zXNSJ4BdL73JEMRDiF6A1ScRNwGyDxDAVL3nkpNlGrSoLNM1xHnVzSbocLFDrdEiZD2e3uKujguycvWSNxYzjgMjXNsaqvCtMu/qRaEGc=");
-			configuration.Security.EncryptionKey = Convert.FromBase64String("jNS9I3ZcxzsUSPYJSwzCOm/DEyKFNlBmDGo9wQ6nxKg=");
 
             var requestMock = new Mock<IHttpRequest>();
             requestMock.SetupGet(m => m.Url).Returns(new Uri("http://localhost:8628/Sample1"));
@@ -56,7 +54,7 @@ namespace DotVVM.Framework.Tests.Runtime
             contextMock.SetupGet(m => m.User).Returns(new WindowsPrincipal(WindowsIdentity.GetAnonymous()));
 
 
-			serializer = configuration.ServiceLocator.GetService<IViewModelSerializer>() as DefaultViewModelSerializer;
+			serializer = configuration.ServiceProvider.GetService<IViewModelSerializer>() as DefaultViewModelSerializer;
             context = new DotvvmRequestContext(contextMock.Object, configuration, configuration.ServiceProvider)
             {
                 Presenter = configuration.RouteTable.GetDefaultPresenter(configuration.ServiceProvider),

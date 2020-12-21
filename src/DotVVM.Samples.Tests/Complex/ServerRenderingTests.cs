@@ -90,7 +90,7 @@ namespace DotVVM.Samples.Tests.Complex
             });
         }
 
-        public static void CheckArticleCount(IBrowserWrapper browser, string repeaterUiId, int expectedCount)
+        private static void CheckArticleCount(IBrowserWrapper browser, string repeaterUiId, int expectedCount)
         {
             var articles = browser.First($"div[data-ui='{repeaterUiId}']").FindElements("article[data-ui='test-article']");
             if (articles.Count != expectedCount)
