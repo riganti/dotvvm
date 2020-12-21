@@ -34,7 +34,7 @@ namespace DotVVM.Compiler
             var domain = AppDomain.CreateDomain("DotVVM.Compiler.AppDomain", null, setup);
             return (ICompilerExecutor)domain.CreateInstanceFromAndUnwrap(
                 assemblyName: typeof(AppDomainCompilerExecutor).Assembly.Location,
-                typeName: typeof(AppDomainCompilerExecutor).FullName); ;
+                typeName: typeof(AppDomainCompilerExecutor).FullName);
 #else
 #error Fix TargetFrameworks.
 #endif
