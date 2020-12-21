@@ -2,6 +2,7 @@ using System;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Compiler
 {
@@ -12,8 +13,9 @@ namespace DotVVM.Compiler
         public StaticViewControlResolver(
             DotvvmConfiguration configuration,
             IControlBuilderFactory controlBuilderFactory,
-            StaticViewCompiler compiler)
-            : base(configuration.Markup, controlBuilderFactory)
+            StaticViewCompiler compiler,
+            CompiledAssemblyCache assemblyCache)
+            : base(configuration, controlBuilderFactory, assemblyCache)
         {
             this.compiler = compiler;
         }

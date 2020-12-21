@@ -195,15 +195,17 @@ namespace DotVVM.Compiler
             string fullClassName = namespaceName + "." + className;
             var refObjectSerializer = configuration.ServiceProvider.GetRequiredService<RefObjectSerializer>();
             var emitter = new DefaultViewCompilerCodeEmitter();
+            var assemblyCache = configuration.ServiceProvider.GetRequiredService<CompiledAssemblyCache>();
             var bindingCompiler = configuration.ServiceProvider.GetRequiredService<IBindingCompiler>();
-            var compilingVisitor = new ViewCompilingVisitor(emitter, bindingCompiler, className);
+            var compilingVisitor = new ViewCompilingVisitor(emitter, assemblyCache, bindingCompiler, className);
             resolvedView.Accept(compilingVisitor);
 
             // HACK: In 2.4.0, ReflectionUtils.FindType expects to find the controls in the current assembly,
             //       which is bollocks.
             if (resolvedView.Metadata.Type != typeof(DotvvmView))
             {
-                emitter.ResultControlType = resolvedView.Metadata.Type.AssemblyQualifiedName;
+                emitter.ResultControlTypeSyntax = SyntaxFactory
+                    .ParseTypeName(resolvedView.Metadata.Type.AssemblyQualifiedName);
             }
 
             if (resolvedView.Directives.ContainsKey("masterPage"))
