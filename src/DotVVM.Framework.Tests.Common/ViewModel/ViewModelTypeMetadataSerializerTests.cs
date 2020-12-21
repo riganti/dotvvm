@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using CheckTestOutput;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
@@ -49,80 +50,8 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
                 mapper.GetMap(typeof(NestedTestViewModel))
             });
 
-            var expected = @"{
-    'hXgHohhzHL2SzMTI0/aQFP42rV8=': {
-        'ChildFirstRequest': {
-            'type': 'GqKC8CuCoDNJdqzKjKrxePbUZr8=',
-            'post': 'no',
-            'update': 'firstRequest'
-        },
-        'ClientToServer': {
-            'type': 'String',
-            'update': 'no'
-        },
-        'NestedList': {
-            'type': [
-                'GqKC8CuCoDNJdqzKjKrxePbUZr8='
-            ]
-        },
-        'property ONE': {
-            'type': 'Guid'
-        },
-        'property TWO': {
-            'type': [
-                {
-                    'type': 'nullable',
-                    'inner': {
-                        'type': 'enum',
-                        'values': {
-                            'Zero': 0,
-                            'One': 1,
-                            'Two': 2
-                        }
-                    }
-                }
-            ]
-        },
-        'ServerToClient': {
-            'type': 'String',
-            'post': 'no',
-            'validationRules': [
-                {
-                    'ruleName': 'required',
-                    'errorMessage': 'ServerToClient is required!',
-                    'parameters': []
-                }
-            ]
-        }
-    },
-    'GqKC8CuCoDNJdqzKjKrxePbUZr8=': {
-        'Ignored': {
-            'type': 'Boolean',
-            'post': 'no',
-            'update': 'no'
-        },
-        'InPathOnly': {
-            'type': 'Int32',
-            'post': 'pathOnly',
-            'validationRules': [
-                {
-                    'ruleName': 'required',
-                    'errorMessage': 'The InPathOnly field is required.',
-                    'parameters': []
-                },
-                {
-                    'ruleName': 'range',
-                    'errorMessage': 'range error',
-                    'parameters': [
-                        0,
-                        10
-                    ]
-                }
-            ]
-        }
-    }
-}";
-            Assert.AreEqual(JToken.Parse(expected.Replace("'", "\"")).ToString(Formatting.None), result.ToString(Formatting.None));
+            var checker = new OutputChecker("testoutputs");
+            checker.CheckJsonObject(result);
         }
 
 
