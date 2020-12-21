@@ -204,8 +204,7 @@ namespace DotVVM.Compiler
             //       which is bollocks.
             if (resolvedView.Metadata.Type != typeof(DotvvmView))
             {
-                emitter.ResultControlTypeSyntax = SyntaxFactory
-                    .ParseTypeName(resolvedView.Metadata.Type.AssemblyQualifiedName);
+                emitter.ResultControlTypeSyntax = emitter.ParseTypeName(resolvedView.Metadata.Type);
             }
 
             if (resolvedView.Directives.ContainsKey("masterPage"))
