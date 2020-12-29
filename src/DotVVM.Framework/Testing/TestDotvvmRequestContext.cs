@@ -44,5 +44,8 @@ namespace DotVVM.Framework.Testing
             get => _services ?? Configuration?.ServiceProvider ?? throw new NotSupportedException();
             set => _services = value;
         }
+
+        public object CommandResult { get; set; }
+        public Dictionary<string, object> CustomData { get; set; }
     }
 }

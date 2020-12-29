@@ -1,0 +1,42 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommandResult.SimpleExceptionFilterViewModel, DotVVM.Samples.Common
+@import model = DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommandResult.SimpleExceptionFilterViewModel
+
+<html>
+<head>
+</head>
+<body>
+    <div>
+        <dot:Button Click="{staticCommand: model.StaticCommand()}" data-ui="staticCommand" Text="Static Command Test" />
+        <dot:Button Click="{command: Command()}" Text="Command Test"  data-ui="command" />
+        <dot:Button onclick="javascript: clearTexts()" Text="Clear" data-ui="clear"></dot:Button>
+    </div>
+    <p>
+        <span data-ui="customData"></span><br />
+        <span data-ui="result"></span>
+    </p>
+    <dot:InlineScript>
+        function clearTexts(){
+            var customData = document.querySelector('[data-ui="customData"]');
+            var result = document.querySelector('[data-ui="result"]');
+            customData.innerText = "";
+            result.innerText = "";
+        }
+        dotvvm.events.staticCommandMethodInvoked.subscribe(e => {
+            var customData = document.querySelector('[data-ui="customData"]');
+            var result = document.querySelector('[data-ui="result"]');
+
+            customData.innerText = e.serverResponseObject.customData.Message;
+            result.innerText = e.serverResponseObject.result.Message;
+        });
+
+        dotvvm.events.postbackResponseReceived.subscribe(e => {
+            var customData = document.querySelector('[data-ui="customData"]');
+            var result = document.querySelector('[data-ui="result"]');
+
+            customData.innerText = e.serverResponseObject.customData.Message;
+            result.innerText = e.serverResponseObject.commandResult.Message;
+        });
+    </dot:InlineScript>
+</body>
+</html>
+
