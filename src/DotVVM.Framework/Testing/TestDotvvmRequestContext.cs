@@ -46,6 +46,6 @@ namespace DotVVM.Framework.Testing
         }
 
         public object CommandResult { get; set; }
-        public object CustomData { get; set; }
+        public Dictionary<string, object> CustomData { get; set; }
     }
 }
