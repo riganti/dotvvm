@@ -208,5 +208,5 @@ type PostbackResponse =
         commandResult: any
         action: string
         resultIdFragment?: string
-        customData?: any
+        customData?: { [key: string]: any }
     }
