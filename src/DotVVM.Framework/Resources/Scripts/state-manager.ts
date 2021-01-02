@@ -140,11 +140,11 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
         this[updateSymbol](vm => Object.freeze({ ...vm, [propName]: valUpdate(vm[propName]) }))
     }
 
-    constructor(initialValue: T, updater: UpdateDispatcher<T>, properties: string[]) {
+    constructor(initialValue: T, updater: UpdateDispatcher<T>, typeInfo: ObjectTypeMetadata, additionalProperties: string[]) {
         this[currentStateSymbol] = initialValue
         this[updateSymbol] = updater
 
-        for (const p of properties) {
+        for (const p of keys(typeInfo.properties).concat(additionalProperties)) {
             this[internalPropCache][p] = null
         
             Object.defineProperty(this, p, {
@@ -160,10 +160,12 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
                         u => this[updatePropertySymbol](p, u)
                     )
 
-                    const options = currentState[p + "$options"]
-                    if (options && options.clientExtenders) {
-                        for (const e of options.clientExtenders) {
-                            (ko.extenders as any)[e.name](newObs, e.parameter)
+                    if (!p.startsWith("$")) {
+                        const clientExtenders = typeInfo.properties[p].clientExtenders;
+                        if (clientExtenders) {
+                            for (const e of clientExtenders) {
+                                (ko.extenders as any)[e.name](newObs, e.parameter)
+                            }
                         }
                     }
 
@@ -208,15 +210,14 @@ export function unmapKnockoutObservables(viewModel: any): any {
 }
 
 function createObservableObject<T extends object>(initialObject: T, update: ((updater: StateUpdate<any>) => void)) {
-    const properties = keys(initialObject)
-
     const typeInfo = getObjectTypeInfo((initialObject as any)["$type"])
 
-    const pSet = new Set(properties)
-    const missingProperties = keys(typeInfo.properties).filter(p => !pSet.has(p))
+    const pSet = new Set(keys(typeInfo.properties))
+    const additionalProperties = keys(initialObject).filter(p => !pSet.has(p))
 
-    return new FakeObservableObject(initialObject, update, properties.concat(missingProperties)) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
+    return new FakeObservableObject(initialObject, update, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
 }
+
 
 function type(o: any) {
     const k = keys(o)

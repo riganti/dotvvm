@@ -53,10 +53,29 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             if (SendDiff && context.ReceivedViewModelJson != null && context.ViewModelJson["viewModel"] != null)
             {
-                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], false);
+                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], false, i => ShouldIncludeProperty(i.TypeId, i.Property));
                 context.ViewModelJson.Remove("viewModel");
             }
             return context.ViewModelJson.ToString(JsonFormatting);
+        }
+
+        private bool? ShouldIncludeProperty(string typeId, string property)
+        {
+            var options = viewModelMapper.GetMapByTypeId(typeId).PropertyByClientName(property);
+
+            // IfInPostbackPath and ServerToClient items should be sent every time because we might not have received them from the client and we still remember their value so they look unchanged
+            if (!options.TransferToServer || options.TransferToServerOnlyInPath)
+            {
+                return true;
+            }
+
+            // ServerToClientFirstRequest should be ignored
+            if (!options.TransferAfterPostback)
+            {
+                return false;
+            }
+            
+            return null;
         }
 
         /// <summary>

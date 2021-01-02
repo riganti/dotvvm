@@ -30,8 +30,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             this.configuration = configuration;
         }
 
-        private readonly ConcurrentDictionary<Type, ViewModelSerializationMap> serializationMapCache = new ConcurrentDictionary<Type, ViewModelSerializationMap>();
-        public ViewModelSerializationMap GetMap(Type type) => serializationMapCache.GetOrAdd(type, CreateMap);
+        private readonly ConcurrentDictionary<string, ViewModelSerializationMap> serializationMapCache = new ConcurrentDictionary<string, ViewModelSerializationMap>();
+        public ViewModelSerializationMap GetMap(Type type) => serializationMapCache.GetOrAdd(type.GetTypeHash(), t => CreateMap(type));
+        public ViewModelSerializationMap GetMapByTypeId(string typeId) => serializationMapCache[typeId];
 
         /// <summary>
         /// Creates the serialization map for specified type.

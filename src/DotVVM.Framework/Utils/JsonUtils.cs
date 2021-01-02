@@ -11,18 +11,23 @@ namespace DotVVM.Framework.Utils
 {
     public static class JsonUtils
     {
-        public static JObject Diff(JObject source, JObject target, bool nullOnRemoved = false)
+        public static JObject Diff(JObject source, JObject target, bool nullOnRemoved = false, Func<(string TypeId, string Property), bool?>? includePropertyOverride = null)
         {
+            var typeId = target.TryGetValue("$type", out var t) ? t.Value<string>() : null;
+            
             var diff = new JObject();
             foreach (var item in target)
             {
-                // TODO: read options from type metadata
-                if (target[item.Key + "$options"] is JObject options)
+                if (typeId != null && includePropertyOverride != null && !item.Key.StartsWith("$"))
                 {
-                    if (options["pathOnly"]?.Value<bool?>() == true || options["doNotPost"]?.Value<bool?>() == true)
+                    var include = includePropertyOverride((typeId, item.Key));
+                    if (include == true)
                     {
-                        // IfInPostbackPath and ServerToClient items should be sent every time because we might not have received them from the client and we still remember their value so they look unchanged
                         diff[item.Key] = item.Value;
+                        continue;
+                    }
+                    else if (include == false)
+                    {
                         continue;
                     }
                 }
@@ -105,29 +110,6 @@ namespace DotVVM.Framework.Utils
                 foreach (var item in source)
                 {
                     if (target[item.Key] == null) diff[item.Key] = JValue.CreateNull();
-                }
-            }
-
-            // TODO: remove items for first request only
-            foreach (var item in Enumerable.ToArray<KeyValuePair<string, JToken>>(diff))
-            {
-                if (item.Key.EndsWith("$options", StringComparison.Ordinal))
-                {
-                    var propertyName = item.Key.Remove(item.Key.Length - "$options".Length);
-
-                    // remove abandoned $options
-                    if (diff[propertyName] == null)
-                    {
-                        diff.Remove(item.Key);
-                        continue;
-                    }
-
-                    // remove firstRequest data
-                    var options = (JObject)item.Value;
-                    if (options["firstRequest"]?.Value<bool?>() == true)
-                    {
-                        diff.Remove(propertyName);
-                    }
                 }
             }
             return diff;
