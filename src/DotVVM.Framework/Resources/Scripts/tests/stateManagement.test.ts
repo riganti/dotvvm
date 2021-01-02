@@ -23,52 +23,64 @@ initDotvvm({
         Inner2: null
     },
     typeMetadata: {
-        t1: {
-            Int: {
-                type: "Int32"
-            },
-            Str: {
-                type: "String"
-            },
-            Array: {
-                type: [
-                    "t2"
-                ]
-            },
-            ArrayWillBe: {
-                type: [
-                    "t2"
-                ]
-            },
-            Inner: {
-                type: "t3"
-            },
-            Inner2: {
-                type: "t3"
+        t1: {                
+            type: "object",
+            properties: {
+                Int: {
+                    type: "Int32"
+                },
+                Str: {
+                    type: "String"
+                },
+                Array: {
+                    type: [
+                        "t2"
+                    ]
+                },
+                ArrayWillBe: {
+                    type: [
+                        "t2"
+                    ]
+                },
+                Inner: {
+                    type: "t3"
+                },
+                Inner2: {
+                    type: "t3"
+                }
             }
         },
         t2: {
-            Id: {
-                type: "Int32"
+            type: "object",
+            properties: {
+                Id: {
+                    type: "Int32"
+                }
             }
         },
         t3: {
-            "P1": {
-                type: "Int32"
-            },
-            "P2": {
-                type: "Int32"
-            },
-            "P3": {
-                type: "Int32"
-            },
-            "P4": {
-                type: { type: "nullable", inner: "Int32" }
+            type: "object",
+            properties: {
+                "P1": {
+                    type: "Int32"
+                },
+                "P2": {
+                    type: "Int32"
+                },
+                "P3": {
+                    type: "Int32"
+                },
+                "P4": {
+                    type: { type: "nullable", inner: "Int32" }
+                }
             }
         },
         t4: {
-            "P": {
-                type: "String"
+            type: "object",
+            properties: {
+                "P": {
+                    type: "String"
+                }
             }
         }
     }

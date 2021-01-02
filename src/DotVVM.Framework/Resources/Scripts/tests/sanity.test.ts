@@ -13,8 +13,11 @@ test('DotVVM can be initialized', () => {
         },
         typeMetadata: {
             t1: {
-                MyProperty: {
-                    type: "Int32"
+                type: "object",
+                properties: {
+                    MyProperty: {
+                        type: "Int32"
+                    }
                 }
             }
         }

@@ -7,6 +7,9 @@ import { tryCoerce } from '../metadata/coercer';
 jest.mock("../metadata/typeMap", () => ({
     getTypeInfo(typeId: string) {
         return testTypeMap[typeId];
+    },
+    getObjectTypeInfo(typeId: string): ObjectTypeMetadata {
+        return testTypeMap[typeId] as any;
     }
 }));
 
@@ -1382,125 +1385,187 @@ interface ObservableSubHierarchy {
 
 const testTypeMap: TypeMap = {
     t1: {
-        a: {
-            type: "String"
+        type: "object",
+        properties: {
+            a: {
+                type: "String"
+            }
         }
     },
-    t2: {
-        a: {
-            type: "String",
-            update: "no",
-            post: "no"
+    t2: {        
+        type: "object",
+            properties: {
+            a: {
+                type: "String",
+                update: "no",
+                post: "no"
+            }
         }
     },
     t3: {
-        a: {
-            type: "DateTime"
+        type: "object",
+        properties: {
+            a: {
+                type: "DateTime"
+            }
         }
     },
     t4: {
-        a: {
-            type: [ "String" ]
+        type: "object",
+        properties: {
+            a: {
+                type: [ "String" ]
+            }
         }
     },
     t5: {
-        Prop1: {
-            type: "String"
-        },
-        Prop2: {
-            type: "t5_a"
+        type: "object",
+        properties: {
+            Prop1: {
+                type: "String"
+            },
+            Prop2: {
+                type: "t5_a"
+            }
         }
     },
     t5_a: {
-        Prop21: {
-            type: "String"
-        },
-        Prop22: {
-            type: "String"
-        },
-        Prop23: {
-            type: [ "t5_a_a" ]
+        type: "object",
+        properties: {
+            Prop21: {
+                type: "String"
+            },
+            Prop22: {
+                type: "String"
+            },
+            Prop23: {
+                type: [ "t5_a_a" ]
+            }
         }
     },
     t5_a_a: {
-        Prop231: {
-            type: "String"
+        type: "object",
+        properties: {
+            Prop231: {
+                type: "String"
+            }
         }
     },
-    t6: {
-        a: {
-            type: [ "t6_a" ]
+    t6: {        
+        type: "object",
+        properties: {
+            a: {
+                type: [ "t6_a" ]
+            }
         }
     },
     t6_a: {
-        b: {
-            type: "Int32"
-        },
-        c: {
-            type: [ "Int32" ]
+        type: "object",
+        properties: {        
+            b: {
+                type: "Int32"
+            },
+            c: {
+                type: [ "Int32" ]
+            }
         }
     },
     t7: {
-        a: {
-            type: "t7_a"
+        type: "object",
+        properties: {
+            a: {
+                type: "t7_a"
+            }
         }
     },
     t7_a: {
-        b: {
-            type: "String"
+        type: "object",
+        properties: {
+            b: {
+                type: "String"
+            }
         }
     },
     t8: {
-        a: {
-            type: [ "t8_a" ]
+        type: "object",
+        properties: {
+            a: {
+                type: [ "t8_a" ]
+            }
         }
     },
     t8_a: {
-        b: {
-            type: "Int32"
+        type: "object",
+        properties: {
+            b: {
+                type: "Int32"
+            }
         }
     },
     t9: {
-        a: {
-            type: "Int32"
+        type: "object",
+        properties: {
+            a: {
+                type: "Int32"
+            }
         }
     },
     t10: {
-        a: {
-            type: "t10_a"
+        type: "object",
+        properties: {
+            a: {
+                type: "t10_a"
+            }
         }
     },
-    t10_a: {
+    t10_a: {        
+        type: "object",
+        properties: { }
     },
     t11: {
-        selected: {
-            type: "t11_a"
-        },
-        items: {
-            type: [ "t11_a" ]
+        type: "object",
+        properties: {
+            selected: {
+                type: "t11_a"
+            },
+            items: {
+                type: [ "t11_a" ]
+            }
         }
     },
     t11_a: {
-        id: {
-            type: "Int32"
+        type: "object",
+        properties: {
+            id: {
+                type: "Int32"
+            }
         }
     },
     t12: {
-        Prop1: {
-            type: "String"
-        },
-        Prop2: {
-            type: "String"
+        type: "object",
+        properties: {
+            Prop1: {
+                type: "String"
+            },
+            Prop2: {
+                type: "String"
+            }
         }
     },
     t13: {
-        Prop: {
-            type: "String"
+        type: "object",
+        properties: {
+            Prop: {
+                type: "String"
+            }
         }
     },
     t14: {
-        Prop: {
-            type: [ "String" ]
+        type: "object",
+        properties: {
+            Prop: {
+                type: [ "String" ]
+            }
         }
     }
 };

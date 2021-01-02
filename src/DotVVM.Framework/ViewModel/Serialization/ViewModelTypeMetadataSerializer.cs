@@ -33,38 +33,65 @@ namespace DotVVM.Framework.ViewModel.Serialization
             typeof(TimeSpan)
         };
 
-        private static readonly ConcurrentDictionary<ViewModelSerializationMapWithCulture, JObject> cachedJson = new ConcurrentDictionary<ViewModelSerializationMapWithCulture, JObject>();
+        private static readonly ConcurrentDictionary<ViewModelSerializationMapWithCulture, ObjectMetadataWithDependencies> cachedObjectMetadata = new ConcurrentDictionary<ViewModelSerializationMapWithCulture, ObjectMetadataWithDependencies>();
+        private static readonly ConcurrentDictionary<Type, JObject> cachedEnumMetadata = new ConcurrentDictionary<Type, JObject>();
 
         public JToken SerializeTypeMetadata(IEnumerable<ViewModelSerializationMap> usedSerializationMaps, ISet<string> ignoredTypes = null)
         {
+            var dependentEnumTypes = new HashSet<Type>();
+
+            // serialize object types
             var types = new JObject();
             foreach (var map in usedSerializationMaps)
             {
-                var type = GetComplexTypeName(map.Type);
-                if (ignoredTypes?.Contains(type) != true)
+                var typeId = GetComplexTypeName(map.Type);
+                if (ignoredTypes?.Contains(typeId) != true)
                 {
-                    types[type] = GetTypeMetadataCopy(map);
+                    var metadata = GetObjectTypeMetadataCopy(map);
+                    types[typeId] = metadata.Metadata;
+                    dependentEnumTypes.UnionWith(metadata.DependentEnumTypes);
                 }
             }
+
+            // add enum types
+            foreach (var type in dependentEnumTypes)
+            {
+                var typeId = GetEnumTypeName(type);
+                if (ignoredTypes?.Contains(typeId) != true)
+                {
+                    types[typeId] = GetEnumTypeMetadataCopy(type);
+                }
+            }
+            
             return types;
         }
 
-        private JObject GetTypeMetadataCopy(ViewModelSerializationMap map)
+        private JObject GetEnumTypeMetadataCopy(Type type)
         {
-            var key = new ViewModelSerializationMapWithCulture(map, CultureInfo.CurrentUICulture.Name);
-            var obj = cachedJson.GetOrAdd(key, BuildTypeMetadata(map));
-            return (JObject)obj.DeepClone();
+            var metadata = cachedEnumMetadata.GetOrAdd(type, BuildEnumTypeMetadata);
+            return (JObject)metadata.DeepClone();
         }
 
-        internal JObject BuildTypeMetadata(ViewModelSerializationMap map)
+        private ObjectMetadataWithDependencies GetObjectTypeMetadataCopy(ViewModelSerializationMap map)
         {
-            var type = new JObject();
+            var key = new ViewModelSerializationMapWithCulture(map, CultureInfo.CurrentUICulture.Name);
+            var obj = cachedObjectMetadata.GetOrAdd(key, BuildObjectTypeMetadata(map));
+            return new ObjectMetadataWithDependencies((JObject)obj.Metadata.DeepClone(), obj.DependentEnumTypes);
+        }
 
+        private ObjectMetadataWithDependencies BuildObjectTypeMetadata(ViewModelSerializationMap map)
+        {
+            var dependentEnumTypes = new HashSet<Type>();
+            
+            var type = new JObject();
+            type["type"] = "object";
+
+            var properties = new JObject();
             foreach (var property in map.Properties.Where(p => p.IsAvailableOnClient()))
             {
                 var prop = new JObject();
 
-                prop["type"] = GetTypeIdentifier(property.Type);
+                prop["type"] = GetTypeIdentifier(property.Type, dependentEnumTypes);
 
                 if (property.TransferToServerOnlyInPath)
                 {
@@ -90,13 +117,15 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     prop["clientExtenders"] = JToken.FromObject(property.ClientExtenders);
                 }
 
-                type[property.Name] = prop;
+                properties[property.Name] = prop;
             }
 
-            return type;
+            type["properties"] = properties;
+
+            return new ObjectMetadataWithDependencies(type, dependentEnumTypes);
         }
 
-        internal JToken GetTypeIdentifier(Type type)
+        internal JToken GetTypeIdentifier(Type type, HashSet<Type> dependentEnumTypes)
         {
             if (supportedPrimitiveTypes.Contains(type))
             {
@@ -104,15 +133,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else if (type.IsEnum)
             {
-                return GetEnumTypeIdentifier(type);
+                dependentEnumTypes.Add(type);
+                return GetEnumTypeName(type);
             }
             else if (ReflectionUtils.IsNullable(type))
             {
-                return GetNullableTypeIdentifier(type);
+                return GetNullableTypeIdentifier(type, dependentEnumTypes);
             }
             else if (ReflectionUtils.IsCollection(type))
             {
-                return new JArray(GetTypeIdentifier(ReflectionUtils.GetEnumerableType(type)));
+                return new JArray(GetTypeIdentifier(ReflectionUtils.GetEnumerableType(type), dependentEnumTypes));
             }
             else
             {
@@ -120,15 +150,15 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
         }
 
-        private JToken GetNullableTypeIdentifier(Type type)
+        private JToken GetNullableTypeIdentifier(Type type, HashSet<Type> dependentEnumTypes)
         {
             var n = new JObject();
             n["type"] = "nullable";
-            n["inner"] = GetTypeIdentifier(ReflectionUtils.UnwrapNullableType(type));
+            n["inner"] = GetTypeIdentifier(ReflectionUtils.UnwrapNullableType(type), dependentEnumTypes);
             return n;
         }
 
-        private JToken GetEnumTypeIdentifier(Type type)
+        private JObject BuildEnumTypeMetadata(Type type)
         {
             var e = new JObject();
             e["type"] = "enum";
@@ -145,14 +175,29 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private string GetComplexTypeName(Type type) => type.GetTypeHash();
 
+        private string GetEnumTypeName(Type type) => type.GetTypeHash();
+
         private string GetPrimitiveTypeName(Type type) => type.Name.ToString();
 
 
-
-        struct ViewModelSerializationMapWithCulture : IEquatable<ViewModelSerializationMapWithCulture>
+        readonly struct ObjectMetadataWithDependencies
         {
-            ViewModelSerializationMap Map { get; }
-            string CultureName { get; }
+            public JObject Metadata { get; }
+
+            public HashSet<Type> DependentEnumTypes { get; }
+
+            public ObjectMetadataWithDependencies(JObject metadata, HashSet<Type> dependentEnumTypes)
+            {
+                Metadata = metadata;
+                DependentEnumTypes = dependentEnumTypes;
+            }
+        }
+
+        readonly struct ViewModelSerializationMapWithCulture : IEquatable<ViewModelSerializationMapWithCulture>
+        {
+            public ViewModelSerializationMap Map { get; }
+            
+            public string CultureName { get; }
 
             public ViewModelSerializationMapWithCulture(ViewModelSerializationMap map, string cultureName)
             {

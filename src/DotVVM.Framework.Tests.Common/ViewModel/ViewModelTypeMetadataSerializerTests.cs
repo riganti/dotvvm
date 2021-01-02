@@ -30,13 +30,13 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
         [DataTestMethod]
         [DataRow(typeof(bool), "'Boolean'")]
         [DataRow(typeof(int?), "{'type':'nullable','inner':'Int32'}")]
-        [DataRow(typeof(SampleEnum), "{'type':'enum','values':{'Zero':0,'One':1,'Two':2}}")]
         [DataRow(typeof(long[][]), "[['Int64']]")]
         [DataRow(typeof(Type), "'t38YPaufyA26odb7HXM9a+aghdA='")]   // unknown types should produce SHA1 hash
         public void ViewModelTypeMetadata_TypeName(Type type, string expected)
         {
             var typeMetadataSerializer = new ViewModelTypeMetadataSerializer();
-            var result = typeMetadataSerializer.GetTypeIdentifier(type);
+            var dependentEnumTypes = new HashSet<Type>();
+            var result = typeMetadataSerializer.GetTypeIdentifier(type, dependentEnumTypes);
             Assert.AreEqual(expected.Replace("'", "\""), result.ToString(Formatting.None));
         }
 

@@ -102,5 +102,5 @@ test('tryCoerce edge cases', () => {
     expect(tryCoerce(null, "Int32")).toBeFalsy()
     expect(tryCoerce("", { type: "nullable", inner: "Int32" })).toBeTruthy()
     expect(tryCoerce(null, { type: "nullable", inner: "Int32" })).toBeTruthy()
-    expect(tryCoerce("anything", "unknown type ...")).toBeUndefined()
+    expect(() => tryCoerce("anything", "unknown type ...")).toThrow()
 })

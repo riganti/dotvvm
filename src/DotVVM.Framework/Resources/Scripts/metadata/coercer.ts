@@ -9,14 +9,18 @@ export function tryCoerce(value: any, type: TypeDefinition, strict: boolean = fa
     } else if (typeof type === "object") {
         if (type.type == "nullable") {
             return tryCoerceNullable(value, type.inner, strict);
-        } else if (type.type == "enum") {
-            return tryCoerceEnum(value, type.values, strict);
         }
     } else if (typeof type === "string") {
         if (type in primitiveTypes) {
             return tryCoercePrimitiveType(value, type, strict);
         } else {
-            return tryCoerceObject(value, type, strict);
+            var typeInfo = getTypeInfo(type);
+            if (typeInfo && typeInfo.type === "object") {
+                return tryCoerceObject(value, type, typeInfo, strict);
+            }
+            else if (typeInfo && typeInfo.type === "enum") {
+                return tryCoerceEnum(value, typeInfo, strict);
+            }
         }
     } 
     throw "Unsupported type metadata!";
@@ -36,17 +40,17 @@ function tryCoerceNullable(value: any, innerType: TypeDefinition, strict: boolea
     }
 }    
 
-function tryCoerceEnum(value: any, values: { [name: string]: number }, strict: boolean): CoerceResult {
-    if (typeof value === "string" && value in values) {
+function tryCoerceEnum(value: any, type: EnumTypeMetadata, strict: boolean): CoerceResult {
+    if (typeof value === "string" && value in type.values) {
         return { value };
     } else if (typeof value === "number") {
-        const matched = keys(values).filter(k => values[k] === value);
+        const matched = keys(type.values).filter(k => type.values[k] === value);
         if (matched.length) {
             return { value: matched[0], wasCoerced: true }
         }
     }
     if (strict) {
-        throw new CoerceError(`Cannot cast '${value}' to type 'Enum(${keys(values).join(",")})'.`);
+        throw new CoerceError(`Cannot cast '${value}' to type 'Enum(${keys(type.values).join(",")})'.`);
     }
 }
 
@@ -90,16 +94,15 @@ function tryCoercePrimitiveType(value: any, type: string, strict: boolean): Coer
     return result;
 }
 
-function tryCoerceObject(value: any, type: string, strict: boolean): CoerceResult {
+function tryCoerceObject(value: any, type: string, typeInfo: ObjectTypeMetadata, strict: boolean): CoerceResult {
     if (value == null) {
         return { value: null };
     } else if (typeof value === "object") {
-        const typeInfo = getTypeInfo(type);
         let wasCoerced = false;
         let patch: any = {};
         for (let k of keys(typeInfo)) {
             try {
-                const result = tryCoerce(value[k], typeInfo[k].type, strict);
+                const result = tryCoerce(value[k], typeInfo.properties[k].type, strict);
                 if (!result) {
                     return;
                 }

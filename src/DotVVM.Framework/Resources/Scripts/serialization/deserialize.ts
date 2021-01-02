@@ -1,7 +1,7 @@
 import { serializeDate } from './date'
 import { isObservableArray, wrapObservableObjectOrArray } from '../utils/knockout'
 import { isPrimitive, keys } from '../utils/objects'
-import { getTypeInfo } from '../metadata/typeMap';
+import { getObjectTypeInfo } from '../metadata/typeMap';
 
 export function deserialize(viewModel: any, target?: any, deserializeAll: boolean = false): any {
     if (ko.isObservable(viewModel)) {
@@ -87,7 +87,10 @@ export function deserializeObject(viewModel: any, target: any, deserializeAll: b
     let unwrappedTarget = ko.unwrap(target);
 
     const typeId = ko.unwrap(viewModel["$type"]);
-    const typeInfo = getTypeInfo(typeId);
+    if (!typeId) {
+        throw `Missing type metadata for object ${JSON.stringify(viewModel)}!`;
+    }
+    const typeInfo = getObjectTypeInfo(typeId);
 
     if (isPrimitive(unwrappedTarget)) {
         unwrappedTarget = {};
@@ -115,7 +118,7 @@ export function deserializeObject(viewModel: any, target: any, deserializeAll: b
             continue;
         }
 
-        const propInfo = typeInfo[prop];
+        const propInfo = typeInfo.properties[prop];
         if (!deserializeAll && propInfo && propInfo.update == "no") {
             continue;
         }

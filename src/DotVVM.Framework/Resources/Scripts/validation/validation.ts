@@ -1,16 +1,14 @@
 import * as evaluator from "../utils/evaluator"
-import { DotvvmValidator } from "./validators"
 import { validators } from './validators'
 import { allErrors, detachAllErrors, ValidationError, getErrors } from "./error"
 import { DotvvmEvent } from '../events'
-import * as dotvvmEvents from '../events'
 import * as spaEvents from '../spa/events'
 import { postbackHandlers } from "../postback/handlers"
 import { DotvvmValidationContext, ErrorsPropertyName } from "./common"
-import { hasOwnProperty, isPrimitive, keys } from "../utils/objects"
+import { isPrimitive, keys } from "../utils/objects"
 import { elementActions } from "./actions"
 import { DotvvmPostbackError } from "../shared-classes"
-import { getTypeInfo } from "../metadata/typeMap"
+import { getObjectTypeInfo } from "../metadata/typeMap"
 import { tryCoerce } from "../metadata/coercer"
 import { primitiveTypes } from "../metadata/primitiveTypes"
 
@@ -120,7 +118,7 @@ function validateViewModel(viewModel: any): void {
 
     // find validation rules for the property type
     const typeId = ko.unwrap(viewModel.$type);
-    const typeInfo = getTypeInfo(typeId);
+    const typeInfo = getObjectTypeInfo(typeId);
 
     // validate all properties
     for (const propertyName of keys(viewModel)) {
@@ -136,7 +134,7 @@ function validateViewModel(viewModel: any): void {
         const propertyValue = observable();
 
         // run validators
-        const propInfo = typeInfo[propertyName];
+        const propInfo = typeInfo.properties[propertyName];
     
         if (propInfo.validationRules) {
             validateProperty(viewModel, observable, propertyValue, propInfo.validationRules);
@@ -144,7 +142,7 @@ function validateViewModel(viewModel: any): void {
 
         // validate primitive type
         if ((typeof propInfo.type === "string" && propInfo.type in primitiveTypes)
-            || typeof propInfo.type === "object" && !Array.isArray(propInfo.type) && (propInfo.type.type === "enum" || propInfo.type.type == "nullable")) {
+            || typeof propInfo.type === "object" && !Array.isArray(propInfo.type) && propInfo.type.type === "nullable") {
             validatePrimitiveType(propertyName, observable, propertyValue, propInfo.type);
         } else {
             validateRecursive(propertyValue, propInfo.type);

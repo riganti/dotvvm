@@ -186,9 +186,17 @@ type TypeMap = {
     [typeId: string]: TypeMetadata
 }
 
-type TypeMetadata = {
-    [prop: string]: PropertyMetadata
+type ObjectTypeMetadata = {
+    type: "object",
+    properties: { [prop: string]: PropertyMetadata }
 }
+
+type EnumTypeMetadata = {
+    type: "enum",
+    values: { [name: string]: number }
+}
+
+type TypeMetadata = ObjectTypeMetadata | EnumTypeMetadata;
 
 type PropertyMetadata = {
     type: TypeDefinition;
@@ -200,7 +208,6 @@ type PropertyMetadata = {
 
 type TypeDefinition = string |
   { type: "nullable", inner: TypeDefinition } |
-  { type: "enum", values: { [name: string]: number } } |
   TypeDefinition[];
 
 type ClientExtenderInfo = {

@@ -186,11 +186,14 @@ const fetchDefinitions = {
             },
             typeMetadata: {
                 t2: {
-                    Property1: {
-                        type: "Int32"
-                    },
-                    Property2: {
-                        type: "Int32"
+                    type: "object",
+                    properties: {
+                        Property1: {
+                            type: "Int32"
+                        },
+                        Property2: {
+                            type: "Int32"
+                        }
                     }
                 }
             },
@@ -256,11 +259,14 @@ const originalViewModel = {
     },
     typeMetadata: {
         t1: {
-            Property1: {
-                type: "Int32"
-            },
-            Property2: {
-                type: "Int32"
+            type: "object",
+            properties: {
+                Property1: {
+                    type: "Int32"
+                },
+                Property2: {
+                    type: "Int32"
+                }
             }
         }
     },

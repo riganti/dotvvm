@@ -3,7 +3,7 @@
 import { createArray, isPrimitive, keys } from "./utils/objects";
 import { DotvvmEvent } from "./events";
 import { extendToObservableArrayIfRequired } from "./serialization/deserialize"
-import { getTypeInfo } from "./metadata/typeMap";
+import { getObjectTypeInfo } from "./metadata/typeMap";
 
 export const currentStateSymbol = Symbol("currentState")
 const notifySymbol = Symbol("notify")
@@ -210,10 +210,10 @@ export function unmapKnockoutObservables(viewModel: any): any {
 function createObservableObject<T extends object>(initialObject: T, update: ((updater: StateUpdate<any>) => void)) {
     const properties = keys(initialObject)
 
-    const typeInfo = getTypeInfo((initialObject as any)["$type"])
+    const typeInfo = getObjectTypeInfo((initialObject as any)["$type"])
 
     const pSet = new Set(properties)
-    const missingProperties = keys(typeInfo).filter(p => !pSet.has(p))
+    const missingProperties = keys(typeInfo.properties).filter(p => !pSet.has(p))
 
     return new FakeObservableObject(initialObject, update, properties.concat(missingProperties)) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
 }

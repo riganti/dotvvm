@@ -1,9 +1,7 @@
-import { wrapObservable } from '../utils/knockout'
 import { serializeDate } from './date'
 import { isPrimitive, keys } from '../utils/objects'
-import { getTypeInfo } from '../metadata/typeMap'
+import { getObjectTypeInfo } from '../metadata/typeMap'
 import { unmapKnockoutObservables } from '../state-manager'
-import { tryCoerce } from '../metadata/coercer'
 
 interface ISerializationOptions {
     serializeAll?: boolean;
@@ -58,7 +56,10 @@ export function serializeCore(viewModel: any, opt: ISerializationOptions = {}): 
     const pathProp = opt.path && opt.path.pop();
 
     const typeId = ko.unwrap(viewModel["$type"]);
-    const typeInfo = getTypeInfo(typeId);
+    if (!typeId) {
+        throw `Missing type metadata for object ${ko.toJSON(viewModel)}!`;
+    }
+    const typeInfo = getObjectTypeInfo(typeId);    
 
     const result: any = {};
     for (const prop of keys(viewModel)) {
@@ -77,7 +78,7 @@ export function serializeCore(viewModel: any, opt: ISerializationOptions = {}): 
             continue;
         }
 
-        const propInfo = typeInfo[prop];
+        const propInfo = typeInfo.properties[prop];
         if (!opt.serializeAll && propInfo && propInfo.post == "no") {
             // continue
         } else if (!opt.serializeAll && propInfo && propInfo.post == "pathOnly" && opt.pathMatcher) {
