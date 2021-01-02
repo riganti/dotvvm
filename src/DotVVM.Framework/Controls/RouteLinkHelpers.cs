@@ -138,7 +138,7 @@ namespace DotVVM.Framework.Controls
 
             return
                 route.ParameterNames.Any()
-                    ? $"dotvvm.buildRouteUrl({JsonConvert.ToString(route.Url)}, {{{parametersExpression}}})"
+                    ? $"dotvvm.buildRouteUrl({JsonConvert.ToString(route.UrlWithoutTypes)}, {{{parametersExpression}}})"
                     : JsonConvert.ToString(route.Url);
         }
 

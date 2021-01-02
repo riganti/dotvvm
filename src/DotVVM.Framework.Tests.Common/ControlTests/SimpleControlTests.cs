@@ -11,8 +11,52 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
     [TestClass]
     public class SimpleControlTests
     {
-        ControlTestHelper cth = new ControlTestHelper();
+        ControlTestHelper cth = new ControlTestHelper(config: config => {
+            config.RouteTable.Add("WithParams", "WithParams/{A}-{B:int}/{C?}", "WithParams.dothtml", new { B = 1 });
+            config.RouteTable.Add("Simple", "Simple", "Simple.dothtml");
+        });
         OutputChecker check = new OutputChecker("testoutputs");
+
+        [TestMethod]
+        public async Task RouteLink()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- client rendering, no params -->
+                <dot:RouteLink RenderSettings.Mode=Client RouteName=Simple Text='Click me' />
+                <!-- client rendering, no params, query and suffix -->
+                <dot:RouteLink RenderSettings.Mode=Client RouteName=Simple Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
+                <!-- client rendering, no params, text binding -->
+                <dot:RouteLink RenderSettings.Mode=Client RouteName=Simple Text={value: Label} />
+
+                <!-- server rendering, no params -->
+                <dot:RouteLink RenderSettings.Mode=Server RouteName=Simple Text='Click me' />
+                <!-- server rendering, no params, query and suffix -->
+                <dot:RouteLink RenderSettings.Mode=Server RouteName=Simple Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
+                <!-- server rendering, no params, text binding -->
+                <dot:RouteLink RenderSettings.Mode=Server RouteName=Simple Text={value: Label} />
+
+                <!-- client rendering, static params -->
+                <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A=A Param-B=1 Text='Click me' />
+                <!-- client rendering, static params, query and suffix -->
+                <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A=A Param-B=1 Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
+                <!-- client rendering, dynamic params, query and suffix -->
+                <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A={value: Label} Param-B={value: Integer} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
+                <!-- client rendering, static params, text binding -->
+                <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A=A Param-B=1 Text={value: Label} />
+
+                <!-- server rendering, static params -->
+                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A=A Param-B=1 Text='Click me' />
+                <!-- server rendering, static params, query and suffix -->
+                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A=A Param-B=1 Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
+                <!-- server rendering, dynamic params, query and suffix -->
+                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A={value: Label} Param-B={value: Integer} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
+                <!-- server rendering, static params, text binding -->
+                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A=A Param-B=1 Text={value: Label} />
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
 
         [TestMethod]
         public async Task Literal_ClientServerRendering()
@@ -88,6 +132,7 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
             public double Float { get; set; } = 0.11111;
             [Bind(Name = "date")]
             public DateTime DateTime { get; set; } = DateTime.Parse("2020-08-11T16:01:44.5141480");
+            public string Label { get; } = "My Label";
         }
     }
 }
