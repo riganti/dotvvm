@@ -31,7 +31,7 @@ export function coerce(value: any, type: TypeDefinition): any {
 }
 
 function tryCoerceNullable(value: any, innerType: TypeDefinition, strict: boolean = false): CoerceResult {
-    if (value == null) {
+    if (value === null) {
         return { value: null };
     } else if (typeof value === "undefined" || value == "") {       // TODO: shall we support empty strings?
         return { value: null, wasCoerced: true };
@@ -55,7 +55,11 @@ function tryCoerceEnum(value: any, type: EnumTypeMetadata, strict: boolean): Coe
 }
 
 function tryCoerceArray(value: any, innerType: TypeDefinition, strict: boolean): CoerceResult {
-    if (value instanceof Array) {
+    if (value === null) {
+        return { value: null };
+    } else if (typeof value === "undefined") {
+        return { value: null, wasCoerced: true };
+    } else if (value instanceof Array) {
         let wasCoerced = false;
         const items = [];
         for (let i = 0; i < value.length; i++) {
@@ -95,12 +99,17 @@ function tryCoercePrimitiveType(value: any, type: string, strict: boolean): Coer
 }
 
 function tryCoerceObject(value: any, type: string, typeInfo: ObjectTypeMetadata, strict: boolean): CoerceResult {
-    if (value == null) {
+    if (value === null) {
         return { value: null };
+    } else if (typeof value === "undefined") {
+        return { value: null, wasCoerced: true };
     } else if (typeof value === "object") {
         let wasCoerced = false;
         let patch: any = {};
-        for (let k of keys(typeInfo)) {
+        for (let k of keys(typeInfo.properties)) {
+            if (k === "$type") {
+                continue;
+            }
             try {
                 const result = tryCoerce(value[k], typeInfo.properties[k].type, strict);
                 if (!result) {
@@ -126,7 +135,5 @@ function tryCoerceObject(value: any, type: string, typeInfo: ObjectTypeMetadata,
         } else {
             return { value: { ...value, ...patch }, wasCoerced: true };
         }
-    } else if (typeof value === "undefined") {
-        return { value: null, wasCoerced: true };
     }
 }

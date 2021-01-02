@@ -17,6 +17,8 @@ export const primitiveTypes: PrimitiveTypes = {
                 return { value: true, wasCoerced: true };
             } else if (value === "false" || value === "False") {
                 return { value: true, wasCoerced: true };
+            } else if (typeof value === "number") {
+                return { value: !!value, wasCoerced: true };
             }
         }
     },
@@ -74,14 +76,14 @@ export const primitiveTypes: PrimitiveTypes = {
 function validateInt(value: any, min: number, max: number): CoerceResult {
     let wasCoerced = false;
     if (typeof value === "string") {
-        value = parseInt(value, 10);
+        value = parseInt(value, 10);      // TODO: should we parse it based on current culture of DotVVM?
         wasCoerced = true;
     } else if (typeof value !== "number") {
         return;
     }
     
     if ((value | 0) !== value) {
-        value = Math.round(value);
+        value = value | 0;
         wasCoerced = true;
     }
     
@@ -117,6 +119,9 @@ function validateString(value: any): CoerceResult {
         wasCoerced = true;
     } else if (typeof value === "boolean") {
         value = value ? "true" : "false";
+        wasCoerced = true;
+    } else if (typeof value === "undefined") {
+        value = null;
         wasCoerced = true;
     } else if (typeof value !== "string") {
         return;
