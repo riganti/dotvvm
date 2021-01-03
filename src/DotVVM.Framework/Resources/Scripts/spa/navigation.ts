@@ -83,6 +83,7 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
             error: err
         };
         events.spaNavigationFailed.trigger(spaNavigationFailedArgs);
+        console.error("Unexpected exception during SPA navigation: ", err);
 
         throw err;
     } finally {
