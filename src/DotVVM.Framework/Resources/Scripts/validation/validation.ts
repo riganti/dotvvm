@@ -153,7 +153,7 @@ function validateViewModel(viewModel: any): void {
 function validateRecursive(propertyValue: any, type: TypeDefinition) {
     if (typeof type === "string") {
         validateViewModel(propertyValue);
-    } else if (Array.isArray(type)) {
+    } else if (Array.isArray(type) && propertyValue != null) {
         for (const item of propertyValue) {
             validateRecursive(ko.unwrap(item), type[0]);
         }
