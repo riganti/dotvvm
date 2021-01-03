@@ -114,8 +114,7 @@ test("number - invalid, undefined", () => {
 
 test("number - invalid, unparsable string", () => {
     const result = tryCoerce("xxx", "Int32");
-    expect(result!.wasCoerced).toBeTruthy();        // TODO
-    expect(result!.value).toEqual(0);
+    expect(result).toBeUndefined();
 })
 
 test("number - invalid, object", () => {

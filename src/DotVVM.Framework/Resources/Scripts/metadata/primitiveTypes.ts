@@ -76,27 +76,37 @@ export const primitiveTypes: PrimitiveTypes = {
 function validateInt(value: any, min: number, max: number): CoerceResult {
     let wasCoerced = false;
     if (typeof value === "string") {
-        value = parseInt(value, 10);      // TODO: should we parse it based on current culture of DotVVM?
+        if (value === "") {
+            return;
+        }
+        value = Number(value);
+        if (isNaN(value)) {
+            // TODO: parse based on current culture
+            return;
+        }
         wasCoerced = true;
     } else if (typeof value !== "number") {
         return;
     }
     
-    if ((value | 0) !== value) {
-        value = value | 0;
+    if (Math.trunc(value) !== value) {
+        value = Math.trunc(value);
         wasCoerced = true;
     }
     
     if (!isNaN(value) && value >= min && value <= max) {
         return { value, wasCoerced };
     }
-    // TODO: what to do with overflow?
 }
 
 function validateFloat(value: any): CoerceResult {
     let wasCoerced = false;
     if (typeof value === "string") {
-        value = parseFloat(value);      // TODO: should we parse it based on current culture of DotVVM?
+        value = Number(value);
+        if (isNaN(value)) {
+            // TODO: parse based on current culture
+            return;
+        }
         wasCoerced = true;
     } else if (typeof value !== "number") {
         return;

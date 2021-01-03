@@ -140,7 +140,7 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
         this[updateSymbol](vm => Object.freeze({ ...vm, [propName]: valUpdate(vm[propName]) }))
     }
 
-    constructor(initialValue: T, updater: UpdateDispatcher<T>, typeInfo: ObjectTypeMetadata, additionalProperties: string[]) {
+    constructor(initialValue: T, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata, additionalProperties: string[]) {
         this[currentStateSymbol] = initialValue
         this[updateSymbol] = updater
 
@@ -160,13 +160,15 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
                         u => this[updatePropertySymbol](p, u)
                     )
 
-                    if (!p.startsWith("$")) {
+                    if (p in typeInfo.properties) {
                         const clientExtenders = typeInfo.properties[p].clientExtenders;
                         if (clientExtenders) {
                             for (const e of clientExtenders) {
                                 (ko.extenders as any)[e.name](newObs, e.parameter)
                             }
                         }
+                    } else if (!p.startsWith("$")) {
+                        console.warn(`Unknown property '${p}' set on an object of type ${typeId}.`);
                     }
 
                     this[internalPropCache][p] = newObs
@@ -210,12 +212,13 @@ export function unmapKnockoutObservables(viewModel: any): any {
 }
 
 function createObservableObject<T extends object>(initialObject: T, update: ((updater: StateUpdate<any>) => void)) {
-    const typeInfo = getObjectTypeInfo((initialObject as any)["$type"])
+    const typeId = (initialObject as any)["$type"]
+    const typeInfo = getObjectTypeInfo(typeId)
 
     const pSet = new Set(keys(typeInfo.properties))
     const additionalProperties = keys(initialObject).filter(p => !pSet.has(p))
 
-    return new FakeObservableObject(initialObject, update, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
+    return new FakeObservableObject(initialObject, update, typeId, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
 }
 
 

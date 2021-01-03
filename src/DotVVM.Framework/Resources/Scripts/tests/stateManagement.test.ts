@@ -39,7 +39,7 @@ initDotvvm({
                 },
                 ArrayWillBe: {
                     type: [
-                        "t2"
+                        "t5"
                     ]
                 },
                 Inner: {
@@ -58,6 +58,17 @@ initDotvvm({
                 }
             }
         },
+        t3_a: {
+            type: "object",
+            properties: {
+                "P1": {
+                    type: "Int32"
+                },
+                "P2": {
+                    type: { type: "nullable", inner: "Int32" }
+                }
+            }
+        },
         t3: {
             type: "object",
             properties: {
@@ -65,7 +76,7 @@ initDotvvm({
                     type: "Int32"
                 },
                 "P2": {
-                    type: "Int32"
+                    type: { type: "nullable", inner: "Int32" }
                 },
                 "P3": {
                     type: "Int32"
@@ -79,6 +90,14 @@ initDotvvm({
             type: "object",
             properties: {
                 "P": {
+                    type: "String"
+                }
+            }
+        },
+        t5: {
+            type: "object",
+            properties: {
+                "B": {
                     type: "String"
                 }
             }
@@ -119,13 +138,13 @@ test("Dirty flag", () => {
 })
 
 test("Upgrade null to observableArray", () => {
-    s.update(x => ({...x, ArrayWillBe: [ { $type: "t2", A: "ahoj" } ] }))
+    s.update(x => ({...x, ArrayWillBe: [ { $type: "t5", B: "ahoj" } ] }))
     s.doUpdateNow()
 
     expect(vm.ArrayWillBe).observableArray()
     expect(vm.ArrayWillBe().length).toBe(1)
-    expect(vm.ArrayWillBe()[0]().A).observable()
-    expect(vm.ArrayWillBe()[0]().A()).toBe("ahoj")
+    expect(vm.ArrayWillBe()[0]().B).observable()
+    expect(vm.ArrayWillBe()[0]().B()).toBe("ahoj")
 })
 
 test("Change observableArray to object", () => {
@@ -146,30 +165,38 @@ test("Change observableArray to object", () => {
     expect(vm.Array()[0]().Id()).toBe(17)
 })
 
-test("Remove type properties", () => {
-    s.update(x => ({...x, Inner: { $type: "t3", P1: 5 } }))         // TODO: discuss with @exyi
+test("Add and remove type properties", () => {
+    s.update(x => ({...x, Inner: { $type: "t3_a", P1: 5, P2: null } }))
     s.doUpdateNow()
 
     expect(vm.Inner().P1).observable()
     expect(vm.Inner().P1()).toBe(5)
-    expect(vm.Inner().P2).toBeUndefined()
-    expect(vm.Inner().P3).toBeUndefined()
+    expect(vm.Inner().P2).observable()
+    expect(vm.Inner().P2()).toBe(null)
     expect("P3" in vm.Inner()).toBeFalsy()
-    expect("P1" in vm.Inner()).toBeTruthy()
-})
-
-test("Add type properties", () => {
-    s.update(x => ({...x, Inner: { $type: "t3", P1: 5, P4: 4 } }))         // TODO: discuss with @exyi
+    expect("P4" in vm.Inner()).toBeFalsy()
+    
+    s.update(x => ({...x, Inner: { $type: "t3", P1: 6, P2: 2, P3: 3, P4: 4 } }))
     s.doUpdateNow()
 
     expect(vm.Inner().P1).observable()
+    expect(vm.Inner().P1()).toBe(6)
+    expect(vm.Inner().P2).observable()
+    expect(vm.Inner().P2()).toBe(2)
+    expect(vm.Inner().P3).observable()
+    expect(vm.Inner().P3()).toBe(3)
     expect(vm.Inner().P4).observable()
-    expect(vm.Inner().P1()).toBe(5)
     expect(vm.Inner().P4()).toBe(4)
-    expect(vm.Inner().P2).toBeUndefined()
-    expect(vm.Inner().P3).toBeUndefined()
-    expect("P2" in vm.Inner()).toBeFalsy()
-    expect("P4" in vm.Inner()).toBeTruthy()
+
+    s.update(x => ({...x, Inner: { $type: "t3_a", P1: 5, P2: null } }))
+    s.doUpdateNow()
+    
+    expect(vm.Inner().P1).observable()
+    expect(vm.Inner().P1()).toBe(5)
+    expect(vm.Inner().P2).observable()
+    expect(vm.Inner().P2()).toBe(null)
+    expect("P3" in vm.Inner()).toBeFalsy()
+    expect("P4" in vm.Inner()).toBeFalsy()
 })
 
 test("Should not change object reference", () => {
@@ -180,14 +207,14 @@ test("Should not change object reference", () => {
 
     innerObs.subscribe(() => changed = true)
 
-    s.update(x => ({ ...x, Inner: { $type: "t3", P1: 1, P4: null } }))
+    s.update(x => ({ ...x, Inner: { $type: "t3_a", P1: 1, P2: null } }))
     s.doUpdateNow()
 
     expect(changed).toBeFalsy()
     expect((dotvvm.viewModels.root.viewModel as any).Inner).toBe(innerObs)
     expect((dotvvm.viewModels.root.viewModel as any).Inner()).toBe(innerObj)
     expect(innerObj.P1()).toBe(1)
-    expect(innerObj.P4()).toBe(null)
+    expect(innerObj.P2()).toBe(null)
 })
 
 test("Should not change array reference", () => {
@@ -264,16 +291,16 @@ test("Propagate knockout array assignment", () => {
 
     vm.ArrayWillBe([
         ko.observable({
-            $type: ko.observable("t2"),
+            $type: ko.observable("t5"),
             B: ko.observable("hmm")
         })
     ])
 
-    expect(s.state.ArrayWillBe).toStrictEqual([ { $type: "t2", B: "hmm" } ])
+    expect(s.state.ArrayWillBe).toStrictEqual([ { $type: "t5", B: "hmm" } ])
     s.doUpdateNow()
     expect(vm.ArrayWillBe()[0]().B()).toBe("hmm")
     vm.ArrayWillBe()[0]().B("hmm2")
-    expect(s.state.ArrayWillBe).toStrictEqual([ { $type: "t2", B: "hmm2" } ])
+    expect(s.state.ArrayWillBe).toStrictEqual([ { $type: "t5", B: "hmm2" } ])
 })
 
 test("Propagate Date assignment", () => {
