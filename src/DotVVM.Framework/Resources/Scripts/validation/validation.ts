@@ -139,23 +139,23 @@ function validateViewModel(viewModel: any): void {
         if (propInfo.validationRules) {
             validateProperty(viewModel, observable, propertyValue, propInfo.validationRules);
         }
-
-        // validate primitive type
-        if ((typeof propInfo.type === "string" && propInfo.type in primitiveTypes)
-            || typeof propInfo.type === "object" && !Array.isArray(propInfo.type) && propInfo.type.type === "nullable") {
-            validatePrimitiveType(propertyName, observable, propertyValue, propInfo.type);
-        } else {
-            validateRecursive(propertyValue, propInfo.type);
-        }
+        
+        validateRecursive(propertyName, observable, propertyValue, propInfo.type);
     }
 }
 
-function validateRecursive(propertyValue: any, type: TypeDefinition) {
-    if (typeof type === "string") {
+function validateRecursive(propertyName: string, observable: KnockoutObservable<any>, propertyValue: any, type: TypeDefinition) {
+    // validate primitive type
+    if ((typeof type === "string" && type in primitiveTypes)
+        || typeof type === "object" && !Array.isArray(type) && type.type === "nullable") {
+        validatePrimitiveType(propertyName, observable, propertyValue, type);
+    } else if (typeof type === "string") {
         validateViewModel(propertyValue);
     } else if (Array.isArray(type) && propertyValue != null) {
+        let i = 0;
         for (const item of propertyValue) {
-            validateRecursive(ko.unwrap(item), type[0]);
+            validateRecursive("[" + i + "]", item, ko.unwrap(item), type[0]);
+            i++;
         }
     }
 }
