@@ -287,7 +287,7 @@ namespace DotVVM.Framework.Controls
             }
             else if (!Enabled)
             {
-                writer.AddAttribute("class", "disabled", true, " ");
+                writer.AddAttribute("class", DisabledItemCssClass, true);
             }
 
             writer.AddKnockoutDataBind("with", this, DataSetProperty, renderEvenInServerRenderingMode: true);
