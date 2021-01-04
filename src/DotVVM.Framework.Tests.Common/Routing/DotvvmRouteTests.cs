@@ -588,11 +588,11 @@ namespace DotVVM.Framework.Tests.Routing
         {
             string parse(string url) => new DotvvmRoute(url, null, null, null, configuration).UrlWithoutTypes;
 
-            Assert.AreEqual(parse("test/xx/12"), "/test/xx/12");
-            Assert.AreEqual(parse("test/{Param}-{PaRAM2}"), "/test/{param}-{param2}");
-            Assert.AreEqual(parse("test/{Param?}-{PaRAM2?}"), "/test/{param}-{param2}");
-            Assert.AreEqual(parse("test/{Param:int}-{PaRAM2?:regex(.*)}"), "/test/{param}-{param2}");
-            Assert.AreEqual(parse("test/{Param:int}-{PaRAM2?:regex((.){4,10})}"), "/test/{param}-{param2}");
+            Assert.AreEqual(parse("test/xx/12"), "test/xx/12");
+            Assert.AreEqual(parse("test/{Param}-{PaRAM2}"), "test/{param}-{param2}");
+            Assert.AreEqual(parse("test/{Param?}-{PaRAM2?}"), "test/{param}-{param2}");
+            Assert.AreEqual(parse("test/{Param:int}-{PaRAM2?:regex(.*)}"), "test/{param}-{param2}");
+            Assert.AreEqual(parse("test/{Param:int}-{PaRAM2?:regex((.){4,10})}"), "test/{param}-{param2}");
         }
     }
 
