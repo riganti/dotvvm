@@ -47,9 +47,9 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
                 <!-- server rendering, static params -->
                 <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A=A Param-B=1 Text='Click me' />
                 <!-- server rendering, static params, query and suffix -->
-                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A=A Param-B=1 Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
+                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-a=A Param-B=1 Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- server rendering, dynamic params, query and suffix -->
-                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A={value: Label} Param-B={value: Integer} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
+                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A={value: Label} Param-b={value: Integer} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- server rendering, static params, text binding -->
                 <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A=A Param-B=1 Text={value: Label} />
                 "

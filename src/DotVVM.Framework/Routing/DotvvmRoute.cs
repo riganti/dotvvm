@@ -130,7 +130,8 @@ namespace DotVVM.Framework.Routing
                                      v.Value?.ToString();
 
                         return strVal == null ? null : Uri.EscapeDataString(strVal);
-                    }
+                    },
+                    StringComparer.InvariantCultureIgnoreCase
                 );
             try
             {
