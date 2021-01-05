@@ -1,6 +1,7 @@
 export class DotvvmPostbackError {
     constructor(public reason: DotvvmPostbackErrorReason) {
     }
+    toString() { return "PostbackRejectionError(" + JSON.stringify(this.reason, null, "   ") + ")"}
 }
 
 export class CoerceError {
