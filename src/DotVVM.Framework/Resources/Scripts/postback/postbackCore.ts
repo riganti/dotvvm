@@ -116,7 +116,7 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
         serverResponseObject: result
     });
 
-    processViewModelDiff(result, initialState);
+    processViewModelDiff(result, postedViewModel);
 
     await loadResourceList(result.resources);
 
@@ -126,6 +126,7 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
     let isSuccess = false;
     if (result.action == "successfulCommand") {
         mergeValidationRules(result)
+        result.viewModel = updater.patchViewModel(getState(), result.viewModel)
         updater.updateViewModelAndControls(result);
         events.postbackViewModelUpdated.trigger({
             ...options,
