@@ -505,8 +505,7 @@ ko.utils = (function () {
                 ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
                     element.detachEvent(attachEventName, attachEventHandler);
                 });
-            } else
-                throw new Error("Browser doesn't support addEventListener or attachEvent");
+            }
         },
 
         triggerEvent: function (element, eventType) {
@@ -4222,8 +4221,8 @@ ko.exportSymbol('bindingProvider', ko.bindingProvider);
             // The config is the value of an AMD module
             if (amdRequire || window['require']) {
                 (amdRequire || window['require'])([config['require']], function (module) {
-                    if (module && typeof module === 'object' && module.__esModule && module.default) {
-                        module = module.default;
+                    if (module && typeof module === 'object' && module.__esModule && module['default']) {
+                        module = module['default'];
                     }
                     callback(module);
                 });
@@ -5564,9 +5563,12 @@ ko.bindingHandlers['value'] = {
 
         if (tagName === "select") {
             var updateFromModelComputed;
+            ko.utils.registerEventHandler(element, "change", function() {
+                if (updateFromModelComputed)
+                    valueUpdateHandler()
+            });
             ko.bindingEvent.subscribe(element, ko.bindingEvent.childrenComplete, function () {
                 if (!updateFromModelComputed) {
-                    ko.utils.registerEventHandler(element, "change", valueUpdateHandler);
                     updateFromModelComputed = ko.computed(updateFromModel, null, { disposeWhenNodeIsRemoved: element });
                 } else if (allBindings.get('valueAllowUnset')) {
                     updateFromModel();
@@ -6155,10 +6157,13 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
     };
 
     var templateComputedDomDataKey = ko.utils.domData.nextKey();
-    function disposeOldComputedAndStoreNewOne(element, newComputed) {
+    function disposeOldComputed(element) {
         var oldComputed = ko.utils.domData.get(element, templateComputedDomDataKey);
         if (oldComputed && (typeof (oldComputed.dispose) == 'function'))
             oldComputed.dispose();
+    }
+
+    function storeNewComputed(element, newComputed) {
         ko.utils.domData.set(element, templateComputedDomDataKey, (newComputed && (!newComputed.isActive || newComputed.isActive())) ? newComputed : undefined);
     }
 
@@ -6226,6 +6231,9 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
                 }
             }
 
+            // Dispose the old computed before displaying data since in some cases, the code below can cause the old computed to update
+            disposeOldComputed(element);
+
             if ('foreach' in options) {
                 // Render once for each data point (treating data set as empty if shouldDisplay==false)
                 var dataArray = (shouldDisplay && options['foreach']) || [];
@@ -6245,8 +6253,7 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
                 templateComputed = ko.renderTemplate(template, innerBindingContext, options, element);
             }
 
-            // It only makes sense to have a single template computed per element (otherwise which one should have its output displayed?)
-            disposeOldComputedAndStoreNewOne(element, templateComputed);
+            storeNewComputed(element, templateComputed);
         }
     };
 
@@ -6581,7 +6588,7 @@ ko.exportSymbol('utils.compareArrays', ko.utils.compareArrays);
         }
 
         // Restore the focused element if it had lost focus
-        if (activeElement && domNode.ownerDocument.activeElement != activeElement) {
+        if (activeElement && domNode.ownerDocument.activeElement != activeElement && typeof activeElement.focus === "function") {
             activeElement.focus();
         }
 
