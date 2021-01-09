@@ -118,8 +118,6 @@ namespace DotVVM.Framework.Hosting
 
         public IHttpContext HttpContext { get; set; }
 
-        public object? CommandResult { get; set; }
-
         public Dictionary<string, object> CustomData { get; } = new Dictionary<string, object>();
  
         public DotvvmRequestContext(

@@ -59,7 +59,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Builds the view model for the client.
         /// </summary>
-        public void BuildViewModel(IDotvvmRequestContext context)
+        public void BuildViewModel(IDotvvmRequestContext context, object commandResult)
         {
             // serialize the ViewModel
             var serializer = CreateJsonSerializer();
@@ -123,7 +123,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (validationRules?.Count > 0) result["validationRules"] = validationRules;
 
             context.ViewModelJson = result;
-            if (context.CommandResult != null) context.ViewModelJson!["commandResult"] = WriteCommandData(context.CommandResult, serializer, "result");
+            if (commandResult != null) context.ViewModelJson!["commandResult"] = WriteCommandData(commandResult, serializer, "result");
             if (context.CustomData != null && context.CustomData.Count > 0) context.ViewModelJson!["customData"] = WriteCommandData(context.CustomData, serializer, "custom data");
         }
 
@@ -135,7 +135,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 context.ViewModelJson["resources"] = resourcesObject;
         }
 
-        public string BuildStaticCommandResponse(IDotvvmRequestContext context)
+        public string BuildStaticCommandResponse(IDotvvmRequestContext context, object result)
         {
             var serializer = CreateJsonSerializer();
             var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services) {
@@ -143,7 +143,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             };
             serializer.Converters.Add(viewModelConverter);
             var response = new JObject();
-            response["result"] = WriteCommandData(context.CommandResult, serializer, "result");
+            response["result"] = WriteCommandData(result, serializer, "result");
             if (context.CustomData != null && context.CustomData.Count > 0) response["customData"] = WriteCommandData(context.CustomData, serializer, "custom data");
             return response.ToString(JsonFormatting);
         }

@@ -111,7 +111,6 @@ namespace DotVVM.Framework.Hosting
         string? ResultIdFragment { get; set; }
 
         IServiceProvider Services { get; }
-        object? CommandResult { get; set; }
         Dictionary<string, object>? CustomData { get; }
     }
 }
