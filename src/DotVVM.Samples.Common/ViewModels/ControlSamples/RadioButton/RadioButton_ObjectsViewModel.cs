@@ -22,7 +22,7 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.RadioButton
 
         public void SetSelection()
         {
-            SelectedColor = Colors[1];
+            SelectedColor = new ColorData() { Id = 2, Name = "Green" };
         }
 
         public class ColorData

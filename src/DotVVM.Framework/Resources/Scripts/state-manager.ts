@@ -299,7 +299,7 @@ function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T
                 return
             }
         }
-        else if (oldContents && oldContents[notifySymbol] && type(currentValue) == type(newVal)) {
+        else if (oldContents && oldContents[notifySymbol] && !observableWasSetFromOutside && type(currentValue) == type(newVal)) {
             // smart object, supports the notification by itself
             oldContents[notifySymbol as any](newVal)
 
