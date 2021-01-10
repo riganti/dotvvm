@@ -16,6 +16,11 @@
 					"GqKC8CuCoDNJdqzKjKrxePbUZr8="
 				]
 			},
+			"ObjectProperty": {
+				"type": {
+					"type": "dynamic"
+				}
+			},
 			"property ONE": {
 				"type": "Guid"
 			},

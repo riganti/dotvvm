@@ -112,7 +112,7 @@ function validateViewModel(viewModel: any): void {
     if (ko.isObservable(viewModel)) {
         viewModel = ko.unwrap(viewModel);
     }
-    if (!viewModel) {
+    if (!viewModel || typeof viewModel !== "object") {
         return;
     }
 
@@ -145,17 +145,43 @@ function validateViewModel(viewModel: any): void {
 }
 
 function validateRecursive(propertyName: string, observable: KnockoutObservable<any>, propertyValue: any, type: TypeDefinition) {
-    // validate primitive type
-    if ((typeof type === "string" && type in primitiveTypes)
-        || typeof type === "object" && !Array.isArray(type) && type.type === "nullable") {
-        validatePrimitiveType(propertyName, observable, propertyValue, type);
-    } else if (typeof type === "string") {
-        validateViewModel(propertyValue);
-    } else if (Array.isArray(type) && propertyValue != null) {
+    if (Array.isArray(type)) {
+        if (!propertyValue) return;
         let i = 0;
         for (const item of propertyValue) {
             validateRecursive("[" + i + "]", item, ko.unwrap(item), type[0]);
             i++;
+        }
+        
+    } else if (typeof type === "string") {
+        if (type in primitiveTypes) {
+            validatePrimitiveType(propertyName, observable, propertyValue, type);
+        } else {
+            validateViewModel(propertyValue);
+        }
+
+    } else if (typeof type === "object") {
+        if (type.type === "nullable") {
+            validatePrimitiveType(propertyName, observable, propertyValue, type);
+
+        } else if (type.type === "dynamic") {
+
+            if (Array.isArray(propertyValue)) {
+                let i = 0;
+                for (const item of propertyValue) {
+                    validateRecursive("[" + i + "]", item, ko.unwrap(item), { type: "dynamic" });
+                    i++;
+                }
+            } else if (propertyValue && typeof propertyValue === "object") {
+                if (propertyValue["$type"]) {
+                    validateViewModel(propertyValue);
+                } else {
+                    for (const k of keys(propertyValue)) {
+                        validateRecursive(k, ko.unwrap(propertyValue[k]), propertyValue[k], { type: "dynamic" });
+                    }
+                }
+            }
+
         }
     }
 }

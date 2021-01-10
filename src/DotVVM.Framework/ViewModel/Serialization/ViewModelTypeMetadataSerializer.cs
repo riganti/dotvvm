@@ -131,6 +131,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 return GetPrimitiveTypeName(type);
             }
+            else if (type == typeof(object))
+            {
+                return new JObject(new JProperty("type", "dynamic"));
+            }
             else if (type.IsEnum)
             {
                 dependentEnumTypes.Add(type);

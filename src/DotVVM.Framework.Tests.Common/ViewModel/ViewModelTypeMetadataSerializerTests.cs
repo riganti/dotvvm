@@ -32,6 +32,7 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
         [DataRow(typeof(int?), "{'type':'nullable','inner':'Int32'}")]
         [DataRow(typeof(long[][]), "[['Int64']]")]
         [DataRow(typeof(Type), "'t38YPaufyA26odb7HXM9a+aghdA='")]   // unknown types should produce SHA1 hash
+        [DataRow(typeof(object), "{'type':'dynamic'}")]
         public void ViewModelTypeMetadata_TypeName(Type type, string expected)
         {
             var typeMetadataSerializer = new ViewModelTypeMetadataSerializer();
@@ -83,6 +84,8 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
 
             [Bind(Direction.ServerToClientFirstRequest)]
             public NestedTestViewModel ChildFirstRequest { get; set; }
+
+            public object ObjectProperty { get; set; }
         }
 
         class NestedTestViewModel

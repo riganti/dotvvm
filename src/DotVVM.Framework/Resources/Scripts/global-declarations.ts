@@ -208,6 +208,7 @@ type PropertyMetadata = {
 
 type TypeDefinition = string |
   { type: "nullable", inner: TypeDefinition } |
+  { type: "dynamic" } |
   TypeDefinition[];
 
 type ClientExtenderInfo = {

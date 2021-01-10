@@ -62,6 +62,9 @@ initDotvvm({
                 One: 1,
                 Two: 2
             }
+        },
+        d1: {
+            type: "dynamic"
         }
     }
 }, "en-US");
@@ -419,4 +422,35 @@ test("object - valid, child array of arrays, infer $type", () => {
     const result = tryCoerce({ $type: "t6", g: [[ { a: "aaa" } ]] }, "t6");
     expect(result!.wasCoerced).toBeTruthy();
     expect(result!.value).toEqual({ $type: "t6", g: [[ { $type: "t1", a: "aaa" } ]] });
+})
+
+
+test("dynamic - valid, primitive", () => {
+    const result = tryCoerce(1, { type: "dynamic" });
+    expect(result!.wasCoerced).toBeFalsy();
+    expect(result!.value).toEqual(1);
+})
+
+test("dynamic - valid, object of known type", () => {
+    const result = tryCoerce({ $type: "t1", a: "aa" }, { type: "dynamic" });
+    expect(result!.wasCoerced).toBeFalsy();
+    expect(result!.value).toEqual({ $type: "t1", a: "aa" });
+})
+
+test("dynamic - valid, object of unknown type", () => {
+    const result = tryCoerce({ a: 15 }, { type: "dynamic" });
+    expect(result!.wasCoerced).toBeFalsy();
+    expect(result!.value).toEqual({ a: 15 });
+})
+
+test("dynamic - valid, object of unknown type, nested known object", () => {
+    const result = tryCoerce({ inner: { $type: "t1", a: "aa" } }, { type: "dynamic" });
+    expect(result!.wasCoerced).toBeFalsy();
+    expect(result!.value).toEqual({ inner: { $type: "t1", a: "aa" } });
+})
+
+test("dynamic - valid, object of unknown type, nested known object", () => {
+    const result = tryCoerce({ inner: { $type: "t1", a: "aa" } }, { type: "dynamic" });
+    expect(result!.wasCoerced).toBeFalsy();
+    expect(result!.value).toEqual({ inner: { $type: "t1", a: "aa" } });
 })

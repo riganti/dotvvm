@@ -52,7 +52,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public static bool CanConvertType(Type type) =>
             !ReflectionUtils.IsEnumerable(type) &&
             ReflectionUtils.IsComplexType(type) &&
-            !ReflectionUtils.IsTupleLike(type);
+            !ReflectionUtils.IsTupleLike(type) &&
+            type != typeof(object);
 
         /// <summary>
         /// Determines whether this instance can convert the specified object type.

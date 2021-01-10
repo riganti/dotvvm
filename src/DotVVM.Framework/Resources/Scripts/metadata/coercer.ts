@@ -1,14 +1,16 @@
 import { CoerceError } from "../shared-classes";
 import { keys } from "../utils/objects";
 import { primitiveTypes } from "./primitiveTypes";
-import { getTypeInfo } from "./typeMap";
+import { getObjectTypeInfo, getTypeInfo } from "./typeMap";
 
 export function tryCoerce(value: any, type: TypeDefinition, strict: boolean = false): CoerceResult {
-    if (type instanceof Array) {
+    if (Array.isArray(type)) {
         return tryCoerceArray(value, type[0], strict);
     } else if (typeof type === "object") {
         if (type.type == "nullable") {
             return tryCoerceNullable(value, type.inner, strict);
+        } else if (type.type === "dynamic") {
+            return tryCoerceDynamic(value, strict);
         }
     } else if (typeof type === "string") {
         if (type in primitiveTypes) {
@@ -20,7 +22,7 @@ export function tryCoerce(value: any, type: TypeDefinition, strict: boolean = fa
             }
             else if (typeInfo && typeInfo.type === "enum") {
                 return tryCoerceEnum(value, typeInfo, strict);
-            }
+            }            
         }
     } 
     throw "Unsupported type metadata!";
@@ -59,7 +61,7 @@ function tryCoerceArray(value: any, innerType: TypeDefinition, strict: boolean):
         return { value: null };
     } else if (typeof value === "undefined") {
         return { value: null, wasCoerced: true };
-    } else if (value instanceof Array) {
+    } else if (Array.isArray(value)) {
         let wasCoerced = false;
         const items = [];
         for (let i = 0; i < value.length; i++) {
@@ -136,4 +138,53 @@ function tryCoerceObject(value: any, type: string, typeInfo: ObjectTypeMetadata,
             return { value: { ...value, ...patch }, wasCoerced: true };
         }
     }
+}
+
+function tryCoerceDynamic(value: any, strict: boolean): CoerceResult {
+    if (typeof value === "undefined") {
+        return { value: null, wasCoerced: true };
+    }
+
+    if (Array.isArray(value)) {
+        // coerce array items (treat them as dynamic)
+        return tryCoerceArray(value, [{ type: "dynamic" }], strict);
+
+    } else if (typeof value === "object") {
+        let innerType = value["$type"];
+        if (typeof innerType === "string") {
+            // known object type - coerce recursively
+            return tryCoerceObject(value, innerType, getObjectTypeInfo(innerType), strict);
+        }
+
+        // unknown object - treat every property as dynamic
+        let wasCoerced = false;
+        let patch: any = {};
+        for (let k of keys(value)) {
+            if (k === "$type") {
+                continue;
+            }
+            try {
+                const result = tryCoerceDynamic(value[k], strict);
+                if (!result) {
+                    return;
+                }
+                if (result.wasCoerced) {
+                    wasCoerced = true;
+                    patch[k] = result.value;
+                }
+            } catch (err) {
+                if (err instanceof CoerceError) {
+                    err.prependPathFragment(k);
+                }
+                throw err;
+            }
+        }
+        if (!wasCoerced) {
+            return { value };
+        } else {
+            return { value: { ...value, ...patch }, wasCoerced: true };
+        }
+    } 
+    
+    return { value };
 }
