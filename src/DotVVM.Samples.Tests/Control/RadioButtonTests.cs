@@ -52,26 +52,26 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.InnerTextEquals(span, "");
 
                 radio1.Click();
-                browser.WaitFor(() => AssertUI.InnerTextEquals(span, "First"), 1000);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(span, "First"), 5000);
 
                 radio2.Click();
-                browser.WaitFor(() => AssertUI.InnerTextEquals(span, "Second"), 1000);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(span, "Second"), 5000);
 
                 browser.ElementAt("input[type=button]", 0).Click();
-                browser.WaitFor(() => AssertUI.InnerTextEquals(span, "Second"), 1000);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(span, "Second"), 5000);
                 AssertUI.IsChecked(radio2);
 
                 browser.ElementAt("input[type=button]", 1).Click();
-                browser.WaitFor(() => AssertUI.InnerTextEquals(span, ""), 1000);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(span, ""), 5000);
                 AssertUI.IsNotChecked(radio1);
                 AssertUI.IsNotChecked(radio2);
 
                 browser.ElementAt("input[type=button]", 2).Click();
-                browser.WaitFor(() => AssertUI.InnerTextEquals(span, "First"), 1000);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(span, "First"), 5000);
                 AssertUI.IsChecked(radio1);
 
                 browser.ElementAt("input[type=button]", 3).Click();
-                browser.WaitFor(() => AssertUI.InnerTextEquals(span, "Second"), 1000);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(span, "Second"), 5000);
                 AssertUI.IsChecked(radio2);
             });
         }
