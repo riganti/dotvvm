@@ -123,7 +123,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (validationRules?.Count > 0) result["validationRules"] = validationRules;
  
             if (commandResult != null) context.ViewModelJson!["commandResult"] = WriteCommandData(commandResult, serializer, "result");
-            if (context.CustomData != null && context.CustomData.Count > 0) context.ViewModelJson!["customData"] = WriteCommandData(context.CustomData, serializer, "custom data");
+            AddCustomPropertiesIfAny(context, serializer, result);
 
             context.ViewModelJson = result;
         }
@@ -145,8 +145,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
             serializer.Converters.Add(viewModelConverter);
             var response = new JObject();
             response["result"] = WriteCommandData(result, serializer, "result");
-            if (context.CustomData != null && context.CustomData.Count > 0) response["customData"] = WriteCommandData(context.CustomData, serializer, "custom data");
+            AddCustomPropertiesIfAny(context, serializer, response);
             return response.ToString(JsonFormatting);
+        }
+
+        private static void AddCustomPropertiesIfAny(IDotvvmRequestContext context, JsonSerializer serializer, JObject response)
+        {
+            if (context.CustomResponseProperties != null && context.CustomResponseProperties.Count > 0)
+            {
+                response["customProperties"] = WriteCommandData(context.CustomResponseProperties, serializer, "custom properties");
+            }
         }
 
         private static JToken WriteCommandData(object data, JsonSerializer serializer, string description)

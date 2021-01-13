@@ -111,6 +111,7 @@ namespace DotVVM.Framework.Hosting
         string? ResultIdFragment { get; set; }
 
         IServiceProvider Services { get; }
-        Dictionary<string, object>? CustomData { get; }
+        IReadOnlyDictionary<string, object> CustomResponseProperties { get; }
+        void AddCustomResponseProperty(string key, object value);
     }
 }

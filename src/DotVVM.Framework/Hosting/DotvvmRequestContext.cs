@@ -110,6 +110,7 @@ namespace DotVVM.Framework.Hosting
         public IViewModelSerializer ViewModelSerializer => Services.GetRequiredService<IViewModelSerializer>();
 
         private IServiceProvider? _services;
+
         public IServiceProvider Services
         {
             get => _services ?? (_services = Configuration.ServiceProvider ?? throw new NotSupportedException());
@@ -118,8 +119,8 @@ namespace DotVVM.Framework.Hosting
 
         public IHttpContext HttpContext { get; set; }
 
-        public Dictionary<string, object> CustomData { get; } = new Dictionary<string, object>();
- 
+        private readonly Dictionary<string, object> customResponseProperties = new Dictionary<string, object>();
+        public IReadOnlyDictionary<string, object> CustomResponseProperties => customResponseProperties;
         public DotvvmRequestContext(
             IHttpContext httpContext,
             DotvvmConfiguration configuration,
@@ -137,6 +138,15 @@ namespace DotVVM.Framework.Hosting
         {
             return httpContext.GetItem<DotvvmRequestContext>(HostingConstants.DotvvmRequestContextOwinKey)
                    .NotNull();
+        }
+
+        public void AddCustomResponseProperty(string key, object value)
+        {
+            if(customResponseProperties.ContainsKey(key))
+            {
+                throw new InvalidOperationException($"Custom property {key} already exists.");
+            }
+            customResponseProperties[key] = value;
         }
     }
 }

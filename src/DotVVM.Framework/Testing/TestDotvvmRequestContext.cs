@@ -39,13 +39,22 @@ namespace DotVVM.Framework.Testing
         public DotvvmView View { get; set; }
 
         private IServiceProvider _services;
+
         public IServiceProvider Services
         {
             get => _services ?? Configuration?.ServiceProvider ?? throw new NotSupportedException();
             set => _services = value;
         }
 
-        public object CommandResult { get; set; }
-        public Dictionary<string, object> CustomData { get; set; }
+        private readonly Dictionary<string, object> customResponseProperties = new Dictionary<string, object>();
+        public IReadOnlyDictionary<string, object> CustomResponseProperties => customResponseProperties;
+        public void AddCustomResponseProperty(string key, object value)
+        {
+            if (customResponseProperties.ContainsKey(key))
+            {
+                throw new InvalidOperationException($"Custom property {key} already exists.");
+            }
+            customResponseProperties[key] = value;
+        }
     }
 }
