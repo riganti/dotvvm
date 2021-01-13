@@ -7,7 +7,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.ViewModel;
 
-namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommandResult
+namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomResponseProperties
 {
     public class PageErrorModel
     {

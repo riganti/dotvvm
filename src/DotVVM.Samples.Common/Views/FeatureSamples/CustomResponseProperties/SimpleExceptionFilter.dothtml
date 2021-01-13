@@ -1,0 +1,34 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomResponseProperties.SimpleExceptionFilterViewModel, DotVVM.Samples.Common
+@import model = DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomResponseProperties.SimpleExceptionFilterViewModel
+
+<html>
+<head>
+</head>
+<body>
+    <div>
+        <dot:Button Click="{staticCommand: model.StaticCommand()}" data-ui="staticCommand" Text="Static Command Test" />
+        <dot:Button Click="{command: Command()}" Text="Command Test"  data-ui="command" />
+        <dot:Button onclick="javascript: clearTexts()" Text="Clear" data-ui="clear"></dot:Button>
+    </div>
+    <p>
+        <span data-ui="customProperties"></span><br />
+        <span data-ui="result"></span>
+    </p>
+    <dot:InlineScript>
+        function clearTexts(){
+            var customProperties = document.querySelector('[data-ui="customProperties"]');
+            customProperties.innerText = "";
+        }
+        dotvvm.events.staticCommandMethodInvoked.subscribe(e => {
+            var customPropertiesInput = document.querySelector('[data-ui="customProperties"]');
+            customPropertiesInput.innerText = e.serverResponseObject.customProperties.Message;
+        });
+
+        dotvvm.events.postbackResponseReceived.subscribe(e => {
+            var customPropertiesInput = document.querySelector('[data-ui="customProperties"]');
+            customPropertiesInput.innerText = e.serverResponseObject.customProperties.Message;
+        });
+    </dot:InlineScript>
+</body>
+</html>
+
