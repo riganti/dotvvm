@@ -26,9 +26,7 @@ namespace DotVVM.Samples.Tests.Feature
                 staticCommandButton.Click();
 
                 browser.WaitFor(() => {
-                    var resultSpan = browser.First("result", SelectByDataUi);
-                    var customDataSpan = browser.First("customData", SelectByDataUi);
-                    AssertUI.TextEquals(resultSpan, "Problem!");
+                    var customDataSpan = browser.First("customProperties", SelectByDataUi);
                     AssertUI.TextEquals(customDataSpan, "Hello there");
                 }, 8000);
 
@@ -38,9 +36,7 @@ namespace DotVVM.Samples.Tests.Feature
                 var commandButton = browser.First("command", SelectByDataUi);
                 commandButton.Click();
                 browser.WaitFor(() => {
-                    var resultSpan = browser.First("result", SelectByDataUi);
-                    var customDataSpan = browser.First("customData", SelectByDataUi);
-                    AssertUI.TextEquals(resultSpan, "Problem!");
+                    var customDataSpan = browser.First("customProperties", SelectByDataUi);
                     AssertUI.TextEquals(customDataSpan, "Hello there");
                 }, 8000);
 

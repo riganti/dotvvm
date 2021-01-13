@@ -12,7 +12,6 @@
     </div>
     <p>
         <span data-ui="customProperties"></span><br />
-        <span data-ui="result"></span>
     </p>
     <dot:InlineScript>
         function clearTexts(){
