@@ -82,7 +82,7 @@ namespace DotVVM.Framework.Tests.Runtime
 				Property5 = null
 			};
 			context.ViewModel = oldViewModel;
-			serializer.BuildViewModel(context);
+			serializer.BuildViewModel(context, null);
 			var result = context.GetSerializedViewModel();
 			result = UnwrapSerializedViewModel(result);
 			result = WrapSerializedViewModel(result);
@@ -139,7 +139,7 @@ namespace DotVVM.Framework.Tests.Runtime
 		{
 			context.ViewModel = viewModel;
 			serializer.SendDiff = false;
-			serializer.BuildViewModel(context);
+			serializer.BuildViewModel(context, null);
 			return UnwrapSerializedViewModel(serializer.SerializeViewModel(context));
 		}
 
@@ -203,7 +203,7 @@ namespace DotVVM.Framework.Tests.Runtime
 			};
 			context.ViewModel = oldViewModel;
 
-			serializer.BuildViewModel(context);
+			serializer.BuildViewModel(context,null);
 			var result = context.GetSerializedViewModel();
 			result = UnwrapSerializedViewModel(result);
 			result = WrapSerializedViewModel(result);
@@ -231,7 +231,7 @@ namespace DotVVM.Framework.Tests.Runtime
 	        {
 	            try
 	            {
-	                serializer.BuildViewModel(context);
+	                serializer.BuildViewModel(context, null);
 	                context.GetSerializedViewModel();
 	            }
 	            catch (Exception ex)
@@ -278,7 +278,7 @@ namespace DotVVM.Framework.Tests.Runtime
 			};
 			context.ViewModel = oldViewModel;
 
-			serializer.BuildViewModel(context);
+			serializer.BuildViewModel(context, null);
 			var result = context.GetSerializedViewModel();
 			result = UnwrapSerializedViewModel(result);
 			result = WrapSerializedViewModel(result);
@@ -306,7 +306,7 @@ namespace DotVVM.Framework.Tests.Runtime
 				Property1 = TestEnum.Second
 			};
 			context.ViewModel = oldViewModel;
-			serializer.BuildViewModel(context);
+			serializer.BuildViewModel(context, null);
 			var result = context.GetSerializedViewModel();
 			result = UnwrapSerializedViewModel(result);
 			result = WrapSerializedViewModel(result);
@@ -357,7 +357,7 @@ namespace DotVVM.Framework.Tests.Runtime
 			};
 
 			context.ViewModel = oldViewModel;
-			serializer.BuildViewModel(context);
+			serializer.BuildViewModel(context, null);
 			var result = context.GetSerializedViewModel();
 			result = UnwrapSerializedViewModel(result);
 			result = WrapSerializedViewModel(result);

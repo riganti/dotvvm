@@ -121,10 +121,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             // TODO: do not send on postbacks
             if (validationRules?.Count > 0) result["validationRules"] = validationRules;
-
-            context.ViewModelJson = result;
+ 
             if (commandResult != null) context.ViewModelJson!["commandResult"] = WriteCommandData(commandResult, serializer, "result");
             if (context.CustomData != null && context.CustomData.Count > 0) context.ViewModelJson!["customData"] = WriteCommandData(context.CustomData, serializer, "custom data");
+
+            context.ViewModelJson = result;
         }
 
         public void AddNewResources(IDotvvmRequestContext context)
