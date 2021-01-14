@@ -89,14 +89,16 @@ namespace DotVVM.Framework.ViewModel.Validation
             return exprCache.GetOrAdd((translator, expr), e => {
                 var dataContext = DataContextStack.Create(e.expression.Parameters.Single().Type);
                 var expression = ExpressionUtils.Replace(e.expression, BindingExpressionBuilder.GetParameters(dataContext).First(p => p.Name == "_this"));
-                var jExpression = translator.CompileToJavascript(expression, dataContext).ToString();
+                var jsast = translator.CompileToJavascript(expression, dataContext);
+                var pcode = BindingPropertyResolvers.FormatJavascript(jsast, niceMode: isDebug, nullChecks: false);
+                var script = JavascriptTranslator.FormatKnockoutScript(pcode, allowDataGlobal: true);
 
-                jExpression = jExpression.Substring(jExpression.IndexOf("."));
-                // Replace . (dot), [ (left bracket) with / (slash)
-                // Delete ] (right bracket)
-                jExpression = System.Text.RegularExpressions.Regex.Replace(jExpression, @"\.|\[", "/");
-                jExpression = jExpression.Replace("]", "");
-                return jExpression;
+                // Remove parentheses '(', ')' and right brackets ']'
+                script = System.Text.RegularExpressions.Regex.Replace(script, @"\(|\)|\]", "");
+                // Replace dots '.' and left brackets '[' with slash '/'
+                script = System.Text.RegularExpressions.Regex.Replace(script, @"\.|\[", "/");
+
+                return script;
             });
         }
 
