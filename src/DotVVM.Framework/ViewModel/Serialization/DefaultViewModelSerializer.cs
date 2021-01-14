@@ -122,7 +122,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // TODO: do not send on postbacks
             if (validationRules?.Count > 0) result["validationRules"] = validationRules;
  
-            if (commandResult != null) context.ViewModelJson!["commandResult"] = WriteCommandData(commandResult, serializer, "result");
+            if (commandResult != null) context.ViewModelJson!["commandResult"] = WriteCommandData(commandResult, serializer, "the command result");
             AddCustomPropertiesIfAny(context, serializer, result);
 
             context.ViewModelJson = result;
@@ -144,7 +144,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             };
             serializer.Converters.Add(viewModelConverter);
             var response = new JObject();
-            response["result"] = WriteCommandData(result, serializer, "result");
+            response["result"] = WriteCommandData(result, serializer, "the static command result");
             AddCustomPropertiesIfAny(context, serializer, response);
             return response.ToString(JsonFormatting);
         }
@@ -166,7 +166,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not serialize static command {description} of type '{ data.GetType().FullName}'. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
+                throw new Exception($"Could not serialize {description} of type '{ data.GetType().FullName}'. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
             }
 
             return writer.Token;
