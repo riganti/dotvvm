@@ -119,8 +119,6 @@ namespace DotVVM.Framework.Hosting
 
         public IHttpContext HttpContext { get; set; }
 
-        private readonly Dictionary<string, object> customResponseProperties = new Dictionary<string, object>();
-        public IReadOnlyDictionary<string, object> CustomResponseProperties => customResponseProperties;
         public DotvvmRequestContext(
             IHttpContext httpContext,
             DotvvmConfiguration configuration,
@@ -140,13 +138,6 @@ namespace DotVVM.Framework.Hosting
                    .NotNull();
         }
 
-        public void AddCustomResponseProperty(string key, object value)
-        {
-            if(customResponseProperties.ContainsKey(key))
-            {
-                throw new InvalidOperationException($"Custom property {key} already exists.");
-            }
-            customResponseProperties[key] = value;
-        }
+        public CustomResponsePropertiesManager CustomResponseProperties { get; set; } = new CustomResponsePropertiesManager();
     }
 }

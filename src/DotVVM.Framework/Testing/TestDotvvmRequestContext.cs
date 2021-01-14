@@ -46,15 +46,39 @@ namespace DotVVM.Framework.Testing
             set => _services = value;
         }
 
-        private readonly Dictionary<string, object> customResponseProperties = new Dictionary<string, object>();
-        public IReadOnlyDictionary<string, object> CustomResponseProperties => customResponseProperties;
-        public void AddCustomResponseProperty(string key, object value)
-        {
-            if (customResponseProperties.ContainsKey(key))
-            {
-                throw new InvalidOperationException($"Custom property {key} already exists.");
-            }
-            customResponseProperties[key] = value;
-        }
+        IHttpContext IDotvvmRequestContext.HttpContext => throw new NotImplementedException();
+
+        string IDotvvmRequestContext.CsrfToken { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        JObject IDotvvmRequestContext.ReceivedViewModelJson { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        object IDotvvmRequestContext.ViewModel { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        JObject IDotvvmRequestContext.ViewModelJson { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        DotvvmView IDotvvmRequestContext.View { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        DotvvmConfiguration IDotvvmRequestContext.Configuration => throw new NotImplementedException();
+
+        IDotvvmPresenter IDotvvmRequestContext.Presenter { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        RouteBase IDotvvmRequestContext.Route { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        bool IDotvvmRequestContext.IsPostBack { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        IDictionary<string, object> IDotvvmRequestContext.Parameters { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        ResourceManager IDotvvmRequestContext.ResourceManager => throw new NotImplementedException();
+
+        ModelState IDotvvmRequestContext.ModelState => throw new NotImplementedException();
+
+        IQueryCollection IDotvvmRequestContext.Query => throw new NotImplementedException();
+
+        bool IDotvvmRequestContext.IsCommandExceptionHandled { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        bool IDotvvmRequestContext.IsPageExceptionHandled { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        Exception IDotvvmRequestContext.CommandException { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        bool IDotvvmRequestContext.IsSpaRequest => throw new NotImplementedException();
+
+        bool IDotvvmRequestContext.IsInPartialRenderingMode => throw new NotImplementedException();
+
+        string IDotvvmRequestContext.ResultIdFragment { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        IServiceProvider IDotvvmRequestContext.Services => throw new NotImplementedException();
+
+        public CustomResponsePropertiesManager CustomResponseProperties { get; set; } = new CustomResponsePropertiesManager();
     }
 }

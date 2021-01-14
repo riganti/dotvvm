@@ -240,13 +240,35 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.IsFalse(response.TryGetValue("customProperties", out var _));
         }
 
+        [TestMethod]
+        public void StaticCommandResponse_AlreadySerializedProperties_Throws()
+        {
+            var result = serializer.BuildStaticCommandResponse(context, "Test");
+
+            Assert.ThrowsException<InvalidOperationException>(() => {
+
+                context.CustomResponseProperties.Add("nope", 12);
+            });
+        }
+
+        [TestMethod]
+        public void ViewModelResponse_AlreadySerializedProperties_Throws()
+        {
+            serializer.BuildViewModel(context, null);
+
+            Assert.ThrowsException<InvalidOperationException>(() => {
+
+                context.CustomResponseProperties.Add("nope", 12);
+            });
+        }
+
         private JObject PrepareResponse(object viewModel, object commandResult, Dictionary<string,object> customProperties = null)
         {
             context.ViewModel = viewModel;
 
             foreach (var prop in customProperties ?? new Dictionary<string, object>())
             {
-                context.AddCustomResponseProperty(prop.Key, prop.Value);
+                context.CustomResponseProperties.Add(prop.Key, prop.Value);
             }
 
             serializer.BuildViewModel(context, commandResult);
@@ -259,7 +281,7 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             foreach (var prop in customProperties ?? new Dictionary<string, object>())
             {
-                context.AddCustomResponseProperty(prop.Key, prop.Value);
+                context.CustomResponseProperties.Add(prop.Key, prop.Value);
             }
 
             var result = serializer.BuildStaticCommandResponse(context, commandResult);

@@ -151,10 +151,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private static void AddCustomPropertiesIfAny(IDotvvmRequestContext context, JsonSerializer serializer, JObject response)
         {
-            if (context.CustomResponseProperties != null && context.CustomResponseProperties.Count > 0)
+            if (context.CustomResponseProperties.Properties.Count > 0)
             {
-                response["customProperties"] = WriteCommandData(context.CustomResponseProperties, serializer, "custom properties");
+                response["customProperties"] = WriteCommandData(context.CustomResponseProperties.Properties, serializer, "custom properties");
             }
+            context.CustomResponseProperties.PropertiesSerialized = true;
         }
 
         private static JToken WriteCommandData(object data, JsonSerializer serializer, string description)

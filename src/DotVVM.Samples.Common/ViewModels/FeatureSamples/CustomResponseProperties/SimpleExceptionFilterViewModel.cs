@@ -19,10 +19,10 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomResponseProperti
         {
             if (exception is UIException clientError)
             {
-                context.AddCustomResponseProperty("validation-errors",new PageErrorModel {
+                context.CustomResponseProperties.Add("validation-errors",new PageErrorModel {
                     Message = clientError.Message
                 });
-                context.AddCustomResponseProperty("Message", "Hello there");
+                context.CustomResponseProperties.Add("Message", "Hello there");
 
                 context.IsCommandExceptionHandled = true;
             }
