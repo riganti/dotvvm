@@ -14,7 +14,6 @@ namespace DotVVM.Framework.ViewModel.Validation
     {
         private readonly IViewModelSerializationMapper viewModelSerializationMapper;
         private readonly Dictionary<object, object> validationItems;
-        private const string defaultValidationTargetPath = "/";
 
         public ViewModelValidator(IViewModelSerializationMapper viewModelMapper, DotvvmConfiguration dotvvmConfiguration)
         {
@@ -25,18 +24,15 @@ namespace DotVVM.Framework.ViewModel.Validation
         /// <summary>
         /// Validates the view model.
         /// </summary>
-        public IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel, string validationTargetPath = defaultValidationTargetPath)
+        public IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel, string validationTargetPath)
         {
-            if (validationTargetPath.First() != '/')
-                validationTargetPath = $"/{validationTargetPath}";
-
-            return ValidateViewModel(viewModel, validationTargetPath, new HashSet<object>());
+            return ValidateViewModel(viewModel, new HashSet<object>());
         }
 
         /// <summary>
         /// Validates the view model.
         /// </summary>
-        private IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel, string pathPrefix, HashSet<object> alreadyValidated)
+        private IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel, HashSet<object> alreadyValidated)
         {
             if (viewModel == null)
             {
@@ -57,7 +53,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                 var index = 0;
                 foreach (var item in (IEnumerable)viewModel)
                 {
-                    foreach (var error in ValidateViewModel(item, CombinePath(pathPrefix, $"/{index}/"), alreadyValidated))
+                    foreach (var error in ValidateViewModel(item, alreadyValidated))
                     {
                         yield return error;
                     }
@@ -71,7 +67,6 @@ namespace DotVVM.Framework.ViewModel.Validation
             foreach (var property in map.Properties.Where(p => p.TransferToServer))
             {
                 var value = property.PropertyInfo.GetValue(viewModel);
-                var path = CombinePath(pathPrefix, property.Name);
 
                 // validate the property
                 if (property.ValidationRules.Any())
@@ -84,8 +79,9 @@ namespace DotVVM.Framework.ViewModel.Validation
                         if (propertyResult != ValidationResult.Success)
                         {
                             yield return new ViewModelValidationError() {
-                                PropertyPath = path,
-                                ErrorMessage = rule.ErrorMessage
+                                TargetObject = viewModel,
+                                PropertyPath = property.Name,
+                                ErrorMessage = rule.ErrorMessage                            
                             };
                         }
                     }
@@ -97,7 +93,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                     if (ReflectionUtils.IsComplexType(property.Type))
                     {
                         // complex objects
-                        foreach (var error in ValidateViewModel(value, path, alreadyValidated))
+                        foreach (var error in ValidateViewModel(value, alreadyValidated))
                         {
                             yield return error;
                         }
@@ -115,43 +111,22 @@ namespace DotVVM.Framework.ViewModel.Validation
                     {
                         foreach (var memberPath in error.MemberNames)
                         {
-                            paths.Add(CombinePath(pathPrefix, memberPath));
+                            paths.Add(memberPath);
                         }
                     }
                     if (!paths.Any())
                     {
-                        paths.Add(pathPrefix);
+                        paths.Add(string.Empty);
                     }
 
                     foreach (var memberPath in paths)
                     {
                         yield return new ViewModelValidationError() {
+                            TargetObject = viewModel,
                             PropertyPath = memberPath,
                             ErrorMessage = error.ErrorMessage
                         };
                     }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Combines the path.
-        /// </summary>
-        private string CombinePath(string prefix, string path)
-        {
-            if (prefix == defaultValidationTargetPath && path.First() == '/')
-            {
-                return path;
-            }
-            else
-            {
-                if (path.First() == '/' || prefix.Last() == '/')
-                {
-                    return prefix + path;
-                }
-                else
-                {
-                    return $"{prefix}/{path}";
                 }
             }
         }
