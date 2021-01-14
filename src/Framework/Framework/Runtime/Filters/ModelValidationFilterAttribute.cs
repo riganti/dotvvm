@@ -17,30 +17,17 @@ namespace DotVVM.Framework.Runtime.Filters
             if (!string.IsNullOrEmpty(context.ModelState.ValidationTargetPath))
             {
                 var validator = context.Services.GetRequiredService<IViewModelValidator>();
-                context.ModelState.Errors.AddRange(validator.ValidateViewModel(context.ModelState.ValidationTarget, GetFullValidationPath(context)));
+                var errors = validator.ValidateViewModel(context.ModelState.ValidationTarget).ToList();
+                if (errors.Any())
+                {
+                    var modelStateDecorator = context.Services.GetRequiredService<IModelStateDecorator>();
+                    modelStateDecorator.Decorate(context.ModelState, context.ViewModel, errors);
+                }
+
                 context.FailOnInvalidModelState();
             }
 
             return TaskUtils.GetCompletedTask();
-        }
-
-        private string GetFullValidationPath(IDotvvmRequestContext context)
-        {
-            if (context.ModelState.ValidationTargetPath == "/")
-                return context.ModelState.ValidationTargetPath;
-
-            var data = context.ReceivedViewModelJson;
-            if (data == null)
-                return context.ModelState.ValidationTargetPath;
-
-            var currentPathSegments = data["currentPath"].Values<string>();
-            if (currentPathSegments.FirstOrDefault() == null)
-                return context.ModelState.ValidationTargetPath;
-
-            var currentPath = string.Join("/", data["currentPath"].Values<string>());
-            var validationTargetPathPrefix = currentPath.Substring(currentPath.IndexOf(".") + 1);
-            var validationTargetPath = context.ModelState.ValidationTargetPath;
-            return $"{validationTargetPathPrefix}/{validationTargetPath}";
         }
     } 
 }

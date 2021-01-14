@@ -6,6 +6,12 @@ namespace DotVVM.Framework.ViewModel.Validation
     public class ViewModelValidationError
     {
         /// <summary>
+        /// Object affected by this validation error
+        /// </summary>
+        [JsonProperty("targetObject")]
+        public object TargetObject { get; set; }
+
+        /// <summary>
         /// Contains path that can be evaluated on the client side.
         /// E.g.: Product().Suppliers()[2].Name
         /// </summary>
