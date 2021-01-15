@@ -200,6 +200,7 @@ FakesAssemblies/
 
 /src/DotVVM.Samples.BasicSamples.Api.AspNetCore/temp/returnedFiles
 /src/DotVVM.Framework.Tools.SeleniumGenerator/Properties/launchSettings.json
+/src/DotVVM.Compiler/Properties/launchSettings.json
 /src/DotVVM.Framework.Tests.Javascript/package-lock.json
 /src/DotVVM.Framework/package-lock.json
 
