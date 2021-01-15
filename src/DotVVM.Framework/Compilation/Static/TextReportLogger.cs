@@ -1,10 +1,12 @@
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Framework.Compilation.Static
 {
-    public class TextReportLogger : IReportLogger
+    internal class TextReportLogger : IReportLogger
     {
         public void Log(Stream stream, IEnumerable<Report> reports)
         {

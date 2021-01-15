@@ -1,8 +1,8 @@
-using DotVVM.Framework.Compilation;
+#nullable enable
 
-namespace DotVVM.Compiler
+namespace DotVVM.Framework.Compilation.Static
 {
-    public class Report
+    internal class Report
     {
         private const string UnknownError = "An unknown error occurred. This is likely a bug in the compiler.";
 

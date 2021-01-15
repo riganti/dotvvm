@@ -9,15 +9,14 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Framework.Compilation.Static
 {
-    public class RefObjectSerializer
+    internal class RefObjectSerializer
     {
         public static ParameterExpression ServiceProviderParameter = Expression.Parameter(typeof(IServiceProvider), "serviceProvider");
         public static ParameterExpression DotvvmConfigurationParameter = Expression.Parameter(typeof(DotvvmConfiguration), "config");

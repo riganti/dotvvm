@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -6,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
@@ -25,9 +26,9 @@ using Microsoft.CSharp.RuntimeBinder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Framework.Compilation.Static
 {
-    public class StaticViewCompiler
+    internal class StaticViewCompiler
     {
         public const string ObjectsClassName = "SerializedObjects";
         private const string IDotvvmCacheAdapterName
@@ -56,8 +57,6 @@ namespace DotVVM.Compiler
             Assembly dotvvmProjectAssembly,
             string dotvvmProjectDir)
         {
-            // ReplaceDefaultTypeRegistry(dotvvmProjectAssembly);
-            ReplaceDefaultDependencyContext(dotvvmProjectAssembly);
             InitializeDotvvmControls(dotvvmProjectAssembly);
             return ConfigurationInitializer.GetConfiguration(dotvvmProjectAssembly, dotvvmProjectDir, services =>
             {
@@ -268,69 +267,10 @@ namespace DotVVM.Compiler
             }
         }
 
-        private static void ReplaceDefaultDependencyContext(Assembly projectAssembly)
-        {
-#if NET461
-            return;
-#else
-            var projectContext = Microsoft.Extensions.DependencyModel.DependencyContext.Load(projectAssembly);
-            var mergedContext = Microsoft.Extensions.DependencyModel.DependencyContext.Default.Merge(projectContext);
-            var fields = typeof(Microsoft.Extensions.DependencyModel.DependencyContext)
-                 .GetFields(BindingFlags.NonPublic | BindingFlags.Instance)!;
-            foreach (var field in fields)
-            {
-                field.SetValue(
-                    Microsoft.Extensions.DependencyModel.DependencyContext.Default,
-                    field.GetValue(mergedContext));
-            }
-#endif
-        }
-
         private static ImmutableArray<MetadataReference> GetBaseReferences(DotvvmConfiguration configuration)
         {
-            // TODO: This method is a dupe of a part of DefaultViewCompiler
-            var diAssembly = typeof(ServiceCollection).Assembly;
-            var builder = ImmutableArray.CreateBuilder<Assembly>();
-            builder.AddRange(diAssembly.GetReferencedAssemblies().Select(Assembly.Load));
-            builder.Add(diAssembly);
-            builder.AddRange(configuration.Markup.Assemblies.Select(n => Assembly.Load(new AssemblyName(n))));
-            builder.Add(Assembly.Load(new AssemblyName("mscorlib")));
-            builder.Add(Assembly.Load(new AssemblyName("System.ValueTuple")));
-            builder.Add(typeof(IServiceProvider).Assembly);
-            builder.Add(typeof(RuntimeBinderException).Assembly);
-            builder.Add(typeof(DynamicAttribute).Assembly);
-            builder.Add(typeof(DotvvmConfiguration).Assembly);
-#if NETCOREAPP3_1
-            builder.Add(Assembly.Load(new AssemblyName("System.Runtime")));
-            builder.Add(Assembly.Load(new AssemblyName("System.Collections.Concurrent")));
-            builder.Add(Assembly.Load(new AssemblyName("System.Collections")));
-#elif NET461
-            builder.Add(typeof(List<>).Assembly);
-
-#else
-#error Fix TargetFrameworks.
-#endif
-
-            var netstandardAssembly = AppDomain.CurrentDomain.GetAssemblies()
-                .FirstOrDefault(a => a.GetName().Name == "netstandard");
-            if (netstandardAssembly is object)
-            {
-                builder.Add(netstandardAssembly);
-            }
-            else
-            {
-                try
-                {
-                    // netstandard assembly is required for netstandard 2.0 and in some cases
-                    // for netframework461 and newer. netstandard is not included in netframework452
-                    // and will throw FileNotFoundException. Instead of detecting current netframework
-                    // version, the exception is swallowed.
-                    builder.Add(Assembly.Load(new AssemblyName("netstandard")));
-                }
-                catch (FileNotFoundException) { }
-            }
-
-            return builder.Select(a => (MetadataReference)MetadataReference.CreateFromFile(a.Location))
+            return CompiledAssemblyCache.BuildReferencedAssembliesCache(configuration)
+                .Select(a => (MetadataReference)MetadataReference.CreateFromFile(a.Location))
                 .ToImmutableArray();
         }
     }

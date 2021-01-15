@@ -1,18 +1,17 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Security;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Framework.Compilation.Static
 {
-    public static class ConfigurationInitializer
+    internal static class ConfigurationInitializer
     {
         public static DotvvmConfiguration GetConfiguration(
             Assembly webSiteAssembly,

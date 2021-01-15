@@ -1,9 +1,11 @@
-﻿using DotVVM.Framework.Hosting;
+﻿#nullable enable
+
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Security;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Framework.Compilation.Static
 {
-    public class FakeViewModelProtector : IViewModelProtector
+    internal class FakeViewModelProtector : IViewModelProtector
     {
         public string Protect(string serializedData, IDotvvmRequestContext context)
         {

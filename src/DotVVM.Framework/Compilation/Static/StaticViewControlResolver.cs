@@ -1,12 +1,14 @@
+#nullable enable
+
 using System;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Framework.Compilation.Static
 {
-    public class StaticViewControlResolver : DefaultControlResolver
+    internal class StaticViewControlResolver : DefaultControlResolver
     {
         private readonly StaticViewCompiler compiler;
 

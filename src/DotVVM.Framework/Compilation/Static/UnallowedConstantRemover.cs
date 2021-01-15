@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Framework.Compilation.Static
 {
-    public class UnallowedConstantRemover : ExpressionVisitor
+    internal class UnallowedConstantRemover : ExpressionVisitor
     {
         public static (Expression, (ParameterExpression, object)[]) ReplaceBadConstants(Expression expr)
         {
