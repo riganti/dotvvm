@@ -10,9 +10,6 @@ resources:
     type: git
     name: cli-tests
 
-trigger:
-- main
-
 pool:
   name: Default
 
