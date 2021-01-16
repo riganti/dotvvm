@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  vmImage: 'windows-latest'
+  name: Default
 
 variables:
   testDir: "$(Agent.TempDirectory)/test_repo"
