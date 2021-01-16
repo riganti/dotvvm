@@ -1,0 +1,39 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  testDir: "$(Agent.TempDirectory)/test_repo"
+  compilerPathFx: "./src/DotVVM.Compiler/bin/Debug/net461/DotVVM.Compiler.exe"
+  compilerPathCore: "./src/DotVVM.Compiler/bin/Debug/netcoreapp3.1/DotVVM.Compiler.exe"
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: "Build DotVVM"
+  inputs:
+    command: 'build'
+    projects: '**/*.sln'
+
+- task: PowerShell@2
+  displayName: "Clone repo with tests"
+  inputs:
+    targetType: 'inline'
+    script: 'git clone https://git.riganti.cz/dotvvm/cli-test-projects.git "$(testDir)"'
+
+- task: VSBuild@1
+  displayName: "Compile projects"
+  inputs:
+    solution: '"$(testRepo)/**/*.sln"'
+    platform: 'Any CPU'
+    configuration: 'Debug'
+    restoreNugetPackages: true
+
+- task: PowerShell@2
+  displayName: "Empty App (.NET Framework 4.5.1)"
+  inputs:
+    targetType: 'inline'
+    script: '"$(compilerPathFx) "$(testDir)/owin/empty_net451/EmptyNet451/bin/Debug/EmptyNet451.dll" "$(testDir)/owin/empty_net451/EmptyNet451"'
+    errorActionPreference: 'continue'
+    failOnStderr: true
