@@ -1,14 +1,5 @@
-resources:
-  repositories:
-  - repository: dotvvm
-    type: github
-    endpoint: riganti
-    name: riganti/dotvvm
-    trigger:
-    - main
-  - repository: tests
-    type: git
-    name: cli-tests
+trigger:
+- main
 
 pool:
   name: Default
@@ -18,8 +9,10 @@ variables:
   compilerPathCore: "dotvvm/src/DotVVM.Compiler/bin/Debug/netcoreapp3.1/DotVVM.Compiler.exe"
 
 steps:
-- checkout: dotvvm
-- checkout: tests
+- checkout: self
+  path: dotvvm
+- checkout: git://DotVVM/cli-tests
+  path: tests
 
 ## Compile DotVVM
 - task: Npm@1
