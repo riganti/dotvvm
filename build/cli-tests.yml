@@ -48,7 +48,8 @@ steps:
   inputs:
     command: 'restore'
     restoreSolution: 'tests/**/*.sln'
-    feedsToUse: 'select'
+    feedsToUse: 'config'
+    nugetConfigPath: 'tests/NuGet.config'
 
 - task: VSBuild@1
   displayName: "Compile test projects"
