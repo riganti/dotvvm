@@ -10,11 +10,26 @@ variables:
   compilerPathCore: "./src/DotVVM.Compiler/bin/Debug/netcoreapp3.1/DotVVM.Compiler.exe"
 
 steps:
-- task: DotNetCoreCLI@2
+- task: Npm@1
+  displayName: "npm install"
+  inputs:
+    command: 'install'
+    workingDir: 'src/DotVVM.Framework'
+
+- task: Npm@1
+  displayName: "npm run build"
+  inputs:
+    command: 'custom'
+    workingDir: 'src/DotVVM.Framework'
+    customCommand: 'run build'
+
+- task: VSBuild@1
   displayName: "Build DotVVM"
   inputs:
-    command: 'build'
-    projects: '**/*.sln'
+    solution: '"$(testRepo)/**/*.sln"'
+    platform: 'Any CPU'
+    configuration: 'Debug'
+    restoreNugetPackages: true
 
 - task: PowerShell@2
   displayName: "Clone repo with tests"
