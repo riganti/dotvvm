@@ -1,3 +1,15 @@
+resources:
+  repositories:
+  - repository: dotvvm
+    type: github
+    endpoint: riganti
+    name: riganti/dotvvm
+    trigger:
+    - main
+  - repository: tests
+    type: git
+    name: cli-tests
+
 trigger:
 - main
 
@@ -5,57 +17,53 @@ pool:
   name: Default
 
 variables:
-  testRepo: "$(Agent.TempDirectory)/test_repo"
   compilerPathFx: "./src/DotVVM.Compiler/bin/Debug/net461/DotVVM.Compiler.exe"
   compilerPathCore: "./src/DotVVM.Compiler/bin/Debug/netcoreapp3.1/DotVVM.Compiler.exe"
 
 steps:
+- checkout: dotvvm
+- checkout: tests
+
 ## Compile DotVVM
 - task: Npm@1
   displayName: "npm install"
   inputs:
     command: 'install'
-    workingDir: 'src/DotVVM.Framework'
+    workingDir: 'dotvvm/src/DotVVM.Framework'
 
 - task: Npm@1
   displayName: "npm run build"
   inputs:
     command: 'custom'
-    workingDir: 'src/DotVVM.Framework'
+    workingDir: 'dotvvm/src/DotVVM.Framework'
     customCommand: 'run build'
 
 - task: NuGetCommand@2
   displayName: "Restore packages in DotVVM"
   inputs:
     command: 'restore'
-    restoreSolution: '**/*.sln'
+    restoreSolution: 'dotvvm/**/*.sln'
     feedsToUse: 'select'
 
 - task: VSBuild@1
   displayName: "Build DotVVM"
   inputs:
-    solution: '**/*.sln'
+    solution: 'dotvvm/**/*.sln'
     platform: 'Any CPU'
     configuration: 'Debug'
 
 ## Prepare test projects
-- task: PowerShell@2
-  displayName: "Clone repo with test projects"
-  inputs:
-    targetType: 'inline'
-    script: 'git clone https://git.riganti.cz/dotvvm/cli-test-projects.git "$(testRepo)"'
-
 - task: NuGetCommand@2
   displayName: "Restore packages in test projects"
   inputs:
     command: 'restore'
-    restoreSolution: '**/*.sln'
+    restoreSolution: 'tests/**/*.sln'
     feedsToUse: 'select'
 
 - task: VSBuild@1
   displayName: "Compile test projects"
   inputs:
-    solution: '$(testRepo)/**/*.sln'
+    solution: 'tests/**/*.sln'
     platform: 'Any CPU'
     configuration: 'Debug'
 
@@ -64,6 +72,6 @@ steps:
   displayName: "Empty App (.NET Framework 4.5.1)"
   inputs:
     targetType: 'inline'
-    script: '"$(compilerPathFx)" "$(testRepo)/owin/empty_net451/EmptyNet451/bin/Debug/EmptyNet451.dll" "$(testRepo)/owin/empty_net451/EmptyNet451"'
+    script: '"$(compilerPathFx)" "tests/owin/empty_net451/EmptyNet451/bin/Debug/EmptyNet451.dll" "tests/owin/empty_net451/EmptyNet451"'
     errorActionPreference: 'continue'
     failOnStderr: true
