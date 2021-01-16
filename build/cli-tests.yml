@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  name: Default
+  name: FERRARI_AP01
 
 variables:
   compilerPathFx: "dotvvm/src/DotVVM.Compiler/bin/Debug/net461/DotVVM.Compiler.exe"
