@@ -10,9 +10,9 @@ variables:
 
 steps:
 - checkout: self
-  path: dotvvm
+  path: s/dotvvm
 - checkout: git://DotVVM/cli-tests
-  path: tests
+  path: s/tests
 
 ## Compile DotVVM
 - task: Npm@1
