@@ -1,77 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using DotVVM.CommandLine.Commands;
-using DotVVM.CommandLine.Commands.Implementation;
-using DotVVM.CommandLine.Metadata;
+﻿using System.CommandLine;
+using System.CommandLine.Builder;
 
 namespace DotVVM.CommandLine
 {
-    public class Program
+    public static class Program
     {
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
-            // get configuration
-            var metadataService = new DotvvmProjectMetadataService();
-            var metadata = metadataService.FindInDirectory(Directory.GetCurrentDirectory());
-            if (metadata == null)
+            var rootCmd = new RootCommand("DotVVM Command-Line Interface")
             {
-                Console.WriteLine("No DotVVM project metadata file (.dotvvm.json) was found on current path.");
-                if (ConsoleHelpers.AskForYesNo("Is the current directory the root directory of DotVVM project?"))
-                {
-                    Console.WriteLine();
-                    metadata = metadataService.CreateDefaultConfiguration(Directory.GetCurrentDirectory());
-                    metadataService.Save(metadata);
-                }
-                else
-                {
-                    Console.WriteLine("There is no DotVVM project metadata file!");
-                    Environment.Exit(1);
-                }
-            }
-
-            // find applicable command
-            var commands = new CommandBase[]
-            {
-                new AddPageCommand(),
-                new AddMasterPageCommand(),
-                new AddViewModelCommand(),
-                new AddControlCommand(),
-                new AddNswagCommand(),
-                new RegenNswagCommand()
-
-                //new GenerateUiTestStubCommand()
+                Name = "dotvvm"
             };
-            var arguments = new Arguments(args);
-            var command = commands.FirstOrDefault(c => c.TryConsumeArgs(arguments, metadata));
-
-            // execute the command
-            try
-            {
-                if (command != null)
-                {
-                    command.Handle(arguments, metadata);
-
-                    // save project metadata
-                    metadataService.Save(metadata);
-                }
-                else
-                {
-                    throw new InvalidCommandUsageException("Unknown command!");
-                }
-            }
-            catch (InvalidCommandUsageException ex)
-            {
-                Console.WriteLine("Invalid Command Usage: " + ex);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("ERROR: " + ex.Message);
-                Console.Error.WriteLine(ex.ToString());
-                Environment.Exit(1);
-            }
+            rootCmd.AddInfoCommands();
+            rootCmd.AddCompilerCommands();
+            rootCmd.AddTemplateCommands();
+            rootCmd.AddOpenApiCommands();
+            rootCmd.AddVerboseOption();
+            // awkwardly enough, the built parser attaches itself to the command by itself
+            new CommandLineBuilder(rootCmd)
+                .UseDefaults()
+                .UseLogging()
+                .UseDotvvmMetadata()
+                .Build();
+            return rootCmd.Invoke(args);
         }
     }
 }
