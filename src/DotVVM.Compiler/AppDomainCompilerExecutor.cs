@@ -42,9 +42,9 @@ namespace DotVVM.Compiler
             };
         }
 
-        public void ExecuteCompile(FileInfo assemblyFile, DirectoryInfo? projectDir, string? rootNamespace)
+        public bool ExecuteCompile(FileInfo assemblyFile, DirectoryInfo? projectDir, string? rootNamespace)
         {
-            inner.ExecuteCompile(assemblyFile, projectDir, rootNamespace);
+            return inner.ExecuteCompile(assemblyFile, projectDir, rootNamespace);
         }
     }
 }

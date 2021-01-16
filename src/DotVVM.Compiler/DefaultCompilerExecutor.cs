@@ -10,7 +10,7 @@ namespace DotVVM.Compiler
 {
     public class DefaultCompilerExecutor : ICompilerExecutor
     {
-        public void ExecuteCompile(FileInfo assemblyFile, DirectoryInfo? projectDir, string? rootNamespace)
+        public bool ExecuteCompile(FileInfo assemblyFile, DirectoryInfo? projectDir, string? rootNamespace)
         {
             var assembly = Assembly.LoadFile(assemblyFile.FullName);
             ReplaceDefaultDependencyContext(assembly);
@@ -20,7 +20,9 @@ namespace DotVVM.Compiler
             var views = compiler.CompileAllViews();
             var logger = new TextReportLogger();
             using var err = Console.OpenStandardError();
-            logger.Log(err, views.SelectMany(s => s.Reports));
+            var reports = views.SelectMany(s => s.Reports).ToList();
+            logger.Log(err, reports);
+            return reports.Count == 0;
         }
 
         private static void ReplaceDefaultDependencyContext(Assembly projectAssembly)

@@ -10,10 +10,10 @@ namespace DotVVM.Compiler
             "--help", "-h", "-?", "/help", "/h", "/?"
         };
 
-        public static void Run(FileInfo assembly, DirectoryInfo? projectDir)
+        public static bool TryRun(FileInfo assembly, DirectoryInfo? projectDir)
         {
             var executor = ProjectLoader.GetExecutor(assembly.FullName);
-            executor.ExecuteCompile(assembly, projectDir, null);
+            return executor.ExecuteCompile(assembly, projectDir, null);
         }
 
         public static int Main(string[] args)
@@ -29,8 +29,9 @@ Arguments:
                 return 1;
             }
 
-            Run(new FileInfo(args[0]), new DirectoryInfo(args[1]));
-            return 0;
+            return TryRun(new FileInfo(args[0]), new DirectoryInfo(args[1]))
+                ? 0
+                : 1;
         }
     }
 }
