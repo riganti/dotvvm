@@ -26,7 +26,7 @@ steps:
 - task: VSBuild@1
   displayName: "Build DotVVM"
   inputs:
-    solution: '$(testRepo)/**/*.sln'
+    solution: '**/*.sln'
     platform: 'Any CPU'
     configuration: 'Debug'
     restoreNugetPackages: true
