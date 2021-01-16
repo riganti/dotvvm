@@ -10,6 +10,7 @@ variables:
   compilerPathCore: "./src/DotVVM.Compiler/bin/Debug/netcoreapp3.1/DotVVM.Compiler.exe"
 
 steps:
+## Compile DotVVM
 - task: Npm@1
   displayName: "npm install"
   inputs:
@@ -23,28 +24,42 @@ steps:
     workingDir: 'src/DotVVM.Framework'
     customCommand: 'run build'
 
+- task: NuGetCommand@2
+  displayName: "Restore packages in DotVVM"
+  inputs:
+    command: 'restore'
+    restoreSolution: '**/*.sln'
+    feedsToUse: 'select'
+
 - task: VSBuild@1
   displayName: "Build DotVVM"
   inputs:
     solution: '**/*.sln'
     platform: 'Any CPU'
     configuration: 'Debug'
-    restoreNugetPackages: true
 
+## Prepare test projects
 - task: PowerShell@2
-  displayName: "Clone repo with tests"
+  displayName: "Clone repo with test projects"
   inputs:
     targetType: 'inline'
     script: 'git clone https://git.riganti.cz/dotvvm/cli-test-projects.git "$(testRepo)"'
 
+- task: NuGetCommand@2
+  displayName: "Restore packages in test projects"
+  inputs:
+    command: 'restore'
+    restoreSolution: '**/*.sln'
+    feedsToUse: 'select'
+
 - task: VSBuild@1
-  displayName: "Compile projects"
+  displayName: "Compile test projects"
   inputs:
     solution: '$(testRepo)/**/*.sln'
     platform: 'Any CPU'
     configuration: 'Debug'
-    restoreNugetPackages: true
 
+## Run tests
 - task: PowerShell@2
   displayName: "Empty App (.NET Framework 4.5.1)"
   inputs:
