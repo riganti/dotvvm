@@ -29,9 +29,8 @@ Arguments:
                 return 1;
             }
 
-            return TryRun(new FileInfo(args[0]), new DirectoryInfo(args[1]))
-                ? 0
-                : 1;
+            var success = TryRun(new FileInfo(args[0]), new DirectoryInfo(args[1]));
+            return success ? 0 : 1;
         }
     }
 }
