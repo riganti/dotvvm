@@ -66,3 +66,107 @@ steps:
     script: '"$(compilerPathFx)" "tests/owin/empty_net451/EmptyNet451/bin/Debug/EmptyNet451.dll" "tests/owin/empty_net451/EmptyNet451"'
     errorActionPreference: 'continue'
     failOnStderr: true
+
+- task: PowerShell@2
+  displayName: "Empty App (.NET Framework 4.6.1)"
+  inputs:
+    targetType: 'inline'
+    script: '"$(compilerPathFx)" "tests/owin/empty_net461/EmptyNet461/bin/Debug/EmptyNet461.dll" "tests/owin/empty_net461/EmptyNet461"'
+    errorActionPreference: 'continue'
+    failOnStderr: true
+
+- task: PowerShell@2
+  displayName: "Empty App (.NET Framework 4.7.2)"
+  inputs:
+    targetType: 'inline'
+    script: '"$(compilerPathFx)" "tests/owin/empty_net472/EmptyNet472/bin/Debug/EmptyNet472.dll" "tests/owin/empty_net472/EmptyNet472"'
+    errorActionPreference: 'continue'
+    failOnStderr: true
+    
+- task: PowerShell@2
+  displayName: "Empty App (.NET Framework 4.8)"
+  inputs:
+    targetType: 'inline'
+    script: '"$(compilerPathFx)" "tests/owin/empty_net48/EmptyNet48/bin/Debug/EmptyNet48.dll" "tests/owin/empty_net48/EmptyNet48"'
+    errorActionPreference: 'continue'
+    failOnStderr: true
+    
+- task: PowerShell@2
+  displayName: "Business Pack (.NET Framework 4.7.2)"
+  inputs:
+    targetType: 'inline'
+    script: '"$(compilerPathFx)" "tests/owin/bp_net472/BusinessPack_Net472/bin/Debug/BusinessPack_Net472.dll" "tests/owin/bp_net472/BusinessPack_Net472"'
+    errorActionPreference: 'continue'
+    failOnStderr: true
+    
+- task: PowerShell@2
+  displayName: "Bootstrap 3 (.NET Framework 4.7.2)"
+  inputs:
+    targetType: 'inline'
+    script: '"$(compilerPathFx)" "tests/owin/bs3_net472/Bootstrap3Net472/bin/Debug/Bootstrap3Net472.dll" "tests/owin/bp_net472/Bootstrap3Net472"'
+    errorActionPreference: 'continue'
+    failOnStderr: true
+    
+- task: PowerShell@2
+  displayName: "Bootstrap 4 (.NET Framework 4.7.2)"
+  inputs:
+    targetType: 'inline'
+    script: '"$(compilerPathFx)" "tests/owin/bs4_net472/Bootstrap4Net472/bin/Debug/Bootstrap4Net472.dll" "tests/owin/bs4_net472/Bootstrap4Net472"'
+    errorActionPreference: 'continue'
+    failOnStderr: true
+        
+- task: PowerShell@2
+  displayName: "Dynamic Data + Contrib (.NET Framework 4.7.2)"
+  inputs:
+    targetType: 'inline'
+    script: '"$(compilerPathFx)" "tests/owin/dyndata_net472/DynamicDataNet472/bin/Debug/DynamicDataNet472.dll" "tests/owin/dyndata_net472/DynamicDataNet472"'
+    errorActionPreference: 'continue'
+    failOnStderr: true
+
+- task: PowerShell@2
+  displayName: "Empty App (.NET Core 2.1)"
+  inputs:
+    targetType: 'inline'
+    script: '"$(compilerPathCore)" "tests/core/empty_core21/EmptyCore21/bin/Debug/netcoreapp2.1/EmptyCore21.dll" "tests/core/empty_core21/EmptyCore21"'
+    errorActionPreference: 'continue'
+    failOnStderr: true
+    
+- task: PowerShell@2
+  displayName: "Empty App (.NET Core 3.1)"
+  inputs:
+    targetType: 'inline'
+    script: '"$(compilerPathCore)" "tests/core/empty_core31/EmptyCore31/bin/Debug/netcoreapp3.1/EmptyCore31.dll" "tests/core/empty_core31/EmptyCore31"'
+    errorActionPreference: 'continue'
+    failOnStderr: true
+    
+- task: PowerShell@2
+  displayName: "Empty App (.NET 5.0)"
+  inputs:
+    targetType: 'inline'
+    script: '"$(compilerPathCore)" "tests/core/empty_net5/EmptyNet5/bin/Debug/net5.0/EmptyNet5.dll" "tests/core/empty_net5/EmptyNet5"'
+    errorActionPreference: 'continue'
+    failOnStderr: true
+        
+- task: PowerShell@2
+  displayName: "Business Pack (.NET 5.0)"
+  inputs:
+    targetType: 'inline'
+    script: '"$(compilerPathCore)" "tests/core/bp_net5/BusinessPack_Net5/bin/Debug/net5.0/BusinessPack_Net5.dll" "tests/core/bp_net5/BusinessPack_Net5"'
+    errorActionPreference: 'continue'
+    failOnStderr: true
+
+- task: PowerShell@2
+  displayName: "Bootstrap 3 (.NET 5.0)"
+  inputs:
+    targetType: 'inline'
+    script: '"$(compilerPathCore)" "tests/core/bs3_net5/Bootstrap3_Net5/bin/Debug/net5.0/Bootstrap3_Net5.dll" "tests/core/bs3_net5/Bootstrap3_Net5"'
+    errorActionPreference: 'continue'
+    failOnStderr: true
+    
+- task: PowerShell@2
+  displayName: "Bootstrap 4 (.NET 5.0)"
+  inputs:
+    targetType: 'inline'
+    script: '"$(compilerPathCore)" "tests/core/bs4_net5/Bootstrap4_Net5/bin/Debug/net5.0/Bootstrap4_Net5.dll" "tests/core/bs4_net5/Bootstrap4_Net5"'
+    errorActionPreference: 'continue'
+    failOnStderr: true
