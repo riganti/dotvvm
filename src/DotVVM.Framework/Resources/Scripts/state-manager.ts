@@ -72,7 +72,7 @@ export class StateManager<TViewModel> {
         public stateUpdateEvent: DotvvmEvent<TViewModel>
     ) {
         this._state = initialState
-        this.stateObservable = createWrappedObservable(initialState, u => this.update(u))
+        this.stateObservable = createWrappedObservable(initialState, (initialState as any)["$type"], u => this.update(u))
         this.dispatchUpdate()
     }
 
@@ -140,11 +140,11 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
         this[updateSymbol](vm => Object.freeze({ ...vm, [propName]: valUpdate(vm[propName]) }))
     }
 
-    constructor(initialValue: T, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata, additionalProperties: string[]) {
+    constructor(initialValue: T, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata | undefined, additionalProperties: string[]) {
         this[currentStateSymbol] = initialValue
         this[updateSymbol] = updater
 
-        for (const p of keys(typeInfo.properties).concat(additionalProperties)) {
+        for (const p of keys(typeInfo?.properties || {}).concat(additionalProperties)) {
             this[internalPropCache][p] = null
         
             Object.defineProperty(this, p, {
@@ -157,10 +157,11 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
                     const currentState = this[currentStateSymbol]
                     const newObs = createWrappedObservable(
                         currentState[p],
+                        typeInfo?.properties[p]?.type,
                         u => this[updatePropertySymbol](p, u)
                     )
 
-                    if (p in typeInfo.properties) {
+                    if (typeInfo && p in typeInfo.properties) {
                         const clientExtenders = typeInfo.properties[p].clientExtenders;
                         if (clientExtenders) {
                             for (const e of clientExtenders) {
@@ -211,11 +212,14 @@ export function unmapKnockoutObservables(viewModel: any): any {
     return result
 }
 
-function createObservableObject<T extends object>(initialObject: T, update: ((updater: StateUpdate<any>) => void)) {
-    const typeId = (initialObject as any)["$type"]
-    const typeInfo = getObjectTypeInfo(typeId)
+function createObservableObject<T extends object>(initialObject: T, typeHint: TypeDefinition | undefined, update: ((updater: StateUpdate<any>) => void)) {
+    const typeId = (initialObject as any)["$type"] || typeHint
+    let typeInfo;
+    if (typeId) {
+        typeInfo = getObjectTypeInfo(typeId)
+    } 
 
-    const pSet = new Set(keys(typeInfo.properties))
+    const pSet = typeInfo ? new Set(keys(typeInfo.properties)) : new Set();
     const additionalProperties = keys(initialObject).filter(p => !pSet.has(p))
 
     return new FakeObservableObject(initialObject, update, typeId, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
@@ -228,7 +232,7 @@ function type(o: any) {
     return k.join("|")
 }
 
-function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T>): DeepKnockoutWrapped<T> {
+function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | undefined, updater: UpdateDispatcher<T>): DeepKnockoutWrapped<T> {
 
     let isUpdating = false
 
@@ -278,7 +282,7 @@ function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T
                         console.warn(`Replacing old knockout observable with a new one, just because it is not created by DotVVM. Please do not assign objects into the knockout tree directly. The object is `, unmapKnockoutObservables(newContents[index]))
                     }
                     const indexForClosure = index
-                    newContents[index] = createWrappedObservable(newVal[index], update => updater((viewModelArray: any) => {
+                    newContents[index] = createWrappedObservable(newVal[index], Array.isArray(typeHint) ? typeHint[0] : void 0, update => updater((viewModelArray: any) => {
                         const newElement = update(viewModelArray![indexForClosure])
                         const newArray = createArray(viewModelArray!)
                         newArray[indexForClosure] = newElement
@@ -299,7 +303,7 @@ function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T
                 return
             }
         }
-        else if (oldContents && oldContents[notifySymbol] && !observableWasSetFromOutside && type(currentValue) == type(newVal)) {
+        else if (!observableWasSetFromOutside && oldContents && oldContents[notifySymbol] && currentValue["$type"] && currentValue["$type"] === newVal["$type"]) {
             // smart object, supports the notification by itself
             oldContents[notifySymbol as any](newVal)
 
@@ -310,7 +314,7 @@ function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T
             // create new object and replace
 
             console.debug("Creating new KO object for", newVal)
-            newContents = createObservableObject(newVal, updater)
+            newContents = createObservableObject(newVal, typeHint, updater)
         }
 
         try {

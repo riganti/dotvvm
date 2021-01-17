@@ -86,27 +86,32 @@ function updateArrayItems(viewModel: any, target: KnockoutObservable<any>, deser
 export function deserializeObject(viewModel: any, target: any, deserializeAll: boolean): any {
     let unwrappedTarget = ko.unwrap(target);
 
-    const typeId = ko.unwrap(viewModel["$type"]);
-    if (!typeId) {
-        throw `Missing type metadata for object ${JSON.stringify(viewModel)}!`;
+    let typeId = ko.unwrap(viewModel["$type"]);
+    if (!typeId && unwrappedTarget)  {
+        typeId = ko.unwrap(unwrappedTarget["$type"]);
     }
-    const typeInfo = getObjectTypeInfo(typeId);
 
     if (isPrimitive(unwrappedTarget)) {
         unwrappedTarget = {};
     }
-    if (!ko.isObservable(unwrappedTarget["$type"])) {
-        unwrappedTarget["$type"] = ko.observable(typeId);
-    } else {
-        unwrappedTarget["$type"](typeId);
-    }
+
+    let typeInfo;
+    if (typeId) {
+        typeInfo = getObjectTypeInfo(typeId);
+
+        if (!ko.isObservable(unwrappedTarget["$type"])) {
+            unwrappedTarget["$type"] = ko.observable(typeId);
+        } else {
+            unwrappedTarget["$type"](typeId);
+        }
+    } 
 
     for (const prop of keys(viewModel)) {
         if (isTypeIdProperty(prop)) {
             continue;
         }
 
-        if (unwrappedTarget[prop] === undefined) {
+        if (typeof unwrappedTarget[prop] === "undefined") {
             unwrappedTarget[prop] = ko.observable();
         }
 
@@ -118,7 +123,7 @@ export function deserializeObject(viewModel: any, target: any, deserializeAll: b
             continue;
         }
 
-        const propInfo = typeInfo.properties[prop];
+        const propInfo = typeInfo?.properties[prop];
         if (!deserializeAll && propInfo && propInfo.update == "no") {
             continue;
         }
@@ -138,7 +143,7 @@ export function deserializeObject(viewModel: any, target: any, deserializeAll: b
     return target;
 }
 
-function copyProperty(value: any, unwrappedTarget: any, prop: string, deserializeAll: boolean, propInfo: PropertyMetadata) {
+function copyProperty(value: any, unwrappedTarget: any, prop: string, deserializeAll: boolean, propInfo?: PropertyMetadata) {
     const deserialized = deserialize(ko.unwrap(value), unwrappedTarget[prop], deserializeAll);
     
     if (ko.isObservable(deserialized)) { // deserialized is observable <=> its input target is observable

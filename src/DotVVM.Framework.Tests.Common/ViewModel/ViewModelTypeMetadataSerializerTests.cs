@@ -35,20 +35,20 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
         [DataRow(typeof(object), "{'type':'dynamic'}")]
         public void ViewModelTypeMetadata_TypeName(Type type, string expected)
         {
-            var typeMetadataSerializer = new ViewModelTypeMetadataSerializer();
+            var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
+            var dependentObjectTypes = new HashSet<Type>();
             var dependentEnumTypes = new HashSet<Type>();
-            var result = typeMetadataSerializer.GetTypeIdentifier(type, dependentEnumTypes);
+            var result = typeMetadataSerializer.GetTypeIdentifier(type, dependentObjectTypes, dependentEnumTypes);
             Assert.AreEqual(expected.Replace("'", "\""), result.ToString(Formatting.None));
         }
 
         [TestMethod]        
         public void ViewModelTypeMetadata_TypeMetadata()
         {
-            var typeMetadataSerializer = new ViewModelTypeMetadataSerializer();
+            var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
             var result = typeMetadataSerializer.SerializeTypeMetadata(new[]
             {
-                mapper.GetMap(typeof(TestViewModel)),
-                mapper.GetMap(typeof(NestedTestViewModel))
+                mapper.GetMap(typeof(TestViewModel))
             });
 
             var checker = new OutputChecker("testoutputs");

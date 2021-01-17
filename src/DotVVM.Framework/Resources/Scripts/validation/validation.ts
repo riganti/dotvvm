@@ -118,7 +118,10 @@ function validateViewModel(viewModel: any): void {
 
     // find validation rules for the property type
     const typeId = ko.unwrap(viewModel.$type);
-    const typeInfo = getObjectTypeInfo(typeId);
+    let typeInfo;
+    if (typeId) {
+        typeInfo = getObjectTypeInfo(typeId);
+    }
 
     // validate all properties
     for (const propertyName of keys(viewModel)) {
@@ -134,13 +137,13 @@ function validateViewModel(viewModel: any): void {
         const propertyValue = observable();
 
         // run validators
-        const propInfo = typeInfo.properties[propertyName];
+        const propInfo = typeInfo?.properties[propertyName];
     
-        if (propInfo.validationRules) {
+        if (propInfo?.validationRules) {
             validateProperty(viewModel, observable, propertyValue, propInfo.validationRules);
         }
         
-        validateRecursive(propertyName, observable, propertyValue, propInfo.type);
+        validateRecursive(propertyName, observable, propertyValue, propInfo?.type || { type: "dynamic" });
     }
 }
 

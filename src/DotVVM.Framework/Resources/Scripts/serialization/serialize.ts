@@ -56,10 +56,10 @@ export function serializeCore(viewModel: any, opt: ISerializationOptions = {}): 
     const pathProp = opt.path && opt.path.pop();
 
     const typeId = ko.unwrap(viewModel["$type"]);
-    if (!typeId) {
-        throw `Missing type metadata for object ${ko.toJSON(viewModel)}!`;
+    let typeInfo;
+    if (typeId) {
+        typeInfo = getObjectTypeInfo(typeId);
     }
-    const typeInfo = getObjectTypeInfo(typeId);    
 
     const result: any = {};
     for (const prop of keys(viewModel)) {
@@ -78,7 +78,7 @@ export function serializeCore(viewModel: any, opt: ISerializationOptions = {}): 
             continue;
         }
 
-        const propInfo = typeInfo.properties[prop];
+        const propInfo = typeInfo?.properties[prop];
         if (!opt.serializeAll && propInfo && propInfo.post == "no") {
             // continue
         } else if (!opt.serializeAll && propInfo && propInfo.post == "pathOnly" && opt.pathMatcher) {
