@@ -65,6 +65,8 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
         public DeviceModel Detail { get; set; } = new DeviceModel { };
         public bool IsDetailOpen { get; set; }
 
+        public string MyProperty { get; set; }
+
         public override Task PreRender()
         {
             Devices.LoadFromQueryable(FakeDb.GetQueriable());

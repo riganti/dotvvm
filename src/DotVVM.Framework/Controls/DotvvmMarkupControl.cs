@@ -97,6 +97,19 @@ namespace DotVVM.Framework.Controls
                     valueBinding.GetKnockoutBindingExpression(this)
                 );
             }
+            else if (GetBinding(property) is StaticCommandBindingExpression staticCommand)
+            {
+                var call = KnockoutHelper.GenerateClientPostBackExpression(
+                    property.Name,
+                    staticCommand,
+                    this,
+                    new PostbackScriptOptions(false, true, false, "$element"));
+
+                return new PropertySerializeInfo(
+                    property,
+                    $"function(){{return {call}}}"
+                );
+            }
             else
             {
                 return new PropertySerializeInfo(property, null);
