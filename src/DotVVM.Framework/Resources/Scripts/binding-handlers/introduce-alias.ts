@@ -29,6 +29,9 @@ export default {
 
             const value = valueAccessor();
             for (const prop of keys(value)) {
+                if (!ko.isObservable(value[prop]) && typeof value[prop] == 'function') {
+                    continue;
+                }
 
                 value[prop] = createWrapperComputed(
                     () => {
