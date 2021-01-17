@@ -5,8 +5,8 @@ pool:
   name: FERRARI_AP01
 
 variables:
-  compilerPathFx: "dotvvm/src/DotVVM.Compiler/bin/Debug/net461/DotVVM.Compiler.exe"
-  compilerPathCore: "dotvvm/src/DotVVM.Compiler/bin/Debug/netcoreapp3.1/DotVVM.Compiler.exe"
+  compilerPathFx: "./dotvvm/src/DotVVM.Compiler/bin/Debug/net461/DotVVM.Compiler.exe"
+  compilerPathCore: "./dotvvm/src/DotVVM.Compiler/bin/Debug/netcoreapp3.1/DotVVM.Compiler.exe"
 
 steps:
 - checkout: self
