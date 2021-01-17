@@ -63,7 +63,7 @@ steps:
   displayName: "Empty App (.NET Framework 4.5.1)"
   inputs:
     targetType: 'inline'
-    script: '& "$(compilerPathFx)" "tests/owin/empty_net451/EmptyNet451/bin/Debug/EmptyNet451.dll" "tests/owin/empty_net451/EmptyNet451"'
+    script: '& "$(compilerPathFx)" "tests/owin/empty_net451/EmptyNet451/bin/EmptyNet451.dll" "tests/owin/empty_net451/EmptyNet451"'
     failOnStderr: true
   continueOnError: true
 
@@ -71,7 +71,7 @@ steps:
   displayName: "Empty App (.NET Framework 4.6.1)"
   inputs:
     targetType: 'inline'
-    script: '& "$(compilerPathFx)" "tests/owin/empty_net461/EmptyNet461/bin/Debug/EmptyNet461.dll" "tests/owin/empty_net461/EmptyNet461"'
+    script: '& "$(compilerPathFx)" "tests/owin/empty_net461/EmptyNet461/bin/EmptyNet461.dll" "tests/owin/empty_net461/EmptyNet461"'
     failOnStderr: true
   continueOnError: true
 
@@ -79,7 +79,7 @@ steps:
   displayName: "Empty App (.NET Framework 4.7.2)"
   inputs:
     targetType: 'inline'
-    script: '& "$(compilerPathFx)" "tests/owin/empty_net472/EmptyNet472/bin/Debug/EmptyNet472.dll" "tests/owin/empty_net472/EmptyNet472"'
+    script: '& "$(compilerPathFx)" "tests/owin/empty_net472/EmptyNet472/bin/EmptyNet472.dll" "tests/owin/empty_net472/EmptyNet472"'
     failOnStderr: true
   continueOnError: true
     
@@ -87,7 +87,7 @@ steps:
   displayName: "Empty App (.NET Framework 4.8)"
   inputs:
     targetType: 'inline'
-    script: '& "$(compilerPathFx)" "tests/owin/empty_net48/EmptyNet48/bin/Debug/EmptyNet48.dll" "tests/owin/empty_net48/EmptyNet48"'
+    script: '& "$(compilerPathFx)" "tests/owin/empty_net48/EmptyNet48/bin/EmptyNet48.dll" "tests/owin/empty_net48/EmptyNet48"'
     failOnStderr: true
   continueOnError: true
     
@@ -95,7 +95,7 @@ steps:
   displayName: "Business Pack (.NET Framework 4.7.2)"
   inputs:
     targetType: 'inline'
-    script: '& "$(compilerPathFx)" "tests/owin/bp_net472/BusinessPack_Net472/bin/Debug/BusinessPack_Net472.dll" "tests/owin/bp_net472/BusinessPack_Net472"'
+    script: '& "$(compilerPathFx)" "tests/owin/bp_net472/BusinessPack_Net472/bin/BusinessPack_Net472.dll" "tests/owin/bp_net472/BusinessPack_Net472"'
     failOnStderr: true
   continueOnError: true
     
@@ -103,7 +103,7 @@ steps:
   displayName: "Bootstrap 3 (.NET Framework 4.7.2)"
   inputs:
     targetType: 'inline'
-    script: '& "$(compilerPathFx)" "tests/owin/bs3_net472/Bootstrap3Net472/bin/Debug/Bootstrap3Net472.dll" "tests/owin/bp_net472/Bootstrap3Net472"'
+    script: '& "$(compilerPathFx)" "tests/owin/bs3_net472/Bootstrap3Net472/bin/Bootstrap3Net472.dll" "tests/owin/bp_net472/Bootstrap3Net472"'
     failOnStderr: true
   continueOnError: true
     
@@ -111,7 +111,7 @@ steps:
   displayName: "Bootstrap 4 (.NET Framework 4.7.2)"
   inputs:
     targetType: 'inline'
-    script: '& "$(compilerPathFx)" "tests/owin/bs4_net472/Bootstrap4Net472/bin/Debug/Bootstrap4Net472.dll" "tests/owin/bs4_net472/Bootstrap4Net472"'
+    script: '& "$(compilerPathFx)" "tests/owin/bs4_net472/Bootstrap4Net472/bin/Bootstrap4Net472.dll" "tests/owin/bs4_net472/Bootstrap4Net472"'
     failOnStderr: true
   continueOnError: true
         
@@ -119,7 +119,7 @@ steps:
   displayName: "Dynamic Data + Contrib (.NET Framework 4.7.2)"
   inputs:
     targetType: 'inline'
-    script: '& "$(compilerPathFx)" "tests/owin/dyndata_net472/DynamicDataNet472/bin/Debug/DynamicDataNet472.dll" "tests/owin/dyndata_net472/DynamicDataNet472"'
+    script: '& "$(compilerPathFx)" "tests/owin/dyndata_net472/DynamicDataNet472/bin/DynamicDataNet472.dll" "tests/owin/dyndata_net472/DynamicDataNet472"'
     failOnStderr: true
   continueOnError: true
 
