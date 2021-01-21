@@ -138,6 +138,6 @@ namespace DotVVM.Framework.Hosting
                    .NotNull();
         }
 
-        public CustomResponsePropertiesManager CustomResponseProperties { get; set; } = new CustomResponsePropertiesManager();
+        public CustomResponsePropertiesManager CustomResponseProperties { get; } = new CustomResponsePropertiesManager();
     }
 }

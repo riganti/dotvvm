@@ -46,6 +46,6 @@ namespace DotVVM.Framework.Testing
             set => _services = value;
         }
 
-        public CustomResponsePropertiesManager CustomResponseProperties { get; set; } = new CustomResponsePropertiesManager();
+        public CustomResponsePropertiesManager CustomResponseProperties { get; } = new CustomResponsePropertiesManager();
     }
 }
