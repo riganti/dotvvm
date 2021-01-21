@@ -19,7 +19,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void SimpleExceptionFilterTest()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_CommandResult_SimpleExceptionFilter);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_CustomResponseProperties_SimpleExceptionFilter);
                 browser.WaitUntilDotvvmInited();
 
                 var staticCommandButton = browser.First("staticCommand", SelectByDataUi);
