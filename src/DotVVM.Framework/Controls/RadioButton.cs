@@ -86,6 +86,7 @@ namespace DotVVM.Framework.Controls
                     writer.AddKnockoutDataBind("checkedValue", KnockoutHelper.MakeStringLiteral(checkedValue));
                 }
             });
+            RenderCheckedValueComparerAttribute(writer);
         }
 
         protected virtual void RenderCheckedAttribute(IHtmlWriter writer)

@@ -1,0 +1,30 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.RadioButton.RadioButton_ObjectsViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <fieldset>
+        <legend>Multiple RadioButtons</legend>
+
+        <dot:Repeater DataSource="{value: Colors}">
+            <dot:RadioButton Text="{value: Name}" CheckedItem="{value: _root.SelectedColor}" GroupName="colors"
+                             CheckedValue="{value: _this}" ItemKeyBinding="{value: Id}" />
+        </dot:Repeater>
+
+        <ul>
+            <li>{{value: SelectedColor.Id}}: {{value: SelectedColor.Name}}</li>
+        </ul>
+    </fieldset>
+
+    <dot:Button Text="Set selection from server" Click="{command: SetSelection()}" />
+
+</body>
+</html>
+
+

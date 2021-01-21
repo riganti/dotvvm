@@ -1,7 +1,7 @@
 // Typescript could not find the module, IDK why...
 import fc_types from '../../../node_modules/fast-check/lib/types/fast-check'
+import { tryCoerce } from '../metadata/coercer';
 import { serializeDate, parseDate } from '../serialization/date';
-import { validateType } from '../serialization/typeValidation';
 
 const fc: typeof fc_types = require('fast-check');
 
@@ -37,70 +37,70 @@ test("Parse date never throws", () => {
     ))
 })
 
-test('validateType int32', () => {
+test('tryCoerce Int32', () => {
     fc.assert(fc.property(
         fc.integer(-2147483648, 2147483647),
-        i => validateType(i, "int32")
+        i => typeof tryCoerce(i, "Int32") === "object"
     ))
 })
 
-test('validateType uint32', () => {
+test('tryCoerce UInt32', () => {
     fc.assert(fc.property(
         fc.integer(0, 4294967295),
-        i => validateType(i, "uint32")
+        i => typeof tryCoerce(i, "UInt32") === "object"
     ))
 })
 
-test('validateType uint64', () => {
+test('tryCoerce UInt64', () => {
     fc.assert(fc.property(
         fc.integer(0, 18446744073709551615),
-        i => validateType(i, "uint64")
+        i => typeof tryCoerce(i, "UInt64") === "object"
     ))
 })
 
-test('validateType int64', () => {
+test('tryCoerce Int64', () => {
     fc.assert(fc.property(
         fc.integer(-9223372036854775808, 9223372036854775807),
-        i => validateType(i, "int64")
+        i => typeof tryCoerce(i, "Int64") === "object"
     ))
 })
 
-test('validateType int64 in string', () => {
+test('tryCoerce Int64 in string', () => {
     fc.assert(fc.property(
         fc.integer(-9223372036854775808, 9223372036854775807),
-        i => validateType("" + i, "int64")
+        i => typeof tryCoerce("" + i, "Int64") === "object"
     ))
 })
 
-const arbInt = fc.oneof(...["int32", "int16", "int8", "uint8", "uint16", "uint32", "uint64", "int64"].map(fc.constant))
+const arbInt = fc.oneof(...["Int32", "Int16", "SByte", "Byte", "UInt16", "UInt32", "UInt64", "Int64"].map(fc.constant))
 
-test('validateType int does not accept decimal', () => {
+test('tryCoerce int does not accept decimal', () => {
     fc.assert(fc.property(
         fc.float(), arbInt,
-        (num, type: any) => num % 1 == 0 || !validateType(num, type)
+        (num, type: TypeDefinition) => num % 1 == 0 || tryCoerce(num, type)!.wasCoerced      // TODO: coercion now rounds the value - do we want it?
     ))
 })
 
-const arbFloat = fc.oneof(...["single", "double", "number", "decimal"].map(fc.constant))
+const arbFloat = fc.oneof(...["Single", "Double", "Decimal"].map(fc.constant))
 
-test('validateType float accepts floats', () => {
+test('tryCoerce float accepts floats', () => {
     fc.assert(fc.property(
         fc.float(), arbFloat,
-        (num, type: any) => validateType(num, type)
+        (num, type: TypeDefinition) => typeof tryCoerce(num, type) === "object"
     ))
 })
 
-test('validateType float accepts floats in string', () => {
+test('tryCoerce float accepts floats in string', () => {
     fc.assert(fc.property(
         fc.float(), arbFloat,
-        (num, type: any) => validateType("" + num, type)
+        (num, type: TypeDefinition) => typeof tryCoerce("" + num, type) === "object"
     ))
 })
 
-test('validateType edge cases', () => {
-    expect(validateType("", "int32")).toBeFalsy()
-    expect(validateType(null, "int32")).toBeFalsy()
-    expect(validateType("", "int32?")).toBeTruthy()
-    expect(validateType(null, "int32?")).toBeTruthy()
-    expect(validateType("anything", "unknown type ...")).toBeTruthy()
+test('tryCoerce edge cases', () => {
+    expect(tryCoerce("", "Int32")).toBeFalsy()
+    expect(tryCoerce(null, "Int32")).toBeFalsy()
+    expect(tryCoerce("", { type: "nullable", inner: "Int32" })).toBeTruthy()
+    expect(tryCoerce(null, { type: "nullable", inner: "Int32" })).toBeTruthy()
+    expect(() => tryCoerce("anything", "unknown type ...")).toThrow()
 })

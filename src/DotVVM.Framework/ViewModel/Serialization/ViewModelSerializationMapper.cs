@@ -30,8 +30,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             this.configuration = configuration;
         }
 
-        private readonly ConcurrentDictionary<Type, ViewModelSerializationMap> serializationMapCache = new ConcurrentDictionary<Type, ViewModelSerializationMap>();
-        public ViewModelSerializationMap GetMap(Type type) => serializationMapCache.GetOrAdd(type, CreateMap);
+        private readonly ConcurrentDictionary<string, ViewModelSerializationMap> serializationMapCache = new ConcurrentDictionary<string, ViewModelSerializationMap>();
+        public ViewModelSerializationMap GetMap(Type type) => serializationMapCache.GetOrAdd(type.GetTypeHash(), t => CreateMap(type));
+        public ViewModelSerializationMap GetMapByTypeId(string typeId) => serializationMapCache[typeId];
 
         /// <summary>
         /// Creates the serialization map for specified type.
@@ -46,7 +47,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         protected virtual IEnumerable<ViewModelPropertyMap> GetProperties(Type type)
         {
-            foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance).OrderBy(p => p.Name))
+            foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance).OrderBy(p => p.Name, StringComparer.Ordinal))
             {
                 if (property.GetCustomAttribute<JsonIgnoreAttribute>() != null) continue;
 

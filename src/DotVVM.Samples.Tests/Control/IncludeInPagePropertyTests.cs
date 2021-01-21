@@ -96,8 +96,10 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage);
                 browser.Wait();
                 beforeSwitch(browser);
-                browser.Single("switch-includeInPage", this.SelectByDataUi).Click().Wait();
-                afterSwitch(browser);
+                browser.Single("switch-includeInPage", this.SelectByDataUi).Click();
+                browser.WaitFor(() => {
+                    afterSwitch(browser);
+                }, 2000);
             });
         }
 
