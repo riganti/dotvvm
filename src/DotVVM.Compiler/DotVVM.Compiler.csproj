@@ -17,6 +17,7 @@ for some reason. What fun. -->
     <OutputType>Exe</OutputType>
     <TargetLatestDotNetRuntime>false</TargetLatestDotNetRuntime>
     <CheckEolTargetFramework>False</CheckEolTargetFramework>
+    <RollForward>LatestMajor</RollForward>
   </PropertyGroup>
 
   <!-- Related to packaging -->
