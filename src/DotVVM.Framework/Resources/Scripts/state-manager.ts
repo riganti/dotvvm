@@ -2,7 +2,8 @@
 
 import { createArray, isPrimitive, keys } from "./utils/objects";
 import { DotvvmEvent } from "./events";
-import { extendToObservableArrayIfRequired, isOptionsProperty } from "./serialization/deserialize"
+import { extendToObservableArrayIfRequired } from "./serialization/deserialize"
+import { getObjectTypeInfo } from "./metadata/typeMap";
 
 export const currentStateSymbol = Symbol("currentState")
 const notifySymbol = Symbol("notify")
@@ -71,7 +72,7 @@ export class StateManager<TViewModel> {
         public stateUpdateEvent: DotvvmEvent<TViewModel>
     ) {
         this._state = initialState
-        this.stateObservable = createWrappedObservable(initialState, u => this.update(u))
+        this.stateObservable = createWrappedObservable(initialState, (initialState as any)["$type"], u => this.update(u))
         this.dispatchUpdate()
     }
 
@@ -139,51 +140,42 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
         this[updateSymbol](vm => Object.freeze({ ...vm, [propName]: valUpdate(vm[propName]) }))
     }
 
-    constructor(initialValue: T, updater: UpdateDispatcher<T>, properties: string[]) {
+    constructor(initialValue: T, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata | undefined, additionalProperties: string[]) {
         this[currentStateSymbol] = initialValue
         this[updateSymbol] = updater
 
-        for (const p of properties) {
+        for (const p of keys(typeInfo?.properties || {}).concat(additionalProperties)) {
             this[internalPropCache][p] = null
-            // TODO: remove condition, options will not exist
-            if (isOptionsProperty(p)) {
-                // options are not wrapped in observables
-                Object.defineProperty(this, p, {
-                    enumerable: true,
-                    configurable: false,
-                    get() {
-                        return this[currentStateSymbol][p]
-                    },
-                    set(newVal) {
-                        console.warn(`Setting ${p} is not supported, please do not do that`, newVal)
-                    }
-                })
-            } else {
-                Object.defineProperty(this, p, {
-                    enumerable: true,
-                    configurable: false,
-                    get() {
-                        const cached = this[internalPropCache][p]
-                        if (cached) return cached
+        
+            Object.defineProperty(this, p, {
+                enumerable: true,
+                configurable: false,
+                get() {
+                    const cached = this[internalPropCache][p]
+                    if (cached) return cached
 
-                        const currentState = this[currentStateSymbol]
-                        const newObs = createWrappedObservable(
-                            currentState[p],
-                            u => this[updatePropertySymbol](p, u)
-                        )
+                    const currentState = this[currentStateSymbol]
+                    const newObs = createWrappedObservable(
+                        currentState[p],
+                        typeInfo?.properties[p]?.type,
+                        u => this[updatePropertySymbol](p, u)
+                    )
 
-                        const options = currentState[p + "$options"]
-                        if (options && options.clientExtenders) {
-                            for (const e of options.clientExtenders) {
+                    if (typeInfo && p in typeInfo.properties) {
+                        const clientExtenders = typeInfo.properties[p].clientExtenders;
+                        if (clientExtenders) {
+                            for (const e of clientExtenders) {
                                 (ko.extenders as any)[e.name](newObs, e.parameter)
                             }
                         }
-
-                        this[internalPropCache][p] = newObs
-                        return newObs
+                    } else if (!p.startsWith("$")) {
+                        console.warn(`Unknown property '${p}' set on an object of type ${typeId}.`);
                     }
-                })
-            }
+
+                    this[internalPropCache][p] = newObs
+                    return newObs
+                }
+            })
         }
         Object.seal(this)
     }
@@ -220,19 +212,19 @@ export function unmapKnockoutObservables(viewModel: any): any {
     return result
 }
 
-function createObservableObject<T extends object>(initialObject: T, update: ((updater: StateUpdate<any>) => void)) {
-    const properties = keys(initialObject)
+function createObservableObject<T extends object>(initialObject: T, typeHint: TypeDefinition | undefined, update: ((updater: StateUpdate<any>) => void)) {
+    const typeId = (initialObject as any)["$type"] || typeHint
+    let typeInfo;
+    if (typeId) {
+        typeInfo = getObjectTypeInfo(typeId)
+    } 
 
-    // TODO: temporary hack until types are checked and enforced
-    // adds properties that are missing but have the Prop$options defined
-    const pSet = new Set(properties)
-    const optionsOnlyProperties =
-        properties.filter(isOptionsProperty)
-                  .map(p => p.substring(0, p.length - "$options".length))
-                  .filter(p => !pSet.has(p))
+    const pSet = typeInfo ? new Set(keys(typeInfo.properties)) : new Set();
+    const additionalProperties = keys(initialObject).filter(p => !pSet.has(p))
 
-    return new FakeObservableObject(initialObject, update, properties.concat(optionsOnlyProperties)) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
+    return new FakeObservableObject(initialObject, update, typeId, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
 }
+
 
 function type(o: any) {
     const k = keys(o)
@@ -240,7 +232,7 @@ function type(o: any) {
     return k.join("|")
 }
 
-function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T>): DeepKnockoutWrapped<T> {
+function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | undefined, updater: UpdateDispatcher<T>): DeepKnockoutWrapped<T> {
 
     let isUpdating = false
 
@@ -290,7 +282,7 @@ function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T
                         console.warn(`Replacing old knockout observable with a new one, just because it is not created by DotVVM. Please do not assign objects into the knockout tree directly. The object is `, unmapKnockoutObservables(newContents[index]))
                     }
                     const indexForClosure = index
-                    newContents[index] = createWrappedObservable(newVal[index], update => updater((viewModelArray: any) => {
+                    newContents[index] = createWrappedObservable(newVal[index], Array.isArray(typeHint) ? typeHint[0] : void 0, update => updater((viewModelArray: any) => {
                         const newElement = update(viewModelArray![indexForClosure])
                         const newArray = createArray(viewModelArray!)
                         newArray[indexForClosure] = newElement
@@ -311,7 +303,7 @@ function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T
                 return
             }
         }
-        else if (oldContents && oldContents[notifySymbol] && type(currentValue) == type(newVal)) {
+        else if (!observableWasSetFromOutside && oldContents && oldContents[notifySymbol] && currentValue["$type"] && currentValue["$type"] === newVal["$type"]) {
             // smart object, supports the notification by itself
             oldContents[notifySymbol as any](newVal)
 
@@ -322,7 +314,7 @@ function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T
             // create new object and replace
 
             console.debug("Creating new KO object for", newVal)
-            newContents = createObservableObject(newVal, updater)
+            newContents = createObservableObject(newVal, typeHint, updater)
         }
 
         try {

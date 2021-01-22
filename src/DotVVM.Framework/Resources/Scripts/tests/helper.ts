@@ -1,6 +1,32 @@
 import dotvvm from '../dotvvm-root'
 import { keys } from '../utils/objects'
 import { events as validationEvents } from '../validation/validation'
+import fc_types from '../../../node_modules/fast-check/lib/types/fast-check'
+
+export const fc: typeof fc_types = require('fast-check');
+
+export const delay = (time: number) => new Promise((r) => setTimeout(r, time))
+
+export async function waitForEnd<T>(result: Promise<T>[], s: fc_types.Scheduler, assert: () => void) {
+    const aggResult = Promise.all(result)
+
+    let done = false
+    aggResult.then(_ => done = true, _ => done = true)
+    await delay(1)
+
+    while (!done) {
+        // console.log(s.report())
+        expect(s.count()).toBeGreaterThan(0)
+        await s.waitOne()
+
+        assert()
+
+        await delay(1)
+    }
+    // console.log("Done = ", done, aggResult)
+
+    return await aggResult
+}
 
 type EventHistoryEntry = { 
     event: string, 

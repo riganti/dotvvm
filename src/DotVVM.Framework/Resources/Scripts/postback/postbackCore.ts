@@ -8,8 +8,9 @@ import { setIdFragment } from '../utils/dom';
 import { handleRedirect } from './redirect';
 import * as evaluator from '../utils/evaluator'
 import * as gate from './gate'
-import { mergeValidationRules, showValidationErrorsFromServer } from '../validation/validation';
+import { showValidationErrorsFromServer } from '../validation/validation';
 import { DotvvmPostbackError } from '../shared-classes';
+import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
 import { isPrimitive } from '../utils/objects';
 import * as stateManager from '../state-manager'
 
@@ -55,7 +56,8 @@ export async function postbackCore(
             controlUniqueId: processPassedId(controlUniqueId, context),
             validationTargetPath: options.validationTargetPath,
             renderedResources: getRenderedResources(),
-            commandArgs: commandArgs
+            commandArgs: commandArgs,
+            knownTypeMetadata: getKnownTypes()
         };
 
         // if the viewmodel is cached on the server, send only the diff
@@ -116,7 +118,7 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
         serverResponseObject: result
     });
 
-    processViewModelDiff(result, initialState);
+    processViewModelDiff(result, postedViewModel);
 
     await loadResourceList(result.resources);
 
@@ -125,7 +127,8 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
 
     let isSuccess = false;
     if (result.action == "successfulCommand") {
-        mergeValidationRules(result)
+        updateTypeInfo(result.typeMetadata)
+        result.viewModel = updater.patchViewModel(getState(), result.viewModel)
         updater.updateViewModelAndControls(result);
         events.postbackViewModelUpdated.trigger({
             ...options,
@@ -209,6 +212,7 @@ type PostbackResponse =
         resources?: RenderedResourceList
         commandResult: any
         action: string
-        resultIdFragment?: string
+        resultIdFragment?: string,
+        typeMetadata?: TypeMap
         customData?: any
     }

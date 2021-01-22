@@ -6,6 +6,7 @@ import * as resourceLoader from './postback/resourceLoader'
 import bindingHandlers from './binding-handlers/all-handlers'
 import * as events from './events';
 import * as spaEvents from './spa/events';
+import { replaceTypeInfo } from './metadata/typeMap'
 
 import { StateManager, DeepKnockoutWrapped } from './state-manager'
 
@@ -15,7 +16,6 @@ type DotvvmCoreState = {
     _viewModelCacheId?: string
     _virtualDirectory: string
     _initialUrl: string,
-    _validationRules: ValidationRuleTable,
     _stateManager: StateManager<RootViewModel>
 }
 
@@ -53,9 +53,6 @@ export function clearViewModelCache() {
     delete currentState!._viewModelCacheId;
     delete currentState!._viewModelCache;
 }
-export function getValidationRules() {
-    return currentState!._validationRules
-}
 export function getCulture(): string { return currentState!._culture; }
 
 export function getStateManager(): StateManager<RootViewModel> { return currentState!._stateManager }
@@ -74,14 +71,15 @@ export function initCore(culture: string): void {
 
     setIdFragment(thisViewModel.resultIdFragment);
 
+    replaceTypeInfo(thisViewModel.typeMetadata);
+
     const manager = new StateManager<RootViewModel>(thisViewModel.viewModel, events.newState)
 
     currentState = {
         _culture: culture,
         _initialUrl: thisViewModel.url,
         _virtualDirectory: thisViewModel.virtualDirectory!,
-        _stateManager: manager,
-        _validationRules: thisViewModel.validationRules || {}
+        _stateManager: manager
     }
 
     // store cached viewmodel
@@ -102,7 +100,6 @@ export function initCore(culture: string): void {
                 _culture: a.serverResponseObject.culture,
                 _initialUrl: a.serverResponseObject.url,
                 _virtualDirectory: a.serverResponseObject.virtualDirectory!,
-                _validationRules: a.serverResponseObject.validationRules || {},
                 _stateManager: currentState!._stateManager
             }
         });

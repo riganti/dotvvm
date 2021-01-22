@@ -8,7 +8,18 @@ test('DotVVM object seems to exist', () => {
 test('DotVVM can be initialized', () => {
     initDotvvm({
         viewModel: {
+            $type: "t1",
             MyProperty: 1
+        },
+        typeMetadata: {
+            t1: {
+                type: "object",
+                properties: {
+                    MyProperty: {
+                        type: "Int32"
+                    }
+                }
+            }
         }
     })
 })

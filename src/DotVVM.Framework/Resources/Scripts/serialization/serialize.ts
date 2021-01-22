@@ -1,7 +1,6 @@
-import { wrapObservable } from '../utils/knockout'
 import { serializeDate } from './date'
 import { isPrimitive, keys } from '../utils/objects'
-import { validateType } from './typeValidation'
+import { getObjectTypeInfo } from '../metadata/typeMap'
 import { unmapKnockoutObservables } from '../state-manager'
 
 interface ISerializationOptions {
@@ -56,6 +55,12 @@ export function serializeCore(viewModel: any, opt: ISerializationOptions = {}): 
 
     const pathProp = opt.path && opt.path.pop();
 
+    const typeId = ko.unwrap(viewModel["$type"]);
+    let typeInfo;
+    if (typeId) {
+        typeInfo = getObjectTypeInfo(typeId);
+    }
+
     const result: any = {};
     for (const prop of keys(viewModel)) {
         const value = viewModel[prop];
@@ -66,21 +71,18 @@ export function serializeCore(viewModel: any, opt: ISerializationOptions = {}): 
         if (opt.ignoreSpecialProperties && prop[0] === "$") {
             continue;
         }
-        if (!opt.serializeAll && (/\$options$/.test(prop) || prop === "$validationErrors")) {
+        if (!opt.serializeAll && prop === "$validationErrors") {
             continue;
         }
         if (typeof (value) == "function") {
             continue;
         }
 
-        const options = viewModel[prop + "$options"];
-        if (!opt.serializeAll && options && options.doNotPost) {
+        const propInfo = typeInfo?.properties[prop];
+        if (!opt.serializeAll && propInfo && propInfo.post == "no") {
             // continue
-        } else if (!opt.serializeAll && options && options.pathOnly && opt.pathMatcher) {
-            let path = options.pathOnly;
-            if (!(path instanceof Array)) {
-                path = opt.path || findObject(value, opt.pathMatcher);
-            }
+        } else if (!opt.serializeAll && propInfo && propInfo.post == "pathOnly" && opt.pathMatcher) {
+            let path = opt.path || findObject(value, opt.pathMatcher);
             if (path) {
                 if (path.length === 0) {
                     result[prop] = serializeCore(value, opt);
@@ -92,10 +94,11 @@ export function serializeCore(viewModel: any, opt: ISerializationOptions = {}): 
             result[prop] = serializeCore(value, opt);
         }
 
-        if (options && options.type && !validateType(result[prop], options.type)) {
-            delete result[prop];
-            options.wasInvalid = true;
-        }
+        // TODO - do we need this?
+        // if (propInfo && propInfo.type && !tryCoerce(result[prop], propInfo.type)) {
+        //     delete result[prop];
+        //     //options.wasInvalid = true;   
+        // }
     }
     if (pathProp && opt.path) {
         opt.path.push(pathProp);

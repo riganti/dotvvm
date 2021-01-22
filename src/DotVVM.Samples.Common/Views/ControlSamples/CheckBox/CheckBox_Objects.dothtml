@@ -1,0 +1,29 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.CheckBox.CheckBox_ObjectsViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <fieldset>
+        <legend>Multiple CheckBoxes</legend>
+
+        <dot:Repeater DataSource="{value: Colors}">
+            <dot:CheckBox Text="{value: Name}" CheckedItems="{value: _root.SelectedColors}" CheckedValue="{value: _this}" ItemKeyBinding="{value: Id}" />
+        </dot:Repeater>
+
+        <dot:Repeater DataSource="{value: SelectedColors}" WrapperTagName="ul">
+            <li>{{value: Id}}: {{value: Name}}</li>
+        </dot:Repeater>
+    </fieldset>
+
+    <dot:Button Text="Set selection from server" Click="{command: SetSelection()}" />
+
+</body>
+</html>
+
+

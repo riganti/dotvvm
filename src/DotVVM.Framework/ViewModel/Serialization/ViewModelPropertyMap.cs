@@ -58,5 +58,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 throw new DotvvmCompilationException($"The property {PropertyInfo.Name} of type {Type} uses the Protect attribute, therefore its Bind Direction must be set to {Direction.Both}.");
             }
         }
+
+        public bool IsAvailableOnClient()
+        {
+            return (TransferToClient || TransferToServer || TransferToServerOnlyInPath)
+                && ViewModelProtection != ProtectMode.EncryptData;
+        }
     }
 }

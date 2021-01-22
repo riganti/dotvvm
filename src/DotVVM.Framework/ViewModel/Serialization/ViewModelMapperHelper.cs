@@ -36,6 +36,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             map.Properties.SingleOrDefault(p => p.PropertyInfo.Name == name) ??
             throw new InvalidOperationException($"Property '{name}' was not found on '{map.Type}'.");
 
+        public static ViewModelPropertyMap PropertyByClientName(this ViewModelSerializationMap map, string name) =>
+            map.Properties.SingleOrDefault(p => p.Name == name) ??
+            throw new InvalidOperationException($"Property with client name '{name}' was not found on '{map.Type}'.");
+
         public static ViewModelPropertyMap Bind(this ViewModelPropertyMap property, Direction direction)
         {
             property.TransferAfterPostback = direction.HasFlag(Direction.ServerToClientPostback);

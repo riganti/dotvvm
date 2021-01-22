@@ -56,7 +56,7 @@ export const concurrencyDeny = (o: any) => ({
             return Promise.reject(new DotvvmPostbackError({
                 type: "handler",
                 handlerName: "concurrency-deny",
-                message: "An postback is already running"
+                message: "A postback is already running"
             }));
         }
         return commonConcurrencyHandler(next(), options, queue);

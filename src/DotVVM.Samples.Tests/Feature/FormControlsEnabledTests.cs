@@ -17,7 +17,10 @@ namespace DotVVM.Samples.Tests.Feature
 
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_FormControlsEnabled_FormControlsEnabled);
+                browser.Wait(2000);
 
+                // LinkButton tests. Selenium does not recognize them as disabled as that is handled by DotVVM.
+                int linkButtonPresses = 0;
                 bool enabled = false;
 
                 for (int i = 0; i < 2; i++)
@@ -52,47 +55,45 @@ namespace DotVVM.Samples.Tests.Feature
                         AssertUI.IsNotEnabled(browser.First($"#repeater_0_{prefix}-default"));
                         AssertUI.IsEnabled(browser.First($"#repeater_1_{prefix}-default"));
                     }
+
+                    // These controls should always be enabled because they are explicitly set to Enabled
+                    TestLinkButton(browser, "linkb1-enabled", true, ref linkButtonPresses);
+                    TestLinkButton(browser, "linkb2-enabled", true, ref linkButtonPresses);
+                    TestLinkButton(browser, "repeater_0_linkb-enabled", true, ref linkButtonPresses);
+                    TestLinkButton(browser, "repeater_1_linkb-enabled", true, ref linkButtonPresses);
+
+                    // These controls should always be disabled
+                    TestLinkButton(browser, "linkb1-disabled", false, ref linkButtonPresses);
+                    TestLinkButton(browser, "linkb2-disabled", false, ref linkButtonPresses);
+                    TestLinkButton(browser, "repeater_0_linkb-disabled", false, ref linkButtonPresses);
+                    TestLinkButton(browser, "repeater_1_linkb-disabled", false, ref linkButtonPresses);
+
+                    // These should be changed by the Toggle button
+                    TestLinkButton(browser, "linkb1-default", enabled, ref linkButtonPresses);
+                    TestLinkButton(browser, "linkb2-default", enabled, ref linkButtonPresses);
+
+                    // These are overriden by the repeater
+                    TestLinkButton(browser, "repeater_0_linkb-default", false, ref linkButtonPresses);
+                    TestLinkButton(browser, "repeater_1_linkb-default", true, ref linkButtonPresses);
+
                     browser.First("#toggle").Click().Wait();
                     enabled = !enabled;
                 }
-
-                // LinkButton tests. Selenium does not recognize them as disabled as that is handled by DotVVM.
-                int linkButtonPresses = 0;
-
-                // These controls should always be enabled because they are explicitly set to Enabled
-                TestLinkButton(browser, "linkb1-enabled", true, ref linkButtonPresses);
-                TestLinkButton(browser, "linkb2-enabled", true, ref linkButtonPresses);
-                TestLinkButton(browser, "repeater_0_linkb-enabled", true, ref linkButtonPresses);
-                TestLinkButton(browser, "repeater_1_linkb-enabled", true, ref linkButtonPresses);
-
-                // These controls should always be disabled
-                TestLinkButton(browser, "linkb1-disabled", false, ref linkButtonPresses);
-                TestLinkButton(browser, "linkb2-disabled", false, ref linkButtonPresses);
-                TestLinkButton(browser, "repeater_0_linkb-disabled", false, ref linkButtonPresses);
-                TestLinkButton(browser, "repeater_1_linkb-disabled", false, ref linkButtonPresses);
-
-                // These should be changed by the Toggle button
-                TestLinkButton(browser, "linkb1-default", enabled, ref linkButtonPresses);
-                TestLinkButton(browser, "linkb2-default", enabled, ref linkButtonPresses);
-
-                // These are overriden by the repeater
-                TestLinkButton(browser, "repeater_0_linkb-default", false, ref linkButtonPresses);
-                TestLinkButton(browser, "repeater_1_linkb-default", true, ref linkButtonPresses);
-
-                browser.First("#toggle").Click().Wait();
-                enabled = !enabled;
             });
         }
 
         private void TestLinkButton(IBrowserWrapper browser, string id, bool shouldBeEnabled, ref int currentPresses)
         {
-            browser.First($"#{id}").Click();
+            browser.First($"#{id}").Click().Wait();
             if (shouldBeEnabled)
             {
                 currentPresses++;
             }
 
-            AssertUI.InnerTextEquals(browser.First("#linkbuttons-pressed"), currentPresses.ToString());
+            var c = currentPresses;
+            browser.WaitFor(() => {
+                AssertUI.InnerTextEquals(browser.First("#linkbuttons-pressed"), c.ToString());
+            }, 2000);
         }
 
         public FormControlsEnabledTests(ITestOutputHelper output) : base(output)

@@ -9,6 +9,7 @@ import { getSpaPlaceHoldersUniqueId, isSpaReady } from './spa';
 import { handleRedirect } from '../postback/redirect';
 import * as gate from '../postback/gate';
 import { DotvvmPostbackError } from '../shared-classes';
+import { replaceTypeInfo } from '../metadata/typeMap';
 
 let lastStartedNavigation = -1
 
@@ -52,6 +53,7 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
         await loadResourceList(response.result.resources);
 
         if (response.result.action === "successfulCommand") {
+            replaceTypeInfo(response.result.typeMetadata);
             updater.updateViewModelAndControls(response.result);
             isSpaReady(true);
         } else if (response.result.action === "redirect") {
@@ -81,6 +83,7 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
             error: err
         };
         events.spaNavigationFailed.trigger(spaNavigationFailedArgs);
+        console.error("Unexpected exception during SPA navigation: ", err);
 
         throw err;
     } finally {

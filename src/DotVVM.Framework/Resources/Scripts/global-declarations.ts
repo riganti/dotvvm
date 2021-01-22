@@ -132,6 +132,7 @@ interface DotvvmViewModelInfo {
     renderedResources?: string[]
     url?: string
     virtualDirectory?: string
+    typeMetadata: TypeMap
 }
 
 interface DotvvmViewModels {
@@ -143,12 +144,15 @@ interface DotvvmPostbackHandlerCollection {
     [name: string]: ((options: any) => DotvvmPostbackHandler);
 }
 
-type DotvvmStaticCommandResponse = {
-    result: any;
-    customData?: any;
+type StaticCommandResponse<T = any> = {
+    result: T,
+    typeMetadata?: TypeMap,
+    customData?: any
 } | {
-    action: "redirect";
-    url: string;
+    action: "redirect",
+    url: string,
+    replace?: boolean,
+    allowSpa?: boolean
 };
 
 type DotvvmPostBackHandlerConfiguration = {
@@ -178,3 +182,39 @@ type ValidationRuleTable = {
 type RootViewModel = {
     $csrfToken?: string,
 }
+
+type TypeMap = {
+    [typeId: string]: TypeMetadata
+}
+
+type ObjectTypeMetadata = {
+    type: "object",
+    properties: { [prop: string]: PropertyMetadata }
+}
+
+type EnumTypeMetadata = {
+    type: "enum",
+    values: { [name: string]: number }
+}
+
+type TypeMetadata = ObjectTypeMetadata | EnumTypeMetadata;
+
+type PropertyMetadata = {
+    type: TypeDefinition;
+    post?: "always" | "pathOnly" | "no";
+    update?: "always" | "firstRequest" | "no";
+    validationRules?: PropertyValidationRuleInfo[];
+    clientExtenders?: ClientExtenderInfo[]
+}
+
+type TypeDefinition = string |
+  { type: "nullable", inner: TypeDefinition } |
+  { type: "dynamic" } |
+  TypeDefinition[];
+
+type ClientExtenderInfo = {
+    name: string,
+    parameter: any
+}
+
+type CoerceResult = undefined | { value: any, wasCoerced?: boolean };

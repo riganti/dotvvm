@@ -180,8 +180,22 @@ const fetchDefinitions = {
     spaNavigateSuccess: async <T>(url: string, init: RequestInit) => {
         return {
             viewModel: {
+                $type: "t2",
                 PropertyA: 1,
                 PropertyB: 2
+            },
+            typeMetadata: {
+                t2: {
+                    type: "object",
+                    properties: {
+                        Property1: {
+                            type: "Int32"
+                        },
+                        Property2: {
+                            type: "Int32"
+                        }
+                    }
+                }
             },
             action: "successfulCommand",
             virtualDirectory: "",
@@ -239,8 +253,22 @@ const fetchDefinitions = {
 
 const originalViewModel = {
     viewModel: {
+        $type: "t1",
         Property1: 0,
         Property2: 0
+    },
+    typeMetadata: {
+        t1: {
+            type: "object",
+            properties: {
+                Property1: {
+                    type: "Int32"
+                },
+                Property2: {
+                    type: "Int32"
+                }
+            }
+        }
     },
     url: "/myPage",
     virtualDirectory: "",
