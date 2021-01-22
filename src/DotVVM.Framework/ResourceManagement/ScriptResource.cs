@@ -13,7 +13,7 @@ namespace DotVVM.Framework.ResourceManagement
     public class ScriptResource : LinkResourceBase, IPreloadResource, IDeferableResource
     {
         public bool Defer { get; }
-        public ScriptResource(IResourceLocation location, bool defer = false)
+        public ScriptResource(IResourceLocation location, bool defer = true)
             : base(defer ? ResourceRenderPosition.Anywhere : ResourceRenderPosition.Body, "text/javascript", location)
         {
             this.Defer = defer;
