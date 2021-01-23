@@ -74,7 +74,7 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
     callIfDefined(handler.module, 'init', context);
 }
 
-export function callViewModuleCommand(viewId: string, commandName: string, ...args: any[]) {
+export function callViewModuleCommand(viewId: string, commandName: string, args: any[]) {
     if (commandName == null) { throw new Error("commandName has to have a value"); }
 
     const moduleNames: string[] = [];
@@ -105,7 +105,7 @@ export function callViewModuleCommand(viewId: string, commandName: string, ...ar
             '. Check modules: ' + moduleNames.join(', ') + '.');
     }
 
-    foundCommands[0].command(foundCommands[0].context, args);
+    foundCommands[0].command.apply(window, [foundCommands[0].context as any].concat(args) as any);
 }
 
 export function registerNamedCommand(viewId: string, commandName: string, command: ModuleCommand) {
