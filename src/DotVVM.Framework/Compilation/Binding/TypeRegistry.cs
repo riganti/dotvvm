@@ -123,7 +123,7 @@ namespace DotVVM.Framework.Compilation.Binding
                .Add("Double", CreateStatic(typeof(Double)))
                .Add("Single", CreateStatic(typeof(Single)))
                .Add("String", CreateStatic(typeof(String)))
-            .Add("Enumerable", CreateStatic(typeof(Enumerable))),
+               .Add("Enumerable", CreateStatic(typeof(Enumerable))),
            ImmutableList<Func<string, Expression>>.Empty
                .Add(type => CreateStatic(compiledAssemblyCache.FindType(type + (assemblyName != null ? $", {assemblyName}" : ""))))
            );
