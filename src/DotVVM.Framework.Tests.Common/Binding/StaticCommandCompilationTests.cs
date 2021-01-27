@@ -307,9 +307,9 @@ namespace DotVVM.Framework.Tests.Binding
             var control = new TestMarkupControl();
             control.SetBinding(TestMarkupControl.SaveProperty, new FakeCommandBinding(new ParametrizedCode("test"), null));
 
-
             var result = CompileBinding("_control.Save()", niceMode: true, new[] { typeof(object) }, typeof(Command), typeof(TestMarkupControl));
 
+            Assert.Fail("TODO: implement changes and create expected result.");
         }
 
 
