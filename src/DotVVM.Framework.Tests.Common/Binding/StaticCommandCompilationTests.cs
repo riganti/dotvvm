@@ -15,6 +15,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Runtime.Filters;
 using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -24,7 +25,7 @@ namespace DotVVM.Framework.Tests.Binding
         /// Gets translation of the specified binding expression if it would be passed in static command
         /// For better readability, the returned code does not include null checks
         public string CompileBinding(string expression, bool niceMode, params Type[] contexts) => CompileBinding(expression, niceMode, contexts, expectedType: typeof(Command));
-        public string CompileBinding(string expression, bool niceMode, Type[] contexts, Type expectedType)
+        public string CompileBinding(string expression, bool niceMode, Type[] contexts, Type expectedType, Type currentMarkupControl = null)
         {
             var configuration = DotvvmTestHelper.CreateConfiguration();
 
@@ -43,14 +44,22 @@ namespace DotVVM.Framework.Tests.Binding
                                                              .WithAnnotation(new ResultIsPromiseAnnotation(e => e))
                                                        ), 2, allowMultipleMethods: true);
 
-            var context = DataContextStack.Create(
-                contexts.FirstOrDefault() ?? typeof(object),
-                extensionParameters: new BindingExtensionParameter[]{
+            var parameters =
+                new BindingExtensionParameter[]{
                     new CurrentCollectionIndexExtensionParameter(),
                     new BindingPageInfoExtensionParameter(),
                     new InjectedServiceExtensionParameter("injectedService", new ResolvedTypeDescriptor(typeof(TestService)))
+                }
+                .Concat(configuration.Markup.DefaultExtensionParameters);
 
-                }.Concat(configuration.Markup.DefaultExtensionParameters).ToArray(),
+            if (currentMarkupControl != null)
+            {
+                parameters = parameters.Append(new CurrentMarkupControlExtensionParameter(new ResolvedTypeDescriptor(currentMarkupControl)));
+            }
+
+            var context = DataContextStack.Create(
+                contexts.FirstOrDefault() ?? typeof(object),
+                extensionParameters: parameters.ToArray(),
                 imports: configuration.Markup.ImportedNamespaces.ToImmutableList());
 
             for (int i = 1; i < contexts.Length; i++)
@@ -292,10 +301,33 @@ namespace DotVVM.Framework.Tests.Binding
             AreEqual(control, result);
         }
 
+        [TestMethod]
+        public void StaticCommandCompilation_MarkupControlCommandPropertyUsed_CorrectPromiseHandling()
+        {
+            var control = new TestMarkupControl();
+            control.SetBinding(TestMarkupControl.SaveProperty, new FakeCommandBinding(new ParametrizedCode("test"), null));
+
+
+            var result = CompileBinding("_control.Save()", niceMode: true, new[] { typeof(object) }, typeof(Command), typeof(TestMarkupControl));
+
+        }
+
+
         public void AreEqual(string expected, string actual)
-            => Assert.AreEqual(RemoveWhitespaces(expected), RemoveWhitespaces(actual));
+        => Assert.AreEqual(RemoveWhitespaces(expected), RemoveWhitespaces(actual));
 
         public string RemoveWhitespaces(string source) => string.Concat(source.Where(c => !char.IsWhiteSpace(c)));
+    }
+
+    public class TestMarkupControl : DotvvmMarkupControl
+    {
+        public Command Save
+        {
+            get => (Command)GetValue(SaveProperty);
+            set => SetValue(SaveProperty, value);
+        }
+        public static readonly DotvvmProperty SaveProperty
+            = DotvvmProperty.Register<Command, TestMarkupControl>(c => c.Save, null);
     }
 
     public class FakeCommandBinding : ICommandBinding
