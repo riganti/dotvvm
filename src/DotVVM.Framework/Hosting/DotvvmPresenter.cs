@@ -180,7 +180,8 @@ namespace DotVVM.Framework.Hosting
                 // run the init phase in the page
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init);
                 await requestTracer.TraceEvent(RequestTracingConstants.InitCompleted, context);
-               
+
+                object? commandResult = null;
                 if (!isPostBack)
                 {
                     // perform standard get
@@ -238,7 +239,7 @@ namespace DotVVM.Framework.Hosting
                     if (actionInfo.Binding.GetProperty<ActionFiltersBindingProperty>(ErrorHandlingMode.ReturnNull) is ActionFiltersBindingProperty filters)
                         methodFilters = methodFilters.Concat(filters.Filters.OfType<ICommandActionFilter>());
 
-                    await ExecuteCommand(actionInfo, context, methodFilters);
+                    commandResult = await ExecuteCommand(actionInfo, context, methodFilters);
                     await requestTracer.TraceEvent(RequestTracingConstants.CommandExecuted, context);
                 }
 
@@ -267,7 +268,7 @@ namespace DotVVM.Framework.Hosting
                 }
                 await requestTracer.TraceEvent(RequestTracingConstants.ViewModelSerialized, context);
 
-                ViewModelSerializer.BuildViewModel(context);
+                ViewModelSerializer.BuildViewModel(context, commandResult);
 
                 if (!context.IsInPartialRenderingMode)
                 {
@@ -369,10 +370,11 @@ namespace DotVVM.Framework.Hosting
                     .Concat(executionPlan.GetAllMethods().SelectMany(m => ActionFilterHelper.GetActionFilters<ICommandActionFilter>(m)))
                     .ToArray();
 
-                await ExecuteCommand(actionInfo, context, filters);
+                var result = await ExecuteCommand(actionInfo, context, filters);
 
-                await OutputRenderer.WriteStaticCommandResponse(context,
-                    ViewModelSerializer.BuildStaticCommandResponse(context));
+                await OutputRenderer.WriteStaticCommandResponse(
+                    context,
+                    ViewModelSerializer.BuildStaticCommandResponse(context, result));
             }
             finally
             {
@@ -382,7 +384,7 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
-        protected async Task ExecuteCommand(ActionInfo action, IDotvvmRequestContext context, IEnumerable<ICommandActionFilter> methodFilters)
+        protected async Task<object?> ExecuteCommand(ActionInfo action, IDotvvmRequestContext context, IEnumerable<ICommandActionFilter> methodFilters)
         {
             // run OnCommandExecuting on action filters
             foreach (var filter in methodFilters)
@@ -390,9 +392,9 @@ namespace DotVVM.Framework.Hosting
                 await filter.OnCommandExecutingAsync(context, action);
             }
 
+            object? result = null;
             try
             {
-                object? result = null;
                 Task? resultTask = null;
 
                 result = action.Action();
@@ -407,8 +409,6 @@ namespace DotVVM.Framework.Hosting
                 {
                     result = TaskUtils.GetResult(resultTask);
                 }
-
-                context.CommandResult = result;
             }
             catch (Exception ex)
             {
@@ -433,6 +433,7 @@ namespace DotVVM.Framework.Hosting
             {
                 throw new Exception("Unhandled exception occurred in the command!", context.CommandException);
             }
+            return result;
         }
 
         public static bool DetermineIsPostBack(IHttpContext context)

@@ -212,7 +212,7 @@ type PostbackResponse =
         resources?: RenderedResourceList
         commandResult: any
         action: string
-        resultIdFragment?: string,
         typeMetadata?: TypeMap
-        customData?: any
+        resultIdFragment?: string
+        customData?: { [key: string]: any }
     }

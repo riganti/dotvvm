@@ -81,7 +81,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Builds the view model for the client.
         /// </summary>
-        public void BuildViewModel(IDotvvmRequestContext context)
+        public void BuildViewModel(IDotvvmRequestContext context, object commandResult)
         {
             // serialize the ViewModel
             var serializer = CreateJsonSerializer();
@@ -137,9 +137,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             result["typeMetadata"] = SerializeTypeMetadata(context, viewModelConverter);
 
+            // TODO: do not send on postbacks
+            if (validationRules?.Count > 0) result["validationRules"] = validationRules;
+ 
+            if (commandResult != null) result["commandResult"] = WriteCommandData(commandResult, serializer, "the command result");
+            AddCustomPropertiesIfAny(context, serializer, result);
+
             context.ViewModelJson = result;
-            if (context.CommandResult != null) context.ViewModelJson!["commandResult"] = WriteCommandData(context.CommandResult, serializer, "result");
-            if (context.CustomData != null && context.CustomData.Count > 0) context.ViewModelJson!["customData"] = WriteCommandData(context.CustomData, serializer, "custom data");
         }
 
         private JToken SerializeTypeMetadata(IDotvvmRequestContext context, ViewModelJsonConverter viewModelJsonConverter)
@@ -156,7 +160,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 context.ViewModelJson["resources"] = resourcesObject;
         }
 
-        public string BuildStaticCommandResponse(IDotvvmRequestContext context)
+        public string BuildStaticCommandResponse(IDotvvmRequestContext context, object result)
         {
             var serializer = CreateJsonSerializer();
             var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services) {
@@ -164,10 +168,19 @@ namespace DotVVM.Framework.ViewModel.Serialization
             };
             serializer.Converters.Add(viewModelConverter);
             var response = new JObject();
-            response["result"] = WriteCommandData(context.CommandResult, serializer, "result");
-            response["typeMetadata"] = SerializeTypeMetadata(context, viewModelConverter);
-            if (context.CustomData != null && context.CustomData.Count > 0) response["customData"] = WriteCommandData(context.CustomData, serializer, "custom data");
+            res response["typeMetadata"] = SerializeTypeMetadata(context, viewModelConverter);
+            ponse["result"] = WriteCommandData(result, serializer, "the static command result");
+            AddCustomPropertiesIfAny(context, serializer, response);
             return response.ToString(JsonFormatting);
+        }
+
+        private static void AddCustomPropertiesIfAny(IDotvvmRequestContext context, JsonSerializer serializer, JObject response)
+        {
+            if (context.CustomResponseProperties.Properties.Count > 0)
+            {
+                response["customProperties"] = WriteCommandData(context.CustomResponseProperties.Properties, serializer, "custom properties");
+            }
+            context.CustomResponseProperties.PropertiesSerialized = true;
         }
 
         private static JToken WriteCommandData(object data, JsonSerializer serializer, string description)
@@ -179,7 +192,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not serialize static command {description} of type '{ data.GetType().FullName}'. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
+                throw new Exception($"Could not serialize {description} of type '{ data.GetType().FullName}'. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
             }
             return writer.Token;
         }

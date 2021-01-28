@@ -202,8 +202,8 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_CommandArguments_CommandArguments = "FeatureSamples/CommandArguments/CommandArguments";
         public const string FeatureSamples_CommandArguments_CommandArgumentTypes = "FeatureSamples/CommandArguments/CommandArgumentTypes";
         public const string FeatureSamples_CommandArguments_ReturnValue = "FeatureSamples/CommandArguments/ReturnValue";
-        public const string FeatureSamples_CommandResult_SimpleExceptionFilter = "FeatureSamples/CommandResult/SimpleExceptionFilter";
         public const string FeatureSamples_ConditionalCssClasses_ConditionalCssClasses = "FeatureSamples/ConditionalCssClasses/ConditionalCssClasses";
+        public const string FeatureSamples_CustomResponseProperties_SimpleExceptionFilter = "FeatureSamples/CustomResponseProperties/SimpleExceptionFilter";
         public const string FeatureSamples_DateTimeSerialization_DateTimeSerialization = "FeatureSamples/DateTimeSerialization/DateTimeSerialization";
         public const string FeatureSamples_DependencyInjection_ViewModelScopedService = "FeatureSamples/DependencyInjection/ViewModelScopedService";
         public const string FeatureSamples_Directives_ImportDirective = "FeatureSamples/Directives/ImportDirective";

@@ -7,7 +7,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.ViewModel;
 
-namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommandResult
+namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomResponseProperties
 {
     public class PageErrorModel
     {
@@ -19,10 +19,10 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommandResult
         {
             if (exception is UIException clientError)
             {
-                context.CommandResult = new PageErrorModel {
+                context.CustomResponseProperties.Add("validation-errors",new PageErrorModel {
                     Message = clientError.Message
-                };
-                context.CustomData.Add("Message", "Hello there");
+                });
+                context.CustomResponseProperties.Add("Message", "Hello there");
 
                 context.IsCommandExceptionHandled = true;
             }

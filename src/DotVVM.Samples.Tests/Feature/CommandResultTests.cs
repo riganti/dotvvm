@@ -19,16 +19,14 @@ namespace DotVVM.Samples.Tests.Feature
         public void SimpleExceptionFilterTest()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_CommandResult_SimpleExceptionFilter);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_CustomResponseProperties_SimpleExceptionFilter);
                 browser.WaitUntilDotvvmInited();
 
                 var staticCommandButton = browser.First("staticCommand", SelectByDataUi);
                 staticCommandButton.Click();
 
                 browser.WaitFor(() => {
-                    var resultSpan = browser.First("result", SelectByDataUi);
-                    var customDataSpan = browser.First("customData", SelectByDataUi);
-                    AssertUI.TextEquals(resultSpan, "Problem!");
+                    var customDataSpan = browser.First("customProperties", SelectByDataUi);
                     AssertUI.TextEquals(customDataSpan, "Hello there");
                 }, 8000);
 
@@ -38,9 +36,7 @@ namespace DotVVM.Samples.Tests.Feature
                 var commandButton = browser.First("command", SelectByDataUi);
                 commandButton.Click();
                 browser.WaitFor(() => {
-                    var resultSpan = browser.First("result", SelectByDataUi);
-                    var customDataSpan = browser.First("customData", SelectByDataUi);
-                    AssertUI.TextEquals(resultSpan, "Problem!");
+                    var customDataSpan = browser.First("customProperties", SelectByDataUi);
                     AssertUI.TextEquals(customDataSpan, "Hello there");
                 }, 8000);
 
