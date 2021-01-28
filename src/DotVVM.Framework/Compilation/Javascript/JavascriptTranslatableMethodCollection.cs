@@ -15,6 +15,25 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
+    public class DelegateInvokeMethodTranslator : IJavascriptMethodTranslator
+    {
+        public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] arguments, MethodInfo method)
+        {
+            if (method == null)
+            {
+                return null;
+            }
+
+            if (method.Name == "Invoke" && typeof(Delegate).IsAssignableFrom(method.DeclaringType))
+            {
+                var invocationTargetExpresionCall = context.JsExpression().Invoke(arguments.Select(a => a.JsExpression()));
+                return new JsIdentifierExpression("Promise").Member("resolve").Invoke(invocationTargetExpresionCall)
+                    .WithAnnotation(new ResultIsPromiseAnnotation(a=> a));
+            }
+            return null;
+        }
+    }
+
     public class JavascriptTranslatableMethodCollection : IJavascriptMethodTranslator
     {
         public readonly Dictionary<MethodInfo, IJavascriptMethodTranslator> MethodTranslators = new Dictionary<MethodInfo, IJavascriptMethodTranslator>();
@@ -180,11 +199,18 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] args, MethodInfo method)
         {
-            if (method == null) return null;
+            if (method == null)
+            {
+                return null;
+            }
+
             {
                 if (MethodTranslators.TryGetValue(method, out var translator) && translator.TryTranslateCall(context, args, method) is JsExpression result)
+                {
                     return result;
+                }
             }
+
             if (method.IsGenericMethod)
             {
                 var genericMethod = method.GetGenericMethodDefinition();
