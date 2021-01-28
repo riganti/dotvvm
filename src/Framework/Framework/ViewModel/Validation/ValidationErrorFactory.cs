@@ -27,15 +27,14 @@ namespace DotVVM.Framework.ViewModel.Validation
         public static ViewModelValidationError AddModelError<T, TProp>(T vm, Expression<Func<T, TProp>> expr, string message, IDotvvmRequestContext context)
             where T: class
         {
-            if (context.ModelState.ValidationTarget != vm) throw new NotSupportedException($"ValidationTarget ({context.ModelState.ValidationTarget?.GetType().Name ?? "null"}) must be equal to specified view model ({vm.GetType().Name}).");
-            var error = CreateModelError(context.Configuration, expr, message);
+            var error = CreateModelError(context.Configuration, vm, expr, message);
             context.ModelState.Errors.Add(error);
             return error;
         }
 
         public static ViewModelValidationError CreateModelError<T, TProp>(this T vm, Expression<Func<T, TProp>> expr, string error)
             where T : IDotvvmViewModel =>
-            CreateModelError(vm.Context.Configuration, expr, error);
+            CreateModelError(vm.Context.Configuration, vm, expr, error);
 
         public static ValidationResult CreateValidationResult<T>(this T vm, string error, params Expression<Func<T, object>>[] expressions)
             where T : IDotvvmViewModel =>
@@ -57,16 +56,17 @@ namespace DotVVM.Framework.ViewModel.Validation
             return new ValidationResult ( error, expressions.Select(expr => GetPathFromExpression(defaultJavaScriptTranslator, expr)) );
         }
 
-        public static ViewModelValidationError CreateModelError<T, TProp>(DotvvmConfiguration config, Expression<Func<T, TProp>> expr, string error) =>
-            CreateModelError(config, (LambdaExpression)expr, error);
+        public static ViewModelValidationError CreateModelError<T, TProp>(DotvvmConfiguration config, object? obj, Expression<Func<T, TProp>> expr, string error) =>
+            CreateModelError(config, obj, (LambdaExpression)expr, error);
 
         public static ValidationResult CreateValidationResult<T>(DotvvmConfiguration config, string error, params Expression<Func<T, object>>[] expressions) =>
             CreateValidationResult(config, error, (LambdaExpression[])expressions);
 
-        public static ViewModelValidationError CreateModelError(DotvvmConfiguration config, LambdaExpression expr, string error) =>
+        public static ViewModelValidationError CreateModelError(DotvvmConfiguration config, object? obj, LambdaExpression expr, string error) =>
             new ViewModelValidationError {
                 ErrorMessage = error,
-                PropertyPath = GetPathFromExpression(config, expr)
+                PropertyPath = GetPathFromExpression(config, expr),
+                TargetObject = obj,
             };
 
         public static ValidationResult CreateValidationResult(DotvvmConfiguration config, string error, LambdaExpression[] expr) =>
