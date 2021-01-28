@@ -104,7 +104,6 @@ namespace DotVVM.Framework.Hosting.Middlewares
         private async Task RenderResponse(IDotvvmRequestContext request, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
         {
             var context = request.HttpContext;
-            request.CommandResult = uploadedFiles;
 
             var settings = DefaultSerializerSettingsProvider.Instance.Settings;
             if (isPost && ShouldReturnJsonResponse(context))
@@ -112,7 +111,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 // modern browser - return JSON
                 if (string.IsNullOrEmpty(errorMessage))
                 {
-                    var json = viewModelSerializer.BuildStaticCommandResponse(request);
+                    var json = viewModelSerializer.BuildStaticCommandResponse(request, uploadedFiles);
                     if (context.Request.Query["iframe"] == "true")
                     {
                         // IE will otherwise try to download the response as JSON file
@@ -143,7 +142,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
                     if (string.IsNullOrEmpty(errorMessage))
                     {
                         template.StartupScript = string.Format("reportProgress(false, 100, {0})",
-                            viewModelSerializer.BuildStaticCommandResponse(request));
+                            viewModelSerializer.BuildStaticCommandResponse(request, uploadedFiles));
                     }
                     else
                     {
