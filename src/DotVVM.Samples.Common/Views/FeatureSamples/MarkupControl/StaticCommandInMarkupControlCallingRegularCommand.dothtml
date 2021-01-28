@@ -1,0 +1,21 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl.StaticCommandInMarkupControlCallingRegularCommandViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <p DataContext="{value: Detail}">
+        <dot:TextBox Text="{value: Name}" />
+        <dot:Button Click="{command: _root.Save()}" Text="Save" />
+        <dot:Button Click="{command: _root.Blank()}" Text="Cancel" />
+    </p>
+    <dot:Repeater WrapperTagName="section" DataSource="{value: Devices}">
+        <sample:Device Edit="{command: _root.Edit(Id)}"
+                       Remove="{command: _root.Remove(Id)}"
+                       MyProperty="{value: Name + "- test"}" />
+    </dot:Repeater>
+
+</body>
+</html>
