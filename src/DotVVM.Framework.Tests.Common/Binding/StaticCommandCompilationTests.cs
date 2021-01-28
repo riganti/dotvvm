@@ -302,14 +302,69 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void StaticCommandCompilation_MarkupControlCommandPropertyUsed_CorrectPromiseHandling()
+        public void StaticCommandCompilation_MarkupControlCommandPropertyUsed_SimpleCall_CorrectCommandExecturionOrder()
         {
-            var control = new TestMarkupControl();
-            control.SetBinding(TestMarkupControl.SaveProperty, new FakeCommandBinding(new ParametrizedCode("test"), null));
+            TestMarkupControl.CreateInitialized();
 
             var result = CompileBinding("_control.Save()", niceMode: true, new[] { typeof(object) }, typeof(Command), typeof(TestMarkupControl));
 
-            Assert.Fail("TODO: implement changes and create expected result.");
+            var expectedReslt = @"
+(function(a) {
+	return new Promise(function(resolve, reject) {
+		Promise.resolve(a.$control.Save()).then(function(r_0) {
+			resolve(r_0);
+		}, reject);
+	});
+}(ko.contextFor(this)))
+";
+
+            AreEqual(expectedReslt, result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_MarkupControlCommandPropertyUsed_AsArgument_CorrectCommandExecturionOrder()
+        {
+            TestMarkupControl.CreateInitialized();
+
+            var result = CompileBinding("injectedService.Load(_control.Load())", niceMode: true, new[] { typeof(object) }, typeof(Command), typeof(TestMarkupControl));
+
+            var expectedReslt = @"
+(function(a, b) {
+	return new Promise(function(resolve, reject) {
+		Promise.resolve(a.$control.Load()).then(function(r_0) {
+			dotvvm.staticCommandPostback(b, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiTG9hZCIsW10sIkFRQT0iXQ=="", [r_0], options).then(function(r_1) {
+				resolve(r_1);
+			}, reject);
+		}, reject);
+	});
+}(ko.contextFor(this), this))
+";
+
+            AreEqual(expectedReslt, result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_MarkupControlCommandPropertyUsed_WithSamePropertyDependancy_CorrectCommandExecturionOrder()
+        {
+            TestMarkupControl.CreateInitialized();
+
+            var result = CompileBinding("StringProp = _control.Chanege(StringProp) + injectedService.Load(StringProp)", niceMode: true, new[] { typeof(TestViewModel) }, typeof(Command), typeof(TestMarkupControl));
+
+            var expectedReslt = @"
+(function(a, c, b) {
+	return new Promise(function(resolve, reject) {
+		(
+			b = dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiTG9hZCIsW10sIkFRQT0iXQ=="", [c.$data.StringProp()], options) ,
+			Promise.resolve(c.$control.Chanege(c.$data.StringProp())).then(function(r_0) {
+				b.then(function(r_1) {
+					resolve(c.$data.StringProp(r_0 + r_1).StringProp());
+				}, reject);
+			}, reject)
+		);
+	});
+}(this, ko.contextFor(this)))";
+
+            AreEqual(expectedReslt, result);
         }
 
 
@@ -328,6 +383,33 @@ namespace DotVVM.Framework.Tests.Binding
         }
         public static readonly DotvvmProperty SaveProperty
             = DotvvmProperty.Register<Command, TestMarkupControl>(c => c.Save, null);
+
+        public Func<string> Load
+        {
+            get { return (Func<string>)GetValue(LoadProperty); }
+            set { SetValue(LoadProperty, value); }
+        }
+        public static readonly DotvvmProperty LoadProperty
+            = DotvvmProperty.Register<Func<string>, TestMarkupControl>(c => c.Load, null);
+
+        public Func<string, string> Chanege
+        {
+            get { return (Func<string, string>)GetValue(ChanegeProperty); }
+            set { SetValue(ChanegeProperty, value); }
+        }
+        public static readonly DotvvmProperty ChanegeProperty
+            = DotvvmProperty.Register<Func<string, string>, TestMarkupControl>(c => c.Chanege, null);
+
+
+        public static TestMarkupControl CreateInitialized()
+        {
+            var control = new TestMarkupControl();
+            control.SetBinding(SaveProperty, new FakeCommandBinding(new ParametrizedCode("test"), null));
+            control.SetBinding(LoadProperty, new FakeCommandBinding(new ParametrizedCode("test2"), null));
+            control.SetBinding(ChanegeProperty, new FakeCommandBinding(new ParametrizedCode("test3"), null));
+            return control;
+        }
+
     }
 
     public class FakeCommandBinding : ICommandBinding

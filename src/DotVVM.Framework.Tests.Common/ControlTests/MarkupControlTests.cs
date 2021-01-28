@@ -21,12 +21,12 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
         }, services: s => {
             s.AddSingleton<TestService>();
         });
-        OutputChecker check = new OutputChecker("testoutputs");
+        OutputChecker check = new OutputChecker(
+            "testoutputs");
 
         [TestMethod]
         public async Task MarkupControl_PassingStaticCommand()
         {
-
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
 
                 <cc:CustomControlWithCommand DataContext={value: Integer} Click={staticCommand: s.Save(_parent.Integer)} />
@@ -43,10 +43,11 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
                         <dot:Button Click={staticCommand: _control.Click()} />"
                 }
             );
+
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
-        public class BasicTestViewModel: DotvvmViewModelBase
+        public class BasicTestViewModel : DotvvmViewModelBase
         {
             [Bind(Name = "int")]
             public int Integer { get; set; } = 10000000;
@@ -55,7 +56,7 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
         }
     }
 
-    public class CustomControlWithCommand: DotvvmMarkupControl
+    public class CustomControlWithCommand : DotvvmMarkupControl
     {
         public static readonly DotvvmProperty ClickProperty =
             DotvvmProperty.Register<Command, CustomControlWithCommand>("Click");
