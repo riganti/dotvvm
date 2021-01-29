@@ -127,5 +127,10 @@ namespace DotVVM.Framework.Compilation.Binding
            ImmutableList<Func<string, Expression>>.Empty
                .Add(type => CreateStatic(compiledAssemblyCache.FindType(type + (assemblyName != null ? $", {assemblyName}" : ""))))
            );
+
+        public static IEnumerable<Type> GetRegisteredTypesForExtensionMethodsLookup()
+        {
+            yield return typeof(Enumerable);
+        }
     }
 }

@@ -13,6 +13,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Globalization;
 using System.Collections.Concurrent;
+using DotVVM.Framework.Compilation.Binding;
 
 namespace DotVVM.Framework.Utils
 {
@@ -63,6 +64,12 @@ namespace DotVVM.Framework.Utils
                 return type.GetMembers(flags);
         }
 
+        public static IEnumerable<MemberInfo> GetAllExtensions(this Type type, BindingFlags flags = BindingFlags.Public | BindingFlags.Static)
+        {
+            foreach (var registeredType in TypeRegistry.GetRegisteredTypesForExtensionMethodsLookup())
+                foreach (var member in registeredType.GetMembers(flags))
+                    yield return member;
+        }
 
         /// <summary>
         /// Gets filesystem path of assembly CodeBase
