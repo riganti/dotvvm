@@ -392,23 +392,21 @@ namespace DotVVM.Framework.Hosting
                 await filter.OnCommandExecutingAsync(context, action);
             }
 
-            object? result = null;
             try
             {
-                Task? resultTask = null;
+                var commandResultOrNotYetComputedTask = action.Action();
 
-                result = action.Action();
-
-                resultTask = result as Task;
-                if (resultTask != null)
+                var notYetComputedTask = commandResultOrNotYetComputedTask as Task;
+                if (notYetComputedTask != null)
                 {
-                    await resultTask;
+                    await notYetComputedTask;
                 }
 
-                if (resultTask != null)
+                if (notYetComputedTask != null)
                 {
-                    result = TaskUtils.GetResult(resultTask);
+                    return TaskUtils.GetResult(notYetComputedTask);
                 }
+                return commandResultOrNotYetComputedTask;
             }
             catch (Exception ex)
             {
@@ -433,7 +431,7 @@ namespace DotVVM.Framework.Hosting
             {
                 throw new Exception("Unhandled exception occurred in the command!", context.CommandException);
             }
-            return result;
+            return null;
         }
 
         public static bool DetermineIsPostBack(IHttpContext context)
