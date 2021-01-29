@@ -180,8 +180,8 @@ namespace DotVVM.Framework.Hosting
                 // run the init phase in the page
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init);
                 await requestTracer.TraceEvent(RequestTracingConstants.InitCompleted, context);
-                object? commandResult = null;
 
+                object? commandResult = null;
                 if (!isPostBack)
                 {
                     // perform standard get
@@ -268,8 +268,7 @@ namespace DotVVM.Framework.Hosting
                 }
                 await requestTracer.TraceEvent(RequestTracingConstants.ViewModelSerialized, context);
 
-                ViewModelSerializer.BuildViewModel(context);
-                if (commandResult != null) context.ViewModelJson!["commandResult"] = JToken.FromObject(commandResult);
+                ViewModelSerializer.BuildViewModel(context, commandResult);
 
                 if (!context.IsInPartialRenderingMode)
                 {
@@ -373,7 +372,8 @@ namespace DotVVM.Framework.Hosting
 
                 var result = await ExecuteCommand(actionInfo, context, filters);
 
-                await OutputRenderer.WriteStaticCommandResponse(context,
+                await OutputRenderer.WriteStaticCommandResponse(
+                    context,
                     ViewModelSerializer.BuildStaticCommandResponse(context, result));
             }
             finally
@@ -393,16 +393,21 @@ namespace DotVVM.Framework.Hosting
             }
 
             object? result = null;
-            Task? resultTask = null;
-
             try
             {
+                Task? resultTask = null;
+
                 result = action.Action();
 
                 resultTask = result as Task;
                 if (resultTask != null)
                 {
                     await resultTask;
+                }
+
+                if (resultTask != null)
+                {
+                    result = TaskUtils.GetResult(resultTask);
                 }
             }
             catch (Exception ex)
@@ -428,12 +433,6 @@ namespace DotVVM.Framework.Hosting
             {
                 throw new Exception("Unhandled exception occurred in the command!", context.CommandException);
             }
-
-            if (resultTask != null)
-            {
-                return TaskUtils.GetResult(resultTask);
-            }
-
             return result;
         }
 
