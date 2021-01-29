@@ -196,11 +196,9 @@ namespace DotVVM.Framework.Compilation.Binding
                     // Change to a static call
                     var newArguments = CreateArgumentsForExtensionMethod(target, arguments);
                     var extensions = FindValidMethodOveloads(type.GetAllExtensions().OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, newArguments, namedArgs).ToList();
-                    if (extensions.Count == 0)
-                    {
-                        throw new InvalidOperationException($"Could not find method overload and no extension method matched '{name}'.");
-                    }                      
-                    else if (extensions.Count == 1)
+
+                    // We found an extension method
+                    if (extensions.Count == 1)
                     {
                         extensions[0].IsExtension = true;
                         return extensions.FirstOrDefault();
@@ -210,6 +208,9 @@ namespace DotVVM.Framework.Compilation.Binding
                     methods = extensions;
                     arguments = newArguments;
                 }
+
+                if (methods.Count == 0)
+                    throw new InvalidOperationException($"Could not find method overload nor extension method that matched '{name}'.");
             }
 
             // There are multiple method candidates
