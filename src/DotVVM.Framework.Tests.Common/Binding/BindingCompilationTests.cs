@@ -200,6 +200,14 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.ThrowsException<AggregateException>(() => ExecuteBinding(expr, viewModel));         
         }
 
+        [TestMethod]
+        public void BindingCompiler_Valid_ExtensionMethods()
+        {
+            var viewModel = new TestViewModel();
+            var result = (long[])ExecuteBinding("LongArray.Where((long item) => item % 2 != 0).ToArray()", viewModel);
+            CollectionAssert.AreEqual(viewModel.LongArray.Where(item => item % 2 != 0).ToArray(), result);
+        }
+
         class MoqComponent : DotvvmBindableObject
         {
             public object Property

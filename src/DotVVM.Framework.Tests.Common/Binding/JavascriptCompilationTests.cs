@@ -368,16 +368,20 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void JsTranslator_EnumerableWhere()
+        [DataRow("Enumerable.Where(LongArray, (long item) => item % 2 == 0)", DisplayName = "Regular call of Enumerable.Where")]
+        [DataRow("LongArray.Where((long item) => item % 2 == 0)", DisplayName = "Syntax sugar - extension method")]
+        public void JsTranslator_EnumerableWhere(string binding)
         {
-            var result = CompileBinding("Enumerable.Where(LongArray, (long item) => item % 2 == 0)", new[] { typeof(TestViewModel) });
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
             Assert.AreEqual("LongArray().filter(function(item){return ko.unwrap(item)%2==0;})", result);
         }
 
         [TestMethod]
-        public void JsTranslator_EnumerableSelect()
+        [DataRow("Enumerable.Select(LongArray, (long item) => -item)", DisplayName = "Regular call of Enumerable.Select")]
+        [DataRow("LongArray.Select((long item) => -item)", DisplayName = "Syntax sugar - extension method")]
+        public void JsTranslator_EnumerableSelect(string binding)
         {
-            var result = CompileBinding("Enumerable.Select(LongArray, (long item) => -item)", new[] { typeof(TestViewModel) });
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
             Assert.AreEqual("LongArray().map(function(item){return -ko.unwrap(item);})", result);
         }
 
