@@ -15,24 +15,22 @@ namespace DotVVM.Framework.ResourceManagement
     public class ViewModuleImportResource : IResource
     {
         public ResourceRenderPosition RenderPosition => ResourceRenderPosition.Anywhere;
+
         public string[] ReferencedModules { get; }
 
-        public string[] Dependencies => new string [] { "dotvvm" };
+        public string[] Dependencies { get; }
 
         public string ResourceName { get; }
 
         private string registrationScript;
 
-        public ViewModuleImportResource(string[] referencedModules)
+        public ViewModuleImportResource(string[] referencedModules, string name, string[] dependencies)
         {
             this.ReferencedModules = referencedModules.ToArray();
-            Array.Sort(this.ReferencedModules, StringComparer.Ordinal); // generate unique ids across
+            this.ResourceName = name;
+            this.Dependencies = new string[] { "dotvvm" }.Concat(dependencies).ToArray();
 
-            using var sha = System.Security.Cryptography.SHA256.Create();
-            this.ResourceName = Convert.ToBase64String(sha.ComputeHash(Encoding.Unicode.GetBytes(string.Join("\0", this.ReferencedModules))));
-
-            this.registrationScript =
-                $"dotvvm.viewModules.registerMany({{{string.Join(", ", this.ReferencedModules.Select((m, i) => JsonConvert.ToString(m, '\'', StringEscapeHandling.EscapeHtml) + ": m" + i))}}});";
+            this.registrationScript = $"dotvvm.viewModules.registerMany({{{string.Join(", ", this.ReferencedModules.Select((m, i) => JsonConvert.ToString(m, '\'', StringEscapeHandling.EscapeHtml) + ": m" + i))}}});";
         }
 
         public void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
@@ -65,6 +63,11 @@ namespace DotVVM.Framework.ResourceManagement
 
             writer.WriteUnencodedText(registrationScript);
             writer.RenderEndTag();
+        }
+
+        public static string GetName(string moduleBatchUniqueId)
+        {
+            return "viewModule.import." + moduleBatchUniqueId;
         }
     }
 }

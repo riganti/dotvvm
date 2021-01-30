@@ -1,0 +1,89 @@
+﻿#nullable enable
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using DotVVM.Framework.Compilation.Validation;
+using DotVVM.Framework.Hosting;
+using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Utils;
+
+namespace DotVVM.Framework.Controls
+{
+    /// <summary>
+    /// Declares a command that can be exposed to JavaScript code under a specified name.
+    /// </summary>
+    [ControlMarkupOptions(AllowContent = false)]
+    public class NamedCommand : DotvvmControl 
+    {
+
+        /// <summary>
+        /// Gets or sets the name of the command to be used in JavaScript code.
+        /// </summary>
+        [MarkupOptions(Required = true, AllowBinding = false)]
+        public string? Name
+        {
+            get { return (string?)GetValue(NameProperty); }
+            set { SetValue(NameProperty, value); }
+        }
+        public static readonly DotvvmProperty NameProperty =
+            DotvvmProperty.Register<string?, NamedCommand>(c => c.Name);
+
+        /// <summary>
+        /// Gets or sets a command that will be invoked.
+        /// </summary>
+        [MarkupOptions(Required = true, AllowHardCodedValue = false)]
+        public ICommandBinding? Command
+        {
+            get { return (ICommandBinding?)GetValue(CommandProperty); }
+            set { SetValue(CommandProperty, value); }
+        }
+        public static readonly DotvvmProperty CommandProperty
+            = DotvvmProperty.Register<ICommandBinding?, NamedCommand>(c => c.Command, null);
+
+
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
+        {
+            if (!context.IsPostBack)
+            {
+                // TODO dynamically generated ids in markup controls
+                // TODO check name uniqueness
+
+                var viewModules = (ImmutableList<ViewModuleReferenceInfo>)GetValue(Internal.ReferencedViewModuleInfoProperty)!;
+                var dependentResourceNames = viewModules.Select(m => m.InitResourceName).ToArray();
+
+                var viewId = viewModules.First().SpaceId;
+                var options = new PostbackScriptOptions(
+                    returnValue: true,
+                    commandArgs: new CodeParameterAssignment("args", OperatorPrecedence.Max),
+                    elementAccessor: "document.body"
+                );
+                var commandBinding = GetCommandBinding(CommandProperty)!;
+                var command = KnockoutHelper.GenerateClientPostBackScript(nameof(Command), commandBinding, this, options);
+
+                context.ResourceManager.AddStartupScript(@$"dotvvm.events.initCompleted.subscribe(function () {{
+    dotvvm.viewModules.registerNamedCommand({KnockoutHelper.MakeStringLiteral(viewId)}, {KnockoutHelper.MakeStringLiteral(Name!)}, function(...args) {{ return ({command}); }});
+}});", defer: true, dependentResourceNames);
+            }
+
+            base.OnPreRender(context);
+        }
+
+
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        {
+            if (!control.TreeRoot.TryGetProperty(Internal.ReferencedViewModuleInfoProperty, out var _))
+            {
+                yield return new ControlUsageError("The NamedCommand control can be used only in pages or controls that have the @js directive.");
+            }
+        }
+    }
+}

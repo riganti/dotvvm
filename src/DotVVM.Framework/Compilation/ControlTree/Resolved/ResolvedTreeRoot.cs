@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using System.Linq;
 using System.Collections.Immutable;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Controls;
+using DotVVM.Framework.ResourceManagement;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
@@ -23,8 +26,17 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 MasterPage,
                 (from ds in Directives
                  from d in ds.Value
-                 select (ds.Key, d.Value)).ToImmutableArray()
+                 select (ds.Key, d.Value)).ToImmutableArray(),
+                GetViewModuleInfo() 
             );
+
+        private ImmutableList<ViewModuleReferenceInfo>? GetViewModuleInfo()
+        {
+            if (TryGetProperty(Internal.ReferencedViewModuleInfoProperty, out var viewModule) && viewModule is ResolvedPropertyValue value)
+                return value.Value as ImmutableList<ViewModuleReferenceInfo>;
+            else
+                return null;
+        }
 
         public ResolvedTreeRoot(ControlResolverMetadata metadata, DothtmlNode node, DataContextStack dataContext, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, ControlBuilderDescriptor? masterPage)
             : base(metadata, node, null, dataContext)

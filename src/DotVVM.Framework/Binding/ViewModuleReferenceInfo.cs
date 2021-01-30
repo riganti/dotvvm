@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
@@ -23,11 +25,39 @@ namespace DotVVM.Framework.Binding
         public ViewModuleReferenceInfo(string spaceId, string[] referencedModules, bool isMarkupControl)
         {
             this.SpaceId = spaceId;
-            this.ReferencedModules = referencedModules;
-            this.Resource = new ViewModuleImportResource(referencedModules);
             this.IsMarkupControl = isMarkupControl;
+
+            // sort modules so the ID is deterministic
+            this.ReferencedModules = referencedModules;
+            Array.Sort(this.ReferencedModules, StringComparer.Ordinal);
+            var moduleBatchUniqueId = GenerateModuleBatchUniqueId();
+
+            ImportResourceName = ViewModuleImportResource.GetName(moduleBatchUniqueId);
+            InitResourceName = ViewModuleInitResource.GetName(moduleBatchUniqueId);
+
+            
         }
 
-        public ViewModuleImportResource Resource { get; }
+        public string InitResourceName { get; }
+
+        public string ImportResourceName { get; }
+
+
+        internal (ViewModuleImportResource importResource, ViewModuleInitResource initResource) BuildResources(IDotvvmResourceRepository allResources)
+        {
+            var dependencies = ReferencedModules.SelectMany(m => allResources.FindResource(m).Dependencies).Distinct().ToArray();
+
+            return (
+                new ViewModuleImportResource(ReferencedModules, ImportResourceName, dependencies),
+                new ViewModuleInitResource(ReferencedModules, InitResourceName, SpaceId, new[] { ImportResourceName })
+            );
+        }
+
+        private string GenerateModuleBatchUniqueId()
+        {
+            using var sha = SHA256.Create();
+            return Convert.ToBase64String(sha.ComputeHash(Encoding.Unicode.GetBytes(string.Join("\0", this.ReferencedModules))))
+                .Replace("/", "_").Replace("+", "-").Replace("=", "");
+        }
     }
 }

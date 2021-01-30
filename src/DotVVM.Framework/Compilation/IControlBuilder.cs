@@ -1,9 +1,11 @@
 #nullable enable
 using System;
 using System.Collections.Immutable;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.ResourceManagement;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -41,6 +43,8 @@ namespace DotVVM.Framework.Compilation
 
         public ImmutableArray<(string name, string value)> Directives { get; }
 
+        public ImmutableList<ViewModuleReferenceInfo>? ViewModuleReferences { get; }
+
         ITypeDescriptor IAbstractControlBuilderDescriptor.DataContextType => new ResolvedTypeDescriptor(this.DataContextType);
 
         ITypeDescriptor IAbstractControlBuilderDescriptor.ControlType => new ResolvedTypeDescriptor(this.ControlType);
@@ -52,7 +56,8 @@ namespace DotVVM.Framework.Compilation
             Type controlType,
             string? fileName,
             ControlBuilderDescriptor? masterPage,
-            ImmutableArray<(string name, string value)> directives
+            ImmutableArray<(string name, string value)> directives,
+            ImmutableList<ViewModuleReferenceInfo>? viewModuleReferences
         )
         {
             this.DataContextType = dataContextType;
@@ -60,6 +65,7 @@ namespace DotVVM.Framework.Compilation
             this.FileName = fileName;
             this.MasterPage = masterPage;
             this.Directives = directives;
+            this.ViewModuleReferences = viewModuleReferences;
         }
     }
 }

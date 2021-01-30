@@ -51,7 +51,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
             foreach (var viewModule in this.GetValue<ImmutableList<ViewModuleReferenceInfo>>(Internal.ReferencedViewModuleInfoProperty)!)
             {
                 Debug.Assert(!viewModule.IsMarkupControl);
-                context.ResourceManager.AddRequiredResource(viewModule.Resource.ResourceName, viewModule.Resource);
+                context.ResourceManager.AddRequiredResource(viewModule.InitResourceName);
             }
             base.OnPreRender(context);
         }

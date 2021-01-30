@@ -141,7 +141,7 @@ export async function applyPostbackHandlers(
 
     try {
         const commit = await applyPostbackHandlersCore(saneNext, options, handlers);
-        const result = await commit();
+        const result = await commit.apply(void 0, args as any);
         return result;
     } catch (err) {
         

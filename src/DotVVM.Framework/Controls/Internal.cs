@@ -59,9 +59,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<IValueBinding?, Internal>(() => CurrentIndexBindingProperty);
 
         public static DotvvmProperty ReferencedViewModuleInfoProperty =
-            DotvvmProperty.Register<ImmutableList<ViewModuleReferenceInfo>, Internal>(
-                "ReferencedViewModuleInfo",
-                defaultValue: ImmutableList<ViewModuleReferenceInfo>.Empty);
+            DotvvmProperty.Register<ImmutableList<ViewModuleReferenceInfo>, Internal>(() => ReferencedViewModuleInfoProperty, ImmutableList<ViewModuleReferenceInfo>.Empty, isValueInherited: true);
     }
 
     public static class InternalPropertyExtensions
