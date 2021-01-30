@@ -25,6 +25,7 @@ using DotVVM.Framework.Runtime.Tracing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Security;
+using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -394,19 +395,23 @@ namespace DotVVM.Framework.Hosting
 
             try
             {
-                var commandResultOrNotYetComputedTask = action.Action();
+                var commandResultOrNotYetComputedAwaitable = action.Action();
 
-                var notYetComputedTask = commandResultOrNotYetComputedTask as Task;
-                if (notYetComputedTask != null)
+                if (commandResultOrNotYetComputedAwaitable is Task commandTask)
                 {
-                    await notYetComputedTask;
+                    await commandTask;
+                    return TaskUtils.GetResult(commandTask);
                 }
 
-                if (notYetComputedTask != null)
+                var resultType = commandResultOrNotYetComputedAwaitable.GetType();
+                var possibleResultAwaiter = resultType.GetMethod(nameof(Task.GetAwaiter));
+
+                if(possibleResultAwaiter != null)
                 {
-                    return TaskUtils.GetResult(notYetComputedTask);
+                    throw new NotSupportedException($"The command uses unsupported awaitable type {resultType.FullName}, please use System.Task instead.");
                 }
-                return commandResultOrNotYetComputedTask;
+                
+                return commandResultOrNotYetComputedAwaitable;
             }
             catch (Exception ex)
             {
