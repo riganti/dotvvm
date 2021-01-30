@@ -270,6 +270,44 @@ namespace DotVVM.Framework.Compilation.Binding
             return GetMemberOrTypeExpression(node, typeParameters);
         }
 
+        protected override Expression VisitLambda(LambdaBindingParserNode node)
+        {
+            // Create lambda definition
+            var lambdaParameters = new ParameterExpression[node.ParameterExpressions.Count];
+            for (var i = 0; i < lambdaParameters.Length; i++)
+                lambdaParameters[i] = (ParameterExpression)HandleErrors(node.ParameterExpressions[i], Visit);
+
+            // Make sure that parameter identifiers are distinct
+            if (lambdaParameters.GroupBy(param => param.Name).Any(group => group.Count() > 1))
+                throw new BindingCompilationException("Parameter identifiers must be unique.", node);
+
+            // Make sure that parameter identifiers do not collide with existing symbols within registry
+            var collision = lambdaParameters.FirstOrDefault(param => Registry.Resolve(param.Name, false) != null);
+            if (collision != null)
+            {
+                throw new BindingCompilationException($"Identifier \"{collision.Name}\" is already in use. Choose a different " +
+                    $"identifier for the parameter with index {Array.IndexOf(lambdaParameters, collision)}.", node);
+            }
+
+            // Register lambda parameters as new symbols
+            Registry = Registry.AddSymbols(lambdaParameters);
+
+            // Create lambda body
+            var body = Visit(node.BodyExpression);
+
+            ThrowOnErrors();
+            return Expression.Lambda(body, lambdaParameters);
+        }
+
+        protected override Expression VisitLambdaParameter(LambdaParameterBindingParserNode node)
+        {
+            if (node.Type == null)
+                throw new BindingCompilationException($"Could not infer type of parameter.", node);
+
+            var parameterType = Visit(node.Type).Type;
+            return Expression.Parameter(parameterType, node.Name.ToDisplayString());
+        }
+
         protected override Expression VisitBlock(BlockBindingParserNode node)
         {
             var left = HandleErrors(node.FirstExpression, Visit) ?? Expression.Default(typeof(void));

@@ -43,8 +43,16 @@ namespace DotVVM.Framework.Compilation.Binding
 
             if (members.Length == 0)
             {
-                if (throwExceptions) throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }.");
-                else return null;
+                // We did not find any match in regular methods => try extension methods
+                var extensions = type.GetAllExtensions()
+                    .Where(m => ((isGeneric && m is TypeInfo) ? genericName : name) == m.Name)
+                    .ToArray();
+                members = extensions;
+
+                if (members.Length == 0 && throwExceptions)
+                    throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }.");
+                else if (members.Length == 0 && !throwExceptions)
+                    return null;
             }
             if (members.Length == 1)
             {
@@ -148,26 +156,65 @@ namespace DotVVM.Framework.Compilation.Binding
         public static Expression CallMethod(Expression target, BindingFlags flags, string name, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs = null)
         {
             // the following piece of code is nicer and more readable than method recognition done in roslyn, C# dynamic and also expression evaluator :)
-            var method = FindValidMethodOveloads(target.Type, name, flags, typeArguments, arguments, namedArgs);
+            var method = FindValidMethodOveloads(target, target.Type, name, flags, typeArguments, arguments, namedArgs);
+
+            if (method.IsExtension)
+            {
+                // Change to a static call
+                var newArguments = CreateArgumentsForExtensionMethod(target, arguments);
+                return Expression.Call(method.Method, newArguments);
+            }
+
             return Expression.Call(target, method.Method, method.Arguments);
+        }
+
+        private static Expression[] CreateArgumentsForExtensionMethod(Expression target, Expression[] arguments)
+        {
+            var newArguments = new Expression[arguments.Length + 1];
+            Array.Copy(arguments, 0, newArguments, 1, arguments.Length);
+            newArguments[0] = target;
+            return newArguments;
         }
 
         public static Expression CallMethod(Type target, BindingFlags flags, string name, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs = null)
         {
             // the following piece of code is nicer and more readable than method recognition done in roslyn, C# dynamic and also expression evaluator :)
-            var method = FindValidMethodOveloads(target, name, flags, typeArguments, arguments, namedArgs);
+            var method = FindValidMethodOveloads(null, target, name, flags, typeArguments, arguments, namedArgs);
             return Expression.Call(method.Method, method.Arguments);
         }
 
 
-        private static MethodRecognitionResult FindValidMethodOveloads(Type type, string name, BindingFlags flags, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
+        private static MethodRecognitionResult FindValidMethodOveloads(Expression target, Type type, string name, BindingFlags flags, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
         {
             var methods = FindValidMethodOveloads(type.GetAllMembers(flags).OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, arguments, namedArgs).ToList();
 
             if (methods.Count == 1) return methods.FirstOrDefault();
-            if (methods.Count == 0) throw new InvalidOperationException($"Could not find overload of method '{name}'.");
-            else
+            if (methods.Count == 0)
             {
+                // We did not find any match in regular methods => try extension methods
+                if (target != null)
+                {
+                    // Change to a static call
+                    var newArguments = CreateArgumentsForExtensionMethod(target, arguments);
+                    var extensions = FindValidMethodOveloads(type.GetAllExtensions().OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, newArguments, namedArgs).ToList();
+
+                    // We found an extension method
+                    if (extensions.Count == 1)
+                    {
+                        extensions[0].IsExtension = true;
+                        return extensions.FirstOrDefault();
+                    }
+
+                    target = null;
+                    methods = extensions;
+                    arguments = newArguments;
+                }
+
+                if (methods.Count == 0)
+                    throw new InvalidOperationException($"Could not find method overload nor extension method that matched '{name}'.");
+            }
+
+            // There are multiple method candidates
                 methods = methods.OrderBy(s => s.CastCount).ThenBy(s => s.AutomaticTypeArgCount).ToList();
                 var method = methods.FirstOrDefault();
                 var method2 = methods.Skip(1).FirstOrDefault();
@@ -178,7 +225,6 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 return method;
             }
-        }
 
         private static IEnumerable<MethodRecognitionResult> FindValidMethodOveloads(IEnumerable<MethodInfo> methods, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
             => from m in methods
@@ -194,6 +240,7 @@ namespace DotVVM.Framework.Compilation.Binding
             public Expression[] Arguments { get; set; }
             public MethodInfo Method { get; set; }
             public int ParamsArrayCount { get; set; }
+            public bool IsExtension { get; set; }
         }
 
         private static MethodRecognitionResult TryCallMethod(MethodInfo method, Type[] typeArguments, Expression[] positionalArguments, IDictionary<string, Expression> namedArguments)
