@@ -86,10 +86,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directives, masterPage);
             view.FileName = fileName;
-            var resourceList = viewModule == null ? ImmutableList<ViewModuleReferenceInfo>.Empty : ImmutableList<ViewModuleReferenceInfo>.Empty.Add(viewModule.Value.resource);
             treeBuilder.AddProperty(
                 view,
-                treeBuilder.BuildPropertyValue(Internal.ReferencedViewModuleInfoProperty, resourceList, null),
+                treeBuilder.BuildPropertyValue(Internal.ReferencedViewModuleInfoProperty, viewModule?.resource, null),
                 out _
             );
 

@@ -47,33 +47,30 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty CommandProperty
             = DotvvmProperty.Register<ICommandBinding?, NamedCommand>(c => c.Command, null);
-
-
-        protected internal override void OnPreRender(IDotvvmRequestContext context)
+        
+        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (!context.IsPostBack)
-            {
-                // TODO dynamically generated ids in markup controls
-                // TODO check name uniqueness
+            var viewModule = GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty)!;
 
-                var viewModules = (ImmutableList<ViewModuleReferenceInfo>)GetValue(Internal.ReferencedViewModuleInfoProperty)!;
-                var dependentResourceNames = viewModules.Select(m => m.InitResourceName).ToArray();
+            var options = new PostbackScriptOptions(
+                returnValue: true,
+                commandArgs: new CodeParameterAssignment("args", OperatorPrecedence.Max),
+                elementAccessor: "$element"
+            );
+            var commandBinding = GetCommandBinding(CommandProperty)!;
+            var command = KnockoutHelper.GenerateClientPostBackScript(nameof(Command), commandBinding, this, options);
+            command = $"function(...args) {{ return ({command}); }}";
 
-                var viewId = viewModules.First().SpaceId;
-                var options = new PostbackScriptOptions(
-                    returnValue: true,
-                    commandArgs: new CodeParameterAssignment("args", OperatorPrecedence.Max),
-                    elementAccessor: "document.body"
-                );
-                var commandBinding = GetCommandBinding(CommandProperty)!;
-                var command = KnockoutHelper.GenerateClientPostBackScript(nameof(Command), commandBinding, this, options);
+            writer.WriteKnockoutDataBindComment("dotvvm-named-command", $"{{ viewId: {KnockoutHelper.MakeStringLiteral(viewModule.ViewId)}, name: {KnockoutHelper.MakeStringLiteral(Name!)}, command: {command} }}");
+            
+            base.RenderBeginTag(writer, context);
+        }
 
-                context.ResourceManager.AddStartupScript(@$"dotvvm.events.initCompleted.subscribe(function () {{
-    dotvvm.viewModules.registerNamedCommand({KnockoutHelper.MakeStringLiteral(viewId)}, {KnockoutHelper.MakeStringLiteral(Name!)}, function(...args) {{ return ({command}); }});
-}});", defer: true, dependentResourceNames);
-            }
+        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            base.RenderEndTag(writer, context);
 
-            base.OnPreRender(context);
+            writer.WriteKnockoutDataBindEndComment();
         }
 
 

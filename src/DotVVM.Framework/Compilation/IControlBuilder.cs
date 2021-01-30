@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Compilation
 
         public ImmutableArray<(string name, string value)> Directives { get; }
 
-        public ImmutableList<ViewModuleReferenceInfo>? ViewModuleReferences { get; }
+        public ViewModuleReferenceInfo? ViewModuleReference { get; }
 
         ITypeDescriptor IAbstractControlBuilderDescriptor.DataContextType => new ResolvedTypeDescriptor(this.DataContextType);
 
@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Compilation
             string? fileName,
             ControlBuilderDescriptor? masterPage,
             ImmutableArray<(string name, string value)> directives,
-            ImmutableList<ViewModuleReferenceInfo>? viewModuleReferences
+            ViewModuleReferenceInfo? viewModuleReference
         )
         {
             this.DataContextType = dataContextType;
@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Compilation
             this.FileName = fileName;
             this.MasterPage = masterPage;
             this.Directives = directives;
-            this.ViewModuleReferences = viewModuleReferences;
+            this.ViewModuleReference = viewModuleReference;
         }
     }
 }

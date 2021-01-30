@@ -1,5 +1,3 @@
-import register from "../binding-handlers/register";
-import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture } from "../dotvvm-base"
 import { keys } from "../utils/objects";
 
 type ModuleCommand = (context: ModuleContext, ...args: any[]) => Promise<any>;
@@ -35,7 +33,9 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
     console.info(handler);
 
     if (handler.contexts[viewId]) {
-        throw new Error('Handler ' + name + ' has already been initialized.');
+        handler.contexts[viewId].elements.push(rootElement);
+        setupModuleDisposeHandlers(viewId, name, rootElement);
+        return;
     }
 
     const elementContext = ko.contextFor(rootElement);
@@ -65,8 +65,7 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
         handler.module,
         exportedCommands,
         viewId,
-        rootElement,
-        elementContext.$data,
+        [rootElement],
         { ...elementContext.$control }
     );
     handler.contexts[viewId] = context;
@@ -124,18 +123,26 @@ export function registerNamedCommand(viewId: string, commandName: string, comman
 
 function setupModuleDisposeHandlers(viewId: string, name: string, rootElement: HTMLElement) {
     function elementDisposeCallback() {
-        disposeModule(viewId, name);
+        disposeModule(viewId, name, rootElement);
         ko.utils.domNodeDisposal.removeDisposeCallback(rootElement, elementDisposeCallback);
     }
     ko.utils.domNodeDisposal.addDisposeCallback(rootElement, elementDisposeCallback);
 }
 
-function disposeModule(viewId: string, name: string) {
+function disposeModule(viewId: string, name: string, rootElement: HTMLElement) {
     const handler = ensureModuleHandler(name);
     const context = ensureViewModuleContext(viewId, name);
 
-    callIfDefined(handler.module, 'dispose', context);
-    delete handler.contexts[viewId];
+    const index = context.elements.indexOf(rootElement);
+    if (index < 0) {
+        throw new Error(`Cannot dispose module on a root element ${viewId}. It has already been disposed.`);
+    }
+    context.elements.splice(index, 1);
+
+    if (!context.elements.length) {
+        callIfDefined(handler.module, 'dispose', context);
+        delete handler.contexts[viewId];
+    }
 }
 
 function ensureViewModuleContext(viewId: string, name: string): ModuleContext {
@@ -180,8 +187,7 @@ export class ModuleContext {
         public readonly module: any,
         public readonly moduleCommands: ModuleCommandDictionary,
         public readonly viewId: string,
-        public readonly element: HTMLElement,
-        public readonly viewModel: any,
+        public readonly elements: HTMLElement[],
         public readonly properties: { [name: string]: any }) {
     }
 

@@ -30,10 +30,10 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 GetViewModuleInfo() 
             );
 
-        private ImmutableList<ViewModuleReferenceInfo>? GetViewModuleInfo()
+        private ViewModuleReferenceInfo? GetViewModuleInfo()
         {
             if (TryGetProperty(Internal.ReferencedViewModuleInfoProperty, out var viewModule) && viewModule is ResolvedPropertyValue value)
-                return value.Value as ImmutableList<ViewModuleReferenceInfo>;
+                return value.Value as ViewModuleReferenceInfo;
             else
                 return null;
         }

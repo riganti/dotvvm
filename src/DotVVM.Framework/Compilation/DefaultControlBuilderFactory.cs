@@ -86,13 +86,10 @@ namespace DotVVM.Framework.Compilation
                 {
                     var (descriptor, factory) = ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
 
-                    if (descriptor.ViewModuleReferences != null)
+                    if (descriptor.ViewModuleReference != null)
                     {
-                        foreach (var resource in descriptor.ViewModuleReferences)
-                        {
-                            var (import, init) = resource.BuildResources(configuration.Resources);
-                            configuration.Resources.RegisterViewModuleResources(import, init);
-                        }
+                        var (import, init) = descriptor.ViewModuleReference.BuildResources(configuration.Resources);
+                        configuration.Resources.RegisterViewModuleResources(import, init);
                     }
 
                     return (descriptor, new Lazy<IControlBuilder>(() => {

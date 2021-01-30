@@ -132,14 +132,9 @@ namespace DotVVM.Framework.Runtime
                 content.SetValue(Internal.IsMasterPageCompositionFinishedProperty, true);
                 content.SetValue(DotvvmView.DirectivesProperty, childPage.Directives);
                 content.SetValue(Internal.MarkupFileNameProperty, childPage.GetValue(Internal.MarkupFileNameProperty));
+                content.SetValue(Internal.ReferencedViewModuleInfoProperty, childPage.GetValue(Internal.ReferencedViewModuleInfoProperty));
             }
-
-            masterPage.SetValue(
-                Internal.ReferencedViewModuleInfoProperty,
-                masterPage.GetValue<ImmutableList<ViewModuleReferenceInfo>>(Internal.ReferencedViewModuleInfoProperty)!.AddRange(
-                    childPage.GetValue<ImmutableList<ViewModuleReferenceInfo>>(Internal.ReferencedViewModuleInfoProperty)
-                ));
-
+            
             // copy the directives from content page to the master page (except the @masterpage)
             masterPage.ViewModelType = childPage.ViewModelType;
         }
