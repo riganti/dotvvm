@@ -83,11 +83,7 @@ namespace DotVVM.Samples.Common
             });
 
             resources.Register("FeatureSamples_Resources_TestPageModule", new ScriptModuleResource(new FileResourceLocation("~/Scripts/testPageModule.js")));
-            resources.Register("FeatureSamples_Resources_GoogleMapSample", new ScriptModuleResource(new FileResourceLocation("~/Scripts/googleMapSample.js"))
-            {
-                Dependencies = new[] { "googleMap" }
-            });
-            resources.Register("googleMap", new ScriptResource(new UrlResourceLocation("https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap")));
+            resources.Register("FeatureSamples_Resources_TestPageModule2", new ScriptModuleResource(new FileResourceLocation("~/Scripts/testPageModule2.js")));
 
             resources.Register("testJsModule", new ScriptModuleResource(new InlineResourceLocation("export const commands = { myCommand() { console.info(\"Hello from page module\") } }")));
 

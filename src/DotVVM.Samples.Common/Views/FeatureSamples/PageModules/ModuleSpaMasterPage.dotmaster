@@ -1,0 +1,58 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.PageModules.ModuleSpaMasterPageViewModel, DotVVM.Samples.Common
+@js FeatureSamples_Resources_TestPageModule
+@import DotVVM.Samples.Common.ViewModels.FeatureSamples.PageModules
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <div>
+        <dot:RouteLink RouteName="FeatureSamples_PageModules_ModuleInPageSpaMasterPage">Page 1</dot:RouteLink>
+        |
+        <dot:RouteLink RouteName="FeatureSamples_PageModules_ModuleInPageSpaMasterPage2">Page 2</dot:RouteLink>
+    </div>
+
+    <div DataContext="{value: Page}" class="master">
+        <h2>_js.Invoke</h2>
+        <p>
+            <dot:Button Text="noArgs" Click="{staticCommand: _js.Invoke("noArgs")}" />
+        </p>
+        <p>
+            <dot:Button Text="oneArg" Click="{staticCommand: _js.Invoke("oneArg", 10)}" />
+        </p>
+        <p>
+            <dot:Button Text="twoArgs" Click="{staticCommand: _js.Invoke("twoArgs", 10, ChildObject)}" />
+        </p>
+        <p>
+            <dot:Button Text="syncIncrement" Click="{staticCommand: Value = _js.Invoke<int>("syncIncrement", Value)}" />
+            <dot:Button Text="asyncIncrement" Click="{staticCommand: Value = _js.Invoke<System.Threading.Tasks.Task<int>>("asyncIncrement", Value).Result}" />
+            <dot:Button Text="callIncrementCommand" Click="{staticCommand: Value = _js.Invoke<System.Threading.Tasks.Task<int>>("callIncrementCommand", Value).Result}" />
+            Value: <span class="increment-value">{{value: Value}}</span>
+        </p>
+        <p>
+            <dot:Button Text="callSetResultCommand" Click="{staticCommand: _js.Invoke("callSetResultCommand")}" />
+            Result: <span class="named-command-result">{{value: Result}}</span>
+        </p>
+
+        <dot:NamedCommand Name="SetResultCommand" Command="{staticCommand: (int a1, string a2, TestObject a3) => Result = a1.ToString() + "_" + a2 + "_" + a3.Test}" />
+
+        <dot:NamedCommand Name="IncrementCommand" Command="{staticCommand: (int value) => value + 1}" />
+
+    </div>
+
+    <dot:SpaContentPlaceHolder ID="MainContent" />
+
+    <h2>Event log</h2>
+    <pre ID="log">
+    </pre>
+
+    <dot:RequiredResource Name="globalize" />
+
+</body>
+</html>
+

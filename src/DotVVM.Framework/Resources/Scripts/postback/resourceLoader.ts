@@ -85,7 +85,6 @@ async function loadResourceElements(elements: HTMLElement[]) {
     }
 }
 
-
 function waitForElementLoaded(element: HTMLElement) {
     return new Promise(resolve => {
         element.addEventListener("load", resolve);

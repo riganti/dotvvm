@@ -29,15 +29,12 @@ namespace DotVVM.Framework.ResourceManagement
             this.ReferencedModules = referencedModules.ToArray();
             this.Dependencies = dependencies;
 
-            this.registrationScript = @$"dotvvm.events.initCompleted.subscribe(function () {{
-    {string.Join("\r\n", this.ReferencedModules.Select(m => $"dotvvm.viewModules.init({KnockoutHelper.MakeStringLiteral(m)}, {KnockoutHelper.MakeStringLiteral(viewId)}, document.body);"))}
-}});";
+            this.registrationScript = string.Join("\r\n", this.ReferencedModules.Select(m => $"dotvvm.viewModules.init({KnockoutHelper.MakeStringLiteral(m)}, {KnockoutHelper.MakeStringLiteral(viewId)}, document.body);"));
         }
 
         public void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
         {
-
-        writer.AddAttribute("type", "module");
+            writer.AddAttribute("type", "module");
             writer.RenderBeginTag("script");
             writer.WriteUnencodedText(registrationScript);
             writer.RenderEndTag();

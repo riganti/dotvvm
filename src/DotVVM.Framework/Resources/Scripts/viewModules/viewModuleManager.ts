@@ -1,3 +1,5 @@
+import { deserialize } from "../serialization/deserialize";
+import { serialize } from "../serialization/serialize";
 import { keys } from "../utils/objects";
 
 type ModuleCommand = (context: ModuleContext, ...args: any[]) => Promise<any>;
@@ -66,7 +68,7 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
         exportedCommands,
         viewId,
         [rootElement],
-        { ...elementContext.$control }
+        elementContext ? { ...elementContext.$control } : {}
     );
     handler.contexts[viewId] = context;
 
@@ -84,9 +86,10 @@ export function callViewModuleCommand(viewId: string, commandName: string, args:
     }[] = [];
 
     for (const moduleName of keys(registeredModules)) {
-        const context = ensureViewModuleContext(viewId, moduleName);
-        const command: ModuleCommand = context.moduleCommands[commandName];
+        const context = ensureViewModuleContext(viewId, moduleName, false);
+        if (!context) continue;
 
+        const command: ModuleCommand = context.moduleCommands[commandName];
         moduleNames.push(moduleName);
         foundCommands.push({ command, context });
     }
@@ -104,10 +107,10 @@ export function callViewModuleCommand(viewId: string, commandName: string, args:
             '. Check modules: ' + moduleNames.join(', ') + '.');
     }
 
-    foundCommands[0].command.apply(window, [foundCommands[0].context as any].concat(args) as any);
+    return foundCommands[0].command.apply(window, [foundCommands[0].context].concat(args.map(v => serialize(v))) as any);
 }
 
-export function registerNamedCommand(viewId: string, commandName: string, command: ModuleCommand) {
+export function registerNamedCommand(viewId: string, commandName: string, command: ModuleCommand, rootElement: HTMLElement) {
     if (viewId == null) { throw new Error("Parameter viewId has to have a value"); }
     if (commandName == null) { throw new Error("Parameter commandName has to have a value"); }
 
@@ -119,6 +122,8 @@ export function registerNamedCommand(viewId: string, commandName: string, comman
             context.registerNamedCommand(commandName, command);
         }
     }
+
+    setupNamedCommandDisposeHandlers(viewId, commandName, rootElement);
 }
 
 function setupModuleDisposeHandlers(viewId: string, name: string, rootElement: HTMLElement) {
@@ -145,11 +150,33 @@ function disposeModule(viewId: string, name: string, rootElement: HTMLElement) {
     }
 }
 
-function ensureViewModuleContext(viewId: string, name: string): ModuleContext {
+function setupNamedCommandDisposeHandlers(viewId: string, name: string, rootElement: HTMLElement) {
+    function elementDisposeCallback() {
+        unregisterNamedCommand(viewId, name);
+        ko.utils.domNodeDisposal.removeDisposeCallback(rootElement, elementDisposeCallback);
+    }
+    ko.utils.domNodeDisposal.addDisposeCallback(rootElement, elementDisposeCallback);
+}
+
+export function unregisterNamedCommand(viewId: string, commandName: string) {
+    if (viewId == null) { throw new Error("Parameter viewId has to have a value"); }
+    if (commandName == null) { throw new Error("Parameter commandName has to have a value"); }
+
+    for (const moduleName of keys(registeredModules)) {
+        const module = registeredModules[moduleName];
+
+        var context = module.contexts[viewId];
+        if (context) {
+            context.unregisterNamedCommand(commandName);
+        }
+    }
+}
+
+function ensureViewModuleContext(viewId: string, name: string, throwError: boolean = true): ModuleContext {
     const handler = ensureModuleHandler(name);
     const context = handler.contexts[viewId];
 
-    if (!context) {
+    if (!context && throwError) {
         throw new Error('Module ' + name + 'has not been initialized for view ' + viewId + ', or the view has been disposed');
     }
     return context;
@@ -214,6 +241,12 @@ export class ModuleContext {
             throw new Error('A named command is already registered under the name: ' + name + '. The conflict occured in: ' + this.moduleName + ' view ' + this.viewId + '.');
         }
 
-        this.namedCommands[name] = command;
+        this.namedCommands[name] = (...innerArgs) => command.apply(this, innerArgs.map(v => deserialize(v)));
+    }
+
+    public unregisterNamedCommand = (name: string) => {
+        if (name in this.namedCommands) {
+            delete this.namedCommands[name];
+        }
     }
 }

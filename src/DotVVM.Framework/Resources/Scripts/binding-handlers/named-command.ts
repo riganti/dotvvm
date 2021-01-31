@@ -23,7 +23,7 @@ export default {
                 throw new Error('Cannot initialize view modules. Property command not defined.');
             }
 
-            manager.registerNamedCommand(value.viewId, value.name, value.command);
+            manager.registerNamedCommand(value.viewId, value.name, value.command, element);
 
             return { controlsDescendantBindings: false }; // do not apply binding again
         }
