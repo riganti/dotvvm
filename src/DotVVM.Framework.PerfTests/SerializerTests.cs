@@ -56,7 +56,8 @@ namespace DotVVM.Framework.PerfTests
         {
             viewModel.Nested.Array[0].MyProperty = Guid.NewGuid().ToString(); // modify a bit
 
-            serializer.BuildViewModel(request);
+            serializer.
+                BuildViewModel(request, null);
             LastViewModel = serializer.SerializeViewModel(request);
             if (allowDiffs) request.ReceivedViewModelJson = (JObject)request.ViewModelJson["viewModel"];
         }

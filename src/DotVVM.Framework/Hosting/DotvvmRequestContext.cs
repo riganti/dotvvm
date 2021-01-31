@@ -110,6 +110,7 @@ namespace DotVVM.Framework.Hosting
         public IViewModelSerializer ViewModelSerializer => Services.GetRequiredService<IViewModelSerializer>();
 
         private IServiceProvider? _services;
+
         public IServiceProvider Services
         {
             get => _services ?? (_services = Configuration.ServiceProvider ?? throw new NotSupportedException());
@@ -136,5 +137,7 @@ namespace DotVVM.Framework.Hosting
             return httpContext.GetItem<DotvvmRequestContext>(HostingConstants.DotvvmRequestContextOwinKey)
                    .NotNull();
         }
+
+        public CustomResponsePropertiesManager CustomResponseProperties { get; } = new CustomResponsePropertiesManager();
     }
 }
