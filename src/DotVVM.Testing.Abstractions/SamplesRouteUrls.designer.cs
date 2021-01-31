@@ -240,6 +240,8 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_PageModules_ModuleInPage = "FeatureSamples/PageModules/ModuleInPage";
         public const string FeatureSamples_PageModules_ModuleInPageCommandAmbiguous = "FeatureSamples/PageModules/ModuleInPageCommandAmbiguous";
         public const string FeatureSamples_PageModules_ModuleInPageMasterPage = "FeatureSamples/PageModules/ModuleInPageMasterPage";
+        public const string FeatureSamples_PageModules_ModuleInPageSpaMasterPage = "FeatureSamples/PageModules/ModuleInPageSpaMasterPage";
+        public const string FeatureSamples_PageModules_ModuleInPageSpaMasterPage2 = "FeatureSamples/PageModules/ModuleInPageSpaMasterPage2";
         public const string FeatureSamples_ParameterBinding_OptionalParameterBinding = "FeatureSamples/ParameterBinding/OptionalParameterBinding";
         public const string FeatureSamples_ParameterBinding_ParameterBinding = "FeatureSamples/ParameterBinding/ParameterBinding";
         public const string FeatureSamples_PostBack_ConfirmPostBackHandler = "FeatureSamples/PostBack/ConfirmPostBackHandler";

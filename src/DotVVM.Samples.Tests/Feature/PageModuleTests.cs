@@ -130,6 +130,41 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_PageModules_ModuleInPageSpaMasterPage()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PageModules_ModuleInPageSpaMasterPage2);
+                browser.Wait();
+
+                var links = browser.FindElements("a");
+
+                var log = browser.Single("#log");
+                browser.WaitFor(() => AssertLastLogEntry(log, "testPageModule: init"), 5000);
+                browser.Wait(5000);
+                AssertUI.InnerText(log, t => !t.Contains("testPageModule2: init"));
+
+                links[0].Click();
+                browser.WaitFor(() => AssertLastLogEntry(log, "testPageModule2: init"), 5000);
+
+                var moduleButtons = browser.FindElements(".master input[type=button]");
+                var incrementValue = browser.First(".master .increment-value");
+                var result = browser.First(".master .named-command-result");
+                TestModule(browser, log, moduleButtons, incrementValue, result, "testPageModule");
+
+                moduleButtons = browser.FindElements(".page input[type=button]");
+                incrementValue = browser.First(".page .increment-value");
+                result = browser.First(".page .named-command-result");
+                TestModule(browser, log, moduleButtons, incrementValue, result, "testPageModule2");
+
+                links[1].Click();
+                browser.WaitFor(() => AssertLastLogEntry(log, "testPageModule2: dispose"), 5000);
+
+                links[0].Click();
+                browser.WaitFor(() => AssertLastLogEntry(log, "testPageModule2: init"), 5000);
+            });
+        }
+
         private void TestModule(IBrowserWrapper browser, IElementWrapper log, IElementWrapperCollection<IElementWrapper, IBrowserWrapper> moduleButtons, IElementWrapper incrementValue, IElementWrapper result, string prefix)
         {
             moduleButtons[0].Click();
