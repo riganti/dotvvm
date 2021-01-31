@@ -38,6 +38,7 @@
     },
     "scripts": {
       "r1": {
+        "Defer": true,
         "Location": {
           "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
           "Url": "x"
@@ -47,6 +48,7 @@
         "IntegrityHash": "hash, maybe"
       },
       "r2": {
+        "Defer": true,
         "Location": {
           "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
           "Url": "x"
@@ -72,7 +74,7 @@
         "Dependencies": [
           "r1"
         ],
-        "RenderPosition": "Body"
+        "RenderPosition": "Anywhere"
       }
     },
     "stylesheets": {
