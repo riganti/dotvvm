@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Compilation
     {
         public override void VisitControl(ResolvedControl control)
         {
-            if (control.DataContextTypeStack != control.Parent?.As<ResolvedControl>()?.DataContextTypeStack)
+            if (control.DataContextTypeStack != control.Parent?.As<ResolvedControl>()?.DataContextTypeStack || control.Parent is ResolvedTreeRoot)
             {
                 control.SetProperty(new ResolvedPropertyValue(Internal.DataContextTypeProperty, control.DataContextTypeStack));
             }

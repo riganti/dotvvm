@@ -19,6 +19,7 @@ namespace DotVVM.Framework.Compilation.Binding
 {
     public static class ExpressionHelper
     {
+        private static readonly Type ParamArrayAttributeType = typeof(ParamArrayAttribute);
 
         public static Expression GetMember(Expression target, string name, Type[] typeArguments = null, bool throwExceptions = true, bool onlyMemberTypes = false)
         {
@@ -192,16 +193,20 @@ namespace DotVVM.Framework.Compilation.Binding
             public int CastCount { get; set; }
             public Expression[] Arguments { get; set; }
             public MethodInfo Method { get; set; }
+            public int ParamsArrayCount { get; set; }
         }
 
         private static MethodRecognitionResult TryCallMethod(MethodInfo method, Type[] typeArguments, Expression[] positionalArguments, IDictionary<string, Expression> namedArguments)
         {
             var parameters = method.GetParameters();
-
+            var _hasParamsArayAttributes = parameters?.LastOrDefault()?.GetCustomAttribute(ParamArrayAttributeType) is object;
             int castCount = 0;
-            if (parameters.Length < positionalArguments.Length) return null;
+
+            if (parameters.Length < positionalArguments.Length && !_hasParamsArayAttributes) return null;
             var args = new Expression[parameters.Length];
-            Array.Copy(positionalArguments, args, positionalArguments.Length);
+
+            var copyItemsCount = !_hasParamsArayAttributes ? positionalArguments.Length : parameters.Length;
+            Array.Copy(positionalArguments, args, copyItemsCount);
             int namedArgCount = 0;
             for (int i = positionalArguments.Length; i < args.Length; i++)
             {
@@ -232,12 +237,18 @@ namespace DotVVM.Framework.Compilation.Binding
                     if (typeArguments.Length > typeArgs.Length) return null;
                     Array.Copy(typeArguments, typeArgs, typeArgs.Length);
                 }
+                var parameterTypes = parameters.Select(s => s.ParameterType).ToArray();
+                if (_hasParamsArayAttributes && parameterTypes.Length > 0)
+                {
+                    parameterTypes[parameterTypes.Length - 1] = parameterTypes.Last().GetElementType();
+                }
                 for (int genericArgumentPosition = 0; genericArgumentPosition < typeArgs.Length; genericArgumentPosition++)
                 {
                     if (typeArgs[genericArgumentPosition] == null)
                     {
                         // try to resolve from arguments
-                        var argType = GetGenericParameterType(genericArguments[genericArgumentPosition], parameters.Select(s => s.ParameterType).ToArray(), args.Select(s => s.Type).ToArray());
+
+                        var argType = GetGenericParameterType(genericArguments[genericArgumentPosition], parameterTypes, args.Select(s => s.Type).ToArray());
                         automaticTypeArgs++;
                         if (argType != null) typeArgs[genericArgumentPosition] = argType;
                         else return null;
@@ -248,15 +259,39 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             else if (typeArguments != null) return null;
 
+
             // cast arguments
             for (int i = 0; i < args.Length; i++)
             {
-                var casted = TypeConversion.ImplicitConversion(args[i], parameters[i].ParameterType);
-                if (casted == null) return null;
+                Type elm;
+                if (args.Length == i + 1 && _hasParamsArayAttributes)
+                {
+                    elm = parameters[i].ParameterType.GetElementType();
+                    if (positionalArguments.Skip(i).Any(s => TypeConversion.ImplicitConversion(s, elm) is null))
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    elm = parameters[i].ParameterType;
+                }
+                var casted = TypeConversion.ImplicitConversion(args[i], elm);
+                if (casted == null)
+                {
+                    return null;
+                }
                 if (casted != args[i])
                 {
                     castCount++;
                     args[i] = casted;
+                }
+                if (args.Length == i + 1 && _hasParamsArayAttributes)
+                {
+                    var converted = positionalArguments.Skip(i)
+                        .Select(a => TypeConversion.ImplicitConversion(a, elm))
+                        .ToArray();
+                    args[i] = NewArrayExpression.NewArrayInit(elm, converted);
                 }
             }
 
@@ -264,7 +299,8 @@ namespace DotVVM.Framework.Compilation.Binding
                 CastCount = castCount,
                 AutomaticTypeArgCount = automaticTypeArgs,
                 Method = method,
-                Arguments = args
+                Arguments = args,
+                ParamsArrayCount = positionalArguments.Length - args.Length
             };
         }
 

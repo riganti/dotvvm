@@ -13,6 +13,9 @@
     <Content Include="**/*.dotmaster;**/*.dotcontrol;**/*.dothtml" Exclude="obj/**/*.*;bin/**/*.*" CopyToPublishDirectory="Always" />
   </ItemGroup>
   <ItemGroup>
+    <Content Remove="Views\FeatureSamples\PageModules\ModuleControl.dotcontrol" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="sampleConfig.json" />
     <None Remove="Views\ComplexSamples\NestedComboBox\InnerWrapper.dotcontrol" />
     <None Remove="Views\ComplexSamples\NestedComboBox\OuterWrapper.dotcontrol" />
@@ -52,10 +55,12 @@
     <None Remove="Views\Errors\ResourceCircularDependency.dothtml" />
     <None Remove="Views\FeatureSamples\Caching\CachedValues.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\GenericMethodTranslation.dothtml" />
+    <None Remove="Views\FeatureSamples\JsDirectives\BasicSample.dothtml" />
     <None Remove="Views\FeatureSamples\Localization\Globalize.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\Device.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\StaticCommandInMarkupControl.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\StaticCommandInMarkupControlCallingRegularCommand.dothtml" />
+    <None Remove="Views\FeatureSamples\PageModules\ModuleControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\PostbackConcurrency\RedirectPostbackQueue.dothtml" />
     <None Remove="Views\FeatureSamples\PostbackConcurrency\StressTest.dothtml" />
     <None Remove="Views\FeatureSamples\PostBack\RecursiveTextRepeater.dotcontrol" />
@@ -74,6 +79,7 @@
     <None Remove="Views\FeatureSamples\Validation\EnforceClientSideValidationDisabled.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\InvalidCssClassNotDuplicated.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModelCache\ViewModelCache_Miss.dothtml" />
+    <None Remove="Views\FeatureSamples\PageModules\pageModules.dothtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="sampleConfig.json">
@@ -89,6 +95,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\FeatureSamples\PageModules\ModuleControl.dotcontrol" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />

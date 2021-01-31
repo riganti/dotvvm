@@ -206,7 +206,7 @@ namespace DotVVM.Framework.Compilation
         {
             var markup = markupFileLoader.GetMarkup(configuration, file) ??
                          throw new Exception($"Could not load markup file {file}.");
-            controlBuilders.TryAdd(markup, (new ControlBuilderDescriptor(builder.DataContextType, builder.ControlType), new Lazy<IControlBuilder>(() => builder)));
+            controlBuilders.TryAdd(markup, (builder.Descriptor, new Lazy<IControlBuilder>(() => builder)));
         }
 
         private static readonly HashSet<string> csharpKeywords = new HashSet<string>(new[]

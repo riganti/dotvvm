@@ -24,9 +24,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             this.compiledAssemblyCache = compiledAssemblyCache;
         }
 
-        public IAbstractTreeRoot BuildTreeRoot(IControlTreeResolver controlTreeResolver, IControlResolverMetadata metadata, DothtmlRootNode node, IDataContextStack dataContext, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives)
+        public IAbstractTreeRoot BuildTreeRoot(IControlTreeResolver controlTreeResolver, IControlResolverMetadata metadata, DothtmlRootNode node, IDataContextStack dataContext, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, IAbstractControlBuilderDescriptor? masterPage)
         {
-            return new ResolvedTreeRoot((ControlResolverMetadata)metadata, node, (DataContextStack)dataContext, directives);
+            return new ResolvedTreeRoot((ControlResolverMetadata)metadata, node, (DataContextStack)dataContext, directives, (ControlBuilderDescriptor?)masterPage);
         }
 
         public IAbstractControl BuildControl(IControlResolverMetadata metadata, DothtmlNode? node, IDataContextStack dataContext)
@@ -136,6 +136,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             var type = ResolveTypeNameDirective(directive, nameSyntax);
             return new ResolvedBaseTypeDirective(nameSyntax, type) { DothtmlNode = directive };
         }
+        public IAbstractDirective BuildViewModuleDirective(DothtmlDirectiveNode directiveNode, string modulePath, string resourceName) =>
+            new ResolvedViewModuleDirective(modulePath, resourceName) { DothtmlNode = directiveNode };
 
         private ResolvedTypeDescriptor? ResolveTypeNameDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
         {
