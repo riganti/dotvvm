@@ -8,16 +8,16 @@
     <div>
         <ul>
             <li><dot:Button Click="{staticCommand: model.StaticCommand()}" data-ui="staticCommand" Text="Static Command Test" /></li>
-            <li><dot:Button Click="{command: Command()}"  data-ui="command" Text="Command Test"/></li>
+            <li><dot:Button Click="{command: Command()}" data-ui="command" Text="Command Test" /></li>
 
             <li><dot:Button Click="{staticCommand: model.AsyncStaticCommand()}" data-ui="asyncStaticCommand" Text="Async Static Command Test" /></li>
             <li><dot:Button Click="{command: AsyncCommand()}" data-ui="asyncCommand" Text="Async Command Test" /></li>
 
-            <li><dot:Button Click="{staticCommand: TestProperty = model.StaticCommandResult()}" data-ui="staticCommand" Text="Static Command Result Test" /></li>
-            <li><dot:Button Click="{command: TestProperty = CommandResult()}" data-ui="command" Text="Command Result Test"/></li>
+            <li><dot:Button Click="{staticCommand: TestProperty = model.StaticCommandResult()}" data-ui="staticCommandResult" Text="Static Command Result Test" /></li>
+            <li><dot:Button Click="{command: TestProperty = CommandResult()}" data-ui="commandResult" Text="Command Result Test" /></li>
 
-            <li><dot:Button Click="{staticCommand: TestProperty = model.AsyncStaticCommandResult().Result}" data-ui="asyncStaticCommand" Text="Async Static Command Result Test" /></li>
-            <li><dot:Button Click="{command: TestProperty = AsyncCommandResult().Result}" data-ui="asyncCommand" Text="Async Command Result Test" /></li>
+            <li><dot:Button Click="{staticCommand: TestProperty = model.AsyncStaticCommandResult().Result}" data-ui="asyncStaticCommandResult" Text="Async Static Command Result Test" /></li>
+            <li><dot:Button Click="{command: TestProperty = AsyncCommandResult().Result}" data-ui="asyncCommandResult" Text="Async Command Result Test" /></li>
         </ul>
 
         <dot:Button onclick="javascript: clearTexts()" Text="Clear" data-ui="clear"></dot:Button>

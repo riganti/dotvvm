@@ -20,14 +20,23 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomResponseProperti
         {
             if (exception is UIException clientError)
             {
-                context.CustomResponseProperties.Add("validation-errors",new PageErrorModel {
-                    Message = clientError.Message
-                });
-                context.CustomResponseProperties.Add("Message", "Hello there");
-
-                context.IsCommandExceptionHandled = true;
+                HandleUiException(context, clientError);
+            }
+            else if(exception is AggregateException aggregate && aggregate.InnerException is UIException uiException)
+            {
+                HandleUiException(context, uiException);
             }
             return Task.FromResult(0);
+        }
+
+        private void HandleUiException(IDotvvmRequestContext context, UIException clientError)
+        {
+            context.CustomResponseProperties.Add("validation-errors", new PageErrorModel {
+                Message = clientError.Message
+            });
+            context.CustomResponseProperties.Add("Message", "Hello there");
+
+            context.IsCommandExceptionHandled = true;
         }
     }
     public class UIException : Exception
@@ -92,7 +101,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomResponseProperti
         [ClientExceptionFilter]
         public async Task<string> AsyncCommandResult()
         {
-            await Task.Delay(500);
+            await Task.Delay(500).ConfigureAwait(false);
             throw new UIException("Problem!");
         }
     }
