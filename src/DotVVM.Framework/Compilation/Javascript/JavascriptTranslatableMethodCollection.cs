@@ -196,6 +196,16 @@ namespace DotVVM.Framework.Compilation.Javascript
                     return JavascriptTranslationVisitor.TranslateViewModelProperty(args[0], (MemberInfo)dotvvmproperty.PropertyInfo ?? dotvvmproperty.PropertyType.GetTypeInfo(), name: dotvvmproperty.Name);
                 }
             ));
+
+            var whereMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Where(m => m.Name == "Where" && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)).Single();
+            AddMethodTranslator(whereMethod, translator: new GenericMethodCompiler(
+                args => args[1].Member("filter").Invoke(args[2]).WithAnnotation(ResultIsObservableAnnotation.Instance)));
+
+            var selectMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Where(m => m.Name == "Select" && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)).Single();
+            AddMethodTranslator(selectMethod, translator: new GenericMethodCompiler(
+                args => args[1].Member("map").Invoke(args[2]).WithAnnotation(ResultIsObservableAnnotation.Instance)));
         }
 
         public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] args, MethodInfo method)
