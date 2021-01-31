@@ -403,10 +403,10 @@ namespace DotVVM.Framework.Hosting
                     return TaskUtils.GetResult(commandTask);
                 }
 
-                var resultType = commandResultOrNotYetComputedAwaitable.GetType();
-                var possibleResultAwaiter = resultType.GetMethod(nameof(Task.GetAwaiter));
+                var resultType = commandResultOrNotYetComputedAwaitable?.GetType();
+                var possibleResultAwaiter = resultType?.GetMethod(nameof(Task.GetAwaiter));
 
-                if(possibleResultAwaiter != null)
+                if(resultType != null && possibleResultAwaiter != null)
                 {
                     throw new NotSupportedException($"The command uses unsupported awaitable type {resultType.FullName}, please use System.Task instead.");
                 }
