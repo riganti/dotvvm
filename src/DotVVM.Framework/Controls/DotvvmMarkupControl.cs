@@ -103,7 +103,7 @@ namespace DotVVM.Framework.Controls
                     property.Name,
                     command,
                     this,
-                    new PostbackScriptOptions(false, true, false, "$element"));
+                    new PostbackScriptOptions(elementAccessor: "$element"));
 
                 return new PropertySerializeInfo(
                     property,
