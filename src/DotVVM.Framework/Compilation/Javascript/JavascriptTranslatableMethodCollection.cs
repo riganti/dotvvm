@@ -27,8 +27,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (method.Name == "Invoke" && typeof(Delegate).IsAssignableFrom(method.DeclaringType))
             {
                 var invocationTargetExpresionCall = context.JsExpression().Invoke(arguments.Select(a => a.JsExpression()));
-                return new JsIdentifierExpression("Promise").Member("resolve").Invoke(invocationTargetExpresionCall)
-                    .WithAnnotation(new ResultIsPromiseAnnotation(a=> a));
+                return invocationTargetExpresionCall
+                    .WithAnnotation(new ResultIsPromiseAnnotation(a=> new JsIdentifierExpression("Promise").Member("resolve").Invoke(a)));
             }
             return null;
         }
