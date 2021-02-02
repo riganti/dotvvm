@@ -6,8 +6,8 @@
     <dot:Repeater DataSource="{value: Groups}" WrapperTagName="ul">
         <li InnerText="{value: _this}" />
     </dot:Repeater>
-    <dot:Button Click="{staticCommand: _control.Edit()}" Text="Edit" />
-    <dot:Button Click="{staticCommand: _control.Remove()}" Text="Remove" />
+    <dot:Button UITests.Name="edit" Click="{staticCommand: _control.Edit()}" Text="Edit" />
+    <dot:Button UITests.Name="remove" Click="{staticCommand: _control.Remove()}" Text="Remove" />
 
 </article>
 

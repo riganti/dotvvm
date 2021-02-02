@@ -7,9 +7,9 @@
 </head>
 <body>
     <p DataContext="{value: Detail}">
-        <dot:TextBox Text="{value: Name}" />
-        <dot:Button Click="{command: _root.Save()}" Text="Save" />
-        <dot:Button Click="{command: _root.Blank()}" Text="Cancel" />
+        <dot:TextBox data-ui="device-name" Text="{value: Name}" />
+        <dot:Button data-ui="save" Click="{command: _root.Save()}" Text="Save" />
+        <dot:Button data-ui="blank" Click="{command: _root.Blank()}" Text="Cancel" />
     </p>
     <dot:Repeater WrapperTagName="section" DataSource="{value: Devices}">
         <sample:Device Edit="{command: _root.Edit(Id)}"

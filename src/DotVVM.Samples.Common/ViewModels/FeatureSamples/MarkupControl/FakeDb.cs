@@ -4,15 +4,15 @@ using System.Linq;
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
 {
-    public static class FakeDb
+    public class FakeDb
     {
-        public static DeviceModel Insert(DeviceModel model)
+        public DeviceModel Insert(DeviceModel model)
         {
             model.Id = Guid.NewGuid();
             devices.Add(model);
             return model;
         }
-        public static DeviceModel Update(DeviceModel model)
+        public DeviceModel Update(DeviceModel model)
         {
             var d = Get(model.Id);
             d.Name = model.Name;
@@ -20,11 +20,11 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
             return d;
         }
 
-        public static void Remove(Guid id) => devices = devices.Where(d => d.Id != id).ToList();
-        public static DeviceModel Get(Guid id) => devices.FirstOrDefault(d=>d.Id == id);
-        public static IQueryable<DeviceModel> GetQueriable() => devices.AsQueryable();
+        public void Remove(Guid id) => devices = devices.Where(d => d.Id != id).ToList();
+        public DeviceModel Get(Guid id) => devices.FirstOrDefault(d=>d.Id == id);
+        public IQueryable<DeviceModel> GetQueriable() => devices.AsQueryable();
 
-        private static IList<DeviceModel> devices = new List<DeviceModel> {
+        private IList<DeviceModel> devices = new List<DeviceModel> {
             new DeviceModel {
                 Name = "Washing machine",
                 Id = Guid.NewGuid(),

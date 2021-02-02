@@ -19,7 +19,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
         public DeviceModel Detail { get; set; } = new DeviceModel { };
         public bool IsDetailOpen { get; set; }
 
-        public string MyProperty { get; set; }
+        private static FakeDb FakeDb { get; } = new FakeDb();
 
         public override Task PreRender()
         {
