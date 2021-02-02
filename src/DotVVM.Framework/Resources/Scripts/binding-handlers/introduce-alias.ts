@@ -1,6 +1,10 @@
 import { deserialize } from '../serialization/deserialize'
 import { keys } from '../utils/objects';
 
+function isCommand(value: any, prop: string) {
+    return !ko.isObservable(value[prop]) && typeof value[prop] === 'function';
+}
+
 function createWrapperComputed<T>(accessor: () => KnockoutObservable<T> | T, propertyDebugInfo: string | null = null) {
     const computed = ko.pureComputed({
         read() {
@@ -20,6 +24,7 @@ function createWrapperComputed<T>(accessor: () => KnockoutObservable<T> | T, pro
 }
 
 ko.virtualElements.allowedBindings["dotvvm-with-control-properties"] = true;
+
 export default {
     'dotvvm-with-control-properties': {
         init: (element: HTMLElement, valueAccessor: () => any, allBindings?: any, viewModel?: any, bindingContext?: KnockoutBindingContext) => {
@@ -29,16 +34,17 @@ export default {
 
             const value = valueAccessor();
             for (const prop of keys(value)) {
-                if (!ko.isObservable(value[prop]) && typeof value[prop] == 'function') {
-                    continue;
+                if (isCommand(value, prop)) {
+                    const commandFunction = value[prop];
+                    value[prop] = createWrapperComputed(() => commandFunction);
+                } else {
+                    value[prop] = createWrapperComputed(
+                        () => {
+                            const property = valueAccessor()[prop];
+                            return !ko.isObservable(property) ? deserialize(property) : property
+                        },
+                        `'${prop}' at '${valueAccessor.toString()}'`);
                 }
-
-                value[prop] = createWrapperComputed(
-                    () => {
-                        const property = valueAccessor()[prop];
-                        return !ko.isObservable(property) ? deserialize(property) : property
-                    },
-                    `'${prop}' at '${valueAccessor.toString()}'`);
             }
             const innerBindingContext = bindingContext.extend({ $control: value });
             ko.applyBindingsToDescendants(innerBindingContext, element);
@@ -46,3 +52,5 @@ export default {
         }
     }
 };
+
+

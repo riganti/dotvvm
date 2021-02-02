@@ -311,7 +311,7 @@ namespace DotVVM.Framework.Tests.Binding
             var expectedReslt = @"
 (function(a) {
 	return new Promise(function(resolve, reject) {
-		Promise.resolve(a.$control.Save()).then(function(r_0) {
+		Promise.resolve(a.$control.Save()()).then(function(r_0) {
 			resolve(r_0);
 		}, reject);
 	});
@@ -331,7 +331,7 @@ namespace DotVVM.Framework.Tests.Binding
             var expectedReslt = @"
 (function(a, b) {
 	return new Promise(function(resolve, reject) {
-		Promise.resolve(a.$control.Load()).then(function(r_0) {
+		Promise.resolve(a.$control.Load()()).then(function(r_0) {
 			dotvvm.staticCommandPostback(b, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiTG9hZCIsW10sIkFRQT0iXQ=="", [r_0], options).then(function(r_1) {
 				resolve(r_1);
 			}, reject);
@@ -355,7 +355,7 @@ namespace DotVVM.Framework.Tests.Binding
 	return new Promise(function(resolve, reject) {
 		(
 			b = dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiTG9hZCIsW10sIkFRQT0iXQ=="", [c.$data.StringProp()], options) ,
-			Promise.resolve(c.$control.Chanege(c.$data.StringProp())).then(function(r_0) {
+			Promise.resolve(c.$control.Chanege()(c.$data.StringProp())).then(function(r_0) {
 				b.then(function(r_1) {
 					resolve(c.$data.StringProp(r_0 + r_1).StringProp());
 				}, reject);
