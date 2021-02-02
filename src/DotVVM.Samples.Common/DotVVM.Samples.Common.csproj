@@ -58,7 +58,9 @@
     <None Remove="Views\FeatureSamples\LambdaExpressions\LambdaExpressions.dothtml" />
     <None Remove="Views\FeatureSamples\JsDirectives\BasicSample.dothtml" />
     <None Remove="Views\FeatureSamples\Localization\Globalize.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\CommandPropertiesInMarkupControl.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\Device.dotcontrol" />
+    <None Remove="Views\FeatureSamples\MarkupControl\Dialog.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\StaticCommandInMarkupControl.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\StaticCommandInMarkupControlCallingRegularCommand.dothtml" />
     <None Remove="Views\FeatureSamples\PageModules\ModuleControl.dotcontrol" />

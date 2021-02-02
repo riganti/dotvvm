@@ -49,12 +49,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                 else if (propAnnotation.MemberInfo is FieldInfo)
                     throw new NotSupportedException($"Can not translate field '{propAnnotation.MemberInfo}' to Javascript");
 
-                //When command is assigned into a property of marcup control, we should not treat the result of the call as observable
-                if(typeof(Delegate).IsAssignableFrom(propertyType))
-                {
-                    containsObservables = false;
-                }
-
                 if (containsObservables)
                 {
                     node.AddAnnotation(ResultIsObservableAnnotation.Instance);
