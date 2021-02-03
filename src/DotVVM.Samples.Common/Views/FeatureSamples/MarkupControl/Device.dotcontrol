@@ -1,13 +1,13 @@
 ﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl.DeviceModel, DotVVM.Samples.Common
 @baseType DotVVM.Samples.Common.Views.FeatureSamples.MarkupControl.Device, DotVVM.Samples.Common
 
-<article>
-    {{value: Name}}
+<article data-ui="device">
+    <span data-ui="device-name" InnerText="{value: Name}" />
     <dot:Repeater DataSource="{value: Groups}" WrapperTagName="ul">
         <li InnerText="{value: _this}" />
     </dot:Repeater>
-    <dot:Button UITests.Name="edit" Click="{staticCommand: _control.Edit()}" Text="Edit" />
-    <dot:Button UITests.Name="remove" Click="{staticCommand: _control.Remove()}" Text="Remove" />
+    <dot:Button data-ui="edit" Click="{staticCommand: _control.Edit()}" Text="Edit" />
+    <dot:Button data-ui="remove" Click="{staticCommand: _control.Remove()}" Text="Remove" />
 
 </article>
 

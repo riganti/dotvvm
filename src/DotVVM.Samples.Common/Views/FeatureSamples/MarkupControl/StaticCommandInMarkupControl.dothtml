@@ -8,7 +8,7 @@
 </head>
 <body>
     <p DataContext="{value: Detail}">
-        <dot:TextBox Text="{value: Name}" />
+        <dot:TextBox data-ui="new-device-name" Text="{value: Name}" />
         <dot:Button data-ui="save" Click="{staticCommand: vm.Save(_this); _root.Devices.Items = vm.List()}" Text="Save" />
         <dot:Button data-ui="blank" Click="{staticCommand: _root.Detail = vm.Blank()}" Text="Cancel" />
     </p>

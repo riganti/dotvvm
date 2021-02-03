@@ -329,30 +329,75 @@ namespace DotVVM.Samples.Tests.Feature
                 var body = browser.First("body");
                 var span = browser.First("[data-ui=result]");
 
-                AssertUI.NotContainsElement(body,"[data-ui=cancel]");
+                AssertUI.NotContainsElement(body, "[data-ui=cancel]");
                 ok.Click();
 
                 browser.WaitFor(() => {
                     AssertUI.InnerTextEquals(span, "Command result.");
-                },1000);
+                }, 1000);
             });
         }
 
         [Fact]
         public void Feature_MarkupControl_StaticCommandInMarkupControl()
         {
+            var newDeviceName = Guid.NewGuid().ToString();
+
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_StaticCommandInMarkupControl);
 
-                var ok = browser.First("[data-ui=ok]");
-                var body = browser.First("body");
-                var span = browser.First("[data-ui=result]");
+                var textBox = browser.First("input[data-ui=new-device-name]");
+                var save = browser.First("[data-ui=save]");
+                var blank = browser.First("[data-ui=blank]");
+                var removeButtons = browser.First("[data-ui=remove]");
 
-                AssertUI.NotContainsElement(body, "[data-ui=cancel]");
-                ok.Click();
+                textBox.SendKeys(newDeviceName);
+                save.Click().Wait();
 
                 browser.WaitFor(() => {
-                    AssertUI.InnerTextEquals(span, "Command result.");
+                    var devicePresent = browser.FindElements("[data-ui=device-name]").Any(e=> string.Equals(e.GetInnerText(), newDeviceName));
+                    Assert.True(devicePresent, "The new element havent been added to the collection.");
+                }, 1000);
+
+                var deviceToRemove = browser.ElementAt("[data-ui=device]", 0);
+                var deviceNameToRemove = deviceToRemove.First("[data-ui=device-name]").GetInnerText();
+                deviceToRemove.First("[data-ui=remove]").Click().Wait();
+
+                browser.WaitFor(() => {
+                    var devicePresent = browser.FindElements("[data-ui=device-name]").Any(e => string.Equals(e.GetInnerText(), deviceNameToRemove));
+                    Assert.False(devicePresent, "The device was not removed.");
+                }, 1000);
+            });
+        }
+
+        [Fact]
+        public void Feature_MarkupControl_StaticCommandInMarkupControlCallingRegularCommand()
+        {
+            var newDeviceName = Guid.NewGuid().ToString();
+
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_StaticCommandInMarkupControlCallingRegularCommand);
+
+                var textBox = browser.First("input[data-ui=new-device-name]");
+                var save = browser.First("[data-ui=save]");
+                var blank = browser.First("[data-ui=blank]");
+                var removeButtons = browser.First("[data-ui=remove]");
+
+                textBox.SendKeys(newDeviceName);
+                save.Click().Wait();
+
+                browser.WaitFor(() => {
+                    var devicePresent = browser.FindElements("[data-ui=device-name]").Any(e => string.Equals(e.GetInnerText(), newDeviceName));
+                    Assert.True(devicePresent, "The new element havent been added to the collection.");
+                }, 1000);
+
+                var deviceToRemove = browser.ElementAt("[data-ui=device]", 0);
+                var deviceNameToRemove = deviceToRemove.First("[data-ui=device-name]").GetInnerText();
+                deviceToRemove.First("[data-ui=remove]").Click().Wait();
+
+                browser.WaitFor(() => {
+                    var devicePresent = browser.FindElements("[data-ui=device-name]").Any(e => string.Equals(e.GetInnerText(), deviceNameToRemove));
+                    Assert.False(devicePresent, "The device was not removed.");
                 }, 1000);
             });
         }
