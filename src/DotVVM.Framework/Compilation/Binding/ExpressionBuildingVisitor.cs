@@ -6,6 +6,7 @@ using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 using DotVVM.Framework.Utils;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.Framework.Compilation.Inference;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -13,6 +14,7 @@ namespace DotVVM.Framework.Compilation.Binding
     {
         public TypeRegistry Registry { get; set; }
         public Expression Scope { get; set; }
+        public Inferer Inferer { get; set; }
         public bool ResolveOnlyTypeName { get; set; }
 
         private List<Exception> currentErrors;
@@ -20,6 +22,7 @@ namespace DotVVM.Framework.Compilation.Binding
         public ExpressionBuildingVisitor(TypeRegistry registry)
         {
             Registry = registry;
+            Inferer = new Inferer();
         }
 
         protected T HandleErrors<T, TNode>(TNode node, Func<TNode, T> action, string defaultErrorMessage = "Binding compilation failed", bool allowResultNull = true)
@@ -204,11 +207,17 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             var target = HandleErrors(node.TargetExpression, Visit);
             var args = new Expression[node.ArgumentExpressions.Count];
+
+            Inferer.BeginFunctionCall(target as MethodGroupExpression, args.Length);
+
             for (int i = 0; i < args.Length; i++)
             {
                 args[i] = HandleErrors(node.ArgumentExpressions[i], Visit);
+                Inferer.SetNextArgument(args[i]);
             }
             ThrowOnErrors();
+
+            Inferer.EndFunctionCall();
 
             return ExpressionHelper.Call(target, args);
         }
@@ -274,6 +283,17 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             // Create lambda definition
             var lambdaParameters = new ParameterExpression[node.ParameterExpressions.Count];
+
+            // Apply information from type inference if available
+            if (Inferer.TryInferLambdaParameters(node.ParameterExpressions.Count, out var parameters))
+            {
+                for (var paramIndex = 0; paramIndex < parameters.Length; paramIndex++)
+                {
+                    var currentParamType = parameters[paramIndex];
+                    node.ParameterExpressions[paramIndex].SetResolvedType(currentParamType);
+                }
+            }
+
             for (var i = 0; i < lambdaParameters.Length; i++)
                 lambdaParameters[i] = (ParameterExpression)HandleErrors(node.ParameterExpressions[i], Visit);
 
@@ -301,11 +321,20 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitLambdaParameter(LambdaParameterBindingParserNode node)
         {
-            if (node.Type == null)
+            if (node.Type == null && node.ResolvedType == null)
                 throw new BindingCompilationException($"Could not infer type of parameter.", node);
 
-            var parameterType = Visit(node.Type).Type;
-            return Expression.Parameter(parameterType, node.Name.ToDisplayString());
+            if (node.ResolvedType != null)
+            {
+                // Type was not specified but was infered
+                return Expression.Parameter(node.ResolvedType, node.Name.ToDisplayString());
+            }
+            else
+            {
+                // Type was specified and needs to be obtained from binding node
+                var parameterType = Visit(node.Type).Type;
+                return Expression.Parameter(parameterType, node.Name.ToDisplayString());
+            }
         }
 
         protected override Expression VisitBlock(BlockBindingParserNode node)

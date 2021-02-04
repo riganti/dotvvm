@@ -18,6 +18,8 @@ namespace DotVVM.Framework.Compilation.Binding
         public Expression Target { get; set; }
         public string MethodName { get; set; }
         public Type[] TypeArgs { get; set; }
+        public List<MethodInfo> Candidates { get; set; }
+        public bool HasExtensionCandidates { get; set; }
         public bool IsStatic => Target is StaticClassIdentifierExpression;
 
         private static MethodInfo CreateDelegateMethodInfo = typeof(Delegate).GetMethod("CreateDelegate", new[] { typeof(Type), typeof(object), typeof(MethodInfo) });

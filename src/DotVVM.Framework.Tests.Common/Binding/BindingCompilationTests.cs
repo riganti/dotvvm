@@ -192,6 +192,34 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("Enumerable.Where(LongArray, item => item % 2 == 0)", typeof(long))]
+        [DataRow("Enumerable.Select(LongArray, item => -item)", typeof(long), typeof(long))]
+        [DataRow("Enumerable.Select(Enumerable.Where(LongArray, item => item % 2 == 0), item => -item)", typeof(long), typeof(long))]
+        public void BindingCompiler_RegularGenericMethodsInference(string expr, params Type[] instantiations)
+        {
+            var viewModel = new TestViewModel() { StringProp = "abc" };
+            var binding = ExecuteBinding(expr, viewModel);
+            var genericArgs = binding.GetType().GetGenericArguments();
+
+            for (var argIndex = 0; argIndex < genericArgs.Length; argIndex++)
+                Assert.AreEqual(instantiations[argIndex], genericArgs[argIndex]);
+        }
+
+        [TestMethod]
+        [DataRow("LongArray.Where(item => item % 2 == 0)", typeof(long))]
+        [DataRow("LongArray.Select(item => -item)", typeof(long), typeof(long))]
+        [DataRow("LongArray.Where(item => item % 2 == 0).Select(item => -item)", typeof(long), typeof(long))]
+        public void BindingCompiler_ExtensionGenericMethodsInference(string expr, params Type[] instantiations)
+        {
+            var viewModel = new TestViewModel() { StringProp = "abc" };
+            var binding = ExecuteBinding(expr, viewModel);
+            var genericArgs = binding.GetType().GetGenericArguments();
+
+            for (var argIndex = 0; argIndex < genericArgs.Length; argIndex++)
+                Assert.AreEqual(instantiations[argIndex], genericArgs[argIndex]);
+        }
+
+        [TestMethod]
         [DataRow("(int arg, float arg) => ;", DisplayName = "Can not use same identifier for multiple parameters")]
         [DataRow("(object _this) => ;", DisplayName = "Can not use already used identifiers for parameters")]
         public void BindingCompiler_Invalid_LambdaParameters(string expr)
