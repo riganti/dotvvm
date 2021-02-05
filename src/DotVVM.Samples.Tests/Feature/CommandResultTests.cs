@@ -39,16 +39,22 @@ namespace DotVVM.Samples.Tests.Feature
 
         private void TestResponse(IBrowserWrapper browser, string uiId)
         {
+            var customDataSpan = browser.First("customProperties", SelectByDataUi);
+
             var staticCommandButton = browser.First(uiId, SelectByDataUi);
             staticCommandButton.Click();
 
             browser.WaitFor(() => {
-                var customDataSpan = browser.First("customProperties", SelectByDataUi);
                 AssertUI.TextEquals(customDataSpan, "Hello there");
-            }, 8000);
+            }, 1000);
 
             var clearButton = browser.First("clear", SelectByDataUi);
             clearButton.Click();
+
+            browser.WaitFor(() => {
+                AssertUI.TextEmpty(customDataSpan);
+            }, 1000);
+
         }
     }
 }
