@@ -192,6 +192,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("GetFirstGenericArgType(Tuple)", typeof(int))]
         [DataRow("Enumerable.Where(LongArray, item => item % 2 == 0)", typeof(long))]
         [DataRow("Enumerable.Select(LongArray, item => -item)", typeof(long), typeof(long))]
         [DataRow("Enumerable.Select(Enumerable.Where(LongArray, item => item % 2 == 0), item => -item)", typeof(long), typeof(long))]
@@ -660,6 +661,7 @@ namespace DotVVM.Framework.Tests.Binding
         public DateTime? DateTo { get; set; }
         public object Time { get; set; } = TimeSpan.FromSeconds(5);
         public Guid GuidProp { get; set; }
+        public Tuple<int, bool> Tuple { get; set; }
 
         public long LongProperty { get; set; }
 
@@ -681,6 +683,11 @@ namespace DotVVM.Framework.Tests.Binding
             => param;
 
         public Type GetType<T>(T param)
+        {
+            return typeof(T);
+        }
+
+        public Type GetFirstGenericArgType<T, U>(Tuple<T, U> param)
         {
             return typeof(T);
         }

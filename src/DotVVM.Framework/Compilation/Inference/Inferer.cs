@@ -128,7 +128,7 @@ namespace DotVVM.Framework.Compilation.Inference
 
             // Check if we can infer some generics
             foreach (var (key, val) in newInstantiations.Where(inst => inst.Value.Count == 1))
-                context.Generics.Add(key, val.First());
+                context.Generics[key] = val.First();
 
             context.Target.Candidates = newCandidates;
         }
@@ -153,7 +153,7 @@ namespace DotVVM.Framework.Compilation.Inference
 
                 return TryInferInstantiation(genericElementType, concreteElementType, generics);
             }
-            else
+            else if (generic.IsGenericType)
             {
                 // Check that the given types can be compatible after instantiation
                 // TODO: we should also check for any generic constraints
@@ -174,6 +174,8 @@ namespace DotVVM.Framework.Compilation.Inference
 
                 return true;
             }
+
+            return false;
         }
 
         private bool TryInstantiateLambdaParameters(Type generic, int argsCount, Dictionary<string, Type> generics, out Type[]? instantiation)
