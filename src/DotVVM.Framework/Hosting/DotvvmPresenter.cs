@@ -404,7 +404,7 @@ namespace DotVVM.Framework.Hosting
                 }
 
                 var resultType = commandResultOrNotYetComputedAwaitable?.GetType();
-                var possibleResultAwaiter = resultType?.GetMethod(nameof(Task.GetAwaiter));
+                var possibleResultAwaiter = resultType?.GetMethod(nameof(Task.GetAwaiter), new Type[] { });
 
                 if(resultType != null && possibleResultAwaiter != null)
                 {
