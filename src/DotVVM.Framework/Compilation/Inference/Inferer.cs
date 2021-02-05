@@ -28,12 +28,12 @@ namespace DotVVM.Framework.Compilation.Inference
 
         private void BeginRegularCall(MethodGroupExpression? target, int argsCount)
         {
-            stack.Push(new InfererContext(target, argsCount, true));
+            stack.Push(new InfererContext(target, argsCount));
         }
 
         private void BeginExtensionCall(MethodGroupExpression target, int argsCount)
         {
-            stack.Push(new InfererContext(target, argsCount + 1, true));
+            stack.Push(new InfererContext(target, argsCount + 1));
             SetNextArgument(target.Target);
         }
 
@@ -47,8 +47,6 @@ namespace DotVVM.Framework.Compilation.Inference
             var context = stack.Peek();
             var index = context.CurrentArgumentIndex++;
             context.Arguments[index] = expression;
-            if (!context.IsUncertain)
-                return;
 
             RefineCandidates(index);
         }
@@ -93,6 +91,7 @@ namespace DotVVM.Framework.Compilation.Inference
             var newInstantiations = new Dictionary<string, HashSet<Type>>();
 
             // Check if we can remove some candidates
+            // Also try to infer generics based on provided argument
             var tempInstantiations = new Dictionary<string, Type>();
             foreach (var candidate in context.Target.Candidates)
             {
@@ -154,20 +153,27 @@ namespace DotVVM.Framework.Compilation.Inference
 
                 return TryInferInstantiation(genericElementType, concreteElementType, generics);
             }
-            else if (ReflectionUtils.IsNullable(generic))
+            else
             {
-                if (!ReflectionUtils.IsEnumerable(concrete))
+                // Check that the given types can be compatible after instantiation
+                // TODO: we should also check for any generic constraints
+                var genericTypeDef = generic.GetGenericTypeDefinition();
+                if (!concrete.IsAssignableToGenericType(genericTypeDef))
                     return false;
 
-                var genericElementType = ReflectionUtils.UnwrapNullableType(generic);
-                var concreteElementType = ReflectionUtils.UnwrapNullableType(concrete);
-                if (genericElementType == null || concreteElementType == null)
-                    return false;
+                var genericElementTypes = generic.GetGenericArguments();
+                var concreteElementTypes = concrete.GetGenericArguments();
+                for (var index = 0; index < genericElementTypes.Length; index++)
+                {
+                    var genericArg = genericElementTypes[index];
+                    var concreteArg = concreteElementTypes[index];
 
-                return TryInferInstantiation(genericElementType, concreteElementType, generics);
+                    if (!TryInferInstantiation(genericArg, concreteArg, generics))
+                        return false;
+                }
+
+                return true;
             }
-
-            return false;
         }
 
         private bool TryInstantiateLambdaParameters(Type generic, int argsCount, Dictionary<string, Type> generics, out Type[]? instantiation)
@@ -175,22 +181,20 @@ namespace DotVVM.Framework.Compilation.Inference
             var genericArgs = generic.GetGenericArguments();
             var substitutions = new Type[argsCount];
 
-            var index = 0;
             for (var argIndex = 0; argIndex < argsCount; argIndex++)
             {
                 var currentArg = genericArgs[argIndex];
-                var currentIndex = index++;
 
                 if (!currentArg.IsGenericParameter)
                 {
                     // This is a known type
-                    substitutions[currentIndex] = currentArg;
+                    substitutions[argIndex] = currentArg;
                 }           
-                else if (generics.ContainsKey(currentArg.Name))
+                else if (currentArg.IsGenericParameter && generics.ContainsKey(currentArg.Name))
                 {
                     // This is a generic parameter
                     // But we already infered its type
-                    substitutions[currentIndex] = generics[currentArg.Name];
+                    substitutions[argIndex] = generics[currentArg.Name];
                 }
                 else
                 {
