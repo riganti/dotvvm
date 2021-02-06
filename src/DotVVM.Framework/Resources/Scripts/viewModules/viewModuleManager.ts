@@ -1,9 +1,8 @@
 import { keys } from "../utils/objects";
 
-type ModuleCommand = (context: ModuleContext, ...args: any[]) => Promise<any>;
-type ModuleCommandDictionary = { [name: string]: ModuleCommand };
+const registeredModules: { [name: string]: ModuleHandler } = {};
 
-let registeredModules: { [name: string]: ModuleHandler } = {};
+type ModuleCommand = (...args: any) => Promise<unknown>;
 
 export function registerViewModule(name: string, moduleObject: any) {
     if (name == null) { throw new Error("Parameter name has to have a value"); }
@@ -24,87 +23,57 @@ export function registerViewModules(modules: { [name: string]: any }) {
 }
 
 export function initViewModule(name: string, viewId: string, rootElement: HTMLElement) {
-
     if (viewId == null) { throw new Error("viewId has to have a value"); }
     if (rootElement == null) { throw new Error("rootElement has to have a value"); }
 
     const handler = ensureModuleHandler(name);
 
-    console.info(handler);
+    if (!("default" in handler.module) || typeof handler.module.default !== "function") {
+        console.error(`The module ${name} referenced in the @js directive must have a default export that is a function.`);
+        return;
+    }
+    setupModuleDisposeHandlers(viewId, name, rootElement);
 
     if (handler.contexts[viewId]) {
         handler.contexts[viewId].elements.push(rootElement);
-        setupModuleDisposeHandlers(viewId, name, rootElement);
         return;
     }
 
     const elementContext = ko.contextFor(rootElement);
-
-    console.info(rootElement);
-
-    let exportedCommands: ModuleCommandDictionary = {};
-
-    if (handler.module.commands && typeof (handler.module.commands) === 'object') {
-        var commandNames = keys(handler.module.commands);
-        for (const commandName of commandNames) {
-            var command = handler.module.commands[commandName];
-
-            if (typeof (command) !== 'function') {
-                console.error('Object ' + commandName + ' is not a function. Commands object is intended to only export functions. Object ' + commandName + 'skipped.');
-                continue;
-            }
-
-            exportedCommands[commandName] = command;
-        }
-    }
-
-    setupModuleDisposeHandlers(viewId, name, rootElement);
-
-    var context = new ModuleContext(
+    const context = new ModuleContext(
         name,
-        handler.module,
-        exportedCommands,
         viewId,
         [rootElement],
         { ...elementContext.$control }
     );
+    const moduleInstance = new handler.module.default(context);
     handler.contexts[viewId] = context;
 
-    callIfDefined(handler.module, 'init', context);
+    context.module = moduleInstance;
+    Object.freeze(context);
 }
 
 export function callViewModuleCommand(viewId: string, commandName: string, args: any[]) {
     if (commandName == null) { throw new Error("commandName has to have a value"); }
 
-    const moduleNames: string[] = [];
-
-    const foundCommands: {
-        command: ModuleCommand,
-        context: ModuleContext
-    }[] = [];
-
-    for (const moduleName of keys(registeredModules)) {
+    const foundModules: { moduleName: string; context: ModuleContext }[] = [];
+    
+    for (let moduleName of keys(registeredModules)) {
         const context = ensureViewModuleContext(viewId, moduleName);
-        const command: ModuleCommand = context.moduleCommands[commandName];
-
-        moduleNames.push(moduleName);
-        foundCommands.push({ command, context });
+        if (commandName in context.module && typeof context.module[commandName] === "function") {
+            foundModules.push({ moduleName, context });
+        }
     }
 
-    if (foundCommands.length < 1) {
-        throw new Error('Command ' + commandName + 'could not be found in any of the imported modules in view ' + viewId + '.');
+    if (!foundModules.length) {
+        throw new Error(`Command ${commandName} could not be found in any of the imported modules in view ${viewId}.`);
     }
 
-    if (foundCommands.length > 1) {
-        throw new Error(
-            'Conflict: There were multiple commands named '
-            + commandName +
-            ' the in imported modules in view '
-            + viewId +
-            '. Check modules: ' + moduleNames.join(', ') + '.');
+    if (foundModules.length > 1) {
+        throw new Error(`Conflict: There were multiple commands named ${commandName} the in imported modules in view ${viewId}. Check modules: ${foundModules.map(m => m.moduleName).join(', ')}.`);
     }
 
-    foundCommands[0].command.apply(window, [foundCommands[0].context as any].concat(args) as any);
+    foundModules[0].context.module[commandName](...args);
 }
 
 export function registerNamedCommand(viewId: string, commandName: string, command: ModuleCommand) {
@@ -114,7 +83,7 @@ export function registerNamedCommand(viewId: string, commandName: string, comman
     for (const moduleName of keys(registeredModules)) {
         const module = registeredModules[moduleName];
 
-        var context = module.contexts[viewId];
+        const context = module.contexts[viewId];
         if (context) {
             context.registerNamedCommand(commandName, command);
         }
@@ -140,7 +109,7 @@ function disposeModule(viewId: string, name: string, rootElement: HTMLElement) {
     context.elements.splice(index, 1);
 
     if (!context.elements.length) {
-        callIfDefined(handler.module, 'dispose', context);
+        callIfDefined(context.module, '$dispose', context);
         delete handler.contexts[viewId];
     }
 }
@@ -167,7 +136,7 @@ function ensureModuleHandler(name: string): ModuleHandler {
 }
 
 function callIfDefined(module: any, name: string, ...args: any[]) {
-    if (module[name] && typeof (module[name]) == 'function') {
+    if (module[name] && typeof module[name] === 'function') {
         module[name](...args);
     }
 }
@@ -180,12 +149,10 @@ class ModuleHandler {
 
 export class ModuleContext {
     private readonly namedCommands: { [name: string]: (...args: any[]) => Promise<any> } = {};
-    public readonly state: any = {};
-
+    public module: any;
+    
     constructor(
         public readonly moduleName: string,
-        public readonly module: any,
-        public readonly moduleCommands: ModuleCommandDictionary,
         public readonly viewId: string,
         public readonly elements: HTMLElement[],
         public readonly properties: { [name: string]: any }) {
@@ -194,10 +161,9 @@ export class ModuleContext {
     public callNamedCommand = (commandName: string, ...args: any[]) => {
         if (!commandName) { throw new Error("Parameter commandName has to have a value"); }
 
-        var command = this.namedCommands[commandName];
-
+        const command = this.namedCommands[commandName];
         if (!command) {
-            throw new Error('Could not find named command ' + commandName + ' registered for view ' + this.viewId + '. Make sure your named command registration is on the same view as the @js directive that imports module ' + this.moduleName + '.');
+            throw new Error(`Could not find named command ${commandName} registered for view ${this.viewId}. Make sure your named command registration is on the same view as the @js directive that imports module ${this.moduleName}.`);
         }
 
         command(...args);
@@ -207,11 +173,11 @@ export class ModuleContext {
         if (name == null) {
             throw new Error("Parameter name has to have a value");
         }
-        if (!command || typeof (command) !== 'function') {
+        if (!command || typeof command !== 'function') {
             throw new Error('Named command has to be a function');
         }
         if (this.namedCommands[name]) {
-            throw new Error('A named command is already registered under the name: ' + name + '. The conflict occured in: ' + this.moduleName + ' view ' + this.viewId + '.');
+            throw new Error(`A named command is already registered under the name: ${name}. The conflict occured in: ${this.moduleName} view ${this.viewId}.`);
         }
 
         this.namedCommands[name] = command;
