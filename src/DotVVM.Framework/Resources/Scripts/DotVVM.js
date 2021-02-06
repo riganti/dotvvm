@@ -1225,13 +1225,14 @@ var DotVVM = /** @class */ (function () {
     };
     DotVVM.prototype.fetchCsrfToken = function (viewModelName) {
         return __awaiter(this, void 0, void 0, function () {
-            var vm, response, _a;
+            var vm, url, response, _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         vm = this.viewModels[viewModelName].viewModel;
                         if (!(vm.$csrfToken == null)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, fetch((this.viewModels[viewModelName].virtualDirectory || "") + "/___dotvvm-create-csrf-token___")];
+                        url = this.addLeadingSlash(this.concatUrl(this.viewModels[viewModelName].virtualDirectory || "", "___dotvvm-create-csrf-token___"));
+                        return [4 /*yield*/, fetch(url)];
                     case 1:
                         response = _b.sent();
                         if (response.status != 200)
