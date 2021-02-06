@@ -68,7 +68,7 @@ export async function postBack(
                 serverResponseObject,
                 wasInterrupted,
                 commandResult: null,
-                response: (err.reason as any).response,
+                response: (err.reason as any)?.response,
                 error: err
             }
             events.afterPostback.trigger(eventArgs);
@@ -78,7 +78,7 @@ export async function postBack(
                 const errorEventArgs: DotvvmErrorEventArgs = {
                     ...options,
                     serverResponseObject,
-                    response: (err.reason as any).response,
+                    response: (err.reason as any)?.response,
                     error: err,
                     handled: false
                 }
@@ -89,7 +89,7 @@ export async function postBack(
                     return {
                         ...options,
                         serverResponseObject,
-                        response: (err.reason as any).response,
+                        response: (err.reason as any)?.response,
                         error: err
                     };
                 }
@@ -153,7 +153,7 @@ export async function applyPostbackHandlers(
                 const errorEventArgs: DotvvmErrorEventArgs = {
                     ...options,
                     serverResponseObject,
-                    response: (err.reason as any).response,
+                    response: (err.reason as any)?.response,
                     error: err,
                     handled: false
                 }
@@ -165,7 +165,7 @@ export async function applyPostbackHandlers(
                     return {
                         ...options,
                         serverResponseObject,
-                        response: (err.reason as any).response,
+                        response: (err.reason as any)?.response,
                         error: err
                     };
                 }
@@ -282,6 +282,7 @@ function shouldTriggerErrorEvent(err: DotvvmPostbackError) {
     return err.reason.type == "network" || err.reason.type == "serverError";
 }
 function extractServerResponseObject(err: DotvvmPostbackError) {
+    if (!err.reason) return null;
     if (err.reason.type == "commit" && err.reason.args) {
         return err.reason.args.serverResponseObject;
     } 
