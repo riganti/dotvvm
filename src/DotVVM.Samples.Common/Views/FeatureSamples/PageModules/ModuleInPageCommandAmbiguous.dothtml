@@ -1,0 +1,30 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.PageModules.ModuleInPageCommandAmbiguousViewModel, DotVVM.Samples.Common
+@js FeatureSamples_Resources_TestPageModule
+@js FeatureSamples_Resources_TestPageModule2
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <div DataContext="{value: Page}">
+        <h2>_js.Invoke</h2>
+        <p>
+            <dot:Button Text="noArgs" Click="{staticCommand: _js.Invoke("noArgs")}" />
+        </p>
+    </div>
+
+    <h2>Event log</h2>
+    <pre ID="log">
+    </pre>
+
+    <dot:RequiredResource Name="globalize" />
+
+</body>
+</html>
+
+

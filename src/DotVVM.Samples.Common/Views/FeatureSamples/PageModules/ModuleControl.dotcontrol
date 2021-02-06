@@ -1,7 +1,29 @@
-﻿@viewModel object
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.PageModules.PageModulesViewModel, DotVVM.Samples.Common
 @js FeatureSamples_Resources_TestPageModule
+@import DotVVM.Samples.Common.ViewModels.FeatureSamples.PageModules
 
-<div class="module-holder">
-    Test moduled control
-    <dot:Button Text="The command" Click="{staticCommand: _js.Invoke("testMe", "John")}" />
-</div>
+<h2>_js.Invoke</h2>
+<p>
+    <dot:Button Text="noArgs" Click="{staticCommand: _js.Invoke("noArgs")}" />
+</p>
+<p>
+    <dot:Button Text="oneArg" Click="{staticCommand: _js.Invoke("oneArg", 10)}" />
+</p>
+<p>
+    <dot:Button Text="twoArgs" Click="{staticCommand: _js.Invoke("twoArgs", 10, ChildObject)}" />
+</p>
+<p>
+    <dot:Button Text="syncIncrement" Click="{staticCommand: Value = _js.Invoke<int>("syncIncrement", Value)}" />
+    <dot:Button Text="asyncIncrement" Click="{staticCommand: Value = _js.Invoke<System.Threading.Tasks.Task<int>>("asyncIncrement", Value).Result}" />
+    <dot:Button Text="callIncrementCommand" Click="{staticCommand: Value = _js.Invoke<System.Threading.Tasks.Task<int>>("callIncrementCommand", Value).Result}" />
+    Value: <span class="increment-value">{{value: Value}}</span>
+</p>
+<p>
+    <dot:Button Text="callSetResultCommand" Click="{staticCommand: _js.Invoke("callSetResultCommand")}" />
+    Result: <span class="named-command-result">{{value: Result}}</span>
+</p>
+
+<dot:NamedCommand Name="SetResultCommand" Command="{staticCommand: (int a1, string a2, TestObject a3) => Result = a1.ToString() + "_" + a2 + "_" + a3.Test}" />
+
+<dot:NamedCommand Name="IncrementCommand" Command="{staticCommand: (int value) => value + 1}" />
+

@@ -8,6 +8,8 @@ const resourceSigns: {
     [name: string]: boolean 
 } = {};
 
+const moduleLoaderResolvers: ((value: unknown) => void)[] = [];
+
 export function registerResources(rs: string[] | null | undefined) {
     if (rs)
         for (const r of rs)
@@ -40,6 +42,7 @@ export async function loadResourceList(resources: RenderedResourceList | undefin
 }
 
 async function loadResourceElements(elements: HTMLElement[]) {
+    let modulePromises: Promise<unknown>[] = [];
     for (let element of elements) {
         let waitForScriptLoaded = false;
         if (element.tagName.toLowerCase() == "script") {
@@ -58,6 +61,17 @@ async function loadResourceElements(elements: HTMLElement[]) {
             if (element.id) {
                 script.id = element.id;
             }
+
+            if (script.type == "module" && !script.src) {
+                let promiseId = moduleLoaderResolvers.length;
+                script.text += ";dotvvm.resourceLoader.notifyModuleLoaded(" + promiseId + ");";
+                
+                let promise = new Promise((resolve, reject) => {
+                    moduleLoaderResolvers[promiseId] = resolve;
+                });
+                modulePromises.push(promise);
+            }
+
             element = script;
         }
         else if (element.tagName.toLowerCase() == "link") {
@@ -82,9 +96,13 @@ async function loadResourceElements(elements: HTMLElement[]) {
         if (waitForScriptLoaded) {
             await loadPromise;
         }
+
+        // load for all modules
+        for (let promise of modulePromises) {
+            await promise;
+        }
     }
 }
-
 
 function waitForElementLoaded(element: HTMLElement) {
     return new Promise(resolve => {
@@ -94,4 +112,9 @@ function waitForElementLoaded(element: HTMLElement) {
             resolve();
         });
     });
+}
+
+export function notifyModuleLoaded(id: number) {
+    moduleLoaderResolvers[id](void 0);
+    delete moduleLoaderResolvers[id];
 }

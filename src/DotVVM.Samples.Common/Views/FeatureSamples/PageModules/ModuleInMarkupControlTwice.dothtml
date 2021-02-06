@@ -1,0 +1,27 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.PageModules.ModuleInMarkupControlTwiceViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <cc:ModuleControl DataContext="{value: Page}" class="control1" />
+
+    <div class="toggle">
+        <dot:Button Text="Toggle Second Module" Click="{command: ToggleSecond()}" />
+    </div>
+
+    <cc:ModuleControl DataContext="{value: Page2}" class="control2" />
+
+    <h2>Event log</h2>
+    <pre ID="log">
+    </pre>
+
+    <dot:RequiredResource Name="globalize" />
+
+</body>
+</html>

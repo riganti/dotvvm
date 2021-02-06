@@ -77,19 +77,14 @@ namespace DotVVM.Framework.Controls
                 .Where(p => p.Js is object)
                 .Select(p => JsonConvert.ToString(p.Property.Name, '"', StringEscapeHandling.EscapeHtml) + ": " + p.Js);
 
-            var viewModule =
-                this.GetValue<ImmutableList<ViewModuleReferenceInfo>>(Internal.ReferencedViewModuleInfoProperty)
-                .SingleOrDefault(); // Control can only contain one reference info - it can not have master pages
+            var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
 
             writer.WriteKnockoutDataBindComment("dotvvm-with-control-properties", "{ " + string.Join(", ", properties) + " }");
             if (viewModule is object)
             {
-                var viewId = this.GetDotvvmUniqueId();
-                var viewIdJs = (viewId as IValueBinding)?.GetKnockoutBindingExpression(this) ??
-                               JsonConvert.ToString((string)viewId, '"', StringEscapeHandling.EscapeHtml);
+                var viewIdJs = PageModuleHelpers.GetViewIdJsExpression(viewModule, this);
                 var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
                 settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
-
                 writer.WriteKnockoutDataBindComment("dotvvm-with-view-modules",
                     $"{{ viewId: {viewIdJs}, modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}"
                 );
@@ -146,5 +141,25 @@ namespace DotVVM.Framework.Controls
             public string? Js { get; set; }
             public DotvvmProperty Property { get; set; }
         }
+    }
+
+    public static class PageModuleHelpers
+    {
+
+        public static string GetViewIdJsExpression(ViewModuleReferenceInfo viewModuleInfo, DotvvmControl control)
+        {
+            if (viewModuleInfo.IsMarkupControl)
+            {
+                var markupControl = control.GetAllAncestors(includingThis: true).OfType<DotvvmMarkupControl>().First();
+                var viewId = markupControl.GetDotvvmUniqueId();
+                return (viewId as IValueBinding)?.GetKnockoutBindingExpression(markupControl)
+                       ?? KnockoutHelper.MakeStringLiteral((string)viewId);
+            }
+            else
+            {
+                return KnockoutHelper.MakeStringLiteral(viewModuleInfo.ViewId);
+            }
+        }
+
     }
 }

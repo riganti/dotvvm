@@ -1,3 +1,5 @@
+import { deserialize } from "../serialization/deserialize";
+import { serialize } from "../serialization/serialize";
 import { keys } from "../utils/objects";
 
 const registeredModules: { [name: string]: ModuleHandler } = {};
@@ -44,13 +46,23 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
         name,
         viewId,
         [rootElement],
-        { ...elementContext.$control }
+        elementContext && typeof elementContext.$control === "object" ? { ...elementContext.$control } : {}
     );
-    const moduleInstance = new handler.module.default(context);
+    const moduleInstance = createModuleInstance(handler.module.default, context);
     handler.contexts[viewId] = context;
 
     context.module = moduleInstance;
     Object.freeze(context);
+}
+
+function createModuleInstance(fn: Function, ...args: any) {
+    if (fn.prototype && fn.prototype.constructor === fn) {
+        // the module exports a class
+        return new (fn as any)(...args);
+    } else {
+        // the module exports a function
+        return fn(...args);
+    }
 }
 
 export function callViewModuleCommand(viewId: string, commandName: string, args: any[]) {
@@ -59,7 +71,8 @@ export function callViewModuleCommand(viewId: string, commandName: string, args:
     const foundModules: { moduleName: string; context: ModuleContext }[] = [];
     
     for (let moduleName of keys(registeredModules)) {
-        const context = ensureViewModuleContext(viewId, moduleName);
+        const context = ensureViewModuleContext(viewId, moduleName, false);
+        if (!context) continue;
         if (commandName in context.module && typeof context.module[commandName] === "function") {
             foundModules.push({ moduleName, context });
         }
@@ -73,10 +86,10 @@ export function callViewModuleCommand(viewId: string, commandName: string, args:
         throw new Error(`Conflict: There were multiple commands named ${commandName} the in imported modules in view ${viewId}. Check modules: ${foundModules.map(m => m.moduleName).join(', ')}.`);
     }
 
-    foundModules[0].context.module[commandName](...args);
+    return foundModules[0].context.module[commandName](...args.map(v => serialize(v)));
 }
 
-export function registerNamedCommand(viewId: string, commandName: string, command: ModuleCommand) {
+export function registerNamedCommand(viewId: string, commandName: string, command: ModuleCommand, rootElement: HTMLElement) {
     if (viewId == null) { throw new Error("Parameter viewId has to have a value"); }
     if (commandName == null) { throw new Error("Parameter commandName has to have a value"); }
 
@@ -88,6 +101,8 @@ export function registerNamedCommand(viewId: string, commandName: string, comman
             context.registerNamedCommand(commandName, command);
         }
     }
+
+    setupNamedCommandDisposeHandlers(viewId, commandName, rootElement);
 }
 
 function setupModuleDisposeHandlers(viewId: string, name: string, rootElement: HTMLElement) {
@@ -114,11 +129,33 @@ function disposeModule(viewId: string, name: string, rootElement: HTMLElement) {
     }
 }
 
-function ensureViewModuleContext(viewId: string, name: string): ModuleContext {
+function setupNamedCommandDisposeHandlers(viewId: string, name: string, rootElement: HTMLElement) {
+    function elementDisposeCallback() {
+        unregisterNamedCommand(viewId, name);
+        ko.utils.domNodeDisposal.removeDisposeCallback(rootElement, elementDisposeCallback);
+    }
+    ko.utils.domNodeDisposal.addDisposeCallback(rootElement, elementDisposeCallback);
+}
+
+export function unregisterNamedCommand(viewId: string, commandName: string) {
+    if (viewId == null) { throw new Error("Parameter viewId has to have a value"); }
+    if (commandName == null) { throw new Error("Parameter commandName has to have a value"); }
+
+    for (const moduleName of keys(registeredModules)) {
+        const module = registeredModules[moduleName];
+
+        var context = module.contexts[viewId];
+        if (context) {
+            context.unregisterNamedCommand(commandName);
+        }
+    }
+}
+
+function ensureViewModuleContext(viewId: string, name: string, throwError: boolean = true): ModuleContext {
     const handler = ensureModuleHandler(name);
     const context = handler.contexts[viewId];
 
-    if (!context) {
+    if (!context && throwError) {
         throw new Error('Module ' + name + 'has not been initialized for view ' + viewId + ', or the view has been disposed');
     }
     return context;
@@ -157,18 +194,7 @@ export class ModuleContext {
         public readonly elements: HTMLElement[],
         public readonly properties: { [name: string]: any }) {
     }
-
-    public callNamedCommand = (commandName: string, ...args: any[]) => {
-        if (!commandName) { throw new Error("Parameter commandName has to have a value"); }
-
-        const command = this.namedCommands[commandName];
-        if (!command) {
-            throw new Error(`Could not find named command ${commandName} registered for view ${this.viewId}. Make sure your named command registration is on the same view as the @js directive that imports module ${this.moduleName}.`);
-        }
-
-        command(...args);
-    };
-
+    
     public registerNamedCommand = (name: string, command: (...args: any[]) => Promise<any>) => {
         if (name == null) {
             throw new Error("Parameter name has to have a value");
@@ -180,6 +206,12 @@ export class ModuleContext {
             throw new Error(`A named command is already registered under the name: ${name}. The conflict occured in: ${this.moduleName} view ${this.viewId}.`);
         }
 
-        this.namedCommands[name] = command;
+        this.namedCommands[name] = (...innerArgs) => command.apply(this, innerArgs.map(v => deserialize(v)));
+    }
+
+    public unregisterNamedCommand = (name: string) => {
+        if (name in this.namedCommands) {
+            delete this.namedCommands[name];
+        }
     }
 }
