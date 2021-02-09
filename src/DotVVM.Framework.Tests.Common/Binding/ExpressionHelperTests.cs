@@ -152,6 +152,31 @@ namespace DotVVM.Framework.Tests.Common.Binding
                 Assert.AreEqual(expectedArgsTypes[i], args[i], message: "Order of resolved generic types is different then expected.");
             }
         }
+
+        [TestMethod]
+        [DataRow(typeof(GenericTestResult1), new Type[] { /* params empty */ }, new Type[] { typeof(int[]) })]
+        [DataRow(typeof(GenericTestResult2), new Type[] { typeof(string), /* params empty */ }, new Type[] { typeof(string), typeof(object[]) })]
+        [DataRow(typeof(GenericTestResult3), new Type[] { typeof(bool), /* params empty */ }, new Type[] { typeof(bool), typeof(int[]) })]
+        public void Call_FindOverload_Params_Empty(Type resultIdentifierType, Type[] argTypes, Type[] expectedArgsTypes)
+        {
+            Expression target = new MethodGroupExpression() {
+                MethodName = MethodsParamsArgumentsResolvingSampleObject.MethodName,
+                Target = new StaticClassIdentifierExpression(typeof(MethodsParamsArgumentsResolvingSampleObject))
+            };
+
+            var j = 0;
+            var arguments = argTypes.Select(s => Expression.Parameter(s, $"param_{j++}")).ToArray();
+            var expression = ExpressionHelper.Call(target, arguments) as MethodCallExpression;
+            Assert.IsNotNull(expression);
+            Assert.AreEqual(resultIdentifierType, expression.Method.GetResultType());
+
+            var args = expression.Arguments.Select(s => s.Type).ToArray();
+            for (var i = 0; i < args.Length; i++)
+            {
+                Assert.AreEqual(expectedArgsTypes[i], args[i], message: "Order of resolved generic types is different then expected.");
+            }
+        }
+
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         [DataRow(typeof(GenericTestResult1), new Type[] { typeof(int), typeof(int), typeof(string), typeof(int) }, new Type[] { typeof(int[]) })]
