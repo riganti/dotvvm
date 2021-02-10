@@ -368,6 +368,27 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_EnumerableWhere()
+        {
+            var result = CompileBinding("Enumerable.Where(LongArray, (long item) => item % 2 == 0)", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("LongArray().filter(function(item){return ko.unwrap(item)%2==0;})", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_NestedEnumerableMethods()
+        {
+            var result = CompileBinding("Enumerable.Where(Enumerable.Where(LongArray, (long item) => item % 2 == 0), (long item) => item % 3 == 0)", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("LongArray().filter(function(item){return ko.unwrap(item)%2==0;}).filter(function(item){return ko.unwrap(item)%3==0;})", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_EnumerableSelect()
+        {
+            var result = CompileBinding("Enumerable.Select(LongArray, (long item) => -item)", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("LongArray().map(function(item){return -ko.unwrap(item);})", result);
+        }
+
+        [TestMethod]
         public void JavascriptCompilation_GuidToString()
         {
             var result = CompileBinding("GuidProp != Guid.Empty ? GuidProp.ToString() : ''", typeof(TestViewModel));
