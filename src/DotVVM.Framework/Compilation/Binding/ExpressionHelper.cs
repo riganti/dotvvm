@@ -335,11 +335,8 @@ namespace DotVVM.Framework.Compilation.Binding
             var addedArguments = 0;
             var hasParamsArrayAttribute = parameters?.LastOrDefault()?.GetCustomAttribute(ParamArrayAttributeType) is object;
 
-            // For methods without `params` parameters count and arguments count must match
-            if (!hasParamsArrayAttribute && parameters.Length != positionalArguments.Length)
-                return false;
-            // For methods with `params` we need to get at least #(methodParameters-1) arguments
-            if (hasParamsArrayAttribute && parameters.Length > positionalArguments.Length + 1)
+            // For methods without `params` arguments count must be at least equal to parameters count
+            if (!hasParamsArrayAttribute && parameters.Length < positionalArguments.Length)
                 return false;
 
             arguments = new Expression[parameters.Length];
@@ -353,16 +350,25 @@ namespace DotVVM.Framework.Compilation.Binding
                 // User specified no arguments for the `params` array, we need to create an empty array
                 arguments[arguments.Length - 1] = Expression.NewArrayInit(elementType);
 
-                // Last argument was just generated => do not copy             
+                // Last argument was just generated => do not copy
                 addedArguments++;
                 copyItemsCount--;
+            }
+            if (copyItemsCount > positionalArguments.Length)
+            {
+                // Check if we could use default parameters
+                var defaultParametersCount = parameters.Skip(positionalArguments.Length).Where(param => param.HasDefaultValue).Count();
+                if (defaultParametersCount + positionalArguments.Length >= copyItemsCount)
+                    copyItemsCount = positionalArguments.Length;
+                else
+                    return false;
             }
 
             Array.Copy(positionalArguments, arguments, copyItemsCount);
 
             // Process named arguments
             var namedArgCount = 0;
-            for (var i = positionalArguments.Length + addedArguments; i < arguments.Length; i++)
+            for (var i = positionalArguments.Length; i < arguments.Length; i++)
             {
                 if (namedArguments?.ContainsKey(parameters[i].Name) == true)
                 {
@@ -373,6 +379,10 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     castCount++;
                     arguments[i] = Expression.Constant(parameters[i].DefaultValue, parameters[i].ParameterType);
+                }
+                else if (parameters[i].GetCustomAttribute(ParamArrayAttributeType) is object)
+                {
+                    break;
                 }
                 else return false;
             }

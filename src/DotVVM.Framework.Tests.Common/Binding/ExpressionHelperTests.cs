@@ -157,6 +157,8 @@ namespace DotVVM.Framework.Tests.Common.Binding
         [DataRow(typeof(GenericTestResult1), new Type[] { /* params empty */ }, new Type[] { typeof(int[]) })]
         [DataRow(typeof(GenericTestResult2), new Type[] { typeof(string), /* params empty */ }, new Type[] { typeof(string), typeof(object[]) })]
         [DataRow(typeof(GenericTestResult3), new Type[] { typeof(bool), /* params empty */ }, new Type[] { typeof(bool), typeof(int[]) })]
+        [DataRow(typeof(GenericTestResult4), new Type[] { typeof(float), typeof(double), /* params empty */ }, new Type[] { typeof(float), typeof(double), typeof(int[]) })]
+        [DataRow(typeof(GenericTestResult4), new Type[] { typeof(float), /* default argument, params empty */ }, new Type[] { typeof(float), typeof(double), typeof(int[]) })]
         public void Call_FindOverload_Params_Empty(Type resultIdentifierType, Type[] argTypes, Type[] expectedArgsTypes)
         {
             Expression target = new MethodGroupExpression() {
@@ -234,6 +236,7 @@ namespace DotVVM.Framework.Tests.Common.Binding
         public static GenericTestResult1 TestMethod(params int[] data) => null;
         public static GenericTestResult2 TestMethod(string value, params object[] data) => null;
         public static GenericTestResult3 TestMethod(bool value, params int[] data) => null;
+        public static GenericTestResult4 TestMethod(float value, double defaultValue = 3.5, params int[] data) => null;
     }
 
     public static class MethodsGenericArgumentsResolvingSampleObject5
