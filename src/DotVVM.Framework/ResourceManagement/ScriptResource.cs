@@ -21,7 +21,7 @@ namespace DotVVM.Framework.ResourceManagement
 
         /// <summary>Location property is required!</summary>
         public ScriptResource()
-            : base(ResourceRenderPosition.Body, "text/javascript")
+            : this(location: null!) // hack: people assign the Location property late, but it should non-nullable...
         { }
 
         public override void RenderLink(IResourceLocation location, IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
