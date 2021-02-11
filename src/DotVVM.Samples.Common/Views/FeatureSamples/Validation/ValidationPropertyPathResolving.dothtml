@@ -53,18 +53,18 @@
             </dot:Validator>
         </div>
 
-        <dot:Button data-ui="butNo" Text="No validation target" Click="{command: null}" />
-        <dot:Button data-ui="butVM" Text="Validation target this" Validation.Target="{value: _this}" Click="{command: null}" />
-        <dot:Button data-ui="butData" Text="Validation target Data" Validation.Target="{value: InnerVmData}" Click="{command: null}" />
+        <dot:Button data-ui="validationTarget-butNo" Text="No validation target" Click="{command: null}" />
+        <dot:Button data-ui="validationTarget-butVM" Text="Validation target this" Validation.Target="{value: _this}" Click="{command: null}" />
+        <dot:Button data-ui="validationTarget-butData" Text="Validation target Data" Validation.Target="{value: InnerVmData}" Click="{command: null}" />
     </div>
-    <dot:InlineScript>
+
+    <dot:InlineScript>        
         dotvvm.events.afterPostback.subscribe(t => {
             var list = document.getElementById("ValidationErrors");
 
             while (list.firstChild) {
                 list.removeChild(list.firstChild);
             }
-
             t.serverResponseObject.modelState.forEach(s => {
                 var node = document.createElement("li");
                 var textnode = document.createTextNode(s.propertyPath);

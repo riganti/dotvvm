@@ -4,6 +4,9 @@ import { createArray, isPrimitive, keys } from "./utils/objects";
 import { DotvvmEvent } from "./events";
 import { extendToObservableArrayIfRequired } from "./serialization/deserialize"
 import { getObjectTypeInfo } from "./metadata/typeMap";
+import {ValidationError} from "./validation/error";
+import { ErrorsPropertyName } from "./validation/common";
+
 
 export const currentStateSymbol = Symbol("currentState")
 const notifySymbol = Symbol("notify")
@@ -119,8 +122,9 @@ export class StateManager<TViewModel> {
     }
 }
 
-class FakeObservableObject<T extends object> implements UpdatableObjectExtensions<T> {
+class FakeObservableObject<T> implements UpdatableObjectExtensions<T> {
     public [currentStateSymbol]: T
+    public [ErrorsPropertyName]: Array<ValidationError>
     public [updateSymbol]: UpdateDispatcher<T>
     public [notifySymbol](newValue: T) {
         console.assert(newValue)
@@ -139,11 +143,10 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
     public [updatePropertySymbol](propName: keyof T, valUpdate: StateUpdate<any>) {
         this[updateSymbol](vm => Object.freeze({ ...vm, [propName]: valUpdate(vm[propName]) }))
     }
-
     constructor(initialValue: T, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata | undefined, additionalProperties: string[]) {
         this[currentStateSymbol] = initialValue
         this[updateSymbol] = updater
-
+        this[ErrorsPropertyName] = new Array<ValidationError>()
         for (const p of keys(typeInfo?.properties || {}).concat(additionalProperties)) {
             this[internalPropCache][p] = null
         
