@@ -2,6 +2,10 @@ import { isObservableArray } from "./knockout";
 import { logError } from "./logging";
 
 export function evaluateOnViewModel(context: any, expression: string): any {
+    if (expression === '$rawData') {
+        expression = '/';
+    }
+
     var parts = expression.split(/[/[\]]+/);
     var currentLevel = context["$data"]!=undefined ? context["$data"] : context;
     var currentPath = "";

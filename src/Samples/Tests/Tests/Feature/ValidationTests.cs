@@ -761,11 +761,14 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Theory]
-        [InlineData("butNo",6)]
-        [InlineData("butVM", 6)]
+        [InlineData("butNo",8)]
+        [InlineData("butVM", 8)]
         [InlineData("butData", 1, "innerProp")]
         [InlineData("butData2", 1, "dataContext")]
         [InlineData("butCol", 3, "repeater")]
+        [InlineData("validationTarget-butNo", 8)]
+        [InlineData("validationTarget-butVM", 2)]
+        [InlineData("validationTarget-butData", 1)]
         public void Feature_Validation_ValidationPathResolving(string buttonSelector,int expectedCountOfValidationAsterisks, string sectionSelector=null)
         {
             RunInAllBrowsers(browser => {
@@ -796,9 +799,9 @@ namespace DotVVM.Samples.Tests.Feature
         [InlineData("/Text")]
         [InlineData("/Data/Text")]
         [InlineData("/Data2/Text")]
-        [InlineData("/Col[0]/Text")]
-        [InlineData("/Col[1]/Text")]
-        [InlineData("/Co[2]/Text")]
+        [InlineData("/Col/0/Text")]
+        [InlineData("/Col/1/Text")]
+        [InlineData("/Col/2/Text")]
         public void Feature_Validation_ValidationPaths(string validationPath)
         {
             RunInAllBrowsers(browser => {
