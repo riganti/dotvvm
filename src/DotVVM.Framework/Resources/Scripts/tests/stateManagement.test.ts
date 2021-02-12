@@ -152,7 +152,7 @@ test("Should change array reference when length changes", () => {
     const arrayObj = vm.Array()
 
     let changed = false
-    arrayObs.subscribe(() => changed = true)
+    arrayObs.subscribe(() => changed = true, null, "beforeChange")
 
     s.setState({ ...s.state, Array: [{ Id: 3 }, { Id: 4 }] })
     s.doUpdateNow()
@@ -227,6 +227,11 @@ test("Prop$options should not be observable", () => {
 })
 
 test("Serialized computed updates on changes", () => {
+    if (ko.options.deferUpdates) {
+        // This test won't work this way (i.e. synchronously) with deferUpdate
+        return
+    }
+
     const computed = ko.pureComputed(() => serialize(vm))
 
     let lastValue = null

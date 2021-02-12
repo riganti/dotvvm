@@ -244,16 +244,26 @@ function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T
 
     let isUpdating = false
 
+    // When this option is set, the 'deferred' extender is used by default.
+    // It makes calls to "change" subscribe aynchronous so our hacks with `isUpdating` would not work at all
+    // It may also drop calls to "beforeChange", which could pass some updates unseen.
+    // As a workaround, we use the "dirty" event when the deferUpdates option is set.
+    const isDeferred = ko.options.deferUpdates
+
+    // We could also disable the deferUpdates for this observable, but that would arguably defeat the purpose
+
     const obs = initialValue instanceof Array ? ko.observableArray() : ko.observable() as any
     obs[updateSymbol] = updater
 
     let updatedObservable = false
 
     obs.subscribe((newVal: any) => {
+        if (isDeferred)
+            newVal = obs() // the value is not passed in parameter in "dirty" handler. We use it otherwise, for perf reasons
         if (isUpdating) { return }
         updatedObservable = true
         updater(_ => unmapKnockoutObservables(newVal))
-    })
+    }, null, isDeferred ? "dirty" : "change")
 
     function notify(newVal: any) {
         const currentValue = obs[currentStateSymbol]
@@ -321,7 +331,7 @@ function createWrappedObservable<T>(initialValue: T, updater: UpdateDispatcher<T
         else {
             // create new object and replace
 
-            console.debug("Creating new KO object for", newVal)
+            // console.debug("Creating new KO object for", newVal)
             newContents = createObservableObject(newVal, updater)
         }
 
