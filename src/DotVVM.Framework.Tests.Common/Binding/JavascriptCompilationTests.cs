@@ -386,7 +386,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow("Enumerable.Select(LongArray, (long item) => -item)", DisplayName = "Regular call of Enumerable.Select")]
         [DataRow("LongArray.Select((long item) => -item)", DisplayName = "Syntax sugar - extension method")]
-        public void JsTranslator_EnumerableSelect()
+        public void JsTranslator_EnumerableSelect(string binding)
         {
             var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
             Assert.AreEqual("LongArray().map(function(item){return -ko.unwrap(item);})", result);
