@@ -62,6 +62,7 @@
     <None Remove="Views\FeatureSamples\Resources\RequiredOnPostback.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\DeserializationVirtualElements.dothtml" />
     <None Remove="Views\FeatureSamples\CustomResponseProperties\SimpleExceptionFilter.dothtml" />
+    <None Remove="Views\FeatureSamples\StaticCommand\CustomAwaitable.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ArrayAssigment.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_LoadComplexDataFromService.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_NullAssignment.dothtml" />
