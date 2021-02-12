@@ -160,19 +160,11 @@ namespace DotVVM.Framework.Compilation.Binding
             if (method.IsExtension)
             {
                 // Change to a static call
-                var newArguments = CreateArgumentsForExtensionMethod(target, arguments);
+                var newArguments = new[] { target }.Concat(arguments);
                 return Expression.Call(method.Method, newArguments);
             }
 
             return Expression.Call(target, method.Method, method.Arguments);
-        }
-
-        private static Expression[] CreateArgumentsForExtensionMethod(Expression target, Expression[] arguments)
-        {
-            var newArguments = new Expression[arguments.Length + 1];
-            Array.Copy(arguments, 0, newArguments, 1, arguments.Length);
-            newArguments[0] = target;
-            return newArguments;
         }
 
         public static Expression CallMethod(Type target, BindingFlags flags, string name, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs = null)
@@ -194,15 +186,13 @@ namespace DotVVM.Framework.Compilation.Binding
                 if (target != null)
                 {
                     // Change to a static call
-                    var newArguments = CreateArgumentsForExtensionMethod(target, arguments);
-                    var extensions = FindValidMethodOveloads(type.GetAllExtensions().OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, newArguments, namedArgs).ToList();
+                    var newArguments = new[] { target }.Concat(arguments).ToArray();
+                    var extensions = FindValidMethodOveloads(type.GetAllExtensions().OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, newArguments, namedArgs)
+                        .Select(method => { method.IsExtension = true; return method; }).ToList();
 
                     // We found an extension method
                     if (extensions.Count == 1)
-                    {
-                        extensions[0].IsExtension = true;
                         return extensions.FirstOrDefault();
-                    }
 
                     target = null;
                     methods = extensions;

@@ -64,11 +64,11 @@ namespace DotVVM.Framework.Utils
                 return type.GetMembers(flags);
         }
 
-        public static IEnumerable<MemberInfo> GetAllExtensions(this Type type, BindingFlags flags = BindingFlags.Public | BindingFlags.Static)
+        public static IEnumerable<MethodInfo> GetAllExtensions(this Type type, BindingFlags flags = BindingFlags.Public | BindingFlags.Static)
         {
             foreach (var registeredType in TypeRegistry.GetRegisteredTypesForExtensionMethodsLookup())
-                foreach (var member in registeredType.GetMembers(flags))
-                    yield return member;
+                foreach (var method in registeredType.GetMethods(flags))
+                    yield return method;
         }
 
         /// <summary>
