@@ -4,6 +4,7 @@ import * as events from '../events';
 import * as http from './http'
 import { handleRedirect } from './redirect';
 import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
+import { DotvvmPostbackError } from '../shared-classes';
 
 export async function staticCommandPostback(sender: HTMLElement, command: string, args: any[], options: PostbackOptions): Promise<any> {
 
@@ -57,14 +58,18 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
         return response.result.result;
         
     } catch (err) {
-        events.staticCommandMethodFailed.trigger({ 
-            ...options, 
-            methodId: command,
-            methodArgs: args,
-            error: err,
-            result: (err.reason as any).responseObject, 
-            response: (err.reason as any).response 
-        })
+        if (err instanceof DotvvmPostbackError) {
+            events.staticCommandMethodFailed.trigger({ 
+                ...options, 
+                methodId: command,
+                methodArgs: args,
+                error: err,
+                result: (err.reason as any).responseObject, 
+                response: (err.reason as any).response 
+            })
+        } else {
+            console.error("Error in static command execution: ", err)
+        }
         
         throw err;
     }

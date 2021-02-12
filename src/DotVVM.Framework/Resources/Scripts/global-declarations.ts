@@ -179,7 +179,8 @@ type ValidationRuleTable = {
 }
 
 type RootViewModel = {
-    $csrfToken?: string,
+    $type: string
+    $csrfToken?: string
 }
 
 type TypeMap = {
@@ -216,4 +217,13 @@ type ClientExtenderInfo = {
     parameter: any
 }
 
-type CoerceResult = undefined | { value: any, wasCoerced?: boolean };
+type CoerceErrorType = {
+    isError: true
+    wasCoerced: false
+    message: string
+    path: string
+    prependPathFragment(fragment: string): void
+    value: never
+}
+
+type CoerceResult = CoerceErrorType | { value: any, wasCoerced?: boolean, isError?: false };

@@ -598,35 +598,35 @@ describe("Dotvvm.Deserialization - value type validation", () => {
     test("null is invalid",
         () => {
             for (const type in supportedTypes) {
-                expect(tryCoerce(null, supportedTypes[type])).toBeUndefined()
+                expect(tryCoerce(null, supportedTypes[type]).isError).toBeTruthy()
             }
         })
 
     test("undefined is invalid",
         () => {
             for (const type in supportedTypes) {
-                expect(tryCoerce(undefined, supportedTypes[type])).toBeUndefined()
+                expect(tryCoerce(undefined, supportedTypes[type]).isError).toBeTruthy()
             }
         })
 
     test("null is valid for nullable",
         () => {
             for (const type in supportedTypes) {
-                expect(tryCoerce(null, { type: "nullable", inner: supportedTypes[type] })).toBeTruthy()
+                expect(tryCoerce(null, { type: "nullable", inner: supportedTypes[type] }).isError).toBeFalsy()
             }
         })
 
     test("undefined is valid for nullable",
         () => {
             for (const type in supportedTypes) {
-                expect(tryCoerce(undefined, { type: "nullable", inner: supportedTypes[type] })).toBeTruthy()
+                expect(tryCoerce(undefined, { type: "nullable", inner: supportedTypes[type] }).isError).toBeFalsy()
             }
         })
 
     test("string is invalid",
         () => {
             for (const type in supportedTypes) {
-                expect(tryCoerce("string123", supportedTypes[type])).toBeUndefined()
+                expect(tryCoerce("string123", supportedTypes[type]).isError).toBeTruthy()
             }
         })
 })

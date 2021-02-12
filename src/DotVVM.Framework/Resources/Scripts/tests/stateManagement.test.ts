@@ -279,10 +279,11 @@ test("Propagate knockout object assignment", () => {
     vm.Inner({
         $type: ko.observable("t3"),
         P1: ko.observable(4),
-        P2: ko.observable(5)
+        P2: ko.observable(5),
+        P3: 4
     })
 
-    expect(s.state.Inner).toStrictEqual({ $type: "t3", P1: 4, P2: 5 })
+    expect(s.state.Inner).toStrictEqual({ $type: "t3", P1: 4, P2: 5, P3: 4, P4: null })
     s.doUpdateNow()
     expect(vm.Inner().P1()).toBe(4)
     expect(vm.Inner().P2()).toBe(5)

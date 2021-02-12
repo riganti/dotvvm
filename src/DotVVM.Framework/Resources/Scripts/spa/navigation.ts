@@ -73,19 +73,6 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
 
         return spaNavigatedArgs;
 
-    } catch (err) {
-        // trigger spaNavigationFailed event
-        let spaNavigationFailedArgs: DotvvmSpaNavigationFailedEventArgs = { 
-            ...options, 
-            url, 
-            serverResponseObject: (err.reason as any).responseObject,
-            response: (err.reason as any).response,
-            error: err
-        };
-        events.spaNavigationFailed.trigger(spaNavigationFailedArgs);
-        console.error("Unexpected exception during SPA navigation: ", err);
-
-        throw err;
     } finally {
         // when no other navigation is running, enable postbacks again
         if (options.postbackId == lastStartedNavigation) {

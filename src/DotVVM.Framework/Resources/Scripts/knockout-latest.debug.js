@@ -210,9 +210,9 @@ ko.utils = (function () {
             comparer = comparer || function(i) { return i; };
             return ko.dependencyDetection.ignore(function () {
                 if (unwrapArrayElements) {
-                    var itemToCompare = comparer(ko.unwrap(item));
+                    var itemToCompare = comparer(ko.utils.unwrapObservable(item));
                     for (var i = 0, j = array.length; i < j; i++)
-                        if (comparer(ko.unwrap(array[i])) === itemToCompare)
+                        if (comparer(ko.utils.unwrapObservable(array[i])) === itemToCompare)
                             return i;
                 }
                 else {
@@ -1652,13 +1652,14 @@ ko.exportSymbol('computedContext.registerDependency', ko.computedContext.registe
 ko.exportSymbol('ignoreDependencies', ko.ignoreDependencies = ko.dependencyDetection.ignore);
 var observableLatestValue = ko.utils.createSymbolOrString('_latestValue');
 
-ko.observable = function (initialValue) {
+ko.observable = function (initialValue, validator) {
     function observable() {
         if (arguments.length > 0) {
             // Write
 
             // Ignore writes if the value hasn't changed
             if (observable.isDifferent(observable[observableLatestValue], arguments[0])) {
+                if (validator) validator(arguments[0])
                 observable.valueWillMutate();
                 observable[observableLatestValue] = arguments[0];
                 observable.valueHasMutated();
@@ -1733,13 +1734,13 @@ ko.exportSymbol('observable.fn', observableFn);
 ko.exportProperty(observableFn, 'peek', observableFn.peek);
 ko.exportProperty(observableFn, 'valueHasMutated', observableFn.valueHasMutated);
 ko.exportProperty(observableFn, 'valueWillMutate', observableFn.valueWillMutate);
-ko.observableArray = function (initialValues) {
+ko.observableArray = function (initialValues, validator) {
     initialValues = initialValues || [];
 
     if (typeof initialValues != 'object' || !('length' in initialValues))
         throw new Error("The argument passed when initializing an observable array must be an array, or null, or undefined.");
 
-    var result = ko.observable(initialValues);
+    var result = ko.observable(initialValues, validator);
     ko.utils.setPrototypeOfOrExtend(result, ko.observableArray['fn']);
     return result.extend({'trackArrayChanges':true});
 };

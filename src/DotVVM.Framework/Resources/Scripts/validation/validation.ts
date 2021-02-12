@@ -157,17 +157,12 @@ function validateRecursive(propertyName: string, observable: KnockoutObservable<
         }
         
     } else if (typeof type === "string") {
-        if (type in primitiveTypes) {
-            validatePrimitiveType(propertyName, observable, propertyValue, type);
-        } else {
+        if (!(type in primitiveTypes)) {
             validateViewModel(propertyValue);
         }
 
     } else if (typeof type === "object") {
-        if (type.type === "nullable") {
-            validatePrimitiveType(propertyName, observable, propertyValue, type);
-
-        } else if (type.type === "dynamic") {
+        if (type.type === "dynamic") {
 
             if (Array.isArray(propertyValue)) {
                 let i = 0;
@@ -186,13 +181,6 @@ function validateRecursive(propertyName: string, observable: KnockoutObservable<
             }
 
         }
-    }
-}
-
-function validatePrimitiveType(propertyName: string, observable: KnockoutObservable<any>, propertyValue: any, type: TypeDefinition) {
-    if (getErrors(observable).length == 0 && !tryCoerce(propertyValue, type)) {
-        ValidationError.attach(`The value of property ${propertyName} (${propertyValue}) is invalid value for type ${type}.`, observable);
-        // TODO: we may not need to validate primitive types any more
     }
 }
 

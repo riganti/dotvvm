@@ -4,6 +4,8 @@ import { createArray, isPrimitive, keys } from "./utils/objects";
 import { DotvvmEvent } from "./events";
 import { extendToObservableArrayIfRequired } from "./serialization/deserialize"
 import { getObjectTypeInfo } from "./metadata/typeMap";
+import { coerce } from "./metadata/coercer";
+import { patchViewModel } from "./postback/updater";
 
 export const currentStateSymbol = Symbol("currentState")
 const notifySymbol = Symbol("notify")
@@ -55,7 +57,7 @@ class TwoWayBinding<T> {
     ) { }
 }
 
-export class StateManager<TViewModel> {
+export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
     public readonly stateObservable: DeepKnockoutWrapped<TViewModel>;
     private _state: TViewModel
     public get state() {
@@ -71,7 +73,7 @@ export class StateManager<TViewModel> {
         initialState: TViewModel,
         public stateUpdateEvent: DotvvmEvent<TViewModel>
     ) {
-        this._state = initialState
+        this._state = coerce(initialState, initialState.$type!)
         this.stateObservable = createWrappedObservable(initialState, (initialState as any)["$type"], u => this.update(u))
         this.dispatchUpdate()
     }
@@ -107,11 +109,20 @@ export class StateManager<TViewModel> {
         // console.log("New state dispatched, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart)
     }
 
-    public setState(newState: TViewModel) {
+    public setState(newState: TViewModel): TViewModel {
         if (newState == null) throw new Error("State can't be null or undefined.")
-        if (newState === this._state) return
+        if (newState === this._state) return newState
+
+        const type = newState.$type || this._state.$type
+
+        const coersionResult = coerce(newState, type!, this._state)
+
         this.dispatchUpdate();
-        return this._state = newState
+        return this._state = coersionResult
+    }
+
+    public patchState(patch: Partial<TViewModel>): TViewModel {
+        return this.setState(patchViewModel(this._state, patch))
     }
 
     public update(updater: StateUpdate<TViewModel>) {
@@ -225,27 +236,26 @@ function createObservableObject<T extends object>(initialObject: T, typeHint: Ty
     return new FakeObservableObject(initialObject, update, typeId, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
 }
 
-
-function type(o: any) {
-    const k = keys(o)
-    k.sort()
-    return k.join("|")
-}
-
 function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | undefined, updater: UpdateDispatcher<T>): DeepKnockoutWrapped<T> {
 
     let isUpdating = false
 
-    const obs = initialValue instanceof Array ? ko.observableArray() : ko.observable() as any
+    function observableValidator(newValue: any) {
+        if (isUpdating) { return }
+        updatedObservable = true
+
+        try {
+            updater(_ => unmapKnockoutObservables(newValue))
+        } catch (err) {
+            console.debug(`Can not update observable to ${newValue}:`, err)
+            throw err
+        }
+    }
+
+    const obs = initialValue instanceof Array ? ko.observableArray([], observableValidator) : ko.observable(null, observableValidator) as any
     obs[updateSymbol] = updater
 
     let updatedObservable = false
-
-    obs.subscribe((newVal: any) => {
-        if (isUpdating) { return }
-        updatedObservable = true
-        updater(_ => unmapKnockoutObservables(newVal))
-    })
 
     function notify(newVal: any) {
         const currentValue = obs[currentStateSymbol]
