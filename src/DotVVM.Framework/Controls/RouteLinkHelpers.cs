@@ -78,7 +78,7 @@ namespace DotVVM.Framework.Controls
             // evaluate bindings on server
             foreach (var param in parameters.Where(p => p.Value is IStaticValueBinding).ToList())
             {
-                EnsureValidBindingType((IBinding)param.Value);
+                EnsureValidBindingType((IBinding)param.Value!);
                 parameters[param.Key] = ((IValueBinding)param.Value).Evaluate(control);   // TODO: see below
             }
 
@@ -89,7 +89,9 @@ namespace DotVVM.Framework.Controls
         private static string GenerateUrlSuffixCore(string? urlSuffix, RouteLink control)
         {
             // generate the URL suffix
-            return UrlHelper.BuildUrlSuffix(urlSuffix, control.QueryParameters);
+            var queryParams = control.QueryParameters.ToArray();
+            Array.Sort(queryParams, (a, b) => a.Key.CompareTo(b.Key)); // deterministic order of query params
+            return UrlHelper.BuildUrlSuffix(urlSuffix, queryParams);
         }
 
         private static RouteBase GetRoute(IDotvvmRequestContext context, string routeName)
@@ -118,12 +120,13 @@ namespace DotVVM.Framework.Controls
                 control.GetValueBinding(RouteLink.UrlSuffixProperty)
                 ?.Apply(binding => binding.GetKnockoutBindingExpression(control))
                 ?? KnockoutHelper.MakeStringLiteral(control.UrlSuffix ?? "");
-            var queryParams =
-                control.QueryParameters.RawValues.Select(p => TranslateRouteParameter(control, p, true)).StringJoin(",");
+            var queryParamsArray = control.QueryParameters.RawValues.ToArray();
+            Array.Sort(queryParamsArray, (a, b) => a.Key.CompareTo(b.Key)); // deterministic order of query params
+            var queryParams = queryParamsArray.Select(p => TranslateRouteParameter(control, p, true)).StringJoin(",");
 
             // generate the function call
             return
-                queryParams.Length > 0 ? $"dotvvm.buildUrlSuffix({urlSuffixBase}, {{{queryParams}}})" :
+                queryParamsArray.Length > 0 ? $"dotvvm.buildUrlSuffix({urlSuffixBase}, {{{queryParams}}})" :
                 urlSuffixBase != "\"\"" ? urlSuffixBase :
                 null;
         }
@@ -138,7 +141,7 @@ namespace DotVVM.Framework.Controls
 
             return
                 route.ParameterNames.Any()
-                    ? $"dotvvm.buildRouteUrl({JsonConvert.ToString(route.Url)}, {{{parametersExpression}}})"
+                    ? $"dotvvm.buildRouteUrl({JsonConvert.ToString(route.UrlWithoutTypes)}, {{{parametersExpression}}})"
                     : JsonConvert.ToString(route.Url);
         }
 
