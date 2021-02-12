@@ -18,6 +18,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 ReturnedFileDownload(browser, "Hello DotVVM returned file sample!");
+                ReturnedFileDownload(browser, "XXX");
             });
         }
 
@@ -38,7 +39,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample);
 
                 browser.First("textarea").SendKeys("hello world");
-                browser.Last("input[type=button]").Click();
+                browser.Last("input[type=button]").Click().Wait();
 
                 AssertUI.TextEquals(browser.First("pre"), "hello world");
             });

@@ -377,9 +377,16 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_NestedEnumerableMethods()
+        {
+            var result = CompileBinding("Enumerable.Where(Enumerable.Where(LongArray, (long item) => item % 2 == 0), (long item) => item % 3 == 0)", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("LongArray().filter(function(item){return ko.unwrap(item)%2==0;}).filter(function(item){return ko.unwrap(item)%3==0;})", result);
+        }
+
+        [TestMethod]
         [DataRow("Enumerable.Select(LongArray, (long item) => -item)", DisplayName = "Regular call of Enumerable.Select")]
         [DataRow("LongArray.Select((long item) => -item)", DisplayName = "Syntax sugar - extension method")]
-        public void JsTranslator_EnumerableSelect(string binding)
+        public void JsTranslator_EnumerableSelect()
         {
             var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
             Assert.AreEqual("LongArray().map(function(item){return -ko.unwrap(item);})", result);
