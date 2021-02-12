@@ -44,8 +44,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 // We did not find any match in regular methods => try extension methods
                 var extensions = type.GetAllExtensions()
-                    .Where(m => ((isGeneric && m is TypeInfo) ? genericName : name) == m.Name)
-                    .ToArray();
+                    .Where(m => m.Name == name).ToArray();
                 members = extensions;
 
                 if (members.Length == 0 && throwExceptions)
