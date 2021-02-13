@@ -147,6 +147,7 @@ interface DotvvmPostbackHandlerCollection {
 type DotvvmStaticCommandResponse<T = any> = {
     result: any;
     customData: { [key: string]: any };
+    typeMetadata?: TypeMap;
 } | {
     action: "redirect",
     url: string,
@@ -208,9 +209,9 @@ type PropertyMetadata = {
 }
 
 type TypeDefinition = string |
-  { type: "nullable", inner: TypeDefinition } |
-  { type: "dynamic" } |
-  TypeDefinition[];
+{ type: "nullable", inner: TypeDefinition } |
+{ type: "dynamic" } |
+    TypeDefinition[];
 
 type ClientExtenderInfo = {
     name: string,

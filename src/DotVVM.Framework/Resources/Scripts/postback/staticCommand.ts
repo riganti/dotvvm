@@ -9,7 +9,7 @@ import { DotvvmPostbackError } from '../shared-classes';
 export async function staticCommandPostback(sender: HTMLElement, command: string, args: any[], options: PostbackOptions): Promise<any> {
 
     let data: any;
-    let response: http.WrappedResponse<StaticCommandResponse>;
+    let response: http.WrappedResponse<DotvvmStaticCommandResponse>;
 
     try {
         await http.retryOnInvalidCsrfToken(async () => {
@@ -28,7 +28,7 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
             methodArgs: args,
         });
 
-        response = await http.postJSON<StaticCommandResponse>(
+        response = await http.postJSON<DotvvmStaticCommandResponse>(
             getInitialUrl(),
             JSON.stringify(data),
             { "X-PostbackType": "StaticCommand" }
