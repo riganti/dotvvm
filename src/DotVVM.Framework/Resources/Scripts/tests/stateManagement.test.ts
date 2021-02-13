@@ -4,6 +4,7 @@ import { getStateManager } from "../dotvvm-base";
 import { StateManager } from "../state-manager";
 import { serialize } from "../serialization/serialize";
 import fc_types, { json } from '../../../node_modules/fast-check/lib/types/fast-check'
+import { serializeDate } from "../serialization/date";
 
 initDotvvm({
     viewModel: {
@@ -48,7 +49,8 @@ initDotvvm({
                 },
                 Inner2: {
                     type: "t3"
-                }
+                },
+                DateTime: { type: { type: "nullable", inner: "DateTime" } }
             }
         },
         t2: {
@@ -307,11 +309,12 @@ test("Propagate knockout array assignment", () => {
 
 test("Propagate Date assignment", () => {
     const val = new Date(2000, 3, 3, 3, 3, 3)
-    vm.Str(val)
+    vm.DateTime(val)
 
-    expect(s.state.Str).toBe(val)
+    // The date gets converted to DotVVM serialized date format
+    expect(s.state.DateTime).toBe(serializeDate(val))
     s.doUpdateNow()
-    expect(vm.Str()).toBe(val)
+    expect(vm.DateTime()).toBe(serializeDate(val))
 })
 
 test("Serialized computed updates on changes", () => {
