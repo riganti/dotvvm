@@ -5,4 +5,6 @@
 
     <p>Navigation success</p>
 
+    <p class="result">{{value: Result}}</p>
+
 </dot:Content>

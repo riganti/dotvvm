@@ -86,6 +86,63 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [SampleReference(SamplesRouteUrls.FeatureSamples_PostbackSpaNavigation_PageA)]
+        [SampleReference(SamplesRouteUrls.FeatureSamples_PostbackSpaNavigation_PageB)]
+        [Fact]
+        public void PostbackSpaNavigationTest_SuccessfulNavigation_SurvivingCommand()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackSpaNavigation_PageA);
+
+                var links = browser.FindElements("a");
+                var buttons = browser.FindElements("input[type=button]");
+                var result = browser.Single(".result");
+
+                // click the button to start a long postback
+                AssertUI.TextEquals(result, "0");
+                buttons[2].Click().Wait();
+
+                // click the first link to trigger the navigation
+                links[0].Click();
+
+                // wait for the navigation and postback to finish
+                browser.Wait(6000);
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.FeatureSamples_PostbackSpaNavigation_PageB);
+
+                // check that the new field was not incremented
+                result = browser.Single(".result");
+                AssertUI.TextEquals(result, "0");
+            });
+        }
+
+        [SampleReference(SamplesRouteUrls.FeatureSamples_PostbackSpaNavigation_PageA)]
+        [SampleReference(SamplesRouteUrls.FeatureSamples_PostbackSpaNavigation_PageB)]
+        [Fact(Skip = "Won't fix in 2.5 - we don't know what else could break because of this.")]
+        public void PostbackSpaNavigationTest_SuccessfulNavigation_SurvivingStaticCommand()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackSpaNavigation_PageA);
+
+                var links = browser.FindElements("a");
+                var buttons = browser.FindElements("input[type=button]");
+                var result = browser.Single(".result");
+
+                // click the button to start a long postback
+                AssertUI.TextEquals(result, "0");
+                buttons[3].Click().Wait();
+
+                // click the first link to trigger the navigation
+                links[0].Click();
+
+                // wait for the navigation and postback to finish
+                browser.Wait(6000);
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.FeatureSamples_PostbackSpaNavigation_PageB);
+
+                // check that the new field was not incremented
+                result = browser.Single(".result");
+                AssertUI.TextEquals(result, "0");
+            });
+        }
 
         public PostbackSpaNavigationTests(ITestOutputHelper output) : base(output)
         {

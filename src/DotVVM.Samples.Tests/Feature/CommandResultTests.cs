@@ -7,6 +7,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Riganti.Selenium.DotVVM;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -18,31 +19,42 @@ namespace DotVVM.Samples.Tests.Feature
         [Fact]
         public void SimpleExceptionFilterTest()
         {
-            RunInAllBrowsers(browser => {
+            base.RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_CustomResponseProperties_SimpleExceptionFilter);
                 browser.WaitUntilDotvvmInited();
 
-                var staticCommandButton = browser.First("staticCommand", SelectByDataUi);
-                staticCommandButton.Click();
+                TestResponse(browser, "staticCommand");
+                TestResponse(browser, "command");
 
-                browser.WaitFor(() => {
-                    var customDataSpan = browser.First("customProperties", SelectByDataUi);
-                    AssertUI.TextEquals(customDataSpan, "Hello there");
-                }, 8000);
+                TestResponse(browser, "asyncStaticCommand");
+                TestResponse(browser, "asyncCommand");
 
-                var clearButton = browser.First("clear", SelectByDataUi);
-                clearButton.Click();
+                TestResponse(browser, "staticCommandResult");
+                TestResponse(browser, "commandResult");
 
-                var commandButton = browser.First("command", SelectByDataUi);
-                commandButton.Click();
-                browser.WaitFor(() => {
-                    var customDataSpan = browser.First("customProperties", SelectByDataUi);
-                    AssertUI.TextEquals(customDataSpan, "Hello there");
-                }, 8000);
-
-
+                TestResponse(browser, "asyncStaticCommandResult");
+                TestResponse(browser, "asyncCommandResult");
             });
         }
 
+        private void TestResponse(IBrowserWrapper browser, string uiId)
+        {
+            var customDataSpan = browser.First("customProperties", SelectByDataUi);
+
+            var staticCommandButton = browser.First(uiId, SelectByDataUi);
+            staticCommandButton.Click();
+
+            browser.WaitFor(() => {
+                AssertUI.TextEquals(customDataSpan, "Hello there");
+            }, 1000);
+
+            var clearButton = browser.First("clear", SelectByDataUi);
+            clearButton.Click();
+
+            browser.WaitFor(() => {
+                AssertUI.TextEmpty(customDataSpan);
+            }, 1000);
+
+        }
     }
 }
