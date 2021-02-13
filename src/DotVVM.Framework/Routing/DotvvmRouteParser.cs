@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Routing
 
             var regex = new StringBuilder("^");
             var parameters = new List<KeyValuePair<string, Func<string, ParameterParseResult>?>>();
-            var urlBuilders = new List<Func<Dictionary<string, object?>, string>>();
+            var urlBuilders = new List<Func<Dictionary<string, string?>, string>>();
             urlBuilders.Add(_ => "~");
 
             void AppendParameterParserResult(UrlParameterParserResult result)
@@ -70,11 +70,15 @@ namespace DotVVM.Framework.Routing
             // finish the route-matching regular expression
             regex.Append("/?$");
 
+            // map of A -> {A} to produce a URL template for client-side buildRouteUrl
+            var fakeParameters = parameters.ToDictionary(p => p.Key, p => (string?)("{" + p.Key.ToLowerInvariant() + "}"));
+
             return new UrlParserResult
             {
                 RouteRegex = new Regex(regex.ToString(), RegexOptions.Compiled | RegexOptions.IgnoreCase),
                 UrlBuilders = urlBuilders,
-                Parameters = parameters
+                Parameters = parameters,
+                UrlWithoutTypes = string.Concat(urlBuilders.Skip(1).Select(b => b(fakeParameters))).TrimStart('/')
             };
         }
 
@@ -138,7 +142,7 @@ namespace DotVVM.Framework.Routing
             }
             if (url[index] != '}') throw new AggregateException($"Route parameter { name } should be closed with curly bracket");
 
-            Func<Dictionary<string, object?>, string> urlBuilder;
+            Func<Dictionary<string, string?>, string> urlBuilder;
             // generate the URL builder
             if (isOptional)
             {
@@ -146,7 +150,7 @@ namespace DotVVM.Framework.Routing
                 {
                     if (v.TryGetValue(name, out var r) && r != null)
                     {
-                        return prefix + r.ToString();
+                        return prefix + r;
                     }
                     else
                     {
@@ -182,7 +186,7 @@ namespace DotVVM.Framework.Routing
         private struct UrlParameterParserResult
         {
             public string ParameterRegexPart { get; set; }
-            public Func<Dictionary<string, object?>, string> UrlBuilder { get; set; }
+            public Func<Dictionary<string, string?>, string> UrlBuilder { get; set; }
             public KeyValuePair<string, Func<string, ParameterParseResult>?> Parameter { get; set; }
         }
     }
@@ -190,7 +194,8 @@ namespace DotVVM.Framework.Routing
     public struct UrlParserResult
     {
         public Regex RouteRegex { get; set; }
-        public List<Func<Dictionary<string, object?>, string>> UrlBuilders { get; set; }
+        public List<Func<Dictionary<string, string?>, string>> UrlBuilders { get; set; }
         public List<KeyValuePair<string, Func<string, ParameterParseResult>?>> Parameters { get; set; }
+        public string UrlWithoutTypes { get; set; }
     }
 }
