@@ -203,6 +203,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_CommandArguments_CommandArgumentTypes = "FeatureSamples/CommandArguments/CommandArgumentTypes";
         public const string FeatureSamples_CommandArguments_ReturnValue = "FeatureSamples/CommandArguments/ReturnValue";
         public const string FeatureSamples_ConditionalCssClasses_ConditionalCssClasses = "FeatureSamples/ConditionalCssClasses/ConditionalCssClasses";
+        public const string FeatureSamples_CustomResponseProperties_SimpleExceptionFilter = "FeatureSamples/CustomResponseProperties/SimpleExceptionFilter";
         public const string FeatureSamples_DateTimeSerialization_DateTimeSerialization = "FeatureSamples/DateTimeSerialization/DateTimeSerialization";
         public const string FeatureSamples_DependencyInjection_ViewModelScopedService = "FeatureSamples/DependencyInjection/ViewModelScopedService";
         public const string FeatureSamples_Directives_ImportDirective = "FeatureSamples/Directives/ImportDirective";
@@ -313,5 +314,6 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ViewModelProtection_SignedNestedInServerToClient = "FeatureSamples/ViewModelProtection/SignedNestedInServerToClient";
         public const string FeatureSamples_ViewModelProtection_ViewModelProtection = "FeatureSamples/ViewModelProtection/ViewModelProtection";
         public const string FeatureSamples_Warnings_SelfClosingTags = "FeatureSamples/Warnings/SelfClosingTags";
-        }
+        public const string FeatureSamples_StaticCommand_CustomAwaitable = "FeatureSamples/StaticCommand/CustomAwaitable";
+    }
 }

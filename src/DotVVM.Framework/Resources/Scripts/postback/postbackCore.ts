@@ -214,4 +214,5 @@ type PostbackResponse =
         action: string
         resultIdFragment?: string,
         typeMetadata?: TypeMap
+        customData?: { [key: string]: any }
     }

@@ -144,9 +144,9 @@ interface DotvvmPostbackHandlerCollection {
     [name: string]: ((options: any) => DotvvmPostbackHandler);
 }
 
-type StaticCommandResponse<T = any> = {
-    result: T,
-    typeMetadata?: TypeMap
+type DotvvmStaticCommandResponse<T = any> = {
+    result: any;
+    customData: { [key: string]: any };
 } | {
     action: "redirect",
     url: string,

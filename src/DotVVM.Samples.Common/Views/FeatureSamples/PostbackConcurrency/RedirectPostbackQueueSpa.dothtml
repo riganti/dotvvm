@@ -4,7 +4,7 @@
 <dot:Content ContentPlaceHolderID="MainContent">
 
     <h1>Redirect should cancel waiting postbacks in SPA</h1>
-    
+
     <h2>Value: <span class="result">{{value: Value}}</span></h2>
 
     <p>Click the first button and the second button immediately - the value should not be incremented to 1 when the page is reloading.</p>

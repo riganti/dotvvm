@@ -58,18 +58,14 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
         return response.result.result;
         
     } catch (err) {
-        if (err instanceof DotvvmPostbackError) {
-            events.staticCommandMethodFailed.trigger({ 
-                ...options, 
-                methodId: command,
-                methodArgs: args,
-                error: err,
-                result: (err.reason as any).responseObject, 
-                response: (err.reason as any).response 
-            })
-        } else {
-            console.error("Error in static command execution: ", err)
-        }
+        events.staticCommandMethodFailed.trigger({ 
+            ...options, 
+            methodId: command,
+            methodArgs: args,
+            error: err,
+            result: (err.reason as any)?.responseObject, 
+            response: (err.reason as any)?.response 
+        })
         
         throw err;
     }
