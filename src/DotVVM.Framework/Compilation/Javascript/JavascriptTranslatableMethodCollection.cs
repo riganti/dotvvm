@@ -238,6 +238,39 @@ namespace DotVVM.Framework.Compilation.Javascript
             var selectMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(m => m.Name == "Select" && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)).Single();
             AddMethodTranslator(selectMethod, translator: new GenericMethodCompiler(args => args[1].Member("map").Invoke(args[2])));
+
+            JsExpression CreateArrayNullEmptyCheck(JsExpression arrayExpression)
+            {
+                return new JsBinaryExpression(
+                           new JsIdentifierExpression("Array").Member("isArray").Invoke(arrayExpression),
+                           BinaryOperatorType.ConditionalAnd,
+                           new JsBinaryExpression(arrayExpression.Member("length").Invoke(), BinaryOperatorType.NotEqual, new JsLiteral(0)));
+            }
+
+            var firstOrDefaultMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static).Where(m => m.Name == "FirstOrDefault" && m.GetParameters().Length == 1).Single();
+            AddMethodTranslator(firstOrDefaultMethod, translator: new GenericMethodCompiler(args =>
+                new JsConditionalExpression(
+                    CreateArrayNullEmptyCheck(args[1]),
+                    new JsIndexerExpression(args[1], new JsLiteral(0)),
+                    new JsLiteral(null))
+            ));
+
+            var lastOrDefaultMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static).Where(m => m.Name == "LastOrDefault" && m.GetParameters().Length == 1).Single();
+            AddMethodTranslator(lastOrDefaultMethod, translator: new GenericMethodCompiler(args =>
+                new JsConditionalExpression(
+                    CreateArrayNullEmptyCheck(args[1]),
+                    new JsIndexerExpression(args[1], new JsBinaryExpression(args[1].Member("length").Invoke(), BinaryOperatorType.Minus, new JsLiteral(1))),
+                    new JsLiteral(null))
+            ));
+
+            var skipMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static).Where(m => m.Name == "Skip" && m.GetParameters().Length == 2).Single();
+            AddMethodTranslator(skipMethod, translator: new GenericMethodCompiler(args => args[1].Member("slice").Invoke(args[2])));
+
+            var takeMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static).Where(m => m.Name == "Take" && m.GetParameters().Length == 2).Single();
+            AddMethodTranslator(takeMethod, translator: new GenericMethodCompiler(args => args[1].Member("slice").Invoke(new JsLiteral(0), args[2])));
+
+            var concatMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static).Where(m => m.Name == "Concat" && m.GetParameters().Length == 2).Single();
+            AddMethodTranslator(concatMethod, translator: new GenericMethodCompiler(args => args[1].Member("concat").Invoke(args[2])));
         }
 
         public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] args, MethodInfo method)
