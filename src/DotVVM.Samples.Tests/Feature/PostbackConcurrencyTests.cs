@@ -190,7 +190,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        [Fact]
+        [Fact(Skip = "Cannot read element contents when the browser is already navigating away - getting element stale exception.")]
         public void Feature_PostbackConcurrency_RedirectPostbackQueue()
         {
             RunInAllBrowsers(browser => {
