@@ -56,8 +56,8 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
             methodId: command,
             methodArgs: args,
             error: err,
-            result: (err.reason as any).responseObject, 
-            response: (err.reason as any).response 
+            result: (err.reason as any)?.responseObject, 
+            response: (err.reason as any)?.response 
         })
         
         throw err;

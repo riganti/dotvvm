@@ -39,10 +39,13 @@ namespace DotVVM.Framework.Testing
         public DotvvmView View { get; set; }
 
         private IServiceProvider _services;
+
         public IServiceProvider Services
         {
             get => _services ?? Configuration?.ServiceProvider ?? throw new NotSupportedException();
             set => _services = value;
         }
+
+        public CustomResponsePropertiesManager CustomResponseProperties { get; } = new CustomResponsePropertiesManager();
     }
 }

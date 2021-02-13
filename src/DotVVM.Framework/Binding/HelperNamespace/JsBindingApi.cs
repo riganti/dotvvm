@@ -9,9 +9,9 @@ namespace DotVVM.Framework.Binding.HelperNamespace
     public class JsBindingApi
     {
         public void Invoke(string name, params object[] args) =>
-            throw new Exception("Can not invoke JS command server-side.");
+            throw new Exception($"Can not invoke JS command server-side: {name}({string.Join(", ", args)}).");
         public T Invoke<T>(string name, params object[] args) =>
-            throw new Exception("Can not invoke JS command server-side.");
+            throw new Exception($"Can not invoke JS command server-side: {name}({string.Join(", ", args)}) -> {typeof(T).Name}.");
 
         internal static void RegisterJavascriptTranslations(JavascriptTranslatableMethodCollection collection)
         {
