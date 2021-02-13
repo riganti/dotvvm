@@ -8,6 +8,7 @@ using DotVVM.Framework.Hosting;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Globalization;
 
 namespace DotVVM.Framework.Tests.Routing
 {
@@ -362,6 +363,27 @@ namespace DotVVM.Framework.Tests.Routing
             Assert.AreEqual("~/RR", result);
         }
 
+        [TestMethod]
+        public void DotvvmRoute_BuildUrl_InvariantCulture()
+        {
+            CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo("cs-CZ");
+            var route = new DotvvmRoute("RR-{p}", null, null, null, configuration);
+
+            var result = route.BuildUrl(new { p = 1.1});
+
+            Assert.AreEqual("~/RR-1.1", result);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_BuildUrl_UrlEncode()
+        {
+            CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo("cs-CZ");
+            var route = new DotvvmRoute("RR-{p}", null, null, null, configuration);
+
+            var result = route.BuildUrl(new { p = 1.1});
+
+            Assert.AreEqual("~/RR-1.1", result);
+        }
 
         [TestMethod]
         public void DotvvmRoute_BuildUrl_Invalid_UnclosedParameter()
@@ -387,6 +409,18 @@ namespace DotVVM.Framework.Tests.Routing
             });
         }
 
+        [TestMethod]
+        public void DotvvmRoute_BuildUrl_Parameter_UrlDecode()
+        {
+            var route = new DotvvmRoute("Article/{Title}", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article/" + Uri.EscapeDataString("x a d # ? %%%%% | ://"), out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(1, parameters.Count);
+            Assert.AreEqual("x a d # ? %%%%% | ://", parameters["Title"]);
+        }
 
         [TestMethod]
         public void DotvvmRoute_BuildUrl_ParameterConstraint_Int()
@@ -547,6 +581,18 @@ namespace DotVVM.Framework.Tests.Routing
             Assert.IsTrue(route.IsMatch("test/bb", out parameters));
             Assert.IsTrue(route.IsMatch("test/cc", out parameters));
             Assert.IsFalse(route.IsMatch("test/aaaa", out parameters));
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_UrlWithoutTypes()
+        {
+            string parse(string url) => new DotvvmRoute(url, null, null, null, configuration).UrlWithoutTypes;
+
+            Assert.AreEqual(parse("test/xx/12"), "test/xx/12");
+            Assert.AreEqual(parse("test/{Param}-{PaRAM2}"), "test/{param}-{param2}");
+            Assert.AreEqual(parse("test/{Param?}-{PaRAM2?}"), "test/{param}-{param2}");
+            Assert.AreEqual(parse("test/{Param:int}-{PaRAM2?:regex(.*)}"), "test/{param}-{param2}");
+            Assert.AreEqual(parse("test/{Param:int}-{PaRAM2?:regex((.){4,10})}"), "test/{param}-{param2}");
         }
     }
 

@@ -128,6 +128,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                             Read();
                             EnsureUnsupportedOperator(BindingTokenType.EqualsEqualsOperator);
                         }
+                        else if (Peek() == '>')
+                        {
+                            Read();
+                            EnsureUnsupportedOperator(BindingTokenType.LambdaOperator);
+                        }
                         else {
                             EnsureUnsupportedOperator(BindingTokenType.AssignOperator);
                         }
