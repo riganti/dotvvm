@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Tests.Common.Binding
             Call_FindOverload_Generic(typeof(MethodsGenericArgumentsResolvingSampleObject3), MethodsGenericArgumentsResolvingSampleObject3.MethodName, argTypes, resultIdentifierType, expectedGenericArgs);
         }
         [TestMethod]
-        [DataRow(typeof(int[]), new Type[] { typeof(int[]) }, new Type[] { typeof(int) })]      
+        [DataRow(typeof(int[]), new Type[] { typeof(int[]) }, new Type[] { typeof(int) })]
         public void Call_FindOverload_Generic_Array(Type resultIdentifierType, Type[] argTypes, Type[] expectedGenericArgs)
         {
             Call_FindOverload_Generic(typeof(MethodsGenericArgumentsResolvingSampleObject4), MethodsGenericArgumentsResolvingSampleObject4.MethodName, argTypes, resultIdentifierType, expectedGenericArgs);
