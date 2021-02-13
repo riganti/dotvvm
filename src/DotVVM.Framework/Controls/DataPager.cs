@@ -148,6 +148,8 @@ namespace DotVVM.Framework.Controls
         protected PlaceHolder? NumberButtonsPlaceHolder { get; set; }
         protected HtmlGenericControl? GoToNextPageButton { get; set; }
         protected HtmlGenericControl? GoToLastPageButton { get; set; }
+        protected virtual string ActiveItemCssClass => "active";
+        protected virtual string DisabledItemCssClass => "disabled";
 
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
@@ -193,7 +195,7 @@ namespace DotVVM.Framework.Controls
                     li.SetBinding(DataContextProperty, GetNearIndexesBinding(context, i, dataContextType));
                     if (number == dataSet.PagingOptions.PageIndex)
                     {
-                        li.Attributes["class"] = "active";
+                        li.Attributes["class"] = ActiveItemCssClass;
                     }
                     var link = new LinkButton() { Text = (number + 1).ToString() };
                     link.SetBinding(ButtonBase.ClickProperty, bindings.GoToThisPageCommand);
@@ -285,7 +287,7 @@ namespace DotVVM.Framework.Controls
             }
             else if (!Enabled)
             {
-                writer.AddAttribute("class", "disabled", true, " ");
+                writer.AddAttribute("class", DisabledItemCssClass, true);
             }
 
             writer.AddKnockoutDataBind("with", this, DataSetProperty, renderEvenInServerRenderingMode: true);
@@ -298,12 +300,12 @@ namespace DotVVM.Framework.Controls
 
         protected virtual void AddKnockoutDisabledCssDataBind(IHtmlWriter writer, IDotvvmRequestContext context, string expression)
         {
-            writer.AddKnockoutDataBind("css", $"{{ 'disabled': {expression} }}");
+            writer.AddKnockoutDataBind("css", $"{{ '{DisabledItemCssClass}': {expression} }}");
         }
 
         protected virtual void AddKnockoutActiveCssDataBind(IHtmlWriter writer, IDotvvmRequestContext context, string expression)
         {
-            writer.AddKnockoutDataBind("css", $"{{ 'active': {expression} }}");
+            writer.AddKnockoutDataBind("css", $"{{ '{ActiveItemCssClass}': {expression} }}");
         }
 
         private static ParametrizedCode currentPageTextJs = new JsBinaryExpression(new JsBinaryExpression(new JsLiteral(1), BinaryOperatorType.Plus, new JsSymbolicParameter(JavascriptTranslator.KnockoutViewModelParameter)), BinaryOperatorType.Plus, new JsLiteral("")).FormatParametrizedScript();
@@ -351,7 +353,7 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddKnockoutDataBind("visible", "$data == $parent.PagingOptions().PageIndex()");
                 AddItemCssClass(writer, context);
-                writer.AddAttribute("class", "active");
+                writer.AddAttribute("class", ActiveItemCssClass, true);
                 var literal = new Literal();
                 literal.DataContext = 0;
                 literal.SetBinding(Literal.TextProperty, currentPageTextBinding);

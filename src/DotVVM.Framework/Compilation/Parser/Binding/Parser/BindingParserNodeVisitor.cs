@@ -48,6 +48,14 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitUnaryOperator((UnaryOperatorBindingParserNode)node);
             }
+            else if (node is LambdaBindingParserNode)
+            {
+                return VisitLambda((LambdaBindingParserNode)node);
+            }
+            else if (node is LambdaParameterBindingParserNode)
+            {
+                return VisitLambdaParameter((LambdaParameterBindingParserNode)node);
+            }
             else if (node is MultiExpressionBindingParserNode)
             {
                 return VisitMultiExpression((MultiExpressionBindingParserNode)node);
@@ -72,6 +80,16 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 throw new NotSupportedException($"The node of type {node.GetType()} is not supported!");
             }
+        }
+
+        protected virtual T VisitLambda(LambdaBindingParserNode node)
+        {
+            return DefaultVisit(node);
+        }
+
+        protected virtual T VisitLambdaParameter(LambdaParameterBindingParserNode node)
+        {
+            return DefaultVisit(node);
         }
 
         protected virtual T VisitGenericName(GenericNameBindingParserNode node)
