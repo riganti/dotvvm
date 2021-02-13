@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,14 +20,23 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomResponseProperti
         {
             if (exception is UIException clientError)
             {
-                context.CustomResponseProperties.Add("validation-errors",new PageErrorModel {
-                    Message = clientError.Message
-                });
-                context.CustomResponseProperties.Add("Message", "Hello there");
-
-                context.IsCommandExceptionHandled = true;
+                HandleUiException(context, clientError);
+            }
+            else if(exception is AggregateException aggregate && aggregate.InnerException is UIException uiException)
+            {
+                HandleUiException(context, uiException);
             }
             return Task.FromResult(0);
+        }
+
+        private void HandleUiException(IDotvvmRequestContext context, UIException clientError)
+        {
+            context.CustomResponseProperties.Add("validation-errors", new PageErrorModel {
+                Message = clientError.Message
+            });
+            context.CustomResponseProperties.Add("Message", "Hello there");
+
+            context.IsCommandExceptionHandled = true;
         }
     }
     public class UIException : Exception
@@ -37,6 +47,8 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomResponseProperti
     }
     public class SimpleExceptionFilterViewModel : DotvvmViewModelBase
     {
+        public string TestProperty { get; set; }
+
         [AllowStaticCommand]
         [ClientExceptionFilter]
         public static void StaticCommand()
@@ -47,6 +59,49 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CustomResponseProperti
         [ClientExceptionFilter]
         public void Command()
         {
+            throw new UIException("Problem!");
+        }
+
+        [AllowStaticCommand]
+        [ClientExceptionFilter]
+        public static async Task AsyncStaticCommand()
+        {
+            await Task.Delay(500);
+            throw new UIException("Problem!");
+        }
+
+        [ClientExceptionFilter]
+        public async Task AsyncCommand()
+        {
+            await Task.Delay(500);
+            throw new UIException("Problem!");
+        }
+
+        [AllowStaticCommand]
+        [ClientExceptionFilter]
+        public static string StaticCommandResult()
+        {
+            throw new UIException("Problem!");
+        }
+
+        [ClientExceptionFilter]
+        public string CommandResult()
+        {
+            throw new UIException("Problem!");
+        }
+
+        [AllowStaticCommand]
+        [ClientExceptionFilter]
+        public static async Task<string> AsyncStaticCommandResult()
+        {
+            await Task.Delay(500);
+            throw new UIException("Problem!");
+        }
+
+        [ClientExceptionFilter]
+        public async Task<string> AsyncCommandResult()
+        {
+            await Task.Delay(500).ConfigureAwait(false);
             throw new UIException("Problem!");
         }
     }
