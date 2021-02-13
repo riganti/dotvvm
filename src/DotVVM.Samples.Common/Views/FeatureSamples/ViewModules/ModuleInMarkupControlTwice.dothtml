@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.PageModules.ModuleInMarkupControlTwiceViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules.ModuleInMarkupControlTwiceViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 

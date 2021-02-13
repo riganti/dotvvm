@@ -1,6 +1,6 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.PageModules.ModuleInPageViewModel, DotVVM.Samples.Common
-@js FeatureSamples_Resources_TestPageModule
-@import DotVVM.Samples.Common.ViewModels.FeatureSamples.PageModules
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules.ModuleInPageViewModel, DotVVM.Samples.Common
+@js FeatureSamples_Resources_TestViewModule
+@import DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules
 
 <!DOCTYPE html>
 

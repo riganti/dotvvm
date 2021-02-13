@@ -1,6 +1,6 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.PageModules.ModuleInPageCommandAmbiguousViewModel, DotVVM.Samples.Common
-@js FeatureSamples_Resources_TestPageModule
-@js FeatureSamples_Resources_TestPageModule2
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules.ModuleInPageCommandAmbiguousViewModel, DotVVM.Samples.Common
+@js FeatureSamples_Resources_TestViewModule
+@js FeatureSamples_Resources_TestViewModule2
 
 <!DOCTYPE html>
 

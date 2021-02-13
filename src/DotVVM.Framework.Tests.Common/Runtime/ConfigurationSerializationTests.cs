@@ -32,19 +32,24 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void SerializeDefaultConfig()
         {
-            checkConfig(DotvvmConfiguration.CreateDefault());
+            var config = DotvvmConfiguration.CreateDefault();
+            config.DefaultCulture = "en-US";
+            checkConfig(config);
         }
 
         [TestMethod]
         public void SerializeEmptyConfig()
         {
-            checkConfig(new DotvvmConfiguration());
+            var config = new DotvvmConfiguration();
+            config.DefaultCulture = "en-US";
+            checkConfig(config);
         }
 
         [TestMethod]
         public void SerializeRoutes()
         {
             var c = new DotvvmConfiguration();
+            c.DefaultCulture = "en-US";
 
             c.RouteTable.Add("route1", "url1", "file1.dothtml", new { a = "ccc" });
             c.RouteTable.Add("route2", "url2/{int}", "file1.dothtml", new { a = "ccc" });
@@ -67,6 +72,8 @@ namespace DotVVM.Framework.Tests.Runtime
         public void SerializeResources()
         {
             var c = new DotvvmConfiguration();
+            c.DefaultCulture = "en-US";
+
             c.Resources.Register("r1", new ScriptResource(
                 new UrlResourceLocation("x")) {
                     IntegrityHash = "hash, maybe",
@@ -104,6 +111,7 @@ namespace DotVVM.Framework.Tests.Runtime
         public void ExperimentalFeatures()
         {
             var c = new DotvvmConfiguration();
+            c.DefaultCulture = "en-US";
 
             c.ExperimentalFeatures.LazyCsrfToken.EnableForAllRoutesExcept(new [] { "r1", "r2" });
             c.ExperimentalFeatures.ServerSideViewModelCache.EnableForRoutes(new [] { "r1", "r2" });
@@ -115,6 +123,7 @@ namespace DotVVM.Framework.Tests.Runtime
         public void Markup()
         {
             var c = new DotvvmConfiguration();
+            c.DefaultCulture = "en-US";
 
             c.Markup.DefaultDirectives.Add("dir1", "MyDirective");
             c.Markup.AddCodeControls("myControls", typeof(ControlLifeCycleMock));
@@ -133,6 +142,7 @@ namespace DotVVM.Framework.Tests.Runtime
         public void RestAPI()
         {
             var c = new DotvvmConfiguration();
+            c.DefaultCulture = "en-US";
 
             c.RegisterApiClient(typeof(Binding.TestApiClient), "http://server/api", "./apiscript.js", "_testApi");
 

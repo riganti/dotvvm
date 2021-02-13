@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
     {
         ControlTestHelper cth = new ControlTestHelper(config: config => {
             config.Resources.Register("myModule", new ScriptModuleResource(new InlineResourceLocation("export const jsCommand = { myCommand() { } }")));
-            config.Resources.Register("pageModule", new ScriptModuleResource(new InlineResourceLocation("export const jsCommand = { myCommand() { } }")));
+            config.Resources.Register("viewModule", new ScriptModuleResource(new InlineResourceLocation("export const jsCommand = { myCommand() { } }")));
             config.Resources.Register("controlModule", new ScriptModuleResource(new InlineResourceLocation("export const jsCommand = { myCommand() { } }")));
             config.Markup.AddMarkupControl("cc", "CustomControlWithModule", "CustomControlWithModule.dotcontrol");
             // config.Resources.Register
@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
                     <cc:CustomControlWithModule />
                 </dot:Repeater>
                 ",
-                directives: "@js pageModule",
+                directives: "@js viewModule",
                 renderResources: true,
                 markupFiles: new Dictionary<string, string> {
                     ["CustomControlWithModule.dotcontrol"] = @"

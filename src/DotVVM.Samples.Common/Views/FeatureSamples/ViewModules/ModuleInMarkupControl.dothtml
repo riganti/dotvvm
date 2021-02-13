@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.PageModules.PageModulesViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules.ViewModulesViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 

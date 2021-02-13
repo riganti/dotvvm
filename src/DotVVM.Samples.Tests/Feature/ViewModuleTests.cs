@@ -11,38 +11,38 @@ using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
-    public class PageModuleTests : AppSeleniumTest
+    public class ViewModuleTests : AppSeleniumTest
     {
-        public PageModuleTests(ITestOutputHelper output) : base(output)
+        public ViewModuleTests(ITestOutputHelper output) : base(output)
         {
         }
 
         [Fact]
-        public void Feature_PageModules_ModuleInMarkupControl()
+        public void Feature_ViewModules_ModuleInMarkupControl()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PageModules_ModuleInMarkupControl);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInMarkupControl);
                 browser.Wait();
 
                 var log = browser.Single("#log");
-                browser.WaitFor(() => AssertLastLogEntry(log, "testPageModule: init"), 5000);
+                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule: init"), 5000);
 
                 var moduleButtons = browser.FindElements("input[type=button]");
                 var incrementValue = browser.First(".increment-value");
                 var result = browser.First(".named-command-result");
-                TestModule(browser, log, moduleButtons, incrementValue, result, "testPageModule");
+                TestModule(browser, log, moduleButtons, incrementValue, result, "testViewModule");
             });
         }
 
         [Fact]
-        public void Feature_PageModules_ModuleInMarkupControlTwice()
+        public void Feature_ViewModules_ModuleInMarkupControlTwice()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PageModules_ModuleInMarkupControlTwice);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInMarkupControlTwice);
                 browser.Wait();
 
                 var log = browser.Single("#log");
-                browser.WaitFor(() => AssertLastLogEntry(log, "testPageModule: init"), 5000);
+                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule: init"), 5000);
 
                 var toggleButton = browser.Single(".toggle input[type=button]");
 
@@ -50,118 +50,118 @@ namespace DotVVM.Samples.Tests.Feature
                 var moduleButtons = browser.FindElements(".control1 input[type=button]");
                 var incrementValue = browser.First(".control1 .increment-value");
                 var result = browser.First(".control1 .named-command-result");
-                TestModule(browser, log, moduleButtons, incrementValue, result, "testPageModule");
+                TestModule(browser, log, moduleButtons, incrementValue, result, "testViewModule");
 
                 // show second instance
                 toggleButton.Click();
-                browser.WaitFor(() => AssertLastLogEntry(log, "testPageModule: init"), 5000);
+                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule: init"), 5000);
 
                 // test second instance
                 moduleButtons = browser.FindElements(".control2 input[type=button]");
                 incrementValue = browser.First(".control2 .increment-value");
                 result = browser.First(".control2 .named-command-result");
-                TestModule(browser, log, moduleButtons, incrementValue, result, "testPageModule");
+                TestModule(browser, log, moduleButtons, incrementValue, result, "testViewModule");
 
                 // hide second instance
                 toggleButton.Click();
-                browser.WaitFor(() => AssertLastLogEntry(log, "testPageModule: dispose"), 5000);
+                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule: dispose"), 5000);
 
                 // show second instance
                 toggleButton.Click();
-                browser.WaitFor(() => AssertLastLogEntry(log, "testPageModule: init"), 5000);
+                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule: init"), 5000);
             });
         }
 
         [Fact]
-        public void Feature_PageModules_ModuleInPage()
+        public void Feature_ViewModules_ModuleInPage()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PageModules_ModuleInPage);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInPage);
                 browser.Wait();
 
                 var log = browser.Single("#log");
-                browser.WaitFor(() => AssertLastLogEntry(log, "testPageModule: init"), 5000);
+                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule: init"), 5000);
 
                 var moduleButtons = browser.FindElements("input[type=button]");
                 var incrementValue = browser.First(".increment-value");
                 var result = browser.First(".named-command-result");
-                TestModule(browser, log, moduleButtons, incrementValue, result, "testPageModule");
+                TestModule(browser, log, moduleButtons, incrementValue, result, "testViewModule");
             });
         }
 
         [Fact]
-        public void Feature_PageModules_ModuleInPageCommandAmbiguous()
+        public void Feature_ViewModules_ModuleInPageCommandAmbiguous()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PageModules_ModuleInPageCommandAmbiguous);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInPageCommandAmbiguous);
                 browser.Wait();
 
                 var log = browser.Single("#log");
-                browser.WaitFor(() => AssertLogEntry(log, "testPageModule: init"), 5000);
-                browser.WaitFor(() => AssertLogEntry(log, "testPageModule2: init"), 5000);
+                browser.WaitFor(() => AssertLogEntry(log, "testViewModule: init"), 5000);
+                browser.WaitFor(() => AssertLogEntry(log, "testViewModule2: init"), 5000);
 
                 browser.First("input[type=button]").Click();
                 browser.Wait(5000);
-                AssertUI.InnerText(log, t => !t.Contains("testPageModule: commands.noArgs()"));
-                AssertUI.InnerText(log, t => !t.Contains("testPageModule2: commands.noArgs()"));
+                AssertUI.InnerText(log, t => !t.Contains("testViewModule: commands.noArgs()"));
+                AssertUI.InnerText(log, t => !t.Contains("testViewModule2: commands.noArgs()"));
             });
         }
 
         [Fact]
-        public void Feature_PageModules_ModuleInPageMasterPage()
+        public void Feature_ViewModules_ModuleInPageMasterPage()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PageModules_ModuleInPageMasterPage);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInPageMasterPage);
                 browser.Wait();
 
                 var log = browser.Single("#log");
-                browser.WaitFor(() => AssertLogEntry(log, "testPageModule: init"), 5000);
-                browser.WaitFor(() => AssertLogEntry(log, "testPageModule2: init"), 5000);
+                browser.WaitFor(() => AssertLogEntry(log, "testViewModule: init"), 5000);
+                browser.WaitFor(() => AssertLogEntry(log, "testViewModule2: init"), 5000);
 
                 var moduleButtons = browser.FindElements(".master input[type=button]");
                 var incrementValue = browser.First(".master .increment-value");
                 var result = browser.First(".master .named-command-result");
-                TestModule(browser, log, moduleButtons, incrementValue, result, "testPageModule");
+                TestModule(browser, log, moduleButtons, incrementValue, result, "testViewModule");
 
                 moduleButtons = browser.FindElements(".page input[type=button]");
                 incrementValue = browser.First(".page .increment-value");
                 result = browser.First(".page .named-command-result");
-                TestModule(browser, log, moduleButtons, incrementValue, result, "testPageModule2");
+                TestModule(browser, log, moduleButtons, incrementValue, result, "testViewModule2");
             });
         }
 
         [Fact]
-        public void Feature_PageModules_ModuleInPageSpaMasterPage()
+        public void Feature_ViewModules_ModuleInPageSpaMasterPage()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PageModules_ModuleInPageSpaMasterPage2);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInPageSpaMasterPage2);
                 browser.Wait();
 
                 var links = browser.FindElements("a");
 
                 var log = browser.Single("#log");
-                browser.WaitFor(() => AssertLastLogEntry(log, "testPageModule: init"), 5000);
+                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule: init"), 5000);
                 browser.Wait(5000);
-                AssertUI.InnerText(log, t => !t.Contains("testPageModule2: init"));
+                AssertUI.InnerText(log, t => !t.Contains("testViewModule2: init"));
 
                 links[0].Click();
-                browser.WaitFor(() => AssertLastLogEntry(log, "testPageModule2: init"), 5000);
+                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule2: init"), 5000);
 
                 var moduleButtons = browser.FindElements(".master input[type=button]");
                 var incrementValue = browser.First(".master .increment-value");
                 var result = browser.First(".master .named-command-result");
-                TestModule(browser, log, moduleButtons, incrementValue, result, "testPageModule");
+                TestModule(browser, log, moduleButtons, incrementValue, result, "testViewModule");
 
                 moduleButtons = browser.FindElements(".page input[type=button]");
                 incrementValue = browser.First(".page .increment-value");
                 result = browser.First(".page .named-command-result");
-                TestModule(browser, log, moduleButtons, incrementValue, result, "testPageModule2");
+                TestModule(browser, log, moduleButtons, incrementValue, result, "testViewModule2");
 
                 links[1].Click();
-                browser.WaitFor(() => AssertLastLogEntry(log, "testPageModule2: dispose"), 5000);
+                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule2: dispose"), 5000);
 
                 links[0].Click();
-                browser.WaitFor(() => AssertLastLogEntry(log, "testPageModule2: init"), 5000);
+                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule2: init"), 5000);
             });
         }
 

@@ -1,9 +1,0 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.PageModules.ModuleInPageSpaMasterPage2ViewModel, DotVVM.Samples.Common
-@masterPage Views/FeatureSamples/PageModules/ModuleSpaMasterPage.dotmaster
-
-<dot:Content ContentPlaceHolderID="MainContent">
-
-    <p>No module here</p>
-
-</dot:Content>
-

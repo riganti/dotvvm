@@ -13,7 +13,7 @@
     <Content Include="**/*.dotmaster;**/*.dotcontrol;**/*.dothtml" Exclude="obj/**/*.*;bin/**/*.*" CopyToPublishDirectory="Always" />
   </ItemGroup>
   <ItemGroup>
-    <Content Remove="Views\FeatureSamples\PageModules\ModuleControl.dotcontrol" />
+    <Content Remove="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="sampleConfig.json" />
@@ -56,16 +56,16 @@
     <None Remove="Views\FeatureSamples\JsDirectives\BasicSample.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\LambdaExpressions.dothtml" />
     <None Remove="Views\FeatureSamples\Localization\Globalize.dothtml" />
-    <None Remove="Views\FeatureSamples\PageModules\ModuleControl.dotcontrol" />
-    <None Remove="Views\FeatureSamples\PageModules\ModuleInMarkupControl.dothtml" />
-    <None Remove="Views\FeatureSamples\PageModules\ModuleInMarkupControlTwice.dothtml" />
-    <None Remove="Views\FeatureSamples\PageModules\ModuleInPage.dothtml" />
-    <None Remove="Views\FeatureSamples\PageModules\ModuleInPageCommandAmbiguous.dothtml" />
-    <None Remove="Views\FeatureSamples\PageModules\ModuleInPageMasterPage.dothtml" />
-    <None Remove="Views\FeatureSamples\PageModules\ModuleInPageSpaMasterPage.dothtml" />
-    <None Remove="Views\FeatureSamples\PageModules\ModuleInPageSpaMasterPage2.dothtml" />
-    <None Remove="Views\FeatureSamples\PageModules\ModuleMasterPage.dotmaster" />
-    <None Remove="Views\FeatureSamples\PageModules\ModuleSpaMasterPage.dotmaster" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleInMarkupControl.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleInMarkupControlTwice.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleInPage.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleInPageCommandAmbiguous.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleInPageMasterPage.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleInPageSpaMasterPage.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleInPageSpaMasterPage2.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleMasterPage.dotmaster" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleSpaMasterPage.dotmaster" />
     <None Remove="Views\FeatureSamples\PostbackConcurrency\RedirectPostbackQueue.dothtml" />
     <None Remove="Views\FeatureSamples\PostbackConcurrency\StressTest.dothtml" />
     <None Remove="Views\FeatureSamples\PostBack\RecursiveTextRepeater.dotcontrol" />
@@ -102,7 +102,7 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Views\FeatureSamples\PageModules\ModuleControl.dotcontrol" />
+    <EmbeddedResource Include="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
@@ -121,9 +121,6 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ViewModels\FeatureSamples\ViewModules\" />
   </ItemGroup>
   <PropertyGroup Label="Configuration">
     <OutputPath>bin\Debug</OutputPath>

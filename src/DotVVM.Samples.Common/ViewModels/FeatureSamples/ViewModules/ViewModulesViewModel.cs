@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using DotVVM.Framework.ViewModel;
+﻿using DotVVM.Framework.ViewModel;
 
-namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.PageModules
+namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules
 {
-    public class PageModulesViewModel : DotvvmViewModelBase
+    public class ViewModulesViewModel : DotvvmViewModelBase
     {
 
         public int Value { get; set; }

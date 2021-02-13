@@ -1,23 +1,10 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.PageModules.ModuleSpaMasterPageViewModel, DotVVM.Samples.Common
-@js FeatureSamples_Resources_TestPageModule
-@import DotVVM.Samples.Common.ViewModels.FeatureSamples.PageModules
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules.ModuleInPageMasterPageViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/ViewModules/ModuleMasterPage.dotmaster
+@js FeatureSamples_Resources_TestViewModule2
 
-<!DOCTYPE html>
+<dot:Content ContentPlaceHolderID="MainContent">
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
-
-    <div>
-        <dot:RouteLink RouteName="FeatureSamples_PageModules_ModuleInPageSpaMasterPage">Page 1</dot:RouteLink>
-        |
-        <dot:RouteLink RouteName="FeatureSamples_PageModules_ModuleInPageSpaMasterPage2">Page 2</dot:RouteLink>
-    </div>
-
-    <div DataContext="{value: Page}" class="master">
+    <div DataContext="{value: Page2}" class="page">
         <h2>_js.Invoke</h2>
         <p>
             <dot:Button Text="noArgs" Click="{staticCommand: _js.Invoke("noArgs")}" />
@@ -45,14 +32,5 @@
 
     </div>
 
-    <dot:SpaContentPlaceHolder ID="MainContent" />
-
-    <h2>Event log</h2>
-    <pre ID="log">
-    </pre>
-
-    <dot:RequiredResource Name="globalize" />
-
-</body>
-</html>
+</dot:Content>
 
