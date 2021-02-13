@@ -61,6 +61,8 @@ namespace DotVVM.Framework.Routing
 
             public override IEnumerable<string> ParameterNames => new string[0];
 
+            public override string UrlWithoutTypes => base.Url;
+
             public override IDotvvmPresenter GetPresenter(IServiceProvider provider) => throw new InvalidOperationException($"Could not create route {RouteName}", error);
 
             public override bool IsMatch(string url, out IDictionary<string, object> values) => throw new InvalidOperationException($"Could not create route {RouteName}", error);
