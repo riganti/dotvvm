@@ -42,6 +42,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
 
         AssignOperator,
 
+        LambdaOperator,
+
         Semicolon
     }
 }

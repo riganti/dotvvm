@@ -9,6 +9,9 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBackSpaNavigation
 {
     public class PageBViewModel : DenyPostbacksOnSpaNavigationViewModel
     {
+
+        public int Result { get; set; }
+
         public override Task Init()
         {
             Thread.Sleep(2000);

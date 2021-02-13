@@ -50,6 +50,7 @@
     <None Remove="Views\Errors\ResourceCircularDependency.dothtml" />
     <None Remove="Views\FeatureSamples\Caching\CachedValues.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\GenericMethodTranslation.dothtml" />
+    <None Remove="Views\FeatureSamples\LambdaExpressions\LambdaExpressions.dothtml" />
     <None Remove="Views\FeatureSamples\Localization\Globalize.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\CommandPropertiesInMarkupControl.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\Device.dotcontrol" />
@@ -66,6 +67,7 @@
     <None Remove="Views\FeatureSamples\Resources\RequiredOnPostback.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\DeserializationVirtualElements.dothtml" />
     <None Remove="Views\FeatureSamples\CustomResponseProperties\SimpleExceptionFilter.dothtml" />
+    <None Remove="Views\FeatureSamples\StaticCommand\CustomAwaitable.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ArrayAssigment.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_LoadComplexDataFromService.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_NullAssignment.dothtml" />
