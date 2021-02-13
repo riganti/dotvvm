@@ -61,7 +61,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Builds the view model for the client.
         /// </summary>
-        public void BuildViewModel(IDotvvmRequestContext context)
+        public void BuildViewModel(IDotvvmRequestContext context, object commandResult)
         {
             // serialize the ViewModel
             var serializer = CreateJsonSerializer();
@@ -135,6 +135,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             // TODO: do not send on postbacks
             if (validationRules?.Count > 0) result["validationRules"] = validationRules;
+ 
+            if (commandResult != null) result["commandResult"] = WriteCommandData(commandResult, serializer, "the command result");
+            AddCustomPropertiesIfAny(context, serializer, result);
 
             context.ViewModelJson = result;
         }
@@ -154,18 +157,34 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
             };
             serializer.Converters.Add(viewModelConverter);
-            var writer = new JTokenWriter();
             var response = new JObject();
+            response["result"] = WriteCommandData(result, serializer, "the static command result");
+            AddCustomPropertiesIfAny(context, serializer, response);
+            return response.ToString(JsonFormatting);
+        }
+
+        private static void AddCustomPropertiesIfAny(IDotvvmRequestContext context, JsonSerializer serializer, JObject response)
+        {
+            if (context.CustomResponseProperties.Properties.Count > 0)
+            {
+                response["customProperties"] = WriteCommandData(context.CustomResponseProperties.Properties, serializer, "custom properties");
+            }
+            context.CustomResponseProperties.PropertiesSerialized = true;
+        }
+
+        private static JToken WriteCommandData(object data, JsonSerializer serializer, string description)
+        {
+            var writer = new JTokenWriter();
             try
             {
-                serializer.Serialize(writer, result);
+                serializer.Serialize(writer, data);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
+                throw new Exception($"Could not serialize {description} of type '{ data.GetType().FullName}'. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
             }
-            response["result"] = writer.Token;
-            return response.ToString(JsonFormatting);
+
+            return writer.Token;
         }
 
         protected virtual JsonSerializer CreateJsonSerializer() => DefaultSerializerSettingsProvider.Instance.Settings.Apply(JsonSerializer.Create);
