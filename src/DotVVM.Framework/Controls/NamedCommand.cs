@@ -57,8 +57,7 @@ namespace DotVVM.Framework.Controls
                 commandArgs: new CodeParameterAssignment("args", OperatorPrecedence.Max),
                 elementAccessor: "$element"
             );
-            var commandBinding = GetCommandBinding(CommandProperty)!;
-            var command = KnockoutHelper.GenerateClientPostBackScript(nameof(Command), commandBinding, this, options);
+            var command = KnockoutHelper.GenerateClientPostBackExpression(nameof(Command), Command!, this, options);
             command = $"function(...args) {{ return ({command}); }}";
 
             var viewIdJs = ViewModuleHelpers.GetViewIdJsExpression(viewModule, this);

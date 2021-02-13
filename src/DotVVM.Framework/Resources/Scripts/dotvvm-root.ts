@@ -96,7 +96,6 @@ const dotvvmExports = {
         registerOne: viewModuleManager.registerViewModule,
         init: viewModuleManager.initViewModule,
         call: viewModuleManager.callViewModuleCommand,
-        registerNamedCommand: viewModuleManager.registerNamedCommand,
         registerMany: viewModuleManager.registerViewModules
     },
     resourceLoader: {

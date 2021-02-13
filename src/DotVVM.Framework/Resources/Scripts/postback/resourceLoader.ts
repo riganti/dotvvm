@@ -64,7 +64,7 @@ async function loadResourceElements(elements: HTMLElement[]) {
 
             if (script.type == "module" && !script.src) {
                 let promiseId = moduleLoaderResolvers.length;
-                script.text += ";dotvvm.resourceLoader.notifyModuleLoaded(" + promiseId + ");";
+                script.text += "\n;dotvvm.resourceLoader.notifyModuleLoaded(" + promiseId + ");";
                 
                 let promise = new Promise((resolve, reject) => {
                     moduleLoaderResolvers[promiseId] = resolve;
@@ -97,10 +97,8 @@ async function loadResourceElements(elements: HTMLElement[]) {
             await loadPromise;
         }
 
-        // load for all modules
-        for (let promise of modulePromises) {
-            await promise;
-        }
+        // wait for all modules to be loaded
+        await Promise.all(modulePromises);
     }
 }
 

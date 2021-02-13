@@ -46,7 +46,7 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
         name,
         viewId,
         [rootElement],
-        elementContext && typeof elementContext.$control === "object" ? { ...elementContext.$control } : {}
+        elementContext && elementContext.$control ? { ...elementContext.$control } : {}
     );
     const moduleInstance = createModuleInstance(handler.module.default, context);
     handler.contexts[viewId] = context;
@@ -71,7 +71,7 @@ export function callViewModuleCommand(viewId: string, commandName: string, args:
     const foundModules: { moduleName: string; context: ModuleContext }[] = [];
     
     for (let moduleName of keys(registeredModules)) {
-        const context = ensureViewModuleContext(viewId, moduleName, false);
+        const context = tryFindViewModuleContext(viewId, moduleName);
         if (!context) continue;
         if (commandName in context.module && typeof context.module[commandName] === "function") {
             foundModules.push({ moduleName, context });
@@ -151,11 +151,14 @@ export function unregisterNamedCommand(viewId: string, commandName: string) {
     }
 }
 
-function ensureViewModuleContext(viewId: string, name: string, throwError: boolean = true): ModuleContext {
+function tryFindViewModuleContext(viewId: string, name: string): ModuleContext | undefined {
     const handler = ensureModuleHandler(name);
-    const context = handler.contexts[viewId];
+    return handler.contexts[viewId];
+}
 
-    if (!context && throwError) {
+function ensureViewModuleContext(viewId: string, name: string): ModuleContext {
+    const context = tryFindViewModuleContext(viewId, name);
+    if (!context) {
         throw new Error('Module ' + name + 'has not been initialized for view ' + viewId + ', or the view has been disposed');
     }
     return context;
@@ -173,7 +176,7 @@ function ensureModuleHandler(name: string): ModuleHandler {
 }
 
 function callIfDefined(module: any, name: string, ...args: any[]) {
-    if (module[name] && typeof module[name] === 'function') {
+    if (typeof module[name] === 'function') {
         module[name](...args);
     }
 }
