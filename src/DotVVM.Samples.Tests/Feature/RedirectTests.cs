@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Xunit;
@@ -30,6 +31,31 @@ namespace DotVVM.Samples.Tests.Feature
                 currentUrl = new Uri(browser.CurrentUrl);
                 Assert.Matches(@"^\?(time=\d+&param=temp2|param=temp2&time=\d+)$", currentUrl.Query);
                 Assert.Equal("#test2", currentUrl.Fragment);
+            });
+        }
+
+        [Fact]
+        public void Feature_Redirect_RedirectionHelpers()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Redirect_RedirectionHelpers);
+
+                var currentUrl = new Uri(browser.CurrentUrl);
+                Assert.Matches($"FeatureSamples/Redirect/RedirectionHelpers", currentUrl.LocalPath);
+
+                browser.FindElements("a").First().Click();
+                currentUrl = new Uri(browser.CurrentUrl);
+                Assert.Matches($"https://www.dotvvm.com", currentUrl.AbsoluteUri);
+                browser.NavigateBack();
+
+                browser.FindElements("a").Skip(1).First().Click();
+                currentUrl = new Uri(browser.CurrentUrl);
+                Assert.Matches($"FeatureSamples/Redirect/RedirectionHelpers_PageC/111", currentUrl.LocalPath);
+                browser.NavigateBack();
+
+                browser.FindElements("a").Skip(2).First().Click();
+                currentUrl = new Uri(browser.CurrentUrl);
+                Assert.Matches($"FeatureSamples/Redirect/RedirectionHelpers_PageE/1221", currentUrl.LocalPath);
             });
         }
     }

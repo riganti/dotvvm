@@ -8,11 +8,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -24,22 +24,6 @@ namespace DotVVM.Framework.ResourceManagement
             ("stylesheets", typeof(StylesheetResource)),
             ("null", typeof(NullResource))
         };
-
-        protected virtual IEnumerable<Type> ResolveAllTypesDerivedFromIResource(string dotvvmAssembly, Type resourceBaseType)
-        {
-            // for each type derived from IResource
-            var types = GetAllAssembliesLoadedAssemblies()
-                .Where(a => a.GetReferencedAssemblies().Any(ra => ra.FullName == dotvvmAssembly) ||
-                            a.FullName == dotvvmAssembly)
-                .SelectMany(a => a.GetLoadableTypes().Where(t => t.GetTypeInfo().IsClass && !t.GetTypeInfo().IsAbstract && resourceBaseType.IsAssignableFrom(t)));
-            return types;
-        }
-
-        protected virtual IEnumerable<Assembly> GetAllAssembliesLoadedAssemblies()
-        {
-            return AppDomain.CurrentDomain.GetAssemblies();
-        }
-
 
         public override bool CanConvert(Type objectType)
         {

@@ -13,7 +13,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Globalization;
 using System.Collections.Concurrent;
-using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Utils
 {
@@ -259,8 +258,13 @@ namespace DotVVM.Framework.Utils
             return DateTimeTypes.Contains(type);
         }
 
-        public static bool IsTuple(Type type) =>
-            type.FullName!.StartsWith(typeof(Tuple).FullName + "`");
+        /// <summary> Return true for Tuple, ValueTuple, KeyValuePair </summary>
+        public static bool IsTupleLike(Type type) =>
+            type.IsGenericType && (
+            type.FullName!.StartsWith(typeof(Tuple).FullName + "`") ||
+            type.FullName!.StartsWith(typeof(ValueTuple).FullName + "`") ||
+            type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)
+            );
 
         public static bool IsEnumerable(Type type)
         {
@@ -342,11 +346,6 @@ namespace DotVVM.Framework.Utils
         public static bool IsDynamic(this Type type)
         {
             return type.GetInterfaces().Contains(typeof(IDynamicMetaObjectProvider));
-        }
-
-        public static bool IsObject(this Type type)
-        {
-            return type == typeof(Object);
         }
 
         public static bool IsNullable(this Type type)

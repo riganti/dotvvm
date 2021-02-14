@@ -24,19 +24,19 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public ImmutableList<BindingExtensionParameter> ExtensionParameters { get; }
 
-        public virtual TypeRegistry AddImportedTypes(TypeRegistry reg)
+        public virtual TypeRegistry AddImportedTypes(TypeRegistry reg, CompiledAssemblyCache compiledAssemblyCache)
         {
             if (ImportNamespaces != null)
             {
-                return reg.AddSymbols(ImportNamespaces.Select(CreateTypeLoader));
+                return reg.AddSymbols(ImportNamespaces.Select(ns => CreateTypeLoader(ns, compiledAssemblyCache)));
             }
             else return reg;
         }
 
-        private static Func<string, CompiledAssemblyCache, Expression> CreateTypeLoader(NamespaceImport import)
+        private static Func<string, Expression> CreateTypeLoader(NamespaceImport import, CompiledAssemblyCache compiledAssemblyCache)
         {
             if (import.HasAlias)
-                return (t, compiledAssemblyCache) => {
+                return t => {
                     if (t.Length >= import.Alias.Length && t.StartsWith(import.Alias, StringComparison.Ordinal))
                     {
                         string name;
@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Compilation
                     }
                     else return null;
                 };
-            else return (t, compiledAssemblyCache) => TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(import.Namespace + "." + t));
+            else return t => TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(import.Namespace + "." + t));
         }
 
         public BindingParserOptions(Type bindingType, string scopeParameter = "_this", ImmutableList<NamespaceImport> importNamespaces = null, ImmutableList<BindingExtensionParameter> extParameters = null)

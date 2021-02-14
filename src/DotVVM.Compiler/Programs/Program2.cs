@@ -230,7 +230,6 @@ JSON structure:
         {
             var assembly = Assembly.LoadFile(options.WebSiteAssembly);
             var config = ConfigurationInitializer.InitDotVVM(assembly, options.WebSitePath, null, collection => { });
-            
             return new CompilationResult() {
                 Configuration = config
             };

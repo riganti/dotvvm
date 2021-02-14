@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ViewModel.Serialization;
 using Newtonsoft.Json;
 
@@ -22,7 +23,7 @@ namespace DotVVM.Framework.Controls
             if (binding == null)
             {
                 if (nullBindingAction != null) nullBindingAction();
-                else Add(name, JsonConvert.SerializeObject(control.GetValue(property), DefaultViewModelSerializer.CreateDefaultSettings()));
+                else Add(name, JsonConvert.SerializeObject(control.GetValue(property), DefaultSerializerSettingsProvider.Instance.Settings));
             }
             else
             {
@@ -34,7 +35,7 @@ namespace DotVVM.Framework.Controls
         {
             if (surroundWithDoubleQuotes)
             {
-                expression = JsonConvert.SerializeObject(expression);
+                expression = JsonConvert.SerializeObject(expression, DefaultSerializerSettingsProvider.Instance.Settings);
             }
 
             entries.Add(new KnockoutBindingInfo(name, expression));
@@ -75,7 +76,7 @@ namespace DotVVM.Framework.Controls
 
             public override string ToString()
             {
-                return "'" + Name + "': " + Expression;
+                return "\"" + Name + "\": " + Expression;
             }
         }
     }

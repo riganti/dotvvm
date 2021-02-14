@@ -272,7 +272,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 ErrorLength = errorLength
             };
 
-            if (fileName != null)
+            if (!string.IsNullOrEmpty(fileName))
             {
                 try
                 {

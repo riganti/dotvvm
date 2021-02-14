@@ -1,4 +1,6 @@
-﻿using System;
+#nullable enable
+
+using System;
 using System.Collections.Generic;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
@@ -6,7 +8,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     public abstract class ResolvedContentNode : ResolvedTreeNode, IAbstractContentNode 
     {
-        private List<ResolvedControl> content;
+        private List<ResolvedControl>? content;
         public List<ResolvedControl> Content
         {
             get
@@ -25,7 +27,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             }
         }
 
-        public Action ResolveContentAction { get; set; }
+        public Action? ResolveContentAction { get; set; }
 
         public ControlResolverMetadata Metadata { get; set; }
 
@@ -41,15 +43,15 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             set { DataContextTypeStack = (DataContextStack)value; }
         }
 
-        public ResolvedContentNode(ControlResolverMetadata metadata, DothtmlNode node, List<ResolvedControl> content, DataContextStack dataContext)
+        public ResolvedContentNode(ControlResolverMetadata metadata, DothtmlNode? node, List<ResolvedControl>? content, DataContextStack dataContext)
         {
-            Metadata = metadata;
+            Metadata = metadata ?? throw new ArgumentNullException(nameof(metadata));
             DothtmlNode = node;
             this.content = content;
-            DataContextTypeStack = dataContext;
+            DataContextTypeStack = dataContext ?? throw new ArgumentNullException(nameof(dataContext));
         }
 
-        public ResolvedContentNode(ControlResolverMetadata metadata, DothtmlNode node, DataContextStack dataContext)
+        public ResolvedContentNode(ControlResolverMetadata metadata, DothtmlNode? node, DataContextStack dataContext)
             : this(metadata, node, new List<ResolvedControl>(), dataContext)
         {
         }

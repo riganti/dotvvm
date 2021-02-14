@@ -6,12 +6,21 @@ using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Compilation.Validation
 {
     public class DefaultControlUsageValidator : IControlUsageValidator
     {
+        public DefaultControlUsageValidator(DotvvmConfiguration config)
+        {
+            Configuration = config;
+        }
+
         public static ConcurrentDictionary<Type, MethodInfo[]> cache = new ConcurrentDictionary<Type, MethodInfo[]>();
+
+        protected static DotvvmConfiguration Configuration { get; private set; }
+
         public IEnumerable<ControlUsageError> Validate(IAbstractControl control)
         {
             var type = GetControlType(control.Metadata);
@@ -32,6 +41,10 @@ namespace DotVVM.Framework.Compilation.Validation
                     else if (control.DothtmlNode != null && par[i].ParameterType.IsAssignableFrom(control.DothtmlNode.GetType()))
                     {
                         args[i] = control.DothtmlNode;
+                    }
+                    else if (par[i].ParameterType == typeof(DotvvmConfiguration))
+                    {
+                        args[i] = Configuration;
                     }
                     else
                     {

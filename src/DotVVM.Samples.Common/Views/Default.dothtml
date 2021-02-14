@@ -1,24 +1,9 @@
 ﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.DefaultViewModel, DotVVM.Samples.Common
+@masterPage Views/Samples.dotmaster
 
-<!DOCTYPE html>
-
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <style>
-        ul li {
-            padding:2px;
-        }
-        body{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-    </style>
-</head>
-<body>
+<dot:Content ContentPlaceHolderID="Main">
     <dot:Repeater WrapperTagName="ul" DataSource={value: Routes }>
         <li><a href={value: Url}>{{value: RouteName}}</a></li>
     </dot:Repeater>
     <div>Number of Tests: {{value: Routes.Count}}</div>
-
-</body>
-</html>
+</dot:Content>

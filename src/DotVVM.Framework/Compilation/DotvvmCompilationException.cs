@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,10 +12,10 @@ namespace DotVVM.Framework.Compilation
     public class DotvvmCompilationException : Exception
     {
 
-        public string FileName { get; set; }
-        public string SystemFileName => FileName?.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+        public string? FileName { get; set; }
+        public string? SystemFileName => FileName?.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
 
-        public IEnumerable<TokenBase> Tokens { get; set; }
+        public IEnumerable<TokenBase>? Tokens { get; set; }
 
         public int? ColumnNumber { get; set; }
 
@@ -23,9 +24,9 @@ namespace DotVVM.Framework.Compilation
 
         public DotvvmCompilationException(string message) : base(message) { }
 
-        public DotvvmCompilationException(string message, Exception innerException) : base(message, innerException) { }
+        public DotvvmCompilationException(string message, Exception? innerException) : base(message, innerException) { }
 
-        public DotvvmCompilationException(string message, Exception innerException, IEnumerable<TokenBase> tokens) : base(message, innerException)
+        public DotvvmCompilationException(string message, Exception? innerException, IEnumerable<TokenBase>? tokens) : base(message, innerException)
         {
             if (tokens != null)
             {
@@ -36,7 +37,7 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
-        public DotvvmCompilationException(string message, IEnumerable<TokenBase> tokens) : this(message, null, tokens) { }
+        public DotvvmCompilationException(string message, IEnumerable<TokenBase>? tokens) : this(message, null, tokens) { }
         protected DotvvmCompilationException(
             SerializationInfo info,
             StreamingContext context) : base(info, context)

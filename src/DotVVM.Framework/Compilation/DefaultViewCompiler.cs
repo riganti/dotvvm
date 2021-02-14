@@ -43,7 +43,6 @@ namespace DotVVM.Framework.Compilation
         private readonly IBindingCompiler bindingCompiler;
         private readonly ViewCompilerConfiguration config;
         private readonly Func<Validation.ControlUsageValidationVisitor> controlValidatorFactory;
-
         /// <summary>
         /// Compiles the view and returns a function that can be invoked repeatedly. The function builds full control tree and activates the page.
         /// </summary>
@@ -85,8 +84,8 @@ namespace DotVVM.Framework.Compilation
                 var validationVisitor = this.controlValidatorFactory.Invoke();
                 validationVisitor.VisitAndAssert(resolvedView);
 
-                var emitter = new DefaultViewCompilerCodeEmitter(assemblyCache);
-                var compilingVisitor = new ViewCompilingVisitor(emitter, bindingCompiler, className);
+                var emitter = new DefaultViewCompilerCodeEmitter();
+                var compilingVisitor = new ViewCompilingVisitor(emitter, assemblyCache, bindingCompiler, className);
 
                 resolvedView.Accept(compilingVisitor);
 
@@ -106,7 +105,7 @@ namespace DotVVM.Framework.Compilation
         public virtual CSharpCompilation CreateCompilation(string assemblyName)
         {
             return CSharpCompilation.Create(assemblyName, options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-                .AddReferences(assemblyCache.GetAllAssemblies().Select(a => assemblyCache.GetAssemblyMetadata(a)));
+                .AddReferences(assemblyCache.GetReferencedAssemblies().Select(a => assemblyCache.GetAssemblyMetadata(a)));
         }
 
         protected virtual IControlBuilder GetControlBuilder(Assembly assembly, string namespaceName, string className)
@@ -125,7 +124,7 @@ namespace DotVVM.Framework.Compilation
                 if (result.Success)
                 {
                     var assembly = AssemblyLoader.LoadRaw(ms.ToArray());
-                    assemblyCache.AddAssembly(assembly, compilation.ToMetadataReference());
+                    assemblyCache.AddAssemblyMetadata(assembly, compilation.ToMetadataReference());
                     return assembly;
                 }
                 else

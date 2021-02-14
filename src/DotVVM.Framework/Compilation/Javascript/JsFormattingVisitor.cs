@@ -138,6 +138,10 @@ namespace DotVVM.Framework.Compilation.Javascript
             binaryExpression.Left.AcceptVisitor(this);
             var op = binaryExpression.OperatorString;
             EmitOperator(op);
+            if (binaryExpression.Operator == BinaryOperatorType.Sequence)
+            {
+                CommitLine();
+            }
             binaryExpression.Right.AcceptVisitor(this);
         }
 
@@ -188,8 +192,19 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public void VisitParenthesizedExpression(JsParenthesizedExpression parenthesizedExpression)
         {
+            bool isSequenceBlock = parenthesizedExpression.Expression is JsBinaryExpression binaryExpression && binaryExpression.Operator == BinaryOperatorType.Sequence;
             Emit("(");
+            if (isSequenceBlock)
+            {
+                Indent();
+                CommitLine();
+            }
             parenthesizedExpression.Expression.AcceptVisitor(this);
+            if (isSequenceBlock)
+            {
+                CommitLine();
+                Dedent();
+            }
             Emit(")");
         }
 

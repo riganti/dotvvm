@@ -157,7 +157,7 @@ namespace DotVVM.Framework.Controls
                 var binding = new CommandBindingExpression(context.Services.GetRequiredService<BindingCompilationService>().WithoutInitialization(), h => sortCommand(sortExpression), bindingId);
                 linkButton.SetBinding(ButtonBase.ClickProperty, binding);
 
-                SetSortedCssClass(cell, gridViewDataSet);
+                SetSortedCssClass(cell, gridViewDataSet, gridView.GetValueBinding(GridView.DataSourceProperty)!);
             }
             else
             {
@@ -177,13 +177,14 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void SetSortedCssClass(HtmlGenericControl cell, ISortableGridViewDataSet? sortableGridViewDataSet)
+        private void SetSortedCssClass(HtmlGenericControl cell, ISortableGridViewDataSet? sortableGridViewDataSet, IValueBinding dataSourceBinding)
         {
             if (sortableGridViewDataSet != null)
             {
                 if (!RenderOnServer)
                 {
-                    cell.Attributes["data-bind"] = $"css: {{ '{SortDescendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortExpression) == '{GetSortExpression()}' && ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortDescending), '{SortAscendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortExpression) == '{GetSortExpression()}' && !ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortDescending)}}";
+                    var gridViewDataSetExpr = dataSourceBinding.GetKnockoutBindingExpression(cell, unwrapped: true);
+                    cell.Attributes["data-bind"] = $"css: {{ '{SortDescendingHeaderCssClass}': ({gridViewDataSetExpr}).SortingOptions().SortExpression() == '{GetSortExpression()}' && ({gridViewDataSetExpr}).SortingOptions().SortDescending(), '{SortAscendingHeaderCssClass}': ({gridViewDataSetExpr}).SortingOptions().SortExpression() == '{GetSortExpression()}' && !({gridViewDataSetExpr}).SortingOptions().SortDescending()}}";
                 }
                 else if (sortableGridViewDataSet.SortingOptions.SortExpression == GetSortExpression())
                 {

@@ -14,6 +14,7 @@ namespace DotVVM.Samples.Common
     {
         private readonly DotvvmConfiguration config;
         private readonly string logFilePath;
+        private readonly object locker = new object();
 
         public TextFileDiagnosticsInformationSender(DotvvmConfiguration config)
         {
@@ -26,13 +27,17 @@ namespace DotVVM.Samples.Common
         {
             var messages = FormatUnwrittenMessages(information);
 
-            if (!File.Exists(logFilePath))
+            lock (locker)
             {
-                messages = $@"{"Event Name",-70}{"Duration [ms]",15}{"Total [ms]",15}
+                if (!File.Exists(logFilePath))
+                {
+                    messages = $@"{"Event Name",-70}{"Duration [ms]",15}{"Total [ms]",15}
 {new string('-', 70 + 15 + 15)}
 {messages}";
+                }
+
+                File.AppendAllText(logFilePath, messages);
             }
-            File.AppendAllText(logFilePath, messages);
 
             return TaskUtils.GetCompletedTask();
         }

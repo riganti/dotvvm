@@ -74,6 +74,12 @@ namespace DotVVM.Samples.BasicSamples
 
             var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(env), modifyConfiguration: c => {
                 c.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", provider => new AuthorizedPresenter());
+
+                if (c.ExperimentalFeatures.ExplicitAssemblyLoading.Enabled)
+                {
+                    c.Markup.AddAssembly(typeof(Startup).Assembly.FullName);
+                    c.Markup.AddAssembly("System.Security.Claims");
+                }
             });
 
 

@@ -12,6 +12,8 @@ using OpenQA.Selenium;
 using Riganti.Selenium.Core.Abstractions.Exceptions;
 using Xunit;
 using Xunit.Abstractions;
+using OpenQA.Selenium.Chrome;
+using Riganti.Selenium.Core.Abstractions.Attributes;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -19,6 +21,7 @@ namespace DotVVM.Samples.Tests.Control
     {
 
         [Fact]
+        [SkipBrowser("ie:fast", reason: "Download popup window hangs IE.")]
         public void Control_UpdateProgress_UpdateProgress()
         {
             RunInAllBrowsers(browser => {

@@ -14,7 +14,7 @@
 		<dot:Button Text="Test error postback" Click="{command: TestError()}" />
 	</div>
 
-	<dot:InlineScript ID="eventTests" >
+	<dot:InlineScript ID="eventTests" Dependencies="dotvvm" >
 		dotvvm.events.init.subscribe(function() { alert("init"); });
 		dotvvm.events.beforePostback.subscribe(function() { alert("beforePostback"); });
 		dotvvm.events.afterPostback.subscribe(function() { alert("afterPostback"); });

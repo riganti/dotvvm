@@ -18,15 +18,27 @@
     
     <dot:Button Text="Increment" Click="{command: Increment()}" />
     
-    <input type="button" value="Invalidate cache ID" onclick="javascript: dotvvm.viewModels.root.viewModelCacheId = 'nonexistent_id';" />
+    <input type="button" value="Invalidate cache ID" onclick="javascript: tamperWithViewModelCacheId = true;" />
 
     <dot:InlineScript Dependencies="dotvvm">
+        var tamperWithViewModelCacheId = false;
         var RequestCount = ko.observable(0);
         
-        var origPostJSON = dotvvm.postJSON;
-        dotvvm.postJSON = function() {
-            RequestCount(RequestCount() + 1);
-            origPostJSON.apply(this, arguments);
+        var origFetch = window.fetch;
+        window.fetch = function(url, req) { 
+            if (!url.match(/csrf/)) {           
+                RequestCount(RequestCount() + 1);
+            }
+
+            if (tamperWithViewModelCacheId) {
+                let reqBody = JSON.parse(req.body);
+                reqBody.viewModelCacheId = "nonexisting_id";
+                req.body = JSON.stringify(reqBody);
+
+                tamperWithViewModelCacheId = false;
+            }
+
+            return origFetch.apply(this, arguments);
         };
     </dot:InlineScript>
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using DotVVM.Framework.Configuration;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Diagnostics
@@ -35,7 +36,8 @@ namespace DotVVM.Framework.Diagnostics
                     configurationLastWriteTimeUtc = info.LastWriteTimeUtc;
 
                     var diagnosticsJson = File.ReadAllText(path);
-                    configuration = JsonConvert.DeserializeObject<DiagnosticsServerConfiguration>(diagnosticsJson);
+                    var settings = DefaultSerializerSettingsProvider.Instance.Settings;
+                    configuration = JsonConvert.DeserializeObject<DiagnosticsServerConfiguration>(diagnosticsJson, settings);
                 }
             }
             catch

@@ -26,20 +26,26 @@ namespace DotVVM.Framework.Controls
             ResourcesRenderer.RenderResources(resourceManager, writer, context, ResourceRenderPosition.Body);
 
             // render the serialized viewmodel
-            var serializedViewModel = ((DotvvmRequestContext) context).GetSerializedViewModel();
+            var serializedViewModel = context.GetSerializedViewModel();
             writer.AddAttribute("type", "hidden");
             writer.AddAttribute("id", "__dot_viewmodel_root");
             writer.AddAttribute("value", serializedViewModel);
             writer.RenderSelfClosingTag("input");
 
             // init on load
-            writer.RenderBeginTag("script");
-            writer.WriteUnencodedText($@"
-window.dotvvm.domUtils.onDocumentReady(function () {{
-    window.dotvvm.init('root', {JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});
-}});");
-            writer.WriteUnencodedText(RenderWarnings(context));
-            writer.RenderEndTag();
+            var initCode = $@"
+window.dotvvm.init({JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});
+";
+            new InlineScriptResource(initCode, defer: true)
+                .Render(writer, context, "dotvvm-init-script");
+
+            var warnings = RenderWarnings(context);
+            if (warnings.Length > 0)
+            {
+                writer.RenderBeginTag("script");
+                writer.WriteUnencodedText(warnings);
+                writer.RenderEndTag();
+            }
         }
 
         internal static string RenderWarnings(IDotvvmRequestContext context)

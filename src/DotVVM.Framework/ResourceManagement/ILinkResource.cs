@@ -12,7 +12,7 @@ namespace DotVVM.Framework.ResourceManagement
     /// </summary>
     public interface ILinkResource : IResource
     {
-        IEnumerable<IResourceLocation> GetLocations();
+        IEnumerable<IResourceLocation> GetLocations(string? type = null);
         string MimeType { get; }
     }
 }

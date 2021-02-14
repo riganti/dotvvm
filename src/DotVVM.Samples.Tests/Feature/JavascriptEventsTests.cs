@@ -36,6 +36,10 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ConfirmAlert();
                 browser.Wait();
 
+                AssertUI.AlertTextEquals(browser, "afterPostback");
+                browser.ConfirmAlert();
+                browser.Wait();
+
                 AssertUI.AlertTextEquals(browser, "custom error handler");
                 browser.ConfirmAlert();
             });

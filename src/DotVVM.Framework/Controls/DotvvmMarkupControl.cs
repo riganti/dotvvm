@@ -5,6 +5,7 @@ using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel.Serialization;
 using Newtonsoft.Json;
@@ -72,7 +73,7 @@ namespace DotVVM.Framework.Controls
                 .Where(p => p.Js is object)
                 .Select(p => JsonConvert.ToString(p.Property.Name, '"', StringEscapeHandling.EscapeHtml) + ": " + p.Js);
 
-            writer.WriteKnockoutDataBindComment("dotvvm_withControlProperties", "{ " + string.Join(", ", properties) + " }");
+            writer.WriteKnockoutDataBindComment("dotvvm-with-control-properties", "{ " + string.Join(", ", properties) + " }");
             base.RenderContents(writer, context);
             writer.WriteKnockoutDataBindEndComment();
         }
@@ -81,7 +82,7 @@ namespace DotVVM.Framework.Controls
         {
             if (ContainsPropertyStaticValue(property))
             {
-                JsonSerializerSettings settings = DefaultViewModelSerializer.CreateDefaultSettings();
+                var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
                 settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
 
                 return new PropertySerializeInfo(

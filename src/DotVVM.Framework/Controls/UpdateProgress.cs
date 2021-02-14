@@ -91,9 +91,9 @@ namespace DotVVM.Framework.Controls
             var delayProperty = control.GetValue(DelayProperty) as ResolvedPropertyValue;
             if (delayProperty != null)
             {
-                if ((int)delayProperty.Value < 0)
+                if ((int)delayProperty.Value! < 0)
                 {
-                    yield return new ControlUsageError("Delay cannot be set to negative number.");
+                    yield return new ControlUsageError($"{nameof(Delay)} cannot be set to negative number.");
                 }
             }
 
@@ -102,15 +102,15 @@ namespace DotVVM.Framework.Controls
             var excludedQueues = (control.GetValue(ExcludedQueuesProperty) as ResolvedPropertyValue)?.Value as string[];
             if (includedQueues != null && excludedQueues != null)
             {
-                yield return new ControlUsageError("The IncludedQueues and ExcludedQueues cannot be used together!");
+                yield return new ControlUsageError($"The {nameof(IncludedQueues)} and {nameof(ExcludedQueues)} cannot be used together!");
             }
             if (includedQueues != null && !ValidateQueueNames(includedQueues))
             {
-                yield return new ControlUsageError("The IncludedQueues must contain comma-separated list of queue names (which can contain alphanumeric characters, underscore or dash)!");
+                yield return new ControlUsageError($"The {nameof(IncludedQueues)} must contain comma-separated list of queue names (which can contain alphanumeric characters, underscore or dash)!");
             }
             if (excludedQueues != null && !ValidateQueueNames(excludedQueues))
             {
-                yield return new ControlUsageError("The ExcludedQueues must contain comma-separated list of queue names (which can contain alphanumeric characters, underscore or dash)!");
+                yield return new ControlUsageError($"The {nameof(ExcludedQueues)} must contain comma-separated list of queue names (which can contain alphanumeric characters, underscore or dash)!");
             }
         }
 

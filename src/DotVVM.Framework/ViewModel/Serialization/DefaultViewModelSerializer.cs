@@ -59,7 +59,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Builds the view model for the client.
         /// </summary>
-        public void BuildViewModel(IDotvvmRequestContext context)
+        public void BuildViewModel(IDotvvmRequestContext context, object commandResult)
         {
             // serialize the ViewModel
             var serializer = CreateJsonSerializer();
@@ -117,10 +117,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else
             {
-                result["renderedResources"] = JArray.FromObject(context.ResourceManager.RequiredResources);
+                result["renderedResources"] = JArray.FromObject(context.ResourceManager.GetNamedResourcesInOrder().Select(r => r.Name));
             }
             // TODO: do not send on postbacks
             if (validationRules?.Count > 0) result["validationRules"] = validationRules;
+ 
+            if (commandResult != null) result["commandResult"] = WriteCommandData(commandResult, serializer, "the command result");
+            AddCustomPropertiesIfAny(context, serializer, result);
 
             context.ViewModelJson = result;
         }
@@ -128,7 +131,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public void AddNewResources(IDotvvmRequestContext context)
         {
             var renderedResources = new HashSet<string>(context.ReceivedViewModelJson?["renderedResources"]?.Values<string>() ?? new string[] { });
-            context.ViewModelJson["resources"] = BuildResourcesJson(context, rn => !renderedResources.Contains(rn));
+            var resourcesObject = BuildResourcesJson(context, rn => !renderedResources.Contains(rn));
+            if (resourcesObject.Count > 0)
+                context.ViewModelJson["resources"] = resourcesObject;
         }
 
         public string BuildStaticCommandResponse(IDotvvmRequestContext context, object result)
@@ -138,31 +143,37 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
             };
             serializer.Converters.Add(viewModelConverter);
-            var writer = new JTokenWriter();
             var response = new JObject();
-            try
-            {
-                serializer.Serialize(writer, result);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
-            }
-            response["result"] = writer.Token;
+            response["result"] = WriteCommandData(result, serializer, "the static command result");
+            AddCustomPropertiesIfAny(context, serializer, response);
             return response.ToString(JsonFormatting);
         }
 
-        public static JsonSerializerSettings CreateDefaultSettings()
+        private static void AddCustomPropertiesIfAny(IDotvvmRequestContext context, JsonSerializer serializer, JObject response)
         {
-            var s = new JsonSerializerSettings() {
-                DateTimeZoneHandling = DateTimeZoneHandling.Unspecified
-            };
-            s.Converters.Add(new DotvvmDateTimeConverter());
-            s.Converters.Add(new StringEnumConverter());
-            return s;
+            if (context.CustomResponseProperties.Properties.Count > 0)
+            {
+                response["customProperties"] = WriteCommandData(context.CustomResponseProperties.Properties, serializer, "custom properties");
+            }
+            context.CustomResponseProperties.PropertiesSerialized = true;
         }
 
-        protected virtual JsonSerializer CreateJsonSerializer() => CreateDefaultSettings().Apply(JsonSerializer.Create);
+        private static JToken WriteCommandData(object data, JsonSerializer serializer, string description)
+        {
+            var writer = new JTokenWriter();
+            try
+            {
+                serializer.Serialize(writer, data);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Could not serialize {description} of type '{ data.GetType().FullName}'. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
+            }
+
+            return writer.Token;
+        }
+
+        protected virtual JsonSerializer CreateJsonSerializer() => DefaultSerializerSettingsProvider.Instance.Settings.Apply(JsonSerializer.Create);
 
         public JObject BuildResourcesJson(IDotvvmRequestContext context, Func<string, bool> predicate)
         {
@@ -284,7 +295,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             else viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services);
 
             // get validation path
-            context.ModelState.ValidationTargetPath = data.SelectToken("additionalData.validationTargetPath")?.Value<string>();
+            context.ModelState.ValidationTargetPath = (string)data["validationTargetPath"];
 
             // populate the ViewModel
             var serializer = CreateJsonSerializer();
@@ -309,7 +320,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var path = data["currentPath"].Values<string>().ToArray();
             var command = data["command"].Value<string>();
             var controlUniqueId = data["controlUniqueId"]?.Value<string>();
-            var args = data["commandArgs"]?.ToObject<object[]>() ?? new object[0];
+            var args = data["commandArgs"] is JArray argsJson ?
+                       argsJson.Select(a => (Func<Type, object>)(t => a.ToObject(t))).ToArray() :
+                       new Func<Type, object>[0];
 
             // empty command
             if (string.IsNullOrEmpty(command)) return null;

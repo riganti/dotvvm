@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Compilation
 
             foreach (var assembly in BuildReferencedAssembliesCache())
             {
-                GetAssemblyMetadata(assembly);
+                cachedAssemblies.GetOrAdd(assembly.FullName.NotNull(), a => assembly);
             }
 
             if (Instance == null)
@@ -48,6 +48,8 @@ namespace DotVVM.Framework.Compilation
                 // normally, the constructor is not called multiple times as this service is singleton; only in unit tests, we create it multiple times
                 Instance = this;
             }
+
+            cache_AllNamespaces = new Lazy<HashSet<string>>(GetAllNamespaces);
         }
 
         private IEnumerable<Assembly> BuildReferencedAssembliesCache()
@@ -73,6 +75,8 @@ namespace DotVVM.Framework.Compilation
 #endif
                 });
 
+
+            // Once netstandard assembly is loaded you cannot load it again! 
             var netstandardAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == "netstandard");
             if (netstandardAssembly != null)
             {
@@ -88,9 +92,7 @@ namespace DotVVM.Framework.Compilation
                     // version, the exception is swallowed.
                     references = references.Concat(new[] { Assembly.Load(new AssemblyName("netstandard")) });
                 }
-                catch (FileNotFoundException)
-                {
-                }
+                catch (FileNotFoundException) { }
             }
 
             return references.Distinct().ToList();
@@ -101,10 +103,9 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Tries to resolve compiled assembly.
         /// </summary>
-        private Assembly DefaultOnResolving(System.Runtime.Loader.AssemblyLoadContext assemblyLoadContext, AssemblyName assemblyName)
+        private Assembly? DefaultOnResolving(System.Runtime.Loader.AssemblyLoadContext assemblyLoadContext, AssemblyName assemblyName)
         {
-            Assembly assembly;
-            return cachedAssemblies.TryGetValue(assemblyName.FullName, out assembly) ? assembly : null;
+            return cachedAssemblies.TryGetValue(assemblyName.FullName, out var assembly) ? assembly : null;
         }
 #else
         /// <summary>
@@ -116,11 +117,16 @@ namespace DotVVM.Framework.Compilation
         }
 #endif
 
+        public Assembly[] GetReferencedAssemblies()
+        {
+            return cachedAssemblies.Values.ToArray();
+        }
+
         public Assembly[] GetAllAssemblies()
         {
-            if (configuration.ExperimentalFeatures.DisableMarkupAssemblyDiscovery.Enabled)
+            if (configuration.ExperimentalFeatures.ExplicitAssemblyLoading.Enabled)
             {
-                return cachedAssemblies.Values.ToArray();
+                return GetReferencedAssemblies();
             }
             else
             {
@@ -134,15 +140,16 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
-        public bool IsAssemblyNamespace(string fullName)
-            => GetAllNamespaces().Contains(fullName, StringComparer.Ordinal);
+        private readonly Lazy<HashSet<string>> cache_AllNamespaces;
 
-        public ISet<string?> GetAllNamespaces()
-            => new HashSet<string?>(GetAllAssemblies()
+        public bool IsAssemblyNamespace(string fullName) => cache_AllNamespaces.Value.Contains(fullName);
+
+        private HashSet<string> GetAllNamespaces()
+            => new HashSet<string>(GetAllAssemblies()
                 .SelectMany(a => a.GetLoadableTypes()
-                .Select(t => t.Namespace))
-                .Distinct()
-                .ToList());
+                    .Select(t => t.Namespace!)
+                    .Where(ns => ns is object))
+                .Distinct(), StringComparer.Ordinal);
 
 
         /// <summary>
@@ -150,17 +157,15 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public MetadataReference GetAssemblyMetadata(Assembly assembly)
         {
-            cachedAssemblies.GetOrAdd(assembly.FullName, a => assembly);
             return cachedAssemblyMetadata.GetOrAdd(assembly, a => MetadataReference.CreateFromFile(a.Location));
         }
 
         /// <summary>
         /// Adds the assembly to the cache.
         /// </summary>
-        internal void AddAssembly(Assembly assembly, CompilationReference compilationReference)
+        internal void AddAssemblyMetadata(Assembly assembly, CompilationReference compilationReference)
         {
             cachedAssemblyMetadata[assembly] = compilationReference;
-            cachedAssemblies[assembly.FullName] = assembly;
         }
 
 

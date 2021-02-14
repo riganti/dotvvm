@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
-using DotVVM.Framework.Hosting.Owin.Runtime.Caching;
+using DotVVM.Framework.Hosting.Owin.Hosting;
 using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Security;
@@ -41,6 +44,8 @@ namespace Owin
         /// Adds DotVVM to the <see cref="IAppBuilder" /> request execution pipeline.
         /// </summary>
         /// <param name="app">The <see cref="IAppBuilder" /> instance.</param>
+        /// <param name="startup">The <see cref="IDotvvmStartup" /> instance.</param>
+        /// <param name="serviceConfigurator">The <see cref="IDotvvmServiceConfigurator" /> instance.</param>
         /// <param name="applicationRootPath">The path to application's root directory. It is used to resolve paths to views, etc.</param>
         /// <param name="useErrorPages">
         /// A value indicating whether to show detailed error page if an exception occurs. Disable this
@@ -48,10 +53,46 @@ namespace Owin
         /// </param>
         /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
         /// <param name="serviceProviderFactoryMethod">Register factory method to create your own instance of IServiceProvider.</param>
+        /// <param name="modifyConfiguration">An action that allows modifying configuration before it's frozen.</param>
+        public static DotvvmConfiguration UseDotVVM(this IAppBuilder app, IDotvvmStartup startup, IDotvvmServiceConfigurator serviceConfigurator, string applicationRootPath, bool useErrorPages = true, bool debug = true, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null)
+        {
+            return app.UseDotVVM(applicationRootPath, useErrorPages, debug, serviceConfigurator, startup, serviceProviderFactoryMethod, modifyConfiguration);
+        }
+
+        /// <summary>
+        /// Adds DotVVM to the <see cref="IAppBuilder" /> request execution pipeline.
+        /// </summary>
+        /// <param name="app">The <see cref="IAppBuilder" /> instance.</param>
+        /// <param name="applicationRootPath">The path to application's root directory. It is used to resolve paths to views, etc.</param>
+        /// <param name="useErrorPages">
+        /// A value indicating whether to show detailed error page if an exception occurs. Disable this
+        /// in production.
+        /// </param>
+        /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
+        /// <param name="serviceProviderFactoryMethod">Register factory method to create your own instance of IServiceProvider.</param>
+        /// <param name="modifyConfiguration">An action that allows modifying configuration before it's frozen.</param>
         public static DotvvmConfiguration UseDotVVM<TStartup>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null)
             where TStartup : IDotvvmStartup, new()
         {
             var startup = new TStartup();
+            return app.UseDotVVM(startup, applicationRootPath, useErrorPages, debug, serviceProviderFactoryMethod, modifyConfiguration);
+        }
+
+        /// <summary>
+        /// Adds DotVVM to the <see cref="IAppBuilder" /> request execution pipeline.
+        /// </summary>
+        /// <param name="app">The <see cref="IAppBuilder" /> instance.</param>
+        /// <param name="startup">The <see cref="IDotvvmStartup" /> instance.</param>
+        /// <param name="applicationRootPath">The path to application's root directory. It is used to resolve paths to views, etc.</param>
+        /// <param name="useErrorPages">
+        /// A value indicating whether to show detailed error page if an exception occurs. Disable this
+        /// in production.
+        /// </param>
+        /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
+        /// <param name="serviceProviderFactoryMethod">Register factory method to create your own instance of IServiceProvider.</param>
+        /// <param name="modifyConfiguration">An action that allows modifying configuration before it's frozen.</param>
+        public static DotvvmConfiguration UseDotVVM(this IAppBuilder app, IDotvvmStartup startup, string applicationRootPath, bool useErrorPages = true, bool debug = true, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null)
+        {
             return app.UseDotVVM(applicationRootPath, useErrorPages, debug, startup as IDotvvmServiceConfigurator, startup, serviceProviderFactoryMethod, modifyConfiguration);
         }
 
@@ -60,16 +101,17 @@ namespace Owin
             var startupTracer = new DiagnosticsStartupTracer();
             startupTracer.TraceEvent(StartupTracingConstants.AddDotvvmStarted);
 
-            var config = DotvvmConfiguration.CreateDefault(s =>
-            {
+            var config = DotvvmConfiguration.CreateDefault(s => {
                 s.TryAddSingleton<IDataProtectionProvider>(p => new DefaultDataProtectionProvider(app));
-                s.TryAddSingleton<IDotvvmCacheAdapter, OwinDotvvmCacheAdapter>();
+                s.TryAddSingleton<IDotvvmCacheAdapter, DefaultDotvvmCacheAdapter>();
                 s.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
                 s.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
                 s.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
                 s.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
+                s.TryAddSingleton<IRequestCancellationTokenProvider, RequestCancellationTokenProvider>();
                 s.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
                 s.TryAddScoped<IDotvvmRequestContext>(services => services.GetRequiredService<DotvvmRequestContextStorage>().Context);
+                s.AddSingleton<IDotvvmViewCompilationService, DotvvmViewCompilationService>();
                 s.TryAddSingleton<IStartupTracer>(startupTracer);
 
                 startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserServicesRegistrationStarted);
@@ -101,7 +143,10 @@ namespace Owin
                 new DotvvmRoutingMiddleware()
             }.Where(t => t != null).ToArray());
 
-            startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmFinished);
+            startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmFinished); 
+
+            var compilationConfiguration = config.Markup.ViewCompilation;
+            compilationConfiguration.HandleViewCompilation(config, startupTracer);
 
             if (config.ServiceProvider.GetService<IDiagnosticsInformationSender>() is IDiagnosticsInformationSender sender)
             {

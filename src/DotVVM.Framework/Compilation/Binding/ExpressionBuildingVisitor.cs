@@ -16,12 +16,10 @@ namespace DotVVM.Framework.Compilation.Binding
         public bool ResolveOnlyTypeName { get; set; }
 
         private List<Exception> currentErrors;
-        private readonly CompiledAssemblyCache compiledAssemblyCache;
 
-        public ExpressionBuildingVisitor(TypeRegistry registry, CompiledAssemblyCache compiledAssemblyCache)
+        public ExpressionBuildingVisitor(TypeRegistry registry)
         {
             Registry = registry;
-            this.compiledAssemblyCache = compiledAssemblyCache;
         }
 
         protected T HandleErrors<T, TNode>(TNode node, Func<TNode, T> action, string defaultErrorMessage = "Binding compilation failed", bool allowResultNull = true)
@@ -252,7 +250,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 var name = (target as UnknownStaticClassIdentifierExpression).Name + "." + identifierName;
 
-                var resolvedTypeExpression = Registry.Resolve(name, compiledAssemblyCache, throwOnNotFound: false) ?? new UnknownStaticClassIdentifierExpression(name);
+                var resolvedTypeExpression = Registry.Resolve(name, throwOnNotFound: false) ?? new UnknownStaticClassIdentifierExpression(name);
 
                 if (typeParameters != null)
                 {
@@ -270,6 +268,44 @@ namespace DotVVM.Framework.Compilation.Binding
             var typeParameters = ResolveGenericArgumets(node.CastTo<GenericNameBindingParserNode>());
 
             return GetMemberOrTypeExpression(node, typeParameters);
+        }
+
+        protected override Expression VisitLambda(LambdaBindingParserNode node)
+        {
+            // Create lambda definition
+            var lambdaParameters = new ParameterExpression[node.ParameterExpressions.Count];
+            for (var i = 0; i < lambdaParameters.Length; i++)
+                lambdaParameters[i] = (ParameterExpression)HandleErrors(node.ParameterExpressions[i], Visit);
+
+            // Make sure that parameter identifiers are distinct
+            if (lambdaParameters.GroupBy(param => param.Name).Any(group => group.Count() > 1))
+                throw new BindingCompilationException("Parameter identifiers must be unique.", node);
+
+            // Make sure that parameter identifiers do not collide with existing symbols within registry
+            var collision = lambdaParameters.FirstOrDefault(param => Registry.Resolve(param.Name, false) != null);
+            if (collision != null)
+            {
+                throw new BindingCompilationException($"Identifier \"{collision.Name}\" is already in use. Choose a different " +
+                    $"identifier for the parameter with index {Array.IndexOf(lambdaParameters, collision)}.", node);
+            }
+
+            // Register lambda parameters as new symbols
+            Registry = Registry.AddSymbols(lambdaParameters);
+
+            // Create lambda body
+            var body = Visit(node.BodyExpression);
+
+            ThrowOnErrors();
+            return Expression.Lambda(body, lambdaParameters);
+        }
+
+        protected override Expression VisitLambdaParameter(LambdaParameterBindingParserNode node)
+        {
+            if (node.Type == null)
+                throw new BindingCompilationException($"Could not infer type of parameter.", node);
+
+            var parameterType = Visit(node.Type).Type;
+            return Expression.Parameter(parameterType, node.Name.ToDisplayString());
         }
 
         protected override Expression VisitBlock(BlockBindingParserNode node)
@@ -299,9 +335,9 @@ namespace DotVVM.Framework.Compilation.Binding
 
             var expr = 
                 Scope == null 
-                ? Registry.Resolve(node.Name, compiledAssemblyCache, throwOnNotFound: false)
+                ? Registry.Resolve(node.Name, throwOnNotFound: false)
                 : (ExpressionHelper.GetMember(Scope, node.Name, typeParameters, throwExceptions: false, onlyMemberTypes: ResolveOnlyTypeName)
-                    ?? Registry.Resolve(node.Name, compiledAssemblyCache, throwOnNotFound: false));
+                    ?? Registry.Resolve(node.Name, throwOnNotFound: false));
 
             if (expr == null) return new UnknownStaticClassIdentifierExpression(node.Name);
             if (expr is ParameterExpression && expr.Type == typeof(ExpressionHelper.UnknownTypeSentinel)) throw new Exception($"Type of '{expr}' could not be resolved.");
