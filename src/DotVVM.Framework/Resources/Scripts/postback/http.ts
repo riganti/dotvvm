@@ -1,6 +1,7 @@
 import { getVirtualDirectory, getViewModel } from '../dotvvm-base';
 import { keys } from '../utils/objects';
 import { DotvvmPostbackError } from '../shared-classes';
+import { addLeadingSlash, concatUrl } from '../utils/uri';
 
 export type WrappedResponse<T> = {
     readonly result: T,
@@ -51,7 +52,8 @@ export async function fetchCsrfToken(): Promise<string> {
     if (viewModel.$csrfToken == null) {
         let response;
         try {
-            response = await fetch(getVirtualDirectory() + "/___dotvvm-create-csrf-token___")
+            const url = addLeadingSlash(concatUrl(getVirtualDirectory() || "", "___dotvvm-create-csrf-token___"));
+            response = await fetch(url);
         }
         catch (err) {
             console.warn(`CSRF token fetch failed.`);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBackSpaNavigation
 {
@@ -14,5 +15,10 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBackSpaNavigation
             Result++;
         }
 
+        public void LongCommand()
+        {
+            Thread.Sleep(5000);
+            Result++;
+        }
     }
 }

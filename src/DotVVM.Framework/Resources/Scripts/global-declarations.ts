@@ -122,6 +122,9 @@ type DotvvmInitEventArgs = {
     readonly viewModel: any
 }
 
+type DotvvmInitCompletedEventArgs = {
+}
+
 interface DotvvmViewModelInfo {
     viewModel?: any
     viewModelCacheId?: string
@@ -142,6 +145,7 @@ interface DotvvmPostbackHandlerCollection {
 
 type DotvvmStaticCommandResponse = {
     result: any;
+    customData: { [key: string]: any };
 } | {
     action: "redirect";
     url: string;

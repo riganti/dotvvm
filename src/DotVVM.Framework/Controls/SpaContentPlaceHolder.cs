@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Controls
         }
 
         [ControlUsageValidator]
-        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        public static IEnumerable<ControlUsageError> ValidatePlaceholderUsage(ResolvedControl control)
         {
             if (control.Properties.ContainsKey(UseHistoryApiProperty))
             {

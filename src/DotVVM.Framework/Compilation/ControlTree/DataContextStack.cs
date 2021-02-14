@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
     [HandleAsImmutableObjectInDotvvmPropertyAttribute]
     public sealed class DataContextStack : IDataContextStack
     {
-        public DataContextStack Parent { get; }
+        public DataContextStack? Parent { get; }
         public Type DataContextType { get; }
         public IReadOnlyList<NamespaceImport> NamespaceImports { get; }
         public IReadOnlyList<BindingExtensionParameter> ExtensionParameters { get; }
@@ -23,10 +24,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private readonly int hashCode;
 
         private DataContextStack(Type type,
-            DataContextStack parent = null,
-            IReadOnlyList<NamespaceImport> imports = null,
-            IReadOnlyList<BindingExtensionParameter> extensionParameters = null,
-            IReadOnlyList<Delegate> bindingPropertyResolvers = null)
+            DataContextStack? parent = null,
+            IReadOnlyList<NamespaceImport>? imports = null,
+            IReadOnlyList<BindingExtensionParameter>? extensionParameters = null,
+            IReadOnlyList<Delegate>? bindingPropertyResolvers = null)
         {
             Parent = parent;
             DataContextType = type;
@@ -85,9 +86,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
         }
 
         ITypeDescriptor IDataContextStack.DataContextType => new ResolvedTypeDescriptor(DataContextType);
-        IDataContextStack IDataContextStack.Parent => Parent;
+        IDataContextStack? IDataContextStack.Parent => Parent;
 
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             obj is DataContextStack other && Equals(other);
 
         public bool Equals(DataContextStack stack)
@@ -128,7 +129,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public override string ToString()
         {
-            var features = new [] {
+            string?[] features = new [] {
                 $"type={this.DataContextType.FullName}",
                 this.NamespaceImports.Any() ? "imports=[" + string.Join(", ", this.NamespaceImports) + "]" : null,
                 this.ExtensionParameters.Any() ? "ext=[" + string.Join(", ", this.ExtensionParameters.Select(e => e.Identifier + ": " + e.ParameterType.Name)) + "]" : null,
@@ -141,10 +142,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         //private static ConditionalWeakTable<DataContextStack, DataContextStack> internCache = new ConditionalWeakTable<DataContextStack, DataContextStack>();
         public static DataContextStack Create(Type type,
-            DataContextStack parent = null,
-            IReadOnlyList<NamespaceImport> imports = null,
-            IReadOnlyList<BindingExtensionParameter> extensionParameters = null,
-            IReadOnlyList<Delegate> bindingPropertyResolvers = null)
+            DataContextStack? parent = null,
+            IReadOnlyList<NamespaceImport>? imports = null,
+            IReadOnlyList<BindingExtensionParameter>? extensionParameters = null,
+            IReadOnlyList<Delegate>? bindingPropertyResolvers = null)
         {
             var dcs = new DataContextStack(type, parent, imports, extensionParameters, bindingPropertyResolvers);
             return dcs;// internCache.GetValue(dcs, _ => dcs);
