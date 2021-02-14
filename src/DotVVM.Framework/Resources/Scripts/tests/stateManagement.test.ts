@@ -247,7 +247,7 @@ test("Should change array reference when length changes", () => {
     const arrayObj = vm.Array()
 
     let changed = false
-    arrayObs.subscribe(() => changed = true)
+    arrayObs.subscribe(() => changed = true, null, "beforeChange")
 
     s.setState({ ...s.state, Array: [{ $type: "t2", Id: 3 }, { $type: "t2", Id: 4 }] })
     s.doUpdateNow()
@@ -318,6 +318,11 @@ test("Propagate Date assignment", () => {
 })
 
 test("Serialized computed updates on changes", () => {
+    if (ko.options.deferUpdates) {
+        // This test won't work this way (i.e. synchronously) with deferUpdate
+        return
+    }
+
     const computed = ko.pureComputed(() => serialize(vm))
 
     let lastValue = null
