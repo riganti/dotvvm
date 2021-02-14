@@ -154,7 +154,7 @@ function tryCoerceDynamic(value: any, originalValue: any): CoerceResult {
         // coerce array items (treat them as dynamic)
         return tryCoerceArray(value, [{ type: "dynamic" }], originalValue);
 
-    } else if (typeof value === "object") {
+    } else if (value && typeof value === "object") {
         let innerType = value["$type"];
         if (typeof innerType === "string") {
             // known object type - coerce recursively
