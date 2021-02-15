@@ -166,7 +166,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="routeName">Name of the redirection.</param>
         /// <param name="urlPattern">URL pattern to redirect from.</param>
         /// <param name="targetRouteName">Route name which will be used as a target for redirection.</param>
-        /// <param name="urlSuffixProvider">Provider to obtain context-based URL suffix. Return 'context.HttpContext.Route.Url.Query' to keep the URL query string.</param>
+        /// <param name="urlSuffixProvider">Provider to obtain context-based URL suffix.</param>
         public void AddRouteRedirection(string routeName, string urlPattern, string targetRouteName,
             object? defaultValues = null, bool permanent = false, Func<IDotvvmRequestContext, Dictionary<string, object?>>? parametersProvider = null,
             Func<IDotvvmRequestContext, string>? urlSuffixProvider = null)
@@ -178,7 +178,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="routeName">Name of the redirection.</param>
         /// <param name="urlPattern">URL pattern to redirect from.</param>
         /// <param name="targetRouteNameProvider">Route name provider to obtain context-based redirection targets.</param>
-        /// <param name="urlSuffixProvider">Provider to obtain context-based URL suffix. Return 'context.HttpContext.Route.Url.Query' to keep the URL query string.</param>
+        /// <param name="urlSuffixProvider">Provider to obtain context-based URL suffix.</param>
         public void AddRouteRedirection(string routeName, string urlPattern, Func<IDotvvmRequestContext, string> targetRouteNameProvider,
             object? defaultValues = null, bool permanent = false, Func<IDotvvmRequestContext, Dictionary<string, object?>>? parametersProvider = null,
             Func<IDotvvmRequestContext, string>? urlSuffixProvider = null)
@@ -188,7 +188,7 @@ namespace DotVVM.Framework.Routing
             {
                 var targetRouteName = targetRouteNameProvider(context);
                 var newParameterValues = parametersProvider?.Invoke(context);
-                var urlSuffix = urlSuffixProvider?.Invoke(context);
+                var urlSuffix = urlSuffixProvider != null ? urlSuffixProvider(context) : context.HttpContext.Request.Url.Query;
 
                 if (permanent)
                     context.RedirectToRoutePermanent(targetRouteName, newParameterValues, urlSuffix: urlSuffix);
