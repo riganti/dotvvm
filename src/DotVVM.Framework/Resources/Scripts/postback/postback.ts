@@ -94,6 +94,8 @@ export async function postBack(
                     };
                 }
             }
+        } else {
+            console.error("Unexpected exception during postback.", err);
         }
         throw err;
     }
@@ -170,6 +172,8 @@ export async function applyPostbackHandlers(
                     };
                 }
             }
+        } else {
+            console.error("Unexpected exception during static command.", err);
         }
         throw err
     }
@@ -284,10 +288,11 @@ function shouldTriggerErrorEvent(err: DotvvmPostbackError) {
 function extractServerResponseObject(err: DotvvmPostbackError) {
     if (err.reason.type == "commit" && err.reason.args) {
         return err.reason.args.serverResponseObject;
-    } 
-    else if (err.reason.type == "network") {
+    } else if (err.reason.type == "network") {
         return err.reason.err;
     } else if (err.reason.type == "serverError") {
+        return err.reason.responseObject;
+    } else if (err.reason.type == "validation") {
         return err.reason.responseObject;
     }
     return null;

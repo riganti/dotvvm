@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.ControlTree;
@@ -41,6 +43,7 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty CheckedItemsProperty =
             DotvvmProperty.Register<IEnumerable?, CheckBox>(t => t.CheckedItems, null);
+
 
         /// <summary>
         /// Renders the input tag.
@@ -85,6 +88,7 @@ namespace DotVVM.Framework.Controls
                     writer.AddKnockoutDataBind("checkedValue", KnockoutHelper.MakeStringLiteral(checkedValue));
                 }
             });
+            RenderCheckedValueComparerAttribute(writer);
         }
 
         protected virtual void RenderDotvvmCheckedPointerBinding(IHtmlWriter writer)
@@ -119,7 +123,7 @@ namespace DotVVM.Framework.Controls
 
 
         [ControlUsageValidator]
-        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        public new static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
         {
             var to = control.GetValue(CheckedItemsProperty)?.GetResultType()?.UnwrapNullableType()?.GetEnumerableType();
             var nonNullableTo = to?.UnwrapNullableType();

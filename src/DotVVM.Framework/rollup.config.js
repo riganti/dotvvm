@@ -78,7 +78,7 @@ const config = ({ minify, input, output, spa, legacy }) => ({
                 ascii_only: true
             }
         }),
-        !production && livereload('public')
+        //!production && livereload('public')
     ]
 })
 

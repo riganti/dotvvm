@@ -1,4 +1,4 @@
-import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture } from "./dotvvm-base"
+import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture, getState } from "./dotvvm-base"
 import addPolyfills from './DotVVM.Polyfills'
 import * as events from './events'
 import * as spa from "./spa/spa"
@@ -30,7 +30,6 @@ if (window["dotvvm"]) {
     throw new Error('DotVVM is already loaded!')
 }
 function init(culture: string) {
-
     initCore(culture)
     registerBindingHandlers()
     validation.init()
@@ -82,6 +81,7 @@ const dotvvmExports = {
             get viewModel() { return getViewModel() }
         }
     },
+    get state() { return getState() },
     viewModelObservables: {
         get root() { return getViewModelObservable(); }
     },

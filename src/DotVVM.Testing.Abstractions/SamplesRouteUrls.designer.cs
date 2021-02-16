@@ -47,6 +47,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_Button_InputTypeButton_HtmlContentInside = "ControlSamples/Button/InputTypeButton_HtmlContentInside";
         public const string ControlSamples_Button_InputTypeButton_TextContentInside = "ControlSamples/Button/InputTypeButton_TextContentInside";
         public const string ControlSamples_CheckBox_CheckBox = "ControlSamples/CheckBox/CheckBox";
+        public const string ControlSamples_CheckBox_CheckBox_Objects = "ControlSamples/CheckBox/CheckBox_Objects";
         public const string ControlSamples_CheckBox_CheckedItemsNull = "ControlSamples/CheckBox/CheckedItemsNull";
         public const string ControlSamples_CheckBox_CheckedItemsRepeater = "ControlSamples/CheckBox/CheckedItemsRepeater";
         public const string ControlSamples_CheckBox_Indeterminate = "ControlSamples/CheckBox/Indeterminate";
@@ -80,7 +81,6 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_GridView_GridViewInlineEditingPrimaryKeyString = "ControlSamples/GridView/GridViewInlineEditingPrimaryKeyString";
         public const string ControlSamples_GridView_GridViewInlineEditingValidation = "ControlSamples/GridView/GridViewInlineEditingValidation";
         public const string ControlSamples_GridView_GridViewPagingSorting = "ControlSamples/GridView/GridViewPagingSorting";
-        public const string ControlSamples_GridView_GridViewRowDecoratorEventsPropagation = "ControlSamples/GridView/GridViewRowDecoratorEventsPropagation";
         public const string ControlSamples_GridView_GridViewRowDecorators = "ControlSamples/GridView/GridViewRowDecorators";
         public const string ControlSamples_GridView_GridViewServerRender = "ControlSamples/GridView/GridViewServerRender";
         public const string ControlSamples_GridView_GridViewSortChanged = "ControlSamples/GridView/GridViewSortChanged";
@@ -104,6 +104,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_MultiSelect_hardcoded = "ControlSamples/MultiSelect/hardcoded";
         public const string ControlSamples_RadioButton_Nullable = "ControlSamples/RadioButton/Nullable";
         public const string ControlSamples_RadioButton_RadioButton = "ControlSamples/RadioButton/RadioButton";
+        public const string ControlSamples_RadioButton_RadioButton_Objects = "ControlSamples/RadioButton/RadioButton_Objects";
         public const string ControlSamples_Repeater_CollectionIndex = "ControlSamples/Repeater/CollectionIndex";
         public const string ControlSamples_Repeater_DataSourceNull = "ControlSamples/Repeater/DataSourceNull";
         public const string ControlSamples_Repeater_NamedTemplate = "ControlSamples/Repeater/NamedTemplate";
@@ -129,6 +130,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_PageB = "ControlSamples/SpaContentPlaceHolder_HistoryApi/PageB";
         public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa1PageA = "ControlSamples/SpaContentPlaceHolder_HistoryApi/Spa1PageA";
         public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa1PageB = "ControlSamples/SpaContentPlaceHolder_HistoryApi/Spa1PageB";
+        public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa1Spa2Page = "ControlSamples/SpaContentPlaceHolder_HistoryApi/Spa1Spa2Page";
         public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa2PageA = "ControlSamples/SpaContentPlaceHolder_HistoryApi/Spa2PageA";
         public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa2PageB = "ControlSamples/SpaContentPlaceHolder_HistoryApi/Spa2PageB";
         public const string ControlSamples_TextBox_IntBoundTextBox = "ControlSamples/TextBox/IntBoundTextBox";
@@ -215,6 +217,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_HtmlTag_NonPairHtmlTag = "FeatureSamples/HtmlTag/NonPairHtmlTag";
         public const string FeatureSamples_IdGeneration_IdGeneration = "FeatureSamples/IdGeneration/IdGeneration";
         public const string FeatureSamples_JavascriptEvents_JavascriptEvents = "FeatureSamples/JavascriptEvents/JavascriptEvents";
+        public const string FeatureSamples_JavascriptTranslation_GenericMethodTranslation = "FeatureSamples/JavascriptTranslation/GenericMethodTranslation";
         public const string FeatureSamples_LiteralBinding_LiteralBinding_Zero = "FeatureSamples/LiteralBinding/LiteralBinding_Zero";
         public const string FeatureSamples_Localization_Globalize = "FeatureSamples/Localization/Globalize";
         public const string FeatureSamples_Localization_Localization = "FeatureSamples/Localization/Localization";
