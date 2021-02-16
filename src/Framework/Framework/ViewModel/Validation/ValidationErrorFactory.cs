@@ -98,6 +98,10 @@ namespace DotVVM.Framework.ViewModel.Validation
                 // Replace dots '.' and left brackets '[' with slash '/'
                 script = System.Text.RegularExpressions.Regex.Replace(script, @"\.|\[", "/");
 
+                // $rawData represents root of viewModel
+                if (script == "$rawData")
+                    script = "/";
+
                 return script;
             });
         }
