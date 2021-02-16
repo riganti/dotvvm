@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Controls
         public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmBindableObject control, PostbackScriptOptions options)
         {
             var expr = GenerateClientPostBackExpression(propertyName, expression, control, options);
-            expr += ".catch(function(){})";
+            expr += ".catch(console.error)";
             if (options.ReturnValue == false)
                 return expr + ";event.stopPropagation();return false;";
             else
@@ -162,24 +162,34 @@ namespace DotVVM.Framework.Controls
                 knockoutContext :
                 default;
 
-            var call = adjustedExpression.ToString(p =>
-                p == CommandBindingExpression.PostbackOptionsParameter ? new CodeParameterAssignment("options", OperatorPrecedence.Max) :
-                p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
-                p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
-                    getContextPath(control),
-                    OperatorPrecedence.Max) :
-                p == CommandBindingExpression.ControlUniqueIdParameter ? new CodeParameterAssignment(
-                    (uniqueControlId is IValueBinding ? "{ expr: " + JsonConvert.ToString(((IValueBinding)uniqueControlId).GetKnockoutBindingExpression(control)) + "}" : '"' + (string?)uniqueControlId + '"'), OperatorPrecedence.Max) :
-                p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
-                p == JavascriptTranslator.KnockoutViewModelParameter ? KnockoutContextDataAccess :
-                p == CommandBindingExpression.OptionalKnockoutContextParameter ? optionalKnockoutContext :
-                p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? default :
-                p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHandlers ?? (generatedPostbackHandlers = getHandlerScript()), OperatorPrecedence.Max) :
-                default(CodeParameterAssignment)
-            );
+            var commandArgsString = options.CommandArgs != null ? SubstituteArguments(options.CommandArgs.Value.Code!) : "[]";
+            var call = SubstituteArguments(adjustedExpression);
+            
             if (generatedPostbackHandlers == null && options.AllowPostbackHandlers)
-                return $"dotvvm.applyPostbackHandlers(function(options){{return {call}}}.bind(this),{options.ElementAccessor.Code!.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()},{options.CommandArgs?.ToString() ?? "[]"})";
+                return $"dotvvm.applyPostbackHandlers(function(options){{return {call}}}.bind(this),{options.ElementAccessor.Code!.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()},{commandArgsString})";
             else return call;
+
+            string SubstituteArguments(ParametrizedCode parametrizedCode)
+            {
+                return parametrizedCode.ToString(p =>
+                    p == CommandBindingExpression.PostbackOptionsParameter ? new CodeParameterAssignment("options", OperatorPrecedence.Max) :
+                    p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
+                    p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
+                        getContextPath(control),
+                        OperatorPrecedence.Max) :
+                    p == CommandBindingExpression.ControlUniqueIdParameter ? (
+                        uniqueControlId is IValueBinding ?
+                            ((IValueBinding)uniqueControlId).GetParametrizedKnockoutExpression(control) :
+                            new CodeParameterAssignment(MakeStringLiteral((string)uniqueControlId!), OperatorPrecedence.Max)
+                        ) :
+                    p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
+                    p == JavascriptTranslator.KnockoutViewModelParameter ? KnockoutContextDataAccess :
+                    p == CommandBindingExpression.OptionalKnockoutContextParameter ? optionalKnockoutContext :
+                    p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? default :
+                    p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHandlers ?? (generatedPostbackHandlers = getHandlerScript()), OperatorPrecedence.Max) :
+                    default(CodeParameterAssignment)
+                );
+            }
         }
 
         /// <summary>
