@@ -50,7 +50,7 @@ export async function postbackCore(
         const data: any = {
             currentPath: path,
             command: command,
-            controlUniqueId: processPassedId(controlUniqueId, context),
+            controlUniqueId: controlUniqueId,
             validationTargetPath: options.validationTargetPath,
             renderedResources: getRenderedResources(),
             commandArgs: commandArgs
@@ -188,16 +188,6 @@ function updateDynamicPathFragments(context: any, path: string[]): void {
 
         context = context.$parentContext;
     }
-}
-
-function processPassedId(id: any, context: any): string {
-    if (typeof id == "string" || id == null) {
-        return id;
-    }
-    if (typeof id == "object" && id.expr) {
-        return evaluator.evaluateOnViewModel(context, id.expr);
-    }
-    throw new Error("invalid argument");
 }
 
 type PostbackResponse =

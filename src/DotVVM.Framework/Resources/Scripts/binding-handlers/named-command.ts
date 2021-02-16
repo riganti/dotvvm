@@ -1,31 +1,27 @@
-import { keys } from '../utils/objects';
 import * as manager from '../viewModules/viewModuleManager';
+
+const nameSymbol = Symbol("name");
+const viewIdSymbol = Symbol("viewId");
 
 ko.virtualElements.allowedBindings["dotvvm-named-command"] = true;
 export default {
     'dotvvm-named-command': {
         init: (element: HTMLElement, valueAccessor: () => any, allBindings?: any, viewModel?: any, bindingContext?: KnockoutBindingContext) => {
-            if (!bindingContext) {
-                throw new Error();
-            }
-
             const value = valueAccessor();
-            
-            if (!value.viewId) {
-                throw new Error('Cannot initialize view modules. Property viewId not defined.');
-            }
-
-            if (!value.name) {
-                throw new Error('Cannot initialize view modules. Property name not defined.');
-            }
-
-            if (!value.command) {
-                throw new Error('Cannot initialize view modules. Property command not defined.');
-            }
-
-            manager.registerNamedCommand(value.viewId, value.name, value.command, element);
-
             return { controlsDescendantBindings: false }; // do not apply binding again
+        },
+        update: (element: HTMLElement, valueAccessor: () => any, allBindings?: any, viewModel?: any, bindingContext?: KnockoutBindingContext) => {
+            const value = valueAccessor();
+
+            const newName = ko.unwrap(value.name);
+            const oldName = (element as any)[nameSymbol];
+            const newViewId = ko.unwrap(value.viewId);
+            const oldViewId = (element as any)[viewIdSymbol];
+
+            if (oldViewId) {
+                manager.unregisterNamedCommand(oldViewId, oldName);
+            }
+            manager.registerNamedCommand(newViewId, newName, value.command, element);
         }
     }
 };

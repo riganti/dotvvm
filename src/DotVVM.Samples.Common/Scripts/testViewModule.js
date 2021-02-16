@@ -1,4 +1,6 @@
-﻿export default class {
+﻿export default (context) => new Page(context);
+
+class Page {
     constructor(context) {
         this.context = context;
         this.appendLine("testViewModule: init");

@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the name of the command to be used in JavaScript code.
         /// </summary>
-        [MarkupOptions(Required = true, AllowBinding = false)]
+        [MarkupOptions(Required = true)]
         public string? Name
         {
             get { return (string?)GetValue(NameProperty); }

@@ -1,0 +1,13 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules.IncrementerInRepeaterViewModel, DotVVM.Samples.Common
+@js FeatureSamples_Resources_Incrementer
+
+ID: <span class="id"></span>
+<br />
+Value: <span class="value"></span>
+<br />
+<dot:LinkButton Click="{staticCommand: _js.Invoke("increment")}" Text="Increment" />
+|
+<dot:LinkButton Click="{staticCommand: _js.Invoke("reportState")}" Text="Report state" />
+
+<dot:NamedCommand Name="ReportState" Command="{staticCommand: (int s) => ReportedState = s}" />
+

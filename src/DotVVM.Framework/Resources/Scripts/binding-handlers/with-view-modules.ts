@@ -1,30 +1,30 @@
-import { keys } from '../utils/objects';
 import * as manager from '../viewModules/viewModuleManager';
+
+const viewIdSymbol = Symbol("viewId");
 
 ko.virtualElements.allowedBindings["dotvvm-with-view-modules"] = true;
 export default {
     'dotvvm-with-view-modules': {
         init: (element: HTMLElement, valueAccessor: () => any, allBindings?: any, viewModel?: any, bindingContext?: KnockoutBindingContext) => {
-            if (!bindingContext) {
-                throw new Error();
-            }
-
             const value = valueAccessor();
-
-            console.info(value);
-
-            if (!value.viewId) {
-                throw new Error('Cannot initialize view modules. Property viewId not defined.');
-            }
-
-            if (!value.modules) {
-                throw new Error('Cannot initialize view modules. Property modules not defined.');
-            }
-
-            for (const viewModuleName of value.modules) {
-                manager.initViewModule(viewModuleName, value.viewId, element)
-            }
             return { controlsDescendantBindings: false }; // do not apply binding again
+        },
+        update: (element: HTMLElement, valueAccessor: () => any, allBindings?: any, viewModel?: any, bindingContext?: KnockoutBindingContext) => {
+            const value = valueAccessor();
+            const newViewId = ko.unwrap(value.viewId);
+
+            const oldViewId = (element as any)[viewIdSymbol];
+            if (!oldViewId) {
+                for (const viewModuleName of value.modules) {
+                    manager.initViewModule(viewModuleName, newViewId, element);
+                }
+            } else {
+                for (const viewModuleName of value.modules) {
+                    manager.renameViewModule(viewModuleName, oldViewId, newViewId, element);                
+                }
+            }
+
+            (element as any)[viewIdSymbol] = newViewId;
         }
     }
 };

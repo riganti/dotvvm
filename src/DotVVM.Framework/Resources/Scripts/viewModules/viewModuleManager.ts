@@ -29,11 +29,6 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
     if (rootElement == null) { throw new Error("rootElement has to have a value"); }
 
     const handler = ensureModuleHandler(name);
-
-    if (!("default" in handler.module) || typeof handler.module.default !== "function") {
-        console.error(`The module ${name} referenced in the @js directive must have a default export that is a function.`);
-        return;
-    }
     setupModuleDisposeHandlers(viewId, name, rootElement);
 
     if (handler.contexts[viewId]) {
@@ -41,10 +36,13 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
         return;
     }
 
+    if (!("default" in handler.module) || typeof handler.module.default !== "function") {
+        throw new Error(`The module ${name} referenced in the @js directive must have a default export that is a function.`);
+    }
+
     const elementContext = ko.contextFor(rootElement);
     const context = new ModuleContext(
         name,
-        viewId,
         [rootElement],
         elementContext && elementContext.$control ? { ...elementContext.$control } : {}
     );
@@ -55,14 +53,40 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
     Object.freeze(context);
 }
 
-function createModuleInstance(fn: Function, ...args: any) {
-    if (fn.prototype && fn.prototype.constructor === fn) {
-        // the module exports a class
-        return new (fn as any)(...args);
-    } else {
-        // the module exports a function
-        return fn(...args);
+export function renameViewModule(name: string, viewId: string, newViewId: string, rootElement: HTMLElement) {
+    const handler = ensureModuleHandler(name);
+
+    const context = handler.contexts[viewId];
+    if (!context) {
+        throw new Error(`The module ${name} is not registered under ${viewId}.`);
     }
+
+    // unregister element from the old context
+    const oldIndex = context.elements.indexOf(rootElement);
+    context.elements.splice(oldIndex, 1);
+
+    // unregister the context from the old view id if this was the last element
+    if (!context.elements.length) {
+        delete handler.contexts[viewId];
+    }
+
+    const newContext = handler.contexts[newViewId];
+    if (!newContext) {
+        // register the context under the new id
+        handler.contexts[newViewId] = context;
+        context.elements.push(rootElement);
+    } else {
+        // the context with new id is already there
+        if (newContext !== context) {
+            throw new Error(`Detected duplicate view ids with different module context instances: ${viewId}, ${newViewId}`);
+        } else {
+            newContext.elements.push(rootElement);
+        }
+    }
+}
+
+function createModuleInstance(fn: Function, ...args: any) {
+    return fn(...args);
 }
 
 export function callViewModuleCommand(viewId: string, commandName: string, args: any[]) {
@@ -90,9 +114,6 @@ export function callViewModuleCommand(viewId: string, commandName: string, args:
 }
 
 export function registerNamedCommand(viewId: string, commandName: string, command: ModuleCommand, rootElement: HTMLElement) {
-    if (viewId == null) { throw new Error("Parameter viewId has to have a value"); }
-    if (commandName == null) { throw new Error("Parameter commandName has to have a value"); }
-
     for (const moduleName of keys(registeredModules)) {
         const module = registeredModules[moduleName];
 
@@ -138,9 +159,6 @@ function setupNamedCommandDisposeHandlers(viewId: string, name: string, rootElem
 }
 
 export function unregisterNamedCommand(viewId: string, commandName: string) {
-    if (viewId == null) { throw new Error("Parameter viewId has to have a value"); }
-    if (commandName == null) { throw new Error("Parameter commandName has to have a value"); }
-
     for (const moduleName of keys(registeredModules)) {
         const module = registeredModules[moduleName];
 
@@ -193,20 +211,13 @@ export class ModuleContext {
     
     constructor(
         public readonly moduleName: string,
-        public readonly viewId: string,
         public readonly elements: HTMLElement[],
         public readonly properties: { [name: string]: any }) {
     }
     
     public registerNamedCommand = (name: string, command: (...args: any[]) => Promise<any>) => {
-        if (name == null) {
-            throw new Error("Parameter name has to have a value");
-        }
-        if (!command || typeof command !== 'function') {
-            throw new Error('Named command has to be a function');
-        }
         if (this.namedCommands[name]) {
-            throw new Error(`A named command is already registered under the name: ${name}. The conflict occured in: ${this.moduleName} view ${this.viewId}.`);
+            throw new Error(`A named command is already registered under the name: ${name}. The conflict occured in: ${this.moduleName}.`);
         }
 
         this.namedCommands[name] = (...innerArgs) => command.apply(this, innerArgs.map(v => deserialize(v)));

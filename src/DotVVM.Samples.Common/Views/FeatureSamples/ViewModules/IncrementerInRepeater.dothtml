@@ -1,0 +1,28 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules.IncrementerInRepeaterViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>Incrementers in Repeater</h1>
+
+    <p>
+        <input type="button" value="Add incrementer" onclick="dotvvm.viewModels.root.viewModel.Incrementers.splice(0, 0, 0);" />
+        <input type="button" value="Remove incrementer" onclick="dotvvm.viewModels.root.viewModel.Incrementers.splice(0, 1);" />
+    </p>
+
+    <dot:Repeater DataSource="{value: Incrementers}">
+        <cc:Incrementer DataContext="{value: _parent}" ID="incrementer" />
+    </dot:Repeater>
+
+    <p>Reported state: <span class="reportedState" InnerText="{value: ReportedState}"></span></p>
+
+</body>
+</html>
+
+
