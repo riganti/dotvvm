@@ -218,8 +218,77 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual("/", modelState.ValidationTargetPath);
         }
 
+        [TestMethod]
+        public void ViewModelValidator_CustomModelStateErrors()
+        {
+            var testViewModel = new TestViewModel()
+            {
+                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null),
+                Child = new TestViewModel2()
+                {
+                    Id = 11,
+                    Code = "Code",
+                },
+            };
+            var validator = CreateValidator();
+            var decorator = CreateDecorator();
+            var modelState = testViewModel.Context.ModelState;
+            var validationTarget = testViewModel;
+            modelState.ValidationTarget = validationTarget;
 
-        public class TestViewModel
+            ValidationErrorFactory.AddModelError(testViewModel, vm => vm, "Custom root error.");
+            var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath).ToList();
+            decorator.Decorate(modelState, testViewModel, errors);
+            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
+
+            Assert.AreEqual(3, results.Count);
+            Assert.AreEqual("/", results[0].PropertyPath);
+            Assert.AreEqual("/Child/Code", results[1].PropertyPath);
+            Assert.AreEqual("/Text", results[2].PropertyPath);
+        }
+
+        [TestMethod]
+        public void ViewModelValidator_CustomModelStateErrors_OutsideValidationTarget()
+        {
+            var testViewModel = new TestViewModel()
+            {
+                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null),
+                Child = new TestViewModel2()
+                {
+                    Id = 11,
+                    Code = "Code",
+                },
+                Children = new List<TestViewModel2>()
+                {
+                    new TestViewModel2() { Code = "5" },
+                    new TestViewModel2() { Code = "6" },
+                    new TestViewModel2() { Code = "7" },
+                }
+            };
+            var validator = CreateValidator();
+            var decorator = CreateDecorator();
+            var modelState = testViewModel.Context.ModelState;
+            var validationTarget = testViewModel.Children[0];
+            modelState.ValidationTarget = validationTarget;
+
+            ValidationErrorFactory.AddModelError(testViewModel, vm => vm, "Custom root error. Outside of validation target.");
+            ValidationErrorFactory.AddModelError(testViewModel, vm => vm.Child, "Custom Child error. Outside of validation target.");
+            ValidationErrorFactory.AddModelError(testViewModel, vm => vm.Children[2], "Custom Children[2] error. Outside of validation target.");
+
+            var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath).ToList();
+            decorator.Decorate(modelState, testViewModel, errors);
+            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
+
+            Assert.AreEqual(5, results.Count);
+            Assert.AreEqual("/", results[0].PropertyPath);
+            Assert.AreEqual("/Child", results[1].PropertyPath);
+            Assert.AreEqual("/Children/0/Code", results[2].PropertyPath);
+            Assert.AreEqual("/Children/0/Id", results[3].PropertyPath);
+            Assert.AreEqual("/Children/2", results[4].PropertyPath);
+        }
+
+
+        public class TestViewModel : DotvvmViewModelBase
         {
             [Required]
             public string Text { get; set; }
