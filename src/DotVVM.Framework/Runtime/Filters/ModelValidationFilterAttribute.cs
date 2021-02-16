@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Runtime.Filters
             {
                 var validator = context.Services.GetRequiredService<IViewModelValidator>();
                 var errors = validator.ValidateViewModel(context.ModelState.ValidationTarget).ToList();
-                if (errors.Any())
+                if (errors.Any() || context.ModelState.Errors.Any())
                 {
                     var modelStateDecorator = context.Services.GetRequiredService<IModelStateDecorator>();
                     modelStateDecorator.Decorate(context.ModelState, context.ViewModel, errors);

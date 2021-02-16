@@ -39,7 +39,7 @@ namespace DotVVM.Framework.ViewModel.Validation
         public void Decorate(ModelState modelState, object viewModel, List<ViewModelValidationError> errors)
         {
             // Add information about absolute paths to errors
-            var modelStateDecoratorContext = new ModelStateDecoratorContext(modelState.ValidationTarget, errors);
+            var modelStateDecoratorContext = new ModelStateDecoratorContext(modelState.ValidationTarget, errors.Concat(modelState.Errors));
             Decorate(viewModel, "", modelStateDecoratorContext);
 
             // Fix validation target path
@@ -47,7 +47,7 @@ namespace DotVVM.Framework.ViewModel.Validation
             modelState.Errors.AddRange(errors);
 
             // Remove not found errors
-            errors.RemoveAll(error => !modelStateDecoratorContext.AlreadyProcessedNodes.Contains(error.TargetObject));
+            modelState.Errors.RemoveAll(error => !modelStateDecoratorContext.AlreadyProcessedNodes.Contains(error.TargetObject));
         }
 
         private void Decorate(object? viewModel, string pathPrefix, ModelStateDecoratorContext context)
@@ -92,7 +92,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                 {
                     var propertyName = validationError.PropertyPath;
                     var absolutePath = $"{pathPrefix}/{propertyName}".TrimEnd('/');
-                    validationError.PropertyPath = absolutePath;
+                    validationError.PropertyPath = (absolutePath != string.Empty) ? absolutePath : "/";
                 }
             }
         }
