@@ -15,6 +15,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Runtime.Filters;
 using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -24,7 +25,7 @@ namespace DotVVM.Framework.Tests.Binding
         /// Gets translation of the specified binding expression if it would be passed in static command
         /// For better readability, the returned code does not include null checks
         public string CompileBinding(string expression, bool niceMode, params Type[] contexts) => CompileBinding(expression, niceMode, contexts, expectedType: typeof(Command));
-        public string CompileBinding(string expression, bool niceMode, Type[] contexts, Type expectedType)
+        public string CompileBinding(string expression, bool niceMode, Type[] contexts, Type expectedType, Type currentMarkupControl = null)
         {
             var configuration = DotvvmTestHelper.CreateConfiguration();
 
@@ -43,14 +44,22 @@ namespace DotVVM.Framework.Tests.Binding
                                                              .WithAnnotation(new ResultIsPromiseAnnotation(e => e))
                                                        ), 2, allowMultipleMethods: true);
 
-            var context = DataContextStack.Create(
-                contexts.FirstOrDefault() ?? typeof(object),
-                extensionParameters: new BindingExtensionParameter[]{
+            var parameters =
+                new BindingExtensionParameter[]{
                     new CurrentCollectionIndexExtensionParameter(),
                     new BindingPageInfoExtensionParameter(),
                     new InjectedServiceExtensionParameter("injectedService", new ResolvedTypeDescriptor(typeof(TestService)))
+                }
+                .Concat(configuration.Markup.DefaultExtensionParameters);
 
-                }.Concat(configuration.Markup.DefaultExtensionParameters).ToArray(),
+            if (currentMarkupControl != null)
+            {
+                parameters = parameters.Append(new CurrentMarkupControlExtensionParameter(new ResolvedTypeDescriptor(currentMarkupControl)));
+            }
+
+            var context = DataContextStack.Create(
+                contexts.FirstOrDefault() ?? typeof(object),
+                extensionParameters: parameters.ToArray(),
                 imports: configuration.Markup.ImportedNamespaces.ToImmutableList());
 
             for (int i = 1; i < contexts.Length; i++)
@@ -292,10 +301,115 @@ namespace DotVVM.Framework.Tests.Binding
             AreEqual(control, result);
         }
 
+        [TestMethod]
+        public void StaticCommandCompilation_MarkupControlCommandPropertyUsed_SimpleCall_CorrectCommandExecturionOrder()
+        {
+            TestMarkupControl.CreateInitialized();
+
+            var result = CompileBinding("_control.Save()", niceMode: true, new[] { typeof(object) }, typeof(Command), typeof(TestMarkupControl));
+
+            var expectedReslt = @"
+(function(a) {
+	return new Promise(function(resolve, reject) {
+		Promise.resolve(a.$control.Save()()).then(function(r_0) {
+			resolve(r_0);
+		}, reject);
+	});
+}(ko.contextFor(this)))
+";
+
+            AreEqual(expectedReslt, result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_MarkupControlCommandPropertyUsed_AsArgument_CorrectCommandExecturionOrder()
+        {
+            TestMarkupControl.CreateInitialized();
+
+            var result = CompileBinding("injectedService.Load(_control.Load())", niceMode: true, new[] { typeof(object) }, typeof(Command), typeof(TestMarkupControl));
+
+            var expectedReslt = @"
+(function(a, b) {
+	return new Promise(function(resolve, reject) {
+		Promise.resolve(a.$control.Load()()).then(function(r_0) {
+			dotvvm.staticCommandPostback(b, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiTG9hZCIsW10sIkFRQT0iXQ=="", [r_0], options).then(function(r_1) {
+				resolve(r_1);
+			}, reject);
+		}, reject);
+	});
+}(ko.contextFor(this), this))
+";
+
+            AreEqual(expectedReslt, result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_MarkupControlCommandPropertyUsed_WithSamePropertyDependancy_CorrectCommandExecturionOrder()
+        {
+            TestMarkupControl.CreateInitialized();
+
+            var result = CompileBinding("StringProp = _control.Chanege(StringProp) + injectedService.Load(StringProp)", niceMode: true, new[] { typeof(TestViewModel) }, typeof(Command), typeof(TestMarkupControl));
+
+            var expectedReslt = @"
+(function(a, c, b) {
+	return new Promise(function(resolve, reject) {
+		(
+			b = dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiTG9hZCIsW10sIkFRQT0iXQ=="", [c.$data.StringProp()], options) ,
+			Promise.resolve(c.$control.Chanege()(c.$data.StringProp())).then(function(r_0) {
+				b.then(function(r_1) {
+					resolve(c.$data.StringProp(r_0 + r_1).StringProp());
+				}, reject);
+			}, reject)
+		);
+	});
+}(this, ko.contextFor(this)))";
+
+            AreEqual(expectedReslt, result);
+        }
+
+
         public void AreEqual(string expected, string actual)
-            => Assert.AreEqual(RemoveWhitespaces(expected), RemoveWhitespaces(actual));
+        => Assert.AreEqual(RemoveWhitespaces(expected), RemoveWhitespaces(actual));
 
         public string RemoveWhitespaces(string source) => string.Concat(source.Where(c => !char.IsWhiteSpace(c)));
+    }
+
+    public class TestMarkupControl : DotvvmMarkupControl
+    {
+        public Command Save
+        {
+            get => (Command)GetValue(SaveProperty);
+            set => SetValue(SaveProperty, value);
+        }
+        public static readonly DotvvmProperty SaveProperty
+            = DotvvmProperty.Register<Command, TestMarkupControl>(c => c.Save, null);
+
+        public Func<string> Load
+        {
+            get { return (Func<string>)GetValue(LoadProperty); }
+            set { SetValue(LoadProperty, value); }
+        }
+        public static readonly DotvvmProperty LoadProperty
+            = DotvvmProperty.Register<Func<string>, TestMarkupControl>(c => c.Load, null);
+
+        public Func<string, string> Change
+        {
+            get { return (Func<string, string>)GetValue(ChangeProperty); }
+            set { SetValue(ChangeProperty, value); }
+        }
+        public static readonly DotvvmProperty ChangeProperty
+            = DotvvmProperty.Register<Func<string, string>, TestMarkupControl>(c => c.Change, null);
+
+
+        public static TestMarkupControl CreateInitialized()
+        {
+            var control = new TestMarkupControl();
+            control.SetBinding(SaveProperty, new FakeCommandBinding(new ParametrizedCode("test"), null));
+            control.SetBinding(LoadProperty, new FakeCommandBinding(new ParametrizedCode("test2"), null));
+            control.SetBinding(ChangeProperty, new FakeCommandBinding(new ParametrizedCode("test3"), null));
+            return control;
+        }
+
     }
 
     public class FakeCommandBinding : ICommandBinding

@@ -60,6 +60,9 @@ namespace DotVVM.Framework.Compilation.Binding
             // var resultPromiseVariable = new JsNewExpression("DotvvmPromise"));
             var senderVariable = new JsTemporaryVariableParameter(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter));
 
+            var invocationRewriter = new InvocationRewriterExpressionVisitor();
+            expression = invocationRewriter.Visit(expression);
+
             var rewriter = new TaskSequenceRewriterExpressionVisitor();
             expression = rewriter.Visit(expression);
 
