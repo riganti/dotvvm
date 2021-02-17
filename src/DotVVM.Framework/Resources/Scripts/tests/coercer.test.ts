@@ -150,7 +150,7 @@ test("nullable number - valid, undefined", () => {
 
 
 test("Date - valid, native Date", () => {
-    const result = tryCoerce(new Date(Date.UTC(2020, 0, 10, 12, 34, 56)), "DateTime");
+    const result = tryCoerce(new Date(2020, 0, 10, 12, 34, 56), "DateTime");
     expect(result.wasCoerced).toBeTruthy();
     expect(result.value).toEqual("2020-01-10T12:34:56.0000000");
 })
@@ -248,9 +248,9 @@ test("string - valid, converted from boolean", () => {
 })
 
 test("string - valid, converted from Date", () => {
-    const result = tryCoerce(new Date(Date.UTC(2020, 0, 10, 12, 34, 56)), "String");
+    const result = tryCoerce(new Date(2020, 0, 10, 12, 34, 56), "String");
     expect(result.wasCoerced).toBeTruthy();
-    expect(result.value).toEqual("1/10/2020 1:34 PM");     // TODO - format
+    expect(result.value).toEqual("1/10/2020 12:34 PM");     // TODO - format
 })
 
 test("string - valid, null", () => {
