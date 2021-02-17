@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Controls
             command = $"function(...args) {{ return ({command}); }}";
 
             var viewIdJs = ViewModuleHelpers.GetViewIdJsExpression(viewModule, this);
-            writer.WriteKnockoutDataBindComment("dotvvm-named-command", $"{{ viewId: {viewIdJs}, name: {KnockoutHelper.MakeStringLiteral(Name!)}, command: {command} }}");
+            writer.WriteKnockoutDataBindComment("dotvvm-named-command", $"{{ viewIdOrElement: {viewIdJs}, name: {KnockoutHelper.MakeStringLiteral(Name!)}, command: {command} }}");
             
             base.RenderBeginTag(writer, context);
         }

@@ -200,5 +200,104 @@ namespace DotVVM.Samples.Tests.Feature
         {
             AssertUI.InnerText(log, t => t.Contains(entry));
         }
+
+
+
+        [Fact]
+        public void Feature_ViewModules_IncrementerInRepeater()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_IncrementerInRepeater);
+                browser.Wait();
+
+                var buttons = browser.FindElements("input[type=button]");
+
+                void EnsureId(IElementWrapper inc, string id)
+                {
+                    browser.WaitFor(() => {
+                        AssertUI.TextEquals(inc.Single(".id"), id);
+                    }, 500);
+                }
+                void EnsureValue(IElementWrapper inc, string value)
+                {
+                    AssertUI.TextEquals(inc.Single(".value"), value);
+                }
+
+                // validate states
+                var incrementers = browser.FindElements(".incrementer").ThrowIfDifferentCountThan(2);
+                EnsureId(incrementers[0], "c23_0_incrementer");
+                EnsureValue(incrementers[0], "0");
+                EnsureId(incrementers[1], "c23_1_incrementer");
+                EnsureValue(incrementers[1], "0");
+
+                // increment
+                incrementers[0].ElementAt("a", 0).Click();
+                incrementers[1].ElementAt("a", 0).Click();
+                incrementers[1].ElementAt("a", 0).Click();
+                EnsureValue(incrementers[0], "1");
+                EnsureValue(incrementers[1], "2");
+
+                // report state
+                incrementers[0].ElementAt("a", 1).Click();
+                AssertUI.TextEquals(browser.Single(".reportedState"), "1");
+                incrementers[1].ElementAt("a", 1).Click();
+                AssertUI.TextEquals(browser.Single(".reportedState"), "2");
+
+                // add incrementer
+                buttons[0].Click();
+                
+                // state must be persisted, ids have changed
+                incrementers = browser.FindElements(".incrementer").ThrowIfDifferentCountThan(3);
+                EnsureId(incrementers[0], "c23_0_incrementer");
+                EnsureValue(incrementers[0], "0");
+                EnsureId(incrementers[1], "c23_1_incrementer");
+                EnsureValue(incrementers[1], "1");
+                EnsureId(incrementers[2], "c23_2_incrementer");
+                EnsureValue(incrementers[2], "2");
+
+                // report state
+                incrementers[0].ElementAt("a", 1).Click();
+                AssertUI.TextEquals(browser.Single(".reportedState"), "0");
+                incrementers[1].ElementAt("a", 1).Click();
+                AssertUI.TextEquals(browser.Single(".reportedState"), "1");
+                incrementers[2].ElementAt("a", 1).Click();
+                AssertUI.TextEquals(browser.Single(".reportedState"), "2");
+
+                // remove incrementer
+                buttons[1].Click();
+
+                // state must be persisted, ids have changed
+                incrementers = browser.FindElements(".incrementer").ThrowIfDifferentCountThan(2);
+                EnsureId(incrementers[0], "c23_0_incrementer");
+                EnsureValue(incrementers[0], "1");
+                EnsureId(incrementers[1], "c23_1_incrementer");
+                EnsureValue(incrementers[1], "2");
+
+                // report state
+                incrementers[0].ElementAt("a", 1).Click();
+                AssertUI.TextEquals(browser.Single(".reportedState"), "1");
+                incrementers[1].ElementAt("a", 1).Click();
+                AssertUI.TextEquals(browser.Single(".reportedState"), "2");
+
+                // remove incrementers
+                buttons[1].Click();
+                buttons[1].Click();
+                
+                browser.FindElements(".incrementer").ThrowIfDifferentCountThan(0);
+
+                // re-add them and check that everything works
+                buttons[0].Click();
+
+                // validate id and state
+                incrementers = browser.FindElements(".incrementer").ThrowIfDifferentCountThan(1);
+                EnsureId(incrementers[0], "c23_0_incrementer");
+                EnsureValue(incrementers[0], "0");
+
+                // report state
+                incrementers[0].ElementAt("a", 0).Click();
+                EnsureValue(incrementers[0], "1");
+            });
+
+        }
     }
 }

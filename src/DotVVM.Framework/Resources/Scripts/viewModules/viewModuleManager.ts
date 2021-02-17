@@ -6,6 +6,8 @@ const registeredModules: { [name: string]: ModuleHandler } = {};
 
 type ModuleCommand = (...args: any) => Promise<unknown>;
 
+export const viewModulesSymbol = Symbol("viewModules");
+
 export function registerViewModule(name: string, moduleObject: any) {
     if (name == null) { throw new Error("Parameter name has to have a value"); }
     if (moduleObject == null) { throw new Error("Parameter moduleObject has to have a value"); }
@@ -24,16 +26,17 @@ export function registerViewModules(modules: { [name: string]: any }) {
     }
 }
 
-export function initViewModule(name: string, viewId: string, rootElement: HTMLElement) {
-    if (viewId == null) { throw new Error("viewId has to have a value"); }
+export function initViewModule(name: string, viewIdOrElement: string | HTMLElement, rootElement: HTMLElement): ModuleContext {
     if (rootElement == null) { throw new Error("rootElement has to have a value"); }
 
     const handler = ensureModuleHandler(name);
-    setupModuleDisposeHandlers(viewId, name, rootElement);
+    setupModuleDisposeHandlers(viewIdOrElement, name, rootElement);
 
-    if (handler.contexts[viewId]) {
-        handler.contexts[viewId].elements.push(rootElement);
-        return;
+    if (typeof viewIdOrElement === "string" && handler.contexts[viewIdOrElement]) {
+        // contexts with the same viewId are shared
+        const context = handler.contexts[viewIdOrElement];
+        context.elements.push(rootElement);
+        return context;
     }
 
     if (!("default" in handler.module) || typeof handler.module.default !== "function") {
@@ -47,55 +50,27 @@ export function initViewModule(name: string, viewId: string, rootElement: HTMLEl
         elementContext && elementContext.$control ? { ...elementContext.$control } : {}
     );
     const moduleInstance = createModuleInstance(handler.module.default, context);
-    handler.contexts[viewId] = context;
-
     context.module = moduleInstance;
     Object.freeze(context);
-}
 
-export function renameViewModule(name: string, viewId: string, newViewId: string, rootElement: HTMLElement) {
-    const handler = ensureModuleHandler(name);
-
-    const context = handler.contexts[viewId];
-    if (!context) {
-        throw new Error(`The module ${name} is not registered under ${viewId}.`);
+    if (typeof viewIdOrElement === "string") {
+        handler.contexts[viewIdOrElement] = context;
     }
-
-    // unregister element from the old context
-    const oldIndex = context.elements.indexOf(rootElement);
-    context.elements.splice(oldIndex, 1);
-
-    // unregister the context from the old view id if this was the last element
-    if (!context.elements.length) {
-        delete handler.contexts[viewId];
-    }
-
-    const newContext = handler.contexts[newViewId];
-    if (!newContext) {
-        // register the context under the new id
-        handler.contexts[newViewId] = context;
-        context.elements.push(rootElement);
-    } else {
-        // the context with new id is already there
-        if (newContext !== context) {
-            throw new Error(`Detected duplicate view ids with different module context instances: ${viewId}, ${newViewId}`);
-        } else {
-            newContext.elements.push(rootElement);
-        }
-    }
+    
+    return context;
 }
 
 function createModuleInstance(fn: Function, ...args: any) {
     return fn(...args);
 }
 
-export function callViewModuleCommand(viewId: string, commandName: string, args: any[]) {
+export function callViewModuleCommand(viewIdOrElement: string | HTMLElement, commandName: string, args: any[]) {
     if (commandName == null) { throw new Error("commandName has to have a value"); }
 
     const foundModules: { moduleName: string; context: ModuleContext }[] = [];
     
     for (let moduleName of keys(registeredModules)) {
-        const context = tryFindViewModuleContext(viewId, moduleName);
+        const context = tryFindViewModuleContext(viewIdOrElement, moduleName);
         if (!context) continue;
         if (commandName in context.module && typeof context.module[commandName] === "function") {
             foundModules.push({ moduleName, context });
@@ -103,81 +78,92 @@ export function callViewModuleCommand(viewId: string, commandName: string, args:
     }
 
     if (!foundModules.length) {
-        throw new Error(`Command ${commandName} could not be found in any of the imported modules in view ${viewId}.`);
+        throw new Error(`Command ${commandName} could not be found in any of the imported modules in view ${viewIdOrElement}.`);
     }
 
     if (foundModules.length > 1) {
-        throw new Error(`Conflict: There were multiple commands named ${commandName} the in imported modules in view ${viewId}. Check modules: ${foundModules.map(m => m.moduleName).join(', ')}.`);
+        throw new Error(`Conflict: There were multiple commands named ${commandName} the in imported modules in view ${viewIdOrElement}. Check modules: ${foundModules.map(m => m.moduleName).join(', ')}.`);
     }
 
     return foundModules[0].context.module[commandName](...args.map(v => serialize(v)));
 }
 
-export function registerNamedCommand(viewId: string, commandName: string, command: ModuleCommand, rootElement: HTMLElement) {
-    for (const moduleName of keys(registeredModules)) {
-        const module = registeredModules[moduleName];
-
-        const context = module.contexts[viewId];
-        if (context) {
-            context.registerNamedCommand(commandName, command);
-        }
-    }
-
-    setupNamedCommandDisposeHandlers(viewId, commandName, rootElement);
-}
-
-function setupModuleDisposeHandlers(viewId: string, name: string, rootElement: HTMLElement) {
+function setupModuleDisposeHandlers(viewIdOrElement: string | HTMLElement, name: string, rootElement: HTMLElement) {
     function elementDisposeCallback() {
-        disposeModule(viewId, name, rootElement);
+        disposeModule(viewIdOrElement, name, rootElement);
         ko.utils.domNodeDisposal.removeDisposeCallback(rootElement, elementDisposeCallback);
     }
     ko.utils.domNodeDisposal.addDisposeCallback(rootElement, elementDisposeCallback);
 }
 
-function disposeModule(viewId: string, name: string, rootElement: HTMLElement) {
-    const handler = ensureModuleHandler(name);
-    const context = ensureViewModuleContext(viewId, name);
+function disposeModule(viewIdOrElement: string | HTMLElement, name: string, rootElement: HTMLElement) {
+    const context = ensureViewModuleContext(viewIdOrElement, name);
 
     const index = context.elements.indexOf(rootElement);
     if (index < 0) {
-        throw new Error(`Cannot dispose module on a root element ${viewId}. It has already been disposed.`);
+        throw new Error(`Cannot dispose module on a root element ${viewIdOrElement}. It has already been disposed.`);
     }
     context.elements.splice(index, 1);
 
     if (!context.elements.length) {
         callIfDefined(context.module, '$dispose', context);
-        delete handler.contexts[viewId];
+        
+        if (typeof viewIdOrElement === "string") {
+            const handler = ensureModuleHandler(name);
+            delete handler.contexts[viewIdOrElement];
+        }
     }
 }
 
-function setupNamedCommandDisposeHandlers(viewId: string, name: string, rootElement: HTMLElement) {
+export function registerNamedCommand(viewIdOrElement: string | HTMLElement, commandName: string, command: ModuleCommand, rootElement: HTMLElement) {
+    for (const moduleName of keys(registeredModules)) {
+        const context = tryFindViewModuleContext(viewIdOrElement, moduleName);
+        if (context) {
+            context.registerNamedCommand(commandName, command);
+        }
+    }
+    setupNamedCommandDisposeHandlers(viewIdOrElement, commandName, rootElement);
+}
+
+function setupNamedCommandDisposeHandlers(viewIdOrElement: string | HTMLElement, name: string, rootElement: HTMLElement) {
     function elementDisposeCallback() {
-        unregisterNamedCommand(viewId, name);
+        unregisterNamedCommand(viewIdOrElement, name);
         ko.utils.domNodeDisposal.removeDisposeCallback(rootElement, elementDisposeCallback);
     }
     ko.utils.domNodeDisposal.addDisposeCallback(rootElement, elementDisposeCallback);
 }
 
-export function unregisterNamedCommand(viewId: string, commandName: string) {
+export function unregisterNamedCommand(viewIdOrElement: string | HTMLElement, commandName: string) {
     for (const moduleName of keys(registeredModules)) {
-        const module = registeredModules[moduleName];
-
-        var context = module.contexts[viewId];
+        var context = tryFindViewModuleContext(viewIdOrElement, moduleName);
         if (context) {
             context.unregisterNamedCommand(commandName);
         }
     }
 }
 
-function tryFindViewModuleContext(viewId: string, name: string): ModuleContext | undefined {
-    const handler = ensureModuleHandler(name);
-    return handler.contexts[viewId];
+function tryFindViewModuleContext(viewIdOrElement: string | HTMLElement, name: string): ModuleContext | undefined {
+    if (typeof viewIdOrElement === "string") {
+        const handler = ensureModuleHandler(name);
+        return handler.contexts[viewIdOrElement];
+    } else {
+        let contexts = (viewIdOrElement as any)[viewModulesSymbol];
+        if (contexts) {
+            return contexts[name];
+        } else {
+            let contexts = ko.contextFor(viewIdOrElement);
+            while (contexts && !("$viewModules" in contexts)) {
+                contexts = contexts.$parentContext;
+            }
+            return contexts["$viewModules"] && contexts["$viewModules"][name];
+        }
+    }
 }
 
-function ensureViewModuleContext(viewId: string, name: string): ModuleContext {
-    const context = tryFindViewModuleContext(viewId, name);
+function ensureViewModuleContext(viewIdOrElement: string | HTMLElement, name: string): ModuleContext {
+    const context = tryFindViewModuleContext(viewIdOrElement, name);
     if (!context) {
-        throw new Error('Module ' + name + 'has not been initialized for view ' + viewId + ', or the view has been disposed');
+        throw new Error('Module ' + name + 'has not been initialized for view ' + viewIdOrElement + ', or the view has been disposed');
     }
     return context;
 }
@@ -186,7 +172,6 @@ function ensureModuleHandler(name: string): ModuleHandler {
     if (name == null) { throw new Error("name has to have a value"); }
 
     const handler = registeredModules[name];
-
     if (!handler) {
         throw new Error('Could not find module ' + name + '. Module is not registered, or has been disposed.');
     }

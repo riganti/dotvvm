@@ -9,5 +9,7 @@ Value: <span class="value"></span>
 |
 <dot:LinkButton Click="{staticCommand: _js.Invoke("reportState")}" Text="Report state" />
 
-<dot:NamedCommand Name="ReportState" Command="{staticCommand: (int s) => ReportedState = s}" />
+<div DataContext="{value: _this}">
+    <dot:NamedCommand Name="ReportState" Command="{staticCommand: (int s) => ReportedState = s}" />
+</div>
 

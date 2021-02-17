@@ -17,7 +17,7 @@
     </p>
 
     <dot:Repeater DataSource="{value: Incrementers}">
-        <cc:Incrementer DataContext="{value: _parent}" ID="incrementer" />
+        <cc:Incrementer DataContext="{value: _parent}" ID="incrementer" class="incrementer" />
     </dot:Repeater>
 
     <p>Reported state: <span class="reportedState" InnerText="{value: ReportedState}"></span></p>

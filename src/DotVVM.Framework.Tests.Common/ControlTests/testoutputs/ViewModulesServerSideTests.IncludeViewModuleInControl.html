@@ -27,16 +27,20 @@
 	<body>
 		<div>
 			<!-- ko dotvvm-with-control-properties: {  } -->
-			<!-- ko dotvvm-with-view-modules: { viewId: 'c6', modules: ["controlModule"] } -->
-			<input type="button" value="" onclick="dotvvm.applyPostbackHandlers(function(options){return Promise.resolve(dotvvm.viewModules.call(&quot;c6&quot;, &quot;name&quot;, [1]))}.bind(this),this,[],[]).catch(function(){});event.stopPropagation();return false;">
+			<!-- ko dotvvm-with-view-modules: { viewIdOrElement: $element, modules: ["controlModule"] } -->
+			<input type="button" value="" onclick="dotvvm.applyPostbackHandlers(function(options){return (function(a) {
+	return Promise.resolve(dotvvm.viewModules.call(a, &quot;name&quot;, [1]));
+}(this))}.bind(this),this,[],[]).catch(console.error);event.stopPropagation();return false;">
 			<!-- /ko -->
 			<!-- /ko -->
 		</div>
 		<div data-bind="foreach: { &quot;data&quot;: Collection }">
 			<div>
 				<!-- ko dotvvm-with-control-properties: {  } -->
-				<!-- ko dotvvm-with-view-modules: { viewId: "c8"+'_'+$index()+'_'+"c10", modules: ["controlModule"] } -->
-				<input type="button" value="" onclick="dotvvm.applyPostbackHandlers(function(options){return Promise.resolve(dotvvm.viewModules.call({ expr: &quot;\&quot;c8\&quot;+'_'+$index()+'_'+\&quot;c10\&quot;&quot;}, &quot;name&quot;, [1]))}.bind(this),this,[],[]).catch(function(){});event.stopPropagation();return false;">
+				<!-- ko dotvvm-with-view-modules: { viewIdOrElement: $element, modules: ["controlModule"] } -->
+				<input type="button" value="" onclick="dotvvm.applyPostbackHandlers(function(options){return (function(a) {
+	return Promise.resolve(dotvvm.viewModules.call(a, &quot;name&quot;, [1]));
+}(this))}.bind(this),this,[],[]).catch(console.error);event.stopPropagation();return false;">
 				<!-- /ko -->
 				<!-- /ko -->
 			</div>

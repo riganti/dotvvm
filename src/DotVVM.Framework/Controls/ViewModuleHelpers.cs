@@ -11,10 +11,7 @@ namespace DotVVM.Framework.Controls
         {
             if (viewModuleInfo.IsMarkupControl)
             {
-                var markupControl = control.GetAllAncestors(includingThis: true).OfType<DotvvmMarkupControl>().First();
-                var viewId = markupControl.GetDotvvmUniqueId();
-                return (viewId as IValueBinding)?.GetKnockoutBindingExpression(markupControl)
-                       ?? KnockoutHelper.MakeStringLiteral((string)viewId);
+                return "$element";
             }
             else
             {

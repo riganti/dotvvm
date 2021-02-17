@@ -11,6 +11,12 @@ class Page {
             this.rootElement.querySelector(".id").innerText = this.rootElement.id;
             this.rootElement.querySelector(".value").innerText = this.state;
         }, 0);
+
+        dotvvm.viewModels.root.viewModel.Incrementers.subscribe(() => {
+            window.setTimeout(() => {
+                this.rootElement.querySelector(".id").innerText = this.rootElement.id;
+            }, 0);
+        });
     }
 
     increment() {

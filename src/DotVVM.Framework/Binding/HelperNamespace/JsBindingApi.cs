@@ -20,9 +20,9 @@ namespace DotVVM.Framework.Binding.HelperNamespace
             collection.AddMethodTranslator(typeof(JsBindingApi), nameof(Invoke), new GenericMethodCompiler(
                 (a, method) => {
                     var annotation = a[0].Annotation<JsExtensionParameter.ViewModuleAnnotation>();
-                    var viewIdExpr = annotation.IsMarkupControl ? new JsSymbolicParameter(CommandBindingExpression.ControlUniqueIdParameter) : (JsExpression)new JsLiteral(annotation.Id);
+                    var viewIdOrElementExpr = annotation.IsMarkupControl ? new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter) : (JsExpression)new JsLiteral(annotation.Id);
                     
-                    var jsExpression = a[0].Member("call").Invoke(viewIdExpr, a[1], a[2]);
+                    var jsExpression = a[0].Member("call").Invoke(viewIdOrElementExpr, a[1], a[2]);
                     if (typeof(Task).IsAssignableFrom(method.ReturnType))
                     {
                         jsExpression = jsExpression.WithAnnotation(new ResultIsPromiseAnnotation(e => e));

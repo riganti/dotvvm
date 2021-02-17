@@ -313,6 +313,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ViewModelProtection_NestedSignatures = "FeatureSamples/ViewModelProtection/NestedSignatures";
         public const string FeatureSamples_ViewModelProtection_SignedNestedInServerToClient = "FeatureSamples/ViewModelProtection/SignedNestedInServerToClient";
         public const string FeatureSamples_ViewModelProtection_ViewModelProtection = "FeatureSamples/ViewModelProtection/ViewModelProtection";
+        public const string FeatureSamples_ViewModules_IncrementerInRepeater = "FeatureSamples/ViewModules/IncrementerInRepeater";
         public const string FeatureSamples_ViewModules_ModuleInMarkupControl = "FeatureSamples/ViewModules/ModuleInMarkupControl";
         public const string FeatureSamples_ViewModules_ModuleInMarkupControlTwice = "FeatureSamples/ViewModules/ModuleInMarkupControlTwice";
         public const string FeatureSamples_ViewModules_ModuleInPage = "FeatureSamples/ViewModules/ModuleInPage";

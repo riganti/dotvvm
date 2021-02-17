@@ -86,7 +86,7 @@ namespace DotVVM.Framework.Controls
                 var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
                 settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
                 writer.WriteKnockoutDataBindComment("dotvvm-with-view-modules",
-                    $"{{ viewId: {viewIdJs}, modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}"
+                    $"{{ viewIdOrElement: {viewIdJs}, modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}"
                 );
             }
             base.RenderContents(writer, context);
