@@ -324,4 +324,12 @@ namespace DotVVM.Framework.Binding.Properties
             this.Binding = binding;
         }
     }
+    public sealed class ExpectedAsStringBindingExpression
+    {
+        public readonly IBinding Binding;
+        public ExpectedAsStringBindingExpression(IBinding binding)
+        {
+            this.Binding = binding;
+        }
+    }
 }
