@@ -392,13 +392,13 @@ namespace DotVVM.Framework.Tests.Binding
         public static readonly DotvvmProperty LoadProperty
             = DotvvmProperty.Register<Func<string>, TestMarkupControl>(c => c.Load, null);
 
-        public Func<string, string> Chanege
+        public Func<string, string> Change
         {
-            get { return (Func<string, string>)GetValue(ChanegeProperty); }
-            set { SetValue(ChanegeProperty, value); }
+            get { return (Func<string, string>)GetValue(ChangeProperty); }
+            set { SetValue(ChangeProperty, value); }
         }
-        public static readonly DotvvmProperty ChanegeProperty
-            = DotvvmProperty.Register<Func<string, string>, TestMarkupControl>(c => c.Chanege, null);
+        public static readonly DotvvmProperty ChangeProperty
+            = DotvvmProperty.Register<Func<string, string>, TestMarkupControl>(c => c.Change, null);
 
 
         public static TestMarkupControl CreateInitialized()
@@ -406,7 +406,7 @@ namespace DotVVM.Framework.Tests.Binding
             var control = new TestMarkupControl();
             control.SetBinding(SaveProperty, new FakeCommandBinding(new ParametrizedCode("test"), null));
             control.SetBinding(LoadProperty, new FakeCommandBinding(new ParametrizedCode("test2"), null));
-            control.SetBinding(ChanegeProperty, new FakeCommandBinding(new ParametrizedCode("test3"), null));
+            control.SetBinding(ChangeProperty, new FakeCommandBinding(new ParametrizedCode("test3"), null));
             return control;
         }
 
