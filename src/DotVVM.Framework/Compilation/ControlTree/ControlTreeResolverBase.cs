@@ -204,7 +204,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var viewModel = root.DataContextTypeStack.DataContextType;
             if (!masterPage.DataContextType.IsAssignableFrom(viewModel))
             {
-                masterPageDirective!.DothtmlNode!.AddError($"Viewmodel {viewModel.Name} is not assignable to the masterPage viewmodel {masterPage.DataContextType.Name}");
+                masterPageDirective!.DothtmlNode!.AddError($"The viewmodel {viewModel.Name} is not assignable to the viewmodel of the master page {masterPage.DataContextType.Name}.");
             }
         }
 
