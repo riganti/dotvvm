@@ -47,7 +47,7 @@ namespace DotVVM.Samples.Tests.Complex
         public void Complex_RedirectAndUrl_ScrollingPage()
         {
             //There I am testing that scrolling to element using Context.ResultIdFragment works correctly
-            //It should scroll to element without interupting the postback
+            //It should scroll to element without interrupting the postback
 
             RunInAllBrowsers(browser => {
                 //Postback with no redirect sets message to 'TestMessage'
@@ -56,14 +56,14 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.Wait(200);
                 AssertUI.InnerText(browser.First("span[data-ui='message1']"), s => s.Equals("TestMessage"));
 
-                //Postback sould run and view should scroll, page should not reload therefore messeges remain.
+                //Postback should run and view should scroll, page should not reload therefore messeges remain.
                 browser.First("a[data-ui='go-to-2-link']").Click();
                 browser.Wait(200);
 
                 var message2element = browser.First("span[data-ui='message2']");
                 var message1element = browser.First("span[data-ui='message1']");
 
-                //Message 2 should be scrolled to while message 1 snhould not, and both should have their texts set from the postback.
+                //Message 2 should be scrolled to while message 1 should not, and both should have their texts set from the postback.
                 message1element.IsDisplayed();
                 message2element.IsDisplayed();
 
@@ -73,7 +73,7 @@ namespace DotVVM.Samples.Tests.Complex
                 AssertUI.InnerText(message1element, s => s.Equals("ToParagraph2"));
                 AssertUI.InnerText(message2element, s => s.Equals("ToParagraph2"));
 
-                //basicly the same just clicking on link to do postback and scroll back to paragraph1 after
+                //basically the same just clicking on link to do postback and scroll back to paragraph1 after
                 browser.First("a[data-ui='go-to-1-link']").Click();
                 browser.Wait(200);
                 // message 2 should be scrolled to message 1 should not, both should be blank
