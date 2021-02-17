@@ -185,10 +185,10 @@ window.getSelectionText = function (dataui) {
                 numberTextbox.Clear().SendKeys("000//a");
                 dateTextBox.Click();
 
-                //check invalid values
-                AssertUI.InnerTextEquals(dateText, "");
-                AssertUI.InnerTextEquals(numberValueText, "");
-
+                //check displayed values (behavior change in 3.0 - previous values should stay there)
+                AssertUI.InnerTextEquals(dateText, new DateTime(2018, 12, 27).ToString("G", culture));
+                AssertUI.InnerTextEquals(numberValueText, 2000.ToString(culture));
+                
                 AssertUI.Attribute(numberTextbox, "value", "000//a");
                 AssertUI.Attribute(dateTextBox, "value", "dsasdasd");
 

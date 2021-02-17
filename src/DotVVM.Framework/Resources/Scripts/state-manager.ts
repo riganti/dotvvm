@@ -9,6 +9,7 @@ import { patchViewModel } from "./postback/updater";
 
 export const currentStateSymbol = Symbol("currentState")
 const notifySymbol = Symbol("notify")
+export const lastSetErrorSymbol = Symbol("lastSetError")
 
 const internalPropCache = Symbol("internalPropCache")
 const updateSymbol = Symbol("update")
@@ -240,13 +241,15 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
 
     let isUpdating = false
 
-    function observableValidator(newValue: any) {
+    function observableValidator(this: KnockoutObservable<T>, newValue: any) {
         if (isUpdating) { return }
         updatedObservable = true
 
         try {
+            (this as any)[lastSetErrorSymbol] = void 0;
             updater(_ => unmapKnockoutObservables(newValue))
         } catch (err) {
+            (this as any)[lastSetErrorSymbol] = err;
             console.debug(`Can not update observable to ${newValue}:`, err)
             throw err
         }
@@ -262,7 +265,6 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
 
     const obs = initialValue instanceof Array ? ko.observableArray([], observableValidator) : ko.observable(null, observableValidator) as any
     obs[updateSymbol] = updater
-
     let updatedObservable = false
 
     obs.subscribe((newVal: any) => {
@@ -274,9 +276,14 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
     }, null, isDeferred ? "dirty" : "change")
 
     function notify(newVal: any) {
+        if (updatedObservable) {
+            obs[lastSetErrorSymbol] = void 0;
+        }
+
         const currentValue = obs[currentStateSymbol]
         if (newVal === currentValue) { return }
         obs[currentStateSymbol] = newVal
+
         const observableWasSetFromOutside = updatedObservable
         updatedObservable = false
 

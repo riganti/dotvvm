@@ -11,6 +11,7 @@ import { DotvvmPostbackError } from "../shared-classes"
 import { getObjectTypeInfo } from "../metadata/typeMap"
 import { tryCoerce } from "../metadata/coercer"
 import { primitiveTypes } from "../metadata/primitiveTypes"
+import { lastSetErrorSymbol } from "../state-manager"
 
 type ValidationSummaryBinding = {
     target: KnockoutObservable<any>,
@@ -148,6 +149,11 @@ function validateViewModel(viewModel: any): void {
 }
 
 function validateRecursive(propertyName: string, observable: KnockoutObservable<any>, propertyValue: any, type: TypeDefinition) {
+    const lastSetError: CoerceResult = (observable as any)[lastSetErrorSymbol];
+    if (lastSetError && lastSetError.isError) {
+        ValidationError.attach(lastSetError.message, observable);
+    }
+    
     if (Array.isArray(type)) {
         if (!propertyValue) return;
         let i = 0;

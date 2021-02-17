@@ -177,6 +177,6 @@ function validateDateTime(value: any) {
     }
     
     if (value instanceof Date) {
-        return { value: serializeDate(value), wasCoerced: true };
+        return { value: serializeDate(value, false), wasCoerced: true };
     }
 }
