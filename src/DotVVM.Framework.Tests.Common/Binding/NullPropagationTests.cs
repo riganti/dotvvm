@@ -21,6 +21,16 @@ namespace DotVVM.Framework.Tests.Common.Binding
         private LambdaExpression[] ExpressionFragments = new LambdaExpression[] {
             Create((TestViewModel t) => t.EnumProperty - 1),
             Create((TestViewModel t) => t.StringProp),
+            Create((TestViewModel t) => t.LongArray),
+            Create((TestViewModel t) => t.LongProperty),
+            Create((TestViewModel t) => t.VmArray),
+            Create((TestViewModel t) => t.VmArray[0]),
+            Create((TestViewModel2[] t, int b) => t[b & 0]),
+            Create((long[] t) => t.Length),
+            Create((long[] t) => t[0]),
+            Create((TestViewModel2 t) => t.Enum),
+            Create((TestEnum t) => (int)t),
+            Create((TestEnum t) => (TestEnum?)t),
             Create((TestViewModel a, TestViewModel b) => a.BoolMethodExecuted ? a : b),
             Create((int a, TestViewModel b, TestViewModel c) => a == 0 ? b : c),
             Create((string b) => b ?? "NULL STRING"),
@@ -31,8 +41,10 @@ namespace DotVVM.Framework.Tests.Common.Binding
             Create((TestViewModel a, char b) => a.GetCharCode(b)),
             Create((string a) => a.Length > 0 ? a[0] : 'f'),
             Create((string a, int b) => a.Length > b ? a[b] : 'l'),
+            // Create((string a, int b) => a[b]),
             Create((int a, int b) => a+b),
             Create((int a) => a + 1.0),
+            Create((long a) => (int)a),
             Create((int a, double b) => a * b),
             Create((TimeSpan span) => span.TotalMilliseconds),
             Create((TestViewModel vm) => vm.DateFrom), // DateTime?
@@ -105,7 +117,7 @@ namespace DotVVM.Framework.Tests.Common.Binding
             while (unusedFragments.Any())
             {
                 var possibleOnes = unusedFragments.Where(f => f.Parameters.All(p => typeSources.ContainsKey(p.Type))).ToArray();
-                Assert.IsFalse(possibleOnes.Length == 0);
+                Assert.IsFalse(possibleOnes.Length == 0, $"Can not continue from {string.Join(", ", typeSources.Select(t => t.Key.Name))} to {string.Join(", ", unusedFragments.AsEnumerable())}");
                 foreach (var fragment in possibleOnes)
                 {
                     AddFragment(fragment, 4);
@@ -254,22 +266,31 @@ namespace DotVVM.Framework.Tests.Common.Binding
             Assert.IsNull(EvalExpression<TestViewModel>(v => v.LongArray[0] + 1, null));
             Assert.IsNull(EvalExpression<TestViewModel>(v => v.LongArray[0] + v.TestViewModel2.MyProperty, new TestViewModel()));
             Assert.IsNull(EvalExpression<TestViewModel>(v => v.TestViewModel2B.ChildObject.SomeString.Length + v.TestViewModel2.MyProperty, new TestViewModel()));
-            Assert.Equals(2, EvalExpression<TestViewModel>(v => v.LongArray[0] + 1, new TestViewModel()));
+            Assert.AreEqual(2L, EvalExpression<TestViewModel>(v => v.LongArray[0] + 1, new TestViewModel()));
         }
 
         [TestMethod]
         public void StringConcat()
         {
-            Assert.Equals("abc", EvalExpression<TestViewModel>(v => v.StringProp + "abc", null));
+            Assert.AreEqual("abc", EvalExpression<TestViewModel>(v => v.StringProp + "abc", null));
         }
 
         [TestMethod]
         public void Indexer()
         {
+            Assert.IsNull(EvalExpression<int[]>(v => v[0] + 1, null));
             Assert.IsNull(EvalExpression<TestViewModel>(v => v.IntArray[0] + 1, null));
             Assert.IsNull(EvalExpression<TestViewModel>(v => v.IntArray[0] + 1, new TestViewModel { IntArray = null }));
             Assert.IsNull(EvalExpression<TestViewModel>(v => v.TestViewModel2.Collection[0].StringValue.Length + 5, new TestViewModel { IntArray = null }));
             Assert.IsNull(EvalExpression<TestViewModel>(v => v.TestViewModel2.Collection[0].StringValue.Length + 5, new TestViewModel { IntArray = null }));
+        }
+
+        [TestMethod]
+        public void Coalesce()
+        {
+            Assert.AreEqual(1, EvalExpression<object>(v => v ?? 1, null));
+            Assert.AreEqual(1, EvalExpression<object>(v => (v ?? 1) ?? 2, null));
+            Assert.AreEqual(1, EvalExpression<int?>(v => v ?? null, 1));
         }
     }
 

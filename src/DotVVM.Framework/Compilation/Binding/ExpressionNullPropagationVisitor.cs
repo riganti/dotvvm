@@ -66,6 +66,10 @@ namespace DotVVM.Framework.Compilation.Binding
                 // this should only be ParameterExpression
                 else return createExpr(node.Left);
             }
+            else if (node.NodeType == ExpressionType.ArrayIndex)
+            {
+                return CheckForNull(base.Visit(node.Left), left2 => createExpr(left2));
+            }
             else
             {
                 var left = Visit(node.Left);
