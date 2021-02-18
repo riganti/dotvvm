@@ -348,14 +348,14 @@ namespace DotVVM.Framework.Tests.Binding
         {
             TestMarkupControl.CreateInitialized();
 
-            var result = CompileBinding("StringProp = _control.Chanege(StringProp) + injectedService.Load(StringProp)", niceMode: true, new[] { typeof(TestViewModel) }, typeof(Command), typeof(TestMarkupControl));
+            var result = CompileBinding("StringProp = _control.Change(StringProp) + injectedService.Load(StringProp)", niceMode: true, new[] { typeof(TestViewModel) }, typeof(Command), typeof(TestMarkupControl));
 
             var expectedReslt = @"
 (function(a, c, b) {
 	return new Promise(function(resolve, reject) {
 		(
 			b = dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiTG9hZCIsW10sIkFRQT0iXQ=="", [c.$data.StringProp()], options) ,
-			Promise.resolve(c.$control.Chanege()(c.$data.StringProp())).then(function(r_0) {
+			Promise.resolve(c.$control.Change()(c.$data.StringProp())).then(function(r_0) {
 				b.then(function(r_1) {
 					resolve(c.$data.StringProp(r_0 + r_1).StringProp());
 				}, reject);
