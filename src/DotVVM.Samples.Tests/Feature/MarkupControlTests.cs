@@ -318,5 +318,43 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(combobox.ElementAt("option", 2), "Number 2");
             });
         }
+
+        [Fact]
+        public void Feature_MarkupControl_CommandPropertiesInMarkupControl()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_CommandPropertiesInMarkupControl);
+
+                var ok = browser.First("[data-ui=ok]");
+                var body = browser.First("body");
+                var span = browser.First("[data-ui=result]");
+
+                AssertUI.NotContainsElement(body,"[data-ui=cancel]");
+                ok.Click();
+
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(span, "Command result.");
+                },1000);
+            });
+        }
+
+        [Fact]
+        public void Feature_MarkupControl_StaticCommandInMarkupControl()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_StaticCommandInMarkupControl);
+
+                var ok = browser.First("[data-ui=ok]");
+                var body = browser.First("body");
+                var span = browser.First("[data-ui=result]");
+
+                AssertUI.NotContainsElement(body, "[data-ui=cancel]");
+                ok.Click();
+
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(span, "Command result.");
+                }, 1000);
+            });
+        }
     }
 }

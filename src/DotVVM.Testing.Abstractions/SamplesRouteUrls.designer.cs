@@ -315,5 +315,8 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ViewModelProtection_ViewModelProtection = "FeatureSamples/ViewModelProtection/ViewModelProtection";
         public const string FeatureSamples_Warnings_SelfClosingTags = "FeatureSamples/Warnings/SelfClosingTags";
         public const string FeatureSamples_StaticCommand_CustomAwaitable = "FeatureSamples/StaticCommand/CustomAwaitable";
+        public const string FeatureSamples_MarkupControl_StaticCommandInMarkupControl = "/FeatureSamples/MarkupControl/StaticCommandInMarkupControl";
+        public const string FeatureSamples_MarkupControl_StaticCommandInMarkupControlCallingRegularCommand = "/FeatureSamples/MarkupControl/StaticCommandInMarkupControlCallingRegularCommand";
+        public const string FeatureSamples_MarkupControl_CommandPropertiesInMarkupControl = "/FeatureSamples/MarkupControl/CommandPropertiesInMarkupControl";
     }
 }

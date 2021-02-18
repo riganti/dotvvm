@@ -1,0 +1,8 @@
+﻿@viewModel object
+@baseType DotVVM.Samples.Common.Views.FeatureSamples.MarkupControl.Dialog, DotVVM.Samples.Common
+
+<div>
+    <h1>Hello</h1>
+    <dot:Button data-ui="ok" IncludeInPage="{value: _control.Ok != null}" Text="Ok" Click="{staticCommand: _control.Ok() }" />
+    <dot:Button data-ui="cancel" IncludeInPage="{value: _control.Cancel != null}" Text="Cancel" Click="{staticCommand: _control.Cancel() }" />
+</div>
