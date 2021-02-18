@@ -215,16 +215,16 @@ namespace DotVVM.Framework.Compilation.Binding
             }
 
             // There are multiple method candidates
-                methods = methods.OrderBy(s => s.CastCount).ThenBy(s => s.AutomaticTypeArgCount).ToList();
-                var method = methods.FirstOrDefault();
-                var method2 = methods.Skip(1).FirstOrDefault();
-                if (method.AutomaticTypeArgCount == method2.AutomaticTypeArgCount && method.CastCount == method2.CastCount)
-                {
-                    // TODO: this behavior is not completed. Implement the same behavior as in roslyn.
-                    throw new InvalidOperationException($"Found ambiguous overloads of method '{name}'.");
-                }
-                return method;
+            methods = methods.OrderBy(s => s.CastCount).ThenBy(s => s.AutomaticTypeArgCount).ThenBy(s => s.HasParamsAttribute).ToList();
+            var method = methods.FirstOrDefault();
+            var method2 = methods.Skip(1).FirstOrDefault();
+            if (method.AutomaticTypeArgCount == method2.AutomaticTypeArgCount && method.CastCount == method2.CastCount && method.HasParamsAttribute == method2.HasParamsAttribute)
+            {
+                // TODO: this behavior is not completed. Implement the same behavior as in roslyn.
+                throw new InvalidOperationException($"Found ambiguous overloads of method '{name}'.");
             }
+            return method;
+        }
 
         private static IEnumerable<MethodRecognitionResult> FindValidMethodOveloads(IEnumerable<MethodInfo> methods, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
             => from m in methods
@@ -241,6 +241,7 @@ namespace DotVVM.Framework.Compilation.Binding
             public MethodInfo Method { get; set; }
             public int ParamsArrayCount { get; set; }
             public bool IsExtension { get; set; }
+            public bool HasParamsAttribute { get; set; }
         }
 
         private static MethodRecognitionResult TryCallMethod(MethodInfo method, Type[] typeArguments, Expression[] positionalArguments, IDictionary<string, Expression> namedArguments)
@@ -324,7 +325,8 @@ namespace DotVVM.Framework.Compilation.Binding
                 AutomaticTypeArgCount = automaticTypeArgs,
                 Method = method,
                 Arguments = args,
-                ParamsArrayCount = positionalArguments.Length - args.Length
+                ParamsArrayCount = positionalArguments.Length - args.Length,
+                HasParamsAttribute = hasParamsArrayAttributes
             };
         }
 

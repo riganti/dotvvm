@@ -203,6 +203,25 @@ namespace DotVVM.Framework.Tests.Common.Binding
             }
         }
 
+        [TestMethod]
+        [DataRow(new Type[] { typeof(string) }, typeof(string))]
+        [DataRow(new Type[] { typeof(string), typeof(object) }, typeof((string, object)))]
+        [DataRow(new Type[] { typeof(string), typeof(object), typeof(object) }, typeof((string, object[])))]
+        [DataRow(new Type[] { typeof(string), typeof(string) }, typeof((string, string[])))]        
+        [DataRow(new Type[] { typeof(string), typeof(int) }, typeof((string, int[])))]
+        public void Call_FindOverload_DoNotPrioritizeParams(Type[] argTypes, Type resultType)
+        {
+            Expression target = new MethodGroupExpression() {
+                MethodName = nameof(ParamsPrioritizationTest.Method),
+                Target = new StaticClassIdentifierExpression(typeof(ParamsPrioritizationTest))
+            };
+
+            var j = 0;
+            var arguments = argTypes.Select(s => Expression.Parameter(s, $"param_{j++}")).ToArray();
+            var expression = ExpressionHelper.Call(target, arguments) as MethodCallExpression;
+            Assert.IsNotNull(expression);
+            Assert.AreEqual(resultType, expression.Method.GetResultType());
+        }
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
@@ -282,4 +301,12 @@ namespace DotVVM.Framework.Tests.Common.Binding
     public class GenericTestResult4 { }
     public class GenericTestResult5 { }
 
+    public class ParamsPrioritizationTest
+    {
+        public static string Method(string arg1) => default;
+        public static (string, object[]) Method(string arg1, params object[] arg2) => default;
+        public static (string, string[]) Method(string arg1, params string[] arg2) => default;
+        public static (string, int[]) Method(string arg1, params int[] arg2) => default;
+        public static (string, object) Method(string arg1, object arg2) => default;
+    }
 }
