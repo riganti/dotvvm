@@ -308,13 +308,13 @@ test("Propagate knockout array assignment", () => {
 })
 
 test("Propagate Date assignment", () => {
-    const val = new Date(2000, 3, 3, 3, 3, 3)
+    const val = new Date(2000, 0, 2, 3, 4, 5, 6)
     vm.DateTime(val)
 
     // The date gets converted to DotVVM serialized date format
-    expect(s.state.DateTime).toBe(serializeDate(val))
+    expect(s.state.DateTime).toBe(serializeDate(val, false))
     s.doUpdateNow()
-    expect(vm.DateTime()).toBe(serializeDate(val))
+    expect(vm.DateTime()).toBe(serializeDate(val, false))
 })
 
 test("Serialized computed updates on changes", () => {

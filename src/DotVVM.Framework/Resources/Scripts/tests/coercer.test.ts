@@ -110,8 +110,14 @@ test("number - invalid, null", () => {
     expect(result.isError).toBeTruthy();
 })
 
-test("number - invalid, undefined", () => {
+test("number - valid, undefined", () => {
     const result = tryCoerce(void 0, "Int32");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual(0);
+})
+
+test("number - invalid, empty string", () => {
+    const result = tryCoerce("", "Int32");
     expect(result.isError).toBeTruthy();
 })
 
@@ -171,9 +177,10 @@ test("Date - invalid, null", () => {
     expect(result.isError).toBeTruthy();
 })
 
-test("Date - invalid, undefined", () => {
+test("Date - valid, undefined", () => {
     const result = tryCoerce(void 0, "DateTime");
-    expect(result.isError).toBeTruthy();
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual("0001-01-01T00:00:00.0000000");
 })
 
 
@@ -193,9 +200,10 @@ test("Guid - invalid, null", () => {
     expect(result.isError).toBeTruthy();
 })
 
-test("Guid - invalid, undefined", () => {
+test("Guid - valid, undefined", () => {
     const result = tryCoerce(void 0, "Guid");
-    expect(result.isError).toBeTruthy();
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual("00000000-0000-0000-0000-000000000000");
 })
 
 
@@ -222,9 +230,10 @@ test("char - invalid, null", () => {
     expect(result.isError).toBeTruthy();
 })
 
-test("char - invalid, undefined", () => {
+test("char - valid, undefined", () => {
     const result = tryCoerce(void 0, "Char");
-    expect(result.isError).toBeTruthy();
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual("\0");
 })
 
 
@@ -305,9 +314,10 @@ test("boolean - invalid, null", () => {
     expect(result.isError).toBeTruthy();
 })
 
-test("boolean - invalid, undefined", () => {
+test("boolean - valid, undefined", () => {
     const result = tryCoerce(void 0, "Boolean");
-    expect(result.isError).toBeTruthy();
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual(false);
 })
 
 
