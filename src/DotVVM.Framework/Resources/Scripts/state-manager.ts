@@ -74,7 +74,7 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
         initialState: TViewModel,
         public stateUpdateEvent: DotvvmEvent<TViewModel>
     ) {
-        this._state = coerce(initialState, initialState.$type!)
+        this._state = coerce(initialState, initialState.$type || { type: "dynamic" })
         this.stateObservable = createWrappedObservable(initialState, (initialState as any)["$type"], u => this.update(u))
         this.dispatchUpdate()
     }
