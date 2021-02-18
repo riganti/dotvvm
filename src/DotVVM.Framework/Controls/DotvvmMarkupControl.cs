@@ -116,6 +116,19 @@ namespace DotVVM.Framework.Controls
                     valueBinding.GetKnockoutBindingExpression(this)
                 );
             }
+            else if (GetBinding(property) is ICommandBinding command)
+            {
+                var call = KnockoutHelper.GenerateClientPostBackExpression(
+                    property.Name,
+                    command,
+                    this,
+                    new PostbackScriptOptions(elementAccessor: "$element"));
+
+                return new PropertySerializeInfo(
+                    property,
+                    $"function(){{return {call}}}"
+                );
+            }          
             else
             {
                 return new PropertySerializeInfo(property, null);

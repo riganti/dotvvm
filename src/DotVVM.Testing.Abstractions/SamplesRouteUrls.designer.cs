@@ -227,6 +227,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_MarkupControl_ComboBoxDataSourceBoundToStaticCollection = "FeatureSamples/MarkupControl/ComboBoxDataSourceBoundToStaticCollection";
         public const string FeatureSamples_MarkupControl_CommandBindingInDataContextWithControlProperty = "FeatureSamples/MarkupControl/CommandBindingInDataContextWithControlProperty";
         public const string FeatureSamples_MarkupControl_CommandBindingInRepeater = "FeatureSamples/MarkupControl/CommandBindingInRepeater";
+        public const string FeatureSamples_MarkupControl_CommandPropertiesInMarkupControl = "FeatureSamples/MarkupControl/CommandPropertiesInMarkupControl";
         public const string FeatureSamples_MarkupControl_ControlControlCommandInvokeAction = "FeatureSamples/MarkupControl/ControlControlCommandInvokeAction";
         public const string FeatureSamples_MarkupControl_ControlPropertyUpdatedByServer = "FeatureSamples/MarkupControl/ControlPropertyUpdatedByServer";
         public const string FeatureSamples_MarkupControl_ControlPropertyUpdating = "FeatureSamples/MarkupControl/ControlPropertyUpdating";
@@ -235,6 +236,8 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_MarkupControl_MarkupControlRegistration = "FeatureSamples/MarkupControl/MarkupControlRegistration";
         public const string FeatureSamples_MarkupControl_MultiControlHierarchy = "FeatureSamples/MarkupControl/MultiControlHierarchy";
         public const string FeatureSamples_MarkupControl_ResourceBindingInControlProperty = "FeatureSamples/MarkupControl/ResourceBindingInControlProperty";
+        public const string FeatureSamples_MarkupControl_StaticCommandInMarkupControl = "FeatureSamples/MarkupControl/StaticCommandInMarkupControl";
+        public const string FeatureSamples_MarkupControl_StaticCommandInMarkupControlCallingRegularCommand = "FeatureSamples/MarkupControl/StaticCommandInMarkupControlCallingRegularCommand";
         public const string FeatureSamples_NestedMasterPages_Content = "FeatureSamples/NestedMasterPages/Content";
         public const string FeatureSamples_ParameterBinding_OptionalParameterBinding = "FeatureSamples/ParameterBinding/OptionalParameterBinding";
         public const string FeatureSamples_ParameterBinding_ParameterBinding = "FeatureSamples/ParameterBinding/ParameterBinding";
