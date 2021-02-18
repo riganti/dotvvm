@@ -52,6 +52,11 @@
     <None Remove="Views\FeatureSamples\JavascriptTranslation\GenericMethodTranslation.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\LambdaExpressions.dothtml" />
     <None Remove="Views\FeatureSamples\Localization\Globalize.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\CommandPropertiesInMarkupControl.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\Device.dotcontrol" />
+    <None Remove="Views\FeatureSamples\MarkupControl\Dialog.dotcontrol" />
+    <None Remove="Views\FeatureSamples\MarkupControl\StaticCommandInMarkupControl.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\StaticCommandInMarkupControlCallingRegularCommand.dothtml" />
     <None Remove="Views\FeatureSamples\PostbackConcurrency\RedirectPostbackQueue.dothtml" />
     <None Remove="Views\FeatureSamples\PostbackConcurrency\StressTest.dothtml" />
     <None Remove="Views\FeatureSamples\PostBack\RecursiveTextRepeater.dotcontrol" />
@@ -104,6 +109,9 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\FeatureSamples\NewFolder\" />
   </ItemGroup>
   <PropertyGroup Label="Configuration">
     <OutputPath>bin\Debug</OutputPath>

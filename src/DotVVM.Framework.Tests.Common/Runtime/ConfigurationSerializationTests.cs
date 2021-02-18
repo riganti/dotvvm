@@ -32,19 +32,28 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void SerializeDefaultConfig()
         {
-            checkConfig(DotvvmConfiguration.CreateDefault());
+            var c = DotvvmConfiguration.CreateDefault();
+            c.DefaultCulture = "en-US";
+            checkConfig(c);
+        }
+
+        private static DotvvmConfiguration CreateTestConfiguration()
+        {
+            var c = new DotvvmConfiguration();
+            c.DefaultCulture = "en-US";
+            return c;
         }
 
         [TestMethod]
         public void SerializeEmptyConfig()
         {
-            checkConfig(new DotvvmConfiguration());
+            checkConfig(CreateTestConfiguration());
         }
 
         [TestMethod]
         public void SerializeRoutes()
         {
-            var c = new DotvvmConfiguration();
+            var c = CreateTestConfiguration();
 
             c.RouteTable.Add("route1", "url1", "file1.dothtml", new { a = "ccc" });
             c.RouteTable.Add("route2", "url2/{int}", "file1.dothtml", new { a = "ccc" });
@@ -66,28 +75,29 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void SerializeResources()
         {
-            var c = new DotvvmConfiguration();
+            var c = CreateTestConfiguration();
+
             c.Resources.Register("r1", new ScriptResource(
                 new UrlResourceLocation("x")) {
-                    IntegrityHash = "hash, maybe",
-                    VerifyResourceIntegrity = true,
-                    RenderPosition = ResourceRenderPosition.Head
-                });
+                IntegrityHash = "hash, maybe",
+                VerifyResourceIntegrity = true,
+                RenderPosition = ResourceRenderPosition.Head
+            });
             c.Resources.Register("r2", new ScriptResource(
                 new UrlResourceLocation("x")) {
-                    Dependencies = new [] { "r1" },
-                    LocationFallback = new ResourceLocationFallback("window.x", new IResourceLocation [] {
+                Dependencies = new[] { "r1" },
+                LocationFallback = new ResourceLocationFallback("window.x", new IResourceLocation[] {
                         new UrlResourceLocation("y"),
                         new UrlResourceLocation("z"),
                         new FileResourceLocation("some-script.js")
                     })
-                }
+            }
             );
             c.Resources.Register("r3", new StylesheetResource(
                 new UrlResourceLocation("s")) {
-                    IntegrityHash = "hash, maybe",
-                    VerifyResourceIntegrity = true
-                }
+                IntegrityHash = "hash, maybe",
+                VerifyResourceIntegrity = true
+            }
             );
             c.Resources.Register("r4", new InlineStylesheetResource("body { display: none }"));
             c.Resources.Register("r5", new InlineStylesheetResource(new FileResourceLocation("some-style.css")));
@@ -97,25 +107,23 @@ namespace DotVVM.Framework.Tests.Runtime
             c.Resources.Register("r9", new TemplateResource("<div></div>"));
 
 
-            checkConfig(c);            
+            checkConfig(c);
         }
 
         [TestMethod]
         public void ExperimentalFeatures()
         {
-            var c = new DotvvmConfiguration();
+            var c = CreateTestConfiguration();
+            c.ExperimentalFeatures.LazyCsrfToken.EnableForAllRoutesExcept(new[] { "r1", "r2" });
+            c.ExperimentalFeatures.ServerSideViewModelCache.EnableForRoutes(new[] { "r1", "r2" });
 
-            c.ExperimentalFeatures.LazyCsrfToken.EnableForAllRoutesExcept(new [] { "r1", "r2" });
-            c.ExperimentalFeatures.ServerSideViewModelCache.EnableForRoutes(new [] { "r1", "r2" });
-
-            checkConfig(c);            
+            checkConfig(c);
         }
 
         [TestMethod]
         public void Markup()
         {
-            var c = new DotvvmConfiguration();
-
+            var c = CreateTestConfiguration();
             c.Markup.DefaultDirectives.Add("dir1", "MyDirective");
             c.Markup.AddCodeControls("myControls", typeof(ControlLifeCycleMock));
             c.Markup.AddMarkupControl("myControls", "C1", "./Controls/C1.dotcontrol");
@@ -126,23 +134,23 @@ namespace DotVVM.Framework.Tests.Runtime
             c.Markup.ImportedNamespaces.Add(new NamespaceImport("System.Collections", "Collections"));
             c.Markup.HtmlAttributeTransforms.Add(new HtmlTagAttributePair { AttributeName = "data-uri", TagName = "div" }, new HtmlAttributeTransformConfiguration { Type = typeof(TranslateVirtualPathHtmlAttributeTransformer) });
 
-            checkConfig(c);            
+            checkConfig(c);
         }
 
         [TestMethod]
         public void RestAPI()
         {
-            var c = new DotvvmConfiguration();
+            var c = CreateTestConfiguration();
 
             c.RegisterApiClient(typeof(Binding.TestApiClient), "http://server/api", "./apiscript.js", "_testApi");
 
-            checkConfig(c);            
+            checkConfig(c);
         }
 
         [TestMethod]
         public void AuxOptions()
         {
-            var c = new DotvvmConfiguration();
+            var c = CreateTestConfiguration();
 
             c.Debug = true;
             c.ApplicationPhysicalPath = "/opt/myApp";
@@ -150,7 +158,7 @@ namespace DotVVM.Framework.Tests.Runtime
             c.DefaultCulture = "cs-CZ";
             c.UseHistoryApiSpaNavigation = true;
 
-            checkConfig(c);            
+            checkConfig(c);
         }
 
     }
