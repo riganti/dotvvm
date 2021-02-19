@@ -289,7 +289,16 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else if (sgt.IsGenericType)
                 {
-                    var value = GetGenericParameterType(genericArg, sgt.GetGenericArguments(), expressionTypes[i].GetGenericArguments());
+                    Type[] genericArguments;
+                    var expression = expressionTypes[i];  
+
+                    // Arrays need to be handled in a special way to obtain instantiation
+                    if (expression.IsArray)
+                        genericArguments = new[] { expression.GetElementType() };
+                    else
+                        genericArguments = expression.GetGenericArguments();
+
+                    var value = GetGenericParameterType(genericArg, sgt.GetGenericArguments(), genericArguments);
                     if (value is Type) return value;
                 }
             }

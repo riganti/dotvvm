@@ -122,6 +122,12 @@ namespace DotVVM.Framework.Tests.Common.Binding
             Call_FindOverload_Generic(typeof(MethodsGenericArgumentsResolvingSampleObject4), MethodsGenericArgumentsResolvingSampleObject4.MethodName, argTypes, resultIdentifierType, expectedGenericArgs);
         }
         [TestMethod]
+        [DataRow(typeof(int), new Type[] { typeof(int[]) }, new Type[] { typeof(int) })]
+        public void Call_FindOverload_Generic_Enumerable_Array(Type resultIdentifierType, Type[] argTypes, Type[] expectedGenericArgs)
+        {
+            Call_FindOverload_Generic(typeof(MethodsGenericArgumentsResolvingSampleObject6), MethodsGenericArgumentsResolvingSampleObject6.MethodName, argTypes, resultIdentifierType, expectedGenericArgs);
+        }
+        [TestMethod]
         [DataRow(typeof(GenericTestResult1), new Type[] { typeof(GenericModelSampleObject<int[]>) }, new Type[] { typeof(int) })]
         [DataRow(typeof(GenericTestResult2), new Type[] { typeof(List<int>[]) }, new Type[] { typeof(int) })]
         public void Call_FindOverload_Generic_Array_Recursive(Type resultIdentifierType, Type[] argTypes, Type[] expectedGenericArgs)
@@ -130,6 +136,11 @@ namespace DotVVM.Framework.Tests.Common.Binding
         }
     }
 
+    public static class MethodsGenericArgumentsResolvingSampleObject6
+    {
+        public const string MethodName = nameof(TestMethod);
+        public static T2 TestMethod<T2>(IEnumerable<T2> a) => default;
+    }
     public static class MethodsGenericArgumentsResolvingSampleObject5
     {
         public const string MethodName = nameof(TestMethod);
