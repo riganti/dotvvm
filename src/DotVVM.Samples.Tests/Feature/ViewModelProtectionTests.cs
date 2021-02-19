@@ -109,7 +109,7 @@ namespace DotVVM.Samples.Tests.Feature
 
         [Theory]
         [InlineData("bothMessage", OriginalText, ChangedText, ChangedText)]
-        [InlineData("clientToServerMessage", "", ChangedText, ChangedText)]
+        [InlineData("clientToServerMessage", "Lorem Ipsum Dolor Sit Amet", ChangedText, ChangedText)]
         [InlineData("ifInPostbackPathMessage", OriginalText, ChangedText, OriginalText)]
         [InlineData("serverToClientFirstRequestMessage", OriginalText, ChangedText, ChangedText)]
         [InlineData("serverToClientPostbackMessage", "", "", OriginalText)]
