@@ -64,13 +64,6 @@ namespace DotVVM.Framework.Utils
                 return type.GetMembers(flags);
         }
 
-        public static IEnumerable<MethodInfo> GetAllExtensions(this Type type, BindingFlags flags = BindingFlags.Public | BindingFlags.Static)
-        {
-            foreach (var registeredType in TypeRegistry.GetRegisteredTypesForExtensionMethodsLookup())
-                foreach (var method in registeredType.GetMethods(flags))
-                    yield return method;
-        }
-
         /// <summary>
         /// Gets filesystem path of assembly CodeBase
         /// http://stackoverflow.com/questions/52797/how-do-i-get-the-path-of-the-assembly-the-code-is-in
