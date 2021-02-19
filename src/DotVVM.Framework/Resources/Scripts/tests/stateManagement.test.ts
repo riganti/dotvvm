@@ -312,9 +312,9 @@ test("Propagate Date assignment", () => {
     vm.DateTime(val)
 
     // The date gets converted to DotVVM serialized date format
-    expect(s.state.DateTime).toBe(serializeDate(val))
+    expect(s.state.DateTime).toBe(serializeDate(val, false))
     s.doUpdateNow()
-    expect(vm.DateTime()).toBe(serializeDate(val))
+    expect(vm.DateTime()).toBe(serializeDate(val, false))
 })
 
 test("Serialized computed updates on changes", () => {

@@ -188,7 +188,7 @@ window.getSelectionText = function (dataui) {
                 //check displayed values (behavior change in 3.0 - previous values should stay there)
                 AssertUI.InnerTextEquals(dateText, new DateTime(2018, 12, 27).ToString("G", culture));
                 AssertUI.InnerTextEquals(numberValueText, 2000.ToString(culture));
-                
+
                 AssertUI.Attribute(numberTextbox, "value", "000//a");
                 AssertUI.Attribute(dateTextBox, "value", "dsasdasd");
 
@@ -222,17 +222,21 @@ window.getSelectionText = function (dataui) {
                 }
 
                 // Set focus to different element to drop focus on input and invoke onchange element (for IE)
-                void LoseFocus() => browser.Single("body").SetFocus(); ;
+                void LoseFocus() => browser.Single("body").SetFocus();
 
                 var culture = new CultureInfo(cultureName);
                 browser.NavigateToUrl(url);
                 browser.First(linkSelector).Click();
 
-                var numberTextbox = browser.First("#bindingNumberFormatTextbox");
-                AssertUI.Attribute(numberTextbox, "value", 0.ToString("N", culture));
+                IElementWrapper numberTextbox = null;
+                IElementWrapper numberValueText = null;
+                browser.WaitFor(() => {
+                    numberTextbox = browser.First("#bindingNumberFormatTextbox");
+                    AssertUI.Attribute(numberTextbox, "value", 0.ToString("N", culture));
 
-                var numberValueText = browser.First("#resultNumberValueText");
-                AssertUI.InnerTextEquals(numberValueText, 0.ToString(culture));
+                    numberValueText = browser.First("#resultNumberValueText");
+                    AssertUI.InnerTextEquals(numberValueText, 0.ToString(culture));
+                }, 2000);
 
                 // send new values
                 ClearInput(numberTextbox);
@@ -242,8 +246,10 @@ window.getSelectionText = function (dataui) {
                 LoseFocus();
 
                 // check new values
-                AssertUI.InnerTextEquals(numberValueText, 42.ToString(culture));
-                AssertUI.Attribute(numberTextbox, "value", 42.ToString("N", culture));
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(numberValueText, 42.ToString(culture));
+                    AssertUI.Attribute(numberTextbox, "value", 42.ToString("N", culture));
+                }, 5000);
 
                 // send new values
                 ClearInput(numberTextbox);
@@ -253,8 +259,10 @@ window.getSelectionText = function (dataui) {
                 LoseFocus();
 
                 // check new values
-                AssertUI.InnerTextEquals(numberValueText, 123.456789.ToString(culture));
-                AssertUI.Attribute(numberTextbox, "value", 123.456789.ToString("N", culture));
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(numberValueText, 123.456789.ToString(culture));
+                    AssertUI.Attribute(numberTextbox, "value", 123.456789.ToString("N", culture));
+                }, 5000);
             });
         }
 
