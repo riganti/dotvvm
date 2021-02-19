@@ -57,6 +57,12 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
             if (!fileLoader.MarkupFiles.TryAdd(fileName, markup))
                 throw new Exception($"File {fileName} already exists");
 
+            if (markupFiles is object) foreach (var markupFile in markupFiles)
+            {
+                if (!fileLoader.MarkupFiles.TryAdd(markupFile.Key, markupFile.Value))
+                    throw new Exception($"File {markupFile.Value} already exists");
+            }
+
             return controlBuilderFactory.GetControlBuilder(fileName);
         }
 
@@ -108,6 +114,7 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
             Type viewModel,
             string markup,
             Dictionary<string, string> markupFiles = null,
+            string directives = "",
             bool renderResources = false,
             [CallerMemberName] string fileName = null)
         {
@@ -127,7 +134,7 @@ namespace DotVVM.Framework.Tests.Common.ControlTests
             {
                 markup = "<tc:FakeHeadResourceLink />" + markup;
             }
-            markup = $"@viewModel {viewModel.ToString().Replace("+", ".")}\n\n{markup}";
+            markup = $"@viewModel {viewModel.ToString().Replace("+", ".")}\n{directives}\n\n{markup}";
             var request = PreparePage(markup, markupFiles, fileName);
             await presenter.ProcessRequest(request);
             return CreatePageResult(request);
