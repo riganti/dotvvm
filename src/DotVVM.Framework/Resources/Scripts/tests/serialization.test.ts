@@ -3,7 +3,6 @@ import { deserialize } from '../serialization/deserialize'
 import { serialize } from '../serialization/serialize'
 import { serializeDate } from '../serialization/date'
 import { tryCoerce } from '../metadata/coercer';
-import { initDotvvm } from './helper';
 
 jest.mock("../metadata/typeMap", () => ({
     getTypeInfo(typeId: string) {
@@ -11,18 +10,8 @@ jest.mock("../metadata/typeMap", () => ({
     },
     getObjectTypeInfo(typeId: string): ObjectTypeMetadata {
         return testTypeMap[typeId] as any;
-    },
-    getKnownTypes() {
-        return Object.keys(testTypeMap);
-    },
-    replaceTypeInfo(newTypes: TypeMap | undefined) { 
     }
 }));
-
-initDotvvm({ 
-    viewModel: {},
-    typeMetadata: {}
-}, "en-US");
 
 const assertObservable = (object: any): any => {
     expect(object).observable()
@@ -616,7 +605,7 @@ describe("Dotvvm.Deserialization - value type validation", () => {
     test("undefined is invalid",
         () => {
             for (const type in supportedTypes) {
-                expect(tryCoerce(undefined, supportedTypes[type]).isError).toBeFalsy()
+                expect(tryCoerce(undefined, supportedTypes[type]).isError).toBeTruthy()
             }
         })
 

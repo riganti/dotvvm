@@ -1,5 +1,6 @@
-import { formatString, parseDate as globalizeParseDate, parseNumber } from "../DotVVM.Globalize";
+import { formatString, parseDate as globalizeParseDate } from "../DotVVM.Globalize";
 import { parseDate as serializationParseDate, serializeDate, serializeTime } from "../serialization/date";
+import { CoerceError } from "../shared-classes";
 
 type PrimitiveTypes = { 
     [name: string]: { 
@@ -19,8 +20,6 @@ export const primitiveTypes: PrimitiveTypes = {
                 return { value: true, wasCoerced: true };
             } else if (typeof value === "number") {
                 return { value: !!value, wasCoerced: true };
-            } else if (typeof value === "undefined") {
-                return { value: false, wasCoerced: true };
             }
         }
     },
@@ -77,18 +76,15 @@ export const primitiveTypes: PrimitiveTypes = {
 
 function validateInt(value: any, min: number, max: number) {
     let wasCoerced = false;
-    if (typeof value === "string" && value !== "") {
-        let parsedValue = Number(value);
-        if (isNaN(parsedValue)) {
-            parsedValue = parseNumber(value);
-            if (isNaN(parsedValue)) {
-                return;
-            }
+    if (typeof value === "string") {
+        if (value === "") {
+            return;
         }
-        value = parsedValue;
-        wasCoerced = true;
-    } else if (typeof value === "undefined") {
-        value = 0;
+        value = Number(value);
+        if (isNaN(value)) {
+            // TODO: parse based on current culture
+            return;
+        }
         wasCoerced = true;
     } else if (typeof value !== "number") {
         return;
@@ -106,18 +102,12 @@ function validateInt(value: any, min: number, max: number) {
 
 function validateFloat(value: any) {
     let wasCoerced = false;
-    if (typeof value === "string" && value !== "") {
-        let parsedValue = Number(value);
-        if (isNaN(parsedValue)) {
-            parsedValue = parseNumber(value);
-            if (isNaN(parsedValue)) {
-                return;
-            }
+    if (typeof value === "string") {
+        value = Number(value);
+        if (isNaN(value)) {
+            // TODO: parse based on current culture
+            return;
         }
-        value = parsedValue;
-        wasCoerced = true;
-    } else if (typeof value === "undefined") {
-        value = 0;
         wasCoerced = true;
     } else if (typeof value !== "number") {
         return;
@@ -154,8 +144,6 @@ function validateString(value: any) {
 function validateChar(value: any) {
     if (typeof value === "number" && (value | 0) === value && value >= 0 && value <= 65535) {
         return { value: String.fromCharCode(value), wasCoerced: true };
-    } else if (typeof value === "undefined") {
-        return { value: String.fromCharCode(0), wasCoerced: true };
     } else if (typeof value !== "string") {
         return;
     }
@@ -168,9 +156,7 @@ function validateChar(value: any) {
 }
 
 function validateGuid(value: any) {
-    if (typeof value === "undefined") {
-        return { value: "00000000-0000-0000-0000-000000000000", wasCoerced: true };
-    } else if (typeof value !== "string") {
+    if (typeof value !== "string") {
         return;
     }
 
@@ -192,9 +178,5 @@ function validateDateTime(value: any) {
     
     if (value instanceof Date) {
         return { value: serializeDate(value, false), wasCoerced: true };
-    }
-
-    if (typeof value === "undefined") {
-        return { value: "0001-01-01T00:00:00.0000000", wasCoerced: true };
     }
 }
