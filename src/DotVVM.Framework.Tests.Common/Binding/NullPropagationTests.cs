@@ -21,17 +21,38 @@ namespace DotVVM.Framework.Tests.Common.Binding
         private LambdaExpression[] ExpressionFragments = new LambdaExpression[] {
             Create((TestViewModel t) => t.EnumProperty - 1),
             Create((TestViewModel t) => t.StringProp),
+            Create((TestViewModel t) => t.LongArray),
+            Create((TestViewModel t) => t.LongProperty),
+            Create((TestViewModel t) => t.VmArray),
+            Create((TestViewModel t) => t.VmArray[0]),
+            Create((TestViewModel2[] t, int b) => t[b & 0]),
+            Create((long[] t) => t.Length),
+            Create((long[] t) => t[0]),
+            Create((TestViewModel2 t) => t.Enum),
+            Create((TestEnum t) => (int)t),
+            Create((TestEnum t) => (TestEnum?)t),
             Create((TestViewModel a, TestViewModel b) => a.BoolMethodExecuted ? a : b),
             Create((int a, TestViewModel b, TestViewModel c) => a == 0 ? b : c),
             Create((string b) => b ?? "NULL STRING"),
             Create((TestViewModel a, int b) => a.Identity(b)),
+            Create((TestViewModel a, DateTime b) => a.Identity<DateTime?>(b)),
+            Create((TestViewModel a, string b) => a.Identity(b)),
+            Create((TestViewModel a, TestViewModel b) => a.Identity(b)),
             Create((TestViewModel a, char b) => a.GetCharCode(b)),
             Create((string a) => a.Length > 0 ? a[0] : 'f'),
             Create((string a, int b) => a.Length > b ? a[b] : 'l'),
+            // Create((string a, int b) => a[b]),
             Create((int a, int b) => a+b),
-            Create((int a) => a+ 1.0),
+            Create((int a) => a + 1.0),
+            Create((long a) => (int)a),
             Create((int a, double b) => a * b),
             Create((TimeSpan span) => span.TotalMilliseconds),
+            Create((TestViewModel vm) => vm.DateFrom), // DateTime?
+            Create((DateTime? vm) => vm.HasValue),
+            Create((DateTime? vm) => vm.Value),
+            Create((DateTime? vm) => vm.GetValueOrDefault()),
+            Create((DateTime d) => d.Day),
+            Create((DateTime d) => d.ToString()),
             Create((double a) => TimeSpan.FromSeconds(a)),
             Create((TestViewModel vm) => (TimeSpan)vm.Time),
             Create((TestViewModel vm, TimeSpan time, int integer, double number) => new TestViewModel{ EnumProperty = TestEnum.B, BoolMethodExecuted = vm.BoolMethodExecuted, StringProp = time + ": " + vm.StringProp, StringProp2 = integer + vm.StringProp2 + number, TestViewModel2 = vm.TestViewModel2}),
@@ -96,7 +117,7 @@ namespace DotVVM.Framework.Tests.Common.Binding
             while (unusedFragments.Any())
             {
                 var possibleOnes = unusedFragments.Where(f => f.Parameters.All(p => typeSources.ContainsKey(p.Type))).ToArray();
-                Assert.IsFalse(possibleOnes.Length == 0);
+                Assert.IsFalse(possibleOnes.Length == 0, $"Can not continue from {string.Join(", ", typeSources.Select(t => t.Key.Name))} to {string.Join(", ", unusedFragments.AsEnumerable())}");
                 foreach (var fragment in possibleOnes)
                 {
                     AddFragment(fragment, 4);
@@ -122,18 +143,36 @@ namespace DotVVM.Framework.Tests.Common.Binding
             Func<TestViewModel[], object> compile(Expression e) =>
                 Expression.Lambda<Func<TestViewModel[], object>>(Expression.Convert(e, typeof(object)), parameter).Compile();
 
-            var withNullCheks = compile(ExpressionNullPropagationVisitor.PropagateNulls(expr, _ => true));
+            var withNullChecks = compile(ExpressionNullPropagationVisitor.PropagateNulls(expr, _ => true));
             var withoutNullChecks = compile(expr);
 
-            var args = Enumerable.Repeat(new TestViewModel { StringProp = "ll", StringProp2 = "pp", TestViewModel2 = new TestViewModel2() }, count).ToArray();
+            var args = Enumerable.Repeat(new TestViewModel { StringProp = "ll", StringProp2 = "pp", TestViewModel2 = new TestViewModel2(), DateFrom = DateTime.Parse("2020-03-29") }, count).ToArray();
             var settings = DefaultSerializerSettingsProvider.Instance.Settings;
-            Assert.AreEqual(JsonConvert.SerializeObject(withNullCheks(args), settings), JsonConvert.SerializeObject(withoutNullChecks(args), settings));
+            Assert.AreEqual(JsonConvert.SerializeObject(withNullChecks(args), settings), JsonConvert.SerializeObject(withoutNullChecks(args), settings));
 
             foreach (var i in Enumerable.Range(0, args.Length).Shuffle(rnd))
             {
                 args[i] = null;
-                withNullCheks(args);
+                try
+                {
+                    withNullChecks(args);
+                }
+                catch (NullReferenceException ex)
+                {
+                    // we might get exceptions from B(null), ...
+                    // none of the methods we call actually throws, so it always has to be ours friendly NRE
+                    Assert.IsTrue(ex.Message.StartsWith("Binding expression"));
+                    // and it must only occur for value types
+                    Assert.IsTrue(new [] { "System.Int", "System.TimeSpan", "System.Char", "System.Double" }.Any(ex.Message.Contains));
+                }
             }
+        }
+
+        private object EvalExpression<T>(Expression<Func<T, object>> a, T val)
+        {
+            var nullChecked = ExpressionNullPropagationVisitor.PropagateNulls(a.Body, _ => true);
+            var d = a.Update(body: nullChecked, a.Parameters).Compile();
+            return d(val);
         }
 
         class ReplacerVisitor : ExpressionVisitor
@@ -194,6 +233,64 @@ namespace DotVVM.Framework.Tests.Common.Binding
             {
                 TestExpression(random, expr, viewModel);
             }
+        }
+
+        private static T Identity<T>(T x) => x;
+
+        [TestMethod]
+        public void MethodArgument_Null_ValueType()
+        {
+            var e = Assert.ThrowsException<NullReferenceException>(() =>
+                EvalExpression<TestViewModel>(v => Identity(v.LongProperty), null));
+            Assert.AreEqual("Binding expression 'v.LongProperty' of type 'System.Int64' has evaluated to null.", e.Message);
+        }
+
+        [TestMethod]
+        public void MethodArgument_Null_NullableType()
+        {
+            Assert.IsNull(EvalExpression<TestViewModel>(v => Identity(v.DateFrom), null));
+            Assert.IsNull(EvalExpression<TestViewModel>(v => Identity<long?>(v.LongProperty), null));
+            Assert.IsNull(EvalExpression<TestViewModel>(v => Identity<DateTime?>(v.DateFrom.Value), null));
+        }
+
+        [TestMethod]
+        public void MethodArgument_Null_RefType()
+        {
+            Assert.IsNull(EvalExpression<TestViewModel>(v => Identity(v), null));
+            Assert.IsNull(EvalExpression<TestViewModel>(v => Identity(v.LongArray), null));
+        }
+
+        [TestMethod]
+        public void Operator()
+        {
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.LongArray[0] + 1, null));
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.LongArray[0] + v.TestViewModel2.MyProperty, new TestViewModel()));
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.TestViewModel2B.ChildObject.SomeString.Length + v.TestViewModel2.MyProperty, new TestViewModel()));
+            Assert.AreEqual(2L, EvalExpression<TestViewModel>(v => v.LongArray[0] + 1, new TestViewModel()));
+        }
+
+        [TestMethod]
+        public void StringConcat()
+        {
+            Assert.AreEqual("abc", EvalExpression<TestViewModel>(v => v.StringProp + "abc", null));
+        }
+
+        [TestMethod]
+        public void Indexer()
+        {
+            Assert.IsNull(EvalExpression<int[]>(v => v[0] + 1, null));
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.IntArray[0] + 1, null));
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.IntArray[0] + 1, new TestViewModel { IntArray = null }));
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.TestViewModel2.Collection[0].StringValue.Length + 5, new TestViewModel { IntArray = null }));
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.TestViewModel2.Collection[0].StringValue.Length + 5, new TestViewModel { IntArray = null }));
+        }
+
+        [TestMethod]
+        public void Coalesce()
+        {
+            Assert.AreEqual(1, EvalExpression<object>(v => v ?? 1, null));
+            Assert.AreEqual(1, EvalExpression<object>(v => (v ?? 1) ?? 2, null));
+            Assert.AreEqual(1, EvalExpression<int?>(v => v ?? null, 1));
         }
     }
 
