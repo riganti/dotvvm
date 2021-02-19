@@ -7,6 +7,7 @@ using DotVVM.Framework.Hosting;
 using System.Reflection;
 using System.Collections.ObjectModel;
 using DotVVM.Framework.Configuration;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Routing
 {
@@ -18,12 +19,15 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         public string Url { get; private set; }
 
+        /// <summary>
+        /// Gets the URL pattern for the route, but it must not contain type parameter types (i.e. should turn a/{id:int}/{name:regex(...)} into a/{id}/{name}
+        /// </summary>
+        public abstract string UrlWithoutTypes { get; }
 
         /// <summary>
         /// Gets key of route.
         /// </summary>
         public string RouteName { get; internal set; }
-
 
         /// <summary>
         /// Gets the default values of the optional parameters.
@@ -89,8 +93,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Determines whether the route matches to the specified URL and extracts the parameter values.
         /// </summary>
-        public abstract bool IsMatch(string url, out IDictionary<string, object?> values);
-
+        public abstract bool IsMatch(string url, [MaybeNullWhen(false)] out IDictionary<string, object?> values);
 
         /// <summary>
         /// Builds the URL with the specified parameters.

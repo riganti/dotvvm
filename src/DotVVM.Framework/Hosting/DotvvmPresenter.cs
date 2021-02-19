@@ -25,6 +25,7 @@ using DotVVM.Framework.Runtime.Tracing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Security;
+using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -392,23 +393,25 @@ namespace DotVVM.Framework.Hosting
                 await filter.OnCommandExecutingAsync(context, action);
             }
 
-            object? result = null;
             try
             {
-                Task? resultTask = null;
+                var commandResultOrNotYetComputedAwaitable = action.Action();
 
-                result = action.Action();
-
-                resultTask = result as Task;
-                if (resultTask != null)
+                if (commandResultOrNotYetComputedAwaitable is Task commandTask)
                 {
-                    await resultTask;
+                    await commandTask;
+                    return TaskUtils.GetResult(commandTask);
                 }
 
-                if (resultTask != null)
+                var resultType = commandResultOrNotYetComputedAwaitable?.GetType();
+                var possibleResultAwaiter = resultType?.GetMethod(nameof(Task.GetAwaiter), new Type[] { });
+
+                if(resultType != null && possibleResultAwaiter != null)
                 {
-                    result = TaskUtils.GetResult(resultTask);
+                    throw new NotSupportedException($"The command uses unsupported awaitable type {resultType.FullName}, please use System.Task instead.");
                 }
+                
+                return commandResultOrNotYetComputedAwaitable;
             }
             catch (Exception ex)
             {
@@ -433,7 +436,7 @@ namespace DotVVM.Framework.Hosting
             {
                 throw new Exception("Unhandled exception occurred in the command!", context.CommandException);
             }
-            return result;
+            return null;
         }
 
         public static bool DetermineIsPostBack(IHttpContext context)
