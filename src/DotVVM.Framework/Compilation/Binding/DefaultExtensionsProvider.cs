@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected void AddTypeForExtensionsLookup(Type type)
         {
-            typesLookup.Add(typeof(Enumerable));
+            typesLookup.Add(type);
         }
 
         public virtual IEnumerable<MethodInfo> GetExtensionMethods()
