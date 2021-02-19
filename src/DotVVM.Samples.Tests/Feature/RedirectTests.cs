@@ -41,7 +41,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Redirect_RedirectionHelpers);
 
                 var currentUrl = new Uri(browser.CurrentUrl);
-                Assert.Matches($"FeatureSamples/Redirect/RedirectionHelpers", currentUrl.LocalPath);
+                Assert.Matches(SamplesRouteUrls.FeatureSamples_Redirect_RedirectionHelpers, currentUrl.LocalPath);
 
                 browser.FindElements("a").First().Click();
                 currentUrl = new Uri(browser.CurrentUrl);
@@ -50,13 +50,22 @@ namespace DotVVM.Samples.Tests.Feature
 
                 browser.FindElements("a").Skip(1).First().Click();
                 currentUrl = new Uri(browser.CurrentUrl);
-                Assert.Matches($"FeatureSamples/Redirect/RedirectionHelpers_PageC/111", currentUrl.LocalPath);
+                Assert.Matches($"{SamplesRouteUrls.FeatureSamples_Redirect_RedirectionHelpers_PageC}/111", currentUrl.LocalPath);
                 browser.NavigateBack();
 
                 browser.FindElements("a").Skip(2).First().Click();
                 currentUrl = new Uri(browser.CurrentUrl);
-                Assert.Matches($"FeatureSamples/Redirect/RedirectionHelpers_PageE/1221", currentUrl.LocalPath);
+                Assert.Matches($"{SamplesRouteUrls.FeatureSamples_Redirect_RedirectionHelpers_PageE}/1221", currentUrl.LocalPath);
+
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Redirect_RedirectionHelpers_PageB + "/1234?x=a");
+                currentUrl = new Uri(browser.CurrentUrl);
+                Assert.Matches($"{SamplesRouteUrls.FeatureSamples_Redirect_RedirectionHelpers_PageC}/1234\\?test=aaa", currentUrl.LocalPath + currentUrl.Query);
+
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Redirect_RedirectionHelpers_PageD + "/1234?x=a");
+                currentUrl = new Uri(browser.CurrentUrl);
+                Assert.Matches($"{SamplesRouteUrls.FeatureSamples_Redirect_RedirectionHelpers_PageE}/1221\\?x=a", currentUrl.LocalPath + currentUrl.Query);
             });
         }
+        
     }
 }
