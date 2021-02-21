@@ -13,7 +13,7 @@ namespace DotVVM.Framework.ResourceManagement
     public class ScriptResource : LinkResourceBase, IPreloadResource, IDeferableResource
     {
         public bool Defer { get; }
-        public ScriptResource(IResourceLocation location, bool defer = false)
+        public ScriptResource(IResourceLocation location, bool defer = true)
             : base(defer ? ResourceRenderPosition.Anywhere : ResourceRenderPosition.Body, "text/javascript", location)
         {
             this.Defer = defer;
@@ -21,7 +21,7 @@ namespace DotVVM.Framework.ResourceManagement
 
         /// <summary>Location property is required!</summary>
         public ScriptResource()
-            : base(ResourceRenderPosition.Body, "text/javascript")
+            : this(location: null!) // hack: people assign the Location property late, but it should non-nullable...
         { }
 
         public override void RenderLink(IResourceLocation location, IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)

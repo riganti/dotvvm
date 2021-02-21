@@ -17,10 +17,12 @@ namespace DotVVM.Framework.Compilation.Binding
     public class BindingExpressionBuilder : IBindingExpressionBuilder
     {
         private readonly CompiledAssemblyCache compiledAssemblyCache;
+        private readonly MemberExpressionFactory memberExpressionFactory;
 
-        public BindingExpressionBuilder(CompiledAssemblyCache compiledAssemblyCache)
+        public BindingExpressionBuilder(CompiledAssemblyCache compiledAssemblyCache, MemberExpressionFactory memberExpressionFactory)
         {
             this.compiledAssemblyCache = compiledAssemblyCache;
+            this.memberExpressionFactory = memberExpressionFactory;
         }
 
         public Expression Parse(string expression, DataContextStack dataContexts, BindingParserOptions options, params KeyValuePair<string, Expression>[] additionalSymbols)
@@ -49,7 +51,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 symbols = symbols.AddSymbols(options.ExtensionParameters.Select(p => CreateParameter(dataContexts, p.Identifier, p)));
                 symbols = symbols.AddSymbols(additionalSymbols);
 
-                var visitor = new ExpressionBuildingVisitor(symbols);
+                var visitor = new ExpressionBuildingVisitor(symbols, memberExpressionFactory);
                 visitor.Scope = symbols.Resolve(options.ScopeParameter);
                 return visitor.Visit(node);
             }
@@ -116,7 +118,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 (extensionParameter == null
                     ? stackItem.DataContextType
                     : ResolvedTypeDescriptor.ToSystemType(extensionParameter.ParameterType))
-                    ?? typeof(ExpressionHelper.UnknownTypeSentinel)
+                    ?? typeof(UnknownTypeSentinel)
                 , name)
             .AddParameterAnnotation(new BindingParameterAnnotation(stackItem, extensionParameter));
     }

@@ -101,23 +101,19 @@ namespace DotVVM.Samples.Common
 
 
             resources.Register("extenders", new ScriptResource(
-                defer: true,
                 location: new FileResourceLocation("Scripts/ClientExtenders.js")
             ));
 
             resources.Register(nameof(StopwatchPostbackHandler), new ScriptResource(
-                defer: true,
                 location: new FileResourceLocation($"~/Scripts/{nameof(StopwatchPostbackHandler)}.js")) {
                 Dependencies = new[] { "dotvvm" }
             });
             resources.Register(nameof(ErrorCountPostbackHandler), new ScriptResource(
-                defer: true,
                 location: new FileResourceLocation($"~/Scripts/{nameof(ErrorCountPostbackHandler)}.js")) {
                 Dependencies = new[] { "dotvvm" }
             });
 
             resources.Register(nameof(PostBackHandlerCommandTypes), new ScriptResource(
-                defer: true,
                 location: new FileResourceLocation($"~/Scripts/{nameof(PostBackHandlerCommandTypes)}.js")) {
                     Dependencies = new [] { "dotvvm"}
             });
