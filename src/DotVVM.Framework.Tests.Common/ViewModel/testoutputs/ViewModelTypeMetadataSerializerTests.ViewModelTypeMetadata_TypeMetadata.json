@@ -9,7 +9,7 @@
 			},
 			"ClientToServer": {
 				"type": "String",
-				"update": "no"
+				"update": "firstRequest"
 			},
 			"NestedList": {
 				"type": [
