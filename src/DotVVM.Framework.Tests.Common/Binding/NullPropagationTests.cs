@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Tests.Common.Binding
             Create((TestViewModel a, TestViewModel b) => a.Identity(b)),
             Create((TestViewModel a, char b) => a.GetCharCode(b)),
             Create((string a) => a.Length > 0 ? a[0] : 'f'),
-            Create((string a, int b) => a.Length > b ? a[b] : 'l'),
+            Create((string a, int b) => a.Length > 0 ? a[b % 1] : 'l'),
             // Create((string a, int b) => a[b]),
             Create((int a, int b) => a+b),
             Create((int a) => a + 1.0),
