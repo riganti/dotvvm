@@ -12,12 +12,9 @@
         <dot:Button data-ui="save" Click="{staticCommand: vm.Save(_this); _root.Devices.Items = vm.List()}" Text="Save" />
         <dot:Button data-ui="blank" Click="{staticCommand: _root.Detail = vm.Blank()}" Text="Cancel" />
     </p>
-    <dot:Repeater WrapperTagName="section" DataSource="{value: Devices}">
-        <sample:Device
-                       Edit="{staticCommand: _root.Detail = vm.Get(_this.Id).Result}"
-                       Remove="{staticCommand: vm.Remove(_this.Id); _root.Devices.Items = vm.List()}"
-                       MyProperty="{value: Name + "- test"}"/>
-    </dot:Repeater>
+    <sample:DeviceList DataContext={value: Devices.Items}
+                   Edit={staticCommand: _root.Detail = vm.Get(arg).Result}
+                   Remove={staticCommand: vm.Remove(arg); _root.Devices.Items = vm.List()} />
 
 </body>
 </html>

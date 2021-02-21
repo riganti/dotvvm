@@ -1,0 +1,8 @@
+﻿@viewModel System.Collections.Generic.IEnumerable<DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl.DeviceModel>
+@baseType DotVVM.Samples.Common.Views.FeatureSamples.MarkupControl.DeviceList, DotVVM.Samples.Common
+
+ <dot:Repeater WrapperTagName="section" DataSource={value: _this}>
+    <sample:Device Edit={staticCommand: _control.Edit(Id)}
+                    Remove={staticCommand: _control.Remove(Id)}
+                    MyProperty={value: Name + "- test"} />
+</dot:Repeater>
