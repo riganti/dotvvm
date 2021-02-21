@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Tests.Binding
         private BindingCompilationService bindingService;
 
         [TestInitialize]
-        public void INIT()
+        public void Init()
         {
             this.configuration = DotvvmTestHelper.CreateConfiguration();
             configuration.RegisterApiClient(typeof(TestApiClient), "http://server/api", "./apiscript.js", "_testApi");
