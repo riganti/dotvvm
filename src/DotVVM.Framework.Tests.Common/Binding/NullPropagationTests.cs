@@ -141,7 +141,7 @@ namespace DotVVM.Framework.Tests.Common.Binding
             var expr = new ReplacerVisitor(originalParameter, () => Expression.ArrayIndex(parameter, Expression.Constant(count++))).Visit(expression);
 
             Func<TestViewModel[], object> compile(Expression e) =>
-                Expression.Lambda<Func<TestViewModel[], object>>(Expression.Convert(e, typeof(object)), parameter).Compile();
+                Expression.Lambda<Func<TestViewModel[], object>>(Expression.Convert(e, typeof(object)), parameter).Compile(preferInterpretation: true);
 
             var withNullChecks = compile(ExpressionNullPropagationVisitor.PropagateNulls(expr, _ => true));
             var withoutNullChecks = compile(expr);
@@ -291,6 +291,17 @@ namespace DotVVM.Framework.Tests.Common.Binding
             Assert.AreEqual(1, EvalExpression<object>(v => v ?? 1, null));
             Assert.AreEqual(1, EvalExpression<object>(v => (v ?? 1) ?? 2, null));
             Assert.AreEqual(1, EvalExpression<int?>(v => v ?? null, 1));
+        }
+
+        [TestMethod]
+        public void ValueTypePropertyAccess()
+        {
+            var ex = Assert.ThrowsException<NullReferenceException>(() =>
+                EvalExpression<TestViewModel>(v => TimeSpan.FromSeconds(v.IntProp).TotalMilliseconds, null)
+            );
+            Assert.AreEqual("Binding expression 'Convert(v.IntProp, Double)' of type 'System.Double' has evaluated to null.", ex.Message);
+
+            Assert.AreEqual(1000d, EvalExpression<TestViewModel>(v => TimeSpan.FromSeconds(v.IntProp).TotalMilliseconds, new TestViewModel { IntProp = 1 }));
         }
     }
 
