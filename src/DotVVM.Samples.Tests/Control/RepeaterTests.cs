@@ -282,7 +282,13 @@ namespace DotVVM.Samples.Tests.Control
                     .Concat(serverRenderedItems.Select((element, index) => (element, index)));
 
                 var counter = 0;
-                void CheckCounter() => AssertUI.InnerTextEquals(counterElement, counter.ToString());
+                void CheckCounter()
+                {
+                    browser.WaitFor(() => {
+                        AssertUI.InnerTextEquals(counterElement, counter.ToString());
+                    }, 5000);
+                }
+
                 foreach (var item in allItems)
                 {
                     CheckCounter();
