@@ -234,7 +234,7 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.IsDisplayed(firstRow.ElementAt("td", 2).Single("input"));
                 firstRow.ElementAt("td", 3).FindElements("button").ThrowIfDifferentCountThan(2);
 
-                // check if right number of testboxs are displayed => IsEditable works
+                // check if right number of textboxes are displayed => IsEditable works
                 table.FindElements("tbody tr td input").ThrowIfDifferentCountThan(2);
 
                 // click on Cancel button
@@ -245,12 +245,13 @@ namespace DotVVM.Samples.Tests.Control
                 table = browser.ElementAt("table", tableID);
                 var desiredRow = table.ElementAt("tbody tr", 3);
                 desiredRow.ElementAt("td", 3).Single("button").ScrollTo().Click();
-                browser.Wait(500);
 
                 // check if edit row changed
-                table = browser.ElementAt("table", tableID);
-                desiredRow = table.ElementAt("tbody tr", 3);
-                AssertUI.IsDisplayed(desiredRow.First("input"));
+                browser.WaitFor(() => {
+                    table = browser.ElementAt("table", tableID);
+                    desiredRow = table.ElementAt("tbody tr", 3);
+                    AssertUI.IsDisplayed(desiredRow.First("input"));
+                }, 5000);
                 desiredRow.FindElements("button").ThrowIfDifferentCountThan(2);
             });
         }
@@ -316,58 +317,70 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(path);
-                browser.ActionWaitTime = 500;
 
                 System.Action performTest = () =>
                 {
-                    //// make sure that thirs row's first cell is yellow
+                    // make sure that thirs row's first cell is yellow
                     AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), s => s.Equals(""));
                     AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", 2).ElementAt("td", 0), s => s.Equals("alternate"));
 
-                    //// go to second page
+                    // go to second page
                     AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "1");
                     browser.ElementAt("ul", 0).FindElements("li a").Single(s => s.GetText() == "2").Click();
-                    browser.Wait();
 
-                    //// go to previous page
-                    AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "11");
+                    // go to previous page
+                    browser.WaitFor(() => {
+                        AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "11");
+                    }, 5000);
                     browser.ElementAt("ul", 0).FindElements("li a").Single(s => s.GetText() == "««").Click();
-                    browser.Wait();
 
-                    //// go to next page
-                    AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "1");
+                    // go to next page
+                    browser.WaitFor(() => {
+                        AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "1");
+                    }, 5000);
                     browser.ElementAt("ul", 0).FindElements("li a").Single(s => s.GetText() == "»»").Click();
-                    browser.Wait();
 
-                    //// try the disabled link - nothing should happen
-                    AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "11");
+                    // try the disabled link - nothing should happen
+                    browser.WaitFor(() => {
+                        AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "11");
+                    }, 5000);
                     browser.ElementAt("ul", 0).FindElements("li a").Single(s => s.GetText() == "»»").Click();
-                    browser.Wait();
 
-                    AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "11");
+                    browser.WaitFor(() => {
+                        AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "11");
+                    }, 5000);
 
                     // try sorting in the first grid
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).ElementAt("button", 0).Click();
-                    browser.Wait();
+                    browser.WaitFor(() => {
+                        AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "4");
+                    }, 5000);
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).ElementAt("a", 0).Click();
-                    browser.Wait();
-                    AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1), "sort-asc");
+                    browser.WaitFor(() => {
+                        AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1), "sort-asc");
+                    }, 5000);
 
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 0).ElementAt("a", 0).Click();
-                    browser.Wait();
-                    AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "1");
+                    browser.WaitFor(() => {
+                        AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "1");
+                    }, 5000);
 
-                    //// sort descending in the first grid
+                    // sort descending in the first grid
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).ElementAt("a", 0).Click();
+                    browser.WaitFor(() => {
+                        AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "7");
+                    }, 5000);
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).ElementAt("a", 0).Click();
-                    browser.Wait();
-                    AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1), "sort-desc");
-                    AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "16");
+                    browser.WaitFor(() => {
+                        AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1), "sort-desc");
+                        AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "16");
+                    }, 5000);
 
-                    //// sort by different column in the first grid
+                    // sort by different column in the first grid
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 0).ElementAt("a", 0).Click();
-                    browser.Wait();
-                    AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "1");
+                    browser.WaitFor(() => {
+                        AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "1");
+                    }, 5000);
                 };
 
                 Control_GridViewShowHeaderWhenNoData(browser);

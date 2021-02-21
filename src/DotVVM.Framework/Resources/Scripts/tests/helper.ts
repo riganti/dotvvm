@@ -1,6 +1,33 @@
 import dotvvm from '../dotvvm-root'
 import { keys } from '../utils/objects'
 import { events as validationEvents } from '../validation/validation'
+import fc_types from '../../../node_modules/fast-check/lib/types/fast-check'
+import { replaceTypeInfo, updateTypeInfo } from '../metadata/typeMap';
+
+export const fc: typeof fc_types = require('fast-check');
+
+export const delay = (time: number) => new Promise((r) => setTimeout(r, time))
+
+export async function waitForEnd<T>(result: Promise<T>[], s: fc_types.Scheduler, assert: () => void) {
+    const aggResult = Promise.all(result)
+
+    let done = false
+    aggResult.then(_ => done = true, _ => done = true)
+    await delay(1)
+
+    while (!done) {
+        // console.log(s.report())
+        expect(s.count()).toBeGreaterThan(0)
+        await s.waitOne()
+
+        assert()
+
+        await delay(1)
+    }
+    // console.log("Done = ", done, aggResult)
+
+    return await aggResult
+}
 
 type EventHistoryEntry = { 
     event: string, 
@@ -35,12 +62,12 @@ export function watchEvents(consoleOutput: boolean = true) {
     const allEvents = { ...dotvvm.events, ...validationEvents };
     for (const event of keys(allEvents)) {
         if ("subscribe" in (allEvents as any)[event]) {
-            var h = function (args: any) {
+            const h = function (args: any): void {
                 if (consoleOutput) {
                     console.debug("Event " + event, args.postbackId ?? "")
                 }
                 eventHistory.push({ event, args })
-            }
+            };
             (allEvents as any)[event].subscribe(h)
             handlers[event] = h
         }

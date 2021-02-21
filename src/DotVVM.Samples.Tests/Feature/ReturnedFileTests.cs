@@ -54,8 +54,9 @@ namespace DotVVM.Samples.Tests.Feature
 
             browser.First("textarea").SendKeys(fileContent);
             browser.First("input").SendKeys(Keys.Enter);
+            browser.Wait(5000);
             var downloadURL = (string)jsexec.ExecuteScript("return window.downloadURL;");
-            Assert.IsNotNull(downloadURL);
+            Assert.IsFalse(string.IsNullOrEmpty(downloadURL));
 
             string returnedFile;
             using (var client = new WebClient())

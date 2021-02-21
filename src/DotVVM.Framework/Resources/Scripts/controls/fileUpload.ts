@@ -1,5 +1,6 @@
 import { wrapObservable } from '../utils/knockout';
 import { deserialize } from '../serialization/deserialize';
+import { updateTypeInfo } from '../metadata/typeMap';
 
 export function showUploadDialog(sender: HTMLElement) {
     // trigger the file upload dialog
@@ -16,7 +17,7 @@ export function createUploadId(sender: HTMLElement, iframe: HTMLElement): void {
     iframe.setAttribute("data-dotvvm-upload-id", uploadId);
 }
 
-export function reportProgress(targetControlId: any, isBusy: boolean, progress: number, result: DotvvmFileUploadData[] | string): void {
+export function reportProgress(targetControlId: any, isBusy: boolean, progress: number, result: DotvvmStaticCommandResponse<DotvvmFileUploadData[]> | string): void {
     // find target control viewmodel
     const targetControl = <HTMLDivElement> document.querySelector("div[data-dotvvm-upload-id='" + targetControlId.value + "']");
     const viewModel = <DotvvmFileUploadCollection> ko.dataFor(targetControl.firstChild);
@@ -25,11 +26,12 @@ export function reportProgress(targetControlId: any, isBusy: boolean, progress: 
     if (typeof result === "string") {
         // error during upload
         viewModel.Error(result);
-    } else {
+    } else if ("result" in result) {
         // files were uploaded successfully
         viewModel.Error("");
-        for (let i = 0; i < result.length; i++) {
-            viewModel.Files.push(wrapObservable(deserialize(result[i])));
+        updateTypeInfo(result.typeMetadata);
+        for (let i = 0; i < result.result.length; i++) {
+            viewModel.Files.push(wrapObservable(deserialize(result.result[i])));
         }
 
         // call the handler

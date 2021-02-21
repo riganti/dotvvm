@@ -107,16 +107,16 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.SelectMethod = SelectByDataUi;
 
                 browser.Single("button-hello").Click();
-                browser.WaitFor(() => AssertUI.TextEquals(browser.Single("span-hello"), "Hello"), 1000);
+                browser.WaitFor(() => AssertUI.TextEquals(browser.Single("span-hello"), "Hello"), 2000);
 
                 browser.Single("textbox-parse").SendKeys("42");
                 browser.Single("button-parse").Click();
-                browser.WaitFor(() => AssertUI.TextEquals(browser.Single("span-parse"), "42"), 1000);
+                browser.WaitFor(() => AssertUI.TextEquals(browser.Single("span-parse"), "42"), 2000);
 
-                browser.Single("textbox-multiplyA").SendKeys("6");
-                browser.Single("textbox-multiplyB").SendKeys("-7");
+                browser.Single("textbox-multiplyA").Clear().SendKeys("6");
+                browser.Single("textbox-multiplyB").Clear().SendKeys("-7");
                 browser.Single("button-multiply").Click();
-                browser.WaitFor(() => AssertUI.TextEquals(browser.Single("span-multiply"), "-42"), 1000);
+                browser.WaitFor(() => AssertUI.TextEquals(browser.Single("span-multiply"), "-42"), 2000);
 
                 AssertUI.TextEquals(browser.Single("postback-counter"), "3");
 
