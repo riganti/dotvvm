@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Tests.Common.Binding
         private MemberExpressionFactory memberExpressionFactory;
 
         [TestInitialize]
-        public void INIT()
+        public void Init()
         {
             var configuration = DotvvmTestHelper.CreateConfiguration();
             memberExpressionFactory = configuration.ServiceProvider.GetRequiredService<MemberExpressionFactory>();
