@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected void AddTypeForExtensionsLookup(Type type)
         {
-            foreach (var method in type.GetMethods().Where(m => m.GetCustomAttribute(typeof(ExtensionAttribute)) != null))
+            foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static).Where(m => m.GetCustomAttribute(typeof(ExtensionAttribute)) != null))
                 methodsLookup.Add(method);
 
             typesLookup.Add(type);
