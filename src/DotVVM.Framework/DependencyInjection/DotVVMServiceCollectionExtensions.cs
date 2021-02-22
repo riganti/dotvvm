@@ -75,7 +75,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddScoped<RuntimeWarningCollector>();
             services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
             services.TryAddScoped<ResourceManager, ResourceManager>();
-            services.TryAddScoped<MemberExpressionFactory>();
+            services.TryAddSingleton<MemberExpressionFactory>();
             services.TryAddSingleton(s => DotvvmConfiguration.CreateDefault(s));
             services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Markup);
             services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Resources);
