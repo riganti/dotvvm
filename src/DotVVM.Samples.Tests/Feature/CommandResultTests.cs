@@ -46,14 +46,14 @@ namespace DotVVM.Samples.Tests.Feature
 
             browser.WaitFor(() => {
                 AssertUI.TextEquals(customDataSpan, "Hello there");
-            }, 1000);
+            }, 8000);
 
             var clearButton = browser.First("clear", SelectByDataUi);
             clearButton.Click();
 
             browser.WaitFor(() => {
                 AssertUI.TextEmpty(customDataSpan);
-            }, 1000);
+            }, 8000);
 
         }
     }

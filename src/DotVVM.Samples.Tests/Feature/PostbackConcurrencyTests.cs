@@ -233,6 +233,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_RedirectPostbackQueueSpa);
+                browser.WaitUntilDotvvmInited();
 
                 browser.ElementAt("input[type=button]", 0).Click();
                 browser.ElementAt("input[type=button]", 2).Click();
