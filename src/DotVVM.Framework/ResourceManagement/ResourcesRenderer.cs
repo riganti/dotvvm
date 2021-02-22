@@ -65,7 +65,7 @@ namespace DotVVM.Framework.ResourceManagement
                     resourceManager.MarkRendered(resource);
                     resource.RenderResourceCached(writer, context);
                 }
-                else if (position == ResourceRenderPosition.Head && resourcePosition != ResourceRenderPosition.Head && resource.Resource is IPreloadResource preloadResource)
+                else if (position == ResourceRenderPosition.Head && resourcePosition == ResourceRenderPosition.Body && resource.Resource is IPreloadResource preloadResource)
                 {
                     if (resourceManager.IsRendered(resource.Name)) continue;
 

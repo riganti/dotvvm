@@ -35,6 +35,10 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
             }
             Detail = FakeDb.Update(Detail);
         }
+        public void Reset()
+        {
+            FakeDb.Reset();
+        }
 
         public void Edit(Guid id)
         {
