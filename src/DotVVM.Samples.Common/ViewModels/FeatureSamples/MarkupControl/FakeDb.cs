@@ -6,6 +6,10 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
 {
     public class FakeDb
     {
+        public FakeDb()
+        {
+            Reset();
+        }
         public DeviceModel Insert(DeviceModel model)
         {
             model.Id = Guid.NewGuid();
@@ -21,10 +25,17 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
         }
 
         public void Remove(Guid id) => devices = devices.Where(d => d.Id != id).ToList();
-        public DeviceModel Get(Guid id) => devices.FirstOrDefault(d=>d.Id == id);
+        public DeviceModel Get(Guid id) => devices.FirstOrDefault(d => d.Id == id);
         public IQueryable<DeviceModel> GetQueriable() => devices.AsQueryable();
+        public void Reset()
+        {
+            devices = GetDevices();
+        }
 
-        private IList<DeviceModel> devices = new List<DeviceModel> {
+        private IList<DeviceModel> devices;
+
+        private IList<DeviceModel> GetDevices() =>
+            new List<DeviceModel> {
             new DeviceModel {
                 Name = "Washing machine",
                 Id = Guid.NewGuid(),

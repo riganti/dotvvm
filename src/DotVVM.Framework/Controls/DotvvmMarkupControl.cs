@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
@@ -118,15 +119,22 @@ namespace DotVVM.Framework.Controls
             }
             else if (GetBinding(property) is ICommandBinding command)
             {
+                // just few commands have arguments so it's worth checking if we need to clutter the output with argument propagation
+                var hasArguments = command.CommandJavascript.Parameters.Any(p => p.Parameter == CommandBindingExpression.CommandArgumentsParameter);
                 var call = KnockoutHelper.GenerateClientPostBackExpression(
                     property.Name,
                     command,
                     this,
-                    new PostbackScriptOptions(elementAccessor: "$element"));
+                    new PostbackScriptOptions(
+                        elementAccessor: "$element",
+                        commandArgs: hasArguments ? new CodeParameterAssignment(new ParametrizedCode("commandArguments", OperatorPrecedence.Max)) : default
+                    ));
+
+                var collectArgs = hasArguments ? "var commandArguments=[].slice.call(arguments); " : "";
 
                 return new PropertySerializeInfo(
                     property,
-                    $"function(){{return {call}}}"
+                    $"function(){{{collectArgs}return {call}}}"
                 );
             }          
             else
