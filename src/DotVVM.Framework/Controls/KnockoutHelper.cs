@@ -154,7 +154,7 @@ namespace DotVVM.Framework.Controls
             var knockoutContext = options.KoContext ?? (
                 // adjustedExpression != expression.CommandJavascript ?
                 new CodeParameterAssignment(new ParametrizedCode.Builder { "ko.contextFor(", options.ElementAccessor.Code!, ")" }.Build(OperatorPrecedence.Max))
-                // default
+            // default
             );
 
             var optionalKnockoutContext =
@@ -162,9 +162,9 @@ namespace DotVVM.Framework.Controls
                 knockoutContext :
                 default;
 
-            var commandArgsString = options.CommandArgs != null ? SubstituteArguments(options.CommandArgs.Value.Code!) : "[]";
+            var commandArgsString = (options.CommandArgs?.Code != null) ? SubstituteArguments(options.CommandArgs!.Value.Code!) : "[]";
             var call = SubstituteArguments(adjustedExpression);
-            
+
             if (generatedPostbackHandlers == null && options.AllowPostbackHandlers)
                 return $"dotvvm.applyPostbackHandlers(function(options){{return {call}}}.bind(this),{options.ElementAccessor.Code!.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()},{commandArgsString})";
             else return call;
@@ -203,23 +203,23 @@ namespace DotVVM.Framework.Controls
             var sb = new StringBuilder();
             sb.Append('[');
             if (handlers != null) foreach (var handler in handlers)
-            {
-                if (!string.IsNullOrEmpty(handler.EventName) && handler.EventName != eventName) continue;
-
-                var options = handler.GetHandlerOptions();
-                var name = handler.ClientHandlerName;
-
-                if (handler.GetValueBinding(PostBackHandler.EnabledProperty) is IValueBinding binding) options.Add("enabled", binding);
-                else if (!handler.Enabled) continue;
-
-                if (sb.Length > 1)
-                    sb.Append(',');
-
-                if (options.Count == 0)
                 {
-                    sb.Append(JsonConvert.ToString(name));
-                }
-                else
+                    if (!string.IsNullOrEmpty(handler.EventName) && handler.EventName != eventName) continue;
+
+                    var options = handler.GetHandlerOptions();
+                    var name = handler.ClientHandlerName;
+
+                    if (handler.GetValueBinding(PostBackHandler.EnabledProperty) is IValueBinding binding) options.Add("enabled", binding);
+                    else if (!handler.Enabled) continue;
+
+                    if (sb.Length > 1)
+                        sb.Append(',');
+
+                    if (options.Count == 0)
+                    {
+                        sb.Append(JsonConvert.ToString(name));
+                    }
+                    else
                     {
                         string script = GenerateHandlerOptions(handler, options);
 
@@ -230,11 +230,12 @@ namespace DotVVM.Framework.Controls
                         sb.Append("]");
                     }
                 }
-            if (moreHandlers != null) foreach (var h in moreHandlers) if (h != null) {
-                if (sb.Length > 1)
-                    sb.Append(',');
-                sb.Append(h);
-            }
+            if (moreHandlers != null) foreach (var h in moreHandlers) if (h != null)
+                    {
+                        if (sb.Length > 1)
+                            sb.Append(',');
+                        sb.Append(h);
+                    }
             sb.Append(']');
             return sb.ToString();
         }
