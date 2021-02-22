@@ -2,7 +2,7 @@
 @baseType DotVVM.Samples.Common.Views.FeatureSamples.MarkupControl.Device, DotVVM.Samples.Common
 
 <article>
-    {{value: Name}}
+    <span>{{value: Name}}</span>
     <dot:Repeater DataSource="{value: Groups}" WrapperTagName="ul">
         <li InnerText="{value: _this}" />
     </dot:Repeater>

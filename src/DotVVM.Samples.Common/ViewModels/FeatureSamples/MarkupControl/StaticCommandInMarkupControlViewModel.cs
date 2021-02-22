@@ -17,8 +17,10 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
 
     public class StaticCommandInMarkupControlViewModel : DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPA.SiteViewModel
     {
-        public GridViewDataSet<DeviceModel> Devices { get; set; } = new GridViewDataSet<DeviceModel> {
-            PagingOptions = new PagingOptions {
+        public GridViewDataSet<DeviceModel> Devices { get; set; } = new GridViewDataSet<DeviceModel>
+        {
+            PagingOptions = new PagingOptions
+            {
                 PageSize = 10
             }
         };
@@ -35,11 +37,16 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
             Devices.LoadFromQueryable(FakeDb.GetQueriable());
             return base.PreRender();
         }
-
+        [AllowStaticCommand]
+        public static string Reset()
+        {
+            FakeDb.Reset();
+            return "OK";
+        }
         [AllowStaticCommand]
         public static DeviceModel Save(DeviceModel model)
         {
-            if(model.Id == null || model.Id == Guid.Empty)
+            if (model.Id == null || model.Id == Guid.Empty)
             {
                 return FakeDb.Insert(model);
             }
@@ -57,6 +64,8 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
 
         [AllowStaticCommand]
         public static void Remove(Guid id) => FakeDb.Remove(id);
+
+        public string State { get; set; }
     }
 }
 
