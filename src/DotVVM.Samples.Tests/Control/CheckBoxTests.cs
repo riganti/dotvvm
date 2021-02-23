@@ -157,6 +157,50 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
+        [Fact]
+        public void Control_CheckBox_CheckBoxObjects()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckBox_Objects);
+
+                var checkboxes = browser.FindElements("input[type=checkbox]");
+                var ul = browser.Single("ul");
+
+                AssertUI.IsChecked(checkboxes[0]);
+                AssertUI.IsNotChecked(checkboxes[1]);
+                AssertUI.IsNotChecked(checkboxes[2]);
+                ul.FindElements("li").ThrowIfDifferentCountThan(1);
+                AssertUI.TextEquals(ul.ElementAt("li", 0), "1: Red");
+
+                // check second checkbox
+                checkboxes[1].Click();
+                ul.FindElements("li").ThrowIfDifferentCountThan(2);
+                AssertUI.TextEquals(ul.ElementAt("li", 0), "1: Red");
+                AssertUI.TextEquals(ul.ElementAt("li", 1), "2: Green");
+
+                // check third check box
+                checkboxes[2].Click();
+                ul.FindElements("li").ThrowIfDifferentCountThan(3);
+                AssertUI.TextEquals(ul.ElementAt("li", 0), "1: Red");
+                AssertUI.TextEquals(ul.ElementAt("li", 1), "2: Green");
+                AssertUI.TextEquals(ul.ElementAt("li", 2), "3: Blue");
+
+                // uncheck second checkbox
+                checkboxes[1].Click();
+                ul.FindElements("li").ThrowIfDifferentCountThan(2);
+                AssertUI.TextEquals(ul.ElementAt("li", 0), "1: Red");
+                AssertUI.TextEquals(ul.ElementAt("li", 1), "3: Blue");
+
+                // click button
+                browser.Single("input[type=button]").Click().Wait();
+                AssertUI.IsNotChecked(checkboxes[0]);
+                AssertUI.IsChecked(checkboxes[1]);
+                AssertUI.IsNotChecked(checkboxes[2]);
+                ul.FindElements("li").ThrowIfDifferentCountThan(1);
+                AssertUI.TextEquals(ul.ElementAt("li", 0), "2: Green");
+            });
+        }
+
         public CheckBoxTests(ITestOutputHelper output) : base(output)
         {
         }

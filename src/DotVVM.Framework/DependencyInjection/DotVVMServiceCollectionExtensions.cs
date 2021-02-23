@@ -45,6 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IStaticCommandServiceLoader, DefaultStaticCommandServiceLoader>();
 #pragma warning restore CS0618
             services.TryAddSingleton<IViewModelValidationMetadataProvider, AttributeViewModelValidationMetadataProvider>();
+            services.TryAddSingleton<IViewModelTypeMetadataSerializer, ViewModelTypeMetadataSerializer>();
             services.TryAddSingleton<IValidationRuleTranslator, ViewModelValidationRuleTranslator>();
             services.TryAddSingleton<IPropertySerialization, DefaultPropertySerialization>();
             services.TryAddSingleton<UserColumnMappingCache>();

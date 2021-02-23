@@ -9,6 +9,7 @@ import { getSpaPlaceHoldersUniqueId, isSpaReady } from './spa';
 import { handleRedirect } from '../postback/redirect';
 import * as gate from '../postback/gate';
 import { DotvvmPostbackError } from '../shared-classes';
+import { replaceTypeInfo } from '../metadata/typeMap';
 
 let lastStartedNavigation = -1
 
@@ -52,7 +53,8 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
         await loadResourceList(response.result.resources);
 
         if (response.result.action === "successfulCommand") {
-            updater.updateViewModelAndControls(response.result, true);
+            replaceTypeInfo(response.result.typeMetadata);
+            updater.updateViewModelAndControls(response.result);
             isSpaReady(true);
         } else if (response.result.action === "redirect") {
             await handleRedirect(options, response.result, response.response!);
@@ -71,18 +73,6 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
 
         return spaNavigatedArgs;
 
-    } catch (err) {
-        // trigger spaNavigationFailed event
-        let spaNavigationFailedArgs: DotvvmSpaNavigationFailedEventArgs = { 
-            ...options, 
-            url, 
-            serverResponseObject: (err.reason as any).responseObject,
-            response: (err.reason as any).response,
-            error: err
-        };
-        events.spaNavigationFailed.trigger(spaNavigationFailedArgs);
-
-        throw err;
     } finally {
         // when no other navigation is running, enable postbacks again
         if (options.postbackId == lastStartedNavigation) {

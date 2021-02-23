@@ -20,9 +20,11 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Click("input[type=button]");
 
                 // verify the results
-                AssertUI.Attribute(browser.ElementAt("input[type=text]", 0), "value", s => s.Equals(""));
-                AssertUI.Attribute(browser.ElementAt("input[type=text]", 1), "value", s => s.Equals("2"));
-                AssertUI.InnerTextEquals(browser.Last("span"), ",2");
+                browser.WaitFor(() => {
+                    AssertUI.Attribute(browser.ElementAt("input[type=text]", 0), "value", s => s.Equals(""));
+                    AssertUI.Attribute(browser.ElementAt("input[type=text]", 1), "value", s => s.Equals("2"));
+                    AssertUI.InnerTextEquals(browser.Last("span"), ",2");
+                }, 2000);
             });
         }
 
@@ -42,11 +44,13 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Click("input[type=button]");
 
                 // verify that the values are correct
-                AssertUI.InnerTextEquals(browser.First("p.result"), "1,2,3");
-                AssertUI.Attribute(browser.ElementAt("select", 0), "value", "1");
-                AssertUI.Attribute(browser.ElementAt("select", 1), "value", "2");
-                AssertUI.Attribute(browser.ElementAt("select", 2), "value", "3");
-                browser.Wait();
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(browser.First("p.result"), "1,2,3");
+                    AssertUI.Attribute(browser.ElementAt("select", 0), "value", "1");
+                    AssertUI.Attribute(browser.ElementAt("select", 1), "value", "2");
+                    AssertUI.Attribute(browser.ElementAt("select", 2), "value", "3");
+                    browser.Wait();
+                }, 2000);
 
                 // change the values
                 browser.ElementAt("select", 0).Select(1);
@@ -57,10 +61,12 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Click("input[type=button]");
 
                 // verify that the values are correct
-                AssertUI.InnerTextEquals(browser.First("p.result"), "2,3,2");
-                AssertUI.Attribute(browser.ElementAt("select", 0), "value", "2");
-                AssertUI.Attribute(browser.ElementAt("select", 1), "value", "3");
-                AssertUI.Attribute(browser.ElementAt("select", 2), "value", "2");
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(browser.First("p.result"), "2,3,2");
+                    AssertUI.Attribute(browser.ElementAt("select", 0), "value", "2");
+                    AssertUI.Attribute(browser.ElementAt("select", 1), "value", "3");
+                    AssertUI.Attribute(browser.ElementAt("select", 2), "value", "2");
+                }, 2000);
             });
         }
 

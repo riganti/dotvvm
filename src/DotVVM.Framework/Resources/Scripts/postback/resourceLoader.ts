@@ -103,8 +103,8 @@ async function loadResourceElements(elements: HTMLElement[]) {
 }
 
 function waitForElementLoaded(element: HTMLElement) {
-    return new Promise(resolve => {
-        element.addEventListener("load", resolve);
+    return new Promise<void>(resolve => {
+        element.addEventListener("load", () => resolve());
         element.addEventListener("error", () => {
             console.warn(`Error loading resource`, element);
             resolve();

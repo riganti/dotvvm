@@ -3,8 +3,8 @@ import * as gate from "./gate";
 import { isElementDisabled } from "../utils/dom";
 import { getPostbackQueue, enterActivePostback, leaveActivePostback, runNextInQueue } from "./queue";
 import { getLastStartedPostbackId } from "./postbackCore";
-import { getIsViewModelUpdating } from "./updater";
 import { DotvvmPostbackError } from "../shared-classes";
+import { getIsViewModelUpdating } from "../state-manager";
 
 let postbackCount = 0;
 
@@ -56,7 +56,7 @@ export const concurrencyDeny = (o: any) => ({
             return Promise.reject(new DotvvmPostbackError({
                 type: "handler",
                 handlerName: "concurrency-deny",
-                message: "An postback is already running"
+                message: "A postback is already running"
             }));
         }
         return commonConcurrencyHandler(next(), options, queue);

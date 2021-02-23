@@ -169,7 +169,7 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
                     }
                 )
             };
-            var obj2 = Populate<TestViewModelWithTuples>(Serialize(obj, out var _));
+            var obj2 = Populate<TestViewModelWithTuples>(Serialize(obj, out var _, isPostback: true));
 
             Assert.AreEqual(obj.P1, obj2.P1);
             Assert.AreEqual(obj.P2, obj2.P2);
