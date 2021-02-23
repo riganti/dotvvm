@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq.Expressions;
 using System.Text;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,8 +20,9 @@ namespace DotVVM.Framework.Tests.Common.Binding
         [TestInitialize]
         public void Init()
         {
-            this.configuration = DotvvmTestHelper.CreateConfiguration(services => services.AddScoped<IExtensionsProvider, TestExtensionsProvider>());
+            this.configuration = DotvvmTestHelper.CreateConfiguration();
             this.memberExpressionFactory = configuration.ServiceProvider.GetRequiredService<MemberExpressionFactory>();
+            this.memberExpressionFactory.ImportedNamespaces = ImmutableList.Create(new NamespaceImport("DotVVM.Framework.Tests.Common.Binding"));
         }
 
         [TestMethod]
@@ -37,17 +40,9 @@ namespace DotVVM.Framework.Tests.Common.Binding
         }
     }
 
-    static class TestExtensions
+    public static class TestExtensions
     {
         public static int Increment(this int number)
             => ++number;
-    }
-
-    class TestExtensionsProvider : DefaultExtensionsProvider
-    {
-        public TestExtensionsProvider()
-        {
-            AddTypeForExtensionsLookup(typeof(TestExtensions));
-        }
     }
 }
