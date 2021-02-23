@@ -728,25 +728,34 @@ namespace DotVVM.Samples.Tests.Feature
                 var textbox = browser.First("[data-ui=name-textbox]");
 
                 submitButton.Click();
-                Assert.Equal(0, validationSummary.Children.Count);
-                AssertUI.HasNotClass(textbox, "has-error");
+                browser.WaitFor(() => {
+                    Assert.Equal(0, validationSummary.Children.Count);
+                    AssertUI.HasNotClass(textbox, "has-error");
+                }, 4000);
 
                 textbox.SendKeys("123");
                 submitButton.Click();
-                AssertUI.HasClass(textbox, "has-error");
-                Assert.Equal(1, validationSummary.Children.Count);
+                browser.WaitFor(() => {
+                    AssertUI.HasClass(textbox, "has-error");
+                    Assert.Equal(1, validationSummary.Children.Count);
+                }, 4000);
 
                 textbox.Clear();
                 textbox.SendKeys("Ted");
                 submitButton.Click();
-                Assert.Equal(0, validationSummary.Children.Count);
-                AssertUI.HasNotClass(textbox, "has-error");
+                browser.WaitFor(() => {
+                    Assert.Equal(0, validationSummary.Children.Count);
+                    AssertUI.HasNotClass(textbox, "has-error");
+                }, 4000);
 
                 textbox.SendKeys("123");
                 browser.First("[data-ui=notation-checkbox]").Click();
                 submitButton.Click();
-                AssertUI.HasClass(textbox, "has-error");
-                Assert.Equal(1, validationSummary.Children.Count);
+
+                browser.WaitFor(() => {
+                    AssertUI.HasClass(textbox, "has-error");
+                    Assert.Equal(1, validationSummary.Children.Count);
+                }, 4000);
             });
         }
 
