@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Compilation
             var extensions = new List<MethodInfo>();
 
             foreach (var assembly in assemblyCache.GetAllAssemblies())
-                foreach (var type in assembly.GetTypes().Where(t => t.Namespace == @namespace && t.IsPublic && t.IsClass))
+                foreach (var type in assembly.GetTypes().Where(t => t.Namespace == @namespace && t.IsClass && t.IsAbstract && t.IsSealed))
                     foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static).Where(m => m.GetCustomAttribute(typeof(ExtensionAttribute)) != null))
                         extensions.Add(method);
 
