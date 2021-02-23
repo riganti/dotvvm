@@ -11,11 +11,9 @@
         <dot:Button data-ui="save" Click="{command: _root.Save()}" Text="Save" />
         <dot:Button data-ui="blank" Click="{command: _root.Blank()}" Text="Cancel" />
     </p>
-    <dot:Repeater WrapperTagName="section" DataSource="{value: Devices}">
-        <sample:Device Edit="{command: _root.Edit(Id)}"
-                       Remove="{command: _root.Remove(Id)}"
-                       MyProperty="{value: Name + "- test"}" />
-    </dot:Repeater>
+    <sample:DeviceList DataContext={value: Devices.Items}
+                   Edit={command: _root.Edit}
+                   Remove={command: _root.Remove(arg)} />
 
 </body>
 </html>
