@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
 
             return DataContextStack.Create(
-                ResolvedTypeDescriptor.ToSystemType(viewModelType) ?? typeof(ExpressionHelper.UnknownTypeSentinel),
+                ResolvedTypeDescriptor.ToSystemType(viewModelType) ?? typeof(UnknownTypeSentinel),
                 parentDataContextStack as DataContextStack,
                 namespaceImports, extensionParameters);
         }

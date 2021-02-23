@@ -9,6 +9,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CSharp.RuntimeBinder;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Framework.Tests.Common.Binding
@@ -17,13 +18,21 @@ namespace DotVVM.Framework.Tests.Common.Binding
     public class ExpressionHelperTests
     {
         public TestContext TestContext { get; set; }
+        private MemberExpressionFactory memberExpressionFactory;
+
+        [TestInitialize]
+        public void Init()
+        {
+            var configuration = DotvvmTestHelper.CreateConfiguration();
+            memberExpressionFactory = configuration.ServiceProvider.GetRequiredService<MemberExpressionFactory>();
+        }
 
         [TestMethod]
         public void UpdateMember_GetValue()
         {
             var cP = Expression.Parameter(typeof(DotvvmControl), "c");
             var newValueP = Expression.Parameter(typeof(object), "newValue");
-            var updateExpr = ExpressionHelper.UpdateMember(ExpressionUtils.Replace((DotvvmControl c) => c.GetValue(DotvvmBindableObject.DataContextProperty, true), cP), newValueP);
+            var updateExpr = memberExpressionFactory.UpdateMember(ExpressionUtils.Replace((DotvvmControl c) => c.GetValue(DotvvmBindableObject.DataContextProperty, true), cP), newValueP);
             Assert.IsNotNull(updateExpr);
             Assert.AreEqual("c.SetValue(DotvvmBindableObject.DataContextProperty, newValue)", updateExpr.ToString());
         }
@@ -33,7 +42,7 @@ namespace DotVVM.Framework.Tests.Common.Binding
         {
             var vmP = Expression.Parameter(typeof(Tests.Binding.TestViewModel), "vm");
             var newValueP = Expression.Parameter(typeof(DateTime), "newValue");
-            var updateExpr = ExpressionHelper.UpdateMember(ExpressionUtils.Replace((Tests.Binding.TestViewModel c) => c.DateFrom, vmP), newValueP);
+            var updateExpr = memberExpressionFactory.UpdateMember(ExpressionUtils.Replace((Tests.Binding.TestViewModel c) => c.DateFrom, vmP), newValueP);
             Assert.IsNotNull(updateExpr);
             Assert.AreEqual("(vm.DateFrom = Convert(newValue, Nullable`1))", updateExpr.ToString());
         }
@@ -43,7 +52,7 @@ namespace DotVVM.Framework.Tests.Common.Binding
         {
             var vmP = Expression.Parameter(typeof(Tests.Binding.TestViewModel), "vm");
             var newValueP = Expression.Parameter(typeof(long[]), "newValue");
-            var updateExpr = ExpressionHelper.UpdateMember(ExpressionUtils.Replace((Tests.Binding.TestViewModel c) => c.LongArray, vmP), newValueP);
+            var updateExpr = memberExpressionFactory.UpdateMember(ExpressionUtils.Replace((Tests.Binding.TestViewModel c) => c.LongArray, vmP), newValueP);
             Assert.IsNull(updateExpr);
         }
 
@@ -57,7 +66,7 @@ namespace DotVVM.Framework.Tests.Common.Binding
             Call_FindOverload_Generic(typeof(MethodsGenericArgumentsResolvingSampleObject), MethodsGenericArgumentsResolvingSampleObject.MethodName, new[] { argType }, resultIdentifierType, expectedGenericArgs);
         }
 
-        private static void Call_FindOverload_Generic(Type targetType, string methodName, Type[] argTypes, Type resultIdentifierType, Type[] expectedGenericArgs)
+        private void Call_FindOverload_Generic(Type targetType, string methodName, Type[] argTypes, Type resultIdentifierType, Type[] expectedGenericArgs)
         {
             Expression target = new MethodGroupExpression() {
                 MethodName = methodName,
@@ -66,7 +75,7 @@ namespace DotVVM.Framework.Tests.Common.Binding
 
             var j = 0;
             var arguments = argTypes.Select(s => Expression.Parameter(s, $"param_{j++}")).ToArray();
-            var expression = ExpressionHelper.Call(target, arguments) as MethodCallExpression;
+            var expression = memberExpressionFactory.Call(target, arguments) as MethodCallExpression;
             Assert.IsNotNull(expression);
             Assert.AreEqual(resultIdentifierType, expression.Method.GetResultType());
 
