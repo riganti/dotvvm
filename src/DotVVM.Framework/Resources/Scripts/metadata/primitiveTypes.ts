@@ -82,7 +82,6 @@ function validateInt(value: any, min: number, max: number) {
         }
         value = Number(value);
         if (isNaN(value)) {
-            // TODO: parse based on current culture
             return;
         }
         wasCoerced = true;
@@ -105,7 +104,6 @@ function validateFloat(value: any) {
     if (typeof value === "string") {
         value = Number(value);
         if (isNaN(value)) {
-            // TODO: parse based on current culture
             return;
         }
         wasCoerced = true;
