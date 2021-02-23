@@ -86,8 +86,8 @@ namespace DotVVM.Framework.Compilation.Binding
                 .Add("Decimal", CreateStatic(typeof(Decimal)))
                 .Add("Double", CreateStatic(typeof(Double)))
                 .Add("Single", CreateStatic(typeof(Single)))
-                .Add("String", CreateStatic(typeof(String)))
-                .Add("Enumerable", CreateStatic(typeof(Enumerable))),
+                .Add("String", CreateStatic(typeof(String))),
+                //.Add("Enumerable", CreateStatic(typeof(Enumerable))),
             ImmutableList<Func<string, Expression>>.Empty
                 .Add(type => CreateStatic(compiledAssemblyCache.FindType(type)))
                 .Add(type => CreateStatic(compiledAssemblyCache.FindType("System." + type)))
@@ -122,8 +122,8 @@ namespace DotVVM.Framework.Compilation.Binding
                .Add("Decimal", CreateStatic(typeof(Decimal)))
                .Add("Double", CreateStatic(typeof(Double)))
                .Add("Single", CreateStatic(typeof(Single)))
-               .Add("String", CreateStatic(typeof(String)))
-               .Add("Enumerable", CreateStatic(typeof(Enumerable))),
+               .Add("String", CreateStatic(typeof(String))),
+               //.Add("Enumerable", CreateStatic(typeof(Enumerable))),
            ImmutableList<Func<string, Expression>>.Empty
                .Add(type => CreateStatic(compiledAssemblyCache.FindType(type + (assemblyName != null ? $", {assemblyName}" : ""))))
            );

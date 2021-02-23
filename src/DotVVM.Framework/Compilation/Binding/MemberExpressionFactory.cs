@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -16,13 +17,12 @@ namespace DotVVM.Framework.Compilation.Binding
 {
     public class MemberExpressionFactory
     {
-        private readonly IExtensionsProvider extensionsProvider;
+        internal ImmutableList<NamespaceImport> ImportedNamespaces { get; set; }
+        private readonly ExtensionMethodsCache extensionMethodsCache;
 
-        public MemberExpressionFactory(IServiceProvider serviceProvider)
+        public MemberExpressionFactory(ExtensionMethodsCache extensionMethodsCache)
         {
-            extensionsProvider = serviceProvider.GetService<IExtensionsProvider>();
-            if (extensionsProvider == null)
-                extensionsProvider = new DefaultExtensionsProvider();
+            this.extensionMethodsCache = extensionMethodsCache;
         }
 
         public Expression GetMember(Expression target, string name, Type[] typeArguments = null, bool throwExceptions = true, bool onlyMemberTypes = false)
@@ -48,8 +48,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (members.Length == 0)
             {
                 // We did not find any match in regular methods => try extension methods
-                var extensions = extensionsProvider.GetExtensionMethods()
-                    .Where(m => m.Name == name).ToArray();
+                var extensions = GetAllExtensionMethods().Where(m => m.Name == name).ToArray();
                 members = extensions;
 
                 if (members.Length == 0 && throwExceptions)
@@ -191,7 +190,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     // Change to a static call
                     var newArguments = new[] { target }.Concat(arguments).ToArray();
-                    var extensions = FindValidMethodOveloads(extensionsProvider.GetExtensionMethods().OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, newArguments, namedArgs)
+                    var extensions = FindValidMethodOveloads(GetAllExtensionMethods().OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, newArguments, namedArgs)
                         .Select(method => { method.IsExtension = true; return method; }).ToList();
 
                     // We found an extension method
@@ -217,6 +216,13 @@ namespace DotVVM.Framework.Compilation.Binding
                 throw new InvalidOperationException($"Found ambiguous overloads of method '{name}'.");
             }
             return method;
+        }
+
+        private IEnumerable<MethodInfo> GetAllExtensionMethods()
+        {
+            foreach (var ns in ImportedNamespaces)
+                foreach (var method in extensionMethodsCache.GetExtensionsForNamespace(ns.Namespace))
+                    yield return method;
         }
 
         private IEnumerable<MethodRecognitionResult> FindValidMethodOveloads(IEnumerable<MethodInfo> methods, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
