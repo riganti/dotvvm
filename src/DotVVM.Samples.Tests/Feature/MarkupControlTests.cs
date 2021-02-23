@@ -224,24 +224,42 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_MarkupControlRegistration);
 
-                AssertUI.InnerTextEquals(browser.ElementAt("h2", 0), "First Control");
-                AssertUI.InnerTextEquals(browser.ElementAt("h2", 1), "Second control name was set from the binding");
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(browser.ElementAt("h2", 0), "First Control");
+                    AssertUI.InnerTextEquals(browser.ElementAt("h2", 1), "Second control name was set from the binding");
+                }, 5000);
 
                 AssertUI.Value(browser.ElementAt("input[type=text]", 0), "15");
-                browser.ElementAt("input[type=button]", 0).Click().Wait();
-                AssertUI.Value(browser.ElementAt("input[type=text]", 0), "16");
-                browser.ElementAt("input[type=button]", 0).Click().Wait();
-                AssertUI.Value(browser.ElementAt("input[type=text]", 0), "17");
-                browser.ElementAt("input[type=button]", 1).Click().Wait();
-                AssertUI.Value(browser.ElementAt("input[type=text]", 0), "16");
+                browser.ElementAt("input[type=button]", 0).Click();
+                browser.WaitFor(() => {
+                    AssertUI.Value(browser.ElementAt("input[type=text]", 0), "16");
+                }, 5000);
+
+                browser.ElementAt("input[type=button]", 0).Click();
+                browser.WaitFor(() => {
+                    AssertUI.Value(browser.ElementAt("input[type=text]", 0), "17");
+                }, 5000);
+
+                browser.ElementAt("input[type=button]", 1).Click();
+                browser.WaitFor(() => {
+                    AssertUI.Value(browser.ElementAt("input[type=text]", 0), "16");
+                }, 5000);
 
                 AssertUI.Value(browser.ElementAt("input[type=text]", 1), "25");
-                browser.ElementAt("input[type=button]", 2).Click().Wait();
-                AssertUI.Value(browser.ElementAt("input[type=text]", 1), "26");
-                browser.ElementAt("input[type=button]", 2).Click().Wait();
-                AssertUI.Value(browser.ElementAt("input[type=text]", 1), "27");
-                browser.ElementAt("input[type=button]", 3).Click().Wait();
-                AssertUI.Value(browser.ElementAt("input[type=text]", 1), "26");
+                browser.ElementAt("input[type=button]", 2).Click();
+                browser.WaitFor(() => {
+                    AssertUI.Value(browser.ElementAt("input[type=text]", 1), "26");
+                }, 5000);
+
+                browser.ElementAt("input[type=button]", 2).Click();
+                browser.WaitFor(() => {
+                    AssertUI.Value(browser.ElementAt("input[type=text]", 1), "27");
+                }, 5000);
+
+                browser.ElementAt("input[type=button]", 3).Click();
+                browser.WaitFor(() => {
+                    AssertUI.Value(browser.ElementAt("input[type=text]", 1), "26");
+                }, 5000);
             });
         }
 
@@ -281,8 +299,10 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_ComboBoxDataSourceBoundToStaticCollection);
 
-                var innerControlLiteral = browser.First("[data-ui=inner-control-literal]");
-                AssertUI.InnerTextEquals(innerControlLiteral, "Default item");
+                browser.WaitFor(() => {
+                    var innerControlLiteral = browser.First("[data-ui=inner-control-literal]");
+                    AssertUI.InnerTextEquals(innerControlLiteral, "Default item");
+                }, 5000);
 
                 var comboboxSelectedValue = browser.First("[data-ui=combobox-selected-value]");
                 var combobox = browser.First("[data-ui=combobox]");

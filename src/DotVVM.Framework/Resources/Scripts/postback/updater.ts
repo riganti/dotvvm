@@ -1,14 +1,8 @@
 import { getElementByDotvvmId } from '../utils/dom'
-import { getViewModel, replaceViewModel, updateViewModelCache, clearViewModelCache } from '../dotvvm-base'
-import { deserialize } from '../serialization/deserialize'
+import { replaceViewModel, updateViewModelCache, clearViewModelCache, getStateManager } from '../dotvvm-base'
 import { keys } from '../utils/objects';
 
-const diffEqual = {};
-let isViewModelUpdating: boolean = false;
-
-export function getIsViewModelUpdating() {
-    return isViewModelUpdating;
-}
+const diffEqual = {}
 
 export function cleanUpdatedControls(resultObject: any, updatedControls: any = {}) {
     for (const id of keys(resultObject.updatedControls)) {
@@ -24,7 +18,7 @@ export function cleanUpdatedControls(resultObject: any, updatedControls: any = {
     return updatedControls;
 }
 
-export function restoreUpdatedControls(resultObject: any, updatedControls: any, applyBindingsOnEachControl: boolean) {
+export function restoreUpdatedControls(resultObject: any, updatedControls: any) {
     for (const id of keys(resultObject.updatedControls)) {
         const updatedControl = updatedControls[id];
         if (updatedControl) {
@@ -46,56 +40,33 @@ export function restoreUpdatedControls(resultObject: any, updatedControls: any, 
             } else {
                 updatedControl.parent.appendChild(element);
             }
+            Promise.resolve().then(() => ko.applyBindings(updatedControl.dataContext, element))
         }
-    }
-
-    if (applyBindingsOnEachControl) {
-        Promise.resolve(0).then(_ => {
-            for (const id of keys(resultObject.updatedControls)) {
-                const updatedControl = getElementByDotvvmId(id);
-                if (updatedControl) {
-                    ko.applyBindings(updatedControls[id].dataContext, updatedControl);
-                }
-            }
-        });
     }
 }
 
-export function updateViewModelAndControls(resultObject: any, clearViewModel: boolean) {
-    try {
-        isViewModelUpdating = true;
-
-        // store server-side cached viewmodel
-        if (resultObject.viewModelCacheId) {
-            updateViewModelCache(resultObject.viewModelCacheId, resultObject.viewModel);
-        } else {
-            clearViewModelCache();
-        }
-
-        // remove updated controls
-        const updatedControls = cleanUpdatedControls(resultObject);
-
-        // update viewmodel
-        if (clearViewModel) {
-            const vm = {};
-            deserialize(resultObject.viewModel, vm);
-            replaceViewModel(vm);
-        }
-        else {
-            ko.delaySync.pause();
-            deserialize(resultObject.viewModel, getViewModel());
-            ko.delaySync.resume();
-        }
-
-        // remove updated controls which were previously removed from DOM
-        cleanUpdatedControls(resultObject, updatedControls);
-
-        // add new updated controls
-        restoreUpdatedControls(resultObject, updatedControls, true);
+export function updateViewModelAndControls(resultObject: any) {
+    // store server-side cached viewmodel
+    if (resultObject.viewModelCacheId) {
+        updateViewModelCache(resultObject.viewModelCacheId, resultObject.viewModel);
+    } else {
+        clearViewModelCache();
     }
-    finally {
-        isViewModelUpdating = false;
-    }
+
+    // remove updated controls
+    const updatedControls = cleanUpdatedControls(resultObject);
+
+    // update viewmodel
+    replaceViewModel(resultObject.viewModel);
+
+    // remove updated controls which were previously removed from DOM
+    cleanUpdatedControls(resultObject, updatedControls);
+
+    // we have to update knockout viewmodel before we try to apply new data into the observables
+    getStateManager().doUpdateNow()
+
+    // add new updated controls
+    restoreUpdatedControls(resultObject, updatedControls);
 }
 
 export function patchViewModel(source: any, patch: any): any {
@@ -106,14 +77,9 @@ export function patchViewModel(source: any, patch: any): any {
         return patch;
     }
     else if (typeof source == "object" && typeof patch == "object" && source && patch) {
+        source = {...source}
         for (const p of keys(patch)) {
-            if (patch[p] == null) {
-                source[p] = null;
-            } else if (source[p] == null) {
-                source[p] = patch[p];
-            } else {
-                source[p] = patchViewModel(source[p], patch[p]);
-            }
+            source[p] = patchViewModel(source[p], patch[p]);
         }
         return source;
     }

@@ -172,12 +172,14 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // submit
                 browser.ElementAt(".form-create input[type=button]", 0).Click().Wait();
-                browser.ElementAt(".form-create input[type=button]", 1).Click().Wait();
+                browser.ElementAt(".form-create input[type=button]", 1).Click();
 
                 // make sure the new row is in the table
-                var row = browser.FindElements(".form-grid tr").Skip(1).First(r => r.ElementAt("td", 0).GetText() == "UI Test");
-                AssertUI.TextEquals(row.ElementAt("td", 1), "15");
-                AssertUI.TextEquals(row.ElementAt("td", 2), "2018-10-28 12:13:14");
+                browser.WaitFor(() => {
+                    var row = browser.FindElements(".form-grid tr").Skip(1).First(r => r.ElementAt("td", 0).GetText() == "UI Test");
+                    AssertUI.TextEquals(row.ElementAt("td", 1), "15");
+                    AssertUI.TextEquals(row.ElementAt("td", 2), "2018-10-28 12:13:14");
+                }, 5000);
 
                 // delete UI Test items
                 foreach (var r in browser.FindElements(".form-grid tr").Skip(1).Where(r => r.ElementAt("td", 0).GetText() == "UI Test"))
@@ -185,10 +187,12 @@ namespace DotVVM.Samples.Tests.Feature
                     r.First("input[type=checkbox]").Click();
                 }
                 browser.First(".form-grid input[type=button]").Click().Wait();
-                browser.ElementAt(".form-create input[type=button]", 1).Click().Wait();
+                browser.ElementAt(".form-create input[type=button]", 1).Click();
 
                 // make sure it disappeared
-                Assert.Equal(0, browser.FindElements(".form-grid tr").Skip(1).Count(r => r.ElementAt("td", 0).GetText() == "UI Test"));
+                browser.WaitFor(() => {
+                    Assert.Equal(0, browser.FindElements(".form-grid tr").Skip(1).Count(r => r.ElementAt("td", 0).GetText() == "UI Test"));
+                }, 5000);
             });
         }
 

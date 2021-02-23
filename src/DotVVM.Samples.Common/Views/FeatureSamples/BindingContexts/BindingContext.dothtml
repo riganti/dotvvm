@@ -9,8 +9,11 @@
 </head>
 <body>
 
+    <p>
+        Clicking on each LinkButton should show the same text in the result paragraph bellow
+
     <p><dot:LinkButton Click="{command: _this.Test('this')}" Text="this" /></p>
-    
+
     <dot:Repeater DataSource="{value: Children}">
         <ItemTemplate>
             <p><dot:LinkButton Click="{command: _parent.Test('parent')}" Text="parent" /></p>

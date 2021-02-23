@@ -1,6 +1,6 @@
-import { getVirtualDirectory, getViewModel } from '../dotvvm-base';
-import { keys } from '../utils/objects';
+import { getVirtualDirectory, getViewModel, getState, getStateManager } from '../dotvvm-base';
 import { DotvvmPostbackError } from '../shared-classes';
+import { keys } from '../utils/objects';
 import { addLeadingSlash, concatUrl } from '../utils/uri';
 
 export type WrappedResponse<T> = {
@@ -48,8 +48,9 @@ export async function fetchJson<T>(url: string, init: RequestInit): Promise<Wrap
 }
 
 export async function fetchCsrfToken(): Promise<string> {
-    const viewModel = getViewModel();
-    if (viewModel.$csrfToken == null) {
+    const viewModel = getState();
+    let token = viewModel.$csrfToken
+    if (token == null) {
         let response;
         try {
             const url = addLeadingSlash(concatUrl(getVirtualDirectory() || "", "___dotvvm-create-csrf-token___"));
@@ -65,9 +66,10 @@ export async function fetchCsrfToken(): Promise<string> {
             throw new DotvvmPostbackError({ type: "csrfToken" });
         }
 
-        viewModel.$csrfToken = await response.text();
+        token = await response.text()
+        getStateManager().setState({ ...viewModel, $csrfToken: token })
     }
-    return ko.unwrap(viewModel.$csrfToken);
+    return token
 }
 
 export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => Promise<TResult>, iteration: number = 0, customErrorHandler: () => void = () => {}): Promise<TResult> {
@@ -81,7 +83,7 @@ export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => P
             if (err.reason.type === "serverError") {
                 if (err.reason.responseObject?.action === "invalidCsrfToken") {
                     console.log("Resending postback due to invalid CSRF token.");
-                    getViewModel().$csrfToken = undefined;
+                    getStateManager().update(u => ({ ...u, $csrfToken: undefined }))
 
                     if (iteration < 3) {
                         return await retryOnInvalidCsrfToken(postbackFunction, iteration + 1);
