@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Tests.Binding
         private BindingCompilationService bindingService;
 
         [TestInitialize]
-        public void INIT()
+        public void Init()
         {
             this.configuration = DotvvmTestHelper.DefaultConfig;
             this.bindingService = configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
@@ -198,6 +198,14 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var viewModel = new TestViewModel();
             Assert.ThrowsException<AggregateException>(() => ExecuteBinding(expr, viewModel));         
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_ExtensionMethods()
+        {
+            var viewModel = new TestViewModel();
+            var result = (long[])ExecuteBinding("LongArray.Where((long item) => item % 2 != 0).ToArray()", viewModel);
+            CollectionAssert.AreEqual(viewModel.LongArray.Where(item => item % 2 != 0).ToArray(), result);
         }
 
         class MoqComponent : DotvvmBindableObject
@@ -629,6 +637,7 @@ namespace DotVVM.Framework.Tests.Binding
 
         public long[] LongArray => new long[] { 1, 2, long.MaxValue };
         public TestViewModel2[] VmArray => new TestViewModel2[] { new TestViewModel2() };
+        public int[] IntArray { get; set; }
 
         public string SetStringProp(string a, int b)
         {

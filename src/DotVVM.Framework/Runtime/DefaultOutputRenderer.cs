@@ -99,13 +99,12 @@ namespace DotVVM.Framework.Runtime
             await context.HttpContext.Response.WriteAsync(json);
         }
 
-        public virtual async Task RenderPlainJsonResponse(IHttpContext context, object data)
+        public virtual async Task RenderPlainJsonResponse(IHttpContext context, string json)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "application/json; charset=utf-8";
             SetCacheHeaders(context);
-            var settings = DefaultSerializerSettingsProvider.Instance.Settings;
-            await context.Response.WriteAsync(JsonConvert.SerializeObject(data, settings));
+            await context.Response.WriteAsync(json);
         }
 
         public virtual async Task RenderHtmlResponse(IHttpContext context, string html)

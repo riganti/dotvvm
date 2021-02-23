@@ -1,0 +1,24 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl.StaticCommandInMarkupControlViewModel, DotVVM.Samples.Common
+@import vm = DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl.StaticCommandInMarkupControlViewModel
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <p>
+        <dot:Button Text="Reset" data-ui="reset" Click="{staticCommand: State = vm.Reset()}"></dot:Button>
+        State : <span data-ui="test-state">{{value: State}}</span>
+    </p>
+    <p DataContext="{value: Detail}">
+        <dot:TextBox Text="{value: Name}" data-ui="input" />
+        <dot:Button data-ui="save" Click="{staticCommand: vm.Save(_this); _root.Devices.Items = vm.List()}" Text="Save" />
+        <dot:Button data-ui="blank" Click="{staticCommand: _root.Detail = vm.Blank()}" Text="Cancel" />
+    </p>
+    <sample:DeviceList DataContext={value: Devices.Items}
+                       Edit={staticCommand: _root.Detail = vm.Get(arg).Result}
+                       Remove={staticCommand: vm.Remove(arg); _root.Devices.Items = vm.List()} />
+
+</body>
+</html>

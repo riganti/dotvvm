@@ -47,6 +47,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_Button_InputTypeButton_HtmlContentInside = "ControlSamples/Button/InputTypeButton_HtmlContentInside";
         public const string ControlSamples_Button_InputTypeButton_TextContentInside = "ControlSamples/Button/InputTypeButton_TextContentInside";
         public const string ControlSamples_CheckBox_CheckBox = "ControlSamples/CheckBox/CheckBox";
+        public const string ControlSamples_CheckBox_CheckBox_Objects = "ControlSamples/CheckBox/CheckBox_Objects";
         public const string ControlSamples_CheckBox_CheckedItemsNull = "ControlSamples/CheckBox/CheckedItemsNull";
         public const string ControlSamples_CheckBox_CheckedItemsRepeater = "ControlSamples/CheckBox/CheckedItemsRepeater";
         public const string ControlSamples_CheckBox_Indeterminate = "ControlSamples/CheckBox/Indeterminate";
@@ -103,6 +104,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_MultiSelect_hardcoded = "ControlSamples/MultiSelect/hardcoded";
         public const string ControlSamples_RadioButton_Nullable = "ControlSamples/RadioButton/Nullable";
         public const string ControlSamples_RadioButton_RadioButton = "ControlSamples/RadioButton/RadioButton";
+        public const string ControlSamples_RadioButton_RadioButton_Objects = "ControlSamples/RadioButton/RadioButton_Objects";
         public const string ControlSamples_Repeater_CollectionIndex = "ControlSamples/Repeater/CollectionIndex";
         public const string ControlSamples_Repeater_DataSourceNull = "ControlSamples/Repeater/DataSourceNull";
         public const string ControlSamples_Repeater_NamedTemplate = "ControlSamples/Repeater/NamedTemplate";
@@ -313,5 +315,8 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ViewModelProtection_ViewModelProtection = "FeatureSamples/ViewModelProtection/ViewModelProtection";
         public const string FeatureSamples_Warnings_SelfClosingTags = "FeatureSamples/Warnings/SelfClosingTags";
         public const string FeatureSamples_StaticCommand_CustomAwaitable = "FeatureSamples/StaticCommand/CustomAwaitable";
+        public const string FeatureSamples_MarkupControl_StaticCommandInMarkupControl = "/FeatureSamples/MarkupControl/StaticCommandInMarkupControl";
+        public const string FeatureSamples_MarkupControl_StaticCommandInMarkupControlCallingRegularCommand = "/FeatureSamples/MarkupControl/StaticCommandInMarkupControlCallingRegularCommand";
+        public const string FeatureSamples_MarkupControl_CommandPropertiesInMarkupControl = "/FeatureSamples/MarkupControl/CommandPropertiesInMarkupControl";
     }
 }

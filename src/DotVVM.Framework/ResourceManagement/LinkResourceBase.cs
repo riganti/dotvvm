@@ -61,14 +61,26 @@ namespace DotVVM.Framework.ResourceManagement
 
                 foreach (var fallback in LocationFallback.AlternativeLocations)
                 {
-                    var link = RenderLinkToString(fallback, context, resourceName);
-                    if (!string.IsNullOrEmpty(link))
-                    {
-                        writer.AddAttribute("type", "text/javascript");
-                        writer.RenderBeginTag("script");
-                        var script = JsonConvert.ToString(link, '\'').Replace("<", "\\u003c");
-                        writer.WriteUnencodedText(
-$@"if (!({LocationFallback.JavascriptCondition})) {{
+                    RenderFallbackLoadingScript(writer, context, resourceName, fallback, LocationFallback.JavascriptCondition);
+                }
+            }
+        }
+
+        protected virtual void RenderFallbackLoadingScript(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName, IResourceLocation fallback, string javascriptCondition)
+        {
+            var link = RenderLinkToString(fallback, context, resourceName);
+            if (!string.IsNullOrEmpty(link))
+            {
+                writer.AddAttribute("type", "text/javascript");
+                writer.RenderBeginTag("script");
+                var script = JsonConvert.ToString(link, '\'').Replace("<", "\\u003c");
+                writer.WriteUnencodedText(GetLoadingScript(javascriptCondition, script));
+                writer.RenderEndTag();
+            }
+        }
+
+        protected string GetLoadingScript(string javascriptCondition, string script) =>
+        $@"if (!({javascriptCondition})) {{
     var wrapper = document.createElement('div');
     wrapper.innerHTML = {script};
     var originalScript = wrapper.children[0];
@@ -78,14 +90,9 @@ $@"if (!({LocationFallback.JavascriptCondition})) {{
     script.text = originalScript.text;
     script.id = originalScript.id;
     document.head.appendChild(script);
-}}");
-                        writer.RenderEndTag();
-                    }
-                }
-            }
-        }
+}}";
 
-        private string RenderLinkToString(IResourceLocation location, IDotvvmRequestContext context, string resourceName)
+        protected string RenderLinkToString(IResourceLocation location, IDotvvmRequestContext context, string resourceName)
         {
             var text = new StringWriter();
             var writer = new HtmlWriter(text, context);

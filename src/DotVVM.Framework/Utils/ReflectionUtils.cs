@@ -13,6 +13,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Globalization;
 using System.Collections.Concurrent;
+using DotVVM.Framework.Compilation.Binding;
 
 namespace DotVVM.Framework.Utils
 {
@@ -62,7 +63,6 @@ namespace DotVVM.Framework.Utils
             else
                 return type.GetMembers(flags);
         }
-
 
         /// <summary>
         /// Gets filesystem path of assembly CodeBase

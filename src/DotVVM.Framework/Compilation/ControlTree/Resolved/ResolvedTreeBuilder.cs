@@ -17,11 +17,13 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
     {
         private readonly BindingCompilationService bindingService;
         private readonly CompiledAssemblyCache compiledAssemblyCache;
+        private readonly MemberExpressionFactory memberExpressionFactory;
 
-        public ResolvedTreeBuilder(BindingCompilationService bindingService, CompiledAssemblyCache compiledAssemblyCache)
+        public ResolvedTreeBuilder(BindingCompilationService bindingService, CompiledAssemblyCache compiledAssemblyCache, MemberExpressionFactory memberExpressionFactory)
         {
             this.bindingService = bindingService;
             this.compiledAssemblyCache = compiledAssemblyCache;
+            this.memberExpressionFactory = memberExpressionFactory;
         }
 
         public IAbstractTreeRoot BuildTreeRoot(IControlTreeResolver controlTreeResolver, IControlResolverMetadata metadata, DothtmlRootNode node, IDataContextStack dataContext, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives)
@@ -162,7 +164,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache);
             }
 
-            var visitor = new ExpressionBuildingVisitor(registry) {
+            var visitor = new ExpressionBuildingVisitor(registry, memberExpressionFactory) {
                 ResolveOnlyTypeName = true,
                 Scope = null
             };

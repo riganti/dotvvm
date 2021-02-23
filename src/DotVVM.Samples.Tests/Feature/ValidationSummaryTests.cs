@@ -54,7 +54,7 @@ namespace DotVVM.Samples.Tests.Feature
                 Assert.Equal(1, summary.Children.Count);
 
                 browser.First("[data-ui=password-textbox]").SendKeys("4");
-                loginButton.Click();
+                loginButton.Click().Wait();
                 Assert.Equal(0, summary.Children.Count);
             });
         }

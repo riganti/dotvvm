@@ -19,6 +19,7 @@
     <None Remove="Views\ComplexSamples\SPAErrorReporting\default.dothtml" />
     <None Remove="Views\ComplexSamples\SPAErrorReporting\site.dotmaster" />
     <None Remove="Views\ComplexSamples\SPAErrorReporting\test.dothtml" />
+    <None Remove="Views\ControlSamples\CheckBox\CheckBox_Objects.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\BindingCTValidation_StringToEnum.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\HeavilyNested.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_Complex_Error.dothtml" />
@@ -33,6 +34,7 @@
     <None Remove="Views\ControlSamples\MultiSelect\binded.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
     <None Remove="Views\ControlSamples\RadioButton\Nullable.dothtml" />
+    <None Remove="Views\ControlSamples\RadioButton\RadioButton_Objects.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\NamedTemplate.dothtml" />
     <None Remove="Views\ControlSamples\RouteLink\RouteLinkQueryParameters.dothtml" />
     <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressQueues.dothtml" />
@@ -52,6 +54,11 @@
     <None Remove="Views\FeatureSamples\JavascriptTranslation\GenericMethodTranslation.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\LambdaExpressions.dothtml" />
     <None Remove="Views\FeatureSamples\Localization\Globalize.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\CommandPropertiesInMarkupControl.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\Device.dotcontrol" />
+    <None Remove="Views\FeatureSamples\MarkupControl\Dialog.dotcontrol" />
+    <None Remove="Views\FeatureSamples\MarkupControl\StaticCommandInMarkupControl.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\StaticCommandInMarkupControlCallingRegularCommand.dothtml" />
     <None Remove="Views\FeatureSamples\PostbackConcurrency\RedirectPostbackQueue.dothtml" />
     <None Remove="Views\FeatureSamples\PostbackConcurrency\StressTest.dothtml" />
     <None Remove="Views\FeatureSamples\PostBack\RecursiveTextRepeater.dotcontrol" />
@@ -104,6 +111,9 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\FeatureSamples\NewFolder\" />
   </ItemGroup>
   <PropertyGroup Label="Configuration">
     <OutputPath>bin\Debug</OutputPath>
