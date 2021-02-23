@@ -17,12 +17,16 @@ namespace DotVVM.Framework.Compilation.Binding
 {
     public class MemberExpressionFactory
     {
-        internal ImmutableList<NamespaceImport> ImportedNamespaces { get; set; }
+        private readonly IReadOnlyList<NamespaceImport> importedNamespaces;
         private readonly ExtensionMethodsCache extensionMethodsCache;
 
-        public MemberExpressionFactory(ExtensionMethodsCache extensionMethodsCache)
+        public MemberExpressionFactory(ExtensionMethodsCache extensionMethodsCache, IReadOnlyList<NamespaceImport> importedNamespaces = null)
         {
+            if (importedNamespaces == null)
+                importedNamespaces = ImmutableList<NamespaceImport>.Empty;
+
             this.extensionMethodsCache = extensionMethodsCache;
+            this.importedNamespaces = importedNamespaces;
         }
 
         public Expression GetMember(Expression target, string name, Type[] typeArguments = null, bool throwExceptions = true, bool onlyMemberTypes = false)
@@ -220,7 +224,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private IEnumerable<MethodInfo> GetAllExtensionMethods()
         {
-            foreach (var ns in ImportedNamespaces)
+            foreach (var ns in importedNamespaces)
                 foreach (var method in extensionMethodsCache.GetExtensionsForNamespace(ns.Namespace))
                     yield return method;
         }

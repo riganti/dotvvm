@@ -14,15 +14,15 @@ namespace DotVVM.Framework.Tests.Common.Binding
     [TestClass]
     public class CustomExtensionMethodTests
     {
-        private DotvvmConfiguration configuration;
         private MemberExpressionFactory memberExpressionFactory;
 
         [TestInitialize]
         public void Init()
         {
-            this.configuration = DotvvmTestHelper.CreateConfiguration();
-            this.memberExpressionFactory = configuration.ServiceProvider.GetRequiredService<MemberExpressionFactory>();
-            this.memberExpressionFactory.ImportedNamespaces = ImmutableList.Create(new NamespaceImport("DotVVM.Framework.Tests.Common.Binding"));
+            var configuration = DotvvmTestHelper.CreateConfiguration();
+            var extensionsCache = configuration.ServiceProvider.GetRequiredService<ExtensionMethodsCache>();
+            var imports = ImmutableList.Create(new NamespaceImport("DotVVM.Framework.Tests.Common.Binding"));
+            memberExpressionFactory = new MemberExpressionFactory(extensionsCache, imports);
         }
 
         [TestMethod]
