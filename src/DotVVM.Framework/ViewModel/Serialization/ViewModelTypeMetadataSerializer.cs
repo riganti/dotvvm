@@ -163,7 +163,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 return new JObject(new JProperty("type", "dynamic"));
             }
-            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+            else if (type.IsGenericType && ReflectionUtils.ImplementsGenericDefinition(type, typeof(IDictionary<,>)))
             {
                 return new JObject(new JProperty("type", "dynamic"));
             }

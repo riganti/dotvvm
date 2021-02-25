@@ -34,8 +34,11 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
         [DataRow(typeof(Type), "'t38YPaufyA26odb7HXM9a+aghdA='")]   // unknown types should produce SHA1 hash
         [DataRow(typeof(object), "{'type':'dynamic'}")]
         [DataRow(typeof(Dictionary<string, string>), "{'type':'dynamic'}")]
+        [DataRow(typeof(IDictionary<string, string>), "{'type':'dynamic'}")]
         [DataRow(typeof(Dictionary<int, int>), "{'type':'dynamic'}")]
+        [DataRow(typeof(IDictionary<int, int>), "{'type':'dynamic'}")]
         [DataRow(typeof(Dictionary<object, object>), "{'type':'dynamic'}")]
+        [DataRow(typeof(IDictionary<object, object>), "{'type':'dynamic'}")]
         public void ViewModelTypeMetadata_TypeName(Type type, string expected)
         {
             var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
@@ -57,10 +60,6 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
             var checker = new OutputChecker("testoutputs");
             checker.CheckJsonObject(result);
         }
-
-
-
-
         enum SampleEnum
         {
             Zero = 0,
