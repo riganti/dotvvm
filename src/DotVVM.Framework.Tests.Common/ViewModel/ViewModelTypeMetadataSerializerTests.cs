@@ -33,6 +33,9 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
         [DataRow(typeof(long[][]), "[['Int64']]")]
         [DataRow(typeof(Type), "'t38YPaufyA26odb7HXM9a+aghdA='")]   // unknown types should produce SHA1 hash
         [DataRow(typeof(object), "{'type':'dynamic'}")]
+        [DataRow(typeof(Dictionary<string, string>), "{'type':'dynamic'}")]
+        [DataRow(typeof(Dictionary<int, int>), "{'type':'dynamic'}")]
+        [DataRow(typeof(Dictionary<object, object>), "{'type':'dynamic'}")]
         public void ViewModelTypeMetadata_TypeName(Type type, string expected)
         {
             var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
