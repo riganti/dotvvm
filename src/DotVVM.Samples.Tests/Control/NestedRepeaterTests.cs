@@ -19,54 +19,67 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_NestedRepeater);
                 browser.Wait();
 
-                browser.ElementAt("a", 0).Click();
-
                 var result = browser.First("#result");
-                AssertUI.InnerTextEquals(result, "Child 1 Subchild 1");
+
+                browser.ElementAt("a", 0).Click();
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(result, "Child 1 Subchild 1");
+                }, 5000);
 
                 browser.ElementAt("a", 1).Click();
-
-                AssertUI.InnerTextEquals(result, "Child 1 Subchild 2");
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(result, "Child 1 Subchild 2");
+                }, 5000);
 
                 browser.ElementAt("a", 2).Click();
-
-                AssertUI.InnerTextEquals(result, "Child 1 Subchild 3");
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(result, "Child 1 Subchild 3");
+                }, 5000);
 
                 browser.ElementAt("a", 3).Click();
-
-                AssertUI.InnerTextEquals(result, "Child 2 Subchild 1");
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(result, "Child 2 Subchild 1");
+                }, 5000);
 
                 browser.ElementAt("a", 4).Click();
-
-                AssertUI.InnerTextEquals(result, "Child 2 Subchild 2");
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(result, "Child 2 Subchild 2");
+                }, 5000);
 
                 browser.ElementAt("a", 5).Click();
-
-                AssertUI.InnerTextEquals(result, "Child 3 Subchild 1");
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(result, "Child 3 Subchild 1");
+                }, 5000);
 
                 browser.ElementAt("a", 6).Click();
-
-                AssertUI.InnerTextEquals(result, "Child 1 Subchild 1");
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(result, "Child 1 Subchild 1");
+                }, 5000);
 
                 browser.ElementAt("a", 7).Click();
-
-                AssertUI.InnerTextEquals(result, "Child 1 Subchild 2");
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(result, "Child 1 Subchild 2");
+                }, 5000);
 
                 browser.ElementAt("a", 8).Click();
-
-                AssertUI.InnerTextEquals(result, "Child 1 Subchild 3");
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(result, "Child 1 Subchild 3");
+                }, 5000);
 
                 browser.ElementAt("a", 9).Click();
-
-                AssertUI.InnerTextEquals(result, "Child 2 Subchild 1");
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(result, "Child 2 Subchild 1");
+                }, 5000);
 
                 browser.ElementAt("a", 10).Click();
-
-                AssertUI.InnerTextEquals(result, "Child 2 Subchild 2");
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(result, "Child 2 Subchild 2");
+                }, 5000);
 
                 browser.ElementAt("a", 11).Click();
-
-                AssertUI.InnerTextEquals(result, "Child 3 Subchild 1");
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(result, "Child 3 Subchild 1");
+                }, 5000);
             });
         }
 
@@ -84,7 +97,7 @@ namespace DotVVM.Samples.Tests.Control
                 int count = 1;
                 foreach (var button in buttons)
                 {
-                    browser.WaitFor(() => AssertUI.InnerTextEquals(result, count.ToString()), 1000);
+                    browser.WaitFor(() => AssertUI.InnerTextEquals(result, count.ToString()), 5000);
                     button?.Click();
                     count++;
                 }

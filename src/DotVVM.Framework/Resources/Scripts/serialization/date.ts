@@ -41,3 +41,27 @@ export function serializeDate(date: string | Date | null, convertToUtc: boolean 
     const ms = padNumber(date2.getMilliseconds(), 3);
     return `${y}-${m}-${d}T${h}:${mi}:${s}.${ms}0000`;
 }
+
+export function serializeTime(date: string | Date | null, convertToUtc: boolean = true): string | null {
+    if (date == null) {
+        return null;
+    } else if (typeof date == "string") {
+        // just print in the console if it's invalid
+        if (parseDate(date) == null) {
+            console.error(new Error(`Date ${date} is invalid.`));
+        }
+        return date;
+    }
+    let date2 = new Date(date.getTime());
+    if (convertToUtc) {
+        date2.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+    } else {
+        date2 = date;
+    }
+
+    const h = (date2.getTime() - new Date(1, 0, 1).getTime() / 1000 / 3600) | 0;
+    const mi = padNumber(date2.getMinutes(), 2);
+    const s = padNumber(date2.getSeconds(), 2);
+    const ms = padNumber(date2.getMilliseconds(), 3);
+    return `${h}:${mi}:${s}.${ms}0000`;
+}

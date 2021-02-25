@@ -19,8 +19,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public delegate void ReaderDelegate(JsonReader reader, JsonSerializer serializer, object value, EncryptedValuesReader encryptedValuesReader);
         public delegate void WriterDelegate(JsonWriter writer, object obj, JsonSerializer serializer, EncryptedValuesWriter evWriter, bool isPostback);
 
-        private const string CLIENT_EXTENDERS_KEY = "clientExtenders";
-
         /// <summary>
         /// Gets or sets the object type for this serialization map.
         /// </summary>
@@ -332,8 +330,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         }
 
         /// Gets if this object require $type to be serialized.
-        public bool RequiredTypeField() =>
-            this.Properties.Any(p => p.ClientValidationRules.Any()); // it is required for validation
+        public bool RequiredTypeField() => true;            // possible optimization - types can be inferred from parent metadata in some cases
 
         /// <summary>
         /// Creates the writer factory.
@@ -372,14 +369,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 var property = Properties.ElementAt(propertyIndex);
                 var endPropertyLabel = Expression.Label("end_property_" + property.Name);
-                var options = new Dictionary<string, object>();
+                
                 if (property.TransferToClient && property.PropertyInfo.GetMethod != null)
                 {
                     if (property.TransferFirstRequest != property.TransferAfterPostback)
                     {
                         if (property.ViewModelProtection != ProtectMode.None)
                         {
-                            throw new Exception("Property sent only on selected requests can use viewModel protection.");
+                            throw new NotSupportedException($"The {Type}.{property.Name} property cannot user viewmodel protection because it is sent to the client only in some requests.");
                         }
 
                         Expression condition = isPostback;
@@ -439,7 +436,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                                 // encryptedValuesWriter.EndSuppress();
                                 propertyFinally = Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.EndSuppress), Type.EmptyTypes);
                             }
-                            // encryption is worthless if the property is not being transfered both ways
+                            // encryption is worthless if the property is not being transferred both ways
                             // therefore ClearEmptyNest throws exception if the property contains encrypted values
                             else if (!property.IsFullyTransferred())
                             {
@@ -460,39 +457,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
                             )
                         );
                     }
-
-                    if (!property.TransferToServer)
-                    {
-                        // write an instruction into a viewmodel that the property may not be posted back
-                        options["doNotPost"] = true;
-                    }
-                    else if (property.TransferToServerOnlyInPath)
-                    {
-                        options["pathOnly"] = true;
-                    }
-                    if (configuration.ExperimentalFeatures.ServerSideViewModelCache.IsEnabledForAnyRoute() && !property.TransferAfterPostback)
-                    {
-                        options["firstRequest"] = true;
-                    }
                 }
-                else if (property.TransferToServer)
-                {
-                    // render empty property options - we need to create the observable on the client, however we don't transfer the value
-                    options["doNotUpdate"] = true;
-                }
-
-                if (property.ClientExtenders.Any())
-                {
-                    options[CLIENT_EXTENDERS_KEY] = property.ClientExtenders.ToArray();
-                }
-
-                AddTypeOptions(options, property);
 
                 block.Add(Expression.Label(endPropertyLabel));
-                if (options.Any())
-                {
-                    GenerateOptionsBlock(block, property, options, writer);
-                }
             }
 
             // writer.WriteEndObject();
@@ -505,60 +472,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var ex = Expression.Lambda<WriterDelegate>(
                 Expression.Block(new[] { value }, block).OptimizeConstants(), writer, valueParam, serializer, encryptedValuesWriter, isPostback);
             return ex.Compile();
-        }
-
-        private void GenerateOptionsBlock(IList<Expression> block, ViewModelPropertyMap property, Dictionary<string, object> options, ParameterExpression writer)
-        {
-            block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName(property.Name + "$options"), writer));
-            block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteStartObject(), writer));
-            foreach (var option in options)
-            {
-                block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName(option.Key), writer));
-                switch (option.Key)
-                {
-                    case CLIENT_EXTENDERS_KEY:
-                        {
-                            // declare 'clientExtenders' as the array of objects
-                            block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteStartArray(), writer));
-                            foreach (var extender in property.ClientExtenders)
-                            {
-                                block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteStartObject(), writer));
-                                block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName("name"), writer));
-                                block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteValue(extender.Name), writer));
-                                block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName("parameter"), writer));
-                                block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteValue(extender.Parameter), writer));
-                                block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndObject(), writer));
-
-                            }
-                            block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndArray(), writer));
-                            break;
-                        }
-                    default:
-                        // legacy code - direct { property : value }
-                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteValue(option.Value), writer));
-                        break;
-                }
-            }
-            block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndObject(), writer));
-        }
-
-        private void AddTypeOptions(Dictionary<string, object> options, ViewModelPropertyMap property)
-        {
-            if ((property.TransferToClient || property.TransferToServer) && property.ViewModelProtection != ProtectMode.EncryptData)
-            {
-                if ((property.Type == typeof(DateTime) || property.Type == typeof(DateTime?)) && property.JsonConverter == null) // TODO: allow customization using attributes
-                {
-                    options["isDate"] = true;
-                }
-                else if (property.Type.IsNumericType())
-                {
-                    options["type"] = property.Type.Name.ToLower();
-                }
-                else if (Nullable.GetUnderlyingType(property.Type)?.IsNumericType() == true)
-                {
-                    options["type"] = Nullable.GetUnderlyingType(property.Type).Name.ToLower() + "?";
-                }
-            }
         }
 
         /// <summary>

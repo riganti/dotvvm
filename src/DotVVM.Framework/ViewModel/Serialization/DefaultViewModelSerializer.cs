@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using DotVVM.Framework.ResourceManagement;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -26,6 +27,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private readonly IViewModelProtector viewModelProtector;
         private readonly IViewModelSerializationMapper viewModelMapper;
         private readonly IViewModelServerCache viewModelServerCache;
+        private readonly IViewModelTypeMetadataSerializer viewModelTypeMetadataSerializer;
 
         public bool SendDiff { get; set; } = true;
 
@@ -35,12 +37,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultViewModelSerializer"/> class.
         /// </summary>
-        public DefaultViewModelSerializer(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper, IViewModelServerCache viewModelServerCache)
+        public DefaultViewModelSerializer(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper, IViewModelServerCache viewModelServerCache, IViewModelTypeMetadataSerializer viewModelTypeMetadataSerializer)
         {
             this.viewModelProtector = protector;
             this.JsonFormatting = configuration.Debug ? Formatting.Indented : Formatting.None;
             this.viewModelMapper = serializationMapper;
             this.viewModelServerCache = viewModelServerCache;
+            this.viewModelTypeMetadataSerializer = viewModelTypeMetadataSerializer;
         }
 
         /// <summary>
@@ -50,10 +53,29 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             if (SendDiff && context.ReceivedViewModelJson != null && context.ViewModelJson["viewModel"] != null)
             {
-                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], false);
+                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], false, i => ShouldIncludeProperty(i.TypeId, i.Property));
                 context.ViewModelJson.Remove("viewModel");
             }
             return context.ViewModelJson.ToString(JsonFormatting);
+        }
+
+        private bool? ShouldIncludeProperty(string typeId, string property)
+        {
+            var options = viewModelMapper.GetMapByTypeId(typeId).PropertyByClientName(property);
+
+            // IfInPostbackPath and ServerToClient items should be sent every time because we might not have received them from the client and we still remember their value so they look unchanged
+            if (!options.TransferToServer || options.TransferToServerOnlyInPath)
+            {
+                return true;
+            }
+
+            // ServerToClientFirstRequest should be ignored
+            if (!options.TransferAfterPostback)
+            {
+                return false;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -121,11 +143,19 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             // TODO: do not send on postbacks
             if (validationRules?.Count > 0) result["validationRules"] = validationRules;
- 
+
             if (commandResult != null) result["commandResult"] = WriteCommandData(commandResult, serializer, "the command result");
             AddCustomPropertiesIfAny(context, serializer, result);
 
+            result["typeMetadata"] = SerializeTypeMetadata(context, viewModelConverter);
+
             context.ViewModelJson = result;
+        }
+
+        private JToken SerializeTypeMetadata(IDotvvmRequestContext context, ViewModelJsonConverter viewModelJsonConverter)
+        {
+            var knownTypeIds = context.ReceivedViewModelJson?["knownTypeMetadata"]?.Values<string>().ToImmutableHashSet();
+            return viewModelTypeMetadataSerializer.SerializeTypeMetadata(viewModelJsonConverter.UsedSerializationMaps, knownTypeIds);
         }
 
         public void AddNewResources(IDotvvmRequestContext context)
@@ -145,6 +175,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             serializer.Converters.Add(viewModelConverter);
             var response = new JObject();
             response["result"] = WriteCommandData(result, serializer, "the static command result");
+            response["typeMetadata"] = SerializeTypeMetadata(context, viewModelConverter);
             AddCustomPropertiesIfAny(context, serializer, response);
             return response.ToString(JsonFormatting);
         }
@@ -169,7 +200,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 throw new Exception($"Could not serialize {description} of type '{ data.GetType().FullName}'. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
             }
-
             return writer.Token;
         }
 
@@ -219,6 +249,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             return validationRules;
         }
+
+
 
         /// <summary>
         /// Serializes the redirect action.

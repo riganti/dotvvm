@@ -94,6 +94,8 @@ export async function postBack(
                     };
                 }
             }
+        } else {
+            console.error("Unexpected exception during postback.", err);
         }
         throw err;
     }
@@ -170,6 +172,8 @@ export async function applyPostbackHandlers(
                     };
                 }
             }
+        } else {
+            console.error("Unexpected exception during static command.", err);
         }
         throw err
     }

@@ -1,20 +1,25 @@
 import { serialize } from '../serialization/serialize';
-import { deserialize } from '../serialization/deserialize';
-import { getViewModel, getInitialUrl } from '../dotvvm-base';
+import { getInitialUrl } from '../dotvvm-base';
 import * as events from '../events';
-import * as updater from './updater';
 import * as http from './http'
 import { handleRedirect } from './redirect';
+import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
+import { DotvvmPostbackError } from '../shared-classes';
 
 export async function staticCommandPostback(sender: HTMLElement, command: string, args: any[], options: PostbackOptions): Promise<any> {
 
     let data: any;
-    let response: http.WrappedResponse<any>;
+    let response: http.WrappedResponse<DotvvmStaticCommandResponse>;
 
     try {
         await http.retryOnInvalidCsrfToken(async () => {
             const csrfToken = await http.fetchCsrfToken();
-            data = serialize({ args, command, $csrfToken: csrfToken });
+            data = { 
+                args: args.map(a => serialize(a)), 
+                command, 
+                $csrfToken: csrfToken,
+                knownTypeMetadata: getKnownTypes()
+            };
         });
 
         events.staticCommandMethodInvoking.trigger({
@@ -23,7 +28,7 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
             methodArgs: args,
         });
 
-        response = await http.postJSON<any>(
+        response = await http.postJSON<DotvvmStaticCommandResponse>(
             getInitialUrl(),
             JSON.stringify(data),
             { "X-PostbackType": "StaticCommand" }
@@ -38,6 +43,8 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
                 throw new Error(`Invalid action ${response.result.action}`);
             }
         }
+
+        updateTypeInfo(response.result.typeMetadata);
 
         events.staticCommandMethodInvoked.trigger({ 
             ...options, 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Controls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -106,5 +107,47 @@ namespace DotVVM.Framework.Tests.Runtime
             var exc = Assert.ThrowsException<DotvvmCompilationException>(() => dotvvmBuilder());
             StringAssert.Contains(exc.Message, "Could not initialize binding");
         }
+
+        [TestMethod]
+        public void CheckBox_ControlUsageValidation_CheckedValue_ComplexType_ThrowsException()
+        {
+            var control = "<dot:CheckBox CheckedItems=\"{value: Colors}\" CheckedValue=\"{value: Colors[0]}\" />";
+            var dotvvmBuilder = CreateControlRenderer(control, new CheckBoxTestViewModel());
+
+            var exc = Assert.ThrowsException<DotvvmCompilationException>(() => dotvvmBuilder());
+            StringAssert.Contains(exc.Message, "The ItemKeyBinding property must be specified when the CheckedValue property contains a complex type.");
+        }
+
+        [TestMethod]
+        public void CheckBox_ControlUsageValidation_ItemKeyBinding_ComplexType_ThrowsException()
+        {
+            var control = "<dot:CheckBox CheckedItems=\"{value: Colors}\" CheckedValue=\"{value: Colors[0]}\" ItemKeyBinding=\"{value: _this}\" />";
+            var dotvvmBuilder = CreateControlRenderer(control, new CheckBoxTestViewModel());
+
+            var exc = Assert.ThrowsException<DotvvmCompilationException>(() => dotvvmBuilder());
+            StringAssert.Contains(exc.Message, "The ItemKeyBinding property must return a value of a primitive type.");
+        }
+
+        [TestMethod]
+        public void CheckBox_ControlUsageValidation_ItemKeyBinding_CheckedValue_Not_Binding_ThrowsException()
+        {
+            var control = "<dot:CheckBox CheckedItems=\"{value: Strings}\" CheckedValue=\"a\" ItemKeyBinding=\"{value: 'a'}\" />";
+            var dotvvmBuilder = CreateControlRenderer(control, new CheckBoxTestViewModel());
+
+            var exc = Assert.ThrowsException<DotvvmCompilationException>(() => dotvvmBuilder());
+            StringAssert.Contains(exc.Message, "The ItemKeyBinding property can be only used when CheckedValue is a binding.");
+        }
+
+    }
+    public class CheckBoxTestViewModel
+    {
+        public List<ColorData> Colors { get; set; }
+        public List<string> Strings { get; set; }
+        public List<ColorData> SelectedColors { get; set; }
+    }
+    public class ColorData
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 }
