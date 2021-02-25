@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotVVM.AspNetCore" Version="3.0.0-preview01-91918-alpha03" />
+    <PackageReference Include="DotVVM.AspNetCore" Version="3.0.0-preview02-final" />
     <PackageReference Include="MiniProfiler.AspNetCore" Version="4.2.1" />
   </ItemGroup>
   <Import Project="..\DotVVM.Tracing.MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.projitems" Label="Shared" />
