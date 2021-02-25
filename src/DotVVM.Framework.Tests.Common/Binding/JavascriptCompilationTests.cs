@@ -464,6 +464,23 @@ namespace DotVVM.Framework.Tests.Binding
             var result = CompileBinding("_api.RefreshOnChange('here would be the API invocation', StringProp + StringProp2)", typeof(TestViewModel));
             Assert.AreEqual("dotvvm.api.refreshOn(\"here would be the API invocation\",ko.pureComputed(function(){return StringProp()+StringProp2();}))", result);
         }
+
+        [DataTestMethod]
+        [DataRow("StringProp.ToUpper()", "StringProp().toUpperCase()")]
+        [DataRow("StringProp.ToLower()", "StringProp().toLowerCase()")]
+        [DataRow("StringProp.IndexOf('test')", "StringProp().indexOf(\"test\")")]
+        [DataRow("StringProp.IndexOf('test',1)", "StringProp().indexOf(\"test\",1)")]
+        [DataRow("StringProp.LastIndexOf('test')", "StringProp().lastIndexOf(\"test\")")]
+        [DataRow("StringProp.LastIndexOf('test',2)", "StringProp().lastIndexOf(\"test\",2)")]
+        [DataRow("StringProp.Contains('test')", "StringProp().includes(\"test\")")]
+        [DataRow("StringProp.StartsWith('test')", "StringProp().startsWith(\"test\")")]
+        [DataRow("StringProp.EndsWith('test')", "StringProp().endsWith(\"test\")")]
+        [DataRow("string.IsNullOrEmpty(StringProp)", "StringProp()==null||StringProp()===\"\"")]
+        public void JavascriptCompilation_StringFunctions(string input, string expected)
+        {
+            var result = CompileBinding(input, typeof(TestViewModel));
+            Assert.AreEqual(expected, result);
+        }
     }
 
     public class TestApiClient
