@@ -271,6 +271,12 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             var concatMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static).Where(m => m.Name == "Concat" && m.GetParameters().Length == 2).Single();
             AddMethodTranslator(concatMethod, translator: new GenericMethodCompiler(args => args[1].Member("concat").Invoke(args[2])));
+
+            var orderByMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static).Where(m => m.Name == "OrderBy" && m.GetParameters().Length == 2).Single();
+            AddMethodTranslator(orderByMethod, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("orderBy").Invoke(args[1], args[2])));
+
+            var orderByDescMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static).Where(m => m.Name == "OrderByDescending" && m.GetParameters().Length == 2).Single();
+            AddMethodTranslator(orderByDescMethod, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("orderByDesc").Invoke(args[1], args[2])));
         }
 
         public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] args, MethodInfo method)
