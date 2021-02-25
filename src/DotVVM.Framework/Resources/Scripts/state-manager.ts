@@ -6,6 +6,7 @@ import { extendToObservableArrayIfRequired } from "./serialization/deserialize"
 import { getObjectTypeInfo } from "./metadata/typeMap";
 import { coerce } from "./metadata/coercer";
 import { patchViewModel } from "./postback/updater";
+import { wrapObservable } from "./utils/knockout";
 
 export const currentStateSymbol = Symbol("currentState")
 const notifySymbol = Symbol("notify")
@@ -249,8 +250,12 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
             (this as any)[lastSetErrorSymbol] = void 0;
             const unmappedValue = unmapKnockoutObservables(newValue);
             const coerceResult = coerce(unmappedValue, typeHint || { type: "dynamic" }, (this as any)[currentStateSymbol]);
-            updater(_ => coerceResult)
-            return coerceResult;
+            
+            if (isPrimitive(coerceResult) || coerceResult instanceof Date || coerceResult == null) {
+                return coerceResult;
+            } else {
+                return createWrappedObservable(coerceResult, typeHint, updater)();      // TODO: Consult with @exyi - this is probably not right and I guess it is inefficient
+            }
         } catch (err) {
             (this as any)[lastSetErrorSymbol] = err;
             console.debug(`Can not update observable to ${newValue}:`, err)
