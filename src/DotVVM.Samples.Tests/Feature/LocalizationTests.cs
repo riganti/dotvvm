@@ -8,7 +8,6 @@ using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
-using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -78,9 +77,9 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization_Control_Page);
 
-                Assert.AreEqual("Localized label for checkbox inside control",
+                Assert.Equal("Localized label for checkbox inside control",
                     browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-bare']/label/span")).Text);
-                Assert.AreEqual("Localized literal inside control",
+                Assert.Equal("Localized literal inside control",
                     browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-bare']/span")).Text);
             });
         }
@@ -92,9 +91,9 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization_Control_Page);
 
-                Assert.AreEqual("Localized label for checkbox inside control",
+                Assert.Equal("Localized label for checkbox inside control",
                     browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-import']/label/span")).Text);
-                Assert.AreEqual("Localized literal inside control",
+                Assert.Equal("Localized literal inside control",
                     browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-import']/span")).Text);
             });
         }
