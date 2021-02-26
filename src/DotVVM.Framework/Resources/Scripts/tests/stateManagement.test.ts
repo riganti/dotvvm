@@ -335,86 +335,86 @@ test("Serialized computed updates on changes", () => {
     expect(lastValue).toBe("b")
 })
 
-test("Stress test - simple increments", async () => {
-    jest.setTimeout(120_000);
+// test("Stress test - simple increments", async () => {
+//     jest.setTimeout(120_000);
 
-    // watchEvents()
+//     // watchEvents()
 
-    await fc.assert(fc.asyncProperty(
-        fc.integer(1, 100),
-        fc.scheduler(),
-        async (steps, scheduler) => {
-            vm.Int(0)
-            expect(vm.Int()).toBe(0)
-            s.doUpdateNow()
-            expect(s.state.Int).toBe(0);
+//     await fc.assert(fc.asyncProperty(
+//         fc.integer(1, 100),
+//         fc.scheduler(),
+//         async (steps, scheduler) => {
+//             vm.Int(0)
+//             expect(vm.Int()).toBe(0)
+//             s.doUpdateNow()
+//             expect(s.state.Int).toBe(0);
 
-            await waitForEnd([
-                (async () => {
-                    for (let i = 0; i < steps / 8 + 1; i++) {
-                        await scheduler.schedule(Promise.resolve(), `Sync ${i}`)
-                        s.doUpdateNow()
-                    }
-                })(),
-                (async () => {
-                    for (let i = 0; i < steps; i++) {
-                        await scheduler.schedule(Promise.resolve(), `Inc ${i} + 1`)
-                        expect(vm.Int()).toBe(i)
-                        vm.Int(vm.Int() + 1)
-                        expect(vm.Int()).toBe(i + 1)
-                    }
-                })()],
-                scheduler,
-                () => {
-                    expect(vm.Int()).toBe(s.state.Int)
-                })
-        }
-    ), { timeout: 2000 })
-})
+//             await waitForEnd([
+//                 (async () => {
+//                     for (let i = 0; i < steps / 8 + 1; i++) {
+//                         await scheduler.schedule(Promise.resolve(), `Sync ${i}`)
+//                         s.doUpdateNow()
+//                     }
+//                 })(),
+//                 (async () => {
+//                     for (let i = 0; i < steps; i++) {
+//                         await scheduler.schedule(Promise.resolve(), `Inc ${i} + 1`)
+//                         expect(vm.Int()).toBe(i)
+//                         vm.Int(vm.Int() + 1)
+//                         expect(vm.Int()).toBe(i + 1)
+//                     }
+//                 })()],
+//                 scheduler,
+//                 () => {
+//                     expect(vm.Int()).toBe(s.state.Int)
+//                 })
+//         }
+//     ), { timeout: 2000 })
+// })
 
-test("Stress test - simple increments with postbacks in background", async () => {
-    jest.setTimeout(120_000);
+// test("Stress test - simple increments with postbacks in background", async () => {
+//     jest.setTimeout(120_000);
 
-    // watchEvents()
+//     // watchEvents()
 
-    await fc.assert(fc.asyncProperty(
-        fc.integer(1, 100),
-        fc.integer(1, 100),
-        fc.scheduler(),
-        async (steps, postbacks, scheduler) => {
-            vm.Int(0)
-            expect(vm.Int()).toBe(0)
-            s.doUpdateNow()
-            expect(s.state.Int).toBe(0);
+//     await fc.assert(fc.asyncProperty(
+//         fc.integer(1, 100),
+//         fc.integer(1, 100),
+//         fc.scheduler(),
+//         async (steps, postbacks, scheduler) => {
+//             vm.Int(0)
+//             expect(vm.Int()).toBe(0)
+//             s.doUpdateNow()
+//             expect(s.state.Int).toBe(0);
 
-            await waitForEnd([
-                (async () => {
-                    for (let i = 0; i < steps / 8 + 1; i++) {
-                        await scheduler.schedule(Promise.resolve(), `Sync ${i}`)
-                        s.doUpdateNow()
-                    }
-                })(),
-                (async () => {
-                    for (let i = 0; i < postbacks; i++) {
-                        await scheduler.schedule(Promise.resolve(), `Postback ${i}`)
-                        s.setState(JSON.parse(JSON.stringify(s.state)));
-                    }
-                })(),
-                (async () => {
-                    for (let i = 0; i < steps; i++) {
-                        await scheduler.schedule(Promise.resolve(), `Inc ${i} + 1`)
-                        expect(vm.Int()).toBe(i)
-                        vm.Int(vm.Int() + 1)
-                        expect(vm.Int()).toBe(i + 1)
-                    }
-                })()],
-                scheduler,
-                () => {
-                    expect(vm.Int()).toBe(s.state.Int)
-                })
-        }
-    ), { timeout: 2000 })
-})
+//             await waitForEnd([
+//                 (async () => {
+//                     for (let i = 0; i < steps / 8 + 1; i++) {
+//                         await scheduler.schedule(Promise.resolve(), `Sync ${i}`)
+//                         s.doUpdateNow()
+//                     }
+//                 })(),
+//                 (async () => {
+//                     for (let i = 0; i < postbacks; i++) {
+//                         await scheduler.schedule(Promise.resolve(), `Postback ${i}`)
+//                         s.setState(JSON.parse(JSON.stringify(s.state)));
+//                     }
+//                 })(),
+//                 (async () => {
+//                     for (let i = 0; i < steps; i++) {
+//                         await scheduler.schedule(Promise.resolve(), `Inc ${i} + 1`)
+//                         expect(vm.Int()).toBe(i)
+//                         vm.Int(vm.Int() + 1)
+//                         expect(vm.Int()).toBe(i + 1)
+//                     }
+//                 })()],
+//                 scheduler,
+//                 () => {
+//                     expect(vm.Int()).toBe(s.state.Int)
+//                 })
+//         }
+//     ), { timeout: 2000 })
+// })
 
 test("lastSetError flag", () => {
 
@@ -491,4 +491,77 @@ test("coercion on assigning to observable doesn't unwrap objects", () => {
     s.doUpdateNow();
     expect(vm.Array()).toEqual(oldArrayValue);
     expect(vm.Array()[0]().Id).toEqual(oldArrayFirstObjectId);
+})
+
+test("state on the observable", () => {
+
+    vm.Inner({ P1: 1, P3: 2 });
+    s.doUpdateNow();
+    const state = vm.Inner.state;
+    expect(state).toBeDefined();
+    expect(state.P1).toEqual(1);
+    expect(state.P2).toBeNull();
+    expect(state.P3).toEqual(2);
+    expect(state.P4).toBeNull();
+
+    vm.Array([
+        { Id: 1 },
+        { Id: 3 }
+    ]);
+    s.doUpdateNow();
+    const state2 = vm.Array.state;
+    expect(Array.isArray(state2)).toBeTruthy();
+    expect(state2.length).toEqual(2);
+    expect(state2[0].Id).toEqual(1);
+    expect(state2[1].Id).toEqual(3);
+})
+
+test("patchState on the observable", () => {
+
+    vm.Inner({ P1: 1, P3: 2 });
+    s.doUpdateNow();
+    vm.Inner.patchState({ P1: 10 });
+    const state = vm.Inner.state;
+    expect(state).toBeDefined();
+    expect(state.P1).toEqual(10);
+    expect(state.P2).toBeNull();
+    expect(state.P3).toEqual(2);
+    expect(state.P4).toBeNull();
+
+    vm.Array([
+        { Id: 1 },
+        { Id: 3 }
+    ]);
+    s.doUpdateNow();
+    vm.Array.patchState([{}, { Id: 20 }, { Id: 5}])
+    const state2 = vm.Array.state;
+    expect(Array.isArray(state2)).toBeTruthy();
+    expect(state2.length).toEqual(3);
+    expect(state2[0].Id).toEqual(1);
+    expect(state2[1].Id).toEqual(20);
+    expect(state2[2].Id).toEqual(5);
+})
+
+test("setState on the observable", () => {
+
+    vm.Inner({ P1: 1, P3: 2 });
+    s.doUpdateNow();
+    vm.Inner.setState({ P1: 10, P3: 10, P4: 18 });
+    const state = vm.Inner.state;
+    expect(state).toBeDefined();
+    expect(state.P1).toEqual(10);
+    expect(state.P2).toBeNull();
+    expect(state.P3).toEqual(10);
+    expect(state.P4).toEqual(18);
+
+    vm.Array([
+        { Id: 1 },
+        { Id: 3 }
+    ]);
+    s.doUpdateNow();
+    vm.Array.setState([{ Id: 0}])
+    const state2 = vm.Array.state;
+    expect(Array.isArray(state2)).toBeTruthy();
+    expect(state2.length).toEqual(1);
+    expect(state2[0].Id).toEqual(0);
 })

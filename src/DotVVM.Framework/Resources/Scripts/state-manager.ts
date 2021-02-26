@@ -241,6 +241,7 @@ function createObservableObject<T extends object>(initialObject: T, typeHint: Ty
 function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | undefined, updater: UpdateDispatcher<T>): DeepKnockoutWrapped<T> {
 
     let isUpdating = false
+    let isDirty = false
 
     function observableValidator(this: KnockoutObservable<T>, newValue: any): any {
         if (isUpdating) { return newValue; }
@@ -289,8 +290,9 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
         }
 
         const currentValue = obs[currentStateSymbol]
-        if (newVal === currentValue) { return }
+        if (newVal === currentValue && !isDirty) { return }
         obs[currentStateSymbol] = newVal
+        isDirty = false;
 
         const observableWasSetFromOutside = updatedObservable
         updatedObservable = false
@@ -369,5 +371,30 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
 
     obs[notifySymbol] = notify
     notify(initialValue)
+
+    Object.defineProperty(obs, "state", {
+        get: () => {
+            return obs[currentStateSymbol];
+        },
+        configurable: false,
+        enumerable: false
+    });
+    Object.defineProperty(obs, "patchState", {
+        get: () => (patch: any) => {
+            obs.setState(patchViewModel(obs[currentStateSymbol], patch));
+        },
+        configurable: false,
+        enumerable: false
+    });
+    Object.defineProperty(obs, "setState", {
+        get: () => (newState: any) => {
+            const coerceResult = coerce(newState, typeHint || { type: "dynamic" }, obs[currentStateSymbol]);
+            updater(_ => coerceResult);
+            obs[currentStateSymbol] = coerceResult;
+            isDirty = true;
+        },
+        configurable: false,
+        enumerable: false
+    });
     return obs
 }
