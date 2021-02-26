@@ -22,7 +22,7 @@ export function tryCoerce(value: any, type: TypeDefinition, originalValue: any =
     if (Array.isArray(type)) {
         return tryCoerceArray(value, type[0], originalValue);
     } else if (typeof type === "object") {
-        if (type.type == "nullable") {
+        if (type.type === "nullable") {
             return tryCoerceNullable(value, type.inner, originalValue);
         } else if (type.type === "dynamic") {
             return tryCoerceDynamic(value, originalValue);
@@ -55,7 +55,7 @@ export function coerce(value: any, type: TypeDefinition, originalValue: any = un
 function tryCoerceNullable(value: any, innerType: TypeDefinition, originalValue: any): CoerceResult {
     if (value === null) {
         return { value: null };
-    } else if (typeof value === "undefined" || value == "") {       // TODO: shall we support empty strings?
+    } else if (typeof value === "undefined" || value === "") {
         return { value: null, wasCoerced: true };
     } else {
         return tryCoerce(value, innerType, originalValue);
