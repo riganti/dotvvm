@@ -180,7 +180,7 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_MasterPageRequiresDifferentViewModel);
 
                 //TODO:  !!! In error page, viewModel directive should by underlined !!!
-                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("Master page requires viewModel"));
+                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("The viewmodel EmptyViewModel is not assignable to the viewmodel of the master page MasterPageViewModel."));
                 //browser.First("[class='errorUnderline']"),s => s.Contains("DotVVM.Samples.BasicSamples.ViewModels.EmptyViewModel, DotVVM.Samples.Common"));
             });
         }

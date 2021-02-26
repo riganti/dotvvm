@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Binding;
 using System.Collections.Immutable;
 
 namespace DotVVM.Framework.ViewModel.Serialization
@@ -133,6 +134,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 result["resultIdFragment"] = context.ResultIdFragment;
             }
+
             if (context.IsPostBack || context.IsSpaRequest)
             {
                 result["action"] = "successfulCommand";
@@ -141,6 +143,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 result["renderedResources"] = JArray.FromObject(context.ResourceManager.GetNamedResourcesInOrder().Select(r => r.Name));
             }
+
             // TODO: do not send on postbacks
             if (validationRules?.Count > 0) result["validationRules"] = validationRules;
 

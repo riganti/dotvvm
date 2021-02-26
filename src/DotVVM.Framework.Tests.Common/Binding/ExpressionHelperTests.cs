@@ -143,6 +143,134 @@ namespace DotVVM.Framework.Tests.Common.Binding
         {
             Call_FindOverload_Generic(typeof(MethodsGenericArgumentsResolvingSampleObject5), MethodsGenericArgumentsResolvingSampleObject5.MethodName, argTypes, resultIdentifierType, expectedGenericArgs);
         }
+
+        [TestMethod]
+        [DataRow(typeof(GenericTestResult1), new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) }, new Type[] { typeof(int[]) })]
+        [DataRow(typeof(GenericTestResult2), new Type[] { typeof(string), typeof(int), typeof(int), typeof(int) }, new Type[] { typeof(string), typeof(object[]) })]
+        [DataRow(typeof(GenericTestResult2), new Type[] { typeof(string), typeof(int), typeof(string), typeof(int) }, new Type[] { typeof(string), typeof(object[]) })]
+        public void Call_FindOverload_Params_Array(Type resultIdentifierType, Type[] argTypes, Type[] expectedArgsTypes)
+        {
+            Expression target = new MethodGroupExpression() {
+                MethodName = MethodsParamsArgumentsResolvingSampleObject.MethodName,
+                Target = new StaticClassIdentifierExpression(typeof(MethodsParamsArgumentsResolvingSampleObject))
+            };
+
+            var j = 0;
+            var arguments = argTypes.Select(s => Expression.Parameter(s, $"param_{j++}")).ToArray();
+            var expression = memberExpressionFactory.Call(target, arguments) as MethodCallExpression;
+            Assert.IsNotNull(expression);
+            Assert.AreEqual(resultIdentifierType, expression.Method.GetResultType());
+
+            var args = expression.Arguments.Select(s => s.Type).ToArray();
+            for (int i = 0; i < args.Length; i++)
+            {
+                Assert.AreEqual(expectedArgsTypes[i], args[i], message: "Order of resolved generic types is different then expected.");
+            }
+        }
+
+        [TestMethod]
+        [DataRow(typeof(GenericTestResult1), new Type[] { /* params empty */ }, new Type[] { typeof(int[]) })]
+        [DataRow(typeof(GenericTestResult2), new Type[] { typeof(string), /* params empty */ }, new Type[] { typeof(string), typeof(object[]) })]
+        [DataRow(typeof(GenericTestResult3), new Type[] { typeof(bool), /* params empty */ }, new Type[] { typeof(bool), typeof(int[]) })]
+        [DataRow(typeof(GenericTestResult4), new Type[] { typeof(float), typeof(double), /* params empty */ }, new Type[] { typeof(float), typeof(double), typeof(int[]) })]
+        [DataRow(typeof(GenericTestResult4), new Type[] { typeof(float), /* default argument, params empty */ }, new Type[] { typeof(float), typeof(double), typeof(int[]) })]
+        public void Call_FindOverload_Params_Empty(Type resultIdentifierType, Type[] argTypes, Type[] expectedArgsTypes)
+        {
+            Expression target = new MethodGroupExpression() {
+                MethodName = MethodsParamsArgumentsResolvingSampleObject.MethodName,
+                Target = new StaticClassIdentifierExpression(typeof(MethodsParamsArgumentsResolvingSampleObject))
+            };
+
+            var j = 0;
+            var arguments = argTypes.Select(s => Expression.Parameter(s, $"param_{j++}")).ToArray();
+            var expression = memberExpressionFactory.Call(target, arguments) as MethodCallExpression;
+            Assert.IsNotNull(expression);
+            Assert.AreEqual(resultIdentifierType, expression.Method.GetResultType());
+
+            var args = expression.Arguments.Select(s => s.Type).ToArray();
+            for (var i = 0; i < args.Length; i++)
+            {
+                Assert.AreEqual(expectedArgsTypes[i], args[i], message: "Order of resolved generic types is different then expected.");
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        [DataRow(typeof(GenericTestResult1), new Type[] { typeof(int), typeof(int), typeof(string), typeof(int) }, new Type[] { typeof(int[]) })]
+        [DataRow(typeof(GenericTestResult3), new Type[] { typeof(bool), typeof(int), typeof(string), typeof(int) }, new Type[] { typeof(bool), typeof(int[]) })]
+        public void Call_FindOverload_Params_Array_Invalid(Type resultIdentifierType, Type[] argTypes, Type[] expectedArgsTypes)
+        {
+            Expression target = new MethodGroupExpression() {
+                MethodName = MethodsParamsArgumentsResolvingSampleObject.MethodName,
+                Target = new StaticClassIdentifierExpression(typeof(MethodsParamsArgumentsResolvingSampleObject))
+            };
+
+            var j = 0;
+            var arguments = argTypes.Select(s => Expression.Parameter(s, $"param_{j++}")).ToArray();
+            var expression = memberExpressionFactory.Call(target, arguments) as MethodCallExpression;
+            Assert.IsNotNull(expression);
+            Assert.AreEqual(resultIdentifierType, expression.Method.GetResultType());
+
+            var args = expression.Arguments.Select(s => s.Type).ToArray();
+            for (int i = 0; i < args.Length; i++)
+            {
+                Assert.AreEqual(expectedArgsTypes[i], args[i], message: "Order of resolved generic types is different then expected.");
+            }
+        }
+
+        [TestMethod]
+        [DataRow(new Type[] { typeof(string) }, typeof(string))]
+        [DataRow(new Type[] { typeof(string), typeof(object) }, typeof((string, object)))]
+        [DataRow(new Type[] { typeof(string), typeof(object), typeof(object) }, typeof((string, object[])))]
+        [DataRow(new Type[] { typeof(string), typeof(string) }, typeof((string, string[])))]
+        [DataRow(new Type[] { typeof(string), typeof(int) }, typeof((string, int[])))]
+        public void Call_FindOverload_DoNotPrioritizeParams(Type[] argTypes, Type resultType)
+        {
+            Expression target = new MethodGroupExpression() {
+                MethodName = nameof(ParamsPrioritizationTest.Method),
+                Target = new StaticClassIdentifierExpression(typeof(ParamsPrioritizationTest))
+            };
+
+            var j = 0;
+            var arguments = argTypes.Select(s => Expression.Parameter(s, $"param_{j++}")).ToArray();
+            var expression = memberExpressionFactory.Call(target, arguments) as MethodCallExpression;
+            Assert.IsNotNull(expression);
+            Assert.AreEqual(resultType, expression.Method.GetResultType());
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        [DataRow(typeof(GenericTestResult1), new Type[] { typeof(string), typeof(string), typeof(string) }, new Type[] { typeof(string) })]
+        public void Call_FindOverload_Params_Generic_Array(Type resultIdentifierType, Type[] argTypes, Type[] expectedArgsTypes)
+        {
+            Call_FindOverload_Generic(typeof(MethodsParamsArgumentsGenericResolvingSampleObject),
+                MethodsParamsArgumentsGenericResolvingSampleObject.MethodName, argTypes, resultIdentifierType, expectedArgsTypes);
+        }
+
+        [TestMethod]
+        [DataRow(typeof(GenericTestResult1), new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) }, new Type[] { typeof(int) })]
+      //  [DataRow(typeof(GenericTestResult2), new Type[] { typeof(string), typeof(int), typeof(int), typeof(int) }, new Type[] { typeof(int) })]
+    //    [DataRow(typeof(GenericTestResult2), new Type[] { typeof(double), typeof(bool), typeof(bool) }, new Type[] { typeof(double) })]
+        public void Call_FindOverload_Params_Generic_Array_Invalid(Type resultIdentifierType, Type[] argTypes, Type[] expectedArgsTypes)
+        {
+            Call_FindOverload_Generic(typeof(MethodsParamsArgumentsGenericResolvingSampleObject),
+                MethodsParamsArgumentsGenericResolvingSampleObject.MethodName, argTypes, resultIdentifierType, expectedArgsTypes);
+        }
+    }
+    public static class MethodsParamsArgumentsGenericResolvingSampleObject
+    {
+        public const string MethodName = nameof(TestMethod);
+        public static GenericTestResult1 TestMethod<T>(params T[] data) => null;
+        public static GenericTestResult2 TestMethod<T>(string value, params T[] data) => null;
+        public static GenericTestResult2 TestMethod<T>(T value, params bool[] data) => null;
+    }
+    public static class MethodsParamsArgumentsResolvingSampleObject
+    {
+        public const string MethodName = nameof(TestMethod);
+        public static GenericTestResult1 TestMethod(params int[] data) => null;
+        public static GenericTestResult2 TestMethod(string value, params object[] data) => null;
+        public static GenericTestResult3 TestMethod(bool value, params int[] data) => null;
+        public static GenericTestResult4 TestMethod(float value, double defaultValue = 3.5, params int[] data) => null;
     }
 
     public static class MethodsGenericArgumentsResolvingSampleObject6
@@ -193,4 +321,12 @@ namespace DotVVM.Framework.Tests.Common.Binding
     public class GenericTestResult4 { }
     public class GenericTestResult5 { }
 
+    public class ParamsPrioritizationTest
+    {
+        public static string Method(string arg1) => default;
+        public static (string, object[]) Method(string arg1, params object[] arg2) => default;
+        public static (string, string[]) Method(string arg1, params string[] arg2) => default;
+        public static (string, int[]) Method(string arg1, params int[] arg2) => default;
+        public static (string, object) Method(string arg1, object arg2) => default;
+    }
 }
