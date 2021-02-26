@@ -448,3 +448,18 @@ test("lastSetError flag - changed back to the original value", () => {
     expect(vm.Int[lastSetErrorSymbol]).toBeUndefined();
     
 })
+
+test("coercion happens before assigning to the observable", () => {
+
+    vm.Int(1);    
+    s.doUpdateNow();
+    expect(vm.Int()).toEqual(1);
+
+    vm.Int("3");
+    expect(vm.Int()).toEqual(3);
+    s.doUpdateNow();
+    expect(vm.Int()).toEqual(3);
+
+    expect(() => vm.Int({})).toThrow();
+
+})
