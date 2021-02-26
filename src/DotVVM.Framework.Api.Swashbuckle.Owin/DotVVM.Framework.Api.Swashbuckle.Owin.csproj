@@ -3,11 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net451</TargetFramework>
     <PackageId>DotVVM.Api.Swashbuckle.Owin</PackageId>
-<<<<<<< HEAD
     <PackageVersion>3.0.0-preview03-106531</PackageVersion>
-=======
-    <PackageVersion>3.0.0-preview03-106531</PackageVersion>
->>>>>>> 5dfc6a8c42a27a1f2ad4d57b46b484372fe5fe77
     <Authors>RIGANTI</Authors>
     <Description>Swashbuckle.Owin extensions for DotVVM.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
