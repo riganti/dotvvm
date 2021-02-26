@@ -241,13 +241,16 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
 
     let isUpdating = false
 
-    function observableValidator(this: KnockoutObservable<T>, newValue: any) {
-        if (isUpdating) { return }
+    function observableValidator(this: KnockoutObservable<T>, newValue: any): any {
+        if (isUpdating) { return newValue; }
         updatedObservable = true
 
         try {
             (this as any)[lastSetErrorSymbol] = void 0;
-            updater(_ => unmapKnockoutObservables(newValue))
+            const unmappedValue = unmapKnockoutObservables(newValue);
+            const coerceResult = coerce(unmappedValue, typeHint || { type: "dynamic" }, (this as any)[currentStateSymbol]);
+            updater(_ => coerceResult)
+            return coerceResult;
         } catch (err) {
             (this as any)[lastSetErrorSymbol] = err;
             console.debug(`Can not update observable to ${newValue}:`, err)
