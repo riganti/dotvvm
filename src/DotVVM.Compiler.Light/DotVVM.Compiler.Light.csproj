@@ -1,11 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>3.0.0-preview02-106393-beta04</VersionPrefix>
+<<<<<<< HEAD
+    <VersionPrefix>3.0.0-preview03-106531</VersionPrefix>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>dotnet-dotvvm-compiler</AssemblyName>
     <PackageId>DotVVM.Compiler.Light</PackageId>
-    <PackageVersion>3.0.0-preview02-106393-beta04</PackageVersion>
+    <PackageVersion>3.0.0-preview03-106531</PackageVersion>
+=======
+    <VersionPrefix>3.0.0-preview03-106531</VersionPrefix>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <AssemblyName>dotnet-dotvvm-compiler</AssemblyName>
+    <PackageId>DotVVM.Compiler.Light</PackageId>
+    <PackageVersion>3.0.0-preview03-106531</PackageVersion>
+>>>>>>> 5dfc6a8c42a27a1f2ad4d57b46b484372fe5fe77
     <Authors>RIGANTI</Authors>
     <Description>Command-line compiler for DotVVM.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

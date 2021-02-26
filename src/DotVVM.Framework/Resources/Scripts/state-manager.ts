@@ -6,6 +6,7 @@ import { extendToObservableArrayIfRequired } from "./serialization/deserialize"
 import { getObjectTypeInfo } from "./metadata/typeMap";
 import { coerce } from "./metadata/coercer";
 import { patchViewModel } from "./postback/updater";
+import { wrapObservable } from "./utils/knockout";
 
 export const currentStateSymbol = Symbol("currentState")
 const notifySymbol = Symbol("notify")
@@ -180,7 +181,7 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
                                 (ko.extenders as any)[e.name](newObs, e.parameter)
                             }
                         }
-                    } else if (!p.startsWith("$")) {
+                    } else if (p.indexOf("$") !== 0) {
                         console.warn(`Unknown property '${p}' set on an object of type ${typeId}.`);
                     }
 
@@ -231,7 +232,10 @@ function createObservableObject<T extends object>(initialObject: T, typeHint: Ty
         typeInfo = getObjectTypeInfo(typeId)
     } 
 
-    const pSet = typeInfo ? new Set(keys(typeInfo.properties)) : new Set();
+    const pSet = new Set();         // IE11 doesn't support constructor with arguments
+    if (typeInfo) {
+        keys(typeInfo.properties).forEach(p => pSet.add(p));
+    }
     const additionalProperties = keys(initialObject).filter(p => !pSet.has(p))
 
     return new FakeObservableObject(initialObject, update, typeId, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
@@ -249,8 +253,12 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
             (this as any)[lastSetErrorSymbol] = void 0;
             const unmappedValue = unmapKnockoutObservables(newValue);
             const coerceResult = coerce(unmappedValue, typeHint || { type: "dynamic" }, (this as any)[currentStateSymbol]);
-            updater(_ => coerceResult)
-            return coerceResult;
+            
+            if (isPrimitive(coerceResult) || coerceResult instanceof Date || coerceResult == null) {
+                return coerceResult;
+            } else {
+                return createWrappedObservable(coerceResult, typeHint, updater)();      // TODO: Consult with @exyi - this is probably not right and I guess it is inefficient
+            }
         } catch (err) {
             (this as any)[lastSetErrorSymbol] = err;
             console.debug(`Can not update observable to ${newValue}:`, err)
