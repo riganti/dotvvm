@@ -76,7 +76,7 @@ const dotvvmExports = {
     isPostbackRunning,
     events: (compileConstants.isSpa ?
              { ...events, ...spaEvents } :
-             events),
+             events) as (typeof events | (typeof spaEvents & typeof events)),
     viewModels: {
         root: {
             get viewModel() { return getViewModel() }
@@ -112,7 +112,7 @@ if (compileConstants.isSpa) {
 }
 
 declare global {
-    const dotvvm: typeof dotvvmExports;
+    const dotvvm: typeof dotvvmExports & {isSpaReady?: typeof isSpaReady, handleSpaNavigation?: typeof handleSpaNavigation};
 
     interface Window {
         dotvvm: typeof dotvvmExports
