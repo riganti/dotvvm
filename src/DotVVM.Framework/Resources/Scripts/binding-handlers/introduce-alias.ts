@@ -20,6 +20,11 @@ function createWrapperComputed<T>(accessor: () => KnockoutObservable<T> | T, pro
         }
     });
     computed["wrappedProperty"] = accessor;
+    Object.defineProperty(computed, "state", {
+        get: () => (accessor() as any || {})["state"],
+        configurable: false,
+        enumerable: false
+    })
     return computed;
 }
 
