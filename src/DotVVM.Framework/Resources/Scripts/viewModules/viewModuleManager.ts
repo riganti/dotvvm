@@ -71,7 +71,7 @@ export function callViewModuleCommand(viewIdOrElement: string | HTMLElement, com
     
     for (let moduleName of keys(registeredModules)) {
         const context = tryFindViewModuleContext(viewIdOrElement, moduleName);
-        if (!context) continue;
+        if (!(context && context.module)) continue;
         if (commandName in context.module && typeof context.module[commandName] === "function") {
             foundModules.push({ moduleName, context });
         }
@@ -179,6 +179,7 @@ function ensureModuleHandler(name: string): ModuleHandler {
 }
 
 function callIfDefined(module: any, name: string, ...args: any[]) {
+    if(!module) return; 
     if (typeof module[name] === 'function') {
         module[name](...args);
     }
