@@ -245,9 +245,19 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
 
     let isUpdating = false
     let isDirty = false
+    let isLastErrorUpdate = false
+
+    function triggerLastSetErrorUpdate(obs: KnockoutObservable<T>) {
+        try {
+            isLastErrorUpdate = true;
+            obs.valueHasMutated && obs.valueHasMutated();
+        } finally {
+            isLastErrorUpdate = false;
+        }
+    }
 
     function observableValidator(this: KnockoutObservable<T>, newValue: any): any {
-        if (isUpdating) { return newValue; }
+        if (isUpdating || isLastErrorUpdate) { return newValue; }
         updatedObservable = true
 
         try {
@@ -262,6 +272,7 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
             }
         } catch (err) {
             (this as any)[lastSetErrorSymbol] = err;
+            triggerLastSetErrorUpdate(this);
             console.debug(`Can not update observable to ${newValue}:`, err)
             throw err
         }
@@ -282,18 +293,22 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
     obs.subscribe((newVal: any) => {
         if (isDeferred)
             newVal = obs() // the value is not passed in parameter in "dirty" handler. We use it otherwise, for perf reasons
-        if (isUpdating) { return }
+        if (isUpdating || isLastErrorUpdate) { return }
         updatedObservable = true
         updater(_ => unmapKnockoutObservables(newVal))
     }, null, isDeferred ? "dirty" : "change")
 
     function notify(newVal: any) {
-        if (updatedObservable) {
-            obs[lastSetErrorSymbol] = void 0;
-        }
-
         const currentValue = obs[currentStateSymbol]
-        if (newVal === currentValue && !isDirty) { return }
+
+        if (newVal === currentValue && !isDirty) { 
+            if (obs[lastSetErrorSymbol]) {
+                obs[lastSetErrorSymbol] = void 0;
+                triggerLastSetErrorUpdate(obs);
+            }
+            return 
+        } 
+        obs[lastSetErrorSymbol] = void 0;
         obs[currentStateSymbol] = newVal
         isDirty = false;
 
