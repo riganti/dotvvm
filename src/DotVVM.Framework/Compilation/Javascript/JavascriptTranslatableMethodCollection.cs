@@ -114,11 +114,6 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddPropertyGetterTranslator(typeof(ICollection), nameof(ICollection.Count), lengthMethod);
             AddPropertyGetterTranslator(typeof(ICollection<>), nameof(ICollection.Count), lengthMethod);
             AddPropertyGetterTranslator(typeof(string), nameof(string.Length), lengthMethod);
-            AddMethodTranslator(typeof(Enumerable), "Count", parameterCount: 1, translator: new GenericMethodCompiler(a => a[1].Member("length")));
-            AddMethodTranslator(typeof(object), "ToString", new GenericMethodCompiler(
-                a => new JsIdentifierExpression("String").Invoke(a[0]), (m, c, a) => ToStringCheck(c)), 0);
-            AddMethodTranslator(typeof(Convert), "ToString", new GenericMethodCompiler(
-                a => new JsIdentifierExpression("String").Invoke(a[1]), (m, c, a) => ToStringCheck(a[0])), 1, true);
             AddMethodTranslator(typeof(Enums), "GetNames", new EnumGetNamesMethodTranslator(), 0);
 
             JsExpression indexer(JsExpression[] args, MethodInfo method) =>
@@ -126,8 +121,6 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(IList), "get_Item", new GenericMethodCompiler(indexer));
             AddMethodTranslator(typeof(IList<>), "get_Item", new GenericMethodCompiler(indexer));
             AddMethodTranslator(typeof(List<>), "get_Item", new GenericMethodCompiler(indexer));
-            AddMethodTranslator(typeof(Enumerable).GetMethod("ElementAt", BindingFlags.Static | BindingFlags.Public), new GenericMethodCompiler((args, method) =>
-                BuildIndexer(args[1], args[2], method)));
             AddPropertyGetterTranslator(typeof(Nullable<>), "Value", new GenericMethodCompiler((args, method) => args[0]));
             AddPropertyGetterTranslator(typeof(Nullable<>), "HasValue",
                 new GenericMethodCompiler(args => new JsBinaryExpression(args[0], BinaryOperatorType.NotEqual, new JsLiteral(null))));
@@ -137,17 +130,23 @@ namespace DotVVM.Framework.Compilation.Javascript
             BindingPageInfo.RegisterJavascriptTranslations(this);
             BindingCollectionInfo.RegisterJavascriptTranslations(this);
 
-            // string formatting
-            var stringFormatTranslator = new GenericMethodCompiler(
-                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], new JsArrayExpression(args.Skip(2)))
-            );
-            // TODO: string.Format could be two-way
-            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object) }), stringFormatTranslator);
-            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object), typeof(object) }), stringFormatTranslator);
-            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object), typeof(object), typeof(object) }), stringFormatTranslator);
-            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object[]) }), new GenericMethodCompiler(
-                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], args[2])
+            AddPropertyGetterTranslator(typeof(Task<>), "Result", new GenericMethodCompiler(args => FunctionalExtensions.ApplyAction(args[0], a => a.RemoveAnnotations(typeof(ViewModelInfoAnnotation)))));
+
+            AddMethodTranslator(typeof(DotvvmBindableObject).GetMethods(BindingFlags.Instance | BindingFlags.Public).Single(m => m.Name == "GetValue" && !m.ContainsGenericParameters), new GenericMethodCompiler(
+                args => {
+                    var dotvvmproperty = ((DotvvmProperty)((JsLiteral)args[1]).Value);
+                    return JavascriptTranslationVisitor.TranslateViewModelProperty(args[0], (MemberInfo)dotvvmproperty.PropertyInfo ?? dotvvmproperty.PropertyType.GetTypeInfo(), name: dotvvmproperty.Name);
+                }
             ));
+        }
+
+        private void AddDefaultToStringTranslations()
+        {
+            AddMethodTranslator(typeof(object), "ToString", new GenericMethodCompiler(
+                a => new JsIdentifierExpression("String").Invoke(a[0]), (m, c, a) => ToStringCheck(c)), 0);
+            AddMethodTranslator(typeof(Convert), "ToString", new GenericMethodCompiler(
+                a => new JsIdentifierExpression("String").Invoke(a[1]), (m, c, a) => ToStringCheck(a[0])), 1, true);
+
             AddMethodTranslator(typeof(DateTime).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString")
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
@@ -186,8 +185,21 @@ namespace DotVVM.Framework.Compilation.Javascript
                         .WithAnnotation(ResultIsObservableAnnotation.Instance)
                 ));
             }
+        }
 
-            // string functions
+        private void AddDefaultStringTranslations()
+        {
+            var stringFormatTranslator = new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], new JsArrayExpression(args.Skip(2)))
+            );
+            // TODO: string.Format could be two-way
+            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object) }), stringFormatTranslator);
+            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object), typeof(object) }), stringFormatTranslator);
+            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object), typeof(object), typeof(object) }), stringFormatTranslator);
+            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object[]) }), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], args[2])
+            ));
+
             AddMethodTranslator(typeof(string), nameof(string.IndexOf), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
                 a => a[0].Member("indexOf").Invoke(a[1])));
             AddMethodTranslator(typeof(string), nameof(string.IndexOf), parameters: new[] { typeof(string), typeof(int) }, translator: new GenericMethodCompiler(
@@ -211,16 +223,13 @@ namespace DotVVM.Framework.Compilation.Javascript
                     new JsBinaryExpression(a[1], BinaryOperatorType.Equal, new JsLiteral(null)),
                     BinaryOperatorType.ConditionalOr,
                     new JsBinaryExpression(a[1].Clone(), BinaryOperatorType.StrictlyEqual, new JsLiteral("")))));
+        }
 
-
-            AddPropertyGetterTranslator(typeof(Task<>), "Result", new GenericMethodCompiler(args => FunctionalExtensions.ApplyAction(args[0], a => a.RemoveAnnotations(typeof(ViewModelInfoAnnotation)))));
-
-            AddMethodTranslator(typeof(DotvvmBindableObject).GetMethods(BindingFlags.Instance | BindingFlags.Public).Single(m => m.Name == "GetValue" && !m.ContainsGenericParameters), new GenericMethodCompiler(
-                args => {
-                    var dotvvmproperty = ((DotvvmProperty)((JsLiteral)args[1]).Value);
-                    return JavascriptTranslationVisitor.TranslateViewModelProperty(args[0], (MemberInfo)dotvvmproperty.PropertyInfo ?? dotvvmproperty.PropertyType.GetTypeInfo(), name: dotvvmproperty.Name);
-                }
-            ));
+        private void AddDefaultEnumerableTranslations()
+        {
+            AddMethodTranslator(typeof(Enumerable), "Count", parameterCount: 1, translator: new GenericMethodCompiler(a => a[1].Member("length")));
+            AddMethodTranslator(typeof(Enumerable).GetMethod("ElementAt", BindingFlags.Static | BindingFlags.Public), new GenericMethodCompiler((args, method) =>
+                BuildIndexer(args[1], args[2], method)));
 
             var whereMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(m => m.Name == "Where" && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)).Single();
