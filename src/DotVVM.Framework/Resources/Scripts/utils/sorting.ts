@@ -94,7 +94,7 @@ function resolveMetadata(type: TypeDefinition): TypeMetadata | null {
         throw new Error("Could not resolve metadata!");
     }
 
-    if (typeof (type as string) in primitiveTypes) {
+    if (type as string in primitiveTypes) {
         // No metadata available
         return null;
     }

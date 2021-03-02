@@ -268,7 +268,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             ));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Skip), parameterCount: 2, translator: new GenericMethodCompiler(args => args[1].Member("slice").Invoke(args[2])));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Take), parameterCount: 2, translator: new GenericMethodCompiler(args => args[1].Member("slice").Invoke(new JsLiteral(0), args[2])));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), parameterCount: 2, translator: new GenericMethodCompiler(args => args[1].Member("concat").Invoke(args[2])));
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Concat), parameterCount: 2, translator: new GenericMethodCompiler(args => args[1].Member("concat").Invoke(args[2])));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderBy), parameterCount: 2, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("orderBy").Invoke(args[1], args[2])));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderByDescending), parameterCount: 2, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("orderByDesc").Invoke(args[1], args[2])));
         }
