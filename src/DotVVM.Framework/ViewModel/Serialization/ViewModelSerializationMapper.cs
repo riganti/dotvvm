@@ -47,6 +47,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         protected virtual IEnumerable<ViewModelPropertyMap> GetProperties(Type type)
         {
+            var isSetterSupported = type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>);
             foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance).OrderBy(p => p.Name, StringComparer.Ordinal))
             {
                 if (property.GetCustomAttribute<JsonIgnoreAttribute>() != null) continue;
@@ -58,7 +59,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     Type = property.PropertyType,
                     TransferAfterPostback = property.GetMethod != null && property.GetMethod.IsPublic,
                     TransferFirstRequest = property.GetMethod != null && property.GetMethod.IsPublic,
-                    TransferToServer = property.SetMethod != null && property.SetMethod.IsPublic,
+                    TransferToServer = (property.SetMethod != null && property.SetMethod.IsPublic) || isSetterSupported,
                     JsonConverter = GetJsonConverter(property),
                     Populate = ViewModelJsonConverter.CanConvertType(property.PropertyType) && property.GetMethod != null
                 };

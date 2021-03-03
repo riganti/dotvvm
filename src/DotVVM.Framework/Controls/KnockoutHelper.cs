@@ -392,7 +392,7 @@ namespace DotVVM.Framework.Controls
 
         public static string ConvertToCamelCase(string name)
         {
-            return name.Substring(0, 1).ToLower() + name.Substring(1);
+            return name.Substring(0, 1).ToLowerInvariant() + name.Substring(1);
         }
     }
 }
