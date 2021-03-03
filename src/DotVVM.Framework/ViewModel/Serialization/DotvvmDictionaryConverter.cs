@@ -23,15 +23,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 var keyValuePair = typeof(KeyValuePair<,>).MakeGenericType(attrs);
                 var listType = typeof(List<>).MakeGenericType(keyValuePair);
 
-                var keyEnumerator = dict.Keys.GetEnumerator();
+                var itemEnumerator = dict.GetEnumerator();
                 var valuesEnumerator = dict.Values.GetEnumerator();
 
+                var keyProp = keyValuePair.GetProperty(nameof(KeyValuePair<object, object>.Key));
+                var valueProp = keyValuePair.GetProperty(nameof(KeyValuePair<object, object>.Value));
 
                 var list = Activator.CreateInstance(listType);
                 var invokeMethod = listType.GetMethod(nameof(List<object>.Add));
-                while (keyEnumerator.MoveNext() && valuesEnumerator.MoveNext())
+                while (itemEnumerator.MoveNext() && valuesEnumerator.MoveNext())
                 {
-                    var item = Activator.CreateInstance(keyValuePair, keyEnumerator.Current, valuesEnumerator.Current);
+                    var item = Activator.CreateInstance(keyValuePair, keyProp.GetValue(itemEnumerator.Current), valueProp.GetValue(itemEnumerator.Current));
                     invokeMethod.Invoke(list, new[] { item });
                 }
 
