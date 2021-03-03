@@ -74,7 +74,7 @@ const dotvvmExports = {
     isPostbackRunning,
     events: (compileConstants.isSpa ?
              { ...events, ...spaEvents } :
-             events) as (typeof events | (typeof spaEvents & typeof events)),
+             events) as (Partial<typeof spaEvents> & typeof events),
     viewModels: {
         root: {
             get viewModel() { return getViewModel() }
