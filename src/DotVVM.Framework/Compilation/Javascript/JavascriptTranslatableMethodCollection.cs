@@ -278,7 +278,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(Math), nameof(Math.Round), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("round").Invoke(args[1])));
             AddMethodTranslator(typeof(Math), nameof(Math.Round), parameters: new[] { typeof(double), typeof(int) }, translator: new GenericMethodCompiler(
-                args => new JsIdentifierExpression("Math").Member("round").Invoke(args[1]).Member("toFixed").Invoke(args[2])));
+                args => args[1].Member("toFixed").Invoke(args[2])));
 
             AddMethodTranslator(typeof(Math), nameof(Math.Sign), parameters: new[] { typeof(int) }, translator: new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("sign").Invoke(args[1])));
