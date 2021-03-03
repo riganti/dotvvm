@@ -12,18 +12,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            if (value == null)
+            var dict = value as IDictionary;
+            if (dict == null)
             {
                 writer.WriteNull();
             }
             else
             {
-                var dict = value as IDictionary;
-
                 var attrs = value.GetType().GetGenericArguments();
                 var keyValuePair = typeof(KeyValuePair<,>).MakeGenericType(attrs);
                 var listType = typeof(List<>).MakeGenericType(keyValuePair);
-
 
                 var keyEnumerator = dict.Keys.GetEnumerator();
                 var valuesEnumerator = dict.Values.GetEnumerator();
@@ -73,7 +71,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public override bool CanConvert(Type objectType)
         {
-            return ReflectionUtils.ImplementsGenericDefinition(objectType, typeof(IDictionary<,>));
+            return typeof(IDictionary).IsAssignableFrom(objectType)
+                && ReflectionUtils.ImplementsGenericDefinition(objectType, typeof(IDictionary<,>));
+
         }
     }
 
