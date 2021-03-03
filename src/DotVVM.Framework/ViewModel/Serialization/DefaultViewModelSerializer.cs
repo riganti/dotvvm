@@ -226,7 +226,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                 resourceObj[resource.Name] = JValue.CreateString(resource.GetRenderedTextCached(context));
             }
-
             return resourceObj;
         }
 

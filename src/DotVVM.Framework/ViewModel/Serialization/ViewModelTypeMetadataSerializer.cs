@@ -165,7 +165,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else if (type.IsGenericType && ReflectionUtils.ImplementsGenericDefinition(type, typeof(IDictionary<,>)))
             {
-                return new JObject(new JProperty("type", "dynamic"));
+                var attrs = type.GetGenericArguments();
+                var keyValuePair = typeof(KeyValuePair<,>).MakeGenericType(attrs);
+                return new JArray(GetTypeIdentifier(keyValuePair, dependentObjectTypes, dependentEnumTypes));
             }
             else if (type.IsEnum)
             {
