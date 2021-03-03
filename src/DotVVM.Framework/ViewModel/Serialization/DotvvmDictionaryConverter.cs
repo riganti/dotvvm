@@ -55,30 +55,20 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 var listType = typeof(List<>).MakeGenericType(keyValuePair);
 
                 var dict = existingValue as IDictionary;
-                if (dict == null)
-                {
-                    dict = (IDictionary)Activator.CreateInstance(objectType);
-                }
-                var i = 0;
-                object getKey(object item)
-                {
-                    return keyValuePair.GetProperty(nameof(KeyValuePair<object,object>.Key)).GetValue(item);
-                }
-                object getValue(object item)
-                {
-                    return keyValuePair.GetProperty(nameof(KeyValuePair<object,object>.Value)).GetValue(item);
-                }
+                dict ??= (IDictionary)Activator.CreateInstance(objectType);
 
-                var _value = serializer.Deserialize(reader, listType);
-                var value = (IEnumerable)_value;
+                var keyProp = keyValuePair.GetProperty(nameof(KeyValuePair<object, object>.Key));
+                var valueProp = keyValuePair.GetProperty(nameof(KeyValuePair<object, object>.Value));
+
+                var value = serializer.Deserialize(reader, listType) as IEnumerable;
+                if (value is null) throw new Exception($"Could not deserialize object with path '{reader.Path}' as IEnumerable.");
                 foreach (var item in value)
                 {
-                    dict.Add(getKey(item), getValue(item));
+                    dict.Add(keyProp.GetValue(item), valueProp.GetValue(item));
                 }
                 return dict;
             }
             return null;
-            //throw new JsonSerializationException("The value specified in the JSON could not be converted to DateTime!");
         }
 
         public override bool CanConvert(Type objectType)
