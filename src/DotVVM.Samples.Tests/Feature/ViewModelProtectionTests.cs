@@ -99,7 +99,7 @@ namespace DotVVM.Samples.Tests.Feature
                 // try to do postback
                 browser.SendKeys("input[type=text]", "DotVVM rocks!");
                 browser.Click("input[type=button]");
-                
+
                 // verify that the original value was restored
                 browser.WaitFor(() => {
                     AssertUI.InnerTextEquals(browser.First("strong span"), originalValue);
@@ -140,7 +140,7 @@ namespace DotVVM.Samples.Tests.Feature
             int checkedRadioIndex = (int)selectedColor;
             AssertUI.IsChecked(radios[checkedRadioIndex]);
             radios.RemoveAt(checkedRadioIndex);
-            radios.ForEach(AssertUI.IsNotChecked);
+            radios.ForEach(s => AssertUI.IsNotChecked(s));
 
             AssertUI.TextEquals(selectedColorElement, selectedColor.ToString().ToLower());
         }

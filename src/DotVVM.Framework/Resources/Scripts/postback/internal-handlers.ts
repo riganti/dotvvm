@@ -98,7 +98,7 @@ export const suppressOnUpdating = (o: any) => ({
 export function isPostbackStillActive(options: PostbackOptions) {
     const id = options.postbackId
     // For postback and SPA navigation, we reject it if another postback has already started to prevent flashes of new data that will be soon overridden anyway.
-    return (options.commandType == "staticCommand" || getLastStartedPostbackId()) == id && !gate.isPostbackDisabled(id)
+    return (options.commandType == "staticCommand" || getLastStartedPostbackId() == id) && !gate.isPostbackDisabled(id)
 }
 
 function commonConcurrencyHandler<T>(promise: Promise<PostbackCommitFunction>, options: PostbackOptions, queueName: string): Promise<PostbackCommitFunction> {
