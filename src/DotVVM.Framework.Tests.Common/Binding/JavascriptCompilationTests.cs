@@ -396,6 +396,51 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("Enumerable.Concat(LongArray, LongArray)", DisplayName = "Regular call of Enumerable.Concat")]
+        [DataRow("LongArray.Concat(LongArray)", DisplayName = "Syntax sugar - extension method")]
+        public void JsTranslator_EnumerableConcat(string binding)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("LongArray().concat(LongArray())", result);
+        }
+
+        [TestMethod]
+        [DataRow("Enumerable.Take(LongArray, 2)", DisplayName = "Regular call of Enumerable.Take")]
+        [DataRow("LongArray.Take(2)", DisplayName = "Syntax sugar - extension method")]
+        public void JsTraslator_EnumerableTake(string binding)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("LongArray().slice(0,2)", result);
+        }
+
+        [TestMethod]
+        [DataRow("Enumerable.Skip(LongArray, 2)", DisplayName = "Regular call of Enumerable.Skip")]
+        [DataRow("LongArray.Skip(2)", DisplayName = "Syntax sugar - extension method")]
+        public void JsTraslator_EnumerableSkip(string binding)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("LongArray().slice(2)", result);
+        }
+
+        [TestMethod]
+        [DataRow("Enumerable.OrderBy(LongArray, (long item) => item)", DisplayName = "Regular call of Enumerable.OrderBy")]
+        [DataRow("LongArray.OrderBy((long item) => item)", DisplayName = "Syntax sugar - extension method")]
+        public void JsTraslator_EnumerableOrderBy(string binding)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("dotvvm.orderBy(LongArray(),function(item){return ko.unwrap(item);})", result);
+        }
+
+        [TestMethod]
+        [DataRow("Enumerable.OrderByDescending(LongArray, (long item) => item)", DisplayName = "Regular call of Enumerable.OrderByDescending")]
+        [DataRow("LongArray.OrderByDescending((long item) => item)", DisplayName = "Syntax sugar - extension method")]
+        public void JsTraslator_EnumerableOrderByDescending(string binding)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("dotvvm.orderByDesc(LongArray(),function(item){return ko.unwrap(item);})", result);
+        }
+
+        [TestMethod]
         public void JsTranslator_ValidMethod_UnsupportedTranslation()
         {
             Assert.ThrowsException<NotSupportedException>(() =>
