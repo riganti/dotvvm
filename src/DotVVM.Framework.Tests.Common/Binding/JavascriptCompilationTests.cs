@@ -471,6 +471,49 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(expected, result);
         }
 
+        [TestMethod]
+        [DataRow("StringProp.Split('c', 10)", "c")]
+        [DataRow("StringProp.Split(\"str\", 10)", "str")]     
+        public void JsTranslator_StringSplit(string binding, string delimiter)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"StringProp().split(\"{delimiter}\",10)", result);
+        }
+
+        [TestMethod]
+        [DataRow("string.Join('c', StringArray)", "c")]
+        [DataRow("string.Join(\"str\", StringArray)", "str")]
+        public void JsTranslator_StringArrayJoin(string binding, string delimiter)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"StringArray().join(\"{delimiter}\")", result);
+        }
+
+        [TestMethod]
+        [DataRow("string.Join('c', StringArray.Where((string item) => item.Length > 2))", "c")]
+        [DataRow("string.Join(\"str\", StringArray.Where((string item) => item.Length > 2))", "str")]
+        public void JsTranslator_StringEnumerableJoin(string binding, string delimiter)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"StringArray().filter(function(item){{return ko.unwrap(item).length>2;}}).join(\"{delimiter}\")", result);
+        }
+
+        [TestMethod]
+        [DataRow("StringProp.Replace('c', 'a')", "c", "a")]
+        [DataRow("StringProp.Replace(\"str\", \"rts\")", "str", "rts")]
+        public void JsTranslator_StringReplace(string binding, string original, string replacement)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"StringProp().split(\"{original}\").join(\"{replacement}\")", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_StringJoin()
+        {
+            var result = CompileBinding("", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("", result);
+        }
+
 
         [TestMethod]
         public void JsTranslator_ValidMethod_UnsupportedTranslation()

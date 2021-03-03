@@ -228,6 +228,18 @@ namespace DotVVM.Framework.Compilation.Javascript
                     new JsBinaryExpression(a[1], BinaryOperatorType.Equal, new JsLiteral(null)),
                     BinaryOperatorType.ConditionalOr,
                     new JsBinaryExpression(a[1].Clone(), BinaryOperatorType.StrictlyEqual, new JsLiteral("")))));
+
+            var joinStringArrayMethod = typeof(string).GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Where(m => m.Name == nameof(string.Join) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType == typeof(string[]) && m.GetParameters().First().ParameterType == typeof(string)).Single();
+            AddMethodTranslator(joinStringArrayMethod, translator: new GenericMethodCompiler(args => args[2].Member("join").Invoke(args[1])));
+            var joinStringEnumerableMethod = typeof(string).GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Where(m => m.Name == nameof(string.Join) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType == typeof(IEnumerable<string>) && m.GetParameters().First().ParameterType == typeof(string)).Single();
+            AddMethodTranslator(joinStringEnumerableMethod, translator: new GenericMethodCompiler(args => args[2].Member("join").Invoke(args[1])));
+
+            AddMethodTranslator(typeof(string), nameof(string.Replace), parameters: new[] { typeof(string), typeof(string) }, translator: new GenericMethodCompiler(
+                args => args[0].Member("split").Invoke(args[1]).Member("join").Invoke(args[2])));
+            AddMethodTranslator(typeof(string), nameof(string.Split), parameters: new[] { typeof(string), typeof(int), typeof(StringSplitOptions) }, translator: new GenericMethodCompiler(
+                args => args[0].Member("split").Invoke(args[1], args[2])));
         }
 
         private void AddDefaultMathTranslations()
@@ -256,7 +268,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 args => new JsIdentifierExpression("Math").Member("exp").Invoke(args[1])));
 
             AddMethodTranslator(typeof(Math), nameof(Math.Floor), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
-               args => new JsIdentifierExpression("Math").Member("floor").Invoke(args[1])));
+                args => new JsIdentifierExpression("Math").Member("floor").Invoke(args[1])));
 
             AddMethodTranslator(typeof(Math), nameof(Math.Log), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("log").Invoke(args[1])));
@@ -268,7 +280,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(Math), nameof(Math.Max), parameters: new[] { typeof(double), typeof(double) }, translator: new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("max").Invoke(args[1], args[2])));
             AddMethodTranslator(typeof(Math), nameof(Math.Min), parameters: new[] { typeof(int), typeof(int) }, translator: new GenericMethodCompiler(
-               args => new JsIdentifierExpression("Math").Member("min").Invoke(args[1], args[2])));
+                args => new JsIdentifierExpression("Math").Member("min").Invoke(args[1], args[2])));
             AddMethodTranslator(typeof(Math), nameof(Math.Min), parameters: new[] { typeof(double), typeof(double) }, translator: new GenericMethodCompiler(
                 args => new JsIdentifierExpression("Math").Member("min").Invoke(args[1], args[2])));
 
