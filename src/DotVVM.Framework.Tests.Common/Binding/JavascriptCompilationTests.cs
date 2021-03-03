@@ -458,7 +458,7 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("Math.Min(IntProp, DoubleProp)", "Math.min(IntProp(),DoubleProp())")]
         [DataRow("Math.Pow(IntProp, 3)", "Math.pow(IntProp(),3)")]
         [DataRow("Math.Round(DoubleProp)", "Math.round(DoubleProp())")]
-        [DataRow("Math.Round(DoubleProp, 2)", "Math.round(DoubleProp()).toFixed(2)")]
+        [DataRow("Math.Round(DoubleProp, 2)", "DoubleProp().toFixed(2)")]
         [DataRow("Math.Sign(IntProp)", "Math.sign(IntProp())")]
         [DataRow("Math.Sign(DoubleProp)", "Math.sign(DoubleProp())")]
         [DataRow("Math.Sqrt(DoubleProp)", "Math.sqrt(DoubleProp())")]
@@ -512,14 +512,6 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("", new[] { typeof(TestViewModel) });
             Assert.AreEqual("", result);
-        }
-
-
-        [TestMethod]
-        public void JsTranslator_ValidMethod_UnsupportedTranslation()
-        {
-            Assert.ThrowsException<NotSupportedException>(() =>
-                CompileBinding("Enumerable.Skip<long>(LongArray, 2)", new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) }));
         }
 
         [TestMethod]
