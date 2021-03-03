@@ -441,6 +441,38 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("Math.Abs(IntProp)", "Math.abs(IntProp())")]
+        [DataRow("Math.Abs(DoubleProp)", "Math.abs(DoubleProp())")]
+        [DataRow("Math.Acos(DoubleProp)", "Math.acos(DoubleProp())")]
+        [DataRow("Math.Asin(DoubleProp)", "Math.asin(DoubleProp())")]
+        [DataRow("Math.Atan(DoubleProp)", "Math.atan(DoubleProp())")]
+        [DataRow("Math.Atan2(DoubleProp, 15)", "Math.atan2(DoubleProp(),15)")]
+        [DataRow("Math.Ceiling(DoubleProp)", "Math.ceil(DoubleProp())")]
+        [DataRow("Math.Cos(DoubleProp)", "Math.cos(DoubleProp())")]
+        [DataRow("Math.Cosh(DoubleProp)", "Math.cosh(DoubleProp())")]
+        [DataRow("Math.Exp(DoubleProp)", "Math.exp(DoubleProp())")]
+        [DataRow("Math.Floor(DoubleProp)", "Math.floor(DoubleProp())")]
+        [DataRow("Math.Log(DoubleProp)", "Math.log(DoubleProp())")]
+        [DataRow("Math.Log10(DoubleProp)", "Math.log10(DoubleProp())")]
+        [DataRow("Math.Max(IntProp, DoubleProp)", "Math.max(IntProp(),DoubleProp())")]
+        [DataRow("Math.Min(IntProp, DoubleProp)", "Math.min(IntProp(),DoubleProp())")]
+        [DataRow("Math.Pow(IntProp, 3)", "Math.pow(IntProp(),3)")]
+        [DataRow("Math.Round(DoubleProp)", "Math.round(DoubleProp())")]
+        [DataRow("Math.Round(DoubleProp, 2)", "Math.round(DoubleProp()).toFixed(2)")]
+        [DataRow("Math.Sign(IntProp)", "Math.sign(IntProp())")]
+        [DataRow("Math.Sign(DoubleProp)", "Math.sign(DoubleProp())")]
+        [DataRow("Math.Sqrt(DoubleProp)", "Math.sqrt(DoubleProp())")]
+        [DataRow("Math.Tan(DoubleProp)", "Math.tan(DoubleProp())")]
+        [DataRow("Math.Tanh(DoubleProp)", "Math.tanh(DoubleProp())")]
+        [DataRow("Math.Truncate(DoubleProp)", "Math.trunc(DoubleProp())")]
+        public void JsTranslator_MathMethods(string binding, string expected)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual(expected, result);
+        }
+
+
+        [TestMethod]
         public void JsTranslator_ValidMethod_UnsupportedTranslation()
         {
             Assert.ThrowsException<NotSupportedException>(() =>

@@ -142,6 +142,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddDefaultToStringTranslations();
             AddDefaultStringTranslations();
             AddDefaultEnumerableTranslations();
+            AddDefaultMathTranslations();
         }
 
         private void AddDefaultToStringTranslations()
@@ -227,6 +228,75 @@ namespace DotVVM.Framework.Compilation.Javascript
                     new JsBinaryExpression(a[1], BinaryOperatorType.Equal, new JsLiteral(null)),
                     BinaryOperatorType.ConditionalOr,
                     new JsBinaryExpression(a[1].Clone(), BinaryOperatorType.StrictlyEqual, new JsLiteral("")))));
+        }
+
+        private void AddDefaultMathTranslations()
+        {
+            AddMethodTranslator(typeof(Math), nameof(Math.Abs), parameters: new[] { typeof(int) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("abs").Invoke(args[1])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Abs), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("abs").Invoke(args[1])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Acos), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("acos").Invoke(args[1])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Asin), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("asin").Invoke(args[1])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Atan), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("atan").Invoke(args[1])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Atan2), parameters: new[] { typeof(double), typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("atan2").Invoke(args[1], args[2])));
+
+            AddMethodTranslator(typeof(Math), nameof(Math.Ceiling), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("ceil").Invoke(args[1])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Cos), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("cos").Invoke(args[1])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Cosh), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("cosh").Invoke(args[1])));
+
+            AddMethodTranslator(typeof(Math), nameof(Math.Exp), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("exp").Invoke(args[1])));
+
+            AddMethodTranslator(typeof(Math), nameof(Math.Floor), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+               args => new JsIdentifierExpression("Math").Member("floor").Invoke(args[1])));
+
+            AddMethodTranslator(typeof(Math), nameof(Math.Log), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("log").Invoke(args[1])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Log10), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("log10").Invoke(args[1])));
+
+            AddMethodTranslator(typeof(Math), nameof(Math.Max), parameters: new[] { typeof(int), typeof(int) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("max").Invoke(args[1], args[2])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Max), parameters: new[] { typeof(double), typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("max").Invoke(args[1], args[2])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Min), parameters: new[] { typeof(int), typeof(int) }, translator: new GenericMethodCompiler(
+               args => new JsIdentifierExpression("Math").Member("min").Invoke(args[1], args[2])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Min), parameters: new[] { typeof(double), typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("min").Invoke(args[1], args[2])));
+
+            AddMethodTranslator(typeof(Math), nameof(Math.Pow), parameters: new[] { typeof(double), typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("pow").Invoke(args[1], args[2])));
+
+            AddMethodTranslator(typeof(Math), nameof(Math.Round), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("round").Invoke(args[1])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Round), parameters: new[] { typeof(double), typeof(int) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("round").Invoke(args[1]).Member("toFixed").Invoke(args[2])));
+
+            AddMethodTranslator(typeof(Math), nameof(Math.Sign), parameters: new[] { typeof(int) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("sign").Invoke(args[1])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Sign), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("sign").Invoke(args[1])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Sin), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("sin").Invoke(args[1])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Sinh), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("sinh").Invoke(args[1])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Sqrt), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("sqrt").Invoke(args[1])));
+
+            AddMethodTranslator(typeof(Math), nameof(Math.Tan), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("tan").Invoke(args[1])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Tanh), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("tanh").Invoke(args[1])));
+            AddMethodTranslator(typeof(Math), nameof(Math.Truncate), parameters: new[] { typeof(double) }, translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("Math").Member("trunc").Invoke(args[1])));
         }
 
         private void AddDefaultEnumerableTranslations()
