@@ -26,7 +26,9 @@ namespace DotVVM.Framework.Runtime.Commands
                 eventValidator.ValidateCommand(path, commandId, viewRootControl, validationTargetPath) :
                 eventValidator.ValidateControlCommand(path, commandId, viewRootControl, targetControl, validationTargetPath);
 
-            context.ModelState.ValidationTarget = findResult.Control.GetValue(DotVVM.Framework.Controls.Validation.TargetProperty) ?? context.ViewModel;
+            context.ModelState.ValidationTarget = findResult.Control.GetValue(DotVVM.Framework.Controls.Validation.TargetProperty);
+            if (context.ModelState.ValidationTargetPath == "/" && context.ModelState.ValidationTarget == null)
+                context.ModelState.ValidationTarget = context.ViewModel;
 
             return new ActionInfo {
                 Action = () => findResult.Binding.Evaluate(findResult.Control, args),
