@@ -21,7 +21,8 @@ import * as spaEvents from './spa/events'
 import { isPostbackRunning } from "./postback/internal-handlers"
 import * as api from './api/api'
 import * as eventHub from './api/eventHub'
-import { orderBy, orderByDesc } from './utils/sorting'
+import { orderBy, orderByDesc } from './collections/sortingHelper'
+import * as arrayHelper from './collections/arrayHelper'
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -94,8 +95,7 @@ const dotvvmExports = {
         parseDate,
         deserialize
     },
-    orderBy,
-    orderByDesc
+    arrayHelper
 }
 
 if (compileConstants.isSpa) {

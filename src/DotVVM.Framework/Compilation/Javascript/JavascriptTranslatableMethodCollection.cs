@@ -313,46 +313,53 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         private void AddDefaultEnumerableTranslations()
         {
-            AddMethodTranslator(typeof(Enumerable), "Count", parameterCount: 1, translator: new GenericMethodCompiler(a => a[1].Member("length")));
+            var returnTrueFunc = new JsFunctionExpression(new[] { new JsIdentifier("arg") }, new JsBlockStatement(new JsReturnStatement(new JsLiteral(true))));
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.All), parameterCount: 2, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("all").Invoke(args[1], args[2])));
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Any), parameterCount: 1, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("any").Invoke(args[1], returnTrueFunc.Clone())));
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Any), parameterCount: 2, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("any").Invoke(args[1], args[2])));
+
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Concat), parameterCount: 2, translator: new GenericMethodCompiler(args =>
+                args[1].Member("concat").Invoke(args[2])));
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), parameterCount: 1, translator: new GenericMethodCompiler(a => a[1].Member("length")));
+
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Distinct), parameterCount: 1, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("distinct").Invoke(args[1])));
+
             AddMethodTranslator(typeof(Enumerable).GetMethod("ElementAt", BindingFlags.Static | BindingFlags.Public), new GenericMethodCompiler((args, method) =>
                 BuildIndexer(args[1], args[2], method)));
 
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.FirstOrDefault), parameterCount: 1, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("firstOrDefault").Invoke(args[1], returnTrueFunc.Clone()).WithAnnotation(ResultIsObservableAnnotation.Instance)));
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.FirstOrDefault), parameterCount: 2, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("firstOrDefault").Invoke(args[1], args[2]).WithAnnotation(ResultIsObservableAnnotation.Instance)));
+
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.LastOrDefault), parameterCount: 1, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("lastOrDefault").Invoke(args[1], returnTrueFunc.Clone()).WithAnnotation(ResultIsObservableAnnotation.Instance)));
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.LastOrDefault), parameterCount: 2, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("lastOrDefault").Invoke(args[1], args[2]).WithAnnotation(ResultIsObservableAnnotation.Instance)));
+
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderBy), parameterCount: 2, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderBy").Invoke(args[1], args[2])));
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderByDescending), parameterCount: 2, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderByDesc").Invoke(args[1], args[2])));
+
+            var selectMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Where(m => m.Name == "Select" && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)).Single();
+            AddMethodTranslator(selectMethod, translator: new GenericMethodCompiler(args => args[1].Member("map").Invoke(args[2])));
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Skip), parameterCount: 2, translator: new GenericMethodCompiler(args =>
+                args[1].Member("slice").Invoke(args[2])));
+
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Take), parameterCount: 2, translator: new GenericMethodCompiler(args =>
+                args[1].Member("slice").Invoke(new JsLiteral(0), args[2])));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.ToArray), parameterCount: 1, translator: new GenericMethodCompiler(args => args[1]));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.ToList), parameterCount: 1, translator: new GenericMethodCompiler(args => args[1]));
 
             var whereMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(m => m.Name == "Where" && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)).Single();
             AddMethodTranslator(whereMethod, translator: new GenericMethodCompiler(args => args[1].Member("filter").Invoke(args[2])));
-
-            var selectMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .Where(m => m.Name == "Select" && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)).Single();
-            AddMethodTranslator(selectMethod, translator: new GenericMethodCompiler(args => args[1].Member("map").Invoke(args[2])));
-
-            JsExpression CreateArrayNullOrEmptyCheck(JsExpression arrayExpression)
-            {
-                return new JsBinaryExpression(
-                           new JsIdentifierExpression("Array").Member("isArray").Invoke(arrayExpression),
-                           BinaryOperatorType.ConditionalAnd,
-                           new JsBinaryExpression(arrayExpression.Member("length").Invoke(), BinaryOperatorType.NotEqual, new JsLiteral(0)));
-            }
-
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.FirstOrDefault), parameterCount: 1, translator: new GenericMethodCompiler(args =>
-                new JsConditionalExpression(
-                    CreateArrayNullOrEmptyCheck(args[1]),
-                    new JsIndexerExpression(args[1], new JsLiteral(0)),
-                    new JsLiteral(null))
-            ));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.LastOrDefault), parameterCount: 1, translator: new GenericMethodCompiler(args =>
-                new JsConditionalExpression(
-                    CreateArrayNullOrEmptyCheck(args[1]),
-                    new JsIndexerExpression(args[1], new JsBinaryExpression(args[1].Member("length").Invoke(), BinaryOperatorType.Minus, new JsLiteral(1))),
-                    new JsLiteral(null))
-            ));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Skip), parameterCount: 2, translator: new GenericMethodCompiler(args => args[1].Member("slice").Invoke(args[2])));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Take), parameterCount: 2, translator: new GenericMethodCompiler(args => args[1].Member("slice").Invoke(new JsLiteral(0), args[2])));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Concat), parameterCount: 2, translator: new GenericMethodCompiler(args => args[1].Member("concat").Invoke(args[2])));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderBy), parameterCount: 2, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("orderBy").Invoke(args[1], args[2])));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderByDescending), parameterCount: 2, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("orderByDesc").Invoke(args[1], args[2])));
         }
 
         public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] args, MethodInfo method)
