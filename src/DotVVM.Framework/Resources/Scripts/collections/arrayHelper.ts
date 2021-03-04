@@ -11,8 +11,7 @@ export {
     orderBy,
     orderByDesc,
     remove,
-    removeFirst,
-    selectMany
+    removeFirst
 }
 
 function any<T>(source: T[], predicate: (s: T) => boolean): boolean {
@@ -90,12 +89,4 @@ function removeFirst<T>(source: T[], predicate: (s: T) => boolean) {
             return;
         }
     }
-}
-
-function selectMany<T, B>(source: T[], selector: (item: T) => B[]): B[] {
-    let r: B[] = [];
-    for (let i = 0; i < source.length; i++) {
-        r.push(...selector(source[i]));
-    }
-    return r;
 }
