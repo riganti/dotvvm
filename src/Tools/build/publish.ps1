@@ -103,6 +103,7 @@ function PushPackages() {
     Write-Host "Pushing packages ..."
     foreach ($package in $packages) {
         & .\Tools\nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Package).$version.nupkg -source $server -apiKey $apiKey | Out-Host
+        & .\Tools\nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Package).$version.snupkg -source $server -apiKey $apiKey | Out-Host
     }
 }
 

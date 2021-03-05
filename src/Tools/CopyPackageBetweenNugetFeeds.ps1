@@ -21,6 +21,7 @@ Param(
 
     Write-Host "Uploading package..."
     & .\Tools\nuget.exe push $nupkgFile -source $server -apiKey $apiKey
+    & .\Tools\nuget.exe push $snupkgFile -source $server -apiKey $apiKey
     Write-Host "Package uploaded to $server."
 
     Remove-Item $nupkgFile    
