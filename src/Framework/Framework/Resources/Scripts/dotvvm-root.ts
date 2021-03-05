@@ -55,7 +55,7 @@ const dotvvmExports = {
     evaluator: {
         getDataSourceItems: evaluator.getDataSourceItems,
         wrapObservable: evaluator.wrapObservable,
-        evaluateOnViewModel: evaluator.evaluateOnViewModel
+        evaluateExpression: evaluator.evaluateOnViewModel
     },
     fileUpload: {
         reportProgress: fileUpload.reportProgress,

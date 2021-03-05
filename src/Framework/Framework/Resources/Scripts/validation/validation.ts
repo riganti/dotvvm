@@ -46,17 +46,18 @@ const createValidationHandler = (path: string) => ({
             const context = ko.contextFor(options.sender);
             const validationTarget = evaluator.evaluateOnViewModel(context, path);
 
-            watchAndTriggerValidationErrorChanged(options, () => {
-                detachAllErrors();
-                validateViewModel(validationTarget);
-            });
+            watchAndTriggerValidationErrorChanged(options,
+                () => {
+                    detachAllErrors();
+                    validateViewModel(validationTarget);
+                });
 
             if (allErrors.length > 0) {
                 logError("validation", "Validation failed: postback aborted; errors: ", allErrors);
                 return Promise.reject(new DotvvmPostbackError({ type: "handler", handlerName: "validation", message: "Validation failed" }))
             }
         }
-        return callback()
+        return callback();
     }
 })
 
@@ -89,10 +90,11 @@ export function init() {
     ko.bindingHandlers["dotvvm-validationSummary"] = {
         init: (element: HTMLElement, valueAccessor: () => ValidationSummaryBinding) => {
             const binding = valueAccessor();
+            const target = evaluator.evaluateOnViewModel(ko.contextFor(element), ko.unwrap(binding.target));
             validationErrorsChanged.subscribe(_ => {
                 element.innerHTML = "";
                 const errors = getValidationErrors(
-                    binding.target,
+                    target,
                     binding.includeErrorsFromChildren,
                     binding.includeErrorsFromTarget
                 );
@@ -222,7 +224,7 @@ function validateProperty(viewModel: any, property: KnockoutObservable<any>, val
  * @returns By default returns only errors from the viewModel's immediate children
  */
 function getValidationErrors<T>(
-    targetObservable: KnockoutObservable<T> | T | null,
+    targetObservable: KnockoutObservable<T> | T | null | any,
     includeErrorsFromGrandChildren: boolean,
     includeErrorsFromTarget: boolean,
     includeErrorsFromChildren = true): ValidationError[] {
@@ -279,25 +281,20 @@ function getValidationErrors<T>(
 /**
  * Adds validation errors from the server to the appropriate arrays
  */
-export function showValidationErrorsFromServer(dataContext: any, path: string, serverResponseObject: any, options: PostbackOptions) {
+export function showValidationErrorsFromServer(serverResponseObject: any, options: PostbackOptions) {
     watchAndTriggerValidationErrorChanged(options, () => {
-        detachAllErrors()
-        // resolve validation target
-        const validationTarget = <KnockoutObservable<any>> evaluator.evaluateOnViewModel(
-            dataContext,
-            path!);
-        if (!validationTarget) {
-            return;
-        }
+        detachAllErrors();
 
         // add validation errors
         for (const prop of serverResponseObject.modelState) {
+            
             // find the property
             const propertyPath = prop.propertyPath;
+            let rootVM = dotvvm.viewModels.root.viewModel;
             const property =
                 propertyPath ?
-                evaluator.evaluateOnViewModel(ko.unwrap(validationTarget), propertyPath) :
-                validationTarget;
+                evaluator.evaluateOnViewModel(rootVM, propertyPath) :
+                rootVM;
 
             ValidationError.attach(prop.errorMessage, property);
         }
