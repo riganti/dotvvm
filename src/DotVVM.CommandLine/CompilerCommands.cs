@@ -11,14 +11,6 @@ namespace DotVVM.CommandLine
 {
     public static class CompilerCommands
     {
-        public const string ShimName = "Compiler";
-        public const string AssemblyNameOption = "--assembly-name";
-        public const string ApplicationPathOption = "--application-path";
-        public const string PackageName = "DotVVM.Compiler";
-        public const string ShimProgramFile = "Compiler.cs";
-        public const string ShimProjectFile = "Compiler.csproj";
-        public const string ProgramClass = "DotVVM.Compiler.Program";
-
         public static void AddCompilerCommands(this Command command)
         {
             var lintCmd = new Command("lint", "Look for compiler errors in Views and Markup Controls");
@@ -50,6 +42,7 @@ namespace DotVVM.CommandLine
 
             if (!noBuild)
             {
+                // TODO: If the target framework is the .NET Framework, use VS's MSBuild.
                 var msbuild = MSBuild.CreateFromSdk();
                 var buildSuccess = msbuild.TryBuild(
                     project: new FileInfo(project.ProjectFilePath),
@@ -58,7 +51,7 @@ namespace DotVVM.CommandLine
                     logger: logger);
                 if (!buildSuccess)
                 {
-                    logger.LogError("The project could be built. "
+                    logger.LogError("The project could not be built. "
                         + "Please check for compiler errors using 'dotnet build' or Visual Studio.'");
                     return 1;
                 }

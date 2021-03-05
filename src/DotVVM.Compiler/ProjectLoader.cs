@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using DotVVM.Framework.Compilation.Static;
 
 namespace DotVVM.Compiler
 {
@@ -19,7 +20,7 @@ namespace DotVVM.Compiler
             };
 
             _ = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
-            return new DefaultCompilerExecutor();
+            return new DependencyContextCompilerExecutor();
 
 #elif NET461
             var setup = new AppDomainSetup

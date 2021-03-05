@@ -8,21 +8,15 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Compiler
 {
-    public class DefaultCompilerExecutor : ICompilerExecutor
+    public class DependencyContextCompilerExecutor : ICompilerExecutor
     {
-        public bool ExecuteCompile(FileInfo assemblyFile, DirectoryInfo? projectDir, string? rootNamespace)
+        private readonly DefaultCompilerExecutor inner = new();
+
+        public bool ExecuteCompile(FileInfo assemblyFile, DirectoryInfo? projectDir)
         {
             var assembly = Assembly.LoadFile(assemblyFile.FullName);
             ReplaceDefaultDependencyContext(assembly);
-            var projectDirPath = projectDir?.FullName ?? Directory.GetCurrentDirectory();
-            var configuration = StaticViewCompiler.CreateConfiguration(assembly, projectDirPath);
-            var compiler = configuration.ServiceProvider.GetRequiredService<StaticViewCompiler>();
-            var views = compiler.CompileAllViews();
-            var logger = new TextReportLogger();
-            using var err = Console.OpenStandardError();
-            var reports = views.SelectMany(s => s.Reports).ToList();
-            logger.Log(err, reports);
-            return reports.Count == 0;
+            return inner.ExecuteCompile(assemblyFile, projectDir);
         }
 
         private static void ReplaceDefaultDependencyContext(Assembly projectAssembly)

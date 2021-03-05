@@ -29,9 +29,9 @@ namespace DotVVM.CommandLine
                     if (node.FullTagName == "dot:ContentPlaceHolder" || node.FullTagName == "dot:SpaContentPlaceHolder")
                     {
                         var id = node.Attributes.FirstOrDefault(a => a.AttributeName == "ID");
-                        if (id != null && id.ValueNode is DothtmlValueTextNode)
+                        if (id != null && id.ValueNode is DothtmlValueTextNode value)
                         {
-                            results.Add((id.ValueNode as DothtmlValueTextNode).Text );
+                            results.Add(value.Text);
                         }
                     }
                 }

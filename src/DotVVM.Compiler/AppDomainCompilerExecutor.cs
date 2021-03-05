@@ -1,12 +1,13 @@
 using System;
 using System.IO;
 using System.Reflection;
+using DotVVM.Framework.Compilation.Static;
 
 namespace DotVVM.Compiler
 {
     public class AppDomainCompilerExecutor : MarshalByRefObject, ICompilerExecutor
     {
-        private readonly DefaultCompilerExecutor inner = new DefaultCompilerExecutor();
+        private readonly DefaultCompilerExecutor inner = new();
 
         public AppDomainCompilerExecutor()
         {
@@ -35,16 +36,15 @@ namespace DotVVM.Compiler
                     return Assembly.LoadFrom(compilerRelatedPath);
                 }
 
-                // Don't worry about the missing DotVVM.Framework.resources assembly, mate. The runtime defaults to
-                // invariant resource culture anyway and find the proper resources in the already loaded
-                // DotVVM.Framework assembly.
+                // Don't worry about the missing DotVVM.Framework.resources assembly. It's just the runtime looking for
+                // resources.
                 return null;
             };
         }
 
-        public bool ExecuteCompile(FileInfo assemblyFile, DirectoryInfo? projectDir, string? rootNamespace)
+        public bool ExecuteCompile(FileInfo assemblyFile, DirectoryInfo? projectDir)
         {
-            return inner.ExecuteCompile(assemblyFile, projectDir, rootNamespace);
+            return inner.ExecuteCompile(assemblyFile, projectDir);
         }
     }
 }
