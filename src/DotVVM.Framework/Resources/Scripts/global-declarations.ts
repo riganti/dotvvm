@@ -179,6 +179,20 @@ type ValidationRuleTable = {
     }
 }
 
+type StateUpdate<TViewModel> = (initial: TViewModel) => Readonly<TViewModel>
+type UpdateDispatcher<TViewModel> = (update: StateUpdate<TViewModel>) => void
+
+type DeepPartial<T> =
+    T extends object ? { [P in keyof T]?: DeepPartial<T[P]>; } :
+    T;
+
+type DotvvmObservable<T> = KnockoutObservable<T> & {
+    readonly state: T
+    readonly setState: (newState: T) => void
+    readonly patchState: (patch: DeepPartial<T>) => void
+    readonly updater: UpdateDispatcher<T>
+}
+
 type RootViewModel = {
     $type: string
     $csrfToken?: string
