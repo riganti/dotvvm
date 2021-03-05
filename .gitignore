@@ -209,3 +209,4 @@ FakesAssemblies/
 
 
 *.binlog
+/src/Tools/npm/dotvvm-types/*.d.ts

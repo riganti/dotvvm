@@ -6,7 +6,6 @@ using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
-using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -56,14 +55,14 @@ namespace DotVVM.Samples.Tests.Feature
             browser.First("input").SendKeys(Keys.Enter);
             browser.Wait(5000);
             var downloadURL = (string)jsexec.ExecuteScript("return window.downloadURL;");
-            Assert.IsFalse(string.IsNullOrEmpty(downloadURL));
+            Assert.False(string.IsNullOrEmpty(downloadURL));
 
             string returnedFile;
             using (var client = new WebClient())
             {
                 returnedFile = client.DownloadString(browser.GetAbsoluteUrl(downloadURL));
             }
-            Assert.AreEqual(fileContent, returnedFile);
+            Assert.Equal(fileContent, returnedFile);
         }
 
         public ReturnedFileTests(ITestOutputHelper output) : base(output)

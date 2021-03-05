@@ -1,6 +1,4 @@
-﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Selenium.Core;
+﻿using Riganti.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;

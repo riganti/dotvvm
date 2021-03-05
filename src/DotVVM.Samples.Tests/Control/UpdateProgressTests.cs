@@ -255,8 +255,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Single("long", SelectByDataUi).Click();
                 AssertUI.IsDisplayed(progress);
                 Thread.Sleep(1000);
-                progress.WaitFor(AssertUI.IsNotDisplayed, 500,
-                    "Update progress did not hide after action finished");
+                AssertUI.IsNotDisplayed(progress); //"Update progress did not hide after action finished"
             });
         }
 
