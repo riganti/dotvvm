@@ -15,7 +15,7 @@ namespace DotVVM.Compiler
         public bool ExecuteCompile(FileInfo assemblyFile, DirectoryInfo? projectDir)
         {
             var assembly = Assembly.LoadFile(assemblyFile.FullName);
-            // ReplaceDefaultDependencyContext(assembly);
+            ReplaceDefaultDependencyContext(assembly);
             return inner.ExecuteCompile(assemblyFile, projectDir);
         }
 
