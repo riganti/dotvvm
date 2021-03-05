@@ -428,7 +428,7 @@ test("lastSetError flag", () => {
     expect(() => vm.Int([])).toThrow();  // invalid
     expect(vm.Int[lastSetErrorSymbol]).toBeDefined();
 
-    // changing state from state manager should reset the flag
+    // changing state from state manager should reset the flag (if the value is different)
     s.patchState({ Int: 1 });
     s.doUpdateNow();
     expect(vm.Int[lastSetErrorSymbol]).toBeUndefined();
@@ -443,10 +443,10 @@ test("lastSetError flag - changed back to the original value", () => {
     expect(() => vm.Int(null)).toThrow();  // invalid
     expect(vm.Int[lastSetErrorSymbol]).toBeDefined();
 
-    // changing state from state manager should reset the flag (even if the actual value was not changed)
+    // changing state from state manager should not reset the flag (if the actual value was not changed)
     s.patchState({ Int: 1 });
     s.doUpdateNow();
-    expect(vm.Int[lastSetErrorSymbol]).toBeUndefined();
+    expect(vm.Int[lastSetErrorSymbol]).toBeDefined();
 
 })
 
@@ -464,7 +464,7 @@ test("lastSetError flag - triggers observable change even if the value hasn't re
         s.doUpdateNow();
         expect(changes).toEqual(2);
 
-        vm.Int(5);
+        vm.Int(2);
         s.doUpdateNow();
         expect(changes).toEqual(3);
 

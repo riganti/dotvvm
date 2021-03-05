@@ -28,20 +28,6 @@ export type UpdatableObjectExtensions<T> = {
     [updateSymbol]?: UpdateDispatcher<T>
 }
 
-export type DeepKnockoutWrapped<T> =
-    (T extends (infer R)[] ? DeepKnockoutWrappedArray<R> :
-    T extends object ? KnockoutObservable<DeepKnockoutWrappedObject<T>> :
-    KnockoutObservable<T>) & UpdatableObjectExtensions<T>;
-
-export type DeepKnockoutWrappedArray<T> = KnockoutObservableArray<DeepKnockoutWrapped<T>>
-
-export type DeepKnockoutWrappedObject<T> = {
-    readonly [P in keyof T]: DeepKnockoutWrapped<T[P]>;
-};
-
-
-export type StateUpdate<TViewModel> = (initial: TViewModel) => Readonly<TViewModel>
-export type UpdateDispatcher<TViewModel> = (update: StateUpdate<TViewModel>) => void
 type RenderContext<TViewModel> = {
     // timeFromStartGetter: () => number
     // secondsTimeGetter: () => Date
@@ -60,8 +46,8 @@ class TwoWayBinding<T> {
 }
 
 export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
-    public readonly stateObservable: DeepKnockoutWrapped<TViewModel>;
-    private _state: TViewModel
+    public readonly stateObservable: DeepKnockoutObservable<TViewModel>;
+    private _state: DeepReadonly<TViewModel>
     public get state() {
         return this._state
     }
@@ -72,11 +58,11 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
     private _currentFrameNumber : number | null = 0;
 
     constructor(
-        initialState: TViewModel,
-        public stateUpdateEvent: DotvvmEvent<TViewModel>
+        initialState: DeepReadonly<TViewModel>,
+        public stateUpdateEvent: DotvvmEvent<DeepReadonly<TViewModel>>
     ) {
         this._state = coerce(initialState, initialState.$type || { type: "dynamic" })
-        this.stateObservable = createWrappedObservable(initialState, (initialState as any)["$type"], u => this.update(u))
+        this.stateObservable = createWrappedObservable(initialState, (initialState as any)["$type"], u => this.update(u as any))
         this.dispatchUpdate()
     }
 
@@ -103,7 +89,7 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
         isViewModelUpdating = true
         ko.delaySync.pause()
         try {
-            this.stateObservable[notifySymbol](this._state)
+            this.stateObservable[notifySymbol as any](this._state)
         } finally {
             isViewModelUpdating = false
             ko.delaySync.resume()
@@ -111,19 +97,19 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
         // console.log("New state dispatched, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart)
     }
 
-    public setState(newState: TViewModel): TViewModel {
+    public setState(newState: DeepReadonly<TViewModel>): DeepReadonly<TViewModel> {
         if (newState == null) throw new Error("State can't be null or undefined.")
         if (newState === this._state) return newState
 
         const type = newState.$type || this._state.$type
 
-        const coersionResult = coerce(newState, type!, this._state)
+        const coercionResult = coerce(newState, type!, this._state)
 
         this.dispatchUpdate();
-        return this._state = coersionResult
+        return this._state = coercionResult
     }
 
-    public patchState(patch: Partial<TViewModel>): TViewModel {
+    public patchState(patch: Partial<TViewModel>): DeepReadonly<TViewModel> {
         return this.setState(patchViewModel(this._state, patch))
     }
 
@@ -149,8 +135,8 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
     }
     public [internalPropCache]: { [name: string]: (KnockoutObservable<any> & UpdatableObjectExtensions<any>) | null } = {}
 
-    public [updatePropertySymbol](propName: keyof T, valUpdate: StateUpdate<any>) {
-        this[updateSymbol](vm => Object.freeze({ ...vm, [propName]: valUpdate(vm[propName]) }))
+    public [updatePropertySymbol](propName: keyof DeepReadonly<T>, valUpdate: StateUpdate<any>) {
+        this[updateSymbol](vm => Object.freeze({ ...vm, [propName]: valUpdate(vm[propName]) }) as any)
     }
 
     constructor(initialValue: T, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata | undefined, additionalProperties: string[]) {
@@ -238,37 +224,34 @@ function createObservableObject<T extends object>(initialObject: T, typeHint: Ty
     }
     const additionalProperties = keys(initialObject).filter(p => !pSet.has(p))
 
-    return new FakeObservableObject(initialObject, update, typeId, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
+    return new FakeObservableObject(initialObject, update, typeId, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutObservableObject<T>
 }
 
-function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | undefined, updater: UpdateDispatcher<T>): DeepKnockoutWrapped<T> {
+function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: TypeDefinition | undefined, updater: UpdateDispatcher<T>): DeepKnockoutObservable<T> {
 
     let isUpdating = false
-    let isDirty = false
-    let isLastErrorUpdate = false
 
     function triggerLastSetErrorUpdate(obs: KnockoutObservable<T>) {
-        try {
-            isLastErrorUpdate = true;
-            obs.valueHasMutated && obs.valueHasMutated();
-        } finally {
-            isLastErrorUpdate = false;
-        }
+        obs.valueHasMutated && obs.valueHasMutated();
     }
 
     function observableValidator(this: KnockoutObservable<T>, newValue: any): any {
-        if (isUpdating || isLastErrorUpdate) { return newValue; }
+        if (isUpdating) return { newValue, notifySubscribers: false }
         updatedObservable = true
 
         try {
+            const notifySubscribers = (this as any)[lastSetErrorSymbol];
             (this as any)[lastSetErrorSymbol] = void 0;
+
             const unmappedValue = unmapKnockoutObservables(newValue);
             const coerceResult = coerce(unmappedValue, typeHint || { type: "dynamic" }, (this as any)[currentStateSymbol]);
-            
+            updater(_ => coerceResult);
+
+            // when someone sets object in the observable and we coerce it, we need to wrap the coerced result in observables too
             if (isPrimitive(coerceResult) || coerceResult instanceof Date || coerceResult == null) {
-                return coerceResult;
+                return { newValue: coerceResult, notifySubscribers };
             } else {
-                return createWrappedObservable(coerceResult, typeHint, updater)();      // TODO: Consult with @exyi - this is probably not right and I guess it is inefficient
+                return { newValue: createWrappedObservable(coerceResult, typeHint, updater)(), notifySubscribers };
             }
         } catch (err) {
             (this as any)[lastSetErrorSymbol] = err;
@@ -278,39 +261,18 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
         }
     }
 
-    // When this option is set, the 'deferred' extender is used by default.
-    // It makes calls to "change" subscribe aynchronous so our hacks with `isUpdating` would not work at all
-    // It may also drop calls to "beforeChange", which could pass some updates unseen.
-    // As a workaround, we use the "dirty" event when the deferUpdates option is set.
-    const isDeferred = ko.options.deferUpdates
-
-    // We could also disable the deferUpdates for this observable, but that would arguably defeat the purpose
-
     const obs = initialValue instanceof Array ? ko.observableArray([], observableValidator) : ko.observable(null, observableValidator) as any
-    obs[updateSymbol] = updater
     let updatedObservable = false
-
-    obs.subscribe((newVal: any) => {
-        if (isDeferred)
-            newVal = obs() // the value is not passed in parameter in "dirty" handler. We use it otherwise, for perf reasons
-        if (isUpdating || isLastErrorUpdate) { return }
-        updatedObservable = true
-        updater(_ => unmapKnockoutObservables(newVal))
-    }, null, isDeferred ? "dirty" : "change")
 
     function notify(newVal: any) {
         const currentValue = obs[currentStateSymbol]
 
-        if (newVal === currentValue && !isDirty) { 
-            if (obs[lastSetErrorSymbol]) {
-                obs[lastSetErrorSymbol] = void 0;
-                triggerLastSetErrorUpdate(obs);
-            }
+        if (newVal === currentValue) { 
             return 
         } 
+
         obs[lastSetErrorSymbol] = void 0;
         obs[currentStateSymbol] = newVal
-        isDirty = false;
 
         const observableWasSetFromOutside = updatedObservable
         updatedObservable = false
@@ -392,27 +354,30 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
 
     Object.defineProperty(obs, "state", {
         get: () => {
-            return obs[currentStateSymbol];
+            let resultState
+            updater(state => {
+                resultState = state
+                return state
+            })
+            return resultState
         },
-        configurable: false,
-        enumerable: false
+        configurable: false
     });
     Object.defineProperty(obs, "patchState", {
         get: () => (patch: any) => {
-            obs.setState(patchViewModel(obs[currentStateSymbol], patch));
+            updater(state => patchViewModel(state, patch))
         },
-        configurable: false,
-        enumerable: false
+        configurable: false
     });
     Object.defineProperty(obs, "setState", {
         get: () => (newState: any) => {
-            const coerceResult = coerce(newState, typeHint || { type: "dynamic" }, obs[currentStateSymbol]);
-            updater(_ => coerceResult);
-            obs[currentStateSymbol] = coerceResult;
-            isDirty = true;
+            updater(_ => newState);
         },
-        configurable: false,
-        enumerable: false
+        configurable: false
+    });
+    Object.defineProperty(obs, "updater", {
+        get: () => updater,
+        configurable: false
     });
     return obs
 }
