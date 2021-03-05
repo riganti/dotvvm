@@ -28,17 +28,6 @@ export type UpdatableObjectExtensions<T> = {
     [updateSymbol]?: UpdateDispatcher<T>
 }
 
-export type DeepKnockoutWrapped<T> =
-    (T extends (infer R)[] ? DeepKnockoutWrappedArray<R> :
-    T extends object ? KnockoutObservable<DeepKnockoutWrappedObject<T>> :
-    KnockoutObservable<T>) & UpdatableObjectExtensions<T>;
-
-export type DeepKnockoutWrappedArray<T> = KnockoutObservableArray<DeepKnockoutWrapped<T>>
-
-export type DeepKnockoutWrappedObject<T> = {
-    readonly [P in keyof T]: DeepKnockoutWrapped<T[P]>;
-};
-
 type RenderContext<TViewModel> = {
     // timeFromStartGetter: () => number
     // secondsTimeGetter: () => Date
@@ -57,8 +46,8 @@ class TwoWayBinding<T> {
 }
 
 export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
-    public readonly stateObservable: DeepKnockoutWrapped<TViewModel>;
-    private _state: TViewModel
+    public readonly stateObservable: DeepKnockoutObservable<TViewModel>;
+    private _state: DeepReadonly<TViewModel>
     public get state() {
         return this._state
     }
@@ -69,11 +58,11 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
     private _currentFrameNumber : number | null = 0;
 
     constructor(
-        initialState: TViewModel,
-        public stateUpdateEvent: DotvvmEvent<TViewModel>
+        initialState: DeepReadonly<TViewModel>,
+        public stateUpdateEvent: DotvvmEvent<DeepReadonly<TViewModel>>
     ) {
         this._state = coerce(initialState, initialState.$type || { type: "dynamic" })
-        this.stateObservable = createWrappedObservable(initialState, (initialState as any)["$type"], u => this.update(u))
+        this.stateObservable = createWrappedObservable(initialState, (initialState as any)["$type"], u => this.update(u as any))
         this.dispatchUpdate()
     }
 
@@ -100,7 +89,7 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
         isViewModelUpdating = true
         ko.delaySync.pause()
         try {
-            this.stateObservable[notifySymbol](this._state)
+            this.stateObservable[notifySymbol as any](this._state)
         } finally {
             isViewModelUpdating = false
             ko.delaySync.resume()
@@ -108,7 +97,7 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
         // console.log("New state dispatched, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart)
     }
 
-    public setState(newState: TViewModel): TViewModel {
+    public setState(newState: DeepReadonly<TViewModel>): DeepReadonly<TViewModel> {
         if (newState == null) throw new Error("State can't be null or undefined.")
         if (newState === this._state) return newState
 
@@ -120,7 +109,7 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
         return this._state = coercionResult
     }
 
-    public patchState(patch: Partial<TViewModel>): TViewModel {
+    public patchState(patch: Partial<TViewModel>): DeepReadonly<TViewModel> {
         return this.setState(patchViewModel(this._state, patch))
     }
 
@@ -146,8 +135,8 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
     }
     public [internalPropCache]: { [name: string]: (KnockoutObservable<any> & UpdatableObjectExtensions<any>) | null } = {}
 
-    public [updatePropertySymbol](propName: keyof T, valUpdate: StateUpdate<any>) {
-        this[updateSymbol](vm => Object.freeze({ ...vm, [propName]: valUpdate(vm[propName]) }))
+    public [updatePropertySymbol](propName: keyof DeepReadonly<T>, valUpdate: StateUpdate<any>) {
+        this[updateSymbol](vm => Object.freeze({ ...vm, [propName]: valUpdate(vm[propName]) }) as any)
     }
 
     constructor(initialValue: T, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata | undefined, additionalProperties: string[]) {
@@ -232,10 +221,10 @@ function createObservableObject<T extends object>(initialObject: T, typeHint: Ty
     const pSet = typeInfo ? new Set(keys(typeInfo.properties)) : new Set();
     const additionalProperties = keys(initialObject).filter(p => !pSet.has(p))
 
-    return new FakeObservableObject(initialObject, update, typeId, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
+    return new FakeObservableObject(initialObject, update, typeId, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutObservableObject<T>
 }
 
-function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | undefined, updater: UpdateDispatcher<T>): DeepKnockoutWrapped<T> {
+function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: TypeDefinition | undefined, updater: UpdateDispatcher<T>): DeepKnockoutObservable<T> {
 
     let isUpdating = false
 

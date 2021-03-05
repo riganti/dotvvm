@@ -198,6 +198,7 @@ type DeepPartial<T> =
     T;
 /** Readonly<T>, but including all child objects and arrays  */
 type DeepReadonly<T> =
+    T extends TypeDefinition ? T :
     T extends (infer R)[] ? readonly DeepReadonly<R>[] :
     T extends object ? { readonly [P in keyof T]: DeepReadonly<T[P]>; } :
     T;
@@ -253,9 +254,9 @@ type PropertyMetadata = {
 }
 
 type TypeDefinition = string |
-{ type: "nullable", inner: TypeDefinition } |
-{ type: "dynamic" } |
-    TypeDefinition[];
+{ readonly type: "nullable", readonly inner: TypeDefinition } |
+{ readonly type: "dynamic" } |
+    readonly TypeDefinition[];
 
 type ClientExtenderInfo = {
     name: string,
