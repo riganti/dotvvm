@@ -57,7 +57,6 @@ namespace DotVVM.Framework.Compilation.Static
             Assembly dotvvmProjectAssembly,
             string dotvvmProjectDir)
         {
-            InitializeDotvvmControls(dotvvmProjectAssembly);
             return ConfigurationInitializer.GetConfiguration(dotvvmProjectAssembly, dotvvmProjectDir, services =>
             {
                 services.AddSingleton<IControlResolver, StaticViewControlResolver>();
@@ -233,38 +232,6 @@ namespace DotVVM.Framework.Compilation.Static
             return view.WithAssembly(assembly)
                 .WithViewType(resolvedView.Metadata.Type)
                 .WithDataContextType(resolvedView.DataContextTypeStack.DataContextType);
-        }
-
-        /// <summary>
-        /// HACK: Because as of 2.4.0, DotVVM gets a list of all assemblies only from the Default DependencyContext,
-        ///       a problem arises, because in this Compiler, DotVVM itself isn't in the Default DependencyContext, thus
-        ///       I need to invoke the static constructors of controls myself.
-        /// </summary>
-        private static void InitializeDotvvmControls(Assembly rootAssembly)
-        {
-            var dotvvmAssemblyName = typeof(DotvvmControl).Assembly.GetName().Name;
-
-            var candidateAssemblies = rootAssembly.GetReferencedAssemblies()
-                .Select(Assembly.Load)
-                .Where(a => a.GetReferencedAssemblies().Any(s => s.Name == dotvvmAssemblyName))
-                .ToArray();
-
-            var types = candidateAssemblies
-                .Concat(new[] { typeof(DotvvmControl).Assembly })
-                .SelectMany(a => a.GetLoadableTypes()
-                    .Where(t => t.IsClass && t.GetCustomAttribute<ContainsDotvvmPropertiesAttribute>() is object))
-                .ToArray();
-
-            foreach (var type in types)
-            {
-                var tt = type;
-                do
-                {
-                    RuntimeHelpers.RunClassConstructor(tt.TypeHandle);
-                    tt = tt.GetTypeInfo().BaseType;
-                }
-                while (tt != null && tt.GetTypeInfo().IsGenericType);
-            }
         }
 
         private static ImmutableArray<MetadataReference> GetBaseReferences(DotvvmConfiguration configuration)
