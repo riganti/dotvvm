@@ -83,7 +83,12 @@ export default {
                         obs.notifySubscribers();
                     }
                 } else {
-                    obs(newValue);
+                    try {
+                        obs(newValue);
+                    } catch { 
+                        // observable may throw an exception if there is a validation error
+                        // but subscribers will be notified anyway so it's not a problem
+                    }
                 }
             });
         },
