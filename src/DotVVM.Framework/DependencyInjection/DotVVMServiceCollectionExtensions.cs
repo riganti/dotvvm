@@ -16,6 +16,7 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
@@ -99,6 +100,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<DataContextPropertyAssigningVisitor>(s));
                 o.TreeVisitors.Add(() => new LifecycleRequirementsAssigningVisitor());
             });
+
+            services.TryAddSingleton<IDotvvmCacheAdapter, DefaultDotvvmCacheAdapter>();
 
             return services;
         }

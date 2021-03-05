@@ -15,8 +15,7 @@ namespace DotVVM.Framework.Compilation.Static
     {
         public static DotvvmConfiguration GetConfiguration(
             Assembly webSiteAssembly,
-            string webSitePath,
-            Action<IServiceCollection> configureServices)
+            string webSitePath)
         {
             var dotvvmStartup = GetDotvvmStartup(webSiteAssembly);
             var configuratorType = GetDotvvmServiceConfiguratorType(webSiteAssembly);
@@ -24,13 +23,7 @@ namespace DotVVM.Framework.Compilation.Static
                 ? GetConfigureServicesMethod(configuratorType)
                 : null;
 
-            var config = DotvvmConfiguration.CreateDefault(services => {
-                if (configureServicesMethod is object)
-                {
-                    InvokeConfigureServices(configureServicesMethod, services);
-                }
-                configureServices?.Invoke(services);
-            });
+            var config = DotvvmConfiguration.CreateInternal();
 
             config.ApplicationPhysicalPath = webSitePath;
             dotvvmStartup?.Configure(config, webSitePath);
@@ -44,7 +37,7 @@ namespace DotVVM.Framework.Compilation.Static
             if (dotvvmStartupType is null)
             {
                 throw new ArgumentException("Could not found an implementation of IDotvvmStartup "
-                    + $"in '{assembly.FullName}.");
+                    + $"in '{assembly.FullName}'.");
             }
 
             return dotvvmStartupType.Apply(Activator.CreateInstance)!.CastTo<IDotvvmStartup>();

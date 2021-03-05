@@ -1,9 +1,8 @@
 ﻿#nullable enable
 
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Security;
 
-namespace DotVVM.Framework.Compilation.Static
+namespace DotVVM.Framework.Security
 {
     internal class FakeViewModelProtector : IViewModelProtector
     {
