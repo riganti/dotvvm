@@ -249,6 +249,34 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ViewModelValidator_CustomModelStateErrors_OldFormatThrows()
+        {
+            var testViewModel = new TestViewModel() {
+                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null),
+                Child = new TestViewModel2() {
+                    Id = 11,
+                    Code = "Code",
+                },
+            };
+            var validator = CreateValidator();
+            var decorator = CreateDecorator();
+            var modelState = testViewModel.Context.ModelState;
+            var validationTarget = testViewModel;
+            modelState.ValidationTarget = validationTarget;
+            modelState.Errors.Add(new ViewModelValidationError()
+            {
+                PropertyPath = "Child()",
+                ErrorMessage = "Validation target path as a knockout expression",
+                TargetObject = this
+            });
+
+            var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
+            modelState.Errors.AddRange(errors);
+            decorator.Decorate(modelState, testViewModel);
+        }
+
+        [TestMethod]
         public void ViewModelValidator_CustomModelStateErrors_OutsideValidationTarget()
         {
             var testViewModel = new TestViewModel()

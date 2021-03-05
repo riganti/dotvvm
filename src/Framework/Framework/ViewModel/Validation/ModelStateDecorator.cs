@@ -37,8 +37,23 @@ namespace DotVVM.Framework.ViewModel.Validation
             this.viewModelSerializationMapper = viewModelMapper;
         }
 
+        private void EnsurePropertyPathsAreCorrect(IEnumerable<ViewModelValidationError> errors)
+        {
+            if (errors.Any(error => error.PropertyPath != null && error.PropertyPath.Contains("()")))
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("Knockout expressions are no longer supported in validation target paths.");
+                sb.AppendLine("Validation target paths need to be rooted '/' and its segments delimited with the '/' character. Example: '/Property/InnerProperty'. ");
+                sb.AppendLine($"Alternatively, consider using {nameof(ValidationErrorFactory)} since it generates these paths automatically in the correct form.");
+                throw new ArgumentException(sb.ToString(), nameof(ViewModelValidationError.PropertyPath));
+            }
+        }
+
         public void Decorate(ModelState modelState, object viewModel)
         {
+            // Check that model state does not contain validation target paths in the old format
+            EnsurePropertyPathsAreCorrect(modelState.Errors);
+
             // Add information about absolute paths to errors
             var modelStateDecoratorContext = new ModelStateDecoratorContext(modelState.ValidationTarget, modelState.Errors);
             Decorate(viewModel, string.Empty, modelStateDecoratorContext);
@@ -87,10 +102,8 @@ namespace DotVVM.Framework.ViewModel.Validation
             {
                 foreach (var validationError in validationErrors)
                 {
-                    var propertyName = validationError.PropertyPath;
-                    if (propertyName == null)
-                        propertyName = string.Empty;
-                    else if (propertyName.ElementAtOrDefault(0) == '/')
+                    var propertyName = validationError.PropertyPath ?? string.Empty;
+                    if (propertyName.Length > 0 && propertyName[0] == '/')
                         continue;
 
                     var absolutePath = $"{pathPrefix}/{propertyName}".TrimEnd('/');
