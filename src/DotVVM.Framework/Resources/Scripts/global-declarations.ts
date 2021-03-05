@@ -179,17 +179,47 @@ type ValidationRuleTable = {
     }
 }
 
-type StateUpdate<TViewModel> = (initial: TViewModel) => Readonly<TViewModel>
+type StateUpdate<TViewModel> = (initial: DeepReadonly<TViewModel>) => DeepReadonly<TViewModel>
 type UpdateDispatcher<TViewModel> = (update: StateUpdate<TViewModel>) => void
 
+/** Knockout observable, including all child object and arrays */
+type DeepKnockoutObservable<T> =
+    T extends (infer R)[] ? DeepKnockoutObservableArray<R> :
+    T extends object      ? KnockoutObservable<DeepKnockoutObservableObject<T>> :
+                            KnockoutObservable<T>;
+type DeepKnockoutObservableArray<T> = KnockoutObservableArray<DeepKnockoutObservable<T>>
+type DeepKnockoutObservableObject<T> = {
+    readonly [P in keyof T]: DeepKnockoutObservable<T[P]>;
+}
+
+/** Partial<T>, but including all child objects  */
 type DeepPartial<T> =
     T extends object ? { [P in keyof T]?: DeepPartial<T[P]>; } :
     T;
+/** Readonly<T>, but including all child objects and arrays  */
+type DeepReadonly<T> =
+    T extends (infer R)[] ? readonly DeepReadonly<R>[] :
+    T extends object ? { readonly [P in keyof T]: DeepReadonly<T[P]>; } :
+    T;
 
-type DotvvmObservable<T> = KnockoutObservable<T> & {
-    readonly state: T
-    readonly setState: (newState: T) => void
-    readonly patchState: (patch: DeepPartial<T>) => void
+/** Knockout observable that is found in the DotVVM ViewModel - all nested objects and arrays are also observable + it has some helper functions (state, patchState, ...) */
+type DotvvmObservable<T> = DeepKnockoutObservable<T> & {
+    /** A property, returns latest state from dotvvm.state. It does not contain any knockout observable and does not have any propagation delay, as the value in the observable */
+    readonly state: DeepReadonly<T>
+    /** Sets new state directly into the dotvvm.state.
+     * Note that the value arrives into the observable itself asynchronously, so there might be slight delay */
+    readonly setState: (newState: DeepReadonly<T>) => void
+    /** Patches the current state and sets it into dotvvm.state.
+     * Compared to setState, when property does not exist in the patch parameter, the old value from state is used.
+     * Note that the value arrives into the observable itself asynchronously, so there might be slight delay
+     * @example observable.patchState({ Prop2: 0 }) // Only must be specified, although Prop1 also exists and is required  */
+    readonly patchState: (patch: DeepReadonly<DeepPartial<T>>) => void
+    /** Dispatches update of the state.
+     * Note that the value arrives into the observable itself asynchronously, so there might be slight delay
+     * @example observable.updater(state => [ ...state, newElement ]) // This appends an element to an (observable) array
+     * @example observable.updater(state => state + 1) // Increments the value by one
+     * @example observable.updater(state => ({ ...state, MyProperty: state.MyProperty + 1 })) // Increments the property MyProperty by one
+     */
     readonly updater: UpdateDispatcher<T>
 }
 
