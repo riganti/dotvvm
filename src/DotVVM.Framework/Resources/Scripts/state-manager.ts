@@ -6,10 +6,9 @@ import { extendToObservableArrayIfRequired } from "./serialization/deserialize"
 import { getObjectTypeInfo } from "./metadata/typeMap";
 import { coerce } from "./metadata/coercer";
 import { patchViewModel } from "./postback/updater";
-import { wrapObservable } from "./utils/knockout";
 
 export const currentStateSymbol = Symbol("currentState")
-const notifySymbol = Symbol("notify")
+export const notifySymbol = Symbol("notify")
 export const lastSetErrorSymbol = Symbol("lastSetError")
 
 const internalPropCache = Symbol("internalPropCache")
