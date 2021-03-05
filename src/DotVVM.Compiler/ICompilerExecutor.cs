@@ -1,8 +1,6 @@
-#nullable enable
-
 using System.IO;
 
-namespace DotVVM.Framework.Compilation.Static
+namespace DotVVM.Compiler
 {
     public interface ICompilerExecutor
     {
