@@ -39,9 +39,6 @@ export type DeepKnockoutWrappedObject<T> = {
     readonly [P in keyof T]: DeepKnockoutWrapped<T[P]>;
 };
 
-
-export type StateUpdate<TViewModel> = (initial: TViewModel) => Readonly<TViewModel>
-export type UpdateDispatcher<TViewModel> = (update: StateUpdate<TViewModel>) => void
 type RenderContext<TViewModel> = {
     // timeFromStartGetter: () => number
     // secondsTimeGetter: () => Date
@@ -117,10 +114,10 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
 
         const type = newState.$type || this._state.$type
 
-        const coersionResult = coerce(newState, type!, this._state)
+        const coercionResult = coerce(newState, type!, this._state)
 
         this.dispatchUpdate();
-        return this._state = coersionResult
+        return this._state = coercionResult
     }
 
     public patchState(patch: Partial<TViewModel>): TViewModel {
@@ -285,7 +282,6 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
     // We could also disable the deferUpdates for this observable, but that would arguably defeat the purpose
 
     const obs = initialValue instanceof Array ? ko.observableArray([], observableValidator) : ko.observable(null, observableValidator) as any
-    obs[updateSymbol] = updater
     let updatedObservable = false
 
     function notify(newVal: any) {
@@ -382,27 +378,30 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
 
     Object.defineProperty(obs, "state", {
         get: () => {
-            return obs[currentStateSymbol];
+            let resultState
+            updater(state => {
+                resultState = state
+                return state
+            })
+            return resultState
         },
-        configurable: false,
-        enumerable: false
+        configurable: false
     });
     Object.defineProperty(obs, "patchState", {
         get: () => (patch: any) => {
-            obs.setState(patchViewModel(obs[currentStateSymbol], patch));
+            updater(state => patchViewModel(state, patch))
         },
-        configurable: false,
-        enumerable: false
+        configurable: false
     });
     Object.defineProperty(obs, "setState", {
         get: () => (newState: any) => {
-            const coerceResult = coerce(newState, typeHint || { type: "dynamic" }, obs[currentStateSymbol]);
-            updater(_ => coerceResult);
-            obs[currentStateSymbol] = coerceResult;
-            isDirty = true;
+            updater(_ => newState);
         },
-        configurable: false,
-        enumerable: false
+        configurable: false
+    });
+    Object.defineProperty(obs, "updater", {
+        get: () => updater,
+        configurable: false
     });
     return obs
 }
