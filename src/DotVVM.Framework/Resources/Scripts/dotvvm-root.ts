@@ -21,6 +21,7 @@ import * as spaEvents from './spa/events'
 import { isPostbackRunning } from "./postback/internal-handlers"
 import * as api from './api/api'
 import * as eventHub from './api/eventHub'
+import evaluateExpression = evaluator.evaluateExpression;
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -48,7 +49,7 @@ const dotvvmExports = {
     evaluator: {
         getDataSourceItems: evaluator.getDataSourceItems,
         wrapObservable: evaluator.wrapObservable,
-        evaluateOnViewModel: evaluator.evaluateOnViewModel
+        evaluateExpression: evaluateExpression
     },
     fileUpload: {
         reportProgress: fileUpload.reportProgress,

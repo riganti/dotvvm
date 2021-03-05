@@ -11,6 +11,9 @@ import { DotvvmPostbackError } from "../shared-classes"
 import { getObjectTypeInfo } from "../metadata/typeMap"
 import { tryCoerce } from "../metadata/coercer"
 import { primitiveTypes } from "../metadata/primitiveTypes"
+import evaluateExpression = evaluator.evaluateExpression;
+import evaluateExpression1 = evaluator.evaluateExpression;
+import evaluateExpression2 = evaluator.evaluateExpression;
 
 type ValidationSummaryBinding = {
     target: KnockoutObservable<any>,
@@ -42,7 +45,7 @@ const createValidationHandler = (path: string) => ({
             options.validationTargetPath = path;
             // resolve target
             const context = ko.contextFor(options.sender);
-            const validationTarget = evaluator.evaluateOnViewModel(context, path);
+            const validationTarget = evaluateExpression(context, path);
 
             watchAndTriggerValidationErrorChanged(options,
                 () => {
@@ -92,7 +95,7 @@ export function init() {
     ko.bindingHandlers["dotvvm-validationSummary"] = {
         init: (element: HTMLElement, valueAccessor: () => ValidationSummaryBinding) => {
             const binding = valueAccessor();
-            const target = evaluator.evaluateOnViewModel(ko.contextFor(element), ko.unwrap(binding.target));
+            const target = evaluateExpression1(ko.contextFor(element), ko.unwrap(binding.target));
             validationErrorsChanged.subscribe(_ => {
                 element.innerHTML = "";
                 const errors = getValidationErrors(
@@ -302,7 +305,7 @@ export function showValidationErrorsFromServer(serverResponseObject: any, option
             let rootVM = dotvvm.viewModels.root.viewModel;
             const property =
                 propertyPath ?
-                evaluator.evaluateOnViewModel(rootVM, propertyPath) :
+                evaluateExpression2(rootVM, propertyPath) :
                 rootVM;
 
             ValidationError.attach(prop.errorMessage, property);

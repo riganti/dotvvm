@@ -13,6 +13,7 @@ import { DotvvmPostbackError } from '../shared-classes';
 import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
 import { isPrimitive } from '../utils/objects';
 import * as stateManager from '../state-manager'
+import evaluateExpression = evaluator.evaluateExpression;
 
 let lastStartedPostbackId: number;
 
@@ -200,7 +201,7 @@ function processPassedId(id: any, context: any): string {
         return id;
     }
     if (!isPrimitive(id) && id.expr) {
-        return evaluator.evaluateOnViewModel(context, id.expr);
+        return evaluateExpression(context, id.expr);
     }
     throw new Error("invalid argument");
 }

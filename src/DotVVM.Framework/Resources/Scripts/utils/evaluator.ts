@@ -1,14 +1,29 @@
 import { isObservableArray } from "./knockout";
 
-export function evaluateOnViewModel(context: any, expression: string): any {
-    if (expression === '$rawData') {
-        expression = '/';
+var shouldBeConvertedFromObservable: (currentLevel: any, remainingParts: string[]) => boolean = (currentLevel: any, remainingParts: string[]) => {
+    if (currentLevel["$data"] == undefined) {
+        return false;
     }
 
+    for (let i = 0; i < remainingParts.length; i++) {
+        if (remainingParts[i].startsWith("$")) return false;
+    }
+
+    return true;
+};
+
+
+export function evaluateExpression(context: any, expression: string): any {
+
+    expression = transformExpression(expression);
+
     var parts = expression.split(/[/[\]]+/);
-    var currentLevel = context["$data"]!=undefined ? context["$data"] : context;
+    var currentLevel = context;
     var currentPath = "";
     for (var i = 0; i < parts.length; i++) {
+        if (shouldBeConvertedFromObservable(currentLevel, parts.slice(i))) {
+            currentLevel = context["$data"];
+        }
         let expressionPart = parts[i];
         if (expressionPart === "")
             continue;
@@ -24,6 +39,16 @@ export function evaluateOnViewModel(context: any, expression: string): any {
     }
 
     return currentLevel;
+}
+
+export function transformExpression(expression: string) {
+
+    if (expression === '$rawData') {
+        expression = '/';
+    }
+    expression = expression.replace(".", "/");
+
+    return expression;
 }
 
 export function getDataSourceItems(viewModel: any): Array<KnockoutObservable<any>> {
