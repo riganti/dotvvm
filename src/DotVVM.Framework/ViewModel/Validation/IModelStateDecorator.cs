@@ -9,6 +9,6 @@ namespace DotVVM.Framework.ViewModel.Validation
 {
     public interface IModelStateDecorator
     {
-        void Decorate(ModelState modelState, object viewModel, List<ViewModelValidationError> errors);
+        void Decorate(ModelState modelState, object viewModel);
     }
 }

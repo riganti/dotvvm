@@ -7,7 +7,7 @@ namespace DotVVM.Framework.ViewModel.Validation
         /// <summary>
         /// Object affected by this validation error
         /// </summary>
-        [JsonProperty("targetObject")]
+        [JsonIgnore]
         public object TargetObject { get; set; }
 
         /// <summary>

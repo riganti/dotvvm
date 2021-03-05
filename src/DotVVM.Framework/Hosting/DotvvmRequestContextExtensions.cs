@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.ViewModel.Validation;
 
 public static class DotvvmRequestContextExtensions
 {
@@ -154,6 +155,7 @@ public static class DotvvmRequestContextExtensions
     /// </summary>
     public static void FailOnInvalidModelState(this IDotvvmRequestContext context)
     {
+        context.PreprocessModelState();
         if (!context.ModelState.IsValid)
         {
             context.HttpContext.Response.ContentType = "application/json";
@@ -163,6 +165,15 @@ public static class DotvvmRequestContextExtensions
             //   ^ we just wait for this Task. This API never was async and the response size is small enough that we can't quite safely wait for the result
             //     .GetAwaiter().GetResult() preserves stack traces across async calls, thus I like it more than .Wait()
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.ModelValidationFailed, "The ViewModel contains validation errors!");
+        }
+    }
+
+    private static void PreprocessModelState(this IDotvvmRequestContext context)
+    {
+        if (!context.ModelState.IsValid)
+        {
+            var modelStateDecorator = context.Services.GetRequiredService<IModelStateDecorator>();
+            modelStateDecorator.Decorate(context.ModelState, context.ViewModel);
         }
     }
 

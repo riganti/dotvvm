@@ -19,9 +19,10 @@ namespace DotVVM.Framework.ViewModel.Validation
 
         internal string? ValidationTargetPath { get; set; }
 
-        public ModelStateDecoratorContext(object? validationTarget, IEnumerable<ViewModelValidationError> errors)
+        public ModelStateDecoratorContext(object? validationTarget, List<ViewModelValidationError> errors)
         {
-            this.ValidationErrorsLookup = errors.GroupBy(e => e.TargetObject).ToDictionary(e => e.Key, e => e.ToList());
+            errors.ForEach(item => item.TargetObject = item.TargetObject ?? validationTarget);
+            this.ValidationErrorsLookup = errors.GroupBy(e => e.TargetObject ?? validationTarget).ToDictionary(e => e.Key, e => e.ToList());
             this.ValidationTarget = validationTarget;
             this.AlreadyProcessedNodes = new HashSet<object>();
         }
@@ -36,15 +37,11 @@ namespace DotVVM.Framework.ViewModel.Validation
             this.viewModelSerializationMapper = viewModelMapper;
         }
 
-        public void Decorate(ModelState modelState, object viewModel, List<ViewModelValidationError> errors)
+        public void Decorate(ModelState modelState, object viewModel)
         {
             // Add information about absolute paths to errors
-            var modelStateDecoratorContext = new ModelStateDecoratorContext(modelState.ValidationTarget, errors.Concat(modelState.Errors));
-            Decorate(viewModel, "", modelStateDecoratorContext);
-
-            // Fix validation target path
-            modelState.ValidationTargetPath = modelStateDecoratorContext.ValidationTargetPath!;
-            modelState.Errors.AddRange(errors);
+            var modelStateDecoratorContext = new ModelStateDecoratorContext(modelState.ValidationTarget, modelState.Errors);
+            Decorate(viewModel, string.Empty, modelStateDecoratorContext);
 
             // Remove not found errors
             modelState.Errors.RemoveAll(error => !modelStateDecoratorContext.AlreadyProcessedNodes.Contains(error.TargetObject));
@@ -60,7 +57,7 @@ namespace DotVVM.Framework.ViewModel.Validation
 
             context.AlreadyProcessedNodes.Add(viewModel);
             var viewModelType = viewModel.GetType();
-         
+
             if (ReflectionUtils.IsEnumerable(viewModelType))
             {
                 // Traverse each element of a collection
@@ -91,6 +88,11 @@ namespace DotVVM.Framework.ViewModel.Validation
                 foreach (var validationError in validationErrors)
                 {
                     var propertyName = validationError.PropertyPath;
+                    if (propertyName == null)
+                        propertyName = string.Empty;
+                    else if (propertyName.ElementAtOrDefault(0) == '/')
+                        continue;
+
                     var absolutePath = $"{pathPrefix}/{propertyName}".TrimEnd('/');
                     validationError.PropertyPath = (absolutePath != string.Empty) ? absolutePath : "/";
                 }

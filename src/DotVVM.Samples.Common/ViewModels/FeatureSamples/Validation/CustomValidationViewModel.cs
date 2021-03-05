@@ -29,7 +29,8 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Validation
                         new ViewModelValidationError
                         {
                             ErrorMessage = "This error uses the Knockout JS notation.",
-                            PropertyPath = "Detail/Name"
+                            PropertyPath = "Detail/Name",
+                            TargetObject = this
                         });
                 }
                 else
