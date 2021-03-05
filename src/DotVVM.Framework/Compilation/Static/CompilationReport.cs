@@ -1,5 +1,7 @@
 #nullable enable
 
+using System.Collections.Generic;
+
 namespace DotVVM.Framework.Compilation.Static
 {
     internal class CompilationReport
@@ -32,5 +34,39 @@ namespace DotVVM.Framework.Compilation.Static
         public int Column { get; }
 
         public string ViewPath { get; }
+
+        public static bool operator ==(CompilationReport? left, CompilationReport? right)
+        {
+            if (left is null)
+            {
+                return right is null;
+            }
+
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(CompilationReport? left, CompilationReport? right)
+        {
+            return !(left == right);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is CompilationReport report
+                && Message == report.Message
+                && Line == report.Line
+                && Column == report.Column
+                && ViewPath == report.ViewPath;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -712964631;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Message);
+            hashCode = hashCode * -1521134295 + Line.GetHashCode();
+            hashCode = hashCode * -1521134295 + Column.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ViewPath);
+            return hashCode;
+        }
     }
 }
