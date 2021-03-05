@@ -244,19 +244,22 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
     }
 
     function observableValidator(this: KnockoutObservable<T>, newValue: any): any {
-        if (isUpdating) { return newValue; }
+        if (isUpdating) return { newValue, notifySubscribers: false }
         updatedObservable = true
 
         try {
+            const notifySubscribers = (this as any)[lastSetErrorSymbol];
             (this as any)[lastSetErrorSymbol] = void 0;
+
             const unmappedValue = unmapKnockoutObservables(newValue);
             const coerceResult = coerce(unmappedValue, typeHint || { type: "dynamic" }, (this as any)[currentStateSymbol]);
-            
+            updater(_ => coerceResult);
+
             // when someone sets object in the observable and we coerce it, we need to wrap the coerced result in observables too
             if (isPrimitive(coerceResult) || coerceResult instanceof Date || coerceResult == null) {
-                return coerceResult;
+                return { newValue: coerceResult, notifySubscribers };
             } else {
-                return createWrappedObservable(coerceResult, typeHint, updater)();
+                return { newValue: createWrappedObservable(coerceResult, typeHint, updater)(), notifySubscribers };
             }
         } catch (err) {
             (this as any)[lastSetErrorSymbol] = err;
