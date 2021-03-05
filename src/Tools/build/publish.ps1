@@ -35,6 +35,7 @@ function CleanOldGeneratedPackages() {
     Write-Host "Cleaning old versions of nupkg ..."
     foreach ($package in $packages) {
         del .\$($package.Directory)\bin\$configuration\*.nupkg -ErrorAction SilentlyContinue
+        del .\$($package.Directory)\bin\$configuration\*.snupkg -ErrorAction SilentlyContinue
     }
 }
 
@@ -83,7 +84,7 @@ function BuildPackages() {
         }
         Write-Host "Packing project in directory $PWD"
         
-        & dotnet pack -c $configuration --include-symbols  | Out-Host
+        & dotnet pack -p:SymbolPackageFormat=snupkg -c $configuration --include-symbols --include-source | Out-Host
         cd ..
     }
 }
@@ -93,7 +94,7 @@ function SignPackages() {
         Write-Host "Signing packages ..."
         foreach ($package in $packages) {
             $baseDir = Join-Path $currentDirectory ".\$($package.Directory)\bin\$configuration\" 
-            & dotnet signclient sign --baseDirectory "$baseDir" --input *.nupkg --config "$signConfigPath" --user "$signUser" --secret "$signSecret" --name "$($package.Package)" --description "$($package.Package + " " + $version)" --descriptionUrl "https://github.com/riganti/dotvvm" | Out-Host
+            & dotnet signclient sign --baseDirectory "$baseDir" --input *.nupkg  --config "$signConfigPath" --user "$signUser" --secret "$signSecret" --name "$($package.Package)" --description "$($package.Package + " " + $version)" --descriptionUrl "https://github.com/riganti/dotvvm" | Out-Host
         }
     }
 }
@@ -101,7 +102,7 @@ function SignPackages() {
 function PushPackages() {
     Write-Host "Pushing packages ..."
     foreach ($package in $packages) {
-        & .\Tools\nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Package).$version.symbols.nupkg -source $server -apiKey $apiKey | Out-Host
+        & .\Tools\nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Package).$version.nupkg -source $server -apiKey $apiKey | Out-Host
     }
 }
 
@@ -176,6 +177,7 @@ RestoreSignClient;
 GitCheckout;
 SetVersion;
 BuildPackages;
+
 SignPackages;
 PushPackages;
 
