@@ -1658,11 +1658,11 @@ ko.observable = function (initialValue, validator) {
             // Write
 
             // Ignore writes if the value hasn't changed
-            if (observable.isDifferent(observable[observableLatestValue], arguments[0])) {
-                var newValue = arguments[0];
-                if (validator) {
-                    newValue = validator.call(observable, newValue);
-                }
+            var newValue = arguments[0];
+            if (validator) {
+                newValue = validator.call(observable, newValue);
+            }
+            if (observable.isDifferent(observable[observableLatestValue], newValue)) {
                 observable.valueWillMutate();
                 observable[observableLatestValue] = newValue;
                 observable.valueHasMutated();
