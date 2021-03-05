@@ -262,10 +262,11 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
             const unmappedValue = unmapKnockoutObservables(newValue);
             const coerceResult = coerce(unmappedValue, typeHint || { type: "dynamic" }, (this as any)[currentStateSymbol]);
             
+            // when someone sets object in the observable and we coerce it, we need to wrap the coerced result in observables too
             if (isPrimitive(coerceResult) || coerceResult instanceof Date || coerceResult == null) {
                 return coerceResult;
             } else {
-                return createWrappedObservable(coerceResult, typeHint, updater)();      // TODO: Consult with @exyi - this is probably not right and I guess it is inefficient
+                return createWrappedObservable(coerceResult, typeHint, updater)();
             }
         } catch (err) {
             (this as any)[lastSetErrorSymbol] = err;
@@ -286,14 +287,6 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
     const obs = initialValue instanceof Array ? ko.observableArray([], observableValidator) : ko.observable(null, observableValidator) as any
     obs[updateSymbol] = updater
     let updatedObservable = false
-
-    obs.subscribe((newVal: any) => {
-        if (isDeferred)
-            newVal = obs() // the value is not passed in parameter in "dirty" handler. We use it otherwise, for perf reasons
-        if (isUpdating || isLastErrorUpdate) { return }
-        updatedObservable = true
-        updater(_ => unmapKnockoutObservables(newVal))
-    }, null, isDeferred ? "dirty" : "change")
 
     function notify(newVal: any) {
         const currentValue = obs[currentStateSymbol]
