@@ -238,20 +238,13 @@ function createObservableObject<T extends object>(initialObject: T, typeHint: Ty
 function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | undefined, updater: UpdateDispatcher<T>): DeepKnockoutWrapped<T> {
 
     let isUpdating = false
-    let isDirty = false
-    let isLastErrorUpdate = false
 
     function triggerLastSetErrorUpdate(obs: KnockoutObservable<T>) {
-        try {
-            isLastErrorUpdate = true;
-            obs.valueHasMutated && obs.valueHasMutated();
-        } finally {
-            isLastErrorUpdate = false;
-        }
+        obs.valueHasMutated && obs.valueHasMutated();
     }
 
     function observableValidator(this: KnockoutObservable<T>, newValue: any): any {
-        if (isUpdating || isLastErrorUpdate) { return newValue; }
+        if (isUpdating) { return newValue; }
         updatedObservable = true
 
         try {
@@ -273,30 +266,18 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
         }
     }
 
-    // When this option is set, the 'deferred' extender is used by default.
-    // It makes calls to "change" subscribe aynchronous so our hacks with `isUpdating` would not work at all
-    // It may also drop calls to "beforeChange", which could pass some updates unseen.
-    // As a workaround, we use the "dirty" event when the deferUpdates option is set.
-    const isDeferred = ko.options.deferUpdates
-
-    // We could also disable the deferUpdates for this observable, but that would arguably defeat the purpose
-
     const obs = initialValue instanceof Array ? ko.observableArray([], observableValidator) : ko.observable(null, observableValidator) as any
     let updatedObservable = false
 
     function notify(newVal: any) {
         const currentValue = obs[currentStateSymbol]
 
-        if (newVal === currentValue && !isDirty) { 
-            if (obs[lastSetErrorSymbol]) {
-                obs[lastSetErrorSymbol] = void 0;
-                triggerLastSetErrorUpdate(obs);
-            }
+        if (newVal === currentValue) { 
             return 
         } 
+
         obs[lastSetErrorSymbol] = void 0;
         obs[currentStateSymbol] = newVal
-        isDirty = false;
 
         const observableWasSetFromOutside = updatedObservable
         updatedObservable = false
