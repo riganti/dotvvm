@@ -2,11 +2,11 @@
 
 namespace DotVVM.Framework.Compilation.Static
 {
-    internal class Report
+    internal class CompilationReport
     {
         private const string UnknownError = "An unknown error occurred. This is likely a bug in the compiler.";
 
-        public Report(string viewPath, int line, int column, string message)
+        public CompilationReport(string viewPath, int line, int column, string message)
         {
             ViewPath = viewPath;
             Line = line;
@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Compilation.Static
             Message = message;
         }
 
-        public Report(string viewPath, DotvvmCompilationException exception)
+        public CompilationReport(string viewPath, DotvvmCompilationException exception)
             : this(
                 viewPath: viewPath,
                 line: exception.LineNumber ?? -1,

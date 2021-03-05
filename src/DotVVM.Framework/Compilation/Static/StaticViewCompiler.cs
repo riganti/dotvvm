@@ -133,7 +133,7 @@ namespace DotVVM.Framework.Compilation.Static
             var resolvedView = (ResolvedTreeRoot)controlTreeResolver.ResolveTree(node, viewPath);
 
             var view = new StaticView(viewPath);
-            var reports = new List<Report>();
+            var reports = new List<CompilationReport>();
 
             try
             {
@@ -142,7 +142,7 @@ namespace DotVVM.Framework.Compilation.Static
             }
             catch (DotvvmCompilationException e)
             {
-                reports.Add(new Report(viewPath, e));
+                reports.Add(new CompilationReport(viewPath, e));
                 // the error is too severe for compilation to continue 
                 return view.WithReports(reports);
             }
@@ -154,7 +154,7 @@ namespace DotVVM.Framework.Compilation.Static
                     var line = n.Tokens.FirstOrDefault()?.LineNumber ?? -1;
                     var column = n.Tokens.FirstOrDefault()?.ColumnNumber ?? -1;
 
-                    reports.AddRange(n.NodeErrors.Select(e => new Report(viewPath, line, column, e)));
+                    reports.AddRange(n.NodeErrors.Select(e => new CompilationReport(viewPath, line, column, e)));
                     // these errors are once again too severe
                     return view.WithReports(reports);
                 }
@@ -174,7 +174,7 @@ namespace DotVVM.Framework.Compilation.Static
                 var line = error.Nodes.FirstOrDefault()?.Tokens?.FirstOrDefault()?.LineNumber ?? -1;
                 var column = error.Nodes.FirstOrDefault()?.Tokens?.FirstOrDefault()?.ColumnNumber ?? -1;
 
-                reports.Add(new Report(viewPath, line, column, error.ErrorMessage));
+                reports.Add(new CompilationReport(viewPath, line, column, error.ErrorMessage));
             }
 
             if (reports.Any())
@@ -224,7 +224,7 @@ namespace DotVVM.Framework.Compilation.Static
             var result = compilation.Emit(memoryStream);
             if (!result.Success)
             {
-                reports.Add(new Report(viewPath, -1, -1, "Compilation failed. This is likely a bug in the DotVVM compiler."));
+                reports.Add(new CompilationReport(viewPath, -1, -1, "Compilation failed. This is likely a bug in the DotVVM compiler."));
                 return view.WithReports(reports);
             }
 

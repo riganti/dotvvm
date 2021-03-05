@@ -6,9 +6,9 @@ using System.IO;
 
 namespace DotVVM.Framework.Compilation.Static
 {
-    internal class TextReportLogger : IReportLogger
+    internal class DefaultCompilationReportLogger : ICompilationReportLogger
     {
-        public void Log(Stream stream, IEnumerable<Report> reports)
+        public void Log(Stream stream, IEnumerable<CompilationReport> reports)
         {
             using var writer = new StreamWriter(stream);
             foreach (var report in reports)
