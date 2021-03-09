@@ -314,6 +314,15 @@ namespace DotVVM.Framework.Compilation.Javascript
         private void AddDefaultEnumerableTranslations()
         {
             var returnTrueFunc = new JsFunctionExpression(new[] { new JsIdentifier("arg") }, new JsBlockStatement(new JsReturnStatement(new JsLiteral(true))));
+
+            bool EnsureIsComparableInJavascript(MethodInfo method, Type type)
+            {
+                if (!ReflectionUtils.IsPrimitiveType(type))
+                    throw new DotvvmCompilationException($"Can not translate invocation of method \"{method.Name}\" to JavaScript. Comparison of non-primitive types is not supported.");
+
+                return true;
+            }
+
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.All), parameterCount: 2, translator: new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("all").Invoke(args[1], args[2])));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Any), parameterCount: 1, translator: new GenericMethodCompiler(args =>
@@ -325,8 +334,9 @@ namespace DotVVM.Framework.Compilation.Javascript
                 args[1].Member("concat").Invoke(args[2])));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), parameterCount: 1, translator: new GenericMethodCompiler(a => a[1].Member("length")));
 
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Distinct), parameterCount: 1, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("distinct").Invoke(args[1])));
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Distinct), parameterCount: 1,
+                translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("distinct").Invoke(args[1]),
+                check: (method, target, arguments) => EnsureIsComparableInJavascript(method, target?.Type ?? ReflectionUtils.GetEnumerableType(arguments.First().Type))));
 
             AddMethodTranslator(typeof(Enumerable).GetMethod("ElementAt", BindingFlags.Static | BindingFlags.Public), new GenericMethodCompiler((args, method) =>
                 BuildIndexer(args[1], args[2], method)));
@@ -341,10 +351,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.LastOrDefault), parameterCount: 2, translator: new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("lastOrDefault").Invoke(args[1], args[2]).WithAnnotation(ResultIsObservableAnnotation.Instance)));
 
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderBy), parameterCount: 2, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderBy").Invoke(args[1], args[2])));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderByDescending), parameterCount: 2, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderByDesc").Invoke(args[1], args[2])));
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderBy), parameterCount: 2,
+                translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderBy").Invoke(args[1], args[2]),
+                check: (method, _, arguments) => EnsureIsComparableInJavascript(method, arguments.Last().Type.GetGenericArguments().Last())));
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderByDescending), parameterCount: 2,
+                translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderByDesc").Invoke(args[1], args[2]),
+                check: (method, _, arguments) => EnsureIsComparableInJavascript(method, arguments.Last().Type.GetGenericArguments().Last())));
 
             var selectMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(m => m.Name == "Select" && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)).Single();
