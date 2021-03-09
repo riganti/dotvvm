@@ -238,8 +238,10 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             AddMethodTranslator(typeof(string), nameof(string.Replace), parameters: new[] { typeof(string), typeof(string) }, translator: new GenericMethodCompiler(
                 args => args[0].Member("split").Invoke(args[1]).Member("join").Invoke(args[2])));
-            AddMethodTranslator(typeof(string), nameof(string.Split), parameters: new[] { typeof(string), typeof(int), typeof(StringSplitOptions) }, translator: new GenericMethodCompiler(
-                args => args[0].Member("split").Invoke(args[1], args[2])));
+            AddMethodTranslator(typeof(string), nameof(string.Split), parameters: new[] { typeof(char), typeof(StringSplitOptions) }, translator: new GenericMethodCompiler(
+                args => args[0].Member("split").Invoke(args[1])));
+            AddMethodTranslator(typeof(string), nameof(string.Split), parameters: new[] { typeof(string), typeof(StringSplitOptions) }, translator: new GenericMethodCompiler(
+                args => args[0].Member("split").Invoke(args[1])));
         }
 
         private void AddDefaultMathTranslations()

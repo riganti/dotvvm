@@ -423,21 +423,57 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [DataRow("Enumerable.OrderBy(LongArray, (long item) => item)", DisplayName = "Regular call of Enumerable.OrderBy")]
-        [DataRow("LongArray.OrderBy((long item) => item)", DisplayName = "Syntax sugar - extension method")]
-        public void JsTraslator_EnumerableOrderBy(string binding)
+        [DataRow("Enumerable.All(LongArray, (long item) => item > 0)", DisplayName = "Regular call of Enumerable.All")]
+        [DataRow("LongArray.All((long item) => item > 0)", DisplayName = "Syntax sugar - extension method")]
+        public void JsTraslator_EnumerableAll(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("dotvvm.orderBy(LongArray(),function(item){return ko.unwrap(item);})", result);
+            Assert.AreEqual("dotvvm.arrayHelper.all(LongArray(),function(item){return ko.unwrap(item)>0;})", result);
         }
 
         [TestMethod]
-        [DataRow("Enumerable.OrderByDescending(LongArray, (long item) => item)", DisplayName = "Regular call of Enumerable.OrderByDescending")]
-        [DataRow("LongArray.OrderByDescending((long item) => item)", DisplayName = "Syntax sugar - extension method")]
-        public void JsTraslator_EnumerableOrderByDescending(string binding)
+        [DataRow("Enumerable.Any(LongArray, (long item) => item > 0)", DisplayName = "Regular call of Enumerable.Any")]
+        [DataRow("LongArray.Any((long item) => item > 0)", DisplayName = "Syntax sugar - extension method")]
+        public void JsTraslator_EnumerableAny(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("dotvvm.orderByDesc(LongArray(),function(item){return ko.unwrap(item);})", result);
+            Assert.AreEqual("dotvvm.arrayHelper.any(LongArray(),function(item){return ko.unwrap(item)>0;})", result);
+        }
+
+        [TestMethod]
+        [DataRow("Enumerable.FirstOrDefault(LongArray)", DisplayName = "Regular call of Enumerable.FirstOrDefault")]
+        [DataRow("LongArray.FirstOrDefault()", DisplayName = "Syntax sugar - extension method")]
+        public void JsTraslator_EnumerableFirstOrDefault(string binding)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("dotvvm.arrayHelper.firstOrDefault(LongArray(),function(arg){return true;})", result);
+        }
+
+        [TestMethod]
+        [DataRow("Enumerable.FirstOrDefault(LongArray, (long item) => item > 0)", DisplayName = "Regular call of Enumerable.FirstOrDefault")]
+        [DataRow("LongArray.FirstOrDefault((long item) => item > 0)", DisplayName = "Syntax sugar - extension method")]
+        public void JsTraslator_EnumerableFirstOrDefaultParametrized(string binding)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("dotvvm.arrayHelper.firstOrDefault(LongArray(),function(item){return ko.unwrap(item)>0;})", result);
+        }
+
+        [TestMethod]
+        [DataRow("Enumerable.LastOrDefault(LongArray)", DisplayName = "Regular call of Enumerable.LastOrDefault")]
+        [DataRow("LongArray.LastOrDefault()", DisplayName = "Syntax sugar - extension method")]
+        public void JsTraslator_EnumerableLastOrDefault(string binding)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("dotvvm.arrayHelper.lastOrDefault(LongArray(),function(arg){return true;})", result);
+        }
+
+        [TestMethod]
+        [DataRow("Enumerable.LastOrDefault(LongArray, (long item) => item > 0)", DisplayName = "Regular call of Enumerable.LastOrDefault")]
+        [DataRow("LongArray.LastOrDefault((long item) => item > 0)", DisplayName = "Syntax sugar - extension method")]
+        public void JsTraslator_EnumerableLastOrDefaultParametrized(string binding)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("dotvvm.arrayHelper.lastOrDefault(LongArray(),function(item){return ko.unwrap(item)>0;})", result);
         }
 
         [TestMethod]
@@ -497,7 +533,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTraslator_EnumerableMin(string binding, string property)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.arrayHelper.min({property}(),function(arg){{return arg;}})", result);
+            Assert.AreEqual($"dotvvm.arrayHelper.min({property}(),function(arg){{return ko.unwrap(arg);}})", result);
         }
 
         [TestMethod]
@@ -515,6 +551,54 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
             Assert.AreEqual($"dotvvm.arrayHelper.min({property}(),function(item){{return -ko.unwrap(item);}})", result);
+        }
+
+        [TestMethod]
+        [DataRow("Enumerable.OrderBy(ObjectArray, (TestComparisonType item) => item.Int)", "Int", DisplayName = "Regular call of Enumerable.OrderBy")]
+        [DataRow("Enumerable.OrderBy(ObjectArray, (TestComparisonType item) => item.Bool)", "Bool", DisplayName = "Regular call of Enumerable.OrderBy")]
+        [DataRow("Enumerable.OrderBy(ObjectArray, (TestComparisonType item) => item.String)", "String", DisplayName = "Regular call of Enumerable.OrderBy")]
+        [DataRow("Enumerable.OrderBy(ObjectArray, (TestComparisonType item) => item.Enum)", "Enum", DisplayName = "Regular call of Enumerable.OrderBy")]
+        [DataRow("ObjectArray.OrderBy((TestComparisonType item) => item.Int)", "Int", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("ObjectArray.OrderBy((TestComparisonType item) => item.Bool)", "Bool", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("ObjectArray.OrderBy((TestComparisonType item) => item.String)", "String", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("ObjectArray.OrderBy((TestComparisonType item) => item.Enum)", "Enum", DisplayName = "Syntax sugar - extension method")]
+        public void JsTranslator_EnumerableOrderBy(string binding, string key)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
+            Assert.AreEqual($"dotvvm.arrayHelper.orderBy(ObjectArray(),function(item){{return ko.unwrap(item).{key}();}})", result);
+        }
+
+        [TestMethod]
+        [DataRow("Enumerable.OrderBy(ObjectArray, (TestComparisonType item) => item.Obj)")]
+        [DataRow("ObjectArray.OrderBy((TestComparisonType item) => item.Obj)")]
+        [ExpectedException(typeof(DotvvmCompilationException))]
+        public void JsTranslator_EnumerableOrderBy_NonPrimitiveTypesThrows(string binding)
+        {
+            CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
+        }
+
+        [TestMethod]
+        [DataRow("Enumerable.OrderByDescending(ObjectArray, (TestComparisonType item) => item.Int)", "Int", DisplayName = "Regular call of Enumerable.OrderByDescending")]
+        [DataRow("Enumerable.OrderByDescending(ObjectArray, (TestComparisonType item) => item.Bool)", "Bool", DisplayName = "Regular call of Enumerable.OrderByDescending")]
+        [DataRow("Enumerable.OrderByDescending(ObjectArray, (TestComparisonType item) => item.String)", "String", DisplayName = "Regular call of Enumerable.OrderByDescending")]
+        [DataRow("Enumerable.OrderByDescending(ObjectArray, (TestComparisonType item) => item.Enum)", "Enum", DisplayName = "Regular call of Enumerable.OrderByDescending")]
+        [DataRow("ObjectArray.OrderByDescending((TestComparisonType item) => item.Int)", "Int", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("ObjectArray.OrderByDescending((TestComparisonType item) => item.Bool)", "Bool", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("ObjectArray.OrderByDescending((TestComparisonType item) => item.String)", "String", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("ObjectArray.OrderByDescending((TestComparisonType item) => item.Enum)", "Enum", DisplayName = "Syntax sugar - extension method")]
+        public void JsTranslator_EnumerableOrderByDescending(string binding, string key)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
+            Assert.AreEqual($"dotvvm.arrayHelper.orderByDesc(ObjectArray(),function(item){{return ko.unwrap(item).{key}();}})", result);
+        }
+
+        [TestMethod]
+        [DataRow("Enumerable.OrderByDescending(ObjectArray, (TestComparisonType item) => item.Obj)")]
+        [DataRow("ObjectArray.OrderByDescending((TestComparisonType item) => item.Obj)")]
+        [ExpectedException(typeof(DotvvmCompilationException))]
+        public void JsTranslator_EnumerableOrderByDescending_NonPrimitiveTypesThrows(string binding)
+        {
+            CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
         }
 
         [TestMethod]
@@ -549,12 +633,12 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [DataRow("StringProp.Split('c', 10)", "c")]
-        [DataRow("StringProp.Split(\"str\", 10)", "str")]     
+        [DataRow("StringProp.Split('c')", "c")]
+        [DataRow("StringProp.Split(\"str\")", "str")]     
         public void JsTranslator_StringSplit(string binding, string delimiter)
         {
             var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
-            Assert.AreEqual($"StringProp().split(\"{delimiter}\",10)", result);
+            Assert.AreEqual($"StringProp().split(\"{delimiter}\")", result);
         }
 
         [TestMethod]
@@ -585,10 +669,12 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void JsTranslator_StringJoin()
+        [DataRow("StringProp().Split(\" \")")]
+        [DataRow("StringProp().Split(' ')")]
+        public void JsTranslator_StringSplit(string binding)
         {
-            var result = CompileBinding("", new[] { typeof(TestViewModel) });
-            Assert.AreEqual("", result);
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("StringProp().split(\" \")", result);
         }
 
         [TestMethod]
@@ -686,5 +772,21 @@ namespace DotVVM.Framework.Tests.Binding
         public decimal[] DecimalArray { get; set; } = new[] { 1m, 2m, 3m };
         public float[] SingleArray { get; set; } = new[] { 1f, 2f, 3f };
         public double[] DoubleArray { get; set; } = new[] { 1d, 2d, 3d };
+        public TestComparisonType[] ObjectArray { get; set; } = new[] { new TestComparisonType() };
+    }
+
+    public class TestComparisonType
+    {
+        public enum TestEnum
+        {
+            Value1,
+            Value2
+        }
+
+        public int Int { get; set; }
+        public object Obj { get; set; }
+        public bool Bool { get; set; }
+        public TestEnum Enum { get; set; }
+        public string String { get; set; }
     }
 }
