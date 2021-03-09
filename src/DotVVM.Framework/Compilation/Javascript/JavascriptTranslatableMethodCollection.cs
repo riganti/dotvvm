@@ -314,7 +314,8 @@ namespace DotVVM.Framework.Compilation.Javascript
         private void AddDefaultEnumerableTranslations()
         {
             var returnTrueFunc = new JsFunctionExpression(new[] { new JsIdentifier("arg") }, new JsBlockStatement(new JsReturnStatement(new JsLiteral(true))));
-            var selectIdentityFunc = new JsFunctionExpression(new[] { new JsIdentifier("arg") }, new JsBlockStatement(new JsReturnStatement(new JsIdentifierExpression("arg"))));
+            var selectIdentityFunc = new JsFunctionExpression(new[] { new JsIdentifier("arg") },
+                new JsBlockStatement(new JsReturnStatement(new JsIdentifierExpression("ko").Member("unwrap").Invoke(new JsIdentifierExpression("arg")))));
 
             bool EnsureIsComparableInJavascript(MethodInfo method, Type type)
             {
