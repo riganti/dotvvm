@@ -441,6 +441,83 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("Enumerable.Distinct(VmArray)", DisplayName = "Regular call of Enumerable.Distinct")]
+        [DataRow("VmArray.Distinct()", DisplayName = "Syntax sugar - extension method")]
+        [ExpectedException(typeof(DotvvmCompilationException))]
+        public void JsTranslator_EnumerableDistinct_NonPrimitiveTypesThrows(string binding)
+        {
+            CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+        }
+
+        [TestMethod]
+        [DataRow("Enumerable.Max(Int32Array)", "Int32Array", DisplayName = "Regular call of Enumerable.Max")]
+        [DataRow("Enumerable.Max(Int64Array)", "Int64Array", DisplayName = "Regular call of Enumerable.Max")]
+        [DataRow("Enumerable.Max(SingleArray)", "SingleArray", DisplayName = "Regular call of Enumerable.Max")]
+        [DataRow("Enumerable.Max(DoubleArray)", "DoubleArray", DisplayName = "Regular call of Enumerable.Max")]
+        [DataRow("Enumerable.Max(DecimalArray)", "DecimalArray", DisplayName = "Regular call of Enumerable.Max")]
+        [DataRow("Int32Array.Max()", "Int32Array", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("Int64Array.Max()", "Int64Array", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("SingleArray.Max()", "SingleArray", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("DoubleArray.Max()", "DoubleArray", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("DecimalArray.Max()", "DecimalArray", DisplayName = "Syntax sugar - extension method")]
+        public void JsTraslator_EnumerableMax(string binding, string property)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
+            Assert.AreEqual($"dotvvm.arrayHelper.max({property}(),function(arg){{return arg;}})", result);
+        }
+
+        [TestMethod]
+        [DataRow("Enumerable.Max(Int32Array, (int item) => -item)", "Int32Array", DisplayName = "Regular call of Enumerable.Max")]
+        [DataRow("Enumerable.Max(Int64Array, (long item) => -item)", "Int64Array", DisplayName = "Regular call of Enumerable.Max")]
+        [DataRow("Enumerable.Max(SingleArray, (float item) => -item)", "SingleArray", DisplayName = "Regular call of Enumerable.Max")]
+        [DataRow("Enumerable.Max(DoubleArray, (double item) => -item)", "DoubleArray", DisplayName = "Regular call of Enumerable.Max")]
+        [DataRow("Enumerable.Max(DecimalArray, (decimal item) => -item)", "DecimalArray", DisplayName = "Regular call of Enumerable.Max")]
+        [DataRow("Int32Array.Max((int item) => -item)", "Int32Array", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("Int64Array.Max((long item) => -item)", "Int64Array", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("SingleArray.Max((float item) => -item)", "SingleArray", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("DoubleArray.Max((double item) => -item)", "DoubleArray", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("DecimalArray.Max((decimal item) => -item)", "DecimalArray", DisplayName = "Syntax sugar - extension method")]
+        public void JsTranslator_EnumerableMax_WithSelector(string binding, string property)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
+            Assert.AreEqual($"dotvvm.arrayHelper.max({property}(),function(item){{return -ko.unwrap(item);}})", result);
+        }
+
+        [TestMethod]
+        [DataRow("Enumerable.Min(Int32Array)", "Int32Array", DisplayName = "Regular call of Enumerable.Min")]
+        [DataRow("Enumerable.Min(Int64Array)", "Int64Array", DisplayName = "Regular call of Enumerable.Min")]
+        [DataRow("Enumerable.Min(SingleArray)", "SingleArray", DisplayName = "Regular call of Enumerable.Min")]
+        [DataRow("Enumerable.Min(DoubleArray)", "DoubleArray", DisplayName = "Regular call of Enumerable.Min")]
+        [DataRow("Enumerable.Min(DecimalArray)", "DecimalArray", DisplayName = "Regular call of Enumerable.Min")]
+        [DataRow("Int32Array.Min()", "Int32Array", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("Int64Array.Min()", "Int64Array", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("SingleArray.Min()", "SingleArray", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("DoubleArray.Min()", "DoubleArray", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("DecimalArray.Min()", "DecimalArray", DisplayName = "Syntax sugar - extension method")]
+        public void JsTraslator_EnumerableMin(string binding, string property)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
+            Assert.AreEqual($"dotvvm.arrayHelper.min({property}(),function(arg){{return arg;}})", result);
+        }
+
+        [TestMethod]
+        [DataRow("Enumerable.Min(Int32Array, (int item) => -item)", "Int32Array", DisplayName = "Regular call of Enumerable.Min")]
+        [DataRow("Enumerable.Min(Int64Array, (long item) => -item)", "Int64Array", DisplayName = "Regular call of Enumerable.Min")]
+        [DataRow("Enumerable.Min(SingleArray, (float item) => -item)", "SingleArray", DisplayName = "Regular call of Enumerable.Min")]
+        [DataRow("Enumerable.Min(DoubleArray, (double item) => -item)", "DoubleArray", DisplayName = "Regular call of Enumerable.Min")]
+        [DataRow("Enumerable.Min(DecimalArray, (decimal item) => -item)", "DecimalArray", DisplayName = "Regular call of Enumerable.Min")]
+        [DataRow("Int32Array.Min((int item) => -item)", "Int32Array", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("Int64Array.Min((long item) => -item)", "Int64Array", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("SingleArray.Min((float item) => -item)", "SingleArray", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("DoubleArray.Min((double item) => -item)", "DoubleArray", DisplayName = "Syntax sugar - extension method")]
+        [DataRow("DecimalArray.Min((decimal item) => -item)", "DecimalArray", DisplayName = "Syntax sugar - extension method")]
+        public void JsTranslator_EnumerableMin_WithSelector(string binding, string property)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
+            Assert.AreEqual($"dotvvm.arrayHelper.min({property}(),function(item){{return -ko.unwrap(item);}})", result);
+        }
+
+        [TestMethod]
         [DataRow("Math.Abs(IntProp)", "Math.abs(IntProp())")]
         [DataRow("Math.Abs(DoubleProp)", "Math.abs(DoubleProp())")]
         [DataRow("Math.Acos(DoubleProp)", "Math.acos(DoubleProp())")]
@@ -600,5 +677,14 @@ namespace DotVVM.Framework.Tests.Binding
         public string GetString() => "";
         public string PostDateToString(DateTime date) => date.ToShortDateString();
         public DateTime GetCurrentTime(string name) => DateTime.UtcNow;
+    }
+
+    public class TestArraysViewModel
+    {
+        public int[] Int32Array { get; set; } = new[] { 1, 2, 3 };
+        public long[] Int64Array { get; set; } = new[] { 1L, 2L, 3L };
+        public decimal[] DecimalArray { get; set; } = new[] { 1m, 2m, 3m };
+        public float[] SingleArray { get; set; } = new[] { 1f, 2f, 3f };
+        public double[] DoubleArray { get; set; } = new[] { 1d, 2d, 3d };
     }
 }
