@@ -1,6 +1,6 @@
-﻿import { getTypeInfo, getObjectTypeInfo } from "../metadata/typeMap";
+﻿import { getTypeInfo } from "../metadata/typeMap";
 import { primitiveTypes } from "../metadata/primitiveTypes";
-type ElementType = string | number | boolean | Date | object;
+type ElementType = string | number | boolean;
 
 export const orderBy = <T>(array: T[], selector: (item: T) => ElementType) =>
     orderByImpl(array, selector, getComparer(array[0], selector, true))
@@ -111,6 +111,9 @@ function resolveMetadata(type: TypeDefinition): TypeMetadata | null {
 function getPath(from: any, target: any): string[] | null {
     from = ko.unwrap(from);
     target = ko.unwrap(target);
+
+    if (from == target)
+        return [];
 
     for (let key in from) {
         let item = ko.unwrap(from[key]);
