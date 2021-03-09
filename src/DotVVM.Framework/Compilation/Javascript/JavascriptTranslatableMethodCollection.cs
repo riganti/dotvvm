@@ -314,6 +314,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         private void AddDefaultEnumerableTranslations()
         {
             var returnTrueFunc = new JsFunctionExpression(new[] { new JsIdentifier("arg") }, new JsBlockStatement(new JsReturnStatement(new JsLiteral(true))));
+            var selectIdentityFunc = new JsFunctionExpression(new[] { new JsIdentifier("arg") }, new JsBlockStatement(new JsReturnStatement(new JsIdentifierExpression("arg"))));
 
             bool EnsureIsComparableInJavascript(MethodInfo method, Type type)
             {
@@ -351,6 +352,21 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.LastOrDefault), parameterCount: 2, translator: new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("lastOrDefault").Invoke(args[1], args[2]).WithAnnotation(ResultIsObservableAnnotation.Instance)));
 
+            foreach (var type in new[] { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal), typeof(int?), typeof(long?), typeof(float?), typeof(double?), typeof(decimal?) })
+            {
+                AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Max), parameters: new[] { typeof(IEnumerable<>).MakeGenericType(type) }, translator: new GenericMethodCompiler(args =>
+                    new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("max").Invoke(args[1], selectIdentityFunc.Clone())));
+                var maxSelect = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
+                    .Where(m => m.Name == nameof(Enumerable.Max) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericArguments().Last() == type).Single();
+                AddMethodTranslator(maxSelect, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("max").Invoke(args[1], args[2])));
+
+                AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Min), parameters: new[] { typeof(IEnumerable<>).MakeGenericType(type) }, translator: new GenericMethodCompiler(args =>
+                    new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("min").Invoke(args[1], selectIdentityFunc.Clone())));
+                var minSelect = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
+                    .Where(m => m.Name == nameof(Enumerable.Min) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericArguments().Last() == type).Single();
+                AddMethodTranslator(minSelect, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("min").Invoke(args[1], args[2])));
+            }
+
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderBy), parameterCount: 2,
                 translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderBy").Invoke(args[1], args[2]),
                 check: (method, _, arguments) => EnsureIsComparableInJavascript(method, arguments.Last().Type.GetGenericArguments().Last())));
@@ -359,7 +375,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 check: (method, _, arguments) => EnsureIsComparableInJavascript(method, arguments.Last().Type.GetGenericArguments().Last())));
 
             var selectMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .Where(m => m.Name == "Select" && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)).Single();
+                .Where(m => m.Name == nameof(Enumerable.Select) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)).Single();
             AddMethodTranslator(selectMethod, translator: new GenericMethodCompiler(args => args[1].Member("map").Invoke(args[2])));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Skip), parameterCount: 2, translator: new GenericMethodCompiler(args =>
                 args[1].Member("slice").Invoke(args[2])));
@@ -370,7 +386,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.ToList), parameterCount: 1, translator: new GenericMethodCompiler(args => args[1]));
 
             var whereMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .Where(m => m.Name == "Where" && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)).Single();
+                .Where(m => m.Name == nameof(Enumerable.Where) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)).Single();
             AddMethodTranslator(whereMethod, translator: new GenericMethodCompiler(args => args[1].Member("filter").Invoke(args[2])));
         }
 

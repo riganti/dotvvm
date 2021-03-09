@@ -8,6 +8,8 @@ export {
     firstOrDefault,
     forEach,
     lastOrDefault,
+    max,
+    min,
     orderBy,
     orderByDesc,
     remove,
@@ -71,6 +73,34 @@ function lastOrDefault<T>(source: T[], predicate: (s: T) => boolean): T | null {
         }
     }
     return lastSatisfyingElement;
+}
+
+function max<T>(source: T[], selector: (item: T) => number): number {
+    if (source.length === 0)
+        throw new Error("Source is empty! Max operation cannot be performed.");
+    if (source.length == 1)
+        return selector(source[0]);
+    let max = selector(source[0]);
+    for (let i = 1; i < source.length; i++) {
+        let v = selector(source[i]);
+        if (v > max)
+            max = v;
+    }
+    return max;
+}
+
+function min<T>(source: T[], selector: (item: T) => number): number {
+    if (source.length === 0)
+        throw new Error("Source is empty! Min operation cannot be performed.");
+    if (source.length == 1)
+        return selector(source[0]);
+    let min = selector(source[0]);
+    for (let i = 1; i < source.length; i++) {
+        let v = selector(source[i]);
+        if (v < min)
+            min = v;
+    }
+    return min;
 }
 
 function remove<T>(source: T[], predicate: (s: T) => boolean) {
