@@ -283,33 +283,10 @@ namespace DotVVM.Framework.Utils
                 throw new ArgumentNullException($"'{genericInterfaceDefinition.FullName}' is not a generic interface definition.");
             }
 
-            if (type.IsInterface)
-            {
-                if (type.IsGenericType)
-                {
-                    Type interfaceDefinition = type.GetGenericTypeDefinition();
-
-                    if (genericInterfaceDefinition == interfaceDefinition)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            foreach (Type i in type.GetInterfaces())
-            {
-                if (i.IsGenericType)
-                {
-                    Type interfaceDefinition = i.GetGenericTypeDefinition();
-
-                    if (genericInterfaceDefinition == interfaceDefinition)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
+            return type.GetInterfaces()
+                .Concat(new[] { type })
+                .Where(i => i.IsGenericType)
+                .Any(i => i.GetGenericTypeDefinition() == genericInterfaceDefinition);
         }
         public static bool IsCollection(Type type)
         {
