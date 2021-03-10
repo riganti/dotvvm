@@ -66,13 +66,12 @@ function forEach<T>(items: T[], action: (s: T, i: number) => void): void {
 }
 
 function lastOrDefault<T>(source: T[], predicate: (s: T) => boolean): T | null {
-    let lastSatisfyingElement = null;
-    for (let i = 0; i < source.length; i++) {
+    for (let i = source.length - 1; i >= 0; i--) {
         if (predicate(source[i])) {
-            lastSatisfyingElement = source[i];
+            return source[i];
         }
     }
-    return lastSatisfyingElement;
+    return null;
 }
 
 function max<T>(source: T[], selector: (item: T) => number): number {
