@@ -935,9 +935,9 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(voidBlockExpectedLenght, middleExpression.Length);
 
         }
-        [DataRow("val x=A(); !x", "x", DisplayName = "Variable (val) expression")]
-        [DataRow("val val=A(); !val", "val", DisplayName = "Variable (val) expression, name=val")]
-        [DataRow("val x = A(); !x", "x", DisplayName = "Variable (val) expression with whitespaces")]
+        [DataRow("var x=A(); !x", "x", DisplayName = "Variable (val) expression")]
+        [DataRow("var var=A(); !var", "var", DisplayName = "Variable (val) expression, name=val")]
+        [DataRow("var x = A(); !x", "x", DisplayName = "Variable (val) expression with whitespaces")]
         public void BindingParser_VariableExpression_Simple(string bindingExpression, string variableName)
         {
             var parser = bindingParserNodeFactory.SetupParser(bindingExpression);
@@ -1006,7 +1006,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_VariableExpression_3Vars()
         {
-            var parser = bindingParserNodeFactory.SetupParser("val a = 1; val b = 2; val c = 3; a+b+c");
+            var parser = bindingParserNodeFactory.SetupParser("var a = 1; var b = 2; var c = 3; a+b+c");
             var node1 = parser.ReadExpression().CastTo<BlockBindingParserNode>();
             var node2 = node1.SecondExpression.CastTo<BlockBindingParserNode>();
             var node3 = node2.SecondExpression.CastTo<BlockBindingParserNode>();
@@ -1019,9 +1019,9 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.IsNotNull(node3.Variable);
             Assert.AreEqual("a", node1.Variable.Name);
 
-            Assert.AreEqual("val a = 1; val b = 2; val c = 3; a + b + c", node1.ToDisplayString());
-            Assert.AreEqual("val b = 2; val c = 3; a + b + c", node2.ToDisplayString());
-            Assert.AreEqual("val c = 3; a + b + c", node3.ToDisplayString());
+            Assert.AreEqual("var a = 1; var b = 2; var c = 3; a + b + c", node1.ToDisplayString());
+            Assert.AreEqual("var b = 2; var c = 3; a + b + c", node2.ToDisplayString());
+            Assert.AreEqual("var c = 3; a + b + c", node3.ToDisplayString());
             Assert.AreEqual("a + b + c", node3.SecondExpression.ToDisplayString());
         }
 

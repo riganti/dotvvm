@@ -25,6 +25,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             => new [] { FirstExpression, SecondExpression };
 
         public override string ToDisplayString()
-            => (Variable is object ? $"val {Variable.Name} = " : "") + $"{FirstExpression.ToDisplayString()}; {SecondExpression.ToDisplayString()}";
+            => (Variable is object ? $"var {Variable.Name} = " : "") + $"{FirstExpression.ToDisplayString()}; {SecondExpression.ToDisplayString()}";
     }
 }
