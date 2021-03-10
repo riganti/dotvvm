@@ -256,7 +256,7 @@ type PropertyMetadata = {
 type TypeDefinition = string |
 { readonly type: "nullable", readonly inner: TypeDefinition } |
 { readonly type: "dynamic" } |
-    readonly TypeDefinition[];
+    TypeDefinition[];
 
 type ClientExtenderInfo = {
     name: string,

@@ -203,3 +203,4 @@ FakesAssemblies/
 /src/DotVVM.Samples.BasicSamples.Api.AspNetCore/temp/returnedFiles
 /src/DotVVM.Framework/.vs/VSWorkspaceState.json
 /src/Tools/npm/dotvvm-types/*.d.ts
+/src/DotVVM.Framework/package-lock.json
