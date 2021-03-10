@@ -407,7 +407,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow("Enumerable.Take(LongArray, 2)", DisplayName = "Regular call of Enumerable.Take")]
         [DataRow("LongArray.Take(2)", DisplayName = "Syntax sugar - extension method")]
-        public void JsTraslator_EnumerableTake(string binding)
+        public void JsTranslator_EnumerableTake(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("LongArray().slice(0,2)", result);
@@ -416,7 +416,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow("Enumerable.Skip(LongArray, 2)", DisplayName = "Regular call of Enumerable.Skip")]
         [DataRow("LongArray.Skip(2)", DisplayName = "Syntax sugar - extension method")]
-        public void JsTraslator_EnumerableSkip(string binding)
+        public void JsTranslator_EnumerableSkip(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("LongArray().slice(2)", result);
@@ -425,7 +425,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow("Enumerable.All(LongArray, (long item) => item > 0)", DisplayName = "Regular call of Enumerable.All")]
         [DataRow("LongArray.All((long item) => item > 0)", DisplayName = "Syntax sugar - extension method")]
-        public void JsTraslator_EnumerableAll(string binding)
+        public void JsTranslator_EnumerableAll(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("dotvvm.arrayHelper.all(LongArray(),function(item){return ko.unwrap(item)>0;})", result);
@@ -434,7 +434,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow("Enumerable.Any(LongArray, (long item) => item > 0)", DisplayName = "Regular call of Enumerable.Any")]
         [DataRow("LongArray.Any((long item) => item > 0)", DisplayName = "Syntax sugar - extension method")]
-        public void JsTraslator_EnumerableAny(string binding)
+        public void JsTranslator_EnumerableAny(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("dotvvm.arrayHelper.any(LongArray(),function(item){return ko.unwrap(item)>0;})", result);
@@ -443,7 +443,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow("Enumerable.FirstOrDefault(LongArray)", DisplayName = "Regular call of Enumerable.FirstOrDefault")]
         [DataRow("LongArray.FirstOrDefault()", DisplayName = "Syntax sugar - extension method")]
-        public void JsTraslator_EnumerableFirstOrDefault(string binding)
+        public void JsTranslator_EnumerableFirstOrDefault(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("dotvvm.arrayHelper.firstOrDefault(LongArray(),function(arg){return true;})", result);
@@ -452,7 +452,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow("Enumerable.FirstOrDefault(LongArray, (long item) => item > 0)", DisplayName = "Regular call of Enumerable.FirstOrDefault")]
         [DataRow("LongArray.FirstOrDefault((long item) => item > 0)", DisplayName = "Syntax sugar - extension method")]
-        public void JsTraslator_EnumerableFirstOrDefaultParametrized(string binding)
+        public void JsTranslator_EnumerableFirstOrDefaultParametrized(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("dotvvm.arrayHelper.firstOrDefault(LongArray(),function(item){return ko.unwrap(item)>0;})", result);
@@ -461,7 +461,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow("Enumerable.LastOrDefault(LongArray)", DisplayName = "Regular call of Enumerable.LastOrDefault")]
         [DataRow("LongArray.LastOrDefault()", DisplayName = "Syntax sugar - extension method")]
-        public void JsTraslator_EnumerableLastOrDefault(string binding)
+        public void JsTranslator_EnumerableLastOrDefault(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("dotvvm.arrayHelper.lastOrDefault(LongArray(),function(arg){return true;})", result);
@@ -470,7 +470,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow("Enumerable.LastOrDefault(LongArray, (long item) => item > 0)", DisplayName = "Regular call of Enumerable.LastOrDefault")]
         [DataRow("LongArray.LastOrDefault((long item) => item > 0)", DisplayName = "Syntax sugar - extension method")]
-        public void JsTraslator_EnumerableLastOrDefaultParametrized(string binding)
+        public void JsTranslator_EnumerableLastOrDefaultParametrized(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("dotvvm.arrayHelper.lastOrDefault(LongArray(),function(item){return ko.unwrap(item)>0;})", result);
@@ -496,10 +496,10 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("SingleArray.Max()", "SingleArray", DisplayName = "Syntax sugar - extension method")]
         [DataRow("DoubleArray.Max()", "DoubleArray", DisplayName = "Syntax sugar - extension method")]
         [DataRow("DecimalArray.Max()", "DecimalArray", DisplayName = "Syntax sugar - extension method")]
-        public void JsTraslator_EnumerableMax(string binding, string property)
+        public void JsTranslator_EnumerableMax(string binding, string property)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.arrayHelper.max({property}(),function(arg){{return arg;}})", result);
+            Assert.AreEqual($"dotvvm.arrayHelper.max({property}(),function(arg){{return ko.unwrap(arg);}})", result);
         }
 
         [TestMethod]
@@ -530,7 +530,7 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("SingleArray.Min()", "SingleArray", DisplayName = "Syntax sugar - extension method")]
         [DataRow("DoubleArray.Min()", "DoubleArray", DisplayName = "Syntax sugar - extension method")]
         [DataRow("DecimalArray.Min()", "DecimalArray", DisplayName = "Syntax sugar - extension method")]
-        public void JsTraslator_EnumerableMin(string binding, string property)
+        public void JsTranslator_EnumerableMin(string binding, string property)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
             Assert.AreEqual($"dotvvm.arrayHelper.min({property}(),function(arg){{return ko.unwrap(arg);}})", result);
