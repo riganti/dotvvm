@@ -61,5 +61,19 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             return ReflectionUtils.ConvertValue(value, ((ResolvedTypeDescriptor)propertyType).Type);
         }
+
+        protected override IAbstractControlBuilderDescriptor? ResolveMasterPage(string currentFile, IAbstractDirective masterPageDirective)
+        {
+            try
+            {
+                return controlBuilderFactory.GetControlBuilder(masterPageDirective.Value).descriptor;
+            }
+            catch (Exception e)
+            {
+                // The resolver should not just crash on an invalid directive
+                masterPageDirective.DothtmlNode!.AddError(e.Message);
+                return null;
+            }
+        }
     }
 }

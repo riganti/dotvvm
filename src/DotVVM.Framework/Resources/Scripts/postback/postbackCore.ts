@@ -53,7 +53,7 @@ export async function postbackCore(
         const data: any = {
             currentPath: path,
             command: command,
-            controlUniqueId: processPassedId(controlUniqueId, context),
+            controlUniqueId: controlUniqueId,
             validationTargetPath: options.validationTargetPath,
             renderedResources: getRenderedResources(),
             commandArgs: commandArgs,
