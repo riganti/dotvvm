@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 new BindingPageInfoExtensionParameter(),
                 new BindingApiExtensionParameter(),
             }.Concat(injectedServices)
-             .Concat(viewModule is null ? new BindingExtensionParameter[0] : new [] { viewModule.Value.extensionParameter }).ToArray());
+             .Concat(viewModule is null ? new BindingExtensionParameter[0] : new[] { viewModule.Value.extensionParameter }).ToArray());
 
 
             var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directives, masterPage);
@@ -137,6 +137,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 return null;
             }
             var viewmodelDirective = (IAbstractViewModelDirective)directives[ParserConstants.ViewModelDirectiveName].First();
+            if (viewmodelDirective.ResolvedType.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IDotvvmControl))))
+            {
+                root.AddError($"The @viewModel directive cannot contain type that derives from IDotvvmControl!");
+                return null;
+            }
+
             return viewmodelDirective.ResolvedType;
         }
 
@@ -547,8 +553,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         private void ProcessAttribute(IPropertyDescriptor property, DothtmlAttributeNode attribute, IAbstractControl control, IDataContextStack dataContext)
         {
-        if (property.IsBindingProperty || property.DataContextManipulationAttribute != null) // when DataContextManipulationAttribute is set, lets hope that author knows what is he doing.
-        {
+            if (property.IsBindingProperty || property.DataContextManipulationAttribute != null) // when DataContextManipulationAttribute is set, lets hope that author knows what is he doing.
+            {
                 dataContext = GetDataContextChange(dataContext, control, property);
             }
 
