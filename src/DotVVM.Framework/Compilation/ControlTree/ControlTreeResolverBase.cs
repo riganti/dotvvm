@@ -137,13 +137,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 return null;
             }
             var viewmodelDirective = (IAbstractViewModelDirective)directives[ParserConstants.ViewModelDirectiveName].First();
-            if (viewmodelDirective.ResolvedType.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IDotvvmControl))))
+            if (viewmodelDirective?.ResolvedType is object && viewmodelDirective.ResolvedType.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmBindableObject))))
             {
                 root.AddError($"The @viewModel directive cannot contain type that derives from IDotvvmControl!");
                 return null;
             }
 
-            return viewmodelDirective.ResolvedType;
+            return viewmodelDirective?.ResolvedType;
         }
 
         protected virtual IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> ProcessDirectives(DothtmlRootNode root)
