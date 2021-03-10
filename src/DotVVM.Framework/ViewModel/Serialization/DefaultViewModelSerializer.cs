@@ -187,7 +187,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             if (context.CustomResponseProperties.Properties.Count > 0)
             {
-                response["customProperties"] = WriteCommandData(context.CustomResponseProperties.Properties, serializer, "custom properties");
+                var props = context.CustomResponseProperties.Properties
+                                .Select(s => new JProperty(s.Key, WriteCommandData(s.Value, serializer, $"custom properties['{s.Key}']")))
+                                .ToArray();
+                response["customProperties"] = new JObject(props);
             }
             context.CustomResponseProperties.PropertiesSerialized = true;
         }
