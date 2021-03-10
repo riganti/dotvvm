@@ -48,7 +48,8 @@ jobs:
           /p:Platform=$env:BUILD_PLATFORM `
           /p:Configuration=$env:BUILD_CONFIGURATION
 
-      - name: Run unit tests
+      - if: matrix.build-configuration == 'Release'
+        name: Run unit tests
         id: run_unit_tests
         run: |
           dotnet test $env:SOLUTION_PATH
