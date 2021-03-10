@@ -19,6 +19,7 @@
             <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" />
             <dot:GridViewTextColumn HeaderText="Category" ValueBinding="{value: Category}" />
             <dot:GridViewTextColumn HeaderText="IsActive" ValueBinding="{value: IsActive}" />
+            <dot:GridViewTextColumn HeaderText="Transactions" ValueBinding="{value: FinishedTransactions}" />
             <dot:GridViewTextColumn HeaderText="RegisteredAt" ValueBinding="{value: RegisteredAt}" />
         </dot:GridView>
     </div>
@@ -29,17 +30,23 @@
         <dot:Button Text="OrderBy Name" Click="{staticCommand: FilteredCustomers = SourceCustomers.OrderBy((CustomerData c) => c.Name).ToList()}" />
         <dot:Button Text="OrderBy Category" Click="{staticCommand: FilteredCustomers = SourceCustomers.OrderBy((CustomerData c) => c.Category).ToList()}" />
         <dot:Button Text="OrderBy IsActive" Click="{staticCommand: FilteredCustomers = SourceCustomers.OrderBy((CustomerData c) => c.IsActive).ToList()}" />
+        <dot:Button Text="OrderBy Transactions" Click="{staticCommand: FilteredCustomers = SourceCustomers.OrderBy((CustomerData c) => c.FinishedTransactions).ToList()}" />
         <dot:Button Text="OrderBy RegisteredAt" Click="{staticCommand: FilteredCustomers = SourceCustomers.OrderBy((CustomerData c) => c.RegisteredAt).ToList()}" />
         <dot:Button Text="OrderByDescending Id" Click="{staticCommand: FilteredCustomers = SourceCustomers.OrderByDescending((CustomerData c) => c.Id).ToList()}" />
         <dot:Button Text="OrderByDescending Name" Click="{staticCommand: FilteredCustomers = SourceCustomers.OrderByDescending((CustomerData c) => c.Name).ToList()}" />
         <dot:Button Text="OrderByDescending Category" Click="{staticCommand: FilteredCustomers = SourceCustomers.OrderByDescending((CustomerData c) => c.Category).ToList()}" />
         <dot:Button Text="OrderByDescending IsActive" Click="{staticCommand: FilteredCustomers = SourceCustomers.OrderByDescending((CustomerData c) => c.IsActive).ToList()}" />
+        <dot:Button Text="OrderByDescending Transactions" Click="{staticCommand: FilteredCustomers = SourceCustomers.OrderByDescending((CustomerData c) => c.FinishedTransactions).ToList()}" />
         <dot:Button Text="OrderByDescending RegisteredAt" Click="{staticCommand: FilteredCustomers = SourceCustomers.OrderByDescending((CustomerData c) => c.RegisteredAt).ToList()}" />
+        </br>
+        <dot:Button Text="Get all red customers" Click="{staticCommand: FilteredCustomers = SourceCustomers.Where((CustomerData c) => c.Category == Category.Red).ToList()}" />
+        <dot:Button Text="Get all green customers" Click="{staticCommand: FilteredCustomers = SourceCustomers.Where((CustomerData c) => c.Category == Category.Green).ToList()}" />
+        <dot:Button Text="Get all blue customers" Click="{staticCommand: FilteredCustomers = SourceCustomers.Where((CustomerData c) => c.Category == Category.Blue).ToList()}" />
+        <dot:Button Text="Get all active customers" Click="{staticCommand: FilteredCustomers = SourceCustomers.Where((CustomerData c) => c.IsActive).ToList()}" />
         </br>
         <dot:Button Text="Take 5 customers" Click="{staticCommand: FilteredCustomers = SourceCustomers.Take(5).ToList()}" />
         <dot:Button Text="Skip 5 customers" Click="{staticCommand: FilteredCustomers = SourceCustomers.Skip(5).ToList()}" />
         <dot:Button Text="Concat with itself" Click="{staticCommand: FilteredCustomers = SourceCustomers.Concat(SourceCustomers).ToList()}" />
-        <dot:Button Text="Distinct customers" Click="{staticCommand: FilteredCustomers = SourceCustomers.Distinct().ToList()}" />
         </br>
         <dot:Button Text="First customer" Click="{staticCommand: (
                     SingleCustomer = SourceCustomers.FirstOrDefault();
@@ -62,6 +69,8 @@
         <dot:Button Text="Are all customer Ids smaller than 20?" Click="{staticCommand: OperationResult = SourceCustomers.All((CustomerData c) => c.Id < 20)}" />
         <dot:Button Text="Is there a customer named Greg?" Click="{staticCommand: OperationResult = SourceCustomers.Any((CustomerData c) => c.Name == "Greg")}" />
         <dot:Button Text="Is there a customer named Carl?" Click="{staticCommand: OperationResult = SourceCustomers.Any((CustomerData c) => c.Name == "Carl")}" />
+        <dot:Button Text="Get maximum number of finished transactions" Click="{staticCommand: OperationResult = SourceCustomers.Max((CustomerData c) => c.FinishedTransactions)}" />
+        <dot:Button Text="Get minimum number of finished transactions" Click="{staticCommand: OperationResult = SourceCustomers.Min((CustomerData c) => c.FinishedTransactions)}" />
     </div>
 
     <div>
@@ -71,6 +80,7 @@
             <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" />
             <dot:GridViewTextColumn HeaderText="Category" ValueBinding="{value: Category}" />
             <dot:GridViewTextColumn HeaderText="IsActive" ValueBinding="{value: IsActive}" />
+            <dot:GridViewTextColumn HeaderText="Transactions" ValueBinding="{value: FinishedTransactions}" />
             <dot:GridViewTextColumn HeaderText="RegisteredAt" ValueBinding="{value: RegisteredAt}" />
         </dot:GridView>
     </div>
