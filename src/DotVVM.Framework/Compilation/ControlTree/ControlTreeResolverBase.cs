@@ -139,7 +139,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var viewmodelDirective = (IAbstractViewModelDirective)directives[ParserConstants.ViewModelDirectiveName].First();
             if (viewmodelDirective?.ResolvedType is object && viewmodelDirective.ResolvedType.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmBindableObject))))
             {
-                root.AddError($"The @viewModel directive cannot contain type that derives from IDotvvmControl!");
+                root.AddError($"The @viewModel directive cannot contain type that derives from DotvvmBindableObject!");
                 return null;
             }
 
