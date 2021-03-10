@@ -33,6 +33,18 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
         [DataRow(typeof(long[][]), "[['Int64']]")]
         [DataRow(typeof(Type), "'t38YPaufyA26odb7HXM9a+aghdA='")]   // unknown types should produce SHA1 hash
         [DataRow(typeof(object), "{'type':'dynamic'}")]
+        [DataRow(typeof(Dictionary<string, string>), "[\"Nso/tlXRjzKLze7DMpSAA6GNexA=\"]")]
+        [DataRow(typeof(IDictionary<string, string>), "[\"Nso/tlXRjzKLze7DMpSAA6GNexA=\"]")]
+        [DataRow(typeof(Dictionary<int, int>), "[\"ZuVnwt9Sk9jxAHfC1MSsFdXXlx8=\"]")]
+        [DataRow(typeof(IDictionary<int, int>), "[\"ZuVnwt9Sk9jxAHfC1MSsFdXXlx8=\"]")]
+        [DataRow(typeof(Dictionary<object, object>), "[\"JodJCQ9XEOJq1WapjZvsnQQiRH8=\"]")]
+        [DataRow(typeof(IDictionary<object, object>), "[\"JodJCQ9XEOJq1WapjZvsnQQiRH8=\"]")]
+        [DataRow(typeof(List<KeyValuePair<string, string>>), "[\"Nso/tlXRjzKLze7DMpSAA6GNexA=\"]")]
+        [DataRow(typeof(List<KeyValuePair<int, int>>), "[\"ZuVnwt9Sk9jxAHfC1MSsFdXXlx8=\"]")]
+        [DataRow(typeof(List<KeyValuePair<object, object>>), "[\"JodJCQ9XEOJq1WapjZvsnQQiRH8=\"]")]
+        [DataRow(typeof(IList<KeyValuePair<string, string>>), "[\"Nso/tlXRjzKLze7DMpSAA6GNexA=\"]")]
+        [DataRow(typeof(IList<KeyValuePair<int, int>>), "[\"ZuVnwt9Sk9jxAHfC1MSsFdXXlx8=\"]")]
+        [DataRow(typeof(IList<KeyValuePair<object, object>>), "[\"JodJCQ9XEOJq1WapjZvsnQQiRH8=\"]")]
         public void ViewModelTypeMetadata_TypeName(Type type, string expected)
         {
             var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
@@ -54,10 +66,6 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
             var checker = new OutputChecker("testoutputs");
             checker.CheckJsonObject(result);
         }
-
-
-
-
         enum SampleEnum
         {
             Zero = 0,

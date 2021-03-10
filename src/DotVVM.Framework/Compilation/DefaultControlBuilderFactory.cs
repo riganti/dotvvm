@@ -85,6 +85,13 @@ namespace DotVVM.Framework.Compilation
                 try
                 {
                     var (descriptor, factory) = ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
+
+                    if (descriptor.ViewModuleReference != null)
+                    {
+                        var (import, init) = descriptor.ViewModuleReference.BuildResources(configuration.Resources);
+                        configuration.Resources.RegisterViewModuleResources(import, init);
+                    }
+
                     return (descriptor, new Lazy<IControlBuilder>(() => {
                         try { return factory(); }
                         catch (DotvvmCompilationException ex)
@@ -206,7 +213,7 @@ namespace DotVVM.Framework.Compilation
         {
             var markup = markupFileLoader.GetMarkup(configuration, file) ??
                          throw new Exception($"Could not load markup file {file}.");
-            controlBuilders.TryAdd(markup, (new ControlBuilderDescriptor(builder.DataContextType, builder.ControlType), new Lazy<IControlBuilder>(() => builder)));
+            controlBuilders.TryAdd(markup, (builder.Descriptor, new Lazy<IControlBuilder>(() => builder)));
         }
 
         private static readonly HashSet<string> csharpKeywords = new HashSet<string>(new[]

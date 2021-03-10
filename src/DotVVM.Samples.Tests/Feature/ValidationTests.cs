@@ -580,7 +580,6 @@ namespace DotVVM.Samples.Tests.Feature
         /// Feature_s the validation rules load on postback.
         /// </summary>
         [Fact]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.Timeout(120000)]
         public void Feature_Validation_ValidationRulesLoadOnPostback()
         {
             RunInAllBrowsers(browser => {
