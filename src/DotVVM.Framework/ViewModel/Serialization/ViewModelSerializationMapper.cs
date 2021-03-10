@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -39,7 +40,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         protected virtual ViewModelSerializationMap CreateMap(Type type)
         {
+            VerifyTypeIsSerializable(type);
             return new ViewModelSerializationMap(type, GetProperties(type), configuration);
+        }
+
+        private void VerifyTypeIsSerializable(Type type)
+        {
+            if (typeof(DotvvmBindableObject).IsAssignableFrom(type)) throw new JsonSerializationException($"Type {type.FullName} cannot be serialized because it derives from {typeof(DotvvmBindableObject).FullName}.");
         }
 
         /// <summary>

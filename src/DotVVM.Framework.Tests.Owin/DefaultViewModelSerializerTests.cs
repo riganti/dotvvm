@@ -20,6 +20,8 @@ using Newtonsoft.Json.Linq;
 using Microsoft.Owin.Infrastructure;
 using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Routing;
+using DotVVM.Framework.Controls;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -155,6 +157,17 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
+        public void ViewModel_ControlAsProperty()
+        {
+            var viewModel = new NonSerializableViewmodel();
+            Assert.ThrowsException<JsonSerializationException>(() => {
+                serializer.BuildViewModel(context, viewModel);
+            });
+        }
+
+
+
+        [TestMethod]
         public void ViewModelResponse_NoCommandResult_NotPresent()
         {
             var viewModel = new TestViewModel2 {
@@ -165,7 +178,7 @@ namespace DotVVM.Framework.Tests.Runtime
 
             var responseModel = response["viewModel"].ToObject<TestViewModel2>();
 
-            Assert.IsFalse(response.TryGetValue("commandResult", out var _ ));
+            Assert.IsFalse(response.TryGetValue("commandResult", out var _));
             Assert.AreEqual("a", responseModel.PropertyA);
             Assert.AreEqual(1, responseModel.PropertyB);
         }
@@ -262,7 +275,7 @@ namespace DotVVM.Framework.Tests.Runtime
             });
         }
 
-        private JObject PrepareResponse(object viewModel, object commandResult, Dictionary<string,object> customProperties = null)
+        private JObject PrepareResponse(object viewModel, object commandResult, Dictionary<string, object> customProperties = null)
         {
             context.ViewModel = viewModel;
 
@@ -489,9 +502,11 @@ namespace DotVVM.Framework.Tests.Runtime
             Second,
             Third
         }
-
-
-
+        public class NonSerializableViewmodel
+        {
+            public int MyProperty { get; set; }
+            public EmptyData Control { get; set; }
+        }
 
         [TestMethod]
         public void DefaultViewModelSerializer_EnumInCollection()
