@@ -47,7 +47,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         protected virtual IEnumerable<ViewModelPropertyMap> GetProperties(Type type)
         {
-            var isSetterSupported = type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>);
             foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance).OrderBy(p => p.Name, StringComparer.Ordinal))
             {
                 if (property.GetCustomAttribute<JsonIgnoreAttribute>() != null) continue;
@@ -59,7 +58,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     Type = property.PropertyType,
                     TransferAfterPostback = property.GetMethod != null && property.GetMethod.IsPublic,
                     TransferFirstRequest = property.GetMethod != null && property.GetMethod.IsPublic,
-                    TransferToServer = (property.SetMethod != null && property.SetMethod.IsPublic) || isSetterSupported,
+                    TransferToServer = IsSetterSupported(property),
                     JsonConverter = GetJsonConverter(property),
                     Populate = ViewModelJsonConverter.CanConvertType(property.PropertyType) && property.GetMethod != null
                 };
@@ -94,6 +93,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                 yield return propertyMap;
             }
+        }
+        /// <summary>
+        /// Returns whether DotVVM serialization supports setter of given property. 
+        /// </summary>
+        private static bool IsSetterSupported(PropertyInfo property)
+        {
+            // support all properties of KeyValuepair<,>
+            if (property.DeclaringType.IsGenericType && property.DeclaringType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)) return true;
+
+            return property.SetMethod != null && property.SetMethod.IsPublic;
         }
 
         protected virtual JsonConverter? GetJsonConverter(PropertyInfo property)
