@@ -15,14 +15,11 @@ namespace DotVVM.Samples.Tests.Complex
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl("/");
-                browser.Wait(1000);
-
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_SPA_default);
-                browser.Wait(1000);
 
                 // go to test page
                 AssertUI.TextEquals(browser.Single("h2"), "Default");
-                browser.ElementAt("a", 1).Click().Wait();
+                browser.ElementAt("a", 1).Click();
 
                 // check url and page contents
                 AssertUI.TextEquals(browser.Single("h2"), "Test");
@@ -30,7 +27,6 @@ namespace DotVVM.Samples.Tests.Complex
 
                 // use the back button
                 browser.NavigateBack();
-                browser.Wait(1000);
 
                 // check url and page contents
                 AssertUI.TextEquals(browser.Single("h2"), "Default");
@@ -38,11 +34,9 @@ namespace DotVVM.Samples.Tests.Complex
 
                 // exit SPA using the back button
                 browser.NavigateBack();
-                browser.Wait(1000);
 
                 // reenter SPA
                 browser.NavigateForward();
-                browser.Wait(1000);
 
                 // check url and page contents
                 AssertUI.TextEquals(browser.Single("h2"), "Default");
@@ -50,14 +44,13 @@ namespace DotVVM.Samples.Tests.Complex
 
                 // go forward to the test page
                 browser.NavigateForward();
-                browser.Wait(1000);
 
                 // check url and page contents
                 AssertUI.TextEquals(browser.Single("h2"), "Test");
                 AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPA/test"));
 
                 // open the default page
-                browser.ElementAt("a", 0).Click().Wait();
+                browser.ElementAt("a", 0).Click();
 
                 // check url and page contents
                 AssertUI.TextEquals(browser.Single("h2"), "Default");
@@ -65,7 +58,6 @@ namespace DotVVM.Samples.Tests.Complex
 
                 // go back to the test page
                 browser.NavigateBack();
-                browser.Wait(1000);
 
                 // check url and page contents
                 AssertUI.TextEquals(browser.Single("h2"), "Test");
@@ -73,7 +65,6 @@ namespace DotVVM.Samples.Tests.Complex
 
                 // go back to the default page
                 browser.NavigateBack();
-                browser.Wait(1000);
 
                 // check url and page contents
                 AssertUI.TextEquals(browser.Single("h2"), "Default");
@@ -88,25 +79,25 @@ namespace DotVVM.Samples.Tests.Complex
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl("/");
-                browser.Wait(1000);
-
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_SPA_test);
-                browser.Wait(1000);
 
                 // click to generate validation error
                 browser.Single("input[type=button]").Click();
 
                 // check if validation error is displayed
-                browser.Wait(500);
                 AssertUI.InnerTextEquals(browser.Single("span[data-ui='sample-text']"), string.Empty);
 
                 // go to default page
-                browser.ElementAt("a", 0).Click().Wait();
-                browser.Wait(1000);
+                browser.ElementAt("a", 0).Click();
+
+                // wait for navigation
+                browser.WaitFor(() => {
+                    var h2 = browser.First("h2");
+                    AssertUI.TextEquals(h2, "Default", waitForOptions: WaitForOptions.Disabled);
+                }, 6000);
 
                 // click to check if validation error disapeared
                 browser.Single("input[type=button]").Click();
-                browser.Wait(500);
                 AssertUI.InnerTextEquals(browser.Single("span[data-ui='sample-text']"), "Sample Text");
             });
         }

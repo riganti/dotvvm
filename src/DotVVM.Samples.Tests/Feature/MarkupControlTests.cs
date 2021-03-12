@@ -140,11 +140,11 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(browser.First("span[data-uitest=result1]"), "Init");
                 AssertUI.InnerTextEquals(browser.First("span[data-uitest=result2]"), "Init");
 
-                browser.ElementAt("input[type=button]", 0).Click().Wait();
+                browser.ElementAt("input[type=button]", 0).Click();
                 AssertUI.InnerTextEquals(browser.First("span[data-uitest=result1]"), "changed");
                 AssertUI.InnerTextEquals(browser.First("span[data-uitest=result2]"), "Init");
 
-                browser.ElementAt("input[type=button]", 1).Click().Wait();
+                browser.ElementAt("input[type=button]", 1).Click();
                 AssertUI.InnerTextEquals(browser.First("span[data-uitest=result1]"), "changed");
                 AssertUI.InnerTextEquals(browser.First("span[data-uitest=result2]"), "changed");
             });
@@ -166,7 +166,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 AssertUI.Value(browser.ElementAt("input[data-uitest=editor]", 1), "");
                 AssertUI.Value(browser.First("input[data-uitest=childProperty]"), "");
-                browser.First("input[data-uitest=childPropertyButton]").Click().Wait();
+                browser.First("input[data-uitest=childPropertyButton]").Click();
                 AssertUI.Value(browser.ElementAt("input[data-uitest=editor]", 1), "TEST");
                 AssertUI.Value(browser.First("input[data-uitest=childProperty]"), "TEST");
             });
@@ -180,7 +180,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 AssertUI.Value(browser.ElementAt("input[type=text]", 0), "TEST 123");
                 AssertUI.InnerTextEquals(browser.First("span[data-uitest=result]"), "TEST 123 HUHA");
-                browser.First("input[type=button]").Click().Wait();
+                browser.First("input[type=button]").Click();
                 AssertUI.Value(browser.ElementAt("input[type=text]", 0), "ABC FFF");
                 AssertUI.InnerTextEquals(browser.First("span[data-uitest=result]"), "ABC FFF HUHA");
             });
@@ -192,26 +192,26 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_ControlPropertyValidationPage);
 
-                browser.Single("input[type=button]").Click().Wait();
+                browser.Single("input[type=button]").Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 AssertUI.InnerTextEquals(browser.First("li"), "The Text field is required.");
                 AssertUI.InnerTextEquals(browser.Single("span"), "VALIDATION ERROR");
 
                 browser.ElementAt("input[type=text]", 0).SendKeys("test");
-                browser.Single("input[type=button]").Click().Wait();
+                browser.Single("input[type=button]").Click();
                 AssertUI.Value(browser.ElementAt("input[type=text]", 1), "test");
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 AssertUI.InnerTextEquals(browser.First("li"), "The Text field is not a valid e-mail address.");
                 AssertUI.InnerTextEquals(browser.Single("span"), "VALIDATION ERROR");
 
                 browser.ElementAt("input[type=text]", 0).SendKeys("@mail.com");
-                browser.Single("input[type=button]").Click().Wait();
+                browser.Single("input[type=button]").Click();
                 AssertUI.Value(browser.ElementAt("input[type=text]", 1), "test@mail.com");
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
                 AssertUI.InnerTextEquals(browser.Single("span"), "");
 
                 browser.ElementAt("input[type=text]", 0).Clear();
-                browser.Single("input[type=button]").Click().Wait();
+                browser.Single("input[type=button]").Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 AssertUI.InnerTextEquals(browser.First("li"), "The Text field is required.");
                 AssertUI.InnerTextEquals(browser.Single("span"), "VALIDATION ERROR");

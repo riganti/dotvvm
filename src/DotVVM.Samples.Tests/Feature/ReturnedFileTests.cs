@@ -38,7 +38,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample);
 
                 browser.First("textarea").SendKeys("hello world");
-                browser.Last("input[type=button]").Click().Wait();
+                browser.Last("input[type=button]").Click();
 
                 AssertUI.TextEquals(browser.First("pre"), "hello world");
             });

@@ -19,7 +19,7 @@ namespace DotVVM.Samples.Tests.Feature
                     var value = browser.First(".result").GetInnerText();
                     AssertUI.InnerTextEquals(browser.First(".result2"), value);
 
-                    browser.First("input[type=button]").Click().Wait();
+                    browser.First("input[type=button]").Click();
                     var value2 = browser.First(".result").GetInnerText();
                     AssertUI.InnerTextEquals(browser.First(".result2"), value2);
 

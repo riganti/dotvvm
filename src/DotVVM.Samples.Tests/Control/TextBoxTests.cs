@@ -37,7 +37,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.ElementAt("input", 0).Clear();
                 browser.ElementAt("input", 0).SendKeys("hello");
                 browser.ElementAt("input[type=button]", 0).Click();
-                browser.Wait();
+                
 
                 AssertUI.Value(browser.ElementAt("input", 0), "hello");
                 AssertUI.InnerTextEquals(browser.ElementAt("span", 0), "0");
@@ -170,7 +170,7 @@ window.getSelectionText = function (dataui) {
                 //write new valid values
                 dateTextBox.Clear().SendKeys(dateResult2);
                 numberTextbox.Clear().SendKeys(2000.ToString("n0", culture));
-                dateTextBox.Click().Wait();
+                dateTextBox.Click();
 
                 //check new values
                 AssertUI.InnerTextEquals(dateText, new DateTime(2018, 12, 27).ToString("G", culture));
@@ -194,7 +194,7 @@ window.getSelectionText = function (dataui) {
                 //write new valid values
                 dateTextBox.Clear().SendKeys(new DateTime(2018, 1, 1).ToString("d", culture));
                 numberTextbox.Clear().SendKeys(1000.550277.ToString(culture));
-                dateTextBox.Click().Wait();
+                dateTextBox.Click();
 
                 //check new values
                 AssertUI.InnerTextEquals(dateText, new DateTime(2018, 1, 1).ToString("G", culture));
@@ -241,7 +241,7 @@ window.getSelectionText = function (dataui) {
                 ClearInput(numberTextbox);
                 numberTextbox.SendKeys("42")
                     .SendEnterKey()
-                    .Wait();
+                    ;
                 LoseFocus();
 
                 // check new values
@@ -254,7 +254,7 @@ window.getSelectionText = function (dataui) {
                 ClearInput(numberTextbox);
                 numberTextbox.SendKeys(123.456789.ToString(culture))
                     .SendEnterKey()
-                    .Wait();
+                    ;
                 LoseFocus();
 
                 // check new values

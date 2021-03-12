@@ -14,15 +14,14 @@ namespace DotVVM.Samples.Tests.Complex
         [Fact]
         public void Complex_TaskList_TaskListAsyncCommands()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_TaskList_TaskListAsyncCommands);
 
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
 
                 //add task
                 browser.SendKeys("input[type=text]", "DotVVM");
-                browser.ElementAt("input[type=button]",0).Click();
+                browser.ElementAt("input[type=button]", 0).Click();
                 browser.Wait(500);
 
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(4);
@@ -33,16 +32,18 @@ namespace DotVVM.Samples.Tests.Complex
 
                 AssertUI.ClassAttribute(browser.Last(".table tr"), a => a.Contains("completed"), "Last task is not marked as completed.");
 
-                browser.ElementAt("input[type=button]", 1).Click().Wait(1000);
-                browser.FindElements(".table tr").ThrowIfDifferentCountThan(5);
+                browser.ElementAt("input[type=button]", 1).Click();
+
+                browser.WaitFor(() => {
+                    browser.FindElements(".table tr").ThrowIfDifferentCountThan(5);
+                }, 3000);
             });
         }
 
         [Fact]
         public void Complex_TaskList_ServerRenderedTaskList()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_TaskList_ServerRenderedTaskList);
 
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
@@ -50,13 +51,13 @@ namespace DotVVM.Samples.Tests.Complex
                 //add task
                 browser.SendKeys("input[type=text]", "DotVVM");
                 browser.Click("input[type=button]");
-                browser.Wait(500);
 
-                browser.FindElements(".table tr").ThrowIfDifferentCountThan(4);
+                browser.WaitFor(() => {
+                    browser.FindElements(".table tr").ThrowIfDifferentCountThan(4);
+                }, 3000);
 
                 //mark last task as completed
                 browser.Last("a").Click();
-                browser.Wait(500);
 
                 AssertUI.ClassAttribute(browser.Last(".table tr"), a => a.Contains("completed"),
                     "Last task is not marked as completed.");

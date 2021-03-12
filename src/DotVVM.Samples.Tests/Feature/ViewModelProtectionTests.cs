@@ -62,7 +62,7 @@ namespace DotVVM.Samples.Tests.Feature
                 }, 2000);
 
                 // change the viewmodel on client side and check that it works
-                browser.ElementAt("input[type=button]", 1).Click().Wait();
+                browser.ElementAt("input[type=button]", 1).Click();
                 AssertUI.Text(pre, t => !t.Contains("\"Next\": {", StringComparison.CurrentCultureIgnoreCase));
                 browser.ElementAt("input[type=button]", 0).Click();
                 browser.WaitFor(() => {
@@ -118,7 +118,7 @@ namespace DotVVM.Samples.Tests.Feature
             RunComplexViewModelProtectionTest(browser => {
                 var message = browser.Single(messageDataUi, this.SelectByDataUi);
                 AssertUI.TextEquals(message, originalText);
-                browser.Single($"change-{messageDataUi}", this.SelectByDataUi).Click().Wait();
+                browser.Single($"change-{messageDataUi}", this.SelectByDataUi).Click();
 
                 message = browser.Single(messageDataUi, this.SelectByDataUi);
                 AssertUI.TextEquals(message, changedText);

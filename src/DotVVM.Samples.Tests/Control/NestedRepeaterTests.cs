@@ -17,7 +17,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_NestedRepeater);
-                browser.Wait();
+                
 
                 var result = browser.First("#result");
 

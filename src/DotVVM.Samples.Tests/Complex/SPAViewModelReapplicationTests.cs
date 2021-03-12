@@ -32,12 +32,12 @@ namespace DotVVM.Samples.Tests.Complex
 
                 // try the postback
                 browser.First("input[type=button]").Click();
-                browser.Wait();
+                
                 AssertUI.InnerTextEquals(browser.First("#testResult"), "Hello1");
 
                 // go to the second page
                 browser.Single("#pageB").Click();
-                browser.Wait();
+                
 
                 // verify items count and
                 browser.FindElements("ul#first li").ThrowIfDifferentCountThan(3);
@@ -50,12 +50,12 @@ namespace DotVVM.Samples.Tests.Complex
 
                 // try the postback
                 browser.First("input[type=button]").Click();
-                browser.Wait();
+                
                 AssertUI.InnerTextEquals(browser.First("#testResult"), "World2");
 
                 // go to first page
                 browser.Single("#pageA").Click();
-                browser.Wait();
+                
 
                 // verify items count
                 browser.FindElements("ul#first li").ThrowIfDifferentCountThan(3);

@@ -19,7 +19,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ParameterBinding_ParameterBinding + "/123?B=abc");
-                browser.Wait();
+                
 
                 AssertUI.InnerTextEquals(browser.Single(".root-a"), "123");
                 AssertUI.InnerTextEquals(browser.Single(".root-b"), "abc");

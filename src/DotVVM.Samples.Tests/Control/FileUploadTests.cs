@@ -21,11 +21,10 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_FileUpload);
-                browser.Wait(1000);
+                browser.WaitUntilDotvvmInited();
 
                 // get existing files
                 var existingFiles = browser.FindElements("li").Select(e => e.GetText()).ToList();
-                browser.Wait(1000);
 
                 // generate a sample file to upload
                 var tempFile = Path.GetTempFileName();
@@ -69,7 +68,7 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_IsAllowedOrNot);
-                browser.Wait(1000);
+                browser.WaitUntilDotvvmInited();
 
                 var isFileTypeAllowed = browser.Single("span.isFileTypeAllowed");
                 var isMaxSizeExceeded = browser.Single("span.isMaxSizeExceeded");
@@ -94,7 +93,7 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_IsAllowedOrNot);
-                browser.Wait(1000);
+                browser.WaitUntilDotvvmInited();
 
                 var isFileTypeAllowed = browser.Single("span.isFileTypeAllowed");
                 var isMaxSizeExceeded = browser.Single("span.isMaxSizeExceeded");
@@ -120,7 +119,7 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_IsAllowedOrNot);
-                browser.Wait(1000);
+                browser.WaitUntilDotvvmInited();
 
                 var isFileTypeAllowed = browser.Single("span.isFileTypeAllowed");
                 var isMaxSizeExceeded = browser.Single("span.isMaxSizeExceeded");
@@ -145,7 +144,7 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_FileSize);
-                browser.Wait(1000);
+                browser.WaitUntilDotvvmInited();
 
                 var fileSize = browser.Single("span.fileSize");
 

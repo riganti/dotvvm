@@ -93,7 +93,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage);
-                browser.Wait();
+                
                 beforeSwitch(browser);
                 browser.Single("switch-includeInPage", this.SelectByDataUi).Click();
                 browser.WaitFor(() => {
@@ -122,9 +122,9 @@ namespace DotVVM.Samples.Tests.Control
                 if (checkVisible)
                 {
                     var switchVisible = browser.Single("switch-visible", this.SelectByDataUi);
-                    switchVisible.Click().Wait();
+                    switchVisible.Click();
                     AssertUI.IsNotDisplayed(textBox);
-                    switchVisible.Click().Wait();
+                    switchVisible.Click();
                     AssertUI.IsDisplayed(textBox);
                 }
             }, browser => {

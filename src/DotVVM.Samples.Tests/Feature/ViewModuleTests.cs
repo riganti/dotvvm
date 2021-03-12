@@ -22,7 +22,6 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInMarkupControl);
-                browser.Wait();
 
                 var log = browser.Single("#log");
                 browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule: init"), 8000);
@@ -39,7 +38,6 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInMarkupControlTwice);
-                browser.Wait();
 
                 var log = browser.Single("#log");
                 browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule: init"), 8000);
@@ -77,7 +75,6 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInPage);
-                browser.Wait();
 
                 var log = browser.Single("#log");
                 browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule: init"), 8000);
@@ -94,7 +91,6 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInPageCommandAmbiguous);
-                browser.Wait();
 
                 var log = browser.Single("#log");
                 browser.WaitFor(() => AssertLogEntry(log, "testViewModule: init"), 8000);
@@ -112,7 +108,6 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInPageMasterPage);
-                browser.Wait();
 
                 var log = browser.Single("#log");
                 browser.WaitFor(() => AssertLogEntry(log, "testViewModule: init"), 8000);
@@ -135,7 +130,6 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInPageSpaMasterPage2);
-                browser.Wait();
 
                 var links = browser.FindElements("a");
 
@@ -208,7 +202,6 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_IncrementerInRepeater);
-                browser.Wait();
 
                 var buttons = browser.FindElements("input[type=button]");
 

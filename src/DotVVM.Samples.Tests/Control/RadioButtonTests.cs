@@ -19,18 +19,18 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_RadioButton_RadioButton);
-                browser.Wait();
+                
 
                 browser.ElementAt("input[type=radio]", 2).Click();
                 browser.ElementAt("input[type=radio]", 3).Click();
                 browser.First("input[type=button]").Click();
-                browser.Wait();
+                
 
                 AssertUI.InnerTextEquals(browser.Last("span"), "4");
 
                 browser.ElementAt("input[type=radio]", 1).Click();
                 browser.First("input[type=button]").Click();
-                browser.Wait();
+                
 
                 AssertUI.InnerTextEquals(browser.Last("span"), "2");
             });

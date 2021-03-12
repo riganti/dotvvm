@@ -20,7 +20,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_DataSourceNull);
-                browser.Wait();
+                
 
                 var clientRepeater = browser.Single("client-repeater", this.SelectByDataUi);
                 var serverRepeater = browser.Single("server-repeater", this.SelectByDataUi);
@@ -29,7 +29,7 @@ namespace DotVVM.Samples.Tests.Control
                 Assert.Equal(0, serverRepeater.Children.Count);
 
                 var button = browser.Single("set-collection-button", this.SelectByDataUi);
-                button.Click().Wait();
+                button.Click();
 
                 clientRepeater = browser.Single("client-repeater", this.SelectByDataUi);
                 serverRepeater = browser.Single("server-repeater", this.SelectByDataUi);
@@ -44,7 +44,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RepeaterAsSeparator);
-                browser.Wait();
+                
 
                 var repeater = browser.Single("root-repeater", this.SelectByDataUi);
 
@@ -74,7 +74,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RepeaterAsSeparator);
-                browser.Wait();
+                
 
                 var repeater = browser.Single("root-repeater", this.SelectByDataUi);
 
@@ -257,7 +257,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RequiredResource);
-                browser.Wait();
+                
 
                 var clientRepeater = browser.Single("client-repeater", this.SelectByDataUi);
                 var serverRepeater = browser.Single("server-repeater", this.SelectByDataUi);
@@ -272,7 +272,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_CollectionIndex);
-                browser.Wait();
+                
 
                 var clientRenderedItems = browser.FindElements("client-rendered-item", this.SelectByDataUi);
                 var serverRenderedItems = browser.FindElements("server-rendered-item", this.SelectByDataUi);

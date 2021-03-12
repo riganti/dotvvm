@@ -20,7 +20,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelCache_ViewModelCacheMiss);
-                browser.Wait();
+                
 
                 var cacheEnabled = browser.Single(".cacheEnabled").GetText() == "True";
 
