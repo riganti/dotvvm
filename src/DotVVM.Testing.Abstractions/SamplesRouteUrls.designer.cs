@@ -157,6 +157,7 @@ namespace DotVVM.Testing.Abstractions
         public const string Errors_BindingInvalidCommand = "Errors/BindingInvalidCommand";
         public const string Errors_BindingInvalidProperty = "Errors/BindingInvalidProperty";
         public const string Errors_ConfigurableHtmlControlValidation = "Errors/ConfigurableHtmlControlValidation";
+        public const string Errors_ControlAsViewModel = "Errors/ControlAsViewModel";
         public const string Errors_ControlUsageValidation = "Errors/ControlUsageValidation";
         public const string Errors_CorruptedContentBetweenContentControls = "Errors/CorruptedContentBetweenContentControls";
         public const string Errors_EmptyBinding = "Errors/EmptyBinding";

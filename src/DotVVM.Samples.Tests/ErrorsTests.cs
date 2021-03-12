@@ -113,7 +113,16 @@ namespace DotVVM.Samples.Tests
                 AssertUI.InnerText(browser.First("[class='source-errorLine']"), s => s.Contains("dot:CheckBox"));
             });
         }
-
+        [Fact]
+        [SampleReference(SamplesRouteUrls.Errors_ControlAsViewModel)]
+        public void Error_ControlAsViewModel()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_ControlAsViewModel);
+                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("IDotvvmControl"));
+                AssertUI.InnerText(browser.First("[class='source-errorLine']"), s => s.Contains("viewModel"));
+            });
+        }
         [Fact]
         public void Error_MissingRequiredProperty2()
         {

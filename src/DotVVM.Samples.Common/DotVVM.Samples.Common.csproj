@@ -13,6 +13,12 @@
     <Content Include="**/*.dotmaster;**/*.dotcontrol;**/*.dothtml" Exclude="obj/**/*.*;bin/**/*.*" CopyToPublishDirectory="Always" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="Views\FeatureSamples\NewFolder\**" />
+    <Content Remove="Views\FeatureSamples\NewFolder\**" />
+    <EmbeddedResource Remove="Views\FeatureSamples\NewFolder\**" />
+    <None Remove="Views\FeatureSamples\NewFolder\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Remove="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
   </ItemGroup>
   <ItemGroup>
@@ -131,9 +137,6 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Views\FeatureSamples\NewFolder\" />
   </ItemGroup>
   <PropertyGroup Label="Configuration">
     <OutputPath>bin\Debug</OutputPath>
