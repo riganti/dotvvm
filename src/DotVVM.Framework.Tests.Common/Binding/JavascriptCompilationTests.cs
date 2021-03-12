@@ -426,6 +426,34 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JavascriptCompilation_Variable()
+        {
+            var result = CompileBinding("var a = 1; var b = 2; var c = 3; a + b + c", typeof(TestViewModel));
+            Assert.AreEqual("function(a,b,c){a=1;b=2;c=3;return a+b+c;}()", result);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_Variable_Nested()
+        {
+            var result = CompileBinding("var a = 1; var b = (var a = 5; a + 1); a + b", typeof(TestViewModel));
+            Assert.AreEqual("function(a0,b){a0=1;b=function(a){a=5;return a+1;}();return a0+b;}()", result);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_Variable_Property()
+        {
+            var result = CompileBinding("var a = _this.StringProp; var b = _this.StringProp2; StringProp2 = a + b", typeof(TestViewModel));
+            Assert.AreEqual("function(a,b){a=StringProp();b=StringProp2();return StringProp2(a+b);}()", result);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_Variable_VM()
+        {
+            var result = CompileBinding("var a = _parent; var b = _this.StringProp2; StringProp2 = a + b", new [] { typeof(string), typeof(TestViewModel) });
+            Assert.AreEqual("function(a,b){a=$parent;b=StringProp2();return StringProp2(a+b);}()", result);
+        }
+
+        [TestMethod]
         public void JavascriptCompilation_AssignAndUse()
         {
             var result = CompileBinding("StringProp2 = (_this.StringProp = _this.StringProp2 = 'lol') + 'hmm'", typeof(TestViewModel));

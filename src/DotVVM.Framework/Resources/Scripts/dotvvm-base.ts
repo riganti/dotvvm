@@ -19,25 +19,31 @@ type DotvvmCoreState = {
     _stateManager: StateManager<RootViewModel>
 }
 
-let currentState: DotvvmCoreState | null = null
+let currentCoreState: DotvvmCoreState | null = null
+
+function getCoreState() {
+    if (!currentCoreState)
+        throw new Error("DotVVM is not initialized.")
+    return currentCoreState
+}
 
 export function getViewModel() {
     return getStateManager().stateObservable()
 }
 export function getViewModelCacheId(): string | undefined {
-    return currentState!._viewModelCacheId;
+    return getCoreState()._viewModelCacheId;
 }
 export function getViewModelCache(): any {
-    return currentState!._viewModelCache;
+    return getCoreState()._viewModelCache;
 }
-export function getViewModelObservable(): DeepKnockoutObservable<RootViewModel> {
-    return currentState!._stateManager.stateObservable
+export function getViewModelObservable(): DeepKnockoutWrapped<RootViewModel> {
+    return getCoreState()._stateManager.stateObservable
 }
 export function getInitialUrl(): string {
-    return currentState!._initialUrl
+    return getCoreState()._initialUrl
 }
 export function getVirtualDirectory(): string {
-    return currentState!._virtualDirectory
+    return getCoreState()._virtualDirectory
 }
 export function replaceViewModel(vm: RootViewModel): void {
     getStateManager().setState(vm);
@@ -46,21 +52,21 @@ export function getState(): Readonly<RootViewModel> {
     return getStateManager().state
 }
 export function updateViewModelCache(viewModelCacheId: string, viewModelCache: any) {
-    currentState!._viewModelCacheId = viewModelCacheId;
-    currentState!._viewModelCache = viewModelCache;
+    getCoreState()._viewModelCacheId = viewModelCacheId;
+    getCoreState()._viewModelCache = viewModelCache;
 }
 export function clearViewModelCache() {
-    delete currentState!._viewModelCacheId;
-    delete currentState!._viewModelCache;
+    delete getCoreState()._viewModelCacheId;
+    delete getCoreState()._viewModelCache;
 }
-export function getCulture(): string { return currentState!._culture; }
+export function getCulture(): string { return getCoreState()._culture; }
 
-export function getStateManager(): StateManager<RootViewModel> { return currentState!._stateManager }
+export function getStateManager(): StateManager<RootViewModel> { return getCoreState()._stateManager }
 
 let initialViewModelWrapper: any;
 
 export function initCore(culture: string): void {
-    if (currentState) {
+    if (currentCoreState) {
         throw new Error("DotVVM is already loaded");
     }
 
@@ -75,7 +81,7 @@ export function initCore(culture: string): void {
 
     const manager = new StateManager<RootViewModel>(thisViewModel.viewModel, events.newState)
 
-    currentState = {
+    currentCoreState = {
         _culture: culture,
         _initialUrl: thisViewModel.url,
         _virtualDirectory: thisViewModel.virtualDirectory!,
@@ -96,11 +102,11 @@ export function initCore(culture: string): void {
 
     if (compileConstants.isSpa) {
         spaEvents.spaNavigated.subscribe(a => {
-            currentState = {
-                _culture: a.serverResponseObject.culture,
+            currentCoreState = {
+                _culture: currentCoreState!._culture,
                 _initialUrl: a.serverResponseObject.url,
                 _virtualDirectory: a.serverResponseObject.virtualDirectory!,
-                _stateManager: currentState!._stateManager
+                _stateManager: currentCoreState!._stateManager
             }
         });
     }
@@ -111,11 +117,11 @@ export function initBindings() {
 }
 
 const getViewModelStorageElement = () =>
-    <HTMLInputElement> document.getElementById("__dot_viewmodel_root")
+    <HTMLInputElement>document.getElementById("__dot_viewmodel_root")
 
 function persistViewModel() {
     const viewModel = getState()
-    const persistedViewModel = {...initialViewModelWrapper, viewModel };
+    const persistedViewModel = { ...initialViewModelWrapper, viewModel };
 
     getViewModelStorageElement().value = JSON.stringify(persistedViewModel);
 }
