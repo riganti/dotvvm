@@ -165,17 +165,10 @@ namespace DotVVM.Framework.Compilation.Binding
             if (method.IsExtension)
             {
                 // Change to a static call
-                var newArguments = CreateArgumentsForExtensionMethod(target, arguments);
+                var newArguments = new[] { target }.Concat(arguments);
                 return Expression.Call(method.Method, newArguments);
             }
             return Expression.Call(target, method.Method, method.Arguments);
-        }
-        private static Expression[] CreateArgumentsForExtensionMethod(Expression target, Expression[] arguments)
-        {
-            var newArguments = new Expression[arguments.Length + 1];
-            Array.Copy(arguments, 0, newArguments, 1, arguments.Length);
-            newArguments[0] = target;
-            return newArguments;
         }
 
         public Expression CallMethod(Type target, BindingFlags flags, string name, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs = null)
@@ -196,7 +189,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 if (target != null)
                 {
                     // Change to a static call
-                    var newArguments = CreateArgumentsForExtensionMethod(target, arguments);
+                    var newArguments = new[] { target }.Concat(arguments).ToArray();
                     var extensions = FindValidMethodOveloads(extensionsProvider.GetExtensionMethods().OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, newArguments, namedArgs)
                         .Select(method => { method.IsExtension = true; return method; }).ToList();
 
