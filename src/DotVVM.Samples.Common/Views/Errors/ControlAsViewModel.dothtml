@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.TasksViewModel, DotVVM.Samples.Common
+@viewModel DotVVM.Framework.Controls.EmptyData, DotVVM.Framework
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>

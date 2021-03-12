@@ -249,8 +249,8 @@ namespace DotVVM.Framework.Tests.Common.Binding
 
         [TestMethod]
         [DataRow(typeof(GenericTestResult1), new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) }, new Type[] { typeof(int) })]
-      //  [DataRow(typeof(GenericTestResult2), new Type[] { typeof(string), typeof(int), typeof(int), typeof(int) }, new Type[] { typeof(int) })]
-    //    [DataRow(typeof(GenericTestResult2), new Type[] { typeof(double), typeof(bool), typeof(bool) }, new Type[] { typeof(double) })]
+        [DataRow(typeof(GenericTestResult2), new Type[] { typeof(string), typeof(int), typeof(int), typeof(int) }, new Type[] { typeof(int) })]
+        [DataRow(typeof(GenericTestResult2), new Type[] { typeof(double), typeof(bool), typeof(bool) }, new Type[] { typeof(double) })]
         public void Call_FindOverload_Params_Generic_Array_Invalid(Type resultIdentifierType, Type[] argTypes, Type[] expectedArgsTypes)
         {
             Call_FindOverload_Generic(typeof(MethodsParamsArgumentsGenericResolvingSampleObject),
