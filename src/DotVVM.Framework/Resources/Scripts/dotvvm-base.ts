@@ -103,7 +103,7 @@ export function initCore(culture: string): void {
     if (compileConstants.isSpa) {
         spaEvents.spaNavigated.subscribe(a => {
             currentCoreState = {
-                _culture: a.serverResponseObject.culture,
+                _culture: currentCoreState!._culture,
                 _initialUrl: a.serverResponseObject.url,
                 _virtualDirectory: a.serverResponseObject.virtualDirectory!,
                 _stateManager: currentCoreState!._stateManager
@@ -117,11 +117,11 @@ export function initBindings() {
 }
 
 const getViewModelStorageElement = () =>
-    <HTMLInputElement> document.getElementById("__dot_viewmodel_root")
+    <HTMLInputElement>document.getElementById("__dot_viewmodel_root")
 
 function persistViewModel() {
     const viewModel = getState()
-    const persistedViewModel = {...initialViewModelWrapper, viewModel };
+    const persistedViewModel = { ...initialViewModelWrapper, viewModel };
 
     getViewModelStorageElement().value = JSON.stringify(persistedViewModel);
 }
