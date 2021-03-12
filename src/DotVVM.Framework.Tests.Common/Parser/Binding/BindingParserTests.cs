@@ -935,9 +935,9 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(voidBlockExpectedLenght, middleExpression.Length);
 
         }
-        [DataRow("var x=A(); !x", "x", DisplayName = "Variable (val) expression")]
-        [DataRow("var var=A(); !var", "var", DisplayName = "Variable (val) expression, name=val")]
-        [DataRow("var x = A(); !x", "x", DisplayName = "Variable (val) expression with whitespaces")]
+        [DataRow("var x=A(); !x", "x", DisplayName = "Variable (var) expression")]
+        [DataRow("var var=A(); !var", "var", DisplayName = "Variable (var) expression, name=var")]
+        [DataRow("var x = A(); !x", "x", DisplayName = "Variable (var) expression with whitespaces")]
         public void BindingParser_VariableExpression_Simple(string bindingExpression, string variableName)
         {
             var parser = bindingParserNodeFactory.SetupParser(bindingExpression);
