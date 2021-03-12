@@ -86,17 +86,6 @@ namespace DotVVM.Framework.Compilation.Binding
                 );
 
                 return core(replacedVariables);
-
-                // var fakeBlock = Expression.Block(
-                //     block.Variables,
-                //     new Expression [] {
-                //         Expression.Default(block.Type).AddParameterAnnotation(
-                //             new BindingParameterAnnotation(extensionParameter: new JavascriptTranslationVisitor.FakeExtensionParameter(
-                //                 _ => core(realBlock), "fake_static_command_core", new ResolvedTypeDescriptor(block.Type)))
-                //         )
-                //     }
-                // );
-                // return javascriptTranslator.CompileToJavascript(fakeBlock, DataContextStack.Create(typeof(object)));
             }
             else
             {
