@@ -14,7 +14,7 @@
         <legend>
             Dict
         </legend>
-        <dot:Repeater DataSource="{value:  Dictionary}">
+        <dot:Repeater DataSource="{value:  Dictionary}" UITests.Name="dictionary">
             <span>{{value:  Key}}:{{value: Value}}</span>
             <br />
         </dot:Repeater>
@@ -25,7 +25,7 @@
         <legend>
             ListKeyValue
         </legend>
-        <dot:Repeater DataSource="{value:  ListKeyValue}">
+        <dot:Repeater DataSource="{value:  ListKeyValue}" UITests.Name="list">
             <span>{{value:  Key}}:{{value: Value}}</span>
             <br />
         </dot:Repeater>

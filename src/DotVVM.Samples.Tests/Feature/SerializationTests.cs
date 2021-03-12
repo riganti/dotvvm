@@ -1,6 +1,7 @@
 ﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -114,6 +115,22 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(browser.ElementAt("tbody tr", 2).First("td"), "Four");
             });
         }
+
+        [Fact]
+        public void Feature_Serialization_Dictionary()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_Dictionary);
+                browser.WaitUntilDotvvmInited();
+
+                var verifyButton = browser.First("verify", SelectByUiTestName);
+                verifyButton.Click();
+
+                var result = browser.First("result", SelectByUiTestName);
+                AssertUI.TextEquals(result, "true", failureMessage: "Serialization of dictionary and List<KeyValuePair> does not work as expected.");
+            });
+        }
+
 
         public SerializationTests(ITestOutputHelper output) : base(output)
         {
