@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
@@ -56,6 +57,9 @@ namespace DotVVM.Framework.Controls
 
         public static DotvvmProperty CurrentIndexBindingProperty =
             DotvvmProperty.Register<IValueBinding?, Internal>(() => CurrentIndexBindingProperty);
+
+        public static DotvvmProperty ReferencedViewModuleInfoProperty =
+            DotvvmProperty.Register<ViewModuleReferenceInfo, Internal>(() => ReferencedViewModuleInfoProperty, isValueInherited: true);
     }
 
     public static class InternalPropertyExtensions

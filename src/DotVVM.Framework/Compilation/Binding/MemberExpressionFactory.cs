@@ -17,6 +17,7 @@ namespace DotVVM.Framework.Compilation.Binding
     public class MemberExpressionFactory
     {
         private readonly IExtensionsProvider extensionsProvider;
+        private static readonly Type ParamArrayAttributeType = typeof(ParamArrayAttribute);
 
         public MemberExpressionFactory(IServiceProvider serviceProvider)
         {
@@ -167,7 +168,6 @@ namespace DotVVM.Framework.Compilation.Binding
                 var newArguments = new[] { target }.Concat(arguments);
                 return Expression.Call(method.Method, newArguments);
             }
-
             return Expression.Call(target, method.Method, method.Arguments);
         }
 
@@ -177,8 +177,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var method = FindValidMethodOveloads(null, target, name, flags, typeArguments, arguments, namedArgs);
             return Expression.Call(method.Method, method.Arguments);
         }
-
-
+     
         private MethodRecognitionResult FindValidMethodOveloads(Expression target, Type type, string name, BindingFlags flags, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
         {
             var methods = FindValidMethodOveloads(type.GetAllMembers(flags).OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, arguments, namedArgs).ToList();
@@ -208,10 +207,10 @@ namespace DotVVM.Framework.Compilation.Binding
             }
 
             // There are multiple method candidates
-            methods = methods.OrderBy(s => s.CastCount).ThenBy(s => s.AutomaticTypeArgCount).ToList();
+            methods = methods.OrderBy(s => s.CastCount).ThenBy(s => s.AutomaticTypeArgCount).ThenBy(s => s.HasParamsAttribute).ToList();
             var method = methods.FirstOrDefault();
             var method2 = methods.Skip(1).FirstOrDefault();
-            if (method.AutomaticTypeArgCount == method2.AutomaticTypeArgCount && method.CastCount == method2.CastCount)
+            if (method.AutomaticTypeArgCount == method2.AutomaticTypeArgCount && method.CastCount == method2.CastCount && method.HasParamsAttribute == method2.HasParamsAttribute)
             {
                 // TODO: this behavior is not completed. Implement the same behavior as in roslyn.
                 throw new InvalidOperationException($"Found ambiguous overloads of method '{name}'.");
@@ -226,42 +225,26 @@ namespace DotVVM.Framework.Compilation.Binding
                orderby r.CastCount descending, r.AutomaticTypeArgCount
                select r;
 
+
         class MethodRecognitionResult
         {
             public int AutomaticTypeArgCount { get; set; }
             public int CastCount { get; set; }
             public Expression[] Arguments { get; set; }
             public MethodInfo Method { get; set; }
+            public int ParamsArrayCount { get; set; }
             public bool IsExtension { get; set; }
+            public bool HasParamsAttribute { get; set; }
         }
 
         private MethodRecognitionResult TryCallMethod(MethodInfo method, Type[] typeArguments, Expression[] positionalArguments, IDictionary<string, Expression> namedArguments)
         {
             var parameters = method.GetParameters();
+            var hasParamsArrayAttributes = parameters?.LastOrDefault()?.GetCustomAttribute(ParamArrayAttributeType) is object;
 
-            int castCount = 0;
-            if (parameters.Length < positionalArguments.Length) return null;
-            var args = new Expression[parameters.Length];
-            Array.Copy(positionalArguments, args, positionalArguments.Length);
-            int namedArgCount = 0;
-            for (int i = positionalArguments.Length; i < args.Length; i++)
-            {
-                if (namedArguments?.ContainsKey(parameters[i].Name) == true)
-                {
-                    args[i] = namedArguments[parameters[i].Name];
-                    namedArgCount++;
-                }
-                else if (parameters[i].HasDefaultValue)
-                {
-                    castCount++;
-                    args[i] = Expression.Constant(parameters[i].DefaultValue, parameters[i].ParameterType);
-                }
-                else return null;
-            }
-
-            // some named arguments were not used
-            if (namedArguments != null && namedArgCount != namedArguments.Count) return null;
-
+            if (!TryPrepareArguments(parameters, positionalArguments, namedArguments, out var args, out var castCount))
+                return null;
+          
             int automaticTypeArgs = 0;
             // resolve generic parameters
             if (method.ContainsGenericParameters)
@@ -273,12 +256,17 @@ namespace DotVVM.Framework.Compilation.Binding
                     if (typeArguments.Length > typeArgs.Length) return null;
                     Array.Copy(typeArguments, typeArgs, typeArgs.Length);
                 }
+                var parameterTypes = parameters.Select(s => s.ParameterType).ToArray();
+                if (hasParamsArrayAttributes && parameterTypes.Length > 0)
+                {
+                    parameterTypes[parameterTypes.Length - 1] = parameterTypes.Last().GetElementType();
+                }
                 for (int genericArgumentPosition = 0; genericArgumentPosition < typeArgs.Length; genericArgumentPosition++)
                 {
                     if (typeArgs[genericArgumentPosition] == null)
                     {
                         // try to resolve from arguments
-                        var argType = GetGenericParameterType(genericArguments[genericArgumentPosition], parameters.Select(s => s.ParameterType).ToArray(), args.Select(s => s.Type).ToArray());
+                        var argType = GetGenericParameterType(genericArguments[genericArgumentPosition], parameterTypes, args.Select(s => s.Type).ToArray());
                         automaticTypeArgs++;
                         if (argType != null) typeArgs[genericArgumentPosition] = argType;
                         else return null;
@@ -292,12 +280,35 @@ namespace DotVVM.Framework.Compilation.Binding
             // cast arguments
             for (int i = 0; i < args.Length; i++)
             {
-                var casted = TypeConversion.ImplicitConversion(args[i], parameters[i].ParameterType);
-                if (casted == null) return null;
+                Type elm;
+                if (args.Length == i + 1 && hasParamsArrayAttributes && !args[i].Type.IsArray)
+                {
+                    elm = parameters[i].ParameterType.GetElementType();
+                    if (positionalArguments.Skip(i).Any(s => TypeConversion.ImplicitConversion(s, elm) is null))
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    elm = parameters[i].ParameterType;
+                }
+                var casted = TypeConversion.ImplicitConversion(args[i], elm);
+                if (casted == null)
+                {
+                    return null;
+                }
                 if (casted != args[i])
                 {
                     castCount++;
                     args[i] = casted;
+                }
+                if (args.Length == i + 1 && hasParamsArrayAttributes && !args[i].Type.IsArray)
+                {
+                    var converted = positionalArguments.Skip(i)
+                        .Select(a => TypeConversion.ImplicitConversion(a, elm))
+                        .ToArray();
+                    args[i] = NewArrayExpression.NewArrayInit(elm, converted);
                 }
             }
 
@@ -305,8 +316,75 @@ namespace DotVVM.Framework.Compilation.Binding
                 CastCount = castCount,
                 AutomaticTypeArgCount = automaticTypeArgs,
                 Method = method,
-                Arguments = args
+                Arguments = args,
+                ParamsArrayCount = positionalArguments.Length - args.Length,
+                HasParamsAttribute = hasParamsArrayAttributes
             };
+        }
+        private static bool TryPrepareArguments(ParameterInfo[] parameters, Expression[] positionalArguments, IDictionary<string, Expression> namedArguments, out Expression[] arguments, out int castCount)
+        {
+            castCount = 0;
+            arguments = null;
+            var addedArguments = 0;
+            var hasParamsArrayAttribute = parameters?.LastOrDefault()?.GetCustomAttribute(ParamArrayAttributeType) is object;
+
+            // For methods without `params` arguments count must be at least equal to parameters count
+            if (!hasParamsArrayAttribute && parameters.Length < positionalArguments.Length)
+                return false;
+
+            arguments = new Expression[parameters.Length];
+            var copyItemsCount = !hasParamsArrayAttribute ? positionalArguments.Length : parameters.Length;
+
+            if (hasParamsArrayAttribute && parameters.Length > positionalArguments.Length)
+            {
+                var parameter = parameters.Last();
+                var elementType = parameter.ParameterType.GetElementType();
+
+                // User specified no arguments for the `params` array, we need to create an empty array
+                arguments[arguments.Length - 1] = Expression.NewArrayInit(elementType);
+
+                // Last argument was just generated => do not copy
+                addedArguments++;
+                copyItemsCount--;
+            }
+            if (copyItemsCount > positionalArguments.Length)
+            {
+                // Check if we could use default parameters
+                var defaultParametersCount = parameters.Skip(positionalArguments.Length).Where(param => param.HasDefaultValue).Count();
+                if (defaultParametersCount + positionalArguments.Length >= copyItemsCount)
+                    copyItemsCount = positionalArguments.Length;
+                else
+                    return false;
+            }
+
+            Array.Copy(positionalArguments, arguments, copyItemsCount);
+
+            // Process named arguments
+            var namedArgCount = 0;
+            for (var i = positionalArguments.Length; i < arguments.Length; i++)
+            {
+                if (namedArguments?.ContainsKey(parameters[i].Name) == true)
+                {
+                    arguments[i] = namedArguments[parameters[i].Name];
+                    namedArgCount++;
+                }
+                else if (parameters[i].HasDefaultValue)
+                {
+                    castCount++;
+                    arguments[i] = Expression.Constant(parameters[i].DefaultValue, parameters[i].ParameterType);
+                }
+                else if (parameters[i].GetCustomAttribute(ParamArrayAttributeType) is object)
+                {
+                    break;
+                }
+                else return false;
+            }
+
+            // Some named arguments were not used
+            if (namedArguments != null && namedArgCount != namedArguments.Count)
+                return false;
+
+            return true;
         }
 
         private Type GetGenericParameterType(Type genericArg, Type[] searchedGenericTypes, Type[] expressionTypes)
