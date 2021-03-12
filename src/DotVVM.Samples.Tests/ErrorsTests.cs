@@ -119,7 +119,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_ControlAsViewModel);
-                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("IDotvvmControl"));
+                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("DotvvmBindableObject"));
                 AssertUI.InnerText(browser.First("[class='source-errorLine']"), s => s.Contains("viewModel"));
             });
         }
