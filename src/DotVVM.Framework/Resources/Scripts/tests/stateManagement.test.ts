@@ -597,3 +597,25 @@ test("setState on the observable", () => {
     expect(state2.length).toEqual(1);
     expect(state2[0].Id).toEqual(0);
 })
+
+test("push on observable array - automatic coercion happens", () => {
+
+    vm.Array([
+        { Id: 1 },
+        { Id: 3 }
+    ]);
+    s.doUpdateNow();
+    expect(vm.Array().length).toEqual(2);
+    vm.Array.push({ Id: 4 });
+    expect(vm.Array().length).toEqual(3);
+
+    expect(vm.Array()[2]).observable();
+    expect(vm.Array()[2]().Id).observable();
+    expect(vm.Array()[2]().Id()).toEqual(4);
+    expect(vm.Array()[2]().$type()).toEqual("t2");
+
+    const oldValue = vm.Array()[2];
+    s.doUpdateNow();
+    expect(vm.Array()[2]).toEqual(oldValue);
+
+})
