@@ -1,4 +1,4 @@
-﻿param([String]$outputDictionary)
+﻿param([String]$outputDirectory)
 
 Set-Location $PSScriptRoot
 Set-Location ..\DotVVM.Framework
@@ -15,7 +15,7 @@ yarn jest --ci --reporters="jest-junit"
 Set-Location $PSScriptRoot
 Set-Location ..\DotVVM.Framework
 
-Copy-Item .\junit.xml $outputDictionary\js-tests-results.xml
+Copy-Item .\junit.xml $outputDirectory\js-tests-results.xml
 Remove-Item .\junit.xml
 
 Set-Location $PSScriptRoot
