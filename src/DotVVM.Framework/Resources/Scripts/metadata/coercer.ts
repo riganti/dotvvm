@@ -44,7 +44,12 @@ export function tryCoerce(value: any, type: TypeDefinition, originalValue: any =
         } 
         return new CoerceError(`Unsupported type metadata ${JSON.stringify(type)}!`);
     }
-    return Object.freeze(core())
+
+    const result = core();
+    if (result instanceof CoerceError) {
+        return result;      // we cannot freeze CoerceError because we modify its path property
+    }
+    return Object.freeze(result);
 }
 
 export function coerce(value: any, type: TypeDefinition, originalValue: any = undefined): any {

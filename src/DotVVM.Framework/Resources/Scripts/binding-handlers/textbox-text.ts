@@ -1,13 +1,14 @@
 import { parseDate as parseDotvvmDate, serializeDate } from '../serialization/date'
 import * as globalize from '../DotVVM.Globalize'
-import { DotvvmValidationElementMetadata, DotvvmValidationObservableMetadata } from '../validation/common';
+import { DotvvmValidationElementMetadata, DotvvmValidationObservableMetadata, getValidationMetadata } from '../validation/common';
+import { lastSetErrorSymbol } from '../state-manager';
 
 // handler dotvvm-textbox-text
 export default {
     "dotvvm-textbox-text": {
         init(element: HTMLInputElement, valueAccessor: () => any, allBindingsAccessor?: KnockoutAllBindingsAccessor) {
             const obs = valueAccessor();
-            const valueUpdate = allBindingsAccessor!.get("valueUpdate");
+            const valueUpdate = allBindingsAccessor?.get("valueUpdate") || "change";
 
             // generate metadata func
             const elmMetadata: DotvvmValidationElementMetadata = {
@@ -17,7 +18,7 @@ export default {
                 domNodeDisposal: false,
                 elementValidationState: true
             }
-
+            
             // add metadata for validation
             let metadata = [] as DotvvmValidationObservableMetadata
             if (ko.isObservable(obs)) {
@@ -39,8 +40,9 @@ export default {
                     }
                 });
             }, 0);
-
-            element.addEventListener("change", () => {
+            
+            const valueUpdateHandler = () => {
+                const obs = valueAccessor();
                 if (!ko.isObservable(obs)) {
                     return;
                 }
@@ -58,69 +60,85 @@ export default {
                     result = globalize.parseDate(element.value, elmMetadata.format, currentValue);
                     isEmpty = result == null;
                     newValue = isEmpty ? null : serializeDate(result, false);
-                } else {
+                } else if (elmMetadata.dataType === "number") {
                     // parse number
                     result = globalize.parseNumber(element.value);
                     isEmpty = result === null || isNaN(result);
                     newValue = isEmpty ? null : result;
+                } else {
+                    // string
+                    newValue = element.value;
                 }
 
-                // update element validation metadata
+                // update element validation metadata (this is used when FormatString is set)
                 if (newValue == null && element.value !== null && element.value !== "") {
                     element.setAttribute("data-invalid-value", element.value);
-                    element.setAttribute("data-dotvvm-value-type-valid", "false"); // TODO: is this actually needed?
+                    element.setAttribute("data-dotvvm-value-type-valid", "false");
                     elmMetadata.elementValidationState = false;
                 } else {
                     element.removeAttribute("data-invalid-value");
                     element.setAttribute("data-dotvvm-value-type-valid", "true");
                     elmMetadata.elementValidationState = true;
                 }
-
-                if (obs() === newValue) {
-                    if (obs.valueHasMutated) {
-                        obs.valueHasMutated();
+            
+                const originalElementValue = element.value;
+                try {
+                    if (obs.peek() === newValue) {
+                        // first null can be legit (allowed empty value), second can be a validation error (invalid format etc.)
+                        // we have to trigger the change anyway
+                        obs.valueHasMutated ? obs.valueHasMutated() : obs.notifySubscribers();
+                        if (elmMetadata.elementValidationState) {
+                            (obs as any)[lastSetErrorSymbol] = void 0;
+                        }
                     } else {
-                        obs.notifySubscribers();
-                    }
-                } else {
-                    try {
                         obs(newValue);
-                    } catch { 
-                        // observable may throw an exception if there is a validation error
-                        // but subscribers will be notified anyway so it's not a problem
                     }
+                } catch (err) { 
+                    // observable may throw an exception if there is a validation error
+                    // but subscribers will be notified anyway so it's not a problem
+                    elmMetadata.elementValidationState = false;
+                    element.setAttribute("data-invalid-value", element.value);
+                    element.setAttribute("data-dotvvm-value-type-valid", "false");
+
+                    // update has already been called - we need to restore the original value in the element
+                    element.value = originalElementValue;
                 }
-            });
+            };
+
+            element.addEventListener(valueUpdate, valueUpdateHandler);            
         },
         update(element: HTMLInputElement, valueAccessor: () => any) {
             const obs = valueAccessor();
+
+            // get value
+            let value = ko.unwrap(obs);
+
+            // apply formatting
             const format = element.getAttribute("data-dotvvm-format");
-            const value = ko.unwrap(obs);
-
             if (format) {
-                const formatted = globalize.formatString(format, value);
-                const invalidValue = element.getAttribute("data-invalid-value");
+                value = globalize.formatString(format, value) || "";
+            }
 
-                if (invalidValue == null) {
-                    element.value = formatted || "";
-
-                    if (obs.dotvvmMetadata) {
-                        const elementMetadata: DotvvmValidationElementMetadata[] = obs.dotvvmMetadata;
-
-                        for (const elemMetadata of elementMetadata) {
-                            if (elemMetadata.element == element) {
-                                element.setAttribute("data-dotvvm-value-type-valid", "true");
-                                elemMetadata.elementValidationState = true;
-                            }
+            const invalidValue = element.getAttribute("data-invalid-value");
+            if (invalidValue != null) {
+                // if there is an invalid value from previous change, use it and reset the flag
+                element.removeAttribute("data-invalid-value");
+                value = invalidValue;
+            } else {
+                // value has changed, reset validation state
+                const elementMetadata = obs && getValidationMetadata(obs);
+                if (elementMetadata) {
+                    for (const elemMetadata of elementMetadata) {
+                        if (elemMetadata.element == element) {
+                            elemMetadata.elementValidationState = true;
+                            element.setAttribute("data-dotvvm-value-type-valid", "true");
+                            element.removeAttribute("data-invalid-value");
                         }
                     }
-                } else {
-                    element.removeAttribute("data-invalid-value");
-                    element.value = invalidValue;
                 }
-            } else {
-                element.value = value;
             }
+
+            element.value = value || "";
         }
     }
 }

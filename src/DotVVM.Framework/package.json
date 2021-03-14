@@ -24,5 +24,8 @@
     "tsc-build": "tsc -p .",
     "tsc-types": "tsc -d -p . --outFile ./obj/typescript-types/dotvvm.d.ts --emitDeclarationOnly --skipLibCheck",
     "build-polyfills": "terser -o obj/javascript/polyfill.bundle.js -c -m -- Resources/Scripts/Polyfills/promise.js Resources/Scripts/Polyfills/fetch.js node_modules/systemjs/dist/system.js node_modules/symbol-es6/symbol-es6.js Resources/Scripts/Polyfills/utils.js"
+  },
+  "dependencies": {
+    "jest-junit": "^12.0.0"
   }
 }

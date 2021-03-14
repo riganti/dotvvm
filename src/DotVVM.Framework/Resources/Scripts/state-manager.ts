@@ -244,15 +244,14 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
             (this as any)[lastSetErrorSymbol] = void 0;
 
             const unmappedValue = unmapKnockoutObservables(newValue);
-            const coerceResult = coerce(unmappedValue, typeHint || { type: "dynamic" }, (this as any)[currentStateSymbol]);
-            updater(_ => coerceResult);
+            const oldValue = obs[currentStateSymbol];
+            const coerceResult = coerce(unmappedValue, typeHint || { type: "dynamic" }, oldValue);
 
-            // when someone sets object in the observable and we coerce it, we need to wrap the coerced result in observables too
-            if (isPrimitive(coerceResult) || coerceResult instanceof Date || coerceResult == null) {
-                return { newValue: coerceResult, notifySubscribers };
-            } else {
-                return { newValue: createWrappedObservable(coerceResult, typeHint, updater)(), notifySubscribers };
-            }
+            updater(_ => coerceResult);
+            const result = notifyCore(coerceResult, oldValue, true);
+
+            return { newValue: result!.newContents, notifySubscribers };
+
         } catch (err) {
             (this as any)[lastSetErrorSymbol] = err;
             triggerLastSetErrorUpdate(this);
@@ -271,12 +270,25 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
             return 
         } 
 
-        obs[lastSetErrorSymbol] = void 0;
-        obs[currentStateSymbol] = newVal
-
         const observableWasSetFromOutside = updatedObservable
         updatedObservable = false
 
+        obs[lastSetErrorSymbol] = void 0;
+        obs[currentStateSymbol] = newVal
+
+        const result = notifyCore(newVal, currentValue, observableWasSetFromOutside);
+        if (result && "newContents" in result) {
+            try {
+                isUpdating = true
+                obs(result.newContents)
+            }
+            finally {
+                isUpdating = false
+            }
+        }
+    }
+
+    function notifyCore(newVal: any, currentValue: any, observableWasSetFromOutside: boolean) {
         let newContents
         const oldContents = obs.peek()
         if (isPrimitive(newVal) || newVal instanceof Date) {
@@ -340,13 +352,8 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
             newContents = createObservableObject(newVal, typeHint, updater)
         }
 
-        try {
-            isUpdating = true
-            obs(newContents)
-        }
-        finally {
-            isUpdating = false
-        }
+        // return a result indicating that the observable needs to be set
+        return { newContents };
     }
 
     obs[notifySymbol] = notify

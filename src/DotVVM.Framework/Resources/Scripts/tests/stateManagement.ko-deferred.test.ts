@@ -1,14 +1,10 @@
-import { initDotvvm } from "./helper";
 import dotvvm from '../dotvvm-root'
 import { getStateManager } from "../dotvvm-base";
 import { StateManager } from "../state-manager";
-import { serialize } from "../serialization/serialize";
 
 ko.options.deferUpdates = true
 
-require('./stateManagement.test')
-
-
+require('./stateManagement.data')
 
 const vm = dotvvm.viewModels.root.viewModel as any
 const s = getStateManager() as StateManager<any>
