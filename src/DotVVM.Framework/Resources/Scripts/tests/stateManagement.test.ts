@@ -1,116 +1,17 @@
-import { initDotvvm, fc, waitForEnd } from "./helper";
+import { fc, waitForEnd } from "./helper";
 import dotvvm from '../dotvvm-root'
 import { getStateManager } from "../dotvvm-base";
 import { lastSetErrorSymbol, StateManager } from "../state-manager";
 import { serialize } from "../serialization/serialize";
-import fc_types, { json } from '../../../node_modules/fast-check/lib/types/fast-check'
+import { deserialize } from "../serialization/deserialize";
 import { serializeDate } from "../serialization/date";
 
-initDotvvm({
-    viewModel: {
-        $type: "t1",
-        Int: 1,
-        Str: "A",
-        Array: [ {
-            $type: "t2",
-            Id: 1
-        } ],
-        ArrayWillBe: null,
-        Inner: {
-            $type: "t3",
-            P1: 1,
-            P2: 2,
-            P3: 3
-        },
-        Inner2: null
-    },
-    typeMetadata: {
-        t1: {                
-            type: "object",
-            properties: {
-                Int: {
-                    type: "Int32"
-                },
-                Str: {
-                    type: "String"
-                },
-                Array: {
-                    type: [
-                        "t2"
-                    ]
-                },
-                ArrayWillBe: {
-                    type: [
-                        "t5"
-                    ]
-                },
-                Inner: {
-                    type: "t3"
-                },
-                Inner2: {
-                    type: "t3"
-                },
-                DateTime: { type: { type: "nullable", inner: "DateTime" } }
-            }
-        },
-        t2: {
-            type: "object",
-            properties: {
-                Id: {
-                    type: "Int32"
-                }
-            }
-        },
-        t3_a: {
-            type: "object",
-            properties: {
-                "P1": {
-                    type: "Int32"
-                },
-                "P2": {
-                    type: { type: "nullable", inner: "Int32" }
-                }
-            }
-        },
-        t3: {
-            type: "object",
-            properties: {
-                "P1": {
-                    type: "Int32"
-                },
-                "P2": {
-                    type: { type: "nullable", inner: "Int32" }
-                },
-                "P3": {
-                    type: "Int32"
-                },
-                "P4": {
-                    type: { type: "nullable", inner: "Int32" }
-                }
-            }
-        },
-        t4: {
-            type: "object",
-            properties: {
-                "P": {
-                    type: "String"
-                }
-            }
-        },
-        t5: {
-            type: "object",
-            properties: {
-                "B": {
-                    type: "String"
-                }
-            }
-        }
-    }
-})
+require('./stateManagement.data')
 
 const vm = dotvvm.viewModels.root.viewModel as any
 const s = getStateManager() as StateManager<any>
 s.doUpdateNow()
+
 
 test("Initial knockout ViewModel", () => {
     expect(vm.Int).observable()
@@ -141,7 +42,7 @@ test("Dirty flag", () => {
 })
 
 test("Upgrade null to observableArray", () => {
-    s.update(x => ({...x, ArrayWillBe: [ { $type: "t5", B: "ahoj" } ] }))
+    s.update(x => ({ ...x, ArrayWillBe: [{ $type: "t5", B: "ahoj" }] }))
     s.doUpdateNow()
 
     expect(vm.ArrayWillBe).observableArray()
@@ -153,13 +54,13 @@ test("Upgrade null to observableArray", () => {
 test("Change observableArray to object", () => {
     // this should not happen IRL, but can when property of type `object` is used in viewModel
 
-    s.update(x => ({...x, Array: { $type: "t4", P: "P" } }))
+    s.update(x => ({ ...x, Array: { $type: "t4", P: "P" } }))
     s.doUpdateNow()
 
     expect(vm.Array).observable()
     expect(vm.Array().P()).toBe("P")
 
-    s.update(x => ({...x, Array: [ { $type: "t2", Id: 17 } ] }))
+    s.update(x => ({ ...x, Array: [{ $type: "t2", Id: 17 }] }))
     s.doUpdateNow()
 
     expect(vm.Array).observableArray()
@@ -169,7 +70,7 @@ test("Change observableArray to object", () => {
 })
 
 test("Add and remove type properties", () => {
-    s.update(x => ({...x, Inner: { $type: "t3_a", P1: 5, P2: null } }))
+    s.update(x => ({ ...x, Inner: { $type: "t3_a", P1: 5, P2: null } }))
     s.doUpdateNow()
 
     expect(vm.Inner().P1).observable()
@@ -178,8 +79,8 @@ test("Add and remove type properties", () => {
     expect(vm.Inner().P2()).toBe(null)
     expect("P3" in vm.Inner()).toBeFalsy()
     expect("P4" in vm.Inner()).toBeFalsy()
-    
-    s.update(x => ({...x, Inner: { $type: "t3", P1: 6, P2: 2, P3: 3, P4: 4 } }))
+
+    s.update(x => ({ ...x, Inner: { $type: "t3", P1: 6, P2: 2, P3: 3, P4: 4 } }))
     s.doUpdateNow()
 
     expect(vm.Inner().P1).observable()
@@ -191,9 +92,9 @@ test("Add and remove type properties", () => {
     expect(vm.Inner().P4).observable()
     expect(vm.Inner().P4()).toBe(4)
 
-    s.update(x => ({...x, Inner: { $type: "t3_a", P1: 5, P2: null } }))
+    s.update(x => ({ ...x, Inner: { $type: "t3_a", P1: 5, P2: null } }))
     s.doUpdateNow()
-    
+
     expect(vm.Inner().P1).observable()
     expect(vm.Inner().P1()).toBe(5)
     expect(vm.Inner().P2).observable()
@@ -271,7 +172,7 @@ test("Propagate knockout observable change", () => {
 
     expect(s.state.Inner).toBeNull()
     expect(s.state.Array[0].Id).toBe(500)
-    s.update(x => ({...x, Int: x.Int + 1 }))
+    s.update(x => ({ ...x, Int: x.Int + 1 }))
     s.doUpdateNow()
     expect(vm.Int()).toBe(746)
 })
@@ -300,11 +201,11 @@ test("Propagate knockout array assignment", () => {
         })
     ])
 
-    expect(s.state.ArrayWillBe).toStrictEqual([ { $type: "t5", B: "hmm" } ])
+    expect(s.state.ArrayWillBe).toStrictEqual([{ $type: "t5", B: "hmm" }])
     s.doUpdateNow()
     expect(vm.ArrayWillBe()[0]().B()).toBe("hmm")
     vm.ArrayWillBe()[0]().B("hmm2")
-    expect(s.state.ArrayWillBe).toStrictEqual([ { $type: "t5", B: "hmm2" } ])
+    expect(s.state.ArrayWillBe).toStrictEqual([{ $type: "t5", B: "hmm2" }])
 })
 
 test("Propagate Date assignment", () => {
@@ -329,90 +230,9 @@ test("Serialized computed updates on changes", () => {
     computed.subscribe(val => lastValue = val.Str)
     vm.Str("a")
     expect(lastValue).toBe("a")
-    s.setState({...s.state, Str: "b"})
+    s.setState({ ...s.state, Str: "b" })
     s.doUpdateNow()
     expect(lastValue).toBe("b")
-})
-
-test("Stress test - simple increments", async () => {
-    jest.setTimeout(120_000);
-
-    // watchEvents()
-
-    await fc.assert(fc.asyncProperty(
-        fc.integer(1, 100),
-        fc.scheduler(),
-        async (steps, scheduler) => {
-            vm.Int(0)
-            expect(vm.Int()).toBe(0)
-            s.doUpdateNow()
-            expect(s.state.Int).toBe(0);
-
-            await waitForEnd([
-                (async () => {
-                    for (let i = 0; i < steps / 8 + 1; i++) {
-                        await scheduler.schedule(Promise.resolve(), `Sync ${i}`)
-                        s.doUpdateNow()
-                    }
-                })(),
-                (async () => {
-                    for (let i = 0; i < steps; i++) {
-                        await scheduler.schedule(Promise.resolve(), `Inc ${i} + 1`)
-                        expect(vm.Int()).toBe(i)
-                        vm.Int(vm.Int() + 1)
-                        expect(vm.Int()).toBe(i + 1)
-                    }
-                })()],
-                scheduler,
-                () => {
-                    expect(vm.Int()).toBe(s.state.Int)
-                })
-        }
-    ), { timeout: 2000 })
-})
-
-test("Stress test - simple increments with postbacks in background", async () => {
-    jest.setTimeout(120_000);
-
-    // watchEvents()
-
-    await fc.assert(fc.asyncProperty(
-        fc.integer(1, 100),
-        fc.integer(1, 100),
-        fc.scheduler(),
-        async (steps, postbacks, scheduler) => {
-            vm.Int(0)
-            expect(vm.Int()).toBe(0)
-            s.doUpdateNow()
-            expect(s.state.Int).toBe(0);
-
-            await waitForEnd([
-                (async () => {
-                    for (let i = 0; i < steps / 8 + 1; i++) {
-                        await scheduler.schedule(Promise.resolve(), `Sync ${i}`)
-                        s.doUpdateNow()
-                    }
-                })(),
-                (async () => {
-                    for (let i = 0; i < postbacks; i++) {
-                        await scheduler.schedule(Promise.resolve(), `Postback ${i}`)
-                        s.setState(JSON.parse(JSON.stringify(s.state)));
-                    }
-                })(),
-                (async () => {
-                    for (let i = 0; i < steps; i++) {
-                        await scheduler.schedule(Promise.resolve(), `Inc ${i} + 1`)
-                        expect(vm.Int()).toBe(i)
-                        vm.Int(vm.Int() + 1)
-                        expect(vm.Int()).toBe(i + 1)
-                    }
-                })()],
-                scheduler,
-                () => {
-                    expect(vm.Int()).toBe(s.state.Int)
-                })
-        }
-    ), { timeout: 2000 })
 })
 
 test("lastSetError flag", () => {
@@ -427,11 +247,11 @@ test("lastSetError flag", () => {
     expect(() => vm.Int([])).toThrow();  // invalid
     expect(vm.Int[lastSetErrorSymbol]).toBeDefined();
 
-    // changing state from state manager should reset the flag
+    // changing state from state manager should reset the flag (if the value is different)
     s.patchState({ Int: 1 });
     s.doUpdateNow();
     expect(vm.Int[lastSetErrorSymbol]).toBeUndefined();
-    
+
 })
 
 test("lastSetError flag - changed back to the original value", () => {
@@ -441,17 +261,49 @@ test("lastSetError flag - changed back to the original value", () => {
     expect(vm.Int[lastSetErrorSymbol]).toBeUndefined();
     expect(() => vm.Int(null)).toThrow();  // invalid
     expect(vm.Int[lastSetErrorSymbol]).toBeDefined();
-    
-    // changing state from state manager should reset the flag (even if the actual value was not changed)
+
+    // changing state from state manager should not reset the flag (if the actual value was not changed)
     s.patchState({ Int: 1 });
     s.doUpdateNow();
-    expect(vm.Int[lastSetErrorSymbol]).toBeUndefined();
-    
+    expect(vm.Int[lastSetErrorSymbol]).toBeDefined();
+
 })
+
+test("lastSetError flag - triggers observable change even if the value hasn't really changed", () => {
+    let changes = 0;
+    const subscription = vm.Int.subscribe(() => changes++);
+    try {
+        vm.Int(2);
+        s.doUpdateNow();
+        expect(changes).toEqual(1);
+
+        try {
+            vm.Int("aaa");
+        } catch { }
+        s.doUpdateNow();
+        expect(changes).toEqual(2);
+
+        vm.Int(2);
+        s.doUpdateNow();
+        expect(changes).toEqual(3);
+
+        try {
+            vm.Int("aaa");
+        } catch { }
+        s.doUpdateNow();
+        expect(changes).toEqual(4);
+
+        s.patchState({ Int: 5 });
+        s.doUpdateNow();
+        expect(changes).toEqual(5);
+    } finally {
+        subscription.dispose();
+    }
+});
 
 test("coercion happens before assigning to the observable", () => {
 
-    vm.Int(1);    
+    vm.Int(1);
     s.doUpdateNow();
     expect(vm.Int()).toEqual(1);
 
@@ -461,5 +313,128 @@ test("coercion happens before assigning to the observable", () => {
     expect(vm.Int()).toEqual(3);
 
     expect(() => vm.Int({})).toThrow();
+
+})
+
+test("coercion on assigning to observable doesn't unwrap objects", () => {
+
+    deserialize({
+        P1: 13,
+        P3: 1
+    }, vm.Inner, true);
+    expect(vm.Inner().P1).observable();
+    expect(vm.Inner().P2).observable();
+    expect(vm.Inner().P3).observable();
+    expect(vm.Inner().P4).observable();
+    const oldInnerValue = vm.Inner();
+    const oldInnerP1 = vm.Inner().P1;
+    s.doUpdateNow();
+    expect(vm.Inner()).toEqual(oldInnerValue);
+    expect(vm.Inner().P1).toEqual(oldInnerP1);
+
+    deserialize([
+        { Id: 5 }
+    ], vm.Array, true);
+    expect(vm.Array()[0]).observable();
+    expect(vm.Array()[0]().Id).observable();
+    const oldArrayValue = vm.Array();
+    const oldArrayFirstObjectId = vm.Array()[0]().Id;
+    s.doUpdateNow();
+    expect(vm.Array()).toEqual(oldArrayValue);
+    expect(vm.Array()[0]().Id).toEqual(oldArrayFirstObjectId);
+})
+
+test("state on the observable", () => {
+
+    vm.Inner({ P1: 1, P3: 2 });
+    s.doUpdateNow();
+    const state = vm.Inner.state;
+    expect(state).toBeDefined();
+    expect(state.P1).toEqual(1);
+    expect(state.P2).toBeNull();
+    expect(state.P3).toEqual(2);
+    expect(state.P4).toBeNull();
+
+    vm.Array([
+        { Id: 1 },
+        { Id: 3 }
+    ]);
+    s.doUpdateNow();
+    const state2 = vm.Array.state;
+    expect(Array.isArray(state2)).toBeTruthy();
+    expect(state2.length).toEqual(2);
+    expect(state2[0].Id).toEqual(1);
+    expect(state2[1].Id).toEqual(3);
+})
+
+test("patchState on the observable", () => {
+
+    vm.Inner({ P1: 1, P3: 2 });
+    s.doUpdateNow();
+    vm.Inner.patchState({ P1: 10 });
+    const state = vm.Inner.state;
+    expect(state).toBeDefined();
+    expect(state.P1).toEqual(10);
+    expect(state.P2).toBeNull();
+    expect(state.P3).toEqual(2);
+    expect(state.P4).toBeNull();
+
+    vm.Array([
+        { Id: 1 },
+        { Id: 3 }
+    ]);
+    s.doUpdateNow();
+    vm.Array.patchState([{}, { Id: 20 }, { Id: 5 }])
+    const state2 = vm.Array.state;
+    expect(Array.isArray(state2)).toBeTruthy();
+    expect(state2.length).toEqual(3);
+    expect(state2[0].Id).toEqual(1);
+    expect(state2[1].Id).toEqual(20);
+    expect(state2[2].Id).toEqual(5);
+})
+
+test("setState on the observable", () => {
+
+    vm.Inner({ P1: 1, P3: 2 });
+    s.doUpdateNow();
+    vm.Inner.setState({ P1: 10, P3: 10, P4: 18 });
+    const state = vm.Inner.state;
+    expect(state).toBeDefined();
+    expect(state.P1).toEqual(10);
+    expect(state.P2).toBeNull();
+    expect(state.P3).toEqual(10);
+    expect(state.P4).toEqual(18);
+
+    vm.Array([
+        { Id: 1 },
+        { Id: 3 }
+    ]);
+    s.doUpdateNow();
+    vm.Array.setState([{ Id: 0 }])
+    const state2 = vm.Array.state;
+    expect(Array.isArray(state2)).toBeTruthy();
+    expect(state2.length).toEqual(1);
+    expect(state2[0].Id).toEqual(0);
+})
+
+test("push on observable array - automatic coercion happens", () => {
+
+    vm.Array([
+        { Id: 1 },
+        { Id: 3 }
+    ]);
+    s.doUpdateNow();
+    expect(vm.Array().length).toEqual(2);
+    vm.Array.push({ Id: 4 });
+    expect(vm.Array().length).toEqual(3);
+
+    expect(vm.Array()[2]).observable();
+    expect(vm.Array()[2]().Id).observable();
+    expect(vm.Array()[2]().Id()).toEqual(4);
+    expect(vm.Array()[2]().$type()).toEqual("t2");
+
+    const oldValue = vm.Array()[2];
+    s.doUpdateNow();
+    expect(vm.Array()[2]).toEqual(oldValue);
 
 })
