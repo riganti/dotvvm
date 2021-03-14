@@ -1,6 +1,7 @@
 import { parseDate as parseDotvvmDate, serializeDate } from '../serialization/date'
 import * as globalize from '../DotVVM.Globalize'
 import { DotvvmValidationElementMetadata, DotvvmValidationObservableMetadata, getValidationMetadata } from '../validation/common';
+import { lastSetErrorSymbol } from '../state-manager';
 
 // handler dotvvm-textbox-text
 export default {
@@ -86,6 +87,9 @@ export default {
                         // first null can be legit (allowed empty value), second can be a validation error (invalid format etc.)
                         // we have to trigger the change anyway
                         obs.valueHasMutated ? obs.valueHasMutated() : obs.notifySubscribers();
+                        if (elmMetadata.elementValidationState) {
+                            (obs as any)[lastSetErrorSymbol] = void 0;
+                        }
                     } else {
                         obs(newValue);
                     }

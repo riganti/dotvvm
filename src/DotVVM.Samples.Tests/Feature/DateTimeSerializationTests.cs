@@ -3,6 +3,7 @@ using System.Globalization;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -66,6 +67,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // try to set dates from server
                 browser.ElementAt("input[type=button]", 0).Click();
+                browser.WaitForPostback();
                 browser.ElementAt("input[type=button]", 2).Click();
 
                 browser.WaitFor(() => {
