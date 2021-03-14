@@ -7,6 +7,7 @@ import replace from '@rollup/plugin-replace';
 
 const build = process.env.BUILD || "debug";
 const production = build == "production";
+const suffix = production ? "" : "-debug";
 
 const config = ({ minify, input, output, spa, legacy }) => ({
     input,
@@ -87,20 +88,20 @@ export default [
     config({
         minify: production,
         input: ['./Resources/Scripts/dotvvm-root.ts'],
-        output: "root-only",
+        output: "root-only" + suffix,
         spa: false
     }),
     config({
         minify: production,
         input: ['./Resources/Scripts/dotvvm-root.ts'],
-        output: "root-spa",
+        output: "root-spa" + suffix,
         spa: true,
     }),
     config({
         // this configuration is for IE (system.js)
         minify: production,
         input: ['./Resources/Scripts/dotvvm-root.ts'],
-        output: "root-only-system",
+        output: "root-only-system" + suffix,
         spa: false,
         legacy: true
     }),
@@ -108,7 +109,7 @@ export default [
         // this configuration is for IE (system.js)
         minify: production,
         input: ['./Resources/Scripts/dotvvm-root.ts'],
-        output: "root-spa-system",
+        output: "root-spa-system" + suffix,
         spa: true,
         legacy: true
     }),
