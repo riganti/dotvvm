@@ -242,7 +242,7 @@ namespace DotVVM.Framework.Controls
                 {
                     writer.AddAttribute("value", Text);
                 }
-            }, UpdateTextOnInput ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
+            }, UpdateTextOnInput ? "input" : null, renderEvenInServerRenderingMode: true);
 
             if (resolvedValueType != FormatValueType.Text)
             {

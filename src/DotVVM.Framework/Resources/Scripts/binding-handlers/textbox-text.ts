@@ -7,7 +7,8 @@ export default {
     "dotvvm-textbox-text": {
         init(element: HTMLInputElement, valueAccessor: () => any, allBindingsAccessor?: KnockoutAllBindingsAccessor) {
             const obs = valueAccessor();
-            
+            const valueUpdate = allBindingsAccessor?.get("valueUpdate") || "change";
+
             // generate metadata func
             const elmMetadata: DotvvmValidationElementMetadata = {
                 element,
@@ -39,7 +40,7 @@ export default {
                 });
             }, 0);
             
-            element.addEventListener("change", () => {
+            const valueUpdateHandler = () => {
                 const obs = valueAccessor();
                 if (!ko.isObservable(obs)) {
                     return;
@@ -81,8 +82,14 @@ export default {
             
                 const originalElementValue = element.value;
                 try {
-                    obs(newValue);
-                } catch { 
+                    if (obs.peek() === newValue) {
+                        // first null can be legit (allowed empty value), second can be a validation error (invalid format etc.)
+                        // we have to trigger the change anyway
+                        obs.valueHasMutated ? obs.valueHasMutated() : obs.notifySubscribers();
+                    } else {
+                        obs(newValue);
+                    }
+                } catch (err) { 
                     // observable may throw an exception if there is a validation error
                     // but subscribers will be notified anyway so it's not a problem
                     elmMetadata.elementValidationState = false;
@@ -92,7 +99,9 @@ export default {
                     // update has already been called - we need to restore the original value in the element
                     element.value = originalElementValue;
                 }
-            });
+            };
+
+            element.addEventListener(valueUpdate, valueUpdateHandler);            
         },
         update(element: HTMLInputElement, valueAccessor: () => any) {
             const obs = valueAccessor();
@@ -103,11 +112,11 @@ export default {
             // apply formatting
             const format = element.getAttribute("data-dotvvm-format");
             if (format) {
-                value = globalize.formatString(format, value);
+                value = globalize.formatString(format, value) || "";
             }
 
             const invalidValue = element.getAttribute("data-invalid-value");
-            if (invalidValue) {
+            if (invalidValue != null) {
                 // if there is an invalid value from previous change, use it and reset the flag
                 element.removeAttribute("data-invalid-value");
                 value = invalidValue;
@@ -119,12 +128,13 @@ export default {
                         if (elemMetadata.element == element) {
                             elemMetadata.elementValidationState = true;
                             element.setAttribute("data-dotvvm-value-type-valid", "true");
+                            element.removeAttribute("data-invalid-value");
                         }
                     }
                 }
             }
 
-            element.value = value;
+            element.value = value || "";
         }
     }
 }
