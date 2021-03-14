@@ -11,14 +11,24 @@ namespace DotVVM.Framework.ResourceManagement
     public class FileResourceLocation: LocalResourceLocation, IDebugFileLocalLocation
     {
         public string FilePath { get; }
-        public FileResourceLocation(string filePath)
+        public string DebugFilePath { get; }
+        public FileResourceLocation(string filePath, string? debugFilePath = null)
         {
             if (filePath.StartsWith("~/", StringComparison.Ordinal)) filePath = filePath.Substring(2); // trim ~/ from the path
             this.FilePath = filePath;
+
+            if (debugFilePath != null)
+            {
+                if (debugFilePath.StartsWith("~/", StringComparison.Ordinal)) debugFilePath = debugFilePath.Substring(2); // trim ~/ from the path
+                this.DebugFilePath = debugFilePath;
+            } else
+            {
+                this.DebugFilePath = filePath;
+            }
         }
 
         public override Stream LoadResource(IDotvvmRequestContext context) => 
-            File.OpenRead(Path.Combine(context.Configuration.ApplicationPhysicalPath, FilePath));
+            File.OpenRead(Path.Combine(context.Configuration.ApplicationPhysicalPath, context.Configuration.Debug ? DebugFilePath : FilePath));
 
         public string GetFilePath(IDotvvmRequestContext context) => FilePath;
     }
