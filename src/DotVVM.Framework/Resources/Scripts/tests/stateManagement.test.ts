@@ -1,117 +1,17 @@
-import { initDotvvm, fc, waitForEnd } from "./helper";
+import { fc, waitForEnd } from "./helper";
 import dotvvm from '../dotvvm-root'
 import { getStateManager } from "../dotvvm-base";
 import { lastSetErrorSymbol, StateManager } from "../state-manager";
 import { serialize } from "../serialization/serialize";
 import { deserialize } from "../serialization/deserialize";
-import fc_types, { json } from '../../../node_modules/fast-check/lib/types/fast-check'
 import { serializeDate } from "../serialization/date";
 
-initDotvvm({
-    viewModel: {
-        $type: "t1",
-        Int: 1,
-        Str: "A",
-        Array: [{
-            $type: "t2",
-            Id: 1
-        }],
-        ArrayWillBe: null,
-        Inner: {
-            $type: "t3",
-            P1: 1,
-            P2: 2,
-            P3: 3
-        },
-        Inner2: null
-    },
-    typeMetadata: {
-        t1: {
-            type: "object",
-            properties: {
-                Int: {
-                    type: "Int32"
-                },
-                Str: {
-                    type: "String"
-                },
-                Array: {
-                    type: [
-                        "t2"
-                    ]
-                },
-                ArrayWillBe: {
-                    type: [
-                        "t5"
-                    ]
-                },
-                Inner: {
-                    type: "t3"
-                },
-                Inner2: {
-                    type: "t3"
-                },
-                DateTime: { type: { type: "nullable", inner: "DateTime" } }
-            }
-        },
-        t2: {
-            type: "object",
-            properties: {
-                Id: {
-                    type: "Int32"
-                }
-            }
-        },
-        t3_a: {
-            type: "object",
-            properties: {
-                "P1": {
-                    type: "Int32"
-                },
-                "P2": {
-                    type: { type: "nullable", inner: "Int32" }
-                }
-            }
-        },
-        t3: {
-            type: "object",
-            properties: {
-                "P1": {
-                    type: "Int32"
-                },
-                "P2": {
-                    type: { type: "nullable", inner: "Int32" }
-                },
-                "P3": {
-                    type: "Int32"
-                },
-                "P4": {
-                    type: { type: "nullable", inner: "Int32" }
-                }
-            }
-        },
-        t4: {
-            type: "object",
-            properties: {
-                "P": {
-                    type: "String"
-                }
-            }
-        },
-        t5: {
-            type: "object",
-            properties: {
-                "B": {
-                    type: "String"
-                }
-            }
-        }
-    }
-})
+require('./stateManagement.data')
 
 const vm = dotvvm.viewModels.root.viewModel as any
 const s = getStateManager() as StateManager<any>
 s.doUpdateNow()
+
 
 test("Initial knockout ViewModel", () => {
     expect(vm.Int).observable()
@@ -333,87 +233,6 @@ test("Serialized computed updates on changes", () => {
     s.setState({ ...s.state, Str: "b" })
     s.doUpdateNow()
     expect(lastValue).toBe("b")
-})
-
-test("Stress test - simple increments", async () => {
-    jest.setTimeout(120_000);
-
-    // watchEvents()
-
-    await fc.assert(fc.asyncProperty(
-        fc.integer(1, 100),
-        fc.scheduler(),
-        async (steps, scheduler) => {
-            vm.Int(0)
-            expect(vm.Int()).toBe(0)
-            s.doUpdateNow()
-            expect(s.state.Int).toBe(0);
-
-            await waitForEnd([
-                (async () => {
-                    for (let i = 0; i < steps / 8 + 1; i++) {
-                        await scheduler.schedule(Promise.resolve(), `Sync ${i}`)
-                        s.doUpdateNow()
-                    }
-                })(),
-                (async () => {
-                    for (let i = 0; i < steps; i++) {
-                        await scheduler.schedule(Promise.resolve(), `Inc ${i} + 1`)
-                        expect(vm.Int()).toBe(i)
-                        vm.Int(vm.Int() + 1)
-                        expect(vm.Int()).toBe(i + 1)
-                    }
-                })()],
-                scheduler,
-                () => {
-                    expect(vm.Int()).toBe(s.state.Int)
-                })
-        }
-    ), { timeout: 8000 })
-})
-
-test("Stress test - simple increments with postbacks in background", async () => {
-    jest.setTimeout(120_000);
-
-    // watchEvents()
-
-    await fc.assert(fc.asyncProperty(
-        fc.integer(1, 100),
-        fc.integer(1, 100),
-        fc.scheduler(),
-        async (steps, postbacks, scheduler) => {
-            vm.Int(0)
-            expect(vm.Int()).toBe(0)
-            s.doUpdateNow()
-            expect(s.state.Int).toBe(0);
-
-            await waitForEnd([
-                (async () => {
-                    for (let i = 0; i < steps / 8 + 1; i++) {
-                        await scheduler.schedule(Promise.resolve(), `Sync ${i}`)
-                        s.doUpdateNow()
-                    }
-                })(),
-                (async () => {
-                    for (let i = 0; i < postbacks; i++) {
-                        await scheduler.schedule(Promise.resolve(), `Postback ${i}`)
-                        s.setState(JSON.parse(JSON.stringify(s.state)));
-                    }
-                })(),
-                (async () => {
-                    for (let i = 0; i < steps; i++) {
-                        await scheduler.schedule(Promise.resolve(), `Inc ${i} + 1`)
-                        expect(vm.Int()).toBe(i)
-                        vm.Int(vm.Int() + 1)
-                        expect(vm.Int()).toBe(i + 1)
-                    }
-                })()],
-                scheduler,
-                () => {
-                    expect(vm.Int()).toBe(s.state.Int)
-                })
-        }
-    ), { timeout: 8000 })
 })
 
 test("lastSetError flag", () => {
