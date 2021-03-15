@@ -1,7 +1,7 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyTitle>DotVVM</AssemblyTitle>
-    <VersionPrefix>3.0.0-preview03-106598</VersionPrefix>
+    <VersionPrefix>3.0.0-preview03-107774</VersionPrefix>
     <TargetFrameworks>net451;netstandard2.0;netstandard2.1</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -9,7 +9,7 @@
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM</PackageId>
-    <PackageVersion>3.0.0-preview03-106598</PackageVersion>
+    <PackageVersion>3.0.0-preview03-107774</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -72,24 +72,25 @@
     <None Remove="node_modules\**" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Resources\Scripts\knockout-latest.debug.js" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.css" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
     <EmbeddedResource Include="obj/javascript/root-only/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-only-debug/dotvvm-root.js" />
     <EmbeddedResource Include="obj/javascript/root-spa/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-spa-debug/dotvvm-root.js" />
     <EmbeddedResource Include="obj/javascript/root-only-system/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-only-system-debug/dotvvm-root.js" />
     <EmbeddedResource Include="obj/javascript/root-spa-system/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-spa-system-debug/dotvvm-root.js" />
     <EmbeddedResource Include="obj/javascript/polyfill.bundle.js" />
     <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.min.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
+    <EmbeddedResource Include="Resources\Scripts\knockout-latest.debug.js" />
     <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.js" />
     <None Include="Resources\Scripts\DotVVM.Globalize.ts" />
     <None Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
-    <None Include="Resources\Scripts\typings\knockout.mapper\knockout.mapper.d.ts" />
     <None Include="Resources\Scripts\typings\knockout\knockout.d.ts" />
   </ItemGroup>
   <ItemGroup>
@@ -126,9 +127,6 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Scripts\knockout-latest.debug.js" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Controls\DelegateTemplate.d.ts">
