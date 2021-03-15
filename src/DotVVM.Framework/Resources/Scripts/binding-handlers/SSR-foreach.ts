@@ -1,3 +1,5 @@
+import { logError } from "../utils/logging";
+
 const foreachCollectionSymbol = "$foreachCollectionSymbol" // knockout does not support symbols ;(
 
 ko.virtualElements.allowedBindings["dotvvm-SSR-foreach"] = true;
@@ -56,7 +58,7 @@ export default {
         },
         update(element: SeenUpdateElement) {
             if (element.seenUpdate) {
-                console.error(`dotvvm-SSR-item binding did not expect to see an update`);
+                logError("binding-handler", `The dotvvm-SSR-item binding did not expect to see an update.`);
             }
             element.seenUpdate = 1;
         }
