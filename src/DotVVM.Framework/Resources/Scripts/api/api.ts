@@ -1,5 +1,6 @@
 import * as eventHub from './eventHub';
 import { deserialize } from '../serialization/deserialize';
+import { logError, logWarning } from '../utils/logging';
 
 type ApiComputed<T> =
     KnockoutObservable<T | null> & {
@@ -45,9 +46,9 @@ export function invoke<T>(
                     eventHub.notify(t);
                 }
                 return val;
-            }, console.warn) };
+            }, e => logWarning("rest-api", e)) };
         } catch (e) {
-            console.warn(e);
+            logWarning("rest-api", e);
             return { type: 'error', error: e };
         }
     };
@@ -85,11 +86,11 @@ export function refreshOn<T>(
     watch: KnockoutObservable<any>
 ): ApiComputed<T> {
     if (typeof value.refreshValue != "function") {
-        console.error(`The object is not refreshable.`);
+        logError("rest-api", `The object is not refreshable.`);
     }
     watch.subscribe(() => {
         if (typeof value.refreshValue != "function") {
-            console.error(`The object is not refreshable.`);
+            logError("rest-api", `The object is not refreshable.`);
         }
         value.refreshValue();
     });

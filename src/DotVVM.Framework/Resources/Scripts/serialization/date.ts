@@ -1,3 +1,5 @@
+import { logWarning } from "../utils/logging";
+
 export function parseDate(value: string): Date | null {
     const match = value.match("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]{3,7})$");
     if (match) {
@@ -21,7 +23,7 @@ export function serializeDate(date: string | Date | null, convertToUtc: boolean 
     } else if (typeof date == "string") {
         // just print in the console if it's invalid
         if (parseDate(date) == null) {
-            console.error(new Error(`Date ${date} is invalid.`));
+            logWarning("coercer", `Date ${date} is invalid.`);
         }
         return date;
     }
@@ -48,7 +50,7 @@ export function serializeTime(date: string | Date | null, convertToUtc: boolean 
     } else if (typeof date == "string") {
         // just print in the console if it's invalid
         if (parseDate(date) == null) {
-            console.error(new Error(`Date ${date} is invalid.`));
+            logWarning("coercer", `Date ${date} is invalid.`);
         }
         return date;
     }

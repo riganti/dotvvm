@@ -7,6 +7,7 @@ import { getObjectTypeInfo } from "./metadata/typeMap";
 import { coerce } from "./metadata/coercer";
 import { patchViewModel } from "./postback/updater";
 import { wrapObservable } from "./utils/knockout";
+import { logWarning } from "./utils/logging";
 
 export const currentStateSymbol = Symbol("currentState")
 const notifySymbol = Symbol("notify")
@@ -94,7 +95,7 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
             isViewModelUpdating = false
             ko.delaySync.resume()
         }
-        // console.log("New state dispatched, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart)
+        //logInfoVerbose("New state dispatched, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart);
     }
 
     public setState(newState: DeepReadonly<TViewModel>): DeepReadonly<TViewModel> {
@@ -168,7 +169,7 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
                             }
                         }
                     } else if (p.indexOf("$") !== 0) {
-                        console.warn(`Unknown property '${p}' set on an object of type ${typeId}.`);
+                        logWarning("state-manager", `Unknown property '${p}' set on an object of type ${typeId}.`);
                     }
 
                     this[internalPropCache][p] = newObs
@@ -255,7 +256,7 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
         } catch (err) {
             (this as any)[lastSetErrorSymbol] = err;
             triggerLastSetErrorUpdate(this);
-            console.debug(`Can not update observable to ${newValue}:`, err)
+            logWarning("state-manager", `Can not update observable to ${newValue}:`, err)
             throw err
         }
     }
@@ -313,8 +314,7 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
                         continue
                     }
                     if (newContents[index]) {
-                        // TODO: remove eventually
-                        console.warn(`Replacing old knockout observable with a new one, just because it is not created by DotVVM. Please do not assign objects into the knockout tree directly. The object is `, unmapKnockoutObservables(newContents[index]))
+                        logWarning("state-manager", `Replacing old knockout observable with a new one, just because it is not created by DotVVM. Please do not assign objects into the knockout tree directly. The object is `, unmapKnockoutObservables(newContents[index]))
                     }
                     const indexForClosure = index
                     newContents[index] = createWrappedObservable(newVal[index], Array.isArray(typeHint) ? typeHint[0] : void 0, update => updater((viewModelArray: any) => {
@@ -347,8 +347,6 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
         }
         else {
             // create new object and replace
-
-            // console.debug("Creating new KO object for", newVal)
             newContents = createObservableObject(newVal, typeHint, updater)
         }
 
