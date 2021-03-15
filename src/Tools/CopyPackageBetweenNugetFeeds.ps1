@@ -12,9 +12,10 @@ Param(
     $url = "$internalServer/package/" + $packageId + "/" + $version
     $snupkgUrl = "$internalServer/package/" + $packageId + "/" + $version
     $nupkgFile = Join-Path $PSScriptRoot ($packageId + "." + $version + ".nupkg")
-    $snupkgurl = "$internalSnupkgServer/snupkg/" + $nupkgFile
-
     $snupkgFile = Join-Path $PSScriptRoot ($packageId + "." + $version + ".snupkg")
+
+    $snupkgurl = "$internalSnupkgServer/snupkg/" + $snupkgFile
+
 
     Write-Host "Downloading from $url"
     $webClient.DownloadFile($url, $nupkgFile)
