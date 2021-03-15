@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                         var targetExprType = assemblyMemberBinding.TargetExpression.GetType();
                         if (memberExprType == typeof(GenericNameBindingParserNode) || targetExprType == typeof(GenericNameBindingParserNode))
                         {
-                            assemblyName.NodeErrors.Add($"Generic identifier name is not allowed in assembly name.");
+                            assemblyName.NodeErrors.Add($"Generic identifier name is not allowed in an assembly name.");
                             break;
                         }
 
