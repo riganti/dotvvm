@@ -53,7 +53,31 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 Read();
                 var assemblyName = ReadNamespaceOrTypeName();
-                if (!(assemblyName is SimpleNameBindingParserNode)) typeName.NodeErrors.Add($"Generic identifier name is not allowed in assembly name.");
+
+                // SimpleNameBinding means that assembly name does not contain dots
+                // MemberAccessBinding means that assembly name is complex (multiple identifiers delimited with dots)
+                if (!(assemblyName is SimpleNameBindingParserNode || assemblyName is MemberAccessBindingParserNode))
+                {
+                    assemblyName.NodeErrors.Add($"Expected assembly name but instead got {assemblyName.GetType().Name}.");
+                }
+                else if (assemblyName is MemberAccessBindingParserNode)
+                {
+                    // Make sure there is no GenericNameBinding within assemblyName
+                    var assemblyBinding = assemblyName;
+                    while (assemblyBinding is MemberAccessBindingParserNode assemblyMemberBinding)
+                    {
+                        var memberExprType = assemblyMemberBinding.MemberNameExpression.GetType();
+                        var targetExprType = assemblyMemberBinding.TargetExpression.GetType();
+                        if (memberExprType == typeof(GenericNameBindingParserNode) || targetExprType == typeof(GenericNameBindingParserNode))
+                        {
+                            assemblyName.NodeErrors.Add($"Generic identifier name is not allowed in assembly name.");
+                            break;
+                        }
+
+                        assemblyBinding = assemblyMemberBinding.TargetExpression;
+                    }
+                }
+
                 return new AssemblyQualifiedNameBindingParserNode(typeName, assemblyName);
             }
             else if (Peek() is BindingToken token)
