@@ -49,7 +49,6 @@ foreach ($package in $packages) {
         Write-Host "Uploading package..."
         & .\tools\nuget.exe push $nupkgFile -source $server -apiKey $apiKey
         Write-Host "Package uploaded to $server."
-        Write-Host "Package uploaded to $server."
     }
 
     if ( Test-Path -Path ./tools/packages ) {
