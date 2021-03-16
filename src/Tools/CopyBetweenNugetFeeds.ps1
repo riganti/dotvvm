@@ -28,26 +28,27 @@ foreach ($package in $packages) {
     # standard package
     if ($package.Type -eq "standard") {
         & .\tools\nuget.exe install $packageId -OutputDirectory .\tools\packages -version $version -DirectDownload -NoCache -DependencyVersion Ignore -source $internalServer
-        $nupkgFile = dir -s ./tools/packages/*.nupkg | Select -First 1
+        $nupkgFile = dir -s ./tools/packages/$packageId.$version.nupkg | Select -First 1
         Write-Host "Downloaded package located on '$nupkgFile'"
     }
     # standard package
     if ($package.Type -eq "tool") {
         ## dotnet tools
-        dotnet tool install DotVVM.CommandLine --tool-path ./tools/packages --version 3.0.0-preview03-final
-        $nupkgFile = dir -s ./tools/packages/*.nupkg | Select -First 1
-        Write-Host "Downloaded package located on '$nupkgFile'"
+        dotnet tool install $packageId --tool-path ./tools/packages --version $version
+        $nupkgFile = dir -s ./tools/packages/*/$packageId.$version.nupkg | Select -First 1
+        Write-Host "Downloaded tool located on '$nupkgFile'"
     }
     # dotnet templates
     if ($package.Type -eq "template") {
         dotnet new --install "$packageId::$version" --force --nuget-source $internalServer
-        $nupkgFile = dir $env:USERPROFILE\.templateengine\dotnetcli\ -s | where { $_.Name -eq "$packageId.$version.nupkg" } | Select -First 1
-        Write-Host "Downloaded package located on '$nupkgFile'"
+        $nupkgFile = dir $env:USERPROFILE\.templateengine\dotnetcli\ -s | where { $_.Name -eq "$packageId.$version.nupkg" } | select { $_.FullName } | Select -First 1
+        Write-Host "Downloaded template located on '$nupkgFile'"
     }
     if ($nupkgFile) {
         # upload 
         Write-Host "Uploading package..."
         & .\tools\nuget.exe push $nupkgFile -source $server -apiKey $apiKey
+        Write-Host "Package uploaded to $server."
         Write-Host "Package uploaded to $server."
     }
 
