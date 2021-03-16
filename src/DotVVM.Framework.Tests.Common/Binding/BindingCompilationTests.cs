@@ -618,6 +618,24 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_Variables()
+        {
+            Assert.AreEqual(2, ExecuteBinding("var a = 1; a + 1"));
+            Assert.AreEqual(typeof(int), ExecuteBinding("var a = 1; a.GetType()"));
+
+            var result = ExecuteBinding("var a = 1; var b = a + LongProperty; var c = b + StringProp; c", new [] { new TestViewModel { LongProperty = 1, StringProp = "X" } });
+            Assert.AreEqual("2X", result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_VariableShadowing()
+        {
+            Assert.AreEqual(121L, ExecuteBinding("var LongProperty = LongProperty + 120; LongProperty", new TestViewModel { LongProperty = 1 }));
+            Assert.AreEqual(7, ExecuteBinding("var a = 1; var b = (var a = 5; a + 1); a + b"));
+            Assert.AreEqual(3, ExecuteBinding("var a = 1; var a = a + 1; var a = a + 1; a"));
+        }
+
+        [TestMethod]
         public void BindingCompiler_Errors_AssigningToType()
         {
             var aggEx = Assert.ThrowsException<AggregateException>(() => ExecuteBinding("System.String = 123", new [] { new TestViewModel() }));

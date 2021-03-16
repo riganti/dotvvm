@@ -180,7 +180,7 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
                                 (ko.extenders as any)[e.name](newObs, e.parameter)
                             }
                         }
-                    } else if (!p.startsWith("$")) {
+                    } else if (p.indexOf("$") !== 0) {
                         console.warn(`Unknown property '${p}' set on an object of type ${typeId}.`);
                     }
 
@@ -227,11 +227,14 @@ export function unmapKnockoutObservables(viewModel: any): any {
 function createObservableObject<T extends object>(initialObject: T, typeHint: TypeDefinition | undefined, update: ((updater: StateUpdate<any>) => void)) {
     const typeId = (initialObject as any)["$type"] || typeHint
     let typeInfo;
-    if (typeId) {
+    if (typeId && !(typeId.hasOwnProperty("type") && typeId["type"] === "dynamic")) {
         typeInfo = getObjectTypeInfo(typeId)
     } 
 
-    const pSet = typeInfo ? new Set(keys(typeInfo.properties)) : new Set();
+    const pSet = new Set();         // IE11 doesn't support constructor with arguments
+    if (typeInfo) {
+        keys(typeInfo.properties).forEach(p => pSet.add(p));
+    }
     const additionalProperties = keys(initialObject).filter(p => !pSet.has(p))
 
     return new FakeObservableObject(initialObject, update, typeId, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
@@ -241,13 +244,16 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
 
     let isUpdating = false
 
-    function observableValidator(this: KnockoutObservable<T>, newValue: any) {
-        if (isUpdating) { return }
+    function observableValidator(this: KnockoutObservable<T>, newValue: any): any {
+        if (isUpdating) { return newValue; }
         updatedObservable = true
 
         try {
             (this as any)[lastSetErrorSymbol] = void 0;
-            updater(_ => unmapKnockoutObservables(newValue))
+            const unmappedValue = unmapKnockoutObservables(newValue);
+            const coerceResult = coerce(unmappedValue, typeHint || { type: "dynamic" }, (this as any)[currentStateSymbol]);
+            updater(_ => coerceResult)
+            return coerceResult;
         } catch (err) {
             (this as any)[lastSetErrorSymbol] = err;
             console.debug(`Can not update observable to ${newValue}:`, err)

@@ -59,9 +59,9 @@ function handleHashChangeWithHistory(spaPlaceHolders: NodeListOf<HTMLElement>, i
         );
     } else {
         isSpaReady(true);
-        spaPlaceHolders.forEach(function (element) {
-            element.style.display = "";
-        });
+        for (let i = 0; i < spaPlaceHolders.length; i++) {      // IE11 doesn't have forEach on spaPlaceHolders
+            spaPlaceHolders[i].style.display = "";
+        }
 
         const currentRelativeUrl = location.pathname + location.search + location.hash
         replacePage(currentRelativeUrl);

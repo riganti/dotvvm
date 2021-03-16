@@ -1,0 +1,84 @@
+<html>
+	<head>
+		
+		<!-- Resource knockout of type ScriptResource. Pointing to EmbeddedResourceLocation. -->
+		<script src="/dotvvmResource/knockout/knockout" defer=""></script>
+		
+		<!-- Resource dotvvm.polyfill.bundle of type ScriptModuleResource. Pointing to EmbeddedResourceLocation. -->
+		<script nomodule="" src="/dotvvmResource/dotvvm--polyfill--bundle/dotvvm--polyfill--bundle?type=nomodule" defer=""></script>
+		
+		<!-- Resource dotvvm.internal of type ScriptModuleResource. Pointing to EmbeddedResourceLocation. -->
+		<script src="/dotvvmResource/dotvvm--internal/dotvvm--internal" type="module" defer=""></script>
+		<script nomodule="" src="/dotvvmResource/dotvvm--internal/dotvvm--internal?type=nomodule" defer=""></script>
+		
+		<!-- Resource dotvvm of type InlineScriptResource. -->          
+		<!-- Resource viewModule.import.lIquTPFe3a42GboPePTmYZ4Xc1S4ok-JXmZud9HUybE of type ViewModuleImportResource. -->
+		<script type="module">import * as m0 from '/dotvvmResource/controlModule/controlModule';dotvvm.viewModules.registerMany({'controlModule': m0});</script>
+		
+		<!-- Resource dotvvm.debug of type ScriptResource. Pointing to EmbeddedResourceLocation. -->
+		<script src="/dotvvmResource/dotvvm--debug/dotvvm--debug" defer=""></script>
+		
+		<!-- Resource viewModule.import.HIj399FcjVwbyaIvDKFctn7Ghr0UMajY-haUgZypcHs of type ViewModuleImportResource. -->
+		<script type="module">import * as m0 from '/dotvvmResource/viewModule/viewModule';dotvvm.viewModules.registerMany({'viewModule': m0});</script>
+		
+		<!-- Resource viewModule.init.HIj399FcjVwbyaIvDKFctn7Ghr0UMajY-haUgZypcHs of type ViewModuleInitResource. -->
+		<script type="module">dotvvm.viewModules.init('viewModule', 'p0', document.body);</script>
+	</head>
+	<body>
+		<div>
+			<!-- ko dotvvm-with-control-properties: {  } -->
+			<!-- ko dotvvm-with-view-modules: { viewIdOrElement: $element, modules: ["controlModule"] } -->
+			<input type="button" value="" onclick="dotvvm.applyPostbackHandlers(function(options){return (function(a) {
+	return Promise.resolve(dotvvm.viewModules.call(a, &quot;name&quot;, [1]));
+}(this))}.bind(this),this,[],[]).catch(console.error);event.stopPropagation();return false;">
+			<!-- /ko -->
+			<!-- /ko -->
+		</div>
+		<div data-bind="foreach: { &quot;data&quot;: Collection }">
+			<div>
+				<!-- ko dotvvm-with-control-properties: {  } -->
+				<!-- ko dotvvm-with-view-modules: { viewIdOrElement: $element, modules: ["controlModule"] } -->
+				<input type="button" value="" onclick="dotvvm.applyPostbackHandlers(function(options){return (function(a) {
+	return Promise.resolve(dotvvm.viewModules.call(a, &quot;name&quot;, [1]));
+}(this))}.bind(this),this,[],[]).catch(console.error);event.stopPropagation();return false;">
+				<!-- /ko -->
+				<!-- /ko -->
+			</div>
+		</div>
+		<input type="hidden" id="__dot_viewmodel_root" value="{
+  &quot;viewModel&quot;: {
+    &quot;$type&quot;: &quot;DYWVl96oJQyEqLvzXrau8UbHXqs=&quot;,
+    &quot;Collection&quot;: [
+      &quot;A&quot;,
+      &quot;B&quot;
+    ],
+    &quot;$csrfToken&quot;: &quot;Not a CSRF token.&quot;
+  },
+  &quot;url&quot;: &quot;/&quot;,
+  &quot;virtualDirectory&quot;: &quot;&quot;,
+  &quot;renderedResources&quot;: [
+    &quot;knockout&quot;,
+    &quot;dotvvm.polyfill.bundle&quot;,
+    &quot;dotvvm.internal&quot;,
+    &quot;dotvvm&quot;,
+    &quot;viewModule.import.lIquTPFe3a42GboPePTmYZ4Xc1S4ok-JXmZud9HUybE&quot;,
+    &quot;dotvvm.debug&quot;,
+    &quot;viewModule.import.HIj399FcjVwbyaIvDKFctn7Ghr0UMajY-haUgZypcHs&quot;,
+    &quot;viewModule.init.HIj399FcjVwbyaIvDKFctn7Ghr0UMajY-haUgZypcHs&quot;
+  ],
+  &quot;typeMetadata&quot;: {
+    &quot;DYWVl96oJQyEqLvzXrau8UbHXqs=&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;properties&quot;: {
+        &quot;Collection&quot;: {
+          &quot;type&quot;: [
+            &quot;String&quot;
+          ]
+        }
+      }
+    }
+  }
+}">
+		<script defer="" src="data:text/javascript;base64,d2luZG93LmRvdHZ2bS5pbml0KCJlbi1VUyIpOw=="></script>
+	</body>
+</html>

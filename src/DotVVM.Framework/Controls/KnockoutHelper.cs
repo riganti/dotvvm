@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Controls
         public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmBindableObject control, PostbackScriptOptions options)
         {
             var expr = GenerateClientPostBackExpression(propertyName, expression, control, options);
-            expr += ".catch(function(){})";
+            expr += ".catch(console.error)";
             if (options.ReturnValue == false)
                 return expr + ";event.stopPropagation();return false;";
             else
@@ -154,7 +154,7 @@ namespace DotVVM.Framework.Controls
             var knockoutContext = options.KoContext ?? (
                 // adjustedExpression != expression.CommandJavascript ?
                 new CodeParameterAssignment(new ParametrizedCode.Builder { "ko.contextFor(", options.ElementAccessor.Code!, ")" }.Build(OperatorPrecedence.Max))
-                // default
+            // default
             );
 
             var optionalKnockoutContext =
@@ -162,24 +162,34 @@ namespace DotVVM.Framework.Controls
                 knockoutContext :
                 default;
 
-            var call = adjustedExpression.ToString(p =>
-                p == CommandBindingExpression.PostbackOptionsParameter ? new CodeParameterAssignment("options", OperatorPrecedence.Max) :
-                p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
-                p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
-                    getContextPath(control),
-                    OperatorPrecedence.Max) :
-                p == CommandBindingExpression.ControlUniqueIdParameter ? new CodeParameterAssignment(
-                    (uniqueControlId is IValueBinding ? "{ expr: " + JsonConvert.ToString(((IValueBinding)uniqueControlId).GetKnockoutBindingExpression(control)) + "}" : '"' + (string?)uniqueControlId + '"'), OperatorPrecedence.Max) :
-                p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
-                p == JavascriptTranslator.KnockoutViewModelParameter ? KnockoutContextDataAccess :
-                p == CommandBindingExpression.OptionalKnockoutContextParameter ? optionalKnockoutContext :
-                p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? default :
-                p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHandlers ?? (generatedPostbackHandlers = getHandlerScript()), OperatorPrecedence.Max) :
-                default(CodeParameterAssignment)
-            );
+            var commandArgsString = (options.CommandArgs?.Code != null) ? SubstituteArguments(options.CommandArgs!.Value.Code!) : "[]";
+            var call = SubstituteArguments(adjustedExpression);
+
             if (generatedPostbackHandlers == null && options.AllowPostbackHandlers)
-                return $"dotvvm.applyPostbackHandlers(function(options){{return {call}}}.bind(this),{options.ElementAccessor.Code!.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()})";
+                return $"dotvvm.applyPostbackHandlers(function(options){{return {call}}}.bind(this),{options.ElementAccessor.Code!.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()},{commandArgsString})";
             else return call;
+
+            string SubstituteArguments(ParametrizedCode parametrizedCode)
+            {
+                return parametrizedCode.ToString(p =>
+                    p == CommandBindingExpression.PostbackOptionsParameter ? new CodeParameterAssignment("options", OperatorPrecedence.Max) :
+                    p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
+                    p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
+                        getContextPath(control),
+                        OperatorPrecedence.Max) :
+                    p == CommandBindingExpression.ControlUniqueIdParameter ? (
+                        uniqueControlId is IValueBinding ?
+                            ((IValueBinding)uniqueControlId).GetParametrizedKnockoutExpression(control) :
+                            new CodeParameterAssignment(MakeStringLiteral((string)uniqueControlId!), OperatorPrecedence.Max)
+                        ) :
+                    p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
+                    p == JavascriptTranslator.KnockoutViewModelParameter ? KnockoutContextDataAccess :
+                    p == CommandBindingExpression.OptionalKnockoutContextParameter ? optionalKnockoutContext :
+                    p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? default :
+                    p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHandlers ?? (generatedPostbackHandlers = getHandlerScript()), OperatorPrecedence.Max) :
+                    default(CodeParameterAssignment)
+                );
+            }
         }
 
         /// <summary>
@@ -193,23 +203,23 @@ namespace DotVVM.Framework.Controls
             var sb = new StringBuilder();
             sb.Append('[');
             if (handlers != null) foreach (var handler in handlers)
-            {
-                if (!string.IsNullOrEmpty(handler.EventName) && handler.EventName != eventName) continue;
-
-                var options = handler.GetHandlerOptions();
-                var name = handler.ClientHandlerName;
-
-                if (handler.GetValueBinding(PostBackHandler.EnabledProperty) is IValueBinding binding) options.Add("enabled", binding);
-                else if (!handler.Enabled) continue;
-
-                if (sb.Length > 1)
-                    sb.Append(',');
-
-                if (options.Count == 0)
                 {
-                    sb.Append(JsonConvert.ToString(name));
-                }
-                else
+                    if (!string.IsNullOrEmpty(handler.EventName) && handler.EventName != eventName) continue;
+
+                    var options = handler.GetHandlerOptions();
+                    var name = handler.ClientHandlerName;
+
+                    if (handler.GetValueBinding(PostBackHandler.EnabledProperty) is IValueBinding binding) options.Add("enabled", binding);
+                    else if (!handler.Enabled) continue;
+
+                    if (sb.Length > 1)
+                        sb.Append(',');
+
+                    if (options.Count == 0)
+                    {
+                        sb.Append(JsonConvert.ToString(name));
+                    }
+                    else
                     {
                         string script = GenerateHandlerOptions(handler, options);
 
@@ -220,11 +230,12 @@ namespace DotVVM.Framework.Controls
                         sb.Append("]");
                     }
                 }
-            if (moreHandlers != null) foreach (var h in moreHandlers) if (h != null) {
-                if (sb.Length > 1)
-                    sb.Append(',');
-                sb.Append(h);
-            }
+            if (moreHandlers != null) foreach (var h in moreHandlers) if (h != null)
+                    {
+                        if (sb.Length > 1)
+                            sb.Append(',');
+                        sb.Append(h);
+                    }
             sb.Append(']');
             return sb.ToString();
         }
@@ -381,7 +392,7 @@ namespace DotVVM.Framework.Controls
 
         public static string ConvertToCamelCase(string name)
         {
-            return name.Substring(0, 1).ToLower() + name.Substring(1);
+            return name.Substring(0, 1).ToLowerInvariant() + name.Substring(1);
         }
     }
 }

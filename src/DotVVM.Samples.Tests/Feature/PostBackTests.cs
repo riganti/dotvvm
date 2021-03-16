@@ -5,7 +5,6 @@ using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
-using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -128,7 +127,7 @@ namespace DotVVM.Samples.Tests.Feature
 
             // confirm third
             section.ElementAt("input[type=button]", 2).Click();
-            Assert.IsFalse(browser.HasAlert());
+            Assert.False(browser.HasAlert());
             browser.Wait();
             AssertUI.InnerTextEquals(index, "3");
 
@@ -148,7 +147,7 @@ namespace DotVVM.Samples.Tests.Feature
 
             // confirm conditional
             section.ElementAt("input[type=button]", 5).Click();
-            Assert.IsFalse(browser.HasAlert());
+            Assert.False(browser.HasAlert());
             browser.Wait();
             AssertUI.InnerTextEquals(index, "6");
 
@@ -163,7 +162,7 @@ namespace DotVVM.Samples.Tests.Feature
             browser.First("input[type=checkbox]").Click();
 
             section.ElementAt("input[type=button]", 5).Click();
-            Assert.IsFalse(browser.HasAlert());
+            Assert.False(browser.HasAlert());
             browser.Wait();
             AssertUI.InnerTextEquals(index, "6");
 

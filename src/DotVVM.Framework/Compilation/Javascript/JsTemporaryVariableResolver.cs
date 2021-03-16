@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Compilation.Javascript
     public sealed class JsTemporaryVariableParameter: CodeSymbolicParameter
     {
         public JsExpression Initializer { get; }
-        public string PreferedName { get; }
+        public string PreferredName { get; }
 
         public JsTemporaryVariableParameter(JsExpression initializer = null)
             : base("tmp_var[" + initializer?.ToString() + "]")

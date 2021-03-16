@@ -92,6 +92,15 @@ namespace DotVVM.Framework.ResourceManagement
             }
         }
 
+        internal void RegisterViewModuleResources(ViewModuleImportResource importResource, ViewModuleInitResource initResource)
+        {
+            // view module resources can be registered after the application start - they are created when the view is actually compiled
+            // this method is internal because it bypasses the frozen collection check
+            // we don't throw if the resources exist - their names are hashed so if they are duplicate, we believe that they are actually the same
+            _resources.TryAdd(importResource.ResourceName, importResource);
+            _resources.TryAdd(initResource.ResourceName, initResource);
+        }
+
         private void ValidateResourceLocation(IResource resource, string name)
         {
             var linkResource = resource as LinkResourceBase;

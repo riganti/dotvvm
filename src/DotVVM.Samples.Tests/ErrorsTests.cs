@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using System;
+﻿using System;
 using System.Linq;
 using System.Net;
 using DotVVM.Samples.Tests.Base;
@@ -115,7 +113,16 @@ namespace DotVVM.Samples.Tests
                 AssertUI.InnerText(browser.First("[class='source-errorLine']"), s => s.Contains("dot:CheckBox"));
             });
         }
-
+        [Fact]
+        [SampleReference(SamplesRouteUrls.Errors_ControlAsViewModel)]
+        public void Error_ControlAsViewModel()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_ControlAsViewModel);
+                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("DotvvmBindableObject"));
+                AssertUI.InnerText(browser.First("[class='source-errorLine']"), s => s.Contains("viewModel"));
+            });
+        }
         [Fact]
         public void Error_MissingRequiredProperty2()
         {
@@ -180,7 +187,7 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_MasterPageRequiresDifferentViewModel);
 
                 //TODO:  !!! In error page, viewModel directive should by underlined !!!
-                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("Master page requires viewModel"));
+                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("The viewmodel EmptyViewModel is not assignable to the viewmodel of the master page MasterPageViewModel."));
                 //browser.First("[class='errorUnderline']"),s => s.Contains("DotVVM.Samples.BasicSamples.ViewModels.EmptyViewModel, DotVVM.Samples.Common"));
             });
         }
