@@ -137,6 +137,17 @@ namespace DotVVM.Framework.Tests.Common.Binding
             Call_FindOverload_Generic(typeof(MethodsGenericArgumentsResolvingSampleObject6), MethodsGenericArgumentsResolvingSampleObject6.MethodName, argTypes, resultIdentifierType, expectedGenericArgs);
         }
         [TestMethod]
+        [DataRow(typeof(GenericTestResult1), new Type[] { typeof(GenericInterfaceIntImplementation) }, new Type[] { typeof(int) })]
+        [DataRow(typeof(GenericTestResult1), new Type[] { typeof(GenericInterfaceFloatImplementation) }, new Type[] { typeof(float) })]
+        [DataRow(typeof(GenericTestResult2), new Type[] { typeof(DerivedFromGenericClassInt) }, new Type[] { typeof(int) })]
+        [DataRow(typeof(GenericTestResult3), new Type[] { typeof(MultiGenericInterfaceImplementation) }, new Type[] { typeof(int), typeof(string) })]
+        [DataRow(typeof(GenericTestResult3), new Type[] { typeof(GenericInterfaceStringImplementation) }, new Type[] { typeof(string) })]
+        [DataRow(typeof(GenericTestResult4), new Type[] { typeof(DerivedFromGenericClassString) }, new Type[] { typeof(string) })]
+        public void Call_FindOverload_Generic_ImplicitConversions(Type resultIdentifierType, Type[] argTypes, Type[] expectedGenericArgs)
+        {
+            Call_FindOverload_Generic(typeof(ImplicitConversionsTest), nameof(ImplicitConversionsTest.Method), argTypes, resultIdentifierType, expectedGenericArgs);
+        }
+        [TestMethod]
         [DataRow(typeof(GenericTestResult1), new Type[] { typeof(GenericModelSampleObject<int[]>) }, new Type[] { typeof(int) })]
         [DataRow(typeof(GenericTestResult2), new Type[] { typeof(List<int>[]) }, new Type[] { typeof(int) })]
         public void Call_FindOverload_Generic_Array_Recursive(Type resultIdentifierType, Type[] argTypes, Type[] expectedGenericArgs)
@@ -328,5 +339,22 @@ namespace DotVVM.Framework.Tests.Common.Binding
         public static (string, string[]) Method(string arg1, params string[] arg2) => default;
         public static (string, int[]) Method(string arg1, params int[] arg2) => default;
         public static (string, object) Method(string arg1, object arg2) => default;
+    }
+
+    public interface GenericInterface<T> { }
+    public class GenericClass<T> { }
+    public class GenericInterfaceIntImplementation : GenericInterface<int> { }
+    public class GenericInterfaceFloatImplementation : GenericInterface<float> { }
+    public class GenericInterfaceStringImplementation : GenericInterface<string> { }
+    public class MultiGenericInterfaceImplementation : GenericInterface<float>, GenericInterface<string> { }
+    public class DerivedFromGenericClassInt : GenericClass<int> { }
+    public class DerivedFromGenericClassString : GenericClass<string> { }
+
+    public class ImplicitConversionsTest
+    {
+        public static GenericTestResult1 Method<T>(GenericInterface<T> arg) => default;
+        public static GenericTestResult2 Method<T>(GenericClass<T> arg) => default;
+        public static GenericTestResult3 Method(GenericInterface<string> arg) => default;
+        public static GenericTestResult4 Method(GenericClass<string> arg) => default;
     }
 }
