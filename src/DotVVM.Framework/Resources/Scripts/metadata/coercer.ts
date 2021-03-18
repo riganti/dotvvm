@@ -9,38 +9,47 @@ import { getObjectTypeInfo, getTypeInfo } from "./typeMap";
  * @param originalValue Value that is known to be valid instance of type. It is used to perform incremental validation.
  */
 export function tryCoerce(value: any, type: TypeDefinition, originalValue: any = undefined): CoerceResult {
-    if (originalValue === value && value !== undefined) {
-        // we trust that the originalValue is already valid
-        // except when it's undefined - we use that as "we do not know" value - but revalidation is cheap in this case
-        return { value }
-    }
 
-    if (value) {
-        type = value.$type ?? type
-    }
-
-    if (Array.isArray(type)) {
-        return tryCoerceArray(value, type[0], originalValue);
-    } else if (typeof type === "object") {
-        if (type.type === "nullable") {
-            return tryCoerceNullable(value, type.inner, originalValue);
-        } else if (type.type === "dynamic") {
-            return tryCoerceDynamic(value, originalValue);
+    function core() {
+        if (originalValue === value && value !== undefined) {
+            // we trust that the originalValue is already valid
+            // except when it's undefined - we use that as "we do not know" value - but revalidation is cheap in this case
+            return { value }
         }
-    } else if (typeof type === "string") {
-        if (type in primitiveTypes) {
-            return tryCoercePrimitiveType(value, type);
-        } else {
-            var typeInfo = getTypeInfo(type);
-            if (typeInfo && typeInfo.type === "object") {
-                return tryCoerceObject(value, type, typeInfo, originalValue);
+
+        if (value) {
+            type = value.$type ?? type
+        }
+
+        if (Array.isArray(type)) {
+            return tryCoerceArray(value, type[0], originalValue);
+        } else if (typeof type === "object") {
+            if (type.type === "nullable") {
+                return tryCoerceNullable(value, type.inner, originalValue);
+            } else if (type.type === "dynamic") {
+                return tryCoerceDynamic(value, originalValue);
             }
-            else if (typeInfo && typeInfo.type === "enum") {
-                return tryCoerceEnum(value, typeInfo);
-            }            
-        }
-    } 
-    return new CoerceError(`Unsupported type metadata ${JSON.stringify(type)}!`);
+        } else if (typeof type === "string") {
+            if (type in primitiveTypes) {
+                return tryCoercePrimitiveType(value, type);
+            } else {
+                var typeInfo = getTypeInfo(type);
+                if (typeInfo && typeInfo.type === "object") {
+                    return tryCoerceObject(value, type, typeInfo, originalValue);
+                }
+                else if (typeInfo && typeInfo.type === "enum") {
+                    return tryCoerceEnum(value, typeInfo);
+                }            
+            }
+        } 
+        return new CoerceError(`Unsupported type metadata ${JSON.stringify(type)}!`);
+    }
+
+    const result = core();
+    if (result instanceof CoerceError) {
+        return result;      // we cannot freeze CoerceError because we modify its path property
+    }
+    return Object.freeze(result);
 }
 
 export function coerce(value: any, type: TypeDefinition, originalValue: any = undefined): any {
