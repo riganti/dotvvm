@@ -424,7 +424,7 @@ namespace DotVVM.Framework.Compilation.Binding
                         else if (sgt.IsInterface)
                         {
                             // We must find the instantiation within an implemented generic interface
-                            var implementation = expression.GetInterfaces().Where(ifc => ifc.GetGenericTypeDefinition() == sgt.GetGenericTypeDefinition()).Take(2).ToList();
+                            var implementation = expression.GetInterfaces().Where(ifc => ifc.IsGenericType && ifc.GetGenericTypeDefinition() == sgt.GetGenericTypeDefinition()).Take(2).ToList();
                             if (implementation.Count == 0 || implementation.Count > 1)
                             {
                                 // We either could not find applicable interface or there are multiple possibilities
