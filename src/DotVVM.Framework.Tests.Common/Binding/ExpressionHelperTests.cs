@@ -137,12 +137,14 @@ namespace DotVVM.Framework.Tests.Common.Binding
             Call_FindOverload_Generic(typeof(MethodsGenericArgumentsResolvingSampleObject6), MethodsGenericArgumentsResolvingSampleObject6.MethodName, argTypes, resultIdentifierType, expectedGenericArgs);
         }
         [TestMethod]
-        [DataRow(typeof(GenericTestResult1), new Type[] { typeof(GenericInterfaceIntImplementation) }, new Type[] { typeof(int) })]
-        [DataRow(typeof(GenericTestResult1), new Type[] { typeof(GenericInterfaceFloatImplementation) }, new Type[] { typeof(float) })]
-        [DataRow(typeof(GenericTestResult2), new Type[] { typeof(DerivedFromGenericClassInt) }, new Type[] { typeof(int) })]
-        [DataRow(typeof(GenericTestResult3), new Type[] { typeof(MultiGenericInterfaceImplementation) }, new Type[] { typeof(int), typeof(string) })]
-        [DataRow(typeof(GenericTestResult3), new Type[] { typeof(GenericInterfaceStringImplementation) }, new Type[] { typeof(string) })]
-        [DataRow(typeof(GenericTestResult4), new Type[] { typeof(DerivedFromGenericClassString) }, new Type[] { typeof(string) })]
+        [DataRow(typeof(GenericTestResult1), new Type[] { typeof(List<int>), typeof(GenericInterfaceIntImplementation) }, new Type[] { typeof(int) })]
+        [DataRow(typeof(GenericTestResult1), new Type[] { typeof(List<int>), typeof(GenericInterfaceFloatImplementation) }, new Type[] { typeof(float) })]
+        [DataRow(typeof(GenericTestResult2), new Type[] { typeof(List<int>), typeof(DerivedFromGenericClassInt) }, new Type[] { typeof(int) })]
+        [DataRow(typeof(GenericTestResult3), new Type[] { typeof(List<int>), typeof(MultiGenericInterfaceImplementation) }, new Type[] { typeof(int), typeof(string) })]
+        [DataRow(typeof(GenericTestResult3), new Type[] { typeof(List<int>), typeof(GenericInterfaceStringImplementation) }, new Type[] { typeof(string) })]
+        [DataRow(typeof(GenericTestResult4), new Type[] { typeof(List<int>), typeof(DerivedFromGenericClassString) }, new Type[] { typeof(string) })]
+        [DataRow(typeof(GenericTestResult5), new Type[] { typeof(List<int>), typeof(GenericInterfaceIntImplementation), typeof(GenericInterfaceStringImplementation) }, new Type[] { typeof(int), typeof(string) })]
+        [DataRow(typeof(GenericTestResult6), new Type[] { typeof(List<int>), typeof(GenericInterfaceIntImplementation), typeof(GenericInterfaceFloatImplementation) }, new Type[] { typeof(int) })]
         public void Call_FindOverload_Generic_ImplicitConversions(Type resultIdentifierType, Type[] argTypes, Type[] expectedGenericArgs)
         {
             Call_FindOverload_Generic(typeof(ImplicitConversionsTest), nameof(ImplicitConversionsTest.Method), argTypes, resultIdentifierType, expectedGenericArgs);
@@ -331,6 +333,7 @@ namespace DotVVM.Framework.Tests.Common.Binding
     public class GenericTestResult3 { }
     public class GenericTestResult4 { }
     public class GenericTestResult5 { }
+    public class GenericTestResult6 { }
 
     public class ParamsPrioritizationTest
     {
@@ -352,9 +355,13 @@ namespace DotVVM.Framework.Tests.Common.Binding
 
     public class ImplicitConversionsTest
     {
-        public static GenericTestResult1 Method<T>(GenericInterface<T> arg) => default;
-        public static GenericTestResult2 Method<T>(GenericClass<T> arg) => default;
-        public static GenericTestResult3 Method(GenericInterface<string> arg) => default;
-        public static GenericTestResult4 Method(GenericClass<string> arg) => default;
+        public static GenericTestResult1 Method<T>(List<int> arg1, GenericInterface<T> arg2) => default;
+        public static GenericTestResult2 Method<T>(List<int> arg1, GenericClass<T> arg2) => default;
+
+        public static GenericTestResult3 Method(List<int> arg1, GenericInterface<string> arg2) => default;
+        public static GenericTestResult4 Method(List<int> arg1, GenericClass<string> arg2) => default;
+
+        public static GenericTestResult5 Method<T, U>(List<int> arg1, GenericInterface<T> arg2, GenericInterface<U> arg3) => default;
+        public static GenericTestResult6 Method<T>(List<int> arg1, GenericInterface<T> arg2, GenericInterface<float> arg3) => default;
     }
 }
