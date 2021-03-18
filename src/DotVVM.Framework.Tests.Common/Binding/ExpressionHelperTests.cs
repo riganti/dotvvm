@@ -145,6 +145,9 @@ namespace DotVVM.Framework.Tests.Common.Binding
         [DataRow(typeof(GenericTestResult4), new Type[] { typeof(List<int>), typeof(DerivedFromGenericClassString) }, new Type[] { typeof(string) })]
         [DataRow(typeof(GenericTestResult5), new Type[] { typeof(List<int>), typeof(GenericInterfaceIntImplementation), typeof(GenericInterfaceStringImplementation) }, new Type[] { typeof(int), typeof(string) })]
         [DataRow(typeof(GenericTestResult6), new Type[] { typeof(List<int>), typeof(GenericInterfaceIntImplementation), typeof(GenericInterfaceFloatImplementation) }, new Type[] { typeof(int) })]
+        [DataRow(typeof(GenericTestResult7), new Type[] { typeof(List<GenericInterfaceIntImplementation>) }, new Type[] { typeof(int) })]
+        [DataRow(typeof(GenericTestResult7), new Type[] { typeof(HashSet<GenericInterfaceIntImplementation>) }, new Type[] { typeof(int) })]
+        [DataRow(typeof(GenericTestResult8), new Type[] { typeof(List<GenericInterfaceStringImplementation>) }, new Type[] { typeof(string) })]
         public void Call_FindOverload_Generic_ImplicitConversions(Type resultIdentifierType, Type[] argTypes, Type[] expectedGenericArgs)
         {
             Call_FindOverload_Generic(typeof(ImplicitConversionsTest), nameof(ImplicitConversionsTest.Method), argTypes, resultIdentifierType, expectedGenericArgs);
@@ -334,6 +337,8 @@ namespace DotVVM.Framework.Tests.Common.Binding
     public class GenericTestResult4 { }
     public class GenericTestResult5 { }
     public class GenericTestResult6 { }
+    public class GenericTestResult7 { }
+    public class GenericTestResult8 { }
 
     public class ParamsPrioritizationTest
     {
@@ -363,5 +368,8 @@ namespace DotVVM.Framework.Tests.Common.Binding
 
         public static GenericTestResult5 Method<T, U>(List<int> arg1, GenericInterface<T> arg2, GenericInterface<U> arg3) => default;
         public static GenericTestResult6 Method<T>(List<int> arg1, GenericInterface<T> arg2, GenericInterface<float> arg3) => default;
+
+        public static GenericTestResult7 Method<T>(IEnumerable<GenericInterface<T>> arg1) => default;
+        public static GenericTestResult8 Method(IEnumerable<GenericInterface<string>> arg1) => default;
     }
 }
