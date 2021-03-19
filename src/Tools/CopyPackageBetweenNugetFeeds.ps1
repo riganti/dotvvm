@@ -14,7 +14,7 @@ Param(
     Write-Host "Downloading from $url"
     $webClient.DownloadFile($url, $nupkgFile)
     Write-Host "Package downloaded from '$internalServer'."
-    evaluateExpression2
+    
     Write-Host "Uploading package..."
     & .\Tools\nuget.exe push $nupkgFile -source $server -apiKey $apiKey
     Write-Host "Package uploaded to $server."
