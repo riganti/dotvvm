@@ -376,7 +376,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     {
                         if (property.ViewModelProtection != ProtectMode.None)
                         {
-                            throw new Exception("Property sent only on selected requests can use viewModel protection.");
+                            throw new NotSupportedException($"The {Type}.{property.Name} property cannot user viewmodel protection because it is sent to the client only in some requests.");
                         }
 
                         Expression condition = isPostback;
@@ -436,7 +436,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                                 // encryptedValuesWriter.EndSuppress();
                                 propertyFinally = Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.EndSuppress), Type.EmptyTypes);
                             }
-                            // encryption is worthless if the property is not being transfered both ways
+                            // encryption is worthless if the property is not being transferred both ways
                             // therefore ClearEmptyNest throws exception if the property contains encrypted values
                             else if (!property.IsFullyTransferred())
                             {

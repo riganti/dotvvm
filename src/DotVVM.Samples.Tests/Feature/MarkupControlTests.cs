@@ -5,6 +5,8 @@ using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
+using Riganti.Selenium.Core.Api;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 
 namespace DotVVM.Samples.Tests.Feature
@@ -70,8 +72,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_ControlControlCommandInvokeAction);
-                // The page is complex so we need to wait little longer until the DOM is properly generated
-                browser.Wait(2000);
+                browser.WaitUntilDotvvmInited();
 
                 var allButtons = browser.First("#buttons").FindElements("button");
                 foreach (var button in allButtons)
@@ -82,7 +83,9 @@ namespace DotVVM.Samples.Tests.Feature
                         var value = parent.First("[data-id='Column2']").GetText().Trim() + "|" + parent.First("[data-id=Row2]").GetText().Trim() + "|" + parent.First("[data-id='Row']").GetText().Trim() + "|" + parent.First("[data-id=Column]").GetText().Trim();
 
                         AssertUI.InnerTextEquals(browser.First("#value"), value);
-                    }, 2500, 25, "Button did not invoke action or action was not performed.");
+                    },
+                    8000, // sometimes chrome takes more time to negotiate with proxy (avg 3s) 
+                    "Button did not invoke action or action was not performed.");
                 }
 
                 AssertUI.TextEquals(browser.First("#Duplicity"), "false");
@@ -316,6 +319,85 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(combobox.ElementAt("option", 0), "Number 0");
                 AssertUI.InnerTextEquals(combobox.ElementAt("option", 1), "Number 1");
                 AssertUI.InnerTextEquals(combobox.ElementAt("option", 2), "Number 2");
+            });
+        }
+
+        [Fact]
+        public void Feature_MarkupControl_CommandPropertiesInMarkupControl()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_CommandPropertiesInMarkupControl);
+
+                var ok = browser.First("[data-ui=ok]");
+                var body = browser.First("body");
+                var span = browser.First("[data-ui=result]");
+
+                AssertUI.NotContainsElement(body, "[data-ui=cancel]");
+                ok.Click();
+
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(span, "Command result.");
+                }, 1000);
+            });
+        }
+
+        [Fact]
+        public void Feature_MarkupControl_StaticCommandInMarkupControl()
+        {
+            RunInAllBrowsers(browser => {
+                // clean the state 
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_StaticCommandInMarkupControl);
+                browser.WaitUntilDotvvmInited();
+
+                browser.First("[data-ui=reset]").Click();
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(browser.First("[data-ui='test-state']"), "OK");
+                }, 8000, "Test could not clear state.");
+
+                // start the test over
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_StaticCommandInMarkupControl);
+                browser.WaitUntilDotvvmInited();
+
+                // button selectors
+                Func<IElementWrapper> save = () => browser.First("[data-ui=save]");
+                Func<IElementWrapper> input = () => browser.First("[data-ui=input]");
+                Func<IElementWrapper> cancel = () => browser.First("[data-ui=blank]");
+
+
+                Func<IElementWrapper> editButton = () => browser.First("article").First("[data-uitest-name='edit']");
+                Func<IElementWrapper> removeButton = () => browser.First("article").First("[data-uitest-name='remove']");
+
+                input().Clear().SendKeys("test1");
+                save().Click();
+
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(browser.Last("article>span"), "test1");
+                }, 4000);
+
+
+                editButton().Click();
+                input().Clear().SendKeys("changed");
+                save().Click();
+
+                browser.WaitFor(() => {
+                    AssertUI.Any(browser.FindElements("article>span")).TextEquals("changed");
+                }, 4000);
+
+                editButton().Click();
+                input().Clear().SendKeys("changed2");
+                save().Click();
+
+                browser.WaitFor(() => {
+                    AssertUI.Any(browser.FindElements("article>span")).TextEquals("changed2");
+                    AssertUI.All(browser.FindElements("article>span")).TextNotEquals("changed");
+                }, 4000);
+
+                removeButton().Click();
+                browser.WaitFor(() => {
+                    AssertUI.All(browser.FindElements("article>span")).TextNotEquals("changed2");
+                    AssertUI.All(browser.FindElements("article>span")).TextNotEquals("changed");
+                }, 4000);
+
             });
         }
     }

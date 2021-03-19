@@ -725,6 +725,108 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
+        [DataRow("(arg) => Method(arg)", DisplayName = "Simple implicit single-parameter lambda expression with parentheses.")]
+        [DataRow("arg => Method(arg)", DisplayName = "Simple implicit single-parameter lambda expression without parentheses.")]           
+        [DataRow("  arg    =>   Method   (   arg  )", DisplayName = "Simple lambda with various whitespaces.")]
+        [DataRow("arg =>Method(arg)", DisplayName = "Simple lambda with various whitespaces.")]
+        [DataRow("arg=>Method(arg)", DisplayName = "Simple lambda with various whitespaces.")]
+        public void BindingParser_Lambda_NoTypeInfo_SingleParameter(string expression)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(expression);
+            var node = parser.ReadExpression();
+
+            var lambda = node.CastTo<LambdaBindingParserNode>();
+            var body = lambda.BodyExpression;
+            var parameters = lambda.ParameterExpressions;
+
+            Assert.AreEqual(1, parameters.Count);
+            Assert.IsNull(parameters[0].Type);
+            Assert.AreEqual("arg", parameters[0].Name.ToDisplayString());
+            Assert.AreEqual("Method(arg)", body.ToDisplayString());
+        }
+
+        [TestMethod]
+        [DataRow("_ => Method()", DisplayName = "Simple implicit single-parameter lambda expression without parentheses")]
+        public void BindingParser_Lambda_NoTypeInfo_SingleIgnoredParameter(string expression)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(expression);
+            var node = parser.ReadExpression();
+
+            var lambda = node.CastTo<LambdaBindingParserNode>();
+            var body = lambda.BodyExpression;
+            var parameters = lambda.ParameterExpressions;
+
+            Assert.AreEqual(1, parameters.Count);
+            Assert.IsNull(parameters[0].Type);
+            Assert.AreEqual("_", parameters[0].Name.ToDisplayString());
+            Assert.AreEqual("Method()", body.ToDisplayString());
+        }
+
+        [TestMethod]
+        [DataRow("() => Method()", DisplayName = "Simple implicit zero-parameter lambda expression")]
+        public void BindingParser_Lambda_NoParameters(string expression)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(expression);
+            var node = parser.ReadExpression();
+
+            var lambda = node.CastTo<LambdaBindingParserNode>();
+            var body = lambda.BodyExpression;
+            var parameters = lambda.ParameterExpressions;
+
+            Assert.AreEqual(0, parameters.Count);
+            Assert.AreEqual("Method()", body.ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_Lambda_NoTypeInfo_MultipleParameters()
+        {
+            var parser = bindingParserNodeFactory.SetupParser("(arg1, arg2) => Method(arg1, arg2)");
+            var node = parser.ReadExpression();
+
+            var lambda = node.CastTo<LambdaBindingParserNode>();
+            var body = lambda.BodyExpression;
+            var parameters = lambda.ParameterExpressions;
+
+            Assert.AreEqual(2, parameters.Count);
+            Assert.IsNull(parameters[0].Type);
+            Assert.IsNull(parameters[1].Type);
+            Assert.AreEqual("arg1", parameters[0].Name.ToDisplayString());
+            Assert.AreEqual("arg2", parameters[1].Name.ToDisplayString());
+            Assert.AreEqual("Method(arg1, arg2)", body.ToDisplayString());
+        }
+
+        [TestMethod]
+        [DataRow("(string arg) => Method(arg)", "string")]
+        [DataRow("(float arg) => Method(arg)", "float")]
+        [DataRow("(decimal arg) => Method(arg)", "decimal")]
+        [DataRow("(System.Collections.Generic.List<int> arg) => Method(arg)", "System.Collections.Generic.List<int>")]
+        public void BindingParser_Lambda_WithTypeInfo_SingleParameter(string expr, string type)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(expr);
+            var node = parser.ReadExpression();
+
+            var lambda = node.CastTo<LambdaBindingParserNode>();
+            var body = lambda.BodyExpression;
+            var parameters = lambda.ParameterExpressions;
+
+            Assert.AreEqual(1, parameters.Count);
+            Assert.AreEqual(type, parameters[0].Type.ToDisplayString());
+            Assert.AreEqual("arg", parameters[0].Name.ToDisplayString());
+            Assert.AreEqual("Method(arg)", body.ToDisplayString());
+        }
+
+        [TestMethod]
+        [DataRow("(arg1, arg2) Method", DisplayName = "Missing lambda operator")]
+        [DataRow("(arg1, arg2)", DisplayName = "Missing lambda operator")]
+        [DataRow("string arg => Method(arg)", DisplayName = "Use parenthesis when explicitely defining parameter types")]
+        public void BindingParser_Lambda_InvalidLambdaDeclaration(string expression)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(expression);
+            var node = parser.ReadExpression().EnumerateChildNodes().SkipWhile(n => n as LambdaBindingParserNode == null).FirstOrDefault();
+            Assert.IsNull(node);
+        }
+
+        [TestMethod]
         public void BindingParser_MultiblockExpression_TreeCorrect()
         {
             var originalString = "StringProp = StringProp + 1; SetStringProp2(StringProp + 7); StringProp = 5; StringProp2 + 4 + StringProp";
@@ -832,6 +934,29 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(node.EndPosition, lastExpression.EndPosition);
             Assert.AreEqual(voidBlockExpectedLenght, middleExpression.Length);
 
+        }
+        [DataRow("var x=A(); !x", "x", DisplayName = "Variable (var) expression")]
+        [DataRow("var var=A(); !var", "var", DisplayName = "Variable (var) expression, name=var")]
+        [DataRow("var x = A(); !x", "x", DisplayName = "Variable (var) expression with whitespaces")]
+        public void BindingParser_VariableExpression_Simple(string bindingExpression, string variableName)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(bindingExpression);
+            var node = parser.ReadExpression().CastTo<BlockBindingParserNode>();
+
+            var firstExpression =
+                node.FirstExpression.As<FunctionCallBindingParserNode>();
+
+            var secondExpression = node.SecondExpression.As<UnaryOperatorBindingParserNode>();
+
+            Assert.IsNotNull(firstExpression, "Expected path was not found in the expression tree.");
+            Assert.IsNotNull(secondExpression, "Expected path was not found in the expression tree.");
+
+            Assert.AreEqual(0, node.StartPosition);
+            Assert.AreEqual(node.EndPosition, secondExpression.EndPosition);
+            Assert.IsNotNull(node.Variable);
+            Assert.AreEqual(variableName, node.Variable.Name);
+            Assert.AreEqual(firstExpression.EndPosition + 1, secondExpression.StartPosition);
+
             Assert.AreEqual(SkipWhitespaces(bindingExpression), SkipWhitespaces(node.ToDisplayString()));
         }
 
@@ -876,6 +1001,28 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(voidBlockExpectedLenght, voidExpression.Length);
 
             Assert.AreEqual(SkipWhitespaces(bindingExpression), SkipWhitespaces(node.ToDisplayString()));
+        }
+        
+        [TestMethod]
+        public void BindingParser_VariableExpression_3Vars()
+        {
+            var parser = bindingParserNodeFactory.SetupParser("var a = 1; var b = 2; var c = 3; a+b+c");
+            var node1 = parser.ReadExpression().CastTo<BlockBindingParserNode>();
+            var node2 = node1.SecondExpression.CastTo<BlockBindingParserNode>();
+            var node3 = node2.SecondExpression.CastTo<BlockBindingParserNode>();
+
+            Assert.AreEqual(0, node1.StartPosition);
+            Assert.AreEqual(node1.EndPosition, node2.EndPosition);
+            Assert.AreEqual(node1.EndPosition, node3.EndPosition);
+            Assert.IsNotNull(node1.Variable);
+            Assert.IsNotNull(node2.Variable);
+            Assert.IsNotNull(node3.Variable);
+            Assert.AreEqual("a", node1.Variable.Name);
+
+            Assert.AreEqual("var a = 1; var b = 2; var c = 3; a + b + c", node1.ToDisplayString());
+            Assert.AreEqual("var b = 2; var c = 3; a + b + c", node2.ToDisplayString());
+            Assert.AreEqual("var c = 3; a + b + c", node3.ToDisplayString());
+            Assert.AreEqual("a + b + c", node3.SecondExpression.ToDisplayString());
         }
 
         private static string SkipWhitespaces(string str) => string.Join("", str.Where(c => !char.IsWhiteSpace(c)));

@@ -13,7 +13,6 @@ import { DotvvmPostbackError } from '../shared-classes';
 import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
 import { isPrimitive } from '../utils/objects';
 import * as stateManager from '../state-manager'
-import evaluateExpression = evaluator.evaluateExpression;
 
 let lastStartedPostbackId: number;
 
@@ -54,7 +53,7 @@ export async function postbackCore(
         const data: any = {
             currentPath: path,
             command: command,
-            controlUniqueId: processPassedId(controlUniqueId, context),
+            controlUniqueId: controlUniqueId,
             validationTargetPath: options.validationTargetPath,
             renderedResources: getRenderedResources(),
             commandArgs: commandArgs,
@@ -201,7 +200,7 @@ function processPassedId(id: any, context: any): string {
         return id;
     }
     if (!isPrimitive(id) && id.expr) {
-        return evaluateExpression(context, id.expr);
+        return evaluator.evaluateExpression(context, id.expr);
     }
     throw new Error("invalid argument");
 }
@@ -215,4 +214,5 @@ type PostbackResponse =
         action: string
         resultIdFragment?: string,
         typeMetadata?: TypeMap
+        customData?: { [key: string]: any }
     }

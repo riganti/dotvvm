@@ -8,6 +8,7 @@ import { spaNavigationFailed } from "../spa/events";
 import { updateViewModelAndControls } from "../postback/updater";
 import { detachAllErrors } from "../validation/error";
 import { getStateManager } from '../dotvvm-base';
+import { updateTypeInfo } from "../metadata/typeMap";
 
 
 jest.unmock("../spa/spa");
@@ -188,10 +189,10 @@ const fetchDefinitions = {
                 t2: {
                     type: "object",
                     properties: {
-                        Property1: {
+                        PropertyA: {
                             type: "Int32"
                         },
-                        Property2: {
+                        PropertyB: {
                             type: "Int32"
                         }
                     }
@@ -249,7 +250,19 @@ const fetchDefinitions = {
     }
 };
 
-
+const typeMetadata: TypeMap = {
+    t1: {
+        type: "object",
+        properties: {
+            Property1: {
+                type: "Int32"
+            },
+            Property2: {
+                type: "Int32"
+            }
+        }
+    }
+}
 
 const originalViewModel = {
     viewModel: {
@@ -257,19 +270,7 @@ const originalViewModel = {
         Property1: 0,
         Property2: 0
     },
-    typeMetadata: {
-        t1: {
-            type: "object",
-            properties: {
-                Property1: {
-                    type: "Int32"
-                },
-                Property2: {
-                    type: "Int32"
-                }
-            }
-        }
-    },
+    typeMetadata,
     url: "/myPage",
     virtualDirectory: "",
     renderedResources: ["resource1", "resource2"]
@@ -365,6 +366,7 @@ test("PostBack + redirect", async () => {
     }
     finally {
         cleanup();
+        updateTypeInfo(typeMetadata)
     }
 
 });
@@ -451,8 +453,6 @@ test("PostBack + network error", async () => {
 });
 
 
-
-
 test("spaNavigation + success", async () => {
     fetchJson = fetchDefinitions.spaNavigateSuccess;
 
@@ -476,6 +476,7 @@ test("spaNavigation + success", async () => {
     }
     finally {
         cleanup();
+        updateTypeInfo(typeMetadata)
     }
 
 });
@@ -503,8 +504,8 @@ test("spaNavigation + redirect", async () => {
     }
     finally {
         cleanup();
-
-        replaceViewModel(originalViewModel as RootViewModel);
+        updateTypeInfo(typeMetadata)
+        replaceViewModel(originalViewModel.viewModel as RootViewModel);
     }
 
 });
@@ -529,8 +530,8 @@ test("spaNavigation + redirect with replace (new page is loaded without SPA)", a
     }
     finally {
         cleanup();
-
-        replaceViewModel(originalViewModel as RootViewModel);
+        updateTypeInfo(typeMetadata)
+        replaceViewModel(originalViewModel.viewModel as RootViewModel);
     }
 
 });
@@ -558,6 +559,7 @@ test("spaNavigation + network error", async () => {
     }
     finally {
         cleanup();
+        updateTypeInfo(typeMetadata)
     }
 
 });
@@ -585,6 +587,7 @@ test("spaNavigation + server error", async () => {
     }
     finally {
         cleanup();
+        updateTypeInfo(typeMetadata)
     }
 
 });
@@ -595,8 +598,8 @@ test("staticCommand (JS only) + success", async () => {
     const cleanup = watchEvents(false);
     try {
 
-        await applyPostbackHandlers(options => (function(a,b) { 
-            return Promise.resolve(a.$data.Property1(b)); 
+        await applyPostbackHandlers(options => (function(a) { 
+            return Promise.resolve(a.$data.Property1(options.args[0])); 
         })(ko.contextFor(window.document.body)), window.document.body, [], [1]);
 
         var history = getEventHistory();
@@ -690,7 +693,7 @@ test("staticCommand (with server call) + server error", async () => {
                     dotvvm.staticCommandPostback(a,"test",[],options).then(function(r_0){resolve(r_0);},reject);
                 });
             }(window.document.body, ko.contextFor(window.document.body))), window.document.body, [], [])
-        ).rejects.toBeInstanceOf(DotvvmPostbackError);;
+        ).rejects.toBeInstanceOf(DotvvmPostbackError)
         
         var history = getEventHistory();
 

@@ -2,6 +2,8 @@ import dotvvm from '../dotvvm-root'
 import { keys } from '../utils/objects'
 import { events as validationEvents } from '../validation/validation'
 import fc_types from '../../../node_modules/fast-check/lib/types/fast-check'
+import { replaceTypeInfo, updateTypeInfo } from '../metadata/typeMap';
+import { logInfoVerbose } from '../utils/logging';
 
 export const fc: typeof fc_types = require('fast-check');
 
@@ -63,7 +65,7 @@ export function watchEvents(consoleOutput: boolean = true) {
         if ("subscribe" in (allEvents as any)[event]) {
             const h = function (args: any): void {
                 if (consoleOutput) {
-                    console.debug("Event " + event, args.postbackId ?? "")
+                    logInfoVerbose("events", "Event " + event, args.postbackId ?? "")
                 }
                 eventHistory.push({ event, args })
             };

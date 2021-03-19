@@ -8,6 +8,7 @@ using DotVVM.Framework.Hosting;
 using System.Text.RegularExpressions;
 using DotVVM.Framework.Configuration;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 namespace DotVVM.Framework.Routing
 {
@@ -16,13 +17,16 @@ namespace DotVVM.Framework.Routing
         private Func<IServiceProvider,IDotvvmPresenter> presenterFactory;
 
         private Regex routeRegex;
-        private List<Func<Dictionary<string, object?>, string>> urlBuilders;
+        private List<Func<Dictionary<string, string?>, string>> urlBuilders;
         private List<KeyValuePair<string, Func<string, ParameterParseResult>?>> parameters;
+        private string urlWithoutTypes;
 
         /// <summary>
         /// Gets the names of the route parameters in the order in which they appear in the URL.
         /// </summary>
         public override IEnumerable<string> ParameterNames => parameters.Select(p => p.Key);
+
+        public override string UrlWithoutTypes => urlWithoutTypes;
 
 
         /// <summary>
@@ -73,6 +77,7 @@ namespace DotVVM.Framework.Routing
             routeRegex = result.RouteRegex;
             urlBuilders = result.UrlBuilders;
             parameters = result.Parameters;
+            urlWithoutTypes = result.UrlWithoutTypes;
         }
 
         /// <summary>
@@ -97,14 +102,15 @@ namespace DotVVM.Framework.Routing
                 var g = match.Groups["param" + parameter.Key];
                 if (g.Success)
                 {
+                    var decodedValue = Uri.UnescapeDataString(g.Value);
                     if (parameter.Value != null)
                     {
-                        var r = parameter.Value(g.Value);
+                        var r = parameter.Value(decodedValue);
                         if (!r.IsOK) return false;
                         values[parameter.Key] = r.Value;
                     }
                     else
-                        values[parameter.Key] = g.Value;
+                        values[parameter.Key] = decodedValue;
                 }
             }
             return true;
@@ -115,9 +121,21 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         protected override string BuildUrlCore(Dictionary<string, object?> values)
         {
+            var convertedValues =
+                values.ToDictionary(
+                    v => v.Key,
+                    v => {
+                        var strVal = v.Value is IConvertible convertible ?
+                                     convertible.ToString(CultureInfo.InvariantCulture) :
+                                     v.Value?.ToString();
+
+                        return strVal == null ? null : Uri.EscapeDataString(strVal);
+                    },
+                    StringComparer.InvariantCultureIgnoreCase
+                );
             try
             {
-                var url = string.Concat(urlBuilders.Select(b => b(values)));
+                var url = string.Concat(urlBuilders.Select(b => b(convertedValues)));
 
                 if (url == "~")
                     return "~/";

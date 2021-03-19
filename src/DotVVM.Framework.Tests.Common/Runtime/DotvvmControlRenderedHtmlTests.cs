@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Tests.Runtime
 
             var html = InvokeLifecycleAndRender(textbox, CreateContext(string.Empty));
 
-            StringAssert.Contains(html.Replace(" ", ""), "data-bind=\"first:true,value:$rawData,second:true\"");
+            StringAssert.Contains(html.Replace(" ", ""), "data-bind=\"first:true,dotvvm-textbox-text:$rawData,second:true\"");
         }
 
         [TestMethod]

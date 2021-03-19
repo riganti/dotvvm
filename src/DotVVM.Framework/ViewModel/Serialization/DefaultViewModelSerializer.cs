@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Binding;
 using System.Collections.Immutable;
 
 namespace DotVVM.Framework.ViewModel.Serialization
@@ -74,14 +75,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 return false;
             }
-            
+
             return null;
         }
 
         /// <summary>
         /// Builds the view model for the client.
         /// </summary>
-        public void BuildViewModel(IDotvvmRequestContext context)
+        public void BuildViewModel(IDotvvmRequestContext context, object commandResult)
         {
             // serialize the ViewModel
             var serializer = CreateJsonSerializer();
@@ -114,6 +115,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (viewModelConverter.EncryptedValues.Count > 0)
                 viewModelToken["$encryptedValues"] = viewModelProtector.Protect(viewModelConverter.EncryptedValues.ToString(Formatting.None), context);
 
+            // serialize validation rules
+            bool useClientSideValidation = context.Configuration.ClientSideValidation;
+            var validationRules = useClientSideValidation ?
+                SerializeValidationRules(viewModelConverter) :
+                null;
+
             // create result object
             var result = new JObject();
             result["viewModel"] = viewModelToken;
@@ -127,6 +134,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 result["resultIdFragment"] = context.ResultIdFragment;
             }
+
             if (context.IsPostBack || context.IsSpaRequest)
             {
                 result["action"] = "successfulCommand";
@@ -135,6 +143,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 result["renderedResources"] = JArray.FromObject(context.ResourceManager.GetNamedResourcesInOrder().Select(r => r.Name));
             }
+
+            // TODO: do not send on postbacks
+            if (validationRules?.Count > 0) result["validationRules"] = validationRules;
+
+            if (commandResult != null) result["commandResult"] = WriteCommandData(commandResult, serializer, "the command result");
+            AddCustomPropertiesIfAny(context, serializer, result);
+
             result["typeMetadata"] = SerializeTypeMetadata(context, viewModelConverter);
 
             context.ViewModelJson = result;
@@ -161,19 +176,37 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
             };
             serializer.Converters.Add(viewModelConverter);
-            var writer = new JTokenWriter();
             var response = new JObject();
+            response["result"] = WriteCommandData(result, serializer, "the static command result");
+            response["typeMetadata"] = SerializeTypeMetadata(context, viewModelConverter);
+            AddCustomPropertiesIfAny(context, serializer, response);
+            return response.ToString(JsonFormatting);
+        }
+
+        private static void AddCustomPropertiesIfAny(IDotvvmRequestContext context, JsonSerializer serializer, JObject response)
+        {
+            if (context.CustomResponseProperties.Properties.Count > 0)
+            {
+                var props = context.CustomResponseProperties.Properties
+                                .Select(s => new JProperty(s.Key, WriteCommandData(s.Value, serializer, $"custom properties['{s.Key}']")))
+                                .ToArray();
+                response["customProperties"] = new JObject(props);
+            }
+            context.CustomResponseProperties.PropertiesSerialized = true;
+        }
+
+        private static JToken WriteCommandData(object data, JsonSerializer serializer, string description)
+        {
+            var writer = new JTokenWriter();
             try
             {
-                serializer.Serialize(writer, result);
+                serializer.Serialize(writer, data);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
+                throw new Exception($"Could not serialize {description} of type '{ data.GetType().FullName}'. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
             }
-            response["result"] = writer.Token;
-            response["typeMetadata"] = SerializeTypeMetadata(context, viewModelConverter);
-            return response.ToString(JsonFormatting);
+            return writer.Token;
         }
 
         protected virtual JsonSerializer CreateJsonSerializer() => DefaultSerializerSettingsProvider.Instance.Settings.Apply(JsonSerializer.Create);
@@ -199,7 +232,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                 resourceObj[resource.Name] = JValue.CreateString(resource.GetRenderedTextCached(context));
             }
-
             return resourceObj;
         }
 
@@ -223,7 +255,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return validationRules;
         }
 
-        
+
 
         /// <summary>
         /// Serializes the redirect action.

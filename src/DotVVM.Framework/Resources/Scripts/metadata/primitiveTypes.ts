@@ -1,16 +1,17 @@
 import { formatString, parseDate as globalizeParseDate } from "../DotVVM.Globalize";
 import { parseDate as serializationParseDate, serializeDate, serializeTime } from "../serialization/date";
+import { CoerceError } from "../shared-classes";
 
 type PrimitiveTypes = { 
     [name: string]: { 
-        tryCoerce: (value: any) => CoerceResult
+        tryCoerce: (value: any) => CoerceResult | undefined
     } 
 };
 
 export const primitiveTypes: PrimitiveTypes = {
 
     Boolean: {
-        tryCoerce: (value: any): CoerceResult => {
+        tryCoerce: (value: any) => {
             if (typeof value === "boolean") {
                 return { value };
             } else if (value === "true" || value === "True") {
@@ -23,28 +24,28 @@ export const primitiveTypes: PrimitiveTypes = {
         }
     },
     Byte: {
-        tryCoerce: (value: any): CoerceResult => validateInt(value, 0, 255)
+        tryCoerce: (value: any) => validateInt(value, 0, 255)
     },
     SByte: {
-        tryCoerce: (value: any): CoerceResult => validateInt(value, -128, 127)
+        tryCoerce: (value: any) => validateInt(value, -128, 127)
     },
     Int16: {
-        tryCoerce: (value: any): CoerceResult => validateInt(value, -32768, 32767)
+        tryCoerce: (value: any) => validateInt(value, -32768, 32767)
     },
     UInt16: {
-        tryCoerce: (value: any): CoerceResult => validateInt(value, 0, 65535)
+        tryCoerce: (value: any) => validateInt(value, 0, 65535)
     },
     Int32: {
-        tryCoerce: (value: any): CoerceResult => validateInt(value, -2147483648, 2147483647)
+        tryCoerce: (value: any) => validateInt(value, -2147483648, 2147483647)
     },
     UInt32: {
-        tryCoerce: (value: any): CoerceResult => validateInt(value, 0, 4294967295)
+        tryCoerce: (value: any) => validateInt(value, 0, 4294967295)
     },
     Int64: {
-        tryCoerce: (value: any): CoerceResult => validateInt(value, -9223372036854775808, 9223372036854775807)
+        tryCoerce: (value: any) => validateInt(value, -9223372036854775808, 9223372036854775807)
     },
     UInt64: {
-        tryCoerce: (value: any): CoerceResult => validateInt(value, 0, 18446744073709551615)
+        tryCoerce: (value: any) => validateInt(value, 0, 18446744073709551615)
     },
     Single: {
         tryCoerce: validateFloat
@@ -73,7 +74,7 @@ export const primitiveTypes: PrimitiveTypes = {
 
 };
 
-function validateInt(value: any, min: number, max: number): CoerceResult {
+function validateInt(value: any, min: number, max: number) {
     let wasCoerced = false;
     if (typeof value === "string") {
         if (value === "") {
@@ -81,7 +82,6 @@ function validateInt(value: any, min: number, max: number): CoerceResult {
         }
         value = Number(value);
         if (isNaN(value)) {
-            // TODO: parse based on current culture
             return;
         }
         wasCoerced = true;
@@ -99,12 +99,11 @@ function validateInt(value: any, min: number, max: number): CoerceResult {
     }
 }
 
-function validateFloat(value: any): CoerceResult {
+function validateFloat(value: any) {
     let wasCoerced = false;
     if (typeof value === "string") {
         value = Number(value);
         if (isNaN(value)) {
-            // TODO: parse based on current culture
             return;
         }
         wasCoerced = true;
@@ -117,7 +116,7 @@ function validateFloat(value: any): CoerceResult {
     }
 }
 
-function validateString(value: any): CoerceResult {
+function validateString(value: any) {
     let wasCoerced = false;
     if (value === null) {
         wasCoerced = false;
@@ -140,7 +139,7 @@ function validateString(value: any): CoerceResult {
     return { value, wasCoerced };
 }
 
-function validateChar(value: any): CoerceResult {
+function validateChar(value: any) {
     if (typeof value === "number" && (value | 0) === value && value >= 0 && value <= 65535) {
         return { value: String.fromCharCode(value), wasCoerced: true };
     } else if (typeof value !== "string") {
@@ -154,7 +153,7 @@ function validateChar(value: any): CoerceResult {
     }
 }
 
-function validateGuid(value: any): CoerceResult {
+function validateGuid(value: any) {
     if (typeof value !== "string") {
         return;
     }
@@ -164,7 +163,7 @@ function validateGuid(value: any): CoerceResult {
     }
 }
 
-function validateDateTime(value: any): CoerceResult {
+function validateDateTime(value: any) {
     if (typeof value === "string") {
         // strict DotVVM format parse
         if (serializationParseDate(value)) {
@@ -176,6 +175,6 @@ function validateDateTime(value: any): CoerceResult {
     }
     
     if (value instanceof Date) {
-        return { value: serializeDate(value), wasCoerced: true };
+        return { value: serializeDate(value, false), wasCoerced: true };
     }
 }

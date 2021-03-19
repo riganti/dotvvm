@@ -43,7 +43,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public static ViewModelPropertyMap Bind(this ViewModelPropertyMap property, Direction direction)
         {
             property.TransferAfterPostback = direction.HasFlag(Direction.ServerToClientPostback);
-            property.TransferFirstRequest = direction.HasFlag(Direction.ServerToClientFirstRequest);
+            property.TransferFirstRequest = direction.HasFlag(Direction.ServerToClientFirstRequest) || direction.HasFlag(Direction.ClientToServer);
             property.TransferToServer = direction.HasFlag(Direction.ClientToServerNotInPostbackPath) || direction.HasFlag(Direction.ClientToServerInPostbackPath);
             property.TransferToServerOnlyInPath = !direction.HasFlag(Direction.ClientToServerNotInPostbackPath) && property.TransferToServer;
 

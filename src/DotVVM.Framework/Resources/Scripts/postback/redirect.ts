@@ -1,11 +1,8 @@
 import * as events from '../events';
 import * as magicNavigator from '../utils/magic-navigator'
 import { handleSpaNavigationCore } from "../spa/spa";
-import { disablePostbacks } from './gate';
 
 export function performRedirect(url: string, replace: boolean, allowSpa: boolean): Promise<any> {
-    disablePostbacks();
-
     if (replace) {
         location.replace(url);
         return Promise.resolve();

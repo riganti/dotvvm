@@ -210,9 +210,9 @@ ko.utils = (function () {
             comparer = comparer || function(i) { return i; };
             return ko.dependencyDetection.ignore(function () {
                 if (unwrapArrayElements) {
-                    var itemToCompare = comparer(ko.unwrap(item));
+                    var itemToCompare = comparer(ko.utils.unwrapObservable(item));
                     for (var i = 0, j = array.length; i < j; i++)
-                        if (comparer(ko.unwrap(array[i])) === itemToCompare)
+                        if (comparer(ko.utils.unwrapObservable(array[i])) === itemToCompare)
                             return i;
                 }
                 else {
@@ -1651,16 +1651,24 @@ ko.exportSymbol('computedContext.registerDependency', ko.computedContext.registe
 
 ko.exportSymbol('ignoreDependencies', ko.ignoreDependencies = ko.dependencyDetection.ignore);
 var observableLatestValue = ko.utils.createSymbolOrString('_latestValue');
+var observableValidator = ko.utils.createSymbolOrString('_validator');
 
-ko.observable = function (initialValue) {
+ko.observable = function (initialValue, validator) {
     function observable() {
         if (arguments.length > 0) {
             // Write
 
             // Ignore writes if the value hasn't changed
-            if (observable.isDifferent(observable[observableLatestValue], arguments[0])) {
+            var newValue = arguments[0];
+            var notifySubscribers;
+            if (validator) {
+                result = validator.call(observable, newValue);
+                newValue = result.newValue;
+                notifySubscribers = result.notifySubscribers;
+            }
+            if (observable.isDifferent(observable[observableLatestValue], newValue) || notifySubscribers) {
                 observable.valueWillMutate();
-                observable[observableLatestValue] = arguments[0];
+                observable[observableLatestValue] = newValue;
                 observable.valueHasMutated();
             }
             return this; // Permits chained assignments
@@ -1673,6 +1681,7 @@ ko.observable = function (initialValue) {
     }
 
     observable[observableLatestValue] = initialValue;
+    observable[observableValidator] = validator;
 
     // Inherit from 'subscribable'
     if (!ko.utils.canSetPrototype) {
@@ -1733,13 +1742,13 @@ ko.exportSymbol('observable.fn', observableFn);
 ko.exportProperty(observableFn, 'peek', observableFn.peek);
 ko.exportProperty(observableFn, 'valueHasMutated', observableFn.valueHasMutated);
 ko.exportProperty(observableFn, 'valueWillMutate', observableFn.valueWillMutate);
-ko.observableArray = function (initialValues) {
+ko.observableArray = function (initialValues, validator) {
     initialValues = initialValues || [];
 
     if (typeof initialValues != 'object' || !('length' in initialValues))
         throw new Error("The argument passed when initializing an observable array must be an array, or null, or undefined.");
 
-    var result = ko.observable(initialValues);
+    var result = ko.observable(initialValues, validator);
     ko.utils.setPrototypeOfOrExtend(result, ko.observableArray['fn']);
     return result.extend({'trackArrayChanges':true});
 };
@@ -1853,7 +1862,15 @@ ko.utils.arrayForEach(["pop", "push", "reverse", "shift", "sort", "splice", "uns
         this.valueWillMutate();
         this.cacheDiffForKnownOperation(underlyingArray, methodName, arguments);
         var methodCallResult = underlyingArray[methodName].apply(underlyingArray, arguments);
+
+        if (this[observableValidator]) {
+            var newValue = this[observableValidator].call(this, underlyingArray).newValue;
+            if (newValue !== underlyingArray) {
+                this[observableLatestValue] = newValue;
+            }
+        }
         this.valueHasMutated();
+
         // The native sort and reverse methods return a reference to the array, but it makes more sense to return the observable array instead.
         return methodCallResult === underlyingArray ? this : methodCallResult;
     };

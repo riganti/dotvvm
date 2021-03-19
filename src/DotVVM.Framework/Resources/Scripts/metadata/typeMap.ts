@@ -6,7 +6,7 @@ let types: TypeMap = {};
 export function getTypeInfo(typeId: string): TypeMetadata {
     var result = types[typeId];
     if (!result) {
-        throw `Cannot find type metadata for '${typeId}'!`;
+        throw new Error(`Cannot find type metadata for '${typeId}'!`);
     }
     return result;
 }

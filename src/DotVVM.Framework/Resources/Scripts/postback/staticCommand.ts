@@ -4,11 +4,12 @@ import * as events from '../events';
 import * as http from './http'
 import { handleRedirect } from './redirect';
 import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
+import { DotvvmPostbackError } from '../shared-classes';
 
 export async function staticCommandPostback(sender: HTMLElement, command: string, args: any[], options: PostbackOptions): Promise<any> {
 
     let data: any;
-    let response: http.WrappedResponse<StaticCommandResponse>;
+    let response: http.WrappedResponse<DotvvmStaticCommandResponse>;
 
     try {
         await http.retryOnInvalidCsrfToken(async () => {
@@ -27,7 +28,7 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
             methodArgs: args,
         });
 
-        response = await http.postJSON<StaticCommandResponse>(
+        response = await http.postJSON<DotvvmStaticCommandResponse>(
             getInitialUrl(),
             JSON.stringify(data),
             { "X-PostbackType": "StaticCommand" }
@@ -62,8 +63,8 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
             methodId: command,
             methodArgs: args,
             error: err,
-            result: (err.reason as any).responseObject, 
-            response: (err.reason as any).response 
+            result: (err.reason as any)?.responseObject, 
+            response: (err.reason as any)?.response 
         })
         
         throw err;

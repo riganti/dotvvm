@@ -11,6 +11,7 @@ namespace DotVVM.Framework.Compilation.Parser
         public const string WrapperTagNameDirective = "wrapperTag";
         public const string NoWrapperTagNameDirective = "noWrapperTag";
         public const string ServiceInjectDirective = "service";
+        public const string ViewModuleDirective = "js";
 
         public const string ValueBinding = "value";
         public const string CommandBinding = "command";

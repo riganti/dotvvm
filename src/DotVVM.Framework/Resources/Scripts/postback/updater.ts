@@ -1,6 +1,7 @@
 import { getElementByDotvvmId } from '../utils/dom'
 import { replaceViewModel, updateViewModelCache, clearViewModelCache, getStateManager } from '../dotvvm-base'
 import { keys } from '../utils/objects';
+import { logInfoVerbose } from '../utils/logging';
 
 const diffEqual = {}
 
@@ -32,7 +33,7 @@ export function restoreUpdatedControls(resultObject: any, updatedControls: any) 
                 throw new Error("Postback.Update control always has to render id attribute.");
             }
             if (element.id !== updatedControls[id].control.id) {
-                console.log(`Postback.Update control changed id from '${updatedControls[id].control.id}' to '${element.id}'`);
+                logInfoVerbose("postback", `Postback.Update control changed id from '${updatedControls[id].control.id}' to '${element.id}'`);
             }
             wrapper.removeChild(element);
             if (updatedControl.nextSibling) {

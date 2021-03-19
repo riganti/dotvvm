@@ -4,12 +4,17 @@ import { createArray, isPrimitive, keys } from "./utils/objects";
 import { DotvvmEvent } from "./events";
 import { extendToObservableArrayIfRequired } from "./serialization/deserialize"
 import { getObjectTypeInfo } from "./metadata/typeMap";
+import { coerce } from "./metadata/coercer";
+import { patchViewModel } from "./postback/updater";
+import { wrapObservable } from "./utils/knockout";
+import { logWarning } from "./utils/logging";
 import {ValidationError} from "./validation/error";
 import { ErrorsPropertyName } from "./validation/common";
 
 
 export const currentStateSymbol = Symbol("currentState")
 const notifySymbol = Symbol("notify")
+export const lastSetErrorSymbol = Symbol("lastSetError")
 
 const internalPropCache = Symbol("internalPropCache")
 const updateSymbol = Symbol("update")
@@ -27,20 +32,6 @@ export type UpdatableObjectExtensions<T> = {
     [updateSymbol]?: UpdateDispatcher<T>
 }
 
-export type DeepKnockoutWrapped<T> =
-    (T extends (infer R)[] ? DeepKnockoutWrappedArray<R> :
-    T extends object ? KnockoutObservable<DeepKnockoutWrappedObject<T>> :
-    KnockoutObservable<T>) & UpdatableObjectExtensions<T>;
-
-export type DeepKnockoutWrappedArray<T> = KnockoutObservableArray<DeepKnockoutWrapped<T>>
-
-export type DeepKnockoutWrappedObject<T> = {
-    readonly [P in keyof T]: DeepKnockoutWrapped<T[P]>;
-};
-
-
-export type StateUpdate<TViewModel> = (initial: TViewModel) => Readonly<TViewModel>
-export type UpdateDispatcher<TViewModel> = (update: StateUpdate<TViewModel>) => void
 type RenderContext<TViewModel> = {
     // timeFromStartGetter: () => number
     // secondsTimeGetter: () => Date
@@ -58,9 +49,9 @@ class TwoWayBinding<T> {
     ) { }
 }
 
-export class StateManager<TViewModel> {
-    public readonly stateObservable: DeepKnockoutWrapped<TViewModel>;
-    private _state: TViewModel
+export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
+    public readonly stateObservable: DeepKnockoutObservable<TViewModel>;
+    private _state: DeepReadonly<TViewModel>
     public get state() {
         return this._state
     }
@@ -71,11 +62,11 @@ export class StateManager<TViewModel> {
     private _currentFrameNumber : number | null = 0;
 
     constructor(
-        initialState: TViewModel,
-        public stateUpdateEvent: DotvvmEvent<TViewModel>
+        initialState: DeepReadonly<TViewModel>,
+        public stateUpdateEvent: DotvvmEvent<DeepReadonly<TViewModel>>
     ) {
-        this._state = initialState
-        this.stateObservable = createWrappedObservable(initialState, (initialState as any)["$type"], u => this.update(u))
+        this._state = coerce(initialState, initialState.$type || { type: "dynamic" })
+        this.stateObservable = createWrappedObservable(initialState, (initialState as any)["$type"], u => this.update(u as any))
         this.dispatchUpdate()
     }
 
@@ -102,19 +93,28 @@ export class StateManager<TViewModel> {
         isViewModelUpdating = true
         ko.delaySync.pause()
         try {
-            this.stateObservable[notifySymbol](this._state)
+            this.stateObservable[notifySymbol as any](this._state)
         } finally {
             isViewModelUpdating = false
             ko.delaySync.resume()
         }
-        // console.log("New state dispatched, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart)
+        //logInfoVerbose("New state dispatched, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart);
     }
 
-    public setState(newState: TViewModel) {
+    public setState(newState: DeepReadonly<TViewModel>): DeepReadonly<TViewModel> {
         if (newState == null) throw new Error("State can't be null or undefined.")
-        if (newState === this._state) return
+        if (newState === this._state) return newState
+
+        const type = newState.$type || this._state.$type
+
+        const coercionResult = coerce(newState, type!, this._state)
+
         this.dispatchUpdate();
-        return this._state = newState
+        return this._state = coercionResult
+    }
+
+    public patchState(patch: Partial<TViewModel>): DeepReadonly<TViewModel> {
+        return this.setState(patchViewModel(this._state, patch))
     }
 
     public update(updater: StateUpdate<TViewModel>) {
@@ -140,8 +140,8 @@ class FakeObservableObject<T> implements UpdatableObjectExtensions<T> {
     }
     public [internalPropCache]: { [name: string]: (KnockoutObservable<any> & UpdatableObjectExtensions<any>) | null } = {}
 
-    public [updatePropertySymbol](propName: keyof T, valUpdate: StateUpdate<any>) {
-        this[updateSymbol](vm => Object.freeze({ ...vm, [propName]: valUpdate(vm[propName]) }))
+    public [updatePropertySymbol](propName: keyof DeepReadonly<T>, valUpdate: StateUpdate<any>) {
+        this[updateSymbol](vm => Object.freeze({ ...vm, [propName]: valUpdate(vm[propName]) }) as any)
     }
     constructor(initialValue: T, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata | undefined, additionalProperties: string[]) {
         this[currentStateSymbol] = initialValue
@@ -171,8 +171,8 @@ class FakeObservableObject<T> implements UpdatableObjectExtensions<T> {
                                 (ko.extenders as any)[e.name](newObs, e.parameter)
                             }
                         }
-                    } else if (!p.startsWith("$")) {
-                        console.warn(`Unknown property '${p}' set on an object of type ${typeId}.`);
+                    } else if (p.indexOf("$") !== 0) {
+                        logWarning("state-manager", `Unknown property '${p}' set on an object of type ${typeId}.`);
                     }
 
                     this[internalPropCache][p] = newObs
@@ -218,45 +218,81 @@ export function unmapKnockoutObservables(viewModel: any): any {
 function createObservableObject<T extends object>(initialObject: T, typeHint: TypeDefinition | undefined, update: ((updater: StateUpdate<any>) => void)) {
     const typeId = (initialObject as any)["$type"] || typeHint
     let typeInfo;
-    if (typeId) {
+    if (typeId && !(typeId.hasOwnProperty("type") && typeId["type"] === "dynamic")) {
         typeInfo = getObjectTypeInfo(typeId)
     } 
 
-    const pSet = typeInfo ? new Set(keys(typeInfo.properties)) : new Set();
+    const pSet = new Set();         // IE11 doesn't support constructor with arguments
+    if (typeInfo) {
+        keys(typeInfo.properties).forEach(p => pSet.add(p));
+    }
     const additionalProperties = keys(initialObject).filter(p => !pSet.has(p))
 
-    return new FakeObservableObject(initialObject, update, typeId, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutWrappedObject<T>
+    return new FakeObservableObject(initialObject, update, typeId, typeInfo, additionalProperties) as FakeObservableObject<T> & DeepKnockoutObservableObject<T>
 }
 
-
-function type(o: any) {
-    const k = keys(o)
-    k.sort()
-    return k.join("|")
-}
-
-function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | undefined, updater: UpdateDispatcher<T>): DeepKnockoutWrapped<T> {
+function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: TypeDefinition | undefined, updater: UpdateDispatcher<T>): DeepKnockoutObservable<T> {
 
     let isUpdating = false
 
-    const obs = initialValue instanceof Array ? ko.observableArray() : ko.observable() as any
-    obs[updateSymbol] = updater
+    function triggerLastSetErrorUpdate(obs: KnockoutObservable<T>) {
+        obs.valueHasMutated && obs.valueHasMutated();
+    }
 
-    let updatedObservable = false
-
-    obs.subscribe((newVal: any) => {
-        if (isUpdating) { return }
+    function observableValidator(this: KnockoutObservable<T>, newValue: any): any {
+        if (isUpdating) return { newValue, notifySubscribers: false }
         updatedObservable = true
-        updater(_ => unmapKnockoutObservables(newVal))
-    })
+
+        try {
+            const notifySubscribers = (this as any)[lastSetErrorSymbol];
+            (this as any)[lastSetErrorSymbol] = void 0;
+
+            const unmappedValue = unmapKnockoutObservables(newValue);
+            const oldValue = obs[currentStateSymbol];
+            const coerceResult = coerce(unmappedValue, typeHint || { type: "dynamic" }, oldValue);
+
+            updater(_ => coerceResult);
+            const result = notifyCore(coerceResult, oldValue, true);
+
+            return { newValue: result!.newContents, notifySubscribers };
+
+        } catch (err) {
+            (this as any)[lastSetErrorSymbol] = err;
+            triggerLastSetErrorUpdate(this);
+            logWarning("state-manager", `Can not update observable to ${newValue}:`, err)
+            throw err
+        }
+    }
+
+    const obs = initialValue instanceof Array ? ko.observableArray([], observableValidator) : ko.observable(null, observableValidator) as any
+    let updatedObservable = false
 
     function notify(newVal: any) {
         const currentValue = obs[currentStateSymbol]
-        if (newVal === currentValue) { return }
-        obs[currentStateSymbol] = newVal
+
+        if (newVal === currentValue) { 
+            return 
+        } 
+
         const observableWasSetFromOutside = updatedObservable
         updatedObservable = false
 
+        obs[lastSetErrorSymbol] = void 0;
+        obs[currentStateSymbol] = newVal
+
+        const result = notifyCore(newVal, currentValue, observableWasSetFromOutside);
+        if (result && "newContents" in result) {
+            try {
+                isUpdating = true
+                obs(result.newContents)
+            }
+            finally {
+                isUpdating = false
+            }
+        }
+    }
+
+    function notifyCore(newVal: any, currentValue: any, observableWasSetFromOutside: boolean) {
         let newContents
         const oldContents = obs.peek()
         if (isPrimitive(newVal) || newVal instanceof Date) {
@@ -281,8 +317,7 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
                         continue
                     }
                     if (newContents[index]) {
-                        // TODO: remove eventually
-                        console.warn(`Replacing old knockout observable with a new one, just because it is not created by DotVVM. Please do not assign objects into the knockout tree directly. The object is `, unmapKnockoutObservables(newContents[index]))
+                        logWarning("state-manager", `Replacing old knockout observable with a new one, just because it is not created by DotVVM. Please do not assign objects into the knockout tree directly. The object is `, unmapKnockoutObservables(newContents[index]))
                     }
                     const indexForClosure = index
                     newContents[index] = createWrappedObservable(newVal[index], Array.isArray(typeHint) ? typeHint[0] : void 0, update => updater((viewModelArray: any) => {
@@ -315,21 +350,42 @@ function createWrappedObservable<T>(initialValue: T, typeHint: TypeDefinition | 
         }
         else {
             // create new object and replace
-
-            console.debug("Creating new KO object for", newVal)
             newContents = createObservableObject(newVal, typeHint, updater)
         }
 
-        try {
-            isUpdating = true
-            obs(newContents)
-        }
-        finally {
-            isUpdating = false
-        }
+        // return a result indicating that the observable needs to be set
+        return { newContents };
     }
 
     obs[notifySymbol] = notify
     notify(initialValue)
+
+    Object.defineProperty(obs, "state", {
+        get: () => {
+            let resultState
+            updater(state => {
+                resultState = state
+                return state
+            })
+            return resultState
+        },
+        configurable: false
+    });
+    Object.defineProperty(obs, "patchState", {
+        get: () => (patch: any) => {
+            updater(state => patchViewModel(state, patch))
+        },
+        configurable: false
+    });
+    Object.defineProperty(obs, "setState", {
+        get: () => (newState: any) => {
+            updater(_ => newState);
+        },
+        configurable: false
+    });
+    Object.defineProperty(obs, "updater", {
+        get: () => updater,
+        configurable: false
+    });
     return obs
 }

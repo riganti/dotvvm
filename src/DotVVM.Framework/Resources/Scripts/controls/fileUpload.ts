@@ -17,7 +17,7 @@ export function createUploadId(sender: HTMLElement, iframe: HTMLElement): void {
     iframe.setAttribute("data-dotvvm-upload-id", uploadId);
 }
 
-export function reportProgress(targetControlId: any, isBusy: boolean, progress: number, result: StaticCommandResponse<DotvvmFileUploadData[]> | string): void {
+export function reportProgress(targetControlId: any, isBusy: boolean, progress: number, result: DotvvmStaticCommandResponse<DotvvmFileUploadData[]> | string): void {
     // find target control viewmodel
     const targetControl = <HTMLDivElement> document.querySelector("div[data-dotvvm-upload-id='" + targetControlId.value + "']");
     const viewModel = <DotvvmFileUploadCollection> ko.dataFor(targetControl.firstChild);

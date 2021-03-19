@@ -11,9 +11,8 @@ import { DotvvmPostbackError } from "../shared-classes"
 import { getObjectTypeInfo } from "../metadata/typeMap"
 import { tryCoerce } from "../metadata/coercer"
 import { primitiveTypes } from "../metadata/primitiveTypes"
-import evaluateExpression = evaluator.evaluateExpression;
-import evaluateExpression1 = evaluator.evaluateExpression;
-import evaluateExpression2 = evaluator.evaluateExpression;
+import { lastSetErrorSymbol } from "../state-manager"
+import { logError } from "../utils/logging"
 
 type ValidationSummaryBinding = {
     target: KnockoutObservable<any>,
@@ -45,7 +44,7 @@ const createValidationHandler = (path: string) => ({
             options.validationTargetPath = path;
             // resolve target
             const context = ko.contextFor(options.sender);
-            const validationTarget = evaluateExpression(context, path);
+            const validationTarget = evaluator.evaluateExpression(context, path);
 
             watchAndTriggerValidationErrorChanged(options,
                 () => {
@@ -95,7 +94,7 @@ export function init() {
     ko.bindingHandlers["dotvvm-validationSummary"] = {
         init: (element: HTMLElement, valueAccessor: () => ValidationSummaryBinding) => {
             const binding = valueAccessor();
-            const target = evaluateExpression1(ko.contextFor(element), ko.unwrap(binding.target));
+            const target = evaluator.evaluateExpression(ko.contextFor(element), ko.unwrap(binding.target));
             validationErrorsChanged.subscribe(_ => {
                 element.innerHTML = "";
                 const errors = getValidationErrors(
@@ -157,6 +156,11 @@ function validateViewModel(viewModel: any): void {
 }
 
 function validateRecursive(propertyName: string, observable: KnockoutObservable<any>, propertyValue: any, type: TypeDefinition) {
+    const lastSetError: CoerceResult = (observable as any)[lastSetErrorSymbol];
+    if (lastSetError && lastSetError.isError) {
+        ValidationError.attach(lastSetError.message, observable);
+    }
+    
     if (Array.isArray(type)) {
         if (!propertyValue) return;
         let i = 0;
@@ -166,17 +170,12 @@ function validateRecursive(propertyName: string, observable: KnockoutObservable<
         }
         
     } else if (typeof type === "string") {
-        if (type in primitiveTypes) {
-            validatePrimitiveType(propertyName, observable, propertyValue, type);
-        } else {
+        if (!(type in primitiveTypes)) {
             validateViewModel(propertyValue);
         }
 
     } else if (typeof type === "object") {
-        if (type.type === "nullable") {
-            validatePrimitiveType(propertyName, observable, propertyValue, type);
-
-        } else if (type.type === "dynamic") {
+        if (type.type === "dynamic") {
 
             if (Array.isArray(propertyValue)) {
                 let i = 0;
@@ -195,13 +194,6 @@ function validateRecursive(propertyName: string, observable: KnockoutObservable<
             }
 
         }
-    }
-}
-
-function validatePrimitiveType(propertyName: string, observable: KnockoutObservable<any>, propertyValue: any, type: TypeDefinition) {
-    if (getErrors(observable).length == 0 && !tryCoerce(propertyValue, type)) {
-        ValidationError.attach(`The value of property ${propertyName} (${propertyValue}) is invalid value for type ${type}.`, observable);
-        // TODO: we may not need to validate primitive types any more
     }
 }
 
@@ -305,7 +297,7 @@ export function showValidationErrorsFromServer(serverResponseObject: any, option
             let rootVM = dotvvm.viewModels.root.viewModel;
             const property =
                 propertyPath ?
-                evaluateExpression2(rootVM, propertyPath) :
+                    evaluator.evaluateExpression(rootVM, propertyPath) :
                 rootVM;
 
             ValidationError.attach(prop.errorMessage, property);

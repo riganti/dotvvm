@@ -124,7 +124,7 @@ namespace DotVVM.Samples.BasicSamples
         private static void AddRedirections(DotvvmConfiguration config)
         {
             config.RouteTable.AddUrlRedirection("Redirection1", "FeatureSamples/Redirect/RedirectionHelpers_PageA", (_) => "https://www.dotvvm.com");
-            config.RouteTable.AddRouteRedirection("Redirection2", "FeatureSamples/Redirect/RedirectionHelpers_PageB/{Id}", (_) => "FeatureSamples_Redirect_RedirectionHelpers_PageC-PageDetail", new { Id = 66 });
+            config.RouteTable.AddRouteRedirection("Redirection2", "FeatureSamples/Redirect/RedirectionHelpers_PageB/{Id}", (_) => "FeatureSamples_Redirect_RedirectionHelpers_PageC-PageDetail", new { Id = 66 }, urlSuffixProvider: c => "?test=aaa");
             config.RouteTable.AddRouteRedirection("Redirection3", "FeatureSamples/Redirect/RedirectionHelpers_PageD/{Id}", (_) => "FeatureSamples_Redirect_RedirectionHelpers_PageE-PageDetail", new { Id = 77 },
                 parametersProvider: (context) => {
                     var newDict = new Dictionary<string, object>(context.Parameters);
@@ -184,9 +184,11 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddMarkupControl("FileUploadInRepeater", "FileUploadWrapper", "Views/ComplexSamples/FileUploadInRepeater/FileUploadWrapper.dotcontrol");
             config.Markup.AddMarkupControl("cc", "RecursiveTextRepeater", "Views/FeatureSamples/PostBack/RecursiveTextRepeater.dotcontrol");
             config.Markup.AddMarkupControl("cc", "RecursiveTextRepeater2", "Views/FeatureSamples/PostBack/RecursiveTextRepeater2.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "ModuleControl", "Views/FeatureSamples/ViewModules/ModuleControl.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "Incrementer", "Views/FeatureSamples/ViewModules/Incrementer.dotcontrol");
 
             config.Markup.AddMarkupControl("sample", "EmbeddedResourceControls_Button", "embedded://EmbeddedResourceControls/Button.dotcontrol");
-
+            
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/"));
 
         }

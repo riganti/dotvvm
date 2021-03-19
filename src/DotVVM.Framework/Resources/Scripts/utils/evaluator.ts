@@ -1,4 +1,5 @@
 import { isObservableArray } from "./knockout";
+import { logError } from "./logging";
 
 var shouldBeConvertedFromObservable: (currentLevel: any, remainingParts: string[]) => boolean = (currentLevel: any, remainingParts: string[]) => {
     if (currentLevel["$data"] == undefined) {
@@ -79,7 +80,7 @@ function updateObservable(getObservable: () => KnockoutObservable<any>, value: a
     const result = getExpressionResult(getObservable);
 
     if (!ko.isWriteableObservable(result)) {
-        console.error(`Cannot write a value to ko.computed because the expression '${getObservable}' does not return a writable observable.`);
+        logError("evaluator", `Cannot write a value to ko.computed because the expression '${getObservable}' does not return a writable observable.`);
     } else {
         result(value);
     }
@@ -89,7 +90,7 @@ function updateObservableArray(getObservableArray: () => KnockoutObservableArray
     const result = getExpressionResult(getObservableArray);
 
     if (!isObservableArray(result)) {
-        console.error(`Cannot execute '${fnName}' function on ko.computed because the expression '${getObservableArray}' does not return an observable array.`);
+        logError("evaluator", `Cannot execute '${fnName}' function on ko.computed because the expression '${getObservableArray}' does not return an observable array.`);
     } else {
         result[fnName].apply(result, args);
     }

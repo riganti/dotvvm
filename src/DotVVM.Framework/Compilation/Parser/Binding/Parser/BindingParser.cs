@@ -340,7 +340,112 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     return CreateNode(new UnaryOperatorBindingParserNode(target, @operator), startIndex, isOperatorUnsupported ? $"Unsupported operator {operatorToken.Text}" : null);
                 }
             }
-            return CreateNode(ReadIdentifierExpression(false), startIndex);
+            return CreateNode(ReadLambdaExpression(), startIndex);
+        }
+
+        private BindingParserNode ReadLambdaExpression()
+        {
+            var startIndex = CurrentIndex;
+            SetRestorePoint();
+
+            // Try to read lambda parameters
+            if (!TryReadLambdaParametersExpression(out var parameters) || Peek()?.Type != BindingTokenType.LambdaOperator)
+            {
+                // Fail - we should try to parse as an expression
+                Restore();
+                return CreateNode(ReadIdentifierExpression(false), startIndex);
+            }
+
+            // Read lambda operator
+            Read();
+            SkipWhiteSpace();
+            ClearRestorePoint();
+
+            // Read lambda body expression
+            var body = ReadExpression();
+            return CreateNode(new LambdaBindingParserNode(parameters, body), startIndex);
+        }
+
+        private bool TryReadLambdaParametersExpression(out List<LambdaParameterBindingParserNode> parameters)
+        {
+            var startIndex = CurrentIndex;
+            var waitingForParameter = false;
+            parameters = new List<LambdaParameterBindingParserNode>();
+            if (Peek()?.Type == BindingTokenType.OpenParenthesis)
+            {
+                // Begin parameters parsing - read opening parenthesis
+                Read();
+                SkipWhiteSpace();
+
+                while (Peek()?.Type != BindingTokenType.CloseParenthesis)
+                {
+                    // Try read parameter definition (either implicitly defined type or explicitely)
+                    if (!TryReadLambdaParameterDefinition(out var typeDef, out var nameDef))
+                        return false;
+                    parameters.Add(new LambdaParameterBindingParserNode(typeDef, nameDef!));
+                    waitingForParameter = false;
+
+                    if (Peek()?.Type == BindingTokenType.Comma)
+                    {
+                        Read();
+                        SkipWhiteSpace();
+                        waitingForParameter = true;
+                    }
+                    else
+                    {
+                        // If next is not comma then we must be finished
+                        break;
+                    }
+                }
+
+                // End parameters parsing - read closing parenthesis
+                if (Peek()?.Type != BindingTokenType.CloseParenthesis)
+                    return false;
+                Read();
+                SkipWhiteSpace();
+            }
+            else
+            {
+                // Support lambdas with single implicit parameter and no parentheses: arg => Method(arg)
+                var parameter = ReadIdentifierExpression(false);
+                if (parameter.HasNodeErrors)
+                    return false;
+
+                parameters.Add(new LambdaParameterBindingParserNode(null, CreateNode(parameter, startIndex)));
+            }
+
+            if (waitingForParameter)
+                return false;
+
+            return true;
+        }
+
+        private bool TryReadLambdaParameterDefinition(out BindingParserNode? type, out BindingParserNode? name)
+        {
+            name = null;
+            type = null;
+            if (Peek()?.Type != BindingTokenType.Identifier)
+                return false;
+
+            type = ReadIdentifierExpression(true);
+            SkipWhiteSpace();
+
+            if (Peek()?.Type != BindingTokenType.Identifier)
+            {
+                name = type;
+                type = null;
+                return true;
+            }
+            else
+            {
+                name = ReadIdentifierExpression(true);
+            }
+
+            // Name must always be a simple name binding
+            if (!(name is SimpleNameBindingParserNode))
+                return false;
+
+            return true;
         }
 
         private BindingParserNode ReadIdentifierExpression(bool onlyTypeName)
@@ -369,6 +474,24 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 {
                     expression = ReadArrayAccess(startIndex, expression);
                 }
+                else if (!onlyTypeName && next.Type == BindingTokenType.Identifier && expression is SimpleNameBindingParserNode keywordNameExpression)
+                {
+                    // we have `identifier identifier` - the first one must be a KEYWORD USAGE
+
+                    var keyword = keywordNameExpression.Name;
+                    if (keyword == "var")
+                    {
+                        return ReadVariableExpression(startIndex);
+                    }
+                    else if (keyword == "val" || keyword == "let" || keyword == "const")
+                    {
+                        expression = CreateNode(expression, startIndex, $"Variable declaration using {keyword} is not supported. Did you intend to use the var keyword?");
+                    }
+                    else
+                    {
+                        expression = CreateNode(expression, startIndex, $"Expression '{expression.ToDisplayString()}' can not be followed by an identifier. Did you intent to declare a variable using the var keyword?");
+                    }
+                }
                 else
                 {
                     break;
@@ -376,6 +499,35 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 next = Peek();
             }
             return expression;
+        }
+
+        private BindingParserNode ReadVariableExpression(int startIndex)
+        {
+            var variableName = ReadIdentifierNameExpression();
+            if (!(variableName is SimpleNameBindingParserNode))
+            {
+                variableName = CreateNode(variableName, variableName.StartPosition, $"Variable name can not be generic, please use the `var {variableName.Name} = X` syntax.");
+            }
+
+            var incorrectEquals = IsCurrentTokenIncorrect(BindingTokenType.AssignOperator);
+            if (!incorrectEquals)
+            {
+                Read();
+            }
+
+            var value = ReadSemicolonSeparatedExpression();
+
+            if (value is BlockBindingParserNode resultBlock)
+            {
+                return CreateNode(
+                    new BlockBindingParserNode(resultBlock.FirstExpression, resultBlock.SecondExpression, variableName),
+                    startIndex,
+                    !incorrectEquals ? null : $"Expected variable declaration `var {variableName.Name} = {resultBlock.FirstExpression}`");
+            }
+            else
+            {
+                return CreateNode(value, startIndex, $"Variable declaration must be followed by a semicolon and another expression. Please add the return value after `var {variableName.Name} = {value}; ...` or remove the `var {variableName.Name} = ` in case you only want to invoke the expression.");
+            }
         }
 
         private BindingParserNode ReadArrayAccess(int startIndex, BindingParserNode expression)
