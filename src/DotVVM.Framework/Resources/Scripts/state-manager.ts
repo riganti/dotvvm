@@ -137,7 +137,7 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
     public [internalPropCache]: { [name: string]: (KnockoutObservable<any> & UpdatableObjectExtensions<any>) | null } = {}
 
     public [updatePropertySymbol](propName: keyof DeepReadonly<T>, valUpdate: StateUpdate<any>) {
-        this[updateSymbol](vm => Object.freeze({ ...vm, [propName]: valUpdate(vm[propName]) }) as any)
+        this[updateSymbol](vm => { if(vm==null) return null; return Object.freeze({ ...vm, [propName]: valUpdate(vm[propName]) }) as any})
     }
 
     constructor(initialValue: T, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata | undefined, additionalProperties: string[]) {
