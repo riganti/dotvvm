@@ -9,21 +9,17 @@ namespace DotVVM.Framework.Storage
         /// <summary>
         /// Stores uploaded file and returns its unique ID.
         /// </summary>
-        Task<Guid> StoreFile(Stream stream);
+        Task<Guid> StoreFileAsync(Stream stream);
 
         /// <summary>
-        /// Deletes the uploaded file.
+        /// Deletes the uploaded file with the specified ID.
         /// </summary>
-        void DeleteFile(Guid fileId);
+        Task DeleteFileAsync(Guid fileId);
 
         /// <summary>
-        /// Gets the file with the specified ID.
+        /// Gets the stream of the file with the specified ID.
         /// </summary>
-        Stream GetFile(Guid fileId);
+        Task<Stream> GetFileAsync(Guid fileId);
 
-        /// <summary>
-        /// Deletes files older than the specified date.
-        /// </summary>
-        void DeleteOldFiles(DateTime maxCreatedDate);
     }
 }

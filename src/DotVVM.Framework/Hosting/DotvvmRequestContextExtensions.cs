@@ -232,7 +232,7 @@ public static class DotvvmRequestContextExtensions
             AttachmentDispositionType = attachmentDispositionType ?? "attachment"
         };
 
-        var generatedFileId = returnedFileStorage.StoreFile(stream, metadata).Result;
+        var generatedFileId = returnedFileStorage.StoreFileAsync(stream, metadata).Result;
         context.SetRedirectResponse(context.TranslateVirtualPath("~/dotvvmReturnedFile?id=" + generatedFileId));
         throw new DotvvmInterruptRequestExecutionException(InterruptReason.ReturnFile, fileName);
     }

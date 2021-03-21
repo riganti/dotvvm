@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Storage
 {
@@ -8,13 +9,13 @@ namespace DotVVM.Framework.Storage
         /// <summary>
         /// Saves an uploaded file with the specified ID to the given location.
         /// </summary>
-        public static void SaveAs(this IUploadedFileStorage storage, Guid fileId, string path)
+        public static async Task SaveAsAsync(this IUploadedFileStorage storage, Guid fileId, string path)
         {
-            using (var stream = storage.GetFile(fileId))
+            using (var stream = await storage.GetFileAsync(fileId))
             {
                 using (var fs = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Write))
                 {
-                    stream.CopyTo(fs);
+                    await stream.CopyToAsync(fs);
                 }
             }
         }

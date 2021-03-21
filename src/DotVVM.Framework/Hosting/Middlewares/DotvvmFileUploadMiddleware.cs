@@ -176,7 +176,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
         /// </summary>
         private async Task<UploadedFile> StoreFile(IHttpContext context, MultipartSection section, IUploadedFileStorage fileStore)
         {
-            var fileId = await fileStore.StoreFile(section.Body);
+            var fileId = await fileStore.StoreFileAsync(section.Body);
             var fileNameGroup = Regex.Match(section.ContentDisposition, @"filename=""?(?<fileName>[^\""]*)", RegexOptions.IgnoreCase).Groups["fileName"];
             var fileName = fileNameGroup.Success ? fileNameGroup.Value : string.Empty;
             var mimeType = section.ContentType ?? string.Empty;

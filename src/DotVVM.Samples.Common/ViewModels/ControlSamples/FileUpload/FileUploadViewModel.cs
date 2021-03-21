@@ -48,14 +48,14 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.FileUpload
             FileSize = file.FileSize;
         }
 
-        public void Process()
+        public async Task Process()
         {
             var uploadPath = GetUploadPath();
 
             foreach (var file in Files.Files)
             {
-                fileStorage.SaveAs(file.FileId, Path.Combine(uploadPath, file.FileId + ".bin"));
-                fileStorage.DeleteFile(file.FileId);
+                await fileStorage.SaveAsAsync(file.FileId, Path.Combine(uploadPath, file.FileId + ".bin"));
+                await fileStorage.DeleteFileAsync(file.FileId);
             }
             Files.Clear();
         }

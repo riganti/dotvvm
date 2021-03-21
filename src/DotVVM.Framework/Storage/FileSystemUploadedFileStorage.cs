@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Storage
         /// <summary>
         /// Stores uploaded file and returns its unique id.
         /// </summary>
-        public async Task<Guid> StoreFile(Stream stream)
+        public async Task<Guid> StoreFileAsync(Stream stream)
         {
             var id = SecureGuidGenerator.GenerateGuid();
             using (var fs = new FileStream(GetFileName(id), FileMode.OpenOrCreate, FileAccess.Write))
@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Storage
         /// <summary>
         /// Deletes the uploaded file.
         /// </summary>
-        public void DeleteFile(Guid fileId)
+        public Task DeleteFileAsync(Guid fileId)
         {
             try
             {
@@ -59,14 +59,16 @@ namespace DotVVM.Framework.Storage
             catch (IOException)
             {
             }
+            return TaskUtils.GetCompletedTask();
         }
 
         /// <summary>
         /// Gets the file with the specified id.
         /// </summary>
-        public Stream GetFile(Guid fileId)
+        public Task<Stream> GetFileAsync(Guid fileId)
         {
-            return new FileStream(GetFileName(fileId), FileMode.Open, FileAccess.Read);
+            var stream = new FileStream(GetFileName(fileId), FileMode.Open, FileAccess.Read);
+            return Task.FromResult<Stream>(stream);
         }
 
         /// <summary>
