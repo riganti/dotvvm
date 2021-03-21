@@ -24,6 +24,7 @@ import * as eventHub from './api/eventHub'
 import * as viewModuleManager from './viewModules/viewModuleManager'
 import { notifyModuleLoaded } from './postback/resourceLoader'
 import { logError, logWarning, logInfo, logInfoVerbose, level, logPostBackScriptError } from "./utils/logging"
+import evaluateExpression = evaluator.evaluateExpression;
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -50,7 +51,8 @@ const dotvvmExports = {
     getCulture: getCulture,
     evaluator: {
         getDataSourceItems: evaluator.getDataSourceItems,
-        wrapObservable: evaluator.wrapObservable
+        wrapObservable: evaluator.wrapObservable,
+        evaluateExpression: evaluateExpression
     },
     fileUpload: {
         reportProgress: fileUpload.reportProgress,

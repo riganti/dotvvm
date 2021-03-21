@@ -290,10 +290,11 @@ function extractServerResponseObject(err: DotvvmPostbackError) {
     if (!err.reason) return null;
     if (err.reason.type == "commit" && err.reason.args) {
         return err.reason.args.serverResponseObject;
-    } 
-    else if (err.reason.type == "network") {
+    } else if (err.reason.type == "network") {
         return err.reason.err;
     } else if (err.reason.type == "serverError") {
+        return err.reason.responseObject;
+    } else if (err.reason.type == "validation") {
         return err.reason.responseObject;
     }
     return null;

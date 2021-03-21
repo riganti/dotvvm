@@ -1,18 +1,55 @@
 import { isObservableArray } from "./knockout";
 import { logError } from "./logging";
 
-export function evaluateOnViewModel(context: any, expression: string): any {
-    // todo: reimplement
-    let result;
-    if (context && context.$data) {
-        result = new Function("$context", "with($context) { with ($data) { return " + expression + "; } }")(context);
-    } else {
-        result = new Function("$context", "var $data=$context; with($context) { return " + expression + "; }")(context);
+var shouldBeConvertedFromObservable: (currentLevel: any, remainingParts: string[]) => boolean = (currentLevel: any, remainingParts: string[]) => {
+    if (currentLevel["$data"] == undefined) {
+        return false;
     }
-    if (result && result.$data) {
-        result = result.$data;
+
+    for (let i = 0; i < remainingParts.length; i++) {
+        if (remainingParts[i].startsWith("$")) return false;
     }
-    return result;
+
+    return true;
+};
+
+
+export function evaluateExpression(context: any, expression: string): any {
+
+    expression = transformExpression(expression);
+
+    var parts = expression.split(/[/[\]]+/);
+    var currentLevel = context;
+    var currentPath = "";
+    for (var i = 0; i < parts.length; i++) {
+        if (shouldBeConvertedFromObservable(currentLevel, parts.slice(i))) {
+            currentLevel = context["$data"];
+        }
+        let expressionPart = parts[i];
+        if (expressionPart === "")
+            continue;
+
+        var currentLevelExpanded = currentLevel instanceof Function ? currentLevel() : currentLevel;
+
+        var nextNode = currentLevelExpanded[expressionPart];
+        if (nextNode==undefined) {
+            throw `Validation error could not been applied to property specified by propertyPath ${expression}. Property with name ${expressionPart} does not exist on ${currentPath}.`;
+        }
+        currentPath += "/"+expressionPart;
+        currentLevel = nextNode;
+    }
+
+    return currentLevel;
+}
+
+export function transformExpression(expression: string) {
+
+    if (expression === '$rawData') {
+        expression = '/';
+    }
+    expression = expression.replace(".", "/");
+
+    return expression;
 }
 
 export function getDataSourceItems(viewModel: any): Array<KnockoutObservable<any>> {

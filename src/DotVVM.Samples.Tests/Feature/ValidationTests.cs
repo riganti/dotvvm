@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.DotVVM;
 using Xunit;
@@ -773,6 +775,65 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(result, "1");
                 counterButton.Click();
                 AssertUI.InnerTextEquals(result, "2");
+            });
+        }
+
+        [Theory]
+        [InlineData("butNo",8)]
+        [InlineData("butVM", 8)]
+        [InlineData("butData", 1, "innerProp")]
+        [InlineData("butData2", 1, "dataContext")]
+        [InlineData("butCol", 3, "repeater")]
+        [InlineData("validationTarget-butNo", 8)]
+        [InlineData("validationTarget-butVM", 2)]
+        [InlineData("validationTarget-butData", 1)]
+        public void Feature_Validation_ValidationPathResolving(string buttonSelector,int expectedCountOfValidationAsterisks, string sectionSelector=null)
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidationPropertyPathResolving);
+                var button = browser.Single(buttonSelector, SelectByDataUi);
+
+                if (sectionSelector!=null)
+                {
+
+                    var section = browser.Single(sectionSelector, SelectByDataUi);
+                    var validationAsterisks = section.FindElements("span", By.TagName);
+                    foreach (var asterisk in validationAsterisks) AssertUI.IsNotDisplayed(asterisk);
+                    button.Click();
+                    foreach (var asterisk in validationAsterisks) AssertUI.IsDisplayed(asterisk);
+                }
+                else
+                {
+                    button.Click();
+                }
+
+
+
+                var countOfDisplayedAsterisks = browser.FindElements("div > span",By.CssSelector).Where(t=>t.GetInnerText()=="*").Count(t => t.IsDisplayed());
+                Assert.Equal(expectedCountOfValidationAsterisks, countOfDisplayedAsterisks);
+            });
+        }
+        [Theory]
+        [InlineData("/Text")]
+        [InlineData("/Data/Text")]
+        [InlineData("/Data2/Text")]
+        [InlineData("/Col/0/Text")]
+        [InlineData("/Col/1/Text")]
+        [InlineData("/Col/2/Text")]
+        public void Feature_Validation_ValidationPaths(string validationPath)
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidationPropertyPathResolving);
+
+                var button = browser.Single("butNo", SelectByDataUi);
+                var validationPathsList = browser.Single("ValidationErrors", SelectBy.Id);
+
+                button.Click();
+
+                var validationPaths = validationPathsList.FindElements("li").Select(t => t.GetInnerText()).ToList();
+
+                bool hasCorrectValidationPath = validationPaths.Any(t => t == validationPath);
+                Assert.True(hasCorrectValidationPath,"None of the errors has expected validation path.");
             });
         }
 

@@ -147,7 +147,7 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
             wasInterrupted: false
         };
     } else if (result.action == "validationErrors") {
-        showValidationErrorsFromServer(context, options.validationTargetPath!, result, options);
+        showValidationErrorsFromServer(result, options);
         throw new DotvvmPostbackError({
             type: "validation",
             response,
@@ -200,7 +200,7 @@ function processPassedId(id: any, context: any): string {
         return id;
     }
     if (!isPrimitive(id) && id.expr) {
-        return evaluator.evaluateOnViewModel(context, id.expr);
+        return evaluator.evaluateExpression(context, id.expr);
     }
     throw new Error("invalid argument");
 }

@@ -172,7 +172,7 @@ namespace DotVVM.Samples.Tests.Feature
             moduleButtons[1].Click();
             browser.WaitFor(() => AssertLastLogEntry(log, prefix + ": commands.oneArg(10)"), 8000);
             moduleButtons[2].Click();
-            browser.WaitFor(() => AssertLastLogEntry(log, prefix + @": commands.twoArgs(10, {""Test"":""Hello"",""$type"":""4wHojaMvtyXNR6aMRsZ4cWanOvA=""})"), 8000);
+            browser.WaitFor(() => AssertLastLogEntry(log, prefix + @": commands.twoArgs(10, {""validationErrors"":[],""Test"":""Hello"",""$type"":""4wHojaMvtyXNR6aMRsZ4cWanOvA=""})"), 8000);
 
             AssertUI.InnerTextEquals(incrementValue, "0");
             moduleButtons[3].Click();

@@ -4,8 +4,7 @@
 <dot:Content ContentPlaceHolderID="MainContent">
     <h1>IncludeErrorsFromTarget when PropertyPath of a custom validation error IS null</h1>
     <h2>The target is therefore the LoginInfo object</h2>
-    <div Validator.InvalidCssClass="has-error"
-         Validation.Target="{value: Login}">
+    <div Validator.InvalidCssClass="has-error" >
         <form Visible="{value: !Login.IsLoggedIn}">
             <label Validator.Value="{value: Login.Nick}">
                 Nick:

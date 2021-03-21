@@ -9,6 +9,6 @@ namespace DotVVM.Framework.ViewModel.Validation
 {
     public interface IViewModelValidator
     {
-        IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel);
+        IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewMode, string validationTargetPath = "/");
     }
 }

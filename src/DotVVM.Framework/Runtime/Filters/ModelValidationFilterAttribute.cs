@@ -1,4 +1,5 @@
 #nullable enable
+using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
@@ -18,11 +19,13 @@ namespace DotVVM.Framework.Runtime.Filters
             if (!string.IsNullOrEmpty(context.ModelState.ValidationTargetPath))
             {
                 var validator = context.Services.GetRequiredService<IViewModelValidator>();
-                context.ModelState.Errors.AddRange(validator.ValidateViewModel(context.ModelState.ValidationTarget));
+                var errors = validator.ValidateViewModel(context.ModelState.ValidationTarget);
+                context.ModelState.Errors.AddRange(errors);
+
                 context.FailOnInvalidModelState();
             }
 
             return TaskUtils.GetCompletedTask();
         }
-    }
+    } 
 }
