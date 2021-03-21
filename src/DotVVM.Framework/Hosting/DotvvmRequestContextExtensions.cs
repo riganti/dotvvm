@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Hosting;
+using DotVVM.Core.Storage;
 
 public static class DotvvmRequestContextExtensions
 {

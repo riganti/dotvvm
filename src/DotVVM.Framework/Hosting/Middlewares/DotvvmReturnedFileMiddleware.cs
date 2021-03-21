@@ -3,9 +3,9 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using DotVVM.Framework.Storage;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Core.Storage;
 #if DotNetCore
 using Microsoft.Net.Http.Headers;
 #else

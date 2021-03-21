@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DotVVM.Core.Storage;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 using Newtonsoft.Json;

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.Core.Storage;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Storage;
 using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.FileUpload

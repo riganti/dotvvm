@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace DotVVM.Framework.Storage
+namespace DotVVM.Core.Storage
 {
     public interface IUploadedFileStorage
     {
