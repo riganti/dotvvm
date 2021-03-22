@@ -8,6 +8,7 @@ import { coerce } from "./metadata/coercer";
 import { patchViewModel } from "./postback/updater";
 import { wrapObservable } from "./utils/knockout";
 import { logWarning } from "./utils/logging";
+import { observable } from "knockout";
 
 export const currentStateSymbol = Symbol("currentState")
 const notifySymbol = Symbol("notify")
@@ -137,7 +138,14 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
     public [internalPropCache]: { [name: string]: (KnockoutObservable<any> & UpdatableObjectExtensions<any>) | null } = {}
 
     public [updatePropertySymbol](propName: keyof DeepReadonly<T>, valUpdate: StateUpdate<any>) {
-        this[updateSymbol](vm => { if(vm==null) return null; return Object.freeze({ ...vm, [propName]: valUpdate(vm[propName]) }) as any})
+        this[updateSymbol](vm => {
+            if(vm==null)
+                return vm
+            const newValue = valUpdate(vm[propName])
+            if (vm[propName] === newValue)
+                return vm
+            return Object.freeze({ ...vm, [propName]: newValue }) as any
+        })
     }
 
     constructor(initialValue: T, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata | undefined, additionalProperties: string[]) {
