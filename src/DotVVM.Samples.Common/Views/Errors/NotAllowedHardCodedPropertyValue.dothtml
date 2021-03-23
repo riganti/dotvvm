@@ -1,12 +1,12 @@
-@viewModel DotVVM.Framework.Controls.EmptyData, DotVVM.Framework
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.EmptyViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Hello from DotVVM!</title>
+	<title>Hello from DotVVM!</title>
 </head>
 <body>
 	<!--  Do not change property value - used in test as identifier -->
-	<dot:CheckBox  Checked="NotAllowedHardCodedValue" />
+	<dot:CheckBox Checked="NotAllowedHardCodedValue" />
 </body>
 </html>

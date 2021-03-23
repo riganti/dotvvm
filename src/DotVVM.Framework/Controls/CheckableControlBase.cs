@@ -1,8 +1,14 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -61,6 +67,23 @@ namespace DotVVM.Framework.Controls
 
         public static readonly DotvvmProperty EnabledProperty =
             DotvvmPropertyWithFallback.Register<bool, CheckableControlBase>(nameof(Enabled), FormControls.EnabledProperty);
+
+
+        /// <summary>
+        /// Gets or sets a property that retrieves an unique key for the CheckedValue so it can be compared with objects in the CheckedItems collection. This property must be set if the value of the CheckedValue property is not a primitive type.
+        /// </summary>
+        [MarkupOptions(AllowHardCodedValue = false)]
+        [ControlPropertyBindingDataContextChange(nameof(CheckedValue))]
+        [BindingCompilationRequirements(required: new[] { typeof(SelectorItemBindingProperty) })]
+        public IValueBinding? ItemKeyBinding
+        {
+            get { return (IValueBinding?)GetValue(ItemKeyBindingProperty); }
+            set { SetValue(ItemKeyBindingProperty, value); }
+        }
+        public static readonly DotvvmProperty ItemKeyBindingProperty
+            = DotvvmProperty.Register<IValueBinding, CheckableControlBase>(c => c.ItemKeyBinding);
+
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CheckableControlBase"/> class.
@@ -142,9 +165,42 @@ namespace DotVVM.Framework.Controls
             });
         }
 
+        protected virtual void RenderCheckedValueComparerAttribute(IHtmlWriter writer)
+        {
+            if (ItemKeyBinding != null)
+            {
+                writer.AddKnockoutDataBind("checkedValueComparer",
+                    ItemKeyBinding.GetProperty<SelectorItemBindingProperty>().Expression.KnockoutExpression.FormatKnockoutScript(this, GetBinding(CheckedValueProperty)!));
+            }
+        }
+
         /// <summary>
         /// Renders the input tag.
         /// </summary>
         protected abstract void RenderInputTag(IHtmlWriter writer);
+
+
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        {
+            var keySelector = control.GetValue(ItemKeyBindingProperty)?.GetResultType();
+            if (keySelector != null)
+            {
+                if (!ReflectionUtils.IsPrimitiveType(keySelector))
+                {
+                    yield return new ControlUsageError("The ItemKeyBinding property must return a value of a primitive type.");
+                }
+                else if (!(control.GetValue(CheckedValueProperty) is ResolvedPropertyBinding))
+                {
+                    yield return new ControlUsageError("The ItemKeyBinding property can be only used when CheckedValue is a binding.");
+                }
+            }
+
+            var from = control.GetValue(CheckedValueProperty)?.GetResultType();
+            if (keySelector == null && from != null && !ReflectionUtils.IsPrimitiveType(from))
+            {
+                yield return new ControlUsageError("The ItemKeyBinding property must be specified when the CheckedValue property contains a complex type.");
+            }
+        }
     }
 }

@@ -24,24 +24,30 @@ namespace DotVVM.Samples.Tests.Feature
                 {
                     // load section 1 and validate it
                     switchTestsButton.Click();
+                    browser.WaitForPostback();
                     AssertUI.TextEquals(browser.Single("*[data-id=validator1]"), "");
 
                     postbackButton.Click();
+                    browser.WaitForPostback();
                     AssertUI.TextEquals(browser.Single("*[data-id=validator1]"), "The Text field is not a valid e-mail address.");
 
                     browser.Single("input[data-id=textbox1]").Clear();
                     postbackButton.Click();
+                    browser.WaitForPostback();
                     AssertUI.TextEquals(browser.Single("*[data-id=validator1]"), "The Text field is required. The Text field is not a valid e-mail address.");
 
                     // load section 2 and validate it
                     switchTestsButton.Click();
+                    browser.WaitForPostback();
                     AssertUI.TextEquals(browser.Single("*[data-id=validator2]"), "");
 
                     postbackButton.Click();
+                    browser.WaitForPostback();
                     AssertUI.TextEquals(browser.Single("*[data-id=validator2]"), "The Text field is required. The Text field is not a valid e-mail address.");
 
                     browser.Single("input[data-id=textbox2]").SendKeys("t@t.tt");
                     postbackButton.Click();
+                    browser.WaitForPostback();
                     AssertUI.TextEquals(browser.Single("*[data-id=validator2]"), "");
                 }
             });
@@ -92,7 +98,7 @@ namespace DotVVM.Samples.Tests.Feature
                     {
                         textBox.Clear().SendKeys(value);
                     }
-                    button.Click();
+                    button.Click().Wait();
                 }
                 void assertValidators(params bool[] states)
                 {
@@ -116,7 +122,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // empty field - Required validators should be triggered
                 testValue("");
-                assertValidators(false, false, true, false, true);
+                assertValidators(false, false, true, true, true);
 
                 // correct value - no error
                 testValue("06/14/2017 8:10:35 AM");
@@ -220,30 +226,40 @@ namespace DotVVM.Samples.Tests.Feature
                 // withnout nested test
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
                 withOutBtn.Click();
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
                 withBtn.Click();
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 AssertUI.InnerTextEquals(browser.First("li"), "The NullableIntegerProperty field is required.");
                 withOutBtn.Click();                                         // should not remove the validation error
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 browser.First(".nullableInt input[type=text]").SendKeys("5");
                 withOutBtn.Click();                                         // should not remove the validation error
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 withBtn.Click();                                            // should remove the validation error
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
 
                 // with nested test
                 browser.First(".nullableInt input[type=text]").Clear();
                 addNestedBtn.Click();
+                browser.WaitForPostback();
                 withOutBtn.Click();
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
                 withBtn.Click();
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(4);
                 browser.ElementAt(".nullableInt input[type=text]", 0).SendKeys("10");
                 browser.ElementAt(".nullableInt input[type=text]", 2).SendKeys("10");
                 withOutBtn.Click();
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(4);
                 withBtn.Click();
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(2);
 
                 // wrong value test
@@ -258,8 +274,10 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.First(".NaNTest input[type=text]").SendKeys("55");
                 browser.ElementAt(".nullableInt input[type=text]", 1).SendKeys("15");
                 withOutBtn.Click();
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(2);
                 withBtn.Click();
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
             });
         }
@@ -562,7 +580,6 @@ namespace DotVVM.Samples.Tests.Feature
         /// Feature_s the validation rules load on postback.
         /// </summary>
         [Fact]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.Timeout(120000)]
         public void Feature_Validation_ValidationRulesLoadOnPostback()
         {
             RunInAllBrowsers(browser => {
@@ -677,19 +694,25 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_Localization);
 
+                browser.ElementAt("button[type=submit]", 0).Click();
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(browser.Single(".result-code"), "This comes from resource file!");
+                    AssertUI.TextEquals(browser.Single(".result-markup"), "This comes from resource file!");
+                }, 2000);
 
+                browser.ElementAt("a", 1).Click().Wait();
                 browser.ElementAt("button[type=submit]", 0).Click();
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(browser.Single(".result-code"), "Tohle pochází z resource souboru!");
+                    AssertUI.TextEquals(browser.Single(".result-markup"), "Tohle pochází z resource souboru!");
+                }, 2000);
 
-                AssertUI.TextEquals(browser.Single(".result-code"), "This comes from resource file!");
-                AssertUI.TextEquals(browser.Single(".result-markup"), "This comes from resource file!");
-                browser.ElementAt("a", 1).Click();
+                browser.ElementAt("a", 0).Click().Wait();
                 browser.ElementAt("button[type=submit]", 0).Click();
-                AssertUI.TextEquals(browser.Single(".result-code"), "Tohle pochází z resource souboru!");
-                AssertUI.TextEquals(browser.Single(".result-markup"), "Tohle pochází z resource souboru!");
-                browser.ElementAt("a", 0).Click();
-                browser.ElementAt("button[type=submit]", 0).Click();
-                AssertUI.TextEquals(browser.Single(".result-code"), "This comes from resource file!");
-                AssertUI.TextEquals(browser.Single(".result-markup"), "This comes from resource file!");
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(browser.Single(".result-code"), "This comes from resource file!");
+                    AssertUI.TextEquals(browser.Single(".result-markup"), "This comes from resource file!");
+                }, 2000);
             });
         }
 
@@ -704,25 +727,34 @@ namespace DotVVM.Samples.Tests.Feature
                 var textbox = browser.First("[data-ui=name-textbox]");
 
                 submitButton.Click();
-                Assert.Equal(0, validationSummary.Children.Count);
-                AssertUI.HasNotClass(textbox, "has-error");
+                browser.WaitFor(() => {
+                    Assert.Equal(0, validationSummary.Children.Count);
+                    AssertUI.HasNotClass(textbox, "has-error");
+                }, 4000);
 
                 textbox.SendKeys("123");
                 submitButton.Click();
-                AssertUI.HasClass(textbox, "has-error");
-                Assert.Equal(1, validationSummary.Children.Count);
+                browser.WaitFor(() => {
+                    AssertUI.HasClass(textbox, "has-error");
+                    Assert.Equal(1, validationSummary.Children.Count);
+                }, 4000);
 
                 textbox.Clear();
                 textbox.SendKeys("Ted");
                 submitButton.Click();
-                Assert.Equal(0, validationSummary.Children.Count);
-                AssertUI.HasNotClass(textbox, "has-error");
+                browser.WaitFor(() => {
+                    Assert.Equal(0, validationSummary.Children.Count);
+                    AssertUI.HasNotClass(textbox, "has-error");
+                }, 4000);
 
                 textbox.SendKeys("123");
                 browser.First("[data-ui=notation-checkbox]").Click();
                 submitButton.Click();
-                AssertUI.HasClass(textbox, "has-error");
-                Assert.Equal(1, validationSummary.Children.Count);
+
+                browser.WaitFor(() => {
+                    AssertUI.HasClass(textbox, "has-error");
+                    Assert.Equal(1, validationSummary.Children.Count);
+                }, 4000);
             });
         }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -230,7 +231,13 @@ namespace DotVVM.Framework.Compilation
         public static DotvvmProperty[][] _ViewImmutableObjects_PropArray = new DotvvmProperty[16][];
         public static object[][] _ViewImmutableObjects_ObjArray = new object[16][];
         public static object[] _ViewImmutableObjects = new object[16];
-        private static Func<Type, bool> IsImmutableObject = t => typeof(IBinding).IsAssignableFrom(t) || t.GetCustomAttribute<HandleAsImmutableObjectInDotvvmPropertyAttribute>() is object;
+        private static Type[] ImmutableContainers = new [] {
+            typeof(ImmutableArray<>), typeof(ImmutableList<>), typeof(ImmutableDictionary<,>), typeof(ImmutableHashSet<>), typeof(ImmutableQueue<>), typeof(ImmutableSortedDictionary<,>), typeof(ImmutableSortedSet<>), typeof(ImmutableStack<>)
+        };
+        private static Func<Type, bool> IsImmutableObject =
+            t => typeof(IBinding).IsAssignableFrom(t)
+              || t.GetCustomAttribute<HandleAsImmutableObjectInDotvvmPropertyAttribute>() is object
+              || t.IsGenericType && ImmutableContainers.Contains(t.GetGenericTypeDefinition()) && t.GenericTypeArguments.All(IsImmutableObject);
         private static int _viewObjectsCount = 0;
         private static int _viewObjectsCount_PropArray = 0;
         private static int _viewObjectsCount_ObjArray = 0;

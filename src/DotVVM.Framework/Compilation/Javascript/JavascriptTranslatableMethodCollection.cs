@@ -15,6 +15,25 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
+    public class DelegateInvokeMethodTranslator : IJavascriptMethodTranslator
+    {
+        public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] arguments, MethodInfo method)
+        {
+            if (method == null)
+            {
+                return null;
+            }
+
+            if (method.Name == "Invoke" && typeof(Delegate).IsAssignableFrom(method.DeclaringType))
+            {
+                var invocationTargetExpresionCall = context.JsExpression().Invoke(arguments.Select(a => a.JsExpression()));
+                return invocationTargetExpresionCall
+                    .WithAnnotation(new ResultIsPromiseAnnotation(a=> new JsIdentifierExpression("Promise").Member("resolve").Invoke(a)));
+            }
+            return null;
+        }
+    }
+
     public class JavascriptTranslatableMethodCollection : IJavascriptMethodTranslator
     {
         public readonly Dictionary<MethodInfo, IJavascriptMethodTranslator> MethodTranslators = new Dictionary<MethodInfo, IJavascriptMethodTranslator>();
@@ -114,6 +133,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 new GenericMethodCompiler(args => new JsBinaryExpression(args[0], BinaryOperatorType.NotEqual, new JsLiteral(null))));
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
 
+            JsBindingApi.RegisterJavascriptTranslations(this);
             BindingApi.RegisterJavascriptTranslations(this);
             BindingPageInfo.RegisterJavascriptTranslations(this);
             BindingCollectionInfo.RegisterJavascriptTranslations(this);
@@ -179,22 +199,27 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             var whereMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(m => m.Name == "Where" && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)).Single();
-            AddMethodTranslator(whereMethod, translator: new GenericMethodCompiler(
-                args => args[1].Member("filter").Invoke(args[2]).WithAnnotation(ResultIsObservableAnnotation.Instance)));
+            AddMethodTranslator(whereMethod, translator: new GenericMethodCompiler(args => args[1].Member("filter").Invoke(args[2])));
 
             var selectMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(m => m.Name == "Select" && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)).Single();
-            AddMethodTranslator(selectMethod, translator: new GenericMethodCompiler(
-                args => args[1].Member("map").Invoke(args[2]).WithAnnotation(ResultIsObservableAnnotation.Instance)));
+            AddMethodTranslator(selectMethod, translator: new GenericMethodCompiler(args => args[1].Member("map").Invoke(args[2])));
         }
 
         public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] args, MethodInfo method)
         {
-            if (method == null) return null;
+            if (method == null)
+            {
+                return null;
+            }
+
             {
                 if (MethodTranslators.TryGetValue(method, out var translator) && translator.TryTranslateCall(context, args, method) is JsExpression result)
+                {
                     return result;
+                }
             }
+
             if (method.IsGenericMethod)
             {
                 var genericMethod = method.GetGenericMethodDefinition();

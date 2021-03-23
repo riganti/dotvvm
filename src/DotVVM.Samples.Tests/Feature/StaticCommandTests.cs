@@ -283,5 +283,24 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(browser.ElementAt(".food", 2), "Vindaloo");
             });
         }
+
+        [Fact]
+        public void Feature_StaticCommand_CustomAwaiter()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_CustomAwaitable);
+
+                var testButton = browser.First("[data-ui=test]");
+                var clearButton = browser.First("[data-ui=clear]");
+
+                clearButton.Click();
+                testButton.Click();
+
+                browser.WaitFor(() => {
+                    var testElement = browser.First("[data-ui=result]");
+                    Assert.Equal("Test ok", testElement.GetInnerText());
+                }, 1000);
+            });
+        }
     }
 }

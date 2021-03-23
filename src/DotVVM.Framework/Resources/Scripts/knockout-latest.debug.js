@@ -206,21 +206,26 @@ ko.utils = (function () {
             }
         },
 
-        arrayIndexOf: function (array, item, unwrapArrayElements) {
-            if (unwrapArrayElements) {
-                var itemToCompare = ko.utils.peekObservable(item);
-                for (var i = 0, j = array.length; i < j; i++)
-                    if (ko.utils.peekObservable(array[i]) === itemToCompare)
-                        return i;
-            }
-            else {
-                if (typeof Array.prototype.indexOf == "function")
-                    return Array.prototype.indexOf.call(array, item);
-                for (var i = 0, j = array.length; i < j; i++)
-                    if (array[i] === item)
-                        return i;
-            }
-            return -1;
+        arrayIndexOf: function (array, item, unwrapArrayElements, comparer) {
+            comparer = comparer || function(i) { return i; };
+            return ko.dependencyDetection.ignore(function () {
+                if (unwrapArrayElements) {
+                    var itemToCompare = comparer(ko.utils.unwrapObservable(item));
+                    for (var i = 0, j = array.length; i < j; i++)
+                        if (comparer(ko.utils.unwrapObservable(array[i])) === itemToCompare)
+                            return i;
+                }
+                else {
+                    if (!comparer && typeof Array.prototype.indexOf == "function")
+                        return Array.prototype.indexOf.call(array, item);
+
+                    var itemToCompare = comparer(item);
+                    for (var i = 0, j = array.length; i < j; i++)
+                        if (comparer(array[i]) === itemToCompare)
+                            return i;
+                }
+                return -1;
+            });
         },
 
         arrayFirst: function (array, predicate, predicateOwner) {
@@ -280,8 +285,8 @@ ko.utils = (function () {
             return array;
         },
 
-        addOrRemoveItem: function(array, value, included, wrapArrayElements) {
-            var existingEntryIndex = ko.utils.arrayIndexOf(ko.utils.peekObservable(array), value, wrapArrayElements);
+        addOrRemoveItem: function(array, value, included, wrapArrayElements, comparer) {
+            var existingEntryIndex = ko.utils.arrayIndexOf(ko.utils.peekObservable(array), value, wrapArrayElements, comparer);
 
             if (wrapArrayElements && !ko.isObservable(value)) {
                 value = ko.observable(value);
@@ -505,8 +510,7 @@ ko.utils = (function () {
                 ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
                     element.detachEvent(attachEventName, attachEventHandler);
                 });
-            } else
-                throw new Error("Browser doesn't support addEventListener or attachEvent");
+            }
         },
 
         triggerEvent: function (element, eventType) {
@@ -1648,15 +1652,19 @@ ko.exportSymbol('computedContext.registerDependency', ko.computedContext.registe
 ko.exportSymbol('ignoreDependencies', ko.ignoreDependencies = ko.dependencyDetection.ignore);
 var observableLatestValue = ko.utils.createSymbolOrString('_latestValue');
 
-ko.observable = function (initialValue) {
+ko.observable = function (initialValue, validator) {
     function observable() {
         if (arguments.length > 0) {
             // Write
 
             // Ignore writes if the value hasn't changed
             if (observable.isDifferent(observable[observableLatestValue], arguments[0])) {
+                var newValue = arguments[0];
+                if (validator) {
+                    newValue = validator.call(observable, newValue);
+                }
                 observable.valueWillMutate();
-                observable[observableLatestValue] = arguments[0];
+                observable[observableLatestValue] = newValue;
                 observable.valueHasMutated();
             }
             return this; // Permits chained assignments
@@ -1729,13 +1737,13 @@ ko.exportSymbol('observable.fn', observableFn);
 ko.exportProperty(observableFn, 'peek', observableFn.peek);
 ko.exportProperty(observableFn, 'valueHasMutated', observableFn.valueHasMutated);
 ko.exportProperty(observableFn, 'valueWillMutate', observableFn.valueWillMutate);
-ko.observableArray = function (initialValues) {
+ko.observableArray = function (initialValues, validator) {
     initialValues = initialValues || [];
 
     if (typeof initialValues != 'object' || !('length' in initialValues))
         throw new Error("The argument passed when initializing an observable array must be an array, or null, or undefined.");
 
-    var result = ko.observable(initialValues);
+    var result = ko.observable(initialValues, validator);
     ko.utils.setPrototypeOfOrExtend(result, ko.observableArray['fn']);
     return result.extend({'trackArrayChanges':true});
 };
@@ -4222,8 +4230,8 @@ ko.exportSymbol('bindingProvider', ko.bindingProvider);
             // The config is the value of an AMD module
             if (amdRequire || window['require']) {
                 (amdRequire || window['require'])([config['require']], function (module) {
-                    if (module && typeof module === 'object' && module.__esModule && module.default) {
-                        module = module.default;
+                    if (module && typeof module === 'object' && module.__esModule && module['default']) {
+                        module = module['default'];
                     }
                     callback(module);
                 });
@@ -4540,6 +4548,9 @@ ko.bindingHandlers['checked'] = {
         // This binding tells the control that the items in the array will be observable objects
         var checkedArrayContainsObservables = allBindings['has']('checkedArrayContainsObservables') && allBindings.get('checkedArrayContainsObservables');
 
+        // custom comparer for checkedValue
+        var checkedValueComparer = allBindings.get('checkedValueComparer');
+
         function updateModel() {
             // This updates the model value from the view value.
             // It runs in response to DOM events (click) and changes in checkedValue.
@@ -4569,13 +4580,13 @@ ko.bindingHandlers['checked'] = {
                     // currently checked, replace the old elem value with the new elem value
                     // in the model array.
                     if (isChecked) {
-                        ko.utils.addOrRemoveItem(writableValue, elemValue, true, checkedArrayContainsObservables);
-                        ko.utils.addOrRemoveItem(writableValue, saveOldValue, false, checkedArrayContainsObservables);
+                        ko.utils.addOrRemoveItem(writableValue, elemValue, true, checkedArrayContainsObservables, checkedValueComparer);
+                        ko.utils.addOrRemoveItem(writableValue, saveOldValue, false, checkedArrayContainsObservables, checkedValueComparer);
                     }
                 } else {
                     // When we're responding to the user having checked/unchecked a checkbox,
                     // add/remove the element value to the model array.
-                    ko.utils.addOrRemoveItem(writableValue, elemValue, isChecked, checkedArrayContainsObservables);
+                    ko.utils.addOrRemoveItem(writableValue, elemValue, isChecked, checkedArrayContainsObservables, checkedValueComparer);
                 }
 
                 if (rawValueIsNonArrayObservable && ko.isWriteableObservable(modelValue)) {
@@ -4589,6 +4600,8 @@ ko.bindingHandlers['checked'] = {
                         elemValue = undefined;
                     }
                 }
+                if (typeof elemValue === "object") {
+                }
                 ko.expressionRewriting.writeValueToProperty(modelValue, allBindings, 'checked', elemValue, true);
             }
         };
@@ -4601,7 +4614,7 @@ ko.bindingHandlers['checked'] = {
 
             if (valueIsArray) {
                 // When a checkbox is bound to an array, being checked represents its value being present in that array
-                element.checked = ko.utils.arrayIndexOf(modelValue, elemValue, checkedArrayContainsObservables) >= 0;
+                element.checked = ko.utils.arrayIndexOf(modelValue, elemValue, checkedArrayContainsObservables, checkedValueComparer) >= 0;
                 oldElemValue = elemValue;
             } else if (isCheckbox && elemValue === undefined) {
                 // When a checkbox is bound to any other value (not an array) and "checkedValue" is not defined,
@@ -4609,7 +4622,11 @@ ko.bindingHandlers['checked'] = {
                 element.checked = !!modelValue;
             } else {
                 // Otherwise, being checked means that the checkbox or radio button's value corresponds to the model value
-                element.checked = (checkedValue() === modelValue);
+                if (checkedValueComparer) {
+                    element.checked = (checkedValueComparer(checkedValue()) === checkedValueComparer(modelValue));
+                } else {
+                    element.checked = (checkedValue() === modelValue);
+                }
             }
         };
 
@@ -5564,9 +5581,12 @@ ko.bindingHandlers['value'] = {
 
         if (tagName === "select") {
             var updateFromModelComputed;
+            ko.utils.registerEventHandler(element, "change", function() {
+                if (updateFromModelComputed)
+                    valueUpdateHandler()
+            });
             ko.bindingEvent.subscribe(element, ko.bindingEvent.childrenComplete, function () {
                 if (!updateFromModelComputed) {
-                    ko.utils.registerEventHandler(element, "change", valueUpdateHandler);
                     updateFromModelComputed = ko.computed(updateFromModel, null, { disposeWhenNodeIsRemoved: element });
                 } else if (allBindings.get('valueAllowUnset')) {
                     updateFromModel();
@@ -6155,10 +6175,13 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
     };
 
     var templateComputedDomDataKey = ko.utils.domData.nextKey();
-    function disposeOldComputedAndStoreNewOne(element, newComputed) {
+    function disposeOldComputed(element) {
         var oldComputed = ko.utils.domData.get(element, templateComputedDomDataKey);
         if (oldComputed && (typeof (oldComputed.dispose) == 'function'))
             oldComputed.dispose();
+    }
+
+    function storeNewComputed(element, newComputed) {
         ko.utils.domData.set(element, templateComputedDomDataKey, (newComputed && (!newComputed.isActive || newComputed.isActive())) ? newComputed : undefined);
     }
 
@@ -6226,6 +6249,9 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
                 }
             }
 
+            // Dispose the old computed before displaying data since in some cases, the code below can cause the old computed to update
+            disposeOldComputed(element);
+
             if ('foreach' in options) {
                 // Render once for each data point (treating data set as empty if shouldDisplay==false)
                 var dataArray = (shouldDisplay && options['foreach']) || [];
@@ -6245,8 +6271,7 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
                 templateComputed = ko.renderTemplate(template, innerBindingContext, options, element);
             }
 
-            // It only makes sense to have a single template computed per element (otherwise which one should have its output displayed?)
-            disposeOldComputedAndStoreNewOne(element, templateComputed);
+            storeNewComputed(element, templateComputed);
         }
     };
 
@@ -6581,7 +6606,7 @@ ko.exportSymbol('utils.compareArrays', ko.utils.compareArrays);
         }
 
         // Restore the focused element if it had lost focus
-        if (activeElement && domNode.ownerDocument.activeElement != activeElement) {
+        if (activeElement && domNode.ownerDocument.activeElement != activeElement && typeof activeElement.focus === "function") {
             activeElement.focus();
         }
 

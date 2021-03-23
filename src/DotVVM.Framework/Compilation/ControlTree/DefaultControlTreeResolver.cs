@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
 
             return DataContextStack.Create(
-                ResolvedTypeDescriptor.ToSystemType(viewModelType) ?? typeof(ExpressionHelper.UnknownTypeSentinel),
+                ResolvedTypeDescriptor.ToSystemType(viewModelType) ?? typeof(UnknownTypeSentinel),
                 parentDataContextStack as DataContextStack,
                 namespaceImports, extensionParameters);
         }
@@ -60,6 +60,20 @@ namespace DotVVM.Framework.Compilation.ControlTree
         protected override object? ConvertValue(string value, ITypeDescriptor propertyType)
         {
             return ReflectionUtils.ConvertValue(value, ((ResolvedTypeDescriptor)propertyType).Type);
+        }
+
+        protected override IAbstractControlBuilderDescriptor? ResolveMasterPage(string currentFile, IAbstractDirective masterPageDirective)
+        {
+            try
+            {
+                return controlBuilderFactory.GetControlBuilder(masterPageDirective.Value).descriptor;
+            }
+            catch (Exception e)
+            {
+                // The resolver should not just crash on an invalid directive
+                masterPageDirective.DothtmlNode!.AddError(e.Message);
+                return null;
+            }
         }
     }
 }

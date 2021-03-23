@@ -33,9 +33,7 @@ namespace DotVVM.Framework.Controls
             writer.RenderSelfClosingTag("input");
 
             // init on load
-            var initCode = $@"
-window.dotvvm.init({JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});
-";
+            var initCode = $@"window.dotvvm.init({JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});";
             new InlineScriptResource(initCode, defer: true)
                 .Render(writer, context, "dotvvm-init-script");
 

@@ -1,0 +1,17 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl.CommandPropertiesInMarkupControlViewModel, DotVVM.Samples.Common
+@import DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <sample:Dialog Ok="{staticCommand: Property = TestService.Ok().Result}"/>
+    <span data-ui="result" InnerText="{value: Property}"/>
+</body>
+</html>
+
+

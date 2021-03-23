@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Utils
 
         public static bool IsFullName(string typeName)
             => typeName.Contains(".");
-        
+
         /// <summary>
         /// Gets the property name from lambda expression, e.g. 'a => a.FirstName'
         /// </summary>
@@ -62,13 +62,6 @@ namespace DotVVM.Framework.Utils
                 return type.GetMembers(flags).Concat(type.GetInterfaces().SelectMany(t => t.GetMembers(flags)));
             else
                 return type.GetMembers(flags);
-        }
-
-        public static IEnumerable<MemberInfo> GetAllExtensions(this Type type, BindingFlags flags = BindingFlags.Public | BindingFlags.Static)
-        {
-            foreach (var registeredType in TypeRegistry.GetRegisteredTypesForExtensionMethodsLookup())
-                foreach (var member in registeredType.GetMembers(flags))
-                    yield return member;
         }
 
         /// <summary>
@@ -238,7 +231,7 @@ namespace DotVVM.Framework.Utils
             // convert
             return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
         }
-        
+
         public static Type? GetEnumerableType(this Type collectionType)
         {
             var result = TypeDescriptorUtils.GetCollectionItemType(new ResolvedTypeDescriptor(collectionType));
@@ -269,8 +262,8 @@ namespace DotVVM.Framework.Utils
             typeof (decimal)
         };
 
-        public static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>() { 
-            typeof(string),
+        public static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>() {
+            typeof(string), typeof(char),
             typeof(bool),
             typeof(DateTime), typeof(DateTimeOffset), typeof(TimeSpan),
             typeof(Guid),
@@ -304,9 +297,20 @@ namespace DotVVM.Framework.Utils
         public static bool IsDictionary(Type type)
         {
             return type.GetInterfaces().Any(x => x.IsGenericType
-                    && x.GetGenericTypeDefinition() == typeof(IDictionary<,>));
+              && x.GetGenericTypeDefinition() == typeof(IDictionary<,>));
         }
+        public static bool ImplementsGenericDefinition(Type type, Type genericInterfaceDefinition)
+        {
+            if (!genericInterfaceDefinition.IsInterface || !genericInterfaceDefinition.IsGenericTypeDefinition)
+            {
+                throw new ArgumentNullException($"'{genericInterfaceDefinition.FullName}' is not a generic interface definition.");
+            }
 
+            return type.GetInterfaces()
+                .Concat(new[] { type })
+                .Where(i => i.IsGenericType)
+                .Any(i => i.GetGenericTypeDefinition() == genericInterfaceDefinition);
+        }
         public static bool IsCollection(Type type)
         {
             return type != typeof(string) && IsEnumerable(type) && !IsDictionary(type);

@@ -265,7 +265,7 @@ namespace DotVVM.Framework.Controls
         public ICollection<object?> Values => throw new NotImplementedException();
 
         public int Count => throw new NotImplementedException("Count cannot be implemented effectively, please use Enumerable.Count method to explicitly express willingness to use O(n) time to get a count.");
-        int ICollection<KeyValuePair<DotvvmProperty, object?>>.Count => this.Count();
+        int ICollection<KeyValuePair<DotvvmProperty, object?>>.Count => control.properties.Count();
 
         public bool IsReadOnly => false;
 

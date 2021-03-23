@@ -3,8 +3,8 @@ import * as gate from "./gate";
 import { isElementDisabled } from "../utils/dom";
 import { getPostbackQueue, enterActivePostback, leaveActivePostback, runNextInQueue } from "./queue";
 import { getLastStartedPostbackId } from "./postbackCore";
-import { getIsViewModelUpdating } from "./updater";
 import { DotvvmPostbackError } from "../shared-classes";
+import { getIsViewModelUpdating } from "../state-manager";
 
 let postbackCount = 0;
 
@@ -56,7 +56,7 @@ export const concurrencyDeny = (o: any) => ({
             return Promise.reject(new DotvvmPostbackError({
                 type: "handler",
                 handlerName: "concurrency-deny",
-                message: "An postback is already running"
+                message: "A postback is already running"
             }));
         }
         return commonConcurrencyHandler(next(), options, queue);
@@ -95,8 +95,10 @@ export const suppressOnUpdating = (o: any) => ({
     }
 })
 
-export function isPostbackStillActive(id: number) {
-    return getLastStartedPostbackId() == id && !gate.isPostbackDisabled(id)
+export function isPostbackStillActive(options: PostbackOptions) {
+    const id = options.postbackId
+    // For postback and SPA navigation, we reject it if another postback has already started to prevent flashes of new data that will be soon overridden anyway.
+    return (options.commandType == "staticCommand" || getLastStartedPostbackId() == id) && !gate.isPostbackDisabled(id)
 }
 
 function commonConcurrencyHandler<T>(promise: Promise<PostbackCommitFunction>, options: PostbackOptions, queueName: string): Promise<PostbackCommitFunction> {
@@ -113,7 +115,7 @@ function commonConcurrencyHandler<T>(promise: Promise<PostbackCommitFunction>, o
     return promise.then(innerCommit => {
         return async () => {
             try {
-                if (isPostbackStillActive(options.postbackId)) {
+                if (isPostbackStillActive(options)) {
                     return await innerCommit();
                 } else {
                     throw new DotvvmPostbackError({ type: "commit" })

@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Selenium.Core;
 using Xunit;
 using Xunit.Abstractions;

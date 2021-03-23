@@ -2,9 +2,11 @@ import * as uri from '../utils/uri';
 import * as http from '../postback/http';
 import { getViewModel } from '../dotvvm-base';
 import * as events from '../events';
+import * as spaEvents from './events';
 import { navigateCore } from './navigation';
 import * as counter from '../postback/counter';
 import { options } from 'knockout';
+import { DotvvmPostbackError } from '../shared-classes';
 
 export const isSpaReady = ko.observable(false);
 
@@ -57,9 +59,9 @@ function handleHashChangeWithHistory(spaPlaceHolders: NodeListOf<HTMLElement>, i
         );
     } else {
         isSpaReady(true);
-        spaPlaceHolders.forEach(function (element) {
-            element.style.display = "";
-        });
+        for (let i = 0; i < spaPlaceHolders.length; i++) {      // IE11 doesn't have forEach on spaPlaceHolders
+            spaPlaceHolders[i].style.display = "";
+        }
 
         const currentRelativeUrl = location.pathname + location.search + location.hash
         replacePage(currentRelativeUrl);
@@ -98,18 +100,38 @@ export async function handleSpaNavigationCore(url: string | null, sender?: HTMLE
 
     } catch (err) {
 
-        // execute error handler
-        const errArgs: DotvvmErrorEventArgs = {
-            ...options,
-            error: err,
-            response: (err.reason as any).response,
-            serverResponseObject: (err.reason as any).responseObject,
-            handled: false
-        };
-        events.error.trigger(errArgs);
-        if (!errArgs.handled) {
-            console.error("SPA Navigation Error", errArgs);
+        if (err instanceof DotvvmPostbackError) {
+            const commonArgs = {
+                ...options,
+                serverResponseObject: (err.reason as any).responseObject,
+                response: (err.reason as any).response,
+                error: err
+            }
+            // trigger spaNavigationFailed event
+            let spaNavigationFailedArgs: DotvvmSpaNavigationFailedEventArgs = { 
+                ...commonArgs, 
+                url
+            };
+            spaEvents.spaNavigationFailed.trigger(spaNavigationFailedArgs);
+
+            // execute error handler
+            const errArgs: DotvvmErrorEventArgs = {
+                ...commonArgs,
+                handled: false
+            };
+            events.error.trigger(errArgs);
+            if (!errArgs.handled) {
+                console.error("Unexpected exception during SPA navigation", errArgs);
+            } else {
+                return {
+                    ...options,
+                    url
+                }
+            }
+        } else {
+            console.error("Unexpected exception during SPA navigation", err)
         }
+
         throw err;
     }
 }

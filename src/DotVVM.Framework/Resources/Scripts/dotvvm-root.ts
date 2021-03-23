@@ -1,4 +1,4 @@
-import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture } from "./dotvvm-base"
+import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture, getState, getStateManager } from "./dotvvm-base"
 import addPolyfills from './DotVVM.Polyfills'
 import * as events from './events'
 import * as spa from "./spa/spa"
@@ -21,6 +21,8 @@ import * as spaEvents from './spa/events'
 import { isPostbackRunning } from "./postback/internal-handlers"
 import * as api from './api/api'
 import * as eventHub from './api/eventHub'
+import * as viewModuleManager from './viewModules/viewModuleManager'
+import { notifyModuleLoaded } from './postback/resourceLoader'
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -30,7 +32,6 @@ if (window["dotvvm"]) {
     throw new Error('DotVVM is already loaded!')
 }
 function init(culture: string) {
-
     initCore(culture)
     registerBindingHandlers()
     validation.init()
@@ -75,11 +76,15 @@ const dotvvmExports = {
     isPostbackRunning,
     events: (compileConstants.isSpa ?
              { ...events, ...spaEvents } :
-             events),
+             events) as (Partial<typeof spaEvents> & typeof events),
     viewModels: {
         root: {
             get viewModel() { return getViewModel() }
         }
+    },
+    get state() { return getState() },
+    patchState(a: any) {
+        getStateManager().patchState(a)
     },
     viewModelObservables: {
         get root() { return getViewModelObservable(); }
@@ -89,6 +94,15 @@ const dotvvmExports = {
         serializeDate,
         parseDate,
         deserialize
+    },
+    viewModules: {
+        registerOne: viewModuleManager.registerViewModule,
+        init: viewModuleManager.initViewModule,
+        call: viewModuleManager.callViewModuleCommand,
+        registerMany: viewModuleManager.registerViewModules
+    },
+    resourceLoader: {
+        notifyModuleLoaded
     }
 }
 
@@ -98,7 +112,7 @@ if (compileConstants.isSpa) {
 }
 
 declare global {
-    const dotvvm: typeof dotvvmExports;
+    const dotvvm: typeof dotvvmExports & {isSpaReady?: typeof isSpaReady, handleSpaNavigation?: typeof handleSpaNavigation};
 
     interface Window {
         dotvvm: typeof dotvvmExports
