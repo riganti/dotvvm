@@ -3,6 +3,7 @@ using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions.Attributes;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -40,6 +41,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_DefaultMode);
+                browser.WaitUntilDotvvmInited();
 
                 // try the long action interrupted by the short one
                 browser.Single(longActionSelector).Click();
@@ -52,11 +54,12 @@ namespace DotVVM.Samples.Tests.Feature
                 // the postback index should be 1 now (because of short action)
                 AssertUI.InnerTextEquals(postbackIndexSpan, "1");
                 AssertUI.InnerTextEquals(lastActionSpan, "short");
-
-                // the result of the long action should be canceled, the counter shouldn't increase
                 browser.Wait(6000);
-                AssertUI.InnerTextEquals(postbackIndexSpan, "1");
-                AssertUI.InnerTextEquals(lastActionSpan, "short");
+                // the result of the long action should be canceled, the counter shouldn't increase
+                browser.WaitFor(()=> {
+                    AssertUI.InnerTextEquals(postbackIndexSpan, "1");
+                    AssertUI.InnerTextEquals(lastActionSpan, "short");
+                },3000);
             });
         }
 
@@ -230,6 +233,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_RedirectPostbackQueueSpa);
+                browser.WaitUntilDotvvmInited();
 
                 browser.ElementAt("input[type=button]", 0).Click();
                 browser.ElementAt("input[type=button]", 2).Click();

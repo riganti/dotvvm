@@ -224,7 +224,7 @@ namespace DotVVM.Framework.Configuration
 
         private static void RegisterApiDependencies(DotvvmConfiguration configuration, string identifier, string jsApiClientFile, JsNode jsinitializer, ApiGroupDescriptor descriptor)
         {
-            configuration.Resources.Register("apiClient" + identifier, new ScriptResource(defer: true, location: new FileResourceLocation(jsApiClientFile)));
+            configuration.Resources.Register("apiClient" + identifier, new ScriptResource(location: new FileResourceLocation(jsApiClientFile)));
             configuration.Resources.Register("apiInit" + identifier, new InlineScriptResource(defer: true, code: jsinitializer.FormatScript(niceMode: configuration.Debug)) { Dependencies = new[] { "dotvvm", "apiClient" + identifier } });
 
             configuration.Markup.DefaultExtensionParameters.Add(new ApiExtensionParameter(identifier, descriptor));

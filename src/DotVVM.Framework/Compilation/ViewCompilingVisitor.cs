@@ -54,7 +54,7 @@ namespace DotVVM.Framework.Compilation
             }
 
             emitter.UseType(view.Metadata.Type);
-            emitter.BuilderDataContextType = view.DataContextTypeStack?.DataContextType;
+            emitter.Descriptor = view.ControlBuilderDescriptor;
             // build the statements
             emitter.PushNewMethod(nameof(IControlBuilder.BuildControl), typeof(DotvvmControl), emitter.EmitControlBuilderParameters());
 

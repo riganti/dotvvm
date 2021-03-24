@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Compilation.Static
     {
         public StaticView(
             string viewPath,
-            ImmutableArray<Report> reports = default,
+            ImmutableArray<CompilationReport> reports = default,
             SyntaxTree? syntaxTree = default,
             ImmutableArray<MetadataReference> requiredReferences = default,
             Assembly? assembly = default,
@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Compilation.Static
             Type? dataContextType = default)
         {
             ViewPath = viewPath;
-            Reports = reports.IsDefault ? ImmutableArray.Create<Report>() : reports;
+            Reports = reports.IsDefault ? ImmutableArray.Create<CompilationReport>() : reports;
             SyntaxTree = syntaxTree;
             RequiredReferences = requiredReferences.IsDefault
                 ? ImmutableArray.Create<MetadataReference>()
@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Compilation.Static
 
         public string ViewPath { get; }
 
-        public ImmutableArray<Report> Reports { get; }
+        public ImmutableArray<CompilationReport> Reports { get; }
 
         public SyntaxTree? SyntaxTree { get; }
 
@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Compilation.Static
 
         public Type? DataContextType { get; }
 
-        public StaticView WithReports(IEnumerable<Report> reports)
+        public StaticView WithReports(IEnumerable<CompilationReport> reports)
         {
             return new StaticView(
                 ViewPath,

@@ -9,13 +9,13 @@ using NSwag;
 
 namespace DotVVM.CommandLine.OpenApi
 {
-    public class DotvmmCSharpTypeNameGenerator : DefaultTypeNameGenerator
+    public class DotvvmCSharpTypeNameGenerator : DefaultTypeNameGenerator
     {
         private readonly CSharpGeneratorSettings settings;
         private readonly OpenApiDocument document;
         private Dictionary<string, string> pairs;
 
-        public DotvmmCSharpTypeNameGenerator(CSharpGeneratorSettings settings, OpenApiDocument document)
+        public DotvvmCSharpTypeNameGenerator(CSharpGeneratorSettings settings, OpenApiDocument document)
         {
             this.settings = settings;
             this.document = document;

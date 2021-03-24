@@ -5,8 +5,8 @@ using System.IO;
 
 namespace DotVVM.Framework.Compilation.Static
 {
-    internal interface IReportLogger
+    internal interface ICompilationReportLogger
     {
-        void Log(Stream stream, IEnumerable<Report> reports);
+        void Log(Stream stream, IEnumerable<CompilationReport> reports);
     }
 }

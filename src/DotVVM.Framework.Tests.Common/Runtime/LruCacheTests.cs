@@ -84,14 +84,16 @@ namespace DotVVM.Framework.Tests.Common.Runtime
             // because of the timer, there might a bug that prevents extinction from the managed heap by GC
 
             WeakReference<SimpleLruDictionary<object, object>> create() =>
-                new WeakReference<SimpleLruDictionary<object, object>>(new SimpleLruDictionary<object, object>(10, TimeSpan.FromMilliseconds(100)));
+                new WeakReference<SimpleLruDictionary<object, object>>(new SimpleLruDictionary<object, object>(10, TimeSpan.FromMilliseconds(32)));
             bool hasValue(WeakReference<SimpleLruDictionary<object, object>> wr) => wr.TryGetTarget(out _);
             var dict = create();
             var counter = 0;
             while (hasValue(dict))
             {
-                GC.Collect();
-                Assert.IsTrue(counter < 10); // wut, no Assert.LessThan?
+                Thread.Sleep(32);
+                GC.Collect(2, GCCollectionMode.Forced);
+                Thread.Sleep(32);
+                Assert.IsTrue(counter < 30); // wut, no Assert.LessThan?
                 counter++;
             }
         }

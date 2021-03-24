@@ -1,17 +1,18 @@
 import * as evaluator from "../utils/evaluator"
-import { DotvvmValidator } from "./validators"
 import { validators } from './validators'
 import { allErrors, detachAllErrors, ValidationError, getErrors } from "./error"
 import { DotvvmEvent } from '../events'
-import * as dotvvmEvents from '../events'
 import * as spaEvents from '../spa/events'
 import { postbackHandlers } from "../postback/handlers"
 import { DotvvmValidationContext, ErrorsPropertyName } from "./common"
-import { hasOwnProperty, isPrimitive, keys } from "../utils/objects"
-import { validateType } from "../serialization/typeValidation"
+import { isPrimitive, keys } from "../utils/objects"
 import { elementActions } from "./actions"
-import { getValidationRules } from "../dotvvm-base"
 import { DotvvmPostbackError } from "../shared-classes"
+import { getObjectTypeInfo } from "../metadata/typeMap"
+import { tryCoerce } from "../metadata/coercer"
+import { primitiveTypes } from "../metadata/primitiveTypes"
+import { lastSetErrorSymbol } from "../state-manager"
+import { logError } from "../utils/logging"
 
 type ValidationSummaryBinding = {
     target: KnockoutObservable<any>,
@@ -51,7 +52,7 @@ const createValidationHandler = (path: string) => ({
             });
 
             if (allErrors.length > 0) {
-                console.log("Validation failed: postback aborted; errors: ", allErrors);
+                logError("validation", "Validation failed: postback aborted; errors: ", allErrors);
                 return Promise.reject(new DotvvmPostbackError({ type: "handler", handlerName: "validation", message: "Validation failed" }))
             }
         }
@@ -113,14 +114,16 @@ function validateViewModel(viewModel: any): void {
     if (ko.isObservable(viewModel)) {
         viewModel = ko.unwrap(viewModel);
     }
-    if (!viewModel) {
+    if (!viewModel || typeof viewModel !== "object") {
         return;
     }
 
     // find validation rules for the property type
-    const rootRules = getValidationRules();
-    const type = ko.unwrap(viewModel.$type);
-    const rules = rootRules[type] || {};
+    const typeId = ko.unwrap(viewModel.$type);
+    let typeInfo;
+    if (typeId) {
+        typeInfo = getObjectTypeInfo(typeId);
+    }
 
     // validate all properties
     for (const propertyName of keys(viewModel)) {
@@ -136,34 +139,62 @@ function validateViewModel(viewModel: any): void {
         const propertyValue = observable();
 
         // run validators
-        if (hasOwnProperty(rules, propertyName)) {
-            validateProperty(viewModel, observable, propertyValue, rules[propertyName]);
+        const propInfo = typeInfo?.properties[propertyName];
+    
+        if (propInfo?.validationRules) {
+            validateProperty(viewModel, observable, propertyValue, propInfo.validationRules);
         }
+        
+        validateRecursive(propertyName, observable, propertyValue, propInfo?.type || { type: "dynamic" });
+    }
+}
 
-        // check the value is even valid for the given type
-        const options = viewModel[propertyName + "$options"];
-        if (options
-            && options.type
-            && getErrors(observable).length == 0
-            && !validateType(propertyValue, options.type)) {
-            ValidationError.attach(`The value of property ${propertyName} (${propertyValue}) is invalid value for type ${options.type}.`, observable);
+function validateRecursive(propertyName: string, observable: KnockoutObservable<any>, propertyValue: any, type: TypeDefinition) {
+    const lastSetError: CoerceResult = (observable as any)[lastSetErrorSymbol];
+    if (lastSetError && lastSetError.isError) {
+        ValidationError.attach(lastSetError.message, observable);
+    }
+    
+    if (Array.isArray(type)) {
+        if (!propertyValue) return;
+        let i = 0;
+        for (const item of propertyValue) {
+            validateRecursive("[" + i + "]", item, ko.unwrap(item), type[0]);
+            i++;
         }
-
-        if (!propertyValue) {
-            continue;
-        }
-
-        // recurse
-        if (Array.isArray(propertyValue)) {
-            // handle collections
-            for (const item of propertyValue) {
-                validateViewModel(item);
-            }
-        }
-        else if (propertyValue instanceof Object) {
-            // handle nested objects
+        
+    } else if (typeof type === "string") {
+        if (!(type in primitiveTypes)) {
             validateViewModel(propertyValue);
         }
+
+    } else if (typeof type === "object") {
+        if (type.type === "dynamic") {
+
+            if (Array.isArray(propertyValue)) {
+                let i = 0;
+                for (const item of propertyValue) {
+                    validateRecursive("[" + i + "]", item, ko.unwrap(item), { type: "dynamic" });
+                    i++;
+                }
+            } else if (propertyValue && typeof propertyValue === "object") {
+                if (propertyValue["$type"]) {
+                    validateViewModel(propertyValue);
+                } else {
+                    for (const k of keys(propertyValue)) {
+                        validateRecursive(k, ko.unwrap(propertyValue[k]), propertyValue[k], { type: "dynamic" });
+                    }
+                }
+            }
+
+        }
+    }
+}
+
+function validateArray(propertyValue: any[], type: TypeDefinition) {
+    // handle collections
+    for (const item of propertyValue) {
+        validateViewModel(item);
     }
 }
 
@@ -180,17 +211,6 @@ function validateProperty(viewModel: any, property: KnockoutObservable<any>, val
 
         if (!validator.isValid(value, context, property)) {
             ValidationError.attach(rule.errorMessage, property);
-        }
-    }
-}
-
-/** Adds validation rules from the serverResponseObject into our global validation rule collection */
-export function mergeValidationRules(serverResponseObject: any) {
-    const newRules = serverResponseObject.validationRules;
-    if (newRules) {
-        const existingRules = getValidationRules();
-        for (const type of keys(newRules)) {
-            existingRules[type] = newRules[type];
         }
     }
 }

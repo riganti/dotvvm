@@ -5,7 +5,6 @@ using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
-using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -21,7 +20,7 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.ContainsElement(gridView, "thead");
                 AssertUI.ContainsElement(gridView, "tbody");
             }, browser => {
-                Assert.AreEqual(0, browser.FindElements("gridView", this.SelectByDataUi).Count);
+                Assert.Equal(0, browser.FindElements("gridView", this.SelectByDataUi).Count);
             });
         }
 
@@ -38,8 +37,8 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.IsDisplayed(message);
                 AssertUI.TextEquals(message, "There are no Customers to display");
             }, browser => {
-                Assert.AreEqual(0, browser.FindElements(gridViewDataUi).Count);
-                Assert.AreEqual(0, browser.FindElements(messageDataUi).Count);
+                Assert.Equal(0, browser.FindElements(gridViewDataUi).Count);
+                Assert.Equal(0, browser.FindElements(messageDataUi).Count);
             });
         }
 
@@ -52,7 +51,7 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.IsDisplayed(literal);
                 AssertUI.TextEquals(literal, "Test 1");
             }, browser => {
-                Assert.AreEqual(0, browser.FindElements("literal", this.SelectByDataUi).Count);
+                Assert.Equal(0, browser.FindElements("literal", this.SelectByDataUi).Count);
             });
         }
 
@@ -62,13 +61,13 @@ namespace DotVVM.Samples.Tests.Control
         {
             CheckIncludeInPage(browser => {
                 var literals = browser.FindElements("literal-repeater", this.SelectByDataUi);
-                Assert.AreEqual(3, literals.Count);
+                Assert.Equal(3, literals.Count);
                 foreach (var literal in literals)
                 {
                     AssertUI.IsDisplayed(literal);
                 }
             }, browser => {
-                Assert.AreEqual(0, browser.FindElements("literal-repeater", this.SelectByDataUi).Count);
+                Assert.Equal(0, browser.FindElements("literal-repeater", this.SelectByDataUi).Count);
             });
         }
 
@@ -96,8 +95,10 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage);
                 browser.Wait();
                 beforeSwitch(browser);
-                browser.Single("switch-includeInPage", this.SelectByDataUi).Click().Wait();
-                afterSwitch(browser);
+                browser.Single("switch-includeInPage", this.SelectByDataUi).Click();
+                browser.WaitFor(() => {
+                    afterSwitch(browser);
+                }, 2000);
             });
         }
 
@@ -106,9 +107,9 @@ namespace DotVVM.Samples.Tests.Control
             CheckIncludeInPage(browser => {
                 var repeater = browser.First(dataUi, this.SelectByDataUi);
                 AssertUI.IsDisplayed(repeater);
-                Assert.AreEqual(childrenCount, repeater.Children.Count);
+                repeater.Children.ThrowIfDifferentCountThan(childrenCount);
             }, browser => {
-                Assert.AreEqual(0, browser.FindElements(dataUi, this.SelectByDataUi).Count);
+                browser.FindElements(dataUi, this.SelectByDataUi).ThrowIfDifferentCountThan(0);
             });
         }
 
@@ -127,7 +128,7 @@ namespace DotVVM.Samples.Tests.Control
                     AssertUI.IsDisplayed(textBox);
                 }
             }, browser => {
-                Assert.AreEqual(0, browser.FindElements(dataUi, this.SelectByDataUi).Count);
+                browser.FindElements(dataUi, this.SelectByDataUi).ThrowIfDifferentCountThan(0);
             });
         }
 
