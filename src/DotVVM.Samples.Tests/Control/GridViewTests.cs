@@ -18,8 +18,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_GridView_GridViewInlineEditingValidation()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingValidation);
                 browser.Driver.Manage().Window.Maximize();
 
@@ -73,8 +72,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_GridView_GridViewStaticCommand()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewStaticCommand);
                 browser.Wait();
 
@@ -94,8 +92,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_GridView_GridViewInlineEditingValidation_GridViewInlineEditingFormat()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingValidation);
 
                 //Get rows
@@ -123,8 +120,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_GridView_GridViewInlineEditingPrimaryKeyGuid()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingPrimaryKeyGuid);
                 //Get rows
                 var rows = browser.First("table tbody");
@@ -168,8 +164,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_GridView_GridViewInlineEditingPrimaryKeyString()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingPrimaryKeyString);
                 //Get rows
                 var rows = browser.First("table tbody");
@@ -217,8 +212,7 @@ namespace DotVVM.Samples.Tests.Control
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing))]
         public void Control_GridView_GridViewInlineEditing(string path, int tableID)
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(path);
 
                 // get table
@@ -262,8 +256,7 @@ namespace DotVVM.Samples.Tests.Control
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing))]
         public void Control_GridView_GridViewInlineEditing_PagingWhenEditing(string path, int tableID)
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.Refresh();
                 browser.NavigateToUrl(path);
 
@@ -314,12 +307,10 @@ namespace DotVVM.Samples.Tests.Control
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewServerRender))]
         public void Control_GridView_GridViewPagingSortingBase(string path)
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(path);
 
-                System.Action performTest = () =>
-                {
+                System.Action performTest = () => {
                     // make sure that thirs row's first cell is yellow
                     AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), s => s.Equals(""));
                     AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", 2).ElementAt("td", 0), s => s.Equals("alternate"));
@@ -404,8 +395,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_GridView_GridViewRowDecorators()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators);
                 browser.ElementAt("table", 0).FindElements("tr").ThrowIfDifferentCountThan(6);
                 browser.ElementAt("table", 1).FindElements("tr").ThrowIfDifferentCountThan(6);
@@ -449,8 +439,7 @@ namespace DotVVM.Samples.Tests.Control
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators))]
         public void Control_GridView_GridViewRowDecorators_ClickPropagation()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators);
                 browser.Wait();
 
@@ -485,8 +474,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_GridView_ColumnVisible()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_ColumnVisible);
                 browser.Wait();
 
@@ -531,8 +519,7 @@ namespace DotVVM.Samples.Tests.Control
             const int ColumnCount = 28;
             const string FirstCell = "FirstName0";
             const string LastCell = "DataZ999";
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_LargeGrid);
 
                 // Check Row and Column count
@@ -640,45 +627,60 @@ namespace DotVVM.Samples.Tests.Control
                 var sortDescending = browser.Single(".result-sortdescending");
 
                 // click the Name column in the first table
-                tables[0].ElementAt("th", 1).Single("a").Click().Wait();
-                AssertUI.TextEquals(sortExpression, "Name");
-                AssertUI.TextEquals(sortDescending, "false");
+                tables[0].ElementAt("th", 1).Single("a").Click();
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(sortExpression, "Name");
+                    AssertUI.TextEquals(sortDescending, "false");
+                }, 5000);
 
                 // click the Name column in the first table again to change sort direction
-                tables[0].ElementAt("th", 1).Single("a").Click().Wait();
-                AssertUI.TextEquals(sortExpression, "Name");
-                AssertUI.TextEquals(sortDescending, "true");
+                tables[0].ElementAt("th", 1).Single("a").Click();
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(sortExpression, "Name");
+                    AssertUI.TextEquals(sortDescending, "true");
+                }, 5000);
 
                 // click the Message received column in the first table
-                tables[0].ElementAt("th", 3).Single("a").Click().Wait();
-                AssertUI.TextEquals(sortExpression, "MessageReceived");
-                AssertUI.TextEquals(sortDescending, "false");
+                tables[0].ElementAt("th", 3).Single("a").Click();
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(sortExpression, "MessageReceived");
+                    AssertUI.TextEquals(sortDescending, "false");
+                }, 5000);
 
                 // click the Message received column in the first table again to change sort direction
-                tables[0].ElementAt("th", 3).Single("a").Click().Wait();
-                AssertUI.TextEquals(sortExpression, "MessageReceived");
-                AssertUI.TextEquals(sortDescending, "true");
-
+                tables[0].ElementAt("th", 3).Single("a").Click();
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(sortExpression, "MessageReceived");
+                    AssertUI.TextEquals(sortDescending, "true");
+                }, 5000);
 
                 // click the Name column in the second table
-                tables[1].ElementAt("th", 1).Single("a").Click().Wait();
-                AssertUI.TextEquals(sortExpression, "Name");
-                AssertUI.TextEquals(sortDescending, "false");
+                tables[1].ElementAt("th", 1).Single("a").Click();
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(sortExpression, "Name");
+                    AssertUI.TextEquals(sortDescending, "false");
+                }, 5000);
 
                 // click the Name column in the second table again - sort direction should remain unchanged
-                tables[1].ElementAt("th", 1).Single("a").Click().Wait();
-                AssertUI.TextEquals(sortExpression, "Name");
-                AssertUI.TextEquals(sortDescending, "false");
+                tables[1].ElementAt("th", 1).Single("a").Click();
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(sortExpression, "Name");
+                    AssertUI.TextEquals(sortDescending, "false");
+                }, 5000);
 
                 // click the Message received column in the first table
-                tables[1].ElementAt("th", 3).Single("a").Click().Wait();
-                AssertUI.TextEquals(sortExpression, "MessageReceived");
-                AssertUI.TextEquals(sortDescending, "false");
+                tables[1].ElementAt("th", 3).Single("a").Click();
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(sortExpression, "MessageReceived");
+                    AssertUI.TextEquals(sortDescending, "false");
+                }, 5000);
 
                 // click the Message received column in the second table again - sort direction should remain unchanged
-                tables[1].ElementAt("th", 3).Single("a").Click().Wait();
-                AssertUI.TextEquals(sortExpression, "MessageReceived");
-                AssertUI.TextEquals(sortDescending, "false");
+                tables[1].ElementAt("th", 3).Single("a").Click();
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(sortExpression, "MessageReceived");
+                    AssertUI.TextEquals(sortDescending, "false");
+                }, 5000);
             });
         }
 

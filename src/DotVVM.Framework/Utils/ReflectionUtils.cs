@@ -240,7 +240,7 @@ namespace DotVVM.Framework.Utils
         };
 
         public static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>() {
-            typeof(string),
+            typeof(string), typeof(char),
             typeof(bool),
             typeof(DateTime), typeof(DateTimeOffset), typeof(TimeSpan),
             typeof(Guid),

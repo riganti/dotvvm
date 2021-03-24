@@ -36,6 +36,7 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
         [DataRow(typeof(Dictionary<string, string>), "[\"Nso/tlXRjzKLze7DMpSAA6GNexA=\"]")]
         [DataRow(typeof(IDictionary<string, string>), "[\"Nso/tlXRjzKLze7DMpSAA6GNexA=\"]")]
         [DataRow(typeof(Dictionary<int, int>), "[\"ZuVnwt9Sk9jxAHfC1MSsFdXXlx8=\"]")]
+        [DataRow(typeof(Dictionary<char, object>), "[\"I09vfu0z+ptnAzAp42DrzT4w8Os=\"]")]
         [DataRow(typeof(IDictionary<int, int>), "[\"ZuVnwt9Sk9jxAHfC1MSsFdXXlx8=\"]")]
         [DataRow(typeof(Dictionary<object, object>), "[\"JodJCQ9XEOJq1WapjZvsnQQiRH8=\"]")]
         [DataRow(typeof(IDictionary<object, object>), "[\"JodJCQ9XEOJq1WapjZvsnQQiRH8=\"]")]

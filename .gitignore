@@ -211,3 +211,5 @@ FakesAssemblies/
 *.binlog
 /src/DotVVM.Framework/.vs/VSWorkspaceState.json
 /src/Tools/npm/dotvvm-types/*.d.ts
+/src/DotVVM.Framework/junit.xml
+src/DotVVM.Framework/package-lock.json

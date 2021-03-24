@@ -12,6 +12,7 @@ import { getObjectTypeInfo } from "../metadata/typeMap"
 import { tryCoerce } from "../metadata/coercer"
 import { primitiveTypes } from "../metadata/primitiveTypes"
 import { lastSetErrorSymbol } from "../state-manager"
+import { logError } from "../utils/logging"
 
 type ValidationSummaryBinding = {
     target: KnockoutObservable<any>,
@@ -51,7 +52,7 @@ const createValidationHandler = (path: string) => ({
             });
 
             if (allErrors.length > 0) {
-                console.log("Validation failed: postback aborted; errors: ", allErrors);
+                logError("validation", "Validation failed: postback aborted; errors: ", allErrors);
                 return Promise.reject(new DotvvmPostbackError({ type: "handler", handlerName: "validation", message: "Validation failed" }))
             }
         }
