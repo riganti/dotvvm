@@ -151,7 +151,7 @@ namespace DotVVM.Framework.Runtime.Commands
 
             return new FindBindingResult
             {
-                ErrorMessage = bindingInPath ? errorMessage : "Nothing was found inside specified DataContext check if ViewModel is populated.",
+                ErrorMessage = bindingInPath ? errorMessage : "Nothing was found inside specified DataContext. Please check if ViewModel is populated.",
                 CandidateBindings = candidateBindings,
                 Binding = resultBinding,
                 Control = resultControl,
