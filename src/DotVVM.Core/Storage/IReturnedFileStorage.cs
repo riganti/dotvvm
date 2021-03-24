@@ -9,17 +9,17 @@ namespace DotVVM.Core.Storage
         /// <summary>
         /// Stores the file and returns its unique ID.
         /// </summary>
-        Task<Guid> StoreFileAsync(Stream stream, ReturnedFileMetadata metadata);
+        Task<Guid> StoreFile(Stream stream, ReturnedFileMetadata metadata);
 
         /// <summary>
         /// Gets the file from the storage.
         /// </summary>
-        Task<ReturnedFile> GetFileAsync(Guid fileId);
+        Task<ReturnedFile> GetFile(Guid fileId);
 
         /// <summary>
         /// Deletes the file with the specified ID.
         /// </summary>
-        Task DeleteFileAsync(Guid fileId);
+        Task DeleteFile(Guid fileId);
 
     }
 }
