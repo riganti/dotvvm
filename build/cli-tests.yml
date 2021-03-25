@@ -43,6 +43,10 @@ steps:
     configuration: 'Debug'
 
 ## Prepare test projects
+- task: NuGetAuthenticate@0
+  inputs:
+    forceReinstallCredentialProvider: true
+
 - task: NuGetCommand@2
   displayName: "Restore packages in test projects"
   inputs:
