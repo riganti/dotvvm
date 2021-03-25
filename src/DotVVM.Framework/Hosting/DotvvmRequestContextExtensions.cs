@@ -209,13 +209,13 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Redirects the client to the specified file.
     /// </summary>
-    public static Task ReturnFile(this IDotvvmRequestContext context, byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null) =>
+    public static void ReturnFile(this IDotvvmRequestContext context, byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null) =>
         context.ReturnFile(new MemoryStream(bytes), fileName, mimeType, additionalHeaders, attachmentDispositionType);
 
     /// <summary>
     /// Redirects the client to the specified file.
     /// </summary>
-    public static async Task ReturnFile(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null)
+    public static void ReturnFile(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null)
     {
         var returnedFileStorage = context.Services.GetService<IReturnedFileStorage>();
 
@@ -233,7 +233,7 @@ public static class DotvvmRequestContextExtensions
             AttachmentDispositionType = attachmentDispositionType ?? "attachment"
         };
 
-        var generatedFileId = await returnedFileStorage.StoreFile(stream, metadata);
+        var generatedFileId = returnedFileStorage.StoreFileAsync(stream, metadata).Result;
         context.SetRedirectResponse(context.TranslateVirtualPath("~/dotvvmReturnedFile?id=" + generatedFileId));
         throw new DotvvmInterruptRequestExecutionException(InterruptReason.ReturnFile, fileName);
     }

@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Storage
             return SecureGuidGenerator.GenerateGuid();
         }
 
-        public async Task<Guid> StoreFile(Stream stream, ReturnedFileMetadata metadata)
+        public async Task<Guid> StoreFileAsync(Stream stream, ReturnedFileMetadata metadata)
         {
             var id = GenerateFileId();
             var dataFilePath = GetDataFilePath(id);
@@ -100,7 +100,7 @@ namespace DotVVM.Framework.Storage
             return Path.Combine(TempDirectory, id + ".metadata");
         }
 
-        public Task<ReturnedFile> GetFile(Guid id)
+        public Task<ReturnedFile> GetFileAsync(Guid id)
         {
             var metadataJson = File.ReadAllText(GetMetadataFilePath(id), Encoding.UTF8);
             var settings = DefaultSerializerSettingsProvider.Instance.Settings;
@@ -111,7 +111,7 @@ namespace DotVVM.Framework.Storage
             return Task.FromResult(new ReturnedFile(stream, metadata));
         }
 
-        public Task DeleteFile(Guid id)
+        public Task DeleteFileAsync(Guid id)
         {
             try
             {

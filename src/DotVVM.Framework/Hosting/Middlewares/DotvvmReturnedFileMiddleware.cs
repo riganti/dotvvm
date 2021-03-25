@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
         {
             var id = Guid.Parse(context.Request.Query["id"]);
 
-            var returnedFile = await returnedFileStorage.GetFile(id);
+            var returnedFile = await returnedFileStorage.GetFileAsync(id);
             using (var stream = returnedFile.Stream)
             {
 #if DotNetCore
