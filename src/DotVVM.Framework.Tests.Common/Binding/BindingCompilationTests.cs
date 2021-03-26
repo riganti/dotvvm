@@ -192,6 +192,19 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("Method(item => item.Length > 0)", typeof(string))]
+        [DataRow("Method((intArg, boolArg) => (intArg > 0 && boolArg) ? \"ok\" : \"nok\")", typeof(int), typeof(bool), typeof(string))]
+
+        public void BindingCompiler_SimpleMethodInference(string expr, params Type[] instantiations)
+        {
+            var viewModel = new TestTypeInference();
+            var typeArgs = (ExecuteBinding(expr, viewModel) as IEnumerable<Type>).ToArray();
+
+            for (var argIndex = 0; argIndex < typeArgs.Length; argIndex++)
+                Assert.AreEqual(instantiations[argIndex], typeArgs[argIndex]);
+        }
+
+        [TestMethod]
         [DataRow("GetFirstGenericArgType(Tuple)", typeof(int))]
         [DataRow("Enumerable.Where(LongArray, item => item % 2 == 0)", typeof(long))]
         [DataRow("Enumerable.Select(LongArray, item => -item)", typeof(long), typeof(long))]
@@ -218,6 +231,19 @@ namespace DotVVM.Framework.Tests.Binding
 
             for (var argIndex = 0; argIndex < genericArgs.Length; argIndex++)
                 Assert.AreEqual(instantiations[argIndex], genericArgs[argIndex]);
+        }
+
+        [TestMethod]
+        [DataRow("Method(item => item != null, Array)", typeof(TestViewModel))]
+        [DataRow("Method(item => item.IntProp, Array)", typeof(TestViewModel), typeof(int))]
+        [DataRow("Method(item => item.StringProp, Array)", typeof(TestViewModel), typeof(string))]
+        public void BindingCompiler_InferenceGenericOutOfOrderArgumentsEvaluation(string expr, params Type[] instantiations)
+        {
+            var viewModel = new TestTypeInference();
+            var typeArgs = (ExecuteBinding(expr, viewModel) as IEnumerable<Type>).ToArray();
+
+            for (var argIndex = 0; argIndex < typeArgs.Length; argIndex++)
+                Assert.AreEqual(instantiations[argIndex], typeArgs[argIndex]);
         }
 
         [TestMethod]
@@ -804,5 +830,21 @@ namespace DotVVM.Framework.Tests.Binding
     public static class TestStaticClass
     {
         public static string GetSomeString() => "string 123";
+    }
+
+    internal class TestTypeInference
+    {
+        public TestViewModel[] Array { get; set; } = new[]
+        {
+            new TestViewModel() { IntProp = 11 },
+            null,
+            new TestViewModel() { IntProp = -1 }
+        };
+
+        public IEnumerable<Type> Method(Func<string, bool> strPredicate) { yield return typeof(string); }
+        public IEnumerable<Type> Method(Func<int, bool, string> func) { yield return typeof(int); yield return typeof(bool); yield return typeof(string); }
+
+        public IEnumerable<Type> Method<T>(Func<T, bool> predicate, IEnumerable<T> collection) { yield return typeof(T); }
+        public IEnumerable<Type> Method<T, U>(Func<T, U> transformer, IEnumerable<T> collection) { yield return typeof(T); yield return typeof(U); }    
     }
 }
