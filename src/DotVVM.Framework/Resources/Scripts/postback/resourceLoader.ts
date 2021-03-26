@@ -1,3 +1,4 @@
+import { logWarning } from "../utils/logging";
 import { createArray, keys } from "../utils/objects";
 
 export type RenderedResourceList = {
@@ -106,7 +107,7 @@ function waitForElementLoaded(element: HTMLElement) {
     return new Promise<void>(resolve => {
         element.addEventListener("load", () => resolve());
         element.addEventListener("error", () => {
-            console.warn(`Error loading resource`, element);
+            logWarning("resource-loader", `Error loading resource`, element);
             resolve();
         });
     });

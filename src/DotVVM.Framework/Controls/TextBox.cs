@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Controls
     [ControlMarkupOptions(AllowContent = false)]
     public class TextBox : HtmlGenericControl
     {
-        private bool isFormattingRequired;
+        private FormatValueType resolvedValueType;
         private string? implicitFormatString;
 
         /// <summary>
@@ -149,8 +149,18 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ValueTypeProperty =
             DotvvmProperty.Register<FormatValueType, TextBox>(t => t.ValueType);
 
-        public static bool NeedsFormatting(IValueBinding? binding) => binding != null && (binding.ResultType == typeof(DateTime) || binding.ResultType == typeof(DateTime?)
-            || binding.ResultType.IsNumericType() || Nullable.GetUnderlyingType(binding.ResultType)?.IsNumericType() == true);
+        public static FormatValueType ResolveValueType(IValueBinding? binding)
+        {
+            if (binding?.ResultType == typeof(DateTime) || binding?.ResultType == typeof(DateTime?))
+            {
+                return FormatValueType.DateTime;
+            }
+            else if (binding != null && (binding.ResultType.IsNumericType() || Nullable.GetUnderlyingType(binding.ResultType)?.IsNumericType() == true))
+            {
+                return FormatValueType.Number;
+            }
+            return FormatValueType.Text;
+        }
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
@@ -163,14 +173,19 @@ namespace DotVVM.Framework.Controls
 
             if (!isTypeImplicitlyFormatted || implicitFormatString != null)
             {
-                isFormattingRequired = !string.IsNullOrEmpty(FormatString) ||
 #pragma warning disable
-                    ValueType != FormatValueType.Text ||
+                if (ValueType != FormatValueType.Text)
+                {
+                    resolvedValueType = ValueType;
+                }
 #pragma warning restore
-                    NeedsFormatting(GetValueBinding(TextProperty));
+                else
+                {
+                    resolvedValueType = ResolveValueType(GetValueBinding(TextProperty));
+                }
             }
 
-            if (isFormattingRequired)
+            if (resolvedValueType != FormatValueType.Text)
             {
                 context.ResourceManager.AddCurrentCultureGlobalizationResource();
             }
@@ -187,14 +202,7 @@ namespace DotVVM.Framework.Controls
             AddTypeAttributeToRender(writer);
             AddChangedPropertyToRender(writer, context);
             AddSelectAllOnFocusPropertyToRender(writer, context);
-            if (isFormattingRequired)
-            {
-                AddFormatBindingToRender(writer, context);
-            }
-            else
-            {
-                AddValueBindingToRender(writer, context);
-            }
+            AddBindingToRender(writer);
         }
 
         /// <summary>
@@ -226,7 +234,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void AddFormatBindingToRender(IHtmlWriter writer, IDotvvmRequestContext context)
+        private void AddBindingToRender(IHtmlWriter writer)
         {
             // if format is set then use different value binding  which supports the format
             writer.AddKnockoutDataBind("dotvvm-textbox-text", this, TextProperty, () => {
@@ -234,30 +242,25 @@ namespace DotVVM.Framework.Controls
                 {
                     writer.AddAttribute("value", Text);
                 }
-            }, UpdateTextOnInput ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
-            var binding = GetValueBinding(TextProperty);
-            var resultType = binding?.ResultType;
-            var formatString = FormatString;
-            if (string.IsNullOrEmpty(formatString))
-            {
-                formatString = implicitFormatString ?? "G";
-            }
+            }, UpdateTextOnInput ? "input" : null, renderEvenInServerRenderingMode: true);
 
-            writer.AddAttribute("data-dotvvm-format", formatString);
+            if (resolvedValueType != FormatValueType.Text)
+            {
+                var formatString = FormatString;
+                if (string.IsNullOrEmpty(formatString))
+                {
+                    formatString = implicitFormatString ?? "G";
+                }
+                writer.AddAttribute("data-dotvvm-format", formatString);
 
-#pragma warning disable
-            if (ValueType != FormatValueType.Text)
-            {
-                writer.AddAttribute("data-dotvvm-value-type", ValueType.ToString().ToLowerInvariant());
-            }
-#pragma warning restore
-            else if (resultType == typeof(DateTime) || resultType == typeof(DateTime?))
-            {
-                writer.AddAttribute("data-dotvvm-value-type", "datetime");
-            }
-            else if (resultType != null && resultType.IsNumericType())
-            {
-                writer.AddAttribute("data-dotvvm-value-type", "number");
+                if (resolvedValueType == FormatValueType.DateTime)
+                {
+                    writer.AddAttribute("data-dotvvm-value-type", "datetime");
+                }
+                else if (resolvedValueType == FormatValueType.Number)
+                {
+                    writer.AddAttribute("data-dotvvm-value-type", "number");
+                }
             }
         }
 
@@ -320,18 +323,6 @@ namespace DotVVM.Framework.Controls
             }
 
             throw new NotSupportedException($"TextBox Type '{ type }' not supported");
-        }
-
-        private void AddValueBindingToRender(IHtmlWriter writer, IDotvvmRequestContext context)
-        {
-            // use standard value binding
-            writer.AddKnockoutDataBind(UpdateTextOnInput ? "textInput" : "value", this, TextProperty, () =>
-            {
-                if (Type != TextBoxType.MultiLine)
-                {
-                    writer.AddAttribute("value", Text);
-                }
-            }, UpdateTextOnInput ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
         }
     }
 }
