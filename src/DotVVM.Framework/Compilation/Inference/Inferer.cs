@@ -1,17 +1,19 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Compilation.Binding;
+using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Inference
 {
     public class Inferer
     {
-        private Stack<InfererContext> stack;
+        private readonly Stack<InfererContext> stack;
 
         public Inferer()
         {
@@ -21,20 +23,14 @@ namespace DotVVM.Framework.Compilation.Inference
         public void BeginFunctionCall(MethodGroupExpression? target, int argsCount)
         {
             if (target != null && target.HasExtensionCandidates)
-                BeginExtensionCall(target, argsCount);
+            {
+                stack.Push(new InfererContext(target, argsCount + 1) { IsExtensionCall = true });
+                SetArgumentInternal(target.Target, 0);
+            }
             else
-                BeginRegularCall(target, argsCount);
-        }
-
-        private void BeginRegularCall(MethodGroupExpression? target, int argsCount)
-        {
-            stack.Push(new InfererContext(target, argsCount));
-        }
-
-        private void BeginExtensionCall(MethodGroupExpression target, int argsCount)
-        {
-            stack.Push(new InfererContext(target, argsCount + 1));
-            SetNextArgument(target.Target);
+            {
+                stack.Push(new InfererContext(target, argsCount));
+            }
         }
 
         public void EndFunctionCall()
@@ -42,16 +38,29 @@ namespace DotVVM.Framework.Compilation.Inference
             stack.Pop();
         }
 
-        public void SetNextArgument(Expression expression)
+        public void SetArgument(Expression expression, int index)
         {
             var context = stack.Peek();
-            var index = context.CurrentArgumentIndex++;
+            index = (context.IsExtensionCall) ? index + 1 : index;
+            SetArgumentInternal(expression, index);
+        }
+
+        private void SetArgumentInternal(Expression expression, int index)
+        {
+            var context = stack.Peek();
+            context.CurrentArgumentIndex = index;
             context.Arguments[index] = expression;
 
             RefineCandidates(index);
         }
 
-        public bool TryInferLambdaParameters(int argsCount, out Type[]? lambdaParameters)
+        public void SetProbedArgumentIndex(int index)
+        {
+            var context = stack.Peek(); 
+            context.CurrentArgumentIndex = (context.IsExtensionCall) ? index + 1 : index;
+        }
+
+        public bool TryInferLambdaParameters(int argsCount, [NotNullWhen(true)] out Type[]? lambdaParameters)
         {
             if (stack.Count == 0)
             {
@@ -66,6 +75,10 @@ namespace DotVVM.Framework.Compilation.Inference
             {
                 var parameter = candidate.GetParameters()[index].ParameterType;
                 if (!ReflectionUtils.IsDelegate(parameter))
+                    continue;
+
+                var delegateParameters = parameter.GetMethod("Invoke", BindingFlags.Public | BindingFlags.Instance).GetParameters();
+                if (delegateParameters.Length != argsCount)
                     continue;
 
                 if (!TryInstantiateLambdaParameters(parameter, argsCount, context.Generics, out var parameters))
@@ -178,7 +191,7 @@ namespace DotVVM.Framework.Compilation.Inference
             return false;
         }
 
-        private bool TryInstantiateLambdaParameters(Type generic, int argsCount, Dictionary<string, Type> generics, out Type[]? instantiation)
+        private bool TryInstantiateLambdaParameters(Type generic, int argsCount, Dictionary<string, Type> generics, [NotNullWhen(true)] out Type[]? instantiation)
         {
             var genericArgs = generic.GetGenericArguments();
             var substitutions = new Type[argsCount];

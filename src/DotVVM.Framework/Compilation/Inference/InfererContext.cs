@@ -11,6 +11,7 @@ namespace DotVVM.Framework.Compilation.Inference
         public Expression[] Arguments { get; set; }
         public Dictionary<string, Type> Generics { get; set; }
         public int CurrentArgumentIndex { get; set; }
+        public bool IsExtensionCall { get; set; }
 
         public InfererContext(MethodGroupExpression? target, int argsCount)
         {

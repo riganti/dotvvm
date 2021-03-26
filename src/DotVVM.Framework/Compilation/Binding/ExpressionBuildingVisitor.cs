@@ -219,14 +219,29 @@ namespace DotVVM.Framework.Compilation.Binding
 
             Inferer.BeginFunctionCall(target as MethodGroupExpression, args.Length);
 
-            for (int i = 0; i < args.Length; i++)
+            var lambdaNodeIndices = new List<int>();
+            // Initially process all nodes that are not lambdas
+            for (var i = 0; i < args.Length; i++)
             {
+                if (node.ArgumentExpressions[i] is LambdaBindingParserNode)
+                {
+                    lambdaNodeIndices.Add(i);
+                    continue;
+                }
+
                 args[i] = HandleErrors(node.ArgumentExpressions[i], Visit)!;
-                Inferer.SetNextArgument(args[i]);
+                Inferer.SetArgument(args[i], i);
             }
-            ThrowOnErrors();
-          
+            // Subsequently process all lambdas
+            foreach (var index in lambdaNodeIndices)
+            {
+                Inferer.SetProbedArgumentIndex(index);
+                args[index] = HandleErrors(node.ArgumentExpressions[index], Visit)!;
+                Inferer.SetArgument(args[index], index);
+            }
+           
             Inferer.EndFunctionCall();
+            ThrowOnErrors();
 
             return memberExpressionFactory.Call(target, args);
         }
@@ -304,7 +319,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
 
             for (var i = 0; i < lambdaParameters.Length; i++)
-                lambdaParameters[i] = (ParameterExpression)HandleErrors(node.ParameterExpressions[i], Visit);
+                lambdaParameters[i] = (ParameterExpression)HandleErrors(node.ParameterExpressions[i], Visit)!;
 
             // Make sure that parameter identifiers are distinct
             if (lambdaParameters.GroupBy(param => param.Name).Any(group => group.Count() > 1))
