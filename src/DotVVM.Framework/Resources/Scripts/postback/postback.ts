@@ -6,6 +6,7 @@ import * as internalHandlers from './internal-handlers';
 import * as events from '../events';
 import * as gate from './gate';
 import { DotvvmPostbackError } from '../shared-classes';
+import { logError } from '../utils/logging';
 
 const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
     internalHandlers.suppressOnDisabledElementHandler,
@@ -84,7 +85,7 @@ export async function postBack(
                 }
                 events.error.trigger(errorEventArgs);
                 if (!errorEventArgs.handled) {
-                    console.error("Postback failed", errorEventArgs);                    
+                    logError("postback", "Postback failed", errorEventArgs);                    
                 } else {
                     return {
                         ...options,
@@ -95,7 +96,7 @@ export async function postBack(
                 }
             }
         } else {
-            console.error("Unexpected exception during postback.", err);
+            logError("postback", "Unexpected exception during postback.", err);
         }
         throw err;
     }
@@ -143,7 +144,7 @@ export async function applyPostbackHandlers(
 
     try {
         const commit = await applyPostbackHandlersCore(saneNext, options, handlers);
-        const result = await commit();
+        const result = await commit(...args);
         return result;
     } catch (err) {
         
@@ -162,7 +163,7 @@ export async function applyPostbackHandlers(
                 events.error.trigger(errorEventArgs);
 
                 if (!errorEventArgs.handled) {
-                    console.error("StaticCommand failed", errorEventArgs);
+                    logError("static-command", "StaticCommand failed", errorEventArgs);
                 } else {
                     return {
                         ...options,
@@ -173,7 +174,7 @@ export async function applyPostbackHandlers(
                 }
             }
         } else {
-            console.error("Unexpected exception during static command.", err);
+            logError("static-command", "Unexpected exception during static command.", err);
         }
         throw err
     }

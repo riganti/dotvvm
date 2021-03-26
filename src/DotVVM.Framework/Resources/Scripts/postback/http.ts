@@ -1,5 +1,6 @@
 import { getVirtualDirectory, getViewModel, getState, getStateManager } from '../dotvvm-base';
 import { DotvvmPostbackError } from '../shared-classes';
+import { logInfoVerbose, logWarning } from '../utils/logging';
 import { keys } from '../utils/objects';
 import { addLeadingSlash, concatUrl } from '../utils/uri';
 
@@ -57,12 +58,12 @@ export async function fetchCsrfToken(): Promise<string> {
             response = await fetch(url);
         }
         catch (err) {
-            console.warn(`CSRF token fetch failed.`);
+            logWarning("postback", `CSRF token fetch failed.`);
             throw new DotvvmPostbackError({ type: "network", err });
         }
 
         if (response.status != 200) {
-            console.warn(`CSRF token fetch failed. HTTP status: ${response.statusText}`);
+            logWarning("postback", `CSRF token fetch failed. HTTP status: ${response.statusText}`);
             throw new DotvvmPostbackError({ type: "csrfToken" });
         }
 
@@ -82,7 +83,7 @@ export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => P
         if (err instanceof DotvvmPostbackError) {
             if (err.reason.type === "serverError") {
                 if (err.reason.responseObject?.action === "invalidCsrfToken") {
-                    console.log("Resending postback due to invalid CSRF token.");
+                    logInfoVerbose("postback", "Resending postback due to invalid CSRF token.");
                     getStateManager().update(u => ({ ...u, $csrfToken: undefined }))
 
                     if (iteration < 3) {

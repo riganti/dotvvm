@@ -7,6 +7,7 @@ import { navigateCore } from './navigation';
 import * as counter from '../postback/counter';
 import { options } from 'knockout';
 import { DotvvmPostbackError } from '../shared-classes';
+import { logError } from '../utils/logging';
 
 export const isSpaReady = ko.observable(false);
 
@@ -59,9 +60,9 @@ function handleHashChangeWithHistory(spaPlaceHolders: NodeListOf<HTMLElement>, i
         );
     } else {
         isSpaReady(true);
-        spaPlaceHolders.forEach(function (element) {
-            element.style.display = "";
-        });
+        for (let i = 0; i < spaPlaceHolders.length; i++) {      // IE11 doesn't have forEach on spaPlaceHolders
+            spaPlaceHolders[i].style.display = "";
+        }
 
         const currentRelativeUrl = location.pathname + location.search + location.hash
         replacePage(currentRelativeUrl);
@@ -121,7 +122,7 @@ export async function handleSpaNavigationCore(url: string | null, sender?: HTMLE
             };
             events.error.trigger(errArgs);
             if (!errArgs.handled) {
-                console.error("Unexpected exception during SPA navigation", errArgs);
+                logError("spa", "Unexpected exception during SPA navigation", errArgs);
             } else {
                 return {
                     ...options,
@@ -129,7 +130,7 @@ export async function handleSpaNavigationCore(url: string | null, sender?: HTMLE
                 }
             }
         } else {
-            console.error("Unexpected exception during SPA navigation", err)
+            logError("spa", "Unexpected exception during SPA navigation", err)
         }
 
         throw err;

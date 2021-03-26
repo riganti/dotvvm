@@ -1,4 +1,5 @@
 import { deserialize } from '../serialization/deserialize'
+import { logWarning } from '../utils/logging';
 import { keys } from '../utils/objects';
 
 function isCommand(value: any, prop: string) {
@@ -15,11 +16,16 @@ function createWrapperComputed<T>(accessor: () => KnockoutObservable<T> | T, pro
             if (ko.isObservable(val)) {
                 val(value);
             } else {
-                console.warn(`Attempted to write to readonly property` + (!propertyDebugInfo ? `` : ` ` + propertyDebugInfo) + `.`);
+                logWarning("binding-handler", `Attempted to write to readonly property` + (!propertyDebugInfo ? `` : ` ` + propertyDebugInfo) + `.`);
             }
         }
     });
     computed["wrappedProperty"] = accessor;
+    Object.defineProperty(computed, "state", {
+        get: () => (accessor() as any || {})["state"],
+        configurable: false,
+        enumerable: false
+    })
     return computed;
 }
 

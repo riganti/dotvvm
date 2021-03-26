@@ -20,6 +20,7 @@ using Newtonsoft.Json.Linq;
 using Microsoft.Owin.Infrastructure;
 using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Routing;
+using System.Runtime.Serialization;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -130,6 +131,18 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.AreEqual("def", result.TupleProperty.Item2.Property1);
         }
 
+        [TestMethod]
+        public void DeserializeDictionaryTest()
+        {
+            var json = SerializeViewModel(new TestViewModel6 {
+                ClassClass = new Dictionary<object, object> { { "obj1", "obj2" } },
+                StructClass= new Dictionary<char, object> { { 'c', "obj" } }
+            });
+            var result = new TestViewModel6();
+            PopulateViewModel(result, json);
+            Assert.AreEqual("obj2", result.ClassClass["obj1"]);
+            Assert.AreEqual("obj", result.StructClass['c']);
+        }
 
         [TestMethod]
         public void ViewModelResponse_CommandResult_Serialized()
@@ -165,7 +178,7 @@ namespace DotVVM.Framework.Tests.Runtime
 
             var responseModel = response["viewModel"].ToObject<TestViewModel2>();
 
-            Assert.IsFalse(response.TryGetValue("commandResult", out var _ ));
+            Assert.IsFalse(response.TryGetValue("commandResult", out var _));
             Assert.AreEqual("a", responseModel.PropertyA);
             Assert.AreEqual(1, responseModel.PropertyB);
         }
@@ -262,7 +275,7 @@ namespace DotVVM.Framework.Tests.Runtime
             });
         }
 
-        private JObject PrepareResponse(object viewModel, object commandResult, Dictionary<string,object> customProperties = null)
+        private JObject PrepareResponse(object viewModel, object commandResult, Dictionary<string, object> customProperties = null)
         {
             context.ViewModel = viewModel;
 
@@ -418,6 +431,15 @@ namespace DotVVM.Framework.Tests.Runtime
 
             [Protect(ProtectMode.EncryptData)]
             public int PropertyB { get; set; }
+        }
+
+
+
+
+        public class TestViewModel6
+        {
+            public Dictionary<char, object> StructClass { get; set; }
+            public Dictionary<object, object> ClassClass { get; set; }
         }
 
 
