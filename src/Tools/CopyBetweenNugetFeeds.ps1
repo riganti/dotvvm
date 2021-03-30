@@ -1,7 +1,8 @@
 Param(
     [string]$version,
     [string]$server, 
-    [string]$internalServer, 
+    [string]$internalServer,    
+    [string]$internalSnupkgServer,
     [string]$apiKey
 )
 
@@ -22,9 +23,8 @@ $webClient = New-Object System.Net.WebClient
 ## Standard packages
 foreach ($package in $packages) {
 
-    $url = "$internalServer/package/" + $packageId + "/" + $version
     $packageId = $package.Package    
-    $snupkgFile = Join-Path $PSScriptRoot ($packageId + "." + $version + ".snupkg")
+
     Write-Host "Downloading $packageId ($version)"
 
     # standard package
@@ -47,14 +47,6 @@ foreach ($package in $packages) {
         Write-Host "Downloaded template located on '$nupkgFile'"
     }
     
-    try {
-      $webClient.DownloadFile($url, $snupkgFile)
-      $snupkgDownloaded = true;
-    }catch {
-      echo "No snupkg package found!"
-      $snupkgDownloaded = false;
-   }
-    
     if ($nupkgFile) {
         # upload 
         Write-Host "Uploading package..."
@@ -64,11 +56,26 @@ foreach ($package in $packages) {
     if ( Test-Path -Path ./tools/packages ) {
         Remove-Item -Recurse -Force ./tools/packages
     }
+
+    # snupkg management
+    
+    $snupkgUrl = "file://$internalSnupkgServer/snupkg/"
+    $snupkgFile = Join-Path $PSScriptRoot ($packageId + "." + $version + ".snupkg")
+
+    try {
+      $webClient.DownloadFile($snupkgUrl, $snupkgFile)
+      $snupkgDownloaded = true;
+    }catch {
+      Write-Host "No snupkg package found!"
+      $snupkgDownloaded = false;
+   }        
     
     if ($snupkgDownloaded==true){
         Write-Host "Uploading snupkg package..."        
         & .\Tools\nuget.exe push $snupkgFile -source $server -apiKey $apiKey
         Remove-Item $nupkgFile    
-        try {Remove-Item $snupkgFile}catch {}
+        try {Remove-Item $snupkgFile}catch {            
+            Write-Host "Unable to cleanup snupkg..."
+        }
     }
 }

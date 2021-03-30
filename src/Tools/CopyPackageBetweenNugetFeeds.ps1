@@ -9,25 +9,37 @@ Param(
 
     $packageId = $package.Package
     $webClient = New-Object System.Net.WebClient
-    $url = "$internalServer/package/" + $packageId + "/" + $version
-    $snupkgUrl = "$internalServer/package/" + $packageId + "/" + $version
+    $url = "$internalServer/package/" + $packageId + "/" + $version       
     $nupkgFile = Join-Path $PSScriptRoot ($packageId + "." + $version + ".nupkg")
-    $snupkgFile = Join-Path $PSScriptRoot ($packageId + "." + $version + ".snupkg")
-
-    $snupkgurl = "$internalSnupkgServer/snupkg/" + $snupkgFile
 
 
     Write-Host "Downloading from $url"
     $webClient.DownloadFile($url, $nupkgFile)
-    try {
-        $webClient.DownloadFile($snupkgUrl, $snupkgFile)
-    }catch { Write-Host "No snupkg package found!"}
     Write-Host "Package downloaded from '$internalServer'."
 
     Write-Host "Uploading package..."
     & .\Tools\nuget.exe push $nupkgFile -source $server -apiKey $apiKey
-    & .\Tools\nuget.exe push $snupkgFile -source $server -apiKey $apiKey
     Write-Host "Package uploaded to $server."
 
     Remove-Item $nupkgFile    
-    try {Remove-Item $snupkgFile}catch{ Write-Host "Unable to delete snupkg!"}
+
+    # snupkg management
+    $snupkgUrl = "file://$internalSnupkgServer/snupkg/"
+    $snupkgFile = Join-Path $PSScriptRoot ($packageId + "." + $version + ".snupkg")
+
+    try {
+      $webClient.DownloadFile($snupkgUrl, $snupkgFile)
+      $snupkgDownloaded = true;
+    }catch {
+      Write-Host "No snupkg package found!"
+      $snupkgDownloaded = false;
+   }        
+    
+    if ($snupkgDownloaded==true){
+        Write-Host "Uploading snupkg package..."        
+        & .\Tools\nuget.exe push $snupkgFile -source $server -apiKey $apiKey
+        Remove-Item $nupkgFile    
+        try {Remove-Item $snupkgFile}catch {            
+            Write-Host "Unable to cleanup snupkg..."
+        }
+    }
