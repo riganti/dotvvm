@@ -4,7 +4,7 @@ Param(
     [string]$internalServer,
     [string]$internalSnupkgServer,
     [string]$apiKey,
-    [string]$packageId,
+    [string]$packageId
 )
 
     $packageId = $package.Package
