@@ -178,6 +178,17 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
+        public void BindingParser_InterpolatedString_Valid()
+        {
+            var result = bindingParserNodeFactory.Parse("$\"Hello {Argument1} with {Argument2}!\"") as InterpolatedStringBindingParserNode;
+            Assert.AreEqual("Hello {0} with {1}!", result.Format);
+            Assert.IsFalse(result.HasNodeErrors);
+            Assert.AreEqual(2, result.Arguments.Count);
+            Assert.AreEqual("Argument1", ((SimpleNameBindingParserNode)result.Arguments[0]).Name);
+            Assert.AreEqual("Argument2", ((SimpleNameBindingParserNode)result.Arguments[1]).Name);
+        }
+
+        [TestMethod]
         public void BindingParser_StringLiteral_SingleQuotes_Valid()
         {
             var result = bindingParserNodeFactory.Parse("'help\\nhelp'");

@@ -597,6 +597,21 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 }
                 return node;
             }
+            else if (token != null && token.Type == BindingTokenType.InterpolatedStringToken)
+            {
+                // interpolated string
+
+                Read();
+
+                var (format, arguments) = ParseInterpolatedString(token.Text, out var error);
+                var node = CreateNode(new InterpolatedStringBindingParserNode(format, arguments), startIndex);
+                if (error != null)
+                {
+                    node.NodeErrors.Add(error);
+                }
+
+                return node;
+            }
             else
             {
                 // identifier
@@ -881,6 +896,59 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 }
             }
             return sb.ToString();
+        }
+
+        private static (string, List<BindingParserNode>) ParseInterpolatedString(string text, out string? error)
+        {
+            var preprocessedString = ParseStringLiteral(text, out error).Substring(1);
+
+            bool TryParseArgument(int from, out int end, out BindingParserNode? argument)
+            {
+                var index = from;
+                while (preprocessedString[index++] != '}')
+                {
+                    if (index == preprocessedString.Length)
+                    {
+                        end = -1;
+                        argument = default;
+                        return false;
+                    }
+                }
+
+                var tokenizer = new BindingTokenizer();
+                tokenizer.Tokenize(preprocessedString.Substring(from + 1, index - (from + 2)));
+                var parser = new BindingParser() { Tokens = tokenizer.Tokens };
+                argument = parser.ReadConditionalExpression();
+                end = index;
+                return argument != null;
+            }
+
+            var index = 0;
+            var sb = new StringBuilder();
+            var arguments = new List<BindingParserNode>();
+            while (index < preprocessedString.Length)
+            {
+                if (preprocessedString[index] == '{')
+                {
+                    if (!TryParseArgument(index, out var end, out var argument))
+                    {
+                        arguments.Clear();
+                        error = "Interpolated string is malformed.";
+                        return (string.Empty, arguments);
+                    }
+                    arguments.Add(argument!);
+                    sb.Append("{" + (arguments.Count - 1).ToString() + "}");
+                    index = end;
+                    continue;
+                }
+                else
+                {
+                    sb.Append(preprocessedString[index]);
+                    index++;
+                }
+            }
+
+            return (sb.ToString(), arguments);
         }
 
         private T CreateNode<T>(T node, int startIndex, string? error = null) where T : BindingParserNode
