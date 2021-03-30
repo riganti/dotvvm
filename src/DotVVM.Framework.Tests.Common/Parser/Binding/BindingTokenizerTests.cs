@@ -240,6 +240,16 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
+        [DataRow("$\"String {Arg}\"")]
+        [DataRow("$'String {Arg}'")]
+        public void BindingTokenizer_InterpolatedString_Valid(string expression)
+        {
+            var tokens = Tokenize(expression);
+            Assert.AreEqual(1, tokens.Count);
+            Assert.AreEqual(BindingTokenType.InterpolatedStringToken, tokens[0].Type);
+        }
+
+        [TestMethod]
         public void BindingTokenizer_UnaryOperator_BunchingOperators_Valid()
         {
             var tokens = Tokenize("A(!IsDisplayed)");

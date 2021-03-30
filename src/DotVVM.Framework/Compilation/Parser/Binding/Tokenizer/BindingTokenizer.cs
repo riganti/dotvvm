@@ -211,11 +211,23 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         }
                         break;
 
+                    case '$':
                     case '\'':
                     case '"':
-                        FinishIncompleteIdentifier();
+                        var bindingTokenType = default(BindingTokenType);
+                        if (ch == '$')
+                        {
+                            Read();
+                            bindingTokenType = BindingTokenType.InterpolatedStringToken;
+                        }
+                        else
+                        {
+                            FinishIncompleteIdentifier();
+                            bindingTokenType = BindingTokenType.StringLiteralToken;
+                        }
+
                         ReadStringLiteral(out var errorMessage);
-                        CreateToken(BindingTokenType.StringLiteralToken, errorProvider: t => CreateTokenError(t, errorMessage ?? "unknown error"));
+                        CreateToken(bindingTokenType, errorProvider: t => CreateTokenError(t, errorMessage ?? "unknown error"));
                         break;
 
                     case '?':
