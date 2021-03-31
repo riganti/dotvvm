@@ -131,6 +131,16 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow(@"$""Interpolated {StringProp} {StringProp}""", "Interpolated abc abc")]
+        [DataRow(@"$'Interpolated {StringProp} {StringProp}'", "Interpolated abc abc")]
+        public void BindingCompiler_Valid_InterpolatedString(string expression, string evaluated)
+        {
+            var viewModel = new TestViewModel() { StringProp = "abc" };
+            var binding = ExecuteBinding(expression, viewModel);
+            Assert.AreEqual(evaluated, binding);
+        }
+
+        [TestMethod]
         public void BindingCompiler_Valid_PropertyProperty()
         {
             var viewModel = new TestViewModel() { StringProp = "abc", TestViewModel2 = new TestViewModel2 { MyProperty = 42 } };

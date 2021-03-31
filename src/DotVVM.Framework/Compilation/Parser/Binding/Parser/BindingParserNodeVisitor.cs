@@ -36,6 +36,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitLiteralExpression((LiteralExpressionBindingParserNode)node);
             }
+            else if (node is InterpolatedStringBindingParserNode)
+            {
+                return VisitInterpolatedStringExpression((InterpolatedStringBindingParserNode)node);
+            }
             else if (node is MemberAccessBindingParserNode)
             {
                 return VisitMemberAccess((MemberAccessBindingParserNode)node);
@@ -123,6 +127,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         }
 
         protected virtual T VisitLiteralExpression(LiteralExpressionBindingParserNode node)
+        {
+            return DefaultVisit(node);
+        }
+
+        protected virtual T VisitInterpolatedStringExpression(InterpolatedStringBindingParserNode node)
         {
             return DefaultVisit(node);
         }

@@ -105,6 +105,22 @@ namespace DotVVM.Framework.Compilation.Binding
             return Expression.Constant(node.Value);
         }
 
+        protected override Expression VisitInterpolatedStringExpression(InterpolatedStringBindingParserNode node)
+        {
+            var target = new MethodGroupExpression() {
+                MethodName = nameof(String.Format),
+                Target = Registry.Resolve(nameof(String))
+            };
+
+            var arguments = new Expression[node.Arguments.Count];
+            for (var index = 0; index < node.Arguments.Count; index++)
+            {
+                arguments[index] = HandleErrors(node.Arguments[index], Visit)!;
+            }
+
+            return memberExpressionFactory.Call(target, new[] { Expression.Constant(node.Format) }.Concat(arguments).ToArray());
+        }
+
         protected override Expression VisitParenthesizedExpression(ParenthesizedExpressionBindingParserNode node)
         {
             // just visit content
