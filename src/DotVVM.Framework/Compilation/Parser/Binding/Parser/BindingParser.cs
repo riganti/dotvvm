@@ -900,55 +900,66 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
         private static (string, List<BindingParserNode>) ParseInterpolatedString(string text, out string? error)
         {
-            var preprocessedString = ParseStringLiteral(text, out error).Substring(1);
-
-            bool TryParseArgument(int from, out int end, out BindingParserNode? argument)
-            {
-                var index = from;
-                while (preprocessedString[index++] != '}')
-                {
-                    if (index == preprocessedString.Length)
-                    {
-                        end = -1;
-                        argument = default;
-                        return false;
-                    }
-                }
-
-                var tokenizer = new BindingTokenizer();
-                tokenizer.Tokenize(preprocessedString.Substring(from + 1, index - (from + 2)));
-                var parser = new BindingParser() { Tokens = tokenizer.Tokens };
-                argument = parser.ReadConditionalExpression();
-                end = index;
-                return argument != null;
-            }
-
+            text = ParseStringLiteral(text, out error).Substring(1);
             var index = 0;
             var sb = new StringBuilder();
             var arguments = new List<BindingParserNode>();
-            while (index < preprocessedString.Length)
+            while (index < text.Length)
             {
-                if (preprocessedString[index] == '{')
+                var current = text[index];
+                var next = (index + 1 < text.Length) ? text[index + 1] : null as char?;
+
+                if (next.HasValue && current == next.Value && (current == '{' || current == '}'))
                 {
-                    if (!TryParseArgument(index, out var end, out var argument))
+                    // If encountered double '{' or '}' do not treat is as an control character
+                    sb.Append(current);
+                    index += 2;
+                }
+                else if (current == '{')
+                {
+                    // Now an interpolation expression must follow
+                    if (!TryParseInterpolationExpression(text, index, out var end, out var argument))
                     {
                         arguments.Clear();
-                        error = "Interpolated string is malformed.";
+                        error = "Interpolation expression is malformed.";
                         return (string.Empty, arguments);
                     }
                     arguments.Add(argument!);
                     sb.Append("{" + (arguments.Count - 1).ToString() + "}");
-                    index = end;
+                    index = end + 1;
                     continue;
                 }
                 else
                 {
-                    sb.Append(preprocessedString[index]);
+                    sb.Append(current);
                     index++;
                 }
             }
 
             return (sb.ToString(), arguments);
+        }
+
+        private static bool TryParseInterpolationExpression(string text, int start, out int end, out BindingParserNode? expression)
+        {
+            var index = ++start;
+            while (text[index] != '}' && (index + 1 == text.Length || text[index + 1] != '}'))
+            {
+                if (++index == text.Length)
+                {
+                    end = -1;
+                    expression = null;
+                    return false;
+                }
+            }
+
+            end = index + 1;
+            var tokenizer = new BindingTokenizer();
+            var rawExpression = text.Substring(start, end - start);
+            tokenizer.Tokenize(rawExpression);
+            var parser = new BindingParser() { Tokens = tokenizer.Tokens };
+            expression = parser.ReadConditionalExpression();
+
+            return expression != null;
         }
 
         private T CreateNode<T>(T node, int startIndex, string? error = null) where T : BindingParserNode
