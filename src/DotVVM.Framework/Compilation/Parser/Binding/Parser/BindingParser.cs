@@ -918,16 +918,22 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 else if (current == '{')
                 {
                     // Now an interpolation expression must follow
-                    if (!TryParseInterpolationExpression(text, index, out var end, out var argument))
+                    if (!TryParseInterpolationExpression(text, index, out var end, out var argument, out var innerError))
                     {
                         arguments.Clear();
-                        error = "Interpolation expression is malformed.";
+                        error = string.Concat(error, " Interpolation expression is malformed. ", innerError).TrimStart();
                         return (string.Empty, arguments);
                     }
                     arguments.Add(argument!);
                     sb.Append("{" + (arguments.Count - 1).ToString() + "}");
                     index = end + 1;
                     continue;
+                }
+                else if (current == '}')
+                {
+                    var innerError = "Could not find matching opening character '{' for an interpolated expression.";
+                    error = string.Concat(error, " Interpolation expression is malformed. ", innerError).TrimStart();
+                    return (string.Empty, arguments);
                 }
                 else
                 {
@@ -939,25 +945,43 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return (sb.ToString(), arguments);
         }
 
-        private static bool TryParseInterpolationExpression(string text, int start, out int end, out BindingParserNode? expression)
+        private static bool TryParseInterpolationExpression(string text, int start, out int end, out BindingParserNode? expression, out string? error)
         {
             var index = ++start;
-            while (text[index] != '}' && (index + 1 == text.Length || text[index + 1] != '}'))
+            var foundEnd = false;
+
+            while (index < text.Length)
             {
-                if (++index == text.Length)
+                if (text[index++] == '}')
                 {
-                    end = -1;
-                    expression = null;
-                    return false;
+                    foundEnd = true;
+                    break;
                 }
             }
 
-            end = index + 1;
-            var tokenizer = new BindingTokenizer();
+            if (!foundEnd)
+            {
+                end = -1;
+                expression = null;
+                error = "Could not find matching closing character '}' for an interpolated expression.";
+                return false;
+            }
+
+            end = index - 1;
+            if (start == end)
+            {
+                // Provided expression is empty
+                expression = null;
+                error = "Expected expression, but instead found empty \"{}\".";
+                return false;
+            }
+
             var rawExpression = text.Substring(start, end - start);
+            var tokenizer = new BindingTokenizer();
             tokenizer.Tokenize(rawExpression);
             var parser = new BindingParser() { Tokens = tokenizer.Tokens };
             expression = parser.ReadConditionalExpression();
+            error = null;
 
             return expression != null;
         }
