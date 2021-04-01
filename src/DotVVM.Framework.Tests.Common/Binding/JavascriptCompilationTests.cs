@@ -126,6 +126,22 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow(@"$""Interpolated {StringProp} {StringProp}""")]
+        [DataRow(@"$'Interpolated {StringProp} {StringProp}'")]
+        public void JavascriptCompilation_InterpolatedString(string expression)
+        {
+            var js = CompileBinding(expression, new[] { typeof(TestViewModel) }, typeof(string));
+            Assert.AreEqual("dotvvm.globalize.format(\"Interpolated {0} {1}\",[StringProp(),StringProp()])", js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_InterpolatedString_NoExpressions()
+        {
+            var js = CompileBinding("$'Non-Interpolated {{ no-expr }}'", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("\"Non-Interpolated { no-expr }\"", js);
+        }
+
+        [TestMethod]
         public void JavascriptCompilation_UnwrappedObservables()
         {
             var js = CompileBinding("TestViewModel2.Collection[0].StringValue.Length + TestViewModel2.Collection[8].StringValue", new[] { typeof(TestViewModel) });
