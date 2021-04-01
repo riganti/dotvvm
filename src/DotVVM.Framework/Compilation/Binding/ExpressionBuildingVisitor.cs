@@ -112,13 +112,22 @@ namespace DotVVM.Framework.Compilation.Binding
                 Target = Registry.Resolve(nameof(String))
             };
 
-            var arguments = new Expression[node.Arguments.Count];
-            for (var index = 0; index < node.Arguments.Count; index++)
+            if (node.Arguments.Any())
             {
-                arguments[index] = HandleErrors(node.Arguments[index], Visit)!;
-            }
+                // Translate to a String.Format(...) call
+                var arguments = new Expression[node.Arguments.Count];
+                for (var index = 0; index < node.Arguments.Count; index++)
+                {
+                    arguments[index] = HandleErrors(node.Arguments[index], Visit)!;
+                }
 
-            return memberExpressionFactory.Call(target, new[] { Expression.Constant(node.Format) }.Concat(arguments).ToArray());
+                return memberExpressionFactory.Call(target, new[] { Expression.Constant(node.Format) }.Concat(arguments).ToArray());
+            }
+            else
+            {
+                // There are no interpolation expressions - we can just return string
+                return Expression.Constant(node.Format);
+            }
         }
 
         protected override Expression VisitParenthesizedExpression(ParenthesizedExpressionBindingParserNode node)
