@@ -1,6 +1,8 @@
 ﻿{
   "factories": {
-    "chrome:fast": {}
+    "chrome:fast": {
+      "capabilities": [ "--headless", "--disable-gpu" ]
+    }
   },
   "baseUrls": [
     "http://localhost:5407/"
