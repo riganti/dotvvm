@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,23 +13,20 @@ namespace DotVVM.Framework.Compilation
     public class ExtensionMethodsCache
     {
         private readonly CompiledAssemblyCache assemblyCache;
-        private readonly ConcurrentDictionary<string, List<MethodInfo>> methodsCache;
+        private readonly ConcurrentDictionary<string, ImmutableArray<MethodInfo>> methodsCache;
 
         public ExtensionMethodsCache(CompiledAssemblyCache assemblyCache)
         {
             this.assemblyCache = assemblyCache;
-            this.methodsCache = new ConcurrentDictionary<string, List<MethodInfo>>();
+            this.methodsCache = new ConcurrentDictionary<string, ImmutableArray<MethodInfo>>();
         }
 
         public IEnumerable<MethodInfo> GetExtensionsForNamespace(string @namespace)
         {
-            if (!methodsCache.TryGetValue(@namespace, out var extensions))
-                return CreateExtensionsForNamespace(@namespace);
-
-            return extensions;
+            return methodsCache.GetOrAdd(@namespace, (ns) => CreateExtensionsForNamespace(ns));
         }
 
-        private List<MethodInfo> CreateExtensionsForNamespace(string @namespace)
+        private ImmutableArray<MethodInfo> CreateExtensionsForNamespace(string @namespace)
         {
             var extensions = new List<MethodInfo>();
 
@@ -37,8 +35,7 @@ namespace DotVVM.Framework.Compilation
                     foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static).Where(m => m.GetCustomAttribute(typeof(ExtensionAttribute)) != null))
                         extensions.Add(method);
 
-            methodsCache.TryAdd(@namespace, extensions);
-            return extensions;
+            return extensions.ToImmutableArray();
         }
     }
 }
