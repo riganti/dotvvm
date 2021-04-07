@@ -109,7 +109,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             var target = new MethodGroupExpression() {
                 MethodName = nameof(String.Format),
-                Target = Registry.Resolve(nameof(String))
+                Target = typeof(string)
             };
 
             if (node.Arguments.Any())
