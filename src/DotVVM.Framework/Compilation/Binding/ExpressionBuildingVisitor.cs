@@ -109,14 +109,13 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             var target = new MethodGroupExpression() {
                 MethodName = nameof(String.Format),
-                Target = typeof(string)
+                Target = new StaticClassIdentifierExpression(typeof(string))
             };
 
             if (node.Arguments.Any())
             {
                 // Translate to a String.Format(...) call
-                var arguments = node.Arguments.Select(arg => HandleErrors(node.Arguments[index], Visit))[.ToArray()];
-
+                var arguments = node.Arguments.Select((arg, index) => HandleErrors(node.Arguments[index], Visit)).ToArray();
                 return memberExpressionFactory.Call(target, new[] { Expression.Constant(node.Format) }.Concat(arguments).ToArray());
             }
             else
@@ -371,6 +370,17 @@ namespace DotVVM.Framework.Compilation.Binding
                 return Expression.Block(variables.Concat(rightBlock.Variables), new Expression[] { left }.Concat(rightBlock.Expressions));
             }
             else return Expression.Block(variables, left, right);
+        }
+
+        protected override Expression VisitFormattedExpression(FormattedBindingParserNode node)
+        {
+            var target = new MethodGroupExpression() {
+                MethodName = nameof(String.Format),
+                Target = new StaticClassIdentifierExpression(typeof(string))
+            };
+
+            var nodeObj = HandleErrors(node.Node, Visit);
+            return memberExpressionFactory.Call(target, new[] { Expression.Constant(node.Format), nodeObj });
         }
 
         protected override Expression VisitVoid(VoidBindingParserNode node) => Expression.Default(typeof(void));

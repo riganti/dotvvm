@@ -729,6 +729,53 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return CreateNode(new SimpleNameBindingParserNode(identifier), startIndex);
         }
 
+        private BindingParserNode ReadFormattedExpression()
+        {
+            var startIndex = CurrentIndex;
+            BindingParserNode? node;
+
+            // 1) Parse expression
+            if (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.OpenParenthesis)
+            {
+                // Conditional expressions must be enclosed in parentheses
+                node = ReadConditionalExpression();
+                if (IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis))
+                {
+                    node.NodeErrors.Add("Expected ')' after this expression.");
+                }
+                else
+                {
+                    Read();
+                }
+            }
+            else
+            {
+                // If expression is not enclosed in parentheses, read null coalescing expression
+                node = ReadNullCoalescingExpression();
+            }
+
+            // 2) Parse formatting component (optional)
+            if (Peek() is BindingToken delimitingToken && delimitingToken.Type == BindingTokenType.ColonOperator)
+            {
+                Read();
+                if (IsCurrentTokenIncorrect(BindingTokenType.Identifier))
+                {
+                    node.NodeErrors.Add("Expected an identifier after ':'. The identifier should specify formatting for the previous expression!");
+                }
+
+                // Scan all remaining tokens
+                BindingToken? currentToken;
+                var formatTokens = new List<BindingToken>();
+                while ((currentToken = Read()) != null)
+                    formatTokens.Add(currentToken);
+
+                var format = $"{{0:{string.Concat(formatTokens.Select(token => token.Text))}}}";
+                return CreateNode(new FormattedBindingParserNode(node, format), startIndex);
+            }
+
+            return node;
+        }
+
         private static object? ParseNumberLiteral(string text, out string? error)
         {
             text = text.ToLower();
@@ -987,12 +1034,22 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var index = start;
             var foundEnd = false;
 
+            var exprDepth = 0;
             while (index < text.Length)
             {
-                if (text[index++] == '}')
+                var current = text[index++];
+                if (current == '{')
                 {
-                    foundEnd = true;
-                    break;
+                    exprDepth++;
+                }
+                if (current == '}')
+                {
+                    if (exprDepth == 0)
+                    {
+                        foundEnd = true;
+                        break;
+                    }
+                    exprDepth--;
                 }
             }
 
@@ -1017,7 +1074,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var tokenizer = new BindingTokenizer();
             tokenizer.Tokenize(rawExpression);
             var parser = new BindingParser() { Tokens = tokenizer.Tokens };
-            expression = parser.ReadConditionalExpression();
+            expression = parser.ReadFormattedExpression();
             error = null;
 
             return expression != null;

@@ -68,6 +68,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitAssemblyQualifiedName((AssemblyQualifiedNameBindingParserNode)node);
             }
+            else if (node is FormattedBindingParserNode)
+            {
+                return VisitFormattedExpression((FormattedBindingParserNode)node);
+            }
             else if (node is BlockBindingParserNode blockNode)
             {
                 return VisitBlock(blockNode);
@@ -157,6 +161,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         }
 
         protected virtual T VisitAssemblyQualifiedName(AssemblyQualifiedNameBindingParserNode node)
+        {
+            return DefaultVisit(node);
+        }
+
+        protected virtual T VisitFormattedExpression(FormattedBindingParserNode node)
         {
             return DefaultVisit(node);
         }
