@@ -38,7 +38,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample);
 
                 browser.First("textarea").SendKeys("hello world");
-                browser.Last("input[type=button]").Click().Wait();
+                browser.Last("input[type=button]").Click();
 
                 AssertUI.TextEquals(browser.First("pre"), "hello world");
             });
@@ -53,7 +53,7 @@ namespace DotVVM.Samples.Tests.Feature
 
             browser.First("textarea").SendKeys(fileContent);
             browser.First("input").SendKeys(Keys.Enter);
-            browser.Wait(5000);
+            //browser.Wait(5000);
             var downloadURL = (string)jsexec.ExecuteScript("return window.downloadURL;");
             Assert.False(string.IsNullOrEmpty(downloadURL));
 

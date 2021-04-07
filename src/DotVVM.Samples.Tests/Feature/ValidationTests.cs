@@ -98,7 +98,7 @@ namespace DotVVM.Samples.Tests.Feature
                     {
                         textBox.Clear().SendKeys(value);
                     }
-                    button.Click().Wait();
+                    button.Click();
                 }
                 void assertValidators(params bool[] states)
                 {
@@ -194,7 +194,6 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // load the customer
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 // try to validate
                 browser.Last("input[type=button]").Click();
@@ -385,7 +384,6 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // fill invalid value in the task title
                 browser.SendKeys("input[type=text]", "test");
-                browser.Wait();
                 browser.Click("input[type=button]");
 
                 // ensure validators
@@ -496,14 +494,12 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_RegexValidation);
 
                 browser.ElementAt("input", 0).SendKeys("25");
-                browser.Wait();
                 browser.ElementAt("input[type=button]", 0).Click();
 
                 AssertUI.IsNotDisplayed(browser.ElementAt("span", 0));
                 AssertUI.InnerTextEquals(browser.ElementAt("span", 1), "25");
 
                 browser.ElementAt("input", 0).SendKeys("a");
-                browser.Wait();
                 browser.ElementAt("input[type=button]", 0).Click();
 
                 AssertUI.IsDisplayed(browser.ElementAt("span", 0));
@@ -546,7 +542,6 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // fill invalid value in the task title
                 browser.SendKeys("input[type=text]", "test");
-                browser.Wait();
                 browser.Click("input[type=button]");
 
                 // ensure validators visible
@@ -560,7 +555,6 @@ namespace DotVVM.Samples.Tests.Feature
                 // fill valid value in the task title
                 browser.ClearElementsContent("input[type=text]");
                 browser.SendKeys("input[type=text]", "test@mail.com");
-                browser.Wait();
                 browser.Click("input[type=button]");
 
                 // ensure validators not visible
@@ -587,7 +581,6 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // click the validate button
                 browser.Last("input[type=button]").Click();
-                browser.Wait();
 
                 // ensure validators are hidden
                 AssertUI.InnerTextEquals(browser.Last("span"), "true");
@@ -695,24 +688,18 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_Localization);
 
                 browser.ElementAt("button[type=submit]", 0).Click();
-                browser.WaitFor(() => {
-                    AssertUI.TextEquals(browser.Single(".result-code"), "This comes from resource file!");
-                    AssertUI.TextEquals(browser.Single(".result-markup"), "This comes from resource file!");
-                }, 2000);
+                AssertUI.TextEquals(browser.Single(".result-code"), "This comes from resource file!");
+                AssertUI.TextEquals(browser.Single(".result-markup"), "This comes from resource file!");
 
-                browser.ElementAt("a", 1).Click().Wait();
+                browser.ElementAt("a", 1).Click();
                 browser.ElementAt("button[type=submit]", 0).Click();
-                browser.WaitFor(() => {
-                    AssertUI.TextEquals(browser.Single(".result-code"), "Tohle pochází z resource souboru!");
-                    AssertUI.TextEquals(browser.Single(".result-markup"), "Tohle pochází z resource souboru!");
-                }, 2000);
+                AssertUI.TextEquals(browser.Single(".result-code"), "Tohle pochází z resource souboru!");
+                AssertUI.TextEquals(browser.Single(".result-markup"), "Tohle pochází z resource souboru!");
 
-                browser.ElementAt("a", 0).Click().Wait();
+                browser.ElementAt("a", 0).Click();
                 browser.ElementAt("button[type=submit]", 0).Click();
-                browser.WaitFor(() => {
-                    AssertUI.TextEquals(browser.Single(".result-code"), "This comes from resource file!");
-                    AssertUI.TextEquals(browser.Single(".result-markup"), "This comes from resource file!");
-                }, 2000);
+                AssertUI.TextEquals(browser.Single(".result-code"), "This comes from resource file!");
+                AssertUI.TextEquals(browser.Single(".result-markup"), "This comes from resource file!");
             });
         }
 
@@ -727,34 +714,26 @@ namespace DotVVM.Samples.Tests.Feature
                 var textbox = browser.First("[data-ui=name-textbox]");
 
                 submitButton.Click();
-                browser.WaitFor(() => {
-                    Assert.Equal(0, validationSummary.Children.Count);
-                    AssertUI.HasNotClass(textbox, "has-error");
-                }, 4000);
+                Assert.Equal(0, validationSummary.Children.Count);
+                AssertUI.HasNotClass(textbox, "has-error");
 
                 textbox.SendKeys("123");
                 submitButton.Click();
-                browser.WaitFor(() => {
-                    AssertUI.HasClass(textbox, "has-error");
-                    Assert.Equal(1, validationSummary.Children.Count);
-                }, 4000);
+                AssertUI.HasClass(textbox, "has-error");
+                Assert.Equal(1, validationSummary.Children.Count);
 
                 textbox.Clear();
                 textbox.SendKeys("Ted");
                 submitButton.Click();
-                browser.WaitFor(() => {
-                    Assert.Equal(0, validationSummary.Children.Count);
-                    AssertUI.HasNotClass(textbox, "has-error");
-                }, 4000);
+                Assert.Equal(0, validationSummary.Children.Count);
+                AssertUI.HasNotClass(textbox, "has-error");
 
                 textbox.SendKeys("123");
                 browser.First("[data-ui=notation-checkbox]").Click();
                 submitButton.Click();
 
-                browser.WaitFor(() => {
-                    AssertUI.HasClass(textbox, "has-error");
-                    Assert.Equal(1, validationSummary.Children.Count);
-                }, 4000);
+                AssertUI.HasClass(textbox, "has-error");
+                Assert.Equal(1, validationSummary.Children.Count);
             });
         }
 

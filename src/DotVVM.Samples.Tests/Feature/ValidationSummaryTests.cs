@@ -17,12 +17,12 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ValidationSummary_RecursiveValidationSummary);
 
-                browser.ElementAt("input[type=button]", 0).Click().Wait();
+                browser.ElementAt("input[type=button]", 0).Click();
 
                 browser.ElementAt("ul", 0).FindElements("li").ThrowIfDifferentCountThan(2);
                 AssertUI.InnerTextEquals(browser.First("#result"), "false");
 
-                browser.ElementAt("input[type=button]", 1).Click().Wait();
+                browser.ElementAt("input[type=button]", 1).Click();
                 browser.ElementAt("ul", 1).FindElements("li").ThrowIfDifferentCountThan(1);
                 AssertUI.InnerTextEquals(browser.First("#result"), "false");
             });
@@ -54,7 +54,7 @@ namespace DotVVM.Samples.Tests.Feature
                 Assert.Equal(1, summary.Children.Count);
 
                 browser.First("[data-ui=password-textbox]").SendKeys("4");
-                loginButton.Click().Wait();
+                loginButton.Click();
                 Assert.Equal(0, summary.Children.Count);
             });
         }

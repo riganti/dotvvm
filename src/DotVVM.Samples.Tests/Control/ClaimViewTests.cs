@@ -20,11 +20,9 @@ namespace DotVVM.Samples.Tests.Control
 
                 void AssertInnerTextEquals(string selector, string text)
                 {
-                    browser.WaitFor(() => {
-                        AssertUI.InnerTextEquals(
-                            browser.FindElements(selector).ThrowIfDifferentCountThan(1).First(),
-                            text);
-                    }, 5000);
+                    AssertUI.InnerTextEquals(
+                           browser.FindElements(selector).ThrowIfDifferentCountThan(1).First(),
+                           text);
                 }
 
                 // make sure we are signed out (first should show IfNotMember, second should be hidden)

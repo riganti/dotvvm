@@ -22,7 +22,6 @@ namespace DotVVM.Samples.Tests.Control
 
                 AssertUI.TextEquals(browser.Single("[data-ui='textBox']"), "0.00");
                 browser.Single("[data-ui='button']").Click();
-                browser.Wait(500);
 
                 AssertUI.TextEquals(browser.Single("[data-ui='textBox']"), "10.50");
             });
@@ -37,7 +36,6 @@ namespace DotVVM.Samples.Tests.Control
                 browser.ElementAt("input", 0).Clear();
                 browser.ElementAt("input", 0).SendKeys("hello");
                 browser.ElementAt("input[type=button]", 0).Click();
-                browser.Wait();
 
                 AssertUI.Value(browser.ElementAt("input", 0), "hello");
                 AssertUI.InnerTextEquals(browser.ElementAt("span", 0), "0");
@@ -170,7 +168,7 @@ window.getSelectionText = function (dataui) {
                 //write new valid values
                 dateTextBox.Clear().SendKeys(dateResult2);
                 numberTextbox.Clear().SendKeys(2000.ToString("n0", culture));
-                dateTextBox.Click().Wait();
+                dateTextBox.Click();
 
                 //check new values
                 AssertUI.InnerTextEquals(dateText, new DateTime(2018, 12, 27).ToString("G", culture));
@@ -194,7 +192,7 @@ window.getSelectionText = function (dataui) {
                 //write new valid values
                 dateTextBox.Clear().SendKeys(new DateTime(2018, 1, 1).ToString("d", culture));
                 numberTextbox.Clear().SendKeys(1000.550277.ToString(culture));
-                dateTextBox.Click().Wait();
+                dateTextBox.Click();
 
                 //check new values
                 AssertUI.InnerTextEquals(dateText, new DateTime(2018, 1, 1).ToString("G", culture));
@@ -229,39 +227,31 @@ window.getSelectionText = function (dataui) {
 
                 IElementWrapper numberTextbox = null;
                 IElementWrapper numberValueText = null;
-                browser.WaitFor(() => {
-                    numberTextbox = browser.First("#bindingNumberFormatTextbox");
-                    AssertUI.Attribute(numberTextbox, "value", 0.ToString("N", culture));
+                numberTextbox = browser.First("#bindingNumberFormatTextbox");
+                AssertUI.Attribute(numberTextbox, "value", 0.ToString("N", culture));
 
-                    numberValueText = browser.First("#resultNumberValueText");
-                    AssertUI.InnerTextEquals(numberValueText, 0.ToString(culture));
-                }, 2000);
+                numberValueText = browser.First("#resultNumberValueText");
+                AssertUI.InnerTextEquals(numberValueText, 0.ToString(culture));
 
                 // send new values
                 ClearInput(numberTextbox);
                 numberTextbox.SendKeys("42")
-                    .SendEnterKey()
-                    .Wait();
+                    .SendEnterKey();
                 LoseFocus();
 
                 // check new values
-                browser.WaitFor(() => {
-                    AssertUI.InnerTextEquals(numberValueText, 42.ToString(culture));
-                    AssertUI.Attribute(numberTextbox, "value", 42.ToString("N", culture));
-                }, 5000);
+                AssertUI.InnerTextEquals(numberValueText, 42.ToString(culture));
+                AssertUI.Attribute(numberTextbox, "value", 42.ToString("N", culture));
 
                 // send new values
                 ClearInput(numberTextbox);
                 numberTextbox.SendKeys(123.456789.ToString(culture))
-                    .SendEnterKey()
-                    .Wait();
+                    .SendEnterKey();
                 LoseFocus();
 
                 // check new values
-                browser.WaitFor(() => {
-                    AssertUI.InnerTextEquals(numberValueText, 123.456789.ToString(culture));
-                    AssertUI.Attribute(numberTextbox, "value", 123.456789.ToString("N", culture));
-                }, 5000);
+                AssertUI.InnerTextEquals(numberValueText, 123.456789.ToString(culture));
+                AssertUI.Attribute(numberTextbox, "value", 123.456789.ToString("N", culture));
             });
         }
 

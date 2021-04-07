@@ -18,7 +18,6 @@ namespace DotVVM.Samples.Tests.Complex
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_ServerRendering_ControlUsageSample);
                 browser.First("a[data-ui=show-link]").Click();
-                browser.Wait(500);
                 AssertUI.Attribute(browser.First("input[data-ui=textbox]"), "value", v => v.Contains("a"));
             });
         }
@@ -30,10 +29,8 @@ namespace DotVVM.Samples.Tests.Complex
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_ServerRendering_ControlUsageSampleRewriting);
                 browser.First("a[data-ui=show-link]").Click();
-                browser.Wait(500);
                 AssertUI.Attribute(browser.First("div[data-ui='context-1']").First("input[data-ui=textbox]"), "value", v => v.Contains("a"));
                 browser.First("a[data-ui=rewrite-link]").Click();
-                browser.Wait(500);
                 AssertUI.Attribute(browser.First("div[data-ui='context-2']").First("input[data-ui=textbox]"), "value", v => v.Contains("b"));
             });
         }
@@ -51,7 +48,6 @@ namespace DotVVM.Samples.Tests.Complex
 
                 //Add element and see
                 browser.First("a[data-ui='add-link']").Click();
-                browser.Wait(500);
 
                 //Has nonempty repeater been updated?
                 var neArticlesPostAdd = browser.Single("div[data-ui='nonempty-repeater']").FindElements("article[data-ui='test-article']");
@@ -81,7 +77,6 @@ namespace DotVVM.Samples.Tests.Complex
 
                 // Click 'Edit'
                 articleDetail.Single("a").Click();
-                browser.Wait(500);
 
                 // Check if the textbox contains the same message
                 repeater = browser.Single("div[data-ui='repeater']");

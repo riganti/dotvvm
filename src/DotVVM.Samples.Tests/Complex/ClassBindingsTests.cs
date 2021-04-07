@@ -26,15 +26,13 @@ namespace DotVVM.Samples.Tests.Complex
                 var textBox = browser.Single("classes", SelectByDataUi);
                 textBox.SendKeys("orange");
                 textBox.SendKeys(Keys.Tab);
-                browser.WaitFor(() => AssertUI.HasClass(target, "orange"), 2000);
+                AssertUI.HasClass(target, "orange");
 
                 browser.Single("inverted", SelectByDataUi).Click();
                 browser.Single("border", SelectByDataUi).Click();
-                browser.WaitFor(() => {
-                    AssertUI.HasClass(target, "orange");
-                    AssertUI.HasClass(target, "inverted");
-                    AssertUI.HasClass(target, "border");
-                }, 2000);
+                AssertUI.HasClass(target, "orange");
+                AssertUI.HasClass(target, "inverted");
+                AssertUI.HasClass(target, "border");
             });
         }
 
