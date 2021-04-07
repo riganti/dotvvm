@@ -115,11 +115,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (node.Arguments.Any())
             {
                 // Translate to a String.Format(...) call
-                var arguments = new Expression[node.Arguments.Count];
-                for (var index = 0; index < node.Arguments.Count; index++)
-                {
-                    arguments[index] = HandleErrors(node.Arguments[index], Visit)!;
-                }
+                var arguments = node.Arguments.Select(arg => HandleErrors(node.Arguments[index], Visit))[.ToArray()];
 
                 return memberExpressionFactory.Call(target, new[] { Expression.Constant(node.Format) }.Concat(arguments).ToArray());
             }
