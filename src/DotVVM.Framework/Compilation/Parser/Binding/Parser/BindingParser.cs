@@ -859,85 +859,122 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             error = null;
             var sb = new StringBuilder();
-            for (var i = 1; i < text.Length - 1; i++)
+
+            var index = 1;
+            while (index < text.Length - 1)
             {
-                if (text[i] == '\\')
+                if (TryParseCharacter(text, ref index, out var character, out var innerError))
                 {
-                    // handle escaped characters
-                    i++;
-                    if (i == text.Length - 1)
-                    {
-                        error = "The escape character cannot be at the end of the string literal!";
-                    }
-                    else if (text[i] == '\'' || text[i] == '"' || text[i] == '\\')
-                    {
-                        sb.Append(text[i]);
-                    }
-                    else if (text[i] == 'n')
-                    {
-                        sb.Append('\n');
-                    }
-                    else if (text[i] == 'r')
-                    {
-                        sb.Append('\r');
-                    }
-                    else if (text[i] == 't')
-                    {
-                        sb.Append('\t');
-                    }
-                    else
-                    {
-                        error = "The escape sequence is either not valid or not supported in dotVVM bindings!";
-                    }
+                    sb.Append(character);
                 }
                 else
                 {
-                    sb.Append(text[i]);
+                    error = innerError;
                 }
             }
+
             return sb.ToString();
+        }
+
+        private static bool TryParseCharacter(string text, ref int index, out char character, out string? error)
+        {
+            var result = TryPeekCharacter(text, index, out var count, out character, out error);
+            index += count;
+            return result;
+        }
+
+        private static bool TryPeekCharacter(string text, int index, out int length, out char character, out string? error)
+        {
+            if (text[index] == '\\')
+            {
+                // handle escaped characters
+                length = 2;
+                index++;
+                if (index == text.Length - 1)
+                {
+                    error = "The escape character cannot be at the end of the string literal!";
+                    character = default;
+                    return false;
+                }
+                else if (text[index] == '\'' || text[index] == '"' || text[index] == '\\')
+                {
+                    character = text[index];
+                }
+                else if (text[index] == 'n')
+                {
+                    character = '\n';
+                }
+                else if (text[index] == 'r')
+                {
+                    character = '\r';
+                }
+                else if (text[index] == 't')
+                {
+                    character = '\t';
+                }
+                else
+                {
+                    error = "The escape sequence is either not valid or not supported in dotVVM bindings!";
+                    character = default;
+                    return false;
+                }
+
+                error = default;
+                return true;
+            }
+            else
+            {
+                character = text[index];
+                error = default;
+                length = 1;
+                return true;
+            }
         }
 
         private static (string, List<BindingParserNode>) ParseInterpolatedString(string text, out string? error)
         {
-            text = ParseStringLiteral(text, out error).Substring(1);
-            var index = 0;
+            error = null;
             var sb = new StringBuilder();
             var arguments = new List<BindingParserNode>();
-            while (index < text.Length)
-            {
-                var current = text[index];
-                var next = (index + 1 < text.Length) ? text[index + 1] : null as char?;
 
-                if (next.HasValue && current == next.Value && (current == '{' || current == '}'))
+            var index = 2;
+            while (index < text.Length - 1)
+            {
+                if (TryParseCharacter(text, ref index, out var current, out var innerError))
                 {
-                    // If encountered double '{' or '}' do not treat is as an control character
-                    sb.Append(current);
-                    index += 2;
-                }
-                else if (current == '{')
-                {
-                    // Now an interpolation expression must follow
-                    if (!TryParseInterpolationExpression(text, index, out var end, out var argument, out var innerError))
+                    var hasNext = TryPeekCharacter(text, index, out var length, out var next, out _);
+                    if (hasNext && current == next && (current == '{' || current == '}'))
                     {
-                        arguments.Clear();
+                        // If encountered double '{' or '}' do not treat is as an control character
+                        sb.Append(current);
+                        index += length;
+                    }
+                    else if (current == '{')
+                    {
+                        if (!TryParseInterpolationExpression(text, index, out var end, out var argument, out innerError))
+                        {
+                            arguments.Clear();
+                            error = string.Concat(error, " Interpolation expression is malformed. ", innerError).TrimStart();
+                            return (string.Empty, arguments);
+                        }
+                        arguments.Add(argument!);
+                        sb.Append("{" + (arguments.Count - 1).ToString() + "}");
+                        index = end + 1;
+                    }
+                    else if (current == '}')
+                    {
+                        innerError = "Could not find matching opening character '{' for an interpolated expression.";
                         error = string.Concat(error, " Interpolation expression is malformed. ", innerError).TrimStart();
                         return (string.Empty, arguments);
                     }
-                    arguments.Add(argument!);
-                    sb.Append("{" + (arguments.Count - 1).ToString() + "}");
-                    index = end + 1;
-                    continue;
-                }
-                else if (current == '}')
-                {
-                    var innerError = "Could not find matching opening character '{' for an interpolated expression.";
-                    error = string.Concat(error, " Interpolation expression is malformed. ", innerError).TrimStart();
-                    return (string.Empty, arguments);
+                    else
+                    {
+                        sb.Append(current);
+                    }
                 }
                 else
                 {
-                    sb.Append(current);
+                    error = innerError;
                     index++;
                 }
             }
@@ -947,7 +984,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
         private static bool TryParseInterpolationExpression(string text, int start, out int end, out BindingParserNode? expression, out string? error)
         {
-            var index = ++start;
+            var index = start;
             var foundEnd = false;
 
             while (index < text.Length)

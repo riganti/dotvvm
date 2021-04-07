@@ -141,12 +141,12 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [DataRow(@"$'} Malformed'", "Could not find matching opening character '{' for an interpolated expression")]
+        [DataRow(@"$'} Malformed'", "Unexpected token '$' ---->}<----")]
         [DataRow(@"$'{ Malformed'", "Could not find matching closing character '}' for an interpolated expression")]
         [DataRow(@"$'Malformed {expr'", "Could not find matching closing character '}' for an interpolated expression")]
-        [DataRow(@"$'Malformed expr}'", "Could not find matching opening character '{' for an interpolated expression")]
+        [DataRow(@"$'Malformed expr}'", "Unexpected token '$'Malformed expr ---->}<---- ")]
         [DataRow(@"$'Malformed {'", "Could not find matching closing character '}' for an interpolated expression")]
-        [DataRow(@"$'Malformed }'", "Could not find matching opening character '{' for an interpolated expression")]
+        [DataRow(@"$'Malformed }'", "Unexpected token '$'Malformed  ---->}<----")]
         [DataRow(@"$'Malformed {}'", "Expected expression, but instead found empty")]
         public void BindingCompiler_Valid_InterpolatedString_Malformed(string expression, string errorMessage)
         {
@@ -170,17 +170,18 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow(@"$""Interpolated {StringProp} {StringProp}""", "Interpolated abc abc")]
         [DataRow(@"$'Interpolated {StringProp} {StringProp}'", "Interpolated abc abc")]
         [DataRow(@"$'Interpolated {StringProp.Length}'", "Interpolated 3")]
+        [DataRow(@"$'{string.Join(', ', IntArray)}'", "1, 2, 3")]
         public void BindingCompiler_Valid_InterpolatedString_WithSimpleExpressions(string expression, string evaluated)
         {
-            var viewModel = new TestViewModel() { StringProp = "abc" };
+            var viewModel = new TestViewModel() { StringProp = "abc", IntArray = new[] { 1, 2, 3 } };
             var binding = ExecuteBinding(expression, viewModel);
             Assert.AreEqual(evaluated, binding);
         }
 
         [TestMethod]
         [DataRow(@"$'Interpolated {IntProp < LongProperty}'", "Interpolated True")]
-        [DataRow(@"$'Interpolated {StringProp ?? \'StringPropWasNull\'}'", "Interpolated StringPropWasNull")]
-        [DataRow(@"$'Interpolated {(StringProp == null) ? \'StringPropWasNull\' : \'StringPropWasNotNull\'}'", "Interpolated StringPropWasNull")]
+        [DataRow(@"$'Interpolated {StringProp ?? 'StringPropWasNull'}'", "Interpolated StringPropWasNull")]
+        [DataRow(@"$'Interpolated {(StringProp == null) ? 'StringPropWasNull' : 'StringPropWasNotNull'}'", "Interpolated StringPropWasNull")]
         public void BindingCompiler_Valid_InterpolatedString_WithComplexExpressions(string expression, string evaluated)
         {
             var viewModel = new TestViewModel() { IntProp = 1, LongProperty = 2 };
