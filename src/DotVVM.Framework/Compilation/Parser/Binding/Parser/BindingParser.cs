@@ -734,11 +734,16 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var startIndex = CurrentIndex;
             BindingParserNode? node;
 
+            SkipWhiteSpace();
+
             // 1) Parse expression
             if (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.OpenParenthesis)
             {
                 // Conditional expressions must be enclosed in parentheses
+                Read();
+                SkipWhiteSpace();
                 node = ReadConditionalExpression();
+                SkipWhiteSpace();
                 if (IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis))
                 {
                     node.NodeErrors.Add("Expected ')' after this expression.");
@@ -753,6 +758,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 // If expression is not enclosed in parentheses, read null coalescing expression
                 node = ReadNullCoalescingExpression();
             }
+
+            SkipWhiteSpace();
 
             // 2) Parse formatting component (optional)
             if (Peek() is BindingToken delimitingToken && delimitingToken.Type == BindingTokenType.ColonOperator)
@@ -771,6 +778,20 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
                 var format = $"{{0:{string.Concat(formatTokens.Select(token => token.Text))}}}";
                 return CreateNode(new FormattedBindingParserNode(node, format), startIndex);
+            }
+
+            SkipWhiteSpace();
+            if (Peek() != null)
+            {
+                if (Peek()!.Type == BindingTokenType.QuestionMarkOperator)
+                {
+                    // If it seems that user tried to use conditional expression, provide more concrete error message
+                    node.NodeErrors.Add("Conditional expression needs to be enclosed in parentheses.");
+                }
+                else
+                {
+                    node.NodeErrors.Add($"Expected end of interpolated expression, but instead found {Peek()!.Type}");
+                }
             }
 
             return node;
@@ -1070,12 +1091,17 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 return false;
             }
 
+            error = null;
             var rawExpression = text.Substring(start, end - start);
             var tokenizer = new BindingTokenizer();
             tokenizer.Tokenize(rawExpression);
             var parser = new BindingParser() { Tokens = tokenizer.Tokens };
             expression = parser.ReadFormattedExpression();
-            error = null;
+            if (expression.HasNodeErrors)
+            {
+                error = string.Join(" ", new[] { $"Error while parsing expression \"{rawExpression}\"." }.Concat(expression.NodeErrors));
+                return false;
+            }
 
             return expression != null;
         }

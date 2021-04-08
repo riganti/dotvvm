@@ -148,7 +148,10 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow(@"$'Malformed {'", "Could not find matching closing character '}' for an interpolated expression")]
         [DataRow(@"$'Malformed }'", "Unexpected token '$'Malformed  ---->}<----")]
         [DataRow(@"$'Malformed {}'", "Expected expression, but instead found empty")]
-        public void BindingCompiler_Valid_InterpolatedString_Malformed(string expression, string errorMessage)
+        [DataRow(@"$'Malformed {StringProp; IntProp}'", "Expected end of interpolated expression, but instead found Semicolon")]
+        [DataRow(@"$'Malformed {(string arg) => arg.Length}'", "Expected end of interpolated expression, but instead found Identifier")]
+        [DataRow(@"$'Malformed {(StringProp == null) ? 'StringPropWasNull' : 'StringPropWasNotNull'}'", "Conditional expression needs to be enclosed in parentheses")]
+        public void BindingCompiler_Invalid_InterpolatedString_MalformedExpression(string expression, string errorMessage)
         {
             try
             {
@@ -181,7 +184,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow(@"$'Interpolated {IntProp < LongProperty}'", "Interpolated True")]
         [DataRow(@"$'Interpolated {StringProp ?? 'StringPropWasNull'}'", "Interpolated StringPropWasNull")]
-        [DataRow(@"$'Interpolated {(StringProp == null) ? 'StringPropWasNull' : 'StringPropWasNotNull'}'", "Interpolated StringPropWasNull")]
+        [DataRow(@"$'Interpolated {((StringProp == null) ? 'StringPropWasNull' : 'StringPropWasNotNull')}'", "Interpolated StringPropWasNull")]
         public void BindingCompiler_Valid_InterpolatedString_WithComplexExpressions(string expression, string evaluated)
         {
             var viewModel = new TestViewModel() { IntProp = 1, LongProperty = 2 };
