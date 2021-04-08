@@ -173,10 +173,19 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow(@"$""Interpolated {StringProp} {StringProp}""", "Interpolated abc abc")]
         [DataRow(@"$'Interpolated {StringProp} {StringProp}'", "Interpolated abc abc")]
         [DataRow(@"$'Interpolated {StringProp.Length}'", "Interpolated 3")]
-        [DataRow(@"$'{string.Join(', ', IntArray)}'", "1, 2, 3")]
         public void BindingCompiler_Valid_InterpolatedString_WithSimpleExpressions(string expression, string evaluated)
         {
-            var viewModel = new TestViewModel() { StringProp = "abc", IntArray = new[] { 1, 2, 3 } };
+            var viewModel = new TestViewModel() { StringProp = "abc" };
+            var binding = ExecuteBinding(expression, viewModel);
+            Assert.AreEqual(evaluated, binding);
+        }
+
+        [TestMethod]
+        [DataRow(@"$'{string.Join(', ', IntArray)}'", "1, 2, 3")]
+        [DataRow(@"$'{string.Join(', ', 'abc', 'def', $'{string.Join(', ', IntArray)}')}'", "abc, def, 1, 2, 3")]
+        public void BindingCompiler_Valid_InterpolatedString_NestedExpressions(string expression, string evaluated)
+        {
+            var viewModel = new TestViewModel { IntArray = new[] { 1, 2, 3 } };
             var binding = ExecuteBinding(expression, viewModel);
             Assert.AreEqual(evaluated, binding);
         }
@@ -195,9 +204,10 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow(@"$'Interpolated {DateFrom:R}'", "Interpolated Fri, 11 Nov 2011 12:11:11 GMT")]
         [DataRow(@"$'Interpolated {$'{DateFrom:R}'}'", "Interpolated Fri, 11 Nov 2011 12:11:11 GMT")]
+        [DataRow(@"$'Interpolated {$'{IntProp:0000}'}'", "Interpolated 0006")]
         public void BindingCompiler_Valid_InterpolatedString_WithFormattingComponent(string expression, string evaluated)
         {
-            var viewModel = new TestViewModel() { DateFrom = DateTime.Parse("2011-11-11T11:11:11+00:00") };
+            var viewModel = new TestViewModel() { DateFrom = DateTime.Parse("2011-11-11T11:11:11+00:00"), IntProp = 6 };
             var binding = ExecuteBinding(expression, viewModel);
             Assert.AreEqual(evaluated, binding);
         }
