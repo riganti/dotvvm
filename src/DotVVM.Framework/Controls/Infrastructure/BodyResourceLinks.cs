@@ -33,9 +33,7 @@ namespace DotVVM.Framework.Controls
             writer.RenderSelfClosingTag("input");
 
             // init on load
-            var initCode = $@"
-window.dotvvm.init({JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});
-";
+            var initCode = $@"window.dotvvm.init({JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});";
             new InlineScriptResource(initCode, defer: true)
                 .Render(writer, context, "dotvvm-init-script");
 
@@ -58,7 +56,7 @@ window.dotvvm.init({JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', S
             foreach (var w in collector.GetWarnings())
             {
                 var msg = JsonConvert.ToString(w.ToString(), '"', StringEscapeHandling.EscapeHtml);
-                result += $"console.warn({msg});\n";
+                result += $"dotvvm.log.logWarning({msg});\n";
             }
             return result;
         }

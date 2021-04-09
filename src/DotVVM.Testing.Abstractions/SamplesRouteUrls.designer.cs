@@ -157,6 +157,7 @@ namespace DotVVM.Testing.Abstractions
         public const string Errors_BindingInvalidCommand = "Errors/BindingInvalidCommand";
         public const string Errors_BindingInvalidProperty = "Errors/BindingInvalidProperty";
         public const string Errors_ConfigurableHtmlControlValidation = "Errors/ConfigurableHtmlControlValidation";
+        public const string Errors_ControlAsViewModel = "Errors/ControlAsViewModel";
         public const string Errors_ControlUsageValidation = "Errors/ControlUsageValidation";
         public const string Errors_CorruptedContentBetweenContentControls = "Errors/CorruptedContentBetweenContentControls";
         public const string Errors_EmptyBinding = "Errors/EmptyBinding";
@@ -274,6 +275,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Resources_RequiredOnPostback = "FeatureSamples/Resources/RequiredOnPostback";
         public const string FeatureSamples_ReturnedFile_ReturnedFileSample = "FeatureSamples/ReturnedFile/ReturnedFileSample";
         public const string FeatureSamples_Serialization_DeserializationVirtualElements = "FeatureSamples/Serialization/DeserializationVirtualElements";
+        public const string FeatureSamples_Serialization_Dictionary = "FeatureSamples/Serialization/Dictionary";
         public const string FeatureSamples_Serialization_EnumSerializationWithJsonConverter = "FeatureSamples/Serialization/EnumSerializationWithJsonConverter";
         public const string FeatureSamples_Serialization_ObservableCollectionShouldContainObservables = "FeatureSamples/Serialization/ObservableCollectionShouldContainObservables";
         public const string FeatureSamples_Serialization_Serialization = "FeatureSamples/Serialization/Serialization";
@@ -321,6 +323,14 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ViewModelProtection_NestedSignatures = "FeatureSamples/ViewModelProtection/NestedSignatures";
         public const string FeatureSamples_ViewModelProtection_SignedNestedInServerToClient = "FeatureSamples/ViewModelProtection/SignedNestedInServerToClient";
         public const string FeatureSamples_ViewModelProtection_ViewModelProtection = "FeatureSamples/ViewModelProtection/ViewModelProtection";
+        public const string FeatureSamples_ViewModules_IncrementerInRepeater = "FeatureSamples/ViewModules/IncrementerInRepeater";
+        public const string FeatureSamples_ViewModules_ModuleInMarkupControl = "FeatureSamples/ViewModules/ModuleInMarkupControl";
+        public const string FeatureSamples_ViewModules_ModuleInMarkupControlTwice = "FeatureSamples/ViewModules/ModuleInMarkupControlTwice";
+        public const string FeatureSamples_ViewModules_ModuleInPage = "FeatureSamples/ViewModules/ModuleInPage";
+        public const string FeatureSamples_ViewModules_ModuleInPageCommandAmbiguous = "FeatureSamples/ViewModules/ModuleInPageCommandAmbiguous";
+        public const string FeatureSamples_ViewModules_ModuleInPageMasterPage = "FeatureSamples/ViewModules/ModuleInPageMasterPage";
+        public const string FeatureSamples_ViewModules_ModuleInPageSpaMasterPage = "FeatureSamples/ViewModules/ModuleInPageSpaMasterPage";
+        public const string FeatureSamples_ViewModules_ModuleInPageSpaMasterPage2 = "FeatureSamples/ViewModules/ModuleInPageSpaMasterPage2";
         public const string FeatureSamples_Warnings_SelfClosingTags = "FeatureSamples/Warnings/SelfClosingTags";
         }
 }

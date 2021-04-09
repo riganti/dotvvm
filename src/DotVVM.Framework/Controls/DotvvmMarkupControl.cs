@@ -1,6 +1,8 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
@@ -57,12 +59,14 @@ namespace DotVVM.Framework.Controls
                 TagName = null;
             }
 
-            base.OnPreInit(context);
-        }
+            var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
+            if (viewModule is object)
+            {
+                Debug.Assert(viewModule.IsMarkupControl);
+                context.ResourceManager.AddRequiredResource(viewModule.ImportResourceName);
+            }
 
-        protected internal override void OnLoad(Hosting.IDotvvmRequestContext context)
-        {
-            base.OnLoad(context);
+            base.OnPreInit(context);
         }
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -74,9 +78,24 @@ namespace DotVVM.Framework.Controls
                 .Where(p => p.Js is object)
                 .Select(p => JsonConvert.ToString(p.Property.Name, '"', StringEscapeHandling.EscapeHtml) + ": " + p.Js);
 
+            var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
+
             writer.WriteKnockoutDataBindComment("dotvvm-with-control-properties", "{ " + string.Join(", ", properties) + " }");
+            if (viewModule is object)
+            {
+                var viewIdJs = ViewModuleHelpers.GetViewIdJsExpression(viewModule, this);
+                var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
+                settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
+                writer.WriteKnockoutDataBindComment("dotvvm-with-view-modules",
+                    $"{{ viewIdOrElement: {viewIdJs}, modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}"
+                );
+            }
             base.RenderContents(writer, context);
             writer.WriteKnockoutDataBindEndComment();
+            if (viewModule is object)
+            {
+                writer.WriteKnockoutDataBindEndComment();
+            }
         }
 
         private PropertySerializeInfo GetPropertySerializationInfo(DotvvmProperty property)

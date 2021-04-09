@@ -22,6 +22,8 @@ namespace DotVVM.Samples.Tests.Base
 
         public By SelectByDataUi(string selector)
             => SelectBy.CssSelector($"[data-ui='{selector}']");
+        public By SelectByUiTestName(string selector)
+                    => SelectBy.CssSelector($"[data-uitest-name='{selector}']");
 
         public virtual void RunInAllBrowsers(Action<IBrowserWrapper> testBody,
             [CallerMemberName] string callerMemberName = "",

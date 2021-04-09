@@ -44,7 +44,8 @@
         "Defer": true,
         "Location": {
           "$type": "DotVVM.Framework.ResourceManagement.FileResourceLocation, DotVVM.Framework",
-          "FilePath": "./apiscript.js"
+          "FilePath": "./apiscript.js",
+          "DebugFilePath": "./apiscript.js"
         },
         "MimeType": "text/javascript",
         "RenderPosition": "Anywhere"

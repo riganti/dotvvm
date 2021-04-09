@@ -21,6 +21,9 @@ import * as spaEvents from './spa/events'
 import { isPostbackRunning } from "./postback/internal-handlers"
 import * as api from './api/api'
 import * as eventHub from './api/eventHub'
+import * as viewModuleManager from './viewModules/viewModuleManager'
+import { notifyModuleLoaded } from './postback/resourceLoader'
+import { logError, logWarning, logInfo, logInfoVerbose, level, logPostBackScriptError } from "./utils/logging"
 import { orderBy, orderByDesc } from './collections/sortingHelper'
 import * as arrayHelper from './collections/arrayHelper'
 
@@ -66,6 +69,7 @@ const dotvvmExports = {
     },
     globalize,
     postBackHandlers: postbackHandlers,
+    postbackHandlers: postbackHandlers,
     buildUrlSuffix,
     buildRouteUrl,
     staticCommandPostback,
@@ -76,7 +80,7 @@ const dotvvmExports = {
     isPostbackRunning,
     events: (compileConstants.isSpa ?
              { ...events, ...spaEvents } :
-             events),
+             events) as (Partial<typeof spaEvents> & typeof events),
     viewModels: {
         root: {
             get viewModel() { return getViewModel() }
@@ -95,6 +99,23 @@ const dotvvmExports = {
         parseDate,
         deserialize
     },
+    viewModules: {
+        registerOne: viewModuleManager.registerViewModule,
+        init: viewModuleManager.initViewModule,
+        call: viewModuleManager.callViewModuleCommand,
+        registerMany: viewModuleManager.registerViewModules
+    },
+    resourceLoader: {
+        notifyModuleLoaded
+    },
+    log: {
+        logError,
+        logWarning,
+        logInfo,
+        logInfoVerbose,
+        logPostBackScriptError,
+        level
+    },
     arrayHelper
 }
 
@@ -104,7 +125,7 @@ if (compileConstants.isSpa) {
 }
 
 declare global {
-    const dotvvm: typeof dotvvmExports;
+    const dotvvm: typeof dotvvmExports & {isSpaReady?: typeof isSpaReady, handleSpaNavigation?: typeof handleSpaNavigation};
 
     interface Window {
         dotvvm: typeof dotvvmExports

@@ -50,6 +50,51 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             expression = ReplaceCommandArgs(expression);
 
+            var js = TranslateVariableDeclaration(expression, e => CreateCommandExpression(dataContext, e));
+
+            if (js is JsInvocationExpression invocation && invocation.Target is JsIdentifierExpression identifier && identifier.Identifier == "resolve")
+            {
+                // optimize `new Promise(function (resolve) { resolve(x) })` to `Promise.resolve(x)`
+                identifier.ReplaceWith(new JsIdentifierExpression("Promise").Member("resolve"));
+                return js;
+            }
+            else
+            {
+                return new JsNewExpression(new JsIdentifierExpression("Promise"), new JsFunctionExpression(
+                    new [] { new JsIdentifier("resolve"), new JsIdentifier("reject") },
+                    new JsBlockStatement(new JsExpressionStatement(js))
+                ));
+            }
+        }
+
+        private JsExpression TranslateVariableDeclaration(Expression expression, Func<Expression, JsExpression> core)
+        {
+            expression = VariableHoistingVisitor.HoistVariables(expression);
+            if (expression is BlockExpression block && block.Variables.Any())
+            {
+                var realBlock = block.Update(Enumerable.Empty<ParameterExpression>(), block.Expressions);
+
+                var variables = block.Variables;
+                var replacedVariables = ExpressionUtils.Replace(
+                    Expression.Lambda(realBlock, variables),
+                    variables.Select(v => {
+                        var tmpVar = new JsTemporaryVariableParameter();
+                        return Expression.Parameter(v.Type, v.Name).AddParameterAnnotation(new BindingParameterAnnotation(extensionParameter:
+                            new JavascriptTranslationVisitor.FakeExtensionParameter(_ => new JsSymbolicParameter(tmpVar))
+                        ));
+                    }).ToArray()
+                );
+
+                return core(replacedVariables);
+            }
+            else
+            {
+                return core(expression);
+            }
+        }
+
+        private JsExpression CreateCommandExpression(DataContextStack dataContext, Expression expression)
+        {
             var knockoutContext =
                 new JsSymbolicParameter(
                     JavascriptTranslator.KnockoutContextParameter,
@@ -117,22 +162,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 else if (sp.Symbol == JavascriptTranslator.KnockoutViewModelParameter) sp.ReplaceWith(new JsSymbolicParameter(currentContextVariable).Member("$data"));
                 else if (sp.Symbol == CommandBindingExpression.SenderElementParameter) sp.Symbol = senderVariable;
             }
-
-            {
-                if (js is JsInvocationExpression invocation && invocation.Target is JsIdentifierExpression identifier && identifier.Identifier == "resolve")
-                {
-                    // optimize `new Promise(function (resolve) { resolve(x) })` to `Promise.resolve(x)`
-                    identifier.ReplaceWith(new JsIdentifierExpression("Promise").Member("resolve"));
-                    return js;
-                }
-                else
-                {
-                    return new JsNewExpression(new JsIdentifierExpression("Promise"), new JsFunctionExpression(
-                        new[] { new JsIdentifier("resolve"), new JsIdentifier("reject") },
-                        new JsBlockStatement(new JsExpressionStatement(js))
-                    ));
-                }
-            }
+            return js;
         }
 
         private Func<ParameterExpression, BindingParameterAnnotation> CreatePromiseMethodCallAnnotationFactory(DataContextStack dataContext, Expression ex)

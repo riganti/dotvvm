@@ -3,7 +3,6 @@ using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Xunit;
 using Xunit.Abstractions;
-using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -24,7 +23,7 @@ namespace DotVVM.Samples.Tests.Feature
                     var value2 = browser.First(".result").GetInnerText();
                     AssertUI.InnerTextEquals(browser.First(".result2"), value2);
 
-                    Assert.AreNotEqual(value, value2);
+                    Assert.NotEqual(value, value2);
                 }
             });
         }

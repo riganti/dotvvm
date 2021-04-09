@@ -1651,6 +1651,7 @@ ko.exportSymbol('computedContext.registerDependency', ko.computedContext.registe
 
 ko.exportSymbol('ignoreDependencies', ko.ignoreDependencies = ko.dependencyDetection.ignore);
 var observableLatestValue = ko.utils.createSymbolOrString('_latestValue');
+var observableValidator = ko.utils.createSymbolOrString('_validator');
 
 ko.observable = function (initialValue, validator) {
     function observable() {
@@ -1658,10 +1659,16 @@ ko.observable = function (initialValue, validator) {
             // Write
 
             // Ignore writes if the value hasn't changed
-            if (observable.isDifferent(observable[observableLatestValue], arguments[0])) {
-                if (validator) validator.call(observable, arguments[0])
+            var newValue = arguments[0];
+            var notifySubscribers;
+            if (validator) {
+                result = validator.call(observable, newValue);
+                newValue = result.newValue;
+                notifySubscribers = result.notifySubscribers;
+            }
+            if (observable.isDifferent(observable[observableLatestValue], newValue) || notifySubscribers) {
                 observable.valueWillMutate();
-                observable[observableLatestValue] = arguments[0];
+                observable[observableLatestValue] = newValue;
                 observable.valueHasMutated();
             }
             return this; // Permits chained assignments
@@ -1674,6 +1681,7 @@ ko.observable = function (initialValue, validator) {
     }
 
     observable[observableLatestValue] = initialValue;
+    observable[observableValidator] = validator;
 
     // Inherit from 'subscribable'
     if (!ko.utils.canSetPrototype) {
@@ -1854,7 +1862,15 @@ ko.utils.arrayForEach(["pop", "push", "reverse", "shift", "sort", "splice", "uns
         this.valueWillMutate();
         this.cacheDiffForKnownOperation(underlyingArray, methodName, arguments);
         var methodCallResult = underlyingArray[methodName].apply(underlyingArray, arguments);
+
+        if (this[observableValidator]) {
+            var newValue = this[observableValidator].call(this, underlyingArray).newValue;
+            if (newValue !== underlyingArray) {
+                this[observableLatestValue] = newValue;
+            }
+        }
         this.valueHasMutated();
+
         // The native sort and reverse methods return a reference to the array, but it makes more sense to return the observable array instead.
         return methodCallResult === underlyingArray ? this : methodCallResult;
     };

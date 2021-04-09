@@ -1,0 +1,40 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Serialization.DictionaryViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+
+    <fieldset>
+        <legend>
+            Dict
+        </legend>
+        <dot:Repeater DataSource="{value:  Dictionary}" UITests.Name="dictionary">
+            <span>{{value:  Key}}:{{value: Value}}</span>
+            <br />
+        </dot:Repeater>
+    </fieldset>
+
+
+    <fieldset>
+        <legend>
+            ListKeyValue
+        </legend>
+        <dot:Repeater DataSource="{value:  ListKeyValue}" UITests.Name="list">
+            <span>{{value:  Key}}:{{value: Value}}</span>
+            <br />
+        </dot:Repeater>
+    </fieldset>
+    <dot:Button UITests.Name="verify" Click="{command:VerifyDeserialization()}" Text="Verify deserialization" />
+    <span UITests.Name="result">
+        {{value: Result}}
+    </span>
+</body>
+</html>
+
+

@@ -79,7 +79,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     }
                 }
             }
-            
+
             // add enum types
             foreach (var type in dependentEnumTypes)
             {
@@ -89,7 +89,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     resultJson[typeId] = GetEnumTypeMetadataCopy(type);
                 }
             }
-            
+
             return resultJson;
         }
 
@@ -163,6 +163,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 return new JObject(new JProperty("type", "dynamic"));
             }
+            else if (type.IsGenericType && ReflectionUtils.ImplementsGenericDefinition(type, typeof(IDictionary<,>)))
+            {
+                var attrs = type.GetGenericArguments();
+                var keyValuePair = typeof(KeyValuePair<,>).MakeGenericType(attrs);
+                return new JArray(GetTypeIdentifier(keyValuePair, dependentObjectTypes, dependentEnumTypes));
+            }
             else if (type.IsEnum)
             {
                 dependentEnumTypes.Add(type);
@@ -232,7 +238,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         readonly struct ViewModelSerializationMapWithCulture : IEquatable<ViewModelSerializationMapWithCulture>
         {
             public ViewModelSerializationMap Map { get; }
-            
+
             public string CultureName { get; }
 
             public ViewModelSerializationMapWithCulture(ViewModelSerializationMap map, string cultureName)

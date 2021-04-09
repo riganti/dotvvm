@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Hosting;
+using DotVVM.Core.Storage;
 
 public static class DotvvmRequestContextExtensions
 {
@@ -232,7 +233,7 @@ public static class DotvvmRequestContextExtensions
             AttachmentDispositionType = attachmentDispositionType ?? "attachment"
         };
 
-        var generatedFileId = returnedFileStorage.StoreFile(stream, metadata).Result;
+        var generatedFileId = returnedFileStorage.StoreFileAsync(stream, metadata).Result;
         context.SetRedirectResponse(context.TranslateVirtualPath("~/dotvvmReturnedFile?id=" + generatedFileId));
         throw new DotvvmInterruptRequestExecutionException(InterruptReason.ReturnFile, fileName);
     }

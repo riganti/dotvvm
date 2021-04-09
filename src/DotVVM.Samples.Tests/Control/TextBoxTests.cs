@@ -9,7 +9,6 @@ using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
-using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -56,10 +55,10 @@ namespace DotVVM.Samples.Tests.Control
 
                 var typeText = browser.Single("[data-ui='type-text']").GetText();
                 var typeTextDateTime = DateTime.Parse(typeText, DateTimeFormatInfo.InvariantInfo);
-                Assert.AreEqual(now.ToShortDateString(), typeTextDateTime.ToShortDateString());
+                Assert.Equal(now.ToShortDateString(), typeTextDateTime.ToShortDateString());
 
                 var customFormat = browser.Single("[data-ui='custom-format']").GetText();
-                Assert.AreEqual(customFormat, now.ToString("dd-MM-yy"));
+                Assert.Equal(customFormat, now.ToString("dd-MM-yy"));
 
                 browser.Single("[data-ui='fill-name-button']").Click();
                 AssertUI.TextEquals(browser.Single("[data-ui='name-of-day']"), now.DayOfWeek.ToString());
@@ -117,7 +116,7 @@ window.getSelectionText = function (dataui) {
             textBox.Click();
             var selectedText = (string)browser.GetJavaScriptExecutor().ExecuteScript($"return window.getSelectionText('{textBoxDataUi}');");
             var expectedText = isSelectAllOnFocusTrue ? "Testing text" : "";
-            Assert.AreEqual(expectedText, selectedText);
+            Assert.Equal(expectedText, selectedText);
         }
 
         public static IEnumerable<object[]> TextBoxStringFormatChangedCommandData =>
