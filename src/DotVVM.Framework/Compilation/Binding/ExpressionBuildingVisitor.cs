@@ -227,6 +227,18 @@ namespace DotVVM.Framework.Compilation.Binding
             return GetMemberOrTypeExpression(node, null) ?? Expression.Default(typeof(void));
         }
 
+        protected override Expression VisitAssemblyQualifiedName(AssemblyQualifiedNameBindingParserNode node)
+        {
+            if (node.AssemblyName.HasNodeErrors)
+            {
+                var message = node.AssemblyName.NodeErrors.StringJoin(Environment.NewLine);
+                throw new BindingCompilationException(message, node.AssemblyName);
+            }
+
+            // Assembly was already added to TypeRegistry - we can just visit the type name
+            return Visit(node.TypeName);
+        }
+
         protected override Expression VisitConditionalExpression(ConditionalExpressionBindingParserNode node)
         {
             var condition = HandleErrors(node.ConditionExpression, n => TypeConversion.ImplicitConversion(Visit(n), typeof(bool), true));
@@ -389,7 +401,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private void ThrowIfNotTypeNameRelevant(BindingParserNode node)
         {
-            if (ResolveOnlyTypeName && !(node is MemberAccessBindingParserNode) && !(node is IdentifierNameBindingParserNode))
+            if (ResolveOnlyTypeName && !(node is MemberAccessBindingParserNode) && !(node is IdentifierNameBindingParserNode) && !(node is AssemblyQualifiedNameBindingParserNode))
             {
                 throw new Exception("Only type name is supported.");
             }

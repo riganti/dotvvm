@@ -158,7 +158,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             TypeRegistry registry;
             if (expressionSyntax is AssemblyQualifiedNameBindingParserNode assemblyQualifiedName)
             {
-                expressionSyntax = assemblyQualifiedName.TypeName;
                 registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache, assemblyQualifiedName.AssemblyName.ToDisplayString());
             }
             else
