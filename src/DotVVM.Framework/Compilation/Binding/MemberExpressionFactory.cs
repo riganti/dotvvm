@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -16,14 +17,17 @@ namespace DotVVM.Framework.Compilation.Binding
 {
     public class MemberExpressionFactory
     {
-        private readonly IExtensionsProvider extensionsProvider;
+        private readonly IReadOnlyList<NamespaceImport> importedNamespaces;
+        private readonly ExtensionMethodsCache extensionMethodsCache;
         private static readonly Type ParamArrayAttributeType = typeof(ParamArrayAttribute);
 
-        public MemberExpressionFactory(IServiceProvider serviceProvider)
+        public MemberExpressionFactory(ExtensionMethodsCache extensionMethodsCache, IReadOnlyList<NamespaceImport> importedNamespaces = null)
         {
-            extensionsProvider = serviceProvider.GetService<IExtensionsProvider>();
-            if (extensionsProvider == null)
-                extensionsProvider = new DefaultExtensionsProvider();
+            if (importedNamespaces == null)
+                importedNamespaces = ImmutableList<NamespaceImport>.Empty;
+
+            this.extensionMethodsCache = extensionMethodsCache;
+            this.importedNamespaces = importedNamespaces;
         }
 
         public Expression GetMember(Expression target, string name, Type[] typeArguments = null, bool throwExceptions = true, bool onlyMemberTypes = false)
@@ -49,8 +53,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (members.Length == 0)
             {
                 // We did not find any match in regular methods => try extension methods
-                var extensions = extensionsProvider.GetExtensionMethods()
-                    .Where(m => m.Name == name).ToArray();
+                var extensions = GetAllExtensionMethods().Where(m => m.Name == name).ToArray();
                 members = extensions;
 
                 if (members.Length == 0 && throwExceptions)
@@ -177,7 +180,8 @@ namespace DotVVM.Framework.Compilation.Binding
             var method = FindValidMethodOveloads(null, target, name, flags, typeArguments, arguments, namedArgs);
             return Expression.Call(method.Method, method.Arguments);
         }
-     
+
+
         private MethodRecognitionResult FindValidMethodOveloads(Expression target, Type type, string name, BindingFlags flags, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
         {
             var methods = FindValidMethodOveloads(type.GetAllMembers(flags).OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, arguments, namedArgs).ToList();
@@ -190,7 +194,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     // Change to a static call
                     var newArguments = new[] { target }.Concat(arguments).ToArray();
-                    var extensions = FindValidMethodOveloads(extensionsProvider.GetExtensionMethods().OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, newArguments, namedArgs)
+                    var extensions = FindValidMethodOveloads(GetAllExtensionMethods().OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, newArguments, namedArgs)
                         .Select(method => { method.IsExtension = true; return method; }).ToList();
 
                     // We found an extension method
@@ -218,13 +222,19 @@ namespace DotVVM.Framework.Compilation.Binding
             return method;
         }
 
+        private IEnumerable<MethodInfo> GetAllExtensionMethods()
+        {
+            foreach (var ns in importedNamespaces)
+                foreach (var method in extensionMethodsCache.GetExtensionsForNamespace(ns.Namespace))
+                    yield return method;
+        }
+
         private IEnumerable<MethodRecognitionResult> FindValidMethodOveloads(IEnumerable<MethodInfo> methods, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
             => from m in methods
                let r = TryCallMethod(m, typeArguments, arguments, namedArgs)
                where r != null
                orderby r.CastCount descending, r.AutomaticTypeArgCount
                select r;
-
 
         class MethodRecognitionResult
         {
