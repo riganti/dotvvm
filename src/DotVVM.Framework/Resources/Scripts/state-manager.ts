@@ -146,7 +146,7 @@ class FakeObservableObject<T> implements UpdatableObjectExtensions<T> {
     constructor(initialValue: T, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata | undefined, additionalProperties: string[]) {
         this[currentStateSymbol] = initialValue
         this[updateSymbol] = updater
-        this[ErrorsPropertyName] = new Array<ValidationError>()
+        this[ErrorsPropertyName] = []
         for (const p of keys(typeInfo?.properties || {}).concat(additionalProperties)) {
             this[internalPropCache][p] = null
         
