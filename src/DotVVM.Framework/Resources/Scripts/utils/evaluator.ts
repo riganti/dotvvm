@@ -1,7 +1,7 @@
 import { isObservableArray } from "./knockout";
 import { logError } from "./logging";
 
-var shouldBeConvertedFromObservable: (currentLevel: any, remainingParts: string[]) => boolean = (currentLevel: any, remainingParts: string[]) => {
+const shouldBeConvertedFromObservable = (currentLevel: any, remainingParts: string[]): boolean => {
     if (currentLevel["$data"] == undefined) {
         return false;
     }
