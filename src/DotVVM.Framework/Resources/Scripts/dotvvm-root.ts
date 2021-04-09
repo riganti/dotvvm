@@ -67,6 +67,7 @@ const dotvvmExports = {
     },
     globalize,
     postBackHandlers: postbackHandlers,
+    postbackHandlers: postbackHandlers,
     buildUrlSuffix,
     buildRouteUrl,
     staticCommandPostback,
