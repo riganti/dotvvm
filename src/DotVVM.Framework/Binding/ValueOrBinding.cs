@@ -19,10 +19,10 @@ namespace DotVVM.Framework.Binding
     public struct ValueOrBinding<T> : ValueOrBinding
     {
         private readonly IBinding? binding;
-        [MaybeNull]
+        [AllowNull]
         private readonly T value;
 
-        private ValueOrBinding(IBinding? binding, [MaybeNull] T value)
+        private ValueOrBinding(IBinding? binding, [AllowNull] T value)
         {
             this.binding = binding;
             this.value = value;
@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Binding
                     !typeof(T).IsAssignableFrom(resultType.Type))
                 throw new ArgumentException($"The binding result type {resultType.Type.FullName} is not assignable to {typeof(T).FullName}");
             this.binding = binding;
-            this.value = default!;
+            this.value = default;
         }
 
         public ValueOrBinding(IStaticValueBinding<T> binding)
@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Binding
             if (binding == null) throw new ArgumentNullException(nameof(binding));
             // result type check is unnecessary when binding is generic
             this.binding = binding;
-            this.value = default!;
+            this.value = default;
         }
 
         public ValueOrBinding(T value)
@@ -52,10 +52,10 @@ namespace DotVVM.Framework.Binding
             this.binding = default;
         }
 
-        public static ValueOrBinding<T> FromBoxedValue(object value) =>
+        public static ValueOrBinding<T> FromBoxedValue(object? value) =>
             value is IBinding binding ? new ValueOrBinding<T>(binding) :
             value is ValueOrBinding vob ? new ValueOrBinding<T>(vob.BindingOrDefault, (T)vob.BoxedValue!) :
-            new ValueOrBinding<T>((T)value);
+            new ValueOrBinding<T>((T)value!);
 
 
         public T Evaluate(DotvvmBindableObject control) =>
