@@ -29,13 +29,13 @@ Param(
 
     try {
       $webClient.DownloadFile($snupkgUrl, $snupkgFile)
-      $snupkgDownloaded = true;
+      $snupkgDownloaded = $true;
     }catch {
       Write-Host "No snupkg package found!"
-      $snupkgDownloaded = false;
+      $snupkgDownloaded = $false;
    }        
     
-    if ($snupkgDownloaded==true){
+    if ($snupkgDownloaded -eq $true){
         Write-Host "Uploading snupkg package..."        
         & .\Tools\nuget.exe push $snupkgFile -source $server -apiKey $apiKey
         Remove-Item $nupkgFile    
