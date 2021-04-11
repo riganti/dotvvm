@@ -70,7 +70,7 @@ export function bindingDateToString(value: KnockoutObservable<string | Date> | s
         } : value;
         return ko.pureComputed({
             read: formatDate,
-            write: val => setter(parseDate(val, format))
+            write: val => setter(parseDate(val, format) || parseDate(val, ""))
         });
     }
     else {

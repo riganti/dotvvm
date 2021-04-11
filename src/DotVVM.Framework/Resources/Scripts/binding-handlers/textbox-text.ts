@@ -57,7 +57,7 @@ export default {
                     if (currentValue != null) {
                         currentValue = parseDotvvmDate(currentValue);
                     }
-                    result = globalize.parseDate(element.value, elmMetadata.format, currentValue);
+                    result = globalize.parseDate(element.value, elmMetadata.format, currentValue) || globalize.parseDate(element.value, "", currentValue);
                     isEmpty = result == null;
                     newValue = isEmpty ? null : serializeDate(result, false);
                 } else if (elmMetadata.dataType === "number") {
