@@ -102,8 +102,15 @@ namespace DotVVM.Framework.Controls
             RenderSpanElement = renderSpan;
         }
 
-        public static bool NeedsFormatting(IValueBinding binding) => binding != null && (binding.ResultType == typeof(DateTime) || binding.ResultType == typeof(DateTime?)
-            || binding.ResultType.IsNumericType() || Nullable.GetUnderlyingType(binding.ResultType).IsNumericType());
+        public static bool NeedsFormatting(IValueBinding? binding)
+        {
+            bool isFormattedType(Type? type) =>
+                type != null && (type == typeof(float) || type == typeof(double) || type == typeof(decimal) || type == typeof(DateTime) || isFormattedType(Nullable.GetUnderlyingType(type)));
+
+            bool isFormattedTypeOrObj(Type? type) => type == typeof(object) || isFormattedType(type);
+
+            return isFormattedType(binding?.ResultType) && isFormattedTypeOrObj(binding?.GetProperty<ExpectedTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type);
+        }
 
         protected override bool RendersHtmlTag => RenderSpanElement;
 
