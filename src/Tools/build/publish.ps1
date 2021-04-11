@@ -173,6 +173,10 @@ if ($versionWithoutPre.Contains("-")) {
     $versionWithoutPre = $versionWithoutPre.Substring(0, $versionWithoutPre.IndexOf("-"))
 }
 
+if ($branchName.StartsWith("refs/heads/") -eq $true) {
+	$branchName = $branchName.Substring("refs/heads/".Length)
+}
+
 CleanOldGeneratedPackages;
 RestoreSignClient;
 GitCheckout;
