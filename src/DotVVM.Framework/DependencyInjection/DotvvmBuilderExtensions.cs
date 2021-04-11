@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.IO;
+using DotVVM.Core.Storage;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Runtime;

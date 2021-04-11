@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Compilation
         private Stack<EmitterMethodInfo> methods = new Stack<EmitterMethodInfo>();
         private List<EmitterMethodInfo> outputMethods = new List<EmitterMethodInfo>();
         public SyntaxTree SyntaxTree { get; private set; }
-        public Type BuilderDataContextType { get; set; }
+        public ControlBuilderDescriptor Descriptor { get; set; }
         public TypeSyntax ResultControlTypeSyntax { get; set; }
 
         private ConcurrentDictionary<Assembly, string> usedAssemblies = new ConcurrentDictionary<Assembly, string>();
@@ -767,8 +767,6 @@ namespace DotVVM.Framework.Compilation
             if (controlProperties.FirstOrDefault(c => c.Value.Any()) is var uncommittedControl && uncommittedControl.Value != null)
                 throw new Exception($"Control {uncommittedControl.Key} has unresolved properties {String.Join(", ", uncommittedControl.Value.Select(p => p.prop.FullName + " " + p.value))}");
 
-            UseType(BuilderDataContextType);
-
             var root = SyntaxFactory.CompilationUnit()
                 .WithExterns(SyntaxFactory.List(
                     UsedAssemblies.Select(k => SyntaxFactory.ExternAliasDirective(SyntaxFactory.Identifier(k.Value)))
@@ -806,15 +804,14 @@ namespace DotVVM.Framework.Compilation
                                             .WithParameterList(m.Parameters)
                                             .WithBody(SyntaxFactory.Block(m.Statements))
                                         ).Concat(new [] {
-                                            SyntaxFactory.PropertyDeclaration(ParseTypeName(typeof(Type)), nameof(IControlBuilder.DataContextType))
+                                            SyntaxFactory.PropertyDeclaration(ParseTypeName(typeof(ControlBuilderDescriptor)), nameof(IControlBuilder.Descriptor))
                                                 .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
                                                 .WithExpressionBody(
-                                                    SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(ParseTypeName(BuilderDataContextType))))
-                                                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
-                                            SyntaxFactory.PropertyDeclaration(ParseTypeName(typeof(Type)), nameof(IControlBuilder.ControlType))
-                                                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                                                .WithExpressionBody(
-                                                    SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(ResultControlTypeSyntax)))
+                                                    SyntaxFactory.ArrowExpressionClause(SyntaxFactory.CastExpression(
+                                                        this.ParseTypeName(typeof(ControlBuilderDescriptor)),
+                                                        this.EmitValue(Descriptor)
+                                                    ))
+                                                )
                                                 .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
                                         }).Concat(otherDeclarations)
                                     )

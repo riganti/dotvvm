@@ -3,6 +3,9 @@
     "importedNamespaces": [
       {
         "namespace": "DotVVM.Framework.Binding.HelperNamespace"
+      },
+      {
+        "namespace": "System.Linq"
       }
     ],
     "ViewCompilation": {
@@ -38,33 +41,40 @@
     },
     "scripts": {
       "r1": {
+        "Defer": true,
         "Location": {
           "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
-          "Url": "x"
+          "Url": "x",
+          "DebugUrl": "x"
         },
         "MimeType": "text/javascript",
         "VerifyResourceIntegrity": true,
         "IntegrityHash": "hash, maybe"
       },
       "r2": {
+        "Defer": true,
         "Location": {
           "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
-          "Url": "x"
+          "Url": "x",
+          "DebugUrl": "x"
         },
         "LocationFallback": {
           "JavascriptCondition": "window.x",
           "AlternativeLocations": [
             {
               "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
-              "Url": "y"
+              "Url": "y",
+              "DebugUrl": "y"
             },
             {
               "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
-              "Url": "z"
+              "Url": "z",
+              "DebugUrl": "z"
             },
             {
               "$type": "DotVVM.Framework.ResourceManagement.FileResourceLocation, DotVVM.Framework",
-              "FilePath": "some-script.js"
+              "FilePath": "some-script.js",
+              "DebugFilePath": "some-script.js"
             }
           ]
         },
@@ -72,14 +82,15 @@
         "Dependencies": [
           "r1"
         ],
-        "RenderPosition": "Body"
+        "RenderPosition": "Anywhere"
       }
     },
     "stylesheets": {
       "r3": {
         "Location": {
           "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
-          "Url": "s"
+          "Url": "s",
+          "DebugUrl": "s"
         },
         "MimeType": "text/css",
         "VerifyResourceIntegrity": true,

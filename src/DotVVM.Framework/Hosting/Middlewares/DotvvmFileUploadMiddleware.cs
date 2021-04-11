@@ -6,10 +6,11 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DotVVM.Core.Storage;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
-using DotVVM.Framework.Storage;
+using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.AspNet.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -22,19 +23,22 @@ namespace DotVVM.Framework.Hosting.Middlewares
         private static readonly Regex wildcardMimeTypeRegex = new Regex(@"/\*$");
         private readonly IOutputRenderer outputRenderer;
         private readonly IUploadedFileStorage fileStorage;
+        private readonly IViewModelSerializer viewModelSerializer;
 
-        public DotvvmFileUploadMiddleware(IOutputRenderer outputRenderer, IUploadedFileStorage fileStorage)
+        public DotvvmFileUploadMiddleware(IOutputRenderer outputRenderer, IUploadedFileStorage fileStorage, IViewModelSerializer viewModelSerializer)
         {
             this.outputRenderer = outputRenderer;
             this.fileStorage = fileStorage;
+            this.viewModelSerializer = viewModelSerializer;
         }
 
         public static DotvvmFileUploadMiddleware? TryCreate(IServiceProvider provider)
         {
             var renderer = provider.GetRequiredService<IOutputRenderer>();
             var fileStorage = provider.GetService<IUploadedFileStorage>();
+            var viewModelSerializer = provider.GetRequiredService<IViewModelSerializer>();
             if (fileStorage != null)
-                return new DotvvmFileUploadMiddleware(renderer, fileStorage);
+                return new DotvvmFileUploadMiddleware(renderer, fileStorage, viewModelSerializer);
             else
                 return null;
         }
@@ -47,15 +51,17 @@ namespace DotVVM.Framework.Hosting.Middlewares
             if (url == HostingConstants.FileUploadHandlerMatchUrl ||
                 url.StartsWith(HostingConstants.FileUploadHandlerMatchUrl + "?", StringComparison.OrdinalIgnoreCase))
             {
-                await ProcessMultipartRequest(request.HttpContext);
+                await ProcessMultipartRequest(request);
                 return true;
             }
 
             return false;
         }
 
-        private async Task ProcessMultipartRequest(IHttpContext context)
+        private async Task ProcessMultipartRequest(IDotvvmRequestContext request)
         {
+            var context = request.HttpContext;
+
             // verify the request
             var isPost = context.Request.Method == "POST";
             if (isPost && !context.Request.ContentType!.StartsWith("multipart/form-data", StringComparison.Ordinal))
@@ -88,29 +94,32 @@ namespace DotVVM.Framework.Hosting.Middlewares
             }
 
             // return the response
-            await RenderResponse(context, isPost, errorMessage, uploadedFiles);
+            await RenderResponse(request, isPost, errorMessage, uploadedFiles);
         }
 
         private bool ShouldReturnJsonResponse(IHttpContext context) =>
             context.Request.Headers[HostingConstants.DotvvmFileUploadAsyncHeaderName] == "true" ||
             context.Request.Query["returnJson"] == "true";
 
-        private async Task RenderResponse(IHttpContext context, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
+        private async Task RenderResponse(IDotvvmRequestContext request, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
         {
+            var context = request.HttpContext;
+
             var settings = DefaultSerializerSettingsProvider.Instance.Settings;
             if (isPost && ShouldReturnJsonResponse(context))
             {
                 // modern browser - return JSON
                 if (string.IsNullOrEmpty(errorMessage))
                 {
+                    var json = viewModelSerializer.BuildStaticCommandResponse(request, uploadedFiles);
                     if (context.Request.Query["iframe"] == "true")
                     {
                         // IE will otherwise try to download the response as JSON file
-                        await outputRenderer.RenderPlainTextResponse(context, JsonConvert.SerializeObject(uploadedFiles, settings));
+                        await outputRenderer.RenderPlainTextResponse(context, json);
                     }
                     else
                     {
-                        await outputRenderer.RenderPlainJsonResponse(context, uploadedFiles);
+                        await outputRenderer.RenderPlainJsonResponse(context, json);
                     }
                 }
                 else
@@ -133,7 +142,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
                     if (string.IsNullOrEmpty(errorMessage))
                     {
                         template.StartupScript = string.Format("reportProgress(false, 100, {0})",
-                            JsonConvert.SerializeObject(uploadedFiles, settings));
+                            viewModelSerializer.BuildStaticCommandResponse(request, uploadedFiles));
                     }
                     else
                     {
@@ -167,7 +176,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
         /// </summary>
         private async Task<UploadedFile> StoreFile(IHttpContext context, MultipartSection section, IUploadedFileStorage fileStore)
         {
-            var fileId = await fileStore.StoreFile(section.Body);
+            var fileId = await fileStore.StoreFileAsync(section.Body);
             var fileNameGroup = Regex.Match(section.ContentDisposition, @"filename=""?(?<fileName>[^\""]*)", RegexOptions.IgnoreCase).Groups["fileName"];
             var fileName = fileNameGroup.Success ? fileNameGroup.Value : string.Empty;
             var mimeType = section.ContentType ?? string.Empty;

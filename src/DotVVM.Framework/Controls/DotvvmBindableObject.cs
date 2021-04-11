@@ -319,11 +319,11 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets all ancestors of this control starting with the parent.
         /// </summary>
-        /// <param name="incudingThis">Returns also the caller control</param>
+        /// <param name="includingThis">Returns also the caller control</param>
         /// <param name="onlyWhenInChildren">Only enumerate until the parent has this control in <see cref="DotvvmControl.Children" />. Note that it may have a non-trivial performance penalty</param>
-        public IEnumerable<DotvvmBindableObject> GetAllAncestors(bool incudingThis = false, bool onlyWhenInChildren = false)
+        public IEnumerable<DotvvmBindableObject> GetAllAncestors(bool includingThis = false, bool onlyWhenInChildren = false)
         {
-            var ancestor = incudingThis ? this : Parent;
+            var ancestor = includingThis ? this : Parent;
             while (ancestor != null)
             {
                 yield return ancestor;

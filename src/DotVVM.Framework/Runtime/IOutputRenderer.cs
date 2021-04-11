@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Runtime
 
         Task WriteStaticCommandResponse(IDotvvmRequestContext context, string json);
 
-        Task RenderPlainJsonResponse(IHttpContext context, object data);
+        Task RenderPlainJsonResponse(IHttpContext context, string json);
 
         Task RenderHtmlResponse(IHttpContext context, string html);
 

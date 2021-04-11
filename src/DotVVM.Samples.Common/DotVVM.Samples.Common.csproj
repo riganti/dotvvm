@@ -13,12 +13,22 @@
     <Content Include="**/*.dotmaster;**/*.dotcontrol;**/*.dothtml" Exclude="obj/**/*.*;bin/**/*.*" CopyToPublishDirectory="Always" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="Views\FeatureSamples\NewFolder\**" />
+    <Content Remove="Views\FeatureSamples\NewFolder\**" />
+    <EmbeddedResource Remove="Views\FeatureSamples\NewFolder\**" />
+    <None Remove="Views\FeatureSamples\NewFolder\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="sampleConfig.json" />
     <None Remove="Views\ComplexSamples\NestedComboBox\InnerWrapper.dotcontrol" />
     <None Remove="Views\ComplexSamples\NestedComboBox\OuterWrapper.dotcontrol" />
     <None Remove="Views\ComplexSamples\SPAErrorReporting\default.dothtml" />
     <None Remove="Views\ComplexSamples\SPAErrorReporting\site.dotmaster" />
     <None Remove="Views\ComplexSamples\SPAErrorReporting\test.dothtml" />
+    <None Remove="Views\ControlSamples\CheckBox\CheckBox_Objects.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\BindingCTValidation_StringToEnum.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\HeavilyNested.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_Complex_Error.dothtml" />
@@ -33,6 +43,7 @@
     <None Remove="Views\ControlSamples\MultiSelect\binded.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
     <None Remove="Views\ControlSamples\RadioButton\Nullable.dothtml" />
+    <None Remove="Views\ControlSamples\RadioButton\RadioButton_Objects.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\NamedTemplate.dothtml" />
     <None Remove="Views\ControlSamples\RouteLink\RouteLinkQueryParameters.dothtml" />
     <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressQueues.dothtml" />
@@ -51,8 +62,26 @@
     <None Remove="Views\FeatureSamples\Caching\CachedValues.dothtml" />
     <None Remove="Views\FeatureSamples\CompositeControls\ControlPropertyNamingConflict.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\GenericMethodTranslation.dothtml" />
+    <None Remove="Views\FeatureSamples\JsDirectives\BasicSample.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\LambdaExpressions.dothtml" />
     <None Remove="Views\FeatureSamples\Localization\Globalize.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\Incrementer.dotcontrol" />
+    <None Remove="Views\FeatureSamples\ViewModules\IncrementerInRepeater.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleInMarkupControl.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleInMarkupControlTwice.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleInPage.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleInPageCommandAmbiguous.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleInPageMasterPage.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleInPageSpaMasterPage.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleInPageSpaMasterPage2.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleMasterPage.dotmaster" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleSpaMasterPage.dotmaster" />
+    <None Remove="Views\FeatureSamples\MarkupControl\CommandPropertiesInMarkupControl.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\Device.dotcontrol" />
+    <None Remove="Views\FeatureSamples\MarkupControl\Dialog.dotcontrol" />
+    <None Remove="Views\FeatureSamples\MarkupControl\StaticCommandInMarkupControl.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\StaticCommandInMarkupControlCallingRegularCommand.dothtml" />
     <None Remove="Views\FeatureSamples\PostbackConcurrency\RedirectPostbackQueue.dothtml" />
     <None Remove="Views\FeatureSamples\PostbackConcurrency\StressTest.dothtml" />
     <None Remove="Views\FeatureSamples\PostBack\RecursiveTextRepeater.dotcontrol" />
@@ -63,6 +92,7 @@
     <None Remove="Views\FeatureSamples\Resources\RequiredOnPostback.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\DeserializationVirtualElements.dothtml" />
     <None Remove="Views\FeatureSamples\CustomResponseProperties\SimpleExceptionFilter.dothtml" />
+    <None Remove="Views\FeatureSamples\Serialization\Dictionary.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\CustomAwaitable.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ArrayAssigment.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_LoadComplexDataFromService.dothtml" />
@@ -87,6 +117,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />

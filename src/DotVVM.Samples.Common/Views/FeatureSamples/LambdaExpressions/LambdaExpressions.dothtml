@@ -24,12 +24,21 @@
 
         <div>
             <h2>Operations</h2>
+            <p>
+            Showcasing LINQ and JsTranslator <br/>
+            Note: you can use either explicit expressions (example: Enumerable.Where(Collection, ...)),
+                 but also extension-method-like calls (example: Collection.Where(...))
+            </p>
+
             <dot:Button Text="Get all even numbers" Validation.Enabled="false"
-                        Click="{command: SetResult(Enumerable.Where(Array, (int item) => item % 2 == 0))}" />
+                        <%--Click="{command: SetResult(Enumerable.Where(Array, (int item) => item % 2 == 0))}" />--%>
+                        Click="{command: SetResult(Array.Where((int item) => item % 2 == 0))}" />
             <dot:Button Text="Get all odd numbers" Validation.Enabled="false"
-                        Click="{command: SetResult(Enumerable.Where(Array, (int item) => item % 2 == 1))}" />
+                        <%--Click="{command: SetResult(Enumerable.Where(Array, (int item) => item % 2 == 1))}" />--%>
+                        Click="{command: SetResult(Array.Where((int item) => item % 2 == 1))}" />
             <dot:Button Text="Negate numbers" Validation.Enabled="false"
-                        Click="{command: SetResult(Enumerable.Select(Array, (int item) => -item))}" />
+                        <%--Click="{command: SetResult(Enumerable.Select(Array, (int item) => -item))}" />--%>
+                        Click="{command: SetResult(Array.Select((int item) => -item))}" />
         </div>
 
         <div>

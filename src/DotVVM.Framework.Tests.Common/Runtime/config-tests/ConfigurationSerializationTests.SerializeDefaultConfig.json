@@ -10,6 +10,9 @@
     "importedNamespaces": [
       {
         "namespace": "DotVVM.Framework.Binding.HelperNamespace"
+      },
+      {
+        "namespace": "System.Linq"
       }
     ],
     "ViewCompilation": {
@@ -32,13 +35,15 @@
         "NomoduleLocation": {
           "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
           "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.obj.javascript.root_only_system.dotvvm-root.js"
+          "Name": "DotVVM.Framework.obj.javascript.root_only_system.dotvvm-root.js",
+          "DebugName": "DotVVM.Framework.obj.javascript.root_only_system_debug.dotvvm-root.js"
         },
         "Defer": true,
         "Location": {
           "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
           "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.obj.javascript.root_only.dotvvm-root.js"
+          "Name": "DotVVM.Framework.obj.javascript.root_only.dotvvm-root.js",
+          "DebugName": "DotVVM.Framework.obj.javascript.root_only_debug.dotvvm-root.js"
         },
         "MimeType": "text/javascript",
         "Dependencies": [
@@ -51,13 +56,15 @@
         "NomoduleLocation": {
           "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
           "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.obj.javascript.root_spa_system.dotvvm-root.js"
+          "Name": "DotVVM.Framework.obj.javascript.root_spa_system.dotvvm-root.js",
+          "DebugName": "DotVVM.Framework.obj.javascript.root_spa_system_debug.dotvvm-root.js"
         },
         "Defer": true,
         "Location": {
           "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
           "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.obj.javascript.root_spa.dotvvm-root.js"
+          "Name": "DotVVM.Framework.obj.javascript.root_spa.dotvvm-root.js",
+          "DebugName": "DotVVM.Framework.obj.javascript.root_spa_debug.dotvvm-root.js"
         },
         "MimeType": "text/javascript",
         "Dependencies": [
@@ -70,13 +77,15 @@
         "NomoduleLocation": {
           "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
           "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.obj.javascript.polyfill.bundle.js"
+          "Name": "DotVVM.Framework.obj.javascript.polyfill.bundle.js",
+          "DebugName": "DotVVM.Framework.obj.javascript.polyfill.bundle.js"
         },
         "Defer": true,
         "Location": {
           "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
           "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.obj.javascript.polyfill.bundle.js"
+          "Name": "DotVVM.Framework.obj.javascript.polyfill.bundle.js",
+          "DebugName": "DotVVM.Framework.obj.javascript.polyfill.bundle.js"
         },
         "MimeType": "text/javascript",
         "RenderPosition": "Anywhere"
@@ -88,7 +97,8 @@
         "Location": {
           "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
           "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js"
+          "Name": "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js",
+          "DebugName": "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js"
         },
         "MimeType": "text/javascript",
         "Dependencies": [
@@ -101,7 +111,8 @@
         "Location": {
           "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
           "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.Resources.Scripts.Globalize.globalize.min.js"
+          "Name": "DotVVM.Framework.Resources.Scripts.Globalize.globalize.min.js",
+          "DebugName": "DotVVM.Framework.Resources.Scripts.Globalize.globalize.min.js"
         },
         "MimeType": "text/javascript",
         "RenderPosition": "Anywhere"
@@ -111,7 +122,8 @@
         "Location": {
           "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
           "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.Resources.Scripts.knockout-latest.js"
+          "Name": "DotVVM.Framework.Resources.Scripts.knockout-latest.js",
+          "DebugName": "DotVVM.Framework.Resources.Scripts.knockout-latest.debug.js"
         },
         "MimeType": "text/javascript",
         "RenderPosition": "Anywhere"
@@ -122,7 +134,8 @@
         "Location": {
           "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
           "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css"
+          "Name": "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css",
+          "DebugName": "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css"
         },
         "MimeType": "text/css"
       }

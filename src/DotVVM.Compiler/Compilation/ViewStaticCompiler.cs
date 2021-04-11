@@ -249,7 +249,7 @@ namespace DotVVM.Compiler.Compilation
             var res = new ViewCompilationResult {
                 BuilderClassName = fullClassName,
                 ControlType = resolvedView.Metadata.Type,
-                DataContextType = emitter?.BuilderDataContextType,
+                DataContextType = emitter?.Descriptor.DataContextType,
                 ResolvedTree = Options.OutputResolvedDothtmlMap ? resolvedView : null
             };
             BuildFileResult(fileName, res);

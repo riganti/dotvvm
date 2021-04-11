@@ -7,6 +7,8 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.ResourceManagement;
+using System.Collections.Immutable;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Controls.Infrastructure
 {
@@ -45,6 +47,13 @@ namespace DotVVM.Framework.Controls.Infrastructure
             if (context.Configuration.Debug)
             {
                 context.ResourceManager.AddRequiredResource(ResourceConstants.DotvvmDebugResourceName);
+            }
+
+            var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
+            if (viewModule is object)
+            {
+                Debug.Assert(!viewModule.IsMarkupControl);
+                context.ResourceManager.AddRequiredResource(viewModule.InitResourceName);
             }
             base.OnPreRender(context);
         }

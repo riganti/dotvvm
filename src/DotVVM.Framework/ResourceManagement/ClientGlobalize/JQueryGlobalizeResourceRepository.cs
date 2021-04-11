@@ -12,7 +12,7 @@ namespace DotVVM.Framework.ResourceManagement.ClientGlobalize
     public class JQueryGlobalizeResourceRepository : CachingResourceRepository
     {
         protected override IResource FindResource(string name) =>
-            new ScriptResource(defer: true, location: new JQueryGlobalizeResourceLocation(new CultureInfo(name)))
+            new ScriptResource(location: new JQueryGlobalizeResourceLocation(new CultureInfo(name)))
             {
                 Dependencies = new[] { ResourceConstants.GlobalizeResourceName },
             };

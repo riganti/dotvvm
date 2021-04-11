@@ -1,9 +1,12 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
@@ -56,12 +59,14 @@ namespace DotVVM.Framework.Controls
                 TagName = null;
             }
 
-            base.OnPreInit(context);
-        }
+            var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
+            if (viewModule is object)
+            {
+                Debug.Assert(viewModule.IsMarkupControl);
+                context.ResourceManager.AddRequiredResource(viewModule.ImportResourceName);
+            }
 
-        protected internal override void OnLoad(Hosting.IDotvvmRequestContext context)
-        {
-            base.OnLoad(context);
+            base.OnPreInit(context);
         }
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -73,9 +78,24 @@ namespace DotVVM.Framework.Controls
                 .Where(p => p.Js is object)
                 .Select(p => JsonConvert.ToString(p.Property.Name, '"', StringEscapeHandling.EscapeHtml) + ": " + p.Js);
 
+            var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
+
             writer.WriteKnockoutDataBindComment("dotvvm-with-control-properties", "{ " + string.Join(", ", properties) + " }");
+            if (viewModule is object)
+            {
+                var viewIdJs = ViewModuleHelpers.GetViewIdJsExpression(viewModule, this);
+                var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
+                settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
+                writer.WriteKnockoutDataBindComment("dotvvm-with-view-modules",
+                    $"{{ viewIdOrElement: {viewIdJs}, modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}"
+                );
+            }
             base.RenderContents(writer, context);
             writer.WriteKnockoutDataBindEndComment();
+            if (viewModule is object)
+            {
+                writer.WriteKnockoutDataBindEndComment();
+            }
         }
 
         private PropertySerializeInfo GetPropertySerializationInfo(DotvvmProperty property)
@@ -97,6 +117,26 @@ namespace DotVVM.Framework.Controls
                     valueBinding.GetKnockoutBindingExpression(this)
                 );
             }
+            else if (GetBinding(property) is ICommandBinding command)
+            {
+                // just few commands have arguments so it's worth checking if we need to clutter the output with argument propagation
+                var hasArguments = command.CommandJavascript.Parameters.Any(p => p.Parameter == CommandBindingExpression.CommandArgumentsParameter);
+                var call = KnockoutHelper.GenerateClientPostBackExpression(
+                    property.Name,
+                    command,
+                    this,
+                    new PostbackScriptOptions(
+                        elementAccessor: "$element",
+                        commandArgs: hasArguments ? new CodeParameterAssignment(new ParametrizedCode("commandArguments", OperatorPrecedence.Max)) : default
+                    ));
+
+                var collectArgs = hasArguments ? "var commandArguments=[].slice.call(arguments); " : "";
+
+                return new PropertySerializeInfo(
+                    property,
+                    $"function(){{{collectArgs}return {call}}}"
+                );
+            }          
             else
             {
                 return new PropertySerializeInfo(property, null);

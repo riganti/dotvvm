@@ -1,12 +1,12 @@
 using System;
 
-namespace DotVVM.Framework.Storage
+namespace DotVVM.Core.Storage
 {
     public class UploadedFile
     {
         public Guid FileId { get; set; }
 
-        public string FileName { get; set; }
+        public string? FileName { get; set; }
 
         public FileSize FileSize { get; set; } = new FileSize();
 

@@ -170,9 +170,25 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Adds the specified piece of javascript that will be executed when the page is loaded.
         /// </summary>
+        public void AddStartupScript(string name, string javascriptCode, bool defer, params string[] dependentResourceNames)
+        {
+            AddRequiredResource(name, new InlineScriptResource(javascriptCode, defer: defer) { Dependencies = dependentResourceNames });
+        }
+
+        /// <summary>
+        /// Adds the specified piece of javascript that will be executed when the page is loaded.
+        /// </summary>
         public void AddStartupScript(string javascriptCode, params string[] dependentResourceNames)
         {
             var defer = dependentResourceNames.Any(IsDeferred);
+            AddRequiredResource(new InlineScriptResource(javascriptCode, defer: defer) { Dependencies = dependentResourceNames });
+        }
+
+        /// <summary>
+        /// Adds the specified piece of javascript that will be executed when the page is loaded.
+        /// </summary>
+        public void AddStartupScript(string javascriptCode, bool defer, params string[] dependentResourceNames)
+        {
             AddRequiredResource(new InlineScriptResource(javascriptCode, defer: defer) { Dependencies = dependentResourceNames });
         }
 

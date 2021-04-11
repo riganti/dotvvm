@@ -28,14 +28,15 @@ namespace DotVVM.Framework.Tests.Binding
         private BindingCompilationService bindingService;
 
         [TestInitialize]
-        public void INIT()
+        public void Init()
         {
             this.configuration = DotvvmTestHelper.CreateConfiguration();
             configuration.RegisterApiClient(typeof(TestApiClient), "http://server/api", "./apiscript.js", "_testApi");
             this.bindingService = configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
         }
         public string CompileBinding(string expression, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object));
-        public string CompileBinding(string expression, Type[] contexts, Type expectedType)
+        public string CompileBinding(string expression, NamespaceImport[] imports, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object), imports);
+        public string CompileBinding(string expression, Type[] contexts, Type expectedType, NamespaceImport[] imports = null)
         {
             var context = DataContextStack.Create(contexts.FirstOrDefault() ?? typeof(object), extensionParameters: new BindingExtensionParameter[]{
                 new CurrentCollectionIndexExtensionParameter(),
@@ -47,8 +48,8 @@ namespace DotVVM.Framework.Tests.Binding
             {
                 context = DataContextStack.Create(contexts[i], context);
             }
-            var parser = new BindingExpressionBuilder(configuration.ServiceProvider.GetRequiredService<CompiledAssemblyCache>());
-            var parsedExpression = parser.ParseWithLambdaConversion(expression, context, BindingParserOptions.Create<ValueBindingExpression>(), expectedType);
+            var parser = new BindingExpressionBuilder(configuration.ServiceProvider.GetRequiredService<CompiledAssemblyCache>(), configuration.ServiceProvider.GetRequiredService<ExtensionMethodsCache>());
+            var parsedExpression = parser.ParseWithLambdaConversion(expression, context, BindingParserOptions.Create<ValueBindingExpression>(importNs: imports), expectedType);
             var expressionTree =
                 TypeConversion.MagicLambdaConversion(parsedExpression, expectedType) ??
                 TypeConversion.ImplicitConversion(parsedExpression, expectedType, true, true);
@@ -368,24 +369,35 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void JsTranslator_EnumerableWhere()
+        [DataRow("Enumerable.Where(LongArray, (long item) => item % 2 == 0)", DisplayName = "Regular call of Enumerable.Where")]
+        [DataRow("LongArray.Where((long item) => item % 2 == 0)", DisplayName = "Syntax sugar - extension method")]
+        public void JsTranslator_EnumerableWhere(string binding)
         {
-            var result = CompileBinding("Enumerable.Where(LongArray, (long item) => item % 2 == 0)", new[] { typeof(TestViewModel) });
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("LongArray().filter(function(item){return ko.unwrap(item)%2==0;})", result);
         }
-
         [TestMethod]
         public void JsTranslator_NestedEnumerableMethods()
         {
-            var result = CompileBinding("Enumerable.Where(Enumerable.Where(LongArray, (long item) => item % 2 == 0), (long item) => item % 3 == 0)", new[] { typeof(TestViewModel) });
+            var result = CompileBinding("Enumerable.Where(Enumerable.Where(LongArray, (long item) => item % 2 == 0), (long item) => item % 3 == 0)",
+                new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+
             Assert.AreEqual("LongArray().filter(function(item){return ko.unwrap(item)%2==0;}).filter(function(item){return ko.unwrap(item)%3==0;})", result);
+        }
+        [TestMethod]
+        [DataRow("Enumerable.Select(LongArray, (long item) => -item)", DisplayName = "Regular call of Enumerable.Select")]
+        [DataRow("LongArray.Select((long item) => -item)", DisplayName = "Syntax sugar - extension method")]
+        public void JsTranslator_EnumerableSelect(string binding)
+        {
+            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("LongArray().map(function(item){return -ko.unwrap(item);})", result);
         }
 
         [TestMethod]
-        public void JsTranslator_EnumerableSelect()
+        public void JsTranslator_ValidMethod_UnsupportedTranslation()
         {
-            var result = CompileBinding("Enumerable.Select(LongArray, (long item) => -item)", new[] { typeof(TestViewModel) });
-            Assert.AreEqual("LongArray().map(function(item){return -ko.unwrap(item);})", result);
+            Assert.ThrowsException<NotSupportedException>(() =>
+                CompileBinding("Enumerable.Skip<long>(LongArray, 2)", new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) }));
         }
 
         [TestMethod]
@@ -414,6 +426,34 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("_index", new [] { typeof(TestViewModel), typeof(object), typeof(string) });
             Assert.AreEqual("$parentContext.$parentContext.$index()", result);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_Variable()
+        {
+            var result = CompileBinding("var a = 1; var b = 2; var c = 3; a + b + c", typeof(TestViewModel));
+            Assert.AreEqual("function(a,b,c){a=1;b=2;c=3;return a+b+c;}()", result);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_Variable_Nested()
+        {
+            var result = CompileBinding("var a = 1; var b = (var a = 5; a + 1); a + b", typeof(TestViewModel));
+            Assert.AreEqual("function(a0,b){a0=1;b=function(a){a=5;return a+1;}();return a0+b;}()", result);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_Variable_Property()
+        {
+            var result = CompileBinding("var a = _this.StringProp; var b = _this.StringProp2; StringProp2 = a + b", typeof(TestViewModel));
+            Assert.AreEqual("function(a,b){a=StringProp();b=StringProp2();return StringProp2(a+b);}()", result);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_Variable_VM()
+        {
+            var result = CompileBinding("var a = _parent; var b = _this.StringProp2; StringProp2 = a + b", new [] { typeof(string), typeof(TestViewModel) });
+            Assert.AreEqual("function(a,b){a=$parent;b=StringProp2();return StringProp2(a+b);}()", result);
         }
 
         [TestMethod]

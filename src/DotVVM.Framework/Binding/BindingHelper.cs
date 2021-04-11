@@ -76,7 +76,7 @@ namespace DotVVM.Framework.Binding
             if (bindingContext == null || controlContext == null || controlContext.Equals(bindingContext)) return (0, control);
 
             var changes = 0;
-            foreach (var a in control.GetAllAncestors(incudingThis: true))
+            foreach (var a in control.GetAllAncestors(includingThis: true))
             {
                 if (bindingContext.Equals(a.GetValue(Internal.DataContextTypeProperty, inherit: false)))
                     return (changes, a);

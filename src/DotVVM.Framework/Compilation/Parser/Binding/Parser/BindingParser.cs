@@ -53,7 +53,31 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 Read();
                 var assemblyName = ReadNamespaceOrTypeName();
-                if (!(assemblyName is SimpleNameBindingParserNode)) typeName.NodeErrors.Add($"Generic identifier name is not allowed in assembly name.");
+
+                // SimpleNameBinding means that assembly name does not contain dots
+                // MemberAccessBinding means that assembly name is complex (multiple identifiers delimited with dots)
+                if (!(assemblyName is SimpleNameBindingParserNode || assemblyName is MemberAccessBindingParserNode))
+                {
+                    assemblyName.NodeErrors.Add($"Expected assembly name but instead got {assemblyName.GetType().Name}.");
+                }
+                else if (assemblyName is MemberAccessBindingParserNode)
+                {
+                    // Make sure there is no GenericNameBinding within assemblyName
+                    var assemblyBinding = assemblyName;
+                    while (assemblyBinding is MemberAccessBindingParserNode assemblyMemberBinding)
+                    {
+                        var memberExprType = assemblyMemberBinding.MemberNameExpression.GetType();
+                        var targetExprType = assemblyMemberBinding.TargetExpression.GetType();
+                        if (memberExprType == typeof(GenericNameBindingParserNode) || targetExprType == typeof(GenericNameBindingParserNode))
+                        {
+                            assemblyName.NodeErrors.Add($"Generic identifier name is not allowed in an assembly name.");
+                            break;
+                        }
+
+                        assemblyBinding = assemblyMemberBinding.TargetExpression;
+                    }
+                }
+
                 return new AssemblyQualifiedNameBindingParserNode(typeName, assemblyName);
             }
             else if (Peek() is BindingToken token)
@@ -474,6 +498,24 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 {
                     expression = ReadArrayAccess(startIndex, expression);
                 }
+                else if (!onlyTypeName && next.Type == BindingTokenType.Identifier && expression is SimpleNameBindingParserNode keywordNameExpression)
+                {
+                    // we have `identifier identifier` - the first one must be a KEYWORD USAGE
+
+                    var keyword = keywordNameExpression.Name;
+                    if (keyword == "var")
+                    {
+                        return ReadVariableExpression(startIndex);
+                    }
+                    else if (keyword == "val" || keyword == "let" || keyword == "const")
+                    {
+                        expression = CreateNode(expression, startIndex, $"Variable declaration using {keyword} is not supported. Did you intend to use the var keyword?");
+                    }
+                    else
+                    {
+                        expression = CreateNode(expression, startIndex, $"Expression '{expression.ToDisplayString()}' can not be followed by an identifier. Did you intent to declare a variable using the var keyword?");
+                    }
+                }
                 else
                 {
                     break;
@@ -481,6 +523,35 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 next = Peek();
             }
             return expression;
+        }
+
+        private BindingParserNode ReadVariableExpression(int startIndex)
+        {
+            var variableName = ReadIdentifierNameExpression();
+            if (!(variableName is SimpleNameBindingParserNode))
+            {
+                variableName = CreateNode(variableName, variableName.StartPosition, $"Variable name can not be generic, please use the `var {variableName.Name} = X` syntax.");
+            }
+
+            var incorrectEquals = IsCurrentTokenIncorrect(BindingTokenType.AssignOperator);
+            if (!incorrectEquals)
+            {
+                Read();
+            }
+
+            var value = ReadSemicolonSeparatedExpression();
+
+            if (value is BlockBindingParserNode resultBlock)
+            {
+                return CreateNode(
+                    new BlockBindingParserNode(resultBlock.FirstExpression, resultBlock.SecondExpression, variableName),
+                    startIndex,
+                    !incorrectEquals ? null : $"Expected variable declaration `var {variableName.Name} = {resultBlock.FirstExpression}`");
+            }
+            else
+            {
+                return CreateNode(value, startIndex, $"Variable declaration must be followed by a semicolon and another expression. Please add the return value after `var {variableName.Name} = {value}; ...` or remove the `var {variableName.Name} = ` in case you only want to invoke the expression.");
+            }
         }
 
         private BindingParserNode ReadArrayAccess(int startIndex, BindingParserNode expression)
