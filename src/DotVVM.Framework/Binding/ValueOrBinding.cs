@@ -1,4 +1,7 @@
+#nullable enable
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Javascript;
@@ -9,16 +12,17 @@ namespace DotVVM.Framework.Binding
 {
     public interface ValueOrBinding
     {
-        IBinding BindingOrDefault { get; }
-        object BoxedValue { get; }
+        IBinding? BindingOrDefault { get; }
+        object? BoxedValue { get; }
     }
 
     public struct ValueOrBinding<T> : ValueOrBinding
     {
-        private readonly IBinding binding;
+        private readonly IBinding? binding;
+        [MaybeNull]
         private readonly T value;
 
-        private ValueOrBinding(IBinding binding, T value)
+        private ValueOrBinding(IBinding? binding, [MaybeNull] T value)
         {
             this.binding = binding;
             this.value = value;
@@ -31,15 +35,15 @@ namespace DotVVM.Framework.Binding
                     !typeof(T).IsAssignableFrom(resultType.Type))
                 throw new ArgumentException($"The binding result type {resultType.Type.FullName} is not assignable to {typeof(T).FullName}");
             this.binding = binding;
-            this.value = default;
+            this.value = default!;
         }
 
         public ValueOrBinding(IStaticValueBinding<T> binding)
         {
             if (binding == null) throw new ArgumentNullException(nameof(binding));
-            // result type check is unnecesary when binding is generic
+            // result type check is unnecessary when binding is generic
             this.binding = binding;
-            this.value = default;
+            this.value = default!;
         }
 
         public ValueOrBinding(T value)
@@ -50,7 +54,7 @@ namespace DotVVM.Framework.Binding
 
         public static ValueOrBinding<T> FromBoxedValue(object value) =>
             value is IBinding binding ? new ValueOrBinding<T>(binding) :
-            value is ValueOrBinding vob ? new ValueOrBinding<T>(vob.BindingOrDefault, (T)vob.BoxedValue) :
+            value is ValueOrBinding vob ? new ValueOrBinding<T>(vob.BindingOrDefault, (T)vob.BoxedValue!) :
             new ValueOrBinding<T>((T)value);
 
 
@@ -58,18 +62,18 @@ namespace DotVVM.Framework.Binding
             binding != null ? (T)binding.GetBindingValue(control) : value;
 
         public T ValueOrDefault => value;
-        public IBinding BindingOrDefault => binding;
-        public object BoxedValue => (object)value;
+        public IBinding? BindingOrDefault => binding;
+        public object? BoxedValue => (object?)value;
 
         public static ValueOrBinding<T> DownCast<T2>(ValueOrBinding<T2> createFrom)
-            where T2 : T => new ValueOrBinding<T>(createFrom.binding, createFrom.value);
+            where T2 : T => new ValueOrBinding<T>(createFrom.binding, createFrom.value!);
 
 
         public ValueOrBinding<T2> UpCast<T2>()
             where T2 : T =>
             this.binding != null ?
             new ValueOrBinding<T2>(this.binding) :
-            new ValueOrBinding<T2>((T2)this.value);
+            new ValueOrBinding<T2>((T2)this.value!);
 
         public ParametrizedCode GetParametrizedJsExpression(DotvvmBindableObject control, bool unwrapped = false) =>
             ProcessValueBinding(control,
@@ -83,15 +87,18 @@ namespace DotVVM.Framework.Binding
                 binding => binding.GetKnockoutBindingExpression(control, unwrapped)
             );
 
-        public ValueOrBinding<TNew> Map<TNew>(Func<T, TNew> valueMap, Func<IBinding, IBinding> bindingMap = null) =>
-            binding != null ?
-            new ValueOrBinding<TNew>(bindingMap == null ? binding : bindingMap.Invoke(binding)) :
-            new ValueOrBinding<TNew>(valueMap(value));
 
-        public ValueOrBinding<TNew> Bind<TNew>(Func<T, ValueOrBinding<TNew>> valueMap, Func<IBinding, ValueOrBinding<TNew>> bindingMap = null) =>
-            binding != null ?
-            (bindingMap == null ? new ValueOrBinding<TNew>(binding) : bindingMap.Invoke(binding)) :
-            valueMap(value);
+        // TODO: proper mapping operators
+
+        // public ValueOrBinding<TNew> Map<TNew>(Func<T, TNew> valueMap, Func<IBinding, IBinding>? bindingMap = null) =>
+        //     binding != null ?
+        //     new ValueOrBinding<TNew>(bindingMap == null ? binding : bindingMap.Invoke(binding)) :
+        //     new ValueOrBinding<TNew>(valueMap(value));
+
+        // public ValueOrBinding<TNew> Bind<TNew>(Func<T, ValueOrBinding<TNew>> valueMap, Func<IBinding, ValueOrBinding<TNew>>? bindingMap = null) =>
+        //     binding != null ?
+        //     (bindingMap == null ? new ValueOrBinding<TNew>(binding) : bindingMap.Invoke(binding)) :
+        //     valueMap(value);
 
         public void Process(Action<T> processValue, Action<IBinding> processBinding)
         {
@@ -136,5 +143,11 @@ namespace DotVVM.Framework.Binding
         [Obsolete(EqualsDisabledReason, error: true)]
         public static bool operator !=(ValueOrBinding<T> a, ValueOrBinding<T> b) =>
             throw new NotSupportedException(EqualsDisabledReason);
+
+        [Obsolete(EqualsDisabledReason, error: true)]
+        public override bool Equals(object? obj) => throw new NotSupportedException(EqualsDisabledReason);
+
+        [Obsolete(EqualsDisabledReason, error: true)]
+        public override int GetHashCode() => throw new NotSupportedException(EqualsDisabledReason);
     }
 }

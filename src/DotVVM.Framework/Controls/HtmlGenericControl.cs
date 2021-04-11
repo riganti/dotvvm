@@ -102,14 +102,14 @@ namespace DotVVM.Framework.Controls
 
         public HtmlCapability HtmlCapability
         {
-            get => (HtmlCapability)this.GetValue(HtmlCapabilityProperty);
+            get => (HtmlCapability)this.GetValue(HtmlCapabilityProperty)!;
             set => this.SetValue(HtmlCapabilityProperty, value);
         }
         public static readonly DotvvmCapabilityProperty HtmlCapabilityProperty =
-            DotvvmCapabilityProperty.RegisterCapability("Html", typeof(HtmlGenericControl), typeof(HtmlCapability),
+            DotvvmCapabilityProperty.RegisterCapability("HtmlCapability", typeof(HtmlGenericControl), typeof(HtmlCapability),
                 control => new HtmlCapability {
                     Visible = control.GetValueOrBinding<bool>(VisibleProperty),
-                    Attributes = ((HtmlGenericControl)control).Attributes.ToDictionary(k => k.Key, k => ValueOrBinding<object>.FromBoxedValue(k.Value)),
+                    Attributes = ((HtmlGenericControl)control).Attributes.ToDictionary(k => k.Key, k => ValueOrBinding<object?>.FromBoxedValue(k.Value)),
                     CssClasses = VirtualPropertyGroupDictionary<bool>.CreatePropertyDictionary(control, CssClassesGroupDescriptor)
                 },
                 (control, boxedValue) => {
@@ -405,9 +405,9 @@ namespace DotVVM.Framework.Controls
     public sealed class HtmlCapability
     {
         [PropertyGroup("", "html:")]
-        public IDictionary<string, ValueOrBinding<object>> Attributes { get; set; }
+        public IDictionary<string, ValueOrBinding<object?>> Attributes { get; set; } = new Dictionary<string, ValueOrBinding<object?>>();
         [PropertyGroup("Class-")]
-        public IDictionary<string, ValueOrBinding<bool>> CssClasses { get; set; }
+        public IDictionary<string, ValueOrBinding<bool>> CssClasses { get; set; } = new Dictionary<string, ValueOrBinding<bool>>();
         public ValueOrBinding<bool> Visible { get; set; } = true;
     }
 }

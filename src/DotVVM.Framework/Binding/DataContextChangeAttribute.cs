@@ -12,6 +12,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Binding
 {
+    /// Controls which data context should be used inside of the marked control or property
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class | AttributeTargets.Field | AttributeTargets.Parameter, Inherited = true, AllowMultiple = true)]
     public abstract class DataContextChangeAttribute : Attribute
     {

@@ -13,6 +13,9 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
+    /// <summary>
+    /// Base class for controls implemented using other components returned from the `GetContents` method
+    /// </summary>
     public abstract class CompositeControl : DotvvmControl
     {
         public CompositeControl()
@@ -21,7 +24,7 @@ namespace DotVVM.Framework.Controls
 
         private class ControlInfo
         {
-            public MethodInfo RenderMethod;
+            public MethodInfo GetContentsMethod;
             public ImmutableArray<Func<IDotvvmRequestContext, CompositeControl, object>> Properties;
         }
         private static ConcurrentDictionary<Type, ControlInfo> controlInfoCache = new ConcurrentDictionary<Type, ControlInfo>();
@@ -50,7 +53,7 @@ namespace DotVVM.Framework.Controls
 
                 var arguments = method.GetParameters().Select(initializeArgument);
 
-                if (!controlInfoCache.TryAdd(controlType, new ControlInfo { RenderMethod = method, Properties = arguments.ToImmutableArray() }))
+                if (!controlInfoCache.TryAdd(controlType, new ControlInfo { GetContentsMethod = method, Properties = arguments.ToImmutableArray() }))
                     throw new Exception("no");
             }
         }
@@ -61,7 +64,7 @@ namespace DotVVM.Framework.Controls
 
             // TODO: generate Linq.Expression instead of this reflection invocation
             var args = info.Properties.Select(p => p(context, this)).ToArray();
-            var content = info.RenderMethod.Invoke(this, args);
+            var content = info.GetContentsMethod.Invoke(this, args);
 
             if (content is IEnumerable<DotvvmControl> enumerable)
                 foreach (var c in enumerable) this.Children.Add(c);
