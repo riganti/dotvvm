@@ -23,6 +23,9 @@
         "namespace": "DotVVM.Framework.Binding.HelperNamespace"
       },
       {
+        "namespace": "System.Linq"
+      },
+      {
         "namespace": "System"
       },
       {

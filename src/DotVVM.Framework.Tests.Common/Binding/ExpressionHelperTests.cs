@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices.ComTypes;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
@@ -24,7 +25,8 @@ namespace DotVVM.Framework.Tests.Common.Binding
         public void Init()
         {
             var configuration = DotvvmTestHelper.CreateConfiguration();
-            memberExpressionFactory = configuration.ServiceProvider.GetRequiredService<MemberExpressionFactory>();
+            var extensionsCache = configuration.ServiceProvider.GetRequiredService<ExtensionMethodsCache>();
+            memberExpressionFactory = new MemberExpressionFactory(extensionsCache);
         }
 
         [TestMethod]

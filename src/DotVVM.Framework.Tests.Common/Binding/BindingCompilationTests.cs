@@ -58,6 +58,11 @@ namespace DotVVM.Framework.Tests.Binding
             return ExecuteBinding(expression, contexts, null);
         }
 
+        public object ExecuteBinding(string expression, NamespaceImport[] imports, params object[] contexts)
+        {
+            return ExecuteBinding(expression, contexts, null, imports);
+        }
+
         [TestMethod]
         public void BindingCompiler_FullNameResourceBinding()
         {
@@ -259,7 +264,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingCompiler_Valid_ExtensionMethods()
         {
             var viewModel = new TestViewModel();
-            var result = (long[])ExecuteBinding("LongArray.Where((long item) => item % 2 != 0).ToArray()", viewModel);
+            var result = (long[])ExecuteBinding("LongArray.Where((long item) => item % 2 != 0).ToArray()", new[] { new NamespaceImport("System.Linq") }, viewModel);
             CollectionAssert.AreEqual(viewModel.LongArray.Where(item => item % 2 != 0).ToArray(), result);
         }
 

@@ -23,6 +23,7 @@ import * as api from './api/api'
 import * as eventHub from './api/eventHub'
 import * as viewModuleManager from './viewModules/viewModuleManager'
 import { notifyModuleLoaded } from './postback/resourceLoader'
+import { logError, logWarning, logInfo, logInfoVerbose, level, logPostBackScriptError } from "./utils/logging"
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -66,6 +67,7 @@ const dotvvmExports = {
     },
     globalize,
     postBackHandlers: postbackHandlers,
+    postbackHandlers: postbackHandlers,
     buildUrlSuffix,
     buildRouteUrl,
     staticCommandPostback,
@@ -103,6 +105,14 @@ const dotvvmExports = {
     },
     resourceLoader: {
         notifyModuleLoaded
+    },
+    log: {
+        logError,
+        logWarning,
+        logInfo,
+        logInfoVerbose,
+        logPostBackScriptError,
+        level
     }
 }
 

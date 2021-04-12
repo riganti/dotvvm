@@ -56,7 +56,7 @@ namespace DotVVM.Framework.Controls
             foreach (var w in collector.GetWarnings())
             {
                 var msg = JsonConvert.ToString(w.ToString(), '"', StringEscapeHandling.EscapeHtml);
-                result += $"console.warn({msg});\n";
+                result += $"dotvvm.log.logWarning({msg});\n";
             }
             return result;
         }

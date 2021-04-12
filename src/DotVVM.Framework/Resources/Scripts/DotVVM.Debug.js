@@ -53,9 +53,9 @@
     iframe.style.width = "100%";
 
     dotvvm.events.error.subscribe(function (e) {
-        console.error("DotVVM: An " + (e.handled ? "" : "un") + "handled exception returned from the server command.");
-        console.log("Response: ", e.response);
-        console.log("ViewModel: ", e.viewModel);
+        dotvvm.log.logError("debug", "DotVVM: An " + (e.handled ? "" : "un") + "handled exception returned from the server command.");
+        dotvvm.log.logInfoVerbose("debug", "Response: ", e.response);
+        dotvvm.log.logInfoVerbose("debug", "ViewModel: ", e.viewModel);
         if (e.handled) return;
         debugWindow.querySelector("h1").textContent = "DotVVM Debugger: Error " +
            (e.response && e.response.status ? e.response.status + ": " + e.response.statusText + "" :
@@ -125,7 +125,7 @@
         if ("subscribe" in dotvvm.events[event]) {
             (function (event) {
                 dotvvm.events[event].subscribe(function (e) {
-                    console.log("Event " + event, e);
+                    dotvvm.log.logInfoVerbose("debug", "Event " + event, e);
                 });
             })(event);
         }

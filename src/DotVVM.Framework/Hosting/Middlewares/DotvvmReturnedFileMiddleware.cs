@@ -3,9 +3,9 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using DotVVM.Framework.Storage;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Core.Storage;
 #if DotNetCore
 using Microsoft.Net.Http.Headers;
 #else
@@ -30,27 +30,27 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
         private async Task RenderReturnedFile(IHttpContext context, IReturnedFileStorage returnedFileStorage)
         {
-            ReturnedFileMetadata metadata;
-
             var id = Guid.Parse(context.Request.Query["id"]);
-            using (var stream = returnedFileStorage.GetFile(id, out metadata))
+
+            var returnedFile = await returnedFileStorage.GetFileAsync(id);
+            using (var stream = returnedFile.Stream)
             {
 #if DotNetCore
-                var contentDispositionValue = new ContentDispositionHeaderValue(metadata.AttachmentDispositionType);
-                contentDispositionValue.SetHttpFileName(metadata.FileName);
+                var contentDispositionValue = new ContentDispositionHeaderValue(returnedFile.Metadata.AttachmentDispositionType);
+                contentDispositionValue.SetHttpFileName(returnedFile.Metadata.FileName);
                 context.Response.Headers[HeaderNames.ContentDisposition] = contentDispositionValue.ToString();
 #else
-                var contentDispositionValue = new ContentDispositionHeaderValue(metadata.AttachmentDispositionType)
+                var contentDispositionValue = new ContentDispositionHeaderValue(returnedFile.Metadata.AttachmentDispositionType)
                 {
-                    FileName = metadata.FileName,
-                    FileNameStar = metadata.FileName
+                    FileName = returnedFile.Metadata.FileName,
+                    FileNameStar = returnedFile.Metadata.FileName
                 };
                 context.Response.Headers["Content-Disposition"] = contentDispositionValue.ToString();
 #endif
-                context.Response.ContentType = metadata.MimeType;
-                if (metadata.AdditionalHeaders != null)
+                context.Response.ContentType = returnedFile.Metadata.MimeType;
+                if (returnedFile.Metadata.AdditionalHeaders != null)
                 {
-                    foreach (var header in metadata.AdditionalHeaders)
+                    foreach (var header in returnedFile.Metadata.AdditionalHeaders)
                     {
                         context.Response.Headers.Add(new KeyValuePair<string, string[]>(header.Key, header.Value));
                     }

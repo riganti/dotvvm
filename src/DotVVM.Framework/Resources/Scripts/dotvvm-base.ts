@@ -8,7 +8,7 @@ import * as events from './events';
 import * as spaEvents from './spa/events';
 import { replaceTypeInfo } from './metadata/typeMap'
 
-import { StateManager, DeepKnockoutWrapped } from './state-manager'
+import { StateManager } from './state-manager'
 
 type DotvvmCoreState = {
     _culture: string
@@ -36,7 +36,7 @@ export function getViewModelCacheId(): string | undefined {
 export function getViewModelCache(): any {
     return getCoreState()._viewModelCache;
 }
-export function getViewModelObservable(): DeepKnockoutWrapped<RootViewModel> {
+export function getViewModelObservable(): DeepKnockoutObservable<RootViewModel> {
     return getCoreState()._stateManager.stateObservable
 }
 export function getInitialUrl(): string {
