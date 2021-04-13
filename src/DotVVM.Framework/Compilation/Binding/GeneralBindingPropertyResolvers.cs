@@ -28,15 +28,15 @@ namespace DotVVM.Framework.Compilation.Binding
         private readonly IBindingExpressionBuilder bindingParser;
         private readonly StaticCommandBindingCompiler staticCommandBindingCompiler;
         private readonly JavascriptTranslator javascriptTranslator;
-        private readonly ExtensionMethodsCache extensionsMethodCache;
+        private readonly MemberExpressionFactory memberExpressionFactory;
 
-        public BindingPropertyResolvers(IBindingExpressionBuilder bindingParser, StaticCommandBindingCompiler staticCommandBindingCompiler, JavascriptTranslator javascriptTranslator, DotvvmConfiguration configuration, ExtensionMethodsCache extensionsCache)
+        public BindingPropertyResolvers(IBindingExpressionBuilder bindingParser, StaticCommandBindingCompiler staticCommandBindingCompiler, JavascriptTranslator javascriptTranslator, DotvvmConfiguration configuration, MemberExpressionFactory memberExpressionFactory)
         {
             this.configuration = configuration;
             this.bindingParser = bindingParser;
             this.staticCommandBindingCompiler = staticCommandBindingCompiler;
             this.javascriptTranslator = javascriptTranslator;
-            this.extensionsMethodCache = extensionsCache;
+            this.memberExpressionFactory = memberExpressionFactory;
         }
 
         public ActionFiltersBindingProperty GetActionFilters(ParsedExpressionBindingProperty parsedExpression)
@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             var valueParameter = Expression.Parameter(typeof(object), "value");
             var body = BindingCompiler.ReplaceParameters(binding.Expression, dataContext);
-            body = new MemberExpressionFactory(extensionsMethodCache, dataContext.NamespaceImports).UpdateMember(body, valueParameter);
+            body = memberExpressionFactory.UpdateMember(body, valueParameter);
             if (body == null)
             {
                 return null;

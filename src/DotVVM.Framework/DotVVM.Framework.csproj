@@ -132,6 +132,10 @@
     <None Update="Controls\DelegateTemplate.d.ts">
       <DependentUpon>DelegateTemplate.cs</DependentUpon>
     </None>
+    <None Update="Controls\FileUploadPageTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>FileUploadPageTemplate.cs</LastGenOutput>
+    </None>
     <None Update="Hosting\ErrorPages\ErrorPageTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>ErrorPageTemplate.cs</LastGenOutput>
@@ -145,6 +149,11 @@
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Controls\FileUploadPageTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>FileUploadPageTemplate.tt</DependentUpon>
+    </Compile>
     <Compile Update="Hosting\ErrorPages\ErrorPageTemplate.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

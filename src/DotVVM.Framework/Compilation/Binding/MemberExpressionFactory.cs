@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -17,17 +16,14 @@ namespace DotVVM.Framework.Compilation.Binding
 {
     public class MemberExpressionFactory
     {
-        private readonly IReadOnlyList<NamespaceImport> importedNamespaces;
-        private readonly ExtensionMethodsCache extensionMethodsCache;
+        private readonly IExtensionsProvider extensionsProvider;
         private static readonly Type ParamArrayAttributeType = typeof(ParamArrayAttribute);
 
-        public MemberExpressionFactory(ExtensionMethodsCache extensionMethodsCache, IReadOnlyList<NamespaceImport> importedNamespaces = null)
+        public MemberExpressionFactory(IServiceProvider serviceProvider)
         {
-            if (importedNamespaces == null)
-                importedNamespaces = ImmutableList<NamespaceImport>.Empty;
-
-            this.extensionMethodsCache = extensionMethodsCache;
-            this.importedNamespaces = importedNamespaces;
+            extensionsProvider = serviceProvider.GetService<IExtensionsProvider>();
+            if (extensionsProvider == null)
+                extensionsProvider = new DefaultExtensionsProvider();
         }
 
         public Expression GetMember(Expression target, string name, Type[] typeArguments = null, bool throwExceptions = true, bool onlyMemberTypes = false)
@@ -53,7 +49,8 @@ namespace DotVVM.Framework.Compilation.Binding
             if (members.Length == 0)
             {
                 // We did not find any match in regular methods => try extension methods
-                var extensions = GetAllExtensionMethods().Where(m => m.Name == name).ToArray();
+                var extensions = extensionsProvider.GetExtensionMethods()
+                    .Where(m => m.Name == name).ToArray();
                 members = extensions;
 
                 if (members.Length == 0 && throwExceptions)
@@ -180,8 +177,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var method = FindValidMethodOveloads(null, target, name, flags, typeArguments, arguments, namedArgs);
             return Expression.Call(method.Method, method.Arguments);
         }
-
-
+     
         private MethodRecognitionResult FindValidMethodOveloads(Expression target, Type type, string name, BindingFlags flags, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
         {
             var methods = FindValidMethodOveloads(type.GetAllMembers(flags).OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, arguments, namedArgs).ToList();
@@ -194,7 +190,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     // Change to a static call
                     var newArguments = new[] { target }.Concat(arguments).ToArray();
-                    var extensions = FindValidMethodOveloads(GetAllExtensionMethods().OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, newArguments, namedArgs)
+                    var extensions = FindValidMethodOveloads(extensionsProvider.GetExtensionMethods().OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, newArguments, namedArgs)
                         .Select(method => { method.IsExtension = true; return method; }).ToList();
 
                     // We found an extension method
@@ -222,19 +218,13 @@ namespace DotVVM.Framework.Compilation.Binding
             return method;
         }
 
-        private IEnumerable<MethodInfo> GetAllExtensionMethods()
-        {
-            foreach (var ns in importedNamespaces)
-                foreach (var method in extensionMethodsCache.GetExtensionsForNamespace(ns.Namespace))
-                    yield return method;
-        }
-
         private IEnumerable<MethodRecognitionResult> FindValidMethodOveloads(IEnumerable<MethodInfo> methods, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
             => from m in methods
                let r = TryCallMethod(m, typeArguments, arguments, namedArgs)
                where r != null
                orderby r.CastCount descending, r.AutomaticTypeArgCount
                select r;
+
 
         class MethodRecognitionResult
         {
@@ -418,53 +408,17 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else if (sgt.IsGenericType)
                 {
-                    Type[] genericArguments = null;
+                    Type[] genericArguments;
                     var expression = expressionTypes[i];
 
+                    // Arrays need to be handled in a special way to obtain instantiation
                     if (expression.IsArray)
-                    {
-                        // Arrays need to be handled in a special way to obtain instantiation
                         genericArguments = new[] { expression.GetElementType() };
-                    }
                     else
-                    {
-                        if (expression.IsGenericType && sgt.GetGenericTypeDefinition() == expression.GetGenericTypeDefinition())
-                        {
-                            // We have exactly the same type => return generic arguments
-                            genericArguments = expression.GetGenericArguments();
-                        }
-                        else if (sgt.IsInterface)
-                        {
-                            // We must find the instantiation within an implemented generic interface
-                            var implementation = expression.GetInterfaces().Where(ifc => ifc.IsGenericType && ifc.GetGenericTypeDefinition() == sgt.GetGenericTypeDefinition()).Take(2).ToList();
-                            if (implementation.Count == 1)
-                            {
-                                genericArguments = implementation.Single().GetGenericArguments();
-                            }
-                        }
-                        else
-                        {
-                            // Otherwise we must find the instantiation within a generic base type
-                            genericArguments = null;
-                            var current = expression.BaseType;
-                            while (current != null)
-                            {
-                                if (current.IsGenericType && current.GetGenericTypeDefinition() == sgt.GetGenericTypeDefinition())
-                                {
-                                    genericArguments = current.GetGenericArguments();
-                                    break;
-                                }
+                        genericArguments = expression.GetGenericArguments();
 
-                                current = current.BaseType;
-                            }
-                        }
-                    }
-
-                    if (genericArguments != null)
-                    {
-                        var value = GetGenericParameterType(genericArg, sgt.GetGenericArguments(), genericArguments);
-                        if (value is Type) return value;
-                    }
+                    var value = GetGenericParameterType(genericArg, sgt.GetGenericArguments(), genericArguments);
+                    if (value is Type) return value;
                 }
             }
             return null;

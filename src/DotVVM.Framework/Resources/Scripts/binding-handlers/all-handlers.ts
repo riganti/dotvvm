@@ -9,7 +9,6 @@ import updateProgress from './update-progress'
 import gridviewdataset from './gridviewdataset'
 import withViewModules from './with-view-modules'
 import namedCommand from './named-command'
-import fileUpload from './file-upload'
 
 type KnockoutHandlerDictionary = {
     [name: string]: KnockoutBindingHandler
@@ -25,8 +24,7 @@ const allHandlers: KnockoutHandlerDictionary = {
     ...updateProgress,
     ...gridviewdataset,
     ...withViewModules,
-    ...namedCommand,
-    ...fileUpload
+    ...namedCommand
 }
 
 export default allHandlers

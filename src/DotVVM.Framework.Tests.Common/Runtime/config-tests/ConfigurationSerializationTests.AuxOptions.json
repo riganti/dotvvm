@@ -4,9 +4,6 @@
     "importedNamespaces": [
       {
         "namespace": "DotVVM.Framework.Binding.HelperNamespace"
-      },
-      {
-        "namespace": "System.Linq"
       }
     ],
     "ViewCompilation": {

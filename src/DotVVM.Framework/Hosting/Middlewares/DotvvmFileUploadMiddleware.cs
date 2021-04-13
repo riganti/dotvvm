@@ -97,17 +97,30 @@ namespace DotVVM.Framework.Hosting.Middlewares
             await RenderResponse(request, isPost, errorMessage, uploadedFiles);
         }
 
+        private bool ShouldReturnJsonResponse(IHttpContext context) =>
+            context.Request.Headers[HostingConstants.DotvvmFileUploadAsyncHeaderName] == "true" ||
+            context.Request.Query["returnJson"] == "true";
+
         private async Task RenderResponse(IDotvvmRequestContext request, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
         {
             var context = request.HttpContext;
 
-            if (isPost)
+            var settings = DefaultSerializerSettingsProvider.Instance.Settings;
+            if (isPost && ShouldReturnJsonResponse(context))
             {
                 // modern browser - return JSON
                 if (string.IsNullOrEmpty(errorMessage))
                 {
                     var json = viewModelSerializer.BuildStaticCommandResponse(request, uploadedFiles);
-                    await outputRenderer.RenderPlainJsonResponse(context, json);
+                    if (context.Request.Query["iframe"] == "true")
+                    {
+                        // IE will otherwise try to download the response as JSON file
+                        await outputRenderer.RenderPlainTextResponse(context, json);
+                    }
+                    else
+                    {
+                        await outputRenderer.RenderPlainJsonResponse(context, json);
+                    }
                 }
                 else
                 {
@@ -115,7 +128,31 @@ namespace DotVVM.Framework.Hosting.Middlewares
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 }
             }
-            
+            else
+            {
+                // old browser - return HTML
+                var template = new FileUploadPageTemplate {
+                    FormPostUrl = context.Request.Url.ToString(),
+                    AllowMultipleFiles = context.Request.Query["multiple"] == "true",
+                    AllowedFileTypes = context.Request.Query["fileTypes"]
+                };
+
+                if (isPost)
+                {
+                    if (string.IsNullOrEmpty(errorMessage))
+                    {
+                        template.StartupScript = string.Format("reportProgress(false, 100, {0})",
+                            viewModelSerializer.BuildStaticCommandResponse(request, uploadedFiles));
+                    }
+                    else
+                    {
+                        template.StartupScript = string.Format("reportProgress(false, 100, {0})",
+                            JsonConvert.SerializeObject(errorMessage, settings));
+                    }
+                }
+
+                await outputRenderer.RenderHtmlResponse(context, template.TransformText());
+            }
         }
 
         private async Task SaveFiles(IHttpContext context, Group boundary, List<UploadedFile> uploadedFiles)

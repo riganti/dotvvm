@@ -725,28 +725,6 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain.Company.Product")]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Product")]
-        public void BindingParser_AssemblyQualifiedName_ValidAssemblyName(string binding)
-        {
-            var parser = bindingParserNodeFactory.SetupParser(binding);
-            var node = parser.ReadDirectiveTypeName() as AssemblyQualifiedNameBindingParserNode;
-            Assert.IsFalse(node.AssemblyName.HasNodeErrors);
-        }
-
-        [TestMethod]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain.Company.Product<int>")]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain.Company<int>.Product")]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain<int>.Company.Product")]
-        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Product<int>")]
-        public void BindingParser_AssemblyQualifiedName_InvalidAssemblyName(string binding)
-        {
-            var parser = bindingParserNodeFactory.SetupParser(binding);
-            var node = parser.ReadDirectiveTypeName() as AssemblyQualifiedNameBindingParserNode;
-            Assert.IsTrue(node.AssemblyName.HasNodeErrors);
-        }
-
-        [TestMethod]
         [DataRow("(arg) => Method(arg)", DisplayName = "Simple implicit single-parameter lambda expression with parentheses.")]
         [DataRow("arg => Method(arg)", DisplayName = "Simple implicit single-parameter lambda expression without parentheses.")]           
         [DataRow("  arg    =>   Method   (   arg  )", DisplayName = "Simple lambda with various whitespaces.")]

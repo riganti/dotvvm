@@ -35,8 +35,7 @@ namespace DotVVM.Framework.Tests.Binding
             this.bindingService = configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
         }
         public string CompileBinding(string expression, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object));
-        public string CompileBinding(string expression, NamespaceImport[] imports, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object), imports);
-        public string CompileBinding(string expression, Type[] contexts, Type expectedType, NamespaceImport[] imports = null)
+        public string CompileBinding(string expression, Type[] contexts, Type expectedType)
         {
             var context = DataContextStack.Create(contexts.FirstOrDefault() ?? typeof(object), extensionParameters: new BindingExtensionParameter[]{
                 new CurrentCollectionIndexExtensionParameter(),
@@ -48,8 +47,8 @@ namespace DotVVM.Framework.Tests.Binding
             {
                 context = DataContextStack.Create(contexts[i], context);
             }
-            var parser = new BindingExpressionBuilder(configuration.ServiceProvider.GetRequiredService<CompiledAssemblyCache>(), configuration.ServiceProvider.GetRequiredService<ExtensionMethodsCache>());
-            var parsedExpression = parser.ParseWithLambdaConversion(expression, context, BindingParserOptions.Create<ValueBindingExpression>(importNs: imports), expectedType);
+            var parser = new BindingExpressionBuilder(configuration.ServiceProvider.GetRequiredService<CompiledAssemblyCache>(), configuration.ServiceProvider.GetRequiredService<MemberExpressionFactory>());
+            var parsedExpression = parser.ParseWithLambdaConversion(expression, context, BindingParserOptions.Create<ValueBindingExpression>(), expectedType);
             var expressionTree =
                 TypeConversion.MagicLambdaConversion(parsedExpression, expectedType) ??
                 TypeConversion.ImplicitConversion(parsedExpression, expectedType, true, true);
@@ -373,15 +372,13 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("LongArray.Where((long item) => item % 2 == 0)", DisplayName = "Syntax sugar - extension method")]
         public void JsTranslator_EnumerableWhere(string binding)
         {
-            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
             Assert.AreEqual("LongArray().filter(function(item){return ko.unwrap(item)%2==0;})", result);
         }
         [TestMethod]
         public void JsTranslator_NestedEnumerableMethods()
         {
-            var result = CompileBinding("Enumerable.Where(Enumerable.Where(LongArray, (long item) => item % 2 == 0), (long item) => item % 3 == 0)",
-                new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-
+            var result = CompileBinding("Enumerable.Where(Enumerable.Where(LongArray, (long item) => item % 2 == 0), (long item) => item % 3 == 0)", new[] { typeof(TestViewModel) });
             Assert.AreEqual("LongArray().filter(function(item){return ko.unwrap(item)%2==0;}).filter(function(item){return ko.unwrap(item)%3==0;})", result);
         }
         [TestMethod]
@@ -389,7 +386,7 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("LongArray.Select((long item) => -item)", DisplayName = "Syntax sugar - extension method")]
         public void JsTranslator_EnumerableSelect(string binding)
         {
-            var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
             Assert.AreEqual("LongArray().map(function(item){return -ko.unwrap(item);})", result);
         }
 
@@ -397,7 +394,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_ValidMethod_UnsupportedTranslation()
         {
             Assert.ThrowsException<NotSupportedException>(() =>
-                CompileBinding("Enumerable.Skip<long>(LongArray, 2)", new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) }));
+                CompileBinding("Enumerable.Skip<long>(LongArray, 2)", new[] { typeof(TestViewModel) }));
         }
 
         [TestMethod]

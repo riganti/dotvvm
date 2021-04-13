@@ -17,13 +17,13 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
     {
         private readonly BindingCompilationService bindingService;
         private readonly CompiledAssemblyCache compiledAssemblyCache;
-        private readonly ExtensionMethodsCache extensionMethodsCache;
+        private readonly MemberExpressionFactory memberExpressionFactory;
 
-        public ResolvedTreeBuilder(BindingCompilationService bindingService, CompiledAssemblyCache compiledAssemblyCache, ExtensionMethodsCache extensionsMethodsCache)
+        public ResolvedTreeBuilder(BindingCompilationService bindingService, CompiledAssemblyCache compiledAssemblyCache, MemberExpressionFactory memberExpressionFactory)
         {
             this.bindingService = bindingService;
             this.compiledAssemblyCache = compiledAssemblyCache;
-            this.extensionMethodsCache = extensionsMethodsCache;
+            this.memberExpressionFactory = memberExpressionFactory;
         }
 
         public IAbstractTreeRoot BuildTreeRoot(IControlTreeResolver controlTreeResolver, IControlResolverMetadata metadata, DothtmlRootNode node, IDataContextStack dataContext, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, IAbstractControlBuilderDescriptor? masterPage)
@@ -158,6 +158,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             TypeRegistry registry;
             if (expressionSyntax is AssemblyQualifiedNameBindingParserNode assemblyQualifiedName)
             {
+                expressionSyntax = assemblyQualifiedName.TypeName;
                 registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache, assemblyQualifiedName.AssemblyName.ToDisplayString());
             }
             else
@@ -165,7 +166,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache);
             }
 
-            var visitor = new ExpressionBuildingVisitor(registry, new MemberExpressionFactory(extensionMethodsCache)) {
+            var visitor = new ExpressionBuildingVisitor(registry, memberExpressionFactory) {
                 ResolveOnlyTypeName = true,
                 Scope = null
             };

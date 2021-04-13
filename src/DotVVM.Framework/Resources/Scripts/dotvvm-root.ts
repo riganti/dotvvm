@@ -54,7 +54,8 @@ const dotvvmExports = {
     },
     fileUpload: {
         reportProgress: fileUpload.reportProgress,
-        showUploadDialog: fileUpload.showUploadDialog
+        showUploadDialog: fileUpload.showUploadDialog,
+        createUploadId: fileUpload.createUploadId
     },
     api: {
         invoke: api.invoke,

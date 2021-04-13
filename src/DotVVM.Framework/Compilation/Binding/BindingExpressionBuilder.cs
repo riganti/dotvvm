@@ -17,21 +17,18 @@ namespace DotVVM.Framework.Compilation.Binding
     public class BindingExpressionBuilder : IBindingExpressionBuilder
     {
         private readonly CompiledAssemblyCache compiledAssemblyCache;
-        private readonly ExtensionMethodsCache extensionMethodsCache;
-        private MemberExpressionFactory memberExpressionFactory;
+        private readonly MemberExpressionFactory memberExpressionFactory;
 
-        public BindingExpressionBuilder(CompiledAssemblyCache compiledAssemblyCache, ExtensionMethodsCache extensionMethodsCache)
+        public BindingExpressionBuilder(CompiledAssemblyCache compiledAssemblyCache, MemberExpressionFactory memberExpressionFactory)
         {
             this.compiledAssemblyCache = compiledAssemblyCache;
-            this.extensionMethodsCache = extensionMethodsCache;
+            this.memberExpressionFactory = memberExpressionFactory;
         }
 
         public Expression Parse(string expression, DataContextStack dataContexts, BindingParserOptions options, params KeyValuePair<string, Expression>[] additionalSymbols)
         {
             try
             {
-                memberExpressionFactory = new MemberExpressionFactory(extensionMethodsCache, options.ImportNamespaces);
-
                 var tokenizer = new BindingTokenizer();
                 tokenizer.Tokenize(expression);
 
