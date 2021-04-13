@@ -162,9 +162,8 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            RenderIframe(writer);
-
             RenderUploadButton(writer);
+            RenderInputControl(writer, context);
             RenderUploadedFilesTitle(writer);
             RenderProgressWrapper(writer);
             RenderResultTitle(writer);
@@ -220,13 +219,23 @@ namespace DotVVM.Framework.Controls
             writer.RenderEndTag();
         }
 
-        private void RenderIframe(IHtmlWriter writer)
+        private void RenderInputControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            // render iframe
-            writer.AddAttribute("class", "dotvvm-upload-iframe");
-            writer.AddAttribute("src", GetFileUploadHandlerUrl());
-            writer.RenderBeginTag("iframe");
-            writer.RenderEndTag();
+            writer.AddStyleAttribute("display", "none");
+            writer.AddAttribute("type", "file");
+
+            if (AllowMultipleFiles)
+            {
+                writer.AddAttribute("multiple", "multiple");
+            }
+
+            if (!string.IsNullOrWhiteSpace(AllowedFileTypes))
+            {
+                writer.AddAttribute("accept", AllowedFileTypes);
+            }
+
+            writer.AddKnockoutDataBind("dotvvm-FileUpload", JsonConvert.SerializeObject(new { url = context.TranslateVirtualPath(GetFileUploadHandlerUrl()) }));
+            writer.RenderSelfClosingTag("input");
         }
 
         private string GetFileUploadHandlerUrl()

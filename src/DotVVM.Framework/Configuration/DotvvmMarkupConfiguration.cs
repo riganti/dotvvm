@@ -53,7 +53,8 @@ namespace DotVVM.Framework.Configuration
             set { ThrowIfFrozen(); _importedNamespaces = value; }
         }
         private IList<NamespaceImport> _importedNamespaces = new FreezableList<NamespaceImport> {
-            new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace")
+            new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace"),
+            new NamespaceImport("System.Linq"),
         };
 
         [JsonIgnore]
