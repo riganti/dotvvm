@@ -241,7 +241,7 @@ namespace DotVVM.Samples.Tests.Control
 
                     var nearPageIndexesCount = indexes.Count();
                     // Including first page, previous page, next page, last page links
-                    elements.ThrowIfDifferentCountThan(nearPageIndexesCount + 4);
+                    browser.WaitFor(() => elements.ThrowIfDifferentCountThan(nearPageIndexesCount + 4), 1000);
 
                     foreach (var value in indexes.Zip(elements.Skip(2), (i, e) => new { Index = i, Element = e }))
                     {

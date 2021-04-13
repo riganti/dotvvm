@@ -50,10 +50,10 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_PageB);
 
                 // try the task list
-                browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
+                browser.WaitFor(()=> browser.FindElements(".table tr").ThrowIfDifferentCountThan(3),1000);
                 browser.SendKeys("input[type=text]", "DotVVM rocks!");
                 browser.Click("input[type=button]");
-                browser.FindElements(".table tr").ThrowIfDifferentCountThan(4);
+                browser.WaitFor(() => browser.FindElements(".table tr").ThrowIfDifferentCountThan(4), 1000);
                 browser.Last("tr a").Click();
                 AssertUI.HasClass(browser.Last(".table tr"), "completed");
 
@@ -142,10 +142,10 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_PageB);
 
                 // try the task list
-                browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
+                browser.WaitFor(() => browser.FindElements(".table tr").ThrowIfDifferentCountThan(3),1000);
                 browser.SendKeys("input[type=text]", "DotVVM rocks!");
                 browser.Click("input[type=button]");
-                browser.FindElements(".table tr").ThrowIfDifferentCountThan(4);
+                browser.WaitFor(()=>browser.FindElements(".table tr").ThrowIfDifferentCountThan(4),1000);
                 browser.Last("tr a").Click();
                 AssertUI.HasClass(browser.Last(".table tr"), "completed");
 
