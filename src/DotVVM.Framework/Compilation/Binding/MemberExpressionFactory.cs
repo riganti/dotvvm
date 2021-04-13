@@ -418,17 +418,53 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else if (sgt.IsGenericType)
                 {
-                    Type[] genericArguments;
+                    Type[] genericArguments = null;
                     var expression = expressionTypes[i];
 
-                    // Arrays need to be handled in a special way to obtain instantiation
                     if (expression.IsArray)
+                    {
+                        // Arrays need to be handled in a special way to obtain instantiation
                         genericArguments = new[] { expression.GetElementType() };
+                    }
                     else
-                        genericArguments = expression.GetGenericArguments();
+                    {
+                        if (expression.IsGenericType && sgt.GetGenericTypeDefinition() == expression.GetGenericTypeDefinition())
+                        {
+                            // We have exactly the same type => return generic arguments
+                            genericArguments = expression.GetGenericArguments();
+                        }
+                        else if (sgt.IsInterface)
+                        {
+                            // We must find the instantiation within an implemented generic interface
+                            var implementation = expression.GetInterfaces().Where(ifc => ifc.IsGenericType && ifc.GetGenericTypeDefinition() == sgt.GetGenericTypeDefinition()).Take(2).ToList();
+                            if (implementation.Count == 1)
+                            {
+                                genericArguments = implementation.Single().GetGenericArguments();
+                            }
+                        }
+                        else
+                        {
+                            // Otherwise we must find the instantiation within a generic base type
+                            genericArguments = null;
+                            var current = expression.BaseType;
+                            while (current != null)
+                            {
+                                if (current.IsGenericType && current.GetGenericTypeDefinition() == sgt.GetGenericTypeDefinition())
+                                {
+                                    genericArguments = current.GetGenericArguments();
+                                    break;
+                                }
 
-                    var value = GetGenericParameterType(genericArg, sgt.GetGenericArguments(), genericArguments);
-                    if (value is Type) return value;
+                                current = current.BaseType;
+                            }
+                        }
+                    }
+
+                    if (genericArguments != null)
+                    {
+                        var value = GetGenericParameterType(genericArg, sgt.GetGenericArguments(), genericArguments);
+                        if (value is Type) return value;
+                    }
                 }
             }
             return null;
