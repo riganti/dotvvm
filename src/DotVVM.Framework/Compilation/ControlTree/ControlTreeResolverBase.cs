@@ -208,7 +208,14 @@ namespace DotVVM.Framework.Compilation.ControlTree
             if (masterPage == null)
                 return;
             var viewModel = root.DataContextTypeStack.DataContextType;
-            if (!masterPage.DataContextType.IsAssignableFrom(viewModel))
+
+            if (masterPage.DataContextType is ResolvedTypeDescriptor typeDescriptor && typeDescriptor.Type == typeof(UnknownTypeSentinel))
+            {
+                masterPageDirective!.DothtmlNode!.AddError("Could not resolve the type of viewmodel for the specified master page. " +
+                    $"This usually means that there is an error with the @viewModel directive in the master page file: \"{masterPage.FileName}\". " +
+                    $"Make sure that the provided viewModel type is correct and visible for DotVVM.");
+            }
+            else if (!masterPage.DataContextType.IsAssignableFrom(viewModel))
             {
                 masterPageDirective!.DothtmlNode!.AddError($"The viewmodel {viewModel.Name} is not assignable to the viewmodel of the master page {masterPage.DataContextType.Name}.");
             }

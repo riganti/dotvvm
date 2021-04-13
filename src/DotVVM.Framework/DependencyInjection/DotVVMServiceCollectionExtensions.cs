@@ -37,6 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddOptions();
 
             services.TryAddSingleton<CompiledAssemblyCache>();
+            services.TryAddSingleton<ExtensionMethodsCache>();
             services.TryAddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
             services.TryAddSingleton<IViewModelSerializer, DefaultViewModelSerializer>();
             services.TryAddSingleton<IViewModelLoader, DefaultViewModelLoader>();
@@ -77,7 +78,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddScoped<RuntimeWarningCollector>();
             services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
             services.TryAddScoped<ResourceManager, ResourceManager>();
-            services.TryAddSingleton<MemberExpressionFactory>();
             services.TryAddSingleton(s => DotvvmConfiguration.CreateDefault(s));
             services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Markup);
             services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Resources);

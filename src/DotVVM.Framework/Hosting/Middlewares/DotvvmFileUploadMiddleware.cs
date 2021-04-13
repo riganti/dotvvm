@@ -6,10 +6,10 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DotVVM.Core.Storage;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
-using DotVVM.Framework.Storage;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.AspNet.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -97,30 +97,17 @@ namespace DotVVM.Framework.Hosting.Middlewares
             await RenderResponse(request, isPost, errorMessage, uploadedFiles);
         }
 
-        private bool ShouldReturnJsonResponse(IHttpContext context) =>
-            context.Request.Headers[HostingConstants.DotvvmFileUploadAsyncHeaderName] == "true" ||
-            context.Request.Query["returnJson"] == "true";
-
         private async Task RenderResponse(IDotvvmRequestContext request, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
         {
             var context = request.HttpContext;
 
-            var settings = DefaultSerializerSettingsProvider.Instance.Settings;
-            if (isPost && ShouldReturnJsonResponse(context))
+            if (isPost)
             {
                 // modern browser - return JSON
                 if (string.IsNullOrEmpty(errorMessage))
                 {
                     var json = viewModelSerializer.BuildStaticCommandResponse(request, uploadedFiles);
-                    if (context.Request.Query["iframe"] == "true")
-                    {
-                        // IE will otherwise try to download the response as JSON file
-                        await outputRenderer.RenderPlainTextResponse(context, json);
-                    }
-                    else
-                    {
-                        await outputRenderer.RenderPlainJsonResponse(context, json);
-                    }
+                    await outputRenderer.RenderPlainJsonResponse(context, json);
                 }
                 else
                 {
@@ -128,31 +115,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 }
             }
-            else
-            {
-                // old browser - return HTML
-                var template = new FileUploadPageTemplate {
-                    FormPostUrl = context.Request.Url.ToString(),
-                    AllowMultipleFiles = context.Request.Query["multiple"] == "true",
-                    AllowedFileTypes = context.Request.Query["fileTypes"]
-                };
-
-                if (isPost)
-                {
-                    if (string.IsNullOrEmpty(errorMessage))
-                    {
-                        template.StartupScript = string.Format("reportProgress(false, 100, {0})",
-                            viewModelSerializer.BuildStaticCommandResponse(request, uploadedFiles));
-                    }
-                    else
-                    {
-                        template.StartupScript = string.Format("reportProgress(false, 100, {0})",
-                            JsonConvert.SerializeObject(errorMessage, settings));
-                    }
-                }
-
-                await outputRenderer.RenderHtmlResponse(context, template.TransformText());
-            }
+            
         }
 
         private async Task SaveFiles(IHttpContext context, Group boundary, List<UploadedFile> uploadedFiles)
@@ -176,7 +139,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
         /// </summary>
         private async Task<UploadedFile> StoreFile(IHttpContext context, MultipartSection section, IUploadedFileStorage fileStore)
         {
-            var fileId = await fileStore.StoreFile(section.Body);
+            var fileId = await fileStore.StoreFileAsync(section.Body);
             var fileNameGroup = Regex.Match(section.ContentDisposition, @"filename=""?(?<fileName>[^\""]*)", RegexOptions.IgnoreCase).Groups["fileName"];
             var fileName = fileNameGroup.Success ? fileNameGroup.Value : string.Empty;
             var mimeType = section.ContentType ?? string.Empty;
