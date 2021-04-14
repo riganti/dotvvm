@@ -54,8 +54,7 @@ const dotvvmExports = {
     },
     fileUpload: {
         reportProgress: fileUpload.reportProgress,
-        showUploadDialog: fileUpload.showUploadDialog,
-        createUploadId: fileUpload.createUploadId
+        showUploadDialog: fileUpload.showUploadDialog
     },
     api: {
         invoke: api.invoke,
@@ -67,6 +66,7 @@ const dotvvmExports = {
     },
     globalize,
     postBackHandlers: postbackHandlers,
+    postbackHandlers: postbackHandlers,
     buildUrlSuffix,
     buildRouteUrl,
     staticCommandPostback,

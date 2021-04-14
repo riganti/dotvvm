@@ -27,7 +27,7 @@ namespace DotVVM.Samples.Tests.Control
                 File.WriteAllBytes(tempPath, Enumerable.Range(0, 255).Select(i => (byte)i).ToArray());
 
                 AssertUI.InnerTextEquals(browser.ElementAt(".files-count", 0), "0");
-                DotVVMAssert.UploadFile((ElementWrapper)browser.ElementAt(".dotvvm-upload-button a", 0), tempPath);
+                DotVVMAssertModified.UploadFile((ElementWrapper)browser.ElementAt(".dotvvm-upload-button a", 0), tempPath);
 
                 AssertUI.InnerTextEquals(browser.ElementAt(".files-count", 0), "1", failureMessage: "FileCount is not updated to '1'.");
 

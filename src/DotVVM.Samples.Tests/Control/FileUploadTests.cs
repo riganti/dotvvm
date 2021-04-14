@@ -31,7 +31,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 // write the full path to the dialog
 
-                DotVVMAssert.UploadFile((ElementWrapper)browser.First(".dotvvm-upload-button a"), tempFile);
+                DotVVMAssertModified.UploadFile((ElementWrapper)browser.First(".dotvvm-upload-button a"), tempFile);
 
                 // wait for the file to be uploaded
                 AssertUI.TextEquals(browser.First(".dotvvm-upload-files"), "1 files", failureMessage: "File was not uploaded in 1 min interval.");
@@ -71,7 +71,7 @@ namespace DotVVM.Samples.Tests.Control
                 var isMaxSizeExceeded = browser.Single("span.isMaxSizeExceeded");
 
                 var textFile = CreateTempFile("txt", 1);
-                DotVVMAssert.UploadFile((ElementWrapper)browser.First(".dotvvm-upload-button a"), textFile);
+                DotVVMAssertModified.UploadFile((ElementWrapper)browser.First(".dotvvm-upload-button a"), textFile);
 
                 AssertUI.TextEquals(browser.First(".dotvvm-upload-files"),"1 files",failureMessage: "File was not uploaded in 1 min interval.");
 
@@ -94,7 +94,7 @@ namespace DotVVM.Samples.Tests.Control
                 var isMaxSizeExceeded = browser.Single("span.isMaxSizeExceeded");
 
                 var mdFile = CreateTempFile("md", 1);
-                DotVVMAssert.UploadFile((ElementWrapper)browser.First(".dotvvm-upload-button a"), mdFile);
+                DotVVMAssertModified.UploadFile((ElementWrapper)browser.First(".dotvvm-upload-button a"), mdFile);
 
                 AssertUI.TextEquals(browser.First(".dotvvm-upload-files"), "1 files", failureMessage: "File was not uploaded in 1 min interval.");
 
@@ -118,7 +118,7 @@ namespace DotVVM.Samples.Tests.Control
                 var isMaxSizeExceeded = browser.Single("span.isMaxSizeExceeded");
 
                 var largeFile = CreateTempFile("txt", 2);
-                DotVVMAssert.UploadFile((ElementWrapper)browser.First(".dotvvm-upload-button a"), largeFile);
+                DotVVMAssertModified.UploadFile((ElementWrapper)browser.First(".dotvvm-upload-button a"), largeFile);
 
                 AssertUI.TextEquals(browser.First(".dotvvm-upload-files"), "1 files", failureMessage: "File was not uploaded in 1 min interval.");
 
@@ -140,7 +140,7 @@ namespace DotVVM.Samples.Tests.Control
                 var fileSize = browser.Single("span.fileSize");
 
                 var file = CreateTempFile("txt", 2);
-                DotVVMAssert.UploadFile((ElementWrapper)browser.First(".dotvvm-upload-button a"), file);
+                DotVVMAssertModified.UploadFile((ElementWrapper)browser.First(".dotvvm-upload-button a"), file);
 
                 AssertUI.TextEquals(browser.First(".dotvvm-upload-files"), "1 files", failureMessage: "File was not uploaded in 1 min interval.");
 

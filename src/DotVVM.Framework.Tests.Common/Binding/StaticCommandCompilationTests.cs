@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Tests.Binding
             var options = BindingParserOptions.Create<ValueBindingExpression>()
                 .AddImports(configuration.Markup.ImportedNamespaces);
 
-            var parser = new BindingExpressionBuilder(configuration.ServiceProvider.GetRequiredService<CompiledAssemblyCache>(), configuration.ServiceProvider.GetRequiredService<MemberExpressionFactory>());
+            var parser = new BindingExpressionBuilder(configuration.ServiceProvider.GetRequiredService<CompiledAssemblyCache>(), configuration.ServiceProvider.GetRequiredService<ExtensionMethodsCache>());
             var expressionTree = parser.ParseWithLambdaConversion(expression, context, options, expectedType);
             var jsExpression =
                 configuration.ServiceProvider.GetRequiredService<StaticCommandBindingCompiler>().CompileToJavascript(context, expressionTree);
