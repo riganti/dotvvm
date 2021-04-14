@@ -261,6 +261,19 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("(TestViewModel vm) => vm.IntProp = 11")]
+        [DataRow("(TestViewModel vm) => vm.GetEnum()")]
+        [DataRow("(TestViewModel vm) => ()")]
+        [DataRow("(TestViewModel vm) => ;")]
+        public void BindingCompiler_Valid_LambdaToAction(string expr)
+        {
+            var viewModel = new TestViewModel();
+            var binding = ExecuteBinding(expr, new[] { viewModel }, null, expectedType: typeof(Action<TestViewModel>)) as Action<TestViewModel>;
+            Assert.AreEqual(typeof(Action<TestViewModel>), binding.GetType());
+            binding.Invoke(viewModel);
+        }
+
+        [TestMethod]
         public void BindingCompiler_Valid_ExtensionMethods()
         {
             var viewModel = new TestViewModel();
