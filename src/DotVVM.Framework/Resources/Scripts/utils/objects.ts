@@ -17,5 +17,5 @@ export const symbolOrDollar : (name: string) => symbol =
 
 export const keys =
     compileConstants.nomodules ?
-    ((o: any) => isPrimitive(o) ? [] : Object.keys(o)) :
+    ((o: any) => isPrimitive(o) ? [] : Object.keys(o).filter(s => !s.startsWith("@"))) :
     Object.keys
