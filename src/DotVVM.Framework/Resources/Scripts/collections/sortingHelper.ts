@@ -1,5 +1,6 @@
 ﻿import { getTypeInfo } from "../metadata/typeMap";
 import { primitiveTypes } from "../metadata/primitiveTypes";
+import { keys } from "../utils/objects";
 type ElementType = string | number | boolean;
 
 export const orderBy = <T>(array: T[], selector: (item: T) => ElementType) =>
@@ -115,7 +116,7 @@ function getPath(from: any, target: any): string[] | null {
     if (from == target)
         return [];
 
-    for (let key in from) {
+    for (let key of keys(from)) {
         let item = ko.unwrap(from[key]);
         if (item && typeof item === "object") {
             let subPath = getPath(item, target);
