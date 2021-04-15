@@ -21,7 +21,6 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Version>2.0.0-pre1</Version>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
     <Reference Include="System" />
@@ -32,7 +31,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DotVVM" Version="2.5.0" />
+    <PackageReference Include="DotVVM" Version="3.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework.Controls.DynamicData.Annotations\DotVVM.Framework.Controls.DynamicData.Annotations.csproj" />
