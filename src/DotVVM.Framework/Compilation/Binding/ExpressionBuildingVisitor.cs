@@ -18,12 +18,12 @@ namespace DotVVM.Framework.Compilation.Binding
     {
         public TypeRegistry Registry { get; set; }
         public Expression Scope { get; set; }
-        public Inferer Inferer { get; set; }
         public bool ResolveOnlyTypeName { get; set; }
         public Type? ExpectedType { get; set; }
         public ImmutableDictionary<string, ParameterExpression> Variables { get; set; } =
             ImmutableDictionary<string, ParameterExpression>.Empty;
 
+        private TypeInferer inferer;
         private int expressionDepth;
         private List<Exception>? currentErrors;
         private readonly MemberExpressionFactory memberExpressionFactory;
@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Compilation.Binding
             Registry = registry;
             ExpectedType = expectedType;
             this.memberExpressionFactory = memberExpressionFactory;
-            Inferer = new Inferer();
+            this.inferer = new TypeInferer();
         }
 
         [return: MaybeNull]
@@ -223,7 +223,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var target = HandleErrors(node.TargetExpression, Visit);
             var args = new Expression[node.ArgumentExpressions.Count];
 
-            Inferer.BeginFunctionCall(target as MethodGroupExpression, args.Length);
+            inferer.BeginFunctionCall(target as MethodGroupExpression, args.Length);
 
             var lambdaNodeIndices = new List<int>();
             // Initially process all nodes that are not lambdas
@@ -236,17 +236,17 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
 
                 args[i] = HandleErrors(node.ArgumentExpressions[i], Visit)!;
-                Inferer.SetArgument(args[i], i);
+                inferer.SetArgument(args[i], i);
             }
             // Subsequently process all lambdas
             foreach (var index in lambdaNodeIndices)
             {
-                Inferer.SetProbedArgumentIndex(index);
+                inferer.SetProbedArgumentIndex(index);
                 args[index] = HandleErrors(node.ArgumentExpressions[index], Visit)!;
-                Inferer.SetArgument(args[index], index);
+                inferer.SetArgument(args[index], index);
             }
-           
-            Inferer.EndFunctionCall();
+
+            inferer.EndFunctionCall();
             ThrowOnErrors();
 
             return memberExpressionFactory.Call(target, args);
@@ -327,11 +327,13 @@ namespace DotVVM.Framework.Compilation.Binding
             var lambdaParameters = new ParameterExpression[node.ParameterExpressions.Count];
 
             // Apply information from type inference if available
-            if (Inferer.TryInferLambdaParameters(node.ParameterExpressions.Count, out var parameters))
+            var hintType = (expressionDepth == 1) ? ExpectedType : null;
+            var typeInferenceData = inferer.Infer(hintType).Lambda(node.ParameterExpressions.Count);
+            if (typeInferenceData.Result)
             {
-                for (var paramIndex = 0; paramIndex < parameters.Length; paramIndex++)
+                for (var paramIndex = 0; paramIndex < typeInferenceData.Parameters!.Length; paramIndex++)
                 {
-                    var currentParamType = parameters[paramIndex];
+                    var currentParamType = typeInferenceData.Parameters[paramIndex];
                     node.ParameterExpressions[paramIndex].SetResolvedType(currentParamType);
                 }
             }
@@ -358,7 +360,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var body = Visit(node.BodyExpression);
 
             ThrowOnErrors();
-            return CreateLambdaExpression(body, lambdaParameters);
+            return CreateLambdaExpression(body, lambdaParameters, typeInferenceData.HasReturnValue);
         }
 
         protected override Expression VisitLambdaParameter(LambdaParameterBindingParserNode node)
@@ -379,26 +381,21 @@ namespace DotVVM.Framework.Compilation.Binding
             }
         }
 
-        private Expression CreateLambdaExpression(Expression body, ParameterExpression[] parameters)
+        private Expression CreateLambdaExpression(Expression body, ParameterExpression[] parameters, bool hasReturnValue)
         {
-            // Check if we have type information available
-            if (expressionDepth == 1 && ExpectedType != null && ReflectionUtils.IsDelegate(ExpectedType))
+            if (!hasReturnValue)
             {
-                if (ExpectedType.GetMethod("Invoke", BindingFlags.Public | BindingFlags.Instance).ReturnType == typeof(void))
-                {
-                    // This should be an Action<...>
-                    // We must validate that lambda body contains a valid statement
-                    if ((body.NodeType != ExpressionType.Default) && (body.NodeType != ExpressionType.Block) && (body.NodeType != ExpressionType.Call) && (body.NodeType != ExpressionType.Assign))
-                        throw new DotvvmCompilationException($"Only method invocations and assignments can be used as statements.");
+                // We must validate that lambda body contains a valid statement
+                if ((body.NodeType != ExpressionType.Default) && (body.NodeType != ExpressionType.Block) && (body.NodeType != ExpressionType.Call) && (body.NodeType != ExpressionType.Assign))
+                    throw new DotvvmCompilationException($"Only method invocations and assignments can be used as statements.");
 
-                    // Make sure the result type will be void by adding an empty expression
-                    return Expression.Lambda(Expression.Block(body, Expression.Empty()), parameters);
-                }
+                // Make sure the result type will be void by adding an empty expression
+                return Expression.Lambda(Expression.Block(body, Expression.Empty()), parameters);
             }
-
-            // This should be an Func<...>
-            // Also this is the default behaviour if no further type information was provided
-            return Expression.Lambda(body, parameters);
+            else
+            {
+                return Expression.Lambda(body, parameters);
+            }
         }
 
         protected override Expression VisitBlock(BlockBindingParserNode node)
