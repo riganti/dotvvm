@@ -54,8 +54,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (members.Length == 0)
             {
                 // We did not find any match in regular methods => try extension methods
-                Func<MethodInfo, bool> filter = method => !method.IsGenericMethod || ReflectionUtils.IsAssignableToGenericType(target.Type, method.GetParameters().First().ParameterType.GetGenericTypeDefinition());
-                var extensions = GetAllExtensionMethods().Where(m => m.Name == name && filter(m)).ToArray();
+                var extensions = GetAllExtensionMethods().Where(m => m.Name == name && ExtensionMethodsFilter(target, m)).ToArray();
                 members = extensions;
                 isExtension = true;
 
@@ -90,6 +89,26 @@ namespace DotVVM.Framework.Compilation.Binding
 
             var candidates = members.Cast<MethodInfo>().ToList();
             return new MethodGroupExpression() { MethodName = name, Target = target, TypeArgs = typeArguments, Candidates = candidates, HasExtensionCandidates = isExtension };
+        }
+
+        private bool ExtensionMethodsFilter(Expression target, MethodInfo method)
+        {
+            var thisType = method.GetParameters().First().ParameterType;
+            if (thisType.IsGenericType)
+            {
+                if (thisType.ContainsGenericParameters)
+                {
+                    return ReflectionUtils.IsAssignableToGenericType(target.Type, thisType.GetGenericTypeDefinition());
+                }
+                else
+                {
+                    return thisType.IsAssignableFrom(target.Type);
+                }
+            }
+            else
+            {
+                return thisType.IsAssignableFrom(target.Type);
+            }
         }
 
         private Expression GetDotvvmPropertyMember(Expression target, string name)
