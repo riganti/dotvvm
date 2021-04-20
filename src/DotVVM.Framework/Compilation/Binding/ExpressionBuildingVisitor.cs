@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Compilation.Binding
     public class ExpressionBuildingVisitor : BindingParserNodeVisitor<Expression>
     {
         public TypeRegistry Registry { get; set; }
-        public Expression Scope { get; set; }
+        public Expression? Scope { get; set; }
         public bool ResolveOnlyTypeName { get; set; }
         public Type? ExpectedType { get; set; }
         public ImmutableDictionary<string, ParameterExpression> Variables { get; set; } =

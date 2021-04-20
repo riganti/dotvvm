@@ -162,38 +162,6 @@ namespace DotVVM.Framework.Compilation.Inference
             return false;
         }
 
-        private bool TryInstantiateLambdaParameters(Type generic, int argsCount, Dictionary<string, Type> generics, [NotNullWhen(true)] out Type[]? instantiation)
-        {
-            var genericArgs = generic.GetGenericArguments();
-            var substitutions = new Type[argsCount];
-
-            for (var argIndex = 0; argIndex < argsCount; argIndex++)
-            {
-                var currentArg = genericArgs[argIndex];
-
-                if (!currentArg.IsGenericParameter)
-                {
-                    // This is a known type
-                    substitutions[argIndex] = currentArg;
-                }
-                else if (currentArg.IsGenericParameter && generics.ContainsKey(currentArg.Name))
-                {
-                    // This is a generic parameter
-                    // But we already infered its type
-                    substitutions[argIndex] = generics[currentArg.Name];
-                }
-                else
-                {
-                    // This is an unknown type
-                    instantiation = null;
-                    return false;
-                }
-            }
-
-            instantiation = substitutions;
-            return true;
-        }
-
         public IFluentInferer Infer(Type? expectedType = null)
         {
             this.expectedType = expectedType;
