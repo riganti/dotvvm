@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Compilation.Inference
         LambdaTypeInferenceResult IFluentInferer.Lambda(int argsCount)
         {
             var found = false;
-            var viableCandidates = new List<(Type, Type[], bool)>();
+            var viableCandidates = new List<(Type delegateType, Type[] delegateParams, bool isFunc)>();
 
             if (contextStack.Count == 0)
             {
@@ -34,50 +34,55 @@ namespace DotVVM.Framework.Compilation.Inference
                 // Check if we can match any method candidate
                 foreach (var candidate in context.Target!.Candidates)
                 {
-                    var delegateType = candidate.GetParameters()[index].ParameterType;
+                    var parameters = candidate.GetParameters();
+                    if (index >= parameters.Length || parameters.Length > context.Arguments.Length)
+                        continue;
 
-                    if (TryMatchDelegate(context, argsCount, delegateType, out var parameters, out var isFunc, out var _))
+                    var delegateType = parameters[index].ParameterType;
+                    if (TryMatchDelegate(context, argsCount, delegateType, out var delegateParameters, out var isFunc, out var _))
                     {
                         found = true;
-                        viableCandidates.Add((delegateType, parameters, isFunc));
+                        viableCandidates.Add((delegateType, delegateParameters, isFunc));
                     }
                 }
             }
             
             if (found)
             {
-                (Type delegateType, Type[] delegateParams, bool hasReturnValue)? result;
-
                 if (viableCandidates.Count > 1)
                 {
-                    if (!TrySelectBestDelegateCandidate(viableCandidates, out result))
-                        return new LambdaTypeInferenceResult(result: false);
-                }
-                else
-                {
-                    result = viableCandidates.First();
+                    TryDisambiguateCandidates(viableCandidates, out var result);
+                    return result;
                 }
 
+                var candidate = viableCandidates.First();
                 return new LambdaTypeInferenceResult(
                     result: true,
-                    type: result.Value.delegateType,
-                    parameters: result.Value.delegateParams,
-                    hasReturnValue: result.Value.hasReturnValue);
+                    type: candidate.delegateType,
+                    parameters: candidate.delegateParams,
+                    hasReturnValue: candidate.isFunc);
             }
 
             return new LambdaTypeInferenceResult(result: false);
         }
 
-        private bool TrySelectBestDelegateCandidate(List<(Type, Type[], bool returnValue)> viableCandidates, [NotNullWhen(true)] out (Type, Type[], bool)? bestCandidate)
+        private bool TryDisambiguateCandidates(List<(Type type, Type[] parameters, bool returnValue)> viableCandidates, out LambdaTypeInferenceResult result)
         {
-            // TODO: at this point it is necessary to take into account lambda bodies to disambiguate between method overloads
-            if (viableCandidates.Count == 2 && viableCandidates[0].returnValue != viableCandidates[1].returnValue)
+            var parameters = viableCandidates.First().parameters;
+            if (viableCandidates.All(candidate => Enumerable.SequenceEqual(parameters, candidate.parameters)))
             {
-                bestCandidate = viableCandidates.Single(candidate => candidate.returnValue);
+                // Delegates can be distinguished based on return type
+                // In this case it is possible to generate lambda expression
+                result = new LambdaTypeInferenceResult(
+                    result: true,
+                    type: /* ambiguous */ null,
+                    parameters: parameters,
+                    hasReturnValue: true);
                 return true;
             }
 
-            bestCandidate = null;
+            // TODO: at this point it is necessary to take into account lambda bodies to disambiguate between method overloads
+            result = new LambdaTypeInferenceResult(result: false);
             return false;
         }
 

@@ -67,6 +67,9 @@ namespace DotVVM.Framework.Compilation.Inference
         {
             var context = contextStack.Peek();
             var argument = context.Arguments[index];
+            if (argument == null)
+                return;
+
             var argumentType = argument.Type;
             if (context.Target == null)
                 return;
