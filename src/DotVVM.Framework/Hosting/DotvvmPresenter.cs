@@ -425,17 +425,20 @@ namespace DotVVM.Framework.Hosting
                 }
                 context.CommandException = ex;
             }
-
-            // run OnCommandExecuted on action filters
-            foreach (var filter in methodFilters.Reverse())
+            finally
             {
-                await filter.OnCommandExecutedAsync(context, action, context.CommandException);
-            }
+                // run OnCommandExecuted on action filters
+                foreach (var filter in methodFilters.Reverse())
+                {
+                    await filter.OnCommandExecutedAsync(context, action, context.CommandException);
+                }
 
-            if (context.CommandException != null && !context.IsCommandExceptionHandled)
-            {
-                throw new Exception("Unhandled exception occurred in the command!", context.CommandException);
+                if (context.CommandException != null && !context.IsCommandExceptionHandled)
+                {
+                    throw new Exception("Unhandled exception occurred in the command!", context.CommandException);
+                }
             }
+            
             return null;
         }
 
