@@ -226,6 +226,25 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("LongArray.All(item => item % 2 == 0)", typeof(bool))]
+        [DataRow("LongArray.Any(item => item % 2 == 0)", typeof(bool))]
+        [DataRow("LongArray.Concat(LongArray).ToArray()", typeof(long[]))]
+        [DataRow("LongArray.FirstOrDefault(item => item % 2 == 0)", typeof(long))]
+        [DataRow("LongArray.LastOrDefault(item => item % 2 == 0)", typeof(long))]
+        [DataRow("LongArray.Max(item => -item)", typeof(long))]
+        [DataRow("LongArray.Min(item => -item)", typeof(long))]
+        [DataRow("LongArray.OrderBy(item => item).ToArray()", typeof(long[]))]
+        [DataRow("LongArray.OrderByDescending(item => item).ToArray()", typeof(long[]))]
+        [DataRow("LongArray.Select(item => -item).ToArray()", typeof(long[]))]
+        [DataRow("LongArray.Where(item => item % 2 == 0).ToArray()", typeof(long[]))]
+        public void BindingCompiler_LinqMethodsInference(string expr, Type resultType)
+        {
+            var viewModel = new TestViewModel() { StringProp = "abc" };
+            var result = ExecuteBinding(expr, new[] { viewModel }, null, new[] { new NamespaceImport("System.Linq") });
+            Assert.AreEqual(resultType, result.GetType());
+        }
+
+        [TestMethod]
         [DataRow("(int arg, float arg) => ;", DisplayName = "Can not use same identifier for multiple parameters")]
         [DataRow("(object _this) => ;", DisplayName = "Can not use already used identifiers for parameters")]
         public void BindingCompiler_Invalid_LambdaParameters(string expr)
