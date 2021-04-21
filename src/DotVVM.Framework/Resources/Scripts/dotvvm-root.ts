@@ -26,6 +26,7 @@ import { notifyModuleLoaded } from './postback/resourceLoader'
 import { logError, logWarning, logInfo, logInfoVerbose, level, logPostBackScriptError } from "./utils/logging"
 import { orderBy, orderByDesc } from './collections/sortingHelper'
 import * as arrayHelper from './collections/arrayHelper'
+import * as stringHelper from './utils/stringHelper'
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -116,7 +117,8 @@ const dotvvmExports = {
         logPostBackScriptError,
         level
     },
-    arrayHelper
+    arrayHelper,
+    stringHelper
 }
 
 if (compileConstants.isSpa) {
