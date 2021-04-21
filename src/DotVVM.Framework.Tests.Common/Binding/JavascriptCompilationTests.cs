@@ -631,12 +631,23 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [DataRow("StringProp.Split('c')", "c")]
-        [DataRow("StringProp.Split(\"str\")", "str")]     
-        public void JsTranslator_StringSplit(string binding, string delimiter)
+        [DataRow("StringProp.Split('c')", "c", "None")]
+        [DataRow("StringProp.Split(\"str\")", "str", "None")]
+        [DataRow("StringProp.Split('c', StringSplitOptions.None)", "c", "None")]
+        [DataRow("StringProp.Split('c', StringSplitOptions.RemoveEmptyEntries)", "c", "RemoveEmptyEntries")]
+        public void JsTranslator_StringSplit_WithOptions(string binding, string delimiter, string options)
         {
             var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
-            Assert.AreEqual($"StringProp().split(\"{delimiter}\")", result);
+            Assert.AreEqual($"dotvvm.stringHelper.split(StringProp(),\"{delimiter}\",\"{options}\")", result);
+        }
+
+        [TestMethod]
+        [DataRow("StringProp.Split('c', 'b')", "[\"c\",\"b\"]")]
+        [DataRow("StringProp.Split('c', 'b', 'a')", "[\"c\",\"b\",\"a\"]")]
+        public void JsTranslator_StringSplit_ArrayDelimiters_NoOptions(string binding, string delimiters)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"StringProp().split({delimiters})", result);
         }
 
         [TestMethod]
@@ -664,15 +675,6 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
             Assert.AreEqual($"StringProp().split(\"{original}\").join(\"{replacement}\")", result);
-        }
-
-        [TestMethod]
-        [DataRow("StringProp().Split(\" \")")]
-        [DataRow("StringProp().Split(' ')")]
-        public void JsTranslator_StringSplit(string binding)
-        {
-            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("StringProp().split(\" \")", result);
         }
 
         [TestMethod]
