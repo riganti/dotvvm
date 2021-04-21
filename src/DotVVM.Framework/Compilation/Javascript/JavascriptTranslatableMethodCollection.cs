@@ -239,10 +239,27 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             AddMethodTranslator(typeof(string), nameof(string.Replace), parameters: new[] { typeof(string), typeof(string) }, translator: new GenericMethodCompiler(
                 args => args[0].Member("split").Invoke(args[1]).Member("join").Invoke(args[2])));
-            AddMethodTranslator(typeof(string), nameof(string.Split), parameters: new[] { typeof(char), typeof(StringSplitOptions) }, translator: new GenericMethodCompiler(
-                args => args[0].Member("split").Invoke(args[1])));
-            AddMethodTranslator(typeof(string), nameof(string.Split), parameters: new[] { typeof(string), typeof(StringSplitOptions) }, translator: new GenericMethodCompiler(
-                args => args[0].Member("split").Invoke(args[1])));
+
+            var splitMethod = typeof(string).GetMethods(BindingFlags.Public | BindingFlags.Instance).SingleOrDefault(m => m.Name == nameof(string.Split)
+                && m.GetParameters().Length == 2 && m.GetParameters()[0].ParameterType == typeof(string) && m.GetParameters()[1].ParameterType == typeof(StringSplitOptions));
+            var genericSplitCompiler = new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("stringHelper").Member("split").Invoke(args[0], args[1], args[2]));
+            var genericExtensionSplitCompiler = new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("stringHelper").Member("split").Invoke(args[1], args[2], args[3]));
+            if (splitMethod == null)
+            {
+                // Some overloads are not available in .NET Framework, therefore we substitute some with custom extensions
+                AddMethodTranslator(typeof(NetFrameworkExtensions), nameof(NetFrameworkExtensions.Split), parameters: new[] { typeof(string), typeof(char), typeof(StringSplitOptions) },
+                    translator: genericExtensionSplitCompiler);
+                AddMethodTranslator(typeof(NetFrameworkExtensions), nameof(NetFrameworkExtensions.Split), parameters: new[] { typeof(string), typeof(string), typeof(StringSplitOptions) },
+                    translator: genericExtensionSplitCompiler);
+            }
+            else
+            {
+                AddMethodTranslator(typeof(string), nameof(string.Split), parameters: new[] { typeof(char), typeof(StringSplitOptions) }, translator: genericSplitCompiler);
+                AddMethodTranslator(typeof(string), nameof(string.Split), parameters: new[] { typeof(string), typeof(StringSplitOptions) }, translator: genericSplitCompiler);
+            }
+
+            AddMethodTranslator(typeof(string), nameof(NetFrameworkExtensions.Split), parameters: new[] { typeof(char[]) },
+                    translator: new GenericMethodCompiler(args => args[0].Member("split").Invoke(args[1])));
         }
 
         private void AddDefaultMathTranslations()
