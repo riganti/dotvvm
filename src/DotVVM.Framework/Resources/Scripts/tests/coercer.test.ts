@@ -276,6 +276,41 @@ test("string - invalid, array", () => {
 })
 
 
+test("enum - valid, string", () => {
+    const result = tryCoerce("One", "e1");
+    expect(result.wasCoerced).toBeFalsy();
+    expect(result.value).toEqual("One");
+})
+
+test("enum - valid, number", () => {
+    const result = tryCoerce(1, "e1");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual("One");
+})
+
+test("enum - valid, number in string", () => {
+    const result = tryCoerce("1", "e1");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual("One");
+})
+
+test("enum - valid, number without string representation", () => {
+    const result = tryCoerce(3, "e1");
+    expect(result.wasCoerced).toBeFalsy();
+    expect(result.value).toEqual(3);
+})
+
+test("enum - invalid, undefined", () => {
+    const result = tryCoerce(void 0, "e1");
+    expect(result.isError).toBeTruthy();
+})
+
+test("enum - invalid, null", () => {
+    const result = tryCoerce(null, "e1");
+    expect(result.isError).toBeTruthy();
+})
+
+
 test("boolean - valid, true", () => {
     const result = tryCoerce(true, "Boolean");
     expect(result.wasCoerced).toBeFalsy();

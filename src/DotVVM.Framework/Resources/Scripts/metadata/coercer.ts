@@ -72,12 +72,26 @@ function tryCoerceNullable(value: any, innerType: TypeDefinition, originalValue:
 }    
 
 function tryCoerceEnum(value: any, type: EnumTypeMetadata): CoerceResult {
-    if (typeof value === "string" && value in type.values) {
-        return { value };
-    } else if (typeof value === "number") {
+    let wasCoerced = false;
+    if (typeof value === "string") {
+        if (value in type.values) {
+          return { value };
+        } else if (value !== "") {
+            // number value as string
+            const numberValue = Number(value);
+            if (!isNaN(numberValue)) {
+                value = numberValue; 
+                wasCoerced = true;
+            }
+        }
+    } 
+    if (typeof value === "number") {
         const matched = keys(type.values).filter(k => type.values[k] === value);
         if (matched.length) {
             return { value: matched[0], wasCoerced: true }
+        } else {
+            // number value not in enum
+            return { value: value | 0, wasCoerced }
         }
     }
     return new CoerceError(`Cannot cast '${value}' to type 'Enum(${keys(type.values).join(",")})'.`);
