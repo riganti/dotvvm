@@ -729,6 +729,7 @@ namespace DotVVM.Framework.Tests.Binding
     {
         public string StringProp { get; set; }
         public int IntProp { get; set; }
+        public double DoubleProp { get; set; }
         public TestViewModel2 TestViewModel2 { get; set; }
         public TestViewModel2 TestViewModel2B { get; set; }
         public TestEnum EnumProperty { get; set; }
@@ -741,6 +742,7 @@ namespace DotVVM.Framework.Tests.Binding
         public long LongProperty { get; set; }
 
         public long[] LongArray => new long[] { 1, 2, long.MaxValue };
+        public string[] StringArray => new string[] { "Hello ", "DotVVM" };
         public TestViewModel2[] VmArray => new TestViewModel2[] { new TestViewModel2() };
         public int[] IntArray { get; set; }
 
