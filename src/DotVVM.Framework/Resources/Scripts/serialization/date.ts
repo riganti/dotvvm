@@ -9,6 +9,16 @@ export function parseDate(value: string): Date | null {
     return null;
 }
 
+export function parseDateTimeOffset(value: string): Date | null {
+    const match = value.match("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]{1,7})?(Z|[+-]([0-9]{1,2}):([0-9]{2}))$");
+    if (match) {
+        const offset = match[8] === "Z" ? 0 : ((match[8] === "-" ? -1 : 1) * (parseInt(match[9], 10) * 60 + parseInt(match[10], 10)));
+        return new Date(parseInt(match[1], 10), parseInt(match[2], 10) - 1, parseInt(match[3], 10),
+            parseInt(match[4], 10), parseInt(match[5], 10) + offset, parseInt(match[6], 10), match[7] ? parseInt(match[7].substring(1, 4), 10) : 0);
+    }
+    return null;
+}
+
 function padNumber(value: string | number, digits: number): string {
     value = value + ""
     while (value.length < digits) {
