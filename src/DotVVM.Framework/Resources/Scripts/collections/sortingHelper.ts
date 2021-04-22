@@ -31,8 +31,8 @@ function getComparer<T>(element: T, selector: (item: T) => ElementType, ascendin
         // This is the same behaviour as used by .NET
         let enumMetadataInfo = metadataInfo as EnumTypeMetadata;
         return function (first: ElementType, second: ElementType) {
-            let firstNumeric = enumMetadataInfo.values[first as string];
-            let secondNumeric = enumMetadataInfo.values[second as string];
+            let firstNumeric = (typeof(first) === "number") ? first : enumMetadataInfo.values[first as string];
+            let secondNumeric = (typeof(second) === "number") ? second : enumMetadataInfo.values[second as string];
             return defaultPrimitivesComparer(firstNumeric, secondNumeric, ascending);
         }
     }

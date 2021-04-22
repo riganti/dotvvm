@@ -20,7 +20,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.LambdaExpressions
             new CustomerData() {Id = 7, Name = "John", Category = Category.Red, RegisteredAt = DateTime.Parse("2020-05-28T20:57:41"), IsActive = true, FinishedTransactions = 12 },
             new CustomerData() {Id = 8, Name = "Johnny", Category = Category.Red, RegisteredAt = DateTime.Parse("2018-01-21T07:03:41"), IsActive = false, FinishedTransactions = 15 },
             new CustomerData() {Id = 9, Name = "Robert", Category = Category.Green, RegisteredAt = DateTime.Parse("2019-05-22T18:58:33"), IsActive = true, FinishedTransactions = 19 },
-            new CustomerData() {Id = 10, Name = "Roger", Category = Category.Blue, RegisteredAt = DateTime.Parse("2020-12-01T06:57:57"), IsActive = false, FinishedTransactions = 27 }
+            new CustomerData() {Id = 10, Name = "Roger", Category = (Category)(-1), RegisteredAt = DateTime.Parse("2020-12-01T06:57:57"), IsActive = false, FinishedTransactions = 27 }
         };
 
         public List<CustomerData> FilteredCustomers { get; set; }
@@ -41,9 +41,9 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.LambdaExpressions
 
         public enum Category
         {
-            Red,
-            Green,
-            Blue
+            Red = 1,
+            Green = 2,
+            Blue = 3
         }
     }
 }
