@@ -183,12 +183,12 @@ function validateTime(value: any) {
     if (typeof value === "string") {
         // strict DotVVM format parse
         const parsedValue = serializationParseTime(value);
-        if (parsedValue) {
-            return { value: serializeTime(parsedValue, false) };
+        if (parsedValue !== null) {
+            return { value: serializeTime(parsedValue) };
         }
     }
     
-    if (value instanceof Date) {
-        return { value: serializeTime(value, false), wasCoerced: true };
+    if (typeof value === "number") {
+        return { value: serializeTime(value), wasCoerced: true };
     }
 }
