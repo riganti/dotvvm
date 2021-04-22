@@ -9,7 +9,7 @@ export function parseDate(value: string): Date | null {
     return null;
 }
 
-export function parseTime(value: string): number | null {
+export function parseTimeSpan(value: string): number | null {
     const match = value.match("^(-?)([0-9]+\\.)?([0-9]+):([0-9]{2}):([0-9]{2})(\\.[0-9]{3,7})?$");
     if (match) {
         const sign = match[1] ? -1 : 1;
@@ -58,14 +58,14 @@ export function serializeDate(date: string | Date | null, convertToUtc: boolean 
     return `${y}-${m}-${d}T${h}:${mi}:${s}.${ms}0000`;
 }
 
-export function serializeTime(time: string | number | null): string | null {
+export function serializeTimeSpan(time: string | number | null): string | null {
     let ticks: number;
 
     if (time === null) {
         return null;
     } else if (typeof time == "string") {
         // just print in the console if it's invalid
-        const parsedTime = parseTime(time);
+        const parsedTime = parseTimeSpan(time);
         if (parsedTime === null) {
             logWarning("coercer", `TimeSpan ${time} is invalid.`);
             return null;
