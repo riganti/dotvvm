@@ -2,13 +2,13 @@
 import { primitiveTypes } from "../metadata/primitiveTypes";
 import { keys } from "../utils/objects";
 
-export function getMetadataInfo(original: any, selected: any): TypeMetadata | null {
-    var path = getPath(original, selected);
+export function getMetadataInfo(viewModel: any, value: any): TypeMetadata | null {
+    var path = getPath(viewModel, value);
     if (path === null) {
         return null;
     }
     else {
-        let typeId = ko.unwrap((ko.unwrap(original).$type)) as string;
+        let typeId = ko.unwrap((ko.unwrap(viewModel).$type)) as string;
         let type = typeId as TypeDefinition;
         let pathSegmentIndex = 0;
 
