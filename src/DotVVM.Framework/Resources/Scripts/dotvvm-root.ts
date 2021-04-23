@@ -24,7 +24,8 @@ import * as eventHub from './api/eventHub'
 import * as viewModuleManager from './viewModules/viewModuleManager'
 import { notifyModuleLoaded } from './postback/resourceLoader'
 import { logError, logWarning, logInfo, logInfoVerbose, level, logPostBackScriptError } from "./utils/logging"
-import { orderBy, orderByDesc } from './collections/sortingHelper'
+import { getMetadataInfo } from './metadata/metadataInfo'
+import { getEnumValue } from './serialization/enum'
 import * as arrayHelper from './collections/arrayHelper'
 import * as stringHelper from './utils/stringHelper'
 
@@ -97,7 +98,9 @@ const dotvvmExports = {
         serialize,
         serializeDate,
         parseDate,
-        deserialize
+        deserialize,
+        getMetadataInfo,
+        getEnumValue
     },
     viewModules: {
         registerOne: viewModuleManager.registerViewModule,
