@@ -1,6 +1,6 @@
 #nullable enable
 using System.Collections.Generic;
-using DotVVM.Framework.Storage;
+using DotVVM.Core.Storage;
 
 namespace DotVVM.Framework.Controls
 {

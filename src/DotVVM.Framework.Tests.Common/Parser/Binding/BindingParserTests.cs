@@ -178,6 +178,29 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
+        public void BindingParser_InterpolatedString_Valid()
+        {
+            var result = bindingParserNodeFactory.Parse("$\"Hello {Argument1} with {Argument2}!\"") as InterpolatedStringBindingParserNode;
+            Assert.AreEqual("Hello {0} with {1}!", result.Format);
+            Assert.IsFalse(result.HasNodeErrors);
+            Assert.AreEqual(2, result.Arguments.Count);
+            Assert.AreEqual("Argument1", ((SimpleNameBindingParserNode)result.Arguments[0]).Name);
+            Assert.AreEqual("Argument2", ((SimpleNameBindingParserNode)result.Arguments[1]).Name);
+        }
+
+        [TestMethod]
+        [DataRow("$'{DateProperty:dd/MM/yyyy}'", "{0:dd/MM/yyyy}")]
+        [DataRow("$'{IntProperty:####}'", "{0:####}")]
+        public void BindingParser_InterpolatedString_WithFormattingComponenet_Valid(string expression, string formatOptions)
+        {
+            var result = bindingParserNodeFactory.Parse(expression) as InterpolatedStringBindingParserNode;
+            Assert.IsFalse(result.HasNodeErrors);
+            Assert.AreEqual(1, result.Arguments.Count);
+            Assert.AreEqual(typeof(FormattedBindingParserNode), result.Arguments.First().GetType());
+            Assert.AreEqual(formatOptions, ((FormattedBindingParserNode)result.Arguments.First()).Format);
+        }
+
+        [TestMethod]
         public void BindingParser_StringLiteral_SingleQuotes_Valid()
         {
             var result = bindingParserNodeFactory.Parse("'help\\nhelp'");
@@ -722,6 +745,28 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             Assert.IsTrue(node.CastTo<BinaryOperatorBindingParserNode>().SecondExpression
                 .As<IdentifierNameBindingParserNode>().Name == "");
+        }
+
+        [TestMethod]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain.Company.Product")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Product")]
+        public void BindingParser_AssemblyQualifiedName_ValidAssemblyName(string binding)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(binding);
+            var node = parser.ReadDirectiveTypeName() as AssemblyQualifiedNameBindingParserNode;
+            Assert.IsFalse(node.AssemblyName.HasNodeErrors);
+        }
+
+        [TestMethod]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain.Company.Product<int>")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain.Company<int>.Product")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Domain<int>.Company.Product")]
+        [DataRow("Domain.Company.Product.DotVVM.Feature.Type, Product<int>")]
+        public void BindingParser_AssemblyQualifiedName_InvalidAssemblyName(string binding)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(binding);
+            var node = parser.ReadDirectiveTypeName() as AssemblyQualifiedNameBindingParserNode;
+            Assert.IsTrue(node.AssemblyName.HasNodeErrors);
         }
 
         [TestMethod]

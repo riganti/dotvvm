@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DotVVM.Core.Storage;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
@@ -69,7 +70,7 @@ namespace DotVVM.Framework.Storage
             return SecureGuidGenerator.GenerateGuid();
         }
 
-        public async Task<Guid> StoreFile(Stream stream, ReturnedFileMetadata metadata)
+        public async Task<Guid> StoreFileAsync(Stream stream, ReturnedFileMetadata metadata)
         {
             var id = GenerateFileId();
             var dataFilePath = GetDataFilePath(id);
@@ -99,16 +100,18 @@ namespace DotVVM.Framework.Storage
             return Path.Combine(TempDirectory, id + ".metadata");
         }
 
-        public Stream GetFile(Guid id, out ReturnedFileMetadata metadata)
+        public Task<ReturnedFile> GetFileAsync(Guid id)
         {
             var metadataJson = File.ReadAllText(GetMetadataFilePath(id), Encoding.UTF8);
             var settings = DefaultSerializerSettingsProvider.Instance.Settings;
-            metadata = JsonConvert.DeserializeObject<ReturnedFileMetadata>(metadataJson, settings);
 
-            return new FileStream(GetDataFilePath(id), FileMode.Open);
+            var stream = new FileStream(GetDataFilePath(id), FileMode.Open);
+            var metadata = JsonConvert.DeserializeObject<ReturnedFileMetadata>(metadataJson, settings);
+
+            return Task.FromResult(new ReturnedFile(stream, metadata));
         }
 
-        public void DeleteFile(Guid id)
+        public Task DeleteFileAsync(Guid id)
         {
             try
             {
@@ -125,6 +128,8 @@ namespace DotVVM.Framework.Storage
             catch (IOException)
             {
             }
+
+            return TaskUtils.GetCompletedTask();
         }
 
         public void DeleteOldFiles(DateTime maxCreatedDate)

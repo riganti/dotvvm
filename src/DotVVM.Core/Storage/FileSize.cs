@@ -1,6 +1,6 @@
-using DotVVM.Framework.Utils;
+using DotVVM.Core.Utils;
 
-namespace DotVVM.Framework.Storage
+namespace DotVVM.Core.Storage
 {
     public class FileSize
     {

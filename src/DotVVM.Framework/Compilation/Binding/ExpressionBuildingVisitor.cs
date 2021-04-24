@@ -105,6 +105,26 @@ namespace DotVVM.Framework.Compilation.Binding
             return Expression.Constant(node.Value);
         }
 
+        protected override Expression VisitInterpolatedStringExpression(InterpolatedStringBindingParserNode node)
+        {
+            var target = new MethodGroupExpression() {
+                MethodName = nameof(String.Format),
+                Target = new StaticClassIdentifierExpression(typeof(string))
+            };
+
+            if (node.Arguments.Any())
+            {
+                // Translate to a String.Format(...) call
+                var arguments = node.Arguments.Select((arg, index) => HandleErrors(node.Arguments[index], Visit)).ToArray();
+                return memberExpressionFactory.Call(target, new[] { Expression.Constant(node.Format) }.Concat(arguments).ToArray());
+            }
+            else
+            {
+                // There are no interpolation expressions - we can just return string
+                return Expression.Constant(node.Format);
+            }
+        }
+
         protected override Expression VisitParenthesizedExpression(ParenthesizedExpressionBindingParserNode node)
         {
             // just visit content
@@ -225,6 +245,18 @@ namespace DotVVM.Framework.Compilation.Binding
         protected override Expression VisitSimpleName(SimpleNameBindingParserNode node)
         {
             return GetMemberOrTypeExpression(node, null) ?? Expression.Default(typeof(void));
+        }
+
+        protected override Expression VisitAssemblyQualifiedName(AssemblyQualifiedNameBindingParserNode node)
+        {
+            if (node.AssemblyName.HasNodeErrors)
+            {
+                var message = node.AssemblyName.NodeErrors.StringJoin(Environment.NewLine);
+                throw new BindingCompilationException(message, node.AssemblyName);
+            }
+
+            // Assembly was already added to TypeRegistry - we can just visit the type name
+            return Visit(node.TypeName);
         }
 
         protected override Expression VisitConditionalExpression(ConditionalExpressionBindingParserNode node)
@@ -352,6 +384,17 @@ namespace DotVVM.Framework.Compilation.Binding
             else return Expression.Block(variables, left, right);
         }
 
+        protected override Expression VisitFormattedExpression(FormattedBindingParserNode node)
+        {
+            var target = new MethodGroupExpression() {
+                MethodName = nameof(String.Format),
+                Target = new StaticClassIdentifierExpression(typeof(string))
+            };
+
+            var nodeObj = HandleErrors(node.Node, Visit);
+            return memberExpressionFactory.Call(target, new[] { Expression.Constant(node.Format), nodeObj });
+        }
+
         protected override Expression VisitVoid(VoidBindingParserNode node) => Expression.Default(typeof(void));
 
         private Expression? GetMemberOrTypeExpression(IdentifierNameBindingParserNode node, Type[]? typeParameters)
@@ -389,7 +432,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private void ThrowIfNotTypeNameRelevant(BindingParserNode node)
         {
-            if (ResolveOnlyTypeName && !(node is MemberAccessBindingParserNode) && !(node is IdentifierNameBindingParserNode))
+            if (ResolveOnlyTypeName && !(node is MemberAccessBindingParserNode) && !(node is IdentifierNameBindingParserNode) && !(node is AssemblyQualifiedNameBindingParserNode))
             {
                 throw new Exception("Only type name is supported.");
             }
