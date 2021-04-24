@@ -200,6 +200,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Caching_CachedValues = "FeatureSamples/Caching/CachedValues";
         public const string FeatureSamples_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods = "FeatureSamples/ChildViewModelInvokeMethods/ChildViewModelInvokeMethods";
         public const string FeatureSamples_ClientExtenders_PasswordStrength = "FeatureSamples/ClientExtenders/PasswordStrength";
+        public const string FeatureSamples_CommandActionFilter_CommandActionFilter = "FeatureSamples/CommandActionFilter/CommandActionFilter";
         public const string FeatureSamples_CommandArguments_CommandArguments = "FeatureSamples/CommandArguments/CommandArguments";
         public const string FeatureSamples_CommandArguments_CommandArgumentTypes = "FeatureSamples/CommandArguments/CommandArgumentTypes";
         public const string FeatureSamples_CommandArguments_ReturnValue = "FeatureSamples/CommandArguments/ReturnValue";
@@ -220,7 +221,10 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_IdGeneration_IdGeneration = "FeatureSamples/IdGeneration/IdGeneration";
         public const string FeatureSamples_JavascriptEvents_JavascriptEvents = "FeatureSamples/JavascriptEvents/JavascriptEvents";
         public const string FeatureSamples_JavascriptTranslation_GenericMethodTranslation = "FeatureSamples/JavascriptTranslation/GenericMethodTranslation";
+        public const string FeatureSamples_JavascriptTranslation_MathMethodTranslation = "FeatureSamples/JavascriptTranslation/MathMethodTranslation";
+        public const string FeatureSamples_LambdaExpressions_ClientSideFiltering = "FeatureSamples/LambdaExpressions/ClientSideFiltering";
         public const string FeatureSamples_LambdaExpressions_LambdaExpressions = "FeatureSamples/LambdaExpressions/LambdaExpressions";
+        public const string FeatureSamples_LambdaExpressions_StaticCommands = "FeatureSamples/LambdaExpressions/StaticCommands";
         public const string FeatureSamples_LiteralBinding_LiteralBinding_Zero = "FeatureSamples/LiteralBinding/LiteralBinding_Zero";
         public const string FeatureSamples_Localization_Globalize = "FeatureSamples/Localization/Globalize";
         public const string FeatureSamples_Localization_Localization = "FeatureSamples/Localization/Localization";
