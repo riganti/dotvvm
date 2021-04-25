@@ -1,4 +1,4 @@
-import { parseDate as parseDotvvmDate, serializeDate } from '../serialization/date'
+import { parseDate, serializeDate } from '../serialization/date'
 import * as globalize from '../DotVVM.Globalize'
 import { DotvvmValidationElementMetadata, DotvvmValidationObservableMetadata, getValidationMetadata } from '../validation/common';
 import { lastSetErrorSymbol } from '../state-manager';
@@ -55,7 +55,7 @@ export default {
                     // parse date
                     let currentValue = obs();
                     if (currentValue != null) {
-                        currentValue = parseDotvvmDate(currentValue);
+                        currentValue = parseDate(currentValue);
                     }
                     result = globalize.parseDate(element.value, elmMetadata.format, currentValue) || globalize.parseDate(element.value, "", currentValue);
                     isEmpty = result == null;
