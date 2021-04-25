@@ -11,12 +11,12 @@ for some reason. What fun. -->
   <!-- Related to compilation -->
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;net461</TargetFrameworks>
+    <IsPackable>true</IsPackable>
     <OutputType>Exe</OutputType>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
-    <OutputType>Exe</OutputType>
     <TargetLatestDotNetRuntime>false</TargetLatestDotNetRuntime>
-    <CheckEolTargetFramework>False</CheckEolTargetFramework>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <RollForward>LatestMajor</RollForward>
   </PropertyGroup>
 
