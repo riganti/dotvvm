@@ -59,7 +59,7 @@ foreach ($package in $packages) {
 
     # snupkg management
     
-    $snupkgUrl = "file://$internalSnupkgServer/snupkg/"
+    $snupkgUrl = "file://$internalSnupkgServer/snupkg/"+$packageId + "." + $version + ".snupkg"
     $snupkgFile = Join-Path $PSScriptRoot ($packageId + "." + $version + ".snupkg")
 
     try {
