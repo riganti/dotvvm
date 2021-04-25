@@ -12,7 +12,7 @@ for some reason. What fun. -->
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;net461</TargetFrameworks>
     <OutputType>Exe</OutputType>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
     <TargetLatestDotNetRuntime>false</TargetLatestDotNetRuntime>
