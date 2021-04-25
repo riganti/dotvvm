@@ -190,6 +190,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.WaitFor(() => AssertUI.Value(nullableTimeTextBox, ""), 5000);
             });
         }
+
         [Fact]
         public void Feature_Serialization_SerializationDateTimeOffset()
         {
@@ -215,6 +216,31 @@ namespace DotVVM.Samples.Tests.Feature
                 }, 5000);
 
                 // TODO: changing values is not supported - DateTimeOffset serialization in DotVVM changes the time zone info
+            });
+        }
+
+        [Fact]
+        public void Feature_Serialization_EnumSerializationCoercion()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_EnumSerializationCoercion);
+                browser.WaitUntilDotvvmInited();
+
+                var result = browser.Single(".result-with-string");
+                var result2 = browser.Single(".result-without-string");
+
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(result, "One");
+                    AssertUI.TextEquals(result2, "0");
+                }, 5000);
+
+                var changeButton = browser.First("input[type=button]");
+                changeButton.Click();
+
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(result, "-1");
+                    AssertUI.TextEquals(result2, "Two");
+                }, 5000);
             });
         }
 
