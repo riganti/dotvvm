@@ -192,6 +192,34 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
+        public void Feature_Serialization_SerializationDateTimeOffset()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_SerializationDateTimeOffset);
+                browser.WaitUntilDotvvmInited();
+
+                var offset = browser.ElementAt("input[type=text]",0);
+                var nullableOffset = browser.ElementAt("input[type=text]", 1);
+                var button1 = browser.ElementAt("input[type=button]", 0);
+                var button2 = browser.ElementAt("input[type=button]", 1);
+
+                browser.WaitFor(() => {
+                    AssertUI.Value(offset, "2000-01-02T03:04:05+00:00");
+                    AssertUI.Value(nullableOffset, "");
+                }, 5000);
+
+                button1.Click();
+
+                browser.WaitFor(() => {
+                    AssertUI.Value(offset, "2000-01-02T03:04:05+00:00");
+                    AssertUI.Value(nullableOffset, "2000-01-02T03:04:05+02:00");
+                }, 5000);
+
+                // TODO: changing values is not supported - DateTimeOffset serialization in DotVVM changes the time zone info
+            });
+        }
+
+        [Fact]
         public void Feature_Serialization_EnumSerializationCoercion()
         {
             RunInAllBrowsers(browser => {
