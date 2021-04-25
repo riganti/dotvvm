@@ -191,6 +191,31 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Serialization_EnumSerializationCoercion()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_EnumSerializationCoercion);
+                browser.WaitUntilDotvvmInited();
+
+                var result = browser.Single(".result-with-string");
+                var result2 = browser.Single(".result-without-string");
+
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(result, "One");
+                    AssertUI.TextEquals(result2, "0");
+                }, 5000);
+
+                var changeButton = browser.First("input[type=button]");
+                changeButton.Click();
+
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(result, "-1");
+                    AssertUI.TextEquals(result2, "Two");
+                }, 5000);
+            });
+        }
+
         public SerializationTests(ITestOutputHelper output) : base(output)
         {
         }
