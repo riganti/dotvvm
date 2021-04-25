@@ -1,5 +1,6 @@
 ﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.DotVVM;
 using Xunit;
@@ -131,6 +132,64 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Serialization_TimeSpan()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_TimeSpan);
+
+                var timeTextBox = browser.ElementAt("input[type=text]", 0);
+                var nullableTimeTextBox = browser.ElementAt("input[type=text]", 1);
+
+                var time = browser.Single(".result-time");
+                var nullableTime = browser.Single(".result-nullable-time");
+
+                var button = browser.Single("input[type=button]");
+
+                // initial state
+                browser.WaitFor(() => AssertUI.TextEquals(time, "00:00:00"), 5000);
+                browser.WaitFor(() => AssertUI.Value(timeTextBox, "00:00:00"), 5000);
+                button.Click();
+                browser.WaitFor(() => AssertUI.TextEquals(time, "01:00:00"), 5000);
+                browser.WaitFor(() => AssertUI.Value(timeTextBox, "01:00:00"), 5000);
+
+                // over 24 hours
+                timeTextBox.Clear().SendKeys("23:45:17").SendKeys(Keys.Tab);
+                browser.WaitFor(() => AssertUI.TextEquals(time, "23:45:17"), 5000);
+                button.Click();
+                browser.WaitFor(() => AssertUI.TextEquals(time, "1.00:45:17"), 5000);
+                browser.WaitFor(() => AssertUI.Value(timeTextBox, "1.00:45:17"), 5000);
+
+                // more than 24 hours without the day specifier
+                timeTextBox.Clear().SendKeys("126:45:17").SendKeys(Keys.Tab);
+                browser.WaitFor(() => AssertUI.TextEquals(time, "5.06:45:17"), 5000);
+                button.Click();
+                browser.WaitFor(() => AssertUI.TextEquals(time, "5.07:45:17"), 5000);
+                browser.WaitFor(() => AssertUI.Value(timeTextBox, "5.07:45:17"), 5000);
+
+                // negative
+                timeTextBox.Clear().SendKeys("-1.0:20:34.145").SendKeys(Keys.Tab);
+                browser.WaitFor(() => AssertUI.TextEquals(time, "-1.00:20:34.1450000"), 5000);
+                button.Click();
+                browser.WaitFor(() => AssertUI.TextEquals(time, "-23:20:34.1450000"), 5000);
+                browser.WaitFor(() => AssertUI.Value(timeTextBox, "-23:20:34.1450000"), 5000);
+
+                // nullable - set value
+                browser.WaitFor(() => AssertUI.TextEquals(nullableTime, ""), 5000);
+                browser.WaitFor(() => AssertUI.Value(nullableTimeTextBox, ""), 5000);
+                nullableTimeTextBox.Clear().SendKeys("4:56:01").SendKeys(Keys.Tab);
+                button.Click();
+                browser.WaitFor(() => AssertUI.TextEquals(nullableTime, "05:56:01"), 5000);
+                browser.WaitFor(() => AssertUI.Value(nullableTimeTextBox, "05:56:01"), 5000);
+
+                // nullable - clear
+                nullableTimeTextBox.Clear();
+                browser.WaitFor(() => AssertUI.Value(nullableTimeTextBox, ""), 5000);
+                button.Click();
+                browser.WaitFor(() => AssertUI.TextEquals(nullableTime, ""), 5000);
+                browser.WaitFor(() => AssertUI.Value(nullableTimeTextBox, ""), 5000);
+            });
+        }
         [Fact]
         public void Feature_Serialization_SerializationDateTimeOffset()
         {

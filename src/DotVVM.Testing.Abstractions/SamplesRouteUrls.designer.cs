@@ -200,6 +200,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Caching_CachedValues = "FeatureSamples/Caching/CachedValues";
         public const string FeatureSamples_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods = "FeatureSamples/ChildViewModelInvokeMethods/ChildViewModelInvokeMethods";
         public const string FeatureSamples_ClientExtenders_PasswordStrength = "FeatureSamples/ClientExtenders/PasswordStrength";
+        public const string FeatureSamples_CommandActionFilter_CommandActionFilter = "FeatureSamples/CommandActionFilter/CommandActionFilter";
         public const string FeatureSamples_CommandArguments_CommandArguments = "FeatureSamples/CommandArguments/CommandArguments";
         public const string FeatureSamples_CommandArguments_CommandArgumentTypes = "FeatureSamples/CommandArguments/CommandArgumentTypes";
         public const string FeatureSamples_CommandArguments_ReturnValue = "FeatureSamples/CommandArguments/ReturnValue";
@@ -276,6 +277,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Serialization_EnumSerializationWithJsonConverter = "FeatureSamples/Serialization/EnumSerializationWithJsonConverter";
         public const string FeatureSamples_Serialization_ObservableCollectionShouldContainObservables = "FeatureSamples/Serialization/ObservableCollectionShouldContainObservables";
         public const string FeatureSamples_Serialization_Serialization = "FeatureSamples/Serialization/Serialization";
+        public const string FeatureSamples_Serialization_TimeSpan = "FeatureSamples/Serialization/TimeSpan";
         public const string FeatureSamples_Serialization_SerializationDateTimeOffset = "FeatureSamples/Serialization/SerializationDateTimeOffset";
         public const string FeatureSamples_ServerComments_ServerComments = "FeatureSamples/ServerComments/ServerComments";
         public const string FeatureSamples_ServerSideStyles_ServerSideStyles = "FeatureSamples/ServerSideStyles/ServerSideStyles";

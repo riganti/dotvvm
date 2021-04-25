@@ -1,5 +1,5 @@
 import { formatString, parseDate as globalizeParseDate } from "../DotVVM.Globalize";
-import { parseDate as serializationParseDate, parseDateTimeOffset as serializationParseDateTimeOffset, serializeDate, serializeTime } from "../serialization/date";
+import { parseDate as serializationParseDate, parseTimeSpan as serializationParseTimeSpan, parseDateTimeOffset as serializationParseDateTimeOffset, serializeDate, serializeTimeSpan } from "../serialization/date";
 import { CoerceError } from "../shared-classes";
 
 type PrimitiveTypes = { 
@@ -69,7 +69,7 @@ export const primitiveTypes: PrimitiveTypes = {
         tryCoerce: validateDateTime
     },
     TimeSpan: {
-        tryCoerce: validateDateTime
+        tryCoerce: validateTimeSpan
     },
     DateTimeOffset: {
         tryCoerce: validateDateTimeOffset
@@ -178,6 +178,20 @@ function validateDateTime(value: any) {
     
     if (value instanceof Date) {
         return { value: serializeDate(value, false), wasCoerced: true };
+    }
+}
+
+function validateTimeSpan(value: any) {
+    if (typeof value === "string") {
+        // strict DotVVM format parse
+        const parsedValue = serializationParseTimeSpan(value);
+        if (parsedValue !== null) {
+            return { value: serializeTimeSpan(parsedValue) };
+        }
+    }
+    
+    if (typeof value === "number") {
+        return { value: serializeTimeSpan(value), wasCoerced: true };
     }
 }
 
