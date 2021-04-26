@@ -36,7 +36,7 @@ foreach ($package in $packages) {
     # standard package
     if ($package.Type -eq "tool") {
         ## dotnet tools
-        dotnet tool install $packageId --tool-path ./tools/packages --version $version | Out.Host
+        dotnet tool install $packageId --tool-path ./tools/packages --version $version --add-source $internalServer | Out.Host
         $nupkgFile = dir -s ./tools/packages/*/$packageId.$version.nupkg | Select -First 1
         Write-Host "Downloaded tool located on '$nupkgFile'"
     }
@@ -73,8 +73,11 @@ foreach ($package in $packages) {
     if ($snupkgDownloaded -eq $true){
         Write-Host "Uploading snupkg package..."        
         & .\Tools\nuget.exe push $snupkgFile -source $server -apiKey $apiKey | Out.Host
+		Write-Host "Uploaded snupkg package."
         Remove-Item $nupkgFile    
-        try {Remove-Item $snupkgFile}catch {            
+        try {
+			Remove-Item $snupkgFile
+		}catch {            
             Write-Host "Unable to cleanup snupkg..."
         }
     }
