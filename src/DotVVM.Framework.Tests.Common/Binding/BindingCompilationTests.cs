@@ -58,6 +58,11 @@ namespace DotVVM.Framework.Tests.Binding
             return ExecuteBinding(expression, contexts, null);
         }
 
+        public object ExecuteBinding(string expression, NamespaceImport[] imports, params object[] contexts)
+        {
+            return ExecuteBinding(expression, contexts, null, imports);
+        }
+
         [TestMethod]
         public void BindingCompiler_FullNameResourceBinding()
         {
@@ -128,6 +133,88 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var viewModel = new TestViewModel() { StringProp = "abc" };
             Assert.AreEqual(ExecuteBinding("StringProp + 'def'", viewModel), "abcdef");
+        }
+
+        [TestMethod]
+        [DataRow(@"$'Non-Interpolated'", "Non-Interpolated")]
+        [DataRow(@"$'Non-Interpolated {{'", "Non-Interpolated {")]
+        [DataRow(@"$'Non-Interpolated {{ no-expression }}'", "Non-Interpolated { no-expression }")]
+        public void BindingCompiler_Valid_InterpolatedString_NoExpressions(string expression, string evaluated)
+        {
+            var binding = ExecuteBinding(expression);
+            Assert.AreEqual(evaluated, binding);
+        }
+
+        [TestMethod]
+        [DataRow(@"$'} Malformed'", "Unexpected token '$' ---->}<----")]
+        [DataRow(@"$'{ Malformed'", "Could not find matching closing character '}' for an interpolated expression")]
+        [DataRow(@"$'Malformed {expr'", "Could not find matching closing character '}' for an interpolated expression")]
+        [DataRow(@"$'Malformed expr}'", "Unexpected token '$'Malformed expr ---->}<---- ")]
+        [DataRow(@"$'Malformed {'", "Could not find matching closing character '}' for an interpolated expression")]
+        [DataRow(@"$'Malformed }'", "Unexpected token '$'Malformed  ---->}<----")]
+        [DataRow(@"$'Malformed {}'", "Expected expression, but instead found empty")]
+        [DataRow(@"$'Malformed {StringProp; IntProp}'", "Expected end of interpolated expression, but instead found Semicolon")]
+        [DataRow(@"$'Malformed {(string arg) => arg.Length}'", "Expected end of interpolated expression, but instead found Identifier")]
+        [DataRow(@"$'Malformed {(StringProp == null) ? 'StringPropWasNull' : 'StringPropWasNotNull'}'", "Conditional expression needs to be enclosed in parentheses")]
+        public void BindingCompiler_Invalid_InterpolatedString_MalformedExpression(string expression, string errorMessage)
+        {
+            try
+            {
+                ExecuteBinding(expression);
+            }
+            catch (Exception e)
+            {
+                // Get inner-most exception
+                var current = e;
+                while (current.InnerException != null)
+                    current = current.InnerException;
+
+                Assert.AreEqual(typeof(BindingCompilationException), current.GetType());
+                StringAssert.Contains(current.Message, errorMessage);
+            }
+        }
+
+        [TestMethod]
+        [DataRow(@"$""Interpolated {StringProp} {StringProp}""", "Interpolated abc abc")]
+        [DataRow(@"$'Interpolated {StringProp} {StringProp}'", "Interpolated abc abc")]
+        [DataRow(@"$'Interpolated {StringProp.Length}'", "Interpolated 3")]
+        public void BindingCompiler_Valid_InterpolatedString_WithSimpleExpressions(string expression, string evaluated)
+        {
+            var viewModel = new TestViewModel() { StringProp = "abc" };
+            var binding = ExecuteBinding(expression, viewModel);
+            Assert.AreEqual(evaluated, binding);
+        }
+
+        [TestMethod]
+        [DataRow(@"$'{string.Join(', ', IntArray)}'", "1, 2, 3")]
+        [DataRow(@"$'{string.Join(', ', 'abc', 'def', $'{string.Join(', ', IntArray)}')}'", "abc, def, 1, 2, 3")]
+        public void BindingCompiler_Valid_InterpolatedString_NestedExpressions(string expression, string evaluated)
+        {
+            var viewModel = new TestViewModel { IntArray = new[] { 1, 2, 3 } };
+            var binding = ExecuteBinding(expression, viewModel);
+            Assert.AreEqual(evaluated, binding);
+        }
+
+        [TestMethod]
+        [DataRow(@"$'Interpolated {IntProp < LongProperty}'", "Interpolated True")]
+        [DataRow(@"$'Interpolated {StringProp ?? 'StringPropWasNull'}'", "Interpolated StringPropWasNull")]
+        [DataRow(@"$'Interpolated {((StringProp == null) ? 'StringPropWasNull' : 'StringPropWasNotNull')}'", "Interpolated StringPropWasNull")]
+        public void BindingCompiler_Valid_InterpolatedString_WithComplexExpressions(string expression, string evaluated)
+        {
+            var viewModel = new TestViewModel() { IntProp = 1, LongProperty = 2 };
+            var binding = ExecuteBinding(expression, viewModel);
+            Assert.AreEqual(evaluated, binding);
+        }
+
+        [TestMethod]
+        [DataRow(@"$'Interpolated {DateFrom:R}'", "Interpolated Fri, 11 Nov 2011 12:11:11 GMT")]
+        [DataRow(@"$'Interpolated {$'{DateFrom:R}'}'", "Interpolated Fri, 11 Nov 2011 12:11:11 GMT")]
+        [DataRow(@"$'Interpolated {$'{IntProp:0000}'}'", "Interpolated 0006")]
+        public void BindingCompiler_Valid_InterpolatedString_WithFormattingComponent(string expression, string evaluated)
+        {
+            var viewModel = new TestViewModel() { DateFrom = DateTime.Parse("2011-11-11T11:11:11+00:00"), IntProp = 6 };
+            var binding = ExecuteBinding(expression, viewModel);
+            Assert.AreEqual(evaluated, binding);
         }
 
         [TestMethod]
@@ -204,7 +291,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingCompiler_Valid_ExtensionMethods()
         {
             var viewModel = new TestViewModel();
-            var result = (long[])ExecuteBinding("LongArray.Where((long item) => item % 2 != 0).ToArray()", viewModel);
+            var result = (long[])ExecuteBinding("LongArray.Where((long item) => item % 2 != 0).ToArray()", new[] { new NamespaceImport("System.Linq") }, viewModel);
             CollectionAssert.AreEqual(viewModel.LongArray.Where(item => item % 2 != 0).ToArray(), result);
         }
 
@@ -642,6 +729,7 @@ namespace DotVVM.Framework.Tests.Binding
     {
         public string StringProp { get; set; }
         public int IntProp { get; set; }
+        public double DoubleProp { get; set; }
         public TestViewModel2 TestViewModel2 { get; set; }
         public TestViewModel2 TestViewModel2B { get; set; }
         public TestEnum EnumProperty { get; set; }
@@ -654,6 +742,7 @@ namespace DotVVM.Framework.Tests.Binding
         public long LongProperty { get; set; }
 
         public long[] LongArray => new long[] { 1, 2, long.MaxValue };
+        public string[] StringArray => new string[] { "Hello ", "DotVVM" };
         public TestViewModel2[] VmArray => new TestViewModel2[] { new TestViewModel2() };
         public int[] IntArray { get; set; }
 

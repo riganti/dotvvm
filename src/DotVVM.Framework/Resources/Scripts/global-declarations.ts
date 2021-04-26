@@ -273,3 +273,22 @@ type CoerceErrorType = {
 }
 
 type CoerceResult = CoerceErrorType | { value: any, wasCoerced?: boolean, isError?: false };
+
+type DotvvmFileUploadCollection = {
+    Files: KnockoutObservableArray<KnockoutObservable<DotvvmFileUploadData>>;
+    Progress: KnockoutObservable<number>;
+    Error: KnockoutObservable<string>;
+    IsBusy: KnockoutObservable<boolean>;
+}
+type DotvvmFileUploadData = {
+    FileId: KnockoutObservable<string>;
+    FileName: KnockoutObservable<string>;
+    FileSize: KnockoutObservable<DotvvmFileSize>;
+    IsFileTypeAllowed: KnockoutObservable<boolean>;
+    IsMaxSizeExceeded: KnockoutObservable<boolean>;
+    IsAllowed: KnockoutObservable<boolean>;
+}
+type DotvvmFileSize = {
+    Bytes: KnockoutObservable<number>;
+    FormattedText: KnockoutObservable<string>;
+}

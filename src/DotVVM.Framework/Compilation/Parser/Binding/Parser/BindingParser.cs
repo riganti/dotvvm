@@ -53,7 +53,31 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 Read();
                 var assemblyName = ReadNamespaceOrTypeName();
-                if (!(assemblyName is SimpleNameBindingParserNode)) typeName.NodeErrors.Add($"Generic identifier name is not allowed in assembly name.");
+
+                // SimpleNameBinding means that assembly name does not contain dots
+                // MemberAccessBinding means that assembly name is complex (multiple identifiers delimited with dots)
+                if (!(assemblyName is SimpleNameBindingParserNode || assemblyName is MemberAccessBindingParserNode))
+                {
+                    assemblyName.NodeErrors.Add($"Expected assembly name but instead got {assemblyName.GetType().Name}.");
+                }
+                else if (assemblyName is MemberAccessBindingParserNode)
+                {
+                    // Make sure there is no GenericNameBinding within assemblyName
+                    var assemblyBinding = assemblyName;
+                    while (assemblyBinding is MemberAccessBindingParserNode assemblyMemberBinding)
+                    {
+                        var memberExprType = assemblyMemberBinding.MemberNameExpression.GetType();
+                        var targetExprType = assemblyMemberBinding.TargetExpression.GetType();
+                        if (memberExprType == typeof(GenericNameBindingParserNode) || targetExprType == typeof(GenericNameBindingParserNode))
+                        {
+                            assemblyName.NodeErrors.Add($"Generic identifier name is not allowed in an assembly name.");
+                            break;
+                        }
+
+                        assemblyBinding = assemblyMemberBinding.TargetExpression;
+                    }
+                }
+
                 return new AssemblyQualifiedNameBindingParserNode(typeName, assemblyName);
             }
             else if (Peek() is BindingToken token)
@@ -597,6 +621,21 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 }
                 return node;
             }
+            else if (token != null && token.Type == BindingTokenType.InterpolatedStringToken)
+            {
+                // interpolated string
+
+                Read();
+
+                var (format, arguments) = ParseInterpolatedString(token.Text, out var error);
+                var node = CreateNode(new InterpolatedStringBindingParserNode(format, arguments), startIndex);
+                if (error != null)
+                {
+                    node.NodeErrors.Add(error);
+                }
+
+                return node;
+            }
             else
             {
                 // identifier
@@ -712,6 +751,74 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             }
             Restore();
             return CreateNode(new SimpleNameBindingParserNode(identifier), startIndex);
+        }
+
+        private BindingParserNode ReadFormattedExpression()
+        {
+            var startIndex = CurrentIndex;
+            BindingParserNode? node;
+
+            SkipWhiteSpace();
+
+            // 1) Parse expression
+            if (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.OpenParenthesis)
+            {
+                // Conditional expressions must be enclosed in parentheses
+                Read();
+                SkipWhiteSpace();
+                node = ReadConditionalExpression();
+                SkipWhiteSpace();
+                if (IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis))
+                {
+                    node.NodeErrors.Add("Expected ')' after this expression.");
+                }
+                else
+                {
+                    Read();
+                }
+            }
+            else
+            {
+                // If expression is not enclosed in parentheses, read null coalescing expression
+                node = ReadNullCoalescingExpression();
+            }
+
+            SkipWhiteSpace();
+
+            // 2) Parse formatting component (optional)
+            if (Peek() is BindingToken delimitingToken && delimitingToken.Type == BindingTokenType.ColonOperator)
+            {
+                Read();
+                if (IsCurrentTokenIncorrect(BindingTokenType.Identifier))
+                {
+                    node.NodeErrors.Add("Expected an identifier after ':'. The identifier should specify formatting for the previous expression!");
+                }
+
+                // Scan all remaining tokens
+                BindingToken? currentToken;
+                var formatTokens = new List<BindingToken>();
+                while ((currentToken = Read()) != null)
+                    formatTokens.Add(currentToken);
+
+                var format = $"{{0:{string.Concat(formatTokens.Select(token => token.Text))}}}";
+                return CreateNode(new FormattedBindingParserNode(node, format), startIndex);
+            }
+
+            SkipWhiteSpace();
+            if (Peek() != null)
+            {
+                if (Peek()!.Type == BindingTokenType.QuestionMarkOperator)
+                {
+                    // If it seems that user tried to use conditional expression, provide more concrete error message
+                    node.NodeErrors.Add("Conditional expression needs to be enclosed in parentheses.");
+                }
+                else
+                {
+                    node.NodeErrors.Add($"Expected end of interpolated expression, but instead found {Peek()!.Type}");
+                }
+            }
+
+            return node;
         }
 
         private static object? ParseNumberLiteral(string text, out string? error)
@@ -844,43 +951,183 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             error = null;
             var sb = new StringBuilder();
-            for (var i = 1; i < text.Length - 1; i++)
+
+            var index = 1;
+            while (index < text.Length - 1)
             {
-                if (text[i] == '\\')
+                if (TryParseCharacter(text, ref index, out var character, out var innerError))
                 {
-                    // handle escaped characters
-                    i++;
-                    if (i == text.Length - 1)
+                    sb.Append(character);
+                }
+                else
+                {
+                    error = innerError;
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        private static bool TryParseCharacter(string text, ref int index, out char character, out string? error)
+        {
+            var result = TryPeekCharacter(text, index, out var count, out character, out error);
+            index += count;
+            return result;
+        }
+
+        private static bool TryPeekCharacter(string text, int index, out int length, out char character, out string? error)
+        {
+            if (text[index] == '\\')
+            {
+                // handle escaped characters
+                length = 2;
+                index++;
+                if (index == text.Length - 1)
+                {
+                    error = "The escape character cannot be at the end of the string literal!";
+                    character = default;
+                    return false;
+                }
+                else if (text[index] == '\'' || text[index] == '"' || text[index] == '\\')
+                {
+                    character = text[index];
+                }
+                else if (text[index] == 'n')
+                {
+                    character = '\n';
+                }
+                else if (text[index] == 'r')
+                {
+                    character = '\r';
+                }
+                else if (text[index] == 't')
+                {
+                    character = '\t';
+                }
+                else
+                {
+                    error = "The escape sequence is either not valid or not supported in dotVVM bindings!";
+                    character = default;
+                    return false;
+                }
+
+                error = default;
+                return true;
+            }
+            else
+            {
+                character = text[index];
+                error = default;
+                length = 1;
+                return true;
+            }
+        }
+
+        private static (string, List<BindingParserNode>) ParseInterpolatedString(string text, out string? error)
+        {
+            error = null;
+            var sb = new StringBuilder();
+            var arguments = new List<BindingParserNode>();
+
+            var index = 2;
+            while (index < text.Length - 1)
+            {
+                if (TryParseCharacter(text, ref index, out var current, out var innerError))
+                {
+                    var hasNext = TryPeekCharacter(text, index, out var length, out var next, out _);
+                    if (hasNext && current == next && (current == '{' || current == '}'))
                     {
-                        error = "The escape character cannot be at the end of the string literal!";
+                        // If encountered double '{' or '}' do not treat is as an control character
+                        sb.Append(current);
+                        index += length;
                     }
-                    else if (text[i] == '\'' || text[i] == '"' || text[i] == '\\')
+                    else if (current == '{')
                     {
-                        sb.Append(text[i]);
+                        if (!TryParseInterpolationExpression(text, index, out var end, out var argument, out innerError))
+                        {
+                            arguments.Clear();
+                            error = string.Concat(error, " Interpolation expression is malformed. ", innerError).TrimStart();
+                            return (string.Empty, arguments);
+                        }
+                        arguments.Add(argument!);
+                        sb.Append("{" + (arguments.Count - 1).ToString() + "}");
+                        index = end + 1;
                     }
-                    else if (text[i] == 'n')
+                    else if (current == '}')
                     {
-                        sb.Append('\n');
-                    }
-                    else if (text[i] == 'r')
-                    {
-                        sb.Append('\r');
-                    }
-                    else if (text[i] == 't')
-                    {
-                        sb.Append('\t');
+                        innerError = "Could not find matching opening character '{' for an interpolated expression.";
+                        error = string.Concat(error, " Interpolation expression is malformed. ", innerError).TrimStart();
+                        return (string.Empty, arguments);
                     }
                     else
                     {
-                        error = "The escape sequence is either not valid or not supported in dotVVM bindings!";
+                        sb.Append(current);
                     }
                 }
                 else
                 {
-                    sb.Append(text[i]);
+                    error = innerError;
+                    index++;
                 }
             }
-            return sb.ToString();
+
+            return (sb.ToString(), arguments);
+        }
+
+        private static bool TryParseInterpolationExpression(string text, int start, out int end, out BindingParserNode? expression, out string? error)
+        {
+            var index = start;
+            var foundEnd = false;
+
+            var exprDepth = 0;
+            while (index < text.Length)
+            {
+                var current = text[index++];
+                if (current == '{')
+                {
+                    exprDepth++;
+                }
+                if (current == '}')
+                {
+                    if (exprDepth == 0)
+                    {
+                        foundEnd = true;
+                        break;
+                    }
+                    exprDepth--;
+                }
+            }
+
+            if (!foundEnd)
+            {
+                end = -1;
+                expression = null;
+                error = "Could not find matching closing character '}' for an interpolated expression.";
+                return false;
+            }
+
+            end = index - 1;
+            if (start == end)
+            {
+                // Provided expression is empty
+                expression = null;
+                error = "Expected expression, but instead found empty \"{}\".";
+                return false;
+            }
+
+            error = null;
+            var rawExpression = text.Substring(start, end - start);
+            var tokenizer = new BindingTokenizer();
+            tokenizer.Tokenize(rawExpression);
+            var parser = new BindingParser() { Tokens = tokenizer.Tokens };
+            expression = parser.ReadFormattedExpression();
+            if (expression.HasNodeErrors)
+            {
+                error = string.Join(" ", new[] { $"Error while parsing expression \"{rawExpression}\"." }.Concat(expression.NodeErrors));
+                return false;
+            }
+
+            return expression != null;
         }
 
         private T CreateNode<T>(T node, int startIndex, string? error = null) where T : BindingParserNode

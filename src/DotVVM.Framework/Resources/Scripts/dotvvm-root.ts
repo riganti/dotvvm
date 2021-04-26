@@ -24,6 +24,9 @@ import * as eventHub from './api/eventHub'
 import * as viewModuleManager from './viewModules/viewModuleManager'
 import { notifyModuleLoaded } from './postback/resourceLoader'
 import { logError, logWarning, logInfo, logInfoVerbose, level, logPostBackScriptError } from "./utils/logging"
+import { orderBy, orderByDesc } from './collections/sortingHelper'
+import * as arrayHelper from './collections/arrayHelper'
+import * as stringHelper from './utils/stringHelper'
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -54,8 +57,7 @@ const dotvvmExports = {
     },
     fileUpload: {
         reportProgress: fileUpload.reportProgress,
-        showUploadDialog: fileUpload.showUploadDialog,
-        createUploadId: fileUpload.createUploadId
+        showUploadDialog: fileUpload.showUploadDialog
     },
     api: {
         invoke: api.invoke,
@@ -67,6 +69,7 @@ const dotvvmExports = {
     },
     globalize,
     postBackHandlers: postbackHandlers,
+    postbackHandlers: postbackHandlers,
     buildUrlSuffix,
     buildRouteUrl,
     staticCommandPostback,
@@ -112,7 +115,9 @@ const dotvvmExports = {
         logInfoVerbose,
         logPostBackScriptError,
         level
-    }
+    },
+    arrayHelper,
+    stringHelper
 }
 
 if (compileConstants.isSpa) {
