@@ -29,28 +29,28 @@ foreach ($package in $packages) {
 
     # standard package
     if ($package.Type -eq "standard") {
-        & .\tools\nuget.exe install $packageId -OutputDirectory .\tools\packages -version $version -DirectDownload -NoCache -DependencyVersion Ignore -source $internalServer
+        & .\tools\nuget.exe install $packageId -OutputDirectory .\tools\packages -version $version -DirectDownload -NoCache -DependencyVersion Ignore -source $internalServer | Out.Host
         $nupkgFile = dir -s ./tools/packages/$packageId.$version.nupkg | Select -First 1
         Write-Host "Downloaded package located on '$nupkgFile'"
     }
     # standard package
     if ($package.Type -eq "tool") {
         ## dotnet tools
-        dotnet tool install $packageId --tool-path ./tools/packages --version $version
+        dotnet tool install $packageId --tool-path ./tools/packages --version $version | Out.Host
         $nupkgFile = dir -s ./tools/packages/*/$packageId.$version.nupkg | Select -First 1
         Write-Host "Downloaded tool located on '$nupkgFile'"
     }
     # dotnet templates
     if ($package.Type -eq "template") {
-        dotnet new --install "$packageId::$version" --force --nuget-source $internalServer
-        $nupkgFile = dir $env:USERPROFILE\.templateengine\dotnetcli\ -s | where { $_.Name -eq "$packageId.$version.nupkg" } | select { $_.FullName } | Select -First 1
+        dotnet new --install "$packageId::$version" --force --nuget-source $internalServer | Out.Host
+        $nupkgFile = dir -s $env:USERPROFILE/.templateengine/dotnetcli -filter $packageId.$version.nupkg | Select -First 1
         Write-Host "Downloaded template located on '$nupkgFile'"
     }
     
     if ($nupkgFile) {
         # upload 
         Write-Host "Uploading package..."
-        & .\tools\nuget.exe push $nupkgFile -source $server -apiKey $apiKey
+        & .\tools\nuget.exe push $nupkgFile -source $server -apiKey $apiKey | Out.Host
         Write-Host "Package uploaded to $server."
     }
     if ( Test-Path -Path ./tools/packages ) {
@@ -72,7 +72,7 @@ foreach ($package in $packages) {
     
     if ($snupkgDownloaded -eq $true){
         Write-Host "Uploading snupkg package..."        
-        & .\Tools\nuget.exe push $snupkgFile -source $server -apiKey $apiKey
+        & .\Tools\nuget.exe push $snupkgFile -source $server -apiKey $apiKey | Out.Host
         Remove-Item $nupkgFile    
         try {Remove-Item $snupkgFile}catch {            
             Write-Host "Unable to cleanup snupkg..."
