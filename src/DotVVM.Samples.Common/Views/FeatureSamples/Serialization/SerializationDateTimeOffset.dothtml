@@ -1,0 +1,22 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Serialization.SerializationDateTimeOffsetViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <p>DateTimeOffset: <dot:TextBox Text="{value: Offset}" /></p>
+
+    <p>Nullable DateTimeOffset: <dot:TextBox Text="{value: NullableOffset}" /></p>
+
+    <dot:Button Text="Set nullable" Click="{command: SetNullable()}" />
+    <dot:Button Text="Add hour" Click="{command: AddHour()}" />
+
+</body>
+</html>
+
+
