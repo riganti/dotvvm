@@ -32,7 +32,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             typeof(Char),
             typeof(Guid),
             typeof(DateTime),
-            typeof(TimeSpan)
+            typeof(TimeSpan),
+            typeof(DateTimeOffset)
         };
 
         private static readonly ConcurrentDictionary<ViewModelSerializationMapWithCulture, ObjectMetadataWithDependencies> cachedObjectMetadata = new ConcurrentDictionary<ViewModelSerializationMapWithCulture, ObjectMetadataWithDependencies>();
