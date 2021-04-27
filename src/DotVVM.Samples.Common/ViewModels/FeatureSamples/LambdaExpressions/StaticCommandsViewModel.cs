@@ -31,6 +31,8 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.LambdaExpressions
 
         public class CustomerData
         {
+            public string AString { get; set; } = "Red";
+            public int ANumber { get; set; } = 1;
             public int Id { get; set; }
             public string Name { get; set; }
             public Category Category { get; set; }

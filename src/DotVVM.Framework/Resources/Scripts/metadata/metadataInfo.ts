@@ -68,15 +68,13 @@ function resolveMetadata(type: TypeDefinition): TypeMetadata | null {
 }
 
 function getPath(from: any, target: any): string[] | null {
-    from = ko.unwrap(from);
-    target = ko.unwrap(target);
-
-    if (from == target)
+    if (from === target)
         return [];
 
-    for (let key of keys(from)) {
-        let item = ko.unwrap(from[key]);
-        if (item && typeof item === "object") {
+    let unwrappedFrom = ko.unwrap(from);
+    for (let key of keys(unwrappedFrom)) {
+        let item = unwrappedFrom[key];
+        if (item && typeof ko.unwrap(item) === "object") {
             let subPath = getPath(item, target);
             if (subPath) {
                 subPath.unshift(key);

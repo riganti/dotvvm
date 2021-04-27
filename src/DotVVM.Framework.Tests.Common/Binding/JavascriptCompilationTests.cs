@@ -579,7 +579,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableOrderBy(string binding, string key)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.arrayHelper.orderBy(ObjectArray(),function(item){{return ko.unwrap(item).{key}();}})", result);
+            Assert.AreEqual($"dotvvm.arrayHelper.orderBy(ObjectArray(),function(item){{return ko.unwrap(item).{key};}})", result);
         }
 
         [TestMethod]
@@ -603,7 +603,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableOrderByDescending(string binding, string key)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.arrayHelper.orderByDesc(ObjectArray(),function(item){{return ko.unwrap(item).{key}();}})", result);
+            Assert.AreEqual($"dotvvm.arrayHelper.orderByDesc(ObjectArray(),function(item){{return ko.unwrap(item).{key};}})", result);
         }
 
         [TestMethod]

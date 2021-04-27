@@ -345,6 +345,18 @@ namespace DotVVM.Framework.Compilation.Javascript
                 return true;
             }
 
+            JsExpression MakeLambdaReturnObservable(JsExpression lambdaExpression)
+            {
+                var body = (lambdaExpression.Children.Single(c => c.GetType() == typeof(JsBlockStatement)) as JsBlockStatement).Body;
+                foreach (var returnStatement in body.Where(s => s.GetType() == typeof(JsReturnStatement)))
+                {
+                    var returnExpression = ((JsReturnStatement)returnStatement).Expression;
+                    returnExpression.AddAnnotation(ShouldBeObservableAnnotation.Instance);
+                }
+
+                return lambdaExpression;
+            }
+
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.All), parameterCount: 2, translator: new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("all").Invoke(args[1], args[2])));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Any), parameterCount: 1, translator: new GenericMethodCompiler(args =>
@@ -389,10 +401,10 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
 
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderBy), parameterCount: 2,
-                translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderBy").Invoke(args[1], args[2]),
+                translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderBy").Invoke(args[1], MakeLambdaReturnObservable(args[2])),
                 check: (method, _, arguments) => EnsureIsComparableInJavascript(method, arguments.Last().Type.GetGenericArguments().Last())));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderByDescending), parameterCount: 2,
-                translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderByDesc").Invoke(args[1], args[2]),
+                translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderByDesc").Invoke(args[1], MakeLambdaReturnObservable(args[2])),
                 check: (method, _, arguments) => EnsureIsComparableInJavascript(method, arguments.Last().Type.GetGenericArguments().Last())));
 
             var selectMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
