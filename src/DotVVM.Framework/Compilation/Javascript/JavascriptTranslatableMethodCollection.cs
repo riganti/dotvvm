@@ -143,6 +143,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddDefaultToStringTranslations();
             AddDefaultStringTranslations();
             AddDefaultEnumerableTranslations();
+            AddDefaultListTranslations();
             AddDefaultMathTranslations();
         }
 
@@ -411,6 +412,32 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(whereMethod, translator: new GenericMethodCompiler(args => args[1].Member("filter").Invoke(args[2])));
         }
 
+        private void AddDefaultListTranslations()
+        {
+            AddMethodTranslator(typeof(List<>), "Add", parameterCount: 1, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("add").Invoke(args[0].Clone(), args[1], args[0].EnsureObservableWrapped())));
+            AddMethodTranslator(typeof(List<>), "AddRange", parameterCount: 1, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("addRange").Invoke(args[0].Clone(), args[1], args[0].EnsureObservableWrapped())));
+            AddMethodTranslator(typeof(List<>), "Clear", parameterCount: 0, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("clear").Invoke(args[0].EnsureObservableWrapped())));
+            AddMethodTranslator(typeof(List<>), "ForEach", parameterCount: 1, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("forEach").Invoke(args[0].Clone(), args[1], args[0].EnsureObservableWrapped())));
+            AddMethodTranslator(typeof(List<>), "Insert", parameterCount: 2, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("insert").Invoke(args[0].Clone(), args[1], args[2], args[0].EnsureObservableWrapped())));
+            AddMethodTranslator(typeof(List<>), "InsertRange", parameterCount: 2, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("insertRange").Invoke(args[0].Clone(), args[1], args[2], args[0].EnsureObservableWrapped())));
+            AddMethodTranslator(typeof(List<>), "RemoveAt", parameterCount: 1, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("removeAt").Invoke(args[0].Clone(), args[1], args[0].EnsureObservableWrapped())));
+            AddMethodTranslator(typeof(List<>), "RemoveRange", parameterCount: 2, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("removeRange").Invoke(args[0].Clone(), args[1], args[2], args[0].EnsureObservableWrapped())));
+            AddMethodTranslator(typeof(List<>), "Reverse", parameterCount: 0, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("reverse").Invoke(args[0].Clone(), args[0].EnsureObservableWrapped())));
+
+            // DotVVM list extensions:
+            AddMethodTranslator(typeof(ListExtensions), "AddOrUpdate", parameterCount: 4, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("addOrUpdate").Invoke(args[1].Clone(), args[2], args[3], args[4], args[1].EnsureObservableWrapped())));
+        }
+
         public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] args, MethodInfo method)
         {
             if (method == null)
@@ -445,13 +472,19 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (method.DeclaringType.GetTypeInfo().IsGenericType && !method.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
             {
                 var genericType = method.DeclaringType.GetGenericTypeDefinition();
-                var m2 = genericType.GetMethod(method.Name,
+                var method2 = genericType.GetMethod(method.Name,
                     BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public,
                     binder: null, types: method.GetParameters().Select(p => p.ParameterType).ToArray(), modifiers: null);
 
-                if (m2 != null)
+                if (method2 == null)
                 {
-                    var r2 = TryTranslateCall(context, args, m2);
+                    method2 = genericType.GetMethod(method.Name,
+                        BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                }
+
+                if (method2 != null)
+                {
+                    var r2 = TryTranslateCall(context, args, method2);
                     if (r2 != null) return r2;
                 }
             }
