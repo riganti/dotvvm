@@ -635,6 +635,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ElementAt("input[type=text]", 0).SendKeys("aaa");
                 browser.ElementAt("input[type=text]", 1).SendKeys("aaa");
                 AssertUI.TextEquals(browser.Single(".result"), "0");
+                AssertUI.IsClickable(browser.ElementAt("input[type=button]", 0));
                 browser.ElementAt("input[type=button]", 0).Click();
                 AssertUI.TextEquals(browser.Single(".result"), "0");
                 AssertUI.HasNotClass(browser.ElementAt("input[type=text]", 0), "has-error");
