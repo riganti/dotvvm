@@ -23,5 +23,29 @@ namespace DotVVM.Framework.Binding.HelperNamespace
             if (!found)
                 list.Add(element);
         }
+
+        public static void RemoveFirst<T>(this List<T> list, Func<T,bool> predicate)
+        {
+            for (var index = 0; index < list.Count; index++)
+            {
+                if (predicate(list[index]))
+                {
+                    list.RemoveAt(index);
+                    return;
+                }
+            }
+        }
+
+        public static void RemoveLast<T>(this List<T> list, Func<T, bool> predicate)
+        {
+            for (var index = list.Count - 1; index >= 0; index--)
+            {
+                if (predicate(list[index]))
+                {
+                    list.RemoveAt(index);
+                    return;
+                }
+            }
+        }
     }
 }

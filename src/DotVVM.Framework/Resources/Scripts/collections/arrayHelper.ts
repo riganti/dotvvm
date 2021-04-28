@@ -18,8 +18,9 @@ export {
     orderByDesc,
     removeAll,
     removeAt,
-    removeRange,
     removeFirst,
+    removeLast,
+    removeRange,
     reverse
 }
 
@@ -179,13 +180,28 @@ function removeRange<T>(source: T[], index: number, length: number, observable: 
     observable.setState(copy);
 }
 
-function removeFirst<T>(source: T[], predicate: (s: T) => boolean): void {
-    for (let i = 0; i < source.length; i++) {
-        if (predicate(source[i])) {
-            source.splice(i, 1);
-            return;
+function removeFirst<T>(source: T[], predicate: (s: T) => boolean, observable: any): void {
+    let copy = source.map(item => ko.unwrap(item));
+    for (let i = 0; i < copy.length; i++) {
+        if (predicate(copy[i])) {
+            copy.splice(i, 1);
+            break;
         }
     }
+
+    observable.setState(copy);
+}
+
+function removeLast<T>(source: T[], predicate: (s: T) => boolean, observable: any): void {
+    let copy = source.map(item => ko.unwrap(item));
+    for (let i = copy.length - 1; i >= 0; i--) {
+        if (predicate(copy[i])) {
+            copy.splice(i, 1);
+            break;
+        }
+    }
+
+    observable.setState(copy);
 }
 
 function reverse<T>(source: T[], observable: any): void {
