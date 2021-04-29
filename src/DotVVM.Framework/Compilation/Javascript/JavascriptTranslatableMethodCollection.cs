@@ -347,69 +347,72 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
 
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.All), parameterCount: 2, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("all").Invoke(args[1], args[2])));
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("all").Invoke(args[1].Clone(), args[2], args[1].EnsureObservableWrapped())));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Any), parameterCount: 1, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("any").Invoke(args[1], returnTrueFunc.Clone())));
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("any").Invoke(args[1].Clone(), returnTrueFunc.Clone(), args[1].EnsureObservableWrapped())));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Any), parameterCount: 2, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("any").Invoke(args[1], args[2])));
-
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("any").Invoke(args[1].Clone(), args[2], args[1].EnsureObservableWrapped())));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Concat), parameterCount: 2, translator: new GenericMethodCompiler(args =>
-                args[1].Member("concat").Invoke(args[2])));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), parameterCount: 1, translator: new GenericMethodCompiler(a => a[1].Member("length")));
-
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("concat").Invoke(args[1].Clone(), args[2].Clone(), args[1].EnsureObservableWrapped(), args[2].EnsureObservableWrapped())));
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), parameterCount: 1, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("concat").Invoke(args[1].Clone(), args[1].EnsureObservableWrapped())));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Distinct), parameterCount: 1,
-                translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("distinct").Invoke(args[1]),
+                translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("distinct").Invoke(args[1].Clone(), args[1].EnsureObservableWrapped()),
                 check: (method, target, arguments) => EnsureIsComparableInJavascript(method, target?.Type ?? ReflectionUtils.GetEnumerableType(arguments.First().Type))));
 
             AddMethodTranslator(typeof(Enumerable).GetMethod("ElementAt", BindingFlags.Static | BindingFlags.Public), new GenericMethodCompiler((args, method) =>
                 BuildIndexer(args[1], args[2], method)));
 
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.FirstOrDefault), parameterCount: 1, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("firstOrDefault").Invoke(args[1], returnTrueFunc.Clone()).WithAnnotation(ResultIsObservableAnnotation.Instance)));
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("firstOrDefault").Invoke(args[1].Clone(), returnTrueFunc.Clone(), args[1].EnsureObservableWrapped()).WithAnnotation(ResultIsObservableAnnotation.Instance)));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.FirstOrDefault), parameterCount: 2, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("firstOrDefault").Invoke(args[1], args[2]).WithAnnotation(ResultIsObservableAnnotation.Instance)));
-
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("firstOrDefault").Invoke(args[1].Clone(), args[2], args[1].EnsureObservableWrapped()).WithAnnotation(ResultIsObservableAnnotation.Instance)));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.LastOrDefault), parameterCount: 1, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("lastOrDefault").Invoke(args[1], returnTrueFunc.Clone()).WithAnnotation(ResultIsObservableAnnotation.Instance)));
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("lastOrDefault").Invoke(args[1].Clone(), returnTrueFunc.Clone(), args[1].EnsureObservableWrapped()).WithAnnotation(ResultIsObservableAnnotation.Instance)));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.LastOrDefault), parameterCount: 2, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("lastOrDefault").Invoke(args[1], args[2]).WithAnnotation(ResultIsObservableAnnotation.Instance)));
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("lastOrDefault").Invoke(args[1].Clone(), args[2], args[1].EnsureObservableWrapped()).WithAnnotation(ResultIsObservableAnnotation.Instance)));
 
             foreach (var type in new[] { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal), typeof(int?), typeof(long?), typeof(float?), typeof(double?), typeof(decimal?) })
             {
                 AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Max), parameters: new[] { typeof(IEnumerable<>).MakeGenericType(type) }, translator: new GenericMethodCompiler(args =>
-                    new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("max").Invoke(args[1], selectIdentityFunc.Clone())));
+                    new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("max").Invoke(args[1].Clone(), selectIdentityFunc.Clone(), args[1].EnsureObservableWrapped())));
                 var maxSelect = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
                     .Where(m => m.Name == nameof(Enumerable.Max) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericArguments().Last() == type).Single();
-                AddMethodTranslator(maxSelect, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("max").Invoke(args[1], args[2])));
+                AddMethodTranslator(maxSelect, translator: new GenericMethodCompiler(args =>
+                    new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("max").Invoke(args[1].Clone(), args[2], args[1].EnsureObservableWrapped())));
 
                 AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Min), parameters: new[] { typeof(IEnumerable<>).MakeGenericType(type) }, translator: new GenericMethodCompiler(args =>
-                    new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("min").Invoke(args[1], selectIdentityFunc.Clone())));
+                    new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("min").Invoke(args[1].Clone(), selectIdentityFunc.Clone(), args[1].EnsureObservableWrapped())));
                 var minSelect = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
                     .Where(m => m.Name == nameof(Enumerable.Min) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericArguments().Last() == type).Single();
-                AddMethodTranslator(minSelect, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("min").Invoke(args[1], args[2])));
+                AddMethodTranslator(minSelect, translator: new GenericMethodCompiler(args =>
+                    new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("min").Invoke(args[1].Clone(), args[2], args[1].EnsureObservableWrapped())));
             }
 
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderBy), parameterCount: 2,
-                translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderBy").Invoke(args[1], args[2]),
+                translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderBy").Invoke(args[1].Clone(), args[2], args[1].EnsureObservableWrapped()),
                 check: (method, _, arguments) => EnsureIsComparableInJavascript(method, arguments.Last().Type.GetGenericArguments().Last())));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderByDescending), parameterCount: 2,
-                translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderByDesc").Invoke(args[1], args[2]),
+                translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderByDesc").Invoke(args[1].Clone(), args[2], args[1].EnsureObservableWrapped()),
                 check: (method, _, arguments) => EnsureIsComparableInJavascript(method, arguments.Last().Type.GetGenericArguments().Last())));
 
             var selectMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(m => m.Name == nameof(Enumerable.Select) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)).Single();
-            AddMethodTranslator(selectMethod, translator: new GenericMethodCompiler(args => args[1].Member("map").Invoke(args[2])));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Skip), parameterCount: 2, translator: new GenericMethodCompiler(args =>
-                args[1].Member("slice").Invoke(args[2])));
+            AddMethodTranslator(selectMethod, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("select").Invoke(args[1].Clone(), args[2], args[1].EnsureObservableWrapped())));
 
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Skip), parameterCount: 2, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("skip").Invoke(args[1].Clone(), args[2], args[1].EnsureObservableWrapped())));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Take), parameterCount: 2, translator: new GenericMethodCompiler(args =>
-                args[1].Member("slice").Invoke(new JsLiteral(0), args[2])));
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("take").Invoke(args[1].Clone(), args[2], args[1].EnsureObservableWrapped())));
+
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.ToArray), parameterCount: 1, translator: new GenericMethodCompiler(args => args[1]));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.ToList), parameterCount: 1, translator: new GenericMethodCompiler(args => args[1]));
 
             var whereMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(m => m.Name == nameof(Enumerable.Where) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)).Single();
-            AddMethodTranslator(whereMethod, translator: new GenericMethodCompiler(args => args[1].Member("filter").Invoke(args[2])));
+            AddMethodTranslator(whereMethod, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("where").Invoke(args[1].Clone(), args[2], args[1].EnsureObservableWrapped())));
         }
 
         private void AddDefaultListTranslations()
@@ -419,7 +422,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(List<>), "AddRange", parameterCount: 1, translator: new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("addRange").Invoke(args[0].Clone(), args[1], args[0].EnsureObservableWrapped())));
             AddMethodTranslator(typeof(List<>), "Clear", parameterCount: 0, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("clear").Invoke(args[0].EnsureObservableWrapped())));
+                new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("clear").Invoke(args[0].Clone(), args[0].EnsureObservableWrapped())));
             AddMethodTranslator(typeof(List<>), "Insert", parameterCount: 2, translator: new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("insert").Invoke(args[0].Clone(), args[1], args[2], args[0].EnsureObservableWrapped())));
             AddMethodTranslator(typeof(List<>), "InsertRange", parameterCount: 2, translator: new GenericMethodCompiler(args =>
