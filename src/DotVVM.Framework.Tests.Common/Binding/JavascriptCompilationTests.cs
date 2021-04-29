@@ -438,6 +438,27 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_ListAdd()
+        {
+            var result = CompileBinding("LongList.Add(11)", new[] { typeof(TestViewModel) }, typeof(void), null);
+            Assert.AreEqual("dotvvm.arrayHelper.add(LongList,11)", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ListAddOrUpdate()
+        {
+            var result = CompileBinding("LongList.AddOrUpdate(12345L, (long item) => item == 12345, (long item) => 54321L)", new[] { typeof(TestViewModel) }, typeof(void), new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") });
+            Assert.AreEqual("dotvvm.arrayHelper.addOrUpdate(LongList,12345,function(item){return ko.unwrap(item)==12345;},function(item){return 54321;})", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ListAddRange()
+        {
+            var result = CompileBinding("LongList.AddRange(LongArray)", new[] { typeof(TestViewModel) }, typeof(void), null);
+            Assert.AreEqual("dotvvm.arrayHelper.addRange(LongList,LongArray())", result);
+        }
+
+        [TestMethod]
         [DataRow("Enumerable.All(LongArray, (long item) => item > 0)", DisplayName = "Regular call of Enumerable.All")]
         [DataRow("LongArray.All((long item) => item > 0)", DisplayName = "Syntax sugar - extension method")]
         public void JsTranslator_EnumerableAll(string binding)
@@ -456,6 +477,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_ListClear()
+        {
+            var result = CompileBinding("LongList.Clear()", new[] { typeof(TestViewModel) }, typeof(void), null);
+            Assert.AreEqual("dotvvm.arrayHelper.clear(LongList)", result);
+        }
+
+        [TestMethod]
         [DataRow("Enumerable.FirstOrDefault(LongArray)", DisplayName = "Regular call of Enumerable.FirstOrDefault")]
         [DataRow("LongArray.FirstOrDefault()", DisplayName = "Syntax sugar - extension method")]
         public void JsTranslator_EnumerableFirstOrDefault(string binding)
@@ -471,6 +499,20 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
             Assert.AreEqual("dotvvm.arrayHelper.firstOrDefault(LongArray,function(item){return ko.unwrap(item)>0;})", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ListInsert()
+        {
+            var result = CompileBinding("LongList.Insert(1, 12345)", new[] { typeof(TestViewModel) }, typeof(void), null);
+            Assert.AreEqual("dotvvm.arrayHelper.insert(LongList,1,12345)", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ListInsertRange()
+        {
+            var result = CompileBinding("LongList.InsertRange(1, LongArray)", new[] { typeof(TestViewModel) }, typeof(void), null);
+            Assert.AreEqual("dotvvm.arrayHelper.insertRange(LongList,1,LongArray())", result);
         }
 
         [TestMethod]
@@ -614,6 +656,41 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableOrderByDescending_NonPrimitiveTypesThrows(string binding)
         {
             CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
+        }
+
+        [TestMethod]
+        public void JsTranslator_ListRemoveAt()
+        {
+            var result = CompileBinding("LongList.RemoveAt(1)", new[] { typeof(TestViewModel) }, typeof(void), null);
+            Assert.AreEqual("dotvvm.arrayHelper.removeAt(LongList,1)", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ListRemoveFirst()
+        {
+            var result = CompileBinding("LongList.RemoveFirst((long item) => item == 2)", new[] { typeof(TestViewModel) }, typeof(void), new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") });
+            Assert.AreEqual("dotvvm.arrayHelper.removeFirst(LongList,function(item){return ko.unwrap(item)==2;})", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ListRemoveLast()
+        {
+            var result = CompileBinding("LongList.RemoveLast((long item) => item == 2)", new[] { typeof(TestViewModel) }, typeof(void), new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") });
+            Assert.AreEqual("dotvvm.arrayHelper.removeLast(LongList,function(item){return ko.unwrap(item)==2;})", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ListRemoveRange()
+        {
+            var result = CompileBinding("LongList.RemoveRange(1, 5)", new[] { typeof(TestViewModel) }, typeof(void), null);
+            Assert.AreEqual("dotvvm.arrayHelper.removeRange(LongList,1,5)", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ListReverse()
+        {
+            var result = CompileBinding("LongList.Reverse()", new[] { typeof(TestViewModel) }, typeof(void), null);
+            Assert.AreEqual("dotvvm.arrayHelper.reverse(LongList)", result);
         }
 
         [TestMethod]

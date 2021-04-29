@@ -742,6 +742,7 @@ namespace DotVVM.Framework.Tests.Binding
         public long LongProperty { get; set; }
 
         public long[] LongArray => new long[] { 1, 2, long.MaxValue };
+        public List<long> LongList => new List<long>() { 1, 2, long.MaxValue };
         public string[] StringArray => new string[] { "Hello ", "DotVVM" };
         public TestViewModel2[] VmArray => new TestViewModel2[] { new TestViewModel2() };
         public int[] IntArray { get; set; }
