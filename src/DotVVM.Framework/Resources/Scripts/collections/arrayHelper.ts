@@ -32,20 +32,20 @@ export {
     where
 }
 
-function add<T>(source: T[], element: T, observable: any): void {
-    let copy = source.map(item => ko.unwrap(item));
-    copy.push(ko.unwrap(element));
+function add<T>(observable: any, element: T): void {
+    let copy = unwrapArray<T>(observable).map(item => ko.unwrap(item));
+    copy.push(element);
 
     incrementVersion(observable);
     observable.setState(copy);
 }
 
-function addOrUpdate<T>(source: T[], element: T, matcher: (e: T) => boolean, updater: (e: T) => T, observable: any): void {
-    let copy = source.map(item => ko.unwrap(item));
+function addOrUpdate<T>(observable: any, element: T, matcher: (e: T) => boolean, updater: (e: T) => T): void {
+    let copy = unwrapArray<T>(observable).map(item => ko.unwrap(item));
     let found = false;
 
-    for (let i = 0; i < source.length; i++) {
-        if (!matcher(source[i])) {
+    for (let i = 0; i < copy.length; i++) {
+        if (!matcher(copy[i])) {
             continue;
         }
 
@@ -61,8 +61,8 @@ function addOrUpdate<T>(source: T[], element: T, matcher: (e: T) => boolean, upd
     observable.setState(copy);
 }
 
-function addRange<T>(source: T[], elements: T[], observable: any): void {
-    let copy = source.map(item => ko.unwrap(item));
+function addRange<T>(observable: any, elements: T[]): void {
+    let copy = unwrapArray<T>(observable).map(item => ko.unwrap(item));
     for (let i = 0; i < elements.length; i++) {
         copy.push(ko.unwrap(elements[i]));
     }
@@ -71,14 +71,14 @@ function addRange<T>(source: T[], elements: T[], observable: any): void {
     observable.setState(copy);
 }
 
-function any<T>(source: T[], predicate: (s: T) => boolean, observable: any): boolean {
+function any<T>(observable: any, predicate: (s: T) => boolean): boolean {
     // Mutations are already checked inside firstOrDefault
-    return firstOrDefault(source, predicate, observable) != null;
+    return firstOrDefault(observable, predicate) != null;
 }
 
-function all<T>(source: T[], predicate: (s: T) => boolean, observable: any): boolean {
+function all<T>(observable: any, predicate: (s: T) => boolean): boolean {
     let version = getVersion(observable);
-    let result = allImpl(source, predicate);
+    let result = allImpl(ko.unwrap(observable) as T[], predicate);
 
     ensureNotMutated(observable, version);
     return result;
@@ -93,32 +93,32 @@ function allImpl<T>(source: T[], predicate: (s: T) => boolean): boolean {
     return true;
 }
 
-function clear<T>(source: T[], observable: any): void {
+function clear<T>(observable: any): void {
     incrementVersion(observable);
     observable.setState([]);
 }
 
-function concat<T>(source1: T[], source2: T[], observable1: any, observable2: any): T[] {
+function concat<T>(observable1: any, observable2: any): T[] {
     let version1 = getVersion(observable1);
     let version2 = getVersion(observable2);
-    let result = source1.concat(source2);
+    let result = ko.unwrap(observable1).concat(ko.unwrap(observable2));
 
     ensureNotMutated(observable1, version1);
     ensureNotMutated(observable2, version2);
     return result;
 }
 
-function count<T>(source: T[], observable: any) {
+function count<T>(observable: any) {
     let version = getVersion(observable);
-    let result = source.length;
+    let result = ko.unwrap(observable).length;
 
     ensureNotMutated(observable, version);
     return result;
 }
 
-function distinct<T>(source: T[], observable: any): T[] {
+function distinct<T>(observable: any): T[] {
     let version = getVersion(observable);
-    let result = distinctImpl(source);
+    let result = distinctImpl(ko.unwrap(observable) as T[]);
 
     ensureNotMutated(observable, version);
     return result;
@@ -141,9 +141,9 @@ function distinctImpl<T>(source: T[]): T[] {
     return r;
 }
 
-function firstOrDefault<T>(source: T[], predicate: (s: T) => boolean, observable: any): T | null {
+function firstOrDefault<T>(observable: any, predicate: (s: T) => boolean): T | null {
     let version = getVersion(observable);
-    let result = firstOrDefaultImpl(source, predicate);
+    let result = firstOrDefaultImpl(ko.unwrap(observable) as T[], predicate);
 
     ensureNotMutated(observable, version);
     return result;
@@ -158,25 +158,25 @@ function firstOrDefaultImpl<T>(source: T[], predicate: (s: T) => boolean): T | n
     return null;
 }
 
-function insert<T>(items: T[], index: number, element: T, observable: any): void {
-    let copy = items.map(item => ko.unwrap(item));
+function insert<T>(observable: any, index: number, element: T): void {
+    let copy = unwrapArray<T>(observable).map(item => ko.unwrap(item));
     copy.splice(index, 0, element);
 
     incrementVersion(observable);
     observable.setState(copy);
 }
 
-function insertRange<T>(items: T[], index: number, elements: T[], observable: any): void {
-    let copy = items.map(item => ko.unwrap(item));
+function insertRange<T>(observable: any, index: number, elements: T[]): void {
+    let copy = unwrapArray<T>(observable).map(item => ko.unwrap(item));
     copy.splice(index, 0, ...elements.map(element => ko.unwrap(element)));
 
-    incrementVersion(items);
+    incrementVersion(observable);
     observable.setState(copy);
 }
 
-function lastOrDefault<T>(source: T[], predicate: (s: T) => boolean, observable: any): T | null {
+function lastOrDefault<T>(observable: any, predicate: (s: T) => boolean): T | null {
     let version = getVersion(observable);
-    let result = lastOrDefaultImpl(source, predicate);
+    let result = lastOrDefaultImpl(ko.unwrap(observable) as T[], predicate);
 
     ensureNotMutated(observable, version);
     return result;
@@ -191,9 +191,9 @@ function lastOrDefaultImpl<T>(source: T[], predicate: (s: T) => boolean): T | nu
     return null;
 }
 
-function max<T>(source: T[], selector: (item: T) => number, observable: any): number {
+function max<T>(observable: any, selector: (item: T) => number): number {
     let version = getVersion(observable);
-    let result = maxImpl(source, selector);
+    let result = maxImpl(ko.unwrap(observable) as T[], selector);
 
     ensureNotMutated(observable, version);
     return result;
@@ -213,9 +213,9 @@ function maxImpl<T>(source: T[], selector: (item: T) => number): number {
     return max;
 }
 
-function min<T>(source: T[], selector: (item: T) => number, observable: any): number {
+function min<T>(observable: any, selector: (item: T) => number): number {
     let version = getVersion(observable);
-    let result = minImpl(source, selector);
+    let result = minImpl(ko.unwrap(observable) as T[], selector);
 
     ensureNotMutated(observable, version);
     return result;
@@ -235,32 +235,32 @@ function minImpl<T>(source: T[], selector: (item: T) => number): number {
     return min;
 }
 
-function orderBy<T>(source: T[], selector: (item: T) => ElementType, observable: any): T[] {
+function orderBy<T>(observable: any, selector: (item: T) => ElementType): T[] {
     let version = getVersion(observable);
-    let result = orderByImpl(source, selector);
+    let result = orderByImpl(ko.unwrap(observable) as T[], selector);
 
     ensureNotMutated(observable, version);
     return result;
 }
 
-function orderByDesc<T>(source: T[], selector: (item: T) => ElementType, observable: any): T[] {
+function orderByDesc<T>(observable: any, selector: (item: T) => ElementType): T[] {
     let version = getVersion(observable);
-    let result = orderByDescImpl(source, selector);
+    let result = orderByDescImpl(ko.unwrap(observable) as T[], selector);
 
     ensureNotMutated(observable, version);
     return result;
 }
 
-function removeAt<T>(source: T[], index: number, observable: any): void {
-    let copy = source.map(item => ko.unwrap(item));
+function removeAt<T>(observable: any, index: number): void {
+    let copy = unwrapArray<T>(observable).map(item => ko.unwrap(item));
     copy.splice(index, 1);
 
     incrementVersion(observable);
     observable.setState(copy);
 }
 
-function removeAll<T>(source: T[], predicate: (s: T) => boolean, observable: any): void {
-    let copy = source.map(item => ko.unwrap(item));
+function removeAll<T>(observable: any, predicate: (s: T) => boolean): void {
+    let copy = unwrapArray<T>(observable).map(item => ko.unwrap(item));
     for (let i = 0; i < copy.length; i++) {
         if (predicate(copy[i])) {
             copy.splice(i, 1);
@@ -272,16 +272,16 @@ function removeAll<T>(source: T[], predicate: (s: T) => boolean, observable: any
     observable.setState(copy);
 }
 
-function removeRange<T>(source: T[], index: number, length: number, observable: any): void {
-    let copy = source.map(item => ko.unwrap(item));
+function removeRange<T>(observable: any, index: number, length: number): void {
+    let copy = unwrapArray<T>(observable).map(item => ko.unwrap(item));
     copy.splice(index, length);
 
     incrementVersion(observable);
     observable.setState(copy);
 }
 
-function removeFirst<T>(source: T[], predicate: (s: T) => boolean, observable: any): void {
-    let copy = source.map(item => ko.unwrap(item));
+function removeFirst<T>(observable: any, predicate: (s: T) => boolean): void {
+    let copy = unwrapArray<T>(observable).map(item => ko.unwrap(item));
     for (let i = 0; i < copy.length; i++) {
         if (predicate(copy[i])) {
             copy.splice(i, 1);
@@ -293,8 +293,8 @@ function removeFirst<T>(source: T[], predicate: (s: T) => boolean, observable: a
     observable.setState(copy);
 }
 
-function removeLast<T>(source: T[], predicate: (s: T) => boolean, observable: any): void {
-    let copy = source.map(item => ko.unwrap(item));
+function removeLast<T>(observable: any, predicate: (s: T) => boolean): void {
+    let copy = unwrapArray<T>(observable).map(item => ko.unwrap(item));
     for (let i = copy.length - 1; i >= 0; i--) {
         if (predicate(copy[i])) {
             copy.splice(i, 1);
@@ -306,44 +306,48 @@ function removeLast<T>(source: T[], predicate: (s: T) => boolean, observable: an
     observable.setState(copy);
 }
 
-function reverse<T>(source: T[], observable: any): void {
-    let copy = source.map(item => ko.unwrap(item));
+function reverse<T>(observable: any): void {
+    let copy = unwrapArray<T>(observable).map(item => ko.unwrap(item));
     copy.reverse();
 
     incrementVersion(observable);
     observable.setState(copy);
 }
 
-function select<T, U>(source: T[], selector: (e: T) => U, observable: any): U[] {
+function select<T, U>(observable: any, selector: (e: T) => U): U[] {
     let version = getVersion(observable);
-    let result = source.map(selector);
+    let result = unwrapArray<T>(observable).map(selector);
 
     ensureNotMutated(observable, version);
     return result;
 }
 
-function skip<T>(source: T[], count: number, observable: any): T[] {
+function skip<T>(observable: any, count: number): T[] {
     let version = getVersion(observable);
-    let result = source.slice(count);
+    let result = unwrapArray<T>(observable).slice(count);
 
     ensureNotMutated(observable, version);
     return result;
 }
 
-function take<T>(source: T[], count: number, observable: any): T[] {
+function take<T>(observable: any, count: number): T[] {
     let version = getVersion(observable);
-    let result = source.slice(0, count);
+    let result = unwrapArray<T>(observable).slice(0, count);
 
     ensureNotMutated(observable, version);
     return result;
 }
 
-function where<T>(source: T[], predicate: (e: T) => boolean, observable: any): T[] {
+function where<T>(observable: any, predicate: (e: T) => boolean): T[] {
     let version = getVersion(observable);
-    let result = source.filter(predicate);
+    let result = unwrapArray<T>(observable).filter(predicate);
 
     ensureNotMutated(observable, version);
     return result;
+}
+
+function unwrapArray<T>(observable: any): T[] {
+    return ko.unwrap(observable) as T[];
 }
 
 function getVersion(obserable: any): number {
