@@ -28,6 +28,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 //Edit
                 firstRow.ElementAt("td", 5).First("button").Click();
+                browser.WaitForPostback();
 
                 rows = browser.First("table tbody");
                 firstRow = rows.ElementAt("tr", 0);
@@ -49,6 +50,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 //getting rid iof "postback interupted message"
                 browser.FindElements("div#debugNotification").First().Click();
+                browser.WaitForPostback();
 
                 var validationResult = browser.ElementAt(".validation", 0);
 
@@ -62,6 +64,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 //update
                 firstRow.ElementAt("td", 5).First("button").Click();
+                browser.WaitForPostback();
 
                 //check validation
                 AssertUI.InnerTextEquals(validationResult, "The Email field is not a valid e-mail address.");
@@ -80,6 +83,7 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.InnerTextEquals(browser.First("table tbody tr td span"), "1");
                 //cal static command for delete row
                 browser.First("table tbody tr input[type=button]").Click();
+                browser.WaitForPostback();
                 //check rows again
                 browser.FindElements("table tbody tr").ThrowIfDifferentCountThan(4);
                 //check first row Id
@@ -103,6 +107,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 //Edit
                 firstRow.ElementAt("td", 5).First("button").Click();
+                browser.WaitForPostback();
 
                 //init again
                 rows = browser.First("table tbody");
@@ -127,6 +132,7 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.InnerTextEquals(firstRow.ElementAt("td", 0).First("span"), "9536d712-2e91-43d2-8ebb-93fbec31cf34");
                 //Edit
                 firstRow.ElementAt("td", 4).First("button").Click();
+                browser.WaitForPostback();
 
                 //init again
                 rows = browser.First("table tbody");
@@ -146,6 +152,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 //update
                 firstRow.ElementAt("td", 4).First("button").Click();
+                browser.WaitForPostback();
 
                 //init again
                 rows = browser.First("table tbody");
@@ -169,6 +176,7 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.InnerTextEquals(firstRow.ElementAt("td", 0).First("span"), "A");
                 //Edit
                 firstRow.ElementAt("td", 4).First("button").Click();
+                browser.WaitForPostback();
 
                 //init again
                 rows = browser.First("table tbody");
@@ -188,6 +196,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 //update
                 firstRow.ElementAt("td", 4).First("button").Click();
+                browser.WaitForPostback();
 
                 //init again
                 rows = browser.First("table tbody");
@@ -271,6 +280,7 @@ namespace DotVVM.Samples.Tests.Control
                 //page to second page
                 var navigation = browser.ElementAt(".pagination", 0);
                 navigation.FindElements("li a").Single(s => s.GetText() == "2").Click();
+                browser.WaitForPostback();
 
                 table = browser.ElementAt("table", tableID);
                 firstRow = table.First("tbody tr");
@@ -279,6 +289,7 @@ namespace DotVVM.Samples.Tests.Control
                 //page to back
                 navigation = browser.ElementAt(".pagination", 0);
                 navigation.FindElements("li a").Single(s => s.GetText() == "1").Click();
+                browser.WaitForPostback();
 
                 //after page back check edit row
                 table = browser.ElementAt("table", tableID);
@@ -308,39 +319,49 @@ namespace DotVVM.Samples.Tests.Control
                     // go to second page
                     AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "1");
                     browser.ElementAt("ul", 0).FindElements("li a").Single(s => s.GetText() == "2").Click();
+                    browser.WaitForPostback();
 
                     // go to previous page
                     AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "11");
                     browser.ElementAt("ul", 0).FindElements("li a").Single(s => s.GetText() == "««").Click();
+                    browser.WaitForPostback();
 
                     // go to next page
                     AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "1");
                     browser.ElementAt("ul", 0).FindElements("li a").Single(s => s.GetText() == "»»").Click();
+                    browser.WaitForPostback();
 
                     // try the disabled link - nothing should happen
                     AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "11");
                     browser.ElementAt("ul", 0).FindElements("li a").Single(s => s.GetText() == "»»").Click();
+                    browser.WaitForPostback();
 
                     AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "11");
 
                     // try sorting in the first grid
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).ElementAt("button", 0).Click();
+                    browser.WaitForPostback();
                     AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "4");
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).ElementAt("a", 0).Click();
+                    browser.WaitForPostback();
                     AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1), "sort-asc");
 
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 0).ElementAt("a", 0).Click();
+                    browser.WaitForPostback();
                     AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "1");
 
                     // sort descending in the first grid
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).ElementAt("a", 0).Click();
+                    browser.WaitForPostback();
                     AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "7");
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).ElementAt("a", 0).Click();
+                    browser.WaitForPostback();
                     AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1), "sort-desc");
                     AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "16");
 
                     // sort by different column in the first grid
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 0).ElementAt("a", 0).Click();
+                    browser.WaitForPostback();
                     AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "1");
                 };
 
@@ -571,8 +592,10 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.HasNotClass(gridview.First(".is-standalone > span"), "invalid");
 
                 gridview.First("edit-button", SelectByDataUi).Click();
+                browser.WaitForPostback();
                 var checkBox = browser.First(".is-standalone > input");
                 checkBox.Click();
+                browser.WaitForPostback();
                 gridview.First("save-button", SelectByDataUi).Click();
                 AssertUI.HasClass(gridview.First(".is-standalone > span"), "invalid");
             });
@@ -640,17 +663,21 @@ namespace DotVVM.Samples.Tests.Control
 
                 // Edit customer
                 browser.FindElements("input[type=button]").First(b => b.GetText() == "Edit Customer").Click();
+                browser.WaitForPostback();
                 // Edit customer name
                 browser.First("input[type=text]").ClearInputByKeyboard().SendKeys("NewName");
                 // Save customer
                 browser.FindElements("input[type=button]").First(b => b.GetText() == "Save Customer").Click();
+                browser.WaitForPostback();
 
                 // Edit shopping cart-item
                 browser.FindElements("input[type=button]").First(b => b.GetText() == "Edit Cart-item").Click();
+                browser.WaitForPostback();
                 // Edit quantity
                 browser.First("input[type=text]").ClearInputByKeyboard().SendKeys("1111");
                 // Save shooping cart-item
                 browser.FindElements("input[type=button]").First(b => b.GetText() == "Save Cart-item").Click();
+                browser.WaitForPostback();
             });
         }
     }

@@ -319,6 +319,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 //click first button - viewmodel error
                 browser.ElementAt("input[type=button]", 0).Click();
+                browser.WaitForPostback();
                 browser.FindElements(".vmErrors li").ThrowIfDifferentCountThan(1);
                 AssertUI.IsNotDisplayed(browser.ElementAt(".vm1Error", 0));
                 AssertUI.IsNotDisplayed(browser.ElementAt(".vm2Error", 0));
@@ -335,6 +336,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 //click third button - nested viewmodel2 two errors
                 browser.ElementAt("input[type=button]", 2).Click();
+                browser.WaitForPostback();
                 browser.FindElements(".vmErrors li").ThrowIfDifferentCountThan(2);
                 AssertUI.IsNotDisplayed(browser.ElementAt(".vm1Error", 0));
                 AssertUI.IsDisplayed(browser.ElementAt(".vm2Error", 0));

@@ -4,6 +4,7 @@ using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -39,6 +40,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 browser.First("textarea").SendKeys("hello world");
                 browser.Last("input[type=button]").Click();
+                browser.WaitForPostback();
 
                 AssertUI.TextEquals(browser.First("pre"), "hello world");
             });
@@ -53,7 +55,7 @@ namespace DotVVM.Samples.Tests.Feature
 
             browser.First("textarea").SendKeys(fileContent);
             browser.First("input").SendKeys(Keys.Enter);
-            //browser.Wait(5000);
+            browser.WaitForPostback();
             var downloadURL = (string)jsexec.ExecuteScript("return window.downloadURL;");
             Assert.False(string.IsNullOrEmpty(downloadURL));
 

@@ -90,6 +90,7 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_DelaySync2);
                 browser.First("input[type=button]").Click();
+                browser.WaitForPostback();
 
                 // check the comboboxes
                 AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 0));

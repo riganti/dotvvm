@@ -4,6 +4,7 @@ using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -62,6 +63,7 @@ namespace DotVVM.Samples.Tests.Control
                     }
 
                     browser.Single("add-item-button", SelectByDataUi).Click();
+                    browser.WaitForPostback();
                 }
             });
         }

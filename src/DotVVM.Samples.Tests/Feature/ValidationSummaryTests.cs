@@ -39,23 +39,23 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(url);
 
                 var summary = browser.First("[data-ui=validationSummary]");
-                Assert.Equal(0, summary.Children.Count);
+                browser.WaitFor(() => Assert.Equal(0, summary.Children.Count), 1000);
 
                 var loginButton = browser.First("[data-ui=login-button]");
                 loginButton.Click();
-                Assert.Equal(2, summary.Children.Count);
+                browser.WaitFor(() => Assert.Equal(2, summary.Children.Count), 1000);
 
                 browser.First("[data-ui=nick-textbox]").SendKeys("Mike");
                 loginButton.Click();
-                Assert.Equal(1, summary.Children.Count);
+                browser.WaitFor(() => Assert.Equal(1, summary.Children.Count), 1000);
 
                 browser.First("[data-ui=password-textbox]").SendKeys("123");
                 loginButton.Click();
-                Assert.Equal(1, summary.Children.Count);
+                browser.WaitFor(() => Assert.Equal(1, summary.Children.Count), 1000);
 
                 browser.First("[data-ui=password-textbox]").SendKeys("4");
                 loginButton.Click();
-                Assert.Equal(0, summary.Children.Count);
+                browser.WaitFor(() => Assert.Equal(0, summary.Children.Count), 1000);
             });
         }
     }

@@ -320,7 +320,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.WaitUntilDotvvmInited();
 
                 browser.First("[data-ui=reset]").Click();
-                AssertUI.TextEquals(browser.First("[data-ui='test-state']"), "OK",failureMessage:"Test could not clear state.");
+                AssertUI.TextEquals(browser.First("[data-ui='test-state']"), "OK", failureMessage: "Test could not clear state.");
 
                 // start the test over
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_StaticCommandInMarkupControl);
@@ -338,7 +338,7 @@ namespace DotVVM.Samples.Tests.Feature
                 input().Clear().SendKeys("test1");
                 save().Click();
 
-                AssertUI.TextEquals(browser.Last("article>span"), "test1");
+                browser.WaitFor(()=>AssertUI.TextEquals(browser.Last("article>span"), "test1"),2000);
 
 
                 editButton().Click();
@@ -351,13 +351,13 @@ namespace DotVVM.Samples.Tests.Feature
                 input().Clear().SendKeys("changed2");
                 save().Click();
 
-                AssertUI.Any(browser.FindElements("article>span")).TextEquals("changed2");
-                AssertUI.All(browser.FindElements("article>span")).TextNotEquals("changed");
+                browser.WaitFor(() => AssertUI.Any(browser.FindElements("article>span")).TextEquals("changed2"), 2000);
+                browser.WaitFor(() => AssertUI.All(browser.FindElements("article>span")).TextNotEquals("changed"), 2000);
 
                 removeButton().Click();
-                AssertUI.All(browser.FindElements("article>span")).TextNotEquals("changed2");
-                AssertUI.All(browser.FindElements("article>span")).TextNotEquals("changed");
+                browser.WaitFor(() => AssertUI.All(browser.FindElements("article>span")).TextNotEquals("changed2"), 2000);
+                browser.WaitFor(() => AssertUI.All(browser.FindElements("article>span")).TextNotEquals("changed"), 2000);
             });
         }
-    }
+    } 
 }

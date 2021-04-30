@@ -3,6 +3,7 @@ using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.Core.Abstractions.Exceptions;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -18,6 +19,7 @@ namespace DotVVM.Samples.Tests.Complex
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_ServerRendering_ControlUsageSample);
                 browser.First("a[data-ui=show-link]").Click();
+                browser.WaitForPostback();
                 AssertUI.Attribute(browser.First("input[data-ui=textbox]"), "value", v => v.Contains("a"));
             });
         }
@@ -29,8 +31,10 @@ namespace DotVVM.Samples.Tests.Complex
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_ServerRendering_ControlUsageSampleRewriting);
                 browser.First("a[data-ui=show-link]").Click();
+                browser.WaitForPostback();
                 AssertUI.Attribute(browser.First("div[data-ui='context-1']").First("input[data-ui=textbox]"), "value", v => v.Contains("a"));
                 browser.First("a[data-ui=rewrite-link]").Click();
+                browser.WaitForPostback();
                 AssertUI.Attribute(browser.First("div[data-ui='context-2']").First("input[data-ui=textbox]"), "value", v => v.Contains("b"));
             });
         }

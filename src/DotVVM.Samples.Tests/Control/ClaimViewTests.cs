@@ -2,6 +2,7 @@
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 
 namespace DotVVM.Samples.Tests.Control
@@ -27,6 +28,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 // make sure we are signed out (first should show IfNotMember, second should be hidden)
                 browser.First("input[value='Sign Out']").Click();
+                browser.WaitForPostback();
 
                 AssertInnerTextEquals(".result1", "I am not a member!");
                 AssertUI.IsNotDisplayed(browser, ".result2");
@@ -34,7 +36,9 @@ namespace DotVVM.Samples.Tests.Control
 
                 // sign in as admin (both should show IsMember content)
                 browser.First("input[type=checkbox][value=admin]").Click();
+                browser.WaitForPostback();
                 browser.First("input[value='Sign In']").Click();
+                browser.WaitForPostback();
 
                 AssertInnerTextEquals(".result1", "I am a member!");
                 AssertInnerTextEquals(".result2", "I am a member!");
@@ -42,8 +46,11 @@ namespace DotVVM.Samples.Tests.Control
 
                 // sign in as moderator and headhunter (both should show IsMember content)
                 browser.First("input[type=checkbox][value=moderator]").Click();
+                browser.WaitForPostback();
                 browser.First("input[type=checkbox][value=headhunter]").Click();
+                browser.WaitForPostback();
                 browser.First("input[value='Sign In']").Click();
+                browser.WaitForPostback();
 
                 AssertInnerTextEquals(".result1", "I am a member!");
                 AssertInnerTextEquals(".result2", "I am a member!");
@@ -51,7 +58,9 @@ namespace DotVVM.Samples.Tests.Control
 
                 // sign in as headhunter only (both should be visible but show that user is not a member)
                 browser.First("input[type=checkbox][value=headhunter]").Click();
+                browser.WaitForPostback();
                 browser.First("input[value='Sign In']").Click();
+                browser.WaitForPostback();
 
                 AssertInnerTextEquals(".result1", "I am not a member!");
                 AssertInnerTextEquals(".result2", "I am not a member!");
@@ -59,7 +68,9 @@ namespace DotVVM.Samples.Tests.Control
 
                 // sign in as tester only (both should show IsMember content)
                 browser.First("input[type=checkbox][value=tester]").Click();
+                browser.WaitForPostback();
                 browser.First("input[value='Sign In']").Click();
+                browser.WaitForPostback();
 
                 AssertInnerTextEquals(".result1", "I am a member!");
                 AssertInnerTextEquals(".result2", "I am a member!");
@@ -67,6 +78,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 // sign out (first should show IfNotMember, second should be hidden)
                 browser.First("input[value='Sign Out']").Click();
+                browser.WaitForPostback();
 
                 AssertInnerTextEquals(".result1", "I am not a member!");
                 AssertUI.IsNotDisplayed(browser, ".result2");

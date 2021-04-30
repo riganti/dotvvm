@@ -1,6 +1,7 @@
 ﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -94,6 +95,7 @@ namespace DotVVM.Samples.Tests.Complex
 
                 // click to check if validation error disapeared
                 browser.Single("input[type=button]").Click();
+                browser.WaitForPostback();
                 AssertUI.InnerTextEquals(browser.Single("span[data-ui='sample-text']"), "Sample Text");
             });
         }

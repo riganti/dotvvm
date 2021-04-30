@@ -90,6 +90,7 @@ namespace DotVVM.Samples.Tests.Feature
                 // add item
                 browser.Single("input[type=text]").SendKeys("Four");
                 browser.First("input[type=button]").Click();
+                browser.WaitForPostback();
 
                 // check that there are four rows
                 browser.FindElements("tbody tr").ThrowIfDifferentCountThan(4);
@@ -97,6 +98,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // delete second row
                 browser.ElementAt("tbody tr", 1).Single("input[type=button]").Click();
+                browser.WaitForPostback();
 
                 // check that there are three rows
                 browser.FindElements("tbody tr").ThrowIfDifferentCountThan(3);

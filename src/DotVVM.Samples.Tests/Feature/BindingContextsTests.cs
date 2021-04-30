@@ -35,9 +35,14 @@ namespace DotVVM.Samples.Tests.Feature
 
                     var elements = browser.FindElements(By.ClassName("collection-index"));
                     elements.ThrowIfSequenceEmpty();
-                    elements.ForEach(e => AssertUI.InnerTextEquals(e, elements.IndexOf(e).ToString()));
+                    int i = 0;
+                    foreach(var e in elements){
+                        AssertUI.InnerTextEquals(e, (i++).ToString());
+                    }
+
                 }
             });
+            
         }
 
         public BindingContextsTests(ITestOutputHelper output) : base(output)

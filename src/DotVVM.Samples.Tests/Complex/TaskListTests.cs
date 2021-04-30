@@ -1,6 +1,7 @@
 ﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 
 namespace DotVVM.Samples.Tests.Complex
@@ -23,15 +24,18 @@ namespace DotVVM.Samples.Tests.Complex
                 //add task
                 browser.SendKeys("input[type=text]", "DotVVM");
                 browser.ElementAt("input[type=button]",0).Click();
+                browser.WaitForPostback();
 
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(4);
 
                 //mark last task as completed
                 browser.Last("a").Click();
+                browser.WaitForPostback();
 
                 AssertUI.ClassAttribute(browser.Last(".table tr"), a => a.Contains("completed"), "Last task is not marked as completed.");
 
                 browser.ElementAt("input[type=button]", 1).Click();
+                browser.WaitForPostback();
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(5);
             });
         }
