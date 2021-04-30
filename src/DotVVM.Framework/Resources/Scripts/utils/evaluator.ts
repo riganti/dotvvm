@@ -10,11 +10,9 @@ const shouldBeConvertedFromDataContext = (currentLevel: any, remainingParts: str
 };
 
 
-export function evaluateValidationPath(context: any, expression: string): any {
-
-    expression = transformExpression(expression);
-
-    var parts = expression.split(/[/[\]]+/);
+export function evaluateValidationPath(context: any, expression: string): any 
+{
+    var parts = expression.split(/[/[\.\]]+/);
     var currentLevel = context;
     var currentPath = "";
     for (var i = 0; i < parts.length; i++) {
@@ -36,16 +34,6 @@ export function evaluateValidationPath(context: any, expression: string): any {
     }
 
     return currentLevel;
-}
-
-export function transformExpression(expression: string) {
-
-    if (expression === '$rawData') {
-        expression = '/';
-    }
-    expression = expression.replace(".", "/");
-
-    return expression;
 }
 
 export function getDataSourceItems(viewModel: any): Array<KnockoutObservable<any>> {
