@@ -38,7 +38,7 @@ namespace DotVVM.Framework.ResourceManagement
             if (NomoduleLocation is object)
             {
                 writer.AddAttribute("nomodule", null);
-                writer.AddAttribute("src", location.GetUrl(context, resourceName) + "?type=nomodule");
+                writer.AddAttribute("src", NomoduleLocation.GetUrl(context, resourceName) + "?type=nomodule");
                 if (Defer)
                     writer.AddAttribute("defer", null);
                 writer.RenderBeginTag("script");

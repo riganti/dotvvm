@@ -200,6 +200,15 @@ window.getSelectionText = function (dataui) {
 
                 AssertUI.Attribute(numberTextbox, "value", 1000.550277.ToString("n4", culture));
                 AssertUI.Attribute(dateTextBox, "value", dateResult3);
+
+                // try to supply different date formats
+                dateTextBox.Clear().SendKeys(new DateTime(2020, 2, 16).ToString("G", culture)).SendKeys(Keys.Tab);
+                AssertUI.Attribute(dateTextBox, "value", new DateTime(2020, 2, 16).ToString("d", culture));
+                AssertUI.InnerTextEquals(dateText, new DateTime(2020, 2, 16).ToString("G", culture));
+
+                nullableDateTextBox.Clear().SendKeys(new DateTime(2020, 4, 2).ToString("d", culture)).SendKeys(Keys.Tab);
+                AssertUI.Attribute(nullableDateTextBox, "value", new DateTime(2020, 4, 2).ToString("G", culture));
+                AssertUI.InnerTextEquals(nullableDateText, new DateTime(2020, 4, 2).ToString("G", culture));
             });
         }
 

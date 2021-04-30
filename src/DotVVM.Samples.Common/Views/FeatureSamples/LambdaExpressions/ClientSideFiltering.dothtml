@@ -1,0 +1,38 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.LambdaExpressions.ClientSideFilteringViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>Client-side filtering</h1>
+
+    <p>
+        Search:
+        <dot:TextBox Text="{value: Filter}" />
+    </p>
+    <p>
+        Categories:
+        <dot:Repeater DataSource="{value: AllCategories.Where(
+                      (string cat) =>
+                          Customers.Where((CustomerData c) => (string.IsNullOrEmpty(Filter) || c.Name.Contains(Filter)) && c.Category == cat).Count() > 0
+                      )}">
+            <dot:CheckBox CheckedItems="{value: _root.SelectedCategories}" CheckedValue="{value: _this}" Text="{value: _this}" />
+            &nbsp;&nbsp;&nbsp;
+        </dot:Repeater>
+    </p>
+
+    <dot:GridView DataSource="{value: Customers.Where((CustomerData c) => string.IsNullOrEmpty(Filter) || c.Name.Contains(Filter))}">
+        <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: Id}" />
+        <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" />
+        <dot:GridViewTextColumn HeaderText="Category" ValueBinding="{value: Category}" />
+    </dot:GridView>
+
+</body>
+</html>
+
+
