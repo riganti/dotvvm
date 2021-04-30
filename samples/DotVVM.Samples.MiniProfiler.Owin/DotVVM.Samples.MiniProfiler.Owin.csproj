@@ -42,14 +42,14 @@
     <Reference Include="Ben.Demystifier, Version=0.1.0.0, Culture=neutral, PublicKeyToken=a6d206e05440431a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Ben.Demystifier.0.1.0\lib\net45\Ben.Demystifier.dll</HintPath>
     </Reference>
-    <Reference Include="DotVVM.Core, Version=2.5.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\DotVVM.Core.2.5.0\lib\net451\DotVVM.Core.dll</HintPath>
+    <Reference Include="DotVVM.Core, Version=3.0.2.0, Culture=neutral, PublicKeyToken=23f3607db32275da, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DotVVM.Core.3.0.2\lib\net451\DotVVM.Core.dll</HintPath>
     </Reference>
-    <Reference Include="DotVVM.Framework, Version=2.5.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\DotVVM.2.5.0\lib\net451\DotVVM.Framework.dll</HintPath>
+    <Reference Include="DotVVM.Framework, Version=3.0.2.0, Culture=neutral, PublicKeyToken=23f3607db32275da, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DotVVM.3.0.2\lib\net451\DotVVM.Framework.dll</HintPath>
     </Reference>
-    <Reference Include="DotVVM.Framework.Hosting.Owin, Version=2.5.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\DotVVM.Owin.2.5.0\lib\net451\DotVVM.Framework.Hosting.Owin.dll</HintPath>
+    <Reference Include="DotVVM.Framework.Hosting.Owin, Version=3.0.2.0, Culture=neutral, PublicKeyToken=23f3607db32275da, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DotVVM.Owin.3.0.2\lib\net451\DotVVM.Framework.Hosting.Owin.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.CodeAnalysis.Common.1.0.1\lib\net45\Microsoft.CodeAnalysis.dll</HintPath>
