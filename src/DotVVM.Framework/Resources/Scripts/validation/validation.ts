@@ -44,7 +44,7 @@ const createValidationHandler = (path: string) => ({
             options.validationTargetPath = path;
             // resolve target
             const context = ko.contextFor(options.sender);
-            const validationTarget = evaluator.evaluateExpression(context, path);
+            const validationTarget = evaluator.evaluateValidationPath(context, path);
 
             watchAndTriggerValidationErrorChanged(options,
                 () => {
@@ -94,7 +94,7 @@ export function init() {
     ko.bindingHandlers["dotvvm-validationSummary"] = {
         init: (element: HTMLElement, valueAccessor: () => ValidationSummaryBinding) => {
             const binding = valueAccessor();
-            const target = evaluator.evaluateExpression(ko.contextFor(element), ko.unwrap(binding.target));
+            const target = evaluator.evaluateValidationPath(ko.contextFor(element), ko.unwrap(binding.target));
             validationErrorsChanged.subscribe(_ => {
                 element.innerHTML = "";
                 const errors = getValidationErrors(
@@ -297,7 +297,7 @@ export function showValidationErrorsFromServer(serverResponseObject: any, option
             let rootVM = dotvvm.viewModels.root.viewModel;
             const property =
                 propertyPath ?
-                    evaluator.evaluateExpression(rootVM, propertyPath) :
+                    evaluator.evaluateValidationPath(rootVM, propertyPath) :
                 rootVM;
 
             ValidationError.attach(prop.errorMessage, property);

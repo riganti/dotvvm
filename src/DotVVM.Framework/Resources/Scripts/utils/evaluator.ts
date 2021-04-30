@@ -1,20 +1,16 @@
 import { isObservableArray } from "./knockout";
 import { logError } from "./logging";
 
-const shouldBeConvertedFromObservable = (currentLevel: any, remainingParts: string[]): boolean => {
+const shouldBeConvertedFromDataContext = (currentLevel: any, remainingParts: string[]): boolean => {
     if (currentLevel["$data"] == undefined) {
         return false;
     }
 
-    for (let i = 0; i < remainingParts.length; i++) {
-        if (remainingParts[i].startsWith("$")) return false;
-    }
-
-    return true;
+    return remainingParts.filter(i => i.startsWith("$")).length === 0;
 };
 
 
-export function evaluateExpression(context: any, expression: string): any {
+export function evaluateValidationPath(context: any, expression: string): any {
 
     expression = transformExpression(expression);
 
@@ -22,7 +18,7 @@ export function evaluateExpression(context: any, expression: string): any {
     var currentLevel = context;
     var currentPath = "";
     for (var i = 0; i < parts.length; i++) {
-        if (shouldBeConvertedFromObservable(currentLevel, parts.slice(i))) {
+        if (shouldBeConvertedFromDataContext(currentLevel, parts.slice(i))) {
             currentLevel = context["$data"];
         }
         let expressionPart = parts[i];
