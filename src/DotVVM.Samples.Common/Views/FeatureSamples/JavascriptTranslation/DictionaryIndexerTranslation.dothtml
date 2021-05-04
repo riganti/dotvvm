@@ -1,0 +1,21 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation.DictionaryIndexerTranslationViewModel
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <span>"key1": {{value: Rules["key1"]}} </span>
+    <span>"key2": {{value: Rules["key2"]}} </span> </br>
+
+    <dot:Button Text="Flip value of key1" Click="{staticCommand: Rules["key1"] = !Rules["key1"] }" />
+    <dot:Button Text="Flip value of key2" Click="{staticCommand: Rules["key2"] = !Rules["key2"] }" />
+
+</body>
+</html>
+
+

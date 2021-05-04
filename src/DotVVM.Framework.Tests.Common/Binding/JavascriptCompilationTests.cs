@@ -385,6 +385,20 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_DictionaryIndexer_Get()
+        {
+            var result = CompileBinding("Dictionary[1]", typeof(TestViewModel5));
+            Assert.AreEqual("dotvvm.dictionaryHelper.getItem(Dictionary(),1)", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_DictionaryIndexer_Set()
+        {
+            var result = CompileBinding("Dictionary[1] = 123", new[] { typeof(TestViewModel5) }, typeof(void));
+            Assert.AreEqual("dotvvm.dictionaryHelper.setItem(Dictionary(),1,123)", result);
+        }
+
+        [TestMethod]
         [DataRow("Enumerable.Where(LongArray, (long item) => item % 2 == 0)", DisplayName = "Regular call of Enumerable.Where")]
         [DataRow("LongArray.Where((long item) => item % 2 == 0)", DisplayName = "Syntax sugar - extension method")]
         public void JsTranslator_EnumerableWhere(string binding)
