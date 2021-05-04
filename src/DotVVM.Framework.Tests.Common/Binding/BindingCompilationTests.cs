@@ -606,6 +606,24 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_DictionaryIndexer_Get()
+        {
+            TestViewModel5 vm = new TestViewModel5();
+            vm.Dictionary = new Dictionary<int, int>() { { 1, 11 }, { 2, 22 } };
+            var result = ExecuteBinding("Dictionary[2]", new[] { vm });
+            Assert.AreEqual(22, result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_DictionaryIndexer_Set()
+        {
+            TestViewModel5 vm = new TestViewModel5();
+            vm.Dictionary = new Dictionary<int, int>() { { 1, 11 }, { 2, 22 } };
+            ExecuteBinding("Dictionary[1] = 123", new[] { vm }, null, expectedType: typeof(void));
+            Assert.AreEqual(123, vm.Dictionary[1]);
+        }
+
+        [TestMethod]
         public void BindingCompiler_MultiBlockExpression_EnumAtEnd_CorrectResult()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
@@ -834,6 +852,16 @@ namespace DotVVM.Framework.Tests.Binding
             Number *= 10;
             return Task.Delay(100);
         }
+    }
+
+    class TestViewModel5
+    {
+        public Dictionary<int, int> Dictionary { get; set; } = new Dictionary<int, int>()
+        {
+            { 1, 11 },
+            { 2, 22 },
+            { 3, 33 }
+        };
     }
 
     struct TestStruct

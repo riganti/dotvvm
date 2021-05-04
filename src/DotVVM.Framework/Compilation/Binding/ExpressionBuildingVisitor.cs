@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using DotVVM.Framework.Compilation.Parser.Binding.Parser.Annotations;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -154,12 +155,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitBinaryOperator(BinaryOperatorBindingParserNode node)
         {
-            var left = HandleErrors(node.FirstExpression, Visit);
-            var right = HandleErrors(node.SecondExpression, Visit);
-            ThrowOnErrors();
-
             ExpressionType eop;
-
             switch (node.Operator)
             {
                 case BindingTokenType.AddOperator:
@@ -211,10 +207,23 @@ namespace DotVVM.Framework.Compilation.Binding
                     eop = ExpressionType.OrElse;
                     break;
                 case BindingTokenType.AssignOperator:
+                    node.FirstExpression.Annotations.Add(WriteAccessAnnotation.Instance);
                     eop = ExpressionType.Assign;
                     break;
                 default:
                     throw new NotSupportedException($"unary operator { node.Operator } is not supported");
+            }
+
+            var left = HandleErrors(node.FirstExpression, Visit);
+            var right = HandleErrors(node.SecondExpression, Visit);
+            ThrowOnErrors();
+
+            if (eop == ExpressionType.Assign && left is IndexExpression indexExpression)
+            {
+                // Convert to explicit method call `set_Indexer(index, value)`
+                // This is necessary to ensure we can translate this call later into JS
+                var setMethod = indexExpression.Indexer.SetMethod;
+                return Expression.Call(indexExpression.Object, setMethod, indexExpression.Arguments.Concat(new[] { right }));
             }
 
             return memberExpressionFactory.GetBinaryOperator(left, right, eop);
@@ -226,7 +235,15 @@ namespace DotVVM.Framework.Compilation.Binding
             var index = HandleErrors(node.ArrayIndexExpression, Visit);
             ThrowOnErrors();
 
-            return ExpressionHelper.GetIndexer(target, index);
+            var expression = ExpressionHelper.GetIndexer(target, index);
+            if (expression is IndexExpression indexExpression && !node.Annotations.Contains(WriteAccessAnnotation.Instance))
+            {
+                // Convert to get_{IndexerProperty}(index, value) call
+                var getMethod = indexExpression.Indexer.GetMethod;
+                return Expression.Call(indexExpression.Object, getMethod, indexExpression.Arguments);
+            }
+
+            return expression;
         }
 
         protected override Expression VisitFunctionCall(FunctionCallBindingParserNode node)
