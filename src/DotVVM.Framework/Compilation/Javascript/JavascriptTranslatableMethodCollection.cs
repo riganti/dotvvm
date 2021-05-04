@@ -345,10 +345,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                 return true;
             }
 
-            Type GetDelegateReturnType(Type type)
-            {
-                return type.GetGenericArguments().Last();
-            }
+            bool IsDelegateReturnTypeEnum(Type type)
+                => type.GetGenericArguments().Last().IsEnum;
+
+            string GetDelegateReturnTypeHash(Type type)
+                => type.GetGenericArguments().Last().GetTypeHash();
 
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.All), parameterCount: 2, translator: new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("all").Invoke(args[1], args[2])));
@@ -395,11 +396,11 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderBy), parameterCount: 2,
                 translator: new GenericMethodCompiler((jArgs, dArgs) => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderBy")
-                    .Invoke(jArgs[1], jArgs[2], new JsLiteral((GetDelegateReturnType(dArgs.Last().Type).IsEnum) ? GetDelegateReturnType(dArgs.Last().Type).GetTypeHash() : null)),
+                    .Invoke(jArgs[1], jArgs[2], new JsLiteral((IsDelegateReturnTypeEnum(dArgs.Last().Type)) ? GetDelegateReturnTypeHash(dArgs.Last().Type) : null)),
                 check: (method, _, arguments) => EnsureIsComparableInJavascript(method, arguments.Last().Type.GetGenericArguments().Last())));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.OrderByDescending), parameterCount: 2,
-                translator: new GenericMethodCompiler((JsExpression[] jArgs, Expression[] dArgs) => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderByDesc")
-                    .Invoke(jArgs[1], jArgs[2], new JsLiteral((GetDelegateReturnType(dArgs.Last().Type).IsEnum) ? GetDelegateReturnType(dArgs.Last().Type).GetTypeHash() : null)),
+                translator: new GenericMethodCompiler((jArgs, dArgs) => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("orderByDesc")
+                    .Invoke(jArgs[1], jArgs[2], new JsLiteral((IsDelegateReturnTypeEnum(dArgs.Last().Type)) ? GetDelegateReturnTypeHash(dArgs.Last().Type) : null)),
                 check: (method, _, arguments) => EnsureIsComparableInJavascript(method, arguments.Last().Type.GetGenericArguments().Last())));
 
             var selectMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
