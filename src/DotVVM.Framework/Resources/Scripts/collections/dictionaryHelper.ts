@@ -11,14 +11,15 @@ export function getItem<Key, Value>(dictionary: Dictionary<Key, Value>, identifi
     throw Error("Provided key \"" + identifier + "\" is not present in the dictionary!");
 }
 
-export function setItem<Key, Value>(dictionary: Dictionary<Key, Value>, identifier: Key, value: Value): void {
+export function setItem<Key, Value>(dictionary: Dictionary<Key, Value>, identifier: Key, value: Value, observable: any): void {
     for (let index = 0; index < dictionary.length; index++) {
         let keyValuePair = ko.unwrap(dictionary[index]);
         if (ko.unwrap(keyValuePair.Key) == identifier) {
-            keyValuePair.Value = value;
+            (keyValuePair.Value as any).setState(value);
             return;
         }
     }
 
-    throw Error("Provided key \"" + identifier + "\" is not present in the dictionary!");
+    // Create new record if we did not find provided key
+    observable.push({ "Key": identifier, "Value": value });
 }

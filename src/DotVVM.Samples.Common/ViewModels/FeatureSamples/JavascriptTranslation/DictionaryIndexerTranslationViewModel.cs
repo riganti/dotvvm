@@ -9,15 +9,13 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation
 {
     public class DictionaryIndexerTranslationViewModel : DotvvmViewModelBase
     {
-        public Dictionary<string, bool> Rules { get; set; } = new Dictionary<string, bool>()
-        {
-            { "key1", true },
-            { "key2", false }
-        };
+        public string Key { get; set; }
+        public string Value { get; set; }
 
-        public List<string> List { get; set; } = new List<string>()
+        public Dictionary<string, string> Dictionary { get; set; } = new Dictionary<string, string>()
         {
-            "Val1", "Val2"
+            { "key1", "value1" },
+            { "key2", "value2" }
         };
     }
 }
