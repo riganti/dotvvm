@@ -53,7 +53,7 @@ foreach ($package in $packages) {
         & .\tools\nuget.exe push $nupkgFile -source $server -apiKey $apiKey | Out.Host
         Write-Host "Package uploaded to $server."
     }
-    if ( Test-Path -Path ./tools/packages ) {
+    if (Test-Path -Path ./tools/packages) {
         Remove-Item -Recurse -Force ./tools/packages
     }
 
@@ -65,19 +65,18 @@ foreach ($package in $packages) {
     try {
       $webClient.DownloadFile($snupkgUrl, $snupkgFile)
       $snupkgDownloaded = $true;
-    }catch {
+    } catch {
       Write-Host "No snupkg package found!"
       $snupkgDownloaded = $false;
-   }        
+    }        
     
     if ($snupkgDownloaded -eq $true){
         Write-Host "Uploading snupkg package..."        
         & .\Tools\nuget.exe push $snupkgFile -source $server -apiKey $apiKey | Out.Host
-		Write-Host "Uploaded snupkg package."
-        Remove-Item $nupkgFile    
+		Write-Host "Uploaded snupkg package." 
         try {
 			Remove-Item $snupkgFile
-		}catch {            
+		} catch {            
             Write-Host "Unable to cleanup snupkg..."
         }
     }
