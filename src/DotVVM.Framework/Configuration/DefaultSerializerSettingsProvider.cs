@@ -27,7 +27,8 @@ namespace DotVVM.Framework.Configuration
                 {
                     new DotvvmDateTimeConverter(),
                     new StringEnumConverter(),
-                    new DotvvmDictionaryConverter()
+                    new DotvvmDictionaryConverter(),
+                    new DotvvmByteArrayConverter()
                 }
             };
         }
