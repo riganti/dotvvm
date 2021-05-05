@@ -220,6 +220,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_HtmlTag_NonPairHtmlTag = "FeatureSamples/HtmlTag/NonPairHtmlTag";
         public const string FeatureSamples_IdGeneration_IdGeneration = "FeatureSamples/IdGeneration/IdGeneration";
         public const string FeatureSamples_JavascriptEvents_JavascriptEvents = "FeatureSamples/JavascriptEvents/JavascriptEvents";
+        public const string FeatureSamples_JavascriptTranslation_DictionaryIndexerTranslation = "FeatureSamples/JavascriptTranslation/DictionaryIndexerTranslation";
         public const string FeatureSamples_JavascriptTranslation_GenericMethodTranslation = "FeatureSamples/JavascriptTranslation/GenericMethodTranslation";
         public const string FeatureSamples_JavascriptTranslation_MathMethodTranslation = "FeatureSamples/JavascriptTranslation/MathMethodTranslation";
         public const string FeatureSamples_LambdaExpressions_ClientSideFiltering = "FeatureSamples/LambdaExpressions/ClientSideFiltering";
@@ -281,8 +282,8 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Serialization_EnumSerializationWithJsonConverter = "FeatureSamples/Serialization/EnumSerializationWithJsonConverter";
         public const string FeatureSamples_Serialization_ObservableCollectionShouldContainObservables = "FeatureSamples/Serialization/ObservableCollectionShouldContainObservables";
         public const string FeatureSamples_Serialization_Serialization = "FeatureSamples/Serialization/Serialization";
-        public const string FeatureSamples_Serialization_TimeSpan = "FeatureSamples/Serialization/TimeSpan";
         public const string FeatureSamples_Serialization_SerializationDateTimeOffset = "FeatureSamples/Serialization/SerializationDateTimeOffset";
+        public const string FeatureSamples_Serialization_TimeSpan = "FeatureSamples/Serialization/TimeSpan";
         public const string FeatureSamples_ServerComments_ServerComments = "FeatureSamples/ServerComments/ServerComments";
         public const string FeatureSamples_ServerSideStyles_ServerSideStyles = "FeatureSamples/ServerSideStyles/ServerSideStyles";
         public const string FeatureSamples_ServerSideStyles_ServerSideStyles_ControlProperties = "FeatureSamples/ServerSideStyles/ServerSideStyles_ControlProperties";
