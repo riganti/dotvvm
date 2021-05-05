@@ -235,6 +235,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 // click on Cancel button
                 firstRow.ElementAt("td", 3).ElementAt("button", 1).ScrollTo().Click();
+                browser.WaitForPostback();
 
                 // click the Edit button on another row
                 table = browser.ElementAt("table", tableID);
@@ -379,7 +380,7 @@ namespace DotVVM.Samples.Tests.Control
 
         private void Control_GridViewShowHeaderWhenNoData(IBrowserWrapper browser)
         {
-            browser.FindElements("[data-ui='ShowHeaderWhenNoDataGrid']").FindElements("th").First().IsDisplayed();
+            browser.Single("ShowHeaderWhenNoDataGrid", SelectByDataUi).FindElements("th").First().IsDisplayed();
         }
 
         [Fact]
