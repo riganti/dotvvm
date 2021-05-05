@@ -3,6 +3,7 @@ using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.Core.Abstractions.Exceptions;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -90,6 +91,7 @@ namespace DotVVM.Samples.Tests.Complex
                 message2element.CheckIfIsElementInView();
 
                 goTo1Link.Click();
+                browser.WaitForPostback();
                 message1element.CheckIfIsElementInView();
                 message2element.CheckIfIsElementNotInView();
             });
