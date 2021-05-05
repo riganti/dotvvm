@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
@@ -18,10 +19,9 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Complex_FileUploadInRepeater_FileUploadInRepeater()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_FileUploadInRepeater_FileUploadInRepeater);
-
+                browser.WaitUntilDotvvmInited();
 
                 var tempPath = Path.GetTempFileName();
                 File.WriteAllBytes(tempPath, Enumerable.Range(0, 255).Select(i => (byte)i).ToArray());
@@ -50,9 +50,9 @@ namespace DotVVM.Samples.Tests.Control
                 {
                     File.Delete(tempPath);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    //TODO log
+                    TestOutput.WriteLine(ex.ToString());
                 }
             });
         }
