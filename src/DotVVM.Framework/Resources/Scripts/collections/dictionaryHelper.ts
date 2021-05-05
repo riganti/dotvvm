@@ -21,5 +21,6 @@ export function setItem<Key, Value>(dictionary: Dictionary<Key, Value>, identifi
     }
 
     // Create new record if we did not find provided key
-    observable.push({ "Key": identifier, "Value": value });
+    let patch = dictionary.map(function (e) { return {}; }).concat({ "Key": identifier, "Value": value });
+    observable.patchState(patch);
 }
