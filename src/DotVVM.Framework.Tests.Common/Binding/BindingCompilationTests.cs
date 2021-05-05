@@ -609,7 +609,6 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingCompiler_DictionaryIndexer_Get()
         {
             TestViewModel5 vm = new TestViewModel5();
-            vm.Dictionary = new Dictionary<int, int>() { { 1, 11 }, { 2, 22 } };
             var result = ExecuteBinding("Dictionary[2]", new[] { vm });
             Assert.AreEqual(22, result);
         }
@@ -618,7 +617,6 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingCompiler_DictionaryIndexer_Set()
         {
             TestViewModel5 vm = new TestViewModel5();
-            vm.Dictionary = new Dictionary<int, int>() { { 1, 11 }, { 2, 22 } };
             ExecuteBinding("Dictionary[1] = 123", new[] { vm }, null, expectedType: typeof(void));
             Assert.AreEqual(123, vm.Dictionary[1]);
         }

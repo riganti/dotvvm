@@ -220,8 +220,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
             if (eop == ExpressionType.Assign && left is IndexExpression indexExpression)
             {
-                // Convert to explicit method call `set_Indexer(index, value)`
-                // This is necessary to ensure we can translate this call later into JS
+                // Convert to explicit method call `set_{Indexer}(index, value)`
                 var setMethod = indexExpression.Indexer.SetMethod;
                 return Expression.Call(indexExpression.Object, setMethod, indexExpression.Arguments.Concat(new[] { right }));
             }
@@ -238,7 +237,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var expression = ExpressionHelper.GetIndexer(target, index);
             if (expression is IndexExpression indexExpression && !node.Annotations.Contains(WriteAccessAnnotation.Instance))
             {
-                // Convert to get_{IndexerProperty}(index, value) call
+                // Convert to get_{Indexer}(index, value) call
                 var getMethod = indexExpression.Indexer.GetMethod;
                 return Expression.Call(indexExpression.Object, getMethod, indexExpression.Arguments);
             }
