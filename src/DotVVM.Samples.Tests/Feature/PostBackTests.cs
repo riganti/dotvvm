@@ -20,7 +20,6 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ClearElementsContent("input[type=text]");
                 browser.SendKeys("input[type=text]", "15");
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 browser.FindElements("br").ThrowIfDifferentCountThan(14);
 
@@ -28,7 +27,6 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ClearElementsContent("input[type=text]");
                 browser.SendKeys("input[type=text]", "5");
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 browser.FindElements("br").ThrowIfDifferentCountThan(4);
             });
@@ -102,53 +100,44 @@ namespace DotVVM.Samples.Tests.Feature
             section.ElementAt("input[type=button]", 0).Click();
             AssertUI.AlertTextEquals(browser, "Confirmation 1");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "1");
 
             // cancel second
             section.ElementAt("input[type=button]", 1).Click();
             AssertUI.AlertTextEquals(browser, "Confirmation 1");
             browser.ConfirmAlert();
-            browser.Wait();
 
             AssertUI.AlertTextEquals(browser, "Confirmation 2");
             browser.DismissAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "1");
             // confirm second
             section.ElementAt("input[type=button]", 1).Click();
             AssertUI.AlertTextEquals(browser, "Confirmation 1");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.AlertTextEquals(browser, "Confirmation 2");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "2");
 
             // confirm third
             section.ElementAt("input[type=button]", 2).Click();
             Assert.False(browser.HasAlert());
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "3");
 
             // confirm fourth
             section.ElementAt("input[type=button]", 3).Click();
             AssertUI.AlertTextEquals(browser, "Generated 1");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "4");
 
             // confirm fifth
             section.ElementAt("input[type=button]", 4).Click();
             AssertUI.AlertTextEquals(browser, "Generated 2");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "5");
 
             // confirm conditional
             section.ElementAt("input[type=button]", 5).Click();
             Assert.False(browser.HasAlert());
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "6");
 
             browser.First("input[type=checkbox]").Click();
@@ -156,14 +145,12 @@ namespace DotVVM.Samples.Tests.Feature
             section.ElementAt("input[type=button]", 5).Click();
             AssertUI.AlertTextEquals(browser, "Conditional 1");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "6");
 
             browser.First("input[type=checkbox]").Click();
 
             section.ElementAt("input[type=button]", 5).Click();
             Assert.False(browser.HasAlert());
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "6");
 
             browser.First("input[type=checkbox]").Click();
@@ -171,7 +158,6 @@ namespace DotVVM.Samples.Tests.Feature
             section.ElementAt("input[type=button]", 5).Click();
             AssertUI.AlertTextEquals(browser, "Conditional 1");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "6");
 
             //localization - resource binding in confirm postback handler message
@@ -179,7 +165,6 @@ namespace DotVVM.Samples.Tests.Feature
             section.ElementAt("input[type=button]", 6).Click();
             AssertUI.AlertTextEquals(browser, "EnglishValue");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "7");
 
             browser.First("#ChangeLanguageCZ").Click();
@@ -195,13 +180,11 @@ namespace DotVVM.Samples.Tests.Feature
             section.ElementAt("input[type=button]", 6).Click();
             AssertUI.AlertTextEquals(browser, "CzechValue");
             browser.DismissAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "0");
 
             section.ElementAt("input[type=button]", 6).Click();
             AssertUI.AlertTextEquals(browser, "CzechValue");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "7");
         }
 

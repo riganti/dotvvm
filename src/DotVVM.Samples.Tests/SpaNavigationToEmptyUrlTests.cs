@@ -18,7 +18,6 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.SpaNavigationToEmptyUrl);
-                browser.Wait();
 
                 browser.Single("a").Click().Wait();
 
@@ -33,7 +32,6 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.SpaNavigationToEmptyUrl);
-                browser.Wait();
 
                 browser.Single("input[type=button]").Click().Wait();
 

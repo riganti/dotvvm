@@ -2,6 +2,7 @@
 using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -23,11 +24,13 @@ namespace DotVVM.Samples.Tests.Feature
                 Assert.Matches(@"time=\d+", currentUrl.Query);
 
                 browser.First("[data-ui=object-redirect-button]").Click();
+                browser.WaitForPostback();
                 currentUrl = new Uri(browser.CurrentUrl);
                 Assert.Matches(@"^\?(param=temp1&time=\d+|time=\d+&param=temp1)$", currentUrl.Query);
                 Assert.Equal("#test1", currentUrl.Fragment);
 
                 browser.First("[data-ui=dictionary-redirect-button]").Click();
+                browser.WaitForPostback();
                 currentUrl = new Uri(browser.CurrentUrl);
                 Assert.Matches(@"^\?(time=\d+&param=temp2|param=temp2&time=\d+)$", currentUrl.Query);
                 Assert.Equal("#test2", currentUrl.Fragment);

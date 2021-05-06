@@ -56,10 +56,8 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(lastActionSpan, "short");
                 browser.Wait(6000);
                 // the result of the long action should be canceled, the counter shouldn't increase
-                browser.WaitFor(()=> {
-                    AssertUI.InnerTextEquals(postbackIndexSpan, "1");
-                    AssertUI.InnerTextEquals(lastActionSpan, "short");
-                },3000);
+                AssertUI.InnerTextEquals(postbackIndexSpan, "1");
+                AssertUI.InnerTextEquals(lastActionSpan, "short");
             });
         }
 
