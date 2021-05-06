@@ -1,15 +1,10 @@
 ﻿import { getTypeInfo } from "./typeMap";
 
-export function getTypeId(viewModel: any): string {
-    if (typeof viewModel !== "object") {
-        throw Error("Expected object but received: " + typeof viewModel);
-    }
-
-    return ko.unwrap(viewModel.$type);
+export function getTypeId(viewModel: object): string | undefined {
+    return ko.unwrap((viewModel as any).$type);
 }
 
-export function getTypeMetadata(viewModel: any): TypeMetadata {
-    let typeId = getTypeId(viewModel);
+export function getTypeMetadata(typeId: string): TypeMetadata {
     return getTypeInfo(typeId);
 }
 
@@ -28,13 +23,6 @@ export function getEnumValue(identifier: string | number, enumMetadataId: string
         return metadata.values[identifier];
     }
     else {
-        // Ensure this number is not already defined
-        for (const key in metadata.values) {
-            if (metadata.values[key] === identifier) {
-                return null;
-            }
-        }
-
         return identifier;
     }
 }
