@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
@@ -18,11 +19,9 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Complex_FileUploadInRepeater_FileUploadInRepeater()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_FileUploadInRepeater_FileUploadInRepeater);
-                browser.Wait(1000);
-
+                browser.WaitUntilDotvvmInited();
 
                 var tempPath = Path.GetTempFileName();
                 File.WriteAllBytes(tempPath, Enumerable.Range(0, 255).Select(i => (byte)i).ToArray());
@@ -30,20 +29,18 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.InnerTextEquals(browser.ElementAt(".files-count", 0), "0");
                 DotVVMAssertModified.UploadFile((ElementWrapper)browser.ElementAt(".dotvvm-upload-button a", 0), tempPath);
 
-                browser.WaitFor(() => browser.ElementAt(".files-count", 0).GetInnerText() == "1", 10000, "FileCount is not updated to '1'.");
+                AssertUI.InnerTextEquals(browser.ElementAt(".files-count", 0), "1", failureMessage: "FileCount is not updated to '1'.");
 
                 AssertUI.InnerTextEquals(browser.ElementAt(".files-count", 1), "0");
                 AssertUI.InnerTextEquals(browser.ElementAt(".files-count", 2), "0");
 
-                DotVVMAssertModified.UploadFile((ElementWrapper)browser.ElementAt(".dotvvm-upload-button a", 2), tempPath);
-                browser.Wait(6000);
+                DotVVMAssert.UploadFile((ElementWrapper)browser.ElementAt(".dotvvm-upload-button a", 2), tempPath);
 
                 AssertUI.InnerTextEquals(browser.ElementAt(".files-count", 0), "1");
                 AssertUI.InnerTextEquals(browser.ElementAt(".files-count", 1), "0");
                 AssertUI.InnerTextEquals(browser.ElementAt(".files-count", 2), "1");
 
-                DotVVMAssertModified.UploadFile((ElementWrapper)browser.ElementAt(".dotvvm-upload-button a", 0), tempPath);
-                browser.Wait(6000);
+                DotVVMAssert.UploadFile((ElementWrapper)browser.ElementAt(".dotvvm-upload-button a", 0), tempPath);
 
                 AssertUI.InnerTextEquals(browser.ElementAt(".files-count", 0), "2");
                 AssertUI.InnerTextEquals(browser.ElementAt(".files-count", 1), "0");
@@ -53,9 +50,9 @@ namespace DotVVM.Samples.Tests.Control
                 {
                     File.Delete(tempPath);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    //TODO log
+                    TestOutput.WriteLine(ex.ToString());
                 }
             });
         }

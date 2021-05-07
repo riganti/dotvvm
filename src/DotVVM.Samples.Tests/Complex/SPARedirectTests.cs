@@ -16,7 +16,6 @@ namespace DotVVM.Samples.Tests.Complex
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl("ComplexSamples/SPARedirect");
-                browser.Wait(1000);
 
                 //check url
                 AssertUI.Url(browser, s => s.Contains("/ComplexSamples/SPARedirect/login?ReturnUrl=%2FComplexSamples%2FSPARedirect"));
@@ -24,28 +23,28 @@ namespace DotVVM.Samples.Tests.Complex
                 // login to the app
                 IElementWrapper getLoginElement() => browser.First("input[type=button]");
                 AssertUI.Attribute(getLoginElement(), "value", "Login");
-                getLoginElement().Click().Wait(1000);
+                getLoginElement().Click();
 
                 //check url
                 AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPARedirect"));
 
                 // sign out
                 AssertUI.Attribute(getLoginElement(), "value", "Sign Out");
-                getLoginElement().Click().Wait(1000);
+                getLoginElement().Click();
 
                 //check url
                 AssertUI.Url(browser, s => s.Contains("/ComplexSamples/SPARedirect/login?ReturnUrl=%2FComplexSamples%2FSPARedirect"));
 
                 // login to the app
                 AssertUI.Attribute(getLoginElement(), "value", "Login");
-                getLoginElement().Click().Wait(1000);
+                getLoginElement().Click();
 
                 //check url
                 AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPARedirect"));
 
                 // sign out
                 AssertUI.Attribute(getLoginElement(), "value", "Sign Out");
-                getLoginElement().Click().Wait(1000);
+                getLoginElement().Click();
             });
         }
 

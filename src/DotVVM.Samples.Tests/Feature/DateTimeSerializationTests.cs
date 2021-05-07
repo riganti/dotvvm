@@ -29,56 +29,43 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ElementAt("input[type=text]", 0).Clear().SendKeys("18.2.1988");
                 browser.ElementAt("input[type=button]", 1).Click();
 
-                browser.WaitFor(() => {
-                    AssertUI.InnerText(browser.ElementAt("span", 0), s => DateTime.Parse(s).Equals(new DateTime(1988, 2, 18)));
-                }, 5000);
+                AssertUI.InnerText(browser.ElementAt("span", 0), s => DateTime.Parse(s).Equals(new DateTime(1988, 2, 18)));
 
                 browser.ElementAt("input[type=text]", 0).Clear();
                 browser.ElementAt("input[type=button]", 1).Click();
 
-                browser.WaitFor(() => {
-                    // the value is invalid so the viewmodel stays as is
-                    AssertUI.InnerText(browser.ElementAt("span", 0), s => DateTime.Parse(s).Equals(new DateTime(1988, 2, 18)));
-                }, 5000);
+                AssertUI.InnerText(browser.ElementAt("span", 0), s => DateTime.Parse(s).Equals(new DateTime(1988, 2, 18)));
 
                 // make the viewmodel valid again
                 browser.ElementAt("input[type=text]", 0).Clear().SendKeys("18.2.1988");
                 browser.ElementAt("input[type=button]", 1).Click();
 
-                browser.WaitFor(() => {
-                    AssertUI.InnerText(browser.ElementAt("span", 0), s => DateTime.Parse(s).Equals(new DateTime(1988, 2, 18)));
-                }, 5000);
+                AssertUI.InnerText(browser.ElementAt("span", 0), s => DateTime.Parse(s).Equals(new DateTime(1988, 2, 18)));
 
                 // verify the second date
                 browser.ElementAt("input[type=text]", 1).Clear().SendKeys("2011-03-19 16:48:17");
                 browser.ElementAt("input[type=button]", 3).Click();
 
-                browser.WaitFor(() => {
-                    AssertUI.InnerText(browser.ElementAt("span", 1),
+                AssertUI.InnerText(browser.ElementAt("span", 1),
                         s => DateTime.Parse(s).Equals(new DateTime(2011, 3, 19, 16, 48, 0)));
-                }, 5000);
 
                 browser.ElementAt("input[type=text]", 1).Clear();
                 browser.ElementAt("input[type=button]", 3).Click();
 
-                browser.WaitFor(() => {
-                    AssertUI.InnerTextEquals(browser.ElementAt("span", 1), "null");
-                }, 5000);
+                AssertUI.InnerTextEquals(browser.ElementAt("span", 1), "null");
 
                 // try to set dates from server
                 browser.ElementAt("input[type=button]", 0).Click();
                 browser.WaitForPostback();
                 browser.ElementAt("input[type=button]", 2).Click();
 
-                browser.WaitFor(() => {
-                    // there is no time in the field
-                    AssertUI.Attribute(browser.ElementAt("input[type=text]", 0), "value",
-                        s => (DateTime.Now - DateTime.Parse(s, culture)).TotalHours < 24);
+                // there is no time in the field
+                AssertUI.Attribute(browser.ElementAt("input[type=text]", 0), "value",
+                    s => (DateTime.Now - DateTime.Parse(s, culture)).TotalHours < 24);
 
-                    // the minutes can differ slightly
-                    AssertUI.Attribute(browser.ElementAt("input[type=text]", 1), "value",
-                        s => (DateTime.Now - DateTime.Parse(s, culture)).TotalMinutes < 1);
-                }, 5000);
+                // the minutes can differ slightly
+                AssertUI.Attribute(browser.ElementAt("input[type=text]", 1), "value",
+                    s => (DateTime.Now - DateTime.Parse(s, culture)).TotalMinutes < 1);
             });
         }
 

@@ -21,6 +21,14 @@ namespace DotVVM.Framework.Compilation.Javascript
                 : builder(new [] { t.JsExpression() }.Concat(arg.Select(a => a.JsExpression())).ToArray());
         }
 
+        public GenericMethodCompiler(Func<JsExpression[], Expression[], JsExpression> builder, Func<MethodInfo, Expression, Expression[], bool> check = null)
+        {
+            TryTranslateDelegate =
+                (t, arg, m) => check?.Invoke(m, t.OriginalExpression, arg.Select(a => a.OriginalExpression).ToArray()) == false
+                ? null
+                : builder(new[] { t.JsExpression() }.Concat(arg.Select(a => a.JsExpression())).ToArray(), arg.Select(a => a.OriginalExpression).ToArray());
+        }
+
         public GenericMethodCompiler(Func<JsExpression[], MethodInfo, JsExpression> builder, Func<MethodInfo, Expression, Expression[], bool> check = null)
         {
             TryTranslateDelegate =

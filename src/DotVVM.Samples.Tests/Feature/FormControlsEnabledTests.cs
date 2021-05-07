@@ -17,7 +17,6 @@ namespace DotVVM.Samples.Tests.Feature
 
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_FormControlsEnabled_FormControlsEnabled);
-                browser.Wait(2000);
 
                 // LinkButton tests. Selenium does not recognize them as disabled as that is handled by DotVVM.
                 int linkButtonPresses = 0;
@@ -76,7 +75,7 @@ namespace DotVVM.Samples.Tests.Feature
                     TestLinkButton(browser, "repeater_0_linkb-default", false, ref linkButtonPresses);
                     TestLinkButton(browser, "repeater_1_linkb-default", true, ref linkButtonPresses);
 
-                    browser.First("#toggle").Click().Wait();
+                    browser.First("#toggle").Click();
                     enabled = !enabled;
                 }
             });
@@ -84,16 +83,14 @@ namespace DotVVM.Samples.Tests.Feature
 
         private void TestLinkButton(IBrowserWrapper browser, string id, bool shouldBeEnabled, ref int currentPresses)
         {
-            browser.First($"#{id}").Click().Wait();
+            browser.First($"#{id}").Click();
             if (shouldBeEnabled)
             {
                 currentPresses++;
             }
 
             var c = currentPresses;
-            browser.WaitFor(() => {
-                AssertUI.InnerTextEquals(browser.First("#linkbuttons-pressed"), c.ToString());
-            }, 2000);
+            AssertUI.InnerTextEquals(browser.First("#linkbuttons-pressed"), c.ToString());
         }
 
         public FormControlsEnabledTests(ITestOutputHelper output) : base(output)

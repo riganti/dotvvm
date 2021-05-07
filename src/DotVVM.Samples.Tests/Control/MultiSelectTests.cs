@@ -22,20 +22,20 @@ namespace DotVVM.Samples.Tests.Control
                 var selectedValues = browser.First("selected-values", SelectByDataUi);
 
                 AssertUI.IsDisplayed(multiselect.Select(0));
-                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedValues, "Praha"), 2000, 30);
+                AssertUI.InnerTextEquals(selectedValues, "Praha");
 
                 // select second option from combobox
                 multiselect.Select(1);
-                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedValues, "Praha Brno"), 1000, 30);
+                AssertUI.InnerTextEquals(selectedValues, "Praha Brno");
 
                 // select third option from combobox
                 multiselect.Select(2);
-                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedValues, "Praha Brno Napajedla"), 1000, 30);
+                AssertUI.InnerTextEquals(selectedValues, "Praha Brno Napajedla");
 
                 // select third option from combobox
                 multiselect.Children[0].Click();
                 multiselect.Children[1].Click();
-                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedValues, "Napajedla"), 1000, 30);
+                AssertUI.InnerTextEquals(selectedValues, "Napajedla");
             });
         }
 
@@ -49,20 +49,20 @@ namespace DotVVM.Samples.Tests.Control
                 var selectedValues = browser.First("selected-values", SelectByDataUi);
 
                 AssertUI.IsDisplayed(multiselect.Select(0));
-                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedValues, "1"), 2000, 30);
+                AssertUI.InnerTextEquals(selectedValues, "1");
 
                 // select second option from combobox
                 multiselect.Select(1);
-                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedValues, "1 2"), 1000, 30);
+                AssertUI.InnerTextEquals(selectedValues, "1 2");
 
                 // select third option from combobox
                 multiselect.Select(2);
-                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedValues, "1 2 3"), 1000, 30);
+                AssertUI.InnerTextEquals(selectedValues, "1 2 3");
 
                 // select third option from combobox
                 multiselect.Children[0].Click();
                 multiselect.Children[1].Click();
-                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedValues, "3"), 1000, 30);
+                AssertUI.InnerTextEquals(selectedValues, "3");
             });
         }
     }
