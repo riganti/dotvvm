@@ -1,0 +1,28 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Serialization.TimeSpanViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>TimeSpan serialization</h1>
+
+    <p>
+        TimeSpan: <dot:TextBox Text="{value: Time}" />
+        <span class="result-time">{{value: Time}}</span>
+    </p>
+    <p>
+        Nullable TimeSpan: <dot:TextBox Text="{value: NullableTime}" />
+        <span class="result-nullable-time">{{value: NullableTime}}</span>
+    </p>
+
+    <dot:Button Text="Add hour" Click="{command: AddHour()}" />
+
+</body>
+</html>
+
+

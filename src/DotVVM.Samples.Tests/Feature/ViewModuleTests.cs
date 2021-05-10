@@ -22,10 +22,8 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInMarkupControl);
-                browser.Wait();
-
                 var log = browser.Single("#log");
-                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule: init"), 8000);
+                AssertLastLogEntry(log, "testViewModule: init");
 
                 var moduleButtons = browser.FindElements("input[type=button]");
                 var incrementValue = browser.First(".increment-value");
@@ -39,10 +37,9 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInMarkupControlTwice);
-                browser.Wait();
 
                 var log = browser.Single("#log");
-                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule: init"), 8000);
+                AssertLastLogEntry(log, "testViewModule: init");
 
                 var toggleButton = browser.Single(".toggle input[type=button]");
 
@@ -54,7 +51,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // show second instance
                 toggleButton.Click();
-                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule: init"), 8000);
+                AssertLastLogEntry(log, "testViewModule: init");
 
                 // test second instance
                 moduleButtons = browser.FindElements(".control2 input[type=button]");
@@ -64,11 +61,11 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // hide second instance
                 toggleButton.Click();
-                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule: dispose"), 8000);
+                AssertLastLogEntry(log, "testViewModule: dispose");
 
                 // show second instance
                 toggleButton.Click();
-                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule: init"), 8000);
+                AssertLastLogEntry(log, "testViewModule: init");
             });
         }
 
@@ -77,10 +74,9 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInPage);
-                browser.Wait();
 
                 var log = browser.Single("#log");
-                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule: init"), 8000);
+                AssertLastLogEntry(log, "testViewModule: init");
 
                 var moduleButtons = browser.FindElements("input[type=button]");
                 var incrementValue = browser.First(".increment-value");
@@ -94,14 +90,12 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInPageCommandAmbiguous);
-                browser.Wait();
 
                 var log = browser.Single("#log");
-                browser.WaitFor(() => AssertLogEntry(log, "testViewModule: init"), 8000);
-                browser.WaitFor(() => AssertLogEntry(log, "testViewModule2: init"), 8000);
+                AssertLogEntry(log, "testViewModule: init");
+                AssertLogEntry(log, "testViewModule2: init");
 
                 browser.First("input[type=button]").Click();
-                browser.Wait(8000);
                 AssertUI.InnerText(log, t => !t.Contains("testViewModule: commands.noArgs()"));
                 AssertUI.InnerText(log, t => !t.Contains("testViewModule2: commands.noArgs()"));
             });
@@ -112,11 +106,10 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInPageMasterPage);
-                browser.Wait();
 
                 var log = browser.Single("#log");
-                browser.WaitFor(() => AssertLogEntry(log, "testViewModule: init"), 8000);
-                browser.WaitFor(() => AssertLogEntry(log, "testViewModule2: init"), 8000);
+                AssertLogEntry(log, "testViewModule: init");
+                AssertLogEntry(log, "testViewModule2: init");
 
                 var moduleButtons = browser.FindElements(".master input[type=button]");
                 var incrementValue = browser.First(".master .increment-value");
@@ -135,17 +128,16 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInPageSpaMasterPage2);
-                browser.Wait();
+
 
                 var links = browser.FindElements("a");
 
                 var log = browser.Single("#log");
-                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule: init"), 8000);
-                browser.Wait(8000);
+                AssertLastLogEntry(log, "testViewModule: init");
                 AssertUI.InnerText(log, t => !t.Contains("testViewModule2: init"));
 
                 links[0].Click();
-                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule2: init"), 8000);
+                AssertLastLogEntry(log, "testViewModule2: init");
 
                 var moduleButtons = browser.FindElements(".master input[type=button]");
                 var incrementValue = browser.First(".master .increment-value");
@@ -158,36 +150,36 @@ namespace DotVVM.Samples.Tests.Feature
                 TestModule(browser, log, moduleButtons, incrementValue, result, "testViewModule2");
 
                 links[1].Click();
-                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule2: dispose"), 8000);
+                AssertLastLogEntry(log, "testViewModule2: dispose");
 
                 links[0].Click();
-                browser.WaitFor(() => AssertLastLogEntry(log, "testViewModule2: init"), 8000);
+                AssertLastLogEntry(log, "testViewModule2: init");
             });
         }
 
         private void TestModule(IBrowserWrapper browser, IElementWrapper log, IElementWrapperCollection<IElementWrapper, IBrowserWrapper> moduleButtons, IElementWrapper incrementValue, IElementWrapper result, string prefix)
         {
             moduleButtons[0].Click();
-            browser.WaitFor(() => AssertLastLogEntry(log, prefix + ": commands.noArgs()"), 8000);
+            AssertLastLogEntry(log, prefix + ": commands.noArgs()");
             moduleButtons[1].Click();
-            browser.WaitFor(() => AssertLastLogEntry(log, prefix + ": commands.oneArg(10)"), 8000);
+            AssertLastLogEntry(log, prefix + ": commands.oneArg(10)");
             moduleButtons[2].Click();
-            browser.WaitFor(() => AssertLastLogEntry(log, prefix + @": commands.twoArgs(10, {""Test"":""Hello"",""$type"":""4wHojaMvtyXNR6aMRsZ4cWanOvA=""})"), 8000);
+            AssertLastLogEntry(log, prefix + @": commands.twoArgs(10, {""Test"":""Hello"",""$type"":""4wHojaMvtyXNR6aMRsZ4cWanOvA=""})");
 
             AssertUI.InnerTextEquals(incrementValue, "0");
             moduleButtons[3].Click();
-            browser.WaitFor(() => AssertLastLogEntry(log, prefix + ": commands.syncIncrement(0)"), 8000);
+            AssertLastLogEntry(log, prefix + ": commands.syncIncrement(0)");
             AssertUI.InnerTextEquals(incrementValue, "1");
             moduleButtons[4].Click();
             browser.WaitFor(() => AssertLastLogEntry(log, prefix + ": commands.asyncIncrement(1) begin"), 8000);
             browser.WaitFor(() => AssertLastLogEntry(log, prefix + ": commands.asyncIncrement(1) end"), 8000);
             AssertUI.InnerTextEquals(incrementValue, "2");
             moduleButtons[5].Click();
-            browser.WaitFor(() => AssertLastLogEntry(log, prefix + ": commands.callIncrementCommand(2)"), 8000);
+            AssertLastLogEntry(log, prefix + ": commands.callIncrementCommand(2)");
             AssertUI.InnerTextEquals(incrementValue, "3");
 
             moduleButtons[6].Click();
-            browser.WaitFor(() => AssertLastLogEntry(log, prefix + ": commands.callSetResultCommand()"), 8000);
+            AssertLastLogEntry(log, prefix + ": commands.callSetResultCommand()");
             AssertUI.InnerTextEquals(result, "1_test_abc");
         }
 
@@ -208,15 +200,13 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_IncrementerInRepeater);
-                browser.Wait();
+ 
 
                 var buttons = browser.FindElements("input[type=button]");
 
                 void EnsureId(IElementWrapper inc, string id)
                 {
-                    browser.WaitFor(() => {
-                        AssertUI.TextEquals(inc.Single(".id"), id);
-                    }, 500);
+                    AssertUI.TextEquals(inc.Single(".id"), id);
                 }
                 void EnsureValue(IElementWrapper inc, string value)
                 {

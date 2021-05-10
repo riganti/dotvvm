@@ -18,6 +18,7 @@ using DotVVM.Framework.Configuration;
 using System.Linq.Expressions;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -248,7 +249,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_Api_DateParameter()
         {
             var result = CompileBinding("_testApi.PostDateToString(DateFrom.Value)", typeof(TestViewModel));
-            Assert.IsTrue(result.StartsWith("dotvvm.api.invoke(dotvvm.api._testApi,\"postDateToString\",function(){return [dotvvm.globalize.parseDotvvmDate(DateFrom())];},function(args){return [];},function(args){return [\"DotVVM.Framework.Tests.Binding.TestApiClient/\"];},$element,function(args){return \""));
+            Assert.IsTrue(result.StartsWith("dotvvm.api.invoke(dotvvm.api._testApi,\"postDateToString\",function(){return [dotvvm.globalize.parseDate(DateFrom())];},function(args){return [];},function(args){return [\"DotVVM.Framework.Tests.Binding.TestApiClient/\"];},$element,function(args){return \""));
             Assert.IsTrue(result.EndsWith("\";})"));
         }
 
@@ -611,18 +612,19 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [DataRow("Enumerable.OrderBy(ObjectArray, (TestComparisonType item) => item.Int)", "Int", DisplayName = "Regular call of Enumerable.OrderBy")]
-        [DataRow("Enumerable.OrderBy(ObjectArray, (TestComparisonType item) => item.Bool)", "Bool", DisplayName = "Regular call of Enumerable.OrderBy")]
-        [DataRow("Enumerable.OrderBy(ObjectArray, (TestComparisonType item) => item.String)", "String", DisplayName = "Regular call of Enumerable.OrderBy")]
-        [DataRow("Enumerable.OrderBy(ObjectArray, (TestComparisonType item) => item.Enum)", "Enum", DisplayName = "Regular call of Enumerable.OrderBy")]
-        [DataRow("ObjectArray.OrderBy((TestComparisonType item) => item.Int)", "Int", DisplayName = "Syntax sugar - extension method")]
-        [DataRow("ObjectArray.OrderBy((TestComparisonType item) => item.Bool)", "Bool", DisplayName = "Syntax sugar - extension method")]
-        [DataRow("ObjectArray.OrderBy((TestComparisonType item) => item.String)", "String", DisplayName = "Syntax sugar - extension method")]
-        [DataRow("ObjectArray.OrderBy((TestComparisonType item) => item.Enum)", "Enum", DisplayName = "Syntax sugar - extension method")]
-        public void JsTranslator_EnumerableOrderBy(string binding, string key)
+        [DataRow("Enumerable.OrderBy(ObjectArray, (TestComparisonType item) => item.Int)", "Int", typeof(int), DisplayName = "Regular call of Enumerable.OrderBy")]
+        [DataRow("Enumerable.OrderBy(ObjectArray, (TestComparisonType item) => item.Bool)", "Bool", typeof(bool), DisplayName = "Regular call of Enumerable.OrderBy")]
+        [DataRow("Enumerable.OrderBy(ObjectArray, (TestComparisonType item) => item.String)", "String", typeof(string), DisplayName = "Regular call of Enumerable.OrderBy")]
+        [DataRow("Enumerable.OrderBy(ObjectArray, (TestComparisonType item) => item.Enum)", "Enum", typeof(TestComparisonType.TestEnum), DisplayName = "Regular call of Enumerable.OrderBy")]
+        [DataRow("ObjectArray.OrderBy((TestComparisonType item) => item.Int)", "Int", typeof(int), DisplayName = "Syntax sugar - extension method")]
+        [DataRow("ObjectArray.OrderBy((TestComparisonType item) => item.Bool)", "Bool", typeof(bool), DisplayName = "Syntax sugar - extension method")]
+        [DataRow("ObjectArray.OrderBy((TestComparisonType item) => item.String)", "String", typeof(string), DisplayName = "Syntax sugar - extension method")]
+        [DataRow("ObjectArray.OrderBy((TestComparisonType item) => item.Enum)", "Enum", typeof(TestComparisonType.TestEnum), DisplayName = "Syntax sugar - extension method")]
+        public void JsTranslator_EnumerableOrderBy(string binding, string key, Type comparedType)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.arrayHelper.orderBy(ObjectArray,function(item){{return ko.unwrap(item).{key}();}})", result);
+            var typeHash = (comparedType.IsEnum) ? $"\"{comparedType.GetTypeHash()}\"" : "null";
+            Assert.AreEqual($"dotvvm.arrayHelper.orderBy(ObjectArray(),function(item){{return ko.unwrap(item).{key}();}},{typeHash})", result);
         }
 
         [TestMethod]
@@ -635,18 +637,19 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [DataRow("Enumerable.OrderByDescending(ObjectArray, (TestComparisonType item) => item.Int)", "Int", DisplayName = "Regular call of Enumerable.OrderByDescending")]
-        [DataRow("Enumerable.OrderByDescending(ObjectArray, (TestComparisonType item) => item.Bool)", "Bool", DisplayName = "Regular call of Enumerable.OrderByDescending")]
-        [DataRow("Enumerable.OrderByDescending(ObjectArray, (TestComparisonType item) => item.String)", "String", DisplayName = "Regular call of Enumerable.OrderByDescending")]
-        [DataRow("Enumerable.OrderByDescending(ObjectArray, (TestComparisonType item) => item.Enum)", "Enum", DisplayName = "Regular call of Enumerable.OrderByDescending")]
-        [DataRow("ObjectArray.OrderByDescending((TestComparisonType item) => item.Int)", "Int", DisplayName = "Syntax sugar - extension method")]
-        [DataRow("ObjectArray.OrderByDescending((TestComparisonType item) => item.Bool)", "Bool", DisplayName = "Syntax sugar - extension method")]
-        [DataRow("ObjectArray.OrderByDescending((TestComparisonType item) => item.String)", "String", DisplayName = "Syntax sugar - extension method")]
-        [DataRow("ObjectArray.OrderByDescending((TestComparisonType item) => item.Enum)", "Enum", DisplayName = "Syntax sugar - extension method")]
-        public void JsTranslator_EnumerableOrderByDescending(string binding, string key)
+        [DataRow("Enumerable.OrderByDescending(ObjectArray, (TestComparisonType item) => item.Int)", "Int", typeof(int), DisplayName = "Regular call of Enumerable.OrderByDescending")]
+        [DataRow("Enumerable.OrderByDescending(ObjectArray, (TestComparisonType item) => item.Bool)", "Bool", typeof(bool), DisplayName = "Regular call of Enumerable.OrderByDescending")]
+        [DataRow("Enumerable.OrderByDescending(ObjectArray, (TestComparisonType item) => item.String)", "String", typeof(string), DisplayName = "Regular call of Enumerable.OrderByDescending")]
+        [DataRow("Enumerable.OrderByDescending(ObjectArray, (TestComparisonType item) => item.Enum)", "Enum", typeof(TestComparisonType.TestEnum), DisplayName = "Regular call of Enumerable.OrderByDescending")]
+        [DataRow("ObjectArray.OrderByDescending((TestComparisonType item) => item.Int)", "Int", typeof(int), DisplayName = "Syntax sugar - extension method")]
+        [DataRow("ObjectArray.OrderByDescending((TestComparisonType item) => item.Bool)", "Bool", typeof(bool), DisplayName = "Syntax sugar - extension method")]
+        [DataRow("ObjectArray.OrderByDescending((TestComparisonType item) => item.String)", "String", typeof(string), DisplayName = "Syntax sugar - extension method")]
+        [DataRow("ObjectArray.OrderByDescending((TestComparisonType item) => item.Enum)", "Enum", typeof(TestComparisonType.TestEnum), DisplayName = "Syntax sugar - extension method")]
+        public void JsTranslator_EnumerableOrderByDescending(string binding, string key, Type comparedType)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.arrayHelper.orderByDesc(ObjectArray,function(item){{return ko.unwrap(item).{key}();}})", result);
+            var typeHash = (comparedType.IsEnum) ? $"\"{comparedType.GetTypeHash()}\"" : "null";
+            Assert.AreEqual($"dotvvm.arrayHelper.orderByDesc(ObjectArray(),function(item){{return ko.unwrap(item).{key}();}},{typeHash})", result);
         }
 
         [TestMethod]

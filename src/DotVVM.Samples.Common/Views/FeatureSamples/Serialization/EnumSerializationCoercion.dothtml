@@ -1,0 +1,23 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Serialization.EnumSerializationCoercionViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>Enum serialization test</h1>
+
+    <p>Enum value with string equivalent: <span class="result-with-string">{{value: EnumWithString}}</span></p>
+
+    <p>Enum value without string equivalent: <span class="result-without-string">{{value: EnumWithoutString}}</span></p>
+
+    <dot:Button Text="Change values" Click="{command: ChangeValues()}" />
+
+</body>
+</html>
+
+

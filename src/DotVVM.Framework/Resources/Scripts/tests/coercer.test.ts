@@ -176,6 +176,51 @@ test("Date - invalid, undefined", () => {
     expect(result.isError).toBeTruthy();
 })
 
+test("TimeSpan - valid, zero", () => {
+    const result = tryCoerce("00:00:00", "TimeSpan");
+    expect(result.wasCoerced).toBeFalsy();
+    expect(result.value).toEqual("00:00:00");
+})
+
+test("TimeSpan - valid, from number", () => {
+    const result = tryCoerce(-3600000, "TimeSpan");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual("-01:00:00");
+})
+
+test("TimeSpan - valid, string representation", () => {
+    const result = tryCoerce("1.02:03:45.678", "TimeSpan");
+    expect(result.wasCoerced).toBeFalsy();
+    expect(result.value).toEqual("1.02:03:45.6780000");
+})
+
+test("TimeSpan - valid, string representation, reformatting", () => {
+    const result = tryCoerce("2:03:45.678", "TimeSpan");
+    expect(result.wasCoerced).toBeFalsy();
+    expect(result.value).toEqual("02:03:45.6780000");
+})
+
+test("TimeSpan - valid, string representation, 24hours reformatting", () => {
+    const result = tryCoerce("-26:03:45.678", "TimeSpan");
+    expect(result.wasCoerced).toBeFalsy();
+    expect(result.value).toEqual("-1.02:03:45.6780000");
+})
+
+test("TimeSpan - invalid, string representation", () => {
+    const result = tryCoerce("", "TimeSpan");
+    expect(result.isError).toBeTruthy();
+})
+
+test("TimeSpan - invalid, null", () => {
+    const result = tryCoerce(null, "TimeSpan");
+    expect(result.isError).toBeTruthy();
+})
+
+test("TimeSpan - invalid, undefined", () => {
+    const result = tryCoerce(void 0, "TimeSpan");
+    expect(result.isError).toBeTruthy();
+})
+
 
 test("Guid - valid", () => {
     const result = tryCoerce("00000000-0000-0000-0000-000000000000", "Guid");
@@ -272,6 +317,41 @@ test("string - invalid, object", () => {
 
 test("string - invalid, array", () => {
     const result = tryCoerce([], "String");
+    expect(result.isError).toBeTruthy();
+})
+
+
+test("enum - valid, string", () => {
+    const result = tryCoerce("One", "e1");
+    expect(result.wasCoerced).toBeFalsy();
+    expect(result.value).toEqual("One");
+})
+
+test("enum - valid, number", () => {
+    const result = tryCoerce(1, "e1");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual("One");
+})
+
+test("enum - valid, number in string", () => {
+    const result = tryCoerce("1", "e1");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual("One");
+})
+
+test("enum - valid, number without string representation", () => {
+    const result = tryCoerce(3, "e1");
+    expect(result.wasCoerced).toBeFalsy();
+    expect(result.value).toEqual(3);
+})
+
+test("enum - invalid, undefined", () => {
+    const result = tryCoerce(void 0, "e1");
+    expect(result.isError).toBeTruthy();
+})
+
+test("enum - invalid, null", () => {
+    const result = tryCoerce(null, "e1");
     expect(result.isError).toBeTruthy();
 })
 

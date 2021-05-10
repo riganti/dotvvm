@@ -19,9 +19,9 @@ namespace DotVVM.Samples.Tests.Complex
                 var enabled = browser.Single("enabled", SelectByDataUi);
                 AssertUI.TextEquals(enabled, "false");
                 browser.Single("btn-off", SelectByDataUi).Click();
-                browser.WaitFor(() => AssertUI.TextEquals(enabled, "true"), 1000);
+                AssertUI.TextEquals(enabled, "true");
                 browser.Single("btn-on", SelectByDataUi).Click();
-                browser.WaitFor(() => AssertUI.TextEquals(enabled, "false"), 1000);
+                AssertUI.TextEquals(enabled, "false");
             });
         }
 
