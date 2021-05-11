@@ -61,29 +61,65 @@ namespace DotVVM.Analysers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Bindable properties must be serializable..
+        ///   Looks up a localized string similar to Fields are not supported.
         /// </summary>
-        internal static string ViewModelSerializabilityDescription {
+        internal static string Serializability_DoNotUseFields_Description {
             get {
-                return ResourceManager.GetString("ViewModelSerializabilityDescription", resourceCulture);
+                return ResourceManager.GetString("Serializability_DoNotUseFields_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fields are not supported in viewModels.
+        /// </summary>
+        internal static string Serializability_DoNotUseFields_Message {
+            get {
+                return ResourceManager.GetString("Serializability_DoNotUseFields_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The state must be represented using public properties..
+        /// </summary>
+        internal static string Serializability_DoNotUseFields_Title {
+            get {
+                return ResourceManager.GetString("Serializability_DoNotUseFields_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported property type.
+        /// </summary>
+        internal static string Serializability_NonSerializableType_Description {
+            get {
+                return ResourceManager.GetString("Serializability_NonSerializableType_Description", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Property of type &apos;{0}&apos; is not serializable.
         /// </summary>
-        internal static string ViewModelSerializabilityMessage {
+        internal static string Serializability_NonSerializableType_Message {
             get {
-                return ResourceManager.GetString("ViewModelSerializabilityMessage", resourceCulture);
+                return ResourceManager.GetString("Serializability_NonSerializableType_Message", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Property not serializable.
+        ///   Looks up a localized string similar to Properties must be serializable..
         /// </summary>
-        internal static string ViewModelSerializabilityTitle {
+        internal static string Serializability_NonSerializableType_Title {
             get {
-                return ResourceManager.GetString("ViewModelSerializabilityTitle", resourceCulture);
+                return ResourceManager.GetString("Serializability_NonSerializableType_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Property of type &apos;{0}&apos; is not supported by DotVVM.
+        /// </summary>
+        internal static string Serializability_NonSupportedType_Message {
+            get {
+                return ResourceManager.GetString("Serializability_NonSupportedType_Message", resourceCulture);
             }
         }
     }
