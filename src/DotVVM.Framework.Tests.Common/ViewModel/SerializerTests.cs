@@ -10,6 +10,7 @@ using System.Linq;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
+using System.Text;
 
 namespace DotVVM.Framework.Tests.Common.ViewModel
 {
@@ -148,6 +149,34 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
             Assert.AreEqual(serialized, Serialize(deserialized, out var _, false));
         }
 
+        [TestMethod]
+        [DataRow(null)]
+        [DataRow(new byte[] { })]
+        [DataRow(new byte[] { 1 })]
+        [DataRow(new byte[] { 1, 2, 3 })]
+        public void CustomJsonConverters_ByteArray(byte[] array)
+        {
+            using var stream = new MemoryStream();
+            // Serialize array
+            using (var writer = new JsonTextWriter(new StreamWriter(stream, Encoding.UTF8, leaveOpen: true)))
+            {
+                new DotvvmByteArrayConverter().WriteJson(writer, array, new JsonSerializer());
+                writer.Flush();
+            }
+
+            // Deserialize array
+            stream.Position = 0;
+            byte[] deserialized;
+            using (var reader = new JsonTextReader(new StreamReader(stream, Encoding.UTF8)))
+            {
+                while (reader.TokenType == JsonToken.None)
+                    reader.Read();
+
+                deserialized = (byte[])new DotvvmByteArrayConverter().ReadJson(reader, typeof(byte[]), null, new JsonSerializer());
+            }
+
+            CollectionAssert.AreEqual(array, deserialized);
+        }
 
         [TestMethod]
         public void SupportTuples()
@@ -197,6 +226,11 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
     public class TestViewModelWithNestedProtectedData
     {
         public DataNode Root { get; set; }
+    }
+
+    public class TestViewModelWithByteArray
+    {
+        public byte[] Bytes { get; set; }
     }
 
     public class TestViewModelWithCollectionOfNestedProtectedData

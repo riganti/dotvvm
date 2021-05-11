@@ -1,4 +1,5 @@
-﻿using DotVVM.Samples.Tests.Base;
+﻿using System.Linq;
+using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
 using Riganti.Selenium.Core;
@@ -233,6 +234,22 @@ namespace DotVVM.Samples.Tests.Feature
                     AssertUI.TextEquals(result, "-1");
                     AssertUI.TextEquals(result2, "Two");
                 }, 5000);
+            });
+        }
+
+        [Fact]
+        public void Feature_Serialization_ByteArray()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_ByteArray);
+
+                var spans = browser.FindElements("span");
+                Assert.Equal("Size: 5", spans.First().GetText());
+                Assert.Equal("1", spans.Skip(1).First().GetText());
+                Assert.Equal("2", spans.Skip(2).First().GetText());
+                Assert.Equal("3", spans.Skip(3).First().GetText());
+                Assert.Equal("4", spans.Skip(4).First().GetText());
+                Assert.Equal("5", spans.Skip(5).First().GetText());
             });
         }
 
