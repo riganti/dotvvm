@@ -23,7 +23,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     switch (reader.TokenType)
                     {
                         case JsonToken.Integer:
-                            list.Add((byte)reader.Value);
+                            list.Add(Convert.ToByte(reader.Value));
                             break;
                         case JsonToken.EndArray:
                             return list.ToArray();
