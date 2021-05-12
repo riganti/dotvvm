@@ -19,6 +19,15 @@ namespace DotVVM.Samples.Common.Views.FeatureSamples.PostbackAbortSignal
         public static readonly DotvvmProperty LoadProperty
             = DotvvmProperty.Register<Command, Loader>(c => c.Load, null);
 
+        public string Text
+        {
+            get { return (string)GetValue(TextProperty); }
+            set { SetValue(TextProperty, value); }
+        }
+        public static readonly DotvvmProperty TextProperty
+            = DotvvmProperty.Register<string, Loader>(c => c.Text, null);
+
+
         public Loader() : base("input")
         {
 
@@ -42,7 +51,7 @@ namespace DotVVM.Samples.Common.Views.FeatureSamples.PostbackAbortSignal
                 writer.AddAttribute("onclick", $"window.abortController=new AbortController(); {call}.catch({@catch}); event.stopPropagation();return false;", true, ";");
             }
 
-            writer.AddAttribute("value", "Load data");
+            writer.AddAttribute("value", Text);
             writer.AddAttribute("type", "button");
         }
     }

@@ -8,7 +8,8 @@
     <title></title>
 </head>
 <body>
-    <cc:Loader value="Load data!" Load="{staticCommand: Data = LoadAbortViewModel.LoadData().Result}" />
+    <cc:Loader Text="Load data by static command!" Load="{staticCommand: Data = LoadAbortViewModel.LoadData().Result}" />
+    <cc:Loader Text="Load data by command!" Load="{command: Data = LoadAbortViewModel.LoadData().Result}" />
     <dot:Button onclick="javascript: window.abortController.abort()">Abort</dot:Button>
     <span class="message"></span>
     <dot:Repeater class="data" WrapperTagName="ul" DataSource="{value: Data}">
