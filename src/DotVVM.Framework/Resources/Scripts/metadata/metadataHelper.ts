@@ -17,7 +17,7 @@ export function getEnumMetadata(enumMetadataId: string): EnumTypeMetadata {
     return metadata as EnumTypeMetadata;
 }
 
-export function getEnumValue(identifier: string | number, enumMetadataId: string): number | null {
+export function getEnumValue(identifier: string | number, enumMetadataId: string): number | undefined {
     let metadata = getEnumMetadata(enumMetadataId);
     if (typeof identifier === "string") {
         return metadata.values[identifier];
