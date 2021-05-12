@@ -379,5 +379,5 @@ test("Postback: AbortSignal", async () => {
     await delay(50)
     abortController.abort()
 
-    expect(postbackPromise).rejects.toEqual(new Error("Request aborted"))
+    expect(postbackPromise).rejects.toMatchObject( {reason: {type: "abort"}})
 })
