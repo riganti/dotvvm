@@ -51,6 +51,9 @@ export async function postBack(
         return result;
 
     } catch (err) {
+        if (abortSignal && abortSignal.aborted) {
+            throw new DotvvmPostbackError({ type: "abort", options })
+        }
 
         if (err instanceof DotvvmPostbackError) {
             const wasInterrupted = isInterruptingErrorReason(err);
@@ -151,6 +154,9 @@ export async function applyPostbackHandlers(
         const result = await commit(...args);
         return result;
     } catch (err) {
+        if (abortSignal && abortSignal.aborted) {
+            throw new DotvvmPostbackError({ type: "abort", options })
+        }
         
         if (err instanceof DotvvmPostbackError) {
 
