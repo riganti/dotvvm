@@ -1,0 +1,19 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.PostbackAbortSignal.LoadAbortViewModel, DotVVM.Samples.Common
+@import DotVVM.Samples.Common.ViewModels.FeatureSamples.PostbackAbortSignal
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <cc:Loader value="Load data!" Load="{staticCommand: Data = LoadAbortViewModel.LoadData().Result}" />
+    <dot:Button onclick="javascript: window.abortController.abort()">Abort</dot:Button>
+    <dot:Repeater WrapperTagName="ul" DataSource="{value: Data}">
+        <li>{{value: _this}}</li>
+    </dot:Repeater>
+</body>
+</html>
+
+
