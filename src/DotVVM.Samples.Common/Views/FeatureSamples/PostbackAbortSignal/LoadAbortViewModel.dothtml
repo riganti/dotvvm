@@ -10,7 +10,8 @@
 <body>
     <cc:Loader value="Load data!" Load="{staticCommand: Data = LoadAbortViewModel.LoadData().Result}" />
     <dot:Button onclick="javascript: window.abortController.abort()">Abort</dot:Button>
-    <dot:Repeater WrapperTagName="ul" DataSource="{value: Data}">
+    <span class="message"></span>
+    <dot:Repeater class="data" WrapperTagName="ul" DataSource="{value: Data}">
         <li>{{value: _this}}</li>
     </dot:Repeater>
 </body>

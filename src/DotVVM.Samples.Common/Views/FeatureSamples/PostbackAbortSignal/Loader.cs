@@ -31,11 +31,15 @@ namespace DotVVM.Samples.Common.Views.FeatureSamples.PostbackAbortSignal
             var loadBinding = GetCommandBinding(LoadProperty);
             if (loadBinding != null)
             {
-                writer.AddAttribute("onclick", "window.abortController=new AbortController(); "+ KnockoutHelper.GenerateClientPostBackScript(
+                var call = KnockoutHelper.GenerateClientPostBackExpression(
                     nameof(Load),
                     loadBinding,
                     this,
-                    new PostbackScriptOptions(abortSignal: new CodeParameterAssignment("window.abortController.signal", OperatorPrecedence.Max))), true, ";");
+                    new PostbackScriptOptions(abortSignal: new CodeParameterAssignment("window.abortController.signal", OperatorPrecedence.Max)));
+
+                var @catch = "function (error) {if(error.reason.type===\"abort\"){document.getElementsByClassName(\"message\")[0].innerText=\"aborted\";}}";
+
+                writer.AddAttribute("onclick", $"window.abortController=new AbortController(); {call}.catch({@catch}); event.stopPropagation();return false;", true, ";");
             }
 
             writer.AddAttribute("value", "Load data");
