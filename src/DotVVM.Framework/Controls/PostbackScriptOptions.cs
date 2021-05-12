@@ -12,6 +12,7 @@ namespace DotVVM.Framework.Controls
         public CodeParameterAssignment? KoContext { get; set; }
         public CodeParameterAssignment? CommandArgs { get; set; }
         public bool AllowPostbackHandlers { get; }
+        public CodeParameterAssignment? AbortSignal { get; }
 
         public PostbackScriptOptions(bool useWindowSetTimeout = false,
             bool? returnValue = false,
@@ -19,7 +20,8 @@ namespace DotVVM.Framework.Controls
             string elementAccessor = "this",
             CodeParameterAssignment? koContext = null,
             CodeParameterAssignment? commandArgs = null,
-            bool allowPostbackHandlers = true)
+            bool allowPostbackHandlers = true,
+            CodeParameterAssignment? abortSignal = null)
         {
             this.UseWindowSetTimeout = useWindowSetTimeout;
             this.ReturnValue = returnValue;
@@ -28,6 +30,7 @@ namespace DotVVM.Framework.Controls
             this.KoContext = koContext;
             this.CommandArgs = commandArgs;
             this.AllowPostbackHandlers = allowPostbackHandlers;
+            AbortSignal = abortSignal;
         }
     }
 }

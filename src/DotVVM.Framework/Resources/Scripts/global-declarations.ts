@@ -22,6 +22,7 @@ type DotvvmPostbackErrorReason =
     | { type: 'serverError', status?: number, responseObject: any, response?: Response }
     | { type: 'event' }
     | { type: 'validation', responseObject: any, response?: Response }
+    | { type: 'abort' }
     & { options?: PostbackOptions }
 
 type PostbackCommandType = "postback" | "staticCommand" | "spaNavigation"
@@ -33,7 +34,8 @@ type PostbackOptions = {
     readonly sender?: HTMLElement
     readonly viewModel?: any
     serverResponseObject?: any
-    validationTargetPath?: string
+    validationTargetPath?: string,
+    abortSignal?: AbortSignal
 }
 
 type DotvvmErrorEventArgs = PostbackOptions & {

@@ -75,6 +75,7 @@ namespace DotVVM.Framework.Binding.Expressions
         public static CodeSymbolicParameter OptionalKnockoutContextParameter = new CodeSymbolicParameter("CommandBindingExpression.OptionalKnockoutContextParameter", CodeParameterAssignment.FromIdentifier("null"));
         public static CodeSymbolicParameter PostbackHandlersParameter = new CodeSymbolicParameter("CommandBindingExpression.PostbackHandlersParameter");
         public static CodeSymbolicParameter CommandArgumentsParameter = new CodeSymbolicParameter("CommandBindingExpression.CommandArgumentsParameter");
+        public static CodeSymbolicParameter AbortSignalParameter = new CodeSymbolicParameter("CommandBindingExpression.AbortSignalParameter");
 
         private static ParametrizedCode createJavascriptPostbackInvocation(JsExpression? commandArgs) =>
             new JsIdentifierExpression("dotvvm").Member("postBack").Invoke(
@@ -84,7 +85,8 @@ namespace DotVVM.Framework.Binding.Expressions
                 new JsSymbolicParameter(ControlUniqueIdParameter),
                 new JsSymbolicParameter(OptionalKnockoutContextParameter),
                 new JsSymbolicParameter(PostbackHandlersParameter),
-                commandArgs
+                commandArgs,
+                new JsSymbolicParameter(AbortSignalParameter)
             ).FormatParametrizedScript();
 
         private static ParametrizedCode javascriptPostbackInvocation = createJavascriptPostbackInvocation(
