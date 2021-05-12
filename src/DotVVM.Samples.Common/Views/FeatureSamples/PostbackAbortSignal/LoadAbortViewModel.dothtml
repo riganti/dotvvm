@@ -8,11 +8,11 @@
     <title></title>
 </head>
 <body>
-    <cc:Loader Text="Load data by static command!" Load="{staticCommand: Data = LoadAbortViewModel.LoadData().Result}" />
-    <cc:Loader Text="Load data by command!" Load="{command: Data = LoadAbortViewModel.LoadData().Result}" />
-    <dot:Button onclick="javascript: window.abortController.abort()">Abort</dot:Button>
+    <cc:Loader UITests.Name="static-command" Text="Load data by static command!" Load="{staticCommand: Data = LoadAbortViewModel.LoadData().Result}" />
+    <cc:Loader UITests.Name="command" Text="Load data by command!" Load="{command: Data = LoadAbortViewModel.LoadData().Result}" />
+    <dot:Button UITests.Name="abort" onclick="javascript: window.abortController.abort()">Abort</dot:Button>
     <span class="message"></span>
-    <dot:Repeater class="data" WrapperTagName="ul" DataSource="{value: Data}">
+    <dot:Repeater UITests.Name="data" WrapperTagName="ul" DataSource="{value: Data}">
         <li>{{value: _this}}</li>
     </dot:Repeater>
 </body>
