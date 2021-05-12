@@ -52,7 +52,7 @@ export async function postBack(
 
     } catch (err) {
         if (abortSignal && abortSignal.aborted) {
-            throw new DotvvmPostbackError({ type: "abort", options })
+            err = new DotvvmPostbackError({ type: "abort", options })
         }
 
         if (err instanceof DotvvmPostbackError) {
@@ -155,7 +155,7 @@ export async function applyPostbackHandlers(
         return result;
     } catch (err) {
         if (abortSignal && abortSignal.aborted) {
-            throw new DotvvmPostbackError({ type: "abort", options })
+            err = new DotvvmPostbackError({ type: "abort", options })
         }
         
         if (err instanceof DotvvmPostbackError) {
@@ -292,10 +292,10 @@ export function sortHandlers(handlers: DotvvmPostbackHandler[]): DotvvmPostbackH
 }
 
 function isInterruptingErrorReason(err: DotvvmPostbackError) {
-    return err.reason.type == "handler" || err.reason.type == "event";
+    return ["event", "handler", "abort"].includes(err.reason.type);
 }
 function shouldTriggerErrorEvent(err: DotvvmPostbackError) {
-    return err.reason.type == "network" || err.reason.type == "serverError";
+    return ["network", "serverError" ].includes(err.reason.type);
 }
 function extractServerResponseObject(err: DotvvmPostbackError) {
     if (!err.reason) return null;
