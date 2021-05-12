@@ -11,16 +11,17 @@ export function getItem<Key, Value>(dictionary: Dictionary<Key, Value>, identifi
     throw Error("Provided key \"" + identifier + "\" is not present in the dictionary!");
 }
 
-export function setItem<Key, Value>(dictionary: Dictionary<Key, Value>, identifier: Key, value: Value, observable: any): void {
+export function setItem<Key, Value>(observable: any, identifier: Key, value: Value): void {
+    const dictionary = [...observable.state]
     for (let index = 0; index < dictionary.length; index++) {
-        let keyValuePair = ko.unwrap(dictionary[index]);
-        if (ko.unwrap(keyValuePair.Key) == identifier) {
-            (keyValuePair.Value as any).setState(value);
+        let keyValuePair = dictionary[index];
+        if (keyValuePair.Key == identifier) {
+            dictionary[index] = { Value: value, Key: keyValuePair.Key }
+            observable.setState(dictionary)
             return;
         }
     }
-
     // Create new record if we did not find provided key
-    let patch = dictionary.map(function (e) { return {}; }).concat({ "Key": identifier, "Value": value });
-    observable.patchState(patch);
+    dictionary.push({ "Key": identifier, "Value": value });
+    observable.setState(dictionary);
 }

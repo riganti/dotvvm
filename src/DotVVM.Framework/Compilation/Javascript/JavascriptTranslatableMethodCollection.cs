@@ -121,7 +121,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             JsExpression dictionaryGetIndexer(JsExpression[] args, MethodInfo method) =>
                 new JsIdentifierExpression("dotvvm").Member("dictionaryHelper").Member("getItem").Invoke(args[0], args[1]);
             JsExpression dictionarySetIndexer(JsExpression[] args, MethodInfo method) =>
-                new JsIdentifierExpression("dotvvm").Member("dictionaryHelper").Member("setItem").Invoke(args[0].Clone(), args[1], args[2], args[0].EnsureObservableWrapped());
+                new JsIdentifierExpression("dotvvm").Member("dictionaryHelper").Member("setItem").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1], args[2]);
 
             AddMethodTranslator(typeof(IList), "get_Item", new GenericMethodCompiler(listIndexer));
             AddMethodTranslator(typeof(IList<>), "get_Item", new GenericMethodCompiler(listIndexer));

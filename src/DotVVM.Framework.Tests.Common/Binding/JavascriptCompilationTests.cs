@@ -396,7 +396,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_DictionaryIndexer_Set()
         {
             var result = CompileBinding("Dictionary[1] = 123", new[] { typeof(TestViewModel5) }, typeof(void));
-            Assert.AreEqual("dotvvm.dictionaryHelper.setItem(Dictionary(),1,123,Dictionary)", result);
+            Assert.AreEqual("dotvvm.dictionaryHelper.setItem(Dictionary,1,123)", result);
         }
 
         [TestMethod]
