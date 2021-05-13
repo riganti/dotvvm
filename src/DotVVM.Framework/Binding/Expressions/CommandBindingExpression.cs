@@ -85,7 +85,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 new JsSymbolicParameter(ControlUniqueIdParameter),
                 new JsSymbolicParameter(OptionalKnockoutContextParameter),
                 new JsSymbolicParameter(PostbackHandlersParameter),
-                commandArgs,
+                commandArgs ?? new JsLiteral(new object[] { }),
                 new JsSymbolicParameter(AbortSignalParameter)
             ).FormatParametrizedScript();
 
