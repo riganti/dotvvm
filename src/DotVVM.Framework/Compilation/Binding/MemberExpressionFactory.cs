@@ -98,7 +98,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 if (thisType.ContainsGenericParameters)
                 {
-                    return ReflectionUtils.IsAssignableToGenericType(target.Type, thisType.GetGenericTypeDefinition());
+                    return ReflectionUtils.IsAssignableToGenericType(target.Type, thisType.GetGenericTypeDefinition(), out _);
                 }
                 else
                 {

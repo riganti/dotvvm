@@ -145,11 +145,11 @@ namespace DotVVM.Framework.Compilation.Inference
                 // Check that the given types can be compatible after instantiation
                 // TODO: we should also check for any generic constraints
                 var genericTypeDef = generic.GetGenericTypeDefinition();
-                if (!concrete.IsAssignableToGenericType(genericTypeDef))
+                if (!concrete.IsAssignableToGenericType(genericTypeDef, out var commonType))
                     return false;
 
                 var genericElementTypes = generic.GetGenericArguments();
-                var concreteElementTypes = concrete.GetGenericArguments();
+                var concreteElementTypes = commonType.GetGenericArguments();
                 for (var index = 0; index < genericElementTypes.Length; index++)
                 {
                     var genericArg = genericElementTypes[index];
