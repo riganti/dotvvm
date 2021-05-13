@@ -360,7 +360,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var body = Visit(node.BodyExpression);
 
             ThrowOnErrors();
-            return CreateLambdaExpression(body, lambdaParameters, typeInferenceData.HasReturnValue);
+            return CreateLambdaExpression(body, lambdaParameters, typeInferenceData.Type);
         }
 
         protected override Expression VisitLambdaParameter(LambdaParameterBindingParserNode node)
@@ -381,21 +381,28 @@ namespace DotVVM.Framework.Compilation.Binding
             }
         }
 
-        private Expression CreateLambdaExpression(Expression body, ParameterExpression[] parameters, bool hasReturnValue)
+        private Expression CreateLambdaExpression(Expression body, ParameterExpression[] parameters, Type? delegateType)
         {
-            if (!hasReturnValue)
+            if (delegateType != null)
             {
-                // We must validate that lambda body contains a valid statement
-                if ((body.NodeType != ExpressionType.Default) && (body.NodeType != ExpressionType.Block) && (body.NodeType != ExpressionType.Call) && (body.NodeType != ExpressionType.Assign))
-                    throw new DotvvmCompilationException($"Only method invocations and assignments can be used as statements.");
+                if (delegateType.Name.StartsWith("Action"))
+                {
+                    // We must validate that lambda body contains a valid statement
+                    if ((body.NodeType != ExpressionType.Default) && (body.NodeType != ExpressionType.Block) && (body.NodeType != ExpressionType.Call) && (body.NodeType != ExpressionType.Assign))
+                        throw new DotvvmCompilationException($"Only method invocations and assignments can be used as statements.");
 
-                // Make sure the result type will be void by adding an empty expression
-                return Expression.Lambda(Expression.Block(body, Expression.Empty()), parameters);
+                    // Make sure the result type will be void by adding an empty expression
+                    return Expression.Lambda(Expression.Block(body, Expression.Empty()), parameters);
+                }
+                else if (delegateType.Name == "Predicate`1")
+                {
+                    var type = delegateType.GetGenericTypeDefinition().MakeGenericType(parameters.Single().Type);
+                    return Expression.Lambda(type, body, parameters);
+                }
             }
-            else
-            {
-                return Expression.Lambda(body, parameters);
-            }
+
+            // Assume delegate is a func
+            return Expression.Lambda(body, parameters);
         }
 
         protected override Expression VisitBlock(BlockBindingParserNode node)

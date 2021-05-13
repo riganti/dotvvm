@@ -59,8 +59,7 @@ namespace DotVVM.Framework.Compilation.Inference
                 return new LambdaTypeInferenceResult(
                     result: true,
                     type: candidate.delegateType,
-                    parameters: candidate.delegateParams,
-                    hasReturnValue: candidate.isFunc);
+                    parameters: candidate.delegateParams);
             }
 
             return new LambdaTypeInferenceResult(result: false);
@@ -76,8 +75,7 @@ namespace DotVVM.Framework.Compilation.Inference
                 result = new LambdaTypeInferenceResult(
                     result: true,
                     type: /* ambiguous */ null,
-                    parameters: parameters,
-                    hasReturnValue: true);
+                    parameters: parameters);
                 return true;
             }
 

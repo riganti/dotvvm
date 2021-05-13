@@ -12,14 +12,12 @@ namespace DotVVM.Framework.Compilation.Inference.Results
         public bool Result { get; private set; }
         public Type? Type { get; private set; }
         public Type[]? Parameters { get; private set; }
-        public bool HasReturnValue { get; private set; }
 
-        public LambdaTypeInferenceResult(bool result, Type? type = null, Type[]? parameters = null, bool hasReturnValue = true)
+        public LambdaTypeInferenceResult(bool result, Type? type = null, Type[]? parameters = null)
         {
             Result = result;
             Type = type;
             Parameters = parameters;
-            HasReturnValue = hasReturnValue;
         }
     }
 }

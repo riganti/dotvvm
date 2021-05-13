@@ -267,6 +267,16 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("List.RemoveAll(item => item % 2 != 0)")]
+        public void BindingCompiler_Valid_LambdaToPredicate(string expr)
+        {
+            var viewModel = new TestViewModel() { List = new List<int>() { 1, 2, 3 } };
+            var removedCount = ExecuteBinding(expr, new[] { viewModel }, null, expectedType: typeof(int));
+            Assert.AreEqual(2, removedCount);
+            CollectionAssert.AreEqual(new List<int> { 2 }, viewModel.List);
+        }
+
+        [TestMethod]
         [DataRow("ActionInvoker(arg => StringProp = arg)")]
         [DataRow("ActionInvoker(arg => StringProp = ActionInvoker(innerArg => StringProp = innerArg))")]
 
@@ -738,6 +748,7 @@ namespace DotVVM.Framework.Tests.Binding
         public object Time { get; set; } = TimeSpan.FromSeconds(5);
         public Guid GuidProp { get; set; }
         public Tuple<int, bool> Tuple { get; set; }
+        public List<int> List { get; set; }
 
         public long LongProperty { get; set; }
 
