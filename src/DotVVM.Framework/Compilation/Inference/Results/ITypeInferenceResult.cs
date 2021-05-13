@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Compilation.Inference.Results
 {
     internal interface ITypeInferenceResult
     {
-        public bool Result { get; }
-        public Type? Type { get; }
+        bool Result { get; }
+        Type? Type { get; }
     }
 }
