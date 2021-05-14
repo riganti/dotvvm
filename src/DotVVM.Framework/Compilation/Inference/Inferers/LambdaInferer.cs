@@ -16,14 +16,14 @@ namespace DotVVM.Framework.Compilation.Inference
         LambdaTypeInferenceResult IFluentInferer.Lambda(int argsCount)
         {
             var found = false;
-            var viableCandidates = new List<(Type delegateType, Type[] delegateParams, bool isFunc)>();
+            var viableCandidates = new List<(Type delegateType, Type[] delegateParams)>();
 
             if (contextStack.Count == 0)
             {
-                if (expectedType != null && TryMatchDelegate(null, argsCount, expectedType, out var parameters, out var isFunc, out var _))
+                if (expectedType != null && TryMatchDelegate(null, argsCount, expectedType, out var parameters))
                 {
                     found = true;
-                    viableCandidates.Add((expectedType, parameters, isFunc));
+                    viableCandidates.Add((expectedType, parameters));
                 }
             }
             else
@@ -39,10 +39,10 @@ namespace DotVVM.Framework.Compilation.Inference
                         continue;
 
                     var delegateType = parameters[index].ParameterType;
-                    if (TryMatchDelegate(context, argsCount, delegateType, out var delegateParameters, out var isFunc, out var _))
+                    if (TryMatchDelegate(context, argsCount, delegateType, out var delegateParameters))
                     {
                         found = true;
-                        viableCandidates.Add((delegateType, delegateParameters, isFunc));
+                        viableCandidates.Add((delegateType, delegateParameters));
                     }
                 }
             }
@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Compilation.Inference
             return new LambdaTypeInferenceResult(result: false);
         }
 
-        private bool TryDisambiguateCandidates(List<(Type type, Type[] parameters, bool returnValue)> viableCandidates, out LambdaTypeInferenceResult result)
+        private bool TryDisambiguateCandidates(List<(Type type, Type[] parameters)> viableCandidates, out LambdaTypeInferenceResult result)
         {
             var parameters = viableCandidates.First().parameters;
             if (viableCandidates.All(candidate => Enumerable.SequenceEqual(parameters, candidate.parameters)))
@@ -84,10 +84,8 @@ namespace DotVVM.Framework.Compilation.Inference
             return false;
         }
 
-        private bool TryMatchDelegate(InfererContext? context, int argsCount, Type delegateType, [NotNullWhen(true)] out Type[]? parameters, out bool isFunc, out bool isAction)
+        private bool TryMatchDelegate(InfererContext? context, int argsCount, Type delegateType, [NotNullWhen(true)] out Type[]? parameters)
         {
-            isFunc = false;
-            isAction = false;
             parameters = null;
 
             if (!ReflectionUtils.IsDelegate(delegateType))
@@ -101,8 +99,6 @@ namespace DotVVM.Framework.Compilation.Inference
             if (!TryInstantiateDelegateParameters(delegateType, argsCount, generics, out parameters))
                 return false;
 
-            isFunc = delegateType.Name.StartsWith("Func");
-            isAction = delegateType.Name.StartsWith("Action");
             return true;
         }
 
