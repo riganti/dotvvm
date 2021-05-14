@@ -279,6 +279,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow("ActionInvoker(arg => StringProp = arg)")]
         [DataRow("ActionInvoker(arg => StringProp = ActionInvoker(innerArg => StringProp = innerArg))")]
+        [DataRow("Action2Invoker((arg1, arg2) => StringProp = arg1 + arg2)")]
 
         public void BindingCompiler_Valid_ParameterLambdaToAction(string expr)
         {
@@ -821,6 +822,7 @@ namespace DotVVM.Framework.Tests.Binding
         public string DelegateInvoker(Action<string> action) { action(default); return "Action"; }
 
         public string ActionInvoker(Action<string> action) { action(default); return "Action"; }
+        public string Action2Invoker(Action<string, string> action) { action(default, default); return "Action"; }
     }
 
     class TestViewModel2

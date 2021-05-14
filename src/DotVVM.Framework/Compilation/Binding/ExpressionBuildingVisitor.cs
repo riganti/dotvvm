@@ -383,9 +383,9 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private Expression CreateLambdaExpression(Expression body, ParameterExpression[] parameters, Type? delegateType)
         {
-            if (delegateType != null)
+            if (delegateType != null && delegateType.Namespace == "System")
             {
-                if (delegateType.Name.StartsWith("Action"))
+                if (delegateType.Name == "Action" || delegateType.Name == $"Action`{parameters.Length}")
                 {
                     // We must validate that lambda body contains a valid statement
                     if ((body.NodeType != ExpressionType.Default) && (body.NodeType != ExpressionType.Block) && (body.NodeType != ExpressionType.Call) && (body.NodeType != ExpressionType.Assign))
@@ -401,7 +401,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
             }
 
-            // Assume delegate is a func
+            // Assume delegate is a System.Func<...>
             return Expression.Lambda(body, parameters);
         }
 
