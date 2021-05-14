@@ -62,10 +62,10 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.TextEquals(welcome, "Welcome");
 
                 browser.Single("button", SelectByDataUi).Click();
-                browser.WaitFor(() => AssertUI.AlertTextEquals(browser, "javascript resource loaded!"), 5000);
+                AssertUI.AlertTextEquals(browser, "javascript resource loaded!");
 
                 browser.ConfirmAlert();
-                browser.WaitFor(() => AssertUI.TextEquals(welcome, "Welcome"), 1000);
+                AssertUI.TextEquals(welcome, "Welcome");
             });
         }
 

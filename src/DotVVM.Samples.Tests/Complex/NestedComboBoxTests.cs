@@ -30,10 +30,10 @@ namespace DotVVM.Samples.Tests.Complex
 
                 var combobox = browser.Single("combobox", SelectByDataUi);
                 combobox.Select(1);
-                browser.WaitFor(() => AssertUI.TextEquals(selectedValue, "2"), 1000);
+                AssertUI.TextEquals(selectedValue, "2");
 
                 combobox.Select(0);
-                browser.WaitFor(() => AssertUI.TextEquals(selectedValue, ""), 1000);
+                AssertUI.TextEquals(selectedValue, "");
             });
         }
     }

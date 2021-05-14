@@ -51,7 +51,7 @@ export function parseDate(value: string, format: string, previousValue?: Date) {
     return getGlobalize().parseDate(value, format, getCulture(), previousValue);
 }
 
-export const parseDotvvmDate = parseDate;
+export const parseDotvvmDate = serializationParseDate;
 
 export function bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format: string = "G") {
     if (!value) {

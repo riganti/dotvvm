@@ -1,4 +1,5 @@
-﻿using DotVVM.Samples.Tests.Base;
+﻿using System.Linq;
+using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
 using Riganti.Selenium.Core;
@@ -22,11 +23,9 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Click("input[type=button]");
 
                 // verify the results
-                browser.WaitFor(() => {
-                    AssertUI.Attribute(browser.ElementAt("input[type=text]", 0), "value", s => s.Equals(""));
-                    AssertUI.Attribute(browser.ElementAt("input[type=text]", 1), "value", s => s.Equals("2"));
-                    AssertUI.InnerTextEquals(browser.Last("span"), ",2");
-                }, 2000);
+                AssertUI.Attribute(browser.ElementAt("input[type=text]", 0), "value", s => s.Equals(""));
+                AssertUI.Attribute(browser.ElementAt("input[type=text]", 1), "value", s => s.Equals("2"));
+                AssertUI.InnerTextEquals(browser.Last("span"), ",2");
             });
         }
 
@@ -35,7 +34,6 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_ObservableCollectionShouldContainObservables);
-                browser.Wait();
 
                 // verify that the values are selected
                 browser.ElementAt("select", 0).Select(0);
@@ -46,13 +44,10 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Click("input[type=button]");
 
                 // verify that the values are correct
-                browser.WaitFor(() => {
-                    AssertUI.InnerTextEquals(browser.First("p.result"), "1,2,3");
-                    AssertUI.Attribute(browser.ElementAt("select", 0), "value", "1");
-                    AssertUI.Attribute(browser.ElementAt("select", 1), "value", "2");
-                    AssertUI.Attribute(browser.ElementAt("select", 2), "value", "3");
-                    browser.Wait();
-                }, 2000);
+                AssertUI.InnerTextEquals(browser.First("p.result"), "1,2,3");
+                AssertUI.Attribute(browser.ElementAt("select", 0), "value", "1");
+                AssertUI.Attribute(browser.ElementAt("select", 1), "value", "2");
+                AssertUI.Attribute(browser.ElementAt("select", 2), "value", "3");
 
                 // change the values
                 browser.ElementAt("select", 0).Select(1);
@@ -63,12 +58,10 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Click("input[type=button]");
 
                 // verify that the values are correct
-                browser.WaitFor(() => {
-                    AssertUI.InnerTextEquals(browser.First("p.result"), "2,3,2");
-                    AssertUI.Attribute(browser.ElementAt("select", 0), "value", "2");
-                    AssertUI.Attribute(browser.ElementAt("select", 1), "value", "3");
-                    AssertUI.Attribute(browser.ElementAt("select", 2), "value", "2");
-                }, 2000);
+                AssertUI.InnerTextEquals(browser.First("p.result"), "2,3,2");
+                AssertUI.Attribute(browser.ElementAt("select", 0), "value", "2");
+                AssertUI.Attribute(browser.ElementAt("select", 1), "value", "3");
+                AssertUI.Attribute(browser.ElementAt("select", 2), "value", "2");
             });
         }
 
@@ -77,10 +70,9 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_EnumSerializationWithJsonConverter);
-                browser.Wait();
 
                 // click on the button
-                browser.Single("input[type=button]").Click().Wait();
+                browser.Single("input[type=button]").Click();
 
                 // make sure that deserialization worked correctly
                 AssertUI.InnerTextEquals(browser.First("p.result"), "Success!");
@@ -92,7 +84,6 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_DeserializationVirtualElements);
-                browser.Wait();
 
                 // check that there are three rows
                 browser.FindElements("thead tr").ThrowIfDifferentCountThan(2);
@@ -100,14 +91,16 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // add item
                 browser.Single("input[type=text]").SendKeys("Four");
-                browser.First("input[type=button]").Click().Wait();
+                browser.First("input[type=button]").Click();
+                browser.WaitForPostback();
 
                 // check that there are four rows
                 browser.FindElements("tbody tr").ThrowIfDifferentCountThan(4);
                 AssertUI.InnerTextEquals(browser.ElementAt("tbody tr", 3).First("td"), "Four");
 
                 // delete second row
-                browser.ElementAt("tbody tr", 1).Single("input[type=button]").Click().Wait();
+                browser.ElementAt("tbody tr", 1).Single("input[type=button]").Click();
+                browser.WaitForPostback();
 
                 // check that there are three rows
                 browser.FindElements("tbody tr").ThrowIfDifferentCountThan(3);
@@ -241,6 +234,22 @@ namespace DotVVM.Samples.Tests.Feature
                     AssertUI.TextEquals(result, "-1");
                     AssertUI.TextEquals(result2, "Two");
                 }, 5000);
+            });
+        }
+
+        [Fact]
+        public void Feature_Serialization_ByteArray()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_ByteArray);
+
+                var spans = browser.FindElements("span");
+                Assert.Equal("Size: 5", spans.First().GetText());
+                Assert.Equal("1", spans.Skip(1).First().GetText());
+                Assert.Equal("2", spans.Skip(2).First().GetText());
+                Assert.Equal("3", spans.Skip(3).First().GetText());
+                Assert.Equal("4", spans.Skip(4).First().GetText());
+                Assert.Equal("5", spans.Skip(5).First().GetText());
             });
         }
 

@@ -57,25 +57,19 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // check that postback works
                 browser.ElementAt("input[type=button]", 0).Click();
-                browser.WaitFor(() => {
-                    AssertUI.Text(pre, t => !t.Contains("encryptedThing", StringComparison.CurrentCultureIgnoreCase));
-                }, 2000);
+                AssertUI.Text(pre, t => !t.Contains("encryptedThing", StringComparison.CurrentCultureIgnoreCase));
 
                 // change the viewmodel on client side and check that it works
-                browser.ElementAt("input[type=button]", 1).Click().Wait();
+                browser.ElementAt("input[type=button]", 1).Click();
                 AssertUI.Text(pre, t => !t.Contains("\"Next\": {", StringComparison.CurrentCultureIgnoreCase));
                 browser.ElementAt("input[type=button]", 0).Click();
-                browser.WaitFor(() => {
-                    AssertUI.Text(pre, t => t.Contains("\"Next\": {", StringComparison.CurrentCultureIgnoreCase));
-                }, 2000);
+                AssertUI.Text(pre, t => t.Contains("\"Next\": {", StringComparison.CurrentCultureIgnoreCase));
                 AssertUI.Text(pre, t => !t.Contains("encryptedThing", StringComparison.CurrentCultureIgnoreCase));
 
                 // tamper with encrypted values
                 browser.GetJavaScriptExecutor().ExecuteScript("dotvvm.viewModels.root.viewModel.$encryptedValues(dotvvm.viewModels.root.viewModel.$encryptedValues()[1] + dotvvm.viewModels.root.viewModel.$encryptedValues()[0] + dotvvm.viewModels.root.viewModel.$encryptedValues().substring(2));");
                 browser.ElementAt("input[type=button]", 0).Click();
-                browser.WaitFor(() => {
-                    AssertUI.IsDisplayed(browser.Single("#debugWindow"));
-                }, 2000);
+                AssertUI.IsDisplayed(browser.Single("#debugWindow"));
             });
         }
 
@@ -92,18 +86,14 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Last("a").Click();
 
                 // make sure it happened
-                browser.WaitFor(() => {
-                    AssertUI.InnerTextEquals(browser.First("strong span"), "hello");
-                }, 2000);
+                AssertUI.InnerTextEquals(browser.First("strong span"), "hello");
 
                 // try to do postback
                 browser.SendKeys("input[type=text]", "DotVVM rocks!");
                 browser.Click("input[type=button]");
 
                 // verify that the original value was restored
-                browser.WaitFor(() => {
-                    AssertUI.InnerTextEquals(browser.First("strong span"), originalValue);
-                }, 2000);
+                AssertUI.InnerTextEquals(browser.First("strong span"), originalValue);
             });
         }
 
@@ -118,7 +108,7 @@ namespace DotVVM.Samples.Tests.Feature
             RunComplexViewModelProtectionTest(browser => {
                 var message = browser.Single(messageDataUi, this.SelectByDataUi);
                 AssertUI.TextEquals(message, originalText);
-                browser.Single($"change-{messageDataUi}", this.SelectByDataUi).Click().Wait();
+                browser.Single($"change-{messageDataUi}", this.SelectByDataUi).Click();
 
                 message = browser.Single(messageDataUi, this.SelectByDataUi);
                 AssertUI.TextEquals(message, changedText);

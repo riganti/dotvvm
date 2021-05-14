@@ -14,16 +14,13 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_BindingContexts_BindingContext);
-                browser.Wait(1000);
 
                 var linkCount = browser.FindElements("a").Count;
                 for (var i = 0; i < linkCount; i++)
                 {
                     var link = browser.ElementAt("a", i);
                     link.Click();
-                    browser.WaitFor(() => {
-                        AssertUI.InnerTextEquals(browser.Single(".result"), link.GetInnerText());
-                    }, 3000, 50);
+                    AssertUI.InnerTextEquals(browser.Single(".result"), link.GetInnerText());
                 }
             });
         }
@@ -35,13 +32,17 @@ namespace DotVVM.Samples.Tests.Feature
                 foreach (var a in new[] { "Client", "Server" })
                 {
                     browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_BindingContexts_CollectionContext + $"?renderMode={a}");
-                    browser.Wait(1000);
 
                     var elements = browser.FindElements(By.ClassName("collection-index"));
                     elements.ThrowIfSequenceEmpty();
-                    elements.ForEach(e => AssertUI.InnerTextEquals(e, elements.IndexOf(e).ToString()));
+                    int i = 0;
+                    foreach(var e in elements){
+                        AssertUI.InnerTextEquals(e, (i++).ToString());
+                    }
+
                 }
             });
+            
         }
 
         public BindingContextsTests(ITestOutputHelper output) : base(output)

@@ -13,7 +13,6 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_IdGeneration_IdGeneration);
-                browser.Wait();
 
                 AssertUI.Attribute(browser.Single("*[data-id=test1_marker]"), "id", s => s.Equals("test1"),
                          "Wrong ID");

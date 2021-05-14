@@ -35,7 +35,6 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterPageErrorHandling);
-                browser.Wait(1000);
                 AssertUI.Url(browser, u => u.Contains("error500"));
             });
         }
@@ -46,18 +45,14 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 // try the first button
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterRedirect);
-                browser.Wait(1000);
                 AssertUI.Url(browser, u => !u.Contains("?redirected=true"));
                 browser.ElementAt("input", 0).Click();
-                browser.Wait(1000);
                 AssertUI.Url(browser, u => u.Contains("?redirected=true"));
 
                 // try the second button
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterRedirect);
-                browser.Wait(1000);
                 AssertUI.Url(browser, u => !u.Contains("?redirected=true"));
                 browser.ElementAt("input", 1).Click();
-                browser.Wait(1000);
                 AssertUI.Url(browser, u => u.Contains("?redirected=true"));
             });
         }
