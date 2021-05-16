@@ -1,7 +1,7 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyTitle>DotVVM</AssemblyTitle>
-    <VersionPrefix>3.0.0</VersionPrefix>
+    <VersionPrefix>3.0.2</VersionPrefix>
     <TargetFrameworks>net451;netstandard2.0;netstandard2.1</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -9,7 +9,7 @@
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM</PackageId>
-    <PackageVersion>3.0.0</PackageVersion>
+    <PackageVersion>3.0.2</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -132,10 +132,6 @@
     <None Update="Controls\DelegateTemplate.d.ts">
       <DependentUpon>DelegateTemplate.cs</DependentUpon>
     </None>
-    <None Update="Controls\FileUploadPageTemplate.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>FileUploadPageTemplate.cs</LastGenOutput>
-    </None>
     <None Update="Hosting\ErrorPages\ErrorPageTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>ErrorPageTemplate.cs</LastGenOutput>
@@ -149,11 +145,6 @@
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Controls\FileUploadPageTemplate.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>FileUploadPageTemplate.tt</DependentUpon>
-    </Compile>
     <Compile Update="Hosting\ErrorPages\ErrorPageTemplate.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

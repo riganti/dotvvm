@@ -21,14 +21,12 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_Auth_Login);
 
                 browser.SendKeys("input[type=text]", "user");
-                browser.First("input[type=button]").Click().Wait(500);
+                browser.First("input[type=button]").Click();
                 browser.Refresh();
-                browser.Wait(2000);
                 browser.Last("a").Click();
-                browser.Wait(2000);
 
                 browser.SendKeys("input[type=text]", "message");
-                browser.First("input[type=button]").Click().Wait(500);
+                browser.First("input[type=button]").Click();
 
                 AssertUI.InnerText(browser.ElementAt("h1", 1),
                         s =>
@@ -41,11 +39,11 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.ClearElementsContent("input[type=text]");
                 browser.SendKeys("input[type=text]", "ADMIN");
                 browser.First("input[type=checkbox]").Click();
-                browser.First("input[type=button]").Click().Wait(500);
+                browser.First("input[type=button]").Click();
                 browser.Last("a").Click();
 
                 browser.SendKeys("input[type=text]", "message");
-                browser.First("input[type=button]").Click().Wait(500);
+                browser.First("input[type=button]").Click();
 
                 AssertUI.InnerText(browser.First("span"), s => s.Contains("ADMIN: message"), "User can't send message");
             });

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -31,7 +32,7 @@ namespace DotVVM.Framework.Compilation
             var extensions = new List<MethodInfo>();
 
             foreach (var assembly in assemblyCache.GetAllAssemblies())
-                foreach (var type in assembly.GetTypes().Where(t => t.Namespace == @namespace && t.IsClass && t.IsAbstract && t.IsSealed))
+                foreach (var type in assembly.GetLoadableTypes().Where(t => t.Namespace == @namespace && t.IsClass && t.IsAbstract && t.IsSealed))
                     foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static).Where(m => m.GetCustomAttribute(typeof(ExtensionAttribute)) != null))
                         extensions.Add(method);
 

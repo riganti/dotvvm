@@ -24,6 +24,10 @@ import * as eventHub from './api/eventHub'
 import * as viewModuleManager from './viewModules/viewModuleManager'
 import { notifyModuleLoaded } from './postback/resourceLoader'
 import { logError, logWarning, logInfo, logInfoVerbose, level, logPostBackScriptError } from "./utils/logging"
+import { orderBy, orderByDesc } from './collections/sortingHelper'
+import * as metadataHelper from './metadata/metadataHelper'
+import * as arrayHelper from './collections/arrayHelper'
+import * as stringHelper from './utils/stringHelper'
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -54,8 +58,7 @@ const dotvvmExports = {
     },
     fileUpload: {
         reportProgress: fileUpload.reportProgress,
-        showUploadDialog: fileUpload.showUploadDialog,
-        createUploadId: fileUpload.createUploadId
+        showUploadDialog: fileUpload.showUploadDialog
     },
     api: {
         invoke: api.invoke,
@@ -97,6 +100,12 @@ const dotvvmExports = {
         parseDate,
         deserialize
     },
+    metadata: {
+        getTypeId: metadataHelper.getTypeId,
+        getTypeMetadata: metadataHelper.getTypeMetadata,
+        getEnumMetadata: metadataHelper.getEnumMetadata,
+        getEnumValue: metadataHelper.getEnumValue
+    },
     viewModules: {
         registerOne: viewModuleManager.registerViewModule,
         init: viewModuleManager.initViewModule,
@@ -113,7 +122,9 @@ const dotvvmExports = {
         logInfoVerbose,
         logPostBackScriptError,
         level
-    }
+    },
+    arrayHelper,
+    stringHelper
 }
 
 if (compileConstants.isSpa) {

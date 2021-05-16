@@ -13,7 +13,6 @@ namespace DotVVM.Samples.Tests.Complex
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_EmptyDataTemplate_RepeaterGridView);
-                browser.Wait();
                 void isDisplayed(string id) => AssertUI.IsDisplayed(browser, "#" + id);
                 void isHidden(string id) => AssertUI.IsNotDisplayed(browser, "#" + id);
                 void isNotPresent(string id) => browser.FindElements("#" + id + " > *").ThrowIfDifferentCountThan(0);

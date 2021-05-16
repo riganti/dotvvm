@@ -172,35 +172,35 @@ namespace DotVVM.Samples.Tests.Feature
             browser.IsDotvvmPage();
 
             // select second value in the first combo box, the second one should select the second value too 
-            browser.ElementAt("select", 0).Select(1).Wait();
-            browser.ElementAt("select", 1).Select(1).Wait();
+            browser.ElementAt("select", 0).Select(1);
+            browser.ElementAt("select", 1).Select(1);
             AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 1));
             AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 1));
 
             // select third value in the first combo box, the second one should select the third value too 
-            browser.ElementAt("select", 0).Select(2).Wait();
-            browser.ElementAt("select", 1).Select(2).Wait();
+            browser.ElementAt("select", 0).Select(2);
+            browser.ElementAt("select", 1).Select(2);
             AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 2));
             AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 2));
 
             // select first value in the first combo box, the second one should select the first value too 
-            browser.ElementAt("select", 0).Select(0).Wait();
-            browser.ElementAt("select", 1).Select(0).Wait();
+            browser.ElementAt("select", 0).Select(0);
+            browser.ElementAt("select", 1).Select(0);
             AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 0));
             AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 0));
 
             // click the first button - the second value should be selected in the first select, the second select should not change
-            browser.ElementAt("input", 0).Click().Wait();
+            browser.ElementAt("input", 0).Click();
             AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 1));
             AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 0));
 
             // click the second button - the third value should be selected in the second select, the first select should not change
-            browser.ElementAt("input", 1).Click().Wait();
+            browser.ElementAt("input", 1).Click();
             AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 1));
             AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 2));
 
             // click the third button - the first value should be selected in the second select, the first select should not change
-            browser.ElementAt("input", 2).Click().Wait();
+            browser.ElementAt("input", 2).Click();
             AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 1));
             AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 0));
         }
@@ -223,24 +223,18 @@ namespace DotVVM.Samples.Tests.Feature
                 }
 
                 commandButton.Click();
-                browser.WaitFor(() => {
-                    AssertUI.Value(textBox, "55");
-                }, 500);
+                AssertUI.Value(textBox, "55");
 
 
                 resetTextbox();
                 staticCommandButton.Click();
 
-                browser.WaitFor(() => {
-                    AssertUI.Value(textBox, "55");
-                }, 500);
+                AssertUI.Value(textBox, "55");
 
                 resetTextbox();
                 internalSequenceStaticCommandButton.Click();
 
-                browser.WaitFor(() => {
-                    AssertUI.Value(textBox, "2");
-                }, 500);
+                AssertUI.Value(textBox, "2");
             });
         }
 
@@ -254,7 +248,7 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(browser.ElementAt(".item", 1), "Martin");
 
                 var button = browser.Single("input[type=button]");
-                button.Click().Wait();
+                button.Click();
 
                 AssertUI.InnerTextEquals(browser.ElementAt(".item", 0), "Bob");
                 AssertUI.InnerTextEquals(browser.ElementAt(".item", 1), "Oliver");
@@ -272,7 +266,7 @@ namespace DotVVM.Samples.Tests.Feature
                 textBox.SendKeys("Vindaloo");
 
                 var button = browser.Single("input[type=button]");
-                button.Click().Wait();
+                button.Click();
 
                 AssertUI.InnerTextEquals(browser.ElementAt(".name", 0), "Martin");
                 AssertUI.InnerTextEquals(browser.ElementAt(".name", 1), "Roman");
@@ -296,10 +290,8 @@ namespace DotVVM.Samples.Tests.Feature
                 clearButton.Click();
                 testButton.Click();
 
-                browser.WaitFor(() => {
-                    var testElement = browser.First("[data-ui=result]");
-                    Assert.Equal("Test ok", testElement.GetInnerText());
-                }, 1000);
+                var testElement = browser.First("[data-ui=result]");
+                Assert.Equal("Test ok", testElement.GetInnerText());
             });
         }
     }

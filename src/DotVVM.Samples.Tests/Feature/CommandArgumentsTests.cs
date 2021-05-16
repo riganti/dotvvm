@@ -31,9 +31,7 @@ namespace DotVVM.Samples.Tests.Feature
                 alert.SendKeys(Value);
                 alert.Accept();
 
-                browser.WaitFor(() => {
-                    AssertUI.InnerTextEquals(text, Value);
-                }, 2000);
+                AssertUI.InnerTextEquals(text, Value);
             });
         }
 
@@ -50,9 +48,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 browser.Single("[data-ui='button2'] input[type=text]").Clear().SendKeys(Value);
                 browser.Single("[data-ui='button2'] button").Click();
-                browser.WaitFor(() => {
-                    AssertUI.InnerTextEquals(text, Value + "(from second button)");
-                }, 2000);
+                AssertUI.InnerTextEquals(text, Value + "(from second button)");
             });
         }
 

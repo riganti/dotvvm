@@ -24,7 +24,7 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.IsEnabled(browser.ElementAt("select", 1));
                 AssertUI.IsEnabled(browser.First("[data-ui=button]"));
 
-                browser.First("[data-ui=switch-button]").Click().Wait();
+                browser.First("[data-ui=switch-button]").Click();
 
                 AssertUI.IsNotEnabled(browser.ElementAt("select", 0));
                 AssertUI.IsNotEnabled(browser.ElementAt("input", 0));
