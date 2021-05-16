@@ -40,10 +40,15 @@ namespace DotVVM.CommandLine
                 return 1;
             }
 
+            var targetFramework = NuGetFramework.Parse(framework);
             if (!noBuild)
             {
-                // TODO: If the target framework is the .NET Framework, use VS's MSBuild.
-                var msbuild = MSBuild.CreateFromSdk();
+                var msbuild = MSBuild.CreateForNuGetFramework(targetFramework);
+                if (msbuild is null)
+                {
+                    logger.LogError("No MSBuild executable could be found.");
+                    return 1;
+                }
                 var buildSuccess = msbuild.TryBuild(
                     project: new FileInfo(project.ProjectFilePath),
                     configuration: configuration,
@@ -60,7 +65,6 @@ namespace DotVVM.CommandLine
             var compilerArgs = new List<string>();
 
             var cliDirectory = Path.GetDirectoryName(typeof(Program).Assembly.Location)!;
-            var targetFramework = NuGetFramework.Parse(framework);
             var executable = "dotnet";
             if (targetFramework.IsDesktop())
             {
@@ -75,7 +79,7 @@ namespace DotVVM.CommandLine
 
             var projectDir = Path.GetDirectoryName(project.ProjectFilePath)!;
             var outputDir = Path.Combine(projectDir, project.OutputPath, configuration, framework);
-            if (!Directory.Exists(outputDir))
+            while (!Directory.Exists(outputDir))
             {
                 outputDir = Directory.GetParent(outputDir).FullName;
             }

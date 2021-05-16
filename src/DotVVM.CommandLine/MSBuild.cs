@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using NuGet.Frameworks;
 
 namespace DotVVM.CommandLine
 {
@@ -64,6 +65,19 @@ namespace DotVVM.CommandLine
             }
 
             return new MSBuild(msbuildExe.FullName, ImmutableArray.Create("/nologo"));
+        }
+
+        public static MSBuild? CreateForNuGetFramework(NuGetFramework? target)
+        {
+            var msbuildVs = CreateFromVS();
+            var msbuildSdk = CreateFromSdk();
+
+            if (target is null || target.IsDesktop())
+            {
+                // prefer VS's MSBuild for .NET Framework
+                return msbuildVs ?? msbuildSdk;
+            }
+            return msbuildSdk;
         }
 
         public bool TryBuild(

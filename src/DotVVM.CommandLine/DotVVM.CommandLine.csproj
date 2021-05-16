@@ -49,29 +49,32 @@
     <PackageReference Include="NuGet.Frameworks" Version="5.9.0" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
+    <PackageReference Include="vswhere" Version="2.8.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj"/>
-    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj"/>
+    <Content Include="$(VSWhereDir)vswhere.exe" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
   </ItemGroup>
 
   <Target Name="BuildCompiler" BeforeTargets="BeforeBuild">
-    <MSBuild Projects="..\DotVVM.Compiler\DotVVM.Compiler.csproj"
-      Targets="Restore;Build"
-      Properties="TargetFramework=netcoreapp3.1;Configuration=$(Configuration);OutputPath=$(ProjectDir)$(OutputPath)tools\netcoreapp3.1\any" />
-    <MSBuild Projects="..\DotVVM.Compiler\DotVVM.Compiler.csproj"
-      Targets="Restore;Build"
-      Properties="TargetFramework=net461;Configuration=$(Configuration);OutputPath=$(ProjectDir)$(OutputPath)tools\net461\any" />
+    <MSBuild Projects="..\DotVVM.Compiler\DotVVM.Compiler.csproj" Targets="Restore;Build" Properties="TargetFramework=netcoreapp3.1;Configuration=$(Configuration);OutputPath=$(ProjectDir)$(OutputPath)tools\netcoreapp3.1\any" />
+    <MSBuild Projects="..\DotVVM.Compiler\DotVVM.Compiler.csproj" Targets="Restore;Build" Properties="TargetFramework=net461;Configuration=$(Configuration);OutputPath=$(ProjectDir)$(OutputPath)tools\net461\any" />
   </Target>
 
   <Target Name="AddCompilerToPublish" BeforeTargets="Publish;Pack">
     <ItemGroup>
       <ToolsFile Include="$(OutputPath)\tools\**" />
     </ItemGroup>
-    <Message Text="$(PublishDir)" Importance="High"/>
-    <Copy SourceFiles="@(ToolsFile)"
-      DestinationFolder="$(PublishDir)\tools\%(RecursiveDir)" />
+    <Message Text="$(PublishDir)" Importance="High" />
+    <Copy SourceFiles="@(ToolsFile)" DestinationFolder="$(PublishDir)\tools\%(RecursiveDir)" />
   </Target>
 
   <ItemGroup>
