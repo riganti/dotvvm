@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Collections.Concurrent;
 using DotVVM.Framework.Binding.Expressions;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Utils;
@@ -37,8 +38,11 @@ namespace DotVVM.Framework.Controls
                 if (parameter.ParameterType == typeof(IDotvvmRequestContext))
                     return (context, _) => context;
                 var (getter, setter) = DotvvmCapabilityProperty.InitializeArgument(parameter, parameter.Name, parameter.ParameterType, controlType, null);
-                var compiledGetter = (Func<DotvvmBindableObject, object>)getter.Compile();
-                return (_, c) => compiledGetter(c);
+
+                var wrappedExpression = Expression.Lambda<Func<IDotvvmRequestContext, CompositeControl, object>>(
+                    Expression.Convert(getter.Body, typeof(object)),
+                    Expression.Parameter(typeof(IDotvvmRequestContext)), getter.Parameters[0]);
+                return wrappedExpression.Compile();
             }
 
             lock (registrationLock)
