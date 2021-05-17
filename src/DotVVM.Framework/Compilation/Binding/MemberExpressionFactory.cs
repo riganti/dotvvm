@@ -50,11 +50,13 @@ namespace DotVVM.Framework.Compilation.Binding
                 .Where(m => ((isGeneric && m is TypeInfo) ? genericName : name) == m.Name)
                 .ToArray();
 
+            var isExtension = false;
             if (members.Length == 0)
             {
                 // We did not find any match in regular methods => try extension methods
-                var extensions = GetAllExtensionMethods().Where(m => m.Name == name).ToArray();
+                var extensions = GetAllExtensionMethods().Where(m => m.Name == name && ExtensionMethodsFilter(target, m)).ToArray();
                 members = extensions;
+                isExtension = true;
 
                 if (members.Length == 0 && throwExceptions)
                     throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }.");
@@ -84,7 +86,29 @@ namespace DotVVM.Framework.Compilation.Binding
                         : new StaticClassIdentifierExpression(nonGenericType.UnderlyingSystemType);
                 }
             }
-            return new MethodGroupExpression() { MethodName = name, Target = target, TypeArgs = typeArguments };
+
+            var candidates = members.Cast<MethodInfo>().ToList();
+            return new MethodGroupExpression() { MethodName = name, Target = target, TypeArgs = typeArguments, Candidates = candidates, HasExtensionCandidates = isExtension };
+        }
+
+        private bool ExtensionMethodsFilter(Expression target, MethodInfo method)
+        {
+            var thisType = method.GetParameters().First().ParameterType;
+            if (thisType.IsGenericType)
+            {
+                if (thisType.ContainsGenericParameters)
+                {
+                    return ReflectionUtils.IsAssignableToGenericType(target.Type, thisType.GetGenericTypeDefinition(), out _);
+                }
+                else
+                {
+                    return thisType.IsAssignableFrom(target.Type);
+                }
+            }
+            else
+            {
+                return thisType.IsAssignableFrom(target.Type);
+            }
         }
 
         private Expression GetDotvvmPropertyMember(Expression target, string name)

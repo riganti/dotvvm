@@ -138,7 +138,7 @@ namespace DotVVM.Framework.Controls
         {
             // a hack that makes the RouteLink work even in container with Events.Click. This does not solve the problem in general, but better than nothing.
             var onclickAttribute = "event.stopPropagation();";
-            if ((bool)GetValue(Internal.IsSpaPageProperty)! && (bool)GetValue(Internal.UseHistoryApiSpaNavigationProperty)!)
+            if ((bool)GetValue(Internal.IsSpaPageProperty)! && (bool)GetValue(Internal.UseHistoryApiSpaNavigationProperty)! && !Attributes.ContainsKey("target"))
             {
                 onclickAttribute += "!this.hasAttribute('disabled') && dotvvm.handleSpaNavigation(this); return false;";
             }

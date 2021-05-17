@@ -279,12 +279,105 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("GetFirstGenericArgType(Tuple)", typeof(int))]
+        [DataRow("Enumerable.Where(LongArray, item => item % 2 == 0)", typeof(long))]
+        [DataRow("Enumerable.Select(LongArray, item => -item)", typeof(long), typeof(long))]
+        [DataRow("Enumerable.Select(Enumerable.Where(LongArray, item => item % 2 == 0), item => -item)", typeof(long), typeof(long))]
+        public void BindingCompiler_RegularGenericMethodsInference(string expr, params Type[] instantiations)
+        {
+            var viewModel = new TestViewModel() { StringProp = "abc" };
+            var binding = ExecuteBinding(expr, new[] { viewModel }, null, new[] { new NamespaceImport("System.Linq") });
+            var genericArgs = binding.GetType().GetGenericArguments();
+
+            for (var argIndex = 0; argIndex < genericArgs.Length; argIndex++)
+                Assert.AreEqual(instantiations[argIndex], genericArgs[argIndex]);
+        }
+
+        [TestMethod]
+        [DataRow("LongArray.Where(item => item % 2 == 0)", typeof(long))]
+        [DataRow("LongArray.Select(item => -item)", typeof(long), typeof(long))]
+        [DataRow("LongArray.Where(item => item % 2 == 0).Select(item => -item)", typeof(long), typeof(long))]
+        public void BindingCompiler_ExtensionGenericMethodsInference(string expr, params Type[] instantiations)
+        {
+            var viewModel = new TestViewModel() { StringProp = "abc" };
+            var binding = ExecuteBinding(expr, new[] { viewModel }, null, new[] { new NamespaceImport("System.Linq") });
+            var genericArgs = binding.GetType().GetGenericArguments();
+
+            for (var argIndex = 0; argIndex < genericArgs.Length; argIndex++)
+                Assert.AreEqual(instantiations[argIndex], genericArgs[argIndex]);
+        }
+
+        [TestMethod]
+        [DataRow("LongArray.All(item => item % 2 == 0)", typeof(bool))]
+        [DataRow("LongArray.Any(item => item % 2 == 0)", typeof(bool))]
+        [DataRow("LongArray.Concat(LongArray).ToArray()", typeof(long[]))]
+        [DataRow("LongArray.FirstOrDefault(item => item % 2 == 0)", typeof(long))]
+        [DataRow("LongArray.LastOrDefault(item => item % 2 == 0)", typeof(long))]
+        [DataRow("LongArray.Max(item => -item)", typeof(long))]
+        [DataRow("LongArray.Min(item => -item)", typeof(long))]
+        [DataRow("LongArray.OrderBy(item => item).ToArray()", typeof(long[]))]
+        [DataRow("LongArray.OrderByDescending(item => item).ToArray()", typeof(long[]))]
+        [DataRow("LongArray.Select(item => -item).ToArray()", typeof(long[]))]
+        [DataRow("LongArray.Where(item => item % 2 == 0).ToArray()", typeof(long[]))]
+        public void BindingCompiler_LinqMethodsInference(string expr, Type resultType)
+        {
+            var viewModel = new TestViewModel() { StringProp = "abc" };
+            var result = ExecuteBinding(expr, new[] { viewModel }, null, new[] { new NamespaceImport("System.Linq") });
+            Assert.AreEqual(resultType, result.GetType());
+        }
+
+        [TestMethod]
         [DataRow("(int arg, float arg) => ;", DisplayName = "Can not use same identifier for multiple parameters")]
         [DataRow("(object _this) => ;", DisplayName = "Can not use already used identifiers for parameters")]
         public void BindingCompiler_Invalid_LambdaParameters(string expr)
         {
             var viewModel = new TestViewModel();
             Assert.ThrowsException<AggregateException>(() => ExecuteBinding(expr, viewModel));         
+        }
+
+        [TestMethod]
+        [DataRow("(TestViewModel vm) => vm.IntProp = 11")]
+        [DataRow("(TestViewModel vm) => vm.GetEnum()")]
+        [DataRow("(TestViewModel vm) => ()")]
+        [DataRow("(TestViewModel vm) => ;")]
+        public void BindingCompiler_Valid_LambdaToAction(string expr)
+        {
+            var viewModel = new TestViewModel();
+            var binding = ExecuteBinding(expr, new[] { viewModel }, null, expectedType: typeof(Action<TestViewModel>)) as Action<TestViewModel>;
+            Assert.AreEqual(typeof(Action<TestViewModel>), binding.GetType());
+            binding.Invoke(viewModel);
+        }
+
+        [TestMethod]
+        [DataRow("List.RemoveAll(item => item % 2 != 0)")]
+        public void BindingCompiler_Valid_LambdaToPredicate(string expr)
+        {
+            var viewModel = new TestViewModel() { List = new List<int>() { 1, 2, 3 } };
+            var removedCount = ExecuteBinding(expr, new[] { viewModel }, null, expectedType: typeof(int));
+            Assert.AreEqual(2, removedCount);
+            CollectionAssert.AreEqual(new List<int> { 2 }, viewModel.List);
+        }
+
+        [TestMethod]
+        [DataRow("ActionInvoker(arg => StringProp = arg)")]
+        [DataRow("ActionInvoker(arg => StringProp = ActionInvoker(innerArg => StringProp = innerArg))")]
+        [DataRow("Action2Invoker((arg1, arg2) => StringProp = arg1 + arg2)")]
+
+        public void BindingCompiler_Valid_ParameterLambdaToAction(string expr)
+        {
+            var viewModel = new TestLambdaCompilation();
+            var result = ExecuteBinding(expr, viewModel);
+            Assert.AreEqual("Action", result);
+        }
+
+        [TestMethod]
+        [DataRow("DelegateInvoker(arg => StringProp = arg)")]
+        [DataRow("DelegateInvoker(arg => arg + arg)")]
+        public void BindingCompiler_Valid_LambdaParameter_PreferFunc(string expr)
+        {
+            var viewModel = new TestLambdaCompilation();
+            var result = ExecuteBinding(expr, viewModel);
+            Assert.AreEqual("Func", result);
         }
 
         [TestMethod]
@@ -738,6 +831,8 @@ namespace DotVVM.Framework.Tests.Binding
         public DateTime? DateTo { get; set; }
         public object Time { get; set; } = TimeSpan.FromSeconds(5);
         public Guid GuidProp { get; set; }
+        public Tuple<int, bool> Tuple { get; set; }
+        public List<int> List { get; set; }
 
         public long LongProperty { get; set; }
 
@@ -761,6 +856,11 @@ namespace DotVVM.Framework.Tests.Binding
             => param;
 
         public Type GetType<T>(T param)
+        {
+            return typeof(T);
+        }
+
+        public Type GetFirstGenericArgType<T, U>(Tuple<T, U> param)
         {
             return typeof(T);
         }
@@ -796,6 +896,17 @@ namespace DotVVM.Framework.Tests.Binding
         public string MethodWithOverloads(string i) => i;
         public string MethodWithOverloads(DateTime i) => i.ToString();
         public int MethodWithOverloads(int a, int b) => a + b;
+    }
+
+    class TestLambdaCompilation
+    {
+        public string StringProp { get; set; }
+
+        public string DelegateInvoker(Func<string, string> func) { func(default); return "Func"; }
+        public string DelegateInvoker(Action<string> action) { action(default); return "Action"; }
+
+        public string ActionInvoker(Action<string> action) { action(default); return "Action"; }
+        public string Action2Invoker(Action<string, string> action) { action(default, default); return "Action"; }
     }
 
     class TestViewModel2
