@@ -122,9 +122,14 @@ function lastOrDefault<T>(array: T[], predicate: (s: T) => boolean): T | null {
     return null;
 }
 
-function max<T>(array: T[], selector: (item: T) => number): number {
-    if (array.length === 0)
-        throw new Error("Source is empty! Max operation cannot be performed.");
+function max<T>(array: T[], selector: (item: T) => number, throwIfEmpty: boolean): number | null {
+    if (array.length === 0) {
+        if (throwIfEmpty) {
+            throw new Error("Source is empty! Max operation cannot be performed.");
+        }
+        return null;
+    }
+
     if (array.length == 1)
         return selector(array[0]);
     let max = selector(array[0]);
@@ -136,9 +141,14 @@ function max<T>(array: T[], selector: (item: T) => number): number {
     return max;
 }
 
-function min<T>(array: T[], selector: (item: T) => number): number {
-    if (array.length === 0)
-        throw new Error("Source is empty! Min operation cannot be performed.");
+function min<T>(array: T[], selector: (item: T) => number, throwIfEmpty: boolean): number | null {
+    if (array.length === 0) {
+        if (throwIfEmpty) {
+            throw new Error("Source is empty! Min operation cannot be performed.");
+        }
+        return null;
+    }
+
     if (array.length == 1)
         return selector(array[0]);
     let min = selector(array[0]);
