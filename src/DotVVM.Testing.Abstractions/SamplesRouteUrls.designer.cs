@@ -275,11 +275,15 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Resources_OnlineNonameResourceLoad = "FeatureSamples/Resources/OnlineNonameResourceLoad";
         public const string FeatureSamples_Resources_RequiredOnPostback = "FeatureSamples/Resources/RequiredOnPostback";
         public const string FeatureSamples_ReturnedFile_ReturnedFileSample = "FeatureSamples/ReturnedFile/ReturnedFileSample";
+        public const string FeatureSamples_Serialization_ByteArray = "FeatureSamples/Serialization/ByteArray";
         public const string FeatureSamples_Serialization_DeserializationVirtualElements = "FeatureSamples/Serialization/DeserializationVirtualElements";
         public const string FeatureSamples_Serialization_Dictionary = "FeatureSamples/Serialization/Dictionary";
+        public const string FeatureSamples_Serialization_EnumSerializationCoercion = "FeatureSamples/Serialization/EnumSerializationCoercion";
         public const string FeatureSamples_Serialization_EnumSerializationWithJsonConverter = "FeatureSamples/Serialization/EnumSerializationWithJsonConverter";
         public const string FeatureSamples_Serialization_ObservableCollectionShouldContainObservables = "FeatureSamples/Serialization/ObservableCollectionShouldContainObservables";
         public const string FeatureSamples_Serialization_Serialization = "FeatureSamples/Serialization/Serialization";
+        public const string FeatureSamples_Serialization_SerializationDateTimeOffset = "FeatureSamples/Serialization/SerializationDateTimeOffset";
+        public const string FeatureSamples_Serialization_TimeSpan = "FeatureSamples/Serialization/TimeSpan";
         public const string FeatureSamples_ServerComments_ServerComments = "FeatureSamples/ServerComments/ServerComments";
         public const string FeatureSamples_ServerSideStyles_ServerSideStyles = "FeatureSamples/ServerSideStyles/ServerSideStyles";
         public const string FeatureSamples_ServerSideStyles_ServerSideStyles_ControlProperties = "FeatureSamples/ServerSideStyles/ServerSideStyles_ControlProperties";

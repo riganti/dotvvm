@@ -1,6 +1,6 @@
 ﻿{
   "factories": {
-    "ie:fast": {}
+    "ie:dev": {}
   },
   "baseUrls": [
     "http://localhost:5407/"

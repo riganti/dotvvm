@@ -34,7 +34,6 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // do the postback
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 // verify items rendered on client and on the server are the same
                 items1 = browser.FindElements(".list1 li");

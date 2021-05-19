@@ -1,9 +1,11 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -36,24 +38,29 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample);
+                browser.WaitUntilDotvvmInited();
 
                 browser.First("textarea").SendKeys("hello world");
-                browser.Last("input[type=button]").Click().Wait();
+                browser.Last("input[type=button]").Click();
 
-                AssertUI.TextEquals(browser.First("pre"), "hello world");
+                browser.WaitFor(() => {
+                    AssertUI.TextEquals(browser.First("pre"), "hello world");
+                },5000);
             });
         }
 
         private void ReturnedFileDownload(IBrowserWrapper browser, string fileContent)
         {
             browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample);
+            browser.WaitUntilDotvvmInited();
+
             var jsexec = browser.GetJavaScriptExecutor();
             jsexec.ExecuteScript("window.downloadURL = \"\";");
             jsexec.ExecuteScript("dotvvm.events.redirect.subscribe(function (args) { window.downloadURL = args.url; });");
 
             browser.First("textarea").SendKeys(fileContent);
             browser.First("input").SendKeys(Keys.Enter);
-            browser.Wait(5000);
+            browser.WaitForPostback();
             var downloadURL = (string)jsexec.ExecuteScript("return window.downloadURL;");
             Assert.False(string.IsNullOrEmpty(downloadURL));
 

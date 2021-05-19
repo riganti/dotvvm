@@ -1,4 +1,4 @@
-﻿import { parseDate as parseDotvvmDate, serializeDate as serializeDotvvmDate } from './serialization/date'
+﻿import { parseDate as serializationParseDate, serializeDate } from './serialization/date'
 import { getCulture } from './dotvvm-base';
 
 function getGlobalize(): GlobalizeStatic {
@@ -30,7 +30,7 @@ export function formatString(format: string | null | undefined, value: Globalize
 
     if (typeof value === "string") {
         // JSON date in string
-        value = parseDotvvmDate(value);
+        value = serializationParseDate(value);
         if (value == null) {
             throw new Error(`Could not parse ${value} as a date`);
         }
@@ -51,6 +51,8 @@ export function parseDate(value: string, format: string, previousValue?: Date) {
     return getGlobalize().parseDate(value, format, getCulture(), previousValue);
 }
 
+export const parseDotvvmDate = serializationParseDate;
+
 export function bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format: string = "G") {
     if (!value) {
         return "";
@@ -58,7 +60,7 @@ export function bindingDateToString(value: KnockoutObservable<string | Date> | s
 
     const unwrapDate = () => {
         const unwrappedVal = ko.unwrap(value);
-        return typeof unwrappedVal == "string" ? parseDotvvmDate(unwrappedVal) : unwrappedVal;
+        return typeof unwrappedVal == "string" ? serializationParseDate(unwrappedVal) : unwrappedVal;
     };
 
     const formatDate = () => formatString(format, value);
@@ -66,11 +68,11 @@ export function bindingDateToString(value: KnockoutObservable<string | Date> | s
     if (ko.isWriteableObservable(value)) {
         const unwrappedVal = unwrapDate();
         const setter = typeof unwrappedVal == "string" ? (v: Date | null) => {
-            return value(v && serializeDotvvmDate(v, false));
+            return value(v && serializeDate(v, false));
         } : value;
         return ko.pureComputed({
             read: formatDate,
-            write: val => setter(parseDate(val, format))
+            write: val => setter(parseDate(val, format) || parseDate(val, ""))
         });
     }
     else {

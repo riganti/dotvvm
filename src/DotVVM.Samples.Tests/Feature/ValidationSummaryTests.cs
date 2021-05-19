@@ -17,12 +17,12 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ValidationSummary_RecursiveValidationSummary);
 
-                browser.ElementAt("input[type=button]", 0).Click().Wait();
+                browser.ElementAt("input[type=button]", 0).Click();
 
                 browser.ElementAt("ul", 0).FindElements("li").ThrowIfDifferentCountThan(2);
                 AssertUI.InnerTextEquals(browser.First("#result"), "false");
 
-                browser.ElementAt("input[type=button]", 1).Click().Wait();
+                browser.ElementAt("input[type=button]", 1).Click();
                 browser.ElementAt("ul", 1).FindElements("li").ThrowIfDifferentCountThan(1);
                 AssertUI.InnerTextEquals(browser.First("#result"), "false");
             });
@@ -39,23 +39,23 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(url);
 
                 var summary = browser.First("[data-ui=validationSummary]");
-                Assert.Equal(0, summary.Children.Count);
+                browser.WaitFor(() => Assert.Equal(0, summary.Children.Count), 1000);
 
                 var loginButton = browser.First("[data-ui=login-button]");
                 loginButton.Click();
-                Assert.Equal(2, summary.Children.Count);
+                browser.WaitFor(() => Assert.Equal(2, summary.Children.Count), 1000);
 
                 browser.First("[data-ui=nick-textbox]").SendKeys("Mike");
                 loginButton.Click();
-                Assert.Equal(1, summary.Children.Count);
+                browser.WaitFor(() => Assert.Equal(1, summary.Children.Count), 1000);
 
                 browser.First("[data-ui=password-textbox]").SendKeys("123");
                 loginButton.Click();
-                Assert.Equal(1, summary.Children.Count);
+                browser.WaitFor(() => Assert.Equal(1, summary.Children.Count), 1000);
 
                 browser.First("[data-ui=password-textbox]").SendKeys("4");
-                loginButton.Click().Wait();
-                Assert.Equal(0, summary.Children.Count);
+                loginButton.Click();
+                browser.WaitFor(() => Assert.Equal(0, summary.Children.Count), 1000);
             });
         }
     }

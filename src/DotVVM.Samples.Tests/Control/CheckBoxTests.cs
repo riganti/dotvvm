@@ -20,7 +20,6 @@ namespace DotVVM.Samples.Tests.Control
                 // single check box
                 boxes.ElementAt(0).First("input[type=checkbox]").Click();
                 boxes.ElementAt(0).First("input[type=button]").Click();
-                browser.Wait();
 
                 AssertUI.InnerTextEquals(boxes.ElementAt(0).First("span.result")
                     , "True");
@@ -29,7 +28,6 @@ namespace DotVVM.Samples.Tests.Control
                 boxes.ElementAt(1).ElementAt("input[type=checkbox]", 1).Click();
                 boxes.ElementAt(1).ElementAt("input[type=checkbox]", 2).Click();
                 boxes.ElementAt(1).First("input[type=button]").Click();
-                browser.Wait();
 
                 AssertUI.InnerTextEquals(boxes.ElementAt(1).First("span.result")
                     , "g, b");
@@ -37,21 +35,18 @@ namespace DotVVM.Samples.Tests.Control
                 boxes.ElementAt(1).ElementAt("input[type=checkbox]", 2).Click();
                 boxes.ElementAt(1).ElementAt("input[type=checkbox]", 0).Click();
                 boxes.ElementAt(1).First("input[type=button]").Click();
-                browser.Wait();
 
                 AssertUI.InnerTextEquals(boxes.ElementAt(1).First("span.result")
                     , "g, r");
 
                 // checked changed
                 boxes.ElementAt(2).ElementAt("input[type=checkbox]", 0).Click();
-                browser.Wait();
 
                 AssertUI.InnerTextEquals(boxes.ElementAt(2).Last("span.result")
                     , "1");
                 AssertUI.IsChecked(boxes.ElementAt(2).First("input[type=checkbox]"));
 
                 boxes.ElementAt(2).ElementAt("input[type=checkbox]", 0).Click();
-                browser.Wait();
 
                 AssertUI.InnerTextEquals(boxes.ElementAt(2).Last("span.result")
                     , "2");

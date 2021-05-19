@@ -15,7 +15,6 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptEvents_JavascriptEvents);
 
                 // init alert
-                browser.Wait();
                 AssertUI.AlertTextEquals(browser, "init");
                 browser.ConfirmAlert();
 
@@ -24,7 +23,6 @@ namespace DotVVM.Samples.Tests.Feature
 
                 AssertUI.AlertTextEquals(browser, "beforePostback");
                 browser.ConfirmAlert();
-                browser.Wait();
 
                 AssertUI.AlertTextEquals(browser, "afterPostback");
                 browser.ConfirmAlert();
@@ -34,11 +32,9 @@ namespace DotVVM.Samples.Tests.Feature
 
                 AssertUI.AlertTextEquals(browser, "beforePostback");
                 browser.ConfirmAlert();
-                browser.Wait();
 
                 AssertUI.AlertTextEquals(browser, "afterPostback");
                 browser.ConfirmAlert();
-                browser.Wait();
 
                 AssertUI.AlertTextEquals(browser, "custom error handler");
                 browser.ConfirmAlert();
