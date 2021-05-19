@@ -16,7 +16,7 @@
             var customProperties = document.querySelector('[data-ui="result"]');
             customProperties.innerText = "";
         }
-        dotvvm.events.staticCommandMethodInvoked.subscribe(e => {
+        dotvvm.events.staticCommandMethodInvoked.subscribe(function(e) {
             var customPropertiesInput = document.querySelector('[data-ui="result"]');
             customPropertiesInput.innerText = e.serverResponseObject.customProperties.test;
         });
