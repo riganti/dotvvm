@@ -9,16 +9,17 @@
 </head>
 <body>
 
-    <dot:Button Text="Add" Click="{staticCommand: List.Add(11)}" />
+    <dot:Button Text="Add (11)" Click="{staticCommand: List.Add(11)}" />
     <dot:Button Text="AddOrUpdate" Click="{staticCommand: List.AddOrUpdate(12345, (int element) => element == 5, (int element) => 54321)}" />
-    <dot:Button Text="AddRange" Click="{staticCommand: List.AddRange(List.Take(5))}" />
+    <dot:Button Text="AddRange (first five)" Click="{staticCommand: List.AddRange(List.Take(5))}" />
     <dot:Button Text="Clear" Click="{staticCommand: List.Clear()}" />
-    <dot:Button Text="Insert" Click="{staticCommand: List.Insert(1, 22)}" />
-    <dot:Button Text="InsertRange" Click="{staticCommand: List.InsertRange(1, List.Take(5))}" />
-    <dot:Button Text="RemoveAt" Click="{staticCommand: List.RemoveAt(2)}" />
-    <dot:Button Text="RemoveFirst" Click="{staticCommand: List.RemoveFirst((int index) => index % 2 == 0)}" />
-    <dot:Button Text="RemoveLast" Click="{staticCommand: List.RemoveLast((int index) => index % 2 == 0)}" />
-    <dot:Button Text="RemoveRange" Click="{staticCommand: List.RemoveRange(2, 5)}" />
+    <dot:Button Text="Insert (1,22)" Click="{staticCommand: List.Insert(1, 22)}" />
+    <dot:Button Text="InsertRange (first five)" Click="{staticCommand: List.InsertRange(1, List.Take(5))}" />
+    <dot:Button Text="RemoveAt (2)" Click="{staticCommand: List.RemoveAt(2)}" />
+    <dot:Button Text="RemoveAll (even)" Click="{staticCommand: List.RemoveAll((int index) => index % 2 == 0)}" />
+    <dot:Button Text="RemoveFirst (even)" Click="{staticCommand: List.RemoveFirst((int index) => index % 2 == 0)}" />
+    <dot:Button Text="RemoveLast (even)" Click="{staticCommand: List.RemoveLast((int index) => index % 2 == 0)}" />
+    <dot:Button Text="RemoveRange (2,5)" Click="{staticCommand: List.RemoveRange(2, 5)}" />
     <dot:Button Text="Reverse" Click="{staticCommand: List.Reverse()}" />
 
     <dot:GridView DataSource="{value: List}">
