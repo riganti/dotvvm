@@ -14,6 +14,7 @@ using System.Text;
 using System.Globalization;
 using System.Collections.Concurrent;
 using DotVVM.Framework.Compilation.Binding;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Utils
 {
@@ -105,6 +106,39 @@ namespace DotVVM.Framework.Utils
             }
             return item + "";
         }
+
+        /// <summary>
+        /// Checks whether given instantiated type is compatible with the open generic type
+        /// </summary>
+        public static bool IsAssignableToGenericType(this Type givenType, Type genericType, [NotNullWhen(returnValue: true)] out Type? commonType)
+        {
+            var interfaceTypes = givenType.GetInterfaces();
+
+            foreach (var it in interfaceTypes)
+            {
+                if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
+                {
+                    commonType = it;
+                    return true;
+                }
+            }
+
+            if (givenType.IsGenericType && givenType.GetGenericTypeDefinition() == genericType)
+            {
+                commonType = givenType;
+                return true;
+            }
+
+            var baseType = givenType.BaseType;
+            if (baseType == null)
+            {
+                commonType = null;
+                return false;
+            }
+
+            return IsAssignableToGenericType(baseType, genericType, out commonType);
+        }
+
 
         /// <summary>
         /// Converts a value to a specified type

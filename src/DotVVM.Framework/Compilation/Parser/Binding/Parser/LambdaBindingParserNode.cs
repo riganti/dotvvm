@@ -35,12 +35,17 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     {
         public BindingParserNode? Type { get; private set; }
         public BindingParserNode Name { get; private set; }
+        public Type? ResolvedType { get; private set; }
 
         public LambdaParameterBindingParserNode(BindingParserNode? type, BindingParserNode name)
         {
             Type = type;
             Name = name;
+            ResolvedType = null;
         }
+
+        public void SetResolvedType(Type argumentType)
+            => ResolvedType = argumentType;
 
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
             => (Type != null) ? base.EnumerateNodes().Concat(new[] { Type, Name }) : base.EnumerateNodes().Concat(new[] { Name });

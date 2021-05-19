@@ -4,6 +4,7 @@ using System.IO;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,6 +59,34 @@ namespace DotVVM.Framework.Tests.Runtime
             var serverHtml = InvokeLifecycleAndRender(createRepeater(RenderMode.Server), CreateContext(viewModel));
             Assert.IsTrue(serverHtml.Contains("<EMPTY_DATA"));
             Assert.IsTrue(!serverHtml.Contains("<div"));
+        }
+
+        [TestMethod]
+        public void RouteLink_SpaNavigation()
+        {
+            DotvvmConfiguration configuration;
+
+            RouteLink createRouteLink()
+            {
+                var routeLink = new RouteLink() {
+                    RouteName = "TestRoute"
+                };
+                routeLink.SetValue(Internal.IsSpaPageProperty, true);
+
+                configuration = DotvvmTestHelper.CreateConfiguration();
+                configuration.RouteTable.Add("TestRoute", "TestRoute");
+                configuration.Freeze();
+                return routeLink;
+            }
+
+            var routeLinkWithoutTarget = createRouteLink();
+            var clientHtml1 = InvokeLifecycleAndRender(routeLinkWithoutTarget, DotvvmTestHelper.CreateContext(configuration));
+            Assert.IsTrue(clientHtml1.Contains("dotvvm.handleSpaNavigation(this)"));
+
+            var routeLinkWithTarget = createRouteLink();
+            routeLinkWithTarget.Attributes.Add("target", "_blank");
+            var clientHtml2 = InvokeLifecycleAndRender(routeLinkWithTarget, DotvvmTestHelper.CreateContext(configuration));
+            Assert.IsFalse(clientHtml2.Contains("dotvvm.handleSpaNavigation(this)"));
         }
 
         [TestMethod]

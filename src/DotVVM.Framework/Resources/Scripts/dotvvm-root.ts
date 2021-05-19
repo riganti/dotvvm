@@ -25,6 +25,7 @@ import * as viewModuleManager from './viewModules/viewModuleManager'
 import { notifyModuleLoaded } from './postback/resourceLoader'
 import { logError, logWarning, logInfo, logInfoVerbose, level, logPostBackScriptError } from "./utils/logging"
 import { orderBy, orderByDesc } from './collections/sortingHelper'
+import * as metadataHelper from './metadata/metadataHelper'
 import * as arrayHelper from './collections/arrayHelper'
 import * as dictionaryHelper from './collections/dictionaryHelper'
 import * as stringHelper from './utils/stringHelper'
@@ -99,6 +100,12 @@ const dotvvmExports = {
         serializeDate,
         parseDate,
         deserialize
+    },
+    metadata: {
+        getTypeId: metadataHelper.getTypeId,
+        getTypeMetadata: metadataHelper.getTypeMetadata,
+        getEnumMetadata: metadataHelper.getEnumMetadata,
+        getEnumValue: metadataHelper.getEnumValue
     },
     viewModules: {
         registerOne: viewModuleManager.registerViewModule,
