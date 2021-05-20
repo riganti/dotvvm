@@ -1,4 +1,5 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -75,7 +76,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.BasicSamples
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.CommandLine", "DotVVM.CommandLine\DotVVM.CommandLine.csproj", "{0184F139-89CE-4C8C-B37A-D7A78CBB55AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Tools.StartupPerfTester", "DotVVM.Tools.StartupPerfTester\DotVVM.Tools.StartupPerfTester.csproj", "{797EC052-6E80-4591-B4F8-4F7E6651DA01}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Tools.StartupPerfTester", "DotVVM.Tools.StartupPerfTester\DotVVM.Tools.StartupPerfTester.csproj", "{797EC052-6E80-4591-B4F8-4F7E6651DA01}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SeleniumGenerator", "SeleniumGenerator", "{C834EEA3-1AE1-4847-9976-1B2DB2C3E45B}"
 EndProject

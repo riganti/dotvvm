@@ -10,14 +10,15 @@ namespace DotVVM.Compiler
             "--help", "-h", "-?", "/help", "/h", "/?"
         };
 
-        public static void Run(FileInfo assembly, DirectoryInfo? projectDir)
+        public static bool TryRun(FileInfo assembly, DirectoryInfo? projectDir)
         {
             var executor = ProjectLoader.GetExecutor(assembly.FullName);
-            executor.ExecuteCompile(assembly, projectDir, null);
+            return executor.ExecuteCompile(assembly, projectDir);
         }
 
         public static int Main(string[] args)
         {
+            // To minimize dependencies, this tool deliberately reinvents the wheel instead of using System.CommandLine.
             if (args.Length != 2 || (args.Length == 1 && HelpOptions.Contains(args[0])))
             {
                 Console.Error.Write(
@@ -29,8 +30,22 @@ Arguments:
                 return 1;
             }
 
-            Run(new FileInfo(args[0]), new DirectoryInfo(args[1]));
-            return 0;
+            var assemblyFile = new FileInfo(args[0]);
+            if (!assemblyFile.Exists)
+            {
+                Console.Error.Write($"Assembly '{assemblyFile}' does not exist.");
+                return 1;
+            }
+
+            var projectDir = new DirectoryInfo(args[1]);
+            if (!projectDir.Exists)
+            {
+                Console.Error.Write($"Project directory '{projectDir}' does not exist.");
+                return 1;
+            }
+
+            var success = TryRun(assemblyFile, projectDir);
+            return success ? 0 : 1;
         }
     }
 }

@@ -13,6 +13,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Globalization;
 using System.Collections.Concurrent;
+using DotVVM.Framework.Compilation.Binding;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Utils
 {
@@ -21,7 +23,7 @@ namespace DotVVM.Framework.Utils
 
         public static bool IsFullName(string typeName)
             => typeName.Contains(".");
-        
+
         /// <summary>
         /// Gets the property name from lambda expression, e.g. 'a => a.FirstName'
         /// </summary>
@@ -62,7 +64,6 @@ namespace DotVVM.Framework.Utils
             else
                 return type.GetMembers(flags);
         }
-
 
         /// <summary>
         /// Gets filesystem path of assembly CodeBase
@@ -105,6 +106,39 @@ namespace DotVVM.Framework.Utils
             }
             return item + "";
         }
+
+        /// <summary>
+        /// Checks whether given instantiated type is compatible with the open generic type
+        /// </summary>
+        public static bool IsAssignableToGenericType(this Type givenType, Type genericType, [NotNullWhen(returnValue: true)] out Type? commonType)
+        {
+            var interfaceTypes = givenType.GetInterfaces();
+
+            foreach (var it in interfaceTypes)
+            {
+                if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
+                {
+                    commonType = it;
+                    return true;
+                }
+            }
+
+            if (givenType.IsGenericType && givenType.GetGenericTypeDefinition() == genericType)
+            {
+                commonType = givenType;
+                return true;
+            }
+
+            var baseType = givenType.BaseType;
+            if (baseType == null)
+            {
+                commonType = null;
+                return false;
+            }
+
+            return IsAssignableToGenericType(baseType, genericType, out commonType);
+        }
+
 
         /// <summary>
         /// Converts a value to a specified type
@@ -208,7 +242,7 @@ namespace DotVVM.Framework.Utils
             // convert
             return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
         }
-        
+
         public static Type? GetEnumerableType(this Type collectionType)
         {
             var result = TypeDescriptorUtils.GetCollectionItemType(new ResolvedTypeDescriptor(collectionType));
@@ -239,8 +273,8 @@ namespace DotVVM.Framework.Utils
             typeof (decimal)
         };
 
-        public static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>() { 
-            typeof(string),
+        public static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>() {
+            typeof(string), typeof(char),
             typeof(bool),
             typeof(DateTime), typeof(DateTimeOffset), typeof(TimeSpan),
             typeof(Guid),
@@ -274,9 +308,20 @@ namespace DotVVM.Framework.Utils
         public static bool IsDictionary(Type type)
         {
             return type.GetInterfaces().Any(x => x.IsGenericType
-                    && x.GetGenericTypeDefinition() == typeof(IDictionary<,>));
+              && x.GetGenericTypeDefinition() == typeof(IDictionary<,>));
         }
+        public static bool ImplementsGenericDefinition(Type type, Type genericInterfaceDefinition)
+        {
+            if (!genericInterfaceDefinition.IsInterface || !genericInterfaceDefinition.IsGenericTypeDefinition)
+            {
+                throw new ArgumentNullException($"'{genericInterfaceDefinition.FullName}' is not a generic interface definition.");
+            }
 
+            return type.GetInterfaces()
+                .Concat(new[] { type })
+                .Where(i => i.IsGenericType)
+                .Any(i => i.GetGenericTypeDefinition() == genericInterfaceDefinition);
+        }
         public static bool IsCollection(Type type)
         {
             return type != typeof(string) && IsEnumerable(type) && !IsDictionary(type);

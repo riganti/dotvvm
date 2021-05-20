@@ -56,19 +56,19 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.Text(pre, t => !t.Contains("encryptedThing", StringComparison.CurrentCultureIgnoreCase));
 
                 // check that postback works
-                browser.ElementAt("input[type=button]", 0).Click().Wait();
+                browser.ElementAt("input[type=button]", 0).Click();
                 AssertUI.Text(pre, t => !t.Contains("encryptedThing", StringComparison.CurrentCultureIgnoreCase));
 
                 // change the viewmodel on client side and check that it works
-                browser.ElementAt("input[type=button]", 1).Click().Wait();
+                browser.ElementAt("input[type=button]", 1).Click();
                 AssertUI.Text(pre, t => !t.Contains("\"Next\": {", StringComparison.CurrentCultureIgnoreCase));
-                browser.ElementAt("input[type=button]", 0).Click().Wait();
+                browser.ElementAt("input[type=button]", 0).Click();
                 AssertUI.Text(pre, t => t.Contains("\"Next\": {", StringComparison.CurrentCultureIgnoreCase));
                 AssertUI.Text(pre, t => !t.Contains("encryptedThing", StringComparison.CurrentCultureIgnoreCase));
 
                 // tamper with encrypted values
                 browser.GetJavaScriptExecutor().ExecuteScript("dotvvm.viewModels.root.viewModel.$encryptedValues(dotvvm.viewModels.root.viewModel.$encryptedValues()[1] + dotvvm.viewModels.root.viewModel.$encryptedValues()[0] + dotvvm.viewModels.root.viewModel.$encryptedValues().substring(2));");
-                browser.ElementAt("input[type=button]", 0).Click().Wait();
+                browser.ElementAt("input[type=button]", 0).Click();
                 AssertUI.IsDisplayed(browser.Single("#debugWindow"));
             });
         }
@@ -84,16 +84,13 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // modify protected data
                 browser.Last("a").Click();
-                browser.Wait(750);
 
                 // make sure it happened
                 AssertUI.InnerTextEquals(browser.First("strong span"), "hello");
 
                 // try to do postback
                 browser.SendKeys("input[type=text]", "DotVVM rocks!");
-                browser.Wait(500);
                 browser.Click("input[type=button]");
-                browser.Wait(750);
 
                 // verify that the original value was restored
                 AssertUI.InnerTextEquals(browser.First("strong span"), originalValue);
@@ -102,7 +99,7 @@ namespace DotVVM.Samples.Tests.Feature
 
         [Theory]
         [InlineData("bothMessage", OriginalText, ChangedText, ChangedText)]
-        [InlineData("clientToServerMessage", "", ChangedText, ChangedText)]
+        [InlineData("clientToServerMessage", "Lorem Ipsum Dolor Sit Amet", ChangedText, ChangedText)]
         [InlineData("ifInPostbackPathMessage", OriginalText, ChangedText, OriginalText)]
         [InlineData("serverToClientFirstRequestMessage", OriginalText, ChangedText, ChangedText)]
         [InlineData("serverToClientPostbackMessage", "", "", OriginalText)]
@@ -111,7 +108,7 @@ namespace DotVVM.Samples.Tests.Feature
             RunComplexViewModelProtectionTest(browser => {
                 var message = browser.Single(messageDataUi, this.SelectByDataUi);
                 AssertUI.TextEquals(message, originalText);
-                browser.Single($"change-{messageDataUi}", this.SelectByDataUi).Click().Wait();
+                browser.Single($"change-{messageDataUi}", this.SelectByDataUi).Click();
 
                 message = browser.Single(messageDataUi, this.SelectByDataUi);
                 AssertUI.TextEquals(message, changedText);
@@ -133,7 +130,7 @@ namespace DotVVM.Samples.Tests.Feature
             int checkedRadioIndex = (int)selectedColor;
             AssertUI.IsChecked(radios[checkedRadioIndex]);
             radios.RemoveAt(checkedRadioIndex);
-            radios.ForEach(AssertUI.IsNotChecked);
+            radios.ForEach(s => AssertUI.IsNotChecked(s));
 
             AssertUI.TextEquals(selectedColorElement, selectedColor.ToString().ToLower());
         }

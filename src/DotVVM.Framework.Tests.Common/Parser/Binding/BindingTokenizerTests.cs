@@ -53,7 +53,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingTokenizer_AllOperators_Valid()
         {
-            var tokens = Tokenize("+ - * / % < > <= >= == != ! & && | || ? : ?? . ,");
+            var tokens = Tokenize("+ - * / % < > <= >= == != ! & && | || ? : ?? . , =>");
 
             var index = 0;
             Assert.AreEqual(BindingTokenType.AddOperator, tokens[index++].Type);
@@ -97,6 +97,8 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(BindingTokenType.Dot, tokens[index++].Type);
             Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
             Assert.AreEqual(BindingTokenType.Comma, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.LambdaOperator, tokens[index++].Type);
             Assert.AreEqual(index, tokens.Count);
         }
 
@@ -235,6 +237,26 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(BindingTokenType.NotOperator, tokens[index++].Type);
             Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
             Assert.AreEqual(index, tokens.Count);
+        }
+
+        [TestMethod]
+        [DataRow("$\"String {Arg}\"")]
+        [DataRow("$'String {Arg}'")]
+        public void BindingTokenizer_InterpolatedString_Valid(string expression)
+        {
+            var tokens = Tokenize(expression);
+            Assert.AreEqual(1, tokens.Count);
+            Assert.AreEqual(BindingTokenType.InterpolatedStringToken, tokens[0].Type);
+        }
+
+        [TestMethod]
+        [DataRow("$'String {'InnerString'}'")]
+        [DataRow("$'String {$'Inner {'InnerInnerString'}'}'")]
+        public void BindingTokenizer_InterpolatedString_InnerString(string expression)
+        {
+            var tokens = Tokenize(expression);
+            Assert.AreEqual(1, tokens.Count);
+            Assert.AreEqual(BindingTokenType.InterpolatedStringToken, tokens[0].Type);
         }
 
         [TestMethod]

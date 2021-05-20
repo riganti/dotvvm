@@ -70,6 +70,9 @@ namespace DotVVM.Framework.Compilation.Javascript
 
                 case ExpressionType.Invoke:
                     return TranslateInvoke((InvocationExpression)expression);
+
+                case ExpressionType.NewArrayInit:
+                    return TranslateNewArrayInit((NewArrayExpression)expression);
             }
             if (expression is BinaryExpression)
             {
@@ -81,6 +84,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
 
             throw new NotSupportedException($"The expression type {expression.NodeType} can not be translated to Javascript!");
+        }
+
+        private JsExpression TranslateNewArrayInit(NewArrayExpression expression)
+        {
+            var innerExpressions = expression.Expressions.Select(Translate).ToList();
+            return new JsArrayExpression(innerExpressions);
         }
 
         private JsExpression TranslateInvoke(InvocationExpression expression)
@@ -308,13 +317,13 @@ namespace DotVVM.Framework.Compilation.Javascript
             var result = new JsBinaryExpression(left, op, right);
             if (mayInduceDecimals && ReflectionUtils.IsNumericType(expression.Type) && expression.Type != typeof(float) && expression.Type != typeof(double) && expression.Type != typeof(decimal))
             {
-                if (new [] { typeof(Byte), typeof(SByte), typeof(Int16), typeof(UInt16), typeof(Int32) }.Contains(expression.Type))
+                if (new[] { typeof(Byte), typeof(SByte), typeof(Int16), typeof(UInt16), typeof(Int32) }.Contains(expression.Type))
                     // `(expr | 0)` to get the integer result type
                     return new JsBinaryExpression(
                         result,
                         BinaryOperatorType.BitwiseOr,
                         new JsLiteral(0));
-                else if (new [] { typeof(UInt32), typeof(UInt64) }.Contains(expression.Type))
+                else if (new[] { typeof(UInt32), typeof(UInt64) }.Contains(expression.Type))
                     // round down, unsigned integers are always rounded down
                     return new JsIdentifierExpression("Math").Member("floor").Invoke(result);
                 else

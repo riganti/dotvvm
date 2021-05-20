@@ -89,7 +89,7 @@ interface KnockoutComputed<T> extends KnockoutObservable<T>, KnockoutComputedFun
 interface KnockoutObservableArrayStatic {
     fn: KnockoutObservableArrayFunctions<any>;
 
-    <T>(value?: T[] | null): KnockoutObservableArray<T>;
+    <T>(value?: T[] | null, validator?: (newValue: T[]) => void): KnockoutObservableArray<T>;
 }
 
 interface KnockoutObservableArray<T> extends KnockoutObservable<T[]>, KnockoutObservableArrayFunctions<T> {
@@ -104,7 +104,7 @@ interface KnockoutObservableArray<T> extends KnockoutObservable<T[]>, KnockoutOb
 interface KnockoutObservableStatic {
     fn: KnockoutObservableFunctions<any>;
 
-    <T>(value?: T | null): KnockoutObservable<T>;
+    <T>(value?: T | null, validator?: (newValue: T[]) => void): KnockoutObservable<T>;
 }
 
 interface KnockoutObservable<T> extends KnockoutSubscribable<T>, KnockoutObservableFunctions<T> {

@@ -1,9 +1,7 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using DotVVM.CommandLine;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NJsonSchema;
@@ -23,14 +21,15 @@ namespace DotVVM.CommandLine.OpenApi
             ILogger? logger = null)
         {
             logger ??= NullLogger.Instance;
+
             logger.LogInformation($"Loading API from '{definition.SwaggerFile}'.");
             var document = await LoadDocument(definition.SwaggerFile);
 
             document.PopulateOperationIds();
             logger.LogInformation($"Generating '{definition.CSharpClient}'.");
-            var (isSingleClient, typeName) = GenerateCSharp(document, definition);
+            var (isSingleClient, typeName) = GenerateCSharpClient(document, definition);
             logger.LogInformation($"Generating '{definition.TypescriptClient}'.");
-            GenerateTS(document, definition);
+            GenerateTypeScriptClient(document, definition);
 
             var snippet = $"config.RegisterApi{(isSingleClient ? "Client" : "Group")}"
                 + $"(typeof({definition.Namespace}.{(definition.GenerateWrapperClass || isSingleClient ? typeName : " ... your client wrapper class ...")}), "
@@ -40,7 +39,7 @@ namespace DotVVM.CommandLine.OpenApi
             logger.LogInformation($"Place the following in your DotvvmStartup: '{snippet}'.");
         }
 
-        public static (bool isSingleClient, string typeName) GenerateCSharp(
+        public static (bool isSingleClient, string typeName) GenerateCSharpClient(
             OpenApiDocument document,
             ApiClientDefinition definition)
         {
@@ -71,7 +70,7 @@ namespace DotVVM.CommandLine.OpenApi
                 settings.ClassName = className;
             }
 
-            settings.CSharpGeneratorSettings.TypeNameGenerator = new DotvmmCSharpTypeNameGenerator(
+            settings.CSharpGeneratorSettings.TypeNameGenerator = new DotvvmCSharpTypeNameGenerator(
                 settings.CSharpGeneratorSettings,
                 document);
             settings.CSharpGeneratorSettings.TemplateFactory = new DotvvmClientTemplateFactory(
@@ -95,7 +94,7 @@ namespace DotVVM.CommandLine.OpenApi
             return (definition.IsSingleClient, className);
         }
 
-        public static void GenerateTS(
+        public static void GenerateTypeScriptClient(
             OpenApiDocument document,
             ApiClientDefinition definition)
         {

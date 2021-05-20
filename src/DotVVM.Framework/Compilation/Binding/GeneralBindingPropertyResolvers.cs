@@ -28,13 +28,15 @@ namespace DotVVM.Framework.Compilation.Binding
         private readonly IBindingExpressionBuilder bindingParser;
         private readonly StaticCommandBindingCompiler staticCommandBindingCompiler;
         private readonly JavascriptTranslator javascriptTranslator;
+        private readonly ExtensionMethodsCache extensionsMethodCache;
 
-        public BindingPropertyResolvers(IBindingExpressionBuilder bindingParser, StaticCommandBindingCompiler staticCommandBindingCompiler, JavascriptTranslator javascriptTranslator, DotvvmConfiguration configuration)
+        public BindingPropertyResolvers(IBindingExpressionBuilder bindingParser, StaticCommandBindingCompiler staticCommandBindingCompiler, JavascriptTranslator javascriptTranslator, DotvvmConfiguration configuration, ExtensionMethodsCache extensionsCache)
         {
             this.configuration = configuration;
             this.bindingParser = bindingParser;
             this.staticCommandBindingCompiler = staticCommandBindingCompiler;
             this.javascriptTranslator = javascriptTranslator;
+            this.extensionsMethodCache = extensionsCache;
         }
 
         public ActionFiltersBindingProperty GetActionFilters(ParsedExpressionBindingProperty parsedExpression)
@@ -71,7 +73,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             var valueParameter = Expression.Parameter(typeof(object), "value");
             var body = BindingCompiler.ReplaceParameters(binding.Expression, dataContext);
-            body = ExpressionHelper.UpdateMember(body, valueParameter);
+            body = new MemberExpressionFactory(extensionsMethodCache, dataContext.NamespaceImports).UpdateMember(body, valueParameter);
             if (body == null)
             {
                 return null;
@@ -170,7 +172,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (prop == null) return new BindingCompilationRequirementsAttribute();
 
             return
-                new [] { new BindingCompilationRequirementsAttribute() }
+                new[] { new BindingCompilationRequirementsAttribute() }
                 .Concat(prop.PropertyInfo?.GetCustomAttributes<BindingCompilationRequirementsAttribute>() ?? Enumerable.Empty<BindingCompilationRequirementsAttribute>())
                 .Aggregate((a, b) => a.ApplySecond(b));
         }
@@ -248,6 +250,11 @@ namespace DotVVM.Framework.Compilation.Binding
                 )
             ));
         }
+        public ExpectedAsStringBindingExpression ExpectAsStringBinding(ParsedExpressionBindingProperty e, IBinding binding)
+        {
+            return new ExpectedAsStringBindingExpression(binding.DeriveBinding(new ExpectedTypeBindingProperty(typeof(string)), e));
+        }
+
 
         public DataSourceAccessBinding GetDataSourceAccess(ParsedExpressionBindingProperty expression, IBinding binding)
         {
@@ -280,7 +287,7 @@ namespace DotVVM.Framework.Compilation.Binding
             else if (expression.Expression.Type.Implements(typeof(IEnumerable<>)))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
                     new ParsedExpressionBindingProperty(
-                        Expression.Call(typeof(Enumerable), "Count", new [] { ReflectionUtils.GetEnumerableType(expression.Expression.Type) },expression.Expression)
+                        Expression.Call(typeof(Enumerable), "Count", new[] { ReflectionUtils.GetEnumerableType(expression.Expression.Type) }, expression.Expression)
                     )));
             else throw new NotSupportedException($"Can not find collection length from binding '{expression.Expression}'.");
         }

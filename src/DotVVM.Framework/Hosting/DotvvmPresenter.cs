@@ -25,6 +25,7 @@ using DotVVM.Framework.Runtime.Tracing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Security;
+using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -180,8 +181,8 @@ namespace DotVVM.Framework.Hosting
                 // run the init phase in the page
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init);
                 await requestTracer.TraceEvent(RequestTracingConstants.InitCompleted, context);
-                object? commandResult = null;
 
+                object? commandResult = null;
                 if (!isPostBack)
                 {
                     // perform standard get
@@ -268,8 +269,7 @@ namespace DotVVM.Framework.Hosting
                 }
                 await requestTracer.TraceEvent(RequestTracingConstants.ViewModelSerialized, context);
 
-                ViewModelSerializer.BuildViewModel(context);
-                if (commandResult != null) context.ViewModelJson!["commandResult"] = JToken.FromObject(commandResult);
+                ViewModelSerializer.BuildViewModel(context, commandResult);
 
                 if (!context.IsInPartialRenderingMode)
                 {
@@ -373,7 +373,8 @@ namespace DotVVM.Framework.Hosting
 
                 var result = await ExecuteCommand(actionInfo, context, filters);
 
-                await OutputRenderer.WriteStaticCommandResponse(context,
+                await OutputRenderer.WriteStaticCommandResponse(
+                    context,
                     ViewModelSerializer.BuildStaticCommandResponse(context, result));
             }
             finally
@@ -392,18 +393,25 @@ namespace DotVVM.Framework.Hosting
                 await filter.OnCommandExecutingAsync(context, action);
             }
 
-            object? result = null;
-            Task? resultTask = null;
-
             try
             {
-                result = action.Action();
+                var commandResultOrNotYetComputedAwaitable = action.Action();
 
-                resultTask = result as Task;
-                if (resultTask != null)
+                if (commandResultOrNotYetComputedAwaitable is Task commandTask)
                 {
-                    await resultTask;
+                    await commandTask;
+                    return TaskUtils.GetResult(commandTask);
                 }
+
+                var resultType = commandResultOrNotYetComputedAwaitable?.GetType();
+                var possibleResultAwaiter = resultType?.GetMethod(nameof(Task.GetAwaiter), new Type[] { });
+
+                if(resultType != null && possibleResultAwaiter != null)
+                {
+                    throw new NotSupportedException($"The command uses unsupported awaitable type {resultType.FullName}, please use System.Task instead.");
+                }
+                
+                return commandResultOrNotYetComputedAwaitable;
             }
             catch (Exception ex)
             {
@@ -417,24 +425,21 @@ namespace DotVVM.Framework.Hosting
                 }
                 context.CommandException = ex;
             }
-
-            // run OnCommandExecuted on action filters
-            foreach (var filter in methodFilters.Reverse())
+            finally
             {
-                await filter.OnCommandExecutedAsync(context, action, context.CommandException);
-            }
+                // run OnCommandExecuted on action filters
+                foreach (var filter in methodFilters.Reverse())
+                {
+                    await filter.OnCommandExecutedAsync(context, action, context.CommandException);
+                }
 
-            if (context.CommandException != null && !context.IsCommandExceptionHandled)
-            {
-                throw new Exception("Unhandled exception occurred in the command!", context.CommandException);
+                if (context.CommandException != null && !context.IsCommandExceptionHandled)
+                {
+                    throw new Exception("Unhandled exception occurred in the command!", context.CommandException);
+                }
             }
-
-            if (resultTask != null)
-            {
-                return TaskUtils.GetResult(resultTask);
-            }
-
-            return result;
+            
+            return null;
         }
 
         public static bool DetermineIsPostBack(IHttpContext context)

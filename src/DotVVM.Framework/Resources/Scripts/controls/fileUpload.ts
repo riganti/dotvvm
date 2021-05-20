@@ -1,35 +1,28 @@
 import { wrapObservable } from '../utils/knockout';
 import { deserialize } from '../serialization/deserialize';
+import { updateTypeInfo } from '../metadata/typeMap';
 
 export function showUploadDialog(sender: HTMLElement) {
     // trigger the file upload dialog
-    const iframe = getIframe(sender);
-    createUploadId(sender, iframe);
-    openUploadDialog(iframe);
+    let fileUpload = <HTMLInputElement>sender.parentElement!.parentElement!.querySelector("input[type=file]");
+    fileUpload!.click();
 }
 
-export function createUploadId(sender: HTMLElement, iframe: HTMLElement): void {
-    iframe = iframe || getIframe(sender);
-    const uploadId = "DotVVM_upl" + new Date().getTime().toString();
-    sender.parentElement!.parentElement!.setAttribute("data-dotvvm-upload-id", uploadId);
-
-    iframe.setAttribute("data-dotvvm-upload-id", uploadId);
-}
-
-export function reportProgress(targetControlId: any, isBusy: boolean, progress: number, result: DotvvmFileUploadData[] | string): void {
+export function reportProgress(inputControl: HTMLInputElement, isBusy: boolean, progress: number, result: DotvvmStaticCommandResponse<DotvvmFileUploadData[]> | string): void {
     // find target control viewmodel
-    const targetControl = <HTMLDivElement> document.querySelector("div[data-dotvvm-upload-id='" + targetControlId.value + "']");
+    const targetControl = <HTMLDivElement> inputControl.parentElement!;
     const viewModel = <DotvvmFileUploadCollection> ko.dataFor(targetControl.firstChild);
 
     // determine the status
     if (typeof result === "string") {
         // error during upload
         viewModel.Error(result);
-    } else {
+    } else if ("result" in result) {
         // files were uploaded successfully
         viewModel.Error("");
-        for (let i = 0; i < result.length; i++) {
-            viewModel.Files.push(wrapObservable(deserialize(result[i])));
+        updateTypeInfo(result.typeMetadata);
+        for (let i = 0; i < result.result.length; i++) {
+            viewModel.Files.push(wrapObservable(deserialize(result.result[i])));
         }
 
         // call the handler
@@ -41,33 +34,3 @@ export function reportProgress(targetControlId: any, isBusy: boolean, progress: 
     viewModel.IsBusy(isBusy);
 }
 
-function getIframe(sender: HTMLElement): HTMLIFrameElement {
-    return <HTMLIFrameElement> sender.parentElement!.previousSibling;
-}
-
-function openUploadDialog(iframe: HTMLIFrameElement): void {
-    const window = iframe.contentWindow;
-    if (window) {
-        const fileUpload = <HTMLInputElement> window.document.getElementById('upload');
-        fileUpload.click();
-    }
-}
-
-type DotvvmFileUploadCollection = {
-    Files: KnockoutObservableArray<KnockoutObservable<DotvvmFileUploadData>>;
-    Progress: KnockoutObservable<number>;
-    Error: KnockoutObservable<string>;
-    IsBusy: KnockoutObservable<boolean>;
-}
-type DotvvmFileUploadData = {
-    FileId: KnockoutObservable<string>;
-    FileName: KnockoutObservable<string>;
-    FileSize: KnockoutObservable<DotvvmFileSize>;
-    IsFileTypeAllowed: KnockoutObservable<boolean>;
-    IsMaxSizeExceeded: KnockoutObservable<boolean>;
-    IsAllowed: KnockoutObservable<boolean>;
-}
-type DotvvmFileSize = {
-    Bytes: KnockoutObservable<number>;
-    FormattedText: KnockoutObservable<string>;
-}

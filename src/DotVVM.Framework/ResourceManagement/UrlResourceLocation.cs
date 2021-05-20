@@ -13,14 +13,16 @@ namespace DotVVM.Framework.ResourceManagement
     public class UrlResourceLocation: IResourceLocation
     {
         public string Url { get; }
-        public UrlResourceLocation(string url)
+        public string DebugUrl { get; set; }
+        public UrlResourceLocation(string url, string? debugUrl = null)
         {
             this.Url = url;
+            this.DebugUrl = debugUrl ?? url;
         }
 
         public string GetUrl(IDotvvmRequestContext context, string name)
         {
-            return context.TranslateVirtualPath(Url);
+            return context.TranslateVirtualPath(context.Configuration.Debug ? DebugUrl : Url);
         }
     }
 

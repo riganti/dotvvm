@@ -1,8 +1,12 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Hosting;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
@@ -21,5 +25,46 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty ContentPlaceHolderIDProperty =
             DotvvmProperty.Register<string?, Content>(c => c.ContentPlaceHolderID);
+
+
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
+        {
+            base.OnPreRender(context);
+
+            var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
+            if (viewModule is object)
+            {
+                Debug.Assert(!viewModule.IsMarkupControl);
+                context.ResourceManager.AddRequiredResource(viewModule.ImportResourceName);
+            }
+        }
+
+        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            base.RenderBeginTag(writer, context);
+
+            var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
+            if (viewModule is object)
+            {
+                var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
+                settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
+
+                writer.WriteKnockoutDataBindComment("dotvvm-with-view-modules",
+                    $"{{ viewIdOrElement: {KnockoutHelper.MakeStringLiteral(viewModule.ViewId)}, modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}"
+                );
+            }
+        }
+
+        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
+            if (viewModule is object)
+            {
+                writer.WriteKnockoutDataBindEndComment();
+            }
+
+            base.RenderEndTag(writer, context);
+        }
+
     }
 }

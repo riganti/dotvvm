@@ -36,6 +36,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitLiteralExpression((LiteralExpressionBindingParserNode)node);
             }
+            else if (node is InterpolatedStringBindingParserNode)
+            {
+                return VisitInterpolatedStringExpression((InterpolatedStringBindingParserNode)node);
+            }
             else if (node is MemberAccessBindingParserNode)
             {
                 return VisitMemberAccess((MemberAccessBindingParserNode)node);
@@ -48,6 +52,14 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitUnaryOperator((UnaryOperatorBindingParserNode)node);
             }
+            else if (node is LambdaBindingParserNode)
+            {
+                return VisitLambda((LambdaBindingParserNode)node);
+            }
+            else if (node is LambdaParameterBindingParserNode)
+            {
+                return VisitLambdaParameter((LambdaParameterBindingParserNode)node);
+            }
             else if (node is MultiExpressionBindingParserNode)
             {
                 return VisitMultiExpression((MultiExpressionBindingParserNode)node);
@@ -55,6 +67,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             else if (node is AssemblyQualifiedNameBindingParserNode)
             {
                 return VisitAssemblyQualifiedName((AssemblyQualifiedNameBindingParserNode)node);
+            }
+            else if (node is FormattedBindingParserNode)
+            {
+                return VisitFormattedExpression((FormattedBindingParserNode)node);
             }
             else if (node is BlockBindingParserNode blockNode)
             {
@@ -72,6 +88,16 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 throw new NotSupportedException($"The node of type {node.GetType()} is not supported!");
             }
+        }
+
+        protected virtual T VisitLambda(LambdaBindingParserNode node)
+        {
+            return DefaultVisit(node);
+        }
+
+        protected virtual T VisitLambdaParameter(LambdaParameterBindingParserNode node)
+        {
+            return DefaultVisit(node);
         }
 
         protected virtual T VisitGenericName(GenericNameBindingParserNode node)
@@ -109,6 +135,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return DefaultVisit(node);
         }
 
+        protected virtual T VisitInterpolatedStringExpression(InterpolatedStringBindingParserNode node)
+        {
+            return DefaultVisit(node);
+        }
+
         protected virtual T VisitMemberAccess(MemberAccessBindingParserNode node)
         {
             return DefaultVisit(node);
@@ -130,6 +161,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         }
 
         protected virtual T VisitAssemblyQualifiedName(AssemblyQualifiedNameBindingParserNode node)
+        {
+            return DefaultVisit(node);
+        }
+
+        protected virtual T VisitFormattedExpression(FormattedBindingParserNode node)
         {
             return DefaultVisit(node);
         }

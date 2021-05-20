@@ -18,6 +18,8 @@ namespace DotVVM.Framework.Compilation.Binding
         public Expression Target { get; set; }
         public string MethodName { get; set; }
         public Type[] TypeArgs { get; set; }
+        public List<MethodInfo> Candidates { get; set; }
+        public bool HasExtensionCandidates { get; set; }
         public bool IsStatic => Target is StaticClassIdentifierExpression;
 
         private static MethodInfo CreateDelegateMethodInfo = typeof(Delegate).GetMethod("CreateDelegate", new[] { typeof(Type), typeof(object), typeof(MethodInfo) });
@@ -72,16 +74,16 @@ namespace DotVVM.Framework.Compilation.Binding
                 return Expression.Call(CreateDelegateMethodInfo, Expression.Constant(delegateType), Target, Expression.Constant(methodInfo))
                     .Apply(e => Expression.Convert(e, delegateType));
         }
-        public Expression CreateMethodCall(IEnumerable<Expression> args)
+        public Expression CreateMethodCall(IEnumerable<Expression> args, MemberExpressionFactory memberExpressionFactory)
         {
             var argsArray = args.ToArray();
             if (IsStatic)
             {
-                return ExpressionHelper.CallMethod((Target as StaticClassIdentifierExpression).Type, BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy, MethodName, TypeArgs, argsArray);
+                return memberExpressionFactory.CallMethod((Target as StaticClassIdentifierExpression).Type, BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy, MethodName, TypeArgs, argsArray);
             }
             else
             {
-                return ExpressionHelper.CallMethod(Target, BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy, MethodName, TypeArgs, argsArray);
+                return memberExpressionFactory.CallMethod(Target, BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy, MethodName, TypeArgs, argsArray);
             }
         }
 

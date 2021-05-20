@@ -6,6 +6,7 @@ import * as internalHandlers from './internal-handlers';
 import * as events from '../events';
 import * as gate from './gate';
 import { DotvvmPostbackError } from '../shared-classes';
+import { logError } from '../utils/logging';
 
 const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
     internalHandlers.suppressOnDisabledElementHandler,
@@ -68,7 +69,7 @@ export async function postBack(
                 serverResponseObject,
                 wasInterrupted,
                 commandResult: null,
-                response: (err.reason as any).response,
+                response: (err.reason as any)?.response,
                 error: err
             }
             events.afterPostback.trigger(eventArgs);
@@ -78,22 +79,24 @@ export async function postBack(
                 const errorEventArgs: DotvvmErrorEventArgs = {
                     ...options,
                     serverResponseObject,
-                    response: (err.reason as any).response,
+                    response: (err.reason as any)?.response,
                     error: err,
                     handled: false
                 }
                 events.error.trigger(errorEventArgs);
                 if (!errorEventArgs.handled) {
-                    console.error("Postback failed", errorEventArgs);                    
+                    logError("postback", "Postback failed", errorEventArgs);                    
                 } else {
                     return {
                         ...options,
                         serverResponseObject,
-                        response: (err.reason as any).response,
+                        response: (err.reason as any)?.response,
                         error: err
                     };
                 }
             }
+        } else {
+            logError("postback", "Unexpected exception during postback.", err);
         }
         throw err;
     }
@@ -141,7 +144,7 @@ export async function applyPostbackHandlers(
 
     try {
         const commit = await applyPostbackHandlersCore(saneNext, options, handlers);
-        const result = await commit();
+        const result = await commit(...args);
         return result;
     } catch (err) {
         
@@ -153,23 +156,25 @@ export async function applyPostbackHandlers(
                 const errorEventArgs: DotvvmErrorEventArgs = {
                     ...options,
                     serverResponseObject,
-                    response: (err.reason as any).response,
+                    response: (err.reason as any)?.response,
                     error: err,
                     handled: false
                 }
                 events.error.trigger(errorEventArgs);
 
                 if (!errorEventArgs.handled) {
-                    console.error("StaticCommand failed", errorEventArgs);
+                    logError("static-command", "StaticCommand failed", errorEventArgs);
                 } else {
                     return {
                         ...options,
                         serverResponseObject,
-                        response: (err.reason as any).response,
+                        response: (err.reason as any)?.response,
                         error: err
                     };
                 }
             }
+        } else {
+            logError("static-command", "Unexpected exception during static command.", err);
         }
         throw err
     }
@@ -282,6 +287,7 @@ function shouldTriggerErrorEvent(err: DotvvmPostbackError) {
     return err.reason.type == "network" || err.reason.type == "serverError";
 }
 function extractServerResponseObject(err: DotvvmPostbackError) {
+    if (!err.reason) return null;
     if (err.reason.type == "commit" && err.reason.args) {
         return err.reason.args.serverResponseObject;
     } 

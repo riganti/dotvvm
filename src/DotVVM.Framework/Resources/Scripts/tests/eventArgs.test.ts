@@ -7,6 +7,8 @@ import { WrappedResponse } from "../postback/http";
 import { spaNavigationFailed } from "../spa/events";
 import { updateViewModelAndControls } from "../postback/updater";
 import { detachAllErrors } from "../validation/error";
+import { getStateManager } from '../dotvvm-base';
+import { updateTypeInfo } from "../metadata/typeMap";
 
 
 jest.unmock("../spa/spa");
@@ -30,7 +32,7 @@ function appendAdditionalHeaders(headers: Headers, additionalHeaders?: { [key: s
 
 jest.mock("../postback/http", () => ({
     async fetchCsrfToken() {
-        getViewModel().$csrfToken = "test token"
+        getStateManager().update(vm => ({ ...vm, $csrfToken: "test token" }))
     },
 
     retryOnInvalidCsrfToken<TResult>(postbackFunction: () => Promise<TResult>) {
@@ -66,11 +68,12 @@ jest.mock("../postback/gate", () => ({
 function validateEvent(actual: { event: string, args: any }, expectedEvent: string, expectedCommandType: PostbackCommandType, ...extraValidations: ((args: any) => void)[]) {
     expect(actual.event).toBe(expectedEvent);
 
-    expect(actual.args.postbackId).toBeGreaterThan(0);
-    expect(actual.args.commandType).toBe(expectedCommandType);
-    expect(actual.args.args).toBeDefined();
-    expect(actual.args.viewModel).toBeDefined();
-
+    if (actual.event != "newState") {
+        expect(actual.args.postbackId).toBeGreaterThan(0);
+        expect(actual.args.commandType).toBe(expectedCommandType);
+        expect(actual.args.args).toBeDefined();
+        expect(actual.args.viewModel).toBeDefined();
+    }
     for (let validation of extraValidations) {
         validation(actual.args);
     }
@@ -178,8 +181,22 @@ const fetchDefinitions = {
     spaNavigateSuccess: async <T>(url: string, init: RequestInit) => {
         return {
             viewModel: {
+                $type: "t2",
                 PropertyA: 1,
                 PropertyB: 2
+            },
+            typeMetadata: {
+                t2: {
+                    type: "object",
+                    properties: {
+                        PropertyA: {
+                            type: "Int32"
+                        },
+                        PropertyB: {
+                            type: "Int32"
+                        }
+                    }
+                }
             },
             action: "successfulCommand",
             virtualDirectory: "",
@@ -233,13 +250,27 @@ const fetchDefinitions = {
     }
 };
 
-
+const typeMetadata: TypeMap = {
+    t1: {
+        type: "object",
+        properties: {
+            Property1: {
+                type: "Int32"
+            },
+            Property2: {
+                type: "Int32"
+            }
+        }
+    }
+}
 
 const originalViewModel = {
     viewModel: {
+        $type: "t1",
         Property1: 0,
         Property2: 0
     },
+    typeMetadata,
     url: "/myPage",
     virtualDirectory: "",
     renderedResources: ["resource1", "resource2"]
@@ -265,6 +296,7 @@ test("PostBack + success", async () => {
         validateEvent(history[i++], "beforePostback", "postback", validations.hasSender, validations.hasCancel);
         validateEvent(history[i++], "postbackResponseReceived", "postback", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject);
         validateEvent(history[i++], "postbackCommitInvoked", "postback", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject);
+        validateEvent(history[i++], "newState", "postback");
         validateEvent(history[i++], "postbackViewModelUpdated", "postback", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject);
         validateEvent(history[i++], "afterPostback", "postback", validations.hasSender, validations.hasWasInterrupted, validations.hasResponse, validations.hasServerResponseObject);
 
@@ -298,6 +330,7 @@ test("PostBack + viewModelCache", async () => {
         validateEvent(history[i++], "beforePostback", "postback", validations.hasSender, validations.hasCancel);
         validateEvent(history[i++], "postbackResponseReceived", "postback", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject);
         validateEvent(history[i++], "postbackCommitInvoked", "postback", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject);
+        validateEvent(history[i++], "newState", "postback");
         validateEvent(history[i++], "postbackViewModelUpdated", "postback", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject);
         validateEvent(history[i++], "afterPostback", "postback", validations.hasSender, validations.hasWasInterrupted, validations.hasResponse, validations.hasServerResponseObject);
 
@@ -333,6 +366,7 @@ test("PostBack + redirect", async () => {
     }
     finally {
         cleanup();
+        updateTypeInfo(typeMetadata)
     }
 
 });
@@ -419,8 +453,6 @@ test("PostBack + network error", async () => {
 });
 
 
-
-
 test("spaNavigation + success", async () => {
     fetchJson = fetchDefinitions.spaNavigateSuccess;
 
@@ -437,12 +469,14 @@ test("spaNavigation + success", async () => {
 
         let i = 2;  // skip the "init" and "initCompleted" event
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasSender, validations.hasCancel, validations.hasUrl);
+        validateEvent(history[i++], "newState", "postback");
         validateEvent(history[i++], "spaNavigated", "spaNavigation", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject, validations.hasUrl);
 
         expect(history.length).toBe(i);
     }
     finally {
         cleanup();
+        updateTypeInfo(typeMetadata)
     }
 
 });
@@ -463,14 +497,15 @@ test("spaNavigation + redirect", async () => {
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasSender, validations.hasCancel, validations.hasUrl);
         validateEvent(history[i++], "redirect", "spaNavigation", validations.hasSender, validations.hasResponse, validations.hasServerResponseObject, validations.hasUrl, validations.hasReplace);
         validateEvent(history[i++], "spaNavigating", "spaNavigation", validations.hasCancel, validations.hasUrl);
+        validateEvent(history[i++], "newState", "postback");
         validateEvent(history[i++], "spaNavigated", "spaNavigation", validations.hasResponse, validations.hasServerResponseObject, validations.hasUrl);
 
         expect(history.length).toBe(i);
     }
     finally {
         cleanup();
-
-        replaceViewModel(originalViewModel as RootViewModel);
+        updateTypeInfo(typeMetadata)
+        replaceViewModel(originalViewModel.viewModel as RootViewModel);
     }
 
 });
@@ -495,8 +530,8 @@ test("spaNavigation + redirect with replace (new page is loaded without SPA)", a
     }
     finally {
         cleanup();
-
-        replaceViewModel(originalViewModel as RootViewModel);
+        updateTypeInfo(typeMetadata)
+        replaceViewModel(originalViewModel.viewModel as RootViewModel);
     }
 
 });
@@ -524,6 +559,7 @@ test("spaNavigation + network error", async () => {
     }
     finally {
         cleanup();
+        updateTypeInfo(typeMetadata)
     }
 
 });
@@ -551,6 +587,7 @@ test("spaNavigation + server error", async () => {
     }
     finally {
         cleanup();
+        updateTypeInfo(typeMetadata)
     }
 
 });
@@ -561,8 +598,8 @@ test("staticCommand (JS only) + success", async () => {
     const cleanup = watchEvents(false);
     try {
 
-        await applyPostbackHandlers(options => (function(a,b) { 
-            return Promise.resolve(a.$data.Property1(b)); 
+        await applyPostbackHandlers(options => (function(a) { 
+            return Promise.resolve(a.$data.Property1(options.args[0])); 
         })(ko.contextFor(window.document.body)), window.document.body, [], [1]);
 
         var history = getEventHistory();
@@ -656,7 +693,7 @@ test("staticCommand (with server call) + server error", async () => {
                     dotvvm.staticCommandPostback(a,"test",[],options).then(function(r_0){resolve(r_0);},reject);
                 });
             }(window.document.body, ko.contextFor(window.document.body))), window.document.body, [], [])
-        ).rejects.toBeInstanceOf(DotvvmPostbackError);;
+        ).rejects.toBeInstanceOf(DotvvmPostbackError)
         
         var history = getEventHistory();
 

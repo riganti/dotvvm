@@ -5,7 +5,6 @@ using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
-using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -21,7 +20,6 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ClearElementsContent("input[type=text]");
                 browser.SendKeys("input[type=text]", "15");
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 browser.FindElements("br").ThrowIfDifferentCountThan(14);
 
@@ -29,7 +27,6 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ClearElementsContent("input[type=text]");
                 browser.SendKeys("input[type=text]", "5");
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 browser.FindElements("br").ThrowIfDifferentCountThan(4);
             });
@@ -45,33 +42,35 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ClearElementsContent("input[type=text]");
                 browser.SendKeys("input[type=text]", "test");
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 // check the inner text of generated items
-                browser.FindElements(".render-server p.item")
-                    .ThrowIfDifferentCountThan(5).ForEach(e => {
-                        AssertUI.InnerTextEquals(e, "test");
-                    });
-                browser.FindElements(".render-client p.item")
-                    .ThrowIfDifferentCountThan(5).ForEach(e => {
-                        AssertUI.InnerTextEquals(e, "test");
-                    });
+                browser.WaitFor(() => {
+                    browser.FindElements(".render-server p.item")
+                        .ThrowIfDifferentCountThan(5).ForEach(e => {
+                            AssertUI.InnerTextEquals(e, "test");
+                        });
+                    browser.FindElements(".render-client p.item")
+                        .ThrowIfDifferentCountThan(5).ForEach(e => {
+                            AssertUI.InnerTextEquals(e, "test");
+                        });
+                }, 5000);
 
                 // change the text and client the button
                 browser.ClearElementsContent("input[type=text]");
                 browser.SendKeys("input[type=text]", "xxx");
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 // check the inner text of generated items
-                browser.FindElements(".render-server p.item")
-                    .ThrowIfDifferentCountThan(5).ForEach(e => {
-                        AssertUI.InnerTextEquals(e, "xxx");
-                    });
-                browser.FindElements(".render-client p.item")
-                    .ThrowIfDifferentCountThan(5).ForEach(e => {
-                        AssertUI.InnerTextEquals(e, "xxx");
-                    });
+                browser.WaitFor(() => {
+                    browser.FindElements(".render-server p.item")
+                        .ThrowIfDifferentCountThan(5).ForEach(e => {
+                            AssertUI.InnerTextEquals(e, "xxx");
+                        });
+                    browser.FindElements(".render-client p.item")
+                        .ThrowIfDifferentCountThan(5).ForEach(e => {
+                            AssertUI.InnerTextEquals(e, "xxx");
+                        });
+                }, 5000);
             });
         }
 
@@ -101,53 +100,44 @@ namespace DotVVM.Samples.Tests.Feature
             section.ElementAt("input[type=button]", 0).Click();
             AssertUI.AlertTextEquals(browser, "Confirmation 1");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "1");
 
             // cancel second
             section.ElementAt("input[type=button]", 1).Click();
             AssertUI.AlertTextEquals(browser, "Confirmation 1");
             browser.ConfirmAlert();
-            browser.Wait();
 
             AssertUI.AlertTextEquals(browser, "Confirmation 2");
             browser.DismissAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "1");
             // confirm second
             section.ElementAt("input[type=button]", 1).Click();
             AssertUI.AlertTextEquals(browser, "Confirmation 1");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.AlertTextEquals(browser, "Confirmation 2");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "2");
 
             // confirm third
             section.ElementAt("input[type=button]", 2).Click();
-            Assert.IsFalse(browser.HasAlert());
-            browser.Wait();
+            Assert.False(browser.HasAlert());
             AssertUI.InnerTextEquals(index, "3");
 
             // confirm fourth
             section.ElementAt("input[type=button]", 3).Click();
             AssertUI.AlertTextEquals(browser, "Generated 1");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "4");
 
             // confirm fifth
             section.ElementAt("input[type=button]", 4).Click();
             AssertUI.AlertTextEquals(browser, "Generated 2");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "5");
 
             // confirm conditional
             section.ElementAt("input[type=button]", 5).Click();
-            Assert.IsFalse(browser.HasAlert());
-            browser.Wait();
+            Assert.False(browser.HasAlert());
             AssertUI.InnerTextEquals(index, "6");
 
             browser.First("input[type=checkbox]").Click();
@@ -155,14 +145,12 @@ namespace DotVVM.Samples.Tests.Feature
             section.ElementAt("input[type=button]", 5).Click();
             AssertUI.AlertTextEquals(browser, "Conditional 1");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "6");
 
             browser.First("input[type=checkbox]").Click();
 
             section.ElementAt("input[type=button]", 5).Click();
-            Assert.IsFalse(browser.HasAlert());
-            browser.Wait();
+            Assert.False(browser.HasAlert());
             AssertUI.InnerTextEquals(index, "6");
 
             browser.First("input[type=checkbox]").Click();
@@ -170,7 +158,6 @@ namespace DotVVM.Samples.Tests.Feature
             section.ElementAt("input[type=button]", 5).Click();
             AssertUI.AlertTextEquals(browser, "Conditional 1");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "6");
 
             //localization - resource binding in confirm postback handler message
@@ -178,7 +165,6 @@ namespace DotVVM.Samples.Tests.Feature
             section.ElementAt("input[type=button]", 6).Click();
             AssertUI.AlertTextEquals(browser, "EnglishValue");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "7");
 
             browser.First("#ChangeLanguageCZ").Click();
@@ -194,13 +180,11 @@ namespace DotVVM.Samples.Tests.Feature
             section.ElementAt("input[type=button]", 6).Click();
             AssertUI.AlertTextEquals(browser, "CzechValue");
             browser.DismissAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "0");
 
             section.ElementAt("input[type=button]", 6).Click();
             AssertUI.AlertTextEquals(browser, "CzechValue");
             browser.ConfirmAlert();
-            browser.Wait();
             AssertUI.InnerTextEquals(index, "7");
         }
 
@@ -246,9 +230,10 @@ namespace DotVVM.Samples.Tests.Feature
                 var button = browser.ElementAt("input[type=button]", 0);
                 button.Click();
                 AssertUI.HasClass(button, "pending");
-                Thread.Sleep(3000);
-                AssertUI.HasClass(button, "success");
-                AssertUI.InnerTextEquals(counter, "1");
+                browser.WaitFor(() => {
+                    AssertUI.HasClass(button, "success");
+                    AssertUI.InnerTextEquals(counter, "1");
+                }, 5000);
 
                 // command: client validation
                 button = browser.ElementAt("input[type=button]", 1);
@@ -263,38 +248,40 @@ namespace DotVVM.Samples.Tests.Feature
                 button = browser.ElementAt("input[type=button]", 2);
                 button.Click();
                 AssertUI.HasClass(button, "pending");
-                Thread.Sleep(3000);
-                AssertUI.HasClass(button, "success");       // TODO: we should change the behavior so server-side validation will reject the promise
-                AssertUI.InnerTextEquals(counter, "1");
+                browser.WaitFor(() => {
+                    AssertUI.HasClass(button, "success"); // TODO: we should change the behavior so server-side validation will reject the promise
+                    AssertUI.InnerTextEquals(counter, "1");
+                }, 5000);
 
                 // command: server exception
                 button = browser.ElementAt("input[type=button]", 3);
                 button.Click();
                 AssertUI.HasClass(button, "pending");
-                Thread.Sleep(3000);
-                AssertUI.HasClass(button, "error");
-                AssertUI.InnerTextEquals(counter, "1");
-
-                browser.Wait(1000);
+                browser.WaitFor(() => {
+                    AssertUI.HasClass(button, "error");
+                    AssertUI.InnerTextEquals(counter, "1");
+                }, 5000);
+                
                 browser.Single("#closeDebugWindow").Click();
 
                 // staticCommand server call: success
                 button = browser.ElementAt("input[type=button]", 4);
                 button.Click();
                 AssertUI.HasClass(button, "pending");
-                Thread.Sleep(3000);
-                AssertUI.HasClass(button, "success");
-                AssertUI.InnerTextEquals(counter, "2");
+                browser.WaitFor(() => {
+                    AssertUI.HasClass(button, "success");
+                    AssertUI.InnerTextEquals(counter, "2");
+                }, 5000);
 
                 // staticCommand server call: server exception
                 button = browser.ElementAt("input[type=button]", 5);
                 button.Click();
                 AssertUI.HasClass(button, "pending");
-                Thread.Sleep(3000);
-                AssertUI.HasClass(button, "error");
-                AssertUI.InnerTextEquals(counter, "2");
+                browser.WaitFor(() => {
+                    AssertUI.HasClass(button, "error");
+                    AssertUI.InnerTextEquals(counter, "2");
+                }, 5000);
 
-                browser.Wait(1000);
                 browser.Single("#closeDebugWindow").Click();
 
                 // staticCommand local-only action: success

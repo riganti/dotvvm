@@ -53,7 +53,31 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 Read();
                 var assemblyName = ReadNamespaceOrTypeName();
-                if (!(assemblyName is SimpleNameBindingParserNode)) typeName.NodeErrors.Add($"Generic identifier name is not allowed in assembly name.");
+
+                // SimpleNameBinding means that assembly name does not contain dots
+                // MemberAccessBinding means that assembly name is complex (multiple identifiers delimited with dots)
+                if (!(assemblyName is SimpleNameBindingParserNode || assemblyName is MemberAccessBindingParserNode))
+                {
+                    assemblyName.NodeErrors.Add($"Expected assembly name but instead got {assemblyName.GetType().Name}.");
+                }
+                else if (assemblyName is MemberAccessBindingParserNode)
+                {
+                    // Make sure there is no GenericNameBinding within assemblyName
+                    var assemblyBinding = assemblyName;
+                    while (assemblyBinding is MemberAccessBindingParserNode assemblyMemberBinding)
+                    {
+                        var memberExprType = assemblyMemberBinding.MemberNameExpression.GetType();
+                        var targetExprType = assemblyMemberBinding.TargetExpression.GetType();
+                        if (memberExprType == typeof(GenericNameBindingParserNode) || targetExprType == typeof(GenericNameBindingParserNode))
+                        {
+                            assemblyName.NodeErrors.Add($"Generic identifier name is not allowed in an assembly name.");
+                            break;
+                        }
+
+                        assemblyBinding = assemblyMemberBinding.TargetExpression;
+                    }
+                }
+
                 return new AssemblyQualifiedNameBindingParserNode(typeName, assemblyName);
             }
             else if (Peek() is BindingToken token)
@@ -340,7 +364,112 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     return CreateNode(new UnaryOperatorBindingParserNode(target, @operator), startIndex, isOperatorUnsupported ? $"Unsupported operator {operatorToken.Text}" : null);
                 }
             }
-            return CreateNode(ReadIdentifierExpression(false), startIndex);
+            return CreateNode(ReadLambdaExpression(), startIndex);
+        }
+
+        private BindingParserNode ReadLambdaExpression()
+        {
+            var startIndex = CurrentIndex;
+            SetRestorePoint();
+
+            // Try to read lambda parameters
+            if (!TryReadLambdaParametersExpression(out var parameters) || Peek()?.Type != BindingTokenType.LambdaOperator)
+            {
+                // Fail - we should try to parse as an expression
+                Restore();
+                return CreateNode(ReadIdentifierExpression(false), startIndex);
+            }
+
+            // Read lambda operator
+            Read();
+            SkipWhiteSpace();
+            ClearRestorePoint();
+
+            // Read lambda body expression
+            var body = ReadExpression();
+            return CreateNode(new LambdaBindingParserNode(parameters, body), startIndex);
+        }
+
+        private bool TryReadLambdaParametersExpression(out List<LambdaParameterBindingParserNode> parameters)
+        {
+            var startIndex = CurrentIndex;
+            var waitingForParameter = false;
+            parameters = new List<LambdaParameterBindingParserNode>();
+            if (Peek()?.Type == BindingTokenType.OpenParenthesis)
+            {
+                // Begin parameters parsing - read opening parenthesis
+                Read();
+                SkipWhiteSpace();
+
+                while (Peek()?.Type != BindingTokenType.CloseParenthesis)
+                {
+                    // Try read parameter definition (either implicitly defined type or explicitely)
+                    if (!TryReadLambdaParameterDefinition(out var typeDef, out var nameDef))
+                        return false;
+                    parameters.Add(new LambdaParameterBindingParserNode(typeDef, nameDef!));
+                    waitingForParameter = false;
+
+                    if (Peek()?.Type == BindingTokenType.Comma)
+                    {
+                        Read();
+                        SkipWhiteSpace();
+                        waitingForParameter = true;
+                    }
+                    else
+                    {
+                        // If next is not comma then we must be finished
+                        break;
+                    }
+                }
+
+                // End parameters parsing - read closing parenthesis
+                if (Peek()?.Type != BindingTokenType.CloseParenthesis)
+                    return false;
+                Read();
+                SkipWhiteSpace();
+            }
+            else
+            {
+                // Support lambdas with single implicit parameter and no parentheses: arg => Method(arg)
+                var parameter = ReadIdentifierExpression(false);
+                if (parameter.HasNodeErrors)
+                    return false;
+
+                parameters.Add(new LambdaParameterBindingParserNode(null, CreateNode(parameter, startIndex)));
+            }
+
+            if (waitingForParameter)
+                return false;
+
+            return true;
+        }
+
+        private bool TryReadLambdaParameterDefinition(out BindingParserNode? type, out BindingParserNode? name)
+        {
+            name = null;
+            type = null;
+            if (Peek()?.Type != BindingTokenType.Identifier)
+                return false;
+
+            type = ReadIdentifierExpression(true);
+            SkipWhiteSpace();
+
+            if (Peek()?.Type != BindingTokenType.Identifier)
+            {
+                name = type;
+                type = null;
+                return true;
+            }
+            else
+            {
+                name = ReadIdentifierExpression(true);
+            }
+
+            // Name must always be a simple name binding
+            if (!(name is SimpleNameBindingParserNode))
+                return false;
+
+            return true;
         }
 
         private BindingParserNode ReadIdentifierExpression(bool onlyTypeName)
@@ -369,6 +498,24 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 {
                     expression = ReadArrayAccess(startIndex, expression);
                 }
+                else if (!onlyTypeName && next.Type == BindingTokenType.Identifier && expression is SimpleNameBindingParserNode keywordNameExpression)
+                {
+                    // we have `identifier identifier` - the first one must be a KEYWORD USAGE
+
+                    var keyword = keywordNameExpression.Name;
+                    if (keyword == "var")
+                    {
+                        return ReadVariableExpression(startIndex);
+                    }
+                    else if (keyword == "val" || keyword == "let" || keyword == "const")
+                    {
+                        expression = CreateNode(expression, startIndex, $"Variable declaration using {keyword} is not supported. Did you intend to use the var keyword?");
+                    }
+                    else
+                    {
+                        expression = CreateNode(expression, startIndex, $"Expression '{expression.ToDisplayString()}' can not be followed by an identifier. Did you intent to declare a variable using the var keyword?");
+                    }
+                }
                 else
                 {
                     break;
@@ -376,6 +523,35 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 next = Peek();
             }
             return expression;
+        }
+
+        private BindingParserNode ReadVariableExpression(int startIndex)
+        {
+            var variableName = ReadIdentifierNameExpression();
+            if (!(variableName is SimpleNameBindingParserNode))
+            {
+                variableName = CreateNode(variableName, variableName.StartPosition, $"Variable name can not be generic, please use the `var {variableName.Name} = X` syntax.");
+            }
+
+            var incorrectEquals = IsCurrentTokenIncorrect(BindingTokenType.AssignOperator);
+            if (!incorrectEquals)
+            {
+                Read();
+            }
+
+            var value = ReadSemicolonSeparatedExpression();
+
+            if (value is BlockBindingParserNode resultBlock)
+            {
+                return CreateNode(
+                    new BlockBindingParserNode(resultBlock.FirstExpression, resultBlock.SecondExpression, variableName),
+                    startIndex,
+                    !incorrectEquals ? null : $"Expected variable declaration `var {variableName.Name} = {resultBlock.FirstExpression}`");
+            }
+            else
+            {
+                return CreateNode(value, startIndex, $"Variable declaration must be followed by a semicolon and another expression. Please add the return value after `var {variableName.Name} = {value}; ...` or remove the `var {variableName.Name} = ` in case you only want to invoke the expression.");
+            }
         }
 
         private BindingParserNode ReadArrayAccess(int startIndex, BindingParserNode expression)
@@ -443,6 +619,21 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 {
                     node.NodeErrors.Add(error);
                 }
+                return node;
+            }
+            else if (token != null && token.Type == BindingTokenType.InterpolatedStringToken)
+            {
+                // interpolated string
+
+                Read();
+
+                var (format, arguments) = ParseInterpolatedString(token.Text, out var error);
+                var node = CreateNode(new InterpolatedStringBindingParserNode(format, arguments), startIndex);
+                if (error != null)
+                {
+                    node.NodeErrors.Add(error);
+                }
+
                 return node;
             }
             else
@@ -560,6 +751,74 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             }
             Restore();
             return CreateNode(new SimpleNameBindingParserNode(identifier), startIndex);
+        }
+
+        private BindingParserNode ReadFormattedExpression()
+        {
+            var startIndex = CurrentIndex;
+            BindingParserNode? node;
+
+            SkipWhiteSpace();
+
+            // 1) Parse expression
+            if (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.OpenParenthesis)
+            {
+                // Conditional expressions must be enclosed in parentheses
+                Read();
+                SkipWhiteSpace();
+                node = ReadConditionalExpression();
+                SkipWhiteSpace();
+                if (IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis))
+                {
+                    node.NodeErrors.Add("Expected ')' after this expression.");
+                }
+                else
+                {
+                    Read();
+                }
+            }
+            else
+            {
+                // If expression is not enclosed in parentheses, read null coalescing expression
+                node = ReadNullCoalescingExpression();
+            }
+
+            SkipWhiteSpace();
+
+            // 2) Parse formatting component (optional)
+            if (Peek() is BindingToken delimitingToken && delimitingToken.Type == BindingTokenType.ColonOperator)
+            {
+                Read();
+                if (IsCurrentTokenIncorrect(BindingTokenType.Identifier))
+                {
+                    node.NodeErrors.Add("Expected an identifier after ':'. The identifier should specify formatting for the previous expression!");
+                }
+
+                // Scan all remaining tokens
+                BindingToken? currentToken;
+                var formatTokens = new List<BindingToken>();
+                while ((currentToken = Read()) != null)
+                    formatTokens.Add(currentToken);
+
+                var format = $"{{0:{string.Concat(formatTokens.Select(token => token.Text))}}}";
+                return CreateNode(new FormattedBindingParserNode(node, format), startIndex);
+            }
+
+            SkipWhiteSpace();
+            if (Peek() != null)
+            {
+                if (Peek()!.Type == BindingTokenType.QuestionMarkOperator)
+                {
+                    // If it seems that user tried to use conditional expression, provide more concrete error message
+                    node.NodeErrors.Add("Conditional expression needs to be enclosed in parentheses.");
+                }
+                else
+                {
+                    node.NodeErrors.Add($"Expected end of interpolated expression, but instead found {Peek()!.Type}");
+                }
+            }
+
+            return node;
         }
 
         private static object? ParseNumberLiteral(string text, out string? error)
@@ -692,43 +951,183 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             error = null;
             var sb = new StringBuilder();
-            for (var i = 1; i < text.Length - 1; i++)
+
+            var index = 1;
+            while (index < text.Length - 1)
             {
-                if (text[i] == '\\')
+                if (TryParseCharacter(text, ref index, out var character, out var innerError))
                 {
-                    // handle escaped characters
-                    i++;
-                    if (i == text.Length - 1)
+                    sb.Append(character);
+                }
+                else
+                {
+                    error = innerError;
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        private static bool TryParseCharacter(string text, ref int index, out char character, out string? error)
+        {
+            var result = TryPeekCharacter(text, index, out var count, out character, out error);
+            index += count;
+            return result;
+        }
+
+        private static bool TryPeekCharacter(string text, int index, out int length, out char character, out string? error)
+        {
+            if (text[index] == '\\')
+            {
+                // handle escaped characters
+                length = 2;
+                index++;
+                if (index == text.Length - 1)
+                {
+                    error = "The escape character cannot be at the end of the string literal!";
+                    character = default;
+                    return false;
+                }
+                else if (text[index] == '\'' || text[index] == '"' || text[index] == '\\')
+                {
+                    character = text[index];
+                }
+                else if (text[index] == 'n')
+                {
+                    character = '\n';
+                }
+                else if (text[index] == 'r')
+                {
+                    character = '\r';
+                }
+                else if (text[index] == 't')
+                {
+                    character = '\t';
+                }
+                else
+                {
+                    error = "The escape sequence is either not valid or not supported in dotVVM bindings!";
+                    character = default;
+                    return false;
+                }
+
+                error = default;
+                return true;
+            }
+            else
+            {
+                character = text[index];
+                error = default;
+                length = 1;
+                return true;
+            }
+        }
+
+        private static (string, List<BindingParserNode>) ParseInterpolatedString(string text, out string? error)
+        {
+            error = null;
+            var sb = new StringBuilder();
+            var arguments = new List<BindingParserNode>();
+
+            var index = 2;
+            while (index < text.Length - 1)
+            {
+                if (TryParseCharacter(text, ref index, out var current, out var innerError))
+                {
+                    var hasNext = TryPeekCharacter(text, index, out var length, out var next, out _);
+                    if (hasNext && current == next && (current == '{' || current == '}'))
                     {
-                        error = "The escape character cannot be at the end of the string literal!";
+                        // If encountered double '{' or '}' do not treat is as an control character
+                        sb.Append(current);
+                        index += length;
                     }
-                    else if (text[i] == '\'' || text[i] == '"' || text[i] == '\\')
+                    else if (current == '{')
                     {
-                        sb.Append(text[i]);
+                        if (!TryParseInterpolationExpression(text, index, out var end, out var argument, out innerError))
+                        {
+                            arguments.Clear();
+                            error = string.Concat(error, " Interpolation expression is malformed. ", innerError).TrimStart();
+                            return (string.Empty, arguments);
+                        }
+                        arguments.Add(argument!);
+                        sb.Append("{" + (arguments.Count - 1).ToString() + "}");
+                        index = end + 1;
                     }
-                    else if (text[i] == 'n')
+                    else if (current == '}')
                     {
-                        sb.Append('\n');
-                    }
-                    else if (text[i] == 'r')
-                    {
-                        sb.Append('\r');
-                    }
-                    else if (text[i] == 't')
-                    {
-                        sb.Append('\t');
+                        innerError = "Could not find matching opening character '{' for an interpolated expression.";
+                        error = string.Concat(error, " Interpolation expression is malformed. ", innerError).TrimStart();
+                        return (string.Empty, arguments);
                     }
                     else
                     {
-                        error = "The escape sequence is either not valid or not supported in dotVVM bindings!";
+                        sb.Append(current);
                     }
                 }
                 else
                 {
-                    sb.Append(text[i]);
+                    error = innerError;
+                    index++;
                 }
             }
-            return sb.ToString();
+
+            return (sb.ToString(), arguments);
+        }
+
+        private static bool TryParseInterpolationExpression(string text, int start, out int end, out BindingParserNode? expression, out string? error)
+        {
+            var index = start;
+            var foundEnd = false;
+
+            var exprDepth = 0;
+            while (index < text.Length)
+            {
+                var current = text[index++];
+                if (current == '{')
+                {
+                    exprDepth++;
+                }
+                if (current == '}')
+                {
+                    if (exprDepth == 0)
+                    {
+                        foundEnd = true;
+                        break;
+                    }
+                    exprDepth--;
+                }
+            }
+
+            if (!foundEnd)
+            {
+                end = -1;
+                expression = null;
+                error = "Could not find matching closing character '}' for an interpolated expression.";
+                return false;
+            }
+
+            end = index - 1;
+            if (start == end)
+            {
+                // Provided expression is empty
+                expression = null;
+                error = "Expected expression, but instead found empty \"{}\".";
+                return false;
+            }
+
+            error = null;
+            var rawExpression = text.Substring(start, end - start);
+            var tokenizer = new BindingTokenizer();
+            tokenizer.Tokenize(rawExpression);
+            var parser = new BindingParser() { Tokens = tokenizer.Tokens };
+            expression = parser.ReadFormattedExpression();
+            if (expression.HasNodeErrors)
+            {
+                error = string.Join(" ", new[] { $"Error while parsing expression \"{rawExpression}\"." }.Concat(expression.NodeErrors));
+                return false;
+            }
+
+            return expression != null;
         }
 
         private T CreateNode<T>(T node, int startIndex, string? error = null) where T : BindingParserNode

@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Hosting;
+using DotVVM.Core.Storage;
 
 public static class DotvvmRequestContextExtensions
 {
@@ -131,10 +132,11 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Returns the permanent redirect response and interrupts the execution of current request.
     /// </summary>
-    public static void RedirectToRoutePermanent(this IDotvvmRequestContext context, string routeName, object? newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true)
+    public static void RedirectToRoutePermanent(this IDotvvmRequestContext context, string routeName, object? newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string? urlSuffix = null, object? query = null)
     {
         var route = context.Configuration.RouteTable[routeName];
-        var url = route.BuildUrl(context.Parameters!, newRouteValues);
+        var url = route.BuildUrl(context.Parameters!, newRouteValues) + UrlHelper.BuildUrlSuffix(urlSuffix, query);
+
         context.RedirectToUrlPermanent(url, replaceInHistory, allowSpaRedirect);
     }
 
@@ -231,7 +233,7 @@ public static class DotvvmRequestContextExtensions
             AttachmentDispositionType = attachmentDispositionType ?? "attachment"
         };
 
-        var generatedFileId = returnedFileStorage.StoreFile(stream, metadata).Result;
+        var generatedFileId = returnedFileStorage.StoreFileAsync(stream, metadata).Result;
         context.SetRedirectResponse(context.TranslateVirtualPath("~/dotvvmReturnedFile?id=" + generatedFileId));
         throw new DotvvmInterruptRequestExecutionException(InterruptReason.ReturnFile, fileName);
     }

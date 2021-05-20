@@ -7,6 +7,6 @@ namespace DotVVM.CommandLine
     {
         [DefaultValue("same-origin")]
         [JsonPropertyName("credentials")]
-        public string? Credentials { get; set; } = "same-origin";
+        public string Credentials { get; set; } = "same-origin";
     }
 }

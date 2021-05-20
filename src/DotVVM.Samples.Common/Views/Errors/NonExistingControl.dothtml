@@ -1,4 +1,4 @@
-@viewModel DotVVM.Framework.Controls.EmptyData, DotVVM.Framework
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.EmptyViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -7,6 +7,6 @@
 </head>
 <body>
     <!-- DO NOT CHANGE THE TAG NAME - the tag name is used in tests-->
-	<dot:NonExistingControl />
+    <dot:NonExistingControl />
 </body>
 </html>

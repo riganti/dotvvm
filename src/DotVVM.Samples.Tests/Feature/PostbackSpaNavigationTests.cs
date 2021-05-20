@@ -26,17 +26,17 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // click the button and make sure the postback works
                 AssertUI.TextEquals(result, "0");
-                buttons[0].Click().Wait();
+                buttons[0].Click();
                 AssertUI.TextEquals(result, "1");
-                buttons[1].Click().Wait();
+                buttons[1].Click();
                 AssertUI.TextEquals(result, "2");
 
                 // click the first link to trigger the navigation
                 links[0].Click();
 
-                buttons[0].Click().Wait();
+                buttons[0].Click();
                 AssertUI.TextEquals(result, "2");
-                buttons[1].Click().Wait();
+                buttons[1].Click();
                 AssertUI.TextEquals(result, "2");
 
                 browser.Wait(3000);
@@ -58,18 +58,18 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // click the button and make sure the postback works
                 AssertUI.TextEquals(result, "0");
-                buttons[0].Click().Wait();
+                buttons[0].Click();
                 AssertUI.TextEquals(result, "1");
-                buttons[1].Click().Wait();
+                buttons[1].Click();
                 AssertUI.TextEquals(result, "2");
 
                 // click the second link to trigger the navigation
                 links[1].Click();
 
                 // now the buttons shouldn't do anything
-                buttons[0].Click().Wait();
+                buttons[0].Click();
                 AssertUI.TextEquals(result, "2");
-                buttons[1].Click().Wait();
+                buttons[1].Click();
                 AssertUI.TextEquals(result, "2");
 
                 browser.Wait(3000);
@@ -79,13 +79,70 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Single("#debugWindow button").Click();
 
                 // now the buttons should work
-                buttons[0].Click().Wait();
+                buttons[0].Click();
                 AssertUI.TextEquals(result, "3");
-                buttons[1].Click().Wait();
+                buttons[1].Click();
                 AssertUI.TextEquals(result, "4");
             });
         }
 
+        [SampleReference(SamplesRouteUrls.FeatureSamples_PostbackSpaNavigation_PageA)]
+        [SampleReference(SamplesRouteUrls.FeatureSamples_PostbackSpaNavigation_PageB)]
+        [Fact]
+        public void PostbackSpaNavigationTest_SuccessfulNavigation_SurvivingCommand()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackSpaNavigation_PageA);
+
+                var links = browser.FindElements("a");
+                var buttons = browser.FindElements("input[type=button]");
+                var result = browser.Single(".result");
+
+                // click the button to start a long postback
+                AssertUI.TextEquals(result, "0");
+                buttons[2].Click();
+
+                // click the first link to trigger the navigation
+                links[0].Click();
+
+                // wait for the navigation and postback to finish
+                browser.Wait(6000);
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.FeatureSamples_PostbackSpaNavigation_PageB);
+
+                // check that the new field was not incremented
+                result = browser.Single(".result");
+                AssertUI.TextEquals(result, "0");
+            });
+        }
+
+        [SampleReference(SamplesRouteUrls.FeatureSamples_PostbackSpaNavigation_PageA)]
+        [SampleReference(SamplesRouteUrls.FeatureSamples_PostbackSpaNavigation_PageB)]
+        [Fact(Skip = "Won't fix in 2.5 - we don't know what else could break because of this.")]
+        public void PostbackSpaNavigationTest_SuccessfulNavigation_SurvivingStaticCommand()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackSpaNavigation_PageA);
+
+                var links = browser.FindElements("a");
+                var buttons = browser.FindElements("input[type=button]");
+                var result = browser.Single(".result");
+
+                // click the button to start a long postback
+                AssertUI.TextEquals(result, "0");
+                buttons[3].Click();
+
+                // click the first link to trigger the navigation
+                links[0].Click();
+
+                // wait for the navigation and postback to finish
+                browser.Wait(6000);
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.FeatureSamples_PostbackSpaNavigation_PageB);
+
+                // check that the new field was not incremented
+                result = browser.Single(".result");
+                AssertUI.TextEquals(result, "0");
+            });
+        }
 
         public PostbackSpaNavigationTests(ITestOutputHelper output) : base(output)
         {

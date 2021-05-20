@@ -11,14 +11,6 @@ namespace DotVVM.CommandLine
 {
     public static class CompilerCommands
     {
-        public const string ShimName = "Compiler";
-        public const string AssemblyNameOption = "--assembly-name";
-        public const string ApplicationPathOption = "--application-path";
-        public const string PackageName = "DotVVM.Compiler";
-        public const string ShimProgramFile = "Compiler.cs";
-        public const string ShimProjectFile = "Compiler.csproj";
-        public const string ProgramClass = "DotVVM.Compiler.Program";
-
         public static void AddCompilerCommands(this Command command)
         {
             var lintCmd = new Command("lint", "Look for compiler errors in Views and Markup Controls");
@@ -48,9 +40,15 @@ namespace DotVVM.CommandLine
                 return 1;
             }
 
+            var targetFramework = NuGetFramework.Parse(framework);
             if (!noBuild)
             {
-                var msbuild = MSBuild.CreateFromSdk();
+                var msbuild = MSBuild.CreateForNuGetFramework(targetFramework);
+                if (msbuild is null)
+                {
+                    logger.LogError("No MSBuild executable could be found.");
+                    return 1;
+                }
                 var buildSuccess = msbuild.TryBuild(
                     project: new FileInfo(project.ProjectFilePath),
                     configuration: configuration,
@@ -58,7 +56,7 @@ namespace DotVVM.CommandLine
                     logger: logger);
                 if (!buildSuccess)
                 {
-                    logger.LogError("The project could be built. "
+                    logger.LogError("The project could not be built. "
                         + "Please check for compiler errors using 'dotnet build' or Visual Studio.'");
                     return 1;
                 }
@@ -67,7 +65,6 @@ namespace DotVVM.CommandLine
             var compilerArgs = new List<string>();
 
             var cliDirectory = Path.GetDirectoryName(typeof(Program).Assembly.Location)!;
-            var targetFramework = NuGetFramework.Parse(framework);
             var executable = "dotnet";
             if (targetFramework.IsDesktop())
             {
@@ -82,7 +79,7 @@ namespace DotVVM.CommandLine
 
             var projectDir = Path.GetDirectoryName(project.ProjectFilePath)!;
             var outputDir = Path.Combine(projectDir, project.OutputPath, configuration, framework);
-            if (!Directory.Exists(outputDir))
+            while (!Directory.Exists(outputDir))
             {
                 outputDir = Directory.GetParent(outputDir).FullName;
             }

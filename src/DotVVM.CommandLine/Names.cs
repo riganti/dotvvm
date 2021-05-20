@@ -54,12 +54,12 @@ namespace DotVVM.CommandLine
             var parts = viewLocation.Split('/', '\\');
             for (int i = 0; i < parts.Length; i++)
             {
-                if (String.Equals(parts[i], ViewsDirectory, StringComparison.CurrentCultureIgnoreCase))
+                if (string.Equals(parts[i], ViewsDirectory, StringComparison.CurrentCultureIgnoreCase))
                 {
                     parts[i] = ViewModelsDirectory;
                 }
             }
-            return String.Join("/", parts);
+            return string.Join("/", parts);
         }
 
         public static string GetNamespace(string directory, string projectPath, string rootNamespace)

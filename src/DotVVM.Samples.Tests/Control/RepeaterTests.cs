@@ -4,6 +4,7 @@ using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -20,7 +21,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_DataSourceNull);
-                browser.Wait();
 
                 var clientRepeater = browser.Single("client-repeater", this.SelectByDataUi);
                 var serverRepeater = browser.Single("server-repeater", this.SelectByDataUi);
@@ -29,7 +29,7 @@ namespace DotVVM.Samples.Tests.Control
                 Assert.Equal(0, serverRepeater.Children.Count);
 
                 var button = browser.Single("set-collection-button", this.SelectByDataUi);
-                button.Click().Wait();
+                button.Click();
 
                 clientRepeater = browser.Single("client-repeater", this.SelectByDataUi);
                 serverRepeater = browser.Single("server-repeater", this.SelectByDataUi);
@@ -44,7 +44,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RepeaterAsSeparator);
-                browser.Wait();
 
                 var repeater = browser.Single("root-repeater", this.SelectByDataUi);
 
@@ -64,6 +63,7 @@ namespace DotVVM.Samples.Tests.Control
                     }
 
                     browser.Single("add-item-button", SelectByDataUi).Click();
+                    browser.WaitForPostback();
                 }
             });
         }
@@ -74,7 +74,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RepeaterAsSeparator);
-                browser.Wait();
 
                 var repeater = browser.Single("root-repeater", this.SelectByDataUi);
 
@@ -87,7 +86,7 @@ namespace DotVVM.Samples.Tests.Control
                 foreach (var button in incrementButtons)
                 {
                     button.Click();
-                    browser.WaitFor(() => AssertUI.InnerTextEquals(counterValue, counter.ToString()), 2000, "Counter value invalid!");
+                    AssertUI.InnerTextEquals(counterValue, counter.ToString(), failureMessage: "Counter value invalid!");
                     counter++;
                 }
 
@@ -97,7 +96,7 @@ namespace DotVVM.Samples.Tests.Control
                 foreach (var button in incrementButtons)
                 {
                     button.Click();
-                    browser.WaitFor(() => AssertUI.InnerTextEquals(counterValue, counter.ToString()), 2000, "Counter value invalid!");
+                AssertUI.InnerTextEquals(counterValue, counter.ToString(),failureMessage:"Counter value invalid!");
                     counter++;
                 }
             });
@@ -257,7 +256,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RequiredResource);
-                browser.Wait();
 
                 var clientRepeater = browser.Single("client-repeater", this.SelectByDataUi);
                 var serverRepeater = browser.Single("server-repeater", this.SelectByDataUi);
@@ -272,7 +270,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_CollectionIndex);
-                browser.Wait();
 
                 var clientRenderedItems = browser.FindElements("client-rendered-item", this.SelectByDataUi);
                 var serverRenderedItems = browser.FindElements("server-rendered-item", this.SelectByDataUi);
@@ -282,7 +279,11 @@ namespace DotVVM.Samples.Tests.Control
                     .Concat(serverRenderedItems.Select((element, index) => (element, index)));
 
                 var counter = 0;
-                void CheckCounter() => AssertUI.InnerTextEquals(counterElement, counter.ToString());
+                void CheckCounter()
+                {
+                    AssertUI.InnerTextEquals(counterElement, counter.ToString());
+                }
+
                 foreach (var item in allItems)
                 {
                     CheckCounter();

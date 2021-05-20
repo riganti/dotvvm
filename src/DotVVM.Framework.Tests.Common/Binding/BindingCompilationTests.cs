@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Tests.Binding
         private BindingCompilationService bindingService;
 
         [TestInitialize]
-        public void INIT()
+        public void Init()
         {
             this.configuration = DotvvmTestHelper.DefaultConfig;
             this.bindingService = configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
@@ -56,6 +56,11 @@ namespace DotVVM.Framework.Tests.Binding
         public object ExecuteBinding(string expression, params object[] contexts)
         {
             return ExecuteBinding(expression, contexts, null);
+        }
+
+        public object ExecuteBinding(string expression, NamespaceImport[] imports, params object[] contexts)
+        {
+            return ExecuteBinding(expression, contexts, null, imports);
         }
 
         [TestMethod]
@@ -131,6 +136,88 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow(@"$'Non-Interpolated'", "Non-Interpolated")]
+        [DataRow(@"$'Non-Interpolated {{'", "Non-Interpolated {")]
+        [DataRow(@"$'Non-Interpolated {{ no-expression }}'", "Non-Interpolated { no-expression }")]
+        public void BindingCompiler_Valid_InterpolatedString_NoExpressions(string expression, string evaluated)
+        {
+            var binding = ExecuteBinding(expression);
+            Assert.AreEqual(evaluated, binding);
+        }
+
+        [TestMethod]
+        [DataRow(@"$'} Malformed'", "Unexpected token '$' ---->}<----")]
+        [DataRow(@"$'{ Malformed'", "Could not find matching closing character '}' for an interpolated expression")]
+        [DataRow(@"$'Malformed {expr'", "Could not find matching closing character '}' for an interpolated expression")]
+        [DataRow(@"$'Malformed expr}'", "Unexpected token '$'Malformed expr ---->}<---- ")]
+        [DataRow(@"$'Malformed {'", "Could not find matching closing character '}' for an interpolated expression")]
+        [DataRow(@"$'Malformed }'", "Unexpected token '$'Malformed  ---->}<----")]
+        [DataRow(@"$'Malformed {}'", "Expected expression, but instead found empty")]
+        [DataRow(@"$'Malformed {StringProp; IntProp}'", "Expected end of interpolated expression, but instead found Semicolon")]
+        [DataRow(@"$'Malformed {(string arg) => arg.Length}'", "Expected end of interpolated expression, but instead found Identifier")]
+        [DataRow(@"$'Malformed {(StringProp == null) ? 'StringPropWasNull' : 'StringPropWasNotNull'}'", "Conditional expression needs to be enclosed in parentheses")]
+        public void BindingCompiler_Invalid_InterpolatedString_MalformedExpression(string expression, string errorMessage)
+        {
+            try
+            {
+                ExecuteBinding(expression);
+            }
+            catch (Exception e)
+            {
+                // Get inner-most exception
+                var current = e;
+                while (current.InnerException != null)
+                    current = current.InnerException;
+
+                Assert.AreEqual(typeof(BindingCompilationException), current.GetType());
+                StringAssert.Contains(current.Message, errorMessage);
+            }
+        }
+
+        [TestMethod]
+        [DataRow(@"$""Interpolated {StringProp} {StringProp}""", "Interpolated abc abc")]
+        [DataRow(@"$'Interpolated {StringProp} {StringProp}'", "Interpolated abc abc")]
+        [DataRow(@"$'Interpolated {StringProp.Length}'", "Interpolated 3")]
+        public void BindingCompiler_Valid_InterpolatedString_WithSimpleExpressions(string expression, string evaluated)
+        {
+            var viewModel = new TestViewModel() { StringProp = "abc" };
+            var binding = ExecuteBinding(expression, viewModel);
+            Assert.AreEqual(evaluated, binding);
+        }
+
+        [TestMethod]
+        [DataRow(@"$'{string.Join(', ', IntArray)}'", "1, 2, 3")]
+        [DataRow(@"$'{string.Join(', ', 'abc', 'def', $'{string.Join(', ', IntArray)}')}'", "abc, def, 1, 2, 3")]
+        public void BindingCompiler_Valid_InterpolatedString_NestedExpressions(string expression, string evaluated)
+        {
+            var viewModel = new TestViewModel { IntArray = new[] { 1, 2, 3 } };
+            var binding = ExecuteBinding(expression, viewModel);
+            Assert.AreEqual(evaluated, binding);
+        }
+
+        [TestMethod]
+        [DataRow(@"$'Interpolated {IntProp < LongProperty}'", "Interpolated True")]
+        [DataRow(@"$'Interpolated {StringProp ?? 'StringPropWasNull'}'", "Interpolated StringPropWasNull")]
+        [DataRow(@"$'Interpolated {((StringProp == null) ? 'StringPropWasNull' : 'StringPropWasNotNull')}'", "Interpolated StringPropWasNull")]
+        public void BindingCompiler_Valid_InterpolatedString_WithComplexExpressions(string expression, string evaluated)
+        {
+            var viewModel = new TestViewModel() { IntProp = 1, LongProperty = 2 };
+            var binding = ExecuteBinding(expression, viewModel);
+            Assert.AreEqual(evaluated, binding);
+        }
+
+        [TestMethod]
+        [DataRow(@"$'Interpolated {DateFrom:R}'", "Interpolated Fri, 11 Nov 2011 12:11:11 GMT")]
+        [DataRow(@"$'Interpolated {$'{DateFrom:R}'}'", "Interpolated Fri, 11 Nov 2011 12:11:11 GMT")]
+        [DataRow(@"$'Interpolated {$'{IntProp:0000}'}'", "Interpolated 0006")]
+        public void BindingCompiler_Valid_InterpolatedString_WithFormattingComponent(string expression, string evaluated)
+        {
+            var viewModel = new TestViewModel() { DateFrom = DateTime.Parse("2011-11-11T11:11:11+00:00"), IntProp = 6 };
+            var binding = ExecuteBinding(expression, viewModel);
+            Assert.AreEqual(evaluated, binding);
+        }
+
+        [TestMethod]
         public void BindingCompiler_Valid_PropertyProperty()
         {
             var viewModel = new TestViewModel() { StringProp = "abc", TestViewModel2 = new TestViewModel2 { MyProperty = 42 } };
@@ -143,6 +230,162 @@ namespace DotVVM.Framework.Tests.Binding
             var viewModel = new TestViewModel { StringProp = "abc" };
             Assert.AreEqual(ExecuteBinding("SetStringProp('hulabula', 13)", viewModel), "abc");
             Assert.AreEqual(viewModel.StringProp, "hulabula13");
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_Lambda_Test()
+        {
+            var viewModel = new TestViewModel { StringProp = "abc" };
+            var function1 = (Func<string, string>)ExecuteBinding("(string arg) => SetStringProp(arg, 123)", viewModel);
+            var result1 = function1("test");
+            Assert.AreEqual("abc", result1);
+            Assert.AreEqual("test123", viewModel.StringProp);
+
+            var function2 = (Func<char, int>)ExecuteBinding("(char arg) => GetCharCode(arg)", viewModel);
+            var result2 = function2('A');
+            Assert.AreEqual(65, result2);
+        }
+
+        [TestMethod]
+        [DataRow("() => ;", typeof(Action), null)]
+        [DataRow("() => \"HelloWorld\"", typeof(Func<string>), typeof(string))]
+        [DataRow("() => 11", typeof(Func<int>), typeof(int))]
+        [DataRow("() => 4.5f", typeof(Func<float>), typeof(float))]
+        [DataRow("() => 4.5", typeof(Func<double>), typeof(double))]
+        [DataRow("() => 11 + 4.5", typeof(Func<double>), typeof(double))]
+        public void BindingCompiler_Valid_LambdaReturnType(string expr, Type lambdaType, Type returnType)
+        {
+            var viewModel = new TestViewModel();
+            var binding = ExecuteBinding(expr, viewModel);
+            Assert.IsTrue(binding is Delegate);
+            Assert.AreEqual(lambdaType, binding.GetType());        
+            Assert.AreEqual(returnType, ((Delegate)binding).DynamicInvoke()?.GetType());
+        }
+
+        [TestMethod]
+        [DataRow("(int arg) => ;", typeof(int))]
+        [DataRow("(string arg1, float arg2) => ;", typeof(string), typeof(float))]
+        [DataRow("(System.Collections.Generic.List<int> arg) => ;", typeof(List<int>))]
+        public void BindingCompiler_Valid_LambdaParameterType(string expr, params Type[] parameterTypes)
+        {
+            var viewModel = new TestViewModel();
+            var binding = ExecuteBinding(expr, viewModel);
+            Assert.IsTrue(binding is Delegate);
+            var generics = ((Delegate)binding).GetType().GenericTypeArguments;
+
+            var index = 0;
+            foreach (var paramType in generics)
+                Assert.AreEqual(parameterTypes[index++], paramType);
+        }
+
+        [TestMethod]
+        [DataRow("GetFirstGenericArgType(Tuple)", typeof(int))]
+        [DataRow("Enumerable.Where(LongArray, item => item % 2 == 0)", typeof(long))]
+        [DataRow("Enumerable.Select(LongArray, item => -item)", typeof(long), typeof(long))]
+        [DataRow("Enumerable.Select(Enumerable.Where(LongArray, item => item % 2 == 0), item => -item)", typeof(long), typeof(long))]
+        public void BindingCompiler_RegularGenericMethodsInference(string expr, params Type[] instantiations)
+        {
+            var viewModel = new TestViewModel() { StringProp = "abc" };
+            var binding = ExecuteBinding(expr, new[] { viewModel }, null, new[] { new NamespaceImport("System.Linq") });
+            var genericArgs = binding.GetType().GetGenericArguments();
+
+            for (var argIndex = 0; argIndex < genericArgs.Length; argIndex++)
+                Assert.AreEqual(instantiations[argIndex], genericArgs[argIndex]);
+        }
+
+        [TestMethod]
+        [DataRow("LongArray.Where(item => item % 2 == 0)", typeof(long))]
+        [DataRow("LongArray.Select(item => -item)", typeof(long), typeof(long))]
+        [DataRow("LongArray.Where(item => item % 2 == 0).Select(item => -item)", typeof(long), typeof(long))]
+        public void BindingCompiler_ExtensionGenericMethodsInference(string expr, params Type[] instantiations)
+        {
+            var viewModel = new TestViewModel() { StringProp = "abc" };
+            var binding = ExecuteBinding(expr, new[] { viewModel }, null, new[] { new NamespaceImport("System.Linq") });
+            var genericArgs = binding.GetType().GetGenericArguments();
+
+            for (var argIndex = 0; argIndex < genericArgs.Length; argIndex++)
+                Assert.AreEqual(instantiations[argIndex], genericArgs[argIndex]);
+        }
+
+        [TestMethod]
+        [DataRow("LongArray.All(item => item % 2 == 0)", typeof(bool))]
+        [DataRow("LongArray.Any(item => item % 2 == 0)", typeof(bool))]
+        [DataRow("LongArray.Concat(LongArray).ToArray()", typeof(long[]))]
+        [DataRow("LongArray.FirstOrDefault(item => item % 2 == 0)", typeof(long))]
+        [DataRow("LongArray.LastOrDefault(item => item % 2 == 0)", typeof(long))]
+        [DataRow("LongArray.Max(item => -item)", typeof(long))]
+        [DataRow("LongArray.Min(item => -item)", typeof(long))]
+        [DataRow("LongArray.OrderBy(item => item).ToArray()", typeof(long[]))]
+        [DataRow("LongArray.OrderByDescending(item => item).ToArray()", typeof(long[]))]
+        [DataRow("LongArray.Select(item => -item).ToArray()", typeof(long[]))]
+        [DataRow("LongArray.Where(item => item % 2 == 0).ToArray()", typeof(long[]))]
+        public void BindingCompiler_LinqMethodsInference(string expr, Type resultType)
+        {
+            var viewModel = new TestViewModel() { StringProp = "abc" };
+            var result = ExecuteBinding(expr, new[] { viewModel }, null, new[] { new NamespaceImport("System.Linq") });
+            Assert.AreEqual(resultType, result.GetType());
+        }
+
+        [TestMethod]
+        [DataRow("(int arg, float arg) => ;", DisplayName = "Can not use same identifier for multiple parameters")]
+        [DataRow("(object _this) => ;", DisplayName = "Can not use already used identifiers for parameters")]
+        public void BindingCompiler_Invalid_LambdaParameters(string expr)
+        {
+            var viewModel = new TestViewModel();
+            Assert.ThrowsException<AggregateException>(() => ExecuteBinding(expr, viewModel));         
+        }
+
+        [TestMethod]
+        [DataRow("(TestViewModel vm) => vm.IntProp = 11")]
+        [DataRow("(TestViewModel vm) => vm.GetEnum()")]
+        [DataRow("(TestViewModel vm) => ()")]
+        [DataRow("(TestViewModel vm) => ;")]
+        public void BindingCompiler_Valid_LambdaToAction(string expr)
+        {
+            var viewModel = new TestViewModel();
+            var binding = ExecuteBinding(expr, new[] { viewModel }, null, expectedType: typeof(Action<TestViewModel>)) as Action<TestViewModel>;
+            Assert.AreEqual(typeof(Action<TestViewModel>), binding.GetType());
+            binding.Invoke(viewModel);
+        }
+
+        [TestMethod]
+        [DataRow("List.RemoveAll(item => item % 2 != 0)")]
+        public void BindingCompiler_Valid_LambdaToPredicate(string expr)
+        {
+            var viewModel = new TestViewModel() { List = new List<int>() { 1, 2, 3 } };
+            var removedCount = ExecuteBinding(expr, new[] { viewModel }, null, expectedType: typeof(int));
+            Assert.AreEqual(2, removedCount);
+            CollectionAssert.AreEqual(new List<int> { 2 }, viewModel.List);
+        }
+
+        [TestMethod]
+        [DataRow("ActionInvoker(arg => StringProp = arg)")]
+        [DataRow("ActionInvoker(arg => StringProp = ActionInvoker(innerArg => StringProp = innerArg))")]
+        [DataRow("Action2Invoker((arg1, arg2) => StringProp = arg1 + arg2)")]
+
+        public void BindingCompiler_Valid_ParameterLambdaToAction(string expr)
+        {
+            var viewModel = new TestLambdaCompilation();
+            var result = ExecuteBinding(expr, viewModel);
+            Assert.AreEqual("Action", result);
+        }
+
+        [TestMethod]
+        [DataRow("DelegateInvoker(arg => StringProp = arg)")]
+        [DataRow("DelegateInvoker(arg => arg + arg)")]
+        public void BindingCompiler_Valid_LambdaParameter_PreferFunc(string expr)
+        {
+            var viewModel = new TestLambdaCompilation();
+            var result = ExecuteBinding(expr, viewModel);
+            Assert.AreEqual("Func", result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_ExtensionMethods()
+        {
+            var viewModel = new TestViewModel();
+            var result = (long[])ExecuteBinding("LongArray.Where((long item) => item % 2 != 0).ToArray()", new[] { new NamespaceImport("System.Linq") }, viewModel);
+            CollectionAssert.AreEqual(viewModel.LongArray.Where(item => item % 2 != 0).ToArray(), result);
         }
 
         class MoqComponent : DotvvmBindableObject
@@ -550,6 +793,24 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_Variables()
+        {
+            Assert.AreEqual(2, ExecuteBinding("var a = 1; a + 1"));
+            Assert.AreEqual(typeof(int), ExecuteBinding("var a = 1; a.GetType()"));
+
+            var result = ExecuteBinding("var a = 1; var b = a + LongProperty; var c = b + StringProp; c", new [] { new TestViewModel { LongProperty = 1, StringProp = "X" } });
+            Assert.AreEqual("2X", result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_VariableShadowing()
+        {
+            Assert.AreEqual(121L, ExecuteBinding("var LongProperty = LongProperty + 120; LongProperty", new TestViewModel { LongProperty = 1 }));
+            Assert.AreEqual(7, ExecuteBinding("var a = 1; var b = (var a = 5; a + 1); a + b"));
+            Assert.AreEqual(3, ExecuteBinding("var a = 1; var a = a + 1; var a = a + 1; a"));
+        }
+
+        [TestMethod]
         public void BindingCompiler_Errors_AssigningToType()
         {
             var aggEx = Assert.ThrowsException<AggregateException>(() => ExecuteBinding("System.String = 123", new [] { new TestViewModel() }));
@@ -561,6 +822,7 @@ namespace DotVVM.Framework.Tests.Binding
     {
         public string StringProp { get; set; }
         public int IntProp { get; set; }
+        public double DoubleProp { get; set; }
         public TestViewModel2 TestViewModel2 { get; set; }
         public TestViewModel2 TestViewModel2B { get; set; }
         public TestEnum EnumProperty { get; set; }
@@ -569,11 +831,15 @@ namespace DotVVM.Framework.Tests.Binding
         public DateTime? DateTo { get; set; }
         public object Time { get; set; } = TimeSpan.FromSeconds(5);
         public Guid GuidProp { get; set; }
+        public Tuple<int, bool> Tuple { get; set; }
+        public List<int> List { get; set; }
 
         public long LongProperty { get; set; }
 
         public long[] LongArray => new long[] { 1, 2, long.MaxValue };
+        public string[] StringArray => new string[] { "Hello ", "DotVVM" };
         public TestViewModel2[] VmArray => new TestViewModel2[] { new TestViewModel2() };
+        public int[] IntArray { get; set; }
 
         public string SetStringProp(string a, int b)
         {
@@ -590,6 +856,11 @@ namespace DotVVM.Framework.Tests.Binding
             => param;
 
         public Type GetType<T>(T param)
+        {
+            return typeof(T);
+        }
+
+        public Type GetFirstGenericArgType<T, U>(Tuple<T, U> param)
         {
             return typeof(T);
         }
@@ -625,6 +896,17 @@ namespace DotVVM.Framework.Tests.Binding
         public string MethodWithOverloads(string i) => i;
         public string MethodWithOverloads(DateTime i) => i.ToString();
         public int MethodWithOverloads(int a, int b) => a + b;
+    }
+
+    class TestLambdaCompilation
+    {
+        public string StringProp { get; set; }
+
+        public string DelegateInvoker(Func<string, string> func) { func(default); return "Func"; }
+        public string DelegateInvoker(Action<string> action) { action(default); return "Action"; }
+
+        public string ActionInvoker(Action<string> action) { action(default); return "Action"; }
+        public string Action2Invoker(Action<string, string> action) { action(default, default); return "Action"; }
     }
 
     class TestViewModel2

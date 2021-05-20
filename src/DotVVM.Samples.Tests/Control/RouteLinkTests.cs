@@ -5,7 +5,6 @@ using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
-using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -55,7 +54,7 @@ namespace DotVVM.Samples.Tests.Control
             {
                 var href = browser.Single(selector).GetAttribute("href");
 
-                Assert.AreEqual(relativeUrl, new Uri(href).AbsolutePath);
+                Assert.Equal(relativeUrl, new Uri(href).AbsolutePath);
             }
 
             checkNavigatedUrl("a[data-ui='optional-parameter-client']", "/ControlSamples/Repeater/RouteLink");

@@ -1,13 +1,12 @@
 // Typescript could not find the module, IDK why...
-import fc_types, { func, json } from '../../../node_modules/fast-check/lib/types/fast-check'
-import { initDotvvm, watchEvents } from './helper';
+import fc_types from '../../../node_modules/fast-check/lib/types/fast-check'
+import { initDotvvm, watchEvents, fc, delay, waitForEnd } from './helper';
 import { postBack } from '../postback/postback';
-import { getViewModel } from '../dotvvm-base';
+import { getStateManager } from '../dotvvm-base';
 import { keys } from '../utils/objects';
-import enable from '../binding-handlers/enable';
-import { serialize } from '../serialization/serialize';
-import { getPostbackQueue, postbackQueues } from '../postback/queue';
 import { DotvvmPostbackError } from '../shared-classes';
+import enable from '../binding-handlers/enable';
+import { getPostbackQueue, postbackQueues } from '../postback/queue';
 import { WrappedResponse } from '../postback/http';
 
 var fetchJson = async function<T>(url: string, init: RequestInit): Promise<T> {
@@ -38,13 +37,9 @@ function appendAdditionalHeaders(headers: Headers, additionalHeaders?: { [key: s
     }
 }
 
-function delay(time: number) {
-    return new Promise((r) => setTimeout(r, time))
-}
-
 jest.mock("../postback/http", () => ({
     async fetchCsrfToken() {
-        getViewModel().$csrfToken = "test token"
+        getStateManager().update(vm => ({ ...vm, $csrfToken: "test token" }))
     },
 
     retryOnInvalidCsrfToken<TResult>(postbackFunction: () => Promise<TResult>) {
@@ -83,19 +78,32 @@ function limitRuntime<TArgs extends any[], TResult>(milis: number, fn: (...args:
     }
 }
 
-const fc: typeof fc_types = require('fast-check');
 
 const originalViewModel = {
     viewModel: {
+        $type: "t1",
         Property1: 0,
         Property2: 0
+    },
+    typeMetadata: {
+        t1: {
+            type: "object",
+            properties: {
+                Property1: {
+                    type: "Int32"
+                },
+                Property2: {
+                    type: "Int32"
+                }
+            }
+        }
     },
     url: "/myPage",
     virtualDirectory: "",
     renderedResources: ["resource1", "resource2"]
 }
 
-function state() { return serialize(getViewModel()) as typeof originalViewModel.viewModel }
+function state() { return getStateManager().state as typeof originalViewModel.viewModel }
 
 function cancerPostbackHandler(s: fc_types.Scheduler, lbl: string): DotvvmPostbackHandler {
     return {
@@ -116,30 +124,6 @@ function cancerPostbackHandler(s: fc_types.Scheduler, lbl: string): DotvvmPostba
 }
 
 initDotvvm(originalViewModel)
-
-async function waitForEnd<T>(result: Promise<T>[], s: fc_types.Scheduler, assert: () => void) {
-    const noFailResult = result.map(r => r.then(result => ({ result, ok: true }), result => ({ result, ok: false })))
-    const aggResult = Promise.all(noFailResult)
-
-    let done = false
-    aggResult.then(_ => done = true, _ => {
-        console.error("The promise should not be allowed to fail")
-        done = true
-    })
-    await delay(1)
-
-    while (!done) {
-        // console.log(s.report())
-        expect(s.count()).toBeGreaterThan(0)
-        await s.waitOne()
-
-        assert()
-
-        await delay(1)
-    }
-
-    return await aggResult
-}
 
 function makeRange<T>(num: number, create: (i: number) => T): T[] {
     return Array.from(new Array(num)).map((_, i) => create(i))
@@ -226,7 +210,7 @@ test("Run postbacks [Queue | no failures]", async () => {
                 })
             }
 
-            (getViewModel() as any).Property1(0)
+            getStateManager().update(x => ({...x, Property1: 0}))
 
             const postbacks =
                 makeRange(parallelism, i =>
@@ -276,10 +260,10 @@ test("Run postbacks [Queue + Deny | no failures]", async () => {
                 }
             }
 
-            (getViewModel() as any).Property1 = 0;
-            (getViewModel() as any).Property2 = 0;
+            getStateManager().update(x => ({...x, Property1: 0, Property2: 0}))
 
-            const queuePostbacks =
+            // these postbacks must pass
+            const queuePostbacks: Promise<any>[] =
                 makeEventRange(parallelismQ, s, "queue postback", i =>
                     postBack(window.document.body, [], "queue", "", undefined, [ "concurrency-queue", cancerPostbackHandler(s, i + "Q") ])
                 )
@@ -288,7 +272,7 @@ test("Run postbacks [Queue + Deny | no failures]", async () => {
 
             const denyPostbacks =
                 makeEventRange(parallelismD, s, "deny postback", i =>
-                    postBack(window.document.body, [], "deny", "", undefined, [ "concurrency-deny", cancerPostbackHandler(s, i + "D") ])
+                    postBack(window.document.body, [], "deny", "", undefined, [ "concurrency-deny", cancerPostbackHandler(s, i + "D") ]).catch(_ => {})
                 )
 
             await waitForEnd(queuePostbacks.concat(denyPostbacks).concat([initDenyPostback]), s, () => {
@@ -340,17 +324,17 @@ test("Run postbacks [Queue + Default | no failures]", async () => {
                 }
             }
 
-            (getViewModel() as any).Property1 = 0;
-            (getViewModel() as any).Property2 = 0;
+            getStateManager().update(x => ({...x, Property1: 0, Property2: 0}))
 
-            const queuePostbacks =
+            // Queue postbacks can fail in commit when overrun by the Default (basically no concurrency mode)
+            const queuePostbacks: Promise<any>[] =
                 makeEventRange(parallelismQ, s, "queue postback", i =>
-                    postBack(window.document.body, [], "queue", "", undefined, [ "concurrency-queue", cancerPostbackHandler(s, i + "Q") ])
+                    postBack(window.document.body, [], "queue", "", undefined, [ "concurrency-queue", cancerPostbackHandler(s, i + "Q") ]).catch(_ => {})
                 )
 
             const defaultPostbacks =
                 makeEventRange(parallelismD, s, "default postback", i =>
-                    postBack(window.document.body, [], "default", "", undefined, [ "concurrency-default", cancerPostbackHandler(s, i + "D") ])
+                    postBack(window.document.body, [], "default", "", undefined, [ "concurrency-default", cancerPostbackHandler(s, i + "D") ]).catch(_ => {})
                 )
 
             // queuePostbacks.map((p, i) => p.catch(err => console.error("Queue postback failed", i, err)))
