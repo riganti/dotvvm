@@ -273,12 +273,13 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Creates a configuration with fake services in place of hosting-specific components.
         /// </summary>
-        internal static DotvvmConfiguration CreateInternal()
+        internal static DotvvmConfiguration CreateInternal(Action<IServiceCollection> registerServices)
         {
             return CreateDefault(services =>
             {
                 services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
                 services.TryAddSingleton<ICsrfProtector, FakeCsrfProtector>();
+                registerServices(services);
             });
         }
 

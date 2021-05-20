@@ -23,7 +23,12 @@ namespace DotVVM.Framework.Compilation.Static
                 ? GetConfigureServicesMethod(configuratorType)
                 : null;
 
-            var config = DotvvmConfiguration.CreateInternal();
+            var config = DotvvmConfiguration.CreateInternal(collection => {
+                if (dotvvmStartup is object && configureServicesMethod is object)
+                {
+                    configureServicesMethod.Invoke(dotvvmStartup, new[] { new DotvvmServiceCollection(collection) });
+                }
+            });
 
             config.ApplicationPhysicalPath = webSitePath;
             dotvvmStartup?.Configure(config, webSitePath);
