@@ -24,7 +24,7 @@ for some reason. What fun. -->
   <PropertyGroup>
     <Authors>RIGANTI</Authors>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
-    <!-- <RuntimeIdentifiers>win10-x64;ubuntu.16.10-x64</RuntimeIdentifiers> -->
+    <RuntimeIdentifiers>win10-x64;ubuntu.16.10-x64</RuntimeIdentifiers>
     <AssemblyTitle>DotVVM.Compiler</AssemblyTitle>
     <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
