@@ -1,26 +1,26 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Security.Principal;
 using DotVVM.Framework.Compilation;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Routing;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
-using Moq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Owin;
-using Microsoft.Owin.Security.DataProtection;
-using Newtonsoft.Json.Linq;
 using Microsoft.Owin.Infrastructure;
-using DotVVM.Framework.Runtime.Caching;
-using DotVVM.Framework.Routing;
-using System.Runtime.Serialization;
+using Microsoft.Owin.Security.DataProtection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -41,8 +41,8 @@ namespace DotVVM.Framework.Tests.Runtime
                 services.AddSingleton<ICookieManager, ChunkingCookieManager>();
                 services.AddSingleton<IDotvvmCacheAdapter, DefaultDotvvmCacheAdapter>();
             });
-			configuration.Security.SigningKey = Convert.FromBase64String("Uiq1FXs016lC6QaWIREB7H2P/sn4WrxkvFkqaIKpB27E7RPuMipsORgSgnT+zJmUu8zXNSJ4BdL73JEMRDiF6A1ScRNwGyDxDAVL3nkpNlGrSoLNM1xHnVzSbocLFDrdEiZD2e3uKujguycvWSNxYzjgMjXNsaqvCtMu/qRaEGc=");
-			configuration.Security.EncryptionKey = Convert.FromBase64String("jNS9I3ZcxzsUSPYJSwzCOm/DEyKFNlBmDGo9wQ6nxKg=");
+            configuration.Security.SigningKey = Convert.FromBase64String("Uiq1FXs016lC6QaWIREB7H2P/sn4WrxkvFkqaIKpB27E7RPuMipsORgSgnT+zJmUu8zXNSJ4BdL73JEMRDiF6A1ScRNwGyDxDAVL3nkpNlGrSoLNM1xHnVzSbocLFDrdEiZD2e3uKujguycvWSNxYzjgMjXNsaqvCtMu/qRaEGc=");
+            configuration.Security.EncryptionKey = Convert.FromBase64String("jNS9I3ZcxzsUSPYJSwzCOm/DEyKFNlBmDGo9wQ6nxKg=");
 
             var requestMock = new Mock<IHttpRequest>();
             requestMock.SetupGet(m => m.Url).Returns(new Uri("http://localhost:8628/Sample1"));
@@ -56,9 +56,8 @@ namespace DotVVM.Framework.Tests.Runtime
             contextMock.SetupGet(m => m.User).Returns(new WindowsPrincipal(WindowsIdentity.GetAnonymous()));
 
 
-			serializer = configuration.ServiceProvider.GetService<IViewModelSerializer>() as DefaultViewModelSerializer;
-            context = new DotvvmRequestContext(contextMock.Object, configuration, configuration.ServiceProvider)
-            {
+            serializer = configuration.ServiceProvider.GetService<IViewModelSerializer>() as DefaultViewModelSerializer;
+            context = new DotvvmRequestContext(contextMock.Object, configuration, configuration.ServiceProvider) {
                 Presenter = configuration.RouteTable.GetDefaultPresenter(configuration.ServiceProvider),
                 Route = new DotvvmRoute("TestRoute", "test.dothtml", new { }, p => p.GetService<DotvvmPresenter>(), configuration)
             };
@@ -137,7 +136,7 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             var json = SerializeViewModel(new TestViewModel6 {
                 ClassClass = new Dictionary<object, object> { { "obj1", "obj2" } },
-                StructClass= new Dictionary<char, object> { { 'c', "obj" } }
+                StructClass = new Dictionary<char, object> { { 'c', "obj" } }
             });
             var result = new TestViewModel6();
             PopulateViewModel(result, json);
