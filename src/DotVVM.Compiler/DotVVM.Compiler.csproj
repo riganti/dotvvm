@@ -10,18 +10,15 @@ for some reason. What fun. -->
 
   <!-- Related to compilation -->
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net461;net50</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <OutputType>Exe</OutputType>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
-    <RuntimeIdentifiers>win7-x86;win10-x64;ubuntu.16.10-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win7-x86;win7-x64;win10-x64;ubuntu.16.10-x64</RuntimeIdentifiers>
     <TargetLatestDotNetRuntime>false</TargetLatestDotNetRuntime>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <RollForward>LatestMajor</RollForward>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net461'">
-    <RuntimeIdentifiers>win7-x86;win7-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <!-- Related to packaging -->
