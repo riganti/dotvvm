@@ -15,15 +15,9 @@ using DotVVM.Framework.Security;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Owin;
-using Microsoft.Owin.Infrastructure;
-using Microsoft.Owin.Security.DataProtection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json.Linq;
-using DotVVM.Framework.Runtime.Caching;
-using DotVVM.Framework.Routing;
-using System.Runtime.Serialization;
 using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.Runtime
