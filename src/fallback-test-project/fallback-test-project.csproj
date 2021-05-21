@@ -20,6 +20,6 @@
     <DotNetCliToolReference Include="DotVVM.CommandLine" Version="1.1.0-rc5" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Framework.Tests.Common\DotVVM.Framework.Tests.Common.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework.Tests\DotVVM.Framework.Tests.csproj" />
   </ItemGroup>
 </Project>

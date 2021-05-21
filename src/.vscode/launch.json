@@ -8,7 +8,7 @@
         //     "request": "launch",
         //     "preLaunchTask": "build-tests",
         //     "program": "dotnet",
-        //     "args": [ "test", "${workspaceRoot}/DotVVM.Framework.Tests.Common" ],
+        //     "args": [ "test", "${workspaceRoot}/DotVVM.Framework.Tests" ],
         //     "cwd": "${workspaceRoot}",
         //     "stopAtEntry": false,
         //     "console": "internalConsole"

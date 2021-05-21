@@ -15,6 +15,7 @@ for some reason. What fun. -->
     <OutputType>Exe</OutputType>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
+    <RuntimeIdentifiers>win7-x86;win10-x64;ubuntu.16.10-x64</RuntimeIdentifiers>
     <TargetLatestDotNetRuntime>false</TargetLatestDotNetRuntime>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <RollForward>LatestMajor</RollForward>
@@ -27,7 +28,6 @@ for some reason. What fun. -->
   <PropertyGroup>
     <Authors>RIGANTI</Authors>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
-    <!-- <RuntimeIdentifiers>win10-x64;ubuntu.16.10-x64</RuntimeIdentifiers> -->
     <AssemblyTitle>DotVVM.Compiler</AssemblyTitle>
     <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
