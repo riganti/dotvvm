@@ -53,6 +53,7 @@
     <None Remove="Views\Errors\InvalidServiceDirective.dothtml" />
     <None Remove="Views\Errors\InvalidLocationFallback.dothtml" />
     <None Remove="Views\Errors\ResourceCircularDependency.dothtml" />
+    <None Remove="Views\FeatureSamples\Attribute\ToStringConversion.dothtml" />
     <None Remove="Views\FeatureSamples\Caching\CachedValues.dothtml" />
     <None Remove="Views\FeatureSamples\CommandActionFilter\CommandActionFilter.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\GenericMethodTranslation.dothtml" />

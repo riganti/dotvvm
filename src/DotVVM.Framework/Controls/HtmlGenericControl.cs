@@ -7,6 +7,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Controls
@@ -317,7 +318,33 @@ namespace DotVVM.Framework.Controls
             {
                 AddHtmlAttribute(writer, name, ((IStaticValueBinding)value).Evaluate(this));
             }
-            else throw new NotSupportedException($"Attribute value of type '{value.GetType().FullName}' is not supported.");
+            else
+            {
+                var type = ReflectionUtils.UnwrapNullableType(value.GetType());
+                if (ReflectionUtils.IsNumericType(type))
+                {
+                    writer.AddAttribute(name, Convert.ToString(value, CultureInfo.InvariantCulture));
+                }
+                else if (type == typeof(bool))
+                {
+                    if ((bool)value)
+                    {
+                        writer.AddAttribute(name, name);
+                    }
+                }
+                else if (type == typeof(DateTime))
+                {
+                    writer.AddAttribute(name, ((DateTime)value).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));   // date format defined by the HTML specs
+                }
+                else if (type.IsEnum || type == typeof(Guid))
+                {
+                    writer.AddAttribute(name, value.ToString());
+                }
+                else
+                {
+                    throw new NotSupportedException($"Attribute value of type '{value.GetType().FullName}' is not supported.");
+                }
+            }
         }
 
         private void AddHtmlAttributesToRender(ref RenderState r, IHtmlWriter writer)
