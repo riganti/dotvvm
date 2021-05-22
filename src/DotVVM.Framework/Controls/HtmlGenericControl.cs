@@ -332,17 +332,17 @@ namespace DotVVM.Framework.Controls
                         writer.AddAttribute(name, name);
                     }
                 }
-                else if (type == typeof(DateTime))
-                {
-                    writer.AddAttribute(name, ((DateTime)value).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));   // date format defined by the HTML specs
-                }
                 else if (type.IsEnum || type == typeof(Guid))
                 {
                     writer.AddAttribute(name, value.ToString());
                 }
                 else
                 {
-                    throw new NotSupportedException($"Attribute value of type '{value.GetType().FullName}' is not supported.");
+                    // DateTime and related are not supported here intentionally.
+                    // It is not clear in which format it should be rendered - on some places, the HTML specs requires just yyyy-MM-dd,
+                    // but in case of Web Components, the users may want to pass the whole date, or use a specific format
+
+                    throw new NotSupportedException($"Attribute value of type '{value.GetType().FullName}' is not supported. Please convert the value to string, e. g. by using ToString()");
                 }
             }
         }
