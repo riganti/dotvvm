@@ -1,23 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Security.Principal;
 using DotVVM.Framework.Compilation;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Routing;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
-using Moq;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Newtonsoft.Json.Linq;
-using DotVVM.Framework.Runtime.Caching;
-using DotVVM.Framework.Routing;
-using System.Runtime.Serialization;
 using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.Runtime
@@ -124,7 +124,7 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             var json = SerializeViewModel(new TestViewModel6 {
                 ClassClass = new Dictionary<object, object> { { "obj1", "obj2" } },
-                StructClass= new Dictionary<char, object> { { 'c', "obj" } }
+                StructClass = new Dictionary<char, object> { { 'c', "obj" } }
             });
             var result = new TestViewModel6();
             PopulateViewModel(result, json);
