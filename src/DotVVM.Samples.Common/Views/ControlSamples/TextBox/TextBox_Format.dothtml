@@ -101,6 +101,7 @@
                      ClientIDMode="Static"
                      Text="{value: ResultNumberValue}">
         </dot:Literal>
+        <span ID="bindingNumberValueNString">{{value: BindingNumberValueNString}}</span>
     </p>
     <div>
         <h3>Switch language</h3>

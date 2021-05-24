@@ -1,17 +1,27 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <!--Related to compilation-->
   <PropertyGroup>
     <AssemblyTitle>DotVVM.CommandLine</AssemblyTitle>
     <AssemblyName>dotnet-dotvvm</AssemblyName>
-    <VersionPrefix>3.0.2</VersionPrefix>
+    <VersionPrefix>3.1.0-preview03-112034</VersionPrefix>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!--Related to packaging-->
+  <PropertyGroup>
     <PackAsTool>true</PackAsTool>
+    <!-- <PackageType>DotnetTool</PackageType> -->
     <ToolCommandName>dotvvm</ToolCommandName>
+    <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.CommandLine</PackageId>
-    <PackageVersion>3.0.2</PackageVersion>
+    <PackageVersion>3.1.0-preview03-112034</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>Command-line tools for DotVVM.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -27,70 +37,83 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <OutputType>Exe</OutputType>
   </PropertyGroup>
+
   <ItemGroup>
-    <None Remove="Templates\Client.Class.liquid" />
-    <None Remove="Templates\TypeScript\Client.RequestUrl.liquid" />
-    <None Remove="Templates\TypeScript\FetchClient.liquid" />
+    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="13.10.7" />
+    <PackageReference Include="NSwag.CodeGeneration.Typescript" Version="13.10.7" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="NuGet.Frameworks" Version="5.9.0" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
+    <PackageReference Include="vswhere" Version="2.8.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
+
   <ItemGroup>
-    <EmbeddedResource Include="Templates\CSharp\Client.Class.liquid" />
-    <EmbeddedResource Include="Templates\TypeScript\Client.RequestUrl.liquid" />
-    <EmbeddedResource Include="Templates\TypeScript\FetchClient.liquid" />
+    <Content Include="$(VSWhereDir)vswhere.exe" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+
   <ItemGroup>
+    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
   </ItemGroup>
+
+  <Target Name="BuildCompiler" BeforeTargets="BeforeBuild">
+    <MSBuild Projects="..\DotVVM.Compiler\DotVVM.Compiler.csproj" Targets="Restore;Build;Publish" Properties="TargetFramework=netcoreapp3.1;Configuration=$(Configuration);PublishDir=$(ProjectDir)$(OutputPath)tools\netcoreapp3.1\any" />
+    <MSBuild Projects="..\DotVVM.Compiler\DotVVM.Compiler.csproj" Targets="Restore;Build;Publish" Properties="TargetFramework=net461;Configuration=$(Configuration);PublishDir=$(ProjectDir)$(OutputPath)tools\net461\any" />
+  </Target>
+
+  <Target Name="AddCompilerToPublish" BeforeTargets="Publish;Pack">
+    <ItemGroup>
+      <ToolsFile Include="$(OutputPath)\tools\**" />
+    </ItemGroup>
+    <Message Text="$(PublishDir)" Importance="High" />
+    <Copy SourceFiles="@(ToolsFile)" DestinationFolder="$(PublishDir)\tools\%(RecursiveDir)" />
+  </Target>
+
   <ItemGroup>
-    <None Update="Commands\Templates\ControlCodeBehindTemplate.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>ControlCodeBehindTemplate.cs</LastGenOutput>
-    </None>
-    <None Update="Commands\Templates\ControlTemplate.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>ControlTemplate.cs</LastGenOutput>
-    </None>
-    <None Update="Commands\Templates\PageTemplate.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>PageTemplate.cs</LastGenOutput>
-    </None>
-    <None Update="Commands\Templates\ViewModelTemplate.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>ViewModelTemplate.cs</LastGenOutput>
-    </None>
+    <EmbeddedResource Include="**/*.liquid" />
   </ItemGroup>
+
   <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    <EmbeddedResource Include="Resources\DotVVMCommandLine.targets" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Commands\Templates\ControlCodeBehindTemplate.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ControlCodeBehindTemplate.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Commands\Templates\ControlTemplate.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ControlTemplate.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Commands\Templates\PageTemplate.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>PageTemplate.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Commands\Templates\ViewModelTemplate.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ViewModelTemplate.tt</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="NSwag.CodeGeneration" Version="11.14.1" />
-    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="11.14.1" />
-    <PackageReference Include="NSwag.CodeGeneration.Typescript" Version="11.14.1" />
-  </ItemGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
-  </PropertyGroup>
+
+  <!-- This target is heavily based on the project file of dotnet-ef and a workaround from dotnet/arcade -->
+  <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="BuiltProjectOutputGroup;DebugSymbolsProjectOutputGroup">
+    <PropertyGroup>
+      <_CommonMetadataElements>
+        <id>$(PackageId)</id>
+        <description>$(PackageDescription)</description>
+        <version>$(PackageVersion)</version>
+        <authors>$(Authors)</authors>
+        <requireLicenseAcceptance>$(PackageRequireLicenseAcceptance)</requireLicenseAcceptance>
+        $(_TagsElement)
+        $(_LicenseElement)
+        $(_IconElement)
+        $(_IconUrlElement)
+        $(_ReleaseNotesElement)
+      </_CommonMetadataElements>
+      <_CompilerPath>..\DotVVM.Compiler\bin\$(Configuration)\</_CompilerPath>
+    </PropertyGroup>
+    <ItemGroup>
+      <NuspecProperty Include="PackageType=$(PackageType)" />
+      <NuspecProperty Include="TargetFramework=$(TargetFramework)" />
+      <NuspecProperty Include="CommonMetadataElements=$(_CommonMetadataElements)" />
+      <NuspecProperty Include="PackageId=$(PackageId)" />
+      <NuspecProperty Include="Version=$(PackageVersion)" />
+      <NuspecProperty Include="ProjectDirectory=$(MSBuildProjectDirectory)" />
+      <NuspecProperty Include="SettingsFile=$(_ToolsSettingsFilePath)" />
+      <NuspecProperty Include="Output=$(PublishDir)" />
+    </ItemGroup>
+    <PropertyGroup Condition="'$(NuspecFile)' != '' and '$(NuspecProperties)' == ''">
+      <NuspecProperties>@(NuspecProperty, ';')</NuspecProperties>
+    </PropertyGroup>
+  </Target>
 </Project>
