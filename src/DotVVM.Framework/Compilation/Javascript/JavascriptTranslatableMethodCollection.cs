@@ -471,8 +471,31 @@ namespace DotVVM.Framework.Compilation.Javascript
 
                 if (m2 == null)
                 {
-                    m2 = genericType.GetMethod(method.Name,
-                        BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                    var parameters = method.GetParameters();
+                    foreach (var m in genericType.GetMethods().Where(m => m.Name == method.Name))
+                    {
+                        var genParameters = m.GetParameters();
+                        if (parameters.Length != genParameters.Length)
+                            continue;
+
+                        var isMatch = true;
+                        for (var index = 0; index < parameters.Length; index++)
+                        {
+                            if (genParameters[index].ParameterType.IsGenericParameter)
+                                continue;
+                            if (genParameters[index].ParameterType != parameters[index].ParameterType)
+                            {
+                                isMatch = false;
+                                break;
+                            }
+                        }
+
+                        if (isMatch)
+                        {
+                            m2 = m;
+                            break;
+                        }
+                    }
                 }
 
                 if (m2 != null)
