@@ -139,40 +139,6 @@ namespace DotVVM.Framework.Utils
             return IsAssignableToGenericType(baseType, genericType, out commonType);
         }
 
-        public static MethodInfo GetOpenGenericMethod(MethodInfo method)
-        {
-            var parameters = method.GetParameters();
-            if (method.IsGenericMethod)
-                method = method.GetGenericMethodDefinition();
-
-            if (method.DeclaringType.IsGenericType)
-            {
-                var type = method.DeclaringType.GetGenericTypeDefinition();
-                foreach (var m in type.GetMethods().Where(m => m.Name == method.Name))
-                {
-                    var genParameters = m.GetParameters();
-                    if (parameters.Length != genParameters.Length)
-                        continue;
-
-                    var isMatch = true;
-                    for (var index = 0; index < parameters.Length; index++)
-                    {
-                        if (genParameters[index].ParameterType.IsGenericParameter)
-                            continue;
-                        if (genParameters[index].ParameterType != parameters[index].ParameterType)
-                        {
-                            isMatch = false;
-                            break;
-                        }
-                    }
-
-                    if (isMatch)
-                        return m;
-                }
-            }
-
-            return method;
-        }
 
         /// <summary>
         /// Converts a value to a specified type
