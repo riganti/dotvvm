@@ -438,3 +438,21 @@ test("push on observable array - automatic coercion happens", () => {
     expect(vm.Array()[2]).toEqual(oldValue);
 
 })
+
+test("update of element in array that stops existing", () => {
+
+    vm.Array([
+        { Id: 1 },
+        { Id: 3 }
+    ])
+    expect(vm.Array.state.length).toEqual(2)
+    const a = vm.Array()[1]()
+    a.Id(10)
+    expect(vm.Array.state[1].Id).toEqual(10)
+    vm.Array([ { Id: 1 } ])
+    expect(vm.Array.state.length).toEqual(1)
+    a.Id(10)
+    expect(vm.Array.state.length).toEqual(1)
+    expect(vm.Array.state[0]).toEqual({ $type: "t2", Id: 1 })
+
+})

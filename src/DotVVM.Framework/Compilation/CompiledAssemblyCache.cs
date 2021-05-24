@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Compilation
             AppDomain.CurrentDomain.AssemblyResolve += TryResolveAssembly;
 #endif
 
-            foreach (var assembly in BuildReferencedAssembliesCache())
+            foreach (var assembly in BuildReferencedAssembliesCache(configuration))
             {
                 cachedAssemblies.GetOrAdd(assembly.FullName.NotNull(), a => assembly);
             }
@@ -52,7 +52,7 @@ namespace DotVVM.Framework.Compilation
             cache_AllNamespaces = new Lazy<HashSet<string>>(GetAllNamespaces);
         }
 
-        private IEnumerable<Assembly> BuildReferencedAssembliesCache()
+        internal static IEnumerable<Assembly> BuildReferencedAssembliesCache(DotvvmConfiguration configuration)
         {
             var diAssembly = typeof(ServiceCollection).Assembly;
 

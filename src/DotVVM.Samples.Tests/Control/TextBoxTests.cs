@@ -237,7 +237,8 @@ window.getSelectionText = function (dataui) {
                 IElementWrapper numberTextbox = null;
                 IElementWrapper numberValueText = null;
                 numberTextbox = browser.First("#bindingNumberFormatTextbox");
-                AssertUI.Attribute(numberTextbox, "value", 0.ToString("N", culture));
+                Func<string> referenceFormat = () => browser.First("#bindingNumberValueNString").GetText().Trim();
+                AssertUI.Attribute(numberTextbox, "value", referenceFormat());
 
                 numberValueText = browser.First("#resultNumberValueText");
                 AssertUI.InnerTextEquals(numberValueText, 0.ToString(culture));
@@ -250,7 +251,7 @@ window.getSelectionText = function (dataui) {
 
                 // check new values
                 AssertUI.InnerTextEquals(numberValueText, 42.ToString(culture));
-                AssertUI.Attribute(numberTextbox, "value", 42.ToString("N", culture));
+                AssertUI.Attribute(numberTextbox, "value", referenceFormat());
 
                 // send new values
                 ClearInput(numberTextbox);
@@ -260,7 +261,7 @@ window.getSelectionText = function (dataui) {
 
                 // check new values
                 AssertUI.InnerTextEquals(numberValueText, 123.456789.ToString(culture));
-                AssertUI.Attribute(numberTextbox, "value", 123.456789.ToString("N", culture));
+                AssertUI.Attribute(numberTextbox, "value", referenceFormat());
             });
         }
 
