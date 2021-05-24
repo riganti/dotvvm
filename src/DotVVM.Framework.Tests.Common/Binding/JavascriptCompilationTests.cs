@@ -400,6 +400,27 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_DictionaryClear()
+        {
+            var result = CompileBinding("Dictionary.Clear()", new[] { typeof(TestViewModel5) }, typeof(void));
+            Assert.AreEqual("dotvvm.dictionaryHelper.clear(Dictionary)", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_DictionaryContainsKey()
+        {
+            var result = CompileBinding("Dictionary.ContainsKey(123)", new[] { typeof(TestViewModel5) }, typeof(bool));
+            Assert.AreEqual("dotvvm.dictionaryHelper.containsKey(Dictionary(),123)", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_DictionaryRemove()
+        {
+            var result = CompileBinding("Dictionary.Remove(123)", new[] { typeof(TestViewModel5) }, typeof(bool));
+            Assert.AreEqual("dotvvm.dictionaryHelper.remove(Dictionary,123)", result);
+        }
+
+        [TestMethod]
         [DataRow("Enumerable.Where(LongArray, (long item) => item % 2 == 0)", DisplayName = "Regular call of Enumerable.Where")]
         [DataRow("LongArray.Where((long item) => item % 2 == 0)", DisplayName = "Syntax sugar - extension method")]
         public void JsTranslator_EnumerableWhere(string binding)
