@@ -155,6 +155,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddDefaultToStringTranslations();
             AddDefaultStringTranslations();
             AddDefaultEnumerableTranslations();
+            AddDefaultDictionaryTranslations();
             AddDefaultMathTranslations();
         }
 
@@ -429,6 +430,16 @@ namespace DotVVM.Framework.Compilation.Javascript
             var whereMethod = typeof(Enumerable).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(m => m.Name == nameof(Enumerable.Where) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType.GetGenericTypeDefinition() == typeof(Func<,>)).Single();
             AddMethodTranslator(whereMethod, translator: new GenericMethodCompiler(args => args[1].Member("filter").Invoke(args[2])));
+        }
+
+        private void AddDefaultDictionaryTranslations()
+        {
+            AddMethodTranslator(typeof(Dictionary<,>), "Clear", parameterCount: 0, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dictionaryHelper").Member("clear").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
+            AddMethodTranslator(typeof(Dictionary<,>), "ContainsKey", parameterCount: 1, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dictionaryHelper").Member("containsKey").Invoke(args[0], args[1])));
+            AddMethodTranslator(typeof(Dictionary<,>), "Remove", parameterCount: 1, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dictionaryHelper").Member("remove").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
         }
 
         public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] args, MethodInfo method)
