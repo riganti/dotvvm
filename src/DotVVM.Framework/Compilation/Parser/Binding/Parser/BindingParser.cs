@@ -8,6 +8,7 @@ using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using System.Reflection;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 {
@@ -444,14 +445,14 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return true;
         }
 
-        private bool TryReadLambdaParameterDefinition(out BindingParserNode? type, out BindingParserNode? name)
+        private bool TryReadLambdaParameterDefinition(out TypeDeclarationBindingParserNode? type, out BindingParserNode? name)
         {
             name = null;
             type = null;
             if (Peek()?.Type != BindingTokenType.Identifier)
                 return false;
 
-            type = ReadIdentifierExpression(true);
+            TryReadTypeDeclaration(out type);
             SkipWhiteSpace();
 
             if (Peek()?.Type != BindingTokenType.Identifier)
@@ -468,6 +469,54 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             // Name must always be a simple name binding
             if (!(name is SimpleNameBindingParserNode))
                 return false;
+
+            return true;
+        }
+
+        private bool TryReadTypeDeclaration([NotNullWhen(returnValue: true)] out TypeDeclarationBindingParserNode? typeNode)
+        {
+            typeNode = null;
+            var startIndex = CurrentIndex;
+            var expression = ReadIdentifierNameExpression() as BindingParserNode;
+
+            var next = Peek();
+            int previousIndex = -1;
+            while (next != null && previousIndex != CurrentIndex)
+            {
+                previousIndex = CurrentIndex;
+                if (next.Type == BindingTokenType.Dot)
+                {
+                    // Member access
+                    Read();
+                    var member = ReadIdentifierNameExpression();
+                    expression = CreateNode(new MemberAccessBindingParserNode(expression, member), startIndex);
+                }
+                else if (next.Type == BindingTokenType.QuestionMarkOperator)
+                {
+                    // Nullable
+                    Read();
+                    expression = CreateNode(new NullableDeclarationBindingParserNode(expression), startIndex);
+                }
+                else if (next.Type == BindingTokenType.OpenArrayBrace)
+                {
+                    // Array
+                    Read();
+                    next = Peek();
+                    if (next?.Type != BindingTokenType.CloseArrayBrace)
+                        return false;
+                    Read();
+                    expression = CreateNode(new ArrayDeclarationBindingParserNode(expression), startIndex);
+                }
+                else
+                {
+                    break;
+                }
+                next = Peek();
+            }
+
+            if (!(expression is TypeDeclarationBindingParserNode typeDeclarationNode))
+                typeDeclarationNode = new TypeDeclarationBindingParserNode(expression);
+            typeNode = typeDeclarationNode;
 
             return true;
         }
@@ -734,7 +783,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 previousIndex = CurrentIndex;
 
                 SkipWhiteSpace();
-                arguments.Add(ReadIdentifierExpression(true));
+                if (!TryReadTypeDeclaration(out var argument))
+                    failure = true;
+                else
+                    arguments.Add(argument);
                 SkipWhiteSpace();
 
                 if (Peek()?.Type != BindingTokenType.Comma) { break; }

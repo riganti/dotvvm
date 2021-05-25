@@ -425,6 +425,19 @@ namespace DotVVM.Framework.Compilation.Binding
             return Expression.Lambda(body, parameters);
         }
 
+        protected override Expression VisitTypeDeclaration(TypeDeclarationBindingParserNode node)
+        {
+            var innerType = typeof(UnknownTypeSentinel);
+            if (node.Next != null)
+                innerType = VisitTypeDeclaration(node.Next).Type;
+
+            return node.Modifier switch {
+                TypeModifier.Array => new StaticClassIdentifierExpression(innerType.MakeArrayType()),
+                TypeModifier.Nullable => new StaticClassIdentifierExpression(innerType.MakeNullableType()),
+                _ => Visit(node.Type!),
+            };
+        }
+
         protected override Expression VisitBlock(BlockBindingParserNode node)
         {
             var left = HandleErrors(node.FirstExpression, Visit) ?? Expression.Default(typeof(void));
@@ -508,7 +521,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private void ThrowIfNotTypeNameRelevant(BindingParserNode node)
         {
-            if (ResolveOnlyTypeName && !(node is MemberAccessBindingParserNode) && !(node is IdentifierNameBindingParserNode) && !(node is AssemblyQualifiedNameBindingParserNode))
+            if (ResolveOnlyTypeName && !(node is MemberAccessBindingParserNode) && !(node is IdentifierNameBindingParserNode) && !(node is AssemblyQualifiedNameBindingParserNode) && !(node is TypeDeclarationBindingParserNode))
             {
                 throw new Exception("Only type name is supported.");
             }
