@@ -380,6 +380,42 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("(int? arg) => arg.Value + 1", typeof(Func<int?, int>))]
+        [DataRow("(double? arg) => arg.Value + 0.1", typeof(Func<double?, double>))]
+        public void BindingCompiler_Valid_LambdaParameter_Nullable(string expr, Type type)
+        {
+            var viewModel = new TestLambdaCompilation();
+            var result = ExecuteBinding(expr, viewModel);
+            Assert.AreEqual(type, result.GetType());
+        }
+
+        [TestMethod]
+        [DataRow("(int[] array) => array[0]", typeof(Func<int[], int>))]
+        [DataRow("(double[] array) => array[0]", typeof(Func<double[], double>))]
+        [DataRow("(int[][] jaggedArray) => jaggedArray[0][1]", typeof(Func<int[][], int>))]
+        [DataRow("(int[][] jaggedArray) => jaggedArray[0]", typeof(Func<int[][], int[]>))]
+        public void BindingCompiler_Valid_LambdaParameter_Array(string expr, Type type)
+        {
+            var viewModel = new TestLambdaCompilation();
+            var result = ExecuteBinding(expr, viewModel);
+            Assert.AreEqual(type, result.GetType());
+        }
+
+        [TestMethod]
+        [DataRow("(int?[] arrayOfNullables) => arrayOfNullables[0]", typeof(Func<int?[], int?>))]
+        [DataRow("(System.Collections.Generic.List<int?> list) => list[0]", typeof(Func<List<int?>, int?>))]
+        [DataRow("(System.Collections.Generic.List<int?[]> list) => list[0]", typeof(Func<List<int?[]>, int?[]>))]
+        [DataRow("(System.Collections.Generic.List<int?[][]> list) => list[0][0]", typeof(Func<List<int?[][]>, int?[]>))]
+        [DataRow("(System.Collections.Generic.Dictionary<int?,double?> dict) => dict[0]", typeof(Func<Dictionary<int?, double?>, double?>))]
+        [DataRow("(System.Collections.Generic.Dictionary<int?[],double?> dict) => 0", typeof(Func<Dictionary<int?[], double?>, int>))]
+        public void BindingCompiler_Valid_LambdaParameter_CombinedTypeModifies(string expr, Type type)
+        {
+            var viewModel = new TestLambdaCompilation();
+            var result = ExecuteBinding(expr, viewModel);
+            Assert.AreEqual(type, result.GetType());
+        }
+
+        [TestMethod]
         public void BindingCompiler_Valid_ExtensionMethods()
         {
             var viewModel = new TestViewModel();
