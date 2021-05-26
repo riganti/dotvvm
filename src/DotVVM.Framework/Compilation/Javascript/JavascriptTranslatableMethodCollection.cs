@@ -493,7 +493,10 @@ namespace DotVVM.Framework.Compilation.Javascript
                         for (var index = 0; index < parameters.Length; index++)
                         {
                             if (genParameters[index].ParameterType.IsGenericParameter)
+                            {
+                                // At this point we already know that there is no non-generic method that matches provided parameters
                                 continue;
+                            }
                             if (genParameters[index].ParameterType != parameters[index].ParameterType)
                             {
                                 isMatch = false;
