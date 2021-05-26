@@ -628,7 +628,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             Assert.IsTrue(genericName.Name == "List");
             Assert.IsTrue(genericName.TypeArguments.Count == 1);
-            Assert.IsTrue(genericName.TypeArguments[0].CastTo<IdentifierNameBindingParserNode>().Name == "string");
+            Assert.IsTrue(genericName.TypeArguments[0].CastTo<TypeDeclarationBindingParserNode>().Type.ToDisplayString() == "string");
         }
 
         [TestMethod]
@@ -645,11 +645,11 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.IsTrue(genericType.Name == "Dictionary");
             Assert.IsTrue(valueCollection.Name == "ValueCollection");
 
-            var arg0 = genericType.TypeArguments[0].CastTo<IdentifierNameBindingParserNode>();
-            var arg1 = genericType.TypeArguments[1].CastTo<IdentifierNameBindingParserNode>();
+            var arg0 = genericType.TypeArguments[0].CastTo<TypeDeclarationBindingParserNode>();
+            var arg1 = genericType.TypeArguments[1].CastTo<TypeDeclarationBindingParserNode>();
 
-            Assert.IsTrue(arg0?.Name == "string");
-            Assert.IsTrue(arg1?.Name == "int");
+            Assert.IsTrue(arg0?.Type.ToDisplayString() == "string");
+            Assert.IsTrue(arg1?.Type.ToDisplayString() == "int");
         }
 
         [TestMethod]
@@ -667,9 +667,9 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.IsNotNull(valueCollection);
 
             var arg0 = target.MemberNameExpression.CastTo<GenericNameBindingParserNode>()
-                .TypeArguments[0].CastTo<GenericNameBindingParserNode>();
+                .TypeArguments[0].CastTo<TypeDeclarationBindingParserNode>();
             var arg1 = target.MemberNameExpression.CastTo<GenericNameBindingParserNode>()
-                .TypeArguments[1].CastTo<GenericNameBindingParserNode>();
+                .TypeArguments[1].CastTo<TypeDeclarationBindingParserNode>();
 
             Assert.IsTrue(string.Equals(originalString, node.ToDisplayString()));
         }
