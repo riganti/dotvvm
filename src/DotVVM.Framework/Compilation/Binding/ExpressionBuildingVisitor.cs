@@ -359,7 +359,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
 
             for (var i = 0; i < lambdaParameters.Length; i++)
-                lambdaParameters[i] = (ParameterExpression)HandleErrors(node.ParameterExpressions[i], Visit)!;
+                lambdaParameters[i] = (ParameterExpression)Visit(node.ParameterExpressions[i]);
 
             // Make sure that parameter identifiers are distinct
             if (lambdaParameters.GroupBy(param => param.Name).Any(group => group.Count() > 1))
@@ -431,10 +431,16 @@ namespace DotVVM.Framework.Compilation.Binding
             if (node.Next != null)
                 innerType = VisitTypeDeclaration(node.Next).Type;
 
-            return node.Modifier switch {
-                TypeModifier.Array => new StaticClassIdentifierExpression(innerType.MakeArrayType()),
-                TypeModifier.Nullable => new StaticClassIdentifierExpression(innerType.MakeNullableType()),
-                _ => Visit(node.Type!),
+            switch (node.Modifier)
+            {
+                case TypeModifier.Array:
+                    return new StaticClassIdentifierExpression(innerType.MakeArrayType());
+                case TypeModifier.Nullable:
+                    if (!innerType.IsValueType)
+                        throw new BindingCompilationException($"Wrapping {innerType} as nullable is not supported!", node);
+                    return new StaticClassIdentifierExpression(innerType.MakeNullableType());
+                default:
+                    return Visit(node.Type!);
             };
         }
 

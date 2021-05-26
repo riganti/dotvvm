@@ -416,6 +416,32 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("(string? arg) => arg")]
+        [DataRow("(int[]? arg) => arg")]
+        public void BindingCompiler_Invalid_LambdaParameter_NullableReferenceTypes(string expr)
+        {
+            var exceptionThrown = false;
+            try
+            {
+                var viewModel = new TestLambdaCompilation();
+                ExecuteBinding(expr, viewModel);
+            }
+            catch (Exception e)
+            {
+                // Get inner-most exception
+                var current = e;
+                while (current.InnerException != null)
+                    current = current.InnerException;
+
+                Assert.AreEqual(typeof(BindingCompilationException), current.GetType());
+                StringAssert.Contains(current.Message, "as nullable is not supported!");
+                exceptionThrown = true;
+            }
+
+            Assert.IsTrue(exceptionThrown);
+        }
+
+        [TestMethod]
         public void BindingCompiler_Valid_ExtensionMethods()
         {
             var viewModel = new TestViewModel();
