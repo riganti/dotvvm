@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using DotVVM.Framework.Compilation.Parser.Binding.Parser.Annotations;
 using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 
 namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
@@ -16,7 +17,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         public int EndPosition => StartPosition + Length;
 
         public List<BindingToken> Tokens { get; internal set; }
-
+        public HashSet<IBindingParserAnnotation> Annotations { get; private set; }
 
         public List<string> NodeErrors { get; private set; }
 
@@ -29,6 +30,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             Tokens = new List<BindingToken>();
             NodeErrors = new List<string>();
+            Annotations = new HashSet<IBindingParserAnnotation>();
         }
 
 
