@@ -155,6 +155,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddDefaultToStringTranslations();
             AddDefaultStringTranslations();
             AddDefaultEnumerableTranslations();
+            AddDefaultDictionaryTranslations();
             AddDefaultMathTranslations();
         }
 
@@ -431,6 +432,16 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(whereMethod, translator: new GenericMethodCompiler(args => args[1].Member("filter").Invoke(args[2])));
         }
 
+        private void AddDefaultDictionaryTranslations()
+        {
+            AddMethodTranslator(typeof(Dictionary<,>), "Clear", parameterCount: 0, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dictionaryHelper").Member("clear").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
+            AddMethodTranslator(typeof(Dictionary<,>), "ContainsKey", parameterCount: 1, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dictionaryHelper").Member("containsKey").Invoke(args[0], args[1])));
+            AddMethodTranslator(typeof(Dictionary<,>), "Remove", parameterCount: 1, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dictionaryHelper").Member("remove").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
+        }
+
         public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] args, MethodInfo method)
         {
             if (method == null)
@@ -471,8 +482,34 @@ namespace DotVVM.Framework.Compilation.Javascript
 
                 if (m2 == null)
                 {
-                    m2 = genericType.GetMethod(method.Name,
-                        BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                    var parameters = method.GetParameters();
+                    foreach (var m in genericType.GetMethods().Where(m => m.Name == method.Name))
+                    {
+                        var genParameters = m.GetParameters();
+                        if (parameters.Length != genParameters.Length)
+                            continue;
+
+                        var isMatch = true;
+                        for (var index = 0; index < parameters.Length; index++)
+                        {
+                            if (genParameters[index].ParameterType.IsGenericParameter)
+                            {
+                                // At this point we already know that there is no non-generic method that matches provided parameters
+                                continue;
+                            }
+                            if (genParameters[index].ParameterType != parameters[index].ParameterType)
+                            {
+                                isMatch = false;
+                                break;
+                            }
+                        }
+
+                        if (isMatch)
+                        {
+                            m2 = m;
+                            break;
+                        }
+                    }
                 }
 
                 if (m2 != null)

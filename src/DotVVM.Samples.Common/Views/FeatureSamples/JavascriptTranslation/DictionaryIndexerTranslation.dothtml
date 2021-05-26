@@ -18,14 +18,16 @@
         </p>
     </dot:Repeater>
 
-    <h2>Mutating operation</h2>
-
+    <h2>Operations</h2>
     <p>
         <span>KEY:</span> <dot:TextBox Text="{value: Key}" /> <br/>
-        <span>VAL:</span> <dot:TextBox Text="{value: Value}" />
+        <span>VAL:</span> <dot:TextBox Text="{value: Value}" /> <br/>
+        <span>ContainsKey</span> <dot:TextBox Text={value: Dictionary.ContainsKey(Key).ToString()} />
     </p>
     
     <dot:Button Text="Set" Click="{staticCommand: Dictionary[Key] = Value}" />
+    <dot:Button Text="Clear" Click="{staticCommand: Dictionary.Clear()}" />
+    <dot:Button Text="Remove" Click="{staticCommand: Dictionary.Remove(Key)}" />
 
 </body>
 </html>
