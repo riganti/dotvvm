@@ -1,0 +1,33 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation.DictionaryIndexerTranslationViewModel
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>Dictionary testing</h1>
+
+    <dot:Repeater DataSource="{value: Dictionary}">
+        <p>
+            <span>KEY: "{{value: Key}}"</span>
+            <span>VAL: "{{value: Value}}"</span>
+        </p>
+    </dot:Repeater>
+
+    <h2>Mutating operation</h2>
+
+    <p>
+        <span>KEY:</span> <dot:TextBox Text="{value: Key}" /> <br/>
+        <span>VAL:</span> <dot:TextBox Text="{value: Value}" />
+    </p>
+    
+    <dot:Button Text="Set" Click="{staticCommand: Dictionary[Key] = Value}" />
+
+</body>
+</html>
+
+

@@ -23,22 +23,28 @@
         </div>
 
         <div>
-            <h2>Operations</h2>
+            <h2>Operations (showcasing LINQ and JsTranslator)</h2>
+
             <p>
-            Showcasing LINQ and JsTranslator <br/>
-            Note: you can use either explicit expressions (example: Enumerable.Where(Collection, ...)),
-                 but also extension-method-like calls (example: Collection.Where(...))
+                Note(1): you can use either explicit expressions (example: Enumerable.Where(Collection, ...)),
+                but also extension-method-like calls (example: Collection.Where(...))
+            </p>
+            <p>
+                Note(2): you can either specify lambda parameter types explicitly, or let type inferer try to infer them (example: Collection.Where(number => number % 2 == 0))
             </p>
 
-            <dot:Button Text="Get all even numbers" Validation.Enabled="false"
+            <dot:Button Text="CMD: Get all even numbers" Validation.Enabled="false"
                         <%--Click="{command: SetResult(Enumerable.Where(Array, (int item) => item % 2 == 0))}" />--%>
-                        Click="{command: SetResult(Array.Where((int item) => item % 2 == 0))}" />
-            <dot:Button Text="Get all odd numbers" Validation.Enabled="false"
+                        <%--Click="{command: SetResult(Array.Where((int item) => item % 2 == 0))}" />--%>
+                        Click="{command SetResult(Array.Where(item => item % 2 == 0))}" />
+            <dot:Button Text="CMD: Get all odd numbers" Validation.Enabled="false"
                         <%--Click="{command: SetResult(Enumerable.Where(Array, (int item) => item % 2 == 1))}" />--%>
-                        Click="{command: SetResult(Array.Where((int item) => item % 2 == 1))}" />
-            <dot:Button Text="Negate numbers" Validation.Enabled="false"
+                        <%--Click="{command: SetResult(Array.Where((int item) => item % 2 == 1))}" />--%>
+                        Click="{command: SetResult(Array.Where(item => item % 2 == 1))}" />
+            <dot:Button Text="CMD: Negate numbers" Validation.Enabled="false"
                         <%--Click="{command: SetResult(Enumerable.Select(Array, (int item) => -item))}" />--%>
-                        Click="{command: SetResult(Array.Select((int item) => -item))}" />
+                        <%--Click="{command: SetResult(Array.Select((int item) => -item))}" />--%>
+                        Click="{command: SetResult(Array.Select(item => -item))}" />
         </div>
 
         <div>

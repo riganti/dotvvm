@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "DotVVM.Compiler.Light": {
-      "commandName": "Project",
-      "commandLineArgs": "--debugger --json \"{\\\"WebSiteAssembly\\\":\\\"C:\\\\dev\\\\dotvvm\\\\src\\\\DotVVM.Samples.BasicSamples.AspNetCore\\\\bin\\\\Debug\\\\netcoreapp2.0\\\\DotVVM.Samples.BasicSamples.AspNetCore.dll\\\",\\\"WebSitePath\\\":\\\"C:\\\\dev\\\\dotvvm\\\\src\\\\DotVVM.Samples.BasicSamples.AspNetCore\\\",\\\"FullCompile\\\":false,\\\"SerializeConfig\\\":true,\\\"DothtmlFiles\\\":[],\\\"OutputResolvedDothtmlMap\\\":true,\\\"CheckBindingErrors\\\":false}\"",
-      "workingDirectory": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.BasicSamples.AspNetCore\\bin\\Debug\\netcoreapp2.0"
-    }
-  }
-}
