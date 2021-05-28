@@ -519,12 +519,26 @@ namespace DotVVM.Framework.Compilation.Javascript
                         var isMatch = true;
                         for (var index = 0; index < parameters.Length; index++)
                         {
+                            // At this point we already know that there is no non-generic method that matches provided parameters
+                            var concrete = parameters[index].ParameterType;
+                            var generic = (!genParameters[index].ParameterType.IsGenericType) ?
+                                genParameters[index].ParameterType : genParameters[index].ParameterType.GetGenericTypeDefinition();
+
                             if (genParameters[index].ParameterType.IsGenericParameter)
                             {
-                                // At this point we already know that there is no non-generic method that matches provided parameters
                                 continue;
                             }
-                            if (genParameters[index].ParameterType != parameters[index].ParameterType)
+                            else if (genParameters[index].ParameterType.IsGenericType)
+                            {
+                                if (!ReflectionUtils.IsAssignableToGenericType(concrete, generic, out var _))
+                                {
+                                    isMatch = false;
+                                    break;
+                                }
+
+                                continue;
+                            }
+                            else if (genParameters[index].ParameterType != parameters[index].ParameterType)
                             {
                                 isMatch = false;
                                 break;
