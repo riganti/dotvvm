@@ -116,11 +116,23 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddPropertyGetterTranslator(typeof(string), nameof(string.Length), lengthMethod);
             AddMethodTranslator(typeof(Enums), "GetNames", new EnumGetNamesMethodTranslator(), 0);
 
-            JsExpression indexer(JsExpression[] args, MethodInfo method) =>
+            JsExpression listIndexer(JsExpression[] args, MethodInfo method) =>
                 BuildIndexer(args[0], args[1], method.DeclaringType.GetProperty("Item"));
-            AddMethodTranslator(typeof(IList), "get_Item", new GenericMethodCompiler(indexer));
-            AddMethodTranslator(typeof(IList<>), "get_Item", new GenericMethodCompiler(indexer));
-            AddMethodTranslator(typeof(List<>), "get_Item", new GenericMethodCompiler(indexer));
+            JsExpression dictionaryGetIndexer(JsExpression[] args, MethodInfo method) =>
+                new JsIdentifierExpression("dotvvm").Member("dictionaryHelper").Member("getItem").Invoke(args[0], args[1]);
+            JsExpression dictionarySetIndexer(JsExpression[] args, MethodInfo method) =>
+                new JsIdentifierExpression("dotvvm").Member("dictionaryHelper").Member("setItem").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1], args[2]);
+
+            AddMethodTranslator(typeof(IList), "get_Item", new GenericMethodCompiler(listIndexer));
+            AddMethodTranslator(typeof(IList<>), "get_Item", new GenericMethodCompiler(listIndexer));
+            AddMethodTranslator(typeof(List<>), "get_Item", new GenericMethodCompiler(listIndexer));
+            AddMethodTranslator(typeof(IList), "set_Item", new GenericMethodCompiler(listIndexer));
+            AddMethodTranslator(typeof(IList<>), "set_Item", new GenericMethodCompiler(listIndexer));
+            AddMethodTranslator(typeof(List<>), "set_Item", new GenericMethodCompiler(listIndexer));
+            AddMethodTranslator(typeof(Dictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
+            AddMethodTranslator(typeof(IDictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
+            AddMethodTranslator(typeof(Dictionary<,>), "set_Item", new GenericMethodCompiler(dictionarySetIndexer));
+            AddMethodTranslator(typeof(IDictionary<,>), "set_Item", new GenericMethodCompiler(dictionarySetIndexer));
             AddPropertyGetterTranslator(typeof(Nullable<>), "Value", new GenericMethodCompiler((JsExpression[] args, MethodInfo method) => args[0]));
             AddPropertyGetterTranslator(typeof(Nullable<>), "HasValue",
                 new GenericMethodCompiler(args => new JsBinaryExpression(args[0], BinaryOperatorType.NotEqual, new JsLiteral(null))));
@@ -143,6 +155,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddDefaultToStringTranslations();
             AddDefaultStringTranslations();
             AddDefaultEnumerableTranslations();
+            AddDefaultDictionaryTranslations();
             AddDefaultListTranslations();
             AddDefaultMathTranslations();
         }
@@ -416,6 +429,16 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(whereMethod, translator: new GenericMethodCompiler(args => args[1].Member("filter").Invoke(args[2])));
         }
 
+        private void AddDefaultDictionaryTranslations()
+        {
+            AddMethodTranslator(typeof(Dictionary<,>), "Clear", parameterCount: 0, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dictionaryHelper").Member("clear").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
+            AddMethodTranslator(typeof(Dictionary<,>), "ContainsKey", parameterCount: 1, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dictionaryHelper").Member("containsKey").Invoke(args[0], args[1])));
+            AddMethodTranslator(typeof(Dictionary<,>), "Remove", parameterCount: 1, translator: new GenericMethodCompiler(args =>
+                new JsIdentifierExpression("dotvvm").Member("dictionaryHelper").Member("remove").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])));
+        }
+
         private void AddDefaultListTranslations()
         {
             AddMethodTranslator(typeof(List<>), "Add", parameterCount: 1, translator: new GenericMethodCompiler(args =>
@@ -480,19 +503,45 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (method.DeclaringType.GetTypeInfo().IsGenericType && !method.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
             {
                 var genericType = method.DeclaringType.GetGenericTypeDefinition();
-                var method2 = genericType.GetMethod(method.Name,
+                var m2 = genericType.GetMethod(method.Name,
                     BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public,
                     binder: null, types: method.GetParameters().Select(p => p.ParameterType).ToArray(), modifiers: null);
 
-                if (method2 == null)
+                if (m2 == null)
                 {
-                    method2 = genericType.GetMethod(method.Name,
-                        BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                    var parameters = method.GetParameters();
+                    foreach (var m in genericType.GetMethods().Where(m => m.Name == method.Name))
+                    {
+                        var genParameters = m.GetParameters();
+                        if (parameters.Length != genParameters.Length)
+                            continue;
+
+                        var isMatch = true;
+                        for (var index = 0; index < parameters.Length; index++)
+                        {
+                            if (genParameters[index].ParameterType.IsGenericParameter)
+                            {
+                                // At this point we already know that there is no non-generic method that matches provided parameters
+                                continue;
+                            }
+                            if (genParameters[index].ParameterType != parameters[index].ParameterType)
+                            {
+                                isMatch = false;
+                                break;
+                            }
+                        }
+
+                        if (isMatch)
+                        {
+                            m2 = m;
+                            break;
+                        }
+                    }
                 }
 
-                if (method2 != null)
+                if (m2 != null)
                 {
-                    var r2 = TryTranslateCall(context, args, method2);
+                    var r2 = TryTranslateCall(context, args, m2);
                     if (r2 != null) return r2;
                 }
             }
