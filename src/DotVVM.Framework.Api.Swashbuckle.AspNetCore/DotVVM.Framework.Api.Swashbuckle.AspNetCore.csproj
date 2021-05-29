@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>DotVVM.Api.Swashbuckle.AspNetCore</PackageId>
-    <PackageVersion>3.1.0-preview04-112568-flags-fix</PackageVersion>
+    <PackageVersion>3.0.4</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>Swashbuckle.AspNetCore extensions for DotVVM.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
