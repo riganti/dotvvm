@@ -318,32 +318,28 @@ namespace DotVVM.Framework.Controls
             {
                 AddHtmlAttribute(writer, name, ((IStaticValueBinding)value).Evaluate(this));
             }
+            else if (value is bool boolValue)
+            {
+                if (boolValue)
+                {
+                    writer.AddAttribute(name, name);
+                }
+            }
+            else if (value is Enum || value is Guid)
+            {
+                writer.AddAttribute(name, value.ToString());
+            }
+            else if (ReflectionUtils.IsNumericType(value.GetType()))
+            {
+                writer.AddAttribute(name, Convert.ToString(value, CultureInfo.InvariantCulture));
+            }
             else
             {
-                var type = ReflectionUtils.UnwrapNullableType(value.GetType());
-                if (ReflectionUtils.IsNumericType(type))
-                {
-                    writer.AddAttribute(name, Convert.ToString(value, CultureInfo.InvariantCulture));
-                }
-                else if (type == typeof(bool))
-                {
-                    if ((bool)value)
-                    {
-                        writer.AddAttribute(name, name);
-                    }
-                }
-                else if (type.IsEnum || type == typeof(Guid))
-                {
-                    writer.AddAttribute(name, value.ToString());
-                }
-                else
-                {
-                    // DateTime and related are not supported here intentionally.
-                    // It is not clear in which format it should be rendered - on some places, the HTML specs requires just yyyy-MM-dd,
-                    // but in case of Web Components, the users may want to pass the whole date, or use a specific format
+                // DateTime and related are not supported here intentionally.
+                // It is not clear in which format it should be rendered - on some places, the HTML specs requires just yyyy-MM-dd,
+                // but in case of Web Components, the users may want to pass the whole date, or use a specific format
 
-                    throw new NotSupportedException($"Attribute value of type '{value.GetType().FullName}' is not supported. Please convert the value to string, e. g. by using ToString()");
-                }
+                throw new NotSupportedException($"Attribute value of type '{value.GetType().FullName}' is not supported. Please convert the value to string, e. g. by using ToString()");
             }
         }
 
