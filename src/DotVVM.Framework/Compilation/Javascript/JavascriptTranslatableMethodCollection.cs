@@ -59,11 +59,14 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodsCore(methods.ToArray(), translator, allowMultipleMethods);
         }
 
-        public void AddMethodTranslator(Type declaringType, string methodName, IJavascriptMethodTranslator translator, int parameterCount, bool allowMultipleMethods = false)
+        public void AddMethodTranslator(Type declaringType, string methodName, IJavascriptMethodTranslator translator, int parameterCount, bool allowMultipleMethods = false, Func<ParameterInfo[], bool> parameterFilter = null)
         {
             var methods = declaringType.GetMethods()
                 .Where(m => m.Name == methodName)
-                .Where(m => m.GetParameters().Length == parameterCount)
+                .Where(m => {
+                    var parameters = m.GetParameters();
+                    return parameters.Length == parameterCount && (parameterFilter?.Invoke(parameters) ?? true);
+                })
                 .ToArray();
 
             AddMethodsCore(methods, translator, allowMultipleMethods);
@@ -379,17 +382,17 @@ namespace DotVVM.Framework.Compilation.Javascript
                 translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("distinct").Invoke(args[1]),
                 check: (method, target, arguments) => EnsureIsComparableInJavascript(method, target?.Type ?? ReflectionUtils.GetEnumerableType(arguments.First().Type))));
 
-            AddMethodTranslator(typeof(Enumerable).GetMethod("ElementAt", BindingFlags.Static | BindingFlags.Public), new GenericMethodCompiler((args, method) =>
-                BuildIndexer(args[1], args[2], method)));
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.ElementAt), parameterCount: 2, parameterFilter: p => p[1].ParameterType == typeof(int),
+                translator: new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
 
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.FirstOrDefault), parameterCount: 1, translator: new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("firstOrDefault").Invoke(args[1], returnTrueFunc.Clone()).WithAnnotation(ResultIsObservableAnnotation.Instance)));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.FirstOrDefault), parameterCount: 2, translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.FirstOrDefault), parameterCount: 2, parameterFilter: p => p[1].ParameterType.IsGenericType && p[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>), translator: new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("firstOrDefault").Invoke(args[1], args[2]).WithAnnotation(ResultIsObservableAnnotation.Instance)));
 
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.LastOrDefault), parameterCount: 1, translator: new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("lastOrDefault").Invoke(args[1], returnTrueFunc.Clone()).WithAnnotation(ResultIsObservableAnnotation.Instance)));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.LastOrDefault), parameterCount: 2, translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.LastOrDefault), parameterCount: 2, parameterFilter: p => p[1].ParameterType.IsGenericType && p[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>), translator: new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("arrayHelper").Member("lastOrDefault").Invoke(args[1], args[2]).WithAnnotation(ResultIsObservableAnnotation.Instance)));
 
             foreach (var type in new[] { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal), typeof(int?), typeof(long?), typeof(float?), typeof(double?), typeof(decimal?) })
@@ -422,7 +425,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Skip), parameterCount: 2, translator: new GenericMethodCompiler(args =>
                 args[1].Member("slice").Invoke(args[2])));
 
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Take), parameterCount: 2, translator: new GenericMethodCompiler(args =>
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Take), parameterCount: 2, parameterFilter: p => p[1].ParameterType == typeof(int), translator: new GenericMethodCompiler(args =>
                 args[1].Member("slice").Invoke(new JsLiteral(0), args[2])));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.ToArray), parameterCount: 1, translator: new GenericMethodCompiler(args => args[1]));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.ToList), parameterCount: 1, translator: new GenericMethodCompiler(args => args[1]));
