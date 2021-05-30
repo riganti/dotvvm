@@ -1,7 +1,6 @@
 ﻿using System;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Hosting.AspNetCore.Runtime.Caching;
 using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Security;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -81,7 +80,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
             services.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
-            services.TryAddSingleton<IDotvvmCacheAdapter, DefaultDotvvmCacheAdapter>();
             services.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
             services.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
             services.TryAddSingleton<IRequestCancellationTokenProvider, RequestCancellationTokenProvider>();

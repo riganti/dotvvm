@@ -21,13 +21,7 @@ dotnet restore
 cd ../DotVVM.Framework.PerfTests
 dotnet restore
 
-cd ../DotVVM.Framework.Tests.AspCore
-dotnet restore
-
-cd ../DotVVM.Framework.Tests.Common
-dotnet restore
-
-cd ../DotVVM.Framework.Tests.Owin
+cd ../DotVVM.Framework.Tests
 dotnet restore
 
 cd ../DotVVM.Framework.Tools.SeleniumGenerator

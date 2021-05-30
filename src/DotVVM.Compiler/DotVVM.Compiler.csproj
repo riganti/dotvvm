@@ -1,11 +1,30 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+﻿<!-- NB: You might ask "Why does a console app need the Web SDK?". It's because AssemblyDependencyResolver can't deal
+with targeting packs (i.e. common assemblies such as Microsoft.AspNetCore.Hosting.dll in a shared system-wide
+directory).
+
+The docs at https://docs.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support recommend us to
+reference `Microsoft.AspNetCore.App` package, which has been deprecated in .NET Core 3. There's also the
+`Microsoft.AspNetCore.App.Ref` package that cannot be referenced directly but only through the Sdk attribute below
+for some reason. What fun. -->
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!-- Related to compilation -->
   <PropertyGroup>
-    <TargetFrameworks>net451;netcoreapp2.0</TargetFrameworks>
-    <FileAlgnment>512</FileAlgnment>
+    <TargetFrameworks>netcoreapp3.1;net461;net50</TargetFrameworks>
+    <IsPackable>true</IsPackable>
     <OutputType>Exe</OutputType>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <RuntimeIdentifiers>win7-x86;win7-x64;win10-x64;ubuntu.16.10-x64</RuntimeIdentifiers>
+    <TargetLatestDotNetRuntime>false</TargetLatestDotNetRuntime>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <RollForward>LatestMajor</RollForward>
+  </PropertyGroup>
+
+  <!-- Related to packaging -->
+  <PropertyGroup>
     <Authors>RIGANTI</Authors>
-    <RuntimeIdentifiers>win10-x64;ubuntu.16.10-x64</RuntimeIdentifiers>
+    <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <AssemblyTitle>DotVVM.Compiler</AssemblyTitle>
     <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -18,33 +37,28 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
-    <StartupObject>DotVVM.Compiler.Programs.Program</StartupObject>
-  </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="1.1.1" />
-    <PackageReference Include="ilmerge" Version="2.14.1208" />
-    <PackageReference Include="Microsoft.Owin" Version="3.0.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="1.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="1.0.0" />
+
+  <ItemGroup>
+    <ProjectReference Include="../DotVVM.Framework/DotVVM.Framework.csproj" Private="false" />
+    <ProjectReference Include="../DotVVM.Core/DotVVM.Core.csproj" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+    <Reference Include="Microsoft.CSharp" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
+
+  <!-- <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'" Version="">
+    <PackageReference Include="" />
+  </ItemGroup> -->
+
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
-    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="dotvvmwizard.snk" />
   </ItemGroup>
+
 </Project>

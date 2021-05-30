@@ -30,6 +30,7 @@ using Microsoft.Extensions.Options;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Compilation.Javascript;
 using System.ComponentModel;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -267,6 +268,19 @@ namespace DotVVM.Framework.Configuration
             ConfigureOptions(config, serviceProvider);
 
             return config;
+        }
+
+        /// <summary>
+        /// Creates a configuration with fake services in place of hosting-specific components.
+        /// </summary>
+        internal static DotvvmConfiguration CreateInternal(Action<IServiceCollection> registerServices)
+        {
+            return CreateDefault(services =>
+            {
+                services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
+                services.TryAddSingleton<ICsrfProtector, FakeCsrfProtector>();
+                registerServices(services);
+            });
         }
 
         private static void ConfigureOptions<T>(T obj, IServiceProvider serviceProvider)

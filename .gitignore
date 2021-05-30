@@ -125,7 +125,7 @@ publish/
 # Publish Web Output
 *.[Pp]ublish.xml
 *.azurePubxml
-# TODO: Comment the next line if you want to checkin your web deploy settings 
+# TODO: Comment the next line if you want to checkin your web deploy settings
 # but database connection strings (with potential passwords) will be unencrypted
 
 *.publishproj
@@ -184,7 +184,6 @@ UpgradeLog*.htm
 FakesAssemblies/
 *.bak
 /src/DotVVM.sln.GhostDoc.xml
-/src/.vs
 /src/DotVVM.Framework/Resources/Scripts/DotVVM.js.map
 /src/DotVVM.Framework.Tests.Javascript/tests/*.js
 /src/DotVVM.Framework.Tests.Javascript/tests/*.js.map
@@ -195,12 +194,21 @@ FakesAssemblies/
 /src/Tools/DotVVM.Framework.Hosting.Owin.nuspec
 /src/DotVVM.Samples.Common/Temp/returnedFiles
 
-/.vs
-/.vscode
-/.idea
-/src/.idea
+.vs/
+.vscode/
+.idea/
 
 /src/DotVVM.Samples.BasicSamples.Api.AspNetCore/temp/returnedFiles
+/src/DotVVM.Framework.Tools.SeleniumGenerator/Properties/launchSettings.json
+/src/DotVVM.Compiler/Properties/launchSettings.json
+/src/DotVVM.Framework.Tests.Javascript/package-lock.json
+/src/DotVVM.Framework/package-lock.json
+
+.dotvvm/
+.dotvvm.json
+
+
+*.binlog
 /src/DotVVM.Framework/.vs/VSWorkspaceState.json
 /src/Tools/npm/dotvvm-types/*.d.ts
 /src/DotVVM.Framework/junit.xml

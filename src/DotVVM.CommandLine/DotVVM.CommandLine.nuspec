@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    $CommonMetadataElements$
+    <packageTypes>
+      <packageType name="$PackageType$" />
+    </packageTypes>
+  </metadata>
+
+  <files>
+    <file src="$SettingsFile$" target="tools\$TargetFramework$\any" />
+    <file src="$Output$**\*" target="tools\$TargetFramework$\any" />
+  </files>
+</package>
