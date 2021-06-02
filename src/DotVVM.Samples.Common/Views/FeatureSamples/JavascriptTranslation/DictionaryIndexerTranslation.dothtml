@@ -25,9 +25,9 @@
         <span>ContainsKey</span> <dot:TextBox Text={value: Dictionary.ContainsKey(Key).ToString()} />
     </p>
     
-    <dot:Button Text="Set" Click="{staticCommand: Dictionary[Key] = Value}" />
-    <dot:Button Text="Clear" Click="{staticCommand: Dictionary.Clear()}" />
-    <dot:Button Text="Remove" Click="{staticCommand: Dictionary.Remove(Key)}" />
+    <dot:Button data-ui="set" Text="Set" Click="{staticCommand: Dictionary[Key] = Value}" />
+    <dot:Button data-ui="clear" Text="Clear" Click="{staticCommand: Dictionary.Clear()}" />
+    <dot:Button data-ui="remove" Text="Remove" Click="{staticCommand: Dictionary.Remove(Key)}" />
 
 </body>
 </html>
