@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using DotVVM.Samples.BasicSamples.Api.Common.DataStore;
 using DotVVM.Samples.BasicSamples.Api.Common.Model;
+using DotVVM.Samples.BasicSamples.Api.Owin;
 
 namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.AspNetCore.Controllers
 {
@@ -15,6 +16,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.AspNetCore.Controllers
 
         [HttpGet]
         [Route("")]
+        [NoCache]
         public List<Order> Get(int companyId, int pageIndex = 0, int pageSize = 20)
         {
             lock (Database.Instance)
@@ -30,6 +32,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.AspNetCore.Controllers
 
         [HttpGet]
         [Route("{orderId}", Name = nameof(GetItem))]
+        [NoCache]
         public Order GetItem(int orderId = 0)
         {
             lock (Database.Instance)
