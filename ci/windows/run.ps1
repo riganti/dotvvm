@@ -1,31 +1,32 @@
 $root = $env:DOTVVM_ROOT ?? "$PWD"
-$env:DOTVVM_ROOT=$root
+$env:DOTVVM_ROOT = $root
 $configuration = $env:CONFIGURATION ?? "Release"
 Write-Host "ROOT=$ROOT"
 Write-Host "CONFIGURATION=$CONFIGURATION"
 
-# cd $root\src\DotVVM.Framework `
-#     && npm ci --cache $root\.npm --prefer-offline `
-#     && npm run build
+cd $root\src\DotVVM.Framework `
+    && npm ci --cache $root\.npm --prefer-offline `
+    && npm run build
 
-# if (-Not($?)) {
-#     Write-Host "npm build failed"
-#     exit 1
-# }
+if (-Not($?)) {
+    Write-Host "npm build failed"
+    exit 1
+}
 
 $sln = "$root\ci\windows\Windows.sln"
-# $nuget = "$root\src\packages\"
-# cd $root `
-#     && nuget restore $sln -PackagesDirectory $nuget `
-#     && dotnet restore $sln --packages $nuget `
+$nuget = "$root\src\packages\"
+cd $root `
+    && nuget restore $sln -PackagesDirectory $nuget `
+    && dotnet restore $sln --packages $nuget `
 
-# if (-Not($?)) {
-#     Write-Host "nuget restore failed"
-#     exit 1
-# }
+if (-Not($?)) {
+    Write-Host "nuget restore failed"
+    exit 1
+}
 
 msbuild $sln -v:m `
     -p:PublishProfile=$root\ci\windows\GenericPublish.pubxml `
+    -p:DeployOnBuild=true `
     -p:Configuration=$configuration
 
 if (-Not($?)) {
@@ -36,12 +37,12 @@ if (-Not($?)) {
 # Import-Module IISAdministration -UseWindowsPowerShell
 
 # icacls $root/artifacts/ /grant "IIS_IUSRS:(OI)(CI)F"
-# New-IISSite -Name dotvvm.owin `
-#     -PhysicalPath $root/artifacts/DotVVM.Samples.BasicSamples.Owin `
-#     -BindingInformation "localhost:5407"
+New-IISSite -Name dotvvm.owin `
+    -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Owin `
+    -BindingInformation "localhost:5407"
 
 # New-IISSite -Name dotvvm.owin.api `
-#     -PhysicalPath $root/artifacts/DotVVM.Samples.BasicSamples.Api.Owin `
+#     -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin `
 #     -BindingInformation "localhost:5002"
 
 # Copy-Item `
