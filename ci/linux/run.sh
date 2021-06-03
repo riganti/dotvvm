@@ -1,23 +1,23 @@
 #/bin/bash
 
 ROOT=${DOTVVM_ROOT:-$(pwd)}
+# override DOTVVM_ROOT in case this is a local build
+export DOTVVM_ROOT=$ROOT
+
 CONFIGURATION=${BUILD_CONFIGURATION:-Release}
 TEST_RESULTS_DIR=$ROOT/artifacts/tests
 DISPLAY=${DISPLAY:-":42"}
-echo "ROOT=$DOTVVM_ROOT"
+echo "ROOT=$ROOT"
 echo "CONFIGURATION=$CONFIGURATION"
 
 cd $ROOT/src/DotVVM.Framework \
-    && npm ci --cache $(DOTVVM_ROOT)/.npm --prefer-offline \
+    && npm ci --cache ${ROOT}/.npm --prefer-offline \
     && npm run build
 
 if [ $? -ne 0 ]; then
     echo >&2 "npm build failed"
     exit 1
 fi
-
-# override DOTVVM_ROOT in case this is a local build
-export DOTVVM_ROOT=$ROOT
 
 cd $ROOT \
     && dotnet restore $ROOT/ci/linux/Linux.sln --packages $ROOT/.nuget\

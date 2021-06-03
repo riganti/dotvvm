@@ -213,3 +213,5 @@ FakesAssemblies/
 /src/Tools/npm/dotvvm-types/*.d.ts
 /src/DotVVM.Framework/junit.xml
 artifacts/
+.nuget/
+.npm/
