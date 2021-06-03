@@ -9,7 +9,7 @@ export type WrappedResponse<T> = {
     readonly response?: Response
 }
 
-export async function getJSON<T>(url: string, spaPlaceHolderUniqueId?: string, additionalHeaders?: { [key: string]: string }): Promise<WrappedResponse<T>> {
+export async function getJSON<T>(url: string, spaPlaceHolderUniqueId?: string, signal?: AbortSignal, additionalHeaders?: { [key: string]: string }): Promise<WrappedResponse<T>> {
     const headers = new Headers();
     headers.append('Accept', 'application/json');
     if (compileConstants.isSpa && spaPlaceHolderUniqueId) {
@@ -17,16 +17,16 @@ export async function getJSON<T>(url: string, spaPlaceHolderUniqueId?: string, a
     }
     appendAdditionalHeaders(headers, additionalHeaders);
 
-    return await fetchJson<T>(url, { headers: headers });
+    return await fetchJson<T>(url, { headers: headers, signal });
 }
 
-export async function postJSON<T>(url: string, postData: any, additionalHeaders?: { [key: string]: string }): Promise<WrappedResponse<T>> {
+export async function postJSON<T>(url: string, postData: any, signal: AbortSignal | undefined, additionalHeaders?: { [key: string]: string }): Promise<WrappedResponse<T>> {
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
     headers.append('X-DotVVM-PostBack', 'true');
     appendAdditionalHeaders(headers, additionalHeaders);
 
-    return await fetchJson<T>(url, { body: postData, headers: headers, method: "POST" });
+    return await fetchJson<T>(url, { body: postData, headers: headers, method: "POST", signal });
 }
 
 export async function fetchJson<T>(url: string, init: RequestInit): Promise<WrappedResponse<T>> {
@@ -48,14 +48,14 @@ export async function fetchJson<T>(url: string, init: RequestInit): Promise<Wrap
     return { result: await response.json(), response };
 }
 
-export async function fetchCsrfToken(): Promise<string> {
+export async function fetchCsrfToken(signal: AbortSignal | undefined): Promise<string> {
     const viewModel = getState();
     let token = viewModel.$csrfToken
     if (token == null) {
         let response;
         try {
             const url = addLeadingSlash(concatUrl(getVirtualDirectory() || "", "___dotvvm-create-csrf-token___"));
-            response = await fetch(url);
+            response = await fetch(url, { signal });
         }
         catch (err) {
             logWarning("postback", `CSRF token fetch failed.`);

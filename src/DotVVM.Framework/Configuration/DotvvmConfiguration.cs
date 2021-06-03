@@ -111,6 +111,7 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         [JsonProperty("useHistoryApiSpaNavigation", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [DefaultValue(true)]
+        [Obsolete("The UseHistoryApiSpaNavigation property is not supported - the classic SPA mode (URLs with #/) was removed from DotVVM, and the History API is the default and only option now. See https://www.dotvvm.com/docs/3.0/pages/concepts/layout/single-page-applications-spa#changes-to-spas-in-dotvvm-30 for more details.")]
         public bool UseHistoryApiSpaNavigation
         {
             get { return _useHistoryApiSpaNavigation; }
@@ -131,7 +132,7 @@ namespace DotVVM.Framework.Configuration
 
         /// <summary>
         /// Gets or sets whether the application should run in debug mode.
-        /// For ASP.NET Core checkout <see cref="!:https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments" >https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments</see>
+        /// For ASP.NET Core check out <see cref="!:https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments" >https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments</see>
         /// </summary>
         [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Include)]
         public bool Debug

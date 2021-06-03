@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -16,14 +18,16 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_DictionaryIndexerTranslation);
-
+               
                 // Clear dictionary
-                var inputs = browser.FindElements("input").Take(6);
-                inputs.Skip(4).First().Click();
+                var inputs = browser.FindElements("input");
+                inputs.ElementAt(4).Click();
 
                 var spans = browser.FindElements("span");
-                Assert.DoesNotContain("KEY: ", spans.First().GetText());
-                Assert.DoesNotContain("VAL: ", spans.Skip(1).First().GetText());
+
+                AssertUI.Text(spans.FirstOrDefault(), s => !s.Contains("KEY: "));
+                AssertUI.Text(spans.ElementAt(1), s => !s.Contains("VAL: "));
+              
             });
         }
 
@@ -33,14 +37,14 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_DictionaryIndexerTranslation);
 
-                var inputs = browser.FindElements("input").Take(6);
-                inputs.First().SendKeys("key1");
-                inputs.Skip(2).First().Click();
-                Assert.Equal("true", inputs.Skip(2).First().GetText());
-
-                inputs.First().Clear().SendKeys("key123");
-                inputs.Skip(2).First().Click();
-                Assert.Equal("false", inputs.Skip(2).First().GetText());
+                var inputs = browser.FindElements("input");
+                inputs.FirstOrDefault().SendKeys("key1");
+                inputs.ElementAt(2).Click();
+                AssertUI.TextEquals(inputs.ElementAt(2), "true");
+                
+                inputs.FirstOrDefault().Clear().SendKeys("key123");
+                inputs.ElementAt(2).Click();
+                AssertUI.TextEquals(inputs.ElementAt(2), "false");
             });
         }
 
@@ -50,13 +54,13 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_DictionaryIndexerTranslation);
 
-                var inputs = browser.FindElements("input").Take(6);
-                inputs.First().SendKeys("key1");
-                inputs.Skip(5).First().Click();
+                var inputs = browser.FindElements("input");
+                inputs.FirstOrDefault().SendKeys("key1");
+                inputs.ElementAt(5).Click();
 
                 var spans = browser.FindElements("span");
-                Assert.Equal("KEY: \"key2\"", spans.First().GetText());
-                Assert.Equal("VAL: \"value2\"", spans.Skip(1).First().GetText());
+                AssertUI.TextEquals(spans.FirstOrDefault(), "KEY: \"key2\"");
+                AssertUI.TextEquals(spans.ElementAt(1), "VAL: \"value2\"");
             });
         }
 
@@ -67,10 +71,10 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_DictionaryIndexerTranslation);
 
                 var spans = browser.FindElements("span");
-                Assert.Equal("KEY: \"key1\"", spans.First().GetText());
-                Assert.Equal("VAL: \"value1\"", spans.Skip(1).First().GetText());
-                Assert.Equal("KEY: \"key2\"", spans.Skip(2).First().GetText());
-                Assert.Equal("VAL: \"value2\"", spans.Skip(3).First().GetText());
+                AssertUI.TextEquals(spans.FirstOrDefault(), "KEY: \"key1\"");
+                AssertUI.TextEquals(spans.ElementAt(1), "VAL: \"value1\"");
+                AssertUI.TextEquals(spans.ElementAt(2), "KEY: \"key2\"");
+                AssertUI.TextEquals(spans.ElementAt(3),"VAL: \"value2\"");
             });
         }
 
@@ -81,14 +85,14 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_DictionaryIndexerTranslation);
 
                 // Change value
-                var inputs = browser.FindElements("input").Take(6);
-                inputs.First().SendKeys("key1");
-                inputs.Skip(1).First().SendKeys("newValue");
-                inputs.Skip(3).First().Click();
+                var inputs = browser.FindElements("input");
+                inputs.FirstOrDefault().SendKeys("key1");
+                inputs.ElementAt(1).SendKeys("newValue");
+                inputs.ElementAt(3).Click();
 
                 var spans = browser.FindElements("span");
-                Assert.Equal("KEY: \"key1\"", spans.First().GetText());
-                Assert.Equal("VAL: \"newValue\"", spans.Skip(1).First().GetText());
+                AssertUI.TextEquals(spans.FirstOrDefault(), "KEY: \"key1\"");
+                AssertUI.TextEquals(spans.ElementAt(1), "VAL: \"newValue\"");
             });
         }
 
@@ -97,16 +101,18 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_DictionaryIndexerTranslation);
+                browser.WaitUntilDotvvmInited();
 
                 // Create new key-value
-                var inputs = browser.FindElements("input").Take(6);
-                inputs.First().SendKeys("key123");
-                inputs.Skip(1).First().SendKeys("value123");
-                inputs.Skip(3).First().Click();
+                var inputs = browser.FindElements("input");
+                inputs.FirstOrDefault().SendKeys("key123");
+                inputs.ElementAt(1).SendKeys("value123");
+                inputs.ElementAt(3).Click();
 
                 var spans = browser.FindElements("span");
-                Assert.Equal("KEY: \"key123\"", spans.Skip(4).First().GetText());
-                Assert.Equal("VAL: \"value123\"", spans.Skip(5).First().GetText());
+                var spansTexts = spans.Select(s => s.GetText()).ToList();
+                AssertUI.TextEquals(spans.ElementAt(4), "KEY: \"key123\"");
+                AssertUI.TextEquals(spans.ElementAt(5), "VAL: \"value123\"");
             });
         }
 
@@ -117,22 +123,22 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_DictionaryIndexerTranslation);
 
                 // Create new key-value
-                var inputs = browser.FindElements("input").Take(6);
-                inputs.First().SendKeys("key123");
-                inputs.Skip(1).First().SendKeys("value123");
-                inputs.Skip(3).First().Click();
+                var inputs = browser.FindElements("input");
+                inputs.FirstOrDefault().SendKeys("key123");
+                inputs.ElementAt(1).SendKeys("value123");
+                inputs.ElementAt(3).Click();
 
                 var spans = browser.FindElements("span");
-                Assert.Equal("KEY: \"key123\"", spans.Skip(4).First().GetText());
-                Assert.Equal("VAL: \"value123\"", spans.Skip(5).First().GetText());
+                AssertUI.TextEquals(spans.ElementAt(4), "KEY: \"key123\"");
+                AssertUI.TextEquals(spans.ElementAt(5), "VAL: \"value123\"");
 
                 // Change value
-                inputs.First().Clear().SendKeys("key123");
-                inputs.Skip(1).First().Clear().SendKeys("changed-value123");
-                inputs.Skip(3).First().Click();
+                inputs.FirstOrDefault().Clear().SendKeys("key123");
+                inputs.ElementAt(1).Clear().SendKeys("changed-value123");
+                inputs.ElementAt(3).Click();
 
-                Assert.Equal("KEY: \"key123\"", spans.Skip(4).First().GetText());
-                Assert.Equal("VAL: \"changed-value123\"", spans.Skip(5).First().GetText());
+                AssertUI.TextEquals(spans.ElementAt(4), "KEY: \"key123\"");
+                AssertUI.TextEquals(spans.ElementAt(5), "VAL: \"changed-value123\"");
             });
         }
 

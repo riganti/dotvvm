@@ -16,6 +16,12 @@ import * as stateManager from '../state-manager'
 
 let lastStartedPostbackId: number;
 
+export function throwIfAborted(options: PostbackOptions) {
+    if (options.abortSignal && options.abortSignal.aborted) {
+        throw new DotvvmPostbackError({ type: "abort", options })
+    }
+}
+
 export function getLastStartedPostbackId() {
     return lastStartedPostbackId;
 }
@@ -41,7 +47,7 @@ export async function postbackCore(
     }
 
     return await http.retryOnInvalidCsrfToken(async () => {
-        await http.fetchCsrfToken();
+        await http.fetchCsrfToken(options.abortSignal);
 
         updateDynamicPathFragments(context, path);
 
@@ -69,7 +75,7 @@ export async function postbackCore(
         }
 
         const initialUrl = getInitialUrl();
-        let response = await http.postJSON<PostbackResponse>(initialUrl, JSON.stringify(data));
+        let response = await http.postJSON<PostbackResponse>(initialUrl, JSON.stringify(data), options.abortSignal);
 
         if (response.result.action == "viewModelNotCached") {
             // repeat the request with full viewmodel
@@ -79,7 +85,7 @@ export async function postbackCore(
             delete data.viewModelCache;
             data.viewModel = postedViewModel;
 
-            response = await http.postJSON<PostbackResponse>(initialUrl, JSON.stringify(data));
+            response = await http.postJSON<PostbackResponse>(initialUrl, JSON.stringify(data), options.abortSignal);
         }
 
         events.postbackResponseReceived.trigger({
@@ -124,6 +130,7 @@ async function processPostbackResponse(options: PostbackOptions, context: any, p
 
     if (gate.isPostbackDisabled(options.postbackId))
         throw "Postbacks are disabled"
+    throwIfAborted(options)
 
     let isSuccess = false;
     if (result.action == "successfulCommand") {
