@@ -27,6 +27,12 @@ namespace DotVVM.Framework.Controls
         {
             public MethodInfo GetContentsMethod;
             public ImmutableArray<Func<IDotvvmRequestContext, CompositeControl, object>> Properties;
+            public ImmutableArray<ControlDecoratorInfo> Decorators;
+        }
+        private class ControlDecoratorInfo
+        {
+            public MethodInfo DecorateControlMethod;
+            public ImmutableArray<Func<IDotvvmRequestContext, CompositeControl, object>> Properties;
         }
         private static ConcurrentDictionary<Type, ControlInfo> controlInfoCache = new ConcurrentDictionary<Type, ControlInfo>();
 
@@ -51,15 +57,47 @@ namespace DotVVM.Framework.Controls
 
                 var method = controlType.GetMethod("GetContents", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public);
                 if (method == null)
-                    throw new Exception($"Could not initialize control {controlType.FullName}, could not find (single) GetContents method");
-                if (!(typeof(DotvvmControl).IsAssignableFrom(method.ReturnType) || typeof(IEnumerable<DotvvmControl>).IsAssignableFrom(method.ReturnType)))
-                    throw new Exception($"Could not initialize control {controlType.FullName}, GetContents method does not return DotvvmControl nor IEnumerable<DotvvmControl>");
+                    throw new Exception($"Could not initialize control {controlType.FullName}, could not find (single) GetContents method.");
+                if (!IsControlOrControlCollection(method.ReturnType))
+                    throw new Exception($"Could not initialize control {controlType.FullName}, GetContents method does not return DotvvmControl nor IEnumerable<DotvvmControl>.");
 
                 var arguments = method.GetParameters().Select(initializeArgument);
 
-                if (!controlInfoCache.TryAdd(controlType, new ControlInfo { GetContentsMethod = method, Properties = arguments.ToImmutableArray() }))
-                    throw new Exception("no");
+                var decorators = controlType.GetCustomAttributes<CompositeControlDecoratorAttribute>();
+                var decoratorInfo = new List<ControlDecoratorInfo>();
+                foreach (var decorator in decorators)
+                {
+                    var decoratorMethod = decorator.DecoratorType.GetMethod("DecorateControl", BindingFlags.Static | BindingFlags.Public);
+                    if (decoratorMethod == null)
+                        throw new Exception($"Could not initialize decorator {decorator.DecoratorType} on control {controlType.FullName}, could not find (single) Decorate method.");
+                    if (decoratorMethod.ReturnType != method.ReturnType)
+                        throw new Exception($"Could not initialize decorator {decorator.DecoratorType} on control {controlType.FullName}, the DecorateControl method does not return the same type as control's GetContents method.");
+
+                    var decoratorArguments = decoratorMethod.GetParameters();
+                    if (decoratorArguments.Length < 1 || decoratorArguments[0].ParameterType != method.ReturnType)
+                        throw new Exception($"Could not initialize decorator {decorator.DecoratorType} on control {controlType.FullName}, the first argument of the DecorateControl method must be of the same type as control's GetContents method return type.");
+
+                    decoratorInfo.Add(new ControlDecoratorInfo()
+                    {
+                        DecorateControlMethod = decoratorMethod,
+                        Properties = decoratorArguments.Skip(1).Select(initializeArgument).ToImmutableArray()
+                    });
+                }
+
+                var controlInfo = new ControlInfo
+                {
+                    GetContentsMethod = method,
+                    Properties = arguments.ToImmutableArray(),
+                    Decorators = decoratorInfo.ToImmutableArray()
+                };
+                if (!controlInfoCache.TryAdd(controlType, controlInfo))
+                    throw new Exception($"Could not add duplicate composite control {controlType}!");
             }
+        }
+
+        private static bool IsControlOrControlCollection(Type type)
+        {
+            return typeof(DotvvmControl).IsAssignableFrom(type) || typeof(IEnumerable<DotvvmControl>).IsAssignableFrom(type);
         }
 
         protected internal override void OnLoad(IDotvvmRequestContext context)
@@ -69,6 +107,14 @@ namespace DotVVM.Framework.Controls
             // TODO: generate Linq.Expression instead of this reflection invocation
             var args = info.Properties.Select(p => p(context, this)).ToArray();
             var content = info.GetContentsMethod.Invoke(this, args);
+
+            foreach (var decorator in info.Decorators)
+            {
+                var decoratorArgs = new object[] { content }
+                    .Concat(decorator.Properties.Select(p => p(context, this)))
+                    .ToArray();
+                content = decorator.DecorateControlMethod.Invoke(this, decoratorArgs);
+            }
 
             if (content is IEnumerable<DotvvmControl> enumerable)
                 foreach (var c in enumerable) this.Children.Add(c);

@@ -13,6 +13,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CompositeControls
             new SampleItem { EditableNumber = 12, Title = "Second Number" },
         };
         public bool Visible { get; set; }
+        public bool Enabled { get; set; } = true;
     }
 
     public class SampleItem

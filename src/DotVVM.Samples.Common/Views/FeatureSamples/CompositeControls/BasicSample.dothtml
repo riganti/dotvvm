@@ -13,17 +13,19 @@
                                TitleBinding="{value: "[" + _index + "] " + Title}"
                                NumberBinding="{value: EditableNumber}"
                                style="color: blue"
-                               inner-li:style="border: 1px green solid" inner-li:Visible="{value: Visible}" />
-    
+                               inner-li:style="border: 1px green solid" inner-li:Visible="{value: Visible}"
+                               Enabled="{value: Enabled}" />
+
 
     <p>
         Numbers:
     </p>
     <dot:Repeater WrapperTagName="p" DataSource="{value: List}">
-        {{value: EditableNumber}}
+         {{value: EditableNumber}}
     </dot:Repeater>
 
     <dot:CheckBox Checked="{value: Visible}" Text="Visible" />
+    <dot:CheckBox Checked="{value: Enabled}" Text="Enabled" />
 
 </body>
 </html>
