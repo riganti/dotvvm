@@ -23,16 +23,11 @@ namespace DotVVM.Framework.Compilation
 
         public Func<IViewCompiler> ViewCompilerFactory { get; private set; }
 
-        private ConcurrentDictionary<MarkupFile, (ControlBuilderDescriptor, Lazy<IControlBuilder>)> controlBuilders = new ConcurrentDictionary<MarkupFile, (ControlBuilderDescriptor, Lazy<IControlBuilder>)>();
+        private ConcurrentDictionary<MarkupFile, Lazy<(ControlBuilderDescriptor, Lazy<IControlBuilder>)>> controlBuilders = new ConcurrentDictionary<MarkupFile, Lazy<(ControlBuilderDescriptor, Lazy<IControlBuilder>)>>();
 
 
         public DefaultControlBuilderFactory(DotvvmConfiguration configuration, IMarkupFileLoader markupFileLoader, CompiledAssemblyCache compiledAssemblyCache)
         {
-            for (int i = 0; i < compilationLocks.Length; i++)
-            {
-                compilationLocks[i] = new object();
-            }
-
             this.configuration = configuration;
 
             // WORKAROUND: there is a circular dependency
@@ -54,58 +49,54 @@ namespace DotVVM.Framework.Compilation
         public (ControlBuilderDescriptor descriptor, Lazy<IControlBuilder> builder) GetControlBuilder(string virtualPath)
         {
             var markupFile = markupFileLoader.GetMarkup(configuration, virtualPath) ?? throw new DotvvmCompilationException($"File '{virtualPath}' was not found. This exception is possibly caused because of incorrect route registration.");
-            return controlBuilders.GetOrAdd(markupFile, CreateControlBuilder);
+            return controlBuilders.GetOrAdd(
+                markupFile,
+                // use lazy - do not compile the same view multiple times
+                file => new Lazy<(ControlBuilderDescriptor, Lazy<IControlBuilder>)>(() => CreateControlBuilder(file))
+            ).Value;
         }
 
-        object[] compilationLocks = new object[Environment.ProcessorCount * 2];
 
         /// <summary>
         /// Creates the control builder.
         /// </summary>
         private (ControlBuilderDescriptor, Lazy<IControlBuilder>) CreateControlBuilder(MarkupFile file)
         {
-            var lockId = (file.GetHashCode() & 0x7fffffff) % compilationLocks.Length;
-            // do not compile the same view multiple times
-            lock (compilationLocks[lockId])
+            var namespaceName = GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc);
+            var assemblyName = namespaceName;
+            var className = GetClassFromFileName(file.FileName) + "ControlBuilder";
+            void editCompilationException(DotvvmCompilationException ex)
             {
-                if (controlBuilders.ContainsKey(file)) return controlBuilders[file];
+                if (ex.FileName == null)
+                    ex.FileName = file.FullPath;
+                else if (!Path.IsPathRooted(ex.FileName))
+                    ex.FileName = Path.Combine(
+                        file.FullPath.Remove(file.FullPath.Length - file.FileName.Length),
+                        ex.FileName);
+            }
+            try
+            {
+                var (descriptor, factory) = ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
 
-                var namespaceName = GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc);
-                var assemblyName = namespaceName;
-                var className = GetClassFromFileName(file.FileName) + "ControlBuilder";
-                void editCompilationException(DotvvmCompilationException ex)
+                if (descriptor.ViewModuleReference != null)
                 {
-                    if (ex.FileName == null)
-                        ex.FileName = file.FullPath;
-                    else if (!Path.IsPathRooted(ex.FileName))
-                        ex.FileName = Path.Combine(
-                            file.FullPath.Remove(file.FullPath.Length - file.FileName.Length),
-                            ex.FileName);
+                    var (import, init) = descriptor.ViewModuleReference.BuildResources(configuration.Resources);
+                    configuration.Resources.RegisterViewModuleResources(import, init);
                 }
-                try
-                {
-                    var (descriptor, factory) = ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
 
-                    if (descriptor.ViewModuleReference != null)
+                return (descriptor, new Lazy<IControlBuilder>(() => {
+                    try { return factory(); }
+                    catch (DotvvmCompilationException ex)
                     {
-                        var (import, init) = descriptor.ViewModuleReference.BuildResources(configuration.Resources);
-                        configuration.Resources.RegisterViewModuleResources(import, init);
+                        editCompilationException(ex);
+                        throw;
                     }
-
-                    return (descriptor, new Lazy<IControlBuilder>(() => {
-                        try { return factory(); }
-                        catch (DotvvmCompilationException ex)
-                        {
-                            editCompilationException(ex);
-                            throw;
-                        }
-                    }));
-                }
-                catch (DotvvmCompilationException ex)
-                {
-                    editCompilationException(ex);
-                    throw;
-                }
+                }));
+            }
+            catch (DotvvmCompilationException ex)
+            {
+                editCompilationException(ex);
+                throw;
             }
         }
 
@@ -213,7 +204,7 @@ namespace DotVVM.Framework.Compilation
         {
             var markup = markupFileLoader.GetMarkup(configuration, file) ??
                          throw new Exception($"Could not load markup file {file}.");
-            controlBuilders.TryAdd(markup, (builder.Descriptor, new Lazy<IControlBuilder>(() => builder)));
+            controlBuilders.TryAdd(markup, new Lazy<(ControlBuilderDescriptor, Lazy<IControlBuilder>)>(() => (builder.Descriptor, new Lazy<IControlBuilder>(() => builder))));
         }
 
         private static readonly HashSet<string> csharpKeywords = new HashSet<string>(new[]
