@@ -27,6 +27,7 @@ import { logError, logWarning, logInfo, logInfoVerbose, level, logPostBackScript
 import { orderBy, orderByDesc } from './collections/sortingHelper'
 import * as metadataHelper from './metadata/metadataHelper'
 import * as arrayHelper from './collections/arrayHelper'
+import * as dictionaryHelper from './collections/dictionaryHelper'
 import * as stringHelper from './utils/stringHelper'
 
 if (compileConstants.nomodules) {
@@ -124,6 +125,7 @@ const dotvvmExports = {
         level
     },
     arrayHelper,
+    dictionaryHelper,
     stringHelper
 }
 
