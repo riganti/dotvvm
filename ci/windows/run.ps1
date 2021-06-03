@@ -12,7 +12,7 @@ if (-Not($?)) {
     exit 1
 }
 
-$sln = $root\ci\windows\Windows.sln
+$sln = "$root\ci\windows\Windows.sln"
 
 cd $root `
     && nuget restore $sln --packages $root\.nuget\ `
