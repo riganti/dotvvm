@@ -34,26 +34,30 @@ if (-Not($?)) {
     exit 1
 }
 
-# Import-Module IISAdministration -UseWindowsPowerShell
+Copy-Item -Recurse `
+    $root\src\DotVVM.Samples.BasicSamples.Owin `
+    $root\artifacts
 
-# icacls $root/artifacts/ /grant "IIS_IUSRS:(OI)(CI)F"
+Import-Module IISAdministration -UseWindowsPowerShell
+
+icacls $root/artifacts/ /grant "IIS_IUSRS:(OI)(CI)F"
 New-IISSite -Name dotvvm.owin `
     -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Owin `
-    -BindingInformation "localhost:5407"
+    -BindingInformation "*:5407:"
 
-# New-IISSite -Name dotvvm.owin.api `
-#     -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin `
-#     -BindingInformation "localhost:5002"
+New-IISSite -Name dotvvm.owin.api `
+    -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin `
+    -BindingInformation "*:5002:"
 
-# Copy-Item `
-#     $root\src\DotVVM.Samples.Tests\Profiles\seleniumconfig.owin.chrome.json `
-#     $root\src\DotVVM.Samples.Tests\seleniumconfig.json
+Copy-Item `
+    $root\src\DotVVM.Samples.Tests\Profiles\seleniumconfig.owin.chrome.json `
+    $root\src\DotVVM.Samples.Tests\seleniumconfig.json
 
-# dotnet test $root\src\DotVVM.Samples.Tests `
-#     --configuration $configuration `
-#     --logger trx `
-#     --results-directory $root\artifacts\test; `
-#     icm { Stop-Process -Name chrome; Stop-Process -Name chromedriver }
+dotnet test $root\src\DotVVM.Samples.Tests `
+    --configuration $configuration `
+    --logger trx `
+    --results-directory $root\artifacts\test; `
+    icm { Stop-Process -Name chrome; Stop-Process -Name chromedriver }
 
-# Remove-IISSite -Name dotvvm.owin
-# Remove-IISSite -Name dotvvm.owin.api
+Remove-IISSite -Force -Name dotvvm.owin
+Remove-IISSite -Force -Name dotvvm.owin.api
