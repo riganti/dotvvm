@@ -1,11 +1,11 @@
 $root = $env:DOTVVM_ROOT
-if ($root -eq $null) {
+if ($null -eq $root) {
     $root = "$PWD"
 }
 $env:DOTVVM_ROOT = $root
 
 $configuration = $env:CONFIGURATION
-if ($configuration -eq $null) {
+if ($null -eq $configuration) {
     $configuration = "Release"
 }
 
@@ -17,7 +17,7 @@ icm {
     npm ci --cache $root\.npm --prefer-offline
     npm run build
 }
-if (-Not($?)) {
+if ($LASTEXITCODE -ne 0) {
     Write-Host "npm build failed"
     exit 1
 }
@@ -29,7 +29,7 @@ icm {
     nuget restore $sln -PackagesDirectory $nuget
     dotnet restore $sln --packages $nuget
 }
-if (-Not($?)) {
+if ($LASTEXITCODE -ne 0) {
     Write-Host "nuget restore failed"
     exit 1
 }
@@ -38,7 +38,7 @@ msbuild $sln -v:m `
     -p:PublishProfile=$root\ci\windows\GenericPublish.pubxml `
     -p:DeployOnBuild=true `
     -p:Configuration=$configuration
-if (-Not($?)) {
+if ($LASTEXITCODE -ne 0) {
     Write-Host "dotnet build failed"
     exit 1
 }
@@ -60,7 +60,7 @@ icm {
         $root\artifacts
 }
 
-if (-Not($?)) {
+if ($LASTEXITCODE -ne 0) {
     Write-Host "IIS setup failed"
     exit 1
 }
