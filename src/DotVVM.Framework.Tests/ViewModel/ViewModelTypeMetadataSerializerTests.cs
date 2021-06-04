@@ -68,11 +68,13 @@ namespace DotVVM.Framework.Tests.ViewModel
             var checker = new OutputChecker("testoutputs");
             checker.CheckJsonObject(result);
         }
+
+        [Flags]
         enum SampleEnum
         {
             Zero = 0,
-            One = 1,
-            Two = 2
+            Two = 2,    // the order is mismatched intentionally - the serializer should fix it
+            One = 1
         }
 
         class TestViewModel
