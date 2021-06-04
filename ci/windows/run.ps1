@@ -1,13 +1,22 @@
-$root = $env:DOTVVM_ROOT ?? "$PWD"
+$root = $env:DOTVVM_ROOT
+if ($root -eq $null) {
+    $root = "$PWD"
+}
 $env:DOTVVM_ROOT = $root
-$configuration = $env:CONFIGURATION ?? "Release"
+
+$configuration = $env:CONFIGURATION
+if ($configuration -eq $null) {
+    $configuration = "Release"
+}
+
 Write-Host "ROOT=$ROOT"
 Write-Host "CONFIGURATION=$CONFIGURATION"
 
-cd $root\src\DotVVM.Framework `
-    && npm ci --cache $root\.npm --prefer-offline `
-    && npm run build
-
+icm {
+    cd $root\src\DotVVM.Framework
+    npm ci --cache $root\.npm --prefer-offline
+    npm run build
+}
 if (-Not($?)) {
     Write-Host "npm build failed"
     exit 1
@@ -15,10 +24,11 @@ if (-Not($?)) {
 
 $sln = "$root\ci\windows\Windows.sln"
 $nuget = "$root\src\packages\"
-cd $root `
-    && nuget restore $sln -PackagesDirectory $nuget `
-    && dotnet restore $sln --packages $nuget `
-
+icm {
+    cd $root
+    nuget restore $sln -PackagesDirectory $nuget
+    dotnet restore $sln --packages $nuget
+}
 if (-Not($?)) {
     Write-Host "nuget restore failed"
     exit 1
@@ -28,26 +38,32 @@ msbuild $sln -v:m `
     -p:PublishProfile=$root\ci\windows\GenericPublish.pubxml `
     -p:DeployOnBuild=true `
     -p:Configuration=$configuration
-
 if (-Not($?)) {
     Write-Host "dotnet build failed"
     exit 1
 }
 
-Copy-Item -Recurse `
-    $root\src\DotVVM.Samples.BasicSamples.Owin `
-    $root\artifacts
+icm {
+    Import-Module IISAdministration -UseWindowsPowerShell
 
-Import-Module IISAdministration -UseWindowsPowerShell
+    icacls $root/artifacts/ /grant "IIS_IUSRS:(OI)(CI)F"
+    New-IISSite -Name dotvvm.owin `
+        -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Owin `
+        -BindingInformation "*:5407:"
 
-icacls $root/artifacts/ /grant "IIS_IUSRS:(OI)(CI)F"
-New-IISSite -Name dotvvm.owin `
-    -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Owin `
-    -BindingInformation "*:5407:"
+    New-IISSite -Name dotvvm.owin.api `
+        -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin `
+        -BindingInformation "*:5002:"
 
-New-IISSite -Name dotvvm.owin.api `
-    -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin `
-    -BindingInformation "*:5002:"
+    Copy-Item -Recurse `
+        $root\src\DotVVM.Samples.BasicSamples.Owin `
+        $root\artifacts
+}
+
+if (-Not($?)) {
+    Write-Host "IIS setup failed"
+    exit 1
+}
 
 Copy-Item `
     $root\src\DotVVM.Samples.Tests\Profiles\seleniumconfig.owin.chrome.json `
