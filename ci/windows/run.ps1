@@ -12,11 +12,9 @@ if ($null -eq $configuration) {
 Write-Host "ROOT=$ROOT"
 Write-Host "CONFIGURATION=$CONFIGURATION"
 
-icm {
-    cd $root\src\DotVVM.Framework
-    npm ci --cache $root\.npm --prefer-offline
-    npm run build
-}
+Set-Location $root\src\DotVVM.Framework
+npm ci --cache $root\.npm --prefer-offline
+npm run build
 if ($LASTEXITCODE -ne 0) {
     Write-Host "npm build failed"
     exit 1
@@ -24,11 +22,9 @@ if ($LASTEXITCODE -ne 0) {
 
 $sln = "$root\ci\windows\Windows.sln"
 $nuget = "$root\src\packages\"
-icm {
-    cd $root
-    nuget restore $sln -PackagesDirectory $nuget
-    dotnet restore $sln --packages $nuget
-}
+Set-Location $root
+nuget restore $sln -PackagesDirectory $nuget
+dotnet restore $sln --packages $nuget
 if ($LASTEXITCODE -ne 0) {
     Write-Host "nuget restore failed"
     exit 1
@@ -43,27 +39,20 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-icm {
-    Import-Module IISAdministration -UseWindowsPowerShell
+Import-Module IISAdministration -UseWindowsPowerShell
 
-    icacls $root/artifacts/ /grant "IIS_IUSRS:(OI)(CI)F"
-    New-IISSite -Name dotvvm.owin `
-        -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Owin `
-        -BindingInformation "*:5407:"
+icacls $root/artifacts/ /grant "IIS_IUSRS:(OI)(CI)F"
+New-IISSite -Name dotvvm.owin `
+    -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Owin `
+    -BindingInformation "*:5407:"
 
-    New-IISSite -Name dotvvm.owin.api `
-        -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin `
-        -BindingInformation "*:5002:"
+New-IISSite -Name dotvvm.owin.api `
+    -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin `
+    -BindingInformation "*:5002:"
 
-    Copy-Item -Recurse `
-        $root\src\DotVVM.Samples.BasicSamples.Owin `
-        $root\artifacts
-}
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "IIS setup failed"
-    exit 1
-}
+Copy-Item -Recurse `
+    $root\src\DotVVM.Samples.BasicSamples.Owin `
+    $root\artifacts
 
 Copy-Item `
     $root\src\DotVVM.Samples.Tests\Profiles\seleniumconfig.owin.chrome.json `
@@ -72,8 +61,10 @@ Copy-Item `
 dotnet test $root\src\DotVVM.Samples.Tests `
     --configuration $configuration `
     --logger trx `
-    --results-directory $root\artifacts\test; `
-    icm { Stop-Process -Name chrome; Stop-Process -Name chromedriver }
+    --results-directory $root\artifacts\test
+
+Stop-Process -Name chrome
+Stop-Process -Name chromedriver
 
 Remove-IISSite -Force -Name dotvvm.owin
 Remove-IISSite -Force -Name dotvvm.owin.api
