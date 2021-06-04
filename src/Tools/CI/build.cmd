@@ -11,8 +11,8 @@ dotnet build ../../DotVVM.Framework
 dotnet restore ../../DotVVM.Framework.Hosting.AspNetCore
 dotnet build ../../DotVVM.Framework.Hosting.AspNetCore
 
-dotnet restore ../../DotVVM.Framework.Tests.AspCore
-dotnet build ../../DotVVM.Framework.Tests.AspCore
+dotnet restore ../../DotVVM.Framework.Tests
+dotnet build ../../DotVVM.Framework.Tests
 
 dotnet restore ../../DotVVM.Framework.Tools.SeleniumGenerator
 dotnet build ../../DotVVM.Framework.Tools.SeleniumGenerator

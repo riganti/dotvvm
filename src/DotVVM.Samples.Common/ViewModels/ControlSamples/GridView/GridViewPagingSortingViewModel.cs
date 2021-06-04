@@ -34,17 +34,13 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
             }.AsQueryable();
         }
 
-        public GridViewDataSet<CustomerData> CustomersDataSet { get; set; } = new GridViewDataSet<CustomerData>()
-        {
-            PagingOptions = new PagingOptions()
-            {
+        public GridViewDataSet<CustomerData> CustomersDataSet { get; set; } = new GridViewDataSet<CustomerData>() {
+            PagingOptions = new PagingOptions() {
                 PageSize = 10
             }
         };
-        public GridViewDataSet<CustomerData> EmptyCustomersDataSet { get; set; } = new GridViewDataSet<CustomerData>()
-        {
-            PagingOptions = new PagingOptions()
-            {
+        public GridViewDataSet<CustomerData> EmptyCustomersDataSet { get; set; } = new GridViewDataSet<CustomerData>() {
+            PagingOptions = new PagingOptions() {
                 PageSize = 10
             }
         };
@@ -81,7 +77,16 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 
         public void TestCommand()
         {
-            CustomersDataSet.SetSortExpression("BirthDate");
+            if (CustomersDataSet.SortingOptions.SortExpression == "BirthDate")
+            {
+                CustomersDataSet.SortingOptions.SortDescending = !CustomersDataSet.SortingOptions.SortDescending;
+            }
+            else
+            {
+                CustomersDataSet.PagingOptions.PageIndex = 0;
+                CustomersDataSet.SortingOptions.SortExpression = "BirthDate";
+                CustomersDataSet.SortingOptions.SortDescending = false;
+            }
         }
 
         public void SortCustomers(string column)

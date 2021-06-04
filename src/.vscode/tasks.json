@@ -28,7 +28,7 @@
         {
             "label": "build-tests",
             "command": "build",
-            "args": [ "DotVVM.Framework.Tests.Common" ],
+            "args": [ "DotVVM.Framework.Tests" ],
             "group": "build",
             "presentation": {
                 "reveal": "silent"

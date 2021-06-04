@@ -156,6 +156,7 @@ namespace DotVVM.Framework.Controls
                 new CodeParameterAssignment(new ParametrizedCode.Builder { "ko.contextFor(", options.ElementAccessor.Code!, ")" }.Build(OperatorPrecedence.Max))
             // default
             );
+            var abortSignal = options.AbortSignal ?? new CodeParameterAssignment("undefined", OperatorPrecedence.Max);
 
             var optionalKnockoutContext =
                 options.KoContext is object && adjustedExpression != expression.CommandJavascript ?
@@ -166,7 +167,9 @@ namespace DotVVM.Framework.Controls
             var call = SubstituteArguments(adjustedExpression);
 
             if (generatedPostbackHandlers == null && options.AllowPostbackHandlers)
-                return $"dotvvm.applyPostbackHandlers(function(options){{return {call}}}.bind(this),{options.ElementAccessor.Code!.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()},{commandArgsString})";
+            {
+                return $"dotvvm.applyPostbackHandlers(function(options){{return {call}}}.bind(this),{options.ElementAccessor.Code!.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()},{commandArgsString},undefined,undefined,{SubstituteArguments(abortSignal.Code!)})";
+            }
             else return call;
 
             string SubstituteArguments(ParametrizedCode parametrizedCode)
@@ -187,6 +190,7 @@ namespace DotVVM.Framework.Controls
                     p == CommandBindingExpression.OptionalKnockoutContextParameter ? optionalKnockoutContext :
                     p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? default :
                     p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHandlers ?? (generatedPostbackHandlers = getHandlerScript()), OperatorPrecedence.Max) :
+                    p == CommandBindingExpression.AbortSignalParameter ? abortSignal :
                     default(CodeParameterAssignment)
                 );
             }

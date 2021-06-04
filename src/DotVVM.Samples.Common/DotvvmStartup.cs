@@ -26,6 +26,7 @@ using DotVVM.Framework.Utils;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation;
+using DotVVM.Samples.Common.Views.FeatureSamples.PostbackAbortSignal;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -186,6 +187,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddMarkupControl("cc", "RecursiveTextRepeater2", "Views/FeatureSamples/PostBack/RecursiveTextRepeater2.dotcontrol");
             config.Markup.AddMarkupControl("cc", "ModuleControl", "Views/FeatureSamples/ViewModules/ModuleControl.dotcontrol");
             config.Markup.AddMarkupControl("cc", "Incrementer", "Views/FeatureSamples/ViewModules/Incrementer.dotcontrol");
+            config.Markup.AddCodeControls("cc", typeof(Loader));
 
             config.Markup.AddMarkupControl("sample", "EmbeddedResourceControls_Button", "embedded://EmbeddedResourceControls/Button.dotcontrol");
             
