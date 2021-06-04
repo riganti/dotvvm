@@ -242,7 +242,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         }
                         else
                         {
-                            EnsureUnsupportedOperator(BindingTokenType.QuestionMarkOperator);
+                            CreateToken(BindingTokenType.QuestionMarkOperator);
                         }
                         break;
                     case ';':

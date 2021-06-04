@@ -60,6 +60,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitLambdaParameter((LambdaParameterBindingParserNode)node);
             }
+            else if (node is TypeDeclarationBindingParserNode)
+            {
+                return VisitTypeDeclaration((TypeDeclarationBindingParserNode)node);
+            }
             else if (node is MultiExpressionBindingParserNode)
             {
                 return VisitMultiExpression((MultiExpressionBindingParserNode)node);
@@ -126,6 +130,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         }
 
         protected virtual T VisitSimpleName(SimpleNameBindingParserNode node)
+        {
+            return DefaultVisit(node);
+        }
+
+        protected virtual T VisitTypeDeclaration(TypeDeclarationBindingParserNode node)
         {
             return DefaultVisit(node);
         }
