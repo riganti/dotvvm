@@ -1,121 +1,215 @@
 ﻿import { orderBy, orderByDesc } from './sortingHelper'
 
 export {
+    add,
+    addOrUpdate,
+    addRange,
     all,
     any,
     clear,
     distinct,
     firstOrDefault,
-    forEach,
+    insert,
+    insertRange,
     lastOrDefault,
     max,
     min,
     orderBy,
     orderByDesc,
-    remove,
-    removeFirst
+    removeAll,
+    removeAt,
+    removeFirst,
+    removeLast,
+    removeRange,
+    reverse
 }
 
-function any<T>(source: T[], predicate: (s: T) => boolean): boolean {
-    return firstOrDefault(source, predicate) != null;
+function add<T>(observable: any, element: T): void {
+    let array = [...observable.state, element];
+    observable.setState(array);
 }
 
-function all<T>(source: T[], predicate: (s: T) => boolean) {
-    for (let i = 0; i < source.length; i++) {
-        if (!predicate(source[i])) {
+function addOrUpdate<T>(observable: any, element: T, matcher: (e: T) => boolean, updater: (e: T) => T): void {
+    let array = Array.from<T>(observable.state);
+    let found = false;
+
+    for (let i = 0; i < array.length; i++) {
+        if (!matcher(array[i])) {
+            continue;
+        }
+
+        found = true;
+        array[i] = updater(array[i]);
+    }
+
+    if (!found) {
+        array.push(element);
+    }
+
+    observable.setState(array);
+}
+
+function addRange<T>(observable: any, elements: T[]): void {
+    let array = Array.from<T>(observable.state);
+    for (let i = 0; i < elements.length; i++) {
+        array.push(ko.unwrap(elements[i]));
+    }
+
+    observable.setState(array);
+}
+
+function any<T>(array: T[], predicate: (s: T) => boolean): boolean {
+    return firstOrDefault(array, predicate) != null;
+}
+
+function all<T>(array: T[], predicate: (s: T) => boolean): boolean {
+    for (let i = 0; i < array.length; i++) {
+        if (!predicate(array[i])) {
             return false;
         }
     }
     return true;
 }
 
-function clear<T>(source: T[]): void {
-    source.splice(0, source.length);
+function clear(observable: any): void {
+    observable.setState([]);
 }
 
-function distinct<T>(source: T[]): T[] {
+function distinct<T>(array: T[]): T[] {
     let r = [];
-    for (let i = 0; i < source.length; i++) {
+    for (let i = 0; i < array.length; i++) {
         let found = false;
         for (var j = 0; j < r.length; j++) {
-            if (r[j] == source[i]) {
+            if (r[j] == array[i]) {
                 found = true;
                 break;
             }
         }
         if (found)
             continue;
-        r.push(source[i]);
+        r.push(array[i]);
     }
     return r;
 }
 
-function firstOrDefault<T>(source: T[], predicate: (s: T) => boolean): T | null {
-    for (let i = 0; i < source.length; i++) {
-        if (predicate(source[i])) {
-            return source[i];
+function firstOrDefault<T>(array: T[], predicate: (s: T) => boolean): T | null {
+    for (let i = 0; i < array.length; i++) {
+        if (predicate(array[i])) {
+            return array[i];
         }
     }
     return null;
 }
 
-function forEach<T>(items: T[], action: (s: T, i: number) => void): void {
-    for (let i = 0; i < items.length; i++) {
-        action(items[i], i);
-    }
+function insert<T>(observable: any, index: number, element: T): void {
+    let array = Array.from<T>(observable.state);
+    array.splice(index, 0, element);
+    observable.setState(array);
 }
 
-function lastOrDefault<T>(source: T[], predicate: (s: T) => boolean): T | null {
-    for (let i = source.length - 1; i >= 0; i--) {
-        if (predicate(source[i])) {
-            return source[i];
+function insertRange<T>(observable: any, index: number, elements: T[]): void {
+    let array = Array.from<T>(observable.state);
+    array.splice(index, 0, ...elements.map(element => ko.unwrap(element)));
+    observable.setState(array);
+}
+
+function lastOrDefault<T>(array: T[], predicate: (s: T) => boolean): T | null {
+    for (let i = array.length - 1; i >= 0; i--) {
+        if (predicate(array[i])) {
+            return array[i];
         }
     }
     return null;
 }
 
-function max<T>(source: T[], selector: (item: T) => number): number {
-    if (source.length === 0)
-        throw new Error("Source is empty! Max operation cannot be performed.");
-    if (source.length == 1)
-        return selector(source[0]);
-    let max = selector(source[0]);
-    for (let i = 1; i < source.length; i++) {
-        let v = selector(source[i]);
+function max<T>(array: T[], selector: (item: T) => number, throwIfEmpty: boolean): number | null {
+    if (array.length === 0) {
+        if (throwIfEmpty) {
+            throw new Error("Source is empty! Max operation cannot be performed.");
+        }
+        return null;
+    }
+
+    if (array.length == 1)
+        return selector(array[0]);
+    let max = selector(array[0]);
+    for (let i = 1; i < array.length; i++) {
+        let v = selector(array[i]);
         if (v > max)
             max = v;
     }
     return max;
 }
 
-function min<T>(source: T[], selector: (item: T) => number): number {
-    if (source.length === 0)
-        throw new Error("Source is empty! Min operation cannot be performed.");
-    if (source.length == 1)
-        return selector(source[0]);
-    let min = selector(source[0]);
-    for (let i = 1; i < source.length; i++) {
-        let v = selector(source[i]);
+function min<T>(array: T[], selector: (item: T) => number, throwIfEmpty: boolean): number | null {
+    if (array.length === 0) {
+        if (throwIfEmpty) {
+            throw new Error("Source is empty! Min operation cannot be performed.");
+        }
+        return null;
+    }
+
+    if (array.length == 1)
+        return selector(array[0]);
+    let min = selector(array[0]);
+    for (let i = 1; i < array.length; i++) {
+        let v = selector(array[i]);
         if (v < min)
             min = v;
     }
     return min;
 }
 
-function remove<T>(source: T[], predicate: (s: T) => boolean) {
-    for (let i = 0; i < source.length; i++) {
-        if (predicate(source[i])) {
-            source.splice(i, 1);
+function removeAt<T>(observable: any, index: number): void {
+    let array = Array.from<T>(observable.state);
+    array.splice(index, 1);
+    observable.setState(array);
+}
+
+function removeAll<T>(observable: any, predicate: (s: T) => boolean): void {
+    let array = Array.from<T>(observable.state);
+    for (let i = 0; i < array.length; i++) {
+        if (predicate(array[i])) {
+            array.splice(i, 1);
             i--;
         }
     }
+
+    observable.setState(array);
 }
 
-function removeFirst<T>(source: T[], predicate: (s: T) => boolean) {
-    for (let i = 0; i < source.length; i++) {
-        if (predicate(source[i])) {
-            source.splice(i, 1);
-            return;
+function removeRange<T>(observable: any, index: number, length: number): void {
+    let array = Array.from<T>(observable.state);
+    array.splice(index, length);
+    observable.setState(array);
+}
+
+function removeFirst<T>(observable: any, predicate: (s: T) => boolean): void {
+    let array = Array.from<T>(observable.state);
+    for (let i = 0; i < array.length; i++) {
+        if (predicate(array[i])) {
+            array.splice(i, 1);
+            break;
         }
     }
+
+    observable.setState(array);
+}
+
+function removeLast<T>(observable: any, predicate: (s: T) => boolean): void {
+    let array = Array.from<T>(observable.state);
+    for (let i = array.length - 1; i >= 0; i--) {
+        if (predicate(array[i])) {
+            array.splice(i, 1);
+            break;
+        }
+    }
+
+    observable.setState(array);
+}
+
+function reverse<T>(observable: any): void {
+    let array = Array.from<T>(observable.state);
+    array.reverse();
+    observable.setState(array);
 }
