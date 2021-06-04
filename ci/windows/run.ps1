@@ -13,8 +13,8 @@ Write-Host "ROOT=$ROOT"
 Write-Host "CONFIGURATION=$CONFIGURATION"
 
 Set-Location $root\src\DotVVM.Framework
-npm ci --cache $root\.npm --prefer-offline
-npm run build
+npm ci --cache $root\.npm --prefer-offline 2>&1
+npm run build 2>&1
 if ($LASTEXITCODE -ne 0) {
     Write-Host "npm build failed"
     exit 1
