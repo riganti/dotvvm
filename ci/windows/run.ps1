@@ -1,3 +1,9 @@
+param(
+    [switch] $noNpmBuild = $false,
+    [switch] $noSlnRestore = $false,
+    [switch] $noSlnBuild = $false,
+    [switch] $noUITest = $false)
+
 $root = $env:DOTVVM_ROOT
 if ($null -eq $root) {
     $root = "$PWD"
@@ -9,62 +15,91 @@ if ($null -eq $configuration) {
     $configuration = "Release"
 }
 
+$sln = "$root\ci\windows\Windows.sln"
+$nuget = "$root\src\packages\"
+
 Write-Host "ROOT=$ROOT"
 Write-Host "CONFIGURATION=$CONFIGURATION"
 
-Set-Location $root\src\DotVVM.Framework
-npm ci --cache $root\.npm --prefer-offline 2>&1
-npm run build 2>&1
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "npm build failed"
-    exit 1
+if ($noNpmBuild -ne $true) {
+    Write-Host "--------------------------------"
+    Write-Host "npm build"
+    Write-Host "--------------------------------"
+    Set-Location $root\src\DotVVM.Framework
+    npm ci --cache $root\.npm --prefer-offline
+    npm run build
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "npm build failed"
+        exit 1
+    }
 }
 
-$sln = "$root\ci\windows\Windows.sln"
-$nuget = "$root\src\packages\"
-Set-Location $root
-nuget restore $sln -PackagesDirectory $nuget
-dotnet restore $sln --packages $nuget
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "nuget restore failed"
-    exit 1
+
+if ($noSlnRestore -ne $true) {
+    Write-Host "--------------------------------"
+    Write-Host "sln restore"
+    Write-Host "--------------------------------"
+    Set-Location $root
+    nuget restore $sln -PackagesDirectory $nuget
+    dotnet restore $sln --packages $nuget
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "nuget restore failed"
+        exit 1
+    }
 }
 
-msbuild $sln -v:m `
-    -p:PublishProfile=$root\ci\windows\GenericPublish.pubxml `
-    -p:DeployOnBuild=true `
-    -p:Configuration=$configuration
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "dotnet build failed"
-    exit 1
+if ($noSlnBuild -ne $true) {
+    Write-Host "--------------------------------"
+    Write-Host "sln build"
+    Write-Host "--------------------------------"
+    msbuild $sln -v:m `
+        -p:PublishProfile=$root\ci\windows\GenericPublish.pubxml `
+        -p:DeployOnBuild=true `
+        -p:Configuration=$configuration
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "dotnet build failed"
+        exit 1
+    }
 }
 
-Import-Module IISAdministration -UseWindowsPowerShell
+function Clean-UITest {
+    Stop-Process -Force -Name chrome -ErrorAction SilentlyContinue
+    Stop-Process -Force -Name chromedriver -ErrorAction SilentlyContinue
+    Remove-IISSite -Confirm:$false -Name dotvvm.owin
+    Remove-IISSite -Confirm:$false -Name dotvvm.owin.api
+}
 
-icacls $root/artifacts/ /grant "IIS_IUSRS:(OI)(CI)F"
-New-IISSite -Name dotvvm.owin `
-    -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Owin `
-    -BindingInformation "*:5407:"
+if ($noUITest -ne $true) {
+    Write-Host "--------------------------------"
+    Write-Host "UI test"
+    Write-Host "--------------------------------"
 
-New-IISSite -Name dotvvm.owin.api `
-    -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin `
-    -BindingInformation "*:5002:"
+    Import-Module IISAdministration
+    Clean-UITest
 
-Copy-Item -Recurse `
-    $root\src\DotVVM.Samples.BasicSamples.Owin `
-    $root\artifacts
+    icacls $root\artifacts\ /grant "IIS_IUSRS:(OI)(CI)F"
 
-Copy-Item `
-    $root\src\DotVVM.Samples.Tests\Profiles\seleniumconfig.owin.chrome.json `
-    $root\src\DotVVM.Samples.Tests\seleniumconfig.json
+    New-IISSite -Name dotvvm.owin `
+        -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Owin `
+        -BindingInformation "*:5407:"
 
-dotnet test $root\src\DotVVM.Samples.Tests `
-    --configuration $configuration `
-    --logger trx `
-    --results-directory $root\artifacts\test
+    New-IISSite -Name dotvvm.owin.api `
+        -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin `
+        -BindingInformation "*:5002:"
 
-Stop-Process -Name chrome
-Stop-Process -Name chromedriver
+    Copy-Item -Force -Recurse `
+        $root\src\DotVVM.Samples.Common `
+        $root\artifacts
 
-Remove-IISSite -Force -Name dotvvm.owin
-Remove-IISSite -Force -Name dotvvm.owin.api
+    Copy-Item -Force `
+        $root\src\DotVVM.Samples.Tests\Profiles\seleniumconfig.owin.chrome.json `
+        $root\src\DotVVM.Samples.Tests\seleniumconfig.json
+
+    dotnet test $root\src\DotVVM.Samples.Tests `
+        --no-build `
+        --configuration $configuration `
+        --logger trx `
+        --results-directory $root\artifacts\test
+
+    Clean-UITest
+}
