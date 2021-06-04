@@ -124,9 +124,11 @@ const dotvvmExports = {
         logPostBackScriptError,
         level
     },
-    arrayHelper,
-    dictionaryHelper,
-    stringHelper
+    translations: {
+        arrayHelper,
+        dictionaryHelper,
+        stringHelper
+    }
 }
 
 if (compileConstants.isSpa) {
