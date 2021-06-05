@@ -16,7 +16,7 @@ if ($null -eq $configuration) {
 }
 
 $sln = "$root\ci\windows\Windows.sln"
-$nuget = "$root\src\packages\"
+$packagesDir = "$root\src\packages\"
 
 Write-Host "ROOT=$ROOT"
 Write-Host "CONFIGURATION=$CONFIGURATION"
@@ -40,8 +40,8 @@ if ($noSlnRestore -ne $true) {
     Write-Host "sln restore"
     Write-Host "--------------------------------"
     Set-Location $root
-    nuget restore $sln -PackagesDirectory $nuget
-    dotnet restore $sln --packages $nuget
+    & "$root\src\Tools\NuGet.exe" restore $sln -PackagesDirectory $packagesDir
+    dotnet restore $sln --packages $packagesDir
     if ($LASTEXITCODE -ne 0) {
         Write-Host "nuget restore failed"
         exit 1
@@ -71,7 +71,7 @@ function Clean-UITest {
 
 if ($noUITest -ne $true) {
     Write-Host "--------------------------------"
-    Write-Host "UI test"
+    Write-Host "UI tests"
     Write-Host "--------------------------------"
 
     Import-Module IISAdministration
@@ -96,7 +96,6 @@ if ($noUITest -ne $true) {
         $root\src\DotVVM.Samples.Tests\seleniumconfig.json
 
     dotnet test $root\src\DotVVM.Samples.Tests `
-        --no-build `
         --configuration $configuration `
         --logger trx `
         --results-directory $root\artifacts\test

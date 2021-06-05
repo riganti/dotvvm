@@ -5,36 +5,47 @@ ROOT=${DOTVVM_ROOT:-$(pwd)}
 export DOTVVM_ROOT=$ROOT
 
 CONFIGURATION=${BUILD_CONFIGURATION:-Release}
-TEST_RESULTS_DIR=$ROOT/artifacts/tests
+TEST_RESULTS_DIR=$ROOT/artifacts/test
 DISPLAY=${DISPLAY:-":42"}
 echo "ROOT=$ROOT"
 echo "CONFIGURATION=$CONFIGURATION"
 
+echo "--------------------------------"
+echo "npm build"
+echo "--------------------------------"
 cd $ROOT/src/DotVVM.Framework \
     && npm ci --cache ${ROOT}/.npm --prefer-offline \
     && npm run build
-
 if [ $? -ne 0 ]; then
     echo >&2 "npm build failed"
     exit 1
 fi
 
+echo "--------------------------------"
+echo "dotnet build"
+echo "--------------------------------"
 cd $ROOT \
     && dotnet restore $ROOT/ci/linux/Linux.sln --packages $ROOT/.nuget\
     && dotnet build $ROOT/ci/linux/Linux.sln --no-restore --configuration $CONFIGURATION
-
 if [ $? -ne 0 ]; then
     echo >&2 "dotnet build failed"
     exit 1
 fi
 
-dotnet test src/DotVVM.Framework.Tests.Common \
+echo "--------------------------------"
+echo "unit tests"
+echo "--------------------------------"
+dotnet test src/DotVVM.Framework.Tests \
     --no-build \
     --configuration $CONFIGURATION \
     --logger trx \
     --results-directory $TEST_RESULTS_DIR
 
+echo "--------------------------------"
+echo "UI tests"
+echo "--------------------------------"
 killall Xvfb dotnet 2>/dev/null
+rm /tm/.X*-lock
 
 Xvfb $DISPLAY -screen 0 800x600x16 &
 XVFB_PID=$!
