@@ -101,4 +101,6 @@ if ($noUITest -ne $true) {
         --results-directory $root\artifacts\test
 
     Clean-UITest
+
+    Get-Process
 }
