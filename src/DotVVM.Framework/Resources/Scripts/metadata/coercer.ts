@@ -87,8 +87,8 @@ function tryCoerceEnum(value: any, type: EnumTypeMetadata): CoerceResult {
     if (typeof value === "string") {
         if (type.isFlags) {
             // flags - comma-separated values
-            let parts = value.split(',');
-            let matched: string[] = [];
+            const parts = value.split(',');
+            const matched: string[] = [];
             let reorderRequired = false;
 
             for (let i = 0; i < parts.length; i++) {
@@ -122,11 +122,7 @@ function tryCoerceEnum(value: any, type: EnumTypeMetadata): CoerceResult {
                 wasCoerced = true;
             }
             if (wasCoerced) {
-                value = "";
-                for (let v of matched) {
-                    if (value !== "") value += ",";
-                    value += v;
-                }
+                value = matched.join(",")
                 return { value, wasCoerced };
             } else {
                 return { value };
@@ -145,7 +141,7 @@ function tryCoerceEnum(value: any, type: EnumTypeMetadata): CoerceResult {
             if (value) {
                 let result: number = value | 0;
                 let stringValue = "";
-                for (let k of keys(type.values).reverse()) {
+                for (const k of keys(type.values).reverse()) {
                     if (type.values[k] !== 0 && (result & type.values[k]) === type.values[k]) {
                         result -= type.values[k];
                         if (stringValue !== "") stringValue = "," + stringValue;
@@ -161,7 +157,7 @@ function tryCoerceEnum(value: any, type: EnumTypeMetadata): CoerceResult {
                 if (matched.length) {
                     return { value: matched[0], wasCoerced: true };
                 } else {
-                    return { value };
+                    return { value, wasCoerced };
                 }
             }
         } else {
