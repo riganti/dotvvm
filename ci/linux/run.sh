@@ -45,7 +45,7 @@ echo "--------------------------------"
 echo "UI tests"
 echo "--------------------------------"
 killall Xvfb dotnet 2>/dev/null
-rm /tm/.X*-lock
+rm /tmp/.X*-lock
 
 Xvfb $DISPLAY -screen 0 800x600x16 &
 XVFB_PID=$!
