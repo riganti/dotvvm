@@ -50,6 +50,11 @@ rm /tm/.X*-lock
 Xvfb $DISPLAY -screen 0 800x600x16 &
 XVFB_PID=$!
 
+dotnet run --project src/DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest \
+    --no-build \
+    --configuration $CONFIGURATION \
+    --urls http://localhost:5001/ &
+
 dotnet run --project src/DotVVM.Samples.BasicSamples.AspNetCoreLatest \
     --no-build \
     --configuration $CONFIGURATION \

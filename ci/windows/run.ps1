@@ -85,7 +85,7 @@ if ($noUITest -ne $true) {
 
     New-IISSite -Name dotvvm.owin.api `
         -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin `
-        -BindingInformation "*:5002:"
+        -BindingInformation "*:61453:"
 
     Copy-Item -Force -Recurse `
         $root\src\DotVVM.Samples.Common `
