@@ -240,7 +240,8 @@ type ObjectTypeMetadata = {
 
 type EnumTypeMetadata = {
     type: "enum",
-    values: { [name: string]: number }
+    values: { [name: string]: number },
+    isFlags?: boolean
 }
 
 type TypeMetadata = ObjectTypeMetadata | EnumTypeMetadata;

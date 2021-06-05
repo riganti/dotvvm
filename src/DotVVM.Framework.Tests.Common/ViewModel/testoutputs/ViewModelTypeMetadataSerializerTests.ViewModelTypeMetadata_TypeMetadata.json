@@ -71,6 +71,7 @@
 	},
 	"FWxZlg67U7EdHD+8Z2erYEIP6Mg=": {
 		"type": "enum",
+		"isFlags": true,
 		"values": {
 			"Zero": 0,
 			"One": 1,
