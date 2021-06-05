@@ -71,6 +71,7 @@
 	},
 	"Naz5KfxmZJ+FNKch08f+TL+36i4=": {
 		"type": "enum",
+		"isFlags": true,
 		"values": {
 			"Zero": 0,
 			"One": 1,
