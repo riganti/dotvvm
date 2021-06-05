@@ -53,12 +53,12 @@ XVFB_PID=$!
 dotnet run --project src/DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest \
     --no-build \
     --configuration $CONFIGURATION \
-    --urls http://localhost:5001/ &
+    --urls http://localhost:5001/ >/dev/null &
 
 dotnet run --project src/DotVVM.Samples.BasicSamples.AspNetCoreLatest \
     --no-build \
     --configuration $CONFIGURATION \
-    --urls http://localhost:16018/ &
+    --urls http://localhost:16018/ >/dev/null &
 SAMPLES_PID=$!
 
 dotnet test src/DotVVM.Samples.Tests \
