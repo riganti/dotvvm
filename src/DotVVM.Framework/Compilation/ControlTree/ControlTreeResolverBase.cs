@@ -187,7 +187,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 .Select(x => x.ImportedResourceName)
                 .ToArray();
 
-            return (new JsExtensionParameter(id, isMarkupControl), new ViewModuleReferenceInfo(id, resources, isMarkupControl));
+            return (new JsExtensionParameter(id, isMarkupControl), new ViewModuleReferenceInfo(id, resources, isMarkupControl, moduleDirectives));
         }
 
         protected virtual string AssignViewModuleId(IAbstractControlBuilderDescriptor? masterPage)

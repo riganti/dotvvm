@@ -453,6 +453,26 @@ namespace DotVVM.Samples.Tests
             });
         }
 
+        [Fact]
+        public void Error_JsDirectiveNotFound()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_JsDirectiveNotFound);
+
+                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("Cannot find resource named 'FeatureSamples_Resources_TestViewModule-NotFound' referenced by the @js directive!"));
+            });
+        }
+
+        [Fact]
+        public void Error_JsDirectiveNotScriptModule()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_JsDirectiveNotScriptModule);
+
+                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("The resource named 'dotvvm' referenced by the @js directive must be of the ScriptModuleResource type!"));
+            });
+        }
+
         public ErrorsTests(ITestOutputHelper output) : base(output)
         {
         }

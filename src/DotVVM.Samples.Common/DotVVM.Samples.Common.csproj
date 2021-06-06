@@ -52,6 +52,8 @@
     <None Remove="Views\Errors\CorruptedContentBetweenContentControls.dothtml" />
     <None Remove="Views\Errors\InvalidServiceDirective.dothtml" />
     <None Remove="Views\Errors\InvalidLocationFallback.dothtml" />
+    <None Remove="Views\Errors\JsDirectiveNotFound.dothtml" />
+    <None Remove="Views\Errors\JsDirectiveNotScriptModule.dothtml" />
     <None Remove="Views\Errors\ResourceCircularDependency.dothtml" />
     <None Remove="Views\FeatureSamples\Attribute\ToStringConversion.dothtml" />
     <None Remove="Views\FeatureSamples\Caching\CachedValues.dothtml" />
