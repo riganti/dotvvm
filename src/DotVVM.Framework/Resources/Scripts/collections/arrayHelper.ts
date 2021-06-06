@@ -130,8 +130,6 @@ function max<T>(array: T[], selector: (item: T) => number, throwIfEmpty: boolean
         return null;
     }
 
-    if (array.length == 1)
-        return selector(array[0]);
     let max = selector(array[0]);
     for (let i = 1; i < array.length; i++) {
         let v = selector(array[i]);
@@ -149,8 +147,6 @@ function min<T>(array: T[], selector: (item: T) => number, throwIfEmpty: boolean
         return null;
     }
 
-    if (array.length == 1)
-        return selector(array[0]);
     let min = selector(array[0]);
     for (let i = 1; i < array.length; i++) {
         let v = selector(array[i]);
