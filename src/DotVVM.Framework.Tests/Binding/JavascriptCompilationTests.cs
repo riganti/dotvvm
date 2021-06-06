@@ -500,7 +500,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableAll(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("dotvvm.arrayHelper.all(LongArray(),function(item){return ko.unwrap(item)>0;})", result);
+            Assert.AreEqual("LongArray().every(function(item){return ko.unwrap(item)>0;})", result);
         }
 
         [TestMethod]
@@ -509,7 +509,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableAny(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("dotvvm.arrayHelper.any(LongArray(),function(item){return ko.unwrap(item)>0;})", result);
+            Assert.AreEqual("LongArray().some(function(item){return ko.unwrap(item)>0;})", result);
         }
 
         [TestMethod]
