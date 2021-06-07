@@ -367,12 +367,9 @@ namespace DotVVM.Framework.Compilation.Javascript
             string GetDelegateReturnTypeHash(Type type)
                 => type.GetGenericArguments().Last().GetTypeHash();
 
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.All), parameterCount: 2, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("arrayHelper").Member("all").Invoke(args[1], args[2])));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Any), parameterCount: 1, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("arrayHelper").Member("any").Invoke(args[1], returnTrueFunc.Clone())));
-            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Any), parameterCount: 2, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("arrayHelper").Member("any").Invoke(args[1], args[2])));
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.All), parameterCount: 2, translator: new GenericMethodCompiler(args => args[1].Member("every").Invoke(args[2])));
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Any), parameterCount: 1, translator: new GenericMethodCompiler(args => args[1].Member("some").Invoke(returnTrueFunc.Clone())));
+            AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Any), parameterCount: 2, translator: new GenericMethodCompiler(args => args[1].Member("some").Invoke(args[2])));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Concat), parameterCount: 2, translator: new GenericMethodCompiler(args => args[1].Member("concat").Invoke(args[2])));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), parameterCount: 1, translator: new GenericMethodCompiler(args => args[1].Member("length")));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Distinct), parameterCount: 1,

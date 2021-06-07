@@ -4,8 +4,6 @@ export {
     add,
     addOrUpdate,
     addRange,
-    all,
-    any,
     clear,
     distinct,
     firstOrDefault,
@@ -58,38 +56,12 @@ function addRange<T>(observable: any, elements: T[]): void {
     observable.setState(array);
 }
 
-function any<T>(array: T[], predicate: (s: T) => boolean): boolean {
-    return firstOrDefault(array, predicate) != null;
-}
-
-function all<T>(array: T[], predicate: (s: T) => boolean): boolean {
-    for (let i = 0; i < array.length; i++) {
-        if (!predicate(array[i])) {
-            return false;
-        }
-    }
-    return true;
-}
-
 function clear(observable: any): void {
     observable.setState([]);
 }
 
 function distinct<T>(array: T[]): T[] {
-    let r = [];
-    for (let i = 0; i < array.length; i++) {
-        let found = false;
-        for (var j = 0; j < r.length; j++) {
-            if (r[j] == array[i]) {
-                found = true;
-                break;
-            }
-        }
-        if (found)
-            continue;
-        r.push(array[i]);
-    }
-    return r;
+    return Array.from(new Set(array.map(ko.unwrap)));
 }
 
 function firstOrDefault<T>(array: T[], predicate: (s: T) => boolean): T | null {
@@ -130,8 +102,6 @@ function max<T>(array: T[], selector: (item: T) => number, throwIfEmpty: boolean
         return null;
     }
 
-    if (array.length == 1)
-        return selector(array[0]);
     let max = selector(array[0]);
     for (let i = 1; i < array.length; i++) {
         let v = selector(array[i]);
@@ -149,8 +119,6 @@ function min<T>(array: T[], selector: (item: T) => number, throwIfEmpty: boolean
         return null;
     }
 
-    if (array.length == 1)
-        return selector(array[0]);
     let min = selector(array[0]);
     for (let i = 1; i < array.length; i++) {
         let v = selector(array[i]);
