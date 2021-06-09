@@ -267,10 +267,14 @@ namespace DotVVM.Framework.Controls
         {
             switch (optionValue)
             {
-                case IValueBinding binding:
-                    return new JsIdentifierExpression(
-                        JavascriptTranslator.FormatKnockoutScript(binding.GetParametrizedKnockoutExpression(handler, unwrapped: true),
-                            new ParametrizedCode("c"), new ParametrizedCode("d")));
+                case IValueBinding binding: {
+                    var adjustedCode = binding.GetParametrizedKnockoutExpression(handler, unwrapped: true).AssignParameters(o =>
+                        o == JavascriptTranslator.KnockoutContextParameter ? new ParametrizedCode("c") :
+                        o == JavascriptTranslator.KnockoutViewModelParameter ? new ParametrizedCode("d") :
+                        default(CodeParameterAssignment)
+                    );
+                    return new JsSymbolicParameter(new CodeSymbolicParameter("tmp symbol"), defaultAssignment: adjustedCode);
+                }
                 case IStaticValueBinding staticValueBinding:
                     return new JsLiteral(staticValueBinding.Evaluate(handler));
                 case JsExpression expression:
