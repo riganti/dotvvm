@@ -208,11 +208,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             // order of enum values is important on the client (for Flags enum coercion)
             var underlyingType = Enum.GetUnderlyingType(type);
-            var enumValues = Enum.GetValues(type)
-                .OfType<object>()
-                .Select(v => new {
-                    Name = v.ToString(),
-                    Value = ReflectionUtils.ConvertValue(v, underlyingType)
+            var enumValues = Enum.GetNames(type)
+                .Select(name => new {
+                    Name = name,
+                    Value = ReflectionUtils.ConvertValue(Enum.Parse(type, name), underlyingType)
                 })
                 .OrderBy(v => v.Value);
 
