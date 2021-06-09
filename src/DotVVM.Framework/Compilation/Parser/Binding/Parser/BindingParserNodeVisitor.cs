@@ -24,10 +24,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitFunctionCall((FunctionCallBindingParserNode)node);
             }
-            else if (node is GenericNameBindingParserNode)
-            {
-                return VisitGenericName((GenericNameBindingParserNode)node);
-            }
             else if (node is SimpleNameBindingParserNode)
             {
                 return VisitSimpleName((SimpleNameBindingParserNode)node);
@@ -60,9 +56,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitLambdaParameter((LambdaParameterBindingParserNode)node);
             }
-            else if (node is TypeDeclarationBindingParserNode)
+            else if (node is TypeReferenceBindingParserNode)
             {
-                return VisitTypeDeclaration((TypeDeclarationBindingParserNode)node);
+                return VisitTypeReference((TypeReferenceBindingParserNode)node);
             }
             else if (node is MultiExpressionBindingParserNode)
             {
@@ -104,7 +100,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return DefaultVisit(node);
         }
 
-        protected virtual T VisitGenericName(GenericNameBindingParserNode node)
+        protected virtual T VisitTypeReference(TypeReferenceBindingParserNode node)
         {
             return DefaultVisit(node);
         }
@@ -130,11 +126,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         }
 
         protected virtual T VisitSimpleName(SimpleNameBindingParserNode node)
-        {
-            return DefaultVisit(node);
-        }
-
-        protected virtual T VisitTypeDeclaration(TypeDeclarationBindingParserNode node)
         {
             return DefaultVisit(node);
         }
