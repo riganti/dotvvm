@@ -106,7 +106,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public string GetParameterlessResult()
         {
-            return result.GetResult(OperatorPrecedence.Max).ToDefaultString();
+            return GetResult(OperatorPrecedence.Max).ToDefaultString();
         }
 
         public ParametrizedCode GetResult(OperatorPrecedence operatorPrecedence)
