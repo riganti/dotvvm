@@ -389,35 +389,35 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_DictionaryIndexer_Get()
         {
             var result = CompileBinding("Dictionary[1]", typeof(TestViewModel5));
-            Assert.AreEqual("dotvvm.dictionaryHelper.getItem(Dictionary(),1)", result);
+            Assert.AreEqual("dotvvm.translations.dictionary.getItem(Dictionary(),1)", result);
         }
 
         [TestMethod]
         public void JsTranslator_DictionaryIndexer_Set()
         {
             var result = CompileBinding("Dictionary[1] = 123", new[] { typeof(TestViewModel5) }, typeof(void));
-            Assert.AreEqual("dotvvm.dictionaryHelper.setItem(Dictionary,1,123)", result);
+            Assert.AreEqual("dotvvm.translations.dictionary.setItem(Dictionary,1,123)", result);
         }
 
         [TestMethod]
         public void JsTranslator_DictionaryClear()
         {
             var result = CompileBinding("Dictionary.Clear()", new[] { typeof(TestViewModel5) }, typeof(void));
-            Assert.AreEqual("dotvvm.dictionaryHelper.clear(Dictionary)", result);
+            Assert.AreEqual("dotvvm.translations.dictionary.clear(Dictionary)", result);
         }
 
         [TestMethod]
         public void JsTranslator_DictionaryContainsKey()
         {
             var result = CompileBinding("Dictionary.ContainsKey(123)", new[] { typeof(TestViewModel5) }, typeof(bool));
-            Assert.AreEqual("dotvvm.dictionaryHelper.containsKey(Dictionary(),123)", result);
+            Assert.AreEqual("dotvvm.translations.dictionary.containsKey(Dictionary(),123)", result);
         }
 
         [TestMethod]
         public void JsTranslator_DictionaryRemove()
         {
             var result = CompileBinding("Dictionary.Remove(123)", new[] { typeof(TestViewModel5) }, typeof(bool));
-            Assert.AreEqual("dotvvm.dictionaryHelper.remove(Dictionary,123)", result);
+            Assert.AreEqual("dotvvm.translations.dictionary.remove(Dictionary,123)", result);
         }
 
         [TestMethod]
@@ -477,21 +477,21 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_ListAdd()
         {
             var result = CompileBinding("LongList.Add(11)", new[] { typeof(TestViewModel) }, typeof(void), null);
-            Assert.AreEqual("dotvvm.arrayHelper.add(LongList,11)", result);
+            Assert.AreEqual("dotvvm.translations.array.add(LongList,11)", result);
         }
 
         [TestMethod]
         public void JsTranslator_ListAddOrUpdate()
         {
             var result = CompileBinding("LongList.AddOrUpdate(12345L, (long item) => item == 12345, (long item) => 54321L)", new[] { typeof(TestViewModel) }, typeof(void), new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") });
-            Assert.AreEqual("dotvvm.arrayHelper.addOrUpdate(LongList,12345,function(item){return ko.unwrap(item)==12345;},function(item){return 54321;})", result);
+            Assert.AreEqual("dotvvm.translations.array.addOrUpdate(LongList,12345,function(item){return ko.unwrap(item)==12345;},function(item){return 54321;})", result);
         }
 
         [TestMethod]
         public void JsTranslator_ListAddRange()
         {
             var result = CompileBinding("LongList.AddRange(LongArray)", new[] { typeof(TestViewModel) }, typeof(void), null);
-            Assert.AreEqual("dotvvm.arrayHelper.addRange(LongList,LongArray())", result);
+            Assert.AreEqual("dotvvm.translations.array.addRange(LongList,LongArray())", result);
         }
 
         [TestMethod]
@@ -500,7 +500,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableAll(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("dotvvm.arrayHelper.all(LongArray(),function(item){return ko.unwrap(item)>0;})", result);
+            Assert.AreEqual("LongArray().every(function(item){return ko.unwrap(item)>0;})", result);
         }
 
         [TestMethod]
@@ -509,14 +509,14 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableAny(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("dotvvm.arrayHelper.any(LongArray(),function(item){return ko.unwrap(item)>0;})", result);
+            Assert.AreEqual("LongArray().some(function(item){return ko.unwrap(item)>0;})", result);
         }
 
         [TestMethod]
         public void JsTranslator_ListClear()
         {
             var result = CompileBinding("LongList.Clear()", new[] { typeof(TestViewModel) }, typeof(void), null);
-            Assert.AreEqual("dotvvm.arrayHelper.clear(LongList)", result);
+            Assert.AreEqual("dotvvm.translations.array.clear(LongList)", result);
         }
 
         [TestMethod]
@@ -525,7 +525,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableFirstOrDefault(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("dotvvm.arrayHelper.firstOrDefault(LongArray(),function(arg){return true;})", result);
+            Assert.AreEqual("dotvvm.translations.array.firstOrDefault(LongArray(),function(arg){return true;})", result);
         }
 
         [TestMethod]
@@ -534,21 +534,21 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableFirstOrDefaultParametrized(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("dotvvm.arrayHelper.firstOrDefault(LongArray(),function(item){return ko.unwrap(item)>0;})", result);
+            Assert.AreEqual("dotvvm.translations.array.firstOrDefault(LongArray(),function(item){return ko.unwrap(item)>0;})", result);
         }
 
         [TestMethod]
         public void JsTranslator_ListInsert()
         {
             var result = CompileBinding("LongList.Insert(1, 12345)", new[] { typeof(TestViewModel) }, typeof(void), null);
-            Assert.AreEqual("dotvvm.arrayHelper.insert(LongList,1,12345)", result);
+            Assert.AreEqual("dotvvm.translations.array.insert(LongList,1,12345)", result);
         }
 
         [TestMethod]
         public void JsTranslator_ListInsertRange()
         {
             var result = CompileBinding("LongList.InsertRange(1, LongArray)", new[] { typeof(TestViewModel) }, typeof(void), null);
-            Assert.AreEqual("dotvvm.arrayHelper.insertRange(LongList,1,LongArray())", result);
+            Assert.AreEqual("dotvvm.translations.array.insertRange(LongList,1,LongArray())", result);
         }
 
         [TestMethod]
@@ -557,7 +557,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableLastOrDefault(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("dotvvm.arrayHelper.lastOrDefault(LongArray(),function(arg){return true;})", result);
+            Assert.AreEqual("dotvvm.translations.array.lastOrDefault(LongArray(),function(arg){return true;})", result);
         }
 
         [TestMethod]
@@ -566,7 +566,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableLastOrDefaultParametrized(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("dotvvm.arrayHelper.lastOrDefault(LongArray(),function(item){return ko.unwrap(item)>0;})", result);
+            Assert.AreEqual("dotvvm.translations.array.lastOrDefault(LongArray(),function(item){return ko.unwrap(item)>0;})", result);
         }
 
         [TestMethod]
@@ -602,7 +602,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableMax(string binding, string property, bool nullable)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.arrayHelper.max({property}(),function(arg){{return ko.unwrap(arg);}},{(!nullable).ToString().ToLower()})", result);
+            Assert.AreEqual($"dotvvm.translations.array.max({property}(),function(arg){{return ko.unwrap(arg);}},{(!nullable).ToString().ToLower()})", result);
         }
 
         [TestMethod]
@@ -629,7 +629,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableMax_WithSelector(string binding, string property, bool nullable)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.arrayHelper.max({property}(),function(item){{return -ko.unwrap(item);}},{(!nullable).ToString().ToLower()})", result);
+            Assert.AreEqual($"dotvvm.translations.array.max({property}(),function(item){{return -ko.unwrap(item);}},{(!nullable).ToString().ToLower()})", result);
         }
 
         [TestMethod]
@@ -656,7 +656,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableMin(string binding, string property, bool nullable)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.arrayHelper.min({property}(),function(arg){{return ko.unwrap(arg);}},{(!nullable).ToString().ToLower()})", result);
+            Assert.AreEqual($"dotvvm.translations.array.min({property}(),function(arg){{return ko.unwrap(arg);}},{(!nullable).ToString().ToLower()})", result);
         }
 
         [TestMethod]
@@ -683,7 +683,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableMin_WithSelector(string binding, string property, bool nullable)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.arrayHelper.min({property}(),function(item){{return -ko.unwrap(item);}},{(!nullable).ToString().ToLower()})", result);
+            Assert.AreEqual($"dotvvm.translations.array.min({property}(),function(item){{return -ko.unwrap(item);}},{(!nullable).ToString().ToLower()})", result);
         }
 
         [TestMethod]
@@ -699,7 +699,7 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
             var typeHash = (comparedType.IsEnum) ? $"\"{comparedType.GetTypeHash()}\"" : "null";
-            Assert.AreEqual($"dotvvm.arrayHelper.orderBy(ObjectArray(),function(item){{return ko.unwrap(item).{key}();}},{typeHash})", result);
+            Assert.AreEqual($"dotvvm.translations.array.orderBy(ObjectArray(),function(item){{return ko.unwrap(item).{key}();}},{typeHash})", result);
         }
 
         [TestMethod]
@@ -724,7 +724,7 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
             var typeHash = (comparedType.IsEnum) ? $"\"{comparedType.GetTypeHash()}\"" : "null";
-            Assert.AreEqual($"dotvvm.arrayHelper.orderByDesc(ObjectArray(),function(item){{return ko.unwrap(item).{key}();}},{typeHash})", result);
+            Assert.AreEqual($"dotvvm.translations.array.orderByDesc(ObjectArray(),function(item){{return ko.unwrap(item).{key}();}},{typeHash})", result);
         }
 
         [TestMethod]
@@ -740,35 +740,35 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_ListRemoveAt()
         {
             var result = CompileBinding("LongList.RemoveAt(1)", new[] { typeof(TestViewModel) }, typeof(void), null);
-            Assert.AreEqual("dotvvm.arrayHelper.removeAt(LongList,1)", result);
+            Assert.AreEqual("dotvvm.translations.array.removeAt(LongList,1)", result);
         }
 
         [TestMethod]
         public void JsTranslator_ListRemoveFirst()
         {
             var result = CompileBinding("LongList.RemoveFirst((long item) => item == 2)", new[] { typeof(TestViewModel) }, typeof(void), new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") });
-            Assert.AreEqual("dotvvm.arrayHelper.removeFirst(LongList,function(item){return ko.unwrap(item)==2;})", result);
+            Assert.AreEqual("dotvvm.translations.array.removeFirst(LongList,function(item){return ko.unwrap(item)==2;})", result);
         }
 
         [TestMethod]
         public void JsTranslator_ListRemoveLast()
         {
             var result = CompileBinding("LongList.RemoveLast((long item) => item == 2)", new[] { typeof(TestViewModel) }, typeof(void), new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") });
-            Assert.AreEqual("dotvvm.arrayHelper.removeLast(LongList,function(item){return ko.unwrap(item)==2;})", result);
+            Assert.AreEqual("dotvvm.translations.array.removeLast(LongList,function(item){return ko.unwrap(item)==2;})", result);
         }
 
         [TestMethod]
         public void JsTranslator_ListRemoveRange()
         {
             var result = CompileBinding("LongList.RemoveRange(1, 5)", new[] { typeof(TestViewModel) }, typeof(void), null);
-            Assert.AreEqual("dotvvm.arrayHelper.removeRange(LongList,1,5)", result);
+            Assert.AreEqual("dotvvm.translations.array.removeRange(LongList,1,5)", result);
         }
 
         [TestMethod]
         public void JsTranslator_ListReverse()
         {
             var result = CompileBinding("LongList.Reverse()", new[] { typeof(TestViewModel) }, typeof(void), null);
-            Assert.AreEqual("dotvvm.arrayHelper.reverse(LongList)", result);
+            Assert.AreEqual("dotvvm.translations.array.reverse(LongList)", result);
         }
 
         [TestMethod]
@@ -810,7 +810,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_StringSplit_WithOptions(string binding, string delimiter, string options)
         {
             var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
-            Assert.AreEqual($"dotvvm.stringHelper.split(StringProp(),\"{delimiter}\",\"{options}\")", result);
+            Assert.AreEqual($"dotvvm.translations.string.split(StringProp(),\"{delimiter}\",\"{options}\")", result);
         }
 
         [TestMethod]
