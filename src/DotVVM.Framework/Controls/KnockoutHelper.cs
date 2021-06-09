@@ -273,7 +273,7 @@ namespace DotVVM.Framework.Controls
                         o == JavascriptTranslator.KnockoutViewModelParameter ? new ParametrizedCode("d") :
                         default(CodeParameterAssignment)
                     );
-                    return new JsSymbolicParameter(new CodeSymbolicParameter("tmp symbol"), defaultAssignment: adjustedCode);
+                    return new JsSymbolicParameter(new CodeSymbolicParameter("tmp symbol", defaultAssignment: adjustedCode));
                 }
                 case IStaticValueBinding staticValueBinding:
                     return new JsLiteral(staticValueBinding.Evaluate(handler));
