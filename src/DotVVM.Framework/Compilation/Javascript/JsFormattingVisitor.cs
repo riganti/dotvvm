@@ -106,8 +106,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public string GetParameterlessResult()
         {
-            if (parameters != null) throw new InvalidOperationException($"The script contains parameters: `{ToString()}`.");
-            return result.ToString();
+            return result.GetResult(OperatorPrecedence.Max).ToDefaultString();
         }
 
         public ParametrizedCode GetResult(OperatorPrecedence operatorPrecedence)
