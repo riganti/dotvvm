@@ -6,7 +6,7 @@
 
 PROGRAM='DotVVM Linux CI'
 SHORTOPTS='-h'
-LONGOPTS='help,no-npm-build,no-sln-restore,no-sln-build,no-unit-tests,no-ui-tests'
+LONGOPTS='help,no-all,no-npm-build,no-sln-restore,no-sln-build,no-unit-tests,no-ui-tests'
 TEMP=$(getopt -o "$SHORTOPS" -l "$LONGOPTS" -n "$PROGRAM" -- "$@")
 if [ $? -ne 0 ]; then
         exit 1
@@ -61,6 +61,15 @@ EOF
             shift
             continue
         ;;
+        '--no-all')
+            NPM_BUILD=0
+            SLN_RESTORE=0
+            SLN_BUILD=0
+            UNIT_TESTS=0
+            UI_TESTS=0
+            shift
+            continue
+        ;;
         '--')
             shift
             break
@@ -85,34 +94,42 @@ ROOT=${DOTVVM_ROOT:-$(pwd)}
 # override DOTVVM_ROOT in case this is a local build
 export DOTVVM_ROOT=$ROOT
 
-TEST_RESULTS_DIR=$ROOT/artifacts/test
 CONFIGURATION=${BUILD_CONFIGURATION:-Release}
 DISPLAY=${DISPLAY:-":42"}
-echo <<EOF
-ROOT=$ROOT
-TEST_RESULTS_DIR=$TEST_RESULTS_DIR
-CONFIGURATION=$CONFIGURATION
-DISPLAY=$DISPLAYT
-EOF
+SLN=$ROOT/ci/linux/Linux.sln
+TEST_RESULTS_DIR=$ROOT/artifacts/test
+
+tput sgr0
+echo "ROOT=$ROOT"
+echo "SLN=$SLN"
+echo "CONFIGURATION=$CONFIGURATION"
+echo "DISPLAY=$DISPLAY"
+echo "TEST_RESULTS_DIR=$TEST_RESULTS_DIR"
 
 # ================
 # helper functions
 # ================
 
 function print_header {
-    echo <<EOF
---------------------------------
-$1
---------------------------------
-EOF
+    tput sgr0 && tput setaf 3
+    echo "--------------------------------"
+    echo "$(tput smso)$@$(tput rmso)"
+    echo "--------------------------------"
+    tput sgr0
 }
 
-function ensure_named_command {
+function run_named_command {
     NAME=$1
     shift
 
     print_header $NAME
+    tput setaf 4 && printf "running '$@'\n" && tput sgr0
     eval $@
+}
+
+function ensure_named_command {
+    NAME=$1
+    run_named_command $@
     if [ $? -ne 0 ]; then
         echo >&2 "$NAME failed"
         exit 1
@@ -125,29 +142,37 @@ function ensure_named_command {
 
 if [ $NPM_BUILD -eq 1 ]; then
     ensure_named_command "npm build" \
-        cd $ROOT/src/DotVVM.Framework \
-            && npm ci --cache $ROOT/.npm --prefer-offline \
-            && npm run build
+        "cd $ROOT/src/DotVVM.Framework \
+            && npm ci --cache \"$ROOT/.npm\" --prefer-offline \
+            && npm run build"
+fi
+
+if [ $SLN_RESTORE -eq 1 ]; then
+    ensure_named_command "sln restore" \
+        "cd $ROOT \
+            && dotnet restore \"$SLN\" \
+                --packages \"$ROOT/.nuget\" \
+                -v:m"
 fi
 
 if [ $SLN_BUILD -eq 1 ]; then
     ensure_named_command "sln build" \
-        cd $ROOT \
-            && dotnet restore $ROOT/ci/linux/Linux.sln --packages $ROOT/.nuget\
-            && dotnet build $ROOT/ci/linux/Linux.sln \
+        "cd \"$ROOT\" \
+            && dotnet build \"$SLN\" \
                 --no-restore \
-                --configuration $CONFIGURATION
-                -p:SourceLinkCreate=true
+                --configuration $CONFIGURATION \
+                -v:m \
+                -p:SourceLinkCreate=true"
 fi
 
 if [ $UNIT_TESTS -eq 1 ]; then
-    ensure_named_command "unit tests" \
-        dotnet test src/DotVVM.Framework.Tests \
+    run_named_command "unit tests" \
+        "dotnet test \"$ROOT/src/DotVVM.Framework.Tests\" \
             --no-build \
             --configuration $CONFIGURATION \
             --logger trx \
-            --results-directory $TEST_RESULTS_DIR \
-            --collect "Code Coverage"
+            --results-directory \"$TEST_RESULTS_DIR\" \
+            --collect \"Code Coverage\""
 fi
 
 if [ $UI_TESTS -eq 1 ]; then
@@ -157,23 +182,23 @@ if [ $UI_TESTS -eq 1 ]; then
     Xvfb $DISPLAY -screen 0 800x600x16 &
     XVFB_PID=$!
 
-    dotnet run --project src/DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest \
+    dotnet run --project "$ROOT/src/DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest" \
         --no-build \
-        --configuration $CONFIGURATION \
+        --configuration "$CONFIGURATION" \
         --urls http://localhost:5001/ >/dev/null &
 
-    dotnet run --project src/DotVVM.Samples.BasicSamples.AspNetCoreLatest \
+    dotnet run --project "$ROOT/src/DotVVM.Samples.BasicSamples.AspNetCoreLatest" \
         --no-build \
-        --configuration $CONFIGURATION \
+        --configuration "$CONFIGURATION" \
         --urls http://localhost:16018/ >/dev/null &
     SAMPLES_PID=$!
 
-    ensure_named_command "UI tests" \
-        dotnet test src/DotVVM.Samples.Tests \
+    run_named_command "UI tests" \
+        "dotnet test \"$ROOT/src/DotVVM.Samples.Tests\" \
             --no-build \
             --configuration $CONFIGURATION \
             --logger trx \
-            --results-directory $TEST_RESULTS_DIR
+            --results-directory \"$TEST_RESULTS_DIR\""
 
     kill $XVFB_PID $SAMPLES_PID 2>/dev/null
 fi
