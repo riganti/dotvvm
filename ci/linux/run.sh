@@ -6,7 +6,7 @@
 
 PROGRAM='DotVVM Linux CI'
 SHORTOPTS='-h'
-LONGOPTS='help,no-all,no-npm-build,no-sln-restore,no-sln-build,no-unit-tests,no-ui-tests'
+LONGOPTS='help,no-all,no-npm-build,no-sln-restore,no-sln-build,no-unit-tests,no-js-tests,no-ui-tests'
 TEMP=$(getopt -o "$SHORTOPS" -l "$LONGOPTS" -n "$PROGRAM" -- "$@")
 if [ $? -ne 0 ]; then
         exit 1
@@ -18,6 +18,7 @@ NPM_BUILD=1
 SLN_RESTORE=1
 SLN_BUILD=1
 UNIT_TESTS=1
+JS_TESTS=1
 UI_TESTS=1
 
 while true; do
@@ -31,6 +32,7 @@ Options:
     --no-sln-restore    Don't restore NuGet packages.
     --no-sln-build      Don't build ~/ci/linux/Linux.sln.
     --no-unit-tests     Don't run the Framework tests.
+    --no-js-tests       Don't run Framework's Jest tests.
     --no-ui-tests       Don't run the AspNetCoreLatest tests.
 EOF
             shift
@@ -56,6 +58,11 @@ EOF
             shift
             continue
         ;;
+        '--no-js-tests')
+            JS_TESTS=0
+            shift
+            continue
+        ;;
         '--no-ui-tests')
             UI_TESTS=0
             shift
@@ -66,6 +73,7 @@ EOF
             SLN_RESTORE=0
             SLN_BUILD=0
             UNIT_TESTS=0
+            JS_TESTS=0
             UI_TESTS=0
             shift
             continue
@@ -174,6 +182,13 @@ if [ $UNIT_TESTS -eq 1 ]; then
             --results-directory \"$TEST_RESULTS_DIR\" \
             --collect \"Code Coverage\""
 fi
+
+if [ $JS_TESTS -eq 1 ]; then
+    run_named_command "js tests" \
+        "cd \"$ROOT/src/DotVVM.Framework\" \
+            && npx jest --ci --reporters=\"jest-junit\" \
+            && cp ./junit.xml \"$TEST_RESULTS_DIR/js-test-results.xml\" \
+            && cd \"$ROOT\""
 
 if [ $UI_TESTS -eq 1 ]; then
     killall Xvfb dotnet 2>/dev/null
