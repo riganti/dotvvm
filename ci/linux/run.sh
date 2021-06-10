@@ -4,9 +4,12 @@
 # argument parsing
 # ================
 
-PROGRAM='DotVVM Linux CI'
-SHORTOPTS='-h'
-LONGOPTS='help,no-all,clean,no-npm-build,no-sln-restore,no-sln-build,no-unit-tests,no-js-tests,no-ui-tests'
+PROGRAM='run.sh'
+SHORTOPTS="h"
+LONGOPTS="help,\
+    root:,config:,\
+    all,clean,npm-build,sln-restore,sln-build,unit-tests,js-tests,ui-tests,\
+    no-all,no-clean,no-npm-build,no-sln-restore,no-sln-build,no-unit-tests,no-js-tests,no-ui-tests"
 TEMP=$(getopt -o "$SHORTOPS" -l "$LONGOPTS" -n "$PROGRAM" -- "$@")
 if [ $? -ne 0 ]; then
         exit 1
@@ -25,64 +28,46 @@ UI_TESTS=1
 while true; do
     case "$1" in
         '-h' | '--help')
-            echo <<EOF
-Usage: $0 [options]
+            cat <<EOF
+Usage: $PROGRAM [options]
+
 Options:
     -h, --help          Show this help.
-    --clean             Clean the with 'git clean' first.
-    --no-npm-build      Don't build the JS part of the Framework.
-    --no-sln-restore    Don't restore NuGet packages.
-    --no-sln-build      Don't build ~/ci/linux/Linux.sln.
-    --no-unit-tests     Don't run the Framework tests.
-    --no-js-tests       Don't run Framework's Jest tests.
-    --no-ui-tests       Don't run the AspNetCoreLatest tests.
+    --root ROOT         Path to the repo root (default = \$DOTVVM_ROOT:-\$PWD)
+    --config CONFIG     The build configuration (default = \$BUILD_CONFIGURATION:-Release)
+    --[no-]all          Enable or disable all phases.
+    --[no-]clean        Clean the with 'git clean' first (default = 0).
+    --[no-]npm-build    Build the JS part of the Framework (default = 1).
+    --[no-]sln-restore  Restore NuGet packages (default = 1).
+    --[no-]sln-build    Build ~/ci/linux/Linux.sln (default = 1).
+    --[no-]unit-tests   Run the Framework tests (default = 1).
+    --[no-]js-tests     Run Framework's Jest tests (default = 1).
+    --[no-]ui-tests     Run the AspNetCoreLatest tests (default = 1).
 EOF
             shift
-            continue
+            exit 0
         ;;
-        '--clean')
-            CLEAN=1
+        '--all'|'--no-all')
+            [[ "$1" = --no-* ]]
+            VALUE=$?
+            CLEAN=$VALUE
+            NPM_BUILD=$VALUE
+            SLN_RESTORE=$VALUE
+            SLN_BUILD=$VALUE
+            UNIT_TESTS=$VALUE
+            JS_TESTS=$VALUE
+            UI_TESTS=$VALUE
             shift
             continue
         ;;
-        '--no-npm-build')
-            NPM_BUILD=0
-            shift
+        '--root')
+            DOTVVM_ROOT="$2"
+            shift 2
             continue
         ;;
-        '--no-sln-restore')
-            SLN_RESTORE=0
-            shift
-            continue
-        ;;
-        '--no-sln-build')
-            SLN_BUILD=0
-            shift
-            continue
-        ;;
-        '--no-unit-tests')
-            UNIT_TESTS=0
-            shift
-            continue
-        ;;
-        '--no-js-tests')
-            JS_TESTS=0
-            shift
-            continue
-        ;;
-        '--no-ui-tests')
-            UI_TESTS=0
-            shift
-            continue
-        ;;
-        '--no-all')
-            NPM_BUILD=0
-            SLN_RESTORE=0
-            SLN_BUILD=0
-            UNIT_TESTS=0
-            JS_TESTS=0
-            UI_TESTS=0
-            shift
+        '--config')
+            BUILD_CONFIGURATION="$2"
+            shift 2
             continue
         ;;
         '--')
@@ -90,14 +75,33 @@ EOF
             break
         ;;
         *)
-            echo >&2 "A parsing error occured at option '$1'."
-            exit 1
+            # handle all flags
+            [[ "$1" = --no-* ]]
+            VALUE=$?
+            if [ $VALUE -eq 1 ]; then
+                OPTION="${1#--}";
+            else
+                OPTION="${1#--no-}";
+            fi
+
+            OPTION=${OPTION^^}
+            OPTION=${OPTION//-/_}
+            eval IS_VALID=[ -n \$$OPTION ]
+            if [ $IS_VALID -eq 0 ]; then
+                # this flag doesn't exit
+                echo >&2 "Option '$1' is not recognized."
+                exit 1
+            fi
+
+            eval $OPTION=$VALUE
+            shift
+            continue;
         ;;
     esac
 done
 
 if [ -n "$1" ]; then
-    echo >&2 "A parsing error occured at argument '$1'."
+    echo >&2 "Argument '$1' is invalid."
     exit 1
 fi
 
