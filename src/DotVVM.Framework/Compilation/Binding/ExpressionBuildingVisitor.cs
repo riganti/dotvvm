@@ -308,17 +308,36 @@ namespace DotVVM.Framework.Compilation.Binding
         protected override Expression VisitMemberAccess(MemberAccessBindingParserNode node)
         {
             var nameNode = node.MemberNameExpression;
-            var identifierName = nameNode.Name;
+            var typeParameters = nameNode is GenericNameBindingParserNode
+                ? ResolveGenericArguments(nameNode.CastTo<GenericNameBindingParserNode>().TypeArguments)
+                : null;
+            var identifierName = (typeParameters?.Count() ?? 0) > 0
+                ? $"{nameNode.Name}`{typeParameters.Count()}"
+                : nameNode.Name;
 
             var target = Visit(node.TargetExpression);
 
             if (target is UnknownStaticClassIdentifierExpression unknownClass)
             {
                 var name = unknownClass.Name + "." + identifierName;
-                return Registry.Resolve(name, throwOnNotFound: false) ?? new UnknownStaticClassIdentifierExpression(name);
+
+                var resolvedTypeExpression = Registry.Resolve(name, throwOnNotFound: false) ?? new UnknownStaticClassIdentifierExpression(name);
+
+                if (typeParameters != null)
+                {
+                    var resolvedType = resolvedTypeExpression.Type.MakeGenericType(typeParameters);
+                    resolvedTypeExpression = new StaticClassIdentifierExpression(resolvedType);
+                }
+                return resolvedTypeExpression;
             }
 
-            return memberExpressionFactory.GetMember(target, nameNode.Name, null, onlyMemberTypes: ResolveOnlyTypeName);
+            return memberExpressionFactory.GetMember(target, nameNode.Name, typeParameters, onlyMemberTypes: ResolveOnlyTypeName);
+        }
+
+        protected override Expression VisitGenericName(GenericNameBindingParserNode node)
+        {
+            var parameters = ResolveGenericArguments(node.TypeArguments);
+            return GetMemberOrTypeExpression(node, parameters) ?? Expression.Default(typeof(void));
         }
 
         protected override Expression VisitTypeReference(TypeReferenceBindingParserNode node)
@@ -343,12 +362,7 @@ namespace DotVVM.Framework.Compilation.Binding
             else if (node is GenericTypeReferenceBindingParserNode genericType)
             {
                 var identifierName = $"{genericType.Type.ToDisplayString()}`{genericType.Arguments.Count()}";
-                var parameters = new Type[genericType.Arguments.Count];
-                for (var index = 0; index < genericType.Arguments.Count; index++)
-                {
-                    var typeArgument = genericType.Arguments[index];
-                    parameters[index] = Visit(typeArgument).Type;
-                }
+                var parameters = ResolveGenericArguments(genericType.Arguments);
 
                 var resolvedTypeExpr = Registry.Resolve(identifierName, throwOnNotFound: false) ?? new UnknownStaticClassIdentifierExpression(identifierName);
                 return new StaticClassIdentifierExpression(resolvedTypeExpr.Type.MakeGenericType(parameters));
@@ -509,9 +523,21 @@ namespace DotVVM.Framework.Compilation.Binding
             }
         }
 
+        private Type[] ResolveGenericArguments(List<TypeReferenceBindingParserNode> arguments)
+        {
+            var resolvedArguments = new Type[arguments.Count];
+
+            for (var i = 0; i < arguments.Count; i++)
+            {
+                var typeArgument = arguments[i];
+                resolvedArguments[i] = Visit(typeArgument).Type;
+            }
+            return resolvedArguments;
+        }
+
         private void ThrowIfNotTypeNameRelevant(BindingParserNode node)
         {
-            if (ResolveOnlyTypeName && !(node is MemberAccessBindingParserNode) && !(node is IdentifierNameBindingParserNode) && !(node is AssemblyQualifiedNameBindingParserNode) && !(node is TypeReferenceBindingParserNode))
+            if (ResolveOnlyTypeName && !(node is MemberAccessBindingParserNode) && !(node is IdentifierNameBindingParserNode) && !(node is AssemblyQualifiedNameBindingParserNode) && !(node is TypeReferenceBindingParserNode) && !(node is TypeOrFunctionReferenceBindingParserNode))
             {
                 throw new Exception("Only type name is supported.");
             }

@@ -714,7 +714,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var parser = bindingParserNodeFactory.SetupParser(originalString);
             var node = parser.ReadExpression();
 
-            Assert.IsTrue(node is GenericTypeReferenceBindingParserNode);
+            Assert.IsTrue(node is TypeOrFunctionReferenceBindingParserNode);
             Assert.IsTrue(string.Equals(originalString, node.ToDisplayString()));
         }
 
