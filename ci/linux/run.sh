@@ -6,7 +6,7 @@
 
 PROGRAM='DotVVM Linux CI'
 SHORTOPTS='-h'
-LONGOPTS='help,no-all,no-npm-build,no-sln-restore,no-sln-build,no-unit-tests,no-js-tests,no-ui-tests'
+LONGOPTS='help,no-all,no-clean,no-npm-build,no-sln-restore,no-sln-build,no-unit-tests,no-js-tests,no-ui-tests'
 TEMP=$(getopt -o "$SHORTOPS" -l "$LONGOPTS" -n "$PROGRAM" -- "$@")
 if [ $? -ne 0 ]; then
         exit 1
@@ -14,6 +14,7 @@ fi
 eval set -- "$TEMP"
 unset TEMP
 
+CLEAN=1
 NPM_BUILD=1
 SLN_RESTORE=1
 SLN_BUILD=1
@@ -28,6 +29,7 @@ while true; do
 Usage: $0 [options]
 Options:
     -h, --help          Show this help.
+    --no-clean          Don't git clean the repo.
     --no-npm-build      Don't build the JS part of the Framework.
     --no-sln-restore    Don't restore NuGet packages.
     --no-sln-build      Don't build ~/ci/linux/Linux.sln.
@@ -35,6 +37,11 @@ Options:
     --no-js-tests       Don't run Framework's Jest tests.
     --no-ui-tests       Don't run the AspNetCoreLatest tests.
 EOF
+            shift
+            continue
+        ;;
+        '--no-clean')
+            CLEAN=0
             shift
             continue
         ;;
@@ -147,6 +154,10 @@ function ensure_named_command {
 # =============================
 # actual continuous integration
 # =============================
+
+if [ $CLEAN -eq 1 ]; then
+    ensure_named_command "clean" "git clean -dfx"
+fi
 
 if [ $NPM_BUILD -eq 1 ]; then
     ensure_named_command "npm build" \
