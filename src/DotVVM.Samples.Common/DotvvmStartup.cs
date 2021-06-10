@@ -31,6 +31,8 @@ namespace DotVVM.Samples.BasicSamples
 {
     public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
     {
+        public const string GitHubTokenEnvName = "GITHUB_TOKEN";
+        public const string GitHubTokenConfigName = "githubApiToken";
 
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
@@ -81,6 +83,12 @@ namespace DotVVM.Samples.BasicSamples
             var profile = profiles.Single(p => p.Value<string>("name") == activeProfile);
 
             JsonConvert.PopulateObject(profile.Value<JObject>("config").ToString(), config);
+
+            var githubTokenEnv = Environment.GetEnvironmentVariable(GitHubTokenEnvName);
+            if (githubTokenEnv is object)
+            {
+                profile.Value<JObject>("appSettings")[GitHubTokenConfigName] = githubTokenEnv;
+            }
 
             SampleConfiguration.Initialize(
                 json.Value<JObject>("appSettings").Properties().ToDictionary(p => p.Name, p => p.Value.Value<string>())
@@ -188,7 +196,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddMarkupControl("cc", "Incrementer", "Views/FeatureSamples/ViewModules/Incrementer.dotcontrol");
 
             config.Markup.AddMarkupControl("sample", "EmbeddedResourceControls_Button", "embedded://EmbeddedResourceControls/Button.dotcontrol");
-            
+
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/"));
 
         }
