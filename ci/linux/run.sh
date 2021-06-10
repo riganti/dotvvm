@@ -137,7 +137,7 @@ function run_named_command {
 
 function ensure_named_command {
     NAME=$1
-    run_named_command $@
+    run_named_command "$@"
     if [ $? -ne 0 ]; then
         echo >&2 "$NAME failed"
         exit 1
@@ -150,7 +150,7 @@ function ensure_named_command {
 
 if [ $NPM_BUILD -eq 1 ]; then
     ensure_named_command "npm build" \
-        "cd $ROOT/src/DotVVM.Framework \
+        "cd \"$ROOT/src/DotVVM.Framework\" \
             && npm ci --cache \"$ROOT/.npm\" --prefer-offline \
             && npm run build"
 fi
@@ -189,6 +189,7 @@ if [ $JS_TESTS -eq 1 ]; then
             && npx jest --ci --reporters=\"jest-junit\" \
             && cp ./junit.xml \"$TEST_RESULTS_DIR/js-test-results.xml\" \
             && cd \"$ROOT\""
+fi
 
 if [ $UI_TESTS -eq 1 ]; then
     killall Xvfb dotnet 2>/dev/null
