@@ -4,10 +4,11 @@
 # argument parsing
 # ================
 
-LONGOPTS='no-npm-build,no-sln-restore,no-sln-build,no-unit-tests,no-ui-tests'
-TEMP=$(getopt --long '' -n 'DotVVM Linux CI' -- "$@")
+PROGRAM='DotVVM Linux CI'
+SHORTOPTS='-h'
+LONGOPTS='help,no-npm-build,no-sln-restore,no-sln-build,no-unit-tests,no-ui-tests'
+TEMP=$(getopt -o "$SHORTOPS" -l "$LONGOPTS" -n "$PROGRAM" -- "$@")
 if [ $? -ne 0 ]; then
-        echo 'getopt failed' >&2
         exit 1
 fi
 eval set -- "$TEMP"
@@ -21,6 +22,20 @@ UI_TESTS=1
 
 while true; do
     case "$1" in
+        '-h' | '--help')
+            echo <<EOF
+Usage: $0 [options]
+Options:
+    -h, --help          Show this help.
+    --no-npm-build      Don't build the JS part of the Framework.
+    --no-sln-restore    Don't restore NuGet packages.
+    --no-sln-build      Don't build ~/ci/linux/Linux.sln.
+    --no-unit-tests     Don't run the Framework tests.
+    --no-ui-tests       Don't run the AspNetCoreLatest tests.
+EOF
+            shift
+            continue
+        ;;
         '--no-npm-build')
             NPM_BUILD=0
             shift
@@ -46,12 +61,21 @@ while true; do
             shift
             continue
         ;;
+        '--')
+            shift
+            break
+        ;;
         *)
-            echo 'a parsing error occured' >&2
+            echo >&2 "A parsing error occured at option '$1'."
             exit 1
         ;;
     esac
 done
+
+if [ -n "$1" ]; then
+    echo >&2 "A parsing error occured at argument '$1'."
+    exit 1
+fi
 
 # ==================
 # config var setting
@@ -99,14 +123,14 @@ function ensure_named_command {
 # actual continuous integration
 # =============================
 
-if [ $NPM_BUILD -eq 0 ]; then
+if [ $NPM_BUILD -eq 1 ]; then
     ensure_named_command "npm build" \
         cd $ROOT/src/DotVVM.Framework \
-            && npm ci --cache ${ROOT}/.npm --prefer-offline \
+            && npm ci --cache $ROOT/.npm --prefer-offline \
             && npm run build
 fi
 
-if [ $SLN_BUILD -eq 0 ]; then
+if [ $SLN_BUILD -eq 1 ]; then
     ensure_named_command "sln build" \
         cd $ROOT \
             && dotnet restore $ROOT/ci/linux/Linux.sln --packages $ROOT/.nuget\
@@ -116,7 +140,7 @@ if [ $SLN_BUILD -eq 0 ]; then
                 -p:SourceLinkCreate=true
 fi
 
-fi [ $UNIT_TESTS -eq 0 ]; then
+if [ $UNIT_TESTS -eq 1 ]; then
     ensure_named_command "unit tests" \
         dotnet test src/DotVVM.Framework.Tests \
             --no-build \
@@ -126,7 +150,7 @@ fi [ $UNIT_TESTS -eq 0 ]; then
             --collect "Code Coverage"
 fi
 
-fi [ $UI_TESTS -eq 0 ]; then
+if [ $UI_TESTS -eq 1 ]; then
     killall Xvfb dotnet 2>/dev/null
     rm /tmp/.X*-lock
 
