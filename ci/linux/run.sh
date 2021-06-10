@@ -6,7 +6,7 @@
 
 PROGRAM='DotVVM Linux CI'
 SHORTOPTS='-h'
-LONGOPTS='help,no-all,no-clean,no-npm-build,no-sln-restore,no-sln-build,no-unit-tests,no-js-tests,no-ui-tests'
+LONGOPTS='help,no-all,clean,no-npm-build,no-sln-restore,no-sln-build,no-unit-tests,no-js-tests,no-ui-tests'
 TEMP=$(getopt -o "$SHORTOPS" -l "$LONGOPTS" -n "$PROGRAM" -- "$@")
 if [ $? -ne 0 ]; then
         exit 1
@@ -14,7 +14,7 @@ fi
 eval set -- "$TEMP"
 unset TEMP
 
-CLEAN=1
+CLEAN=0
 NPM_BUILD=1
 SLN_RESTORE=1
 SLN_BUILD=1
@@ -29,7 +29,7 @@ while true; do
 Usage: $0 [options]
 Options:
     -h, --help          Show this help.
-    --no-clean          Don't git clean the repo.
+    --clean             Clean the with 'git clean' first.
     --no-npm-build      Don't build the JS part of the Framework.
     --no-sln-restore    Don't restore NuGet packages.
     --no-sln-build      Don't build ~/ci/linux/Linux.sln.
@@ -40,8 +40,8 @@ EOF
             shift
             continue
         ;;
-        '--no-clean')
-            CLEAN=0
+        '--clean')
+            CLEAN=1
             shift
             continue
         ;;
