@@ -126,10 +126,10 @@ echo "TEST_RESULTS_DIR=$TEST_RESULTS_DIR"
 # ================
 
 function print_header {
-    tput sgr0 && tput setaf 3
-    echo "--------------------------------"
-    echo "$(tput smso)$@$(tput rmso)"
-    echo "--------------------------------"
+    tput sgr0
+    echo "$(tput setaf 3)--------------------------------"
+    echo "$(tput setaf 3 && tput smso)$@$(tput rmso)"
+    echo "$(tput setaf 3)--------------------------------"
     tput sgr0
 }
 
