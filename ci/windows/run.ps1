@@ -57,7 +57,8 @@ if ($noSlnBuild -ne $true) {
     msbuild $sln -v:m `
         -p:PublishProfile=$root\ci\windows\GenericPublish.pubxml `
         -p:DeployOnBuild=true `
-        -p:Configuration=$configuration
+        -p:Configuration=$configuration `
+        -p:SourceLinkCreate=true
     if ($LASTEXITCODE -ne 0) {
         Write-Host "dotnet build failed"
         exit 1

@@ -26,7 +26,10 @@ echo "sln build"
 echo "--------------------------------"
 cd $ROOT \
     && dotnet restore $ROOT/ci/linux/Linux.sln --packages $ROOT/.nuget\
-    && dotnet build $ROOT/ci/linux/Linux.sln --no-restore --configuration $CONFIGURATION
+    && dotnet build $ROOT/ci/linux/Linux.sln \
+        --no-restore \
+        --configuration $CONFIGURATION
+        -p:SourceLinkCreate=true
 if [ $? -ne 0 ]; then
     echo >&2 "dotnet build failed"
     exit 1
