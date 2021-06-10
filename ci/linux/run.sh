@@ -22,7 +22,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "--------------------------------"
-echo "dotnet build"
+echo "sln build"
 echo "--------------------------------"
 cd $ROOT \
     && dotnet restore $ROOT/ci/linux/Linux.sln --packages $ROOT/.nuget\
@@ -39,7 +39,8 @@ dotnet test src/DotVVM.Framework.Tests \
     --no-build \
     --configuration $CONFIGURATION \
     --logger trx \
-    --results-directory $TEST_RESULTS_DIR
+    --results-directory $TEST_RESULTS_DIR \
+    --collect "Code Coverage"
 
 echo "--------------------------------"
 echo "UI tests"

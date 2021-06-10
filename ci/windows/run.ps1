@@ -2,7 +2,8 @@ param(
     [switch] $noNpmBuild = $false,
     [switch] $noSlnRestore = $false,
     [switch] $noSlnBuild = $false,
-    [switch] $noUITest = $false)
+    [switch] $noUnitTests = $false,
+    [switch] $noUITests = $false)
 
 $root = $env:DOTVVM_ROOT
 if ($null -eq $root) {
@@ -17,6 +18,7 @@ if ($null -eq $configuration) {
 
 $sln = "$root\ci\windows\Windows.sln"
 $packagesDir = "$root\src\packages\"
+$testResultsDir = "$root\artifacts\test\"
 
 Write-Host "ROOT=$ROOT"
 Write-Host "CONFIGURATION=$CONFIGURATION"
@@ -62,6 +64,18 @@ if ($noSlnBuild -ne $true) {
     }
 }
 
+if ($noUnitTests -ne $true) {
+    Write-Host "--------------------------------"
+    Write-Host "unit tests"
+    Write-Host "--------------------------------"
+    dotnet test src/DotVVM.Framework.Tests `
+        --no-build `
+        --configuration $configuration `
+        --logger trx `
+        --results-directory $testResultsDir `
+        --collect "Code Coverage"
+}
+
 function Clean-UITest {
     Stop-Process -Force -Name chrome -ErrorAction SilentlyContinue
     Stop-Process -Force -Name chromedriver -ErrorAction SilentlyContinue
@@ -69,7 +83,7 @@ function Clean-UITest {
     Remove-IISSite -Confirm:$false -Name dotvvm.owin.api
 }
 
-if ($noUITest -ne $true) {
+if ($noUITests -ne $true) {
     Write-Host "--------------------------------"
     Write-Host "UI tests"
     Write-Host "--------------------------------"
@@ -98,7 +112,7 @@ if ($noUITest -ne $true) {
     dotnet test $root\src\DotVVM.Samples.Tests `
         --configuration $configuration `
         --logger trx `
-        --results-directory $root\artifacts\test
+        --results-directory $testResultsDir
 
     Clean-UITest
 
