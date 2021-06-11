@@ -146,8 +146,8 @@ echo "ROOT=$ROOT"
 echo "SLN=$SLN"
 echo "CONFIGURATION=$CONFIGURATION"
 echo "DISPLAY=$DISPLAY"
-echo "SAMPLES_DIR=$SAMPLES_DIR"
 echo "TEST_RESULTS_DIR=$TEST_RESULTS_DIR"
+echo "SAMPLES_DIR=$SAMPLES_DIR"
 echo "SAMPLES_PROFILE=$SAMPLES_PROFILE"
 echo "SAMPLES_PORT=$SAMPLES_PORT"
 echo "SAMPLES_PORT_API=$SAMPLES_PORT_API"
@@ -205,11 +205,13 @@ if [ $SLN_RESTORE -eq 1 ]; then
                 -v:m"
 fi
 
+# seleniumconfig.json needs to be copied before the build of the sln
 if [ $UI_TESTS -eq 1 ]; then
     PROFILE_PATH="$SAMPLES_DIR/Profiles/$SAMPLES_PROFILE"
 
     if [ ! -f "$PROFILE_PATH" ]; then
         echo >&2 "Profile '$PROFILE_PATH' doesn't exist."
+        exit 1
     fi
     cp -f "$PROFILE_PATH" "$SAMPLES_DIR/seleniumconfig.json"
 fi

@@ -1,80 +1,79 @@
 param(
-    [switch] $noNpmBuild = $false,
-    [switch] $noSlnRestore = $false,
-    [switch] $noSlnBuild = $false,
-    [switch] $noUnitTests = $false,
-    [switch] $noUITests = $false)
+    [string] $Root,
+    [string] $Config,
+    [string] $SamplesProfile = "seleniumconfig.owin.chrome.json",
+    [string] $SamplesPort = "5407",
+    [string] $SamplesPortApi = "61453",
+    [switch] $Clean = $false,
+    [switch] $NoNpmBuild = $false,
+    [switch] $NoSlnRestore = $false,
+    [switch] $NoSlnBuild = $false,
+    [switch] $NoUnitTests = $false,
+    [switch] $NoJSTests = $false,
+    [switch] $NoUITests = $false)
 
-$root = $env:DOTVVM_ROOT
-if ($null -eq $root) {
-    $root = "$PWD"
+# ==================
+# config var setting
+# ==================
+
+$Root = $env:DOTVVM_ROOT
+if ($null -eq $Root) {
+    $Root = "$PWD"
 }
-$env:DOTVVM_ROOT = $root
+$env:DOTVVM_ROOT = $Root
 
-$configuration = $env:CONFIGURATION
-if ($null -eq $configuration) {
-    $configuration = "Release"
+$Config = $env:CONFIGURATION
+if ($null -eq $Config) {
+    $Config = "Release"
 }
 
-$sln = "$root\ci\windows\Windows.sln"
-$packagesDir = "$root\src\packages\"
-$testResultsDir = "$root\artifacts\test\"
+$sln = "$Root\ci\windows\Windows.sln"
+$packagesDir = "$Root\src\packages\"
+$testResultsDir = "$Root\artifacts\test\"
+$samplesDir = "$root\src\DotVVM.Samples.Tests"
 
-Write-Host "ROOT=$ROOT"
-Write-Host "CONFIGURATION=$CONFIGURATION"
+Write-Host "ROOT=$Root"
+Write-Host "SLN=$sln"
+Write-Host "CONFIGURATION=$Config"
+Write-Host "TEST_RESULTS_DIR=$testResultsDir"
+Write-Host "SAMPLES_DIR=$samplesDir"
+Write-Host "SAMPLES_PROFILE=$SamplesProfile"
+Write-Host "SAMPLES_PORT=$SamplesPort"
+Write-Host "SAMPLES_PORT_API=$SamplesPortApi"
 
-if ($noNpmBuild -ne $true) {
-    Write-Host "--------------------------------"
-    Write-Host "npm build"
-    Write-Host "--------------------------------"
-    Set-Location $root\src\DotVVM.Framework
-    npm ci --cache $root\.npm --prefer-offline
-    npm run build
+# ================
+# helper functions
+# ================
+
+function Write-Header {
+    param (
+        [string][parameter(Position=0)]$Text
+    )
+    Write-Host -ForegroundColor Yellow "--------------------------------"
+    Write-Host -BackgroundColor Yellow $Text
+    Write-Host -ForegroundColor Yellow "--------------------------------"
+}
+
+function Run-Command {
+    param (
+        [string][parameter(Position=0)]$Name,
+        [scriptblock][parameter(Position=1)]$Command
+    )
+    Write-Header $Name
+    Write-Host -ForegroundColor Blue "$Command"
+    $Command.Invoke()
+}
+
+function Ensure-Command {
+    param (
+        [string][parameter(Position=0)]$Name,
+        [scriptblock][parameter(Position=1)]$Command
+    )
+    Run-Command $Name $Command
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "npm build failed"
+        Write-Host -ForegroundColor Red "$Name failed"
         exit 1
     }
-}
-
-
-if ($noSlnRestore -ne $true) {
-    Write-Host "--------------------------------"
-    Write-Host "sln restore"
-    Write-Host "--------------------------------"
-    Set-Location $root
-    & "$root\src\Tools\NuGet.exe" restore $sln -PackagesDirectory $packagesDir
-    dotnet restore $sln --packages $packagesDir
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "nuget restore failed"
-        exit 1
-    }
-}
-
-if ($noSlnBuild -ne $true) {
-    Write-Host "--------------------------------"
-    Write-Host "sln build"
-    Write-Host "--------------------------------"
-    msbuild $sln -v:m `
-        -p:PublishProfile=$root\ci\windows\GenericPublish.pubxml `
-        -p:DeployOnBuild=true `
-        -p:Configuration=$configuration `
-        -p:SourceLinkCreate=true
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "dotnet build failed"
-        exit 1
-    }
-}
-
-if ($noUnitTests -ne $true) {
-    Write-Host "--------------------------------"
-    Write-Host "unit tests"
-    Write-Host "--------------------------------"
-    dotnet test src/DotVVM.Framework.Tests `
-        --no-build `
-        --configuration $configuration `
-        --logger trx `
-        --results-directory $testResultsDir `
-        --collect "Code Coverage"
 }
 
 function Clean-UITest {
@@ -84,38 +83,88 @@ function Clean-UITest {
     Remove-IISSite -Confirm:$false -Name dotvvm.owin.api
 }
 
+# =============================
+# actual continuous integration
+# =============================
+
+if ($Clean -eq $true) {
+    Ensure-Command "clean" {
+        git clean -dfx
+    }
+}
+
+if ($NoNpmBuild -ne $true) {
+    Ensure-Command "npm build" {
+        Set-Location $Root\src\DotVVM.Framework
+        npm ci --cache $Root\.npm --prefer-offline
+        npm run build
+    }
+}
+
+if ($NoSlnRestore -ne $true) {
+    Ensure-Command "sln restore" {
+        Set-Location $Root
+        & "$Root\src\Tools\NuGet.exe" restore $sln -PackagesDirectory $packagesDir
+        dotnet restore $sln --packages $packagesDir
+    }
+}
+
+# seleniumconfig.json needs to be copied before the build of the sln
+if ($UI_TESTS -eq $true) {
+    $profilePath="$samplesDir\Profiles\$SamplesProfile"
+
+    if (Test-Path -PathType Leaf -Path $profilePath) {
+        Write-Host -ForegroundColor Red "Profile '$PROFILE_PATH' doesn't exist."
+        exit 1
+    }
+    Copy-Item -Force "$profilePath" "$samplesDir\seleniumconfig.json"
+}
+
+if ($NoSlnBuild -ne $true) {
+    Ensure-Command "sln build" {
+        msbuild $sln -v:m `
+            -p:PublishProfile=$Root\ci\windows\GenericPublish.pubxml `
+            -p:DeployOnBuild=true `
+            -p:Configuration=$Config `
+            -p:SourceLinkCreate=true
+    }
+}
+
+if ($NoUnitTests -ne $true) {
+    Run-Command "unit tests" {
+        dotnet test src/DotVVM.Framework.Tests `
+            --no-build `
+            --configuration $Config `
+            --logger trx `
+            --results-directory $testResultsDir `
+            --collect "Code Coverage"
+    }
+}
+
 if ($noUITests -ne $true) {
-    Write-Host "--------------------------------"
-    Write-Host "UI tests"
-    Write-Host "--------------------------------"
+    Run-Command "UI tests" {
+        Import-Module IISAdministration
+        Clean-UITest
 
-    Import-Module IISAdministration
-    Clean-UITest
+        icacls $Root\artifacts\ /grant "IIS_IUSRS:(OI)(CI)F"
 
-    icacls $root\artifacts\ /grant "IIS_IUSRS:(OI)(CI)F"
+        New-IISSite -Name dotvvm.owin `
+            -PhysicalPath $Root\artifacts\DotVVM.Samples.BasicSamples.Owin `
+            -BindingInformation "*:5407:"
 
-    New-IISSite -Name dotvvm.owin `
-        -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Owin `
-        -BindingInformation "*:5407:"
+        New-IISSite -Name dotvvm.owin.api `
+            -PhysicalPath $Root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin `
+            -BindingInformation "*:61453:"
 
-    New-IISSite -Name dotvvm.owin.api `
-        -PhysicalPath $root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin `
-        -BindingInformation "*:61453:"
+        Copy-Item -Force -Recurse `
+            $Root\src\DotVVM.Samples.Common `
+            $Root\artifacts
 
-    Copy-Item -Force -Recurse `
-        $root\src\DotVVM.Samples.Common `
-        $root\artifacts
+        dotnet test $Root\src\DotVVM.Samples.Tests `
+            --configuration $Config `
+            --logger trx `
+            --results-directory $testResultsDir
 
-    Copy-Item -Force `
-        $root\src\DotVVM.Samples.Tests\Profiles\seleniumconfig.owin.chrome.json `
-        $root\src\DotVVM.Samples.Tests\seleniumconfig.json
-
-    dotnet test $root\src\DotVVM.Samples.Tests `
-        --configuration $configuration `
-        --logger trx `
-        --results-directory $testResultsDir
-
-    Clean-UITest
-
-    Get-Process
+        Clean-UITest
+    }
 }
