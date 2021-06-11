@@ -452,7 +452,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             if (Peek()?.Type != BindingTokenType.Identifier)
                 return false;
 
-            TryReadTypeReference(out type);
+            if (!TryReadTypeReference(out type))
+                return false;
             SkipWhiteSpace();
 
             if (Peek()?.Type != BindingTokenType.Identifier)
@@ -494,7 +495,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 else if (next.Type == BindingTokenType.LessThanOperator)
                 {
                     // Generic
-                    TryReadGenericArguments(startIndex, expression, out var typeOrFunction);
+                    if (!TryReadGenericArguments(startIndex, expression, out var typeOrFunction))
+                        return false;
                     expression = typeOrFunction!.ToTypeReference();
                 }
                 else if (next.Type == BindingTokenType.QuestionMarkOperator)
