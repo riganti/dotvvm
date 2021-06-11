@@ -104,8 +104,8 @@ EOF
 
             OPTION=${OPTION^^}
             OPTION=${OPTION//-/_}
-            eval IS_VALID=[ -n \$$OPTION ]
-            if [ $IS_VALID -eq 0 ]; then
+            eval test -n "\$$OPTION"
+            if [ $? -ne 0 ]; then
                 # this flag doesn't exit
                 echo >&2 "Option '$1' is not recognized."
                 exit 1
@@ -133,8 +133,10 @@ export DOTVVM_ROOT=$ROOT
 
 CONFIGURATION="${BUILD_CONFIGURATION:-Release}"
 DISPLAY="${DISPLAY:-":42"}"
+export DISPLAY
 SLN="$ROOT/ci/linux/Linux.sln"
 TEST_RESULTS_DIR="$ROOT/artifacts/test"
+SAMPLES_DIR="$ROOT/src/DotVVM.Samples.Tests"
 SAMPLES_PROFILE="${SAMPLES_PROFILE:-seleniumconfig.aspnetcorelatest.chrome.json}"
 SAMPLES_PORT="${SAMPLES_PORT:-16019}"
 SAMPLES_PORT_API="${SAMPLES_PORT_API:-5001}"
@@ -144,6 +146,7 @@ echo "ROOT=$ROOT"
 echo "SLN=$SLN"
 echo "CONFIGURATION=$CONFIGURATION"
 echo "DISPLAY=$DISPLAY"
+echo "SAMPLES_DIR=$SAMPLES_DIR"
 echo "TEST_RESULTS_DIR=$TEST_RESULTS_DIR"
 echo "SAMPLES_PROFILE=$SAMPLES_PROFILE"
 echo "SAMPLES_PORT=$SAMPLES_PORT"
@@ -202,6 +205,15 @@ if [ $SLN_RESTORE -eq 1 ]; then
                 -v:m"
 fi
 
+if [ $UI_TESTS -eq 1 ]; then
+    PROFILE_PATH="$SAMPLES_DIR/Profiles/$SAMPLES_PROFILE"
+
+    if [ ! -f "$PROFILE_PATH" ]; then
+        echo >&2 "Profile '$PROFILE_PATH' doesn't exist."
+    fi
+    cp -f "$PROFILE_PATH" "$SAMPLES_DIR/seleniumconfig.json"
+fi
+
 if [ $SLN_BUILD -eq 1 ]; then
     ensure_named_command "sln build" \
         "cd \"$ROOT\" \
@@ -232,30 +244,37 @@ fi
 
 if [ $UI_TESTS -eq 1 ]; then
     killall Xvfb dotnet 2>/dev/null
-    rm /tmp/.X*-lock
+    killall dotnet 2>/dev/null
+    rm /tmp/.X*-lock 2>/dev/null
 
     Xvfb $DISPLAY -screen 0 800x600x16 &
     XVFB_PID=$!
+    if [ $? -ne 0 ]; then
+        echo >&2 "Xvfb failed to start."
+        exit 1
+    fi
 
     dotnet run --project "$ROOT/src/DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest" \
         --no-build \
         --configuration "$CONFIGURATION" \
         --urls "http://localhost:${SAMPLES_PORT_API}/" >/dev/null &
     SAMPLES_API_PID=$!
+    ps -p $SAMPLES_API_PID >/dev/null
+    if [ $? -ne 0 ]; then
+        echo >&2 "The Samples Api project failed to start."
+        exit 1
+    fi
 
     dotnet run --project "$ROOT/src/DotVVM.Samples.BasicSamples.AspNetCoreLatest" \
         --no-build \
         --configuration "$CONFIGURATION" \
         --urls "http://localhost:${SAMPLES_PORT}/" >/dev/null &
     SAMPLES_PID=$!
-
-    SAMPLES_DIR="$ROOT/src/DotVVM.Samples.Tests"
-    PROFILE_PATH="$SAMPLES_DIR/Profiles/$SELENIUM_CONFIG"
-
-    if [ ! -f "$PROFILE_PATH" ]; then
-        echo >&2 "Profile '$PROFILE_PATH' doesn't exist."
+    ps -p $SAMPLES_PID >/dev/null
+    if [ $? -ne 0 ]; then
+        echo >&2 "The Samples project failed to start."
+        exit 1
     fi
-    cp -f "$PROFILE_PATH" "$SAMPLES_DIR/seleniumconfig.json"
 
     run_named_command "UI tests" \
         "dotnet test \"$SAMPLES_DIR\" \
