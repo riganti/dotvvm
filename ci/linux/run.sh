@@ -258,7 +258,7 @@ if [ $UI_TESTS -eq 1 ]; then
     cp -f "$PROFILE_PATH" "$SAMPLES_DIR/seleniumconfig.json"
 
     run_named_command "UI tests" \
-        "dotnet test \"\" \
+        "dotnet test \"$SAMPLES_DIR\" \
             --no-build \
             --configuration $CONFIGURATION \
             --logger trx \
