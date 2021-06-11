@@ -237,7 +237,7 @@ if [ $UNIT_TESTS -eq 1 ]; then
 fi
 
 if [ $JS_TESTS -eq 1 ]; then
-    run_named_command "js tests" \
+    run_named_command "JS tests" \
         "cd \"$ROOT/src/DotVVM.Framework\" \
             && npx jest --ci --reporters=\"jest-junit\" \
             && cp ./junit.xml \"$TEST_RESULTS_DIR/js-test-results.xml\" \

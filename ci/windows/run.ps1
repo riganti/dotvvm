@@ -17,13 +17,13 @@ param(
 # ==================
 
 $Root = $env:DOTVVM_ROOT
-if ($null -eq $Root) {
+if ([string]::IsNullOrEmpty($Root)) {
     $Root = "$PWD"
 }
 $env:DOTVVM_ROOT = $Root
 
 $Config = $env:CONFIGURATION
-if ($null -eq $Config) {
+if ([string]::IsNullOrEmpty($Config)) {
     $Config = "Release"
 }
 
@@ -50,7 +50,7 @@ function Write-Header {
         [string][parameter(Position=0)]$Text
     )
     Write-Host -ForegroundColor Yellow "--------------------------------"
-    Write-Host -BackgroundColor Yellow $Text
+    Write-Host -BackgroundColor Yellow -ForegroundColor Black $Text
     Write-Host -ForegroundColor Yellow "--------------------------------"
 }
 
@@ -60,8 +60,8 @@ function Run-Command {
         [scriptblock][parameter(Position=1)]$Command
     )
     Write-Header $Name
-    Write-Host -ForegroundColor Blue "$Command"
-    $Command.Invoke()
+    Write-Host -ForegroundColor Blue "$Command".Trim()
+    Invoke-Command $Command
 }
 
 function Ensure-Command {
@@ -110,7 +110,7 @@ if ($NoSlnRestore -ne $true) {
 }
 
 # seleniumconfig.json needs to be copied before the build of the sln
-if ($UI_TESTS -eq $true) {
+if ($NoUITests -eq $true) {
     $profilePath="$samplesDir\Profiles\$SamplesProfile"
 
     if (Test-Path -PathType Leaf -Path $profilePath) {
@@ -123,9 +123,9 @@ if ($UI_TESTS -eq $true) {
 if ($NoSlnBuild -ne $true) {
     Ensure-Command "sln build" {
         msbuild $sln -v:m `
-            -p:PublishProfile=$Root\ci\windows\GenericPublish.pubxml `
+            -p:PublishProfile="$Root\ci\windows\GenericPublish.pubxml" `
             -p:DeployOnBuild=true `
-            -p:Configuration=$Config `
+            -p:Configuration="$Config" `
             -p:SourceLinkCreate=true
     }
 }
@@ -134,36 +134,45 @@ if ($NoUnitTests -ne $true) {
     Run-Command "unit tests" {
         dotnet test src/DotVVM.Framework.Tests `
             --no-build `
-            --configuration $Config `
-            --logger trx `
-            --results-directory $testResultsDir `
+            --configuration "$Config" `
+            --logger "trx;LogFileName=unit-test-results.trx" `
+            --results-directory "$testResultsDir" `
             --collect "Code Coverage"
     }
 }
 
-if ($noUITests -ne $true) {
+if ($NoJSTests -ne $true) {
+    Run-Command "JS tests" {
+        Set-Location "$Root\src\DotVVM.Framework"
+        npx jest --ci --reporters="jest-junit"
+        Copy-Item junit.xml "$testResultsDir\js-test-results.xml\" \
+        Set-Location "$Root"
+    }
+}
+
+if ($NoUITests -ne $true) {
     Run-Command "UI tests" {
         Import-Module IISAdministration
         Clean-UITest
 
-        icacls $Root\artifacts\ /grant "IIS_IUSRS:(OI)(CI)F"
+        icacls "$Root\artifacts\" /grant "IIS_IUSRS:(OI)(CI)F"
 
-        New-IISSite -Name dotvvm.owin `
-            -PhysicalPath $Root\artifacts\DotVVM.Samples.BasicSamples.Owin `
-            -BindingInformation "*:5407:"
+        New-IISSite -Name "dotvvm.owin" `
+            -PhysicalPath "$Root\artifacts\DotVVM.Samples.BasicSamples.Owin" `
+            -BindingInformation "*:${SamplesPort}:"
 
-        New-IISSite -Name dotvvm.owin.api `
-            -PhysicalPath $Root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin `
-            -BindingInformation "*:61453:"
+        New-IISSite -Name "dotvvm.owin.api" `
+            -PhysicalPath "$Root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin" `
+            -BindingInformation "*:${SamplesPortApi}:"
 
         Copy-Item -Force -Recurse `
-            $Root\src\DotVVM.Samples.Common `
-            $Root\artifacts
+            "$Root\src\DotVVM.Samples.Common" `
+            "$Root\artifacts"
 
-        dotnet test $Root\src\DotVVM.Samples.Tests `
-            --configuration $Config `
-            --logger trx `
-            --results-directory $testResultsDir
+        dotnet test "$samplesDir" `
+            --configuration "$Config" `
+            --logger "trx;LogFileName=ui-test-results.trx" `
+            --results-directory "$testResultsDir"
 
         Clean-UITest
     }
