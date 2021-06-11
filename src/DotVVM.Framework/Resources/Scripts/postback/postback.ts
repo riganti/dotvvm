@@ -1,5 +1,5 @@
 import * as counter from './counter'
-import { postbackCore } from './postbackCore'
+import { postbackCore, throwIfAborted } from './postbackCore'
 import { getViewModel } from '../dotvvm-base'
 import { defaultConcurrencyPostbackHandler, getPostbackHandler } from './handlers';
 import * as internalHandlers from './internal-handlers';
@@ -21,7 +21,8 @@ export async function postBack(
     controlUniqueId: string,
     context?: any,
     handlers?: ClientFriendlyPostbackHandlerConfiguration[],
-    commandArgs?: any[]
+    commandArgs?: any[],
+    abortSignal?: AbortSignal
 ): Promise<DotvvmAfterPostBackEventArgs> {
     context = context || ko.contextFor(sender);
 
@@ -36,7 +37,8 @@ export async function postBack(
         sender,
         args: ko.toJS(commandArgs) || [],  // TODO: consult with @exyi to fix it properly. Whether commandArgs should or not be serialized via dotvvm serializer.
         viewModel: context.$data,
-        commandType: "postback"
+        commandType: "postback",
+        abortSignal
     }
 
     const coreCallback = (o: PostbackOptions) => postbackCore(o, path, command, controlUniqueId, context, options.args);
@@ -49,6 +51,9 @@ export async function postBack(
         return result;
 
     } catch (err) {
+        if (abortSignal && abortSignal.aborted) {
+            err = new DotvvmPostbackError({ type: "abort", options })
+        }
 
         if (err instanceof DotvvmPostbackError) {
             const wasInterrupted = isInterruptingErrorReason(err);
@@ -126,7 +131,8 @@ export async function applyPostbackHandlers(
     handlerConfigurations?: ClientFriendlyPostbackHandlerConfiguration[],
     args: any[] = [],
     context = ko.contextFor(sender),
-    viewModel = context.$root
+    viewModel = context.$root,
+    abortSignal?: AbortSignal
 ): Promise<DotvvmAfterPostBackEventArgs> {
     const saneNext = (o: PostbackOptions) => {
         return wrapCommitFunction(next(o), o);
@@ -137,7 +143,8 @@ export async function applyPostbackHandlers(
         commandType: "staticCommand",
         sender,
         args,
-        viewModel: context.$data
+        viewModel: context.$data,
+        abortSignal
     }
 
     const handlers = findPostbackHandlers(context, globalPostbackHandlers.concat(handlerConfigurations || []).concat(globalLaterPostbackHandlers));
@@ -147,6 +154,9 @@ export async function applyPostbackHandlers(
         const result = await commit(...args);
         return result;
     } catch (err) {
+        if (abortSignal && abortSignal.aborted) {
+            err = new DotvvmPostbackError({ type: "abort", options })
+        }
         
         if (err instanceof DotvvmPostbackError) {
 
@@ -199,6 +209,7 @@ function applyPostbackHandlersCore(next: (options: PostbackOptions) => Promise<P
         if (gate.isPostbackDisabled(options.postbackId)) {
             throw new DotvvmPostbackError({ type: "gate" })
         }
+        throwIfAborted(options)
         if (index == sortedHandlers.length) {
             return nextWithCheck(options);
         } else {
@@ -281,10 +292,10 @@ export function sortHandlers(handlers: DotvvmPostbackHandler[]): DotvvmPostbackH
 }
 
 function isInterruptingErrorReason(err: DotvvmPostbackError) {
-    return err.reason.type == "handler" || err.reason.type == "event";
+    return ["event", "handler", "abort"].includes(err.reason.type);
 }
 function shouldTriggerErrorEvent(err: DotvvmPostbackError) {
-    return err.reason.type == "network" || err.reason.type == "serverError";
+    return ["network", "serverError" ].includes(err.reason.type);
 }
 function extractServerResponseObject(err: DotvvmPostbackError) {
     if (!err.reason) return null;

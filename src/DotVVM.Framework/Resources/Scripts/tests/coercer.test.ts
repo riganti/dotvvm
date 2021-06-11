@@ -63,6 +63,16 @@ initDotvvm({
                 Two: 2
             }
         },
+        e2: {
+            type: "enum",
+            values: {
+                Zero: 0,
+                One: 1,
+                Two: 2,
+                Four: 4
+            },
+            isFlags: true
+        },
         d1: {
             type: "dynamic"
         }
@@ -355,6 +365,69 @@ test("enum - invalid, null", () => {
     expect(result.isError).toBeTruthy();
 })
 
+
+test("enum flags - one value", () => {
+    const result = tryCoerce("One", "e2");
+    expect(result.wasCoerced).toBeFalsy();
+    expect(result.value).toEqual("One");
+})
+
+test("enum flags - multiple values", () => {
+    const result = tryCoerce("One,Two,Four", "e2");
+    expect(result.wasCoerced).toBeFalsy();
+    expect(result.value).toEqual("One,Two,Four");
+})
+
+test("enum flags - multiple values, coercion because of zero member", () => {
+    const result = tryCoerce("Zero,One,Two,Four", "e2");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual("One,Two,Four");
+})
+
+test("enum flags - multiple values, coercion because of trimming", () => {
+    const result = tryCoerce("One, Two,Four", "e2");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual("One,Two,Four");
+})
+
+test("enum flags - multiple values with reordering", () => {
+    const result = tryCoerce("Four,Two,One", "e2");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual("One,Two,Four");
+})
+
+test("enum flags - numeric value", () => {
+    const result = tryCoerce(6, "e2");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual("Two,Four");
+})
+
+test("enum flags - zero numeric value", () => {
+    const result = tryCoerce(0, "e2");
+    expect(result.wasCoerced).toBeTruthy();
+    expect(result.value).toEqual("Zero");
+})
+
+test("enum flags - unrepresentable numeric value", () => {
+    const result = tryCoerce(9, "e2");
+    expect(result.wasCoerced).toBeFalsy();
+    expect(result.value).toEqual(9);
+})
+
+test("enum flags - invalid entry", () => {
+    const result = tryCoerce("One, Two, xxx", "e2");
+    expect(result.isError).toBeTruthy();
+})
+
+test("enum flags - invalid entry", () => {
+    const result = tryCoerce("xxx", "e2");
+    expect(result.isError).toBeTruthy();
+})
+
+test("enum flags - empty string", () => {
+    const result = tryCoerce("", "e2");
+    expect(result.isError).toBeTruthy();
+})
 
 test("boolean - valid, true", () => {
     const result = tryCoerce(true, "Boolean");

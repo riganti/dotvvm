@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using DotVVM.Framework.Utils;
 using Newtonsoft.Json.Linq;
@@ -202,11 +204,21 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             var e = new JObject();
             e["type"] = "enum";
+            e["isFlags"] = ReflectionUtils.GetCustomAttribute<FlagsAttribute>(type) != null;
+
+            // order of enum values is important on the client (for Flags enum coercion)
+            var underlyingType = Enum.GetUnderlyingType(type);
+            var enumValues = Enum.GetNames(type)
+                .Select(name => new {
+                    Name = name,
+                    Value = ReflectionUtils.ConvertValue(Enum.Parse(type, name), underlyingType)
+                })
+                .OrderBy(v => v.Value);
 
             var values = new JObject();
-            foreach (var v in Enum.GetValues(type))
+            foreach (var v in enumValues)
             {
-                values[v.ToString()] = JToken.FromObject(ReflectionUtils.ConvertValue(v, Enum.GetUnderlyingType(type)));
+                values.Add(v.Name, JToken.FromObject(v.Value));
             }
             e["values"] = values;
 

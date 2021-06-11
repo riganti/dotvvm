@@ -46,7 +46,7 @@ jest.mock("../postback/http", () => ({
         return postbackFunction()
     },
 
-    async getJSON<T>(url: string, spaPlaceHolderUniqueId?: string, additionalHeaders?: { [key: string]: string }): Promise<WrappedResponse<T>> {
+    async getJSON<T>(url: string, spaPlaceHolderUniqueId?: string, signal?: AbortSignal, additionalHeaders?: { [key: string]: string }): Promise<WrappedResponse<T>> {
         const headers = new Headers();
         headers.append('Accept', 'application/json');
         if (compileConstants.isSpa && spaPlaceHolderUniqueId) {
@@ -54,16 +54,16 @@ jest.mock("../postback/http", () => ({
         }
         appendAdditionalHeaders(headers, additionalHeaders);
 
-        return { response: { fake: "get" } as any as Response, result: await fetchJson<T>(url, { headers: headers }) };
+        return { response: { fake: "get" } as any as Response, result: await fetchJson<T>(url, { headers: headers, signal }) };
     },
 
-    async postJSON<T>(url: string, postData: any, additionalHeaders?: { [key: string]: string }): Promise<WrappedResponse<T>> {
+    async postJSON<T>(url: string, postData: any, signal?: AbortSignal, additionalHeaders?: { [key: string]: string }): Promise<WrappedResponse<T>> {
         const headers = new Headers();
         headers.append('Content-Type', 'application/json');
         headers.append('X-DotVVM-PostBack', 'true');
         appendAdditionalHeaders(headers, additionalHeaders);
 
-        return { response: { fake: "post" } as any as Response, result: await fetchJson<T>(url, { body: postData, headers: headers, method: "POST" }) };
+        return { response: { fake: "post" } as any as Response, result: await fetchJson<T>(url, { body: postData, headers: headers, method: "POST", signal }) };
     }
 }));
 
@@ -362,4 +362,22 @@ test("Run postbacks [Queue + Default | no failures]", async () => {
             expect(state().Property2).toBe(index2)
         }
     ), { timeout: 2000 })
+})
+
+test("Postback: AbortSignal", async () => {
+
+    fetchJson = <T>(url: string, init: RequestInit) => {
+        return new Promise<T>((resolve, reject) => {
+            console.assert(init.signal != null)
+            init.signal!.onabort = () => reject(new Error("Request aborted"))
+            setTimeout(() => resolve({ viewModelDiff: { Property1: 1 }, action: "successfulCommand", updatedControls: {} } as any), 500)
+        })
+    }
+
+    const abortController = new AbortController()
+    let postbackPromise = postBack(window.document.body, [], "c", "", undefined, [ "validate-this" ], [], abortController.signal)
+    await delay(50)
+    abortController.abort()
+
+    expect(postbackPromise).rejects.toMatchObject( {reason: {type: "abort"}})
 })
