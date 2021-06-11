@@ -87,7 +87,7 @@ namespace DotVVM.Samples.BasicSamples
             var githubTokenEnv = Environment.GetEnvironmentVariable(GitHubTokenEnvName);
             if (githubTokenEnv is object)
             {
-                profile.Value<JObject>("appSettings")[GitHubTokenConfigName] = githubTokenEnv;
+                json.Value<JObject>("appSettings")[GitHubTokenConfigName] = githubTokenEnv;
             }
 
             SampleConfiguration.Initialize(
