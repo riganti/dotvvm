@@ -145,7 +145,7 @@ if ($NoJSTests -ne $true) {
     Run-Command "JS tests" {
         Set-Location "$Root\src\DotVVM.Framework"
         npx jest --ci --reporters="jest-junit"
-        Copy-Item junit.xml "$testResultsDir\js-test-results.xml\" \
+        Copy-Item junit.xml "$testResultsDir\js-test-results.xml"
         Set-Location "$Root"
     }
 }
