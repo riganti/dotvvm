@@ -229,7 +229,7 @@ if [ $UNIT_TESTS -eq 1 ]; then
         "dotnet test \"$ROOT/src/DotVVM.Framework.Tests\" \
             --no-build \
             --configuration $CONFIGURATION \
-            --logger trx \
+            --logger 'trx;LogFileName=unit-test-results.trx' \
             --results-directory \"$TEST_RESULTS_DIR\" \
             --collect \"Code Coverage\""
 fi
@@ -280,7 +280,7 @@ if [ $UI_TESTS -eq 1 ]; then
         "dotnet test \"$SAMPLES_DIR\" \
             --no-build \
             --configuration $CONFIGURATION \
-            --logger trx \
+            --logger 'trx;LogFileName=ui-test-results.trx' \
             --results-directory \"$TEST_RESULTS_DIR\""
 
     kill $XVFB_PID $SAMPLES_PID $SAMPLES_API_PID 2>/dev/null
