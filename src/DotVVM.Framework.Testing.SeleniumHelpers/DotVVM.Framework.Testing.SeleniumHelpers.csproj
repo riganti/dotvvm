@@ -13,9 +13,5 @@
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 </Project>

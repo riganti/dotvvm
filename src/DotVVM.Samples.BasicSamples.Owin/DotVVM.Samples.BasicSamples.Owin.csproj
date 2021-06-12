@@ -171,17 +171,11 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
   </Target>
   -->
-
-  <PropertyGroup>
-    <!-- Don't generate packages.lock.json since it wrecks cross-platfrom CI. -->
-    <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
-  </PropertyGroup>
-
 </Project>
