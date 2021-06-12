@@ -1,0 +1,36 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Attribute.ToStringConversionViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h2>Numeric values converted to strings</h2>
+    <p>
+        <cc:AttributeToStringConversionControl Value="{value: NumberValue}" />
+        <cc:AttributeToStringConversionControl Value="15" />
+        <cc:AttributeToStringConversionControl Value="{resource: 30}" />
+    </p>
+
+    <h2>Boolean values add/remove attribute</h2>
+    <p>
+        <dot:CheckBox Checked="{value: IsOpen}" Text="Show details" />
+    </p>
+    <details open="{value: IsOpen}">
+        Details
+    </details>
+    <details open="{resource: true}">
+        Details 2
+    </details>
+    <details open="{resource: false}">
+        Details 3
+    </details>
+
+</body>
+</html>
+
+

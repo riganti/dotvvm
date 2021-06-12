@@ -290,8 +290,7 @@ namespace DotVVM.Samples.Tests.Feature
                 clearButton.Click();
                 testButton.Click();
 
-                var testElement = browser.First("[data-ui=result]");
-                Assert.Equal("Test ok", testElement.GetInnerText());
+                AssertUI.TextEquals(browser.First("[data-ui=result]"), "Test ok");
             });
         }
     }

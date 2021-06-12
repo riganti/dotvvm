@@ -30,6 +30,10 @@
         <dot:TextBox Text="{value: Number}" Type="Number" data-ui="number-textbox" />
         <br />
         <dot:TextBox Text="{value: NullableNumber}" Type="Number" data-ui="nullable-number-textbox" />
+        <br />
+        <dot:TextBox Text="{value: Int}" Type="Number" data-ui="int-textbox" />
+        <br />
+        <dot:TextBox Text="{value: NullableInt}" Type="Number" data-ui="nullable-int-textbox" />
     </div>
 </body>
 </html>
