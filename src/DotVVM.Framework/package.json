@@ -27,6 +27,6 @@
     "build-polyfills": "terser -o obj/javascript/polyfill.bundle.js -c -m --ecma 5 -- Resources/Scripts/Polyfills/promise.js Resources/Scripts/Polyfills/eventTarget.js Resources/Scripts/Polyfills/abortController.js Resources/Scripts/Polyfills/fetch.js node_modules/systemjs/dist/system.js node_modules/symbol-es6/symbol-es6.js Resources/Scripts/Polyfills/utils.js"
   },
   "dependencies": {
-    "jest-junit": "^12.0.0"
+    "jest-junit": "^12.2.0"
   }
 }
