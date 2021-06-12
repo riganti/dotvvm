@@ -113,8 +113,8 @@ if ($NoSlnRestore -ne $true) {
 if ($NoUITests -ne $true) {
     $profilePath="$samplesDir\Profiles\$SamplesProfile"
 
-    if (Test-Path -PathType Leaf -Path $profilePath) {
-        Write-Host -ForegroundColor Red "Profile '$PROFILE_PATH' doesn't exist."
+    if (-Not(Test-Path -PathType Leaf -Path $profilePath)) {
+        Write-Host -ForegroundColor Red "Profile '$profilePath' doesn't exist."
         exit 1
     }
     Copy-Item -Force "$profilePath" "$samplesDir\seleniumconfig.json"
