@@ -182,6 +182,11 @@ function ensure_named_command {
     fi
 }
 
+function clean_uitest {
+    killall Xvfb dotnet chromium chromedriver 2>/dev/null
+    rm /tmp/.X*-lock 2>/dev/null
+}
+
 # =============================
 # actual continuous integration
 # =============================
@@ -245,9 +250,7 @@ if [ $JS_TESTS -eq 1 ]; then
 fi
 
 if [ $UI_TESTS -eq 1 ]; then
-    killall Xvfb dotnet 2>/dev/null
-    killall dotnet 2>/dev/null
-    rm /tmp/.X*-lock 2>/dev/null
+    clean_uitest
 
     Xvfb $DISPLAY -screen 0 800x600x16 &
     XVFB_PID=$!
@@ -286,4 +289,5 @@ if [ $UI_TESTS -eq 1 ]; then
             --results-directory \"$TEST_RESULTS_DIR\""
 
     kill $XVFB_PID $SAMPLES_PID $SAMPLES_API_PID 2>/dev/null
+    clean_uitest
 fi
