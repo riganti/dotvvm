@@ -21,6 +21,24 @@ namespace DotVVM.Framework.Compilation
 
         public int? LineNumber { get; set; }
 
+        public string[] AffectedSpans
+        {
+            get
+            {
+                if (Tokens is null || !Tokens.Any()) return new string[0];
+                var ts = Tokens.ToArray();
+                var r = new List<string> { ts[0].Text };
+                for (int i = 1; i < ts.Length; i++)
+                {
+                    if (ts[i].StartPosition == ts[i - 1].EndPosition)
+                        r[r.Count - 1] += ts[i].Text;
+                    else
+                        r.Add(ts[i].Text);
+                }
+                return r.ToArray();
+            }
+        }
+
 
         public DotvvmCompilationException(string message) : base(message) { }
 

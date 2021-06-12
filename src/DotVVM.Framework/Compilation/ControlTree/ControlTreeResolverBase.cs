@@ -18,6 +18,7 @@ using DotVVM.Framework.Utils;
 using System.Collections.ObjectModel;
 using DotVVM.Framework.Binding;
 using System.Diagnostics.CodeAnalysis;
+using DotVVM.Framework.ResourceManagement;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -28,6 +29,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
     {
         protected readonly IControlResolver controlResolver;
         protected readonly IAbstractTreeBuilder treeBuilder;
+        protected readonly DotvvmResourceRepository? resourceRepo;
 
         protected Lazy<IControlResolverMetadata> rawLiteralMetadata;
         protected Lazy<IControlResolverMetadata> literalMetadata;
@@ -36,11 +38,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlTreeResolverBase"/> class.
         /// </summary>
-        public ControlTreeResolverBase(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder)
+        public ControlTreeResolverBase(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder, DotvvmResourceRepository? resourceRepo)
         {
             this.controlResolver = controlResolver;
             this.treeBuilder = treeBuilder;
-
+            this.resourceRepo = resourceRepo;
             rawLiteralMetadata = new Lazy<IControlResolverMetadata>(() => controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(RawLiteral))));
             literalMetadata = new Lazy<IControlResolverMetadata>(() => controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(Literal))));
             placeholderMetadata = new Lazy<IControlResolverMetadata>(() => controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(PlaceHolder))));
@@ -184,10 +186,21 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var resources =
                 moduleDirectives
                 .Cast<IAbstractViewModuleDirective>()
-                .Select(x => x.ImportedResourceName)
+                .Select(x => {
+                    if (this.resourceRepo is object && x.DothtmlNode is object)
+                    {
+                        var resource = this.resourceRepo.FindResource(x.ImportedResourceName);
+                        var node = (x.DothtmlNode as DothtmlDirectiveNode)?.ValueNode ?? x.DothtmlNode;
+                        if (resource is null)
+                            node.AddError($"Cannot find resource named '{x.ImportedResourceName}' referenced by the @js directive!");
+                        else if (!(resource is ScriptModuleResource))
+                            node.AddError($"The resource named '{x.ImportedResourceName}' referenced by the @js directive must be of the ScriptModuleResource type!");
+                    }
+                    return x.ImportedResourceName;
+                })
                 .ToArray();
 
-            return (new JsExtensionParameter(id, isMarkupControl), new ViewModuleReferenceInfo(id, resources, isMarkupControl, moduleDirectives));
+            return (new JsExtensionParameter(id, isMarkupControl), new ViewModuleReferenceInfo(id, resources, isMarkupControl));
         }
 
         protected virtual string AssignViewModuleId(IAbstractControlBuilderDescriptor? masterPage)
