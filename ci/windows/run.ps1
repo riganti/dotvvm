@@ -110,7 +110,7 @@ if ($NoSlnRestore -ne $true) {
 }
 
 # seleniumconfig.json needs to be copied before the build of the sln
-if ($NoUITests -eq $true) {
+if ($NoUITests -ne $true) {
     $profilePath="$samplesDir\Profiles\$SamplesProfile"
 
     if (Test-Path -PathType Leaf -Path $profilePath) {
@@ -177,3 +177,5 @@ if ($NoUITests -ne $true) {
         Clean-UITest
     }
 }
+
+Get-Process

@@ -291,3 +291,5 @@ if [ $UI_TESTS -eq 1 ]; then
     kill $XVFB_PID $SAMPLES_PID $SAMPLES_API_PID 2>/dev/null
     clean_uitest
 fi
+
+ps
