@@ -177,3 +177,5 @@ if ($NoUITests -ne $true) {
         Clean-UITest
     }
 }
+
+Get-Process
