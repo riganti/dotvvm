@@ -1,6 +1,6 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>3.1.0-preview04-final</VersionPrefix>
+    <VersionPrefix>3.1.0-preview05-113591</VersionPrefix>
     <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -17,7 +17,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <PackageId>DotVVM.Core</PackageId>
-    <PackageVersion>3.1.0-preview04-final</PackageVersion>
+    <PackageVersion>3.1.0-preview05-113591</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>This package contains base classes and interfaces of DotVVM that might be useful in a business layer.
     DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.</Description>
