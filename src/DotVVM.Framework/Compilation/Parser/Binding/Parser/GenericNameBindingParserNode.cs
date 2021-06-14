@@ -12,9 +12,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class GenericNameBindingParserNode : IdentifierNameBindingParserNode
     {
-        public List<BindingParserNode> TypeArguments { get; private set; } = new List<BindingParserNode>();
+        public List<TypeReferenceBindingParserNode> TypeArguments { get; private set; } = new List<TypeReferenceBindingParserNode>();
 
-        public GenericNameBindingParserNode(BindingToken name, List<BindingParserNode> typeArguments) : base(name)
+        public GenericNameBindingParserNode(BindingToken name, List<TypeReferenceBindingParserNode> typeArguments) : base(name)
         {
             TypeArguments = typeArguments;
         }

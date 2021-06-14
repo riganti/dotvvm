@@ -246,6 +246,14 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_GenericMethodCall_ExplicitTypeParameters()
+        {
+            var viewModel = new TestViewModel { StringProp = "abc" };
+            var result = (Type)ExecuteBinding("GetType<string>(StringProp)", viewModel);
+            Assert.AreEqual(typeof(string), result);
+        }
+
+        [TestMethod]
         [DataRow("() => ;", typeof(Action), null)]
         [DataRow("() => \"HelloWorld\"", typeof(Func<string>), typeof(string))]
         [DataRow("() => 11", typeof(Func<int>), typeof(int))]
