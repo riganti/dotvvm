@@ -198,6 +198,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_BindingContexts_CollectionContext = "FeatureSamples/BindingContexts/CollectionContext";
         public const string FeatureSamples_BindingNamespaces_BindingUsingNamespace = "FeatureSamples/BindingNamespaces/BindingUsingNamespace";
         public const string FeatureSamples_BindingPageInfo_BindingPageInfo = "FeatureSamples/BindingPageInfo/BindingPageInfo";
+        public const string FeatureSamples_BindingVariables_StaticCommandVariablesWithService = "FeatureSamples/BindingVariables/StaticCommandVariablesWithService";
         public const string FeatureSamples_Caching_CachedValues = "FeatureSamples/Caching/CachedValues";
         public const string FeatureSamples_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods = "FeatureSamples/ChildViewModelInvokeMethods/ChildViewModelInvokeMethods";
         public const string FeatureSamples_ClientExtenders_PasswordStrength = "FeatureSamples/ClientExtenders/PasswordStrength";
@@ -223,6 +224,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_JavascriptEvents_JavascriptEvents = "FeatureSamples/JavascriptEvents/JavascriptEvents";
         public const string FeatureSamples_JavascriptTranslation_DictionaryIndexerTranslation = "FeatureSamples/JavascriptTranslation/DictionaryIndexerTranslation";
         public const string FeatureSamples_JavascriptTranslation_GenericMethodTranslation = "FeatureSamples/JavascriptTranslation/GenericMethodTranslation";
+        public const string FeatureSamples_JavascriptTranslation_ListMethodTranslations = "FeatureSamples/JavascriptTranslation/ListMethodTranslations";
         public const string FeatureSamples_JavascriptTranslation_MathMethodTranslation = "FeatureSamples/JavascriptTranslation/MathMethodTranslation";
         public const string FeatureSamples_LambdaExpressions_ClientSideFiltering = "FeatureSamples/LambdaExpressions/ClientSideFiltering";
         public const string FeatureSamples_LambdaExpressions_LambdaExpressions = "FeatureSamples/LambdaExpressions/LambdaExpressions";

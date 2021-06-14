@@ -199,7 +199,6 @@ namespace DotVVM.Samples.BasicSamples
         public void ConfigureServices(IDotvvmServiceCollection options)
         {
             CommonConfiguration.ConfigureServices(options);
-            options.Services.AddTransient<VariablesStaticCommand>();
         }
     }
 }
