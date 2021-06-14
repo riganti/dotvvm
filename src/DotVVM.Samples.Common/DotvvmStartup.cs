@@ -27,6 +27,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation;
 using DotVVM.Samples.Common.Views.FeatureSamples.PostbackAbortSignal;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -190,7 +191,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddCodeControls("cc", typeof(Loader));
 
             config.Markup.AddMarkupControl("sample", "EmbeddedResourceControls_Button", "embedded://EmbeddedResourceControls/Button.dotcontrol");
-            
+
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/"));
 
         }
@@ -198,6 +199,7 @@ namespace DotVVM.Samples.BasicSamples
         public void ConfigureServices(IDotvvmServiceCollection options)
         {
             CommonConfiguration.ConfigureServices(options);
+            options.Services.AddTransient<VariablesStaticCommand>();
         }
     }
 }

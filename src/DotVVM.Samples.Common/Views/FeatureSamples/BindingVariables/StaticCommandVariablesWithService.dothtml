@@ -1,0 +1,13 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables.StaticCommandVariablesWithServiceViewModel, DotVVM.Samples.Common
+@masterPage Views/ComplexSamples/SPA/site.dotmaster
+@service service = DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables.VariablesStaticCommand
+<dot:Content ContentPlaceHolderID="Container">
+
+
+    <dot:Button Text="Test" Click="{staticcommand:
+                var a =  service.GetMessage().Result;
+                _root.Message = a
+                }" />
+
+</dot:Content>
+
