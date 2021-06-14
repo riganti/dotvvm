@@ -198,7 +198,9 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_BindingContexts_CollectionContext = "FeatureSamples/BindingContexts/CollectionContext";
         public const string FeatureSamples_BindingNamespaces_BindingUsingNamespace = "FeatureSamples/BindingNamespaces/BindingUsingNamespace";
         public const string FeatureSamples_BindingPageInfo_BindingPageInfo = "FeatureSamples/BindingPageInfo/BindingPageInfo";
-        public const string FeatureSamples_BindingVariables_StaticCommandVariablesWithService = "FeatureSamples/BindingVariables/StaticCommandVariablesWithService";
+        public const string FeatureSamples_BindingVariables_StaticCommandVariablesWithService_Complex = "FeatureSamples/BindingVariables/StaticCommandVariablesWithService_Complex";
+        public const string FeatureSamples_BindingVariables_StaticCommandVariablesWithService_Complex2 = "FeatureSamples/BindingVariables/StaticCommandVariablesWithService_Complex2";
+        public const string FeatureSamples_BindingVariables_StaticCommandVariablesWithService_Simple = "FeatureSamples/BindingVariables/StaticCommandVariablesWithService_Simple";
         public const string FeatureSamples_Caching_CachedValues = "FeatureSamples/Caching/CachedValues";
         public const string FeatureSamples_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods = "FeatureSamples/ChildViewModelInvokeMethods/ChildViewModelInvokeMethods";
         public const string FeatureSamples_ClientExtenders_PasswordStrength = "FeatureSamples/ClientExtenders/PasswordStrength";
