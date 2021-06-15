@@ -1,5 +1,5 @@
 ﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand.StaticCommand_LoadComplexDataFromServiceViewModel, DotVVM.Samples.Common
-@service foodService = DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand.FoodSevice
+@service foodService = DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand.FoodService
 
 <!DOCTYPE html>
 

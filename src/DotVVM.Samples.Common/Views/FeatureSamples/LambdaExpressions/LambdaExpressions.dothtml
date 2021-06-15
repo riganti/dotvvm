@@ -30,7 +30,7 @@
                 but also extension-method-like calls (example: Collection.Where(...))
             </p>
             <p>
-                Note(2): you can either specify lambda parameter types explicitly, or let type inferrer try to infer them (example: Collection.Where(number => number % 2 == 0))
+                Note(2): you can either specify lambda parameter types explicitly, or let type inferer try to infer them (example: Collection.Where(number => number % 2 == 0))
             </p>
 
             <dot:Button Text="CMD: Get all even numbers" Validation.Enabled="false"
