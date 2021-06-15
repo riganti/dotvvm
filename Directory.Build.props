@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup>
+    <DotvvmVersion>3.1.0-preview05-final</DotvvmVersion>
+  </PropertyGroup>
+</Project>
