@@ -13,7 +13,7 @@ namespace DotVVM.Samples.Tests.Complex
     {
         [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_RedirectAndUrl_ScrollingPage))]
-        public void Complex_RedirectAndUrl_PostbackInteruption()
+        public void Complex_RedirectAndUrl_PostbackInterruption()
         {
             //When redirecting to fragment e.g. /uri#element-id postback gets interrupted and the page does not reload
             //Expected: Page reloads and scrolls to element-id

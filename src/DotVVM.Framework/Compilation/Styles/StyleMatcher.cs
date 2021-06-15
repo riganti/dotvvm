@@ -87,7 +87,7 @@ namespace DotVVM.Framework.Compilation.Styles
             public Type ControlType { get; }
             public Action<ResolvedControl, DotvvmConfiguration> Action { get; }
 
-            public IStyleApplicator Applicator => new GenericApplicatpr(Action);
+            public IStyleApplicator Applicator => new GenericApplicator(Action);
 
             public bool ExactTypeMatch => true;
 
@@ -100,11 +100,11 @@ namespace DotVVM.Framework.Compilation.Styles
             public bool Matches(StyleMatchContext currentControl) => true;
         }
 
-        class GenericApplicatpr : IStyleApplicator
+        class GenericApplicator : IStyleApplicator
         {
             private readonly Action<ResolvedControl, DotvvmConfiguration> action;
 
-            public GenericApplicatpr(Action<ResolvedControl, DotvvmConfiguration> action)
+            public GenericApplicator(Action<ResolvedControl, DotvvmConfiguration> action)
             {
                 this.action = action;
             }

@@ -90,8 +90,8 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             while (type.DeclaringType != null) type = type.DeclaringType;
             if (type.Namespace == "DotVVM.Framework.Controls")
             {
-                const string BuildinControlsDocs = "https://dotvvm.com/docs/controls/builtin/";
-                var url = BuildinControlsDocs + type.Name;
+                const string BuiltinControlsDocs = "https://dotvvm.com/docs/controls/builtin/";
+                var url = BuiltinControlsDocs + type.Name;
                 return FrameMoreInfo.CreateThumbLink(url, DotvvmThumb);
             }
             return null;

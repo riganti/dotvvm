@@ -693,7 +693,7 @@ test";
         }
 
         [TestMethod]
-        public void DothtmlParser_UnclosedTagImlicitlyClosedEndOfFile_WarningOnNode()
+        public void DothtmlParser_UnclosedTagImplicitlyClosedEndOfFile_WarningOnNode()
         {
             var markup = "<div><p>";
             var root = ParseMarkup(markup);
@@ -708,7 +708,7 @@ test";
         }
 
         [TestMethod]
-        public void DothtmlParser_UnclosedTagImlicitlyClosed_WarningOnNode()
+        public void DothtmlParser_UnclosedTagImplicitlyClosed_WarningOnNode()
         {
             var markup = "<div><p>Something<p>Something else</p></div>";
             var root = ParseMarkup(markup);

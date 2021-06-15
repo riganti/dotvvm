@@ -87,11 +87,11 @@ namespace DotVVM.Framework.Compilation
             return new ResolvedPropertyValue(property, value);
         }
 
-        protected virtual ResolvedPropertySetter EmitBinding(Expression expression, DotvvmProperty property, ResolvedBinding originalBidning, ref string errror)
+        protected virtual ResolvedPropertySetter EmitBinding(Expression expression, DotvvmProperty property, ResolvedBinding originalBinding, ref string error)
         {
-            if (originalBidning == null) { errror = $"Could not merge constant values to binding '{expression}'."; return null; }
+            if (originalBinding == null) { error = $"Could not merge constant values to binding '{expression}'."; return null; }
             return new ResolvedPropertyBinding(property,
-                new ResolvedBinding(originalBidning.BindingService, originalBidning.Binding.GetProperty<BindingParserOptions>(), originalBidning.DataContextTypeStack, null, expression, property)) { DothtmlNode = originalBidning.DothtmlNode };
+                new ResolvedBinding(originalBinding.BindingService, originalBinding.Binding.GetProperty<BindingParserOptions>(), originalBinding.DataContextTypeStack, null, expression, property)) { DothtmlNode = originalBinding.DothtmlNode };
         }
 
         protected virtual Expression GetExpression(ResolvedPropertySetter a, out ResolvedBinding binding)

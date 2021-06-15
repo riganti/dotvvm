@@ -13,7 +13,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_MultiSelect_Binded()
+        public void Control_MultiSelect_Bound()
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_MultiSelect_binded);

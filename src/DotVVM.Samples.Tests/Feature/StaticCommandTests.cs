@@ -239,7 +239,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
-        public void Feature_StaticCommand_StaticCommand_ArrayAssigment()
+        public void Feature_StaticCommand_StaticCommand_ArrayAssignment()
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_ArrayAssigment);

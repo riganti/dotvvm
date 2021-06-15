@@ -325,7 +325,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             var nameNode = node.MemberNameExpression;
             var typeParameters = nameNode is GenericNameBindingParserNode
-                ? ResolveGenericArgumets(nameNode.CastTo<GenericNameBindingParserNode>())
+                ? ResolveGenericArguments(nameNode.CastTo<GenericNameBindingParserNode>())
                 : null;
             var identifierName = (typeParameters?.Count() ?? 0) > 0
                 ? $"{nameNode.Name}`{typeParameters.Count()}"
@@ -352,7 +352,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitGenericName(GenericNameBindingParserNode node)
         {
-            var typeParameters = ResolveGenericArgumets(node.CastTo<GenericNameBindingParserNode>());
+            var typeParameters = ResolveGenericArguments(node.CastTo<GenericNameBindingParserNode>());
 
             return GetMemberOrTypeExpression(node, typeParameters) ?? Expression.Default(typeof(void));
         }
@@ -509,7 +509,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
         }
 
-        private Type[] ResolveGenericArgumets(GenericNameBindingParserNode node)
+        private Type[] ResolveGenericArguments(GenericNameBindingParserNode node)
         {
             var parameters = new Type[node.TypeArguments.Count];
 

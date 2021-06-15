@@ -9,7 +9,7 @@ namespace DotVVM.Framework.ResourceManagement
     /// <summary>
     /// Reference to a javascript file.
     /// </summary>
-    public class ScriptModuleResource : LinkResourceBase, IPreloadResource, IDeferableResource
+    public class ScriptModuleResource : LinkResourceBase, IPreloadResource, IDeferrableResource
     {
         /// <summary> Location of a fallback script for the case that the browser does not support ES6 modules. May be null, if the fallback is not needed. There is no way to put a CDN fallback nor integrity hash, so it should simply point to a local resource </summary>
         public IResourceLocation NomoduleLocation { get; }

@@ -284,7 +284,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
             }
         }
 
-        internal void EnsureUnsupportedOperator(BindingTokenType preferedOperatorToken)
+        internal void EnsureUnsupportedOperator(BindingTokenType preferredOperatorToken)
         {
             if (IsOperator(Peek()))
             {
@@ -296,7 +296,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
             }
             else
             {
-                CreateToken(preferedOperatorToken);
+                CreateToken(preferredOperatorToken);
             }
         }
 

@@ -315,7 +315,7 @@ namespace DotVVM.Framework.Tests.Binding
 
             var result = CompileBinding("_control.Save()", niceMode: true, new[] { typeof(object) }, typeof(Command), typeof(TestMarkupControl));
 
-            var expectedReslt = @"
+            var expectedResult = @"
 (function(a) {
 	return new Promise(function(resolve, reject) {
 		Promise.resolve(a.$control.Save()()).then(function(r_0) {
@@ -325,7 +325,7 @@ namespace DotVVM.Framework.Tests.Binding
 }(ko.contextFor(this)))
 ";
 
-            AreEqual(expectedReslt, result);
+            AreEqual(expectedResult, result);
         }
 
         [TestMethod]
@@ -335,7 +335,7 @@ namespace DotVVM.Framework.Tests.Binding
 
             var result = CompileBinding("injectedService.Load(_control.Load())", niceMode: true, new[] { typeof(object) }, typeof(Command), typeof(TestMarkupControl));
 
-            var expectedReslt = @"
+            var expectedResult = @"
 (function(a, b) {
 	return new Promise(function(resolve, reject) {
 		Promise.resolve(a.$control.Load()()).then(function(r_0) {
@@ -347,17 +347,17 @@ namespace DotVVM.Framework.Tests.Binding
 }(ko.contextFor(this), this))
 ";
 
-            AreEqual(expectedReslt, result);
+            AreEqual(expectedResult, result);
         }
 
         [TestMethod]
-        public void StaticCommandCompilation_MarkupControlCommandPropertyUsed_WithSamePropertyDependancy_CorrectCommandExecturionOrder()
+        public void StaticCommandCompilation_MarkupControlCommandPropertyUsed_WithSamePropertyDependency_CorrectCommandExecturionOrder()
         {
             TestMarkupControl.CreateInitialized();
 
             var result = CompileBinding("StringProp = _control.Change(StringProp) + injectedService.Load(StringProp)", niceMode: true, new[] { typeof(TestViewModel) }, typeof(Command), typeof(TestMarkupControl));
 
-            var expectedReslt = @"
+            var expectedResult = @"
 (function(a, c, b) {
 	return new Promise(function(resolve, reject) {
 		(
@@ -371,7 +371,7 @@ namespace DotVVM.Framework.Tests.Binding
 	});
 }(this, ko.contextFor(this)))";
 
-            AreEqual(expectedReslt, result);
+            AreEqual(expectedResult, result);
         }
 
 

@@ -156,7 +156,7 @@ namespace DotVVM.Framework.ResourceManagement
             });
         }
 
-        bool IsDeferred(string name) => this.FindResource(name) is IDeferableResource r && r.Defer;
+        bool IsDeferred(string name) => this.FindResource(name) is IDeferrableResource r && r.Defer;
 
         /// <summary>
         /// Adds the specified piece of javascript that will be executed when the page is loaded.

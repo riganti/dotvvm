@@ -128,7 +128,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 var method = visitor.Replaced[param] as MethodCallExpression;
                 var methodInvocation = CompileMethodCall(method, dataContext, callback, errorCallback.Clone());
 
-                var invocationDependencies = ExtractPostbackCommandInvocationDependecies(methodInvocation);
+                var invocationDependencies = ExtractPostbackCommandInvocationDependencies(methodInvocation);
 
                 var replacedParameterNode = js.DescendantNodes().SingleOrDefault(n => n is JsIdentifierExpression identifier && identifier.Identifier == param.Name);
 
@@ -226,7 +226,7 @@ namespace DotVVM.Framework.Compilation.Binding
             ? targetMemberAccess.Target
             : n;
 
-        private static JsExpression ExtractPostbackCommandInvocationDependecies(JsExpression methodInvocation)
+        private static JsExpression ExtractPostbackCommandInvocationDependencies(JsExpression methodInvocation)
         {
             var commandPostbackInvocation = ExtractCommandPostbackInvocation(methodInvocation);
 
