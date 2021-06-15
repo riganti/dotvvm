@@ -10,9 +10,11 @@
         }
     };
     dotvvm.events.afterPostback.subscribe(miniProfilerUpdate);
-    dotvvm.events.spaNavigated.subscribe(miniProfilerUpdate);
     dotvvm.events.staticCommandMethodInvoked.subscribe(miniProfilerUpdate);
 
+    if (dotvvm.events.spaNavigated) {
+        dotvvm.events.spaNavigated.subscribe(miniProfilerUpdate);
+    }
     if (!window.performance || !window.performance.timing) return;
 
     var dotvvmInitialized = false;
