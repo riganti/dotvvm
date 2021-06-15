@@ -167,6 +167,8 @@ namespace DotVVM.Testing.Abstractions
         public const string Errors_InvalidRouteName = "Errors/InvalidRouteName";
         public const string Errors_InvalidServiceDirective = "Errors/InvalidServiceDirective";
         public const string Errors_InvalidViewModel = "Errors/InvalidViewModel";
+        public const string Errors_JsDirectiveNotFound = "Errors/JsDirectiveNotFound";
+        public const string Errors_JsDirectiveNotScriptModule = "Errors/JsDirectiveNotScriptModule";
         public const string Errors_MalformedBinding = "Errors/MalformedBinding";
         public const string Errors_MarkupControlInvalidViewModel = "Errors/MarkupControlInvalidViewModel";
         public const string Errors_MasterPageRequiresDifferentViewModel = "Errors/MasterPageRequiresDifferentViewModel";
