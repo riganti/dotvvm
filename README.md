@@ -110,7 +110,7 @@ You can get more productive with DotVVM and **support development of the framewo
 
 ## Get involved
 
-We'll be glad to accept any contribution. It doesn't need to be a pull-request - you can help us by spreading the word about the project in a blog or a user group, fix a typo in a documentnation or send us your feedback and thoughts.
+We'll be glad to accept any contribution. It doesn't need to be a pull-request - you can help us by spreading the word about the project in a blog or a user group, fix a typo in a documentation or send us your feedback and thoughts.
 
 You can find more info in [Contribution Guidelines](contributing.md). We kindly ask you to respect the [Code of Conduct](code-of-conduct.md). 
 

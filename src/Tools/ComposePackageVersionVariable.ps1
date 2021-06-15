@@ -3,12 +3,12 @@ param([string]$versionCore, [string]$prereleaseVersion, [string]$buildNumber, [b
 
 ## Final MAIN Version (example: 1.1.4) 
 if($isMainFinalVersion){
-Write-Host "Adding or updation variable PackageVersion: $versionCore"
+Write-Host "Adding or updating variable PackageVersion: $versionCore"
 Write-Host "##vso[task.setvariable variable=PackageVersion]$versionCore"
 exit
 }
 
-## sufix
+## suffix
 $_prereleaseVersion = $_buildNumber  = $_final  = $_additionalSuffix = "";
 
 if($prereleaseVersion){
@@ -34,7 +34,7 @@ if($additionalSuffix){
     $_additionalSuffix = "-$additionalSuffix";
 }
 $packageVersion = "$versionCore$_prereleaseVersion$_buildNumber$_final$_additionalSuffix"
-Write-Host "Adding or updation variable PackageVersion: $packageVersion"
+Write-Host "Adding or updating variable PackageVersion: $packageVersion"
 Write-Host "##vso[task.setvariable variable=PackageVersion]$packageVersion"
 
 ## versionCore-prereleaseVersion-buildNumber
