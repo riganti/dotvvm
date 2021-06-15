@@ -99,7 +99,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         private static bool IsSetterSupported(PropertyInfo property)
         {
-            // support all properties of KeyValuepair<,>
+            // support all properties of KeyValuePair<,>
             if (property.DeclaringType.IsGenericType && property.DeclaringType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)) return true;
 
             return property.SetMethod != null && property.SetMethod.IsPublic;

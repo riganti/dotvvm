@@ -6,7 +6,7 @@
 </head>
 <body>
     <p>
-        This sample tests the behaviour of a control command - a command invoking a method from a markup control
+        This sample tests the behavior of a control command - a command invoking a method from a markup control
         (`CheckedItemsRepeaterWrapper.Update()` in this case). The command sets a big a chunk of the viewmodel (the `Data` property).
     </p>
     <p>

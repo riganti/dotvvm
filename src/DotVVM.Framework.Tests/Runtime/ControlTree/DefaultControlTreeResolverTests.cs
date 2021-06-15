@@ -729,7 +729,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsFalse(control2[2].DothtmlNode.HasNodeErrors);
 
 
-            var control3 = getControls(nameof(ControlWithOverridenRules));
+            var control3 = getControls(nameof(ControlWithOverriddenRules));
             Assert.IsFalse(control3[0].DothtmlNode.HasNodeErrors);
             Assert.IsFalse(control3[1].DothtmlNode.HasNodeErrors);
             Assert.IsFalse(control3[2].DothtmlNode.HasNodeErrors);
@@ -872,7 +872,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
     {
     }
 
-    public class ControlWithOverridenRules : ControlWithValidationRules
+    public class ControlWithOverriddenRules : ControlWithValidationRules
     {
         [ControlUsageValidator(Override = true)]
         public static IEnumerable<ControlUsageError> Validate(ResolvedControl control)

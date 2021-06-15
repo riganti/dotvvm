@@ -7,7 +7,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand
 {
-    public class FoodSevice
+    public class FoodService
     {
         [AllowStaticCommand]
         public AddFoodsResult AddFoodAsync(string newfood, List<string> foods)

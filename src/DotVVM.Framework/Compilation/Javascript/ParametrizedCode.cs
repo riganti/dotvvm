@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         // TODO(exyi): add WriteTo(StringBuilder)
         /// <summary>
-        /// Converts this to string and assigns all parameters using `parameterAsssignment`. If there is any missing, exception is thrown.
+        /// Converts this to string and assigns all parameters using `parameterAssignment`. If there is any missing, exception is thrown.
         /// </summary>
         public string ToString(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssignment) => ToString(parameterAssignment, out var _);
         public string ToString(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssignment, out bool allIsDefault)

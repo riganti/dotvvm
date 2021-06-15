@@ -13,7 +13,7 @@ namespace DotVVM.Framework.ResourceManagement
     /// <summary>
     /// Piece of javascript code that is used in the page.
     /// </summary>
-    public class InlineScriptResource : ResourceBase, IDeferableResource
+    public class InlineScriptResource : ResourceBase, IDeferrableResource
     {
         [Obsolete("Code parameter is required, please provide it in the constructor.")]
         public InlineScriptResource(ResourceRenderPosition renderPosition = ResourceRenderPosition.Body) : base(renderPosition)

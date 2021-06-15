@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Tests.Routing
             config1.RouteTable.Add("route1", "url1", "file1.dothtml", new { a = "ccc" });
             config1.RouteTable.Add("route2", "url2/{int:posint}", "file1.dothtml", new { a = "ccc" });
 
-            // Add unknwon constraint, simulate user defined constraint that is not known to the VS Extension
+            // Add unknown constraint, simulate user defined constraint that is not known to the VS Extension
             var r = new DotvvmRoute("url3", "file1.dothtml", new { }, provider => null, config1);
             typeof(RouteBase).GetProperty("Url").SetMethod.Invoke(r, new[] { "url3/{a:unsuppotedConstraint}" });
             config1.RouteTable.Add("route3", r);

@@ -30,14 +30,14 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
                 if (schema.Extensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType))
                 {
                     var typeKeyWrapper = objType as OpenApiString;
-                    var underlayingType = Type.GetType(typeKeyWrapper.Value);
+                    var underlyingType = Type.GetType(typeKeyWrapper.Value);
 
-                    if (knownTypes.IsKnownType(underlayingType))
+                    if (knownTypes.IsKnownType(underlyingType))
                     {
-                        var name = CreateProperName(underlayingType, swaggerDoc);
+                        var name = CreateProperName(underlyingType, swaggerDoc);
                         schema.Extensions.Add(ApiConstants.DotvvmKnownTypeKey, new OpenApiString(name));
 
-                        SetDotvvmNameToProperties(schema, underlayingType);
+                        SetDotvvmNameToProperties(schema, underlyingType);
                     }
                 }
             }
@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
             }
         }
 
-        private void SetDotvvmNameToProperties(OpenApiSchema schema, Type underlayingType)
+        private void SetDotvvmNameToProperties(OpenApiSchema schema, Type underlyingType)
         {
             if (schema.Properties == null)
             {
@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
 
             foreach (var property in schema.Properties)
             {
-                SetDotvvmNameToProperty(underlayingType, property.Key, property.Value);
+                SetDotvvmNameToProperty(underlyingType, property.Key, property.Value);
             }
         }
 

@@ -8,7 +8,7 @@
 <body>
     <div class="container">
         <dot:TextBox Text="{value: Id}" data-ui="long-number"/>
-        <dot:Button Click="{command: Postback()}" Text="Decremenet Id" data-ui="decrement-postback"/>
+        <dot:Button Click="{command: Postback()}" Text="Decrement Id" data-ui="decrement-postback"/>
     </div>
 </body>
 </html>

@@ -187,7 +187,7 @@ namespace DotVVM.Framework.Compilation.Binding
         public Expression CallMethod(Expression target, BindingFlags flags, string name, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs = null)
         {
             // the following piece of code is nicer and more readable than method recognition done in roslyn, C# dynamic and also expression evaluator :)
-            var method = FindValidMethodOveloads(target, target.Type, name, flags, typeArguments, arguments, namedArgs);
+            var method = FindValidMethodOverloads(target, target.Type, name, flags, typeArguments, arguments, namedArgs);
 
             if (method.IsExtension)
             {
@@ -201,14 +201,14 @@ namespace DotVVM.Framework.Compilation.Binding
         public Expression CallMethod(Type target, BindingFlags flags, string name, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs = null)
         {
             // the following piece of code is nicer and more readable than method recognition done in roslyn, C# dynamic and also expression evaluator :)
-            var method = FindValidMethodOveloads(null, target, name, flags, typeArguments, arguments, namedArgs);
+            var method = FindValidMethodOverloads(null, target, name, flags, typeArguments, arguments, namedArgs);
             return Expression.Call(method.Method, method.Arguments);
         }
 
 
-        private MethodRecognitionResult FindValidMethodOveloads(Expression target, Type type, string name, BindingFlags flags, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
+        private MethodRecognitionResult FindValidMethodOverloads(Expression target, Type type, string name, BindingFlags flags, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
         {
-            var methods = FindValidMethodOveloads(type.GetAllMembers(flags).OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, arguments, namedArgs).ToList();
+            var methods = FindValidMethodOverloads(type.GetAllMembers(flags).OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, arguments, namedArgs).ToList();
 
             if (methods.Count == 1) return methods.FirstOrDefault();
             if (methods.Count == 0)
@@ -218,7 +218,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     // Change to a static call
                     var newArguments = new[] { target }.Concat(arguments).ToArray();
-                    var extensions = FindValidMethodOveloads(GetAllExtensionMethods().OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, newArguments, namedArgs)
+                    var extensions = FindValidMethodOverloads(GetAllExtensionMethods().OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, newArguments, namedArgs)
                         .Select(method => { method.IsExtension = true; return method; }).ToList();
 
                     // We found an extension method
@@ -253,7 +253,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     yield return method;
         }
 
-        private IEnumerable<MethodRecognitionResult> FindValidMethodOveloads(IEnumerable<MethodInfo> methods, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
+        private IEnumerable<MethodRecognitionResult> FindValidMethodOverloads(IEnumerable<MethodInfo> methods, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
             => from m in methods
                let r = TryCallMethod(m, typeArguments, arguments, namedArgs)
                where r != null

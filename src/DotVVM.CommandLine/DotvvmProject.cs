@@ -156,7 +156,7 @@ namespace DotVVM.CommandLine
             return null;
         }
 
-        // The following class should be in sync with the DotVVMConmandLine.targets file.
+        // The following class should be in sync with the DotVVMCommandLine.targets file.
         private class DotvvmProjectMetadata
         {
             public string? AssemblyName { get; set; }

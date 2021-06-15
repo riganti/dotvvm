@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                     return "<=";
                 case BinaryOperatorType.StrictlyEqual:
                     return "===";
-                case BinaryOperatorType.StricltyNotEqual:
+                case BinaryOperatorType.StrictlyNotEqual:
                     return "!==";
                 case BinaryOperatorType.BitwiseAnd:
                     return "&";
@@ -128,7 +128,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         [EnumMember(Value = "===")]
         StrictlyEqual,
         [EnumMember(Value = "!==")]
-        StricltyNotEqual,
+        StrictlyNotEqual,
         [EnumMember(Value = "&")]
         BitwiseAnd,
         [EnumMember(Value = "|")]

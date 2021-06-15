@@ -87,8 +87,8 @@ namespace DotVVM.Framework.Compilation.Javascript
         public static ParametrizedCode AdjustKnockoutScriptContext(ParametrizedCode expression, int dataContextLevel)
         {
             if (dataContextLevel == 0) return expression;
-            var (contextExpresion, dataExpression) = GetKnockoutContextParameters(dataContextLevel);
-            var (context, data) = (CodeParameterAssignment.FromExpression(contextExpresion), CodeParameterAssignment.FromExpression(dataExpression));
+            var (contextExpression, dataExpression) = GetKnockoutContextParameters(dataContextLevel);
+            var (context, data) = (CodeParameterAssignment.FromExpression(contextExpression), CodeParameterAssignment.FromExpression(dataExpression));
             return expression.AssignParameters(o =>
                 o == KnockoutContextParameter ? context :
                 o == KnockoutViewModelParameter ? data :

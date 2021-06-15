@@ -9,7 +9,7 @@
 </head>
 <body>
     <%--TODO: UI test--%>
-    <%--It should just render the list wihtout crashing--%>
+    <%--It should just render the list without crashing--%>
     <sample:Control1 MyProperty="{value: "0123456789abcdefghij"}" />
 
 </body>

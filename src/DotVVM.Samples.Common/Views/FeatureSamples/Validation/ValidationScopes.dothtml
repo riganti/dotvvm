@@ -18,7 +18,7 @@
             <dot:ValidationSummary />
 
             <div DataContext="{value: ComponentContext}">
-                <dot:Button Click="{command: _parent.DoSomehting()}" Text="Do something" />
+                <dot:Button Click="{command: _parent.DoSomething()}" Text="Do something" />
             </div>
         </div>
     </div>

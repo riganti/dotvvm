@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Tests.Runtime
         // remembers everything in WeakReferences
         // the following code may look quite innocent, but it was not all that easy to craft is so that
         // JIT (in debug mode) does not store the created values somewhere and that they may be cleared by GC
-        // it would not surprise me if it broke on diffent runtime than what I tested. In such case, feel free to ignore those tests
+        // it would not surprise me if it broke on different runtime than what I tested. In such case, feel free to ignore those tests
 
         // also, if you'd like to tests something more, I strongly suggest writing a new tests and not changing **anything** in those
 

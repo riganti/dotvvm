@@ -41,7 +41,7 @@ namespace DotVVM.Samples.Tests.Control
 
         [Fact]
         [SampleReference(SamplesRouteUrls.ControlSamples_ComboBox_Default)]
-        public void Control_ComboBox_ComboBoxBinded()
+        public void Control_ComboBox_ComboBoxBound()
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_Default);

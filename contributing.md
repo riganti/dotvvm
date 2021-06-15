@@ -52,9 +52,9 @@ Set `Samples/DotVVM.Samples.BasicSamples.AspNetCore` as a startup project and la
 
 If the project does not start, feel free to ask us on [Gitter](https://gitter.im/riganti/dotvvm). For VS Code, launch it from the `src` directory, so it can find the `.vscode/launch.json` and `.vscode/tasks.json` files. You can also try to rebuild `Tests/DotVVM.Framework.Tests.Common` project and run the unit/integration tests - it should complete in few seconds, everything should be green. :)
 
-Almost everying interesting is in the `DotVVM.Framework` project, except for some base interfaces and attributes in `DotVVM.Core` (so you don't have to reference the entire framework in your bussiess layer, if you just want to suppress serialization or turn on the validation of certain properties). 
+Almost everything interesting is in the `DotVVM.Framework` project, except for some base interfaces and attributes in `DotVVM.Core` (so you don't have to reference the entire framework in your business layer, if you just want to suppress serialization or turn on the validation of certain properties). 
 
-The OWIN and ASP.NET Core integration is splitted in two projects called `DotVVM.Framework.Hosting.AspNetCore` and `...Owin`, so you don't have to reference Owin in your ASP.NET Core project and vice versa. 
+The OWIN and ASP.NET Core integration is split in two projects called `DotVVM.Framework.Hosting.AspNetCore` and `...Owin`, so you don't have to reference Owin in your ASP.NET Core project and vice versa. 
 
 `DotVVM.Compiler` project is a command line application that can be used for view precompilation and is used by our VS Extension to dump configuration from the project after the DotvvmStartup has run. 
 

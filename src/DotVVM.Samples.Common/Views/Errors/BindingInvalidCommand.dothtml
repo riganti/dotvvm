@@ -6,6 +6,6 @@
     <title>Hello from DotVVM!</title>
 </head>
 <body>
-	<!--  Do not change commnad name - used in test as identifier -->
+	<!--  Do not change command name - used in test as identifier -->
 <dot:Button Click="{command: NonExistingCommand()}" /></body>
 </html>

@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Tests.AspCore.Middleware
 
 
         [TestMethod]
-        public async Task TestFinalFuncion()
+        public async Task TestFinalFunction()
         {
             await _requestContext.HttpContext.Response.WriteAsync(FinalFunction);
             Assert.AreEqual(FinalFunction, ReadResponseBody());
@@ -55,8 +55,8 @@ namespace DotVVM.Framework.Tests.AspCore.Middleware
         public async Task TestBeforeMiddleware()
         {
 
-            var middlewere = new BeforeMiddleware();
-            await middlewere.Handle(_requestContext, async context =>
+            var middleware = new BeforeMiddleware();
+            await middleware.Handle(_requestContext, async context =>
             {
                 await context.HttpContext.Response.WriteAsync(FinalFunction);
             });

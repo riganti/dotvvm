@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
     public class JsNullChecksTests
     {
         [TestMethod]
-        public void JsNullCheck_SimpleMemeberAccess()
+        public void JsNullCheck_SimpleMemberAccess()
         {
             var expr =
                 new JsIdentifierExpression("a").WithAnnotation(MayBeNullAnnotation.Instance)
@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         }
 
         [TestMethod]
-        public void JsNullCheck_SimpleMemeberAccess2()
+        public void JsNullCheck_SimpleMemberAccess2()
         {
             var expr =
                 new JsIdentifierExpression("a").WithAnnotation(MayBeNullAnnotation.Instance)
@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         }
 
         [TestMethod]
-        public void JsNullCheck_SimpleObjectMemeberAccess()
+        public void JsNullCheck_SimpleObjectMemberAccess()
         {
             var expr =
                 new JsIdentifierExpression("a").WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(new ViewModelInfoAnnotation(typeof(JsNullChecksTests)))
@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         }
 
         [TestMethod]
-        public void JsNullCheck_SimpleObjectMemeberAccess2()
+        public void JsNullCheck_SimpleObjectMemberAccess2()
         {
             var expr =
                 new JsIdentifierExpression("a").WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(new ViewModelInfoAnnotation(typeof(JsNullChecksTests)))
@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         }
 
         [TestMethod]
-        public void JsNullCheck_SimpleObjectMemeberAccess3()
+        public void JsNullCheck_SimpleObjectMemberAccess3()
         {
             var expr =
                 new JsIdentifierExpression("a").WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(new ViewModelInfoAnnotation(typeof(JsNullChecksTests)))

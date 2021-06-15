@@ -167,7 +167,7 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary>
-        /// Writes the value to binding - binded viewModel property is updated. May throw an exception when binding does not support assignment.
+        /// Writes the value to binding - bound viewModel property is updated. May throw an exception when binding does not support assignment.
         /// </summary>
         public static void UpdateSource(this IUpdatableValueBinding binding, object? value, DotvvmBindableObject control)
         {
@@ -178,7 +178,7 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary>
-        /// Writes the value to binding - binded viewModel property is updated. May throw an exception when binding does not support assignment.
+        /// Writes the value to binding - bound viewModel property is updated. May throw an exception when binding does not support assignment.
         /// </summary>
         public static void UpdateSource<T>(this IUpdatableValueBinding<T> binding, T value, DotvvmBindableObject control)
         {

@@ -66,7 +66,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             JsNode resultExpression;
             // change assignment to observable property to observable invocation
-            // only do for RestultIsObservable, not ResultMayBeObservable
+            // only do for ResultIsObservable, not ResultMayBeObservable
             if (assignmentExpression.Left.HasAnnotation<ResultIsObservableAnnotation>())
             {
                 var value = assignmentExpression.Right.Detach();

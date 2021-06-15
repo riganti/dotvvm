@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Compilation
 
             var resultExpression = TryOptimizeMethodCall(TryFindMethod(GetType(), MergeExpressionsMethodName, Expression.Constant(property), Expression.Constant(valA), Expression.Constant(valB))) as Expression;
 
-            // Try to find MegeValues method if MergeExpression does not exists, or try to eval it to constant if expression is not constant
+            // Try to find MergeValues method if MergeExpression does not exists, or try to eval it to constant if expression is not constant
             if (resultExpression == null || valA.NodeType == ExpressionType.Constant && valB.NodeType == ExpressionType.Constant && resultExpression.NodeType != ExpressionType.Constant)
             {
                 var methodCall = TryFindMergeMethod(property, valA, valB);
@@ -87,11 +87,11 @@ namespace DotVVM.Framework.Compilation
             return new ResolvedPropertyValue(property, value);
         }
 
-        protected virtual ResolvedPropertySetter EmitBinding(Expression expression, DotvvmProperty property, ResolvedBinding originalBidning, ref string errror)
+        protected virtual ResolvedPropertySetter EmitBinding(Expression expression, DotvvmProperty property, ResolvedBinding originalBinding, ref string error)
         {
-            if (originalBidning == null) { errror = $"Could not merge constant values to binding '{expression}'."; return null; }
+            if (originalBinding == null) { error = $"Could not merge constant values to binding '{expression}'."; return null; }
             return new ResolvedPropertyBinding(property,
-                new ResolvedBinding(originalBidning.BindingService, originalBidning.Binding.GetProperty<BindingParserOptions>(), originalBidning.DataContextTypeStack, null, expression, property)) { DothtmlNode = originalBidning.DothtmlNode };
+                new ResolvedBinding(originalBinding.BindingService, originalBinding.Binding.GetProperty<BindingParserOptions>(), originalBinding.DataContextTypeStack, null, expression, property)) { DothtmlNode = originalBinding.DothtmlNode };
         }
 
         protected virtual Expression GetExpression(ResolvedPropertySetter a, out ResolvedBinding binding)

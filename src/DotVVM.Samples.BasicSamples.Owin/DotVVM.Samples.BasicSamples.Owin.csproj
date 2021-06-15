@@ -101,7 +101,7 @@
     <Compile Include="ViewModels\ComplexSamples\Auth\SecuredPageViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\SPARedirect\HomeViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\SPARedirect\LoginViewModel.cs" />
-    <Compile Include="ViewModels\ControlSamples\AuthnticatedView\AuthenticatedViewTestViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\AuthenticatedView\AuthenticatedViewTestViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ClaimView\ClaimViewTestViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RoleView\RoleViewTestViewModel.cs" />
   </ItemGroup>

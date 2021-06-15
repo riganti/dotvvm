@@ -223,13 +223,13 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingNullPropagation_1()
         {
             var viewModel = Expression.Parameter(typeof(TestViewModel), "viewModel");
-            var expresssions = FuzzExpressions(viewModel);
+            var expressions = FuzzExpressions(viewModel);
 
             var seed = (int)DateTime.Now.Ticks;
             var random = new Random(seed);
             Debug.WriteLine("FuzzExpressions seed = " + seed);
 
-            foreach (var expr in expresssions)
+            foreach (var expr in expressions)
             {
                 TestExpression(random, expr, viewModel);
             }

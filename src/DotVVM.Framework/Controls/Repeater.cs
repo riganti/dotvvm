@@ -248,9 +248,9 @@ namespace DotVVM.Framework.Controls
         }
 
         private ConditionalWeakTable<object, DataItemContainer> childrenCache = new ConditionalWeakTable<object, DataItemContainer>();
-        private DotvvmControl GetItem(IDotvvmRequestContext context, object? item = null, int? index = null, bool allowMemoizationRetrive = false, bool allowMemoizationStore = false)
+        private DotvvmControl GetItem(IDotvvmRequestContext context, object? item = null, int? index = null, bool allowMemoizationRetrieve = false, bool allowMemoizationStore = false)
         {
-            if (allowMemoizationRetrive && item != null && childrenCache.TryGetValue(item, out var container2) && container2.Parent == null)
+            if (allowMemoizationRetrieve && item != null && childrenCache.TryGetValue(item, out var container2) && container2.Parent == null)
             {
                 Debug.Assert(item == container2.GetValueRaw(DataContextProperty));
                 SetUpServerItem(context, item, (int)index!, container2);
@@ -308,7 +308,7 @@ namespace DotVVM.Framework.Controls
                         Children.Add(GetSeparator(context));
                     }
                     Children.Add(GetItem(context, item, index,
-                        allowMemoizationRetrive: context.IsPostBack && !memoizeReferences, // on GET request we are not initializing the Repeater twice
+                        allowMemoizationRetrieve: context.IsPostBack && !memoizeReferences, // on GET request we are not initializing the Repeater twice
                         allowMemoizationStore: memoizeReferences
                     ));
                     index++;
