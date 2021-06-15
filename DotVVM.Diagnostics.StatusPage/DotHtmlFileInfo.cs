@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 
 namespace DotVVM.Diagnostics.StatusPage
@@ -23,7 +24,7 @@ namespace DotVVM.Diagnostics.StatusPage
         public DotHtmlFileInfo(string virtualPath, string tagName = null, string nameSpace = null, string assembly = null, string tagPrefix = null, string url = null, string routeName = null, ImmutableArray<string>? defaultValues = null, bool? hasParameters = null)
         {
             VirtualPath = virtualPath;
-            Status = !string.IsNullOrWhiteSpace(virtualPath) ? CompilationState.None : CompilationState.NonCompilable;
+            Status = IsDothtmlFile(virtualPath) ? CompilationState.None : CompilationState.NonCompilable;
 
             TagName = tagName;
             Namespace = nameSpace;
@@ -33,6 +34,17 @@ namespace DotVVM.Diagnostics.StatusPage
             RouteName = routeName;
             DefaultValues = defaultValues;
             HasParameters = hasParameters;
+        }
+
+        private static bool IsDothtmlFile(string virtualPath)
+        {
+            return !string.IsNullOrWhiteSpace(virtualPath) &&
+                (
+                virtualPath.IndexOf(".dothtml", StringComparison.OrdinalIgnoreCase) > -1 ||
+                virtualPath.IndexOf(".dotmaster", StringComparison.OrdinalIgnoreCase) > -1 ||
+                virtualPath.IndexOf(".dotcontrol", StringComparison.OrdinalIgnoreCase) > -1 ||
+                virtualPath.IndexOf(".dotlayout", StringComparison.OrdinalIgnoreCase) > -1 
+                );
         }
     }
 }

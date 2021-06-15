@@ -2,8 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,10 +9,6 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls.Infrastructure;
-using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Resources;
-using DotVVM.Framework.Routing;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Diagnostics.StatusPage
 {
