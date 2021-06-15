@@ -691,11 +691,11 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             Assert.IsTrue(multi.Expressions.Count == 4);
             Assert.IsTrue(multi.Expressions[0] is BinaryOperatorBindingParserNode);
-            //Then there is whitespace, comma it doesnt metter much how those are parsed just that they are eaten away
+            //Then there is whitespace, comma it doesn't matter much how those are parsed just that they are eaten away
             Assert.IsTrue(multi.Expressions[3] is MemberAccessBindingParserNode);
 
-            //With multiple expesions we are able to eat the evil extra tokens and finis the expresion 
-            //Expresion Tuple<string, int>.ValueCollection is parsed correctly
+            //With multiple expressions we are able to eat the evil extra tokens and finish the expression 
+            //Expression Tuple<string, int>.ValueCollection is parsed correctly
             Assert.IsTrue(string.Equals(multi.Expressions[0].ToDisplayString(), "System.Collections.Generic.Dictionary < Tuple<bool, bool>"));
             Assert.IsTrue(string.Equals(multi.Expressions[1].ToDisplayString(), ""));
             Assert.IsTrue(string.Equals(multi.Expressions[2].ToDisplayString(), ","));
@@ -709,7 +709,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var parser = bindingParserNodeFactory.SetupParser(originalString);
             var node = parser.ReadExpression();
 
-            //Just comparition no generics or anything
+            //Just comparison no generics or anything
             Assert.IsTrue(node is BinaryOperatorBindingParserNode);
             Assert.IsTrue(string.Equals(originalString, node.ToDisplayString().Replace(" ", "")));
         }
@@ -914,7 +914,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(firstExpression.EndPosition + 1, secondExpression.StartPosition);
 
 
-            //display string does not really deal with whitespace tokens, we dont care about those.
+            //display string does not really deal with whitespace tokens, we don't care about those.
             //Just making sure the expression syntax itself remains the same
             Assert.AreEqual(SkipWhitespaces(bindingExpression), SkipWhitespaces(node.ToDisplayString()));
         }
@@ -943,7 +943,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(lastBlockExpectedLenght, secondExpression.Length);
 
 
-            //display string does not really deal with whitespace tokens, we dont care about those.
+            //display string does not really deal with whitespace tokens, we don't care about those.
             //Just making sure the expression syntax itself remains the same
             Assert.AreEqual(bindingExpression.Trim(), node.ToDisplayString().Trim());
         }

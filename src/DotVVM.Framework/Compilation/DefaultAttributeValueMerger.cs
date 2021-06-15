@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Compilation
 
             var resultExpression = TryOptimizeMethodCall(TryFindMethod(GetType(), MergeExpressionsMethodName, Expression.Constant(property), Expression.Constant(valA), Expression.Constant(valB))) as Expression;
 
-            // Try to find MegeValues method if MergeExpression does not exists, or try to eval it to constant if expression is not constant
+            // Try to find MergeValues method if MergeExpression does not exists, or try to eval it to constant if expression is not constant
             if (resultExpression == null || valA.NodeType == ExpressionType.Constant && valB.NodeType == ExpressionType.Constant && resultExpression.NodeType != ExpressionType.Constant)
             {
                 var methodCall = TryFindMergeMethod(property, valA, valB);

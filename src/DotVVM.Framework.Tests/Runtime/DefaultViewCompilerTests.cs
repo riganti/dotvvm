@@ -450,7 +450,7 @@ test <dot:Literal><a /></dot:Literal>";
             Assert.IsFalse(ex.ToString().Contains("This is most probably bug in the DotVVM framework."));
         }
 
-        // Well, DotvvmProperties work even whenthey are internal. So I can not add the check in order to remain backwards compatible :/
+        // Well, DotvvmProperties work even when they are internal. So I can not add the check in order to remain backwards compatible :/
 
 //         [TestMethod]
 //         public void DefaultViewCompiler_InternalDotvvmProperty_Error()

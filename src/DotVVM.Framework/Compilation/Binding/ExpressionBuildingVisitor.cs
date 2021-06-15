@@ -406,7 +406,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
             if (node.ResolvedType != null)
             {
-                // Type was not specified but was infered
+                // Type was not specified but was inferred
                 return Expression.Parameter(node.ResolvedType, node.Name.ToDisplayString());
             }
             else
