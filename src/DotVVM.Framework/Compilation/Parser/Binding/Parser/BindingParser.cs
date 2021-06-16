@@ -8,6 +8,7 @@ using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using System.Reflection;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 {
@@ -68,7 +69,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     {
                         var memberExprType = assemblyMemberBinding.MemberNameExpression.GetType();
                         var targetExprType = assemblyMemberBinding.TargetExpression.GetType();
-                        if (memberExprType == typeof(GenericNameBindingParserNode) || targetExprType == typeof(GenericNameBindingParserNode))
+                        if (memberExprType == typeof(GenericTypeReferenceBindingParserNode) || targetExprType == typeof(GenericTypeReferenceBindingParserNode))
                         {
                             assemblyName.NodeErrors.Add($"Generic identifier name is not allowed in an assembly name.");
                             break;
@@ -444,14 +445,15 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return true;
         }
 
-        private bool TryReadLambdaParameterDefinition(out BindingParserNode? type, out BindingParserNode? name)
+        private bool TryReadLambdaParameterDefinition(out TypeReferenceBindingParserNode? type, out BindingParserNode? name)
         {
             name = null;
             type = null;
             if (Peek()?.Type != BindingTokenType.Identifier)
                 return false;
 
-            type = ReadIdentifierExpression(true);
+            if (!TryReadTypeReference(out type))
+                return false;
             SkipWhiteSpace();
 
             if (Peek()?.Type != BindingTokenType.Identifier)
@@ -472,6 +474,61 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return true;
         }
 
+        private bool TryReadTypeReference([NotNullWhen(returnValue: true)] out TypeReferenceBindingParserNode? typeNode)
+        {
+            typeNode = null;
+            var startIndex = CurrentIndex;
+            var expression = ReadIdentifierNameExpression() as BindingParserNode;
+
+            var next = Peek();
+            int previousIndex = -1;
+            while (next != null && previousIndex != CurrentIndex)
+            {
+                previousIndex = CurrentIndex;
+                if (next.Type == BindingTokenType.Dot)
+                {
+                    // Member access
+                    Read();
+                    var member = ReadIdentifierNameExpression();
+                    expression = CreateNode(new MemberAccessBindingParserNode(expression, member), startIndex);
+                }
+                else if (next.Type == BindingTokenType.LessThanOperator)
+                {
+                    // Generic
+                    if (!TryReadGenericArguments(startIndex, expression, out var typeOrFunction))
+                        return false;
+                    expression = typeOrFunction!.ToTypeReference();
+                }
+                else if (next.Type == BindingTokenType.QuestionMarkOperator)
+                {
+                    // Nullable
+                    Read();
+                    expression = (!(expression is TypeReferenceBindingParserNode)) ? new ActualTypeReferenceBindingParserNode(expression) : expression;
+                    expression = CreateNode(new NullableTypeReferenceBindingParserNode(expression as TypeReferenceBindingParserNode), startIndex);
+                }
+                else if (next.Type == BindingTokenType.OpenArrayBrace)
+                {
+                    // Array
+                    Read();
+                    next = Peek();
+                    if (next?.Type != BindingTokenType.CloseArrayBrace)
+                        return false;
+                    Read();
+                    expression = (!(expression is TypeReferenceBindingParserNode)) ? new ActualTypeReferenceBindingParserNode(expression) : expression;
+                    expression = CreateNode(new ArrayTypeReferenceBindingParserNode(expression as TypeReferenceBindingParserNode), startIndex);
+                }
+                else
+                {
+                    break;
+                }
+                next = Peek();
+            }
+
+            expression = (!(expression is TypeReferenceBindingParserNode)) ? new ActualTypeReferenceBindingParserNode(expression) : expression;
+            typeNode = (expression as TypeReferenceBindingParserNode)!;
+            return true;
+        }
+
         private BindingParserNode ReadIdentifierExpression(bool onlyTypeName)
         {
             var startIndex = CurrentIndex;
@@ -488,10 +545,24 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     // member access
                     Read();
                     var member = ReadIdentifierNameExpression();
+                    if (expression is TypeOrFunctionReferenceBindingParserNode typeOrFunction)
+                        expression = typeOrFunction.ToTypeReference();
+
                     expression = CreateNode(new MemberAccessBindingParserNode(expression, member), startIndex);
+                }
+                else if (next.Type == BindingTokenType.LessThanOperator)
+                {
+                    if (TryReadGenericArguments(startIndex, expression, out var typeOrFunction))
+                    {
+                        // This is a generic identifier that can be either a type or a function
+                        expression = typeOrFunction;
+                    }
                 }
                 else if (!onlyTypeName && next.Type == BindingTokenType.OpenParenthesis)
                 {
+                    if (expression is TypeOrFunctionReferenceBindingParserNode typeOrFunction)
+                        expression = typeOrFunction.ToFunctionReference();
+
                     expression = ReadFunctionCall(startIndex, expression);
                 }
                 else if (!onlyTypeName && next.Type == BindingTokenType.OpenArrayBrace)
@@ -691,12 +762,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 Read();
                 SkipWhiteSpace();
-
-                if (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.LessThanOperator)
-                {
-                    return ReadGenericArguments(startIndex, identifier);
-                }
-
                 return CreateNode(new SimpleNameBindingParserNode(identifier), startIndex);
             }
 
@@ -713,7 +778,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 startIndex);
         }
 
-        private IdentifierNameBindingParserNode ReadGenericArguments(int startIndex, BindingToken identifier)
+        private bool TryReadGenericArguments(int startIndex, BindingParserNode type, [NotNullWhen(returnValue: true)] out TypeOrFunctionReferenceBindingParserNode? typeOrFunction)
         {
             Assert(BindingTokenType.LessThanOperator);
             SetRestorePoint();
@@ -721,7 +786,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var next = Read();
             bool failure = false;
             var previousIndex = -1;
-            var arguments = new List<BindingParserNode>();
+            var arguments = new List<TypeReferenceBindingParserNode>();
 
             while (true)
             {
@@ -734,7 +799,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 previousIndex = CurrentIndex;
 
                 SkipWhiteSpace();
-                arguments.Add(ReadIdentifierExpression(true));
+                if (!TryReadTypeReference(out var argument))
+                    failure = true;
+                else
+                    arguments.Add(argument);
                 SkipWhiteSpace();
 
                 if (Peek()?.Type != BindingTokenType.Comma) { break; }
@@ -747,10 +815,12 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 Read();
                 ClearRestorePoint();
-                return CreateNode(new GenericNameBindingParserNode(identifier, arguments), startIndex);
+                typeOrFunction = CreateNode(new TypeOrFunctionReferenceBindingParserNode(type, arguments), startIndex);
+                return true;
             }
             Restore();
-            return CreateNode(new SimpleNameBindingParserNode(identifier), startIndex);
+            typeOrFunction = null;
+            return false;
         }
 
         private BindingParserNode ReadFormattedExpression()
