@@ -1,0 +1,31 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CompositeControls.BasicSampleViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <cc:CompositeControlSample DataSource="{value: List}"
+                               TitleBinding="{value: "[" + _index + "] " + Title}"
+                               NumberBinding="{value: EditableNumber}"
+                               style="color: blue"
+                               inner-li:style="border: 1px green solid" inner-li:Visible="{value: Visible}" />
+    
+
+    <p>
+        Numbers:
+    </p>
+    <dot:Repeater WrapperTagName="p" DataSource="{value: List}">
+        {{value: EditableNumber}}
+    </dot:Repeater>
+
+    <dot:CheckBox Checked="{value: Visible}" Text="Visible" />
+
+</body>
+</html>
+
+

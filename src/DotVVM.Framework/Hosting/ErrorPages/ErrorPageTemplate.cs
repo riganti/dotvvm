@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+    #line 1 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
     public partial class ErrorPageTemplate : ErrorPageTemplateBase
     {
@@ -61,139 +61,139 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     "ject-browser .propname { font-weight: bold; }\r\n.docLinks { float: right; }\r\n.sou" +
                     "rce.file{\r\n\tmargin: 11px 0 5px 0;\r\n    font-size: 12px;\r\n}   \r\n");
             
-            #line 70 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 70 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 foreach(var f in Formatters){
             
             #line default
             #line hidden
             this.Write("#menu_radio_");
             
-            #line 71 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 71 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write(":checked ~ #container_");
             
-            #line 71 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 71 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write(" { display: block; }\r\n#menu_radio_");
             
-            #line 72 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 72 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write(":checked ~ label[for=\'menu_radio_");
             
-            #line 72 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 72 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write("\'] { background-color: #2980b9; }\r\n");
             
-            #line 73 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 73 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 f.WriteHead(this);
             
             #line default
             #line hidden
             
-            #line 74 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 74 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 }
             
             #line default
             #line hidden
             this.Write("\t\t</style>\r\n\t</head>\r\n\t<body>\r\n\t\t<h1>Server Error, HTTP ");
             
-            #line 78 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 78 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ErrorCode));
             
             #line default
             #line hidden
             this.Write(": ");
             
-            #line 78 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 78 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(ErrorDescription)));
             
             #line default
             #line hidden
             this.Write("</h1>\r\n\t\t<p class=\"summary\">");
             
-            #line 79 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 79 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(Summary)));
             
             #line default
             #line hidden
             this.Write("</p>\r\n\t\t<hr />\r\n\t\t<div>\r\n\t\t");
             
-            #line 82 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 82 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
  foreach(var f in Formatters) {
             
             #line default
             #line hidden
             this.Write("\t\t\t<input type=\"radio\" id=\"menu_radio_");
             
-            #line 83 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 83 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write("\" class=\"collapse\" name=\"menu\" ");
             
-            #line 83 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 83 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f == Formatters[0] ? "checked='checked'" : ""));
             
             #line default
             #line hidden
             this.Write(" />\r\n\t\t\t<label for=\"menu_radio_");
             
-            #line 84 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 84 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write("\" class=\"nav\">\r\n\t\t\t\t");
             
-            #line 85 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 85 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.DisplayName));
             
             #line default
             #line hidden
             this.Write("\r\n\t\t\t</label>\r\n\t\t");
             
-            #line 87 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 87 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 }
             
             #line default
             #line hidden
             this.Write("\t\t<hr />\r\n\t\t");
             
-            #line 89 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 89 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 foreach(var formatter in Formatters){
             
             #line default
             #line hidden
             this.Write("\t\t<div class=\"container\" id=\"container_");
             
-            #line 90 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 90 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(formatter.Id));
             
             #line default
             #line hidden
             this.Write("\">\r\n\t\t\t");
             
-            #line 91 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 91 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 formatter.WriteBody(this);
             
             #line default
             #line hidden
             this.Write("\t\t</div>\r\n\t\t");
             
-            #line 93 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 93 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 }
             
             #line default
@@ -202,7 +202,7 @@ formatter.WriteBody(this);
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 105 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 105 "C:\dev\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 
     public int ErrorCode { get; set; }
 

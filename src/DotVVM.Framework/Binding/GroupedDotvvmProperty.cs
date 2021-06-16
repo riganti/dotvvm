@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Binding
             };
             if (group.PropertyGroupMode == PropertyGroupMode.ValueCollection) prop.IsVirtual = true;
 
-            DotvvmProperty.InitializeProperty(prop, (MemberInfo)group.DescriptorField ?? group.PropertyInfo);
+            DotvvmProperty.InitializeProperty(prop, group.AttributeProvider);
             return prop;
         }
     }

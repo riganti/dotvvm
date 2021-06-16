@@ -339,12 +339,12 @@
     "@jest/types" "^26.6.2"
     "@types/node" "*"
     "ansi-escapes" "^4.2.1"
+    "chalk" "^4.0.0"
     "exit" "^0.1.2"
     "graceful-fs" "^4.2.4"
-    "chalk" "^4.0.0"
+    "jest-changed-files" "^26.6.2"
     "jest-config" "^26.6.3"
     "jest-haste-map" "^26.6.2"
-    "jest-changed-files" "^26.6.2"
     "jest-message-util" "^26.6.2"
     "jest-regex-util" "^26.0.0"
     "jest-resolve" "^26.6.2"
@@ -402,11 +402,11 @@
     "@jest/test-result" "^26.6.2"
     "@jest/transform" "^26.6.2"
     "@jest/types" "^26.6.2"
+    "chalk" "^4.0.0"
     "collect-v8-coverage" "^1.0.0"
     "exit" "^0.1.2"
     "glob" "^7.1.2"
     "graceful-fs" "^4.2.4"
-    "chalk" "^4.0.0"
     "istanbul-lib-coverage" "^3.0.0"
     "istanbul-lib-instrument" "^4.0.3"
     "istanbul-lib-report" "^3.0.0"
@@ -416,6 +416,7 @@
     "jest-resolve" "^26.6.2"
     "jest-util" "^26.6.2"
     "jest-worker" "^26.6.2"
+    "node-notifier" "^8.0.0"
     "slash" "^3.0.0"
     "source-map" "^0.6.0"
     "string-length" "^4.0.1"
@@ -462,10 +463,10 @@
     "@babel/core" "^7.1.0"
     "@jest/types" "^26.6.2"
     "babel-plugin-istanbul" "^6.0.0"
+    "chalk" "^4.0.0"
     "convert-source-map" "^1.4.0"
     "fast-json-stable-stringify" "^2.0.0"
     "graceful-fs" "^4.2.4"
-    "chalk" "^4.0.0"
     "jest-haste-map" "^26.6.2"
     "jest-regex-util" "^26.0.0"
     "jest-util" "^26.6.2"
@@ -818,8 +819,8 @@
     "@types/babel__core" "^7.1.7"
     "babel-plugin-istanbul" "^6.0.0"
     "babel-preset-jest" "^26.6.2"
-    "graceful-fs" "^4.2.4"
     "chalk" "^4.0.0"
+    "graceful-fs" "^4.2.4"
     "slash" "^3.0.0"
 
 "babel-plugin-istanbul@^6.0.0":
@@ -1016,6 +1017,52 @@
   "integrity" "sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw="
   "resolved" "https://registry.npmjs.org/caseless/-/caseless-0.12.0.tgz"
   "version" "0.12.0"
+
+"chalk@^2.0.0":
+  "integrity" "sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ=="
+  "resolved" "https://registry.npmjs.org/chalk/-/chalk-2.4.2.tgz"
+  "version" "2.4.2"
+  dependencies:
+    "ansi-styles" "^3.2.1"
+    "escape-string-regexp" "^1.0.5"
+    "supports-color" "^5.3.0"
+
+"chalk@^3.0.0":
+  "integrity" "sha512-4D3B6Wf41KOYRFdszmDqMCGq5VV/uMAB273JILmO+3jAlh8X4qDtdtgCR3fxtbLEMzSx22QdhnDcJvu2u1fVwg=="
+  "resolved" "https://registry.npmjs.org/chalk/-/chalk-3.0.0.tgz"
+  "version" "3.0.0"
+  dependencies:
+    "ansi-styles" "^4.1.0"
+    "supports-color" "^7.1.0"
+
+"chalk@^4.0.0":
+  "integrity" "sha512-qwx12AxXe2Q5xQ43Ac//I6v5aXTipYrSESdOgzrN+9XjgEpyjpKuvSGaN4qE93f7TQTlerQQ8S+EQ0EyDoVL1A=="
+  "resolved" "https://registry.npmjs.org/chalk/-/chalk-4.1.0.tgz"
+  "version" "4.1.0"
+  dependencies:
+    "ansi-styles" "^4.1.0"
+    "supports-color" "^7.1.0"
+
+"char-regex@^1.0.2":
+  "integrity" "sha512-kWWXztvZ5SBQV+eRgKFeh8q5sLuZY2+8WUIzlxWVTg+oGwY14qylx1KbKzHd8P6ZYkAg0xyIDU9JMHhyJMZ1jw=="
+  "resolved" "https://registry.npmjs.org/char-regex/-/char-regex-1.0.2.tgz"
+  "version" "1.0.2"
+
+"chokidar@^3.3.0":
+  "integrity" "sha512-9+s+Od+W0VJJzawDma/gvBNQqkTiqYTWLuZoyAsivsI4AaWTCzHG06/TMjsf1cYe9Cb97UCEhjz7HvnPk2p/tw=="
+  "resolved" "https://registry.npmjs.org/chokidar/-/chokidar-3.5.1.tgz"
+  "version" "3.5.1"
+  dependencies:
+    "anymatch" "~3.1.1"
+    "braces" "~3.0.2"
+    "fsevents" "~2.3.1"
+    "glob-parent" "~5.1.0"
+    "is-binary-path" "~2.1.0"
+    "is-glob" "~4.0.1"
+    "normalize-path" "~3.0.0"
+    "readdirp" "~3.5.0"
+  optionalDependencies:
+    "fsevents" "~2.3.1"
 
 "ci-info@^2.0.0":
   "integrity" "sha512-5tK7EtrZ0N+OLFMthtqOj4fI2Jeb88C4CAZPu25LDVUgXJ0A3Js4PMGqrn0JU1W0Mh1/Z8wZzYPxqUrXeBboCQ=="
@@ -1341,6 +1388,7 @@
     "estraverse" "^4.2.0"
     "esutils" "^2.0.2"
     "optionator" "^0.8.1"
+    "source-map" "~0.6.1"
   optionalDependencies:
     "source-map" "~0.6.1"
 
@@ -1471,17 +1519,17 @@
   "resolved" "https://registry.npmjs.org/extsprintf/-/extsprintf-1.3.0.tgz"
   "version" "1.3.0"
 
-"fast-deep-equal@^3.1.1":
-  "integrity" "sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q=="
-  "resolved" "https://registry.npmjs.org/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz"
-  "version" "3.1.3"
-
 "fast-check@2.5.0":
   "integrity" "sha512-1DQmeMef1xs7AQP3dHIpVtAc5FzpUdEJE6y1rqt2MX1+uVEGdqPT5u31h14oxbA/Xoxsm9YqahxsszLZBMg/dA=="
   "resolved" "https://registry.npmjs.org/fast-check/-/fast-check-2.5.0.tgz"
   "version" "2.5.0"
   dependencies:
     "pure-rand" "^3.0.0"
+
+"fast-deep-equal@^3.1.1":
+  "integrity" "sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q=="
+  "resolved" "https://registry.npmjs.org/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz"
+  "version" "3.1.3"
 
 "fast-json-stable-stringify@^2.0.0", "fast-json-stable-stringify@2.x":
   "integrity" "sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw=="
@@ -1555,6 +1603,16 @@
   "integrity" "sha1-FQStJSMVjKpA20onh8sBQRmU6k8="
   "resolved" "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz"
   "version" "1.0.0"
+
+"fsevents@^2.1.2", "fsevents@~2.3.1":
+  "integrity" "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA=="
+  "resolved" "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz"
+  "version" "2.3.2"
+
+"fsevents@~2.1.2":
+  "integrity" "sha512-Auw9a4AxqWpa9GUfj370BMPzzyncfBABW8Mab7BGWBYDj4Isgq+cDKtx0i6u9jcX9pQDnswsaaOTgTmA5pEjuQ=="
+  "resolved" "https://registry.npmjs.org/fsevents/-/fsevents-2.1.3.tgz"
+  "version" "2.1.3"
 
 "function-bind@^1.1.1":
   "integrity" "sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A=="
@@ -1727,51 +1785,6 @@
   "integrity" "sha512-SEQu7vl8KjNL2eoGBLF3+wAjpsNfA9XMlXAYj/3EdaNfAlxKthD1xjEQfGOUhllCGGJVNY34bRr6lPINhNjyZw=="
   "resolved" "https://registry.npmjs.org/human-signals/-/human-signals-1.1.1.tgz"
   "version" "1.1.1"
-
-"chalk@^2.0.0":
-  "integrity" "sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ=="
-  "resolved" "https://registry.npmjs.org/chalk/-/chalk-2.4.2.tgz"
-  "version" "2.4.2"
-  dependencies:
-    "ansi-styles" "^3.2.1"
-    "escape-string-regexp" "^1.0.5"
-    "supports-color" "^5.3.0"
-
-"chalk@^3.0.0":
-  "integrity" "sha512-4D3B6Wf41KOYRFdszmDqMCGq5VV/uMAB273JILmO+3jAlh8X4qDtdtgCR3fxtbLEMzSx22QdhnDcJvu2u1fVwg=="
-  "resolved" "https://registry.npmjs.org/chalk/-/chalk-3.0.0.tgz"
-  "version" "3.0.0"
-  dependencies:
-    "ansi-styles" "^4.1.0"
-    "supports-color" "^7.1.0"
-
-"chalk@^4.0.0":
-  "integrity" "sha512-qwx12AxXe2Q5xQ43Ac//I6v5aXTipYrSESdOgzrN+9XjgEpyjpKuvSGaN4qE93f7TQTlerQQ8S+EQ0EyDoVL1A=="
-  "resolved" "https://registry.npmjs.org/chalk/-/chalk-4.1.0.tgz"
-  "version" "4.1.0"
-  dependencies:
-    "ansi-styles" "^4.1.0"
-    "supports-color" "^7.1.0"
-
-"char-regex@^1.0.2":
-  "integrity" "sha512-kWWXztvZ5SBQV+eRgKFeh8q5sLuZY2+8WUIzlxWVTg+oGwY14qylx1KbKzHd8P6ZYkAg0xyIDU9JMHhyJMZ1jw=="
-  "resolved" "https://registry.npmjs.org/char-regex/-/char-regex-1.0.2.tgz"
-  "version" "1.0.2"
-
-"chokidar@^3.3.0":
-  "integrity" "sha512-9+s+Od+W0VJJzawDma/gvBNQqkTiqYTWLuZoyAsivsI4AaWTCzHG06/TMjsf1cYe9Cb97UCEhjz7HvnPk2p/tw=="
-  "resolved" "https://registry.npmjs.org/chokidar/-/chokidar-3.5.1.tgz"
-  "version" "3.5.1"
-  dependencies:
-    "anymatch" "~3.1.1"
-    "braces" "~3.0.2"
-    "glob-parent" "~5.1.0"
-    "is-binary-path" "~2.1.0"
-    "is-glob" "~4.0.1"
-    "normalize-path" "~3.0.0"
-    "readdirp" "~3.5.0"
-  optionalDependencies:
-    "fsevents" "~2.3.1"
 
 "iconv-lite@0.4.24":
   "integrity" "sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA=="
@@ -2063,6 +2076,15 @@
     "html-escaper" "^2.0.0"
     "istanbul-lib-report" "^3.0.0"
 
+"jest-changed-files@^26.6.2":
+  "integrity" "sha512-fDS7szLcY9sCtIip8Fjry9oGf3I2ht/QT21bAHm5Dmf0mD4X3ReNUf17y+bO6fR8WgbIZTlbyG1ak/53cbRzKQ=="
+  "resolved" "https://registry.npmjs.org/jest-changed-files/-/jest-changed-files-26.6.2.tgz"
+  "version" "26.6.2"
+  dependencies:
+    "@jest/types" "^26.6.2"
+    "execa" "^4.0.0"
+    "throat" "^5.0.0"
+
 "jest-cli@^26.5.3":
   "integrity" "sha512-GF9noBSa9t08pSyl3CY4frMrqp+aQXFGFkf5hEPbh/pIUFYWMK6ZLTfbmadxJVcJrdRoChlWQsA2VkJcDFK8hg=="
   "resolved" "https://registry.npmjs.org/jest-cli/-/jest-cli-26.6.3.tgz"
@@ -2071,9 +2093,9 @@
     "@jest/core" "^26.6.3"
     "@jest/test-result" "^26.6.2"
     "@jest/types" "^26.6.2"
+    "chalk" "^4.0.0"
     "exit" "^0.1.2"
     "graceful-fs" "^4.2.4"
-    "chalk" "^4.0.0"
     "import-local" "^3.0.2"
     "is-ci" "^2.0.0"
     "jest-config" "^26.6.3"
@@ -2091,10 +2113,10 @@
     "@jest/test-sequencer" "^26.6.3"
     "@jest/types" "^26.6.2"
     "babel-jest" "^26.6.3"
+    "chalk" "^4.0.0"
     "deepmerge" "^4.2.2"
     "glob" "^7.1.1"
     "graceful-fs" "^4.2.4"
-    "chalk" "^4.0.0"
     "jest-environment-jsdom" "^26.6.2"
     "jest-environment-node" "^26.6.2"
     "jest-get-type" "^26.3.0"
@@ -2111,8 +2133,8 @@
   "resolved" "https://registry.npmjs.org/jest-diff/-/jest-diff-25.5.0.tgz"
   "version" "25.5.0"
   dependencies:
-    "diff-sequences" "^25.2.6"
     "chalk" "^3.0.0"
+    "diff-sequences" "^25.2.6"
     "jest-get-type" "^25.2.6"
     "pretty-format" "^25.5.0"
 
@@ -2121,8 +2143,8 @@
   "resolved" "https://registry.npmjs.org/jest-diff/-/jest-diff-26.6.2.tgz"
   "version" "26.6.2"
   dependencies:
-    "diff-sequences" "^26.6.2"
     "chalk" "^4.0.0"
+    "diff-sequences" "^26.6.2"
     "jest-get-type" "^26.3.0"
     "pretty-format" "^26.6.2"
 
@@ -2189,6 +2211,7 @@
     "@types/node" "*"
     "anymatch" "^3.0.3"
     "fb-watchman" "^2.0.0"
+    "fsevents" "^2.1.2"
     "graceful-fs" "^4.2.4"
     "jest-regex-util" "^26.0.0"
     "jest-serializer" "^26.6.2"
@@ -2199,15 +2222,6 @@
     "walker" "^1.0.7"
   optionalDependencies:
     "fsevents" "^2.1.2"
-
-"jest-changed-files@^26.6.2":
-  "integrity" "sha512-fDS7szLcY9sCtIip8Fjry9oGf3I2ht/QT21bAHm5Dmf0mD4X3ReNUf17y+bO6fR8WgbIZTlbyG1ak/53cbRzKQ=="
-  "resolved" "https://registry.npmjs.org/jest-changed-files/-/jest-changed-files-26.6.2.tgz"
-  "version" "26.6.2"
-  dependencies:
-    "@jest/types" "^26.6.2"
-    "execa" "^4.0.0"
-    "throat" "^5.0.0"
 
 "jest-jasmine2@^26.6.3":
   "integrity" "sha512-kPKUrQtc8aYwBV7CqBg5pu+tmYXlvFlSFYn18ev4gPFtrRzB15N2gW/Roew3187q2w2eHuu0MU9TJz6w0/nPEg=="
@@ -2220,9 +2234,9 @@
     "@jest/test-result" "^26.6.2"
     "@jest/types" "^26.6.2"
     "@types/node" "*"
+    "chalk" "^4.0.0"
     "co" "^4.6.0"
     "expect" "^26.6.2"
-    "chalk" "^4.0.0"
     "is-generator-fn" "^2.0.0"
     "jest-each" "^26.6.2"
     "jest-matcher-utils" "^26.6.2"
@@ -2269,8 +2283,8 @@
     "@babel/code-frame" "^7.0.0"
     "@jest/types" "^26.6.2"
     "@types/stack-utils" "^2.0.0"
-    "graceful-fs" "^4.2.4"
     "chalk" "^4.0.0"
+    "graceful-fs" "^4.2.4"
     "micromatch" "^4.0.2"
     "pretty-format" "^26.6.2"
     "slash" "^3.0.0"
@@ -2309,8 +2323,8 @@
   "version" "26.6.2"
   dependencies:
     "@jest/types" "^26.6.2"
-    "graceful-fs" "^4.2.4"
     "chalk" "^4.0.0"
+    "graceful-fs" "^4.2.4"
     "jest-pnp-resolver" "^1.2.2"
     "jest-util" "^26.6.2"
     "read-pkg-up" "^7.0.1"
@@ -2327,10 +2341,10 @@
     "@jest/test-result" "^26.6.2"
     "@jest/types" "^26.6.2"
     "@types/node" "*"
+    "chalk" "^4.0.0"
     "emittery" "^0.7.1"
     "exit" "^0.1.2"
     "graceful-fs" "^4.2.4"
-    "chalk" "^4.0.0"
     "jest-config" "^26.6.3"
     "jest-docblock" "^26.0.0"
     "jest-haste-map" "^26.6.2"
@@ -2357,12 +2371,12 @@
     "@jest/transform" "^26.6.2"
     "@jest/types" "^26.6.2"
     "@types/yargs" "^15.0.0"
+    "chalk" "^4.0.0"
     "cjs-module-lexer" "^0.6.0"
     "collect-v8-coverage" "^1.0.0"
     "exit" "^0.1.2"
     "glob" "^7.1.3"
     "graceful-fs" "^4.2.4"
-    "chalk" "^4.0.0"
     "jest-config" "^26.6.3"
     "jest-haste-map" "^26.6.2"
     "jest-message-util" "^26.6.2"
@@ -2393,9 +2407,9 @@
     "@jest/types" "^26.6.2"
     "@types/babel__traverse" "^7.0.4"
     "@types/prettier" "^2.0.0"
+    "chalk" "^4.0.0"
     "expect" "^26.6.2"
     "graceful-fs" "^4.2.4"
-    "chalk" "^4.0.0"
     "jest-diff" "^26.6.2"
     "jest-get-type" "^26.3.0"
     "jest-haste-map" "^26.6.2"
@@ -2413,8 +2427,8 @@
   dependencies:
     "@jest/types" "^26.6.2"
     "@types/node" "*"
-    "graceful-fs" "^4.2.4"
     "chalk" "^4.0.0"
+    "graceful-fs" "^4.2.4"
     "is-ci" "^2.0.0"
     "micromatch" "^4.0.2"
 
@@ -3303,6 +3317,8 @@
   "integrity" "sha512-0FIG1jY88uhCP2yP4CfvtKEqPDRmsUwfY1kEOOM+DH/KOGATgaIFd/is1+fQOxsvh62ELzcFfKonwKWnHhrqmw=="
   "resolved" "https://registry.npmjs.org/rollup/-/rollup-2.32.0.tgz"
   "version" "2.32.0"
+  dependencies:
+    "fsevents" "~2.1.2"
   optionalDependencies:
     "fsevents" "~2.1.2"
 
@@ -3824,6 +3840,13 @@
   "resolved" "https://registry.npmjs.org/tweetnacl/-/tweetnacl-0.14.5.tgz"
   "version" "0.14.5"
 
+"type-check@~0.3.2":
+  "integrity" "sha1-WITKtRLPHTVeP7eE8wgEsrUg23I="
+  "resolved" "https://registry.npmjs.org/type-check/-/type-check-0.3.2.tgz"
+  "version" "0.3.2"
+  dependencies:
+    "prelude-ls" "~1.1.2"
+
 "type-detect@4.0.8":
   "integrity" "sha512-0fr/mIH1dlO+x7TlcMy+bIDqKPsw/70tVyeHW787goQjhmqaZe10uwLujubK9q9Lg6Fiho1KUKDYz0Z7k7g5/g=="
   "resolved" "https://registry.npmjs.org/type-detect/-/type-detect-4.0.8.tgz"
@@ -3843,13 +3866,6 @@
   "integrity" "sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA=="
   "resolved" "https://registry.npmjs.org/type-fest/-/type-fest-0.8.1.tgz"
   "version" "0.8.1"
-
-"type-check@~0.3.2":
-  "integrity" "sha1-WITKtRLPHTVeP7eE8wgEsrUg23I="
-  "resolved" "https://registry.npmjs.org/type-check/-/type-check-0.3.2.tgz"
-  "version" "0.3.2"
-  dependencies:
-    "prelude-ls" "~1.1.2"
 
 "typedarray-to-buffer@^3.1.5":
   "integrity" "sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q=="

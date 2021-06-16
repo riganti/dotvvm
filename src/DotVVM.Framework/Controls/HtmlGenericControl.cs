@@ -7,6 +7,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
@@ -98,6 +99,27 @@ namespace DotVVM.Framework.Controls
 
         public static readonly DotvvmProperty VisibleProperty =
             DotvvmProperty.Register<bool, HtmlGenericControl>(t => t.Visible, true);
+
+
+        public HtmlCapability HtmlCapability
+        {
+            get => (HtmlCapability)this.GetValue(HtmlCapabilityProperty)!;
+            set => this.SetValue(HtmlCapabilityProperty, value);
+        }
+        public static readonly DotvvmCapabilityProperty HtmlCapabilityProperty =
+            DotvvmCapabilityProperty.RegisterCapability("HtmlCapability", typeof(HtmlGenericControl), typeof(HtmlCapability),
+                control => new HtmlCapability {
+                    Visible = control.GetValueOrBinding<bool>(VisibleProperty),
+                    Attributes = ((HtmlGenericControl)control).Attributes.ToDictionary(k => k.Key, k => ValueOrBinding<object?>.FromBoxedValue(k.Value)),
+                    CssClasses = VirtualPropertyGroupDictionary<bool>.CreatePropertyDictionary(control, CssClassesGroupDescriptor)
+                },
+                (control, boxedValue) => {
+                    var value = (HtmlCapability)boxedValue;
+                    control.SetValue(VisibleProperty, value.Visible);
+                    ((HtmlGenericControl)control).Attributes = value.Attributes.ToDictionary(t => t.Key, t => t.Value.BindingOrDefault ?? t.Value.BoxedValue);
+                    ((HtmlGenericControl)control).CssClasses.CopyFrom(value.CssClasses, clear: true);
+                }
+            );
 
         /// <summary>
         /// Gets a value whether this control renders a HTML tag.
@@ -399,5 +421,16 @@ namespace DotVVM.Framework.Controls
                 throw new DotvvmControlException(this, "The DotVVM controls do not support the 'InnerText' property. It can be only used on HTML elements.");
             }
         }
+    }
+
+
+    [DotvvmControlCapability]
+    public sealed class HtmlCapability
+    {
+        [PropertyGroup("", "html:")]
+        public IDictionary<string, ValueOrBinding<object?>> Attributes { get; set; } = new Dictionary<string, ValueOrBinding<object?>>();
+        [PropertyGroup("Class-")]
+        public IDictionary<string, ValueOrBinding<bool>> CssClasses { get; set; } = new Dictionary<string, ValueOrBinding<bool>>();
+        public ValueOrBinding<bool> Visible { get; set; } = true;
     }
 }

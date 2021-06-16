@@ -13,6 +13,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using Newtonsoft.Json;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Binding
 {
@@ -59,6 +60,12 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         [JsonIgnore]
         public PropertyInfo? PropertyInfo { get; private set; }
+
+        /// <summary>
+        /// Provider of custom attributes for this property.
+        /// </summary>
+        public ICustomAttributeProvider AttributeProvider { get; private set; }
+
 
         /// <summary>
         /// Gets or sets the markup options.
@@ -154,7 +161,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Registers the specified DotVVM property.
         /// </summary>
-        public static DotvvmProperty Register<TPropertyType, TDeclaringType>(Expression<Func<DotvvmProperty>> fieldAccessor, TPropertyType defaultValue = default(TPropertyType), bool isValueInherited = false)
+        public static DotvvmProperty Register<TPropertyType, TDeclaringType>(Expression<Func<DotvvmProperty>> fieldAccessor, [AllowNull] TPropertyType defaultValue = default(TPropertyType), bool isValueInherited = false)
         {
             var field = ReflectionUtils.GetMemberFromExpression(fieldAccessor.Body) as FieldInfo;
             if (field == null || !field.IsStatic) throw new ArgumentException("The expression should be simple static field access", nameof(fieldAccessor));
@@ -165,7 +172,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Registers the specified DotVVM property.
         /// </summary>
-        public static DotvvmProperty Register<TPropertyType, TDeclaringType>(Expression<Func<TDeclaringType, object?>> propertyAccessor, TPropertyType defaultValue = default(TPropertyType), bool isValueInherited = false)
+        public static DotvvmProperty Register<TPropertyType, TDeclaringType>(Expression<Func<TDeclaringType, object?>> propertyAccessor, [AllowNull] TPropertyType defaultValue = default(TPropertyType), bool isValueInherited = false)
         {
             var property = ReflectionUtils.GetMemberFromExpression(propertyAccessor.Body) as PropertyInfo;
             if (property == null) throw new ArgumentException("The expression should be simple property access", nameof(propertyAccessor));
@@ -175,7 +182,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Registers the specified DotVVM property.
         /// </summary>
-        public static DotvvmProperty Register<TPropertyType, TDeclaringType>(string propertyName, TPropertyType defaultValue = default(TPropertyType), bool isValueInherited = false, DotvvmProperty? property = null)
+        public static DotvvmProperty Register<TPropertyType, TDeclaringType>(string propertyName, [AllowNull] TPropertyType defaultValue = default(TPropertyType), bool isValueInherited = false, DotvvmProperty? property = null)
         {
             var field = typeof(TDeclaringType).GetField(propertyName + "Property", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
             if (field == null) throw new ArgumentException($"'{typeof(TDeclaringType).Name}' does not contain static field '{propertyName}Property'.");
@@ -210,7 +217,8 @@ namespace DotVVM.Framework.Binding
 
         public static void InitializeProperty(DotvvmProperty property, ICustomAttributeProvider attributeProvider)
         {
-            var propertyInfo = property.DeclaringType.GetProperty(property.Name);
+            var propertyInfo = property.PropertyInfo ?? property.DeclaringType.GetProperty(property.Name);
+            property.AttributeProvider = attributeProvider = propertyInfo ?? attributeProvider ?? throw new ArgumentNullException(nameof(attributeProvider));
             var markupOptions = propertyInfo?.GetCustomAttribute<MarkupOptionsAttribute>()
                 ?? attributeProvider.GetCustomAttribute<MarkupOptionsAttribute>()
                 ?? new MarkupOptionsAttribute() {
@@ -223,12 +231,8 @@ namespace DotVVM.Framework.Binding
 
             if (property == null) property = new DotvvmProperty();
             property.PropertyInfo = propertyInfo;
-            property.DataContextChangeAttributes = (propertyInfo != null ?
-                propertyInfo.GetCustomAttributes<DataContextChangeAttribute>(true) :
-                attributeProvider.GetCustomAttributes<DataContextChangeAttribute>()).ToArray();
-            property.DataContextManipulationAttribute = propertyInfo != null ?
-                propertyInfo.GetCustomAttribute<DataContextStackManipulationAttribute>(true) :
-                attributeProvider.GetCustomAttribute<DataContextStackManipulationAttribute>();
+            property.DataContextChangeAttributes = attributeProvider.GetCustomAttributes<DataContextChangeAttribute>().ToArray();
+            property.DataContextManipulationAttribute = attributeProvider.GetCustomAttribute<DataContextStackManipulationAttribute>();
             if (property.DataContextManipulationAttribute != null && property.DataContextChangeAttributes.Any()) throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set both at property '{property.FullName}'.");
             property.MarkupOptions = markupOptions;
             property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);

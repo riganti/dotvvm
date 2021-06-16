@@ -24,8 +24,8 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public string Text
         {
-            get { return (string)GetValue(TextProperty)!; }
-            set { SetValue(TextProperty, value ?? throw new ArgumentNullException(nameof(value))); }
+            get { return GetValue(TextProperty)?.ToString(); }
+            set { SetValue(TextProperty, value); }
         }
 
         public static readonly DotvvmProperty TextProperty =
@@ -88,6 +88,18 @@ namespace DotVVM.Framework.Controls
             Text = text;
             RenderSpanElement = false;
             if (allowImplicitLifecycleRequirements) LifecycleRequirements = ControlLifecycleRequirements.None;
+        }
+
+        public Literal(ValueOrBinding text, bool renderSpan = false): this()
+        {
+            SetValue(TextProperty, text);
+            RenderSpanElement = renderSpan;
+        }
+
+        public Literal(IStaticValueBinding text, bool renderSpan = false): this()
+        {
+            SetBinding(TextProperty, text);
+            RenderSpanElement = renderSpan;
         }
 
         public static bool NeedsFormatting(IValueBinding? binding)

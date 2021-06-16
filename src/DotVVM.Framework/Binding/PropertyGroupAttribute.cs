@@ -16,8 +16,9 @@ namespace DotVVM.Framework.Binding
             this.Prefixes = new[] { prefix };
         }
 
-        public PropertyGroupAttribute(string[] prefixes)
+        public PropertyGroupAttribute(params string[] prefixes)
         {
+            if (prefixes == null || prefixes.Length == 0) throw new ArgumentException(nameof(prefixes));
             this.Prefixes = prefixes;
         }
     }
