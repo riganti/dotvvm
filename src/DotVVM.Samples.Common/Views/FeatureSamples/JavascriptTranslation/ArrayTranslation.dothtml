@@ -1,0 +1,32 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation.ArrayTranslationViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>Array testing</h1>
+
+    <dot:Repeater DataSource="{value: Array}">
+        <p>
+            <span>INDEX: "{{value: _index}}"</span>
+            <span>VALUE: "{{value: _this}}"</span>
+        </p>
+    </dot:Repeater>
+
+    <h2>Operations</h2>
+    <p>
+        <span>INDEX:</span> <dot:TextBox data-ui="index" Text="{value: Index}" /> <br />
+        <span>VALUE:</span> <dot:TextBox data-ui="value" Text="{value: Value}" /> <br />
+    </p>
+
+    <dot:Button data-ui="set" Text="Set" Click="{staticCommand: Array[Index] = Value}" />
+
+</body>
+</html>
+
+
