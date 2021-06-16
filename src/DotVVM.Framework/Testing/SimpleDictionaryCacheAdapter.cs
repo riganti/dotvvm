@@ -12,8 +12,8 @@ namespace DotVVM.Framework.Testing
         ConcurrentDictionary<object, object?> cache = new ConcurrentDictionary<object, object?>();
         public T Get<T>(object key) => GetOrAdd<object, T>(key, null);
 
-        public T GetOrAdd<Tkey, T>(Tkey key, Func<Tkey, DotvvmCachedItem<T>>? factoryFunc)
-            where Tkey: notnull
+        public T GetOrAdd<TKey, T>(TKey key, Func<TKey, DotvvmCachedItem<T>>? factoryFunc)
+            where TKey: notnull
         {
             if (factoryFunc == null)
                 return (T)cache[key]!;

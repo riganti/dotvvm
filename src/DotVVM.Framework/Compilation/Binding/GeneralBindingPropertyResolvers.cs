@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         public Expression<BindingDelegate> CompileToDelegate(
-            CastedExpressionBindingProperty expression, DataContextStack dataContext)
+            CastExpressionBindingProperty expression, DataContextStack dataContext)
         {
             var expr = BindingCompiler.ReplaceParameters(expression.Expression, dataContext);
             expr = new ExpressionNullPropagationVisitor(e => true).Visit(expr);
@@ -57,11 +57,11 @@ namespace DotVVM.Framework.Compilation.Binding
             return Expression.Lambda<BindingDelegate>(expr, BindingCompiler.ViewModelsParameter, BindingCompiler.CurrentControlParameter);
         }
 
-        public CastedExpressionBindingProperty ConvertExpressionToType(ParsedExpressionBindingProperty expr, ExpectedTypeBindingProperty expectedType = null)
+        public CastExpressionBindingProperty ConvertExpressionToType(ParsedExpressionBindingProperty expr, ExpectedTypeBindingProperty expectedType = null)
         {
             var destType = expectedType?.Type ?? typeof(object);
             var convertedExpr = TypeConversion.ImplicitConversion(expr.Expression, destType, throwException: false, allowToString: true);
-            return new CastedExpressionBindingProperty(
+            return new CastExpressionBindingProperty(
                 // if the expression is of type object (i.e. null literal) try the lambda conversion.
                 convertedExpr != null && expr.Expression.Type != typeof(object) ? convertedExpr :
                 TypeConversion.MagicLambdaConversion(expr.Expression, destType) ??
@@ -101,7 +101,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return new ParsedExpressionBindingProperty(expr);
         }
 
-        public KnockoutJsExpressionBindingProperty CompileToJavascript(CastedExpressionBindingProperty expression,
+        public KnockoutJsExpressionBindingProperty CompileToJavascript(CastExpressionBindingProperty expression,
             DataContextStack dataContext)
         {
             return new KnockoutJsExpressionBindingProperty(

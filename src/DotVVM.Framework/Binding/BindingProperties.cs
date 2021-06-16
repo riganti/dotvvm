@@ -137,10 +137,10 @@ namespace DotVVM.Framework.Binding.Properties
     /// <summary>
     /// Contains <see cref="System.Linq.Expressions.Expression"/> instance that represents code converted to be evaluated as binding (type conversions applied, ...). 
     /// </summary>
-    public sealed class CastedExpressionBindingProperty
+    public sealed class CastExpressionBindingProperty
     {
         public readonly Expression Expression;
-        public CastedExpressionBindingProperty(Expression expression)
+        public CastExpressionBindingProperty(Expression expression)
         {
             this.Expression = expression;
         }
