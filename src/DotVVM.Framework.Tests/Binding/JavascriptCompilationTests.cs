@@ -386,6 +386,20 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_ListIndexer_Get()
+        {
+            var result = CompileBinding("List[1]", typeof(TestViewModel5));
+            Assert.AreEqual("List()[1]", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ListIndexer_Set()
+        {
+            var result = CompileBinding("List[1] = 123", new[] { typeof(TestViewModel5) }, typeof(void));
+            Assert.AreEqual("dotvvm.translations.array.setItem(List,1,123)", result);
+        }
+
+        [TestMethod]
         public void JsTranslator_DictionaryIndexer_Get()
         {
             var result = CompileBinding("Dictionary[1]", typeof(TestViewModel5));
