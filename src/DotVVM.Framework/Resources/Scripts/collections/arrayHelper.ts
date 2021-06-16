@@ -19,7 +19,8 @@ export {
     removeFirst,
     removeLast,
     removeRange,
-    reverse
+    reverse,
+    setItem
 }
 
 function add<T>(observable: any, element: T): void {
@@ -179,5 +180,14 @@ function removeLast<T>(observable: any, predicate: (s: T) => boolean): void {
 function reverse<T>(observable: any): void {
     let array = Array.from<T>(observable.state);
     array.reverse();
+    observable.setState(array);
+}
+
+function setItem<T>(observable: any, index: number, value: T): void {
+    let array = Array.from<T>(observable.state);
+    if (index < 0 || index >= array.length)
+        throw Error("Index out of range!");
+
+    array[index] = value;
     observable.setState(array);
 }
