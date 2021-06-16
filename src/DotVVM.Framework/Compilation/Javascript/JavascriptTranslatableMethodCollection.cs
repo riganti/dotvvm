@@ -123,6 +123,8 @@ namespace DotVVM.Framework.Compilation.Javascript
                 BuildIndexer(args[0], args[1], method.DeclaringType.GetProperty("Item"));
             JsExpression listSetIndexer(JsExpression[] args, MethodInfo method) =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("setItem").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1], args[2]);
+            JsExpression arrayElementSetter(JsExpression[] args, MethodInfo method) =>
+                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("setItem").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[2], args[1]);
             JsExpression dictionaryGetIndexer(JsExpression[] args, MethodInfo method) =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("getItem").Invoke(args[0], args[1]);
             JsExpression dictionarySetIndexer(JsExpression[] args, MethodInfo method) =>
@@ -138,6 +140,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(IDictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
             AddMethodTranslator(typeof(Dictionary<,>), "set_Item", new GenericMethodCompiler(dictionarySetIndexer));
             AddMethodTranslator(typeof(IDictionary<,>), "set_Item", new GenericMethodCompiler(dictionarySetIndexer));
+            AddMethodTranslator(typeof(Array).GetMethod(nameof(Array.SetValue), new[] { typeof(object), typeof(int) }), new GenericMethodCompiler(arrayElementSetter));
             AddPropertyGetterTranslator(typeof(Nullable<>), "Value", new GenericMethodCompiler((JsExpression[] args, MethodInfo method) => args[0]));
             AddPropertyGetterTranslator(typeof(Nullable<>), "HasValue",
                 new GenericMethodCompiler(args => new JsBinaryExpression(args[0], BinaryOperatorType.NotEqual, new JsLiteral(null))));
