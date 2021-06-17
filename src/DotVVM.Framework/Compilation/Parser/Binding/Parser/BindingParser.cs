@@ -893,7 +893,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
         private static object? ParseNumberLiteral(string text, out string? error)
         {
-            text = text.ToLower();
+            text = text.ToLowerInvariant();
             error = null;
             NumberLiteralSuffix type = NumberLiteralSuffix.None;
             var lastDigit = text[text.Length - 1];
