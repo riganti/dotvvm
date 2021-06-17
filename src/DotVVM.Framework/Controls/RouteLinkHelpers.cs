@@ -159,7 +159,7 @@ namespace DotVVM.Framework.Controls
             {
                 expression = JsonConvert.SerializeObject(param.Value, DefaultSerializerSettingsProvider.Instance.Settings);
             }
-            return KnockoutHelper.MakeStringLiteral(caseSensitive ? param.Key : param.Key.ToLower()) + ": " + expression;
+            return KnockoutHelper.MakeStringLiteral(caseSensitive ? param.Key : param.Key.ToLowerInvariant()) + ": " + expression;
         }
 
         private static void EnsureValidBindingType(IBinding binding)
