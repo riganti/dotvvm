@@ -14,7 +14,7 @@
 
     <div>
         <h2>Source collection</h2>
-        <dot:GridView DataSource="{value: SourceCustomers}">
+        <dot:GridView DataSource="{value: SourceCustomers}" data-ui="source-grid">
             <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: Id}" />
             <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" />
             <dot:GridViewTextColumn HeaderText="Category" ValueBinding="{value: Category}" />
@@ -75,7 +75,7 @@
 
     <div>
         <h2>Filtered collection</h2>
-        <dot:GridView DataSource="{value: FilteredCustomers}">
+        <dot:GridView DataSource="{value: FilteredCustomers}" data-ui="filtered-grid">
             <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: Id}" />
             <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" />
             <dot:GridViewTextColumn HeaderText="Category" ValueBinding="{value: Category}" />
@@ -87,7 +87,7 @@
 
     <div>
         <h2>Other operations result</h2>
-        <dot:TextBox Text="{value: OperationResult}"/>
+        <dot:TextBox Text="{value: OperationResult}" data-ui="textbox"/>
     </div>
 
 </body>
