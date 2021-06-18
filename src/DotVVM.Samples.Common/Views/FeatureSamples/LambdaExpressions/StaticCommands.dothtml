@@ -75,7 +75,7 @@
 
     <div>
         <h2>Filtered collection</h2>
-        <dot:GridView DataSource="{value: FilteredCustomers}" data-ui="filtered-grid">
+        <dot:GridView DataSource="{value: FilteredCustomers}" data-ui="grid">
             <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: Id}" />
             <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" />
             <dot:GridViewTextColumn HeaderText="Category" ValueBinding="{value: Category}" />
