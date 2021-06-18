@@ -659,21 +659,158 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(textbox, "3");
             });
         }
+        [Fact]
+        public void Feature_List_Translation_Add_Item()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_ListMethodTranslations);
 
+                var rows = GetSortedRow(browser, "Add (11)");
+                var column = GetColumnContent(rows, 0);
+                browser.WaitFor(() => Assert.Equal(11, column.Count), 500);
+                Assert.Equal(new List<string> { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11" }, column);
 
-        public IElementWrapperCollection<IElementWrapper, IBrowserWrapper> GetSortedRow(IBrowserWrapper browser, string btn)
+                rows = GetSortedRow(browser, "Add (11)");
+                column = GetColumnContent(rows, 0);
+                browser.WaitFor(() => Assert.Equal(12, column.Count), 500);
+                Assert.Equal(new List<string> { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "11" }, column);
+            });
+        }
+        [Fact]
+        public void Feature_List_Translation_Add_Or_Update()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_ListMethodTranslations);
+
+                var rows = GetSortedRow(browser, "AddOrUpdate");
+                var column = GetColumnContent(rows, 0);
+                browser.WaitFor(() => Assert.Equal(10, column.Count), 500);
+                Assert.Equal(new List<string> { "1", "2", "3", "4", "54321", "6", "7", "8", "9", "10" }, column);
+
+                rows = GetSortedRow(browser, "AddOrUpdate");
+                column = GetColumnContent(rows, 0);
+                browser.WaitFor(() => Assert.Equal(11, column.Count), 500);
+                Assert.Equal(new List<string> { "1", "2", "3", "4", "54321", "6", "7", "8", "9", "10", "12345" }, column);
+            });
+        }
+
+        [Fact]
+        public void Feature_List_Translation_Add_Range()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_ListMethodTranslations);
+
+                var rows = GetSortedRow(browser, "AddRange (first five)");
+                var column = GetColumnContent(rows, 0);
+                browser.WaitFor(() => Assert.Equal(15, column.Count), 500);
+                Assert.Equal(new List<string> { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "1", "2", "3", "4", "5" }, column);
+            });
+        }
+        [Fact]
+        public void Feature_List_Translation_Insert()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_ListMethodTranslations);
+
+                var rows = GetSortedRow(browser, "Insert (1,22)");
+                var column = GetColumnContent(rows, 0);
+                browser.WaitFor(() => Assert.Equal(11, column.Count), 500);
+                Assert.Equal(new List<string> { "1", "22", "2", "3", "4", "5", "6", "7", "8", "9", "10" }, column);
+            });
+        }
+        [Fact]
+        public void Feature_List_Translation_Insert_Range()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_ListMethodTranslations);
+
+                var rows = GetSortedRow(browser, "InsertRange (first five)");
+                var column = GetColumnContent(rows, 0);
+                browser.WaitFor(() => Assert.Equal(15, column.Count), 500);
+                Assert.Equal(new List<string> { "1", "1", "2", "3", "4", "5", "2", "3", "4", "5", "6", "7", "8", "9", "10" }, column);
+            });
+        }
+        [Fact]
+        public void Feature_List_Translation_Remove()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_ListMethodTranslations);
+
+                var rows = GetSortedRow(browser, "RemoveAt (2)");
+                var column = GetColumnContent(rows, 0);
+                browser.WaitFor(() => Assert.Equal(9, column.Count), 500);
+                Assert.Equal(new List<string> { "1", "2", "4", "5", "6", "7", "8", "9", "10" }, column);
+            });
+        }
+        [Fact]
+        public void Feature_List_Translation_Remove_By_Codition()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_ListMethodTranslations);
+
+                var rows = GetSortedRow(browser, "RemoveAll (even)");
+                var column = GetColumnContent(rows, 0);
+                browser.WaitFor(() => Assert.Equal(5, column.Count), 500);
+                Assert.Equal(new List<string> { "1", "3", "5", "7", "9" }, column);
+            });
+        }
+        [Fact]
+        public void Feature_List_Translation_Remove_One_By_Codition()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_ListMethodTranslations);
+
+                var rows = GetSortedRow(browser, "RemoveFirst (even)");
+                var column = GetColumnContent(rows, 0);
+                browser.WaitFor(() => Assert.Equal(9, column.Count), 500);
+                Assert.Equal(new List<string> { "1", "3", "4", "5", "6", "7", "8", "9", "10" }, column);
+
+                rows = GetSortedRow(browser, "RemoveLast (even)");
+                column = GetColumnContent(rows, 0);
+                browser.WaitFor(() => Assert.Equal(8, column.Count), 500);
+                Assert.Equal(new List<string> { "1", "3", "4", "5", "6", "7", "8", "9" }, column);
+            });
+        }
+
+        [Fact]
+        public void Feature_List_Translation_Remove_Range()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_ListMethodTranslations);
+
+                var rows = GetSortedRow(browser, "RemoveRange (2,5)");
+                var column = GetColumnContent(rows, 0);
+                browser.WaitFor(() => Assert.Equal(5, column.Count), 500);
+                Assert.Equal(new List<string> { "1", "2", "8", "9", "10" }, column);
+            });
+        }
+
+        [Fact]
+        public void Feature_List_Translation_Remove_Reverse()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_ListMethodTranslations);
+
+                var rows = GetSortedRow(browser, "Reverse");
+                var column = GetColumnContent(rows, 0);
+                browser.WaitFor(() => Assert.Equal(10, column.Count), 500);
+                Assert.Equal(new List<string> { "10", "9", "8", "7", "6", "5", "4", "3", "2", "1" }, column);
+            });
+        }
+
+        protected IElementWrapperCollection<IElementWrapper, IBrowserWrapper> GetSortedRow(IBrowserWrapper browser, string btn)
         {
             var orderByBtn = browser.First($"//input[@value='{btn}']", By.XPath);
             orderByBtn.Click();
-            var filteredGrid = browser.First("[data-ui=filtered-grid]");
+            var filteredGrid = browser.First("[data-ui=grid]");
             var rows = filteredGrid.FindElements("tbody tr", By.CssSelector);
             return rows;
         }
-        public List<string> RowContent(IElementWrapperCollection<IElementWrapper,IBrowserWrapper> rows, int trIndex, ICollection<int> cols)
+        protected List<string> RowContent(IElementWrapperCollection<IElementWrapper,IBrowserWrapper> rows, int trIndex, ICollection<int> cols)
         {
             return RowContent(rows.ElementAt(trIndex), cols);
         }
-        public List<string> RowContent(IElementWrapper row, ICollection<int> cols)
+        protected List<string> RowContent(IElementWrapper row, ICollection<int> cols)
         {
             var cells = row.FindElements("td", By.TagName);
 
@@ -681,6 +818,17 @@ namespace DotVVM.Samples.Tests.Feature
             foreach (var col in cols)
             {
                 content.Add(cells.ElementAt(col).GetInnerText());
+            }
+
+            return content;
+        }
+        public List<string> GetColumnContent(IElementWrapperCollection<IElementWrapper, IBrowserWrapper> rows, int column)
+        {
+            var content = new List<string>();
+
+            foreach (var row in rows)
+            {
+                content.Add(row.FindElements("td").ElementAt(column).GetInnerText());
             }
 
             return content;

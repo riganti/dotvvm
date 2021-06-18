@@ -22,7 +22,7 @@
     <dot:Button Text="RemoveRange (2,5)" Click="{staticCommand: List.RemoveRange(2, 5)}" />
     <dot:Button Text="Reverse" Click="{staticCommand: List.Reverse()}" />
 
-    <dot:GridView DataSource="{value: List}">
+    <dot:GridView DataSource="{value: List}" data-ui="grid">
         <dot:GridViewTextColumn HeaderText="Value" ValueBinding="{value: _this}" />
     </dot:GridView>
 
