@@ -34,9 +34,13 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutDataBind("attr", group);
             }
 
-            if (control.RenderOnServer || !containsBinding)
+            try
             {
                 writer.AddAttribute("href", EvaluateRouteUrl(control.RouteName, control, context));
+            }
+            catch when (!control.RenderOnServer && containsBinding)
+            {
+                // ignore exception when binding is also rendered
             }
         }
 
