@@ -85,10 +85,10 @@
       <HintPath>..\..\packages\Microsoft.Owin.StaticFiles.3.0.1\lib\net45\Microsoft.Owin.StaticFiles.dll</HintPath>
     </Reference>
     <Reference Include="MiniProfiler, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b44f9351044011a3, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\MiniProfiler.4.2.1\lib\net461\MiniProfiler.dll</HintPath>
+      <HintPath>..\..\packages\MiniProfiler.4.2.22\lib\net461\MiniProfiler.dll</HintPath>
     </Reference>
     <Reference Include="MiniProfiler.Shared, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b44f9351044011a3, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\MiniProfiler.Shared.4.2.1\lib\net461\MiniProfiler.Shared.dll</HintPath>
+      <HintPath>..\..\packages\MiniProfiler.Shared.4.2.22\lib\net461\MiniProfiler.Shared.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>

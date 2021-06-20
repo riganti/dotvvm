@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyTitle>DotVVM.Tracing.ApplicationInsights.Owin</AssemblyTitle>
     <VersionPrefix>3.0.0-preview01-final</VersionPrefix>
-    <TargetFrameworks>net451</TargetFrameworks>
+    <TargetFrameworks>net452</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>

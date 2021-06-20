@@ -11,8 +11,8 @@
 		<None Remove="dotvvm_serialized_config.json.tmp" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="DotVVM.AspNetCore" Version="$(DotvvmVersion)"/>
-		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
+		<PackageReference Include="DotVVM.AspNetCore" Version="$(DotvvmVersion)" />
+		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.17.0" />
 		<PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.2" />
 	</ItemGroup>
