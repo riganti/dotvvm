@@ -62,6 +62,7 @@
     <None Remove="Views\FeatureSamples\JavascriptTranslation\DictionaryIndexerTranslation.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\GenericMethodTranslation.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\ListMethodTranslations.dothtml" />
+    <None Remove="Views\FeatureSamples\JavascriptTranslation\StringMethodTranslation.dothtml" />
     <None Remove="Views\FeatureSamples\JsDirectives\BasicSample.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\ClientSideFiltering.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\LambdaExpressions.dothtml" />
