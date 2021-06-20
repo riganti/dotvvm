@@ -186,19 +186,21 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public static IEnumerable<DotvvmPropertyGroup> GetPropertyGroups(Type controlType)
         {
             RunClassConstructor(controlType);
-            foreach (var property in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
-            {
-                if (property.IsDefined(typeof(PropertyGroupAttribute)))
-                {
-                    yield return Create(property, null);
-                }
-            }
-
             foreach (var pg in descriptorDictionary.Values)
             {
                 if (pg.PropertyGroupMode == PropertyGroupMode.GeneratedDotvvmProperty && pg.DeclaringType.IsAssignableFrom(controlType))
                 {
                     yield return pg;
+                }
+            }
+
+            foreach (var property in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
+            {
+                if (property.IsDefined(typeof(PropertyGroupAttribute)))
+                {
+                    var pg = Create(property, null);
+                    if (pg.PropertyGroupMode == PropertyGroupMode.ValueCollection)
+                        yield return pg;
                 }
             }
         }
