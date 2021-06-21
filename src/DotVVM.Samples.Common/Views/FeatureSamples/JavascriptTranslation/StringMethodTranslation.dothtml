@@ -19,23 +19,26 @@
 
     <dot:Button Text="IsNullOrEmpty(value)" Click="{staticCommand: OperationResult = String.IsNullOrEmpty(Value)}" />
 
-    <%--<dot:Button Text="Join(separator, stringArray)" Click="{staticCommand: OperationResult = String.Join('.', JoinList)}" />
-    <dot:Button Text="Join('.', 'ha')" Click="{staticCommand: OperationResult = String.Join(' ', JoinArray)}" />--%>
+    <dot:Button Text="Join(separator, stringArray)" Click="{staticCommand: OperationResult = String.Join('.', JoinList)}" />
+    <dot:Button Text="Join('.', 'ha')" Click="{staticCommand: OperationResult = String.Join(' ', JoinArray)}" />
 
     <dot:Button Text="LastIndexOf(value)" Click="{staticCommand: Index = Joke.LastIndexOf(Value)}" />
     <dot:Button Text="LastIndexOf(value, 30)" Click="{staticCommand: Index = Joke.LastIndexOf(Value, 30)}" />
 
     <dot:Button Text="Replace(a, A)" Click="{staticCommand: OperationResult = Joke.Replace("a", "A")}" />
 
-    <%--<dot:Button Text="Split(charSeparatorsArray)" Click="{staticCommand: SplitArray = Joke.Split(' ')}" />--%>
-    <%--<dot:Button Text="Split(charSeparatorsArray, StringSplitOptions)" Click="{staticCommand: SplitList = Joke.Split(" ").ToList()}" />--%>
+    <dot:Button Text="Split(charSeparatorsArray)" Click="{staticCommand: SplitArray = Joke.Split(' ')}" />
+    <dot:Button Text="Split(charSeparatorsArray, StringSplitOptions)" Click="{staticCommand: SplitArray = Joke.Split(" ").ToArray()}" />
 
     <dot:Button Text="ToLower()" Click="{staticCommand: OperationResult = Joke.ToLower()}" />
     <dot:Button Text="ToUpper()" Click="{staticCommand: OperationResult = Joke.ToUpper()}" />
 
     <p>Operation result</p><h2 data-ui="operation-result">{{value: OperationResult}}</h2>
     <p>IndexOf result:</p> <h2 data-ui="index-result">{{value: Index}}</h2>
-    <p>arr: {{value: SplitArray}}</p>
+
+    <dot:Repeater DataSource="{value: SplitArray}">
+        <span>{{value: _this}}</span>
+    </dot:Repeater>
 
 </body>
 </html>
