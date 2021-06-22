@@ -156,6 +156,36 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(result, "true");
             });
         }
+        [Fact]
+        public void Feature_StaticCommand_String_Method_Join_List()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslation);
+
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var button = browser.First($"//input[@value='Join(., list)']", By.XPath);
+                var result = browser.First("[data-ui=operation-result]");
+
+                button.Click();
+                AssertUI.InnerTextEquals(result, "Real.programmers.count.from.0");
+            });
+        }
+        [Fact]
+        public void Feature_StaticCommand_String_Method_Join_Array()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslation);
+
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var button = browser.First("//input[@value='Join( JOIN , array)']", By.XPath);
+                var result = browser.First("[data-ui=operation-result]");
+
+                button.Click();
+                AssertUI.InnerTextEquals(result, "Real JOIN programmers JOIN count JOIN from JOIN 0");
+            });
+        }
 
         [Fact]
         public void Feature_StaticCommand_String_Method_LastIndexOf()
@@ -224,6 +254,37 @@ namespace DotVVM.Samples.Tests.Feature
 
                 button.Click();
                 AssertUI.InnerTextEquals(result, "Why do JAvA progrAmmers hAve to weAr glAsses? BecAuse they do not C#.");
+            });
+        }
+        [Fact]
+        public void Feature_StaticCommand_String_Method_Split()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslation);
+
+                var button = browser.First($"//input[@value='Split((char)?)']", By.XPath);
+                var result = browser.First("[data-ui=repeater]").FindElements("p", By.TagName);
+
+
+                button.Click();
+                AssertUI.InnerTextEquals(result[0], "Why do Java programmers have to wear glasses");
+                AssertUI.InnerTextEquals(result[1], "Because they do not C#.");
+            });
+        }
+        [Fact]
+        public void Feature_StaticCommand_String_Method_Split_ByString()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslation);
+
+                var button = browser.First($"//input[@value='Split((string)do)']", By.XPath);
+                var result = browser.First("[data-ui=repeater]").FindElements("p", By.TagName);
+
+
+                button.Click();
+                AssertUI.InnerTextEquals(result[0], "Why");
+                AssertUI.InnerTextEquals(result[1], "Java programmers have to wear glasses? Because they");
+                AssertUI.InnerTextEquals(result[2], "not C#.");
             });
         }
         [Fact]
