@@ -9,7 +9,7 @@ namespace DotVVM.Compiler
     {
         public static ICompilerExecutor GetExecutor(string assemblyPath)
         {
-#if NETCOREAPP3_1
+#if NETCOREAPP3_1_OR_GREATER
             var dependencyResolver = new System.Runtime.Loader.AssemblyDependencyResolver(assemblyPath);
             System.Runtime.Loader.AssemblyLoadContext.Default.Resolving += (c, n) =>
             {

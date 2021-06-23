@@ -38,7 +38,7 @@ export async function navigateCore(url: string, options: PostbackOptions, handle
         const displayUrl = uri.addVirtualDirectoryToUrl(url);
 
         // send the request
-        response = await http.getJSON<any>(spaFullUrl, getSpaPlaceHoldersUniqueId());
+        response = await http.getJSON<any>(spaFullUrl, getSpaPlaceHoldersUniqueId(), options.abortSignal);
 
         // if another postback has already been passed, don't do anything
         if (options.postbackId < lastStartedNavigation) {

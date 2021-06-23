@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the default name of the route that should be loaded when there is no hash part in the URL.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        [Obsolete("The DefaultRouteName property is not supported - the classic SPA more (URLs with #/) was removed from DotVVM. See https://www.dotvvm.com/docs/tutorials/basics-single-page-applications-spa/latest for more details.")]
+        [Obsolete("The DefaultRouteName property is not supported - the classic SPA mode (URLs with #/) was removed from DotVVM, and the History API is the default and only option now. See https://www.dotvvm.com/docs/3.0/pages/concepts/layout/single-page-applications-spa#changes-to-spas-in-dotvvm-30 for more details.")]
         public string? DefaultRouteName
         {
             get { return (string?)GetValue(DefaultRouteNameProperty); }
@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Controls
         /// If this property is not set, the URL of the first page using the SpaContentPlaceHolder will stay before the hash mark.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        [Obsolete("The PrefixRouteName property is not supported - the classic SPA more (URLs with #/) was removed from DotVVM. See https://www.dotvvm.com/docs/tutorials/basics-single-page-applications-spa/latest for more details.")]
+        [Obsolete("The PrefixRouteName property is not supported - the classic SPA mode (URLs with #/) was removed from DotVVM, and the History API is the default and only option now. See https://www.dotvvm.com/docs/3.0/pages/concepts/layout/single-page-applications-spa#changes-to-spas-in-dotvvm-30 for more details.")]
         public string? PrefixRouteName
         {
             get { return (string?)GetValue(PrefixRouteNameProperty); }
@@ -53,7 +53,7 @@ namespace DotVVM.Framework.Controls
         /// If this property is not set, settings from <see cref="DotvvmConfiguration">DotvvmConfiguration</see> is used.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        [Obsolete("The UseHistoryApi property is not supported - the classic SPA more (URLs with #/) was removed from DotVVM. See https://www.dotvvm.com/docs/tutorials/basics-single-page-applications-spa/latest for more details.")]
+        [Obsolete("The UseHistoryApi property is not supported - the classic SPA mode (URLs with #/) was removed from DotVVM, and the History API is the default and only option now. See https://www.dotvvm.com/docs/3.0/pages/concepts/layout/single-page-applications-spa#changes-to-spas-in-dotvvm-30 for more details.")]
         public bool? UseHistoryApi
         {
             get { return (bool?)GetValue(UseHistoryApiProperty); }
@@ -123,15 +123,15 @@ namespace DotVVM.Framework.Controls
         {
             if (control.Properties.ContainsKey(UseHistoryApiProperty))
             {
-                yield return new ControlUsageError("The UseHistoryApi property is not supported - the classic SPA more (URLs with #/) was removed from DotVVM. See https://www.dotvvm.com/docs/tutorials/basics-single-page-applications-spa/latest for more details.", control.DothtmlNode);
+                yield return new ControlUsageError("The UseHistoryApi property is not supported - the classic SPA mode (URLs with #/) was removed from DotVVM, and the History API is the default and only option now. See https://www.dotvvm.com/docs/3.0/pages/concepts/layout/single-page-applications-spa#changes-to-spas-in-dotvvm-30 for more details.", control.DothtmlNode);
             }
             if (control.Properties.ContainsKey(DefaultRouteNameProperty))
             {
-                yield return new ControlUsageError("The DefaultRouteName property is not supported - the classic SPA more (URLs with #/) was removed from DotVVM. See https://www.dotvvm.com/docs/tutorials/basics-single-page-applications-spa/latest for more details.", control.DothtmlNode);
+                yield return new ControlUsageError("The DefaultRouteName property is not supported - the classic SPA mode (URLs with #/) was removed from DotVVM, and the History API is the default and only option now. See https://www.dotvvm.com/docs/3.0/pages/concepts/layout/single-page-applications-spa#changes-to-spas-in-dotvvm-30 for more details.", control.DothtmlNode);
             }
             if (control.Properties.ContainsKey(PrefixRouteNameProperty))
             {
-                yield return new ControlUsageError("The PrefixRouteName property is not supported - the classic SPA more (URLs with #/) was removed from DotVVM. See https://www.dotvvm.com/docs/tutorials/basics-single-page-applications-spa/latest for more details.", control.DothtmlNode);
+                yield return new ControlUsageError("The PrefixRouteName property is not supported - the classic SPA mode (URLs with #/) was removed from DotVVM, and the History API is the default and only option now. See https://www.dotvvm.com/docs/3.0/pages/concepts/layout/single-page-applications-spa#changes-to-spas-in-dotvvm-30 for more details.", control.DothtmlNode);
             }
         }
     }

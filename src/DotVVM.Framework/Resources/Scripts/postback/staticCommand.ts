@@ -13,7 +13,7 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
 
     try {
         await http.retryOnInvalidCsrfToken(async () => {
-            const csrfToken = await http.fetchCsrfToken();
+            const csrfToken = await http.fetchCsrfToken(options.abortSignal);
             data = { 
                 args: args.map(a => serialize(a)), 
                 command, 
@@ -31,6 +31,7 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
         response = await http.postJSON<DotvvmStaticCommandResponse>(
             getInitialUrl(),
             JSON.stringify(data),
+            options.abortSignal,
             { "X-PostbackType": "StaticCommand" }
         );
 

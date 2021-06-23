@@ -133,7 +133,7 @@ namespace DotVVM.Samples.Tests.Feature
                     var date1 = browser.First(".id-date1");
                     AssertUI.TextNotEquals(date1, originalDate1);
                     refreshedDate1 = date1.GetText();
-                }, 5000, "#LI :1");
+                }, 10000, "#LI :1");
 
                 // test again
                 originalDate1 = refreshedDate1;
@@ -146,7 +146,7 @@ namespace DotVVM.Samples.Tests.Feature
                     var date1 = browser.First(".id-date1");
                     AssertUI.TextNotEquals(date1, originalDate1);
                     refreshedDate1 = date1.GetText();
-                }, 5000, "#LI :2");
+                }, 10000, "#LI :2");
 
                 // click the set data button
                 browser.ElementAt("input[type=button]", 1).Click();
@@ -154,7 +154,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.WaitFor(() => {
                     var date2 = browser.First(".id-date2");
                     AssertUI.TextEquals(date2, refreshedDate1);
-                }, 5000);
+                }, 10000);
             });
         }
 
@@ -185,7 +185,7 @@ namespace DotVVM.Samples.Tests.Feature
                     var row = browser.FindElements(".form-grid tr").Skip(1).First(r => r.ElementAt("td", 0).GetText() == uiTestName);
                     AssertUI.TextEquals(row.ElementAt("td", 1), "15");
                     AssertUI.TextEquals(row.ElementAt("td", 2), "2018-10-28 12:13:14");
-                }, 5000);
+                }, 8000);
 
                 // delete UI Test items
                 foreach (var r in browser.FindElements(".form-grid tr").Skip(1).Where(r => r.ElementAt("td", 0).GetText() == uiTestName))
@@ -198,7 +198,7 @@ namespace DotVVM.Samples.Tests.Feature
                 // make sure it disappeared
                 browser.WaitFor(() => {
                     Assert.Equal(0, browser.FindElements(".form-grid tr").Skip(1).Count(r => r.ElementAt("td", 0).GetText() == uiTestName));
-                }, 5000);
+                }, 8000);
             });
         }
 

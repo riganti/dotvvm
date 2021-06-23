@@ -156,8 +156,8 @@ namespace DotVVM.Framework.ResourceManagement.ClientGlobalize
                     names = di.MonthNames,
                     namesAbbr = di.AbbreviatedMonthNames
                 },
-                AM = new[] { di.AMDesignator, di.AMDesignator.ToLower(), di.AMDesignator.ToUpper() },
-                PM = new[] { di.PMDesignator, di.PMDesignator.ToLower(), di.PMDesignator.ToUpper() },
+                AM = new[] { di.AMDesignator, di.AMDesignator.ToLowerInvariant(), di.AMDesignator.ToUpperInvariant() },
+                PM = new[] { di.PMDesignator, di.PMDesignator.ToLowerInvariant(), di.PMDesignator.ToUpperInvariant() },
                 eras = di.Calendar.Eras.Select(era => new { offset = 0, start = (string)null, name = di.GetEraName(era) }).ToArray(),
                 twoDigitYearMax = di.Calendar.TwoDigitYearMax,
                 patterns = new

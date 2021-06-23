@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Hosting
         {
             unchecked
             {
-                return ((FullPath != null ? FullPath.ToLower().GetHashCode() : 0) * 397) ^ LastWriteDateTimeUtc.GetHashCode();
+                return ((FullPath != null ? FullPath.ToLowerInvariant().GetHashCode() : 0) * 397) ^ LastWriteDateTimeUtc.GetHashCode();
             }
         }
 

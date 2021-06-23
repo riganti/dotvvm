@@ -8,6 +8,7 @@ using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
 
@@ -23,8 +24,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultControlTreeResolver"/> class.
         /// </summary>
-        public DefaultControlTreeResolver(IControlResolver controlResolver, IControlBuilderFactory controlBuilderFactory, IAbstractTreeBuilder treeBuilder)
-            : base(controlResolver, treeBuilder)
+        public DefaultControlTreeResolver(IControlResolver controlResolver, IControlBuilderFactory controlBuilderFactory, IAbstractTreeBuilder treeBuilder, DotvvmResourceRepository resourceRepo)
+            : base(controlResolver, treeBuilder, resourceRepo)
         {
             this.controlBuilderFactory = controlBuilderFactory;
         }

@@ -1,9 +1,12 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
 
@@ -34,8 +37,6 @@ namespace DotVVM.Framework.Binding
 
             ImportResourceName = ViewModuleImportResource.GetName(moduleBatchUniqueId);
             InitResourceName = ViewModuleInitResource.GetName(moduleBatchUniqueId);
-
-            
         }
 
         public string InitResourceName { get; }
@@ -45,7 +46,14 @@ namespace DotVVM.Framework.Binding
 
         internal (ViewModuleImportResource importResource, ViewModuleInitResource initResource) BuildResources(IDotvvmResourceRepository allResources)
         {
-            var dependencies = ReferencedModules.SelectMany(m => allResources.FindResource(m).Dependencies).Distinct().ToArray();
+            var dependencies = ReferencedModules.SelectMany((moduleResourceName, index) => {
+                var moduleResource = allResources.FindResource(moduleResourceName);
+                if (moduleResource is null)
+                    throw new Exception($"Cannot find resource named '{moduleResourceName}' referenced by the @js directive!");
+                if (!(moduleResource is ScriptModuleResource))
+                    throw new Exception($"The resource named '{moduleResourceName}' referenced by the @js directive must be of the ScriptModuleResource type!");
+                return moduleResource.Dependencies;
+            }).Distinct().ToArray();
 
             return (
                 new ViewModuleImportResource(ReferencedModules, ImportResourceName, dependencies),

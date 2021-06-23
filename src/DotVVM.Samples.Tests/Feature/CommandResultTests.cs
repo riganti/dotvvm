@@ -44,17 +44,12 @@ namespace DotVVM.Samples.Tests.Feature
             var staticCommandButton = browser.First(uiId, SelectByDataUi);
             staticCommandButton.Click();
 
-            browser.WaitFor(() => {
-                AssertUI.TextEquals(customDataSpan, "Hello there");
-            }, 8000);
+            AssertUI.TextEquals(customDataSpan, "Hello there");
 
             var clearButton = browser.First("clear", SelectByDataUi);
             clearButton.Click();
 
-            browser.WaitFor(() => {
-                AssertUI.TextEmpty(customDataSpan);
-            }, 8000);
-
+            AssertUI.TextEmpty(customDataSpan);
         }
     }
 }

@@ -105,6 +105,13 @@ namespace DotVVM.Framework.Compilation.Javascript
 
                 resultExpression.WithAnnotation(assignmentExpression.Annotation<ShouldBeObservableAnnotation>());
             }
+            else if (assignmentExpression.Left.GetResultType() is ViewModelInfoAnnotation vmInfo && vmInfo.ContainsObservables && assignmentExpression.Left.IsComplexType())
+            {
+                var value = assignmentExpression.Right;
+                resultExpression = assignmentExpression.Right.ReplaceWith(_ =>
+                    new JsIdentifierExpression("dotvvm").Member("serialization").Member("deserialize").Invoke(value, new JsObjectExpression(), new JsLiteral(true))
+                );
+            }
             else resultExpression = assignmentExpression;
 
             HandleNode(resultExpression);

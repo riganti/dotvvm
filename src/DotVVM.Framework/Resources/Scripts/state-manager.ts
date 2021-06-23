@@ -326,8 +326,12 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
                     }
                     const indexForClosure = index
                     newContents[index] = createWrappedObservable(newVal[index], Array.isArray(typeHint) ? typeHint[0] : void 0, update => updater((viewModelArray: any) => {
-                        const newElement = update(viewModelArray![indexForClosure])
-                        const newArray = createArray(viewModelArray!)
+                        if (viewModelArray == null || viewModelArray.length <= indexForClosure) {
+                            // the item or the array does not exist anymore
+                            return viewModelArray
+                        }
+                        const newElement = update(viewModelArray[indexForClosure])
+                        const newArray = createArray(viewModelArray)
                         newArray[indexForClosure] = newElement
                         return Object.freeze(newArray) as any
                     }))

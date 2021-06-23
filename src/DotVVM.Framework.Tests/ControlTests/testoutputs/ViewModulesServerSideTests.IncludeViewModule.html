@@ -1,0 +1,44 @@
+<html>
+	<head>
+		
+		<!-- Resource knockout of type ScriptResource. Pointing to EmbeddedResourceLocation. -->
+		<script src="/dotvvmResource/knockout/knockout" defer=""></script>
+		
+		<!-- Resource dotvvm.polyfill.bundle of type ScriptModuleResource. Pointing to EmbeddedResourceLocation. -->
+		<script nomodule="" src="/dotvvmResource/dotvvm--polyfill--bundle/dotvvm--polyfill--bundle?type=nomodule" defer=""></script>
+		
+		<!-- Resource dotvvm.internal of type ScriptModuleResource. Pointing to EmbeddedResourceLocation. -->
+		<script src="/dotvvmResource/dotvvm--internal/dotvvm--internal" type="module" defer=""></script>
+		<script nomodule="" src="/dotvvmResource/dotvvm--internal/dotvvm--internal?type=nomodule" defer=""></script>
+		
+		<!-- Resource dotvvm of type InlineScriptResource. -->          
+		<!-- Resource dotvvm.debug of type ScriptResource. Pointing to EmbeddedResourceLocation. -->
+		<script src="/dotvvmResource/dotvvm--debug/dotvvm--debug" defer=""></script>
+		
+		<!-- Resource viewModule.import.6DLlOTYMqGV5yPAJoz5k_moKDBgEmZ3_HLLQ2zKDo74 of type ViewModuleImportResource. -->
+		<script type="module">import * as m0 from '/dotvvmResource/myModule/myModule';dotvvm.viewModules.registerMany({'myModule': m0});</script>
+		
+		<!-- Resource viewModule.init.6DLlOTYMqGV5yPAJoz5k_moKDBgEmZ3_HLLQ2zKDo74 of type ViewModuleInitResource. -->
+		<script type="module">dotvvm.viewModules.init('myModule', 'p0', document.body);</script>
+	</head>
+	<body>
+		<input type="hidden" id="__dot_viewmodel_root" value="{
+  &quot;viewModel&quot;: {
+    &quot;$csrfToken&quot;: &quot;Not a CSRF token.&quot;
+  },
+  &quot;url&quot;: &quot;/testpage&quot;,
+  &quot;virtualDirectory&quot;: &quot;&quot;,
+  &quot;renderedResources&quot;: [
+    &quot;knockout&quot;,
+    &quot;dotvvm.polyfill.bundle&quot;,
+    &quot;dotvvm.internal&quot;,
+    &quot;dotvvm&quot;,
+    &quot;dotvvm.debug&quot;,
+    &quot;viewModule.import.6DLlOTYMqGV5yPAJoz5k_moKDBgEmZ3_HLLQ2zKDo74&quot;,
+    &quot;viewModule.init.6DLlOTYMqGV5yPAJoz5k_moKDBgEmZ3_HLLQ2zKDo74&quot;
+  ],
+  &quot;typeMetadata&quot;: {}
+}">
+		<script defer="" src="data:text/javascript;base64,d2luZG93LmRvdHZ2bS5pbml0KCJlbi1VUyIpOw=="></script>
+	</body>
+</html>

@@ -24,10 +24,10 @@ import * as eventHub from './api/eventHub'
 import * as viewModuleManager from './viewModules/viewModuleManager'
 import { notifyModuleLoaded } from './postback/resourceLoader'
 import { logError, logWarning, logInfo, logInfoVerbose, level, logPostBackScriptError } from "./utils/logging"
-import { orderBy, orderByDesc } from './collections/sortingHelper'
 import * as metadataHelper from './metadata/metadataHelper'
-import * as arrayHelper from './collections/arrayHelper'
-import * as stringHelper from './utils/stringHelper'
+import * as array from './collections/arrayHelper'
+import * as dictionary from './collections/dictionaryHelper'
+import * as string from './utils/stringHelper'
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -123,8 +123,11 @@ const dotvvmExports = {
         logPostBackScriptError,
         level
     },
-    arrayHelper,
-    stringHelper
+    translations: {
+        array,
+        dictionary,
+        string
+    } as any
 }
 
 if (compileConstants.isSpa) {

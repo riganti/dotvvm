@@ -299,6 +299,11 @@ namespace DotVVM.Framework.Controls
             {
                 WriteHtmlAttribute(attributeName, attributeValue);
             }
+
+            if (this.enableWarnings && char.IsUpper(attributeName[0]))
+            {
+                Warn($"{attributeName} is used as an HTML attribute on element {name}, but it starts with an uppercase letter. Did you intent to use a DotVVM property instead? To silence this warning, just use all lowercase letters for standard HTML attributes.");
+            }
         }
 
         private string ConvertHtmlAttributeValue(object value)

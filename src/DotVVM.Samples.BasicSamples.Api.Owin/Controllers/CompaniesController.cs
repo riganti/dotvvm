@@ -13,6 +13,7 @@ namespace DotVVM.Samples.BasicSamples.Api.Owin.Controllers
     {
         [HttpGet]
         [Route("")]
+        [NoCache]
         public List<Company<string>> Get()
         {
             lock (Database.Instance)
@@ -23,6 +24,7 @@ namespace DotVVM.Samples.BasicSamples.Api.Owin.Controllers
 
         [HttpGet]
         [Route("sorted")]
+        [NoCache]
         public GridViewDataSet<Company<bool>> GetWithSorting([FromUri, AsObject(typeof(ISortingOptions))]SortingOptions sortingOptions)
         {
             lock (Database.Instance)
@@ -38,6 +40,7 @@ namespace DotVVM.Samples.BasicSamples.Api.Owin.Controllers
 
         [HttpGet]
         [Route("paged")]
+        [NoCache]
         public GridViewDataSet<Company<string>> GetWithPaging([FromUri, AsObject(typeof(IPagingOptions))]PagingOptions pagingOptions)
         {
             lock (Database.Instance)
@@ -53,6 +56,7 @@ namespace DotVVM.Samples.BasicSamples.Api.Owin.Controllers
 
         [HttpGet]
         [Route("sortedandpaged")]
+        [NoCache]
         public GridViewDataSet<Company<string>> GetWithSortingAndPaging([FromUri, AsObject(typeof(ISortingOptions))]SortingOptions sortingOptions, [FromUri, AsObject(typeof(IPagingOptions))]PagingOptions pagingOptions)
         {
             lock (Database.Instance)

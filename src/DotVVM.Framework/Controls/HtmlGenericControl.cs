@@ -7,6 +7,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Controls
@@ -317,7 +318,29 @@ namespace DotVVM.Framework.Controls
             {
                 AddHtmlAttribute(writer, name, ((IStaticValueBinding)value).Evaluate(this));
             }
-            else throw new NotSupportedException($"Attribute value of type '{value.GetType().FullName}' is not supported.");
+            else if (value is bool boolValue)
+            {
+                if (boolValue)
+                {
+                    writer.AddAttribute(name, name);
+                }
+            }
+            else if (value is Enum || value is Guid)
+            {
+                writer.AddAttribute(name, value.ToString());
+            }
+            else if (ReflectionUtils.IsNumericType(value.GetType()))
+            {
+                writer.AddAttribute(name, Convert.ToString(value, CultureInfo.InvariantCulture));
+            }
+            else
+            {
+                // DateTime and related are not supported here intentionally.
+                // It is not clear in which format it should be rendered - on some places, the HTML specs requires just yyyy-MM-dd,
+                // but in case of Web Components, the users may want to pass the whole date, or use a specific format
+
+                throw new NotSupportedException($"Attribute value of type '{value.GetType().FullName}' is not supported. Please convert the value to string, e. g. by using ToString()");
+            }
         }
 
         private void AddHtmlAttributesToRender(ref RenderState r, IHtmlWriter writer)
