@@ -8,6 +8,6 @@
 }
 
 export function join<T>(elements: T[], delimiter: string): string {
-    let unwrappedElements = elements.map(function (element) { return ko.unwrap(element); });
+    let unwrappedElements = elements.map(ko.unwrap);
     return unwrappedElements.join(delimiter);
 }

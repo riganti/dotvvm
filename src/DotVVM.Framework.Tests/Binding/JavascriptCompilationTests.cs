@@ -828,7 +828,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_StringArrayJoin(string binding, string delimiter)
         {
             var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
-            Assert.AreEqual($"StringArray().join(\"{delimiter}\")", result);
+            Assert.AreEqual($"dotvvm.translations.string.join(StringArray(),\"{delimiter}\")", result);
         }
 
         [TestMethod]
@@ -837,7 +837,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_StringEnumerableJoin(string binding, string delimiter)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual($"StringArray().filter(function(item){{return ko.unwrap(item).length>2;}}).join(\"{delimiter}\")", result);
+            Assert.AreEqual($"dotvvm.translations.string.join(StringArray().filter(function(item){{return ko.unwrap(item).length>2;}}),\"{delimiter}\")", result);
         }
 
         [TestMethod]
