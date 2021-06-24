@@ -88,12 +88,43 @@ namespace DotVVM.Framework.Tests.Binding
             // Not imported extension
             CreateCall(notImportedTarget, Array.Empty<Expression>(), new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding") });
         }
+
+        [TestMethod]
+        public void Call_ExtensionMethodsWithOptionalArguments_UseDefaultValue()
+        {
+            var importedTarget = new MethodGroupExpression() {
+                MethodName = nameof(TestExtensions.ExtensionMethodWithOptionalArgument),
+                Target = Expression.Constant(11)
+            };
+
+            // Imported extension
+            var expression = CreateCall(importedTarget, Array.Empty<Expression>(), new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding") });
+            var result = Expression.Lambda<Func<int>>(expression).Compile().Invoke();
+            Assert.AreEqual(321, result);
+        }
+
+        [TestMethod]
+        public void Call_ExtensionMethodsWithOptionalArguments_OverrideDefaultValue()
+        {
+            var importedTarget = new MethodGroupExpression() {
+                MethodName = nameof(TestExtensions.ExtensionMethodWithOptionalArgument),
+                Target = Expression.Constant(11)
+            };
+
+            // Imported extension
+            var expression = CreateCall(importedTarget, new[] { Expression.Constant(123) }, new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding") });
+            var result = Expression.Lambda<Func<int>>(expression).Compile().Invoke();
+            Assert.AreEqual(123, result);
+        }
     }
 
     public static class TestExtensions
     {
         public static int Increment(this int number)
             => ++number;
+
+        public static int ExtensionMethodWithOptionalArgument(this int number, int arg = 321)
+            => arg;
     }
 
     namespace AmbiguousExtensions

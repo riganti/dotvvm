@@ -192,7 +192,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (method.IsExtension)
             {
                 // Change to a static call
-                var newArguments = new[] { target }.Concat(arguments);
+                var newArguments = new[] { method.Arguments.First() }.Concat(method.Arguments.Skip(1));
                 return Expression.Call(method.Method, newArguments);
             }
             return Expression.Call(target, method.Method, method.Arguments);
