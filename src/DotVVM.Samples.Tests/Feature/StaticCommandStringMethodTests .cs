@@ -21,7 +21,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StaticCommand_String_Method_Contains()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
 
                 
                 var textbox = browser.First("[data-ui=textbox]");
@@ -49,7 +49,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StaticCommand_String_Method_EndsWith()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
 
                 
                 var textbox = browser.First("[data-ui=textbox]");
@@ -77,7 +77,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StaticCommand_String_Method_IndexOf()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
 
                 
                 var textbox = browser.First("[data-ui=textbox]");
@@ -105,7 +105,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StaticCommand_String_Method_IndexOf_StartIndex()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
 
                 
                 var textbox = browser.First("[data-ui=textbox]");
@@ -134,7 +134,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StaticCommand_String_Method_IsNullOrEmpty()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
 
                 
                 var textbox = browser.First("[data-ui=textbox]");
@@ -160,7 +160,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StaticCommand_String_Method_Join_List()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
 
 
                 var textbox = browser.First("[data-ui=textbox]");
@@ -175,7 +175,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StaticCommand_String_Method_Join_Array()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
 
 
                 var textbox = browser.First("[data-ui=textbox]");
@@ -191,7 +191,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StaticCommand_String_Method_LastIndexOf()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
 
                 
                 var textbox = browser.First("[data-ui=textbox]");
@@ -219,7 +219,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StaticCommand_String_Method_LastIndexOf_StartIndex()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
 
                 
                 var textbox = browser.First("[data-ui=textbox]");
@@ -247,7 +247,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StaticCommand_String_Method_Replace()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
 
                 var button = browser.First($"//input[@value='Replace(a, A)']", By.XPath);
                 var result = browser.First("[data-ui=operation-result]");
@@ -260,7 +260,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StaticCommand_String_Method_Split()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
 
                 var button = browser.First($"//input[@value='Split((char)?)']", By.XPath);
                 var result = browser.First("[data-ui=repeater]").FindElements("p", By.TagName);
@@ -275,7 +275,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StaticCommand_String_Method_Split_ByString()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
 
                 var button = browser.First($"//input[@value='Split((string)do)']", By.XPath);
                 var result = browser.First("[data-ui=repeater]").FindElements("p", By.TagName);
@@ -291,7 +291,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StaticCommand_String_Method_ChangeLetters()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
 
                 var button = browser.First($"//input[@value='ToLower()']", By.XPath);
                 var result = browser.First("[data-ui=operation-result]");
