@@ -98,7 +98,7 @@ namespace DotVVM.Framework.Tests.Binding
             };
 
             // Imported extension
-            var expression = CreateCall(importedTarget, Array.Empty<Expression>(), new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding") });
+            var expression = CreateCall(importedTarget, Array.Empty<Expression>(), new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding"), new NamespaceImport("DotVVM.Framework.Tests.Binding") });
             var result = Expression.Lambda<Func<int>>(expression).Compile().Invoke();
             Assert.AreEqual(321, result);
         }
@@ -115,6 +115,24 @@ namespace DotVVM.Framework.Tests.Binding
             var expression = CreateCall(importedTarget, new[] { Expression.Constant(123) }, new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding") });
             var result = Expression.Lambda<Func<int>>(expression).Compile().Invoke();
             Assert.AreEqual(123, result);
+        }
+
+        [TestMethod]
+        public void Call_ExtensionMethods_DuplicitImport_DoesNotThrow()
+        {
+            var importedTarget = new MethodGroupExpression() {
+                MethodName = nameof(TestExtensions.Increment),
+                Target = Expression.Constant(11)
+            };
+
+            // Imported extension
+            var expression = CreateCall(importedTarget, Array.Empty<Expression>(),
+                new[] {
+                    new NamespaceImport("DotVVM.Framework.Tests.Binding"),
+                    new NamespaceImport("DotVVM.Framework.Tests.Binding")
+                });
+            var result = Expression.Lambda<Func<int>>(expression).Compile().Invoke();
+            Assert.AreEqual(12, result);
         }
     }
 

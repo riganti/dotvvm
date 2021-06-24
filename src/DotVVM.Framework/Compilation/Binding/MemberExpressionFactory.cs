@@ -248,8 +248,8 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private IEnumerable<MethodInfo> GetAllExtensionMethods()
         {
-            foreach (var ns in importedNamespaces)
-                foreach (var method in extensionMethodsCache.GetExtensionsForNamespace(ns.Namespace))
+            foreach (var ns in importedNamespaces.Select(ns => ns.Namespace).Distinct())
+                foreach (var method in extensionMethodsCache.GetExtensionsForNamespace(ns))
                     yield return method;
         }
 
