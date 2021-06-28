@@ -864,6 +864,20 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_WebUtility_UrlEncode()
+        {
+            var result = CompileBinding("WebUtility.UrlEncode(\"Hello World!\")", new[] { new NamespaceImport("System.Net") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"encodeURIComponent(\"Hello World!\")", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_WebUtility_UrlDecode()
+        {
+            var result = CompileBinding("WebUtility.UrlDecode(\"Hello%20World!\")", new[] { new NamespaceImport("System.Net") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"decodeURIComponent(\"Hello%20World!\")", result);
+        }
+
+        [TestMethod]
         public void JavascriptCompilation_GuidToString()
         {
             var result = CompileBinding("GuidProp != Guid.Empty ? GuidProp.ToString() : ''", typeof(TestViewModel));

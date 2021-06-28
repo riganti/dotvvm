@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
@@ -153,6 +154,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                     return JavascriptTranslationVisitor.TranslateViewModelProperty(args[0], (MemberInfo)dotvvmproperty.PropertyInfo ?? dotvvmproperty.PropertyType.GetTypeInfo(), name: dotvvmproperty.Name);
                 }
             ));
+
+            AddMethodTranslator(typeof(WebUtility), nameof(WebUtility.UrlEncode), translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("encodeURIComponent").Invoke(args[1])));
+            AddMethodTranslator(typeof(WebUtility), nameof(WebUtility.UrlDecode), translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("decodeURIComponent").Invoke(args[1])));
 
             AddDefaultToStringTranslations();
             AddDefaultStringTranslations();
