@@ -160,6 +160,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddDefaultDictionaryTranslations();
             AddDefaultListTranslations();
             AddDefaultMathTranslations();
+            AddDefaultDateTimeTranslations();
         }
 
         private void AddDefaultToStringTranslations()
@@ -465,6 +466,27 @@ namespace DotVVM.Framework.Compilation.Javascript
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("removeFirst").Invoke(args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[2])));
             AddMethodTranslator(typeof(ListExtensions), "RemoveLast", parameterCount: 2, translator: new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("removeLast").Invoke(args[1].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[2])));
+        }
+
+        private void AddDefaultDateTimeTranslations()
+        {
+            JsExpression IncrementExpression(JsExpression left, int value)
+                => new JsBinaryExpression(left, BinaryOperatorType.Plus, new JsLiteral(value));
+
+            AddPropertyGetterTranslator(typeof(DateTime), nameof(DateTime.Year), translator: new GenericMethodCompiler(args =>
+                new JsNewExpression(new JsIdentifierExpression("Date"), args[0]).Member("getFullYear").Invoke()));
+            AddPropertyGetterTranslator(typeof(DateTime), nameof(DateTime.Month), translator: new GenericMethodCompiler(args =>
+                IncrementExpression(new JsNewExpression(new JsIdentifierExpression("Date"), args[0]).Member("getMonth").Invoke(), 1)));
+            AddPropertyGetterTranslator(typeof(DateTime), nameof(DateTime.Day), translator: new GenericMethodCompiler(args =>
+                new JsNewExpression(new JsIdentifierExpression("Date"), args[0]).Member("getDate").Invoke()));
+            AddPropertyGetterTranslator(typeof(DateTime), nameof(DateTime.Hour), translator: new GenericMethodCompiler(args =>
+                new JsNewExpression(new JsIdentifierExpression("Date"), args[0]).Member("getHours").Invoke()));
+            AddPropertyGetterTranslator(typeof(DateTime), nameof(DateTime.Minute), translator: new GenericMethodCompiler(args =>
+                new JsNewExpression(new JsIdentifierExpression("Date"), args[0]).Member("getMinutes").Invoke()));
+            AddPropertyGetterTranslator(typeof(DateTime), nameof(DateTime.Second), translator: new GenericMethodCompiler(args =>
+                new JsNewExpression(new JsIdentifierExpression("Date"), args[0]).Member("getSeconds").Invoke()));
+            AddPropertyGetterTranslator(typeof(DateTime), nameof(DateTime.Millisecond), translator: new GenericMethodCompiler(args =>
+                new JsNewExpression(new JsIdentifierExpression("Date"), args[0]).Member("getMilliseconds").Invoke()));
         }
 
         public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] args, MethodInfo method)

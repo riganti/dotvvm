@@ -850,6 +850,20 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("DateTime.Year", "getFullYear", false)]
+        [DataRow("DateTime.Month", "getMonth", true)]
+        [DataRow("DateTime.Day", "getDate", false)]
+        [DataRow("DateTime.Hour", "getHours", false)]
+        [DataRow("DateTime.Minute", "getMinutes", false)]
+        [DataRow("DateTime.Second", "getSeconds", false)]
+        [DataRow("DateTime.Millisecond", "getMilliseconds", false)]
+        public void JsTranslator_DateTime_Property_Getters(string binding, string jsFunction, bool increment = false)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"new Date(DateTime()).{jsFunction}(){(increment ? "+1" : string.Empty)}", result);
+        }
+
+        [TestMethod]
         public void JavascriptCompilation_GuidToString()
         {
             var result = CompileBinding("GuidProp != Guid.Empty ? GuidProp.ToString() : ''", typeof(TestViewModel));
