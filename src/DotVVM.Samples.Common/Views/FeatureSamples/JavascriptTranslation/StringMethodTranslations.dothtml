@@ -11,13 +11,13 @@
 
     <h2 data-ui="main-text">{{value:Joke}}</h2>
     <p>Value</p><dot:TextBox Text="{value: Value}" data-ui="textbox" />
-    <dot:Button Text="Contains(value)" Click="{staticCommand: OperationResult = Joke.Contains(Value)}" />
-    <dot:Button Text="EndsWith(value)" Click="{staticCommand: OperationResult = Joke.EndsWith(Value)}" />
+    <dot:Button Text="Contains(value)" Click="{staticCommand: OperationResult = Joke.Contains(Value).ToString()}" />
+    <dot:Button Text="EndsWith(value)" Click="{staticCommand: OperationResult = Joke.EndsWith(Value).ToString()}" />
 
     <dot:Button Text="IndexOf(value)" Click="{staticCommand: Index = Joke.IndexOf(Value)}" />
     <dot:Button Text="IndexOf(value,30)" Click="{staticCommand: Index = Joke.IndexOf(Value, 30)}" />
 
-    <dot:Button Text="IsNullOrEmpty(value)" Click="{staticCommand: OperationResult = String.IsNullOrEmpty(Value)}" />
+    <dot:Button Text="IsNullOrEmpty(value)" Click="{staticCommand: OperationResult = String.IsNullOrEmpty(Value).ToString()}" />
 
     <dot:Button Text="Join(., list)" Click="{staticCommand: OperationResult = String.Join('.', JoinList)}" />
     <dot:Button Text="Join( JOIN , array)" Click="{staticCommand: OperationResult = String.Join(" JOIN ", JoinArray)}" />
