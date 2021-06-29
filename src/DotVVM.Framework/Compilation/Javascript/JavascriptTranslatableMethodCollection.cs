@@ -252,10 +252,10 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             var joinStringArrayMethod = typeof(string).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(m => m.Name == nameof(string.Join) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType == typeof(string[]) && m.GetParameters().First().ParameterType == typeof(string)).Single();
-            AddMethodTranslator(joinStringArrayMethod, translator: new GenericMethodCompiler(args => args[2].Member("join").Invoke(args[1])));
+            AddMethodTranslator(joinStringArrayMethod, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("join").Invoke(args[2], args[1])));
             var joinStringEnumerableMethod = typeof(string).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(m => m.Name == nameof(string.Join) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType == typeof(IEnumerable<string>) && m.GetParameters().First().ParameterType == typeof(string)).Single();
-            AddMethodTranslator(joinStringEnumerableMethod, translator: new GenericMethodCompiler(args => args[2].Member("join").Invoke(args[1])));
+            AddMethodTranslator(joinStringEnumerableMethod, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("join").Invoke(args[2], args[1])));
 
             AddMethodTranslator(typeof(string), nameof(string.Replace), parameters: new[] { typeof(string), typeof(string) }, translator: new GenericMethodCompiler(
                 args => args[0].Member("split").Invoke(args[1]).Member("join").Invoke(args[2])));
