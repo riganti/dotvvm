@@ -1,0 +1,12 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables.StaticCommandVariablesWithServiceViewModel, DotVVM.Samples.Common
+@masterPage Views/ComplexSamples/SPA/site.dotmaster
+@service service = DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables.VariablesStaticCommand
+<dot:Content ContentPlaceHolderID="Container">
+
+    <dot:Button data-ui="get-messages" Text="Test" Click="{staticcommand:
+                var tmp = service.GetMessage().Result;
+                _root.Message1 = tmp;
+                }" />
+    <span data-ui="message1">{{value: Message1 }}</span>
+</dot:Content>
+
