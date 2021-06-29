@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 # ================
 # argument parsing
@@ -10,7 +10,7 @@ LONGOPTS="help,\
     root:,config:,samples-profile:,samples-port:,samples-port-api:,\
     all,clean,npm-build,sln-restore,sln-build,unit-tests,js-tests,ui-tests,\
     no-all,no-clean,no-npm-build,no-sln-restore,no-sln-build,no-unit-tests,no-js-tests,no-ui-tests"
-TEMP=$(getopt -o "$SHORTOPS" -l "$LONGOPTS" -n "$PROGRAM" -- "$@")
+TEMP=$(getopt -o "$SHORTOPTS" -l "$LONGOPTS" -n "$PROGRAM" -- "$@")
 if [ $? -ne 0 ]; then
         exit 1
 fi
@@ -111,7 +111,7 @@ EOF
                 exit 1
             fi
 
-            eval $OPTION=$VALUE
+            eval "$OPTION=$VALUE"
             shift
             continue;
         ;;
@@ -169,8 +169,8 @@ function run_named_command {
     shift
 
     print_header $NAME
-    tput setaf 4 && printf "running '$@'\n" && tput sgr0
-    eval $@
+    tput setaf 4 && echo "running '$@'" && tput sgr0
+    eval "$@"
 }
 
 function ensure_named_command {
