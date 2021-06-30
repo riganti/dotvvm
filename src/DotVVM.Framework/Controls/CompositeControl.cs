@@ -38,7 +38,11 @@ namespace DotVVM.Framework.Controls
             {
                 if (parameter.ParameterType == typeof(IDotvvmRequestContext))
                     return (context, _) => context;
-                var (getter, setter) = DotvvmCapabilityProperty.InitializeArgument(parameter, parameter.Name, parameter.ParameterType, controlType, null);
+                var defaultValue =
+                    parameter.HasDefaultValue ?
+                        (ValueOrBinding<object>?)ValueOrBinding<object>.FromBoxedValue(parameter.DefaultValue) :
+                        (ValueOrBinding<object>?)null;
+                var (getter, setter) = DotvvmCapabilityProperty.InitializeArgument(parameter, parameter.Name, parameter.ParameterType, controlType, null,defaultValue);
 
                 var wrappedExpression = Expression.Lambda<Func<IDotvvmRequestContext, CompositeControl, object>>(
                     Expression.Convert(getter.Body, typeof(object)),
