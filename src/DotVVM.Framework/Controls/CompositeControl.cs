@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
@@ -69,6 +69,8 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
+            this.Children.Clear();
+
             var info = controlInfoCache[this.GetType()];
 
             // TODO: generate Linq.Expression instead of this reflection invocation
