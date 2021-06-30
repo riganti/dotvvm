@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
@@ -17,6 +17,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Base class for controls implemented using other components returned from the `GetContents` method
     /// </summary>
+    [ControlMarkupOptions(AllowContent = false)]
     public abstract class CompositeControl : DotvvmControl
     {
         public CompositeControl()

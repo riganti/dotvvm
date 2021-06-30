@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -652,21 +652,21 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     content.Add(node);
                 }
             }
-            if (control.Metadata.DefaultContentProperty != null)
+            if (control.Metadata.DefaultContentProperty is IPropertyDescriptor contentProperty)
             {
                 // don't assign the property, when content is empty
                 if (content.All(c => !c.IsNotEmpty()))
                     return;
 
-                if (control.HasProperty(control.Metadata.DefaultContentProperty))
+                if (control.HasProperty(contentProperty))
                 {
                     foreach (var c in content)
                         if (c.IsNotEmpty())
-                            c.AddError($"Property { control.Metadata.DefaultContentProperty.FullName } was already set.");
+                            c.AddError($"Property { contentProperty.FullName } was already set.");
                 }
                 else
                 {
-                    if (!treeBuilder.AddProperty(control, ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content, null), out var error))
+                    if (!treeBuilder.AddProperty(control, ProcessElementProperty(control, contentProperty, content, null), out var error))
                         content.First().AddError(error);
                 }
             }
@@ -678,7 +678,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     {
                         if (item.IsNotEmpty())
                         {
-                            item.AddError($"Content not allowed inside {control.Metadata.Type.Name}.");
+                            var compositeControlHelp =
+                                control.Metadata.Type.IsAssignableTo(new ResolvedTypeDescriptor
+                            (typeof(CompositeControl))) ?
+                                " CompositeControls don't allow content by default and Content or ContentTemplate property is missing on this control." : "";
+                            item.AddError($"Content not allowed inside {control.Metadata.Type.Name}.{compositeControlHelp}");
                         }
                     }
                 }
