@@ -50,6 +50,19 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty EnabledProperty =
             DotvvmPropertyWithFallback.Register<bool, ButtonBase>(nameof(Enabled), FormControls.EnabledProperty);
 
+        public TextOrContentCapability TextOrContentCapability
+        {
+            get => (TextOrContentCapability)TextOrContentCapabilityProperty.GetValue(this);
+            set => TextOrContentCapabilityProperty.SetValue(this, value);
+        }
+        public static readonly DotvvmCapabilityProperty TextOrContentCapabilityProperty =
+            DotvvmCapabilityProperty.RegisterCapability("TextOrContentCapability", typeof(ButtonBase), typeof(TextOrContentCapability),
+                control => TextOrContentCapability.FromChildren((ButtonBase)control, TextProperty),
+                (control, boxedValue) => {
+                    var value = (TextOrContentCapability)boxedValue;
+                    value.WriteToChildren((DotvvmControl)control, TextProperty);
+                }
+            );
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ButtonBase"/> class.

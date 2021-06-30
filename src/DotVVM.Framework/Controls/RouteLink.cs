@@ -72,6 +72,19 @@ namespace DotVVM.Framework.Controls
         public static DotvvmPropertyGroup QueryParametersGroupDescriptor =
             DotvvmPropertyGroup.Register<object, RouteLink>("Query-", "QueryParameters");
 
+        public TextOrContentCapability TextOrContentCapability
+        {
+            get => (TextOrContentCapability)TextOrContentCapabilityProperty.GetValue(this);
+            set => TextOrContentCapabilityProperty.SetValue(this, value);
+        }
+        public static readonly DotvvmCapabilityProperty TextOrContentCapabilityProperty =
+            DotvvmCapabilityProperty.RegisterCapability("TextOrContentCapability", typeof(RouteLink), typeof(TextOrContentCapability),
+                control => TextOrContentCapability.FromChildren((RouteLink)control, TextProperty),
+                (control, boxedValue) => {
+                    var value = (TextOrContentCapability)boxedValue;
+                    value.WriteToChildren((DotvvmControl)control, TextProperty);
+                }
+            );
 
         public RouteLink() : base("a")
         {

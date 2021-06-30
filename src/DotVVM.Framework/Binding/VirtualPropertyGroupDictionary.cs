@@ -13,7 +13,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Binding
 {
-    public struct VirtualPropertyGroupDictionary<TValue> : IDictionary<string, TValue>, IReadOnlyDictionary<string, TValue>
+    public readonly struct VirtualPropertyGroupDictionary<TValue> : IDictionary<string, TValue>, IReadOnlyDictionary<string, TValue>
     {
         private readonly DotvvmBindableObject control;
         private readonly DotvvmPropertyGroup group;
@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Binding
         {
             control.SetValue(group.GetDotvvmProperty(key), value);
         }
-        public void AddBinding(string key, IBinding binding)
+        public void AddBinding(string key, IBinding? binding)
         {
             control.SetBinding(group.GetDotvvmProperty(key), binding);
         }

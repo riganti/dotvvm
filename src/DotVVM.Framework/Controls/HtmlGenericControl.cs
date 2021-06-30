@@ -51,6 +51,31 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="HtmlGenericControl"/> class.
+        /// </summary>
+        public HtmlGenericControl(string? tagName, TextOrContentCapability? content, bool allowImplicitLifecycleRequirements = true)
+        {
+            if (GetType() != typeof(HtmlGenericControl))
+                throw new("HtmlGenericControl can only use InnerText (and thus TextOrContentCapability) property when used directly, it can not be inherited.");
+            if (tagName?.Trim() == "")
+            {
+                throw new DotvvmControlException("The tagName must not be empty!");
+            }
+
+            TagName = tagName;
+
+            if (tagName == "head")
+            {
+                SetValue(RenderSettings.ModeProperty, RenderMode.Server);
+            }
+            if (allowImplicitLifecycleRequirements)
+                LifecycleRequirements = ControlLifecycleRequirements.None;
+
+            Attributes = new Dictionary<string, object?>();
+            content?.WriteToChildren(this, InnerTextProperty);
+        }
+
+        /// <summary>
         /// Gets the attributes.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger), AllowAttributeWithoutValue = true)]
@@ -111,13 +136,15 @@ namespace DotVVM.Framework.Controls
                 control => new HtmlCapability {
                     Visible = control.GetValueOrBinding<bool>(VisibleProperty),
                     Attributes = ((HtmlGenericControl)control).Attributes.ToDictionary(k => k.Key, k => ValueOrBinding<object?>.FromBoxedValue(k.Value)),
-                    CssClasses = VirtualPropertyGroupDictionary<bool>.CreatePropertyDictionary(control, CssClassesGroupDescriptor)
+                    CssClasses = VirtualPropertyGroupDictionary<bool>.CreatePropertyDictionary(control, CssClassesGroupDescriptor),
+                    CssStyles = VirtualPropertyGroupDictionary<object>.CreatePropertyDictionary(control, CssStylesGroupDescriptor)
                 },
                 (control, boxedValue) => {
                     var value = (HtmlCapability)boxedValue;
                     control.SetValue(VisibleProperty, value.Visible);
                     ((HtmlGenericControl)control).Attributes = value.Attributes.ToDictionary(t => t.Key, t => t.Value.BindingOrDefault ?? t.Value.BoxedValue);
                     ((HtmlGenericControl)control).CssClasses.CopyFrom(value.CssClasses, clear: true);
+                    ((HtmlGenericControl)control).CssStyles.CopyFrom(value.CssStyles, clear: true);
                 }
             );
 
@@ -428,9 +455,12 @@ namespace DotVVM.Framework.Controls
     public sealed class HtmlCapability
     {
         [PropertyGroup("", "html:")]
+        [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger), AllowAttributeWithoutValue = true)]
         public IDictionary<string, ValueOrBinding<object?>> Attributes { get; set; } = new Dictionary<string, ValueOrBinding<object?>>();
         [PropertyGroup("Class-")]
         public IDictionary<string, ValueOrBinding<bool>> CssClasses { get; set; } = new Dictionary<string, ValueOrBinding<bool>>();
+        [PropertyGroup("Style-")]
+        public IDictionary<string, ValueOrBinding<object>> CssStyles { get; set; } = new Dictionary<string, ValueOrBinding<object>>();
         public ValueOrBinding<bool> Visible { get; set; } = true;
     }
 }
