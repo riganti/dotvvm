@@ -140,7 +140,7 @@ namespace DotVVM.Framework.Controls
             var value = this.GetValueRaw(property, inherit);
             if (value is IBinding binding)
                 return new ValueOrBinding<T>(binding);
-            else return new ValueOrBinding<T>((T)value);
+            else return new ValueOrBinding<T>((T)value!);
         }
 
         /// <summary>
