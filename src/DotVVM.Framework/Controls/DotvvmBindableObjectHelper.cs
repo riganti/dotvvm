@@ -22,29 +22,143 @@ namespace DotVVM.Framework.Controls
             if (property == null) throw new Exception($"Expression '{prop}' should be property access on the specified control.");
             return DotvvmProperty.ResolveProperty(property.DeclaringType!, property.Name) ?? throw new Exception($"Property '{property.DeclaringType!.Name}.{property.Name}' is not a registered DotvvmProperty.");
         }
+        public static DotvvmProperty GetDotvvmProperty<TControl>(this TControl control, string propName)
+            where TControl : DotvvmBindableObject
+        {
+            return DotvvmProperty.ResolveProperty(typeof(TControl), propName) ?? throw new Exception($"Property '{typeof(TControl)}.{propName}' is not a registered DotvvmProperty.");
+        }
 
-        public static TControl SetBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop, IBinding? binding)
+        public static TControl SetProperty<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop, IBinding? binding)
             where TControl : DotvvmBindableObject
         {
             control.SetBinding(control.GetDotvvmProperty(prop), binding);
             return control;
         }
 
-        public static TControl SetValue<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop, TProperty value)
+        public static TControl SetProperty<TControl, TProperty>(this TControl control, DotvvmProperty prop, IBinding? binding)
+            where TControl : DotvvmBindableObject
+        {
+            control.SetBinding(prop, binding);
+            return control;
+        }
+        public static TControl SetProperty<TControl>(this TControl control, string propName, IBinding? binding)
+            where TControl : DotvvmBindableObject
+        {
+            control.SetBinding(control.GetDotvvmProperty(propName), binding);
+            return control;
+        }
+
+        public static TControl SetProperty<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop, TProperty value)
             where TControl : DotvvmBindableObject
         {
             control.SetValue(control.GetDotvvmProperty(prop), value);
             return control;
         }
 
-        public static TControl SetValue<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop, ValueOrBinding<TProperty> value)
+        public static TControl SetProperty<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop, ValueOrBinding<TProperty> value)
             where TControl : DotvvmBindableObject
         {
             control.SetValue(control.GetDotvvmProperty(prop), value);
             return control;
         }
+        public static TControl SetProperty<TControl, TProperty>(this TControl control, string propName, ValueOrBinding<TProperty> valueOrBinding)
+            where TControl : DotvvmBindableObject
+        {
+            control.SetProperty(control.GetDotvvmProperty(propName), valueOrBinding);
+            return control;
+        }
 
-        public static IValueBinding<TProperty> GetValueBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
+        public static TControl SetProperty<TControl, TProperty>(this TControl control, DotvvmProperty property, ValueOrBinding<TProperty> valueOrBinding)
+            where TControl: DotvvmBindableObject
+        {
+            if (valueOrBinding.BindingOrDefault == null)
+                control.SetValue(property, valueOrBinding.BoxedValue);
+            else
+                control.SetBinding(property, valueOrBinding.BindingOrDefault);
+            return control;
+        }
+
+        public static TControl SetProperty<TControl, TProperty>(this TControl control, DotvvmProperty property, ValueOrBinding<TProperty>? valueOrBinding)
+            where TControl: DotvvmBindableObject
+        {
+            if (valueOrBinding.HasValue)
+                control.SetProperty(property, valueOrBinding.GetValueOrDefault());
+            else
+                control.SetValue(property, null);
+            return control;
+        }
+
+        public static TControl SetProperty<TControl>(this TControl control, DotvvmProperty property, object value)
+            where TControl: DotvvmBindableObject
+        {
+            control.SetValue(property, value);
+            return control;
+        }
+        public static TControl SetProperty<TControl, TProperty>(this TControl control, string propName, object value)
+            where TControl : DotvvmBindableObject
+        {
+            control.SetValue(control.GetDotvvmProperty(propName), value);
+            return control;
+        }
+
+        public static TControl SetProperty<TControl, TProperty>(this TControl control, Func<TControl, VirtualPropertyGroupDictionary<TProperty>> prop, string key, IBinding? binding)
+            where TControl : DotvvmBindableObject
+        {
+            var d = prop(control);
+            d.AddBinding(key, binding);
+            return control;
+        }
+
+        public static TControl SetProperty<TControl, TProperty>(this TControl control, Func<TControl, VirtualPropertyGroupDictionary<TProperty>> prop, string key, TProperty value)
+            where TControl : DotvvmBindableObject
+        {
+            var d = prop(control);
+            d.Add(key, value);
+            return control;
+        }
+
+        public static TControl SetProperty<TControl, TProperty>(this TControl control, Func<TControl, VirtualPropertyGroupDictionary<TProperty>> prop, string key, ValueOrBinding<TProperty> value)
+            where TControl : DotvvmBindableObject
+        {
+            var d = prop(control);
+            d.Add(key, value);
+            return control;
+        }
+
+        public static TControl SetAttribute<TControl>(this TControl control, string attribute, object value)
+            where TControl : IControlWithHtmlAttributes
+        {
+            if (value is ValueOrBinding vob)
+            {
+                control.Attributes[attribute] = vob.BindingOrDefault ?? vob.BoxedValue;
+            }
+            else
+            {
+                control.Attributes[attribute] = value;
+            }
+            return control;
+        }
+        public static TControl SetAttribute<TControl, TProperty>(this TControl control, string attribute, ValueOrBinding<TProperty> value)
+            where TControl : IControlWithHtmlAttributes
+        {
+            control.Attributes[attribute] = value.BindingOrDefault ?? value.BoxedValue;
+            return control;
+        }
+
+        public static TControl SetCapability<TControl, TCapability>(this TControl control, [AllowNull] TCapability capability, string prefix = "")
+            where TControl: DotvvmBindableObject
+        {
+            if (capability != null)
+            {
+                var c = DotvvmCapabilityProperty.Find(typeof(TControl), typeof(TCapability), prefix);
+                if (c is null)
+                    throw new Exception($"Capability {prefix}{typeof(TCapability)} is not defined on {typeof(TControl)}");
+                c.SetValue(control, capability);
+            }
+            return control;
+        }
+
+        public static IValueBinding<TProperty>? GetValueBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject
             => (IValueBinding<TProperty>?)control.GetValueBinding(control.GetDotvvmProperty(prop));
 
@@ -60,6 +174,14 @@ namespace DotVVM.Framework.Controls
         public static ValueOrBinding<TProperty> GetValueOrBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject
             => control.GetValueOrBinding<TProperty>(control.GetDotvvmProperty(prop));
+
+        public static TCapability GetCapability<TCapability>(this DotvvmBindableObject control, string prefix = "")
+        {
+            var c = DotvvmCapabilityProperty.Find(control.GetType(), typeof(TCapability), prefix);
+            if (c is null)
+                throw new Exception($"Capability {prefix}{typeof(TCapability)} is not defined on {control.GetType()}");
+            return (TCapability)c.GetValue(control);
+        }
 
         internal static object? TryGeyValue(this DotvvmBindableObject control, DotvvmProperty property)
         {

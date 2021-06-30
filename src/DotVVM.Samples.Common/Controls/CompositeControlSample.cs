@@ -14,11 +14,11 @@ namespace DotVVM.Samples.BasicSamples.Controls
         public static DotvvmControl GetContents(
             IValueBinding<IEnumerable<object>> dataSource,
 
-            [ControlPropertyBindingDataContextChange("dataSource")]
+            [ControlPropertyBindingDataContextChange("DataSource")]
             [CollectionElementDataContextChange(1)]
             IValueBinding<string> titleBinding,
 
-            [ControlPropertyBindingDataContextChange("dataSource")]
+            [ControlPropertyBindingDataContextChange("DataSource")]
             [CollectionElementDataContextChange(1)]
             IValueBinding<int?> numberBinding,
 
@@ -36,13 +36,13 @@ namespace DotVVM.Samples.BasicSamples.Controls
                         new Literal(titleBinding),
                         new Literal(": "),
                         new TextBox()
-                            .SetBinding(t => t.Text, numberBinding)
-                            .SetValue(t => t.SelectAllOnFocus, true)
+                            .SetProperty(t => t.Text, numberBinding)
+                            .SetProperty(t => t.SelectAllOnFocus, true)
                     }
                 }),
                 HtmlCapability = html
             }
-            .SetBinding(r => r.DataSource, dataSource);
+            .SetProperty(r => r.DataSource, dataSource);
         }
     }
 }

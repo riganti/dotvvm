@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,19 +16,35 @@ namespace DotVVM.Framework.Binding
 {
     public class DotvvmCapabilityProperty : DotvvmProperty
     {
-        public Func<DotvvmBindableObject, object> Getter { get; }
-        public Action<DotvvmBindableObject, object> Setter { get; }
+        public Func<DotvvmBindableObject, object?> Getter { get; }
+        public Action<DotvvmBindableObject, object?> Setter { get; }
+        public string Prefix { get; }
 
-        public DotvvmCapabilityProperty(Func<DotvvmBindableObject, object> getter, Action<DotvvmBindableObject, object> setter)
+        private static ConcurrentDictionary<(Type declaringType, Type capabilityType, string prefix), DotvvmCapabilityProperty> capabilityRegistry = new();
+
+        private DotvvmCapabilityProperty(Func<DotvvmBindableObject, object?> getter, Action<DotvvmBindableObject, object?> setter, string prefix)
         {
             this.Getter = getter ?? throw new ArgumentNullException(nameof(getter));
             this.Setter = setter ?? throw new ArgumentNullException(nameof(setter));
+            this.Prefix = prefix;
         }
 
-        public override object GetValue(DotvvmBindableObject control, bool inherit = true) => Getter(control);
+        public override object? GetValue(DotvvmBindableObject control, bool inherit = true) => Getter(control);
 
-        public override void SetValue(DotvvmBindableObject control, object value) => Setter(control, value);
+        public override void SetValue(DotvvmBindableObject control, object? value) => Setter(control, value);
 
+        public static DotvvmCapabilityProperty? Find(Type declaringType, Type capabilityType, string globalPrefix = "")
+        {
+            while (declaringType != typeof(DotvvmBindableObject) && declaringType is not null)
+            {
+                if (capabilityRegistry.TryGetValue((declaringType, capabilityType, globalPrefix), out var result))
+                    return result;
+                declaringType = declaringType.BaseType;
+            }
+            return null;
+        }
+
+        private static void AssertNotDefined(Type declaringType, Type capabilityType, string propertyName, string globalPrefix, bool postContent = false)
         public static DotvvmCapabilityProperty RegisterCapability(string name, Type declaringType, Type capabilityType, string globalPrefix = "")
         {
             var (getterExpression, setterExpression) = InitializeCapability(declaringType, capabilityType, globalPrefix);
@@ -41,10 +58,10 @@ namespace DotVVM.Framework.Binding
                             currentControlParameter, valueParameter)
                          .Compile();
 
-            return RegisterCapability(name, declaringType, capabilityType, getter, setter);
+            return RegisterCapability(name, declaringType, capabilityType, getter, setter, globalPrefix);
         }
 
-        public static DotvvmCapabilityProperty RegisterCapability(string name, Type declaringType, Type capabilityType, Func<DotvvmBindableObject, object> getter, Action<DotvvmBindableObject, object> setter)
+        public static DotvvmCapabilityProperty RegisterCapability(string name, Type declaringType, Type capabilityType, Func<DotvvmBindableObject, object?> getter, Action<DotvvmBindableObject, object?> setter, string prefix = "")
         {
             var property = new DotvvmCapabilityProperty(getter, setter);
             var attributes = new CustomAttributesProvider(
@@ -54,6 +71,8 @@ namespace DotVVM.Framework.Binding
                 }
             );
             DotvvmProperty.Register(name, capabilityType, declaringType, DBNull.Value, false, property, attributes);
+            capabilityRegistry.TryAdd((declaringType, capabilityType, prefix), property)
+            
             return property;
         }
 
@@ -71,7 +90,7 @@ namespace DotVVM.Framework.Binding
             public bool IsDefined(Type attributeType, bool inherit) => GetCustomAttributes(attributeType, inherit).Any();
         }
 
-        public static (LambdaExpression getter, LambdaExpression setter) InitializeCapability(Type declaringType, Type capabilityType, string globalPrefix = "")
+        static (LambdaExpression getter, LambdaExpression setter) InitializeCapability(Type declaringType, Type capabilityType, string globalPrefix = "")
         {
             var properties = capabilityType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
             var instance = Activator.CreateInstance(capabilityType);
