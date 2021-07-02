@@ -47,26 +47,21 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task WrappedRepeaterControl()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- simple list -->
+                <cc:RepeatedButton DataSource={value: List}
+                                   WrapperTagName=p
+                                   Text={value: _parent.Label + _this}
+                                   ItemClick={command: _parent.Integer = _index}
+                                   />
+                "
+            );
 
-        // [TestMethod]
-        // public async Task CommandBinding()
-        // {
-        //     var r = await cth.RunPage(typeof(BasicTestViewModel), @"
-        //     <dot:Button Click={command: Integer = Integer + 1} />
-        //     <dot:Button Click={command: Integer = Integer - 1} Enabled={value: Integer > 10000000} />
-        //     ");
-
-        //     Assert.AreEqual(10000000, (int)r.ViewModel.@int);
-        //     await r.RunCommand("Integer = Integer + 1");
-        //     Assert.AreEqual(10000001, (int)r.ViewModel.@int);
-        //     await r.RunCommand("Integer = Integer - 1");
-        //     Assert.AreEqual(10000000, (int)r.ViewModel.@int);
-        //     // invoking command on disabled button should fail
-        //     var exception = await Assert.ThrowsExceptionAsync<Framework.Runtime.Commands.InvalidCommandInvocationException>(() =>
-        //         r.RunCommand("Integer = Integer - 1")
-        //     );
-        //     Console.WriteLine(exception);
-        // }
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
 
         public class BasicTestViewModel: DotvvmViewModelBase
         {
@@ -78,6 +73,8 @@ namespace DotVVM.Framework.Tests.ControlTests
             public DateTime DateTime { get; set; } = DateTime.Parse("2020-08-11T16:01:44.5141480");
             public string Label { get; } = "My Label";
             public bool AfterPreRender { get; set; } = false;
+
+            public List<string> List { get; set; } = new List<string>();
 
             public override Task PreRender()
             {
@@ -113,4 +110,39 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
     }
 
+    public class RepeatedButton: CompositeControl
+    {
+        public static DotvvmControl GetContents(
+            IValueBinding<IEnumerable<string>> dataSource,
+
+            [DotvvmControlCapability(prefix: "button:")]
+            [ControlPropertyBindingDataContextChange("DataSource")]
+            [CollectionElementDataContextChange(1)]
+            HtmlCapability buttonHtml,
+
+            HtmlCapability html,
+
+            [ControlPropertyBindingDataContextChange("DataSource")]
+            [CollectionElementDataContextChange(1)]
+            TextOrContentCapability buttonContent,
+
+            [ControlPropertyBindingDataContextChange("DataSource")]
+            [CollectionElementDataContextChange(1)]
+            ICommandBinding itemClick = null,
+            string wrapperTagName = "div"
+        )
+        {
+            return new Repeater() {
+                WrapperTagName = wrapperTagName,
+                ItemTemplate = new DelegateTemplate(_ =>
+                    new Button { ButtonTagName = ButtonTagName.button }
+                        .SetProperty("Click", itemClick)
+                        .SetCapability(buttonHtml)
+                        .SetCapability(buttonContent)
+                )
+            }
+            .SetProperty(Repeater.DataSourceProperty, dataSource)
+            .SetCapability(html);
+        }
+    }
 }

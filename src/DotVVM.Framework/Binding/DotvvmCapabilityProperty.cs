@@ -14,7 +14,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Binding
 {
-    public class DotvvmCapabilityProperty : DotvvmProperty
+    public partial class DotvvmCapabilityProperty : DotvvmProperty
     {
         public Func<DotvvmBindableObject, object?> Getter { get; }
         public Action<DotvvmBindableObject, object?> Setter { get; }
@@ -54,10 +54,10 @@ namespace DotVVM.Framework.Binding
                 throw new($"Capability {propertyName} conflicts with existing property. {postContentHelp2}Consider giving the capability a different name.");
         }
 
-        public static DotvvmCapabilityProperty RegisterCapability(string name, Type declaringType, Type capabilityType, string globalPrefix = "")
+        public static DotvvmCapabilityProperty RegisterCapability(string name, Type declaringType, Type capabilityType, string globalPrefix = "", ICustomAttributeProvider? capabilityAttributeProvider = null)
         {
             AssertNotDefined(declaringType, capabilityType, name, globalPrefix, postContent: true);
-            var (getterExpression, setterExpression) = InitializeCapability(declaringType, capabilityType, globalPrefix);
+            var (getterExpression, setterExpression) = InitializeCapability(declaringType, capabilityType, globalPrefix, capabilityAttributeProvider);
             AssertNotDefined(declaringType, capabilityType, name, globalPrefix, postContent: true);
 
             var getter = Expression.Lambda<Func<DotvvmBindableObject, object>>(
@@ -89,21 +89,7 @@ namespace DotVVM.Framework.Binding
             return property;
         }
 
-        class CustomAttributesProvider : ICustomAttributeProvider
-        {
-            private readonly object[] attributes;
-            public CustomAttributesProvider(params object[] attributes)
-            {
-                this.attributes = attributes;
-            }
-            public object[] GetCustomAttributes(bool inherit) => attributes;
-
-            public object[] GetCustomAttributes(Type attributeType, bool inherit) => GetCustomAttributes(inherit).Where(attributeType.IsInstanceOfType).ToArray();
-
-            public bool IsDefined(Type attributeType, bool inherit) => GetCustomAttributes(attributeType, inherit).Any();
-        }
-
-        static (LambdaExpression getter, LambdaExpression setter) InitializeCapability(Type declaringType, Type capabilityType, string globalPrefix = "")
+        static (LambdaExpression getter, LambdaExpression setter) InitializeCapability(Type declaringType, Type capabilityType, string globalPrefix, ICustomAttributeProvider? parentAttributeProvider)
         {
             var properties = capabilityType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
             var instance = Activator.CreateInstance(capabilityType);
@@ -115,7 +101,8 @@ namespace DotVVM.Framework.Binding
             foreach (var prop in properties)
             {
                 var defaultValue = ValueOrBinding<object>.FromBoxedValue(prop.GetValue(instance));
-                var (propGetter, propSetter) = InitializeArgument(prop, globalPrefix + prop.Name, prop.PropertyType, declaringType, capabilityType, defaultValue);
+                var attrProvider = CombinedDataContextAttributeProvider.Create(parentAttributeProvider, prop);
+                var (propGetter, propSetter) = InitializeArgument(attrProvider, globalPrefix + prop.Name, prop.PropertyType, declaringType, capabilityType, defaultValue);
 
                 getterBody.Add(Expression.Assign(Expression.Property(valueParameter, prop), ExpressionUtils.Replace(propGetter, currentControlParameter)));
 
@@ -222,7 +209,7 @@ namespace DotVVM.Framework.Binding
                 checkNameConflict(propertyName);
 
                 var prefix = attributeProvider.GetCustomAttribute<DotvvmControlCapabilityAttribute>()?.Prefix ?? "";
-                var capability = DotvvmCapabilityProperty.RegisterCapability(propertyName, declaringType, propertyType, prefix);
+                var capability = DotvvmCapabilityProperty.RegisterCapability(propertyName, declaringType, propertyType, prefix, attributeProvider);
                 return CreatePropertyLambdas(propertyType, valueParameter, capability);
             }
             // Standard property
