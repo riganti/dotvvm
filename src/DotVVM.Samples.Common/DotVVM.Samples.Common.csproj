@@ -64,6 +64,7 @@
     <None Remove="Views\FeatureSamples\JavascriptTranslation\GenericMethodTranslation.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\ListMethodTranslations.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\WebUtilityTranslations.dothtml" />
+    <None Remove="Views\FeatureSamples\JavascriptTranslation\StringMethodTranslations.dothtml" />
     <None Remove="Views\FeatureSamples\JsDirectives\BasicSample.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\ClientSideFiltering.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\LambdaExpressions.dothtml" />
