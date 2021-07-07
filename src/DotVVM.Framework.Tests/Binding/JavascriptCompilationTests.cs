@@ -630,7 +630,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableMax(string binding, string property, bool nullable)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.translations.array.max({property}(),function(arg){{return ko.unwrap(arg);}},{(!nullable).ToString().ToLower()})", result);
+            Assert.AreEqual($"dotvvm.translations.array.max({property}(),function(arg){{return ko.unwrap(arg);}},{(!nullable).ToString().ToLowerInvariant()})", result);
         }
 
         [TestMethod]
@@ -657,7 +657,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableMax_WithSelector(string binding, string property, bool nullable)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.translations.array.max({property}(),function(item){{return -ko.unwrap(item);}},{(!nullable).ToString().ToLower()})", result);
+            Assert.AreEqual($"dotvvm.translations.array.max({property}(),function(item){{return -ko.unwrap(item);}},{(!nullable).ToString().ToLowerInvariant()})", result);
         }
 
         [TestMethod]
@@ -684,7 +684,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableMin(string binding, string property, bool nullable)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.translations.array.min({property}(),function(arg){{return ko.unwrap(arg);}},{(!nullable).ToString().ToLower()})", result);
+            Assert.AreEqual($"dotvvm.translations.array.min({property}(),function(arg){{return ko.unwrap(arg);}},{(!nullable).ToString().ToLowerInvariant()})", result);
         }
 
         [TestMethod]
@@ -711,7 +711,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableMin_WithSelector(string binding, string property, bool nullable)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.translations.array.min({property}(),function(item){{return -ko.unwrap(item);}},{(!nullable).ToString().ToLower()})", result);
+            Assert.AreEqual($"dotvvm.translations.array.min({property}(),function(item){{return -ko.unwrap(item);}},{(!nullable).ToString().ToLowerInvariant()})", result);
         }
 
         [TestMethod]
@@ -856,7 +856,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_StringArrayJoin(string binding, string delimiter)
         {
             var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
-            Assert.AreEqual($"StringArray().join(\"{delimiter}\")", result);
+            Assert.AreEqual($"dotvvm.translations.string.join(StringArray(),\"{delimiter}\")", result);
         }
 
         [TestMethod]
@@ -865,7 +865,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_StringEnumerableJoin(string binding, string delimiter)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual($"StringArray().filter(function(item){{return ko.unwrap(item).length>2;}}).join(\"{delimiter}\")", result);
+            Assert.AreEqual($"dotvvm.translations.string.join(StringArray().filter(function(item){{return ko.unwrap(item).length>2;}}),\"{delimiter}\")", result);
         }
 
         [TestMethod]
@@ -875,6 +875,34 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
             Assert.AreEqual($"StringProp().split(\"{original}\").join(\"{replacement}\")", result);
+        }
+
+        [TestMethod]
+        [DataRow("DateTime.Year", "getFullYear", false)]
+        [DataRow("DateTime.Month", "getMonth", true)]
+        [DataRow("DateTime.Day", "getDate", false)]
+        [DataRow("DateTime.Hour", "getHours", false)]
+        [DataRow("DateTime.Minute", "getMinutes", false)]
+        [DataRow("DateTime.Second", "getSeconds", false)]
+        [DataRow("DateTime.Millisecond", "getMilliseconds", false)]
+        public void JsTranslator_DateTime_Property_Getters(string binding, string jsFunction, bool increment = false)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"new Date(DateTime()).{jsFunction}(){(increment ? "+1" : string.Empty)}", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_WebUtility_UrlEncode()
+        {
+            var result = CompileBinding("WebUtility.UrlEncode(\"Hello World!\")", new[] { new NamespaceImport("System.Net") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"encodeURIComponent(\"Hello World!\")", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_WebUtility_UrlDecode()
+        {
+            var result = CompileBinding("WebUtility.UrlDecode(\"Hello%20World!\")", new[] { new NamespaceImport("System.Net") }, new[] { typeof(TestViewModel) });
+            Assert.AreEqual($"decodeURIComponent(\"Hello%20World!\")", result);
         }
 
         [TestMethod]
@@ -969,8 +997,10 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [DataTestMethod]
-        [DataRow("StringProp.ToUpper()", "StringProp().toUpperCase()")]
-        [DataRow("StringProp.ToLower()", "StringProp().toLowerCase()")]
+        [DataRow("StringProp.ToUpper()", "StringProp().toLocaleUpperCase()")]
+        [DataRow("StringProp.ToLower()", "StringProp().toLocaleLowerCase()")]
+        [DataRow("StringProp.ToUpperInvariant()", "StringProp().toUpperCase()")]
+        [DataRow("StringProp.ToLowerInvariant()", "StringProp().toLowerCase()")]
         [DataRow("StringProp.IndexOf('test')", "StringProp().indexOf(\"test\")")]
         [DataRow("StringProp.IndexOf('test',1)", "StringProp().indexOf(\"test\",1)")]
         [DataRow("StringProp.LastIndexOf('test')", "StringProp().lastIndexOf(\"test\")")]
