@@ -120,23 +120,28 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddPropertyGetterTranslator(typeof(string), nameof(string.Length), lengthMethod);
             AddMethodTranslator(typeof(Enums), "GetNames", new EnumGetNamesMethodTranslator(), 0);
 
-            JsExpression listIndexer(JsExpression[] args, MethodInfo method) =>
+            JsExpression listGetIndexer(JsExpression[] args, MethodInfo method) =>
                 BuildIndexer(args[0], args[1], method.DeclaringType.GetProperty("Item"));
+            JsExpression listSetIndexer(JsExpression[] args, MethodInfo method) =>
+                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("setItem").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1], args[2]);
+            JsExpression arrayElementSetter(JsExpression[] args, MethodInfo method) =>
+                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("setItem").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[2], args[1]);
             JsExpression dictionaryGetIndexer(JsExpression[] args, MethodInfo method) =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("getItem").Invoke(args[0], args[1]);
             JsExpression dictionarySetIndexer(JsExpression[] args, MethodInfo method) =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("dictionary").Member("setItem").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1], args[2]);
 
-            AddMethodTranslator(typeof(IList), "get_Item", new GenericMethodCompiler(listIndexer));
-            AddMethodTranslator(typeof(IList<>), "get_Item", new GenericMethodCompiler(listIndexer));
-            AddMethodTranslator(typeof(List<>), "get_Item", new GenericMethodCompiler(listIndexer));
-            AddMethodTranslator(typeof(IList), "set_Item", new GenericMethodCompiler(listIndexer));
-            AddMethodTranslator(typeof(IList<>), "set_Item", new GenericMethodCompiler(listIndexer));
-            AddMethodTranslator(typeof(List<>), "set_Item", new GenericMethodCompiler(listIndexer));
+            AddMethodTranslator(typeof(IList), "get_Item", new GenericMethodCompiler(listGetIndexer));
+            AddMethodTranslator(typeof(IList<>), "get_Item", new GenericMethodCompiler(listGetIndexer));
+            AddMethodTranslator(typeof(List<>), "get_Item", new GenericMethodCompiler(listGetIndexer));
+            AddMethodTranslator(typeof(IList), "set_Item", new GenericMethodCompiler(listSetIndexer));
+            AddMethodTranslator(typeof(IList<>), "set_Item", new GenericMethodCompiler(listSetIndexer));
+            AddMethodTranslator(typeof(List<>), "set_Item", new GenericMethodCompiler(listSetIndexer));
             AddMethodTranslator(typeof(Dictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
             AddMethodTranslator(typeof(IDictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
             AddMethodTranslator(typeof(Dictionary<,>), "set_Item", new GenericMethodCompiler(dictionarySetIndexer));
             AddMethodTranslator(typeof(IDictionary<,>), "set_Item", new GenericMethodCompiler(dictionarySetIndexer));
+            AddMethodTranslator(typeof(Array).GetMethod(nameof(Array.SetValue), new[] { typeof(object), typeof(int) }), new GenericMethodCompiler(arrayElementSetter));
             AddPropertyGetterTranslator(typeof(Nullable<>), "Value", new GenericMethodCompiler((JsExpression[] args, MethodInfo method) => args[0]));
             AddPropertyGetterTranslator(typeof(Nullable<>), "HasValue",
                 new GenericMethodCompiler(args => new JsBinaryExpression(args[0], BinaryOperatorType.NotEqual, new JsLiteral(null))));
