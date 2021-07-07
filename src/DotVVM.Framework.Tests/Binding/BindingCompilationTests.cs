@@ -912,6 +912,7 @@ namespace DotVVM.Framework.Tests.Binding
         public TestViewModel2 TestViewModel2B { get; set; }
         public TestEnum EnumProperty { get; set; }
         public string StringProp2 { get; set; }
+        public DateTime DateTime { get; set; }
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTo { get; set; }
         public object Time { get; set; } = TimeSpan.FromSeconds(5);
