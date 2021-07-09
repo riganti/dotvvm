@@ -258,10 +258,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                 a => a[0].Member("toUpperCase").Invoke()));
             AddMethodTranslator(typeof(string), nameof(string.ToLowerInvariant), parameterCount: 0, translator: new GenericMethodCompiler(
                 a => a[0].Member("toLowerCase").Invoke()));
-            AddMethodTranslator(typeof(string), nameof(string.Contains), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
-                a => a[0].Member("includes").Invoke(a[1])));
-            AddMethodTranslator(typeof(string), nameof(string.Contains), parameters: new[] { typeof(string), typeof(StringComparison) }, translator: new GenericMethodCompiler(
-                a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("contains").Invoke(a[0], a[1], a[2])));
             AddMethodTranslator(typeof(string), nameof(string.StartsWith), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
                 a => a[0].Member("startsWith").Invoke(a[1])));
             AddMethodTranslator(typeof(string), nameof(string.StartsWith), parameters: new[] { typeof(string), typeof(StringComparison) }, translator: new GenericMethodCompiler(
@@ -304,8 +300,23 @@ namespace DotVVM.Framework.Compilation.Javascript
                 AddMethodTranslator(typeof(string), nameof(string.Split), parameters: new[] { typeof(string), typeof(StringSplitOptions) }, translator: genericSplitCompiler);
             }
 
+            AddMethodTranslator(typeof(string), nameof(string.Contains), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
+                a => a[0].Member("includes").Invoke(a[1])));
+            var containsMethod = typeof(string).GetMethods(BindingFlags.Public | BindingFlags.Instance).SingleOrDefault(m => m.Name == nameof(string.Contains)
+                && m.GetParameters().Length == 2 && m.GetParameters()[1].ParameterType == typeof(StringComparison));
+            if (containsMethod == null)
+            {
+                AddMethodTranslator(typeof(NetFrameworkExtensions), nameof(NetFrameworkExtensions.Contains), parameters: new[] { typeof(string), typeof(string), typeof(StringComparison) }, translator: new GenericMethodCompiler(
+                    a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("contains").Invoke(a[1], a[2], a[3])));
+            }
+            else
+            {
+                AddMethodTranslator(typeof(string), nameof(string.Contains), parameters: new[] { typeof(string), typeof(StringComparison) }, translator: new GenericMethodCompiler(
+                    a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("contains").Invoke(a[0], a[1], a[2])));
+            }
+
             AddMethodTranslator(typeof(string), nameof(NetFrameworkExtensions.Split), parameters: new[] { typeof(char[]) },
-                    translator: new GenericMethodCompiler(args => args[0].Member("split").Invoke(args[1])));
+                translator: new GenericMethodCompiler(args => args[0].Member("split").Invoke(args[1])));
         }
 
         private void AddDefaultMathTranslations()
