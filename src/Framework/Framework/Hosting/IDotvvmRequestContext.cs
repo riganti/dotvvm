@@ -110,7 +110,7 @@ namespace DotVVM.Framework.Hosting
         string? ResultIdFragment { get; set; }
 
         IServiceProvider Services { get; }
-        public CustomResponsePropertiesManager CustomResponseProperties { get; }
+        CustomResponsePropertiesManager CustomResponseProperties { get; }
 
     }
 }

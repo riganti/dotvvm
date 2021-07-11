@@ -1,4 +1,4 @@
-﻿using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;

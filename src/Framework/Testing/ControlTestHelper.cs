@@ -146,7 +146,8 @@ namespace DotVVM.Framework.Testing
         private CommandRunResult CreateCommandResult(TestDotvvmRequestContext request)
         {
             return new CommandRunResult(
-                request.ViewModelJson
+                request.ViewModelJson,
+                request.CustomResponseProperties.Properties
             );
         }
 
@@ -182,20 +183,25 @@ namespace DotVVM.Framework.Testing
                 headResources,
                 bodyResources,
                 htmlDocument,
-                commands
+                commands,
+                context.CustomResponseProperties.Properties
             );
         }
     }
 
     public class CommandRunResult
     {
-        public CommandRunResult(JObject resultJson)
+        public CommandRunResult(
+            JObject resultJson,
+            IReadOnlyDictionary<string, object> customProperties
+        )
         {
             this.ResultJson = resultJson;
-
+            CustomProperties = customProperties;
         }
         public JObject ResultJson { get; }
         public JObject? ViewModelJson => ResultJson["viewModel"] as JObject ?? ResultJson["viewModelDiff"] as JObject;
+        public IReadOnlyDictionary<string, object> CustomProperties { get; }
     }
 
     public class PostbackRequestModel
@@ -241,7 +247,8 @@ namespace DotVVM.Framework.Testing
             string? headResources,
             string? bodyResources,
             IHtmlDocument html,
-            (DotvvmControl, DotvvmProperty, ICommandBinding)[] commands
+            (DotvvmControl, DotvvmProperty, ICommandBinding)[] commands,
+            IReadOnlyDictionary<string, object> customProperties
         )
         {
             TestHelper = testHelper;
@@ -252,6 +259,7 @@ namespace DotVVM.Framework.Testing
             this.BodyResources = bodyResources;
             this.Html = html;
             this.Commands = commands;
+            this.CustomProperties = customProperties;
         }
 
         public ControlTestHelper TestHelper { get; }
@@ -264,6 +272,7 @@ namespace DotVVM.Framework.Testing
         public string? BodyResources { get; }
         public IHtmlDocument Html { get; }
         public (DotvvmControl control, DotvvmProperty property, ICommandBinding command)[] Commands { get; }
+        public IReadOnlyDictionary<string, object> CustomProperties { get; }
 
         public string FormattedHtml
         {

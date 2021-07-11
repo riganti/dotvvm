@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.1.0" />
+    <PackageReference Include="DotNext.Metaprogramming" Version="3.2.1" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.1" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
@@ -71,7 +72,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.0" />
     <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.0.2" />
-    <PackageReference Include="DotNext.Metaprogramming" Version="1.2.9" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <Reference Include="System" />

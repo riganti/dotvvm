@@ -45,24 +45,43 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
-            public override IEnumerable<Delegate> GetResolvers() => BindingCompilationService.GetDelegates(new[] { new Methods() });
+            public override IEnumerable<Delegate> GetResolvers() => BindingCompilationService.GetDelegates(new object[] { new CommandResolverMethods(), new CommonCommandResolverMethods() });
+        }
 
-            public class Methods
+        /// Resolvers for command and controlCommand
+        public class CommandResolverMethods
+        {
+            public CommandJavascriptBindingProperty CreateJs(IdBindingProperty id, ExpectedTypeBindingProperty? expectedType = null) =>
+                new CommandJavascriptBindingProperty(CreateJsPostbackInvocation(
+                    id.Id,
+                    needsCommandArgs: expectedType?.Type?.GetDelegateArguments()?.Length.Apply(len => len != 0)
+                ));
+        }
+
+        /// Resolvers for command, controlCommand and staticCommand
+        public class CommonCommandResolverMethods
+        {
+
+            public ExpectedTypeBindingProperty GetExpectedType(AssignedPropertyBindingProperty? property = null)
             {
-                public CommandJavascriptBindingProperty CreateJs(IdBindingProperty id, ExpectedTypeBindingProperty? expectedType = null) =>
-                    new CommandJavascriptBindingProperty(CreateJsPostbackInvocation(
-                        id.Id,
-                        needsCommandArgs: expectedType?.Type?.GetDelegateArguments()?.Length.Apply(len => len != 0)
-                    ));
+                var prop = property?.DotvvmProperty;
+                if (prop == null) return new ExpectedTypeBindingProperty(typeof(Command));
 
-                public ExpectedTypeBindingProperty GetExpectedType(AssignedPropertyBindingProperty? property = null)
-                {
-                    var prop = property?.DotvvmProperty;
-                    if (prop == null) return new ExpectedTypeBindingProperty(typeof(Command));
-
-                    return new ExpectedTypeBindingProperty(prop.IsBindingProperty ? (prop.PropertyType.GenericTypeArguments.SingleOrDefault() ?? typeof(Command)) : prop.PropertyType);
-                }
+                return new ExpectedTypeBindingProperty(prop.IsBindingProperty ? (prop.PropertyType.GenericTypeArguments.SingleOrDefault() ?? typeof(Command)) : prop.PropertyType);
             }
+
+            public Expression<BindingDelegate> HandleActionFilters(
+                Expression<BindingDelegate> expr,
+                IBinding binding
+            )
+            {
+                var v = new CommandActionFilterVisitor(
+                    (ICommandBinding)binding,
+                    isControlCommand: binding is ControlCommandBindingExpression
+                );
+                return v.VisitAndConvert(expr, nameof(HandleActionFilters));
+            }
+
         }
 
         public static CodeSymbolicParameter PostbackOptionsParameter = new CodeSymbolicParameter("CommandBindingExpression.PostbackOptionsParameter");

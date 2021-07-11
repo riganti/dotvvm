@@ -233,11 +233,10 @@ namespace DotVVM.Framework.Hosting
                     // invoke the postback command
                     var actionInfo = ViewModelSerializer.ResolveCommand(context, page).NotNull("Command not found?");
 
-                    // get filters
+                    // global command filters
+                    // filters specific to methods are invoked inside the expression (see CommandActionFilterVisitor)
                     var methodFilters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
                         .Concat(ActionFilterHelper.GetActionFilters<ICommandActionFilter>(context.ViewModel.GetType()));
-                    if (actionInfo.Binding?.GetProperty<ActionFiltersBindingProperty>(ErrorHandlingMode.ReturnNull) is ActionFiltersBindingProperty filters)
-                        methodFilters = methodFilters.Concat(filters.Filters.OfType<ICommandActionFilter>());
 
                     commandResult = await ExecuteCommand(actionInfo, context, methodFilters);
                     await requestTracer.TraceEvent(RequestTracingConstants.CommandExecuted, context);
