@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyTitle>DotVVM</AssemblyTitle>
     <VersionPrefix>3.1.0-preview06-final</VersionPrefix>
-    <TargetFrameworks>net451;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
@@ -59,6 +59,7 @@
     <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="DotNext.Metaprogramming" Version="3.2.1" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.1" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />

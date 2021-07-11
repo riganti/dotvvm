@@ -28,12 +28,17 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
-            public override IEnumerable<Delegate> GetResolvers() => new Delegate[] {
-                new Func<StaticCommandJsAstProperty, RequiredRuntimeResourcesBindingProperty>(js => {
-                    var resources = js.Expression.DescendantNodesAndSelf().Select(n => n.Annotation<RequiredRuntimeResourcesBindingProperty>()).Where(n => n != null).SelectMany(n => n.Resources).ToImmutableArray();
-                    return resources.Length == 0 ? RequiredRuntimeResourcesBindingProperty.Empty : new RequiredRuntimeResourcesBindingProperty(resources);
-                })
-            };
+            public override IEnumerable<Delegate> GetResolvers() =>
+                BindingCompilationService.GetDelegates(new object[] { new StaticCommandMethods(), new CommandBindingExpression.CommonCommandResolverMethods() });
+        }
+
+        public class StaticCommandMethods
+        {
+            public RequiredRuntimeResourcesBindingProperty GetRequiredResources(StaticCommandJsAstProperty js)
+            {
+                var resources = js.Expression.DescendantNodesAndSelf().Select(n => n.Annotation<RequiredRuntimeResourcesBindingProperty>()).Where(n => n != null).SelectMany(n => n.Resources).ToImmutableArray();
+                return resources.Length == 0 ? RequiredRuntimeResourcesBindingProperty.Empty : new RequiredRuntimeResourcesBindingProperty(resources);
+            }
         }
     }
 
