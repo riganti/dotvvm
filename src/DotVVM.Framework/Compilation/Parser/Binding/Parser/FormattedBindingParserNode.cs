@@ -19,8 +19,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             this.Format = format;
         }
 
+        public override IEnumerable<BindingParserNode> EnumerateNodes()
+            => base.EnumerateNodes().Concat(Node.EnumerateNodes());
+
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
-            => base.EnumerateNodes().Concat(new[] { Node });
+            => new[] { Node };
 
         public override string ToDisplayString()
             => $"{Node.ToDisplayString()}:{Format}";
