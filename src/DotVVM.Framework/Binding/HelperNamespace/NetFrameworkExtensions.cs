@@ -23,5 +23,13 @@ namespace DotVVM.Framework.Binding.HelperNamespace
         {
             return text.Split(new[] { delimiter }, options);
         }
+
+        /// <summary>
+        /// This is an extension method that allows using unavailable string.Contains(..) overload in .NET Framework
+        /// </summary>
+        public static bool Contains(this string haystack, string needle, StringComparison options)
+        {
+            return haystack.IndexOf(needle, options) != -1;
+        }
     }
 }
