@@ -1,6 +1,5 @@
 ﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Selenium.Core;
 using Xunit;
 using Xunit.Abstractions;
@@ -21,19 +20,15 @@ namespace DotVVM.Samples.Tests.Control
 
                 // try to click on a disabled button
                 browser.Click("#EnabledLinkButton");
-                browser.Wait();
                 AssertUI.InnerTextEquals(browser.Last("span"), "0");
 
                 // enable it
                 browser.Click("input[type=checkbox]");
-                browser.Wait();
                 browser.Click("#EnabledLinkButton");
-                browser.Wait();
                 AssertUI.InnerTextEquals(browser.Last("span"), "1");
 
                 // try to click on a disabled button again
                 browser.Click("#EnabledLinkButton");
-                browser.Wait();
                 AssertUI.InnerTextEquals(browser.Last("span"), "1");
             });
         }

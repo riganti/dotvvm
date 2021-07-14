@@ -38,9 +38,9 @@ namespace DotVVM.Framework.Compilation
             AppDomain.CurrentDomain.AssemblyResolve += TryResolveAssembly;
 #endif
 
-            foreach (var assembly in BuildReferencedAssembliesCache())
+            foreach (var assembly in BuildReferencedAssembliesCache(configuration))
             {
-                cachedAssemblies.GetOrAdd(assembly.FullName, a => assembly);
+                cachedAssemblies.GetOrAdd(assembly.FullName.NotNull(), a => assembly);
             }
 
             if (Instance == null)
@@ -52,7 +52,7 @@ namespace DotVVM.Framework.Compilation
             cache_AllNamespaces = new Lazy<HashSet<string>>(GetAllNamespaces);
         }
 
-        private IEnumerable<Assembly> BuildReferencedAssembliesCache()
+        internal static IEnumerable<Assembly> BuildReferencedAssembliesCache(DotvvmConfiguration configuration)
         {
             var diAssembly = typeof(ServiceCollection).Assembly;
 
@@ -68,10 +68,12 @@ namespace DotVVM.Framework.Compilation
                     typeof(DotvvmConfiguration).Assembly,
 #if DotNetCore
                     Assembly.Load(new AssemblyName("System.Runtime")),
+                    Assembly.Load(new AssemblyName("System.Private.CoreLib")),
                     Assembly.Load(new AssemblyName("System.Collections.Concurrent")),
                     Assembly.Load(new AssemblyName("System.Collections")),
 #else
-                    typeof(List<>).Assembly
+                    typeof(List<>).Assembly,
+                    typeof(System.Net.WebUtility).Assembly
 #endif
                 });
 
@@ -103,10 +105,9 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Tries to resolve compiled assembly.
         /// </summary>
-        private Assembly DefaultOnResolving(System.Runtime.Loader.AssemblyLoadContext assemblyLoadContext, AssemblyName assemblyName)
+        private Assembly? DefaultOnResolving(System.Runtime.Loader.AssemblyLoadContext assemblyLoadContext, AssemblyName assemblyName)
         {
-            Assembly assembly;
-            return cachedAssemblies.TryGetValue(assemblyName.FullName, out assembly) ? assembly : null;
+            return cachedAssemblies.TryGetValue(assemblyName.FullName, out var assembly) ? assembly : null;
         }
 #else
         /// <summary>
@@ -148,7 +149,8 @@ namespace DotVVM.Framework.Compilation
         private HashSet<string> GetAllNamespaces()
             => new HashSet<string>(GetAllAssemblies()
                 .SelectMany(a => a.GetLoadableTypes()
-                    .Select(t => t.Namespace))
+                    .Select(t => t.Namespace!)
+                    .Where(ns => ns is object))
                 .Distinct(), StringComparer.Ordinal);
 
 

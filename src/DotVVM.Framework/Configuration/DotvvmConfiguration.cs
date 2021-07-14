@@ -30,6 +30,7 @@ using Microsoft.Extensions.Options;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Compilation.Javascript;
 using System.ComponentModel;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -110,6 +111,7 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         [JsonProperty("useHistoryApiSpaNavigation", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [DefaultValue(true)]
+        [Obsolete("The UseHistoryApiSpaNavigation property is not supported - the classic SPA mode (URLs with #/) was removed from DotVVM, and the History API is the default and only option now. See https://www.dotvvm.com/docs/3.0/pages/concepts/layout/single-page-applications-spa#changes-to-spas-in-dotvvm-30 for more details.")]
         public bool UseHistoryApiSpaNavigation
         {
             get { return _useHistoryApiSpaNavigation; }
@@ -130,7 +132,7 @@ namespace DotVVM.Framework.Configuration
 
         /// <summary>
         /// Gets or sets whether the application should run in debug mode.
-        /// For ASP.NET Core checkout <see cref="!:https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments" >https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments</see>
+        /// For ASP.NET Core check out <see cref="!:https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments" >https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments</see>
         /// </summary>
         [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Include)]
         public bool Debug
@@ -269,6 +271,19 @@ namespace DotVVM.Framework.Configuration
             return config;
         }
 
+        /// <summary>
+        /// Creates a configuration with fake services in place of hosting-specific components.
+        /// </summary>
+        internal static DotvvmConfiguration CreateInternal(Action<IServiceCollection> registerServices)
+        {
+            return CreateDefault(services =>
+            {
+                services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
+                services.TryAddSingleton<ICsrfProtector, FakeCsrfProtector>();
+                registerServices(services);
+            });
+        }
+
         private static void ConfigureOptions<T>(T obj, IServiceProvider serviceProvider)
             where T : class
         {
@@ -325,24 +340,52 @@ namespace DotVVM.Framework.Configuration
 
         private static void RegisterResources(DotvvmConfiguration configuration)
         {
+            configuration.Resources.Register(ResourceConstants.PolyfillBundleResourceName,
+                new ScriptModuleResource(location: null,
+                    nomoduleLocation: new EmbeddedResourceLocation(
+                        typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
+                            "DotVVM.Framework.obj.javascript.polyfill.bundle.js")
+                    ));
+
             configuration.Resources.Register(ResourceConstants.KnockoutJSResourceName,
-                new ScriptResource(new EmbeddedResourceLocation(
+                new ScriptResource(location: new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
-                    "DotVVM.Framework.Resources.Scripts.knockout-latest.js")));
+                    "DotVVM.Framework.Resources.Scripts.knockout-latest.js",
+                    debugName: "DotVVM.Framework.Resources.Scripts.knockout-latest.debug.js")));
 
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName + ".internal",
-                new ScriptResource(new EmbeddedResourceLocation(
-                    typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
-                    "DotVVM.Framework.Resources.Scripts.DotVVM.min.js")) {
-                    Dependencies = new[] { ResourceConstants.KnockoutJSResourceName, ResourceConstants.PolyfillResourceName }
+                new ScriptModuleResource(
+                    location: new EmbeddedResourceLocation(
+                        typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
+                        "DotVVM.Framework.obj.javascript.root_only.dotvvm-root.js",
+                        debugName: "DotVVM.Framework.obj.javascript.root_only_debug.dotvvm-root.js"),
+                    nomoduleLocation: new EmbeddedResourceLocation(
+                        typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
+                        "DotVVM.Framework.obj.javascript.root_only_system.dotvvm-root.js",
+                        debugName: "DotVVM.Framework.obj.javascript.root_only_system_debug.dotvvm-root.js")
+                    ) {
+                    Dependencies = new[] { ResourceConstants.KnockoutJSResourceName, ResourceConstants.PolyfillBundleResourceName }
+                });
+            configuration.Resources.Register(ResourceConstants.DotvvmResourceName + ".internal-spa",
+                new ScriptModuleResource(
+                    location: new EmbeddedResourceLocation(
+                        typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
+                        "DotVVM.Framework.obj.javascript.root_spa.dotvvm-root.js",
+                        debugName: "DotVVM.Framework.obj.javascript.root_spa_debug.dotvvm-root.js"),
+                    nomoduleLocation: new EmbeddedResourceLocation(
+                        typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
+                        "DotVVM.Framework.obj.javascript.root_spa_system.dotvvm-root.js",
+                        debugName: "DotVVM.Framework.obj.javascript.root_spa_system_debug.dotvvm-root.js")
+                    ) {
+                    Dependencies = new[] { ResourceConstants.KnockoutJSResourceName, ResourceConstants.PolyfillBundleResourceName }
                 });
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName,
-                new InlineScriptResource(@"if (window.dotvvm) { throw 'DotVVM is already loaded!'; } window.dotvvm = new DotVVM();") {
+                new InlineScriptResource(@"", ResourceRenderPosition.Anywhere, defer: true) {
                     Dependencies = new[] { ResourceConstants.DotvvmResourceName + ".internal" }
                 });
 
             configuration.Resources.Register(ResourceConstants.DotvvmDebugResourceName,
-                new ScriptResource(new EmbeddedResourceLocation(
+                new ScriptResource(location: new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
                     "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js")) {
                     Dependencies = new[] { ResourceConstants.DotvvmResourceName }
@@ -354,27 +397,16 @@ namespace DotVVM.Framework.Configuration
                     "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css")));
 
             RegisterGlobalizeResources(configuration);
-            RegisterPolyfillResources(configuration);
         }
 
         private static void RegisterGlobalizeResources(DotvvmConfiguration configuration)
         {
             configuration.Resources.Register(ResourceConstants.GlobalizeResourceName,
-                new ScriptResource(new EmbeddedResourceLocation(
+                new ScriptResource(location: new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
                     "DotVVM.Framework.Resources.Scripts.Globalize.globalize.min.js")));
 
             configuration.Resources.RegisterNamedParent("globalize", new JQueryGlobalizeResourceRepository());
-        }
-
-        private static void RegisterPolyfillResources(DotvvmConfiguration configuration)
-        {
-            configuration.Resources.Register(ResourceConstants.PolyfillResourceName, new PolyfillResource());
-
-            configuration.Resources.Register(ResourceConstants.PolyfillBundleResourceName,
-                new ScriptResource(new EmbeddedResourceLocation(
-                    typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
-                    "DotVVM.Framework.Resources.Scripts.Polyfills.polyfill.bundle.js")));
         }
     }
 }

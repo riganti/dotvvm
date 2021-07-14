@@ -6,6 +6,7 @@ using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium.Chrome;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions.Attributes;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -23,6 +24,7 @@ namespace DotVVM.Samples.Tests.Complex
         [SkipBrowser("firefox:dev", "Cannot simulate offline mode.")]
         [SkipBrowser("firefox:fast", "Cannot simulate offline mode.")]
         [SkipBrowser("ie:dev", "Cannot simulate offline mode.")]
+        [SkipBrowser("ie:fast", "Cannot simulate offline mode.")]
         [SkipBrowser("firefox:fast", "Cannot simulate offline mode.")]
         public void Complex_SPAErrorReporting_NavigationAndPostbacks()
         {
@@ -44,6 +46,7 @@ namespace DotVVM.Samples.Tests.Complex
 
                     // go to Test page and verify the success
                     browser.ElementAt("a", 1).Click();
+                    browser.WaitForPostback();
                     AssertUI.TextEquals(browser.Single("h2"), "Test");
 
                     SetOfflineMode(true);

@@ -17,16 +17,21 @@ namespace DotVVM.Framework.Compilation.Binding
     public class BindingExpressionBuilder : IBindingExpressionBuilder
     {
         private readonly CompiledAssemblyCache compiledAssemblyCache;
+        private readonly ExtensionMethodsCache extensionMethodsCache;
+        private MemberExpressionFactory memberExpressionFactory;
 
-        public BindingExpressionBuilder(CompiledAssemblyCache compiledAssemblyCache)
+        public BindingExpressionBuilder(CompiledAssemblyCache compiledAssemblyCache, ExtensionMethodsCache extensionMethodsCache)
         {
             this.compiledAssemblyCache = compiledAssemblyCache;
+            this.extensionMethodsCache = extensionMethodsCache;
         }
 
-        public Expression Parse(string expression, DataContextStack dataContexts, BindingParserOptions options, params KeyValuePair<string, Expression>[] additionalSymbols)
+        public Expression Parse(string expression, DataContextStack dataContexts, BindingParserOptions options, Type expectedType = null, params KeyValuePair<string, Expression>[] additionalSymbols)
         {
             try
             {
+                memberExpressionFactory = new MemberExpressionFactory(extensionMethodsCache, options.ImportNamespaces);
+
                 var tokenizer = new BindingTokenizer();
                 tokenizer.Tokenize(expression);
 
@@ -49,7 +54,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 symbols = symbols.AddSymbols(options.ExtensionParameters.Select(p => CreateParameter(dataContexts, p.Identifier, p)));
                 symbols = symbols.AddSymbols(additionalSymbols);
 
-                var visitor = new ExpressionBuildingVisitor(symbols);
+                var visitor = new ExpressionBuildingVisitor(symbols, memberExpressionFactory, expectedType);
                 visitor.Scope = symbols.Resolve(options.ScopeParameter);
                 return visitor.Visit(node);
             }
@@ -116,7 +121,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 (extensionParameter == null
                     ? stackItem.DataContextType
                     : ResolvedTypeDescriptor.ToSystemType(extensionParameter.ParameterType))
-                    ?? typeof(ExpressionHelper.UnknownTypeSentinel)
+                    ?? typeof(UnknownTypeSentinel)
                 , name)
             .AddParameterAnnotation(new BindingParameterAnnotation(stackItem, extensionParameter));
     }
@@ -138,10 +143,10 @@ namespace DotVVM.Framework.Compilation.Binding
                                                   extensionParameter: new TypeConversion.MagicLambdaConversionExtensionParameter(index, p.Name, p.ParameterType)))
                                       ))
                                       .ToArray();
-                return builder.Parse(expression, dataContexts, options, additionalSymbols.Concat(delegateSymbols).ToArray());
+                return builder.Parse(expression, dataContexts, options, expectedType, additionalSymbols.Concat(delegateSymbols).ToArray());
             }
             else
-                return builder.Parse(expression, dataContexts, options, additionalSymbols);
+                return builder.Parse(expression, dataContexts, options, expectedType, additionalSymbols);
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MSTest.TestFramework" Version="2.1.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
   </ItemGroup>
 
   <ItemGroup>

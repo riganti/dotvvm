@@ -4,12 +4,12 @@ using System.Globalization;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
+using OpenQA.Selenium.IE;
 using OpenQA.Selenium.Interactions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
-using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -23,7 +23,6 @@ namespace DotVVM.Samples.Tests.Control
 
                 AssertUI.TextEquals(browser.Single("[data-ui='textBox']"), "0.00");
                 browser.Single("[data-ui='button']").Click();
-                browser.Wait(500);
 
                 AssertUI.TextEquals(browser.Single("[data-ui='textBox']"), "10.50");
             });
@@ -38,7 +37,6 @@ namespace DotVVM.Samples.Tests.Control
                 browser.ElementAt("input", 0).Clear();
                 browser.ElementAt("input", 0).SendKeys("hello");
                 browser.ElementAt("input[type=button]", 0).Click();
-                browser.Wait();
 
                 AssertUI.Value(browser.ElementAt("input", 0), "hello");
                 AssertUI.InnerTextEquals(browser.ElementAt("span", 0), "0");
@@ -56,10 +54,10 @@ namespace DotVVM.Samples.Tests.Control
 
                 var typeText = browser.Single("[data-ui='type-text']").GetText();
                 var typeTextDateTime = DateTime.Parse(typeText, DateTimeFormatInfo.InvariantInfo);
-                Assert.AreEqual(now.ToShortDateString(), typeTextDateTime.ToShortDateString());
+                Assert.Equal(now.ToShortDateString(), typeTextDateTime.ToShortDateString());
 
                 var customFormat = browser.Single("[data-ui='custom-format']").GetText();
-                Assert.AreEqual(customFormat, now.ToString("dd-MM-yy"));
+                Assert.Equal(customFormat, now.ToString("dd-MM-yy"));
 
                 browser.Single("[data-ui='fill-name-button']").Click();
                 AssertUI.TextEquals(browser.Single("[data-ui='name-of-day']"), now.DayOfWeek.ToString());
@@ -117,7 +115,7 @@ window.getSelectionText = function (dataui) {
             textBox.Click();
             var selectedText = (string)browser.GetJavaScriptExecutor().ExecuteScript($"return window.getSelectionText('{textBoxDataUi}');");
             var expectedText = isSelectAllOnFocusTrue ? "Testing text" : "";
-            Assert.AreEqual(expectedText, selectedText);
+            Assert.Equal(expectedText, selectedText);
         }
 
         public static IEnumerable<object[]> TextBoxStringFormatChangedCommandData =>
@@ -171,7 +169,7 @@ window.getSelectionText = function (dataui) {
                 //write new valid values
                 dateTextBox.Clear().SendKeys(dateResult2);
                 numberTextbox.Clear().SendKeys(2000.ToString("n0", culture));
-                dateTextBox.Click().Wait();
+                dateTextBox.Click();
 
                 //check new values
                 AssertUI.InnerTextEquals(dateText, new DateTime(2018, 12, 27).ToString("G", culture));
@@ -185,9 +183,9 @@ window.getSelectionText = function (dataui) {
                 numberTextbox.Clear().SendKeys("000//a");
                 dateTextBox.Click();
 
-                //check invalid values
-                AssertUI.InnerTextEquals(dateText, "");
-                AssertUI.InnerTextEquals(numberValueText, "");
+                //check displayed values (behavior change in 3.0 - previous values should stay there)
+                AssertUI.InnerTextEquals(dateText, new DateTime(2018, 12, 27).ToString("G", culture));
+                AssertUI.InnerTextEquals(numberValueText, 2000.ToString(culture));
 
                 AssertUI.Attribute(numberTextbox, "value", "000//a");
                 AssertUI.Attribute(dateTextBox, "value", "dsasdasd");
@@ -195,7 +193,7 @@ window.getSelectionText = function (dataui) {
                 //write new valid values
                 dateTextBox.Clear().SendKeys(new DateTime(2018, 1, 1).ToString("d", culture));
                 numberTextbox.Clear().SendKeys(1000.550277.ToString(culture));
-                dateTextBox.Click().Wait();
+                dateTextBox.Click();
 
                 //check new values
                 AssertUI.InnerTextEquals(dateText, new DateTime(2018, 1, 1).ToString("G", culture));
@@ -203,6 +201,15 @@ window.getSelectionText = function (dataui) {
 
                 AssertUI.Attribute(numberTextbox, "value", 1000.550277.ToString("n4", culture));
                 AssertUI.Attribute(dateTextBox, "value", dateResult3);
+
+                // try to supply different date formats
+                dateTextBox.Clear().SendKeys(new DateTime(2020, 2, 16).ToString("G", culture)).SendKeys(Keys.Tab);
+                AssertUI.Attribute(dateTextBox, "value", new DateTime(2020, 2, 16).ToString("d", culture));
+                AssertUI.InnerTextEquals(dateText, new DateTime(2020, 2, 16).ToString("G", culture));
+
+                nullableDateTextBox.Clear().SendKeys(new DateTime(2020, 4, 2).ToString("d", culture)).SendKeys(Keys.Tab);
+                AssertUI.Attribute(nullableDateTextBox, "value", new DateTime(2020, 4, 2).ToString("G", culture));
+                AssertUI.InnerTextEquals(nullableDateText, new DateTime(2020, 4, 2).ToString("G", culture));
             });
         }
 
@@ -222,39 +229,40 @@ window.getSelectionText = function (dataui) {
                 }
 
                 // Set focus to different element to drop focus on input and invoke onchange element (for IE)
-                void LoseFocus() => browser.Single("body").SetFocus(); ;
+                void LoseFocus() => browser.Single("body").SetFocus();
 
                 var culture = new CultureInfo(cultureName);
                 browser.NavigateToUrl(url);
                 browser.First(linkSelector).Click();
 
-                var numberTextbox = browser.First("#bindingNumberFormatTextbox");
-                AssertUI.Attribute(numberTextbox, "value", 0.ToString("N", culture));
+                IElementWrapper numberTextbox = null;
+                IElementWrapper numberValueText = null;
+                numberTextbox = browser.First("#bindingNumberFormatTextbox");
+                Func<string> referenceFormat = () => browser.First("#bindingNumberValueNString").GetText().Trim();
+                AssertUI.Attribute(numberTextbox, "value", referenceFormat());
 
-                var numberValueText = browser.First("#resultNumberValueText");
+                numberValueText = browser.First("#resultNumberValueText");
                 AssertUI.InnerTextEquals(numberValueText, 0.ToString(culture));
 
                 // send new values
                 ClearInput(numberTextbox);
                 numberTextbox.SendKeys("42")
-                    .SendEnterKey()
-                    .Wait();
+                    .SendEnterKey();
                 LoseFocus();
 
                 // check new values
                 AssertUI.InnerTextEquals(numberValueText, 42.ToString(culture));
-                AssertUI.Attribute(numberTextbox, "value", 42.ToString("N", culture));
+                AssertUI.Attribute(numberTextbox, "value", referenceFormat());
 
                 // send new values
                 ClearInput(numberTextbox);
                 numberTextbox.SendKeys(123.456789.ToString(culture))
-                    .SendEnterKey()
-                    .Wait();
+                    .SendEnterKey();
                 LoseFocus();
 
                 // check new values
                 AssertUI.InnerTextEquals(numberValueText, 123.456789.ToString(culture));
-                AssertUI.Attribute(numberTextbox, "value", 123.456789.ToString("N", culture));
+                AssertUI.Attribute(numberTextbox, "value", referenceFormat());
             });
         }
 
@@ -280,6 +288,29 @@ window.getSelectionText = function (dataui) {
 
                 AssertUI.Value(browser.Single("input[data-ui='datetime-textbox']"), "2017-01-01T08:08");
                 AssertUI.Value(browser.Single("input[data-ui='nullable-datetime-textbox']"), "2017-01-01T20:10");
+
+                if (browser.Driver is not InternetExplorerDriver)
+                {
+                    var intTextBox = browser.Single("input[data-ui='int-textbox']");
+                    AssertUI.Value(intTextBox, "0");
+                    intTextBox.SetFocus();
+                    intTextBox.SendKeys(Keys.ArrowUp);
+                    AssertUI.Value(intTextBox, "1");
+                    intTextBox.SendKeys(Keys.ArrowDown);
+                    AssertUI.Value(intTextBox, "0");
+                    intTextBox.SendKeys(Keys.ArrowDown);
+                    AssertUI.Value(intTextBox, "-1");
+
+                    var nullableIntTextBox = browser.Single("input[data-ui='nullable-int-textbox']");
+                    AssertUI.Value(nullableIntTextBox, "");
+                    nullableIntTextBox.SetFocus();
+                    nullableIntTextBox.SendKeys(Keys.ArrowUp);
+                    AssertUI.Value(nullableIntTextBox, "1");
+                    nullableIntTextBox.SendKeys(Keys.ArrowDown);
+                    AssertUI.Value(nullableIntTextBox, "0");
+                    nullableIntTextBox.SendKeys(Keys.ArrowDown);
+                    AssertUI.Value(nullableIntTextBox, "-1");
+                }
             });
         }
 

@@ -1,0 +1,81 @@
+{
+	"zsj6/e1A3dccN3yvHl19BQ4qaKI=": {
+		"type": "object",
+		"properties": {
+			"ChildFirstRequest": {
+				"type": "IJIM/EKXZpkOhfVgPSJMSwRI3qM=",
+				"post": "no",
+				"update": "firstRequest"
+			},
+			"ClientToServer": {
+				"type": "String",
+				"update": "firstRequest"
+			},
+			"NestedList": {
+				"type": [
+					"IJIM/EKXZpkOhfVgPSJMSwRI3qM="
+				]
+			},
+			"ObjectProperty": {
+				"type": {
+					"type": "dynamic"
+				}
+			},
+			"property ONE": {
+				"type": "Guid"
+			},
+			"property TWO": {
+				"type": [
+					{
+						"type": "nullable",
+						"inner": "Naz5KfxmZJ+FNKch08f+TL+36i4="
+					}
+				]
+			},
+			"ServerToClient": {
+				"type": "String",
+				"post": "no",
+				"validationRules": [
+					{
+						"ruleName": "required",
+						"errorMessage": "ServerToClient is required!",
+						"parameters": []
+					}
+				]
+			}
+		}
+	},
+	"IJIM/EKXZpkOhfVgPSJMSwRI3qM=": {
+		"type": "object",
+		"properties": {
+			"InPathOnly": {
+				"type": "Int32",
+				"post": "pathOnly",
+				"validationRules": [
+					{
+						"ruleName": "required",
+						"errorMessage": "The InPathOnly field is required.",
+						"parameters": []
+					},
+					{
+						"ruleName": "range",
+						"errorMessage": "range error",
+						"parameters": [
+							0,
+							10
+						]
+					}
+				]
+			}
+		}
+	},
+	"Naz5KfxmZJ+FNKch08f+TL+36i4=": {
+		"type": "enum",
+		"isFlags": true,
+		"values": {
+			"Zero": 0,
+			"One": 1,
+			"Two": 2
+		}
+	}
+}

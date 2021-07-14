@@ -128,6 +128,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                             Read();
                             EnsureUnsupportedOperator(BindingTokenType.EqualsEqualsOperator);
                         }
+                        else if (Peek() == '>')
+                        {
+                            Read();
+                            EnsureUnsupportedOperator(BindingTokenType.LambdaOperator);
+                        }
                         else {
                             EnsureUnsupportedOperator(BindingTokenType.AssignOperator);
                         }
@@ -206,11 +211,25 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         }
                         break;
 
+                    case '$':
                     case '\'':
                     case '"':
+                        var bindingTokenType = default(BindingTokenType);
+                        var errorMessage = default(string);
                         FinishIncompleteIdentifier();
-                        ReadStringLiteral(out var errorMessage);
-                        CreateToken(BindingTokenType.StringLiteralToken, errorProvider: t => CreateTokenError(t, errorMessage ?? "unknown error"));
+
+                        if (ch == '$')
+                        {
+                            bindingTokenType = BindingTokenType.InterpolatedStringToken;
+                            ReadInterpolatedString(out errorMessage);
+                        }
+                        else
+                        {
+                            bindingTokenType = BindingTokenType.StringLiteralToken;
+                            ReadStringLiteral(out errorMessage);
+                        }
+
+                        CreateToken(bindingTokenType, errorProvider: t => CreateTokenError(t, errorMessage ?? "unknown error"));
                         break;
 
                     case '?':
@@ -223,7 +242,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         }
                         else
                         {
-                            EnsureUnsupportedOperator(BindingTokenType.QuestionMarkOperator);
+                            CreateToken(BindingTokenType.QuestionMarkOperator);
                         }
                         break;
                     case ';':
@@ -286,6 +305,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
             ReadStringLiteral(Peek, Read, out errorMessage);
         }
 
+        internal void ReadInterpolatedString(out string? errorMessage)
+        {
+            ReadInterpolatedString(Peek, Read, out errorMessage);
+        }
+
         /// <summary>
         /// Reads the string literal.
         /// </summary>
@@ -317,6 +341,44 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
             }
             readFunction();
 
+            errorMessage = null;
+        }
+
+        internal static void ReadInterpolatedString(Func<char> peekFunction, Func<char> readFunction, out string? errorMessage)
+        {
+            readFunction();
+            var quoteChar = readFunction();
+            var exprDepth = 0;
+
+            while (peekFunction() != quoteChar || exprDepth != 0)
+            {
+                if (peekFunction() == NullChar)
+                {
+                    errorMessage = "Interpolated string was not closed!";
+                    return;
+                }
+
+                if (peekFunction() == '\\' && exprDepth == 0)
+                {
+                    readFunction();
+                }
+                else if (peekFunction() == '{')
+                {
+                    exprDepth++;
+                }
+                else if (peekFunction() == '}')
+                {
+                    if (--exprDepth <= -1)
+                    {
+                        errorMessage = "Could not find matching '{' character!";
+                        return;
+                    }
+                }
+
+                readFunction();
+            }
+
+            readFunction();
             errorMessage = null;
         }
     }

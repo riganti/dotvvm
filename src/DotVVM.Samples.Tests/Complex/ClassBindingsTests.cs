@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.DotVVM;
 using Xunit;
@@ -24,16 +25,14 @@ namespace DotVVM.Samples.Tests.Complex
                 var target = browser.Single("target", SelectByDataUi);
                 var textBox = browser.Single("classes", SelectByDataUi);
                 textBox.SendKeys("orange");
-                textBox.SendEnterKey();
-                browser.WaitFor(() => AssertUI.HasClass(target, "orange"), 1000);
+                textBox.SendKeys(Keys.Tab);
+                AssertUI.HasClass(target, "orange");
 
                 browser.Single("inverted", SelectByDataUi).Click();
                 browser.Single("border", SelectByDataUi).Click();
-                browser.WaitFor(() => {
-                    AssertUI.HasClass(target, "orange");
-                    AssertUI.HasClass(target, "inverted");
-                    AssertUI.HasClass(target, "border");
-                }, 1000);
+                AssertUI.HasClass(target, "orange");
+                AssertUI.HasClass(target, "inverted");
+                AssertUI.HasClass(target, "border");
             });
         }
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
@@ -24,7 +23,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
-                browser.Wait();
 
                 // verify the second pager is hidden
                 AssertUI.IsDisplayed(browser.First(".pagination"));
@@ -54,21 +52,19 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
-                browser.Wait();
 
                 // the first li should be visible because it contains text, the second with the link should be hidden
-                var pageIndex1 = browser.ElementAt(".pagination", 0).ElementAt("li", 2);
+                var pageIndex1 = browser.First("#pager1").ElementAt("li", 2);
                 AssertUI.NotContainsElement(pageIndex1, "a");
                 AssertUI.HasClass(pageIndex1, "active");
                 AssertUI.IsDisplayed(pageIndex1);
 
-                var pageIndex2 = browser.ElementAt(".pagination", 0).ElementAt("li", 3);
+                var pageIndex2 = browser.First("#pager1").ElementAt("li", 3);
                 AssertUI.ContainsElement(pageIndex2, "a");
-                AssertUI.HasClass(pageIndex2, "active");
                 AssertUI.IsNotDisplayed(pageIndex2);
 
                 // the first li should note be there because only hyperlinks are rendered
-                var pageIndex3 = browser.ElementAt(".pagination", 2).ElementAt("li", 2);
+                var pageIndex3 = browser.First("#pager3").ElementAt("li", 2);
                 AssertUI.ContainsElement(pageIndex3, "a");
                 AssertUI.HasClass(pageIndex3, "active");
                 AssertUI.IsDisplayed(pageIndex3);
@@ -81,7 +77,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
-                browser.Wait();
 
                 // the first ul should not be disabled
                 AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 0), "disabled");
@@ -121,7 +116,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
-                browser.Wait();
 
                 // populate with data
                 browser.Single("populate-button", this.SelectByDataUi).Click();
@@ -170,14 +164,13 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
-                browser.Wait();
 
                 // populate with data
                 browser.Single("populate-button", this.SelectByDataUi).Click();
 
                 // pager 4 should be disabled by value
                 // try to switch to next page
-                browser.Single("#pager4").ElementAt("li a", browser.Single("#pager4").FindElements("li a").Count - 2).ScrollTo().Click().Wait();
+                browser.Single("#pager4").ElementAt("li a", browser.Single("#pager4").FindElements("li a").Count - 2).ScrollTo().Click();
                 AssertUI.InnerTextEquals(browser.First("ul").First("li"), "Item 0");
 
                 // try to switch to last page
@@ -212,7 +205,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
-                browser.Wait();
 
                 // verify the second pager is hidden
                 AssertUI.IsDisplayed(browser.First(".pagination"));
@@ -241,7 +233,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
-                browser.Wait();
 
                 void CheckNearPageIndexes(IEnumerable<int> indexes)
                 {
@@ -250,7 +241,7 @@ namespace DotVVM.Samples.Tests.Control
 
                     var nearPageIndexesCount = indexes.Count();
                     // Including first page, previous page, next page, last page links
-                    elements.ThrowIfDifferentCountThan(nearPageIndexesCount + 4);
+                    browser.WaitFor(() => elements.ThrowIfDifferentCountThan(nearPageIndexesCount + 4), 1000);
 
                     foreach (var value in indexes.Zip(elements.Skip(2), (i, e) => new { Index = i, Element = e }))
                     {

@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using System;
+﻿using System;
 using System.Linq;
 using System.Net;
 using DotVVM.Samples.Tests.Base;
@@ -85,7 +83,7 @@ namespace DotVVM.Samples.Tests
                 AssertUI.InnerText(browser.First("[class='exceptionMessage']")
                 ,
                         s =>
-                            s.ToLower().Contains("was not recognized as a valid Boolean.".ToLower())
+                            s.ToLowerInvariant().Contains("was not recognized as a valid boolean.")
                             , "Expected message is 'was not recognized as a valid Boolean.'");
 
                 AssertUI.InnerText(browser.First("[class='errorUnderline']")
@@ -115,7 +113,16 @@ namespace DotVVM.Samples.Tests
                 AssertUI.InnerText(browser.First("[class='source-errorLine']"), s => s.Contains("dot:CheckBox"));
             });
         }
-
+        [Fact]
+        [SampleReference(SamplesRouteUrls.Errors_ControlAsViewModel)]
+        public void Error_ControlAsViewModel()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_ControlAsViewModel);
+                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("DotvvmBindableObject"));
+                AssertUI.InnerText(browser.First("[class='source-errorLine']"), s => s.Contains("viewModel"));
+            });
+        }
         [Fact]
         public void Error_MissingRequiredProperty2()
         {
@@ -180,7 +187,7 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_MasterPageRequiresDifferentViewModel);
 
                 //TODO:  !!! In error page, viewModel directive should by underlined !!!
-                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("Master page requires viewModel"));
+                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("The viewmodel EmptyViewModel is not assignable to the viewmodel of the master page MasterPageViewModel."));
                 //browser.First("[class='errorUnderline']"),s => s.Contains("DotVVM.Samples.BasicSamples.ViewModels.EmptyViewModel, DotVVM.Samples.Common"));
             });
         }
@@ -418,6 +425,31 @@ namespace DotVVM.Samples.Tests
                         s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException", StringComparison.OrdinalIgnoreCase) &&
                         s.Contains("The WrapperTagName property cannot be set when RenderWrapperTag is false!", StringComparison.OrdinalIgnoreCase)
                 );
+            });
+        }
+
+        [Fact]
+        public void Error_RouteLinkUndefinedParameters()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_UndefinedRouteLinkParameters);
+
+                AssertUI.TextEquals(browser.First("exceptionType", By.ClassName), "DotVVM.Framework.Compilation.DotvvmCompilationException");
+                AssertUI.InnerText(browser.First(".exceptionMessage"),
+                    s => s.Contains("The following parameters are not present in route", StringComparison.OrdinalIgnoreCase),
+                    "Exception should contain information about the route name and undefined parameters");
+            });
+        }
+
+        [Fact]
+        public void Error_RouteLinkInvalidRouteName()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_InvalidRouteName);
+
+                AssertUI.TextEquals(browser.First("exceptionType", By.ClassName), "DotVVM.Framework.Compilation.DotvvmCompilationException");
+                AssertUI.TextEquals(browser.First(".exceptionMessage"), "RouteName \"NonExistingRouteName\" does not exist.",
+                   failureMessage: "Exception should contain information about the undefined route name");
             });
         }
 

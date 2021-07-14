@@ -111,7 +111,6 @@
     </Content>
     <Content Include="Web.config" />
     <Content Include="test.zip" />
-    <Content Include=".dotvvm.json" />
     <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\CI.pubxml" />
     <None Include="Web.Debug.config">

@@ -16,6 +16,7 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
@@ -36,6 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddOptions();
 
             services.TryAddSingleton<CompiledAssemblyCache>();
+            services.TryAddSingleton<ExtensionMethodsCache>();
             services.TryAddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
             services.TryAddSingleton<IViewModelSerializer, DefaultViewModelSerializer>();
             services.TryAddSingleton<IViewModelLoader, DefaultViewModelLoader>();
@@ -45,6 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IStaticCommandServiceLoader, DefaultStaticCommandServiceLoader>();
 #pragma warning restore CS0618
             services.TryAddSingleton<IViewModelValidationMetadataProvider, AttributeViewModelValidationMetadataProvider>();
+            services.TryAddSingleton<IViewModelTypeMetadataSerializer, ViewModelTypeMetadataSerializer>();
             services.TryAddSingleton<IValidationRuleTranslator, ViewModelValidationRuleTranslator>();
             services.TryAddSingleton<IPropertySerialization, DefaultPropertySerialization>();
             services.TryAddSingleton<UserColumnMappingCache>();
@@ -97,6 +100,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<DataContextPropertyAssigningVisitor>(s));
                 o.TreeVisitors.Add(() => new LifecycleRequirementsAssigningVisitor());
             });
+
+            services.TryAddSingleton<IDotvvmCacheAdapter, DefaultDotvvmCacheAdapter>();
 
             return services;
         }

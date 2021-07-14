@@ -1,32 +1,38 @@
 {
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
-    "version": "0.1.0",
+    "version": "2.0.0",
     "command": "dotnet",
-    "isShellCommand": true,
+    "type": "shell",
     "args": [ ],
     "tasks": [
         {
-            "taskName": "build",
+            "label": "build",
             "args": [ "DotVVM.Samples.BasicSamples.AspNetCore/", "/p:GenerateFullPaths=true" ],
-            "isBuildCommand": true,
-            "showOutput": "silent",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
             "problemMatcher": "$msCompile"
         },
         {
-            "taskName": "build-cli",
+            "label": "build-cli",
             "command": "build",
             "args": [ "DotVVM.CommandLine" ],
-            "isBuildCommand": true,
-            "showOutput": "always",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
             "problemMatcher": "$msCompile"
         },
         {
-            "taskName": "build-tests",
+            "label": "build-tests",
             "command": "build",
-            "args": [ "DotVVM.Framework.Tests.Common" ],
-            "isBuildCommand": true,
-            "showOutput": "always",
+            "args": [ "DotVVM.Framework.Tests" ],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
             "problemMatcher": "$msCompile"
         }
     ]

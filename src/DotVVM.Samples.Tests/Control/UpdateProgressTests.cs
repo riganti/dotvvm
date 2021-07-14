@@ -12,6 +12,8 @@ using OpenQA.Selenium;
 using Riganti.Selenium.Core.Abstractions.Exceptions;
 using Xunit;
 using Xunit.Abstractions;
+using OpenQA.Selenium.Chrome;
+using Riganti.Selenium.Core.Abstractions.Attributes;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -19,11 +21,12 @@ namespace DotVVM.Samples.Tests.Control
     {
 
         [Fact]
+        [SkipBrowser("ie:dev", reason: "Download popup window hangs IE.")]
+        [SkipBrowser("ie:fast", reason: "Download popup window hangs IE.")]
         public void Control_UpdateProgress_UpdateProgress()
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgress);
-                browser.Wait();
 
                 // click the button and verify that the progress appears and disappears again
                 AssertUI.IsNotDisplayed(browser.First(".update-progress"));
@@ -35,7 +38,6 @@ namespace DotVVM.Samples.Tests.Control
                 // click the second button and verify that the progress appears and disappears again
                 AssertUI.IsNotDisplayed(browser.First(".update-progress"));
                 browser.ElementAt("input[type=button]", 1).Click();
-                browser.Wait(1000);
                 AssertUI.IsNotDisplayed(browser.First(".update-progress"));
             });
         }
@@ -46,7 +48,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressDelay);
-                browser.Wait();
 
                 // click the button with long test and verify that the progress appears and disappears again
                 AssertUI.IsNotDisplayed(browser.First(".update-progress"));
@@ -70,13 +71,12 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressDelay);
-                browser.Wait();
 
                 // click the second button with short test and verify that the progress does not appear
                 AssertUI.IsNotDisplayed(browser.First(".update-progress"));
                 browser.First(".short-test").Click();
 
-                browser.WaitFor(() => AssertUI.IsNotDisplayed(browser.First(".update-progress")), 3000);
+                AssertUI.IsNotDisplayed(browser.First(".update-progress"));
 
             });
         }
@@ -87,7 +87,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressDelay);
-                browser.Wait();
+                 browser.Wait();
                 var updateProgressControl = browser.First(".update-progress");
 
                 // click the second button with short test and verify that the progress does not appear
@@ -125,7 +125,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressQueues);
-                browser.Wait();
 
                 var button1 = browser.ElementAt("input[type=button]", 0);
                 var button2 = browser.ElementAt("input[type=button]", 1);
@@ -198,7 +197,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(route);
-                browser.Wait();
 
                 var spaTextElement = browser.Single("text", SelectByDataUi);
                 var goToSpa2Btn = browser.Single("btn-2", SelectByDataUi);
@@ -244,7 +242,6 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressRedirectSPA1);
-                browser.Wait();
                 var progress = browser.Single("progress", By.Id);
 
                 AssertUI.IsNotDisplayed(progress);
@@ -252,8 +249,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Single("long", SelectByDataUi).Click();
                 AssertUI.IsDisplayed(progress);
                 Thread.Sleep(1000);
-                progress.WaitFor(AssertUI.IsNotDisplayed, 500,
-                    "Update progress did not hide after action finished");
+                AssertUI.IsNotDisplayed(progress); //"Update progress did not hide after action finished"
             });
         }
 

@@ -50,6 +50,51 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             expression = ReplaceCommandArgs(expression);
 
+            var js = TranslateVariableDeclaration(expression, e => CreateCommandExpression(dataContext, e));
+
+            if (js is JsInvocationExpression invocation && invocation.Target is JsIdentifierExpression identifier && identifier.Identifier == "resolve")
+            {
+                // optimize `new Promise(function (resolve) { resolve(x) })` to `Promise.resolve(x)`
+                identifier.ReplaceWith(new JsIdentifierExpression("Promise").Member("resolve"));
+                return js;
+            }
+            else
+            {
+                return new JsNewExpression(new JsIdentifierExpression("Promise"), new JsFunctionExpression(
+                    new [] { new JsIdentifier("resolve"), new JsIdentifier("reject") },
+                    new JsBlockStatement(new JsExpressionStatement(js))
+                ));
+            }
+        }
+
+        private JsExpression TranslateVariableDeclaration(Expression expression, Func<Expression, JsExpression> core)
+        {
+            expression = VariableHoistingVisitor.HoistVariables(expression);
+            if (expression is BlockExpression block && block.Variables.Any())
+            {
+                var realBlock = block.Update(Enumerable.Empty<ParameterExpression>(), block.Expressions);
+
+                var variables = block.Variables;
+                var replacedVariables = ExpressionUtils.Replace(
+                    Expression.Lambda(realBlock, variables),
+                    variables.Select(v => {
+                        var tmpVar = new JsTemporaryVariableParameter();
+                        return Expression.Parameter(v.Type, v.Name).AddParameterAnnotation(new BindingParameterAnnotation(extensionParameter:
+                            new JavascriptTranslationVisitor.FakeExtensionParameter(_ => new JsSymbolicParameter(tmpVar), v.Name, new ResolvedTypeDescriptor(v.Type))
+                        ));
+                    }).ToArray()
+                );
+
+                return core(replacedVariables);
+            }
+            else
+            {
+                return core(expression);
+            }
+        }
+
+        private JsExpression CreateCommandExpression(DataContextStack dataContext, Expression expression)
+        {
             var knockoutContext =
                 new JsSymbolicParameter(
                     JavascriptTranslator.KnockoutContextParameter,
@@ -60,66 +105,40 @@ namespace DotVVM.Framework.Compilation.Binding
             // var resultPromiseVariable = new JsNewExpression("DotvvmPromise"));
             var senderVariable = new JsTemporaryVariableParameter(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter));
 
+            var invocationRewriter = new InvocationRewriterExpressionVisitor();
+            expression = invocationRewriter.Visit(expression);
+
             var rewriter = new TaskSequenceRewriterExpressionVisitor();
             expression = rewriter.Visit(expression);
 
-            var visitor = new ExtractExpressionVisitor(ex => {
-                if (ex.NodeType == ExpressionType.Call && ex is MethodCallExpression methodCall)
-                {
-                    if (javascriptTranslator.TryTranslateMethodCall(methodCall.Object, methodCall.Arguments.ToArray(), methodCall.Method, dataContext) is JsExpression jsTranslation)
-                    {
-                        if (jsTranslation.Annotation<ResultIsPromiseAnnotation>() is ResultIsPromiseAnnotation promiseAnnotation)
-                            return (p => new BindingParameterAnnotation(extensionParameter: new JavascriptTranslationVisitor.FakeExtensionParameter(_ => new JsIdentifierExpression(p.Name).WithAnnotations(promiseAnnotation.ResultAnnotations), p.Name, new ResolvedTypeDescriptor(p.Type))));
-                        else return null;
-                    }
-                    return p => new BindingParameterAnnotation(extensionParameter: new JavascriptTranslationVisitor.FakeExtensionParameter(_ => new JsIdentifierExpression(p.Name).WithAnnotation(new ViewModelInfoAnnotation(p.Type)), p.Name, new ResolvedTypeDescriptor(p.Type)));
-                }
-                return null;
-            });
+            //Extract all promise returning method calls so that  result can be 'awaited'
+            //Result of the call will be saved in auxiliary variable and the wariable is then used in original text
+            //example:
+            //vm.D = A(B("a"), C("b")) ---> r_0 = B("a"), r_1 = C("b"), r_2 = A(r_0, r_1), vm.D = r_2
+            var visitor = new ExtractExpressionVisitor(ex => CreatePromiseMethodCallAnnotationFactory(dataContext, ex));
             var rootCallback = visitor.Visit(expression);
+
             var errorCallback = new JsIdentifierExpression("reject");
             var js = SouldCompileCallback(rootCallback) ? new JsIdentifierExpression("resolve").Invoke(javascriptTranslator.CompileToJavascript(rootCallback, dataContext)) : null;
+
             foreach (var param in visitor.ParameterOrder.Reverse<ParameterExpression>())
             {
                 js = js ?? new JsIdentifierExpression("resolve").Invoke(new JsIdentifierExpression(param.Name));
-                var replacedNode = js.DescendantNodes().SingleOrDefault(n => n is JsIdentifierExpression identifier && identifier.Identifier == param.Name);
                 var callback = new JsFunctionExpression(new[] { new JsIdentifier(param.Name) }, new JsBlockStatement(new JsExpressionStatement(js)));
                 var method = visitor.Replaced[param] as MethodCallExpression;
                 var methodInvocation = CompileMethodCall(method, dataContext, callback, errorCallback.Clone());
 
-                var invocationExpressions =
-                    methodInvocation is JsInvocationExpression invocation && invocation.Target.ToString() == "dotvvm.staticCommandPostback" ?
-                    (JsArrayExpression)invocation.Arguments.ElementAt(3) :
-                    methodInvocation;
-                var preCommandExpressions = new List<(CodeSymbolicParameter parameter, JsNode node)>();
-                if (replacedNode != null)
-                {
-                    var siblings = replacedNode
-                        .AncestorsAndSelf.TakeWhile(n => n != callback)
-                        .SelectMany(n => n.Parent.Children.TakeWhile(c => c != n))
-                        .ToArray();
-                    var reorderBlockingNodes = new HashSet<JsNode>(siblings);
-                    reorderBlockingNodes.Add(invocationExpressions);
-                    foreach (var sibling in siblings)
-                    {
-                        reorderBlockingNodes.Remove(sibling);
-                        if (SideEffectAnalyzer.MayReorder(sibling, reorderBlockingNodes))
-                            continue;
+                var invocationDependencies = ExtractPostbackCommandInvocationDependecies(methodInvocation);
 
-                        var tmpVar = sibling is JsExpression ? new JsTemporaryVariableParameter() : null;
-                        preCommandExpressions.Add((tmpVar, sibling));
-                        if (sibling is JsExpression)
-                            sibling.ReplaceWith(new JsSymbolicParameter(tmpVar));
-                        else if (sibling.Parent is JsBlockStatement)
-                            sibling.Remove();
-                        else
-                            sibling.ReplaceWith(new JsBlockStatement());
-                    }
-                }
-                if (preCommandExpressions.All(e => e.node is JsExpression))
+                var replacedParameterNode = js.DescendantNodes().SingleOrDefault(n => n is JsIdentifierExpression identifier && identifier.Identifier == param.Name);
+
+                //These expressions would be affected by chaging order in which they are executed by putting them in .then(...) callback.
+                var orderSensitiveExpressions = ResolveOrderSensitiveExpressions(callback, invocationDependencies, replacedParameterNode);
+
+                if (orderSensitiveExpressions.All(e => e.node is JsExpression))
                 {
                     js = methodInvocation;
-                    foreach (var (p, node) in Enumerable.Reverse(preCommandExpressions))
+                    foreach (var (p, node) in Enumerable.Reverse(orderSensitiveExpressions))
                         js = new JsBinaryExpression(
                             new JsAssignmentExpression(new JsSymbolicParameter(p), (JsExpression)node),
                             BinaryOperatorType.Sequence,
@@ -130,7 +149,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     js = JsFunctionExpression.CreateIIFE(
                         new JsBlockStatement(
-                            preCommandExpressions.Select(c =>
+                            orderSensitiveExpressions.Select(c =>
                                 c.parameter == null ? (JsStatement)c.node : new JsExpressionStatement(new JsAssignmentExpression(new JsSymbolicParameter(c.parameter), (JsExpression)c.node))
                             ).Concat(new[] { new JsExpressionStatement(methodInvocation) })
                         )
@@ -143,23 +162,89 @@ namespace DotVVM.Framework.Compilation.Binding
                 else if (sp.Symbol == JavascriptTranslator.KnockoutViewModelParameter) sp.ReplaceWith(new JsSymbolicParameter(currentContextVariable).Member("$data"));
                 else if (sp.Symbol == CommandBindingExpression.SenderElementParameter) sp.Symbol = senderVariable;
             }
+            return js;
+        }
 
+        private Func<ParameterExpression, BindingParameterAnnotation> CreatePromiseMethodCallAnnotationFactory(DataContextStack dataContext, Expression ex)
+        {
+            if (ex.NodeType != ExpressionType.Call || !(ex is MethodCallExpression methodCall)) { return null; }
+
+            if (javascriptTranslator.TryTranslateMethodCall(methodCall.Object, methodCall.Arguments.ToArray(), methodCall.Method, dataContext) is JsExpression jsTranslation)
             {
-                if (js is JsInvocationExpression invocation && invocation.Target is JsIdentifierExpression identifier && identifier.Identifier == "resolve")
+                if (jsTranslation.Annotation<ResultIsPromiseAnnotation>() is ResultIsPromiseAnnotation promiseAnnotation)
                 {
-                    // optimize `new Promise(function (resolve) { resolve(x) })` to `Promise.resolve(x)`
-                    identifier.ReplaceWith(new JsIdentifierExpression("Promise").Member("resolve"));
-                    return js;
+                    return (p => new BindingParameterAnnotation(extensionParameter: new JavascriptTranslationVisitor.FakeExtensionParameter(_ => new JsIdentifierExpression(p.Name).WithAnnotations(promiseAnnotation.ResultAnnotations), p.Name, new ResolvedTypeDescriptor(p.Type))));
                 }
-                else
+                else { return null; }
+            }
+            return p => new BindingParameterAnnotation(extensionParameter: new JavascriptTranslationVisitor.FakeExtensionParameter(_ => new JsIdentifierExpression(p.Name).WithAnnotation(new ViewModelInfoAnnotation(p.Type)), p.Name, new ResolvedTypeDescriptor(p.Type)));
+        }
+
+        private static List<(CodeSymbolicParameter parameter, JsNode node)> ResolveOrderSensitiveExpressions(JsFunctionExpression callback, JsExpression invocationDependencies, JsNode replacedPostbackNode)
+        {
+            var orderSensitiveExpressions = new List<(CodeSymbolicParameter parameter, JsNode node)>();
+            if (replacedPostbackNode != null)
+            {
+                var siblings = replacedPostbackNode
+                    .AncestorsAndSelf.TakeWhile(n => n != callback)
+                    .SelectMany(n => n.Parent.Children.TakeWhile(c => c != n))
+                    .Select(EnsureInvocationsAndTargetStayTogether)
+                    .ToArray();
+
+                //postback(...).then(...)
+
+                var beforePostbackExpressions = new HashSet<JsNode>(siblings);
+                beforePostbackExpressions.Add(invocationDependencies);
+                foreach (var sibling in siblings)
                 {
-                    return new JsNewExpression(new JsIdentifierExpression("Promise"), new JsFunctionExpression(
-                        new [] { new JsIdentifier("resolve"), new JsIdentifier("reject") },
-                        new JsBlockStatement(new JsExpressionStatement(js))
-                    ));
+                    beforePostbackExpressions.Remove(sibling);
+                    if (SideEffectAnalyzer.MayReorder(sibling, beforePostbackExpressions))
+                        continue;
+
+                    var tmpVar = sibling is JsExpression ? new JsTemporaryVariableParameter() : null;
+                    orderSensitiveExpressions.Add((tmpVar, sibling));
+                    if (sibling is JsExpression)
+                        sibling.ReplaceWith(new JsSymbolicParameter(tmpVar));
+                    else if (sibling.Parent is JsBlockStatement)
+                        sibling.Remove();
+                    else
+                        sibling.ReplaceWith(new JsBlockStatement());
                 }
             }
+
+            return orderSensitiveExpressions;
         }
+
+
+        private static JsNode EnsureInvocationsAndTargetStayTogether(JsNode n) =>
+            //If I am target of invocation and I am also a member access take my target, otherwise take whole invocation
+            //This is so that in cases like: `A(...).B(...)` we  don't split ten experession into `_temp = A(...).B, temp()` doing so would result in invalid this context in javascript
+            //in case like `Foo = A(...)` we are better of just taking A. If A is an identifier nothing will change.
+            n.Parent is JsInvocationExpression invocation &&
+            invocation.Target == n &&
+            n is JsMemberAccessExpression targetMemberAccess
+            ? targetMemberAccess.Target
+            : n;
+
+        private static JsExpression ExtractPostbackCommandInvocationDependecies(JsExpression methodInvocation)
+        {
+            var commandPostbackInvocation = ExtractCommandPostbackInvocation(methodInvocation);
+
+            var invocationExpressions =
+                 commandPostbackInvocation != null ?
+                (JsArrayExpression)commandPostbackInvocation.Arguments.ElementAt(2) :
+                methodInvocation;
+            return invocationExpressions;
+        }
+
+        private static JsInvocationExpression ExtractCommandPostbackInvocation(JsExpression methodInvocation) =>
+            methodInvocation is JsInvocationExpression thenInvocation &&
+            thenInvocation.Target is JsMemberAccessExpression thenMemberAccess &&
+            thenMemberAccess.MemberName == "then" &&
+            thenMemberAccess.Target is JsInvocationExpression commandInvocation &&
+            commandInvocation.Target.ToString() == "dotvvm.staticCommandPostback"
+            ? commandInvocation
+            : null;
 
         protected virtual bool SouldCompileCallback(Expression c)
         {
@@ -188,7 +273,9 @@ namespace DotVVM.Framework.Compilation.Binding
             var encryptedPlan = EncryptJson(SerializePlan(plan), protector).Apply(Convert.ToBase64String);
 
             return new JsIdentifierExpression("dotvvm").Member("staticCommandPostback")
-                .Invoke(new JsSymbolicParameter(CommandBindingExpression.ViewModelNameParameter), new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter), new JsLiteral(encryptedPlan), new JsArrayExpression(args), callbackFunction, errorCallback)
+                .Invoke(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter), new JsLiteral(encryptedPlan), new JsArrayExpression(args), new JsSymbolicParameter(CommandBindingExpression.PostbackOptionsParameter))
+                .Member("then")
+                .Invoke(callbackFunction, errorCallback)
                 .WithAnnotation(new StaticCommandInvocationJsAnnotation(plan));
         }
 

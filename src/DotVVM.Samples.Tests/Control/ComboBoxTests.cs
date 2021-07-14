@@ -23,19 +23,19 @@ namespace DotVVM.Samples.Tests.Control
                 var selectedValue = browser.First("selected-value", SelectByDataUi);
 
                 AssertUI.IsDisplayed(comboBox.Select(0));
-                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedValue, "1"), 2000, 30);
+                AssertUI.InnerTextEquals(selectedValue, "1");
 
                 // select second option from combobox
                 comboBox.Select(1);
-                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedValue, "2"), 1000, 30);
+                AssertUI.InnerTextEquals(selectedValue, "2");
 
                 // select third option from combobox
                 comboBox.Select(2);
-                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedValue, "3"), 1000, 30);
+                AssertUI.InnerTextEquals(selectedValue, "3");
 
                 // select fourth option from combobox
                 comboBox.Select(3);
-                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedValue, "4"), 1000, 30);
+                AssertUI.InnerTextEquals(selectedValue, "4");
             });
         }
 
@@ -50,19 +50,19 @@ namespace DotVVM.Samples.Tests.Control
                 var selectedText = browser.First("selected-text", SelectByDataUi);
 
                 AssertUI.IsDisplayed(comboBox.Select(0));
-                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedText, "A"), 2000, 30);
+                AssertUI.InnerTextEquals(selectedText, "A");
 
                 // select second option from combobox
                 comboBox.Select(1);
-                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedText, "AA"), 1000, 30);
+                AssertUI.InnerTextEquals(selectedText, "AA");
 
                 // select third option from combobox
                 comboBox.Select(2);
-                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedText, "AAA"), 1000, 30);
+                AssertUI.InnerTextEquals(selectedText, "AAA");
 
                 // select fourth option from combobox
                 comboBox.Select(3);
-                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedText, "AAAA"), 1000, 30);
+                AssertUI.InnerTextEquals(selectedText, "AAAA");
             });
         }
 
@@ -79,10 +79,8 @@ namespace DotVVM.Samples.Tests.Control
                 // change the DataSource collection on the server and verify that the second item is selected in both ComboBoxes
                 browser.First("input").Click();
 
-                browser.WaitFor(() => {
-                    AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 1));
-                    AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 1));
-                }, 800, 30);
+                AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 1));
+                AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 1));
             });
         }
 
@@ -92,18 +90,15 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_DelaySync2);
                 browser.First("input[type=button]").Click();
+                browser.WaitForPostback();
 
-                browser.WaitFor(() => {
+                // check the comboboxes
+                AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 0));
+                AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 1));
 
-
-                    // check the comboboxes
-                    AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 0));
-                    AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 1));
-
-                    // check the labels
-                    AssertUI.InnerTextEquals(browser.ElementAt(".result", 0), "1");
-                    AssertUI.InnerTextEquals(browser.ElementAt(".result", 1), "2");
-                }, 1000, 30);
+                // check the labels
+                AssertUI.InnerTextEquals(browser.ElementAt(".result", 0), "1");
+                AssertUI.InnerTextEquals(browser.ElementAt(".result", 1), "2");
             });
         }
 
@@ -135,7 +130,7 @@ namespace DotVVM.Samples.Tests.Control
                 // check combobox works
                 var combobox = browser.Single("combobox", SelectByDataUi);
                 combobox.Select(0);
-                browser.WaitFor(() => AssertUI.InnerTextEquals(span, "First"), 1000);
+                AssertUI.InnerTextEquals(span, "First");
 
                 // test buttons
                 browser.ElementAt("input[type=button]", 0).Click();
@@ -164,11 +159,9 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_Complex_Error);
 
-                browser.WaitFor(()=> {
-                    AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("Return type") && s.Contains("ItemValueBinding") && s.Contains("primitive type"));
-                    AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException"));
-                    AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("ItemValueBinding=") && s.Contains("{value:"));
-                },1000);
+                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("Return type") && s.Contains("ItemValueBinding") && s.Contains("primitive type"));
+                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException"));
+                AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("ItemValueBinding=") && s.Contains("{value:"));
             });
         }
 
@@ -189,9 +182,7 @@ namespace DotVVM.Samples.Tests.Control
                     dropDown.Click();
                     dropDownButtons.ElementAt(i).Click();
 
-                    browser.WaitFor(()=> {
-                        AssertUI.InnerTextEquals(value,"EValue"+((i%3)+1).ToString()); 
-                    },2000);
+                    AssertUI.InnerTextEquals(value, "EValue" + ((i % 3) + 1).ToString());
                 }
             });
         }
@@ -213,9 +204,7 @@ namespace DotVVM.Samples.Tests.Control
                     dropDown.Click();
                     dropDownButtons.ElementAt(i).Click();
 
-                    browser.WaitFor(() => {
-                        AssertUI.InnerTextEquals(value, (i+1).ToString());
-                    }, 2000);
+                    AssertUI.InnerTextEquals(value, (i + 1).ToString());
                 }
             });
         }
@@ -226,11 +215,9 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_SelectedValue_ComplexToInt_Error);
 
-                browser.WaitFor(() => {
-                    AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox.ComboxItemBindingViewModel+ComplexType") && s.Contains("not assignable") && s.Contains("System.Int32"));
-                    AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException"));
-                    AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("{value: SelectedInt}"));
-                }, 1000);
+                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox.ComboxItemBindingViewModel+ComplexType") && s.Contains("not assignable") && s.Contains("System.Int32"));
+                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException"));
+                AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("{value: SelectedInt}"));
             });
         }
 
@@ -240,11 +227,9 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_SelectedValue_StringToInt_Error);
 
-                browser.WaitFor(() => {
-                    AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("System.String") && s.Contains("not assignable") && s.Contains("System.Int32"));
-                    AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException"));
-                    AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("{value: SelectedInt}"));
-                }, 1000);
+                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("System.String") && s.Contains("not assignable") && s.Contains("System.Int32"));
+                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException"));
+                AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("{value: SelectedInt}"));
             });
         }
 
@@ -265,9 +250,7 @@ namespace DotVVM.Samples.Tests.Control
                     dropDown.Click();
                     dropDownButtons.ElementAt(i).Click();
 
-                    browser.WaitFor(() => {
-                        AssertUI.InnerTextEquals(value, dropDownButtons.ElementAt(i).GetInnerText());
-                    }, 2000);
+                    AssertUI.InnerTextEquals(value, dropDownButtons.ElementAt(i).GetInnerText());
                 }
             });
         }
@@ -301,13 +284,11 @@ namespace DotVVM.Samples.Tests.Control
                 {
                     dropDownButtons.ElementAt(i).Click();
 
-                    browser.WaitFor(()=> {
-                        AssertUI.TextEquals(enum1, dropDownButtons.ElementAt(i).GetInnerText());
-                        AssertUI.TextNotEquals(enum2, dropDownButtons.ElementAt(i).GetInnerText());
-                    },2000);
-                    
+                    AssertUI.TextEquals(enum1, dropDownButtons.ElementAt(i).GetInnerText());
+                    AssertUI.TextNotEquals(enum2, dropDownButtons.ElementAt(i).GetInnerText());
+
                     setSecondaryFieldButton.Click();
-                    browser.WaitFor(()=> {AssertUI.TextEquals(enum2, dropDownButtons.ElementAt(i).GetInnerText()); },2000);
+                    AssertUI.TextEquals(enum2, dropDownButtons.ElementAt(i).GetInnerText());
                 }
             });
         }

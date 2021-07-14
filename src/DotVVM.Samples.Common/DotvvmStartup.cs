@@ -22,12 +22,18 @@ using System.Linq;
 using DotVVM.Samples.Common.Api.AspNetCore;
 using DotVVM.Samples.Common.Api.Owin;
 using DotVVM.Samples.Common.Controls;
+using DotVVM.Framework.Utils;
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation;
+using DotVVM.Samples.Common.Views.FeatureSamples.PostbackAbortSignal;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables;
 
 namespace DotVVM.Samples.BasicSamples
 {
     public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
     {
-        
+
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
             config.DefaultCulture = "en-US";
@@ -55,6 +61,14 @@ namespace DotVVM.Samples.BasicSamples
             config.RegisterApiClient(typeof(AzureFunctionsApi.Client), "https://dotvvmazurefunctionstest.azurewebsites.net/", "Scripts/AzureFunctionsApiClient.js", "_azureFuncApi");
 
             LoadSampleConfiguration(config, applicationPath);
+
+            config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(typeof(JavascriptTranslationTestMethods),
+                    nameof(JavascriptTranslationTestMethods.Unwrap),
+                         new GenericMethodCompiler((a) =>
+                            new JsIdentifierExpression("unwrap")
+                                            .Invoke(a[1])
+                                    ), allowGeneric: true, allowMultipleMethods: true);
+
         }
 
         private void LoadSampleConfiguration(DotvvmConfiguration config, string applicationPath)
@@ -67,7 +81,7 @@ namespace DotVVM.Samples.BasicSamples
 
             var profiles = json.Value<JArray>("profiles");
             var profile = profiles.Single(p => p.Value<string>("name") == activeProfile);
-            
+
             JsonConvert.PopulateObject(profile.Value<JObject>("config").ToString(), config);
 
             SampleConfiguration.Initialize(
@@ -112,7 +126,7 @@ namespace DotVVM.Samples.BasicSamples
         private static void AddRedirections(DotvvmConfiguration config)
         {
             config.RouteTable.AddUrlRedirection("Redirection1", "FeatureSamples/Redirect/RedirectionHelpers_PageA", (_) => "https://www.dotvvm.com");
-            config.RouteTable.AddRouteRedirection("Redirection2", "FeatureSamples/Redirect/RedirectionHelpers_PageB/{Id}", (_) => "FeatureSamples_Redirect_RedirectionHelpers_PageC-PageDetail", new { Id = 66 });
+            config.RouteTable.AddRouteRedirection("Redirection2", "FeatureSamples/Redirect/RedirectionHelpers_PageB/{Id}", (_) => "FeatureSamples_Redirect_RedirectionHelpers_PageC-PageDetail", new { Id = 66 }, urlSuffixProvider: c => "?test=aaa");
             config.RouteTable.AddRouteRedirection("Redirection3", "FeatureSamples/Redirect/RedirectionHelpers_PageD/{Id}", (_) => "FeatureSamples_Redirect_RedirectionHelpers_PageE-PageDetail", new { Id = 77 },
                 parametersProvider: (context) => {
                     var newDict = new Dictionary<string, object>(context.Parameters);
@@ -143,6 +157,7 @@ namespace DotVVM.Samples.BasicSamples
 
             config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));
 
+            config.RouteTable.Add("ControlSamples_Repeater_RouteLinkQuery-PageDetail", "ControlSamples/Repeater/RouteLinkQuery/{Id}", "Views/ControlSamples/Repeater/RouteLinkQuery.dothtml", new { Id = 0 });
             config.RouteTable.Add("FeatureSamples_Redirect_RedirectionHelpers_PageB-PageDetail", "FeatureSamples/Redirect/RedirectionHelpers_PageB/{Id}", "Views/FeatureSamples/Redirect/RedirectionHelpers_PageB.dothtml", new { Id = 22 });
             config.RouteTable.Add("FeatureSamples_Redirect_RedirectionHelpers_PageC-PageDetail", "FeatureSamples/Redirect/RedirectionHelpers_PageC/{Id}", "Views/FeatureSamples/Redirect/RedirectionHelpers_PageC.dothtml", new { Id = 33 });
             config.RouteTable.Add("FeatureSamples_Redirect_RedirectionHelpers_PageD-PageDetail", "FeatureSamples/Redirect/RedirectionHelpers_PageD/{Id}", "Views/FeatureSamples/Redirect/RedirectionHelpers_PageD.dothtml", new { Id = 44 });
@@ -157,6 +172,7 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("FeatureSamples_EmbeddedResourceControls_EmbeddedResourceView", "FeatureSamples/EmbeddedResourceControls/EmbeddedResourceView", "embedded://EmbeddedResourceControls/EmbeddedResourceView.dothtml");
             config.RouteTable.Add("FeatureSamples_PostBack_PostBackHandlers_Localized", "FeatureSamples/PostBack/PostBackHandlers_Localized", "Views/FeatureSamples/PostBack/ConfirmPostBackHandler.dothtml", presenterFactory: LocalizablePresenter.BasedOnQuery("lang"));
 
+            config.RouteTable.Add("Errors_UndefinedRouteLinkParameters-PageDetail", "Erros/UndefinedRouteLinkParameters/{Id}", "Views/UndefinedRouteLinkParameters.dothtml", new { Id = 0 });
             config.RouteTable.Add("Errors_Routing_NonExistingView", "Errors/Routing/NonExistingView", "Views/Errors/Routing/NonExistingView.dothml");
         }
 
@@ -170,6 +186,9 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddMarkupControl("FileUploadInRepeater", "FileUploadWrapper", "Views/ComplexSamples/FileUploadInRepeater/FileUploadWrapper.dotcontrol");
             config.Markup.AddMarkupControl("cc", "RecursiveTextRepeater", "Views/FeatureSamples/PostBack/RecursiveTextRepeater.dotcontrol");
             config.Markup.AddMarkupControl("cc", "RecursiveTextRepeater2", "Views/FeatureSamples/PostBack/RecursiveTextRepeater2.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "ModuleControl", "Views/FeatureSamples/ViewModules/ModuleControl.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "Incrementer", "Views/FeatureSamples/ViewModules/Incrementer.dotcontrol");
+            config.Markup.AddCodeControls("cc", typeof(Loader));
 
             config.Markup.AddMarkupControl("sample", "EmbeddedResourceControls_Button", "embedded://EmbeddedResourceControls/Button.dotcontrol");
 

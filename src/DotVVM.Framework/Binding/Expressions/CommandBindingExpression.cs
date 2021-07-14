@@ -66,7 +66,7 @@ namespace DotVVM.Framework.Binding.Expressions
             }
         }
 
-        public static CodeSymbolicParameter ViewModelNameParameter = new CodeSymbolicParameter("CommandBindingExpression.ViewModelNameParameter", CodeParameterAssignment.FromLiteral("root"));
+        public static CodeSymbolicParameter PostbackOptionsParameter = new CodeSymbolicParameter("CommandBindingExpression.PostbackOptionsParameter");
         public static CodeSymbolicParameter SenderElementParameter = new CodeSymbolicParameter("CommandBindingExpression.SenderElementParameter");
         public static CodeSymbolicParameter CurrentPathParameter = new CodeSymbolicParameter("CommandBindingExpression.CurrentPathParameter");
         public static CodeSymbolicParameter CommandIdParameter = new CodeSymbolicParameter("CommandBindingExpression.CommandIdParameter");
@@ -75,17 +75,18 @@ namespace DotVVM.Framework.Binding.Expressions
         public static CodeSymbolicParameter OptionalKnockoutContextParameter = new CodeSymbolicParameter("CommandBindingExpression.OptionalKnockoutContextParameter", CodeParameterAssignment.FromIdentifier("null"));
         public static CodeSymbolicParameter PostbackHandlersParameter = new CodeSymbolicParameter("CommandBindingExpression.PostbackHandlersParameter");
         public static CodeSymbolicParameter CommandArgumentsParameter = new CodeSymbolicParameter("CommandBindingExpression.CommandArgumentsParameter");
+        public static CodeSymbolicParameter AbortSignalParameter = new CodeSymbolicParameter("CommandBindingExpression.AbortSignalParameter");
 
         private static ParametrizedCode createJavascriptPostbackInvocation(JsExpression? commandArgs) =>
             new JsIdentifierExpression("dotvvm").Member("postBack").Invoke(
-                new JsSymbolicParameter(ViewModelNameParameter),
                 new JsSymbolicParameter(SenderElementParameter),
                 new JsSymbolicParameter(CurrentPathParameter),
                 new JsSymbolicParameter(CommandIdParameter),
                 new JsSymbolicParameter(ControlUniqueIdParameter),
                 new JsSymbolicParameter(OptionalKnockoutContextParameter),
                 new JsSymbolicParameter(PostbackHandlersParameter),
-                commandArgs
+                commandArgs ?? new JsLiteral(new object[] { }),
+                new JsSymbolicParameter(AbortSignalParameter)
             ).FormatParametrizedScript();
 
         private static ParametrizedCode javascriptPostbackInvocation = createJavascriptPostbackInvocation(

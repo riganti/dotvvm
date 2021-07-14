@@ -3,6 +3,7 @@ using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions.Attributes;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -18,6 +19,7 @@ namespace DotVVM.Samples.Tests.Feature
         [InlineData("input[data-ui=long-action-button]")]
         [InlineData("input[data-ui=long-static-action-button]")]
         [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_PostbackConcurrencyMode))]
+        [SkipBrowser("ie:fast", reason: "This scenario works in IE but it's hard to time it properly because click in IE last 500 ms avg")]
         public void Feature_PostbackConcurrency_UpdateProgressControl(string longActionSelector)
         {
             RunInAllBrowsers(browser => {
@@ -34,10 +36,12 @@ namespace DotVVM.Samples.Tests.Feature
 
         [Theory]
         [InlineData("input[data-ui=long-action-button]", "input[data-ui=short-action-button]")]
+        [SkipBrowser("ie:fast", reason: "This scenario works in IE but it's hard to time it properly because click in IE last 500 ms avg")]
         public void Feature_PostbackConcurrency_DefaultMode(string longActionSelector, string shortActionSelector)
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_DefaultMode);
+                browser.WaitUntilDotvvmInited();
 
                 // try the long action interrupted by the short one
                 browser.Single(longActionSelector).Click();
@@ -50,9 +54,8 @@ namespace DotVVM.Samples.Tests.Feature
                 // the postback index should be 1 now (because of short action)
                 AssertUI.InnerTextEquals(postbackIndexSpan, "1");
                 AssertUI.InnerTextEquals(lastActionSpan, "short");
-
-                // the result of the long action should be canceled, the counter shouldn't increase
                 browser.Wait(6000);
+                // the result of the long action should be canceled, the counter shouldn't increase
                 AssertUI.InnerTextEquals(postbackIndexSpan, "1");
                 AssertUI.InnerTextEquals(lastActionSpan, "short");
             });
@@ -61,7 +64,8 @@ namespace DotVVM.Samples.Tests.Feature
         [Theory]
         [InlineData("input[data-ui=long-action-button]", "input[data-ui=short-action-button]")]
         [InlineData("input[data-ui=long-static-action-button]", "input[data-ui=short-static-action-button]")]
-        [SkipBrowser("ie:fast", reason: "This scenario works in IE but it's hard to time it properly becouse click in IE last 500 ms avg")]
+        [SkipBrowser("ie:dev", reason: "This scenario works in IE but it's hard to time it properly because click in IE last 500 ms avg")]
+        [SkipBrowser("ie:fast", reason: "This scenario works in IE but it's hard to time it properly because click in IE last 500 ms avg")]
         public void Feature_PostbackConcurrency_QueueMode(string longActionSelector, string shortActionSelector)
         {
             RunInAllBrowsers(browser => {
@@ -97,6 +101,8 @@ namespace DotVVM.Samples.Tests.Feature
         [Theory]
         [InlineData("input[data-ui=long-action-button]", "input[data-ui=short-action-button]")]
         [InlineData("input[data-ui=long-static-action-button]", "input[data-ui=short-static-action-button]")]
+        [SkipBrowser("ie:dev", reason: "This scenario works in IE but it's hard to time it properly because click in IE last 500 ms avg")]
+        [SkipBrowser("ie:fast", reason: "This scenario works in IE but it's hard to time it properly because click in IE last 500 ms avg")]
         public void Feature_PostbackConcurrency_DenyMode(string longActionSelector, string shortActionSelector)
         {
             RunInAllBrowsers(browser => {
@@ -187,7 +193,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        [Fact]
+        [Fact(Skip = "Cannot read element contents when the browser is already navigating away - getting element stale exception.")]
         public void Feature_PostbackConcurrency_RedirectPostbackQueue()
         {
             RunInAllBrowsers(browser => {
@@ -227,6 +233,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_RedirectPostbackQueueSpa);
+                browser.WaitUntilDotvvmInited();
 
                 browser.ElementAt("input[type=button]", 0).Click();
                 browser.ElementAt("input[type=button]", 2).Click();

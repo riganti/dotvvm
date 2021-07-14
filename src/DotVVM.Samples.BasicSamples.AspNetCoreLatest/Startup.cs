@@ -63,7 +63,7 @@ namespace DotVVM.Samples.BasicSamples
             services.AddScoped<ViewModelScopedDependency>();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseAuthentication();
 
@@ -85,7 +85,7 @@ namespace DotVVM.Samples.BasicSamples
             app.UseStaticFiles();
         }
 
-        private string GetApplicationPath(IHostingEnvironment env)
+        private string GetApplicationPath(IWebHostEnvironment env)
             => Path.Combine(Path.GetDirectoryName(env.ContentRootPath), "DotVVM.Samples.Common");
     }
 }

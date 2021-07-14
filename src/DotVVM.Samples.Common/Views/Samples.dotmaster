@@ -15,6 +15,6 @@
     </style>
 </head>
 <body>
-    <dot:SpaContentPlaceHolder UseHistoryApi="true" ID="Main" />
+    <dot:SpaContentPlaceHolder ID="Main" />
 </body>
 </html>

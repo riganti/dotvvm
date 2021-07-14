@@ -30,6 +30,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
         NotOperator,
 
         StringLiteralToken,
+        InterpolatedStringToken,
 
         NullCoalescingOperator,
         QuestionMarkOperator,
@@ -41,6 +42,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
         OrElseOperator,
 
         AssignOperator,
+
+        LambdaOperator,
 
         Semicolon
     }

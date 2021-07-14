@@ -16,17 +16,29 @@ namespace DotVVM.Framework.ResourceManagement
         [JsonConverter(typeof(ReflectionAssemblyJsonConverter))]
         public Assembly Assembly { get; }
         public string Name { get; }
+        public string DebugName { get; }
         /// <summary>
         /// File where the resource is located for debug purposes
         /// </summary>
         public string? DebugFilePath { get; set; }
-        public EmbeddedResourceLocation(Assembly assembly, string name, string? debugFileName = null)
+        public EmbeddedResourceLocation(Assembly assembly, string name, string? debugFilePath = null, string? debugName = null)
         {
-            if (assembly.GetManifestResourceInfo(name) == null) throw new ArgumentException($"Could not find resource '{name}' in assembly {assembly.GetName().Name}", nameof(name));
+            if (assembly.GetManifestResourceInfo(name) == null) throw new ArgumentException($"Could not find resource '{name}' in assembly {assembly.GetName().Name}. Did you mean one of {string.Join(", ", assembly.GetManifestResourceNames())}?", nameof(name));
 
             this.Name = name;
             this.Assembly = assembly;
-            this.DebugFilePath = debugFileName;
+
+            if (debugName != null)
+            {
+                if (assembly.GetManifestResourceInfo(debugName) == null) throw new ArgumentException($"Could not find resource '{debugName}' in assembly {assembly.GetName().Name}. Did you mean one of {string.Join(", ", assembly.GetManifestResourceNames())}?", nameof(debugName));
+                this.DebugName = debugName;
+            }
+            else
+            {
+                this.DebugName = name;
+            }
+
+            this.DebugFilePath = debugFilePath;
         }
 
         public override Stream LoadResource(IDotvvmRequestContext context)
@@ -34,7 +46,7 @@ namespace DotVVM.Framework.ResourceManagement
             var debugPath = DebugFilePath == null ? null : Path.Combine(context.Configuration.ApplicationPhysicalPath, DebugFilePath);
             return context.Configuration.Debug && debugPath != null && File.Exists(debugPath) ?
                 File.OpenRead(debugPath) :
-                Assembly.GetManifestResourceStream(Name).NotNull();
+                Assembly.GetManifestResourceStream(context.Configuration.Debug ? DebugName : Name).NotNull();
         }
 
         public string? GetFilePath(IDotvvmRequestContext context) => DebugFilePath;

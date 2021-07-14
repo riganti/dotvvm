@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.Core.Api;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -20,8 +22,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_GithubRepoApi);
 
                 IEnumerable<IElementWrapper> options = null;
-                browser.WaitFor(() =>
-                {
+                browser.WaitFor(() => {
                     options = browser.First("select").FindElements("option");
                     return options.Any(o => o.GetInnerText() == "dotvvm");
                 }, 10000);
@@ -132,7 +133,7 @@ namespace DotVVM.Samples.Tests.Feature
                     var date1 = browser.First(".id-date1");
                     AssertUI.TextNotEquals(date1, originalDate1);
                     refreshedDate1 = date1.GetText();
-                }, 5000, "#LI :1");
+                }, 10000, "#LI :1");
 
                 // test again
                 originalDate1 = refreshedDate1;
@@ -145,7 +146,7 @@ namespace DotVVM.Samples.Tests.Feature
                     var date1 = browser.First(".id-date1");
                     AssertUI.TextNotEquals(date1, originalDate1);
                     refreshedDate1 = date1.GetText();
-                }, 5000, "#LI :2");
+                }, 10000, "#LI :2");
 
                 // click the set data button
                 browser.ElementAt("input[type=button]", 1).Click();
@@ -153,7 +154,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.WaitFor(() => {
                     var date2 = browser.First(".id-date2");
                     AssertUI.TextEquals(date2, refreshedDate1);
-                }, 5000);
+                }, 10000);
             });
         }
 
@@ -163,32 +164,41 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_AzureFunctionsApiTable);
-                browser.Wait(2000);
+                browser.WaitUntilDotvvmInited();
+                var uiTestName = Guid.NewGuid().ToString();
 
                 // fill Add entity form
-                browser.ElementAt(".form-create input[type=text]", 0).Clear().SendKeys("UI Test");
+                browser.ElementAt(".form-create input[type=text]", 0).Clear().SendKeys(uiTestName);
                 browser.ElementAt(".form-create input[type=text]", 1).Clear().SendKeys("15");
                 browser.ElementAt(".form-create input[type=text]", 2).Clear().SendKeys("2018-10-28 12:13:14");
 
                 // submit
-                browser.ElementAt(".form-create input[type=button]", 0).Click().Wait();
-                browser.ElementAt(".form-create input[type=button]", 1).Click().Wait();
+                browser.ElementAt(".form-create input[type=button]", 0).Click();
+                browser.WaitForPostback(8000);
+
+                browser.ElementAt(".form-create input[type=button]", 1).Click();
+                browser.WaitForPostback(8000);
 
                 // make sure the new row is in the table
-                var row = browser.FindElements(".form-grid tr").Skip(1).First(r => r.ElementAt("td", 0).GetText() == "UI Test");
-                AssertUI.TextEquals(row.ElementAt("td", 1), "15");
-                AssertUI.TextEquals(row.ElementAt("td", 2), "2018-10-28 12:13:14");
+                browser.WaitFor(() => {
+
+                    var row = browser.FindElements(".form-grid tr").Skip(1).First(r => r.ElementAt("td", 0).GetText() == uiTestName);
+                    AssertUI.TextEquals(row.ElementAt("td", 1), "15");
+                    AssertUI.TextEquals(row.ElementAt("td", 2), "2018-10-28 12:13:14");
+                }, 8000);
 
                 // delete UI Test items
-                foreach (var r in browser.FindElements(".form-grid tr").Skip(1).Where(r => r.ElementAt("td", 0).GetText() == "UI Test"))
+                foreach (var r in browser.FindElements(".form-grid tr").Skip(1).Where(r => r.ElementAt("td", 0).GetText() == uiTestName))
                 {
                     r.First("input[type=checkbox]").Click();
                 }
                 browser.First(".form-grid input[type=button]").Click().Wait();
-                browser.ElementAt(".form-create input[type=button]", 1).Click().Wait();
+                browser.ElementAt(".form-create input[type=button]", 1).Click();
 
                 // make sure it disappeared
-                Assert.Equal(0, browser.FindElements(".form-grid tr").Skip(1).Count(r => r.ElementAt("td", 0).GetText() == "UI Test"));
+                browser.WaitFor(() => {
+                    Assert.Equal(0, browser.FindElements(".form-grid tr").Skip(1).Count(r => r.ElementAt("td", 0).GetText() == uiTestName));
+                }, 8000);
             });
         }
 
@@ -231,7 +241,7 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.TextEquals(combos[5].ElementAt("option", 0), "Category 3 / Item 1");
 
                 browser.Wait(1000);
-                
+
                 // check requests
                 var requests = browser.Single("pre").GetInnerText().Split('\r', '\n').Where(l => l.Trim().Length > 0).ToList();
                 Assert.Single(requests, r => r.EndsWith("BindingSharing/get?category=1"));
