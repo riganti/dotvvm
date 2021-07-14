@@ -16,9 +16,9 @@ namespace DotVVM.Framework.Compilation
     public class BindingRequiredResourceVisitor : ResolvedControlTreeVisitor
     {
         private readonly ControlResolverMetadata requiredResourceConrolMetadata;
-        public BindingRequiredResourceVisitor(ControlResolverMetadata requiredResourceConrolMetadata)
+        public BindingRequiredResourceVisitor(ControlResolverMetadata requiredResourceControlMetadata)
         {
-            this.requiredResourceConrolMetadata = requiredResourceConrolMetadata;
+            this.requiredResourceConrolMetadata = requiredResourceControlMetadata;
         }
 
         ImmutableHashSet<string> requiredResources = ImmutableHashSet<string>.Empty;

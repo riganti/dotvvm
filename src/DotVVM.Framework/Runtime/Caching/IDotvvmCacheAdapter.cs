@@ -7,8 +7,8 @@ namespace DotVVM.Framework.Runtime.Caching
 {
     public interface IDotvvmCacheAdapter
     {
-        T GetOrAdd<Tkey, T>(Tkey key, Func<Tkey, DotvvmCachedItem<T>> factoryFunc)
-            where Tkey: notnull;
+        T GetOrAdd<TKey, T>(TKey key, Func<TKey, DotvvmCachedItem<T>> factoryFunc)
+            where TKey: notnull;
 
         T Get<T>(object key);
 
