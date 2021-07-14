@@ -8,7 +8,9 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree
@@ -23,5 +25,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
             property is ResolvedPropertyValue value ? value.Value?.GetType() ?? property.Property.PropertyType :
             property is ResolvedPropertyControl control ? control.Control.Metadata.Type :
             property.Property.PropertyType;
+
+        
+        public static bool IsOnlyWhitespace(this IAbstractControl control) =>
+            control.Metadata.Type.IsEqualTo(ResolvedTypeDescriptor.Create(typeof(RawLiteral))) && control.DothtmlNode?.IsNotEmpty() == false;
+
+        public static bool HasOnlyWhiteSpaceContent(this IAbstractContentNode control) =>
+            control.Content.All(IsOnlyWhitespace);
     }
 }

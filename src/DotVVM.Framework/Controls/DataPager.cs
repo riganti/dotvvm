@@ -369,7 +369,7 @@ namespace DotVVM.Framework.Controls
             li.SetDataContextType(currentPageTextContext);
             li.DataContext = null;
 
-            NumberButtonsPlaceHolder.Children.Add(li);
+            NumberButtonsPlaceHolder!.Children.Add(li);
             AddItemCssClass(writer, context);
 
             if (RenderLinkForCurrentPage)

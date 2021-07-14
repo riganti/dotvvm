@@ -90,7 +90,7 @@ namespace DotVVM.Framework.Controls
             var reg = config?.Markup.Controls.FirstOrDefault(c => c.Namespace == type.Namespace && Type.GetType(c.Namespace + "." + type.Name + ", " + c.Assembly) == type) ??
                       config?.Markup.Controls.FirstOrDefault(c => c.Namespace == type.Namespace) ??
                       config?.Markup.Controls.FirstOrDefault(c => c.Assembly == type.Assembly.GetName().Name);
-            var ns = reg?.TagPrefix ?? "?";
+            var ns = reg?.TagPrefix ?? (type.Namespace == "DotVVM.Framework.Controls" ? "dot" : "_");
             var tagName = type == typeof(HtmlGenericControl) ? ((HtmlGenericControl)control).TagName : ns + ":" + type.Name;
 
             var dothtmlString = $"<{tagName} ";

@@ -82,12 +82,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
 		public Dictionary<string, BindingParserOptions> BindingTypes = new Dictionary<string, BindingParserOptions>(StringComparer.OrdinalIgnoreCase)
 		{
-			{ ParserConstants.ValueBinding, BindingParserOptions.Create(typeof(ValueBindingExpression<>)) },
-			{ ParserConstants.CommandBinding, BindingParserOptions.Create(typeof(CommandBindingExpression<>)) },
+			{ ParserConstants.ValueBinding, BindingParserOptions.Value },
+			{ ParserConstants.CommandBinding, BindingParserOptions.Command },
 			{ ParserConstants.ControlPropertyBinding, BindingParserOptions.Create(typeof(ControlPropertyBindingExpression<>), "_control") },
 			{ ParserConstants.ControlCommandBinding, BindingParserOptions.Create(typeof(ControlCommandBindingExpression<>), "_control") },
-			{ ParserConstants.ResourceBinding, BindingParserOptions.Create(typeof(ResourceBindingExpression<>)) },
-			{ ParserConstants.StaticCommandBinding, BindingParserOptions.Create(typeof(StaticCommandBindingExpression<>)) },
+			{ ParserConstants.ResourceBinding, BindingParserOptions.Resource },
+			{ ParserConstants.StaticCommandBinding, BindingParserOptions.StaticCommand },
 		};
 
 		/// <summary>

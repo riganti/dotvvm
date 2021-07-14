@@ -25,5 +25,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         {
             Control?.Accept(visitor);
         }
+
+        public override string ToString() => $"{Property}={Control}";
     }
 }

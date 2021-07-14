@@ -28,5 +28,11 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty MessageProperty
             = DotvvmProperty.Register<string?, ConfirmPostBackHandler>(c => c.Message, null);
+
+        public ConfirmPostBackHandler() { }
+        public ConfirmPostBackHandler(string message)
+        {
+            this.Message = message;
+        }
     }
 }

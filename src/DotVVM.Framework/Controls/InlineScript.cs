@@ -42,10 +42,11 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            if (!string.IsNullOrWhiteSpace(Script))
+            var script = Script;
+            if (script is object && !string.IsNullOrWhiteSpace(script))
             {
                 var dep = Dependencies?.Split(',') ?? new string[] { ResourceConstants.DotvvmResourceName };
-                context.ResourceManager.AddStartupScript("inlinescript_" + (ClientID ?? GetScriptUniqueId()), Script, dep);
+                context.ResourceManager.AddStartupScript("inlinescript_" + (ClientID ?? GetScriptUniqueId()), script, dep);
             }
 
             base.OnPreRender(context);

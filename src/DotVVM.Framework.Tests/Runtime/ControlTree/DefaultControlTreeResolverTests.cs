@@ -472,12 +472,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <div class='a' class='{value: _this}' />");
             var value = root.Content.First(n => n.Metadata.Type == typeof(HtmlGenericControl)).GetHtmlAttribute("class");
             Assert.IsInstanceOfType(value, typeof(ResolvedPropertyBinding));
-            var expression = value.CastTo<ResolvedPropertyBinding>().Binding.GetExpression().CastTo<MethodCallExpression>();
-            Assert.AreEqual(expression.Method.Name, "Concat");
-            Assert.AreEqual(3, expression.Arguments.Count);
-            Assert.AreEqual("a", expression.Arguments[0].CastTo<ConstantExpression>().Value);
-            Assert.AreEqual(" ", expression.Arguments[1].CastTo<ConstantExpression>().Value);
-            Assert.AreEqual("_this", expression.Arguments[2].CastTo<ParameterExpression>().Name);
+            var expression = value.CastTo<ResolvedPropertyBinding>().Binding.GetExpression();
+            Assert.AreEqual("((\"a\" + \" \") + _this)", expression.ToString());
         }
 
         [TestMethod]
@@ -488,12 +484,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <div class='a' class='{resource: _this}' />");
             var value = root.Content.First(n => n.Metadata.Type == typeof(HtmlGenericControl)).GetHtmlAttribute("class");
             Assert.IsInstanceOfType(value, typeof(ResolvedPropertyBinding));
-            var expression = value.CastTo<ResolvedPropertyBinding>().Binding.GetExpression().CastTo<MethodCallExpression>();
-            Assert.AreEqual(expression.Method.Name, "Concat");
-            Assert.AreEqual(3, expression.Arguments.Count);
-            Assert.AreEqual("a", expression.Arguments[0].CastTo<ConstantExpression>().Value);
-            Assert.AreEqual(" ", expression.Arguments[1].CastTo<ConstantExpression>().Value);
-            Assert.AreEqual("_this", expression.Arguments[2].CastTo<ParameterExpression>().Name);
+            var expression = value.CastTo<ResolvedPropertyBinding>().Binding.GetExpression();
+            Assert.AreEqual("((\"a\" + \" \") + _this)", expression.ToString());
         }
 
         [TestMethod]
@@ -504,12 +496,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <div class='{value: _this}' class='{value: _this}' />");
             var value = root.Content.First(n => n.Metadata.Type == typeof(HtmlGenericControl)).GetHtmlAttribute("class");
             Assert.IsInstanceOfType(value, typeof(ResolvedPropertyBinding));
-            var expression = value.CastTo<ResolvedPropertyBinding>().Binding.GetExpression().CastTo<MethodCallExpression>();
-            Assert.AreEqual(expression.Method.Name, "Concat");
-            Assert.AreEqual(3, expression.Arguments.Count);
-            Assert.AreEqual("_this", expression.Arguments[0].CastTo<ParameterExpression>().Name);
-            Assert.AreEqual(" ", expression.Arguments[1].CastTo<ConstantExpression>().Value);
-            Assert.AreEqual("_this", expression.Arguments[2].CastTo<ParameterExpression>().Name);
+            var expression = value.CastTo<ResolvedPropertyBinding>().Binding.GetExpression();
+            Assert.AreEqual("((_this + \" \") + _this)", expression.ToString());
         }
 
 

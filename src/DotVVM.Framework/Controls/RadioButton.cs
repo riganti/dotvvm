@@ -108,7 +108,7 @@ namespace DotVVM.Framework.Controls
         }
 
         [ControlUsageValidator]
-        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        public static new IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
         {
             var to = control.GetValue(CheckedItemProperty)?.GetResultType();
             var nonNullableTo = to?.UnwrapNullableType();

@@ -17,7 +17,9 @@ namespace DotVVM.Framework.Compilation
         {
             var attributeName = property.GroupMemberName;
             var separator = HtmlWriter.GetSeparatorForAttribute(attributeName);
-            return Expression.Call(typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(string), typeof(string) }), a, Expression.Constant(separator), b);
+            var method = typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(string) });
+            return Expression.Add(Expression.Add(a, Expression.Constant(separator), method), b, method);
+            // return Expression.Call(typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(string), typeof(string) }), a, Expression.Constant(separator), b);
         }
 
         public static string MergeValues(GroupedDotvvmProperty property, string a, string b) =>

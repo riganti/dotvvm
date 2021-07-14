@@ -68,8 +68,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             sb.Append(stringParts[0]);
             for (int i = 0; i < codes.Length;)
             {
-                var isGlobalContext = codes[i].parameter.IsGlobalContext && parameters[i].IsSafeMemberAccess;
-                var needsParens = codes[i].parameter.Code!.OperatorPrecedence.NeedsParens(parameters[i].OperatorPrecedence);
+                var isGlobalContext = codes[i].parameter.IsGlobalContext && parameters![i].IsSafeMemberAccess;
+                var needsParens = codes[i].parameter.Code!.OperatorPrecedence.NeedsParens(parameters![i].OperatorPrecedence);
 
                 if (isGlobalContext)
                     sb.Append(stringParts[++i], 1, stringParts[i].Length - 1); // skip `.`
@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 return evaluatedDefault!;
             Debug.Assert(parameters is object);
             var sb = new StringBuilder();
-            for (int i = 0; i < parameters.Length; i++)
+            for (int i = 0; i < parameters!.Length; i++)
             {
                 sb.Append(stringParts[i]);
                 sb.Append(parameters[i].ToString());
@@ -137,18 +137,18 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var a = assignment[i];
                 if (a.Code == null)
                 {
-                    builder.Add(parameters[i]);
+                    builder.Add(parameters![i]);
                     builder.Add(stringParts[1 + i]);
                 }
                 else
                 {
-                    var isGlobalContext = a.IsGlobalContext && parameters[i].IsSafeMemberAccess;
+                    var isGlobalContext = a.IsGlobalContext && parameters![i].IsSafeMemberAccess;
 
                     if (isGlobalContext)
                         builder.Add(stringParts[1 + i].Substring(1, stringParts[i].Length - 1)); // skip `.`
                     else
                     {
-                        builder.Add(a.Code, parameters[i].OperatorPrecedence);
+                        builder.Add(a.Code, parameters![i].OperatorPrecedence);
                         builder.Add(stringParts[1 + i]);
                     }
                 }
