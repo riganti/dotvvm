@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmbeddedResourceControls", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Tests", "..\..\src\DotVVM.Framework.Tests\DotVVM.Framework.Tests.csproj", "{3CFCFABD-72F9-4E8F-8F36-886815FCA76E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Testing.Abstractions", "..\..\src\DotVVM.Testing.Abstractions\DotVVM.Testing.Abstractions.csproj", "{7442ED9B-BFF3-4CCB-A304-3196678A2A7E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -139,6 +141,18 @@ Global
 		{3CFCFABD-72F9-4E8F-8F36-886815FCA76E}.Release|x64.Build.0 = Release|Any CPU
 		{3CFCFABD-72F9-4E8F-8F36-886815FCA76E}.Release|x86.ActiveCfg = Release|Any CPU
 		{3CFCFABD-72F9-4E8F-8F36-886815FCA76E}.Release|x86.Build.0 = Release|Any CPU
+		{7442ED9B-BFF3-4CCB-A304-3196678A2A7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7442ED9B-BFF3-4CCB-A304-3196678A2A7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7442ED9B-BFF3-4CCB-A304-3196678A2A7E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7442ED9B-BFF3-4CCB-A304-3196678A2A7E}.Debug|x64.Build.0 = Debug|Any CPU
+		{7442ED9B-BFF3-4CCB-A304-3196678A2A7E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7442ED9B-BFF3-4CCB-A304-3196678A2A7E}.Debug|x86.Build.0 = Debug|Any CPU
+		{7442ED9B-BFF3-4CCB-A304-3196678A2A7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7442ED9B-BFF3-4CCB-A304-3196678A2A7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7442ED9B-BFF3-4CCB-A304-3196678A2A7E}.Release|x64.ActiveCfg = Release|Any CPU
+		{7442ED9B-BFF3-4CCB-A304-3196678A2A7E}.Release|x64.Build.0 = Release|Any CPU
+		{7442ED9B-BFF3-4CCB-A304-3196678A2A7E}.Release|x86.ActiveCfg = Release|Any CPU
+		{7442ED9B-BFF3-4CCB-A304-3196678A2A7E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
