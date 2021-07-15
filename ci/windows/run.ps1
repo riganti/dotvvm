@@ -175,7 +175,7 @@ if ($NoUITests -ne $true) {
             --logger ""trx;LogFileName=ui-test-results.trx"" `
             --results-directory ""$testResultsDir"""
 
-        Wait-Process -Id "$(uiTestProcess.Id)"
+        Wait-Process -Id "$($uiTestProcess.Id)"
 
         Clean-UITest
     }
