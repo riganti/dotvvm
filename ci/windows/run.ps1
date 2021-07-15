@@ -30,7 +30,8 @@ if ([string]::IsNullOrEmpty($Config)) {
 $sln = "$Root\ci\windows\Windows.sln"
 $packagesDir = "$Root\src\packages\"
 $testResultsDir = "$Root\artifacts\test\"
-$samplesDir = "$root\src\DotVVM.Samples.Tests"
+$samplesDir = "$Root\src\DotVVM.Samples.Tests\"
+$ciDir = "$Root\ci\windows\"
 
 Write-Host "ROOT=$Root"
 Write-Host "SLN=$sln"
@@ -104,7 +105,7 @@ if ($NoNpmBuild -ne $true) {
 if ($NoSlnRestore -ne $true) {
     Ensure-Command "sln restore" {
         Set-Location $Root
-        & "$Root\src\Tools\NuGet.exe" restore $sln -PackagesDirectory $packagesDir
+        & "$ciDir\NuGet.exe" restore $sln -PackagesDirectory $packagesDir -ConfigFile "$ciDir\NuGet.config"
         dotnet restore $sln --packages $packagesDir
     }
 }
