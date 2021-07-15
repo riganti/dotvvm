@@ -156,6 +156,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         private Expression? ParseDirectiveExpression(DothtmlDirectiveNode directive, BindingParserNode expressionSyntax)
         {
             TypeRegistry registry;
+            if (expressionSyntax is TypeOrFunctionReferenceBindingParserNode typeOrFunction)
+                expressionSyntax = typeOrFunction.ToTypeReference();
+
             if (expressionSyntax is AssemblyQualifiedNameBindingParserNode assemblyQualifiedName)
             {
                 registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache, assemblyQualifiedName.AssemblyName.ToDisplayString());

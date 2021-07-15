@@ -231,8 +231,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(string), nameof(string.LastIndexOf), parameters: new[] { typeof(string), typeof(int) }, translator: new GenericMethodCompiler(
                 a => a[0].Member("lastIndexOf").Invoke(a[1], a[2])));
             AddMethodTranslator(typeof(string), nameof(string.ToUpper), parameterCount: 0, translator: new GenericMethodCompiler(
-                a => a[0].Member("toUpperCase").Invoke()));
+                a => a[0].Member("toLocaleUpperCase").Invoke()));
             AddMethodTranslator(typeof(string), nameof(string.ToLower), parameterCount: 0, translator: new GenericMethodCompiler(
+                a => a[0].Member("toLocaleLowerCase").Invoke()));
+            AddMethodTranslator(typeof(string), nameof(string.ToUpperInvariant), parameterCount: 0, translator: new GenericMethodCompiler(
+                a => a[0].Member("toUpperCase").Invoke()));
+            AddMethodTranslator(typeof(string), nameof(string.ToLowerInvariant), parameterCount: 0, translator: new GenericMethodCompiler(
                 a => a[0].Member("toLowerCase").Invoke()));
             AddMethodTranslator(typeof(string), nameof(string.Contains), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
                 a => a[0].Member("includes").Invoke(a[1])));

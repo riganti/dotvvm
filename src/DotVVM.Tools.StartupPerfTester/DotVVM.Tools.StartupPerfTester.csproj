@@ -8,7 +8,7 @@
     <ToolCommandName>dotvvm-startup-perf</ToolCommandName>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.Tools.StartupPerf</PackageId>
-    <PackageVersion>3.1.0-preview03-112034</PackageVersion>
+    <PackageVersion>3.1.0-preview06-final</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>Command-line tool for measuring startup performance of DotVVM apps.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

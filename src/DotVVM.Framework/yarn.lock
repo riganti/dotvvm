@@ -1018,7 +1018,6 @@
   dependencies:
     "anymatch" "~3.1.1"
     "braces" "~3.0.2"
-    "fsevents" "~2.3.1"
     "glob-parent" "~5.1.0"
     "is-binary-path" "~2.1.0"
     "is-glob" "~4.0.1"
@@ -3661,10 +3660,10 @@
     "ansi-escapes" "^4.2.1"
     "supports-hyperlinks" "^2.0.0"
 
-"terser@^5.0.0":
-  "integrity" "sha512-vyqLMoqadC1uR0vywqOZzriDYzgEkNJFK4q9GeyOBHIbiECHiWLKcWfbQWAUaPfxkjDhapSlZB9f7fkMrvkVjA=="
-  "resolved" "https://registry.npmjs.org/terser/-/terser-5.6.0.tgz"
-  "version" "5.6.0"
+"terser@^5.0.0", "terser@^5.7.0":
+  "integrity" "sha512-HP5/9hp2UaZt5fYkuhNBR8YyRcT8juw8+uFbAme53iN9hblvKnLUTKkmwJG6ocWpIKf8UK4DoeWG4ty0J6S6/g=="
+  "resolved" "https://registry.npmjs.org/terser/-/terser-5.7.0.tgz"
+  "version" "5.7.0"
   dependencies:
     "commander" "^2.20.0"
     "source-map" "~0.7.2"

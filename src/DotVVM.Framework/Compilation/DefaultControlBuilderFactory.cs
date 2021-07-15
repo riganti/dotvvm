@@ -78,14 +78,20 @@ namespace DotVVM.Framework.Compilation
             {
                 var (descriptor, factory) = ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
 
-                if (descriptor.ViewModuleReference != null)
-                {
-                    var (import, init) = descriptor.ViewModuleReference.BuildResources(configuration.Resources);
-                    configuration.Resources.RegisterViewModuleResources(import, init);
-                }
-
                 return (descriptor, new Lazy<IControlBuilder>(() => {
-                    try { return factory(); }
+                    try {
+                        var result = factory();
+
+                        // register the internal resource after the page is successfully compiled,
+                        // otherwise we could be hiding compile error behind more cryptic resource registration errors
+                        if (descriptor.ViewModuleReference != null)
+                        {
+                            var (import, init) = descriptor.ViewModuleReference.BuildResources(configuration.Resources);
+                            configuration.Resources.RegisterViewModuleResources(import, init);
+                        }
+
+                        return result;
+                    }
                     catch (DotvvmCompilationException ex)
                     {
                         editCompilationException(ex);

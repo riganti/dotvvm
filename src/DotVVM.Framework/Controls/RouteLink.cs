@@ -111,7 +111,7 @@ namespace DotVVM.Framework.Controls
 
         protected virtual void WriteEnabledBinding(IHtmlWriter writer, bool binding)
         {
-            writer.AddKnockoutDataBind("dotvvm-enable", binding.ToString().ToLower());
+            writer.AddKnockoutDataBind("dotvvm-enable", binding.ToString().ToLowerInvariant());
         }
 
         protected virtual void WriteEnabledBinding(IHtmlWriter writer, IValueBinding binding)

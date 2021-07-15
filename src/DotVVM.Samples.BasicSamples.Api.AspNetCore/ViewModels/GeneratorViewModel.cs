@@ -156,7 +156,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
             var pathSegments = operation.Path.Trim('/').Split('/').Where(s => !s.Contains('{')).ToArray();
             var lastPathSegment = pathSegments.LastOrDefault();
             var path = string.Concat(pathSegments.Take(pathSegments.Length - 1).Select(s => s + "_"));
-            return path + operation.Method.ToString()[0].ToString().ToUpper() + operation.Method.ToString().Substring(1).ToLower() + ConversionUtilities.ConvertToUpperCamelCase(lastPathSegment.Replace('_', '-'), false);
+            return path + operation.Method.ToString()[0].ToString().ToUpperInvariant() + operation.Method.ToString().Substring(1).ToLowerInvariant() + ConversionUtilities.ConvertToUpperCamelCase(lastPathSegment.Replace('_', '-'), false);
         }
     }
 

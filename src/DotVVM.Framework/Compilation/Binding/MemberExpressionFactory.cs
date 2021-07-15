@@ -192,8 +192,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (method.IsExtension)
             {
                 // Change to a static call
-                var newArguments = new[] { target }.Concat(arguments);
-                return Expression.Call(method.Method, newArguments);
+                return Expression.Call(method.Method, method.Arguments);
             }
             return Expression.Call(target, method.Method, method.Arguments);
         }
@@ -248,8 +247,8 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private IEnumerable<MethodInfo> GetAllExtensionMethods()
         {
-            foreach (var ns in importedNamespaces)
-                foreach (var method in extensionMethodsCache.GetExtensionsForNamespace(ns.Namespace))
+            foreach (var ns in importedNamespaces.Select(ns => ns.Namespace).Distinct())
+                foreach (var method in extensionMethodsCache.GetExtensionsForNamespace(ns))
                     yield return method;
         }
 

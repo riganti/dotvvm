@@ -27,6 +27,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation;
 using DotVVM.Samples.Common.Views.FeatureSamples.PostbackAbortSignal;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables;
 
 namespace DotVVM.Samples.BasicSamples
 {

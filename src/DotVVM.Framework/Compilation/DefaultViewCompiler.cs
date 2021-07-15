@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Compilation
             var resolvedView = (ResolvedTreeRoot)controlTreeResolver.ResolveTree(node, fileName);
 
             var descriptor = resolvedView.ControlBuilderDescriptor;
-
+            
             return (descriptor, () => {
 
                 var errorCheckingVisitor = new ErrorCheckingVisitor();

@@ -307,7 +307,7 @@ namespace DotVVM.Framework.Controls
             {
                 return null;
             }
-            var handlerName = $"concurrency-{mode.ToString().ToLower()}";
+            var handlerName = $"concurrency-{mode.ToString().ToLowerInvariant()}";
             if ("default".Equals(queueName))
             {
                 return JsonConvert.ToString(handlerName);

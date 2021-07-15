@@ -10,6 +10,7 @@ using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 using DotVVM.Samples.Common.Api.AspNetCore;
 using DotVVM.Samples.Common.Api.Owin;
 using DotVVM.Samples.Common.Utilities;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBack;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBackSpaNavigation;
@@ -54,6 +55,7 @@ namespace DotVVM.Samples.Common
             services.AddSingleton<DenyPostbacksOnSpaNavigationService>();
 
             services.AddSingleton<IDiagnosticsInformationSender, TextFileDiagnosticsInformationSender>();
+            services.AddTransient<VariablesStaticCommand>();
         }
 
         private static void RegisterResources(DotvvmResourceRepository resources)

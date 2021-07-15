@@ -602,7 +602,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableMax(string binding, string property, bool nullable)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.translations.array.max({property}(),function(arg){{return ko.unwrap(arg);}},{(!nullable).ToString().ToLower()})", result);
+            Assert.AreEqual($"dotvvm.translations.array.max({property}(),function(arg){{return ko.unwrap(arg);}},{(!nullable).ToString().ToLowerInvariant()})", result);
         }
 
         [TestMethod]
@@ -629,7 +629,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableMax_WithSelector(string binding, string property, bool nullable)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.translations.array.max({property}(),function(item){{return -ko.unwrap(item);}},{(!nullable).ToString().ToLower()})", result);
+            Assert.AreEqual($"dotvvm.translations.array.max({property}(),function(item){{return -ko.unwrap(item);}},{(!nullable).ToString().ToLowerInvariant()})", result);
         }
 
         [TestMethod]
@@ -656,7 +656,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableMin(string binding, string property, bool nullable)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.translations.array.min({property}(),function(arg){{return ko.unwrap(arg);}},{(!nullable).ToString().ToLower()})", result);
+            Assert.AreEqual($"dotvvm.translations.array.min({property}(),function(arg){{return ko.unwrap(arg);}},{(!nullable).ToString().ToLowerInvariant()})", result);
         }
 
         [TestMethod]
@@ -683,7 +683,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableMin_WithSelector(string binding, string property, bool nullable)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestArraysViewModel) });
-            Assert.AreEqual($"dotvvm.translations.array.min({property}(),function(item){{return -ko.unwrap(item);}},{(!nullable).ToString().ToLower()})", result);
+            Assert.AreEqual($"dotvvm.translations.array.min({property}(),function(item){{return -ko.unwrap(item);}},{(!nullable).ToString().ToLowerInvariant()})", result);
         }
 
         [TestMethod]
@@ -941,8 +941,10 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [DataTestMethod]
-        [DataRow("StringProp.ToUpper()", "StringProp().toUpperCase()")]
-        [DataRow("StringProp.ToLower()", "StringProp().toLowerCase()")]
+        [DataRow("StringProp.ToUpper()", "StringProp().toLocaleUpperCase()")]
+        [DataRow("StringProp.ToLower()", "StringProp().toLocaleLowerCase()")]
+        [DataRow("StringProp.ToUpperInvariant()", "StringProp().toUpperCase()")]
+        [DataRow("StringProp.ToLowerInvariant()", "StringProp().toLowerCase()")]
         [DataRow("StringProp.IndexOf('test')", "StringProp().indexOf(\"test\")")]
         [DataRow("StringProp.IndexOf('test',1)", "StringProp().indexOf(\"test\",1)")]
         [DataRow("StringProp.LastIndexOf('test')", "StringProp().lastIndexOf(\"test\")")]
