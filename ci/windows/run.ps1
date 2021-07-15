@@ -170,10 +170,9 @@ if ($NoUITests -ne $true) {
             "$Root\src\DotVVM.Samples.Common" `
             "$Root\artifacts"
 
-        $uiTestProcess = Start-Process -PassThru -FilePath "dotnet.exe" -ArgumentList "test ""$samplesDir"" `
-            --configuration ""$Config"" `
-            --logger ""trx;LogFileName=ui-test-results.trx"" `
-            --results-directory ""$testResultsDir"""
+        $uiTestProcess = Start-Process -PassThru -NoNewWindow -FilePath "dotnet.exe" `
+            -ArgumentList "test","$samplesDir","--configuration","$Config","--no-build",`
+                "--logger","trx;LogFileName=ui-test-results.trx","--results-directory","$testResultsDir"
 
         Wait-Process -Id "$($uiTestProcess.Id)"
 
