@@ -79,6 +79,10 @@
       <Project>{45fa2f43-d92b-4a9b-9b93-9ab519ad0127}</Project>
       <Name>DotVVM.Core</Name>
     </ProjectReference>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
