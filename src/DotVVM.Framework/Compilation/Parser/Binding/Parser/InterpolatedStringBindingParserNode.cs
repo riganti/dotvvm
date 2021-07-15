@@ -20,8 +20,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             this.Arguments = arguments;
         }
 
+        public override IEnumerable<BindingParserNode> EnumerateNodes()
+            => base.EnumerateNodes().Concat(Arguments.SelectMany(arg => arg.EnumerateNodes()));
+
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
-            => base.EnumerateNodes().Concat(Arguments);
+           => Arguments;
 
         public override string ToDisplayString()
             => $"String.Format(\"{Format}\", {Arguments.Select(arg => arg.ToDisplayString()).StringJoin(", ")})";

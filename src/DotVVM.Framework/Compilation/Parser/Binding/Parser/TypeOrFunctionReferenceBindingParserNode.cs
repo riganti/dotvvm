@@ -18,12 +18,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             this.TypeArguments = typeArguments ?? new List<TypeReferenceBindingParserNode>(0);
         }
 
+        public override IEnumerable<BindingParserNode> EnumerateNodes()
+            => base.EnumerateNodes().Concat(TypeOrFunction.EnumerateNodes()).Concat(TypeArguments.SelectMany(arg => arg.EnumerateNodes()));
+
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
-        {
-            yield return TypeOrFunction;
-            foreach (var arg in TypeArguments)
-                yield return arg;
-        }
+            => new[] { TypeOrFunction }.Concat(TypeArguments);
 
         public override string ToDisplayString()
         {

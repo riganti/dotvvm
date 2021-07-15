@@ -1,0 +1,47 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation.DateTimeTranslationsViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>DateTime testing</h1>
+    <dot:TextBox data-ui="textbox" Text="{value: DateTimeProp}" />
+
+    <p>
+        <span>Year: </span>
+        <span data-ui="year">{{value: DateTimeProp.Year}}</span>
+    </p>
+    <p>
+        <span>Month: </span>
+        <span data-ui="month">{{value: DateTimeProp.Month}}</span>
+    </p>
+    <p>
+        <span>Day: </span>
+        <span data-ui="day">{{value: DateTimeProp.Day}}</span>
+    </p>
+    <p>
+        <span>Hour: </span>
+        <span data-ui="hour">{{value: DateTimeProp.Hour}}</span>
+    </p>
+    <p>
+        <span>Minute: </span>
+        <span data-ui="minute">{{value: DateTimeProp.Minute}}</span>
+    </p>
+    <p>
+        <span>Second: </span>
+        <span data-ui="second">{{value: DateTimeProp.Second}}</span>
+    </p>
+    <p>
+        <span>Millisecond: </span>
+        <span data-ui="millisecond">{{value: DateTimeProp.Millisecond}}</span>
+    </p>
+
+</body>
+</html>
+
+

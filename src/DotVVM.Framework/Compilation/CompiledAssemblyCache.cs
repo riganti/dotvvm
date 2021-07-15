@@ -68,10 +68,12 @@ namespace DotVVM.Framework.Compilation
                     typeof(DotvvmConfiguration).Assembly,
 #if DotNetCore
                     Assembly.Load(new AssemblyName("System.Runtime")),
+                    Assembly.Load(new AssemblyName("System.Private.CoreLib")),
                     Assembly.Load(new AssemblyName("System.Collections.Concurrent")),
                     Assembly.Load(new AssemblyName("System.Collections")),
 #else
-                    typeof(List<>).Assembly
+                    typeof(List<>).Assembly,
+                    typeof(System.Net.WebUtility).Assembly
 #endif
                 });
 

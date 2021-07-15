@@ -345,7 +345,6 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow("(TestViewModel vm) => vm.IntProp = 11")]
         [DataRow("(TestViewModel vm) => vm.GetEnum()")]
-        [DataRow("(TestViewModel vm) => ()")]
         [DataRow("(TestViewModel vm) => ;")]
         public void BindingCompiler_Valid_LambdaToAction(string expr)
         {
@@ -784,6 +783,38 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_ListIndexer_Get()
+        {
+            TestViewModel5 vm = new TestViewModel5();
+            var result = ExecuteBinding("List[1]", new[] { vm });
+            Assert.AreEqual(2, result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ListIndexer_Set()
+        {
+            TestViewModel5 vm = new TestViewModel5();
+            ExecuteBinding("List[1] = 111", new[] { vm }, null, expectedType: typeof(void));
+            Assert.AreEqual(111, vm.List[1]);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ArrayElement_Get()
+        {
+            TestViewModel5 vm = new TestViewModel5();
+            var result = ExecuteBinding("Array[1]", new[] { vm });
+            Assert.AreEqual(2, result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ArrayElement_Set()
+        {
+            TestViewModel5 vm = new TestViewModel5();
+            ExecuteBinding("Array[1] = 111", new[] { vm }, null, expectedType: typeof(void));
+            Assert.AreEqual(111, vm.Array[1]);
+        }
+
+        [TestMethod]
         public void BindingCompiler_MultiBlockExpression_EnumAtEnd_CorrectResult()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
@@ -912,6 +943,7 @@ namespace DotVVM.Framework.Tests.Binding
         public TestViewModel2 TestViewModel2B { get; set; }
         public TestEnum EnumProperty { get; set; }
         public string StringProp2 { get; set; }
+        public DateTime DateTime { get; set; }
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTo { get; set; }
         public object Time { get; set; } = TimeSpan.FromSeconds(5);
@@ -1041,6 +1073,9 @@ namespace DotVVM.Framework.Tests.Binding
             { 2, 22 },
             { 3, 33 }
         };
+
+        public List<int> List { get; set; } = new List<int>() { 1, 2, 3 };
+        public int[] Array { get; set; } = new int[] { 1, 2, 3 };
     }
 
     struct TestStruct

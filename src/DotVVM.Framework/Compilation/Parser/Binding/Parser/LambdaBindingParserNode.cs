@@ -22,8 +22,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             this.BodyExpression = body;
         }
 
+        public override IEnumerable<BindingParserNode> EnumerateNodes()
+            => base.EnumerateNodes().Concat(ParameterExpressions.SelectMany(param => param.EnumerateNodes()).Concat(BodyExpression.EnumerateNodes()));
+
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
-            => base.EnumerateNodes().Concat(ParameterExpressions).Concat(BodyExpression.EnumerateNodes());
+            => ParameterExpressions.Concat(new[] { BodyExpression });
 
         public override string ToDisplayString()
             => $"({ParameterExpressions.Select(p => p.ToDisplayString()).StringJoin(", ")}) => {BodyExpression.ToDisplayString()}";
@@ -47,8 +50,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         public void SetResolvedType(Type argumentType)
             => ResolvedType = argumentType;
 
+        public override IEnumerable<BindingParserNode> EnumerateNodes()
+            => base.EnumerateNodes().Concat((Type != null) ? Type.EnumerateNodes().Concat(Name.EnumerateNodes()) : Name.EnumerateNodes());
+
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
-            => (Type != null) ? base.EnumerateNodes().Concat(new[] { Type, Name }) : base.EnumerateNodes().Concat(new[] { Name });
+            => (Type != null) ? new[] { Type, Name } : new[] { Name };
 
         public override string ToDisplayString()
             => $"{Type?.ToDisplayString()} {Name.ToDisplayString()}";

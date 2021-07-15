@@ -227,11 +227,22 @@ namespace DotVVM.Framework.Compilation.Binding
             var right = HandleErrors(node.SecondExpression, Visit);
             ThrowOnErrors();
 
-            if (eop == ExpressionType.Assign && left is IndexExpression indexExpression)
+            if (eop == ExpressionType.Assign)
             {
-                // Convert to explicit method call `set_{Indexer}(index, value)`
-                var setMethod = indexExpression.Indexer.SetMethod;
-                return Expression.Call(indexExpression.Object, setMethod, indexExpression.Arguments.Concat(new[] { right }));
+                if (left is IndexExpression indexExpression)
+                {
+                    // Convert to explicit method call `set_{Indexer}(index, value)`
+                    var setMethod = indexExpression.Indexer.SetMethod;
+                    return Expression.Call(indexExpression.Object, setMethod, indexExpression.Arguments.Concat(new[] { right }));
+                }
+                else if (left is BinaryExpression arrayIndexExpression && left.NodeType == ExpressionType.ArrayIndex)
+                {
+                    // Convert to explicit method call `Array.SetValue(value, index)`
+                    var setMethod = typeof(Array).GetMethod(nameof(Array.SetValue), BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(object), typeof(int) }, null);
+                    // If we are working with array of value types then box the value
+                    var value = (right != null && right.Type.IsValueType) ? Expression.TypeAs(right, typeof(object)) : right;
+                    return Expression.Call(arrayIndexExpression.Left, setMethod, new[] { value /* value */, arrayIndexExpression.Right /* index */ });
+                }
             }
 
             return memberExpressionFactory.GetBinaryOperator(left, right, eop);
