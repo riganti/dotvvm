@@ -171,7 +171,7 @@ if ($NoUITests -ne $true) {
             "$Root\artifacts"
 
         $uiTestProcess = Start-Process -PassThru -NoNewWindow -FilePath "dotnet.exe" `
-            -ArgumentList "test","$samplesDir","--configuration","$Config","--no-build",`
+            -ArgumentList "test","$samplesDir","--configuration","$Config",`
                 "--logger","trx;LogFileName=ui-test-results.trx","--results-directory","$testResultsDir"
 
         Wait-Process -Id "$($uiTestProcess.Id)"
