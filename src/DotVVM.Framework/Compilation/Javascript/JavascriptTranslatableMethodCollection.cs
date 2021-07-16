@@ -216,16 +216,15 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         private void AddDefaultStringTranslations()
         {
-            var stringFormatTranslator = new GenericMethodCompiler(
-                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], new JsArrayExpression(args.Skip(2)))
-            );
             // TODO: string.Format could be two-way
-            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object) }), stringFormatTranslator);
-            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object), typeof(object) }), stringFormatTranslator);
-            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object), typeof(object), typeof(object) }), stringFormatTranslator);
+            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object) }), translator: new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], args[2])));
+            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object), typeof(object) }), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], args[2], args[3])));
+            AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object), typeof(object), typeof(object) }), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], args[2], args[3], args[4])));
             AddMethodTranslator(typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object[]) }), new GenericMethodCompiler(
-                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], args[2])
-            ));
+                args => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("format").Invoke(args[1], args[2])));
 
             AddMethodTranslator(typeof(string), nameof(string.IndexOf), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
                 a => a[0].Member("indexOf").Invoke(a[1])));

@@ -133,7 +133,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_InterpolatedString(string expression)
         {
             var js = CompileBinding(expression, new[] { typeof(TestViewModel) }, typeof(string));
-            Assert.AreEqual("dotvvm.globalize.format(\"Interpolated {0} {1}\",[StringProp(),StringProp()])", js);
+            Assert.AreEqual("dotvvm.translations.string.format(\"Interpolated {0} {1}\",[StringProp(),StringProp()])", js);
         }
 
         [TestMethod]
