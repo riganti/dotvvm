@@ -106,7 +106,7 @@ if ($NoSlnRestore -ne $true) {
     Ensure-Command "sln restore" {
         Set-Location $Root
         & "$ciDir\NuGet.exe" restore $sln -PackagesDirectory $packagesDir -ConfigFile "$ciDir\NuGet.config"
-        dotnet restore $sln --packages $packagesDir
+        dotnet restore $sln --packages $packagesDir --configfile "$ciDir\NuGet.config"
     }
 }
 
