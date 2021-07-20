@@ -195,6 +195,14 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_Valid_AssignNullables()
+        {
+            var viewModel = new TestViewModel() { DateTime = DateTime.Now };
+            ExecuteBinding("DateFrom = DateTime", viewModel);
+            Assert.AreEqual(viewModel.DateTime, viewModel.DateFrom.Value);
+        }
+
+        [TestMethod]
         [DataRow(@"$'Interpolated {IntProp < LongProperty}'", "Interpolated True")]
         [DataRow(@"$'Interpolated {StringProp ?? 'StringPropWasNull'}'", "Interpolated StringPropWasNull")]
         [DataRow(@"$'Interpolated {((StringProp == null) ? 'StringPropWasNull' : 'StringPropWasNotNull')}'", "Interpolated StringPropWasNull")]
@@ -944,6 +952,7 @@ namespace DotVVM.Framework.Tests.Binding
         public TestViewModel2 TestViewModel2B { get; set; }
         public TestEnum EnumProperty { get; set; }
         public string StringProp2 { get; set; }
+        public DateTime DateTime { get; set; }
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTo { get; set; }
         public object Time { get; set; } = TimeSpan.FromSeconds(5);
