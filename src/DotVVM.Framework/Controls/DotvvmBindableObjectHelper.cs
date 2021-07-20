@@ -84,7 +84,7 @@ namespace DotVVM.Framework.Controls
             if (valueOrBinding.HasValue)
                 control.SetProperty(property, valueOrBinding.GetValueOrDefault());
             else
-                control.SetValue(property, null);
+                control.Properties.Remove(property);
             return control;
         }
 
@@ -125,24 +125,35 @@ namespace DotVVM.Framework.Controls
             return control;
         }
 
-        public static TControl SetAttribute<TControl>(this TControl control, string attribute, object value)
+        public static TControl SetAttribute<TControl>(this TControl control, string attribute, object? value)
             where TControl : IControlWithHtmlAttributes
         {
             if (value is ValueOrBinding vob)
             {
-                control.Attributes[attribute] = vob.BindingOrDefault ?? vob.BoxedValue;
+                return SetAttribute(control, attribute, vob.BindingOrDefault ?? vob.BoxedValue);
             }
-            else
+
+            if (value is not null)
             {
                 control.Attributes[attribute] = value;
             }
+            else
+            {
+                control.Attributes.Remove(attribute);
+            }
             return control;
         }
+
         public static TControl SetAttribute<TControl, TProperty>(this TControl control, string attribute, ValueOrBinding<TProperty> value)
             where TControl : IControlWithHtmlAttributes
         {
-            control.Attributes[attribute] = value.BindingOrDefault ?? value.BoxedValue;
-            return control;
+            return SetAttribute(control, attribute, value.BindingOrDefault ?? value.BoxedValue);
+        }
+
+        public static TControl SetAttribute<TControl, TProperty>(this TControl control, string attribute, ValueOrBinding<TProperty>? value)
+            where TControl : IControlWithHtmlAttributes
+        {
+            return SetAttribute(control, attribute, value?.BindingOrDefault ?? value?.BoxedValue);
         }
 
         public static TControl SetCapability<TControl, TCapability>(this TControl control, [AllowNull] TCapability capability, string prefix = "")
@@ -155,6 +166,19 @@ namespace DotVVM.Framework.Controls
                     throw new Exception($"Capability {prefix}{typeof(TCapability)} is not defined on {typeof(TControl)}");
                 c.SetValue(control, capability);
             }
+            return control;
+        }
+
+        public static T AppendChildren<T>(this T control, IEnumerable<DotvvmControl>? children) where T : DotvvmControl 
+        {
+            if (children != null)
+            {
+                foreach (var child in children)
+                {
+                    control.Children.Add(child);
+                }
+            }
+
             return control;
         }
 
