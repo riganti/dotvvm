@@ -204,9 +204,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             e["type"] = "enum";
 
             var values = new JObject();
-            foreach (var v in Enum.GetValues(type))
+            foreach (var v in Enum.GetValues(type).OfType<Enum>())
             {
-                values[v.ToString()] = JToken.FromObject(ReflectionUtils.ConvertValue(v, Enum.GetUnderlyingType(type)));
+                values[v.ToEnumString()] = JToken.FromObject(ReflectionUtils.ConvertValue(v, Enum.GetUnderlyingType(type)));
             }
             e["values"] = values;
 

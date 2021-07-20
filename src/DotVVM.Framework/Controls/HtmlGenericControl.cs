@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 
 namespace DotVVM.Framework.Controls
 {
@@ -374,7 +375,11 @@ namespace DotVVM.Framework.Controls
                     writer.AddAttribute(name, name);
                 }
             }
-            else if (value is Enum || value is Guid)
+            else if (value is Enum enumValue)
+            {
+                writer.AddAttribute(name, enumValue.ToEnumString());
+            }
+            else if (value is Guid)
             {
                 writer.AddAttribute(name, value.ToString());
             }

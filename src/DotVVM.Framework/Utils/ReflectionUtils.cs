@@ -15,6 +15,7 @@ using System.Globalization;
 using System.Collections.Concurrent;
 using DotVVM.Framework.Compilation.Binding;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 
 namespace DotVVM.Framework.Utils
 {
@@ -450,6 +451,21 @@ namespace DotVVM.Framework.Utils
         {
             while (!(type.IsPublic || type.IsNestedPublic)) type = type.BaseType.NotNull();
             return type;
+        }
+
+        public static string ToEnumString<T>(this T instance) where T : Enum
+        {
+            var enumString = instance.ToString();
+            var field = instance.GetType().GetField(enumString);
+            if (field != null)
+            {
+                var attr = (EnumMemberAttribute)field.GetCustomAttributes(typeof(EnumMemberAttribute), false).SingleOrDefault();
+                if (attr != null)
+                {
+                    return attr.Value;
+                }
+            }
+            return enumString;
         }
     }
 }
