@@ -195,6 +195,14 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_Valid_AssignNullables()
+        {
+            var viewModel = new TestViewModel() { DateTime = DateTime.Now };
+            ExecuteBinding("DateFrom = DateTime", viewModel);
+            Assert.AreEqual(viewModel.DateTime, viewModel.DateFrom.Value);
+        }
+
+        [TestMethod]
         [DataRow(@"$'Interpolated {IntProp < LongProperty}'", "Interpolated True")]
         [DataRow(@"$'Interpolated {StringProp ?? 'StringPropWasNull'}'", "Interpolated StringPropWasNull")]
         [DataRow(@"$'Interpolated {((StringProp == null) ? 'StringPropWasNull' : 'StringPropWasNotNull')}'", "Interpolated StringPropWasNull")]
