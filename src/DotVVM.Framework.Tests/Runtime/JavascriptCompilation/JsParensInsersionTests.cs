@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
 {
     [TestClass]
-    public class JsParensInsersionTests
+    public class JsParensInsertionTests
     {
         private void AssertFormatting(string expectedString, JsNode node)
         {
@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         }
 
         [TestMethod]
-        public void JsParens_OperatorAsociativity()
+        public void JsParens_OperatorAssociativity()
         {
             AssertFormatting("a+b+c", new JsBinaryExpression(
                 new JsBinaryExpression(new JsIdentifierExpression("a"), BinaryOperatorType.Plus, new JsIdentifierExpression("b")),

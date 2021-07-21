@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore
     public static class SwashbuckleExtensions
     {
         /// <summary>
-        /// Confgures Swaschbuckle to provide additional metadata in methods which use FromQuery attribute so the API provided by DotVVM API generator is easier to use.
+        /// Configures Swashbuckle to provide additional metadata in methods which use FromQuery attribute so the API provided by DotVVM API generator is easier to use.
         /// </summary>
         public static void EnableDotvvmIntegration(this SwaggerGenOptions options)
         {

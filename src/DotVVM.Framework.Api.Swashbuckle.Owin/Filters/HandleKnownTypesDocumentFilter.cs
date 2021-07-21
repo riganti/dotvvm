@@ -23,14 +23,14 @@ namespace DotVVM.Framework.Api.Swashbuckle.Owin.Filters
         {
             foreach (var schema in swaggerDoc.definitions.Values)
             {
-                if (schema.vendorExtensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType) && objType is Type underlayingType)
+                if (schema.vendorExtensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType) && objType is Type underlyingType)
                 {
-                    if (apiOptions.IsKnownType(underlayingType))
+                    if (apiOptions.IsKnownType(underlyingType))
                     {
-                        var name = CreateProperName(underlayingType, swaggerDoc);
+                        var name = CreateProperName(underlyingType, swaggerDoc);
                         schema.vendorExtensions.Add(ApiConstants.DotvvmKnownTypeKey, name);
 
-                        SetDotvvmNameToProperties(schema, underlayingType);
+                        SetDotvvmNameToProperties(schema, underlyingType);
                     }
                 }
             }
@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.Owin.Filters
             }
         }
 
-        private void SetDotvvmNameToProperties(Schema schema, Type underlayingType)
+        private void SetDotvvmNameToProperties(Schema schema, Type underlyingType)
         {
             if (schema.properties == null)
             {
@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.Owin.Filters
 
             foreach (var property in schema.properties)
             {
-                SetDotvvmNameToProperty(underlayingType, property.Key, property.Value);
+                SetDotvvmNameToProperty(underlyingType, property.Key, property.Value);
             }
         }
 

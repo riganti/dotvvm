@@ -571,7 +571,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void BindingCompiler_Valid_NullCoallescence()
+        public void BindingCompiler_Valid_NullCoalescence()
         {
             var viewModel = new TestViewModel() { StringProp = "AHOJ 12" };
             Assert.AreEqual("AHOJ 12", ExecuteBinding("StringProp2 ?? (StringProp ?? 'HUHHHHE')", viewModel));
@@ -861,7 +861,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void BindingCompiler_MultiBlockExpression_AssigmentAtEnd_CorrectResult()
+        public void BindingCompiler_MultiBlockExpression_AssignmentAtEnd_CorrectResult()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
             var result = ExecuteBinding("StringProp = StringProp + 'll'; IntProp = MethodWithOverloads()", new[] { vm });

@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Compilation.Binding
             expression = rewriter.Visit(expression);
 
             //Extract all promise returning method calls so that  result can be 'awaited'
-            //Result of the call will be saved in auxiliary variable and the wariable is then used in original text
+            //Result of the call will be saved in auxiliary variable and the variable is then used in original text
             //example:
             //vm.D = A(B("a"), C("b")) ---> r_0 = B("a"), r_1 = C("b"), r_2 = A(r_0, r_1), vm.D = r_2
             var visitor = new ExtractExpressionVisitor(ex => CreatePromiseMethodCallAnnotationFactory(dataContext, ex));
@@ -128,11 +128,11 @@ namespace DotVVM.Framework.Compilation.Binding
                 var method = visitor.Replaced[param] as MethodCallExpression;
                 var methodInvocation = CompileMethodCall(method, dataContext, callback, errorCallback.Clone());
 
-                var invocationDependencies = ExtractPostbackCommandInvocationDependecies(methodInvocation);
+                var invocationDependencies = ExtractPostbackCommandInvocationDependencies(methodInvocation);
 
                 var replacedParameterNode = js.DescendantNodes().SingleOrDefault(n => n is JsIdentifierExpression identifier && identifier.Identifier == param.Name);
 
-                //These expressions would be affected by chaging order in which they are executed by putting them in .then(...) callback.
+                //These expressions would be affected by changing order in which they are executed by putting them in .then(...) callback.
                 var orderSensitiveExpressions = ResolveOrderSensitiveExpressions(callback, invocationDependencies, replacedParameterNode);
 
                 if (orderSensitiveExpressions.All(e => e.node is JsExpression))
@@ -218,7 +218,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private static JsNode EnsureInvocationsAndTargetStayTogether(JsNode n) =>
             //If I am target of invocation and I am also a member access take my target, otherwise take whole invocation
-            //This is so that in cases like: `A(...).B(...)` we  don't split ten experession into `_temp = A(...).B, temp()` doing so would result in invalid this context in javascript
+            //This is so that in cases like: `A(...).B(...)` we  don't split ten expression into `_temp = A(...).B, temp()` doing so would result in invalid this context in javascript
             //in case like `Foo = A(...)` we are better of just taking A. If A is an identifier nothing will change.
             n.Parent is JsInvocationExpression invocation &&
             invocation.Target == n &&
@@ -226,7 +226,7 @@ namespace DotVVM.Framework.Compilation.Binding
             ? targetMemberAccess.Target
             : n;
 
-        private static JsExpression ExtractPostbackCommandInvocationDependecies(JsExpression methodInvocation)
+        private static JsExpression ExtractPostbackCommandInvocationDependencies(JsExpression methodInvocation)
         {
             var commandPostbackInvocation = ExtractCommandPostbackInvocation(methodInvocation);
 

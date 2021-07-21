@@ -15,10 +15,10 @@ namespace DotVVM.Framework.Compilation
 {
     public class BindingRequiredResourceVisitor : ResolvedControlTreeVisitor
     {
-        private readonly ControlResolverMetadata requiredResourceConrolMetadata;
-        public BindingRequiredResourceVisitor(ControlResolverMetadata requiredResourceControlMetadata)
+        private readonly ControlResolverMetadata requiredResourceControlMetadata;
+        public BindingRequiredResourceVisitor(ControlResolverMetadata requiredResourceConrolMetadata)
         {
-            this.requiredResourceConrolMetadata = requiredResourceControlMetadata;
+            this.requiredResourceControlMetadata = requiredResourceConrolMetadata;
         }
 
         ImmutableHashSet<string> requiredResources = ImmutableHashSet<string>.Empty;
@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Compilation
 
         private ResolvedControl CreateRequiredResourceControl(string resource, Parser.Dothtml.Parser.DothtmlNode node, DataContextStack dataContext)
         {
-            var control = new ResolvedControl(requiredResourceConrolMetadata, node, dataContext);
+            var control = new ResolvedControl(requiredResourceControlMetadata, node, dataContext);
             control.SetProperty(new ResolvedPropertyValue(RequiredResource.NameProperty, resource));
             return control;
         }

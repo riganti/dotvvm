@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand.StaticCommand_ArrayAssigmentViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand.StaticCommand_ArrayAssignmentViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 

@@ -7,7 +7,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Collecetion index</h1>
+        <h1>Collection index</h1>
 
         <h3>Client rendered</h3>
         <dot:Repeater DataSource="{value: Collection}" RenderSettings.Mode="Client">

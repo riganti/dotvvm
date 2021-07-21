@@ -342,7 +342,7 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         /// This is a strange conversion that wraps the entire expression into a Lambda
-        /// and makes an invokable delegate from a normal expression.
+        /// and makes an invocable delegate from a normal expression.
         /// It also replaces special ExtensionParameters attached to the expression for lambda parameters
         public static Expression MagicLambdaConversion(Expression expr, Type expectedType)
         {

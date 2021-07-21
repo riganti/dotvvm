@@ -7,7 +7,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand
 {
-    public class StaticCommand_ArrayAssigmentViewModel : DotvvmViewModelBase
+    public class StaticCommand_ArrayAssignmentViewModel : DotvvmViewModelBase
     {
         public List<string> Names { get; set; } = new List<string> { "Anne", "Martin" };
         public List<string> DifferentNames { get; set; } = new List<string> { "Bob", "Oliver", "Pablo" };

@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Compilation.Inference
                 else if (currentArg.IsGenericParameter && generics.ContainsKey(currentArg.Name))
                 {
                     // This is a generic parameter
-                    // But we already infered its type
+                    // But we already inferred its type
                     substitutions[argIndex] = generics[currentArg.Name];
                 }
                 else

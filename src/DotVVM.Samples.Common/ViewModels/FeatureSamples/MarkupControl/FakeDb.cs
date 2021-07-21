@@ -26,7 +26,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
 
         public void Remove(Guid id) => devices = devices.Where(d => d.Id != id).ToList();
         public DeviceModel Get(Guid id) => devices.FirstOrDefault(d => d.Id == id);
-        public IQueryable<DeviceModel> GetQueriable() => devices.AsQueryable();
+        public IQueryable<DeviceModel> GetQueryable() => devices.AsQueryable();
         public void Reset()
         {
             devices = GetDevices();
