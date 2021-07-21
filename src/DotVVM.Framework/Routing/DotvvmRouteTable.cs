@@ -278,7 +278,7 @@ namespace DotVVM.Framework.Routing
 
             if (string.IsNullOrEmpty(appendedPath))
             {
-                return prefix;
+                return prefix!;
             }
 
             return $"{prefix}/{appendedPath}";

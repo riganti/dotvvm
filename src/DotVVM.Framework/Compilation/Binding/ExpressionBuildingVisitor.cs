@@ -453,7 +453,7 @@ namespace DotVVM.Framework.Compilation.Binding
             else
             {
                 // Type was specified and needs to be obtained from binding node
-                var parameterType = Visit(node.Type).Type;
+                var parameterType = Visit(node.Type!).Type;
                 return Expression.Parameter(parameterType, node.Name.ToDisplayString());
             }
         }

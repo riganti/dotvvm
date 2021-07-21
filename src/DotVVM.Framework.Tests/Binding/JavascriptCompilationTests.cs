@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Tests.Binding
                 context = DataContextStack.Create(contexts[i], context);
             }
             var parser = new BindingExpressionBuilder(configuration.ServiceProvider.GetRequiredService<CompiledAssemblyCache>(), configuration.ServiceProvider.GetRequiredService<ExtensionMethodsCache>());
-            var parsedExpression = parser.ParseWithLambdaConversion(expression, context, BindingParserOptions.Create<ValueBindingExpression>(importNs: imports), expectedType);
+            var parsedExpression = parser.ParseWithLambdaConversion(expression, context, BindingParserOptions.Value.AddImports(imports), expectedType);
             var expressionTree =
                 TypeConversion.MagicLambdaConversion(parsedExpression, expectedType) ??
                 TypeConversion.ImplicitConversion(parsedExpression, expectedType, true, true);

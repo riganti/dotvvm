@@ -25,5 +25,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         }
 
         IAbstractBinding IAbstractPropertyBinding.Binding => Binding;
+
+        public override string ToString() => $"{Property}={Binding}";
     }
 }

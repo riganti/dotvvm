@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Tests.Binding
                 context = DataContextStack.Create(contexts[i], context);
             }
 
-            var options = BindingParserOptions.Create<ValueBindingExpression>()
+            var options = BindingParserOptions.StaticCommand
                 .AddImports(configuration.Markup.ImportedNamespaces);
 
             var parser = new BindingExpressionBuilder(configuration.ServiceProvider.GetRequiredService<CompiledAssemblyCache>(), configuration.ServiceProvider.GetRequiredService<ExtensionMethodsCache>());

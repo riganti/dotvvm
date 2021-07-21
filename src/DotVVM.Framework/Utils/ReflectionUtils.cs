@@ -29,15 +29,16 @@ namespace DotVVM.Framework.Utils
         /// </summary>
         public static MemberInfo GetMemberFromExpression(Expression expression)
         {
+            var originalExpression = expression;
+            if (expression is LambdaExpression lambda)
+                expression = lambda.Body;
+            if (expression is UnaryExpression unary)
+                expression = unary.Operand;
+
             var body = expression as MemberExpression;
 
             if (body == null)
-            {
-                var unaryExpressionBody = (UnaryExpression)expression;
-                body = unaryExpressionBody.Operand as MemberExpression;
-            }
-            if (body == null)
-                throw new NotSupportedException($"Can not get member from {expression}");
+                throw new NotSupportedException($"Can not get member from {originalExpression}");
 
             return body.Member;
         }
