@@ -214,12 +214,15 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [DataRow(@"$'Interpolated {DateFrom:R}'", "Interpolated Fri, 11 Nov 2011 12:11:11 GMT")]
-        [DataRow(@"$'Interpolated {$'{DateFrom:R}'}'", "Interpolated Fri, 11 Nov 2011 12:11:11 GMT")]
+        [DataRow(@"$'Interpolated {DateFrom:R}'", "Interpolated Fri, 11 Nov 2011 11:11:11 GMT")]
+        [DataRow(@"$'Interpolated {$'{DateFrom:R}'}'", "Interpolated Fri, 11 Nov 2011 11:11:11 GMT")]
         [DataRow(@"$'Interpolated {$'{IntProp:0000}'}'", "Interpolated 0006")]
         public void BindingCompiler_Valid_InterpolatedString_WithFormattingComponent(string expression, string evaluated)
         {
-            var viewModel = new TestViewModel() { DateFrom = DateTime.Parse("2011-11-11T11:11:11+00:00"), IntProp = 6 };
+            var viewModel = new TestViewModel() {
+                DateFrom = DateTimeOffset.Parse("2011-11-11T11:11:11+00:00").UtcDateTime,
+                IntProp = 6
+            };
             var binding = ExecuteBinding(expression, viewModel);
             Assert.AreEqual(evaluated, binding);
         }

@@ -1,7 +1,7 @@
 ﻿{
   "factories": {
     "chrome:fast": {
-      "capabilities": [ "--headless" ]
+      "capabilities": [ "--headless", "--no-sandbox" ]
     }
   },
   "baseUrls": [

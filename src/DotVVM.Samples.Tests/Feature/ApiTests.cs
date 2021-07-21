@@ -202,7 +202,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        [Fact]
+        [Fact(Skip = "Doesn't work on OWIN because it relies on _apiCore.")]
         public void Feature_Api_BindingSharing()
         {
             RunInAllBrowsers(browser => {
