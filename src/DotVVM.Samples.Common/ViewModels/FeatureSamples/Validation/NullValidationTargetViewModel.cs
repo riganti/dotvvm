@@ -13,7 +13,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
         [Required]
         public SomeValidatableObject NullObject { get; set; }
         [Required]
-        public SomeValidatableObject RealObject { get; set; } = new SomeValidatebleObject();
+        public SomeValidatableObject RealObject { get; set; } = new SomeValidatableObject();
     }
 
     public class SomeValidatableObject
