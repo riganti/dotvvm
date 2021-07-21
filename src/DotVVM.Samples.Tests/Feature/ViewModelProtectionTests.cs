@@ -132,7 +132,7 @@ namespace DotVVM.Samples.Tests.Feature
             radios.RemoveAt(checkedRadioIndex);
             radios.ForEach(s => AssertUI.IsNotChecked(s));
 
-            AssertUI.TextEquals(selectedColorElement, selectedColor.ToString().ToLower());
+            AssertUI.TextEquals(selectedColorElement, selectedColor.ToString().ToLowerInvariant());
         }
 
         private void RunComplexViewModelProtectionTest(Action<IBrowserWrapper> beforePostback, Action<IBrowserWrapper> afterPostback)

@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     variables.Select(v => {
                         var tmpVar = new JsTemporaryVariableParameter();
                         return Expression.Parameter(v.Type, v.Name).AddParameterAnnotation(new BindingParameterAnnotation(extensionParameter:
-                            new JavascriptTranslationVisitor.FakeExtensionParameter(_ => new JsSymbolicParameter(tmpVar))
+                            new JavascriptTranslationVisitor.FakeExtensionParameter(_ => new JsSymbolicParameter(tmpVar), v.Name, new ResolvedTypeDescriptor(v.Type))
                         ));
                     }).ToArray()
                 );
@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var rootCallback = visitor.Visit(expression);
 
             var errorCallback = new JsIdentifierExpression("reject");
-            var js = SouldCompileCallback(rootCallback) ? new JsIdentifierExpression("resolve").Invoke(javascriptTranslator.CompileToJavascript(rootCallback, dataContext)) : null;
+            var js = ShouldCompileCallback(rootCallback) ? new JsIdentifierExpression("resolve").Invoke(javascriptTranslator.CompileToJavascript(rootCallback, dataContext)) : null;
 
             foreach (var param in visitor.ParameterOrder.Reverse<ParameterExpression>())
             {
@@ -246,7 +246,7 @@ namespace DotVVM.Framework.Compilation.Binding
             ? commandInvocation
             : null;
 
-        protected virtual bool SouldCompileCallback(Expression c)
+        protected virtual bool ShouldCompileCallback(Expression c)
         {
             if (c.NodeType == ExpressionType.Parameter) return false;
             return true;

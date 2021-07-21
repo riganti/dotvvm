@@ -246,6 +246,14 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_GenericMethodCall_ExplicitTypeParameters()
+        {
+            var viewModel = new TestViewModel { StringProp = "abc" };
+            var result = (Type)ExecuteBinding("GetType<string>(StringProp)", viewModel);
+            Assert.AreEqual(typeof(string), result);
+        }
+
+        [TestMethod]
         [DataRow("() => ;", typeof(Action), null)]
         [DataRow("() => \"HelloWorld\"", typeof(Func<string>), typeof(string))]
         [DataRow("() => 11", typeof(Func<int>), typeof(int))]
@@ -337,7 +345,6 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         [DataRow("(TestViewModel vm) => vm.IntProp = 11")]
         [DataRow("(TestViewModel vm) => vm.GetEnum()")]
-        [DataRow("(TestViewModel vm) => ()")]
         [DataRow("(TestViewModel vm) => ;")]
         public void BindingCompiler_Valid_LambdaToAction(string expr)
         {
@@ -377,6 +384,68 @@ namespace DotVVM.Framework.Tests.Binding
             var viewModel = new TestLambdaCompilation();
             var result = ExecuteBinding(expr, viewModel);
             Assert.AreEqual("Func", result);
+        }
+
+        [TestMethod]
+        [DataRow("(int? arg) => arg.Value + 1", typeof(Func<int?, int>))]
+        [DataRow("(double? arg) => arg.Value + 0.1", typeof(Func<double?, double>))]
+        public void BindingCompiler_Valid_LambdaParameter_Nullable(string expr, Type type)
+        {
+            var viewModel = new TestLambdaCompilation();
+            var result = ExecuteBinding(expr, viewModel);
+            Assert.AreEqual(type, result.GetType());
+        }
+
+        [TestMethod]
+        [DataRow("(int[] array) => array[0]", typeof(Func<int[], int>))]
+        [DataRow("(double[] array) => array[0]", typeof(Func<double[], double>))]
+        [DataRow("(int[][] jaggedArray) => jaggedArray[0][1]", typeof(Func<int[][], int>))]
+        [DataRow("(int[][] jaggedArray) => jaggedArray[0]", typeof(Func<int[][], int[]>))]
+        public void BindingCompiler_Valid_LambdaParameter_Array(string expr, Type type)
+        {
+            var viewModel = new TestLambdaCompilation();
+            var result = ExecuteBinding(expr, viewModel);
+            Assert.AreEqual(type, result.GetType());
+        }
+
+        [TestMethod]
+        [DataRow("(int?[] arrayOfNullables) => arrayOfNullables[0]", typeof(Func<int?[], int?>))]
+        [DataRow("(System.Collections.Generic.List<int?> list) => list[0]", typeof(Func<List<int?>, int?>))]
+        [DataRow("(System.Collections.Generic.List<int?[]> list) => list[0]", typeof(Func<List<int?[]>, int?[]>))]
+        [DataRow("(System.Collections.Generic.List<int?[][]> list) => list[0][0]", typeof(Func<List<int?[][]>, int?[]>))]
+        [DataRow("(System.Collections.Generic.Dictionary<int?,double?> dict) => dict[0]", typeof(Func<Dictionary<int?, double?>, double?>))]
+        [DataRow("(System.Collections.Generic.Dictionary<int?[],double?> dict) => 0", typeof(Func<Dictionary<int?[], double?>, int>))]
+        public void BindingCompiler_Valid_LambdaParameter_CombinedTypeModifies(string expr, Type type)
+        {
+            var viewModel = new TestLambdaCompilation();
+            var result = ExecuteBinding(expr, viewModel);
+            Assert.AreEqual(type, result.GetType());
+        }
+
+        [TestMethod]
+        [DataRow("(string? arg) => arg")]
+        [DataRow("(int[]? arg) => arg")]
+        public void BindingCompiler_Invalid_LambdaParameter_NullableReferenceTypes(string expr)
+        {
+            var exceptionThrown = false;
+            try
+            {
+                var viewModel = new TestLambdaCompilation();
+                ExecuteBinding(expr, viewModel);
+            }
+            catch (Exception e)
+            {
+                // Get inner-most exception
+                var current = e;
+                while (current.InnerException != null)
+                    current = current.InnerException;
+
+                Assert.AreEqual(typeof(BindingCompilationException), current.GetType());
+                StringAssert.Contains(current.Message, "as nullable is not supported!");
+                exceptionThrown = true;
+            }
+
+            Assert.IsTrue(exceptionThrown);
         }
 
         [TestMethod]
@@ -714,6 +783,38 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_ListIndexer_Get()
+        {
+            TestViewModel5 vm = new TestViewModel5();
+            var result = ExecuteBinding("List[1]", new[] { vm });
+            Assert.AreEqual(2, result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ListIndexer_Set()
+        {
+            TestViewModel5 vm = new TestViewModel5();
+            ExecuteBinding("List[1] = 111", new[] { vm }, null, expectedType: typeof(void));
+            Assert.AreEqual(111, vm.List[1]);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ArrayElement_Get()
+        {
+            TestViewModel5 vm = new TestViewModel5();
+            var result = ExecuteBinding("Array[1]", new[] { vm });
+            Assert.AreEqual(2, result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ArrayElement_Set()
+        {
+            TestViewModel5 vm = new TestViewModel5();
+            ExecuteBinding("Array[1] = 111", new[] { vm }, null, expectedType: typeof(void));
+            Assert.AreEqual(111, vm.Array[1]);
+        }
+
+        [TestMethod]
         public void BindingCompiler_MultiBlockExpression_EnumAtEnd_CorrectResult()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
@@ -842,6 +943,7 @@ namespace DotVVM.Framework.Tests.Binding
         public TestViewModel2 TestViewModel2B { get; set; }
         public TestEnum EnumProperty { get; set; }
         public string StringProp2 { get; set; }
+        public DateTime DateTime { get; set; }
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTo { get; set; }
         public object Time { get; set; } = TimeSpan.FromSeconds(5);
@@ -971,6 +1073,9 @@ namespace DotVVM.Framework.Tests.Binding
             { 2, 22 },
             { 3, 33 }
         };
+
+        public List<int> List { get; set; } = new List<int>() { 1, 2, 3 };
+        public int[] Array { get; set; } = new int[] { 1, 2, 3 };
     }
 
     struct TestStruct

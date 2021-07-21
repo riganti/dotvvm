@@ -27,7 +27,7 @@ namespace DotVVM.CommandLine
             }
 
             var sb = new StringBuilder(name);
-            sb[0] = char.ToUpper(sb[0]);
+            sb[0] = char.ToUpperInvariant(sb[0]);
             return sb.ToString();
         }
 
@@ -39,7 +39,7 @@ namespace DotVVM.CommandLine
             }
 
             var sb = new StringBuilder(viewName);
-            sb[0] = char.ToUpper(sb[0]);
+            sb[0] = char.ToUpperInvariant(sb[0]);
 
             if (!viewName.EndsWith(ViewModelClassSuffix, StringComparison.CurrentCultureIgnoreCase))
             {

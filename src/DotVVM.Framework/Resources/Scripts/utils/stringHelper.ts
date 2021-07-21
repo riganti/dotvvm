@@ -6,3 +6,8 @@
 
     return tokens;
 }
+
+export function join<T>(elements: T[], delimiter: string): string {
+    let unwrappedElements = elements.map(ko.unwrap);
+    return unwrappedElements.join(delimiter);
+}

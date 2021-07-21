@@ -183,7 +183,7 @@ namespace DotVVM.Framework.Binding
             return Register(propertyName, typeof(TPropertyType), typeof(TDeclaringType), defaultValue, isValueInherited, property, field);
         }
 
-        public static DotvvmProperty Register(string propertyName, Type propertyType, Type declaringType, object? defaultValue, bool isValueInherited, DotvvmProperty? property, ICustomAttributeProvider attributeProvider, bool throwOnDuplicitRegistration = true)
+        public static DotvvmProperty Register(string propertyName, Type propertyType, Type declaringType, object? defaultValue, bool isValueInherited, DotvvmProperty? property, ICustomAttributeProvider attributeProvider, bool throwOnDuplicateRegistration = true)
         {
             var fullName = declaringType.FullName + "." + propertyName;
 
@@ -199,7 +199,7 @@ namespace DotVVM.Framework.Binding
 
             if (!registeredProperties.TryAdd(fullName, property))
             {
-                if (throwOnDuplicitRegistration)
+                if (throwOnDuplicateRegistration)
                     throw new ArgumentException($"Property is already registered: {fullName}");
                 else
                     property = registeredProperties[fullName];

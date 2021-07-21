@@ -227,11 +227,22 @@ namespace DotVVM.Framework.Compilation.Binding
             var right = HandleErrors(node.SecondExpression, Visit);
             ThrowOnErrors();
 
-            if (eop == ExpressionType.Assign && left is IndexExpression indexExpression)
+            if (eop == ExpressionType.Assign)
             {
-                // Convert to explicit method call `set_{Indexer}(index, value)`
-                var setMethod = indexExpression.Indexer.SetMethod;
-                return Expression.Call(indexExpression.Object, setMethod, indexExpression.Arguments.Concat(new[] { right }));
+                if (left is IndexExpression indexExpression)
+                {
+                    // Convert to explicit method call `set_{Indexer}(index, value)`
+                    var setMethod = indexExpression.Indexer.SetMethod;
+                    return Expression.Call(indexExpression.Object, setMethod, indexExpression.Arguments.Concat(new[] { right }));
+                }
+                else if (left is BinaryExpression arrayIndexExpression && left.NodeType == ExpressionType.ArrayIndex)
+                {
+                    // Convert to explicit method call `Array.SetValue(value, index)`
+                    var setMethod = typeof(Array).GetMethod(nameof(Array.SetValue), BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(object), typeof(int) }, null);
+                    // If we are working with array of value types then box the value
+                    var value = (right != null && right.Type.IsValueType) ? Expression.TypeAs(right, typeof(object)) : right;
+                    return Expression.Call(arrayIndexExpression.Left, setMethod, new[] { value /* value */, arrayIndexExpression.Right /* index */ });
+                }
             }
 
             return memberExpressionFactory.GetBinaryOperator(left, right, eop);
@@ -325,7 +336,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             var nameNode = node.MemberNameExpression;
             var typeParameters = nameNode is GenericNameBindingParserNode
-                ? ResolveGenericArguments(nameNode.CastTo<GenericNameBindingParserNode>())
+                ? ResolveGenericArguments(nameNode.CastTo<GenericNameBindingParserNode>().TypeArguments)
                 : null;
             var identifierName = (typeParameters?.Count() ?? 0) > 0
                 ? $"{nameNode.Name}`{typeParameters.Count()}"
@@ -352,9 +363,39 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitGenericName(GenericNameBindingParserNode node)
         {
-            var typeParameters = ResolveGenericArguments(node.CastTo<GenericNameBindingParserNode>());
+            var parameters = ResolveGenericArguments(node.TypeArguments);
+            return GetMemberOrTypeExpression(node, parameters) ?? Expression.Default(typeof(void));
+        }
 
-            return GetMemberOrTypeExpression(node, typeParameters) ?? Expression.Default(typeof(void));
+        protected override Expression VisitTypeReference(TypeReferenceBindingParserNode node)
+        {
+            if (node is ActualTypeReferenceBindingParserNode actualType)
+            {
+                return Visit(actualType.Type);
+            }
+            else if (node is NullableTypeReferenceBindingParserNode nullableType)
+            {
+                var innerTypeExpr = Visit(nullableType.InnerType);
+                if (!innerTypeExpr.Type.IsValueType)
+                    throw new BindingCompilationException($"Wrapping {innerTypeExpr.Type} as nullable is not supported!", node);
+
+                return new StaticClassIdentifierExpression(innerTypeExpr.Type.MakeNullableType());
+            }
+            else if (node is ArrayTypeReferenceBindingParserNode arrayType)
+            {
+                var elementTypeExpr = Visit(arrayType.ElementType);
+                return new StaticClassIdentifierExpression(elementTypeExpr.Type.MakeArrayType());
+            }
+            else if (node is GenericTypeReferenceBindingParserNode genericType)
+            {
+                var identifierName = $"{genericType.Type.ToDisplayString()}`{genericType.Arguments.Count()}";
+                var parameters = ResolveGenericArguments(genericType.Arguments);
+
+                var resolvedTypeExpr = Registry.Resolve(identifierName, throwOnNotFound: false) ?? new UnknownStaticClassIdentifierExpression(identifierName);
+                return new StaticClassIdentifierExpression(resolvedTypeExpr.Type.MakeGenericType(parameters));
+            }
+
+            throw new DotvvmCompilationException($"Unknown type reference binding node {node.GetType()}!");
         }
 
         protected override Expression VisitLambda(LambdaBindingParserNode node)
@@ -375,7 +416,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
 
             for (var i = 0; i < lambdaParameters.Length; i++)
-                lambdaParameters[i] = (ParameterExpression)HandleErrors(node.ParameterExpressions[i], Visit)!;
+                lambdaParameters[i] = (ParameterExpression)Visit(node.ParameterExpressions[i]);
 
             // Make sure that parameter identifiers are distinct
             if (lambdaParameters.GroupBy(param => param.Name).Any(group => group.Count() > 1))
@@ -509,22 +550,21 @@ namespace DotVVM.Framework.Compilation.Binding
             }
         }
 
-        private Type[] ResolveGenericArguments(GenericNameBindingParserNode node)
+        private Type[] ResolveGenericArguments(List<TypeReferenceBindingParserNode> arguments)
         {
-            var parameters = new Type[node.TypeArguments.Count];
+            var resolvedArguments = new Type[arguments.Count];
 
-            for (int i = 0; i < node.TypeArguments.Count; i++)
+            for (var i = 0; i < arguments.Count; i++)
             {
-                var typeArgument = node.TypeArguments[i];
-
-                parameters[i] = Visit(typeArgument).Type;
+                var typeArgument = arguments[i];
+                resolvedArguments[i] = Visit(typeArgument).Type;
             }
-            return parameters;
+            return resolvedArguments;
         }
 
         private void ThrowIfNotTypeNameRelevant(BindingParserNode node)
         {
-            if (ResolveOnlyTypeName && !(node is MemberAccessBindingParserNode) && !(node is IdentifierNameBindingParserNode) && !(node is AssemblyQualifiedNameBindingParserNode))
+            if (ResolveOnlyTypeName && !(node is MemberAccessBindingParserNode) && !(node is IdentifierNameBindingParserNode) && !(node is AssemblyQualifiedNameBindingParserNode) && !(node is TypeReferenceBindingParserNode) && !(node is TypeOrFunctionReferenceBindingParserNode))
             {
                 throw new Exception("Only type name is supported.");
             }
