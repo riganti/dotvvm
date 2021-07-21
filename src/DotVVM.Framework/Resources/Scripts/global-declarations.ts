@@ -229,7 +229,8 @@ type DotvvmObservable<T> = DeepKnockoutObservable<T> & {
 type RootViewModel = {
     $type: string
     $csrfToken?: string
-} | any;
+    [name: string]: any
+} 
 
 type TypeMap = {
     [typeId: string]: TypeMetadata
