@@ -10,6 +10,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.StringInterpolation
     public class StringInterpolationViewModel : DotvvmViewModelBase
     {
         public string Name { get; set; } = "Mark";
+        public string Name2 { get; set; } = "John";
         public int Age { get; set; } = 24;
         public int IntNumber { get; set; } = -1508;
         public double DoubleNumber { get; set; } = 15.0896;
