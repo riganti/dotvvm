@@ -1,0 +1,41 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StringInterpolation.StringInterpolationViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:RequiredResource Name="globalize" />
+
+    <p>{{value: $'Hello, {Name} and {Name}'}}</p>
+
+    <p data-ui="text">{{value: $'Today is {Date:dd/MM/yyyy}!'}}</p>
+
+    <dot:Literal Text="{value: $'Tomorrow is {Date:dd/MM/yyyy}!'}" />
+
+    <h2>Standard Numeric Format Strings</h2>
+    <%--    <p data-ui="standard-numeric-format1">{{value: $"No format: {IntNumber}"}}</p>
+    <p data-ui="standard-numeric-format2">{{value: $"C2 format: {DoubleNumber:C2}"}}</p>
+    <p data-ui="standard-numeric-format3">{{value: $"G1 format: {DoubleNumber:g1}"}}</p>
+    <p data-ui="standard-numeric-format4">{{value: $"N format: {IntNumber:N}"}}</p>
+    <p data-ui="standard-numeric-format5">{{value: $"D8 format: {IntNumber:D8}"}}</p>--%>
+
+    <h2>Custom Numeric Format Strings</h2>
+    <%--<p data-ui="custom-numeric-format1">{{value: $"No format: {DoubleNumber:#}"}}</p>--%>
+
+    <h2>Standard Date and Time Format Strings</h2>
+    <p data-ui="date-format1">{{value: $"No format: {Date}"}}</p>
+    <%--<p data-ui="date-format2">{{value: $"O format: {Date:D}"}}</p>
+    <p data-ui="date-format3">{{value: $"O format: {Date:F}"}}</p>
+    <p data-ui="date-format4">{{value: $"O format: {Date:G}"}}</p>--%>
+
+    <h2>Special characters</h2>
+    <p data-ui="special-char1">{{value: $"He asked, \"Is your name {Name}?\", but didn't wait for a reply :-{{" }}<</p>
+    <p data-ui="special-char2">{{value: $"{Name} is {Age} year{(Age == 1 ? "" : "s")} old."}}</p>
+
+</body>
+</html>
+
