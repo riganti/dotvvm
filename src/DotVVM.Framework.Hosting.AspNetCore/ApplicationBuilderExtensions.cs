@@ -62,11 +62,6 @@ namespace Microsoft.AspNetCore.Builder
             startup.Configure(config, applicationRootPath);
             startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureFinished);
 
-            if (useErrorPages ?? config.Debug)
-            {
-                app.UseMiddleware<DotvvmErrorPageMiddleware>();
-            }
-
             modifyConfiguration?.Invoke(config);
             config.Freeze();
 
@@ -77,7 +72,7 @@ namespace Microsoft.AspNetCore.Builder
                 DotvvmFileUploadMiddleware.TryCreate(app.ApplicationServices),
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
-            }.Where(t => t != null).ToArray());
+            }.Where(t => t != null).ToArray(), useErrorPages ?? config.Debug);
 
             startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmFinished);
 

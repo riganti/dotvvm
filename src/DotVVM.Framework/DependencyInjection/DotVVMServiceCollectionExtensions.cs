@@ -14,6 +14,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Hosting.ErrorPages;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Caching;
@@ -102,6 +103,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             services.TryAddSingleton<IDotvvmCacheAdapter, DefaultDotvvmCacheAdapter>();
+            services.TryAddSingleton<DotvvmErrorPageRenderer>();
 
             return services;
         }
