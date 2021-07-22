@@ -15,12 +15,12 @@ export function startsWith(haystack: string, needle: string, options: string): b
 
 export function indexOf(haystack: string, startIndex: number, needle: string, options: string): number {
     const normalized = normalizeStrings(haystack, needle, options);
-    return normalized.haystack.indexOf(needle, startIndex);
+    return normalized.haystack.indexOf(normalized.needle, startIndex);
 }
 
 export function lastIndexOf(haystack: string, startIndex: number, needle: string, options: string): number {
     const normalized = normalizeStrings(haystack, needle, options);
-    return normalized.haystack.indexOf(needle, startIndex);
+    return normalized.haystack.indexOf(normalized.needle, startIndex);
 }
 
 function normalizeStrings(haystack: string, needle: string, options: string): { haystack: string, needle: string } {
