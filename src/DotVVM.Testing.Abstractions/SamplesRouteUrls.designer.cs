@@ -76,6 +76,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_FileUpload_FileUpload = "ControlSamples/FileUpload/FileUpload";
         public const string ControlSamples_FileUpload_IsAllowedOrNot = "ControlSamples/FileUpload/IsAllowedOrNot";
         public const string ControlSamples_GridView_ColumnVisible = "ControlSamples/GridView/ColumnVisible";
+        public const string ControlSamples_GridView_GridViewCellDecorators = "ControlSamples/GridView/GridViewCellDecorators";
         public const string ControlSamples_GridView_GridViewInlineEditing = "ControlSamples/GridView/GridViewInlineEditing";
         public const string ControlSamples_GridView_GridViewInlineEditingPrimaryKeyGuid = "ControlSamples/GridView/GridViewInlineEditingPrimaryKeyGuid";
         public const string ControlSamples_GridView_GridViewInlineEditingPrimaryKeyString = "ControlSamples/GridView/GridViewInlineEditingPrimaryKeyString";
@@ -231,8 +232,8 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_JavascriptTranslation_ListIndexerTranslation = "FeatureSamples/JavascriptTranslation/ListIndexerTranslation";
         public const string FeatureSamples_JavascriptTranslation_ListMethodTranslations = "FeatureSamples/JavascriptTranslation/ListMethodTranslations";
         public const string FeatureSamples_JavascriptTranslation_MathMethodTranslation = "FeatureSamples/JavascriptTranslation/MathMethodTranslation";
-        public const string FeatureSamples_JavascriptTranslation_WebUtilityTranslations = "FeatureSamples/JavascriptTranslation/WebUtilityTranslations";
         public const string FeatureSamples_JavascriptTranslation_StringMethodTranslations = "FeatureSamples/JavascriptTranslation/StringMethodTranslations";
+        public const string FeatureSamples_JavascriptTranslation_WebUtilityTranslations = "FeatureSamples/JavascriptTranslation/WebUtilityTranslations";
         public const string FeatureSamples_LambdaExpressions_ClientSideFiltering = "FeatureSamples/LambdaExpressions/ClientSideFiltering";
         public const string FeatureSamples_LambdaExpressions_LambdaExpressions = "FeatureSamples/LambdaExpressions/LambdaExpressions";
         public const string FeatureSamples_LambdaExpressions_StaticCommands = "FeatureSamples/LambdaExpressions/StaticCommands";

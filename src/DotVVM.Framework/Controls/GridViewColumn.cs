@@ -2,6 +2,7 @@
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using System;
+using System.Collections.Generic;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using System.Threading.Tasks;
@@ -127,6 +128,47 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty VisibleProperty
             = DotvvmProperty.Register<bool, GridViewColumn>(c => c.Visible, true);
 
+        /// <summary>
+        /// Gets or sets a list of decorators that will be applied on each cell which is not in the edit mode.
+        /// </summary>
+        [PopDataContextManipulation]
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
+        public List<Decorator>? CellDecorators
+        {
+            get { return (List<Decorator>?)GetValue(CellDecoratorsProperty); }
+            set { SetValue(CellDecoratorsProperty, value); }
+        }
+
+        public static readonly DotvvmProperty CellDecoratorsProperty =
+            DotvvmProperty.Register<List<Decorator>?, GridViewColumn>(c => c.CellDecorators);
+
+        /// <summary>
+        /// Gets or sets a list of decorators that will be applied on each cell which is in the edit mode.
+        /// </summary>
+        [PopDataContextManipulation]
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
+        public List<Decorator>? EditCellDecorators
+        {
+            get { return (List<Decorator>?)GetValue(EditCellDecoratorsProperty); }
+            set { SetValue(EditCellDecoratorsProperty, value); }
+        }
+
+        public static readonly DotvvmProperty EditCellDecoratorsProperty =
+            DotvvmProperty.Register<List<Decorator>?, GridViewColumn>(c => c.EditCellDecorators);
+
+        /// <summary>
+        /// Gets or sets a list of decorators that will be applied on each header cell.
+        /// </summary>
+        [PopDataContextManipulation]
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
+        public List<Decorator>? HeaderCellDecorators
+        {
+            get { return (List<Decorator>?)GetValue(HeaderCellDecoratorsProperty); }
+            set { SetValue(HeaderCellDecoratorsProperty, value); }
+        }
+
+        public static readonly DotvvmProperty HeaderCellDecoratorsProperty =
+            DotvvmProperty.Register<List<Decorator>?, GridViewColumn>(c => c.HeaderCellDecorators);
 
         public abstract void CreateControls(IDotvvmRequestContext context, DotvvmControl container);
 
