@@ -260,6 +260,19 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
+        [DataRow("$'{{'   ", "$'{{'", "   ")]
+        [DataRow("$'}}'   ", "$'}}'", "   ")]
+        public void BindingTokenizer_InterpolatedString_DoNotReadPastString(string expression, string text1, string text2)
+        {
+            var tokens = Tokenize(expression);
+            Assert.AreEqual(2, tokens.Count);
+            Assert.AreEqual(tokens[0].Type, BindingTokenType.InterpolatedStringToken);
+            Assert.AreEqual(tokens[1].Type, BindingTokenType.WhiteSpace);
+            Assert.AreEqual(text1, tokens[0].Text);
+            Assert.AreEqual(text2, tokens[1].Text);
+        }
+
+        [TestMethod]
         public void BindingTokenizer_UnaryOperator_BunchingOperators_Valid()
         {
             var tokens = Tokenize("A(!IsDisplayed)");
