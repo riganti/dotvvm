@@ -22,7 +22,7 @@ namespace DotVVM.Samples.Tests.Feature
                 var text1 = browser.Single("special-char1", SelectByDataUi);
                 var text2 = browser.Single("special-char2", SelectByDataUi);
 
-                AssertUI.TextEquals(text1, "He asked, \"Is your name Mark ? \", but didn't wait for a reply :-{");
+                AssertUI.TextEquals(text1, "He asked, \"Is your name Mark?\", but didn't wait for a reply :-{");
                 AssertUI.TextEquals(text2, "Mark is 24 years old.");
             });
         }
