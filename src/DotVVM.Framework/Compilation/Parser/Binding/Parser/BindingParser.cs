@@ -697,6 +697,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 // interpolated string
 
                 Read();
+                SkipWhiteSpace();
 
                 var (format, arguments) = ParseInterpolatedString(token.Text, out var error);
                 var node = CreateNode(new InterpolatedStringBindingParserNode(format, arguments), startIndex);
