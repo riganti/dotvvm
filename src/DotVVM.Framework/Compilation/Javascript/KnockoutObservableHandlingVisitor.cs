@@ -105,7 +105,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
                 resultExpression.WithAnnotation(assignmentExpression.Annotation<ShouldBeObservableAnnotation>());
             }
-            else if (assignmentExpression.Left.GetResultType() is ViewModelInfoAnnotation vmInfo && vmInfo.ContainsObservables != false && assignmentExpression.Left.IsComplexType())
+            else if (assignmentExpression.Left.GetResultType() is ViewModelInfoAnnotation { ContainsObservables: true } && assignmentExpression.Left.IsComplexType())
             {
                 var value = assignmentExpression.Right;
                 resultExpression = assignmentExpression.Right.ReplaceWith(_ =>
