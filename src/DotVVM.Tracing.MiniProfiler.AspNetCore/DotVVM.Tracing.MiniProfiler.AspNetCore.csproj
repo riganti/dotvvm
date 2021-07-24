@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 	<AssemblyTitle>DotVVM.Tracing.MiniProfiler.AspNetCore</AssemblyTitle>
-    <VersionPrefix>3.0.0-preview01-final</VersionPrefix>
+    <VersionPrefix>3.1.0</VersionPrefix>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -10,7 +10,7 @@
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.Tracing.MiniProfiler.AspNetCore</PackageId>
-    <PackageVersion>3.0.0-preview01-final</PackageVersion>
+    <PackageVersion>3.1.0</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>MiniProfiler Tracing module for ASP.NET Core and DotVVM</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
