@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
         {
-            return dataContext.Member("$control").WithAnnotation(new ViewModelInfoAnnotation(ResolvedTypeDescriptor.ToSystemType(this.ParameterType), isControl: true));
+            return dataContext.Member("$control").WithAnnotation(new ViewModelInfoAnnotation(ResolvedTypeDescriptor.ToSystemType(this.ParameterType), isControl: true, containsObservables: true));
         }
 
         public static CurrentMarkupControlExtensionParameter refserializer_create(ITypeDescriptor parameterType) => new CurrentMarkupControlExtensionParameter(parameterType);

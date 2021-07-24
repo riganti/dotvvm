@@ -89,14 +89,14 @@ namespace DotVVM.Framework.Tests.Binding
         public void StaticCommandCompilation_SimpleCommand()
         {
             var result = CompileBinding("StaticCommands.GetLength(StringProp)", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("(function(a,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[b.$data.StringProp()],options).then(function(r_0){resolve(r_0);},reject);});}(this,ko.contextFor(this)))", result);
+            Assert.AreEqual("(function(a,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[b.$data.StringProp.state],options).then(function(r_0){resolve(r_0);},reject);});}(this,ko.contextFor(this)))", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_AssignedCommand()
         {
             var result = CompileBinding("StringProp = StaticCommands.GetLength(StringProp).ToString()", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("(function(a,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[b.$data.StringProp()],options).then(function(r_0){resolve(b.$data.StringProp(dotvvm.globalize.bindingNumberToString(r_0)()).StringProp());},reject);});}(this,ko.contextFor(this)))", result);
+            Assert.AreEqual("(function(a,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[b.$data.StringProp.state],options).then(function(r_0){resolve(b.$data.StringProp(dotvvm.globalize.bindingNumberToString(r_0)()).StringProp());},reject);});}(this,ko.contextFor(this)))", result);
         }
 
         [TestMethod]
@@ -110,21 +110,21 @@ namespace DotVVM.Framework.Tests.Binding
         public void StaticCommandCompilation_ChainedCommands()
         {
             var result = CompileBinding("StringProp = StaticCommands.GetLength(StaticCommands.GetLength(StringProp).ToString()).ToString()", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("(function(a,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[b.$data.StringProp()],options).then(function(r_0){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[dotvvm.globalize.bindingNumberToString(r_0)()],options).then(function(r_1){resolve(b.$data.StringProp(dotvvm.globalize.bindingNumberToString(r_1)()).StringProp());},reject);},reject);});}(this,ko.contextFor(this)))", result);
+            Assert.AreEqual("(function(a,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[b.$data.StringProp.state],options).then(function(r_0){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[dotvvm.globalize.bindingNumberToString(r_0)()],options).then(function(r_1){resolve(b.$data.StringProp(dotvvm.globalize.bindingNumberToString(r_1)()).StringProp());},reject);},reject);});}(this,ko.contextFor(this)))", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_MultipleCommandsWithVariable()
         {
             var result = CompileBinding("var lenVar = StaticCommands.GetLength(StringProp).ToString(); StringProp = StaticCommands.GetLength(lenVar).ToString();", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("(function(a,d,b,c){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[d.$data.StringProp()],options).then(function(r_0){(c=b=dotvvm.globalize.bindingNumberToString(r_0)(),dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[b],options).then(function(r_1){resolve((c,d.$data.StringProp(dotvvm.globalize.bindingNumberToString(r_1)()).StringProp(),null));},reject));},reject);});}(this,ko.contextFor(this)))", result);
+            Assert.AreEqual("(function(a,d,b,c){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[d.$data.StringProp.state],options).then(function(r_0){(c=b=dotvvm.globalize.bindingNumberToString(r_0)(),dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[b],options).then(function(r_1){resolve((c,d.$data.StringProp(dotvvm.globalize.bindingNumberToString(r_1)()).StringProp(),null));},reject));},reject);});}(this,ko.contextFor(this)))", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_ChainedCommandsWithSemicolon()
         {
             var result = CompileBinding("StringProp = StaticCommands.GetLength(StringProp).ToString(); StringProp = StaticCommands.GetLength(StringProp).ToString()", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("(function(a,c,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[c.$data.StringProp()],options).then(function(r_0){(b=c.$data.StringProp(dotvvm.globalize.bindingNumberToString(r_0)()).StringProp(),dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[c.$data.StringProp()],options).then(function(r_1){resolve((b,c.$data.StringProp(dotvvm.globalize.bindingNumberToString(r_1)()).StringProp()));},reject));},reject);});}(this,ko.contextFor(this)))", result);
+            Assert.AreEqual("(function(a,c,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[c.$data.StringProp.state],options).then(function(r_0){(b=c.$data.StringProp(dotvvm.globalize.bindingNumberToString(r_0)()).StringProp(),dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[c.$data.StringProp.state],options).then(function(r_1){resolve((b,c.$data.StringProp(dotvvm.globalize.bindingNumberToString(r_1)()).StringProp()));},reject));},reject);});}(this,ko.contextFor(this)))", result);
         }
 
         [TestMethod]
@@ -138,7 +138,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void StaticCommandCompilation_DateTimeAssignment()
         {
             var result = CompileBinding("DateFrom = DateTo", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("(function(a){return Promise.resolve(a.$data.DateFrom(dotvvm.serialization.serializeDate(a.$data.DateTo(),false)).DateFrom());}(ko.contextFor(this)))", result);
+            Assert.AreEqual("(function(a){return Promise.resolve(a.$data.DateFrom(dotvvm.serialization.serializeDate(a.$data.DateTo.state,false)).DateFrom());}(ko.contextFor(this)))", result);
         }
 
         [TestMethod]
@@ -153,7 +153,7 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("SomeString = injectedService.Load(SomeString)", niceMode: false, new[] { typeof(TestViewModel3) }, typeof(Func<string, string>));
 
-            Assert.AreEqual("(function(a,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd\",[b.$data.SomeString()],options).then(function(r_0){resolve(b.$data.SomeString(r_0).SomeString());},reject);});}(this,ko.contextFor(this)))", result);
+            Assert.AreEqual("(function(a,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd\",[b.$data.SomeString.state],options).then(function(r_0){resolve(b.$data.SomeString(r_0).SomeString());},reject);});}(this,ko.contextFor(this)))", result);
         }
 
         [TestMethod]
@@ -174,7 +174,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void StaticCommandCompilation_ExpressionBetweenPostbacks_WithParameters()
         {
             var result = CompileBinding("StringProp = injectedService.Load(StringProp, StringProp); \"Test\"; StringProp = injectedService.Load(StringProp)", niceMode: false, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("(function(a,c,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBQSJd\",[c.$data.StringProp(),c.$data.StringProp()],options).then(function(r_0){(b=(c.$data.StringProp(r_0).StringProp(),\"Test\"),dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd\",[c.$data.StringProp()],options).then(function(r_1){resolve((b,c.$data.StringProp(r_1).StringProp()));},reject));},reject);});}(this,ko.contextFor(this)))", result);
+            Assert.AreEqual("(function(a,c,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBQSJd\",[c.$data.StringProp.state,c.$data.StringProp.state],options).then(function(r_0){(b=(c.$data.StringProp(r_0).StringProp(),\"Test\"),dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd\",[c.$data.StringProp.state],options).then(function(r_1){resolve((b,c.$data.StringProp(r_1).StringProp()));},reject));},reject);});}(this,ko.contextFor(this)))", result);
         }
 
         [TestMethod]
@@ -183,7 +183,7 @@ namespace DotVVM.Framework.Tests.Binding
             var result = CompileBinding("StringProp = injectedService.Load(IntProp); \"Test\"; StringProp2 = injectedService.Load()", niceMode: true, new[] { typeof(TestViewModel) });
             var control = @"(function(a, b) {
 	return new Promise(function(resolve, reject) {
-		dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [b.$data.IntProp()], options).then(function(r_0) {
+		dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [b.$data.IntProp.state], options).then(function(r_0) {
 			dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVE9PSJd"", [], options).then(function(r_1) {
 				resolve((
 					b.$data.StringProp(r_0).StringProp() ,
@@ -206,7 +206,7 @@ namespace DotVVM.Framework.Tests.Binding
             var control = @"
 (function(a, b) {
 	return new Promise(function(resolve, reject) {
-		dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSwiQVFBPSJd"", [b.$data.IntProp()], options).then(function(r_0) {
+		dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSwiQVFBPSJd"", [b.$data.IntProp.state], options).then(function(r_0) {
 			dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVE9PSJd"", [], options).then(function(r_1) {
 				resolve((
 					r_0 ,
@@ -228,7 +228,7 @@ namespace DotVVM.Framework.Tests.Binding
 
             var control = @"(function(a, b) {
 	return new Promise(function(resolve, reject) {
-		dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlQXN5bmMiLFtdLCJBUUE9Il0="", [b.$data.IntProp()], options).then(function(r_0) {
+		dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlQXN5bmMiLFtdLCJBUUE9Il0="", [b.$data.IntProp.state], options).then(function(r_0) {
 			dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkQXN5bmMiLFtdLCJBUT09Il0="", [], options).then(function(r_1) {
 				resolve((
 					r_0 ,
@@ -252,10 +252,10 @@ namespace DotVVM.Framework.Tests.Binding
 
             var control = @"(function(a, c, b) {
 	return new Promise(function(resolve, reject) {
-		dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [c.$data.IntProp()], options).then(function(r_0) {
+		dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [c.$data.IntProp.state], options).then(function(r_0) {
 			(
 				b = c.$data.StringProp(r_0).StringProp() ,
-				dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [c.$data.StringProp()], options).then(function(r_1) {
+				dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [c.$data.StringProp.state], options).then(function(r_1) {
 					resolve((
 						b ,
 						c.$data.StringProp(r_1).StringProp()
@@ -276,7 +276,7 @@ namespace DotVVM.Framework.Tests.Binding
 
             var control = @"(function(a, b) {
 	return new Promise(function(resolve, reject) {
-		dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [b.$data.StringProp()], options).then(function(r_0) {
+		dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [b.$data.StringProp.state], options).then(function(r_0) {
 			MethodExtensions.test(b.$data.StringProp, b.$data.StringProp(r_0).StringProp).then(function(r_1) {
 				resolve(b.$data.StringProp(r_1).StringProp());
 			}, reject);
@@ -295,7 +295,7 @@ namespace DotVVM.Framework.Tests.Binding
             var control = @"(function(a, c, b) {
 	return new Promise(function(resolve, reject) {
 		(
-			b = dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [c.$data.StringProp()], options) ,
+			b = dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [c.$data.StringProp.state], options) ,
 			MethodExtensions.test(c.$data.StringProp, ""a"").then(function(r_0) {
 				b.then(function(r_1) {
 					resolve(c.$data.StringProp(r_0 + r_1).StringProp());
@@ -318,7 +318,7 @@ namespace DotVVM.Framework.Tests.Binding
             var expectedReslt = @"
 (function(a) {
 	return new Promise(function(resolve, reject) {
-		Promise.resolve(a.$control.Save()()).then(function(r_0) {
+		Promise.resolve(a.$control.Save.state()).then(function(r_0) {
 			resolve(r_0);
 		}, reject);
 	});
@@ -338,7 +338,7 @@ namespace DotVVM.Framework.Tests.Binding
             var expectedReslt = @"
 (function(a, b) {
 	return new Promise(function(resolve, reject) {
-		Promise.resolve(a.$control.Load()()).then(function(r_0) {
+		Promise.resolve(a.$control.Load.state()).then(function(r_0) {
 			dotvvm.staticCommandPostback(b, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [r_0], options).then(function(r_1) {
 				resolve(r_1);
 			}, reject);
@@ -361,8 +361,8 @@ namespace DotVVM.Framework.Tests.Binding
 (function(a, c, b) {
 	return new Promise(function(resolve, reject) {
 		(
-			b = dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [c.$data.StringProp()], options) ,
-			Promise.resolve(c.$control.Change()(c.$data.StringProp())).then(function(r_0) {
+			b = dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [c.$data.StringProp.state], options) ,
+			Promise.resolve(c.$control.Change.state(c.$data.StringProp.state)).then(function(r_0) {
 				b.then(function(r_1) {
 					resolve(c.$data.StringProp(r_0 + r_1).StringProp());
 				}, reject);
@@ -374,6 +374,24 @@ namespace DotVVM.Framework.Tests.Binding
             AreEqual(expectedReslt, result);
         }
 
+        [TestMethod]
+        public void StaticCommandCompilation_LinqTranslations()
+        {
+            TestMarkupControl.CreateInitialized();
+
+            var result = CompileBinding("StringProp = VmArray.Where(x => x.ChildObject.SomeString == 'x').FirstOrDefault().SomeString", niceMode: true, new[] { typeof(TestViewModel) }, typeof(Command));
+
+            var expectedReslt = @"
+ (function(a) {
+ 	return Promise.resolve(a.$data.StringProp(dotvvm.translations.array.firstOrDefault(a.$data.VmArray.state.filter(function(x) {
+ 		return ko.unwrap(x).ChildObject.SomeString == ""x"";
+ 	}), function(arg) {
+ 		return true;
+ 	})().SomeString).StringProp());
+ }(ko.contextFor(this)))";
+
+            AreEqual(expectedReslt, result);
+        }
 
         public void AreEqual(string expected, string actual)
         => Assert.AreEqual(RemoveWhitespaces(expected), RemoveWhitespaces(actual));

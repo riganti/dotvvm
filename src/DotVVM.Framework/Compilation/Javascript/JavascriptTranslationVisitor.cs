@@ -228,8 +228,6 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
             int getContextSteps(DataContextStack item) =>
                 item == null ? 0 : ContextMap[item];
-            JsExpression contextParameter(string name, int parentContexts, Type type) =>
-                getDataContext(parentContexts).Member(name).WithAnnotation(new ViewModelInfoAnnotation(type));
 
             if (annotation.ExtensionParameter != null)
             {
@@ -239,13 +237,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             else
             {
                 var index = getContextSteps(annotation.DataContext);
-                if (index == 0)
-                    return new JsSymbolicParameter(JavascriptTranslator.KnockoutViewModelParameter).WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
-                else if (index == 1)
-                    return contextParameter("$parent", 0, expression.Type);
-                else return new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter)
-                        .Member("$parents").Indexer(new JsLiteral(index - 1))
-                        .WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
+                var data = JavascriptTranslator.GetKnockoutViewModelParameter(index).ToExpression();
+                return data.WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
             }
         }
 
@@ -259,10 +252,10 @@ namespace DotVVM.Framework.Compilation.Javascript
             new JsLiteral(expression.Type.IsValueType && expression.Type != typeof(void) ?
                           Activator.CreateInstance(expression.Type) :
                           null)
-            .WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
+            .WithAnnotation(new ViewModelInfoAnnotation(expression.Type, containsObservables: false));
 
         public JsLiteral TranslateConstant(ConstantExpression expression) =>
-            new JsLiteral(expression.Value).WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
+            new JsLiteral(expression.Value).WithAnnotation(new ViewModelInfoAnnotation(expression.Type, containsObservables: false));
 
         public JsExpression TranslateMethodCall(MethodCallExpression expression)
         {

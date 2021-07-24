@@ -6,14 +6,14 @@
 		<div>
 			<!-- ko dotvvm-with-control-properties: { "Click": function(){return dotvvm.applyPostbackHandlers(function(options){return (function(a, b) {
 	return new Promise(function(resolve, reject) {
-		dotvvm.staticCommandPostback(a, "WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSwiQVFBPSJd", [b.$parent.int()], options).then(function(r_0) {
+		dotvvm.staticCommandPostback(a, "WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSwiQVFBPSJd", [b.$parent.int.state], options).then(function(r_0) {
 			resolve(r_0);
 		}, reject);
 	});
 }($element, ko.contextFor($element)))}.bind(this),$element,[],[],undefined,undefined,undefined)} } -->
 			<input type="button" value="" onclick="dotvvm.applyPostbackHandlers(function(options){return (function(a, b) {
 	return new Promise(function(resolve, reject) {
-		Promise.resolve((b = a.$control.Click()) &amp;&amp; b()).then(function(r_0) {
+		Promise.resolve((b = a.$control.Click.state) &amp;&amp; b()).then(function(r_0) {
 			resolve(r_0);
 		}, reject);
 	});
@@ -25,14 +25,14 @@
 			<div>
 				<!-- ko dotvvm-with-control-properties: { "Click": function(){return dotvvm.applyPostbackHandlers(function(options){return (function(a, b) {
 	return new Promise(function(resolve, reject) {
-		dotvvm.staticCommandPostback(a, "WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSwiQVFBPSJd", [b.$data], options).then(function(r_0) {
+		dotvvm.staticCommandPostback(a, "WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSwiQVFBPSJd", [b.$rawData.state], options).then(function(r_0) {
 			resolve(r_0);
 		}, reject);
 	});
 }($element, ko.contextFor($element)))}.bind(this),$element,[],[],undefined,undefined,undefined)} } -->
 				<input type="button" value="" onclick="dotvvm.applyPostbackHandlers(function(options){return (function(a, b) {
 	return new Promise(function(resolve, reject) {
-		Promise.resolve((b = a.$control.Click()) &amp;&amp; b()).then(function(r_0) {
+		Promise.resolve((b = a.$control.Click.state) &amp;&amp; b()).then(function(r_0) {
 			resolve(r_0);
 		}, reject);
 	});

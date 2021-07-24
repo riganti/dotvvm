@@ -208,6 +208,21 @@ namespace DotVVM.Framework.Compilation.Javascript
             return pp;
         }
 
+        public IEnumerable<CodeSymbolicParameter> EnumerateAllParameters()
+        {
+            if (this.parameters == null)
+                yield break;
+            foreach (var p in this.parameters)
+            {
+                yield return p.Parameter;
+                if (p.DefaultAssignment.Code != null)
+                {
+                    foreach (var inner in p.DefaultAssignment.Code.EnumerateAllParameters())
+                        yield return inner;
+                }
+            }
+        }
+
         /// <summary>
         /// Builder class with reasonably fast Add operation. Use Build method to convert it to immutable ParametrizedCode
         /// </summary>
@@ -229,7 +244,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 parameters.Add(parameter);
             }
 
-            public void Add(ParametrizedCode code, byte operatorPrecedence = 20)
+            public void Add(ParametrizedCode code, byte operatorPrecedence = 0)
             {
                 var needsParens = code.OperatorPrecedence.NeedsParens(operatorPrecedence);
                 if (needsParens) Add("(");
@@ -321,7 +336,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         public static CodeParameterAssignment FromLiteral(string value, bool isGlobalContext = false) =>
             new CodeParameterAssignment(JsonConvert.ToString(value), OperatorPrecedence.Max, isGlobalContext);
 
-        public static implicit operator CodeParameterAssignment(ParametrizedCode val) => new CodeParameterAssignment(val);
+        public static implicit operator CodeParameterAssignment(ParametrizedCode? val) => new CodeParameterAssignment(val);
     }
 
     /// (Base) class for symbolic parameter descriptors.
@@ -337,6 +352,18 @@ namespace DotVVM.Framework.Compilation.Javascript
             this.Description = description ?? throw new ArgumentNullException(nameof(description));
             this.DefaultAssignment = defaultAssignment;
         }
+
+        public CodeParameterInfo ToInfo(OperatorPrecedence operatorPrecedence) => ToInfo(operatorPrecedence.Precedence);
+        public CodeParameterInfo ToInfo(byte operatorPrecedence) => new CodeParameterInfo(this, operatorPrecedence);
+        public CodeParameterInfo ToInfo() => ToInfo(this.DefaultAssignment.Code?.OperatorPrecedence ?? OperatorPrecedence.Max);
+
+        public ParametrizedCode ToParametrizedCode(OperatorPrecedence operatorPrecedence) =>
+            new ParametrizedCode(new [] { "", "" }, new [] { ToInfo(operatorPrecedence) }, operatorPrecedence);
+        public ParametrizedCode ToParametrizedCode() =>
+            ToParametrizedCode(this.DefaultAssignment.Code?.OperatorPrecedence ?? OperatorPrecedence.Max);
+
+        public JsSymbolicParameter ToExpression(CodeParameterAssignment? defaultAssignment = null) =>
+            new JsSymbolicParameter(this, defaultAssignment);
 
         public override string ToString()
         {
