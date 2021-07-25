@@ -50,6 +50,8 @@
     <None Remove="Views\ControlSamples\ValidationSummary\MessagesRendering.dothtml" />
     <None Remove="Views\ControlSamples\ValidationSummary\Performance.dothtml" />
     <None Remove="Views\Errors\CorruptedContentBetweenContentControls.dothtml" />
+    <None Remove="Views\Errors\GridViewColumnAttachedProperty.dothtml" />
+    <None Remove="Views\Errors\GridViewColumnDataContext.dothtml" />
     <None Remove="Views\Errors\InvalidServiceDirective.dothtml" />
     <None Remove="Views\Errors\InvalidLocationFallback.dothtml" />
     <None Remove="Views\Errors\ResourceCircularDependency.dothtml" />

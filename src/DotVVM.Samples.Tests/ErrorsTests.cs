@@ -453,6 +453,30 @@ namespace DotVVM.Samples.Tests
             });
         }
 
+        [Fact]
+        public void Error_GridViewColumnDataContext()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_GridViewColumnDataContext);
+
+                AssertUI.TextEquals(browser.First("exceptionType", By.ClassName), "DotVVM.Framework.Compilation.DotvvmCompilationException");
+                AssertUI.TextEquals(browser.First(".exceptionMessage"), "Changing the DataContext property on the GridViewColumn is not supported!",
+                    failureMessage: "Exception should contain information about limitations for GridView columns.");
+            });
+        }
+
+        [Fact]
+        public void Error_GridViewColumnAttachedProperty()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_GridViewColumnAttachedProperty);
+
+                AssertUI.TextEquals(browser.First("exceptionType", By.ClassName), "DotVVM.Framework.Compilation.DotvvmCompilationException");
+                AssertUI.TextEquals(browser.First(".exceptionMessage"), "The column doesn't support the property Validation.Enabled! If you need to set an attached property applied to a table cell, use the CellDecorators property.",
+                    failureMessage: "Exception should contain information about limitations for GridView columns.");
+            });
+        }
+
         public ErrorsTests(ITestOutputHelper output) : base(output)
         {
         }
