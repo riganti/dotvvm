@@ -383,11 +383,11 @@ namespace DotVVM.Framework.Tests.Binding
 
             var expectedReslt = @"
  (function(a) {
- 	return Promise.resolve(a.$data.StringProp(dotvvm.translations.array.firstOrDefault(a.$data.VmArray.state.filter(function(x) {
+ 	return Promise.resolve(a.$data.StringProp(ko.unwrap(dotvvm.translations.array.firstOrDefault(a.$data.VmArray.state.filter(function(x) {
  		return ko.unwrap(x).ChildObject.SomeString == ""x"";
  	}), function(arg) {
  		return true;
- 	})().SomeString).StringProp());
+ 	})).SomeString).StringProp());
  }(ko.contextFor(this)))";
 
             AreEqual(expectedReslt, result);

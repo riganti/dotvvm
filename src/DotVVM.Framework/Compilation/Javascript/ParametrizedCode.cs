@@ -244,7 +244,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 parameters.Add(parameter);
             }
 
-            public void Add(ParametrizedCode code, byte operatorPrecedence = 0)
+            public void Add(ParametrizedCode code, byte operatorPrecedence = 20)
             {
                 var needsParens = code.OperatorPrecedence.NeedsParens(operatorPrecedence);
                 if (needsParens) Add("(");

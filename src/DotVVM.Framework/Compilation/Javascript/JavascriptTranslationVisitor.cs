@@ -215,7 +215,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         public static JsExpression BuildIndexer(JsExpression target, JsExpression index, MemberInfo member) =>
-            target.Indexer(index).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = member });
+            target.Indexer(index).WithAnnotation(new VMPropertyInfoAnnotation(member));
 
         public JsExpression TranslateParameter(Expression expression, BindingParameterAnnotation annotation)
         {
@@ -383,7 +383,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public static JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string name = null) =>
             new JsMemberAccessExpression(context, name ?? propInfo.Name)
-                .WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = propInfo })
+                .WithAnnotation(new VMPropertyInfoAnnotation(propInfo))
                 .WithAnnotation(new ViewModelInfoAnnotation(propInfo.GetResultType()));
 
         public JsExpression TryTranslateMethodCall(MethodInfo methodInfo, Expression target, IEnumerable<Expression> arguments) =>

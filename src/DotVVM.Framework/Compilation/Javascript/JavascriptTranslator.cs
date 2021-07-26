@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -37,7 +38,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public sealed class ViewModelSymbolicParameter: CodeSymbolicParameter
         {
-            internal ViewModelSymbolicParameter(int parentIndex, string description, string member): base(
+            internal ViewModelSymbolicParameter(int parentIndex, string description, string? member): base(
                 $"JavascriptTranslator.{description}KnockoutViewModelParameter",
                 new CodeParameterAssignment(
                     (member is null ? KnockoutContextParameter.ToExpression().Member("$parents").Indexer(new JsLiteral(parentIndex - 1))
@@ -137,7 +138,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         /// <summary>
         /// Get's Javascript code that can be executed inside knockout data-bind attribute.
         /// </summary>
-        public static string FormatKnockoutScript(ParametrizedCode expression, ParametrizedCode contextVariable, ParametrizedCode dataVariable = null)
+        public static string FormatKnockoutScript(ParametrizedCode expression, ParametrizedCode contextVariable, ParametrizedCode? dataVariable = null)
         {
             return expression
                 .ToString(o => o == KnockoutContextParameter ? contextVariable :
@@ -150,9 +151,9 @@ namespace DotVVM.Framework.Compilation.Javascript
     {
         public Type Type { get; set; }
         public bool IsControl { get; set; }
-        public BindingExtensionParameter ExtensionParameter { get; set; }
+        public BindingExtensionParameter? ExtensionParameter { get; set; }
 
-        public ViewModelSerializationMap SerializationMap { get; set; }
+        public ViewModelSerializationMap? SerializationMap { get; set; }
         public bool? ContainsObservables { get; set; }
 
         public bool Equals(ViewModelInfoAnnotation other) =>
@@ -165,7 +166,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public override int GetHashCode() => (Type, ExtensionParameter, IsControl, ContainsObservables).GetHashCode();
 
-        public ViewModelInfoAnnotation(Type type, bool isControl = false, BindingExtensionParameter extensionParameter = null, bool? containsObservables = null)
+        public ViewModelInfoAnnotation(Type type, bool isControl = false, BindingExtensionParameter? extensionParameter = null, bool? containsObservables = null)
         {
             this.Type = type;
             this.IsControl = isControl;
@@ -174,10 +175,24 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
     }
 
+    /// <summary> Marks that the expression is essentially a member access on the target. We use this to keep track which objects have observables and which don't. </summary>
     public class VMPropertyInfoAnnotation
     {
-        public MemberInfo MemberInfo { get; set; }
-        public ViewModelPropertyMap SerializationMap { get; set; }
+        public VMPropertyInfoAnnotation(MemberInfo memberInfo, Type? resultType = null, ViewModelPropertyMap? serializationMap = null)
+        {
+            ResultType = resultType ?? memberInfo.GetResultType();
+            MemberInfo = memberInfo;
+            SerializationMap = serializationMap;
+        }
+
+        public VMPropertyInfoAnnotation(Type resultType)
+        {
+            ResultType = resultType;
+        }
+
+        public Type ResultType { get; }
+        public MemberInfo? MemberInfo { get; }
+        public ViewModelPropertyMap? SerializationMap { get; set; }
     }
 
     public class JavascriptTranslatorConfiguration: IJavascriptMethodTranslator

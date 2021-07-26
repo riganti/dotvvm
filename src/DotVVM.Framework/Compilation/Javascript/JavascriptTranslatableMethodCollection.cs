@@ -109,7 +109,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         public static JsExpression BuildIndexer(JsExpression target, JsExpression index, MemberInfo member) =>
-            target.Indexer(index).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = member });
+            target.Indexer(index).WithAnnotation(new VMPropertyInfoAnnotation(member));
 
         public void AddDefaultMethodTranslators()
         {
