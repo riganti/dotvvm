@@ -199,7 +199,7 @@ function tryCoerceArray(value: any, innerType: TypeDefinition, originalValue: an
             return { value: items, wasCoerced: true };
         }
     }
-    return new CoerceError(`Value '${value}' is not an array of type '${innerType}'.`);
+    return new CoerceError(`Value '${JSON.stringify(value)}' is not an array of type '${JSON.stringify(innerType)}'.`);
 }
 
 function tryCoercePrimitiveType(value: any, type: string): CoerceResult {
@@ -251,7 +251,7 @@ function tryCoerceDynamic(value: any, originalValue: any): CoerceResult {
 
     if (Array.isArray(value)) {
         // coerce array items (treat them as dynamic)
-        return tryCoerceArray(value, [{ type: "dynamic" }], originalValue);
+        return tryCoerceArray(value, { type: "dynamic" }, originalValue);
 
     } else if (value && typeof value === "object") {
         let innerType = value["$type"];
