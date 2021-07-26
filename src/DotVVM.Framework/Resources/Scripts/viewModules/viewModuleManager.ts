@@ -68,7 +68,7 @@ export function callViewModuleCommand(viewIdOrElement: string | HTMLElement, com
     if (commandName == null) { throw new Error("commandName has to have a value"); }
 
     const foundModules: { moduleName: string; context: ModuleContext }[] = [];
-    
+
     for (let moduleName of keys(registeredModules)) {
         const context = tryFindViewModuleContext(viewIdOrElement, moduleName);
         if (!(context && context.module)) continue;
@@ -85,7 +85,12 @@ export function callViewModuleCommand(viewIdOrElement: string | HTMLElement, com
         throw new Error(`Conflict: There were multiple commands named ${commandName} the in imported modules in view ${viewIdOrElement}. Check modules: ${foundModules.map(m => m.moduleName).join(', ')}.`);
     }
 
-    return foundModules[0].context.module[commandName](...args.map(v => serialize(v)));
+    try {
+        foundModules[0].context.module[commandName](...args.map(v => serialize(v)));
+    }
+    catch (e: unknown) {
+        throw new Error(`While executing command ${commandName}(${args.map(v => JSON.stringify(serialize(v)))}), an error occurred. ${e}`);
+    }
 }
 
 function setupModuleDisposeHandlers(viewIdOrElement: string | HTMLElement, name: string, rootElement: HTMLElement) {
