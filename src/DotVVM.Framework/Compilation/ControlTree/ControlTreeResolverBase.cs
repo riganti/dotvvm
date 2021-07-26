@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 treeBuilder.AddProperty(
                     view,
-                    treeBuilder.BuildPropertyValue(Internal.ReferencedViewModuleInfoProperty, viewModule?.resource, null),
+                    treeBuilder.BuildPropertyValue(Internal.ReferencedViewModuleInfoProperty, viewModule.resource, null),
                     out _
                 );
             }
