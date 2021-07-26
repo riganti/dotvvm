@@ -5,6 +5,7 @@ using CheckTestOutput;
 using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.ViewModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {

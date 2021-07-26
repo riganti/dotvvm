@@ -16,8 +16,8 @@ using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Binding.Properties;
 using System.Linq;
 using DotVVM.Framework.DependencyInjection;
-using System.Collections.Concurrent;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -610,26 +610,6 @@ test <dot:Literal><a /></dot:Literal>";
         public bool IsCorrectlyCreated { get; set; } = false;
 
         public TestCustomDependencyInjectionControl(string something) { }
-    }
-
-    public class FakeMarkupFileLoader : IMarkupFileLoader
-    {
-        public readonly ConcurrentDictionary<string, string> MarkupFiles;
-
-        public FakeMarkupFileLoader(Dictionary<string, string> markupFiles = null)
-        {
-            this.MarkupFiles = new ConcurrentDictionary<string, string>(markupFiles ?? new Dictionary<string, string>());
-        }
-
-        public MarkupFile GetMarkup(DotvvmConfiguration configuration, string virtualPath)
-        {
-            return new MarkupFile(virtualPath, virtualPath, MarkupFiles[virtualPath]);
-        }
-
-        public string GetMarkupFileVirtualPath(Hosting.IDotvvmRequestContext context)
-        {
-            return context.Route.VirtualPath;
-        }
     }
 
     public class ControlWithCompileDependentProperties: DotvvmControl

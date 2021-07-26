@@ -7,6 +7,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Tests;
+using DotVVM.Framework.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Extensions.DependencyInjection;
 

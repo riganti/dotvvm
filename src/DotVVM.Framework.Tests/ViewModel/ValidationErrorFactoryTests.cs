@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel.Validation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.ViewModel
 {

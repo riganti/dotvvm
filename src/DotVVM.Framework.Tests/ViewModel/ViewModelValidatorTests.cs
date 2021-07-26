@@ -9,6 +9,7 @@ using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Validation;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Testing;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.ViewModel

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="dotvvmwizard.snk" />
+  </ItemGroup>
+  <PropertyGroup>
+    <SignAssembly>True</SignAssembly>
+    <PublicSign>True</PublicSign>
+    <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="AngleSharp" Version="0.16.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
+    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
+    <!-- <ProjectReference Include="..\DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj" /> -->
+  </ItemGroup>
+
+</Project>
