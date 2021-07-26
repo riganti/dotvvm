@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Static;
@@ -40,7 +42,7 @@ namespace DotVVM.Compiler
             var configuration = DotvvmConfiguration.CreateInternal(_ => {});
             // NB: This forces DotVVM to register all properties on all types.
             _ = configuration.ServiceProvider.GetRequiredService<IControlResolver>();
-            var types = assembly.GetTypes().OrderBy(t => t.FullName).ToArray();
+            var types = assembly.GetTypes().OrderBy(t => t.Name).ToArray();
             foreach (var type in types)
             {
                 var props = DotvvmProperty.ResolveProperties(type)
@@ -49,10 +51,32 @@ namespace DotVVM.Compiler
                     .ToArray();
                 if (props.Length != 0)
                 {
-                    Console.WriteLine(type.FullName);
+                    Console.WriteLine(type.Name);
                     foreach(var prop in props)
                     {
-                        Console.WriteLine($"\t{prop.Name}");
+                        var info = new List<string>();
+                        info.Add($"type={prop.PropertyType.Name}");
+
+                        if (prop.IsBindingProperty)
+                        {
+                            info.Add("binding");
+                        }
+                        if (prop.IsVirtual)
+                        {
+                            info.Add("virtual");
+                        }
+                        if (prop.DataContextChangeAttributes.Length != 0
+                            || prop.DataContextManipulationAttribute is object)
+                        {
+                            info.Add("changed-context");
+                        }
+
+                        Console.Write($"\t{prop.Name}");
+                        if (info.Count != 0)
+                        {
+                            Console.Write($" [{string.Join(", ", info)}]");
+                        }
+                        Console.WriteLine();
                     }
                 }
             }
