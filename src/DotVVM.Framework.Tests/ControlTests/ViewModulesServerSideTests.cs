@@ -35,11 +35,11 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(DotvvmCompilationException))]
         public async Task NamedCommandWithoutViewModule()
         {
-            await cth.RunPage(typeof(object), @"
-                <dot:NamedCommand Name=""Command"" Command=""{staticCommand: ;}"" />");
+            var r = await Assert.ThrowsExceptionAsync<DotvvmCompilationException>(() => cth.RunPage(typeof(object), @"
+                <dot:NamedCommand Name=""Command"" Command=""{staticCommand: ;}"" />"));
+            Assert.AreEqual("The NamedCommand control can be used only in pages or controls that have the @js directive.", r.Message);
         }
 
         [TestMethod]
