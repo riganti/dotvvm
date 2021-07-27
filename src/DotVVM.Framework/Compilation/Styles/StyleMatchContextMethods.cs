@@ -60,11 +60,10 @@ public static class StyleMatchContextExtensionMethods
     /// <summary>
     /// Determines whether the control has an ancestor of the given type.
     /// </summary>
-    public static bool HasAncestor<T>(this IStyleMatchContext c) where T : DotvvmControl
-    {
-        return c.HasAncestor(typeof(T));
-    }
-
+    public static bool HasAncestor<T>(this IStyleMatchContext c)
+        where T : DotvvmBindableObject =>
+        c.HasAncestor(typeof(T));
+    
     /// <summary>
     /// Determines whether the control has an ancestor of the <paramref name="parentType"/> type.
     /// </summary>
@@ -72,6 +71,19 @@ public static class StyleMatchContextExtensionMethods
     {
         return c.GetAncestors().Any(a => a.Control.Metadata.Type == parentType);
     }
+
+    /// <summary>
+    /// Determines whether the control has an ancestor of the given type matching the given filter.
+    /// </summary>
+    public static bool HasAncestor<T>(this IStyleMatchContext c, Func<IStyleMatchContext<T>, bool> filter)
+        where T : DotvvmBindableObject =>
+        c.AncestorsOfType<T>().Any(filter);
+
+    /// <summary>
+    /// Determines whether the control has an ancestor matching the given filter.
+    /// </summary>
+    public static bool HasAncestor(this IStyleMatchContext c, Func<IStyleMatchContext, bool> filter) =>
+        c.GetAncestors().Any(filter);
 
     /// <summary>
     /// Determines whether the control's ancestors types correspond to those in <paramref name="parentTypes"/>.
@@ -269,4 +281,26 @@ public static class StyleMatchContextExtensionMethods
     /// </summary>
     public static bool AllowsContent(this IStyleMatchContext c) =>
         c.Control.Metadata.IsContentAllowed;
+
+    /// <summary> Returns the contents of Styles.Tag property or an empty array if none is specified. </summary>
+    public static string[] GetTags(this IStyleMatchContext context)
+    {
+        if (context.Control.Properties.TryGetValue(Styles.TagProperty, out var setter) &&
+            setter is ResolvedPropertyValue { Value: string[] tags })
+            return tags;
+        else
+            return new string[0];
+    }
+    /// <summary> Checks that Styles.Tag property is present and contains the specified tag name. </summary>
+    public static bool HasTag(this IStyleMatchContext context, string tag) =>
+        GetTags(context).Contains(tag, StringComparer.OrdinalIgnoreCase);
+    /// <summary> Checks that Styles.Tag property is present and contains all the specified tag names. </summary>
+    public static bool HasTag(this IStyleMatchContext context, params string[] tags) =>
+        GetTags(context).Intersect(tags, StringComparer.OrdinalIgnoreCase).Count()
+            == tags.Distinct(StringComparer.OrdinalIgnoreCase).Count();
+    /// <summary> Checks that this controls has an ancestor with a specified tag. </summary>
+    public static bool HasAncestorWithTag(this IStyleMatchContext context, string tag) =>
+        context.HasAncestor(a => a.HasTag(tag));
+    // we don't provide HasAncestorWithTag overload with multiple tags as it would be unclear whether they all have to
+    // on the same ancestor or are allowed to be separate
 }
