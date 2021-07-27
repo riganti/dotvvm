@@ -151,7 +151,10 @@ namespace DotVVM.Framework.Compilation
             // set special properties as fields
             if (property == LifecycleRequirementsAssigningVisitor.CompileTimeLifecycleRequirementsProperty)
                 emitter.EmitSetProperty(controlName, nameof(DotvvmControl.LifecycleRequirements), value);
-
+            if (property is CompileTimeOnlyDotvvmProperty)
+            {
+                // just don't set compile time only properties
+            }
             else emitter.EmitSetDotvvmProperty(controlName, property, value);
         }
 
