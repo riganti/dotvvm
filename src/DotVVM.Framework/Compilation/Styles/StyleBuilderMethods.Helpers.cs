@@ -20,4 +20,11 @@ public static partial class StyleBuilderExtensionMethods
         Func<IStyleMatchContext<T>, PostBackHandler> handler)
         where T: DotvvmBindableObject =>
         sb.SetDotvvmProperty(PostBack.ConcurrencyQueueSettingsProperty, handler);
+
+
+    public static T AddRequiredResource<T>(
+        this T sb,
+        params string[] resources)
+        where T: IStyleBuilder =>
+        sb.SetDotvvmProperty(Styles.RequiredResourcesProperty, resources, StyleOverrideOptions.Append);
 }

@@ -32,5 +32,9 @@ namespace DotVVM.Framework.Controls
         public static CompileTimeOnlyDotvvmProperty TagProperty =
             CompileTimeOnlyDotvvmProperty.Register<Styles, string[]>("Tag");
 
+        /// <summary> Append to this property to add a required resource somewhere to the page. </summary> 
+        [MarkupOptions(MappingMode = MappingMode.Exclude)]
+        public static CompileTimeOnlyDotvvmProperty RequiredResourcesProperty =
+            CompileTimeOnlyDotvvmProperty.Register<Styles, string[]>("RequiredResources");
     }
 }

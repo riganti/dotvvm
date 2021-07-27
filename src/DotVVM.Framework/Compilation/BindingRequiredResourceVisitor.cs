@@ -45,6 +45,7 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
+
         private void Visit<TNodeType>(TNodeType node, List<ResolvedControl> nodeContent, Action<TNodeType> visitBase) where TNodeType : ResolvedTreeNode
         {
             var original = requiredResources;
@@ -64,6 +65,16 @@ namespace DotVVM.Framework.Compilation
             var control = new ResolvedControl(requiredResourceControlMetadata, node, dataContext);
             control.SetProperty(new ResolvedPropertyValue(RequiredResource.NameProperty, resource));
             return control;
+        }
+
+        private void AddResourcesFromProperties(ResolvedControl control)
+        {
+            if (control.TryGetProperty(Controls.Styles.RequiredResourcesProperty, out var value))
+            {
+                var newResources = (string[])((ResolvedPropertyValue)value).Value;
+                if (newResources != null)
+                    requiredResources = requiredResources.Union(newResources);
+            }
         }
 
         public override void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding)
