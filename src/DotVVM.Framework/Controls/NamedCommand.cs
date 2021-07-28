@@ -50,7 +50,11 @@ namespace DotVVM.Framework.Controls
         
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            var viewModule = GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty)!;
+            var viewModule = GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
+            if (viewModule == null)
+            {
+                throw new DotvvmControlException(this, "No module was registered. The NamedCommand control can not be used in pages without the @js directive.");
+            }
 
             var options = new PostbackScriptOptions(
                 returnValue: true,

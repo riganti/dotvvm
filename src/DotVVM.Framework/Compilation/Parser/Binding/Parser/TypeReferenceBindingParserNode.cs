@@ -22,10 +22,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             this.Type = type;
         }
 
+        public override IEnumerable<BindingParserNode> EnumerateNodes()
+            => base.EnumerateNodes().Concat(Type.EnumerateNodes());
+
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
-        {
-            yield return Type;
-        }
+            => new[] { Type };
 
         public override string ToDisplayString()
             => Type.ToDisplayString();
@@ -41,10 +42,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             this.ElementType = elementType;
         }
 
+        public override IEnumerable<BindingParserNode> EnumerateNodes()
+            => base.EnumerateNodes().Concat(ElementType.EnumerateNodes());
+
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
-        {
-            yield return ElementType;
-        }
+            => new[] { ElementType };
 
         public override string ToDisplayString()
             => $"{ElementType.ToDisplayString()}[]";
@@ -62,12 +64,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             this.Arguments = arguments;
         }
 
+        public override IEnumerable<BindingParserNode> EnumerateNodes()
+            => base.EnumerateNodes().Concat(Type.EnumerateNodes()).Concat(Arguments.SelectMany(arg => arg.EnumerateNodes()));
+
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
-        {
-            yield return Type;
-            foreach (var arg in Arguments)
-                yield return arg;
-        }
+            => new[] { Type }.Concat(Arguments);
 
         public override string ToDisplayString()
             => $"{Type.ToDisplayString()}<{string.Join(", ", Arguments.Select(e => e.ToDisplayString()))}>";
@@ -83,10 +84,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             this.InnerType = innerType;
         }
 
+        public override IEnumerable<BindingParserNode> EnumerateNodes()
+            => base.EnumerateNodes().Concat(InnerType.EnumerateNodes());
+
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
-        {
-            yield return InnerType;
-        }
+            => new[] { InnerType };
 
         public override string ToDisplayString()
             => $"{InnerType.ToDisplayString()}?";

@@ -20,7 +20,7 @@ First, start by choosing what you'd like to do - you can have a look at [issues 
 
 Then, you can fork the repo, clone it locally, and you are ready to develop. 
 
-Finally, you'll need to create a pull request to the `v3-master` (for DotVVM 3.0) or `master` branch (for DotVVM 2.5) (__we can help with that__), make sure that you have merged the latest changes and that the PR has a readable diff.
+Finally, you'll need to create a pull request to the `v4-main` (for DotVVM 4.0) or `main` branch (for DotVVM 3.x) (__we can help with that__), make sure that you have merged the latest changes and that the PR has a readable diff.
 
  **Please avoid reformatting documents, refactoring stuff, changing CRLF to LF or tabs to spaces etc. - it makes the PRs difficult to review.** There is definitely room for refactoring or cleanup, but it should be done in a separate PR so it is not messed up with functional changes.
 
@@ -44,13 +44,13 @@ If you plan to work with the DotVVM repository, here is a short manual what you 
 
 To get started, fork the repository, and clone it on or computer. You can use Visual Studio's Team Explorer window or run `git clone https://github.com/<your_github_username>/dotvvm.git`. 
 
-We are using Visual Studio 2019 or Visual Studio Code. Some projects use .NET Core 2.0 and .NET Core 3.1, so the solution will probably not open in previous versions of Visual Studio. 
+We are using Visual Studio 2019 or Visual Studio Code. Some projects use .NET Core 2.1, 3.1 and .NET 5.0, so the solution will probably not open in older versions of Visual Studio.
 
 Open the `src/DotVVM.sln` solution in Visual Studio, or open the `src` folder in VS Code. 
 
 Set `Samples/DotVVM.Samples.BasicSamples.AspNetCore` as a startup project and launch it. It should just work - you'll see a page with a long list of samples (they are not often meaningful, they are used by the UI tests to verify all framework features work; however they are great for playing). 
 
-If the project does not start, feel free to ask us on [Gitter](https://gitter.im/riganti/dotvvm). For VS Code, launch it from the `src` directory, so it can find the `.vscode/launch.json` and `.vscode/tasks.json` files. You can also try to rebuild `Tests/DotVVM.Framework.Tests.Common` project and run the unit/integration tests - it should complete in few seconds, everything should be green. :)
+If the project does not start, feel free to ask us on [Gitter](https://gitter.im/riganti/dotvvm). For VS Code, launch it from the `src` directory, so it can find the `.vscode/launch.json` and `.vscode/tasks.json` files. You can also try to rebuild `Tests/DotVVM.Framework.Tests` project and run the unit/integration tests - it should complete in few seconds, everything should be green. :)
 
 Almost everying interesting is in the `DotVVM.Framework` project, except for some base interfaces and attributes in `DotVVM.Core` (so you don't have to reference the entire framework in your bussiess layer, if you just want to suppress serialization or turn on the validation of certain properties). 
 

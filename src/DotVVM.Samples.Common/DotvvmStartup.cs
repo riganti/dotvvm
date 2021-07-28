@@ -33,6 +33,8 @@ namespace DotVVM.Samples.BasicSamples
 {
     public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
     {
+        public const string GitHubTokenEnvName = "GITHUB_TOKEN";
+        public const string GitHubTokenConfigName = "githubApiToken";
 
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
@@ -83,6 +85,12 @@ namespace DotVVM.Samples.BasicSamples
             var profile = profiles.Single(p => p.Value<string>("name") == activeProfile);
 
             JsonConvert.PopulateObject(profile.Value<JObject>("config").ToString(), config);
+
+            var githubTokenEnv = Environment.GetEnvironmentVariable(GitHubTokenEnvName);
+            if (githubTokenEnv is object)
+            {
+                json.Value<JObject>("appSettings")[GitHubTokenConfigName] = githubTokenEnv;
+            }
 
             SampleConfiguration.Initialize(
                 json.Value<JObject>("appSettings").Properties().ToDictionary(p => p.Name, p => p.Value.Value<string>())

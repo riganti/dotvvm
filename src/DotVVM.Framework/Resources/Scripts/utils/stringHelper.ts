@@ -1,4 +1,6 @@
-﻿export function contains(haystack: string, needle: string, options: string): boolean {
+﻿import { format as formatImpl } from "../DotVVM.Globalize";
+
+export function contains(haystack: string, needle: string, options: string): boolean {
     const normalized = normalizeStrings(haystack, needle, options);
     return normalized.haystack.includes(normalized.needle);
 }
@@ -42,4 +44,8 @@ export function split(text: string, delimiter: string, options: string): string[
 export function join<T>(elements: T[], delimiter: string): string {
     let unwrappedElements = elements.map(ko.unwrap);
     return unwrappedElements.join(delimiter);
+}
+
+export function format(pattern: string, expressions: any[]): string {
+    return formatImpl(pattern, ...expressions);
 }

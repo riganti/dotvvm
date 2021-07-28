@@ -28,7 +28,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public DotvvmMarkupControl() : this("div")
         {
-            LifecycleRequirements |= ControlLifecycleRequirements.PreInit;
         }
 
         /// <summary>
@@ -36,6 +35,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public DotvvmMarkupControl(string? wrapperTagName) : base(wrapperTagName)
         {
+            LifecycleRequirements |= ControlLifecycleRequirements.PreInit;
             SetValue(Internal.IsNamingContainerProperty, true);
             SetValue(Internal.IsControlBindingTargetProperty, true);
         }
