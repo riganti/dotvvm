@@ -133,7 +133,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_InterpolatedString(string expression)
         {
             var js = CompileBinding(expression, new[] { typeof(TestViewModel) }, typeof(string));
-            Assert.AreEqual("dotvvm.globalize.format(\"Interpolated {0} {1}\",[StringProp(),StringProp()])", js);
+            Assert.AreEqual("dotvvm.translations.string.format(\"Interpolated {0} {1}\",[StringProp(),StringProp()])", js);
         }
 
         [TestMethod]
@@ -383,6 +383,34 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("LongArray[1] == 3 && VmArray[0].MyProperty == 1 && VmArray.Length > 1", new [] { typeof(TestViewModel)});
             Assert.AreEqual("LongArray()[1]()==3&&(VmArray()[0]().MyProperty()==1&&VmArray().length>1)", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ArrayElement_Get()
+        {
+            var result = CompileBinding("Array[1]", typeof(TestViewModel5));
+            Assert.AreEqual("Array()[1]", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ArrayElement_Set()
+        {
+            var result = CompileBinding("Array[1] = 123", new[] { typeof(TestViewModel5) }, typeof(void));
+            Assert.AreEqual("dotvvm.translations.array.setItem(Array,1,123)", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ListIndexer_Get()
+        {
+            var result = CompileBinding("List[1]", typeof(TestViewModel5));
+            Assert.AreEqual("List()[1]", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ListIndexer_Set()
+        {
+            var result = CompileBinding("List[1] = 123", new[] { typeof(TestViewModel5) }, typeof(void));
+            Assert.AreEqual("dotvvm.translations.array.setItem(List,1,123)", result);
         }
 
         [TestMethod]

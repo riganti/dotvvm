@@ -13,6 +13,7 @@ export function format(format: string, ...values: any[]): string {
     return format.replace(/\{([1-9]?[0-9]+)(:[^}]+)?\}/g, (match, group0, group1) => {
         const value = values[parseInt(group0, 10)];
         if (group1) {
+            group1 = group1.substring(1);
             return formatString(group1, value);
         } else {
             return value;
