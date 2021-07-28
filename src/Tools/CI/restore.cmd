@@ -21,6 +21,9 @@ dotnet restore
 cd ../DotVVM.Framework.PerfTests
 dotnet restore
 
+cd ../DotVVM.Framework.Testing
+dotnet restore
+
 cd ../DotVVM.Framework.Tests
 dotnet restore
 
