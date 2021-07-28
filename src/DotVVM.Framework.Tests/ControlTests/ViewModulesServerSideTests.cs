@@ -7,6 +7,7 @@ using DotVVM.Framework.Controls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -31,6 +32,14 @@ namespace DotVVM.Framework.Tests.ControlTests
                 renderResources: true
             );
             check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task NamedCommandWithoutViewModule()
+        {
+            var r = await Assert.ThrowsExceptionAsync<DotvvmCompilationException>(() => cth.RunPage(typeof(object), @"
+                <dot:NamedCommand Name=""Command"" Command=""{staticCommand: ;}"" />"));
+            Assert.AreEqual("The NamedCommand control can be used only in pages or controls that have the @js directive.", r.Message);
         }
 
         [TestMethod]
