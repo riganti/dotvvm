@@ -208,25 +208,7 @@ namespace DotVVM.Framework.Compilation.Styles
                 innerControlsStyle.Applicator.ApplyStyle(c, new StyleMatchContext<DotvvmBindableObject>(context, c, context.Configuration));
             }
 
-            switch (options) {
-                case StyleOverrideOptions.Append:
-                    control.Content.AddRange(innerControls);
-                    break;
-                case StyleOverrideOptions.Prepend:
-                    control.Content.InsertRange(0, innerControls);
-                    break;
-                case StyleOverrideOptions.Overwrite:
-                    control.Content.Clear();
-                    control.Content.AddRange(innerControls);
-                    break;
-                case StyleOverrideOptions.Ignore:
-                    if (control.HasOnlyWhiteSpaceContent())
-                    {
-                        control.Content.Clear();
-                        control.Content.AddRange(innerControls);
-                    }
-                    break;
-            };
+            ResolvedControlHelper.SetContent(control, innerControls, options);
         }
 
         public override string ToString()

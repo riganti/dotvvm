@@ -280,7 +280,7 @@ public static class StyleMatchContextExtensionMethods
     /// Determines whether the control allows to have child components
     /// </summary>
     public static bool AllowsContent(this IStyleMatchContext c) =>
-        c.Control.Metadata.IsContentAllowed;
+        c.Control.Metadata.IsContentAllowed || c.Control.Metadata.DefaultContentProperty is object;
 
     /// <summary> Returns the contents of Styles.Tag property or an empty array if none is specified. </summary>
     public static string[] GetTags(this IStyleMatchContext context)

@@ -30,11 +30,13 @@ namespace DotVVM.Framework.Compilation
 
         public override void VisitView(ResolvedTreeRoot view)
         {
+            AddResourcesFromProperties(view);
             Visit(view, view.Content, base.VisitView);
         }
 
         public override void VisitControl(ResolvedControl control)
         {
+            AddResourcesFromProperties(control);
             if (control.Metadata.Type == typeof(Content))
             {
                 Visit(control, control.Content, base.VisitControl);
@@ -44,7 +46,6 @@ namespace DotVVM.Framework.Compilation
                 base.VisitControl(control);
             }
         }
-
 
         private void Visit<TNodeType>(TNodeType node, List<ResolvedControl> nodeContent, Action<TNodeType> visitBase) where TNodeType : ResolvedTreeNode
         {

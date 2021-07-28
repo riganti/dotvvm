@@ -139,12 +139,14 @@ namespace DotVVM.Framework.Testing
             if (checkErrors) CheckForErrors(tree);
 
             var controlTreeResolver = configuration.ServiceProvider.GetRequiredService<IControlTreeResolver>();
+            var controlResolver = configuration.ServiceProvider.GetRequiredService<IControlResolver>();
             var validator = ActivatorUtilities.CreateInstance<ControlUsageValidationVisitor>(configuration.ServiceProvider);
             return controlTreeResolver.ResolveTree(tree, fileName)
                 .CastTo<ResolvedTreeRoot>()
                 .ApplyAction(new DataContextPropertyAssigningVisitor().VisitView)
                 .ApplyAction(x => { if (checkErrors) CheckForErrors(x.DothtmlNode); })
                 .ApplyAction(new StylingVisitor(configuration).VisitView)
+                .ApplyAction(new StyleTreeShufflingVisitor(controlResolver).VisitView)
                 .ApplyAction(x => { if (checkErrors) validator.VisitAndAssert(x); else validator.VisitView(x); });
         }
 

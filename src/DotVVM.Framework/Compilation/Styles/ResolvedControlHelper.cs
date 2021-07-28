@@ -91,6 +91,9 @@ namespace DotVVM.Framework.Compilation.Styles
                 value = valueControls.Select(c => FromRuntimeControl(c, dataContext)).ToList();
             }
 
+            if (value is IEnumerable<ResolvedControl> controlCollection && controlCollection.Count() == 1)
+                value = controlCollection.First();
+
             if (value is ResolvedControl c)
             {
                 var propType = property.PropertyType;
@@ -104,7 +107,7 @@ namespace DotVVM.Framework.Compilation.Styles
                             propType.IsAssignableFrom(controlType))
                     return new ResolvedPropertyControl(property, c);
                 else
-                    throw new Exception($"Can not set a control of type {controlType} to a property of type {propType}.");
+                    throw new Exception($"Can not set a control of type {controlType} to a property {property} of type {propType}.");
             }
             else if (value is IEnumerable<ResolvedControl> cs)
             {
@@ -120,6 +123,46 @@ namespace DotVVM.Framework.Compilation.Styles
             else
             {
                 throw new NotSupportedException($"Value '{value}' of type {value.GetType()} in {property} can not be compiled into a property.");
+            }
+        }
+
+        public static void SetContent(ResolvedControl control, ResolvedControl[] innerControls, StyleOverrideOptions options)
+        {
+            foreach (var ic in innerControls)
+                ic.Parent = control;
+
+            if (control.Metadata.DefaultContentProperty is DotvvmProperty defaultProp)
+            {
+                var setter = ResolvedControlHelper.TranslateProperty(defaultProp, innerControls, control.DataContextTypeStack);
+
+                control.SetProperty(setter, replace: false);
+            }
+            else if (control.Metadata.IsContentAllowed)
+            {
+                foreach (var c in innerControls)
+                    if (!typeof(DotvvmControl).IsAssignableFrom(c.Metadata.Type))
+                        throw new DotvvmCompilationException($"Control {c.Metadata.Name} can not be inserted into {control.Metadata.Name} since it does not inherit from DotvvmControl.");
+
+                switch (options)
+                {
+                    case StyleOverrideOptions.Append:
+                        control.Content.AddRange(innerControls);
+                        break;
+                    case StyleOverrideOptions.Prepend:
+                        control.Content.InsertRange(0, innerControls);
+                        break;
+                    case StyleOverrideOptions.Overwrite:
+                        control.Content.Clear();
+                        control.Content.AddRange(innerControls);
+                        break;
+                    case StyleOverrideOptions.Ignore:
+                        if (control.HasOnlyWhiteSpaceContent())
+                        {
+                            control.Content.Clear();
+                            control.Content.AddRange(innerControls);
+                        }
+                        break;
+                }
             }
         }
     }
