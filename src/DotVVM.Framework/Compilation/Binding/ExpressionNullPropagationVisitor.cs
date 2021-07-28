@@ -42,12 +42,19 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
-
             Expression createExpr(Expression left)
             {
                 return CheckForNull(Visit(node.Right), right =>
-                                Expression.MakeBinary(node.NodeType, left, right, false, node.Method, node.Conversion),
-                            checkReferenceTypes: false);
+                {
+                    // When assigning values to nullable types, convert value to nullable first
+                    if (node.NodeType == ExpressionType.Assign)
+                    {
+                        if (ReflectionUtils.IsNullableType(left.Type) && !ReflectionUtils.IsNullableType(right.Type))
+                            right = Expression.Convert(right, left.Type);
+                    }
+
+                    return Expression.MakeBinary(node.NodeType, left, right, false, node.Method, node.Conversion);
+                }, checkReferenceTypes: false);
             }
 
             if (node.NodeType.ToString().EndsWith("Assign"))
