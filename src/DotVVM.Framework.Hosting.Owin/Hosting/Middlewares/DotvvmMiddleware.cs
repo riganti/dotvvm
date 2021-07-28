@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Hosting.ErrorPages;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.ViewModel.Serialization;
@@ -18,16 +19,18 @@ namespace DotVVM.Framework.Hosting
     {
         public readonly DotvvmConfiguration Configuration;
         private readonly IList<IMiddleware> middlewares;
+        private readonly bool useErrorPage;
         private int configurationSaved;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMiddleware" /> class.
         /// </summary>
-        public DotvvmMiddleware(OwinMiddleware next, DotvvmConfiguration configuration, IList<IMiddleware> middlewares)
+        public DotvvmMiddleware(OwinMiddleware next, DotvvmConfiguration configuration, IList<IMiddleware> middlewares, bool useErrorPage)
             : base(next)
         {
             Configuration = configuration;
             this.middlewares = middlewares;
+            this.useErrorPage = useErrorPage;
         }
 
         /// <summary>
@@ -57,6 +60,14 @@ namespace DotVVM.Framework.Hosting
                 }
                 catch (DotvvmInterruptRequestExecutionException)
                 {
+                    return;
+                }
+                catch (Exception ex) when (useErrorPage)
+                {
+                    context.Response.StatusCode = 500;
+
+                    var dotvvmErrorPageRenderer = dotvvmContext.Services.GetRequiredService<DotvvmErrorPageRenderer>();
+                    await dotvvmErrorPageRenderer.RenderErrorResponse(dotvvmContext.HttpContext, ex);
                     return;
                 }
 
