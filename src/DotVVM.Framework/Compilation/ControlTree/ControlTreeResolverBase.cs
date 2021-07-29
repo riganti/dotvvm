@@ -88,12 +88,16 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directives, masterPage);
             view.FileName = fileName;
-            treeBuilder.AddProperty(
-                view,
-                treeBuilder.BuildPropertyValue(Internal.ReferencedViewModuleInfoProperty, viewModule?.resource, null),
-                out _
-            );
 
+            if (viewModule.HasValue)
+            {
+                treeBuilder.AddProperty(
+                    view,
+                    treeBuilder.BuildPropertyValue(Internal.ReferencedViewModuleInfoProperty, viewModule.Value.resource, null),
+                    out _
+                );
+            }
+            
             ValidateMasterPage(view, masterPage, masterPageDirective?.First());
 
             ResolveRootContent(root, view, viewMetadata);
