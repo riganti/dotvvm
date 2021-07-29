@@ -86,7 +86,7 @@ export function callViewModuleCommand(viewIdOrElement: string | HTMLElement, com
     }
 
     try {
-        foundModules[0].context.module[commandName](...args.map(v => serialize(v)));
+        return foundModules[0].context.module[commandName](...args.map(v => serialize(v)));
     }
     catch (e: unknown) {
         throw new Error(`While executing command ${commandName}(${args.map(v => JSON.stringify(serialize(v)))}), an error occurred. ${e}`);
