@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {

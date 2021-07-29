@@ -17,6 +17,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.Binding
 {

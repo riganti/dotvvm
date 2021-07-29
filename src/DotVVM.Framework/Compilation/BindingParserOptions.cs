@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Compilation
         public static readonly BindingParserOptions Command = Create(typeof(CommandBindingExpression<>));
         public static readonly BindingParserOptions StaticCommand = Create(typeof(StaticCommandBindingExpression<>));
 
-        public BindingParserOptions AddImports(params NamespaceImport[] imports)
+        public BindingParserOptions AddImports(params NamespaceImport[]? imports)
             => AddImports((IEnumerable<NamespaceImport>)imports);
         public BindingParserOptions AddImports(IEnumerable<NamespaceImport>? imports)
             => imports == null ? this :

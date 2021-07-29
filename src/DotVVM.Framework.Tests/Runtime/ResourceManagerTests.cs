@@ -10,6 +10,7 @@ using DotVVM.Framework.ResourceManagement.ClientGlobalize;
 using System.Globalization;
 using DotVVM.Framework.Compilation.Parser;
 using System.Reflection;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
