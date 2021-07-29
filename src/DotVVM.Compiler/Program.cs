@@ -25,19 +25,6 @@ Options:
 
         public static int Main(string[] args)
         {
-#if NETCOREAPP3_1_OR_GREATER
-            var r = Microsoft.Extensions.DependencyModel.DependencyContext.Default.RuntimeLibraries
-                .Where(l => l.Name.Contains("DotVVM")).ToArray();
-            var c = Microsoft.Extensions.DependencyModel.DependencyContext.Default.CompileLibraries
-                .Where(l => l.Name.Contains("DotVVM")).ToArray();
-            foreach(var context in System.Runtime.Loader.AssemblyLoadContext.All)
-            {
-                context.Resolving += (c, n) => {
-                    return null;
-                };
-            }
-#endif
-
             if (!CompilerArgs.TryParse(args, out var parsed))
             {
                 PrintHelp(Console.Error);
