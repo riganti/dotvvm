@@ -48,10 +48,11 @@ export function invoke<T>(
     const cachedValue = cache[sharingKeyValue] || (cache[sharingKeyValue] = {});
 
     const isNew = cachedValue.stateManager == null
+    const $type = { type: "dynamic" }
     if (cachedValue.stateManager == null)
     {
         const updateEvent = new DotvvmEvent("apiObject.newState")
-        cachedValue.stateManager = new StateManager<any>({ data: null, $type: { type: "dynamic" } }, updateEvent)
+        cachedValue.stateManager = new StateManager<any>({ data: null, $type }, updateEvent)
     }
     const stateManager: StateManager<any> = cachedValue.stateManager
 
@@ -60,7 +61,7 @@ export function invoke<T>(
             const result: PromiseLike<any> = Promise.resolve(ko.ignoreDependencies(callback));
             return { type: 'result', result: result.then((val) => {
                 if (val) {
-                    const s = stateManager.setState({ data: unmapKnockoutObservables(val) });
+                    const s = stateManager.setState({ data: unmapKnockoutObservables(val), $type });
                     console.log("loaded API data: ", s)
                 }
                 for (const t of notifyTriggers(args)) {
