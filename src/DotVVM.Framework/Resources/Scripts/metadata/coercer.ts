@@ -1,3 +1,4 @@
+import { serializeDate } from "../serialization/date";
 import { CoerceError } from "../shared-classes";
 import { keys } from "../utils/objects";
 import { primitiveTypes } from "./primitiveTypes";
@@ -252,7 +253,8 @@ function tryCoerceDynamic(value: any, originalValue: any): CoerceResult {
     if (Array.isArray(value)) {
         // coerce array items (treat them as dynamic)
         return tryCoerceArray(value, { type: "dynamic" }, originalValue);
-
+    } else if (value instanceof Date) {
+        value = serializeDate(value, false) 
     } else if (value && typeof value === "object") {
         let innerType = value["$type"];
         if (typeof innerType === "string") {
@@ -273,12 +275,10 @@ function tryCoerceDynamic(value: any, originalValue: any): CoerceResult {
                 patch[k] = result.value;
             }
         }
-        if (!wasCoerced) {
-            return { value };
-        } else {
+        if (wasCoerced) {
             return { value: { ...value, ...patch }, wasCoerced: true };
         }
-    } 
+    }
     
     return { value };
 }
