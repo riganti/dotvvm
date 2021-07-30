@@ -51,6 +51,7 @@ namespace DotVVM.Compiler
                     .ToArray();
                 if (props.Length != 0)
                 {
+                    var columnCount = types.Max(p => p.Name.Length);
                     Console.WriteLine(type.Name);
                     foreach(var prop in props)
                     {
@@ -71,10 +72,10 @@ namespace DotVVM.Compiler
                             info.Add("changed-context");
                         }
 
-                        Console.Write($"\t{prop.Name}");
+                        Console.Write($"\t{prop.Name.PadRight(columnCount)}");
                         if (info.Count != 0)
                         {
-                            Console.Write($" [{string.Join(", ", info)}]");
+                            Console.Write($"\t[{string.Join(", ", info)}]");
                         }
                         Console.WriteLine();
                     }
