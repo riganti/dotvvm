@@ -61,7 +61,8 @@ export function invoke<T>(
             const result: PromiseLike<any> = Promise.resolve(ko.ignoreDependencies(callback));
             return { type: 'result', result: result.then((val) => {
                 if (val) {
-                    const s = stateManager.setState({ data: unmapKnockoutObservables(val), $type });
+                    const s = stateManager.setState({ data: unmapKnockoutObservables(deserialize(val)), $type });
+                    val = s.data
                     console.log("loaded API data: ", s)
                 }
                 for (const t of notifyTriggers(args)) {
