@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
@@ -175,6 +175,9 @@ namespace DotVVM.Framework.Compilation
 
         public override void VisitPropertyControl(ResolvedPropertyControl propertyControl)
         {
+            if (propertyControl.Property is CompileTimeOnlyDotvvmProperty)
+                return;
+
             var control = propertyControl.Control;
             var parentName = controlName;
             controlName = CreateControl(control);
@@ -189,6 +192,9 @@ namespace DotVVM.Framework.Compilation
 
         public override void VisitPropertyControlCollection(ResolvedPropertyControlCollection propertyControlCollection)
         {
+            if (propertyControlCollection.Property is CompileTimeOnlyDotvvmProperty)
+                return;
+
             var parentName = controlName;
             var collectionName = emitter.EmitEnsureCollectionInitialized(parentName, propertyControlCollection.Property);
 
@@ -210,6 +216,9 @@ namespace DotVVM.Framework.Compilation
 
         public override void VisitPropertyTemplate(ResolvedPropertyTemplate propertyTemplate)
         {
+            if (propertyTemplate.Property is CompileTimeOnlyDotvvmProperty)
+                return;
+
             var parentName = controlName;
             var methodName = DefaultViewCompilerCodeEmitter.BuildTemplateFunctionName + $"_{propertyTemplate.Property.DeclaringType.Name}_{propertyTemplate.Property.Name}_{currentTemplateIndex++}";
             emitter.PushNewMethod(methodName, typeof(void), emitter.EmitControlBuilderParameters().Concat(new [] { emitter.EmitParameter("templateContainer", typeof(DotvvmControl))}).ToArray());

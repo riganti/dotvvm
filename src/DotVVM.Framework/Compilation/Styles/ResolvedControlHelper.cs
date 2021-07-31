@@ -12,6 +12,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using System.Net;
 using System.Diagnostics.CodeAnalysis;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
@@ -38,7 +39,7 @@ namespace DotVVM.Framework.Compilation.Styles
             {
                 rc.ConstructorParameters = new object[] { literal.EncodedText, literal.UnencodedText, literal.IsWhitespace };
             }
-            else if (obj is HtmlGenericControl htmlControl)
+            else if (type == typeof(HtmlGenericControl) && obj is HtmlGenericControl htmlControl)
             {
                 rc.ConstructorParameters = new object[] { htmlControl.TagName! };
             }
@@ -78,10 +79,18 @@ namespace DotVVM.Framework.Compilation.Styles
         }
 
         public static bool IsAllowedPropertyValue([NotNullWhen(false)] object? value) =>
-            value is null || ReflectionUtils.IsPrimitiveType(value.GetType()) || RoslynValueEmitter.IsImmutableObject(value.GetType());
+            value is null ||
+            ReflectionUtils.IsPrimitiveType(value.GetType()) ||
+            RoslynValueEmitter.IsImmutableObject(value.GetType()) ||
+            value is Array && ReflectionUtils.IsPrimitiveType(value.GetType().GetElementType());
 
         public static ResolvedPropertySetter TranslateProperty(DotvvmProperty property, object? value, DataContextStack dataContext)
         {
+            if (value is ResolvedPropertySetter resolvedSetter)
+            {
+                value = resolvedSetter.GetValue();
+            }
+
             if (value is DotvvmBindableObject valueControl)
             {
                 value = FromRuntimeControl(valueControl, dataContext);
@@ -100,7 +109,7 @@ namespace DotVVM.Framework.Compilation.Styles
                 var controlType = c.Metadata.Type;
                 if (typeof(ITemplate).IsAssignableFrom(propType))
                     return new ResolvedPropertyTemplate(property, new List<ResolvedControl> { c });
-                else if (typeof(System.Collections.ICollection).IsAssignableFrom(propType) &&
+                else if (typeof(System.Collections.IEnumerable).IsAssignableFrom(propType) &&
                             ReflectionUtils.GetEnumerableType(propType)!.IsAssignableFrom(controlType))
                     return new ResolvedPropertyControlCollection(property, new List<ResolvedControl> { c });
                 else if (typeof(DotvvmBindableObject).IsAssignableFrom(propType) &&
@@ -116,9 +125,14 @@ namespace DotVVM.Framework.Compilation.Styles
                 else
                     return new ResolvedPropertyControlCollection(property, cs.ToList());
             }
-            else if (IsAllowedPropertyValue(value))
+            else if (value is IBinding)
             {
                 return new ResolvedPropertyValue(property, value);
+            }
+            else if (IsAllowedPropertyValue(value))
+            {
+                var convertedValue = ReflectionUtils.ConvertValue(value, property.PropertyType);
+                return new ResolvedPropertyValue(property, convertedValue);
             }
             else
             {
@@ -128,20 +142,21 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public static void SetContent(ResolvedControl control, ResolvedControl[] innerControls, StyleOverrideOptions options)
         {
-            foreach (var ic in innerControls)
-                ic.Parent = control;
-
             if (control.Metadata.DefaultContentProperty is DotvvmProperty defaultProp)
             {
                 var setter = ResolvedControlHelper.TranslateProperty(defaultProp, innerControls, control.DataContextTypeStack);
 
-                control.SetProperty(setter, replace: false);
+                if (!control.SetProperty(setter, options, out var err))
+                    throw new DotvvmCompilationException(err);
             }
             else if (control.Metadata.IsContentAllowed)
             {
                 foreach (var c in innerControls)
                     if (!typeof(DotvvmControl).IsAssignableFrom(c.Metadata.Type))
                         throw new DotvvmCompilationException($"Control {c.Metadata.Name} can not be inserted into {control.Metadata.Name} since it does not inherit from DotvvmControl.");
+
+                foreach (var ic in innerControls)
+                    ic.Parent = control;
 
                 switch (options)
                 {
@@ -163,6 +178,10 @@ namespace DotVVM.Framework.Compilation.Styles
                         }
                         break;
                 }
+            }
+            else
+            {
+                throw new DotvvmCompilationException($"Could not set content on {control.Metadata.Type} as it does not allow children and does not have a DefaultContentProperty.");
             }
         }
     }

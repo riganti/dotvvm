@@ -119,6 +119,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public void ApplyStyle(ResolvedControl control, IStyleMatchContext context)
         {
+            var dataContext = property.GetDataContextType(control);
             var bindingOptions = this.bindingOptions;
             if (allowChangingBindingType && control.Properties.GetValueOrDefault(property) is ResolvedPropertyBinding rb)
             {
@@ -129,7 +130,7 @@ namespace DotVVM.Framework.Compilation.Styles
             var b = new ResolvedBinding(
                 context.Configuration.ServiceProvider.GetRequiredService<BindingCompilationService>(),
                 bindingOptions,
-                control.DataContextTypeStack,
+                dataContext,
                 code: binding,
                 property: property
             );
@@ -163,11 +164,12 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public void ApplyStyle(ResolvedControl control, IStyleMatchContext context)
         {
-            var innerControl = ResolvedControlHelper.FromRuntimeControl(this.prototypeControl, control.DataContextTypeStack);
+            var dataContext = property.GetDataContextType(control);
+            var innerControl = ResolvedControlHelper.FromRuntimeControl(this.prototypeControl, dataContext);
             innerControl.Parent = control;
             innerControlStyle.Applicator.ApplyStyle(innerControl, new StyleMatchContext<DotvvmBindableObject>(context, innerControl, context.Configuration));
 
-            var value = ResolvedControlHelper.TranslateProperty(property, innerControl, control.DataContextTypeStack);
+            var value = ResolvedControlHelper.TranslateProperty(property, innerControl, dataContext);
             if (!control.SetProperty(value, options, out var error))
                 throw new DotvvmCompilationException("Can not apply style property: " + error, control.DothtmlNode?.Tokens);
         }
@@ -198,9 +200,11 @@ namespace DotVVM.Framework.Compilation.Styles
         public void ApplyStyle(ResolvedControl control, IStyleMatchContext context)
         {
             if (!context.AllowsContent())
-                throw new NotSupportedException($"Control {control.Metadata.Name} is not allowed to have content (it was attempted to set it using Styles).");
+                throw new NotSupportedException($"Control {control.Metadata.Name} is not allowed to have content (it was attempted to set it using Styles). If you want to apply this style only controls that can have content, use the context.AllowsContent() method in the style condition.");
+
+            var dataContext = context.ChildrenDataContextStack();
             var innerControls = this.prototypeControls.Invoke(context).Select(c =>
-                ResolvedControlHelper.FromRuntimeControl(c, control.DataContextTypeStack))
+                ResolvedControlHelper.FromRuntimeControl(c, dataContext))
                 .ToArray();
             foreach (var c in innerControls)
             {

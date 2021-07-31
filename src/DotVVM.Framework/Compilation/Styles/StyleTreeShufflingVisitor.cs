@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -31,8 +33,10 @@ namespace DotVVM.Framework.Compilation.Styles
         }
         public override void VisitControl(ResolvedControl control)
         {
+            Debug.Assert(control.Parent != null);
             ProcessControlList(control.Content, control);
             base.VisitControl(control);
+            Debug.Assert(control.Parent != null);
         }
 
         public override void VisitPropertyControl(ResolvedPropertyControl propertyControl)
@@ -43,6 +47,7 @@ namespace DotVVM.Framework.Compilation.Styles
                 throw new Exception(
                     $"Styles.Append and Styles.Prepend properties can not be applied to a control in property {propertyControl.Property}.");
             propertyControl.Control = ProcessWrapping(ProcessReplacement(control));
+            propertyControl.Control.Parent = propertyControl;
             base.VisitPropertyControl(propertyControl);
         }
 
@@ -62,8 +67,8 @@ namespace DotVVM.Framework.Compilation.Styles
         {
             for (int i = 0; i < list.Count; i++)
             {
-                list[i] = ProcessReplacement(list[i]);
                 list[i] = ProcessWrapping(list[i]);
+                list[i] = ProcessReplacement(list[i]);
             }
             ProcessAppendAndPrepend(list);
             SetParent(list, parent);
@@ -75,14 +80,16 @@ namespace DotVVM.Framework.Compilation.Styles
             list.Clear();
             foreach (var c in controls)
             {
-                if (!c.Properties.TryGetValue(PrependProperty, out var prependSetter))
+                if (c.Properties.TryGetValue(PrependProperty, out var prependSetter))
                 {
+                    c.Properties.Remove(PrependProperty);
                     var prepend = ((ResolvedPropertyControlCollection)prependSetter).Controls.ToArray();
                     list.AddRange(prepend);
                 }
                 list.Add(c);
-                if (!c.Properties.TryGetValue(AppendProperty, out var appendSetter))
+                if (c.Properties.TryGetValue(AppendProperty, out var appendSetter))
                 {
+                    c.Properties.Remove(AppendProperty);
                     var append = ((ResolvedPropertyControlCollection)appendSetter).Controls.ToArray();
                     list.AddRange(append);
                 }
@@ -91,7 +98,7 @@ namespace DotVVM.Framework.Compilation.Styles
         void SetParent(IEnumerable<ResolvedControl> controls, ResolvedTreeNode parent)
         {
             foreach (var c in controls)
-                c.Parent ??= parent;
+                c.Parent = parent;
         }
 
         ResolvedControl ProcessWrapping(ResolvedControl control)
@@ -124,7 +131,51 @@ namespace DotVVM.Framework.Compilation.Styles
                 return control;
             control.Properties.Remove(ReplaceWithProperty);
             var newControl = ((ResolvedPropertyControl)setter).Control;
-            // TODO: copy properties
+
+            // Copy content
+            ResolvedControlHelper.SetContent(newControl, control.Content.ToArray(), StyleOverrideOptions.Append);
+
+            // copy properties
+            foreach (var p in control.Properties.Values)
+            {
+                control.Properties.Remove(p.Property);
+
+                // if it was an attached property, we won't translate by name
+                if (p.Property.DeclaringType.IsAssignableFrom(control.Metadata.Type))
+                {
+                    newControl.SetProperty(p);
+                    continue;
+                }
+                
+                if (p.Property is GroupedDotvvmProperty gProp)
+                {
+                    var group2 =
+                        DotvvmPropertyGroup.GetPropertyGroups(newControl.Metadata.Type)
+                        .FirstOrDefault(g => g.Name == gProp.PropertyGroup.Name) ??
+                        DotvvmPropertyGroup.GetPropertyGroups(newControl.Metadata.Type)
+                        .FirstOrDefault(g => g.Prefixes.Intersect(gProp.PropertyGroup.Prefixes).Any());
+                    if (group2 is object)
+                    {
+                        var prop2 = group2.GetDotvvmProperty(gProp.GroupMemberName);
+                        newControl.SetProperty(
+                            ResolvedControlHelper.TranslateProperty(prop2, p.GetValue(), control.DataContextTypeStack));
+                        continue;
+                    }
+                }
+                else
+                {
+                    var prop2 = DotvvmProperty.ResolveProperty(newControl.Metadata.Type, p.Property.Name);
+                    if (prop2 is object)
+                    {
+                        newControl.SetProperty(
+                            ResolvedControlHelper.TranslateProperty(prop2, p.GetValue(), control.DataContextTypeStack));
+                        continue;
+                    }
+                }
+
+                // no corresponding property found, we leave it there as an attached property
+                newControl.SetProperty(p);
+            }
 
             // recursively replace if the new control also has the ReplaceWithProperty
             return ProcessReplacement(newControl);

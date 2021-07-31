@@ -16,6 +16,7 @@ using System.Runtime.CompilerServices;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Compilation.Binding;
 
 namespace DotVVM.Framework.Binding
 {
@@ -319,6 +320,45 @@ namespace DotVVM.Framework.Binding
             if (childType is null) return null; // childType is null in case there is some error in processing (e.g. enumerable was expected).
             else return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
         }
+
+        /// <summary> Return the expected data context type for this property. Returns null if the type is unknown. </summary>
+        public static DataContextStack GetDataContextType(this DotvvmProperty property, ResolvedControl obj)
+        {
+            var dataContextType = obj.DataContextTypeStack;
+
+            if (property.DataContextManipulationAttribute != null)
+            {
+                return (DataContextStack)property.DataContextManipulationAttribute.ChangeStackForChildren(
+                    dataContextType, obj, property,
+                    (parent, changeType) => DataContextStack.Create(ResolvedTypeDescriptor.ToSystemType(changeType), (DataContextStack)parent));
+            }
+
+            if (property.DataContextChangeAttributes == null || property.DataContextChangeAttributes.Length == 0)
+            {
+                return dataContextType;
+            }
+
+            var (childType, extensionParameters) = ApplyDataContextChange(dataContextType, property.DataContextChangeAttributes, obj, property);
+
+            if (childType is null)
+                childType = typeof(UnknownTypeSentinel);
+            
+            return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
+        }
+
+        public static (Type? type, List<BindingExtensionParameter> extensionParameters) ApplyDataContextChange(DataContextStack dataContext, DataContextChangeAttribute[] attributes, ResolvedControl control, DotvvmProperty? property)
+        {
+            var type = ResolvedTypeDescriptor.Create(dataContext.DataContextType);
+            var extensionParameters = new List<BindingExtensionParameter>();
+            foreach (var attribute in attributes.OrderBy(a => a.Order))
+            {
+                if (type == null) break;
+                extensionParameters.AddRange(attribute.GetExtensionParameters(type));
+                type = attribute.GetChildDataContextType(type, dataContext, control, property);
+            }
+            return (ResolvedTypeDescriptor.ToSystemType(type), extensionParameters);
+        }
+
 
         private static (Type? childType, List<BindingExtensionParameter> extensionParameters) ApplyDataContextChange(DataContextStack dataContextType, DataContextChangeAttribute[] attributes, DotvvmBindableObject obj, DotvvmProperty property)
         {

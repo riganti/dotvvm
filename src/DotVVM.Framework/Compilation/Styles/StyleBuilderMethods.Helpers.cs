@@ -98,7 +98,7 @@ public static partial class StyleBuilderExtensionMethods
         StyleOverrideOptions options = StyleOverrideOptions.Append)
         where T: IStyleBuilder
         where TControl: DotvvmBindableObject =>
-        sb.SetDotvvmProperty(Styles.PrependProperty, handler, options);
+        sb.SetDotvvmProperty(Styles.AppendProperty, handler, options);
 
     /// <summary> Adds a new control above the matched control. </summary>
     public static T Prepend<T, TControl>(
@@ -109,7 +109,7 @@ public static partial class StyleBuilderExtensionMethods
         where T: IStyleBuilder
         where TControl: DotvvmBindableObject =>
         sb.SetControlProperty(
-            Styles.AppendProperty,
+            Styles.PrependProperty,
             control,
             styleBuilder,
             options

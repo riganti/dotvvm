@@ -11,6 +11,7 @@ using DotVVM.Framework.Compilation.Styles;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Compilation.ControlTree;
 
 public static class StyleMatchContextExtensionMethods
 {
@@ -281,6 +282,25 @@ public static class StyleMatchContextExtensionMethods
     /// </summary>
     public static bool AllowsContent(this IStyleMatchContext c) =>
         c.Control.Metadata.IsContentAllowed || c.Control.Metadata.DefaultContentProperty is object;
+
+    /// <summary>
+    /// Returns the data types that children will have
+    /// </summary>
+    public static DataContextStack ChildrenDataContextStack(this IStyleMatchContext c)
+    {
+        if (c.Control.Metadata.IsContentAllowed)
+            return c.Control.DataContextTypeStack;
+        else if (c.Control.Metadata.DefaultContentProperty is DotvvmProperty contentProperty)
+        {
+            return contentProperty.GetDataContextType(c.Control);
+        }
+        throw new Exception($"Control {c.Control.Metadata.Type} does not support content.");
+    }
+    /// <summary>
+    /// Returns the data types that children will have
+    /// </summary>
+    public static Type ChildrenDataContext(this IStyleMatchContext c) =>
+        c.ChildrenDataContextStack().DataContextType;
 
     /// <summary> Returns the contents of Styles.Tag property or an empty array if none is specified. </summary>
     public static string[] GetTags(this IStyleMatchContext context)

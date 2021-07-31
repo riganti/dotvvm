@@ -12,6 +12,7 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Testing;
+using DotVVM.Framework.ResourceManagement;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -54,6 +55,33 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var message = handler.Properties[ConfirmPostBackHandler.MessageProperty].CastTo<ResolvedPropertyValue>().Value.CastTo<string>();
             Assert.AreEqual("Are you sure?", message);
         }
+
+        [TestMethod]
+        public void SetControlProperty_StylesExclude()
+        {
+            var button = Parse(@"<dot:Button data-dangerous Styles.Exclude />")
+                         .Content.SelectRecursively(c => c.Content)
+                         .Single(c => c.Metadata.Type == typeof(Button));
+            Assert.IsFalse(button.Properties.ContainsKey(PostBack.HandlersProperty));
+        }
+
+        [TestMethod]
+        public void SetControlProperty_StylesExcludeAllButtons()
+        {
+            config.Styles.Register<HtmlGenericControl>(m => m.HasClass("aaa"))
+                .SetProperty(c => c.Visible, false);
+            config.Styles.Register<Button>()
+                .SetDotvvmProperty(Styles.ExcludeProperty, true);
+
+            var controls = Parse(@"<dot:LinkButton class=aaa /> <dot:Button class=aaa />")
+                           .Content.SelectRecursively(c => c.Content).ToArray();
+            var button = controls.Single(c => c.Metadata.Type == typeof(Button));
+            var linkButton = controls.Single(c => c.Metadata.Type == typeof(LinkButton));
+            Assert.IsFalse(button.Properties.ContainsKey(HtmlGenericControl.VisibleProperty));
+            Assert.IsTrue(linkButton.Properties.ContainsKey(HtmlGenericControl.VisibleProperty));
+        }
+
+
 
         [TestMethod]
         public void SetControlProperty_AppendPostbackHandler()
@@ -379,6 +407,55 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             var r = div.Properties.Values.OfType<ResolvedPropertyBinding>().Single().Binding;
             Assert.IsInstanceOfType(r.Binding, typeof(ResourceBindingExpression));
+        }
+
+        [TestMethod]
+        public void WrapWithHtmlElement()
+        {
+            config.Styles.Register<DotvvmControl>(x => x.HasTag("wrap-div"))
+                .WrapWith(new HtmlGenericControl("div"));
+
+            var spanDivWrapper = new HtmlGenericControl("span");
+            spanDivWrapper.properties.Set(Styles.TagProperty, "wrap-div");
+            config.Styles.Register<DotvvmControl>(x => x.HasTag("wrap-span-div"))
+                .WrapWith(spanDivWrapper);
+
+            // var wrapped = Parse("<a Styles.Tag=wrap-div class=x />")
+            //     .Content.SelectRecursively(c => c.Content)
+            //     .Single(c => c.Metadata.Type == typeof(HtmlGenericControl) && "a".Equals(c.ConstructorParameters[0]));
+
+            // Assert.AreEqual(((ResolvedControl)wrapped.Parent).Metadata.Type, typeof(HtmlGenericControl));
+            // Assert.AreEqual(((ResolvedControl)((ResolvedControl)wrapped.Parent).Parent).Metadata.Type, typeof(DotvvmView));
+
+            var wrapped2 = Parse("<a Styles.Tag=wrap-span-div class=x />")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(HtmlGenericControl) && "a".Equals(c.ConstructorParameters[0]));
+
+            Assert.AreEqual(((ResolvedControl)wrapped2.Parent).Metadata.Type, typeof(HtmlGenericControl));
+            Assert.AreEqual(((ResolvedControl)((ResolvedControl)wrapped2.Parent).Parent).Metadata.Type, typeof(HtmlGenericControl));
+        }
+
+        [TestMethod]
+        public void RequireResource()
+        {
+            config.Resources.Register("my_resource", new InlineScriptResource("alert(1)"));
+            config.Styles.Register<DotvvmControl>(x => x.HasTag("resource"))
+                .AddRequiredResource("my_resource");
+
+            var resource = Parse("<a Styles.Tag=resource /> <span Styles.Tag=resource /> <div Styles.Tag=resource /> <dot:Button Styles.Tag=resource />")
+                .Content.SelectRecursively(c => c.Content)
+                .Where(c => c.Metadata.Type == typeof(RequiredResource))
+                .ToArray();
+
+            Assert.AreEqual(1, resource.Length);
+
+            var resource2 = Parse("<dot:Repeater DataSource={value: _this}> <span Styles.Tag=resource /> <div Styles.Tag=resource /> <dot:Button Styles.Tag=resource /> </dot:Repeater>")
+                .Content.SelectRecursively(c => c.Content)
+                .Where(c => c.Metadata.Type == typeof(RequiredResource))
+                .ToArray();
+
+            Assert.AreEqual(1, resource.Length, 1);
+
         }
     }
 }

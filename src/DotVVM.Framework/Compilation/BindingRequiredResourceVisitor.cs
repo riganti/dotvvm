@@ -56,14 +56,15 @@ namespace DotVVM.Framework.Compilation
                 nodeContent.AddRange(
                     requiredResources
                         .Except(original)
-                        .Select(name => CreateRequiredResourceControl(name, node.DothtmlNode, nodeContent.First().DataContextTypeStack)));
+                        .Select(name => CreateRequiredResourceControl(name, node, node.DothtmlNode, nodeContent.First().DataContextTypeStack)));
                 requiredResources = original;
             }
         }
 
-        private ResolvedControl CreateRequiredResourceControl(string resource, Parser.Dothtml.Parser.DothtmlNode node, DataContextStack dataContext)
+        private ResolvedControl CreateRequiredResourceControl(string resource, ResolvedTreeNode parent, Parser.Dothtml.Parser.DothtmlNode node, DataContextStack dataContext)
         {
             var control = new ResolvedControl(requiredResourceControlMetadata, node, dataContext);
+            control.Parent = parent;
             control.SetProperty(new ResolvedPropertyValue(RequiredResource.NameProperty, resource));
             return control;
         }

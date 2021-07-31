@@ -146,19 +146,17 @@ namespace DotVVM.Framework.Utils
         /// </summary>
         public static object? ConvertValue(object? value, Type type)
         {
-            var typeinfo = type.GetTypeInfo();
-
             // handle null values
             if (value == null)
             {
-                if (typeinfo.IsValueType)
+                if (type.IsValueType)
                     return Activator.CreateInstance(type);
                 else
                     return null;
             }
 
             // handle nullable types
-            if (typeinfo.IsGenericType && Nullable.GetUnderlyingType(type) is Type nullableElementType)
+            if (type.IsGenericType && Nullable.GetUnderlyingType(type) is Type nullableElementType)
             {
                 if (value is string && (string)value == string.Empty)
                 {
@@ -168,7 +166,6 @@ namespace DotVVM.Framework.Utils
 
                 // value is not null
                 type = nullableElementType;
-                typeinfo = type.GetTypeInfo();
             }
 
             // handle exceptions
@@ -182,7 +179,7 @@ namespace DotVVM.Framework.Utils
             }
 
             // handle enums
-            if (typeinfo.IsEnum && value is string)
+            if (type.IsEnum && value is string)
             {
                 var split = ((string)value).Split(',', '|');
                 var isFlags = type.GetTypeInfo().IsDefined(typeof(FlagsAttribute));
@@ -217,7 +214,7 @@ namespace DotVVM.Framework.Utils
             if (value is string str && type.IsArray)
             {
                 var objectArray = str.Split(',')
-                    .Select(s => ConvertValue(s.Trim(), typeinfo.GetElementType()!))
+                    .Select(s => ConvertValue(s.Trim(), type.GetElementType()!))
                     .ToArray();
                 var array = Array.CreateInstance(type.GetElementType()!, objectArray.Length);
                 objectArray.CopyTo(array, 0);
