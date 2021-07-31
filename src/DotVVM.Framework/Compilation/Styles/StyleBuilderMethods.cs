@@ -116,15 +116,6 @@ public static partial class StyleBuilderExtensionMethods
 
         sb.SetControlProperty(property, RawLiteral.Create(text), options: options);
 
-
-    public static T SetDotvvmProperty<T>(
-        this T sb,
-        ResolvedPropertySetter setter,
-        StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
-        where T: IStyleBuilder =>
-
-        sb.AddApplicator(new PropertyStyleApplicator(setter, options));
-
     /// <summary> Sets a specified property on the matching controls </summary>
     public static T SetDotvvmProperty<T>(
         this T sb,
@@ -148,16 +139,8 @@ public static partial class StyleBuilderExtensionMethods
             throw new ArgumentException($"Value '{value}' of type {value.GetType()} is not assignable to property {property} of type {property.PropertyType}", nameof(value));
         }
 
-        return sb.SetDotvvmProperty(new ResolvedPropertyValue(property, value), options);
+        return sb.AddApplicator(new PropertyStyleApplicator(property, value, options));
     }
-
-    /// <summary> Sets a specified property on the matching controls. The value can be computed from any property on the control using the IStyleMatchContext. </summary>
-    public static IStyleBuilder<T> SetDotvvmProperty<T>(
-        this IStyleBuilder<T> sb,
-        Func<IStyleMatchContext<T>, ResolvedPropertySetter> setter,
-        StyleOverrideOptions options = StyleOverrideOptions.Overwrite) =>
-
-        sb.AddApplicator(new GenericPropertyStyleApplicator<T>(setter, options));
 
     /// <summary> Sets a specified property on the matching controls. The value can be computed from any property on the control using the IStyleMatchContext. </summary>
     public static IStyleBuilder<T> SetDotvvmProperty<T>(
@@ -166,7 +149,7 @@ public static partial class StyleBuilderExtensionMethods
         Func<IStyleMatchContext<T>, object?> value,
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite) =>
         
-        sb.SetDotvvmProperty(c => ResolvedControlHelper.TranslateProperty(property, value(c), c.Control.DataContextTypeStack), options);
+        sb.AddApplicator(new GenericPropertyStyleApplicator<T>(property, value, options));
 
     /// <summary> Sets a specified property on the matching controls. The value can be computed from any property on the control using the IStyleMatchContext. </summary>
     public static IStyleBuilder<TControl> SetProperty<TControl, TProperty>(

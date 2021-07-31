@@ -52,18 +52,22 @@ namespace DotVVM.Framework.Compilation.Styles
 
     class PropertyStyleApplicator : IStyleApplicator
     {
+        readonly DotvvmProperty property;
+        readonly object? value;
         readonly StyleOverrideOptions options;
-        readonly ResolvedPropertySetter value;
 
-        public PropertyStyleApplicator(ResolvedPropertySetter value, StyleOverrideOptions options)
+        public PropertyStyleApplicator(DotvvmProperty property, object? value, StyleOverrideOptions options)
         {
-            this.options = options;
+            this.property = property;
             this.value = value;
+            this.options = options;
         }
 
         public void ApplyStyle(ResolvedControl control, IStyleMatchContext context)
         {
-            if (!control.SetProperty(value, options, out var error))
+            var dataContext = property.GetDataContextType(control);
+            var setter = ResolvedControlHelper.TranslateProperty(property, value, dataContext);
+            if (!control.SetProperty(setter, options, out var error))
                 throw new DotvvmCompilationException("Can not apply style property: " + error, control.DothtmlNode?.Tokens);
         }
 
@@ -72,25 +76,29 @@ namespace DotVVM.Framework.Compilation.Styles
 
     public class GenericPropertyStyleApplicator<T> : IStyleApplicator
     {
+        readonly DotvvmProperty property;
+        readonly Func<IStyleMatchContext<T>, object?> value;
         readonly StyleOverrideOptions options;
-        readonly Func<IStyleMatchContext<T>, ResolvedPropertySetter> value;
 
-        public GenericPropertyStyleApplicator(Func<IStyleMatchContext<T>, ResolvedPropertySetter> value, StyleOverrideOptions options)
+        public GenericPropertyStyleApplicator(DotvvmProperty property, Func<IStyleMatchContext<T>, object?> value, StyleOverrideOptions options)
         {
-            this.options = options;
+            this.property = property;
             this.value = value;
+            this.options = options;
         }
 
         public void ApplyStyle(ResolvedControl control, IStyleMatchContext context)
         {
             if (context.IsType<T>(out var c))
             {
+                var dataContext = property.GetDataContextType(control);
                 var v = value(c);
-                if (!control.SetProperty(v, options, out var error))
+                var setter = ResolvedControlHelper.TranslateProperty(property, v, dataContext);
+                if (!control.SetProperty(setter, options, out var error))
                     throw new DotvvmCompilationException("Can not apply style property: " + error, control.DothtmlNode?.Tokens);
             }
         }
-        public override string ToString() => $"GenericPropertyStyleApplicator (on conflict {options})";
+        public override string ToString() => $"GenericPropertyStyleApplicator {property} (on conflict {options})";
     }
 
     internal class PropertyStyleBindingApplicator : IStyleApplicator
