@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
@@ -243,13 +243,17 @@ namespace DotVVM.Framework.Compilation
                 name = emitter.EmitInvokeControlBuilder(control.Metadata.Type, control.Metadata.VirtualPath);
             }
             emitter.RegisterDotvvmProperties(name);
-            // set unique id
-            emitter.EmitSetDotvvmProperty(name, Internal.UniqueIDProperty, name);
-
-            if (control.DothtmlNode != null && control.DothtmlNode.Tokens.Count > 0)
+            // RawLiterals don't need these helper properties
+            if (control.Metadata.Type != typeof(RawLiteral))
             {
-                // set line number
-                emitter.EmitSetDotvvmProperty(name, Internal.MarkupLineNumberProperty, control.DothtmlNode.Tokens.First().LineNumber);
+                // set unique id
+                emitter.EmitSetDotvvmProperty(name, Internal.UniqueIDProperty, name);
+
+                if (control.DothtmlNode != null && control.DothtmlNode.Tokens.Count > 0)
+                {
+                    // set line number
+                    emitter.EmitSetDotvvmProperty(name, Internal.MarkupLineNumberProperty, control.DothtmlNode.Tokens.First().LineNumber);
+                }
             }
 
             return name;
