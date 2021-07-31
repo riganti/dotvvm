@@ -19,6 +19,7 @@ namespace DotVVM.Framework.Compilation.Styles
         public ILookup<Type, IStyle> Styles { get; set; }
 
         readonly DotvvmConfiguration configuration;
+        int depth = 0;
 
 
         public StyleMatcher(IEnumerable<IStyle> styles, DotvvmConfiguration configuration)
@@ -29,12 +30,21 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public void PushControl(ResolvedControl control)
         {
+            depth++;
             Context = new StyleMatchContext<DotvvmBindableObject>(Context, control, configuration);
+            if (depth > 100)
+            {
+                var controlsStack =
+                    new [] { Context }.Concat(Context.GetAncestors())
+                    .Select(c => c.Control.Metadata.Type.Name);
+                throw new Exception($"Control hierarchy is unreasonably deep, there is probably an infinite cycle in server-side styles. This is the control hierarchy: {string.Join(", ", controlsStack)}");
+            }
         }
 
         public void PopControl()
         {
             if (Context == null) throw new InvalidOperationException("Stack is already empty");
+            depth--;
             Context = Context.Parent;
         }
 

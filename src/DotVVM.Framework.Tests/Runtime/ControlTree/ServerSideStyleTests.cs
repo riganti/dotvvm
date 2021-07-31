@@ -455,7 +455,18 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
                 .ToArray();
 
             Assert.AreEqual(1, resource.Length, 1);
+        }
+        [TestMethod]
+        public void InfiniteWrapper()
+        {
+            config.Styles.Register("infinite-wrap")
+                .WrapWith(new HtmlGenericControl("infinite-wrap"));
 
+
+            var e = Assert.ThrowsException<Exception>(() =>
+                Parse("<infinite-wrap />"));
+
+            Assert.IsTrue(e.Message.Contains("there is probably an infinite cycle in server-side styles"));
         }
     }
 }
