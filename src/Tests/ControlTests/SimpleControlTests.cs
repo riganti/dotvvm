@@ -136,6 +136,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
         public async Task TextBox()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
