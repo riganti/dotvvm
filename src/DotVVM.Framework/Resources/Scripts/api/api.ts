@@ -54,7 +54,7 @@ export function invoke<T>(
         const updateEvent = new DotvvmEvent("apiObject.newState")
         cachedValue.stateManager = new StateManager<any>({ data: null, $type }, updateEvent)
     }
-    const stateManager: StateManager<any> = cachedValue.stateManager
+    const stateManager = cachedValue.stateManager
 
     const load: () => Result<PromiseLike<any>> = () => {
         try {
@@ -63,7 +63,6 @@ export function invoke<T>(
                 if (val) {
                     const s = stateManager.setState({ data: unmapKnockoutObservables(deserialize(val)), $type });
                     val = s.data
-                    console.log("loaded API data: ", s)
                 }
                 for (const t of notifyTriggers(args)) {
                     eventHub.notify(t);
@@ -110,8 +109,6 @@ export function invoke<T>(
 
     const cmp = <ApiComputed<T>> <any> ko.pureComputed(() => stateManager.stateObservable().data());
     cmp.refreshValue = refreshValue
-    cmp.subscribe(d => console.log("new data yeye", d))
-    stateManager.stateUpdateEvent.subscribe(args => console.log("new data event", args))
     return cmp;
 }
 
