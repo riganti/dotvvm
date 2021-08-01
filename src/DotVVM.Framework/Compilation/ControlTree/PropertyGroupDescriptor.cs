@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                                   let parameters = ctor.GetParameters()
                                   where parameters.Length == 1 && typeof(IEnumerable).IsAssignableFrom(parameters[0].ParameterType)
                                   let elementType = ReflectionUtils.GetEnumerableType(parameters[0].ParameterType)
-                                      where elementType.GetTypeInfo().IsGenericType && elementType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)
+                                      where elementType.IsGenericType && elementType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)
                                   let genArguments = elementType.GetGenericArguments()
                                   where genArguments[0].IsAssignableFrom(typeof(string))
                                   let valueType = genArguments[1]

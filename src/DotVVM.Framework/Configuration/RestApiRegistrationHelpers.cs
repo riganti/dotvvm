@@ -32,13 +32,13 @@ namespace DotVVM.Framework.Configuration
         private static object locker = new object();
         private static void RegisterApiDtoProperties(Type obj, DotvvmConfiguration config, Assembly currentAssembly = null)
         {
-            currentAssembly = currentAssembly ?? obj.GetTypeInfo().Assembly;
-            bool isSameAssembly(Type type) => type.GetTypeInfo().Assembly == currentAssembly || type.GetGenericArguments().Any(isSameAssembly);
+            currentAssembly = currentAssembly ?? obj.Assembly;
+            bool isSameAssembly(Type type) => type.Assembly == currentAssembly || type.GetGenericArguments().Any(isSameAssembly);
             lock (locker)
             {
                 if (!apiDtosProcessed.Add((config, obj))) return;
 
-                if (obj.GetTypeInfo().Assembly != typeof(string).GetTypeInfo().Assembly &&
+                if (obj.Assembly != typeof(string).Assembly &&
                     !obj.IsGenericParameter &&
                     ViewModelJsonConverter.CanConvertType(obj))
                 {
@@ -97,9 +97,9 @@ namespace DotVVM.Framework.Configuration
                 {
                     if (typeof(Task).IsAssignableFrom(method.ReturnType) || method.IsSpecialName) continue;
 
-                    RegisterApiDtoProperties(method.ReturnType, config, method.DeclaringType.GetTypeInfo().Assembly);
+                    RegisterApiDtoProperties(method.ReturnType, config, method.DeclaringType.Assembly);
                     foreach (var p in method.GetParameters())
-                        RegisterApiDtoProperties(p.ParameterType, config, method.DeclaringType.GetTypeInfo().Assembly);
+                        RegisterApiDtoProperties(p.ParameterType, config, method.DeclaringType.Assembly);
 
                     if (registerJS)
                     {

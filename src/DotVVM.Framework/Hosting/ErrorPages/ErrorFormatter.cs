@@ -101,7 +101,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         {
             const string GithubUrl = @"https://github.com/riganti/dotvvm/blob/master/src/";
             const string Octocat = @"https://assets-cdn.github.com/favicon.ico";
-            if (frame.Method?.DeclaringType?.GetTypeInfo()?.Assembly == typeof(ErrorFormatter).GetTypeInfo().Assembly)
+            if (frame.Method?.DeclaringType?.Assembly == typeof(ErrorFormatter).Assembly)
             {
                 // dotvvm github
                 if (!string.IsNullOrEmpty(frame.At?.FileName))
@@ -180,8 +180,8 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         {
             const string DotNetIcon = "http://referencesource.microsoft.com/favicon.ico";
             const string SourceUrl = "http://referencesource.microsoft.com/";
-            if (frame.Method?.DeclaringType?.GetTypeInfo()?.Assembly != null &&
-                ReferenceSourceAssemblies.Contains(frame.Method.DeclaringType.GetTypeInfo().Assembly.GetName().Name))
+            if (frame.Method?.DeclaringType?.Assembly != null &&
+                ReferenceSourceAssemblies.Contains(frame.Method.DeclaringType.Assembly.GetName().Name))
             {
                 if (!String.IsNullOrEmpty(frame.At?.FileName))
                 {
@@ -189,7 +189,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 }
                 else
                 {
-                    if (frame.Method.DeclaringType.GetTypeInfo().IsGenericType)
+                    if (frame.Method.DeclaringType.IsGenericType)
                     {
                         var url = SourceUrl + "#q=" +
                                   WebUtility.HtmlEncode(
@@ -210,7 +210,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         protected static string GetGenericFullName(Type type)
         {
-            if (!type.GetTypeInfo().IsGenericType) return type.FullName;
+            if (!type.IsGenericType) return type.FullName;
 
             var name = type.FullName;
             name = name.Remove(name.IndexOf("`", StringComparison.Ordinal));

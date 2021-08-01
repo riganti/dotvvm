@@ -514,12 +514,12 @@ namespace DotVVM.Framework.Compilation.Binding
                 if (m != null) return m;
             }
 
-            if (left.Type.GetTypeInfo().IsValueType)
+            if (left.Type.IsValueType)
             {
                 equatable = left;
                 theOther = right;
             }
-            else if (left.Type.GetTypeInfo().IsValueType)
+            else if (left.Type.IsValueType)
             {
                 equatable = right;
                 theOther = left;

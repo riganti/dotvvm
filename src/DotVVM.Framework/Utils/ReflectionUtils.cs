@@ -20,10 +20,6 @@ namespace DotVVM.Framework.Utils
 {
     public static class ReflectionUtils
     {
-
-        public static bool IsFullName(string typeName)
-            => typeName.Contains(".");
-
         /// <summary>
         /// Gets the property name from lambda expression, e.g. 'a => a.FirstName'
         /// </summary>
@@ -60,7 +56,7 @@ namespace DotVVM.Framework.Utils
         ///<summary> Gets all members from the type, including inherited classes, implemented interfaces and interfaces inherited by the interface </summary>
         public static IEnumerable<MemberInfo> GetAllMembers(this Type type, BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
         {
-            if (type.GetTypeInfo().IsInterface)
+            if (type.IsInterface)
                 return type.GetMembers(flags).Concat(type.GetInterfaces().SelectMany(t => t.GetMembers(flags)));
             else
                 return type.GetMembers(flags);
@@ -93,19 +89,6 @@ namespace DotVVM.Framework.Utils
                 throw new Exception(String.Format("The object of type {0} does not have a property named {1}!", type, propertyName));     // TODO: exception handling
             }
             return prop.GetValue(item);
-        }
-
-        /// <summary>
-        /// Extracts the value of a specified property and converts it to string. If the property name is empty, returns a string representation of a given object.
-        /// Null values are converted to empty string.
-        /// </summary>
-        public static string ExtractMemberStringValue(object? item, string propertyName)
-        {
-            if (!string.IsNullOrEmpty(propertyName))
-            {
-                item = GetObjectPropertyValue(item, propertyName, out var _);
-            }
-            return item + "";
         }
 
         /// <summary>
@@ -146,7 +129,7 @@ namespace DotVVM.Framework.Utils
         /// </summary>
         public static object? ConvertValue(object? value, Type type)
         {
-            var typeinfo = type.GetTypeInfo();
+            var typeinfo = type;
 
             // handle null values
             if (value == null)
@@ -168,7 +151,7 @@ namespace DotVVM.Framework.Utils
 
                 // value is not null
                 type = nullableElementType;
-                typeinfo = type.GetTypeInfo();
+                typeinfo = type;
             }
 
             // handle exceptions
@@ -185,7 +168,7 @@ namespace DotVVM.Framework.Utils
             if (typeinfo.IsEnum && value is string)
             {
                 var split = ((string)value).Split(',', '|');
-                var isFlags = type.GetTypeInfo().IsDefined(typeof(FlagsAttribute));
+                var isFlags = type.IsDefined(typeof(FlagsAttribute));
                 if (!isFlags && split.Length > 1) throw new Exception($"Enum {type} does allow multiple values. Use [FlagsAttribute] to allow it.");
 
                 dynamic? result = null;
@@ -337,12 +320,7 @@ namespace DotVVM.Framework.Utils
 
         public static bool IsNullableType(Type type)
         {
-            return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
-        }
-
-        public static bool IsEnum(Type type)
-        {
-            return type.GetTypeInfo().IsEnum;
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
         public static bool IsComplexType(Type type)
@@ -366,32 +344,17 @@ namespace DotVVM.Framework.Utils
             type.GetMethod("Invoke")!.GetParameters() :
             null;
 
-        public static bool IsReferenceType(this Type type)
-        {
-            return type.IsArray || type.GetTypeInfo().IsClass || type.GetTypeInfo().IsInterface || type.IsDelegate();
-        }
-
-        public static bool IsDerivedFrom(this Type T, Type superClass)
-        {
-            return superClass.IsAssignableFrom(T);
-        }
-
 
         public static bool Implements(this Type type, Type ifc) => Implements(type, ifc, out var _);
         public static bool Implements(this Type type, Type ifc, out Type concreteInterface)
         {
-            bool isInterface(Type a, Type b) => a == b || a.GetTypeInfo().IsGenericType && a.GetGenericTypeDefinition() == b;
+            bool isInterface(Type a, Type b) => a == b || a.IsGenericType && a.GetGenericTypeDefinition() == b;
             if (isInterface(type, ifc))
             {
                 concreteInterface = type;
                 return true;
             }
             return (concreteInterface = type.GetInterfaces().FirstOrDefault(i => isInterface(i, ifc))) != null;
-        }
-
-        public static bool IsDynamic(this Type type)
-        {
-            return type.GetInterfaces().Contains(typeof(IDynamicMetaObjectProvider));
         }
 
         public static bool IsNullable(this Type type)
@@ -404,7 +367,7 @@ namespace DotVVM.Framework.Utils
         }
         public static Type MakeNullableType(this Type type)
         {
-            return type.GetTypeInfo().IsValueType && Nullable.GetUnderlyingType(type) == null && type != typeof(void) ? typeof(Nullable<>).MakeGenericType(type) : type;
+            return type.IsValueType && Nullable.GetUnderlyingType(type) == null && type != typeof(void) ? typeof(Nullable<>).MakeGenericType(type) : type;
         }
 
 
@@ -446,11 +409,5 @@ namespace DotVVM.Framework.Utils
             member is MethodInfo method ? method.ReturnType :
             member is TypeInfo type ? type.AsType() :
             throw new NotImplementedException($"Could not get return type of member {member.GetType().FullName}");
-
-        public static Type GetPublicBaseType(this Type type)
-        {
-            while (!(type.IsPublic || type.IsNestedPublic)) type = type.BaseType.NotNull();
-            return type;
-        }
     }
 }
