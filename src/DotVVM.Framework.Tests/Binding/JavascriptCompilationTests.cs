@@ -511,7 +511,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void JsTranslator_ListAddOrUpdate()
         {
-            var result = CompileBinding("LongList.AddOrUpdate(12345L, (long item) => item == 12345, (long item) => 54321L)", new[] { typeof(TestViewModel) }, typeof(void), new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") });
+            var result = CompileBinding("LongList.AddOrUpdate(12345L, item => item == 12345, item => 54321L)", new[] { typeof(TestViewModel) }, typeof(void), new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") });
             Assert.AreEqual("dotvvm.translations.array.addOrUpdate(LongList,12345,function(item){return ko.unwrap(item)==12345;},function(item){return 54321;})", result);
         }
 
