@@ -1,0 +1,65 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Repeater.IndexInNestedRepeaterViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Hello from DotVVM!</title>
+</head>
+<body ClientIDMode="Static">
+
+
+    <%--  Do not change the spans and the index format !!! The test recursively iterates all nodes and checks span content that has to be in format -x-y-z... --%>
+    <div ID="client-side">
+        <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
+            <ItemTemplate>
+                <li>
+                    <span>{{value:  "-"+(_index+1)}}</span>
+                    <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
+                        <ItemTemplate>
+                            <li>
+                                <span> {{value:  "-"+(_parent._index +1)+"-"+ (_index+1)}}</span>
+                                <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
+                                    <ItemTemplate>
+                                        <li>
+                                            <span>{{value:"-"+(_parent2._index +1)+"-"+ (_parent._index +1)+"-"+ (_index+1)}}</span>
+                                        </li>
+                                    </ItemTemplate>
+                                </dot:Repeater>
+                            </li>
+                        </ItemTemplate>
+                    </dot:Repeater>
+                </li>
+            </ItemTemplate>
+        </dot:Repeater>
+    </div>
+
+    <div ID="server-side">
+        <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul" RenderSettings.Mode="Server">
+            <ItemTemplate>
+                <li>
+                    <span>{{value:  "-"+(_index+1)}}</span>
+                    <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
+                        <ItemTemplate>
+                            <li>
+                                <span> {{value:  "-"+(_parent._index +1)+"-"+ (_index+1)}}</span>
+                                <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
+                                    <ItemTemplate>
+                                        <li>
+                                            <span>{{value:"-"+(_parent2._index +1)+"-"+ (_parent._index +1)+"-"+ (_index+1)}}</span>
+                                        </li>
+                                    </ItemTemplate>
+                                </dot:Repeater>
+                            </li>
+                        </ItemTemplate>
+                    </dot:Repeater>
+                </li>
+            </ItemTemplate>
+        </dot:Repeater>
+    </div>
+
+    <p ID="result">{{value: ClickedChild}}</p>
+
+</body>
+</html>
