@@ -46,7 +46,7 @@ test <dot:Literal Text='test' />";
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_ElementWithBindingProperty()
         {
-            var markup = string.Format("@viewModel {0}, {1}\r\ntest <dot:Literal Text='{{{{value: FirstName}}}}' />", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).GetTypeInfo().Assembly.GetName().Name);
+            var markup = string.Format("@viewModel {0}, {1}\r\ntest <dot:Literal Text='{{{{value: FirstName}}}}' />", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).Assembly.GetName().Name);
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
@@ -64,7 +64,7 @@ test <dot:Literal Text='test' />";
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_BindingInText()
         {
-            var markup = string.Format("@viewModel {0}, {1}\r\ntest {{{{value: FirstName}}}}", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).GetTypeInfo().Assembly.GetName().Name);
+            var markup = string.Format("@viewModel {0}, {1}\r\ntest {{{{value: FirstName}}}}", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).Assembly.GetName().Name);
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
@@ -135,7 +135,7 @@ test <dot:Literal><a /></dot:Literal>";
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_Template()
         {
-            var markup = string.Format("@viewModel {0}, {1}\r\n", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).GetTypeInfo().Assembly.GetName().Name) +
+            var markup = string.Format("@viewModel {0}, {1}\r\n", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).Assembly.GetName().Name) +
 @"<dot:Repeater DataSource=""{value: FirstName}"">
     <ItemTemplate>
         <p>This is a test</p>
@@ -210,7 +210,7 @@ test <dot:Literal><a /></dot:Literal>";
 <cc:Test2 />";
             var page = CompileMarkup(markup, new Dictionary<string, string>()
             {
-                { "test2.dothtml", string.Format("@baseType {0}, {1}\r\n@viewModel System.Object, mscorlib\r\n<dot:Literal Text='aaa' />", typeof(TestControl), typeof(TestControl).GetTypeInfo().Assembly.GetName().Name) }
+                { "test2.dothtml", string.Format("@baseType {0}, {1}\r\n@viewModel System.Object, mscorlib\r\n<dot:Literal Text='aaa' />", typeof(TestControl), typeof(TestControl).Assembly.GetName().Name) }
             });
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
@@ -245,7 +245,7 @@ test <dot:Literal><a /></dot:Literal>";
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_MarkupControl_InTemplate()
         {
-            var markup = string.Format("@viewModel {0}, {1}\r\n", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).GetTypeInfo().Assembly.GetName().Name) +
+            var markup = string.Format("@viewModel {0}, {1}\r\n", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).Assembly.GetName().Name) +
 @"<dot:Repeater DataSource=""{value: FirstName}"">
     <ItemTemplate>
         <cc:Test3 />
@@ -279,7 +279,7 @@ test <dot:Literal><a /></dot:Literal>";
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_MarkupControl_InTemplate_CacheTest()
         {
-            var markup = string.Format("@viewModel {0}, {1}\r\n", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).GetTypeInfo().Assembly.GetName().Name) +
+            var markup = string.Format("@viewModel {0}, {1}\r\n", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).Assembly.GetName().Name) +
 @"<dot:Repeater DataSource=""{value: FirstName}"">
     <ItemTemplate>
         <cc:Test4 />
@@ -506,7 +506,7 @@ test <dot:Literal><a /></dot:Literal>";
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test4", Src = "test4.dothtml" });
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test5", Src = "test5.dothtml" });
             context.Configuration.Markup.AddCodeControls("ff", typeof(TestControl));
-            context.Configuration.Markup.AddAssembly(typeof(DefaultViewCompilerTests).GetTypeInfo().Assembly.GetName().Name);
+            context.Configuration.Markup.AddAssembly(typeof(DefaultViewCompilerTests).Assembly.GetName().Name);
 
             var controlBuilderFactory = context.Services.GetRequiredService<IControlBuilderFactory>();
             var (_, controlBuilder) = controlBuilderFactory.GetControlBuilder(fileName + ".dothtml");

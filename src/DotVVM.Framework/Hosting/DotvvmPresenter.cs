@@ -137,10 +137,10 @@ namespace DotVVM.Framework.Hosting
             context.ViewModel = ViewModelLoader.InitializeViewModel(context, page);
 
             // get action filters
-            var viewModelFilters = ActionFilterHelper.GetActionFilters<IViewModelActionFilter>(context.ViewModel.GetType().GetTypeInfo())
+            var viewModelFilters = ActionFilterHelper.GetActionFilters<IViewModelActionFilter>(context.ViewModel.GetType())
                 .Concat(context.Configuration.Runtime.GlobalFilters.OfType<IViewModelActionFilter>());
 
-            var requestFilters = ActionFilterHelper.GetActionFilters<IPageActionFilter>(context.ViewModel.GetType().GetTypeInfo())
+            var requestFilters = ActionFilterHelper.GetActionFilters<IPageActionFilter>(context.ViewModel.GetType())
                 .Concat(context.Configuration.Runtime.GlobalFilters.OfType<IPageActionFilter>());
 
             foreach (var f in requestFilters)
@@ -236,7 +236,7 @@ namespace DotVVM.Framework.Hosting
 
                     // get filters
                     var methodFilters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
-                        .Concat(ActionFilterHelper.GetActionFilters<ICommandActionFilter>(context.ViewModel.GetType().GetTypeInfo()));
+                        .Concat(ActionFilterHelper.GetActionFilters<ICommandActionFilter>(context.ViewModel.GetType()));
                     if (actionInfo.Binding.GetProperty<ActionFiltersBindingProperty>(ErrorHandlingMode.ReturnNull) is ActionFiltersBindingProperty filters)
                         methodFilters = methodFilters.Concat(filters.Filters.OfType<ICommandActionFilter>());
 

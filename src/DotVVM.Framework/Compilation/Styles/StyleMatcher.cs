@@ -51,7 +51,7 @@ namespace DotVVM.Framework.Compilation.Styles
             foreach (var s in Styles[type]) yield return s;
             do
             {
-                type = type.GetTypeInfo().BaseType;
+                type = type.BaseType;
 
                 foreach (var s in Styles[type])
                     if (!s.ExactTypeMatch)
@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Compilation.Styles
                 if (t.IsAssignableFrom(typeof(DotvvmBindableObject))) return ImmutableArray<IStyle>.Empty;
                 var configurationParameter = Expression.Parameter(typeof(DotvvmConfiguration));
                 var controlParameter = Expression.Parameter(typeof(ResolvedControl));
-                return GetImplicitStyles(t.GetTypeInfo().BaseType).Concat(
+                return GetImplicitStyles(t.BaseType).Concat(
                     from m in t.GetMethods(BindingFlags.Public | BindingFlags.Static)
                     where m.IsDefined(typeof(ApplyControlStyleAttribute))
                     let parameters = m.GetParameters()
