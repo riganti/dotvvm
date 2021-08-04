@@ -345,6 +345,18 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("List.RemoveFirst(item => item == 2)", new[] { 1, 3 })]
+        [DataRow("List.RemoveLast(item => item == 2)", new[] { 1, 3 })]
+        [DataRow("List.AddOrUpdate(11, i => i == 2, i => 22)", new[] { 1, 22, 3 })]
+        [DataRow("List.AddOrUpdate(11, i => i == 22, i => 33)", new[] { 1, 2, 3, 11 })]
+        public void BindingCompiler_MoreComplexInference(string expr, int[] result)
+        {
+            var viewModel = new TestViewModel() { StringProp = "abc", List = new List<int>() { 1, 2, 3 } };
+            ExecuteBinding(expr, new[] { viewModel }, null, new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") }, expectedType: typeof(void));
+            CollectionAssert.AreEqual(result, viewModel.List);
+        }
+
+        [TestMethod]
         [DataRow("(int arg, float arg) => ;", DisplayName = "Can not use same identifier for multiple parameters")]
         [DataRow("(object _this) => ;", DisplayName = "Can not use already used identifiers for parameters")]
         public void BindingCompiler_Invalid_LambdaParameters(string expr)
