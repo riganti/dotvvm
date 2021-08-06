@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Threading.Tasks;
 using CheckTestOutput;
@@ -127,12 +128,14 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
-        public async Task GridViewColumn_Usage()
+        public async Task GridViewColumn_Usage_Validators()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
-                <dot:GridView DataSource={value: Customers}>
-                    <dot:GridViewCheckBoxColumn ValueBinding={value: Enabled} />
+                <dot:GridView DataSource={value: Customers} InlineEditing=true>
+                    <dot:GridViewTextColumn ValueBinding={value: Name} ValidatorPlacement=AttachToControl />
                 </dot:GridView>");
+
+            Assert.IsTrue(r.Html.QuerySelector("input[type=text]").GetAttribute("data-bind").Contains("dotvvm-validation: Name"));
         }
 
         [TestMethod]
@@ -169,11 +172,17 @@ namespace DotVVM.Framework.Tests.ControlTests
             public DateTime DateTime { get; set; } = DateTime.Parse("2020-08-11T16:01:44.5141480");
             public string Label { get; } = "My Label";
 
-            public GridViewDataSet<CustomerData> Customers { get; set; } = new GridViewDataSet<CustomerData>();
+            public GridViewDataSet<CustomerData> Customers { get; set; } = new GridViewDataSet<CustomerData>() {
+                RowEditOptions = {
+                    EditRowId = 1,
+                    PrimaryKeyPropertyName = nameof(CustomerData.Id)
+                }
+            };
 
             public class CustomerData
             {
-                public Guid Id { get; set; }
+                public int Id { get; set; }
+                [Required]
                 public string Name { get; set; }
                 public bool Enabled { get; set; }
             }
