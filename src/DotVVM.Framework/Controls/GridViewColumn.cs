@@ -223,11 +223,12 @@ namespace DotVVM.Framework.Controls
             foreach (var property in control.Properties)
             {
                 // ignore attached properties that are set by runtime and not from markup
-                if (property.Value.DothtmlNode == null) continue;
+                if (Internal.IsViewCompilerProperty(property.Key)) continue;
 
                 if (!typeof(GridViewColumn).IsAssignableFrom(property.Key.DeclaringType))
                 {
-                    yield return new ControlUsageError($"The column doesn't support the property {property.Key.FullName}! If you need to set an attached property applied to a table cell, use the CellDecorators property.", property.Value.DothtmlNode);
+                    yield return new ControlUsageError($"The column doesn't support the property {property.Key.FullName}! If you need to set an attached property applied to a table cell, use the CellDecorators property.",
+                        new[] { property.Value.DothtmlNode }.Where(n => n != null));
                 }
             }
         }
