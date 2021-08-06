@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Threading.Tasks;
 using CheckTestOutput;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.ViewModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -124,6 +127,29 @@ namespace DotVVM.Framework.Tests.ControlTests
             Console.WriteLine(exception);
         }
 
+        [TestMethod]
+        public async Task GridViewColumn_CellDecorators()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <dot:GridView DataSource={value: Customers} RenderSettings.Mode=Server InlineEditing=true>
+                    <dot:GridViewTextColumn HeaderText=Id ValueBinding={value: Id}>
+                        <HeaderCellDecorators>
+                            <dot:Decorator class={value: 'header-' + Integer} />
+                        </HeaderCellDecorators>
+                        <CellDecorators>
+                            <dot:Decorator class={value: 'cell-' + Id} />
+                        </CellDecorators>
+                        <EditCellDecorators>
+                            <dot:Decorator class={value: 'cell-' + Id + '-edit'} />
+                        </EditCellDecorators>
+                    </dot:GridViewTextColumn>
+                </dot:GridView>");
+
+            Assert.IsTrue(r.Html.QuerySelectorAll("th")[0].ClassList.Contains("header-10000000"));
+            Assert.IsTrue(r.Html.QuerySelectorAll("td")[0].ClassList.Contains("cell-1-edit"));
+            Assert.IsTrue(r.Html.QuerySelectorAll("td")[1].ClassList.Contains("cell-2"));
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
@@ -133,6 +159,25 @@ namespace DotVVM.Framework.Tests.ControlTests
             [Bind(Name = "date")]
             public DateTime DateTime { get; set; } = DateTime.Parse("2020-08-11T16:01:44.5141480");
             public string Label { get; } = "My Label";
+
+            public GridViewDataSet<CustomerData> Customers { get; set; } = new GridViewDataSet<CustomerData>() {
+                RowEditOptions = {
+                    EditRowId = 1,
+                    PrimaryKeyPropertyName = nameof(CustomerData.Id)
+                },
+                Items = {
+                    new CustomerData() { Id = 1, Name = "One" },
+                    new CustomerData() { Id = 2, Name = "Two" }
+                }
+            };
+
+            public class CustomerData
+            {
+                public int Id { get; set; }
+                [Required]
+                public string Name { get; set; }
+                public bool Enabled { get; set; }
+            }
         }
     }
 }

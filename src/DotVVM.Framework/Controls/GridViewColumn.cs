@@ -131,7 +131,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets a list of decorators that will be applied on each cell which is not in the edit mode.
         /// </summary>
-        [PopDataContextManipulation]
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         public List<Decorator>? CellDecorators
         {
@@ -145,7 +144,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets a list of decorators that will be applied on each cell which is in the edit mode.
         /// </summary>
-        [PopDataContextManipulation]
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         public List<Decorator>? EditCellDecorators
         {
