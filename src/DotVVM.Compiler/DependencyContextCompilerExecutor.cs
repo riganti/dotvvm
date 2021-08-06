@@ -10,13 +10,19 @@ namespace DotVVM.Compiler
 {
     public class DependencyContextCompilerExecutor : ICompilerExecutor
     {
-        private readonly DefaultCompilerExecutor inner = new();
+        private readonly Assembly assembly;
+        private readonly DefaultCompilerExecutor inner;
 
-        public bool ExecuteCompile(FileInfo assemblyFile, DirectoryInfo? projectDir)
+        public DependencyContextCompilerExecutor(Assembly assembly)
         {
-            var assembly = Assembly.LoadFile(assemblyFile.FullName);
+            this.assembly = assembly;
+            inner = new(assembly);
+        }
+
+        public bool ExecuteCompile(CompilerArgs args)
+        {
             ReplaceDefaultDependencyContext(assembly);
-            return inner.ExecuteCompile(assemblyFile, projectDir);
+            return inner.ExecuteCompile(args);
         }
 
         private static void ReplaceDefaultDependencyContext(Assembly projectAssembly)
