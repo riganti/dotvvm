@@ -5,21 +5,18 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
-using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Testing;
 using DotVVM.Framework.Configuration;
 using System.Linq.Expressions;
 using Microsoft.Extensions.DependencyInjection;
-using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -877,24 +874,71 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void StaticCommandCompilation_IndexParameter()
+        [DataRow("_collection.IsEven", "$index()%2==0")]
+        [DataRow("_this._collection.IsEven", "$index()%2==0")]
+        [DataRow("_root._index", "$index()")]
+        [DataRow("_index", "$index()")]
+        [DataRow("_root._page.EvaluatingOnClient", "true")]
+        [DataRow("_page.EvaluatingOnClient", "true")]
+        public void StaticCommandCompilation_Parameters(string expr, string expectedResult)
         {
-            var result = CompileBinding("_index", new [] { typeof(TestViewModel)});
+            var result = CompileBinding(expr, new [] { typeof(TestViewModel) });
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        [TestMethod]
+        [DataRow("_index", "$parentContext.$parentContext.$index()")]
+        [DataRow("_parent2._index", "$parentContext.$parentContext.$index()")]
+        [DataRow("_root._index", "$parentContext.$parentContext.$index()")]
+        [DataRow("_collection.IsEven", "$parentContext.$parentContext.$index()%2==0")]
+        public void StaticCommandCompilation_ParametersInHierarchy(string expr, string expectedResult)
+        {
+            var result = CompileBinding(expr, new [] { typeof(TestViewModel), typeof(object), typeof(string) });
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        [TestMethod]
+        [DataRow("_this._index", "IndexProperty")]
+        [DataRow("_root._index", "IndexProperty")]
+        [DataRow("_index", "IndexProperty")]
+        [DataRow("_collection.Index", "$index()")]
+        public void StaticCommandCompilation_ParameterPropertyConflict(string expr, string expectedResult)
+        {
+            var result = CompileBinding(expr, new [] { typeof(TestExtensionParameterConflictViewModel) });
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_ParameterPropertyNotExists()
+        {
+            // _index exists on parent, but not on _this
+            var e = Assert.ThrowsException<Exception>(() =>
+                CompileBinding("_this._index", new [] { typeof(object), typeof(string) }));
+            Assert.AreEqual("Could not find instance member _index on type System.String.", e.Message);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_MultipleExplicitIndexParameters()
+        {
+            var dc1 = DataContextStack.Create(
+                typeof(TestViewModel),
+                extensionParameters: new [] {
+                    new CurrentCollectionIndexExtensionParameter()
+                });
+            var dc2 = DataContextStack.Create(
+                typeof(int),
+                parent: dc1,
+                extensionParameters: new [] {
+                    new CurrentCollectionIndexExtensionParameter()
+                });
+            var result = bindingHelper.ValueBindingToJs("_index + _this._index + _parent._index + _root._index", dc2);
+            Assert.AreEqual("$index() + $index() + $parentContext.$index() + $parentContext.$index()", result);
+        }
+        [TestMethod]
+        public void StaticCommandCompilation_ExplicitIndexParameterInThis()
+        {
+            var result = CompileBinding("_this._index", new [] { typeof(TestViewModel) });
             Assert.AreEqual("$index()", result);
-        }
-
-        [TestMethod]
-        public void StaticCommandCompilation_CollectionInfoParameter()
-        {
-            var result = CompileBinding("_collection.IsEven", typeof(TestViewModel));
-            Assert.AreEqual("$index()%2==0", result);
-        }
-
-        [TestMethod]
-        public void StaticCommandCompilation_IndexParameterInParent()
-        {
-            var result = CompileBinding("_index", new [] { typeof(TestViewModel), typeof(object), typeof(string) });
-            Assert.AreEqual("$parentContext.$parentContext.$index()", result);
         }
 
         [TestMethod]
@@ -978,6 +1022,12 @@ namespace DotVVM.Framework.Tests.Binding
             var result = CompileBinding(input, typeof(TestViewModel));
             Assert.AreEqual(expected, result);
         }
+    }
+
+    public class TestExtensionParameterConflictViewModel
+    {
+        [Bind(Name = "IndexProperty")]
+        public int _index { get; }
     }
 
     public class TestApiClient

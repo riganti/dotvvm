@@ -38,6 +38,7 @@
     <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
     <None Remove="Views\ControlSamples\RadioButton\Nullable.dothtml" />
     <None Remove="Views\ControlSamples\RadioButton\RadioButton_Objects.dothtml" />
+    <None Remove="Views\ControlSamples\Repeater\IndexInNestedRepeater.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\NamedTemplate.dothtml" />
     <None Remove="Views\ControlSamples\RouteLink\RouteLinkQueryParameters.dothtml" />
     <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressQueues.dothtml" />
