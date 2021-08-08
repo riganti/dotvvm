@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
@@ -12,8 +12,8 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <PackageId>DotVVM.Testing</PackageId>
-    <VersionPrefix>3.1.0</VersionPrefix>
-    <PackageVersion>3.1.0</PackageVersion>
+    <VersionPrefix>4.0.0-preview01-116923</VersionPrefix>
+    <PackageVersion>4.0.0-preview01-116923</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>
       This package contains helpers for testing DotVVM controls and other components.
