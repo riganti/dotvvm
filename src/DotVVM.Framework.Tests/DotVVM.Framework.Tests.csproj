@@ -22,9 +22,10 @@
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
     <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
     <ProjectReference Include="..\DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework.Testing\DotVVM.Framework.Testing.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="0.15.0" />
+    <PackageReference Include="AngleSharp" Version="0.16.0" />
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
     <PackageReference Include="CheckTestOutput" Version="0.4.0" />
     <PackageReference Include="coverlet.collector" Version="3.0.3">

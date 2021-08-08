@@ -122,6 +122,9 @@ namespace DotVVM.Framework.Compilation.Inference
 
         private bool TryInferInstantiation(Type generic, Type concrete, Dictionary<string, Type> generics)
         {
+            if (generic == concrete)
+                return true;
+
             if (generic.IsGenericParameter)
             {
                 // We found the instantiation

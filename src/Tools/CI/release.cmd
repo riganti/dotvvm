@@ -11,6 +11,9 @@ dotnet build ../../DotVVM.Framework -c Release
 dotnet restore ../../DotVVM.Framework.Hosting.AspNetCore
 dotnet build ../../DotVVM.Framework.Hosting.AspNetCore -c Release
 
+dotnet restore ../../DotVVM.Framework.Testing
+dotnet build ../../DotVVM.Framework.Testing -c Release
+
 dotnet restore ../../DotVVM.Framework.Tests
 dotnet build ../../DotVVM.Framework.Tests -c Release
 

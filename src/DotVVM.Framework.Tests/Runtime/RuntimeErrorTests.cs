@@ -21,6 +21,7 @@ using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.Runtime
 {

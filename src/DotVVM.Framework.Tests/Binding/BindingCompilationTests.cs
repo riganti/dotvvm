@@ -17,6 +17,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -42,9 +43,13 @@ namespace DotVVM.Framework.Tests.Binding
             {
                 context = DataContextStack.Create(contexts[i].GetType(), context);
             }
+            return ExecuteBinding(expression, context, contexts, control, imports, expectedType);
+        }
+        public object ExecuteBinding(string expression, DataContextStack contextType, object[] contexts, DotvvmControl control, NamespaceImport[] imports = null, Type expectedType = null)
+        {
             Array.Reverse(contexts);
             var binding = new ResourceBindingExpression(bindingService, new object[] {
-                context,
+                contextType,
                 new OriginalStringBindingProperty(expression),
                 new BindingParserOptions(typeof(ResourceBindingExpression), importNamespaces: imports?.ToImmutableList()),
                 new ExpectedTypeBindingProperty(expectedType ?? typeof(object))
@@ -342,6 +347,18 @@ namespace DotVVM.Framework.Tests.Binding
             var viewModel = new TestViewModel() { StringProp = "abc" };
             var result = ExecuteBinding(expr, new[] { viewModel }, null, new[] { new NamespaceImport("System.Linq") });
             Assert.AreEqual(resultType, result.GetType());
+        }
+
+        [TestMethod]
+        [DataRow("List.RemoveFirst(item => item == 2)", new[] { 1, 3 })]
+        [DataRow("List.RemoveLast(item => item == 2)", new[] { 1, 3 })]
+        [DataRow("List.AddOrUpdate(11, i => i == 2, i => 22)", new[] { 1, 22, 3 })]
+        [DataRow("List.AddOrUpdate(11, i => i == 22, i => 33)", new[] { 1, 2, 3, 11 })]
+        public void BindingCompiler_MoreComplexInference(string expr, int[] result)
+        {
+            var viewModel = new TestViewModel() { StringProp = "abc", List = new List<int>() { 1, 2, 3 } };
+            ExecuteBinding(expr, new[] { viewModel }, null, new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") }, expectedType: typeof(void));
+            CollectionAssert.AreEqual(result, viewModel.List);
         }
 
         [TestMethod]
@@ -644,6 +661,43 @@ namespace DotVVM.Framework.Tests.Binding
             var result = ExecuteBinding("Alias.Property", new object[0], null,
                 new NamespaceImport[] { new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace2.TestClass2", alias: "Alias") });
             Assert.AreEqual(TestNamespace2.TestClass2.Property, result);
+        }
+
+        [TestMethod]
+        [DataRow("_index", 21)]
+        [DataRow("_parent._index", 10)]
+        [DataRow("_root._index", 10)]
+        [DataRow("_parent0._index", 21)]
+        [DataRow("_this._collection.IsOdd", true)]
+        [DataRow("_parent._collection.IsOdd", false)]
+        public void BindingCompiler_IndexExtensionParameter(string expr, object expectedResult)
+        {
+            var dc1 = DataContextStack.Create(
+                typeof(string),
+                extensionParameters: new BindingExtensionParameter[] {
+                    new CurrentCollectionIndexExtensionParameter(),
+                    new BindingCollectionInfoExtensionParameter("_collection")
+                });
+            var dc2 = DataContextStack.Create(
+                typeof(string),
+                parent: dc1,
+                extensionParameters: new BindingExtensionParameter[] {
+                    new CurrentCollectionIndexExtensionParameter(),
+                    new BindingCollectionInfoExtensionParameter("_collection")
+                });
+
+            var control1 = new DataItemContainer() { DataItemIndex = 10 };
+            control1.SetDataContextType(dc1);
+            var control2 = new DataItemContainer() { DataItemIndex = 21 };
+            control2.SetDataContextType(dc2);
+            control1.Children.Add(control2);
+            var html = new HtmlGenericControl("span");
+            control2.Children.Add(html);
+
+            var result = ExecuteBinding(expr, dc2, new object[] { "a", "b" }, html);
+            Assert.AreEqual(expectedResult, result);
+            var result2 = ExecuteBinding(expr, dc2, new object[] { "a", "b" }, control2);
+            Assert.AreEqual(expectedResult, result2);
         }
 
 

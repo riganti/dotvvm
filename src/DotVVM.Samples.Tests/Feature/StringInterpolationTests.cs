@@ -18,7 +18,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StringInterpolation_SpecialCharacterTest()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StringInterpolation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StringInterpolation_StringInterpolation);
                 var text1 = browser.Single("special-char1", SelectByDataUi);
                 var text2 = browser.Single("special-char2", SelectByDataUi);
 
@@ -30,7 +30,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StringInterpolation_StandardNumericFormatTest()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StringInterpolation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StringInterpolation_StringInterpolation);
                 var text1 = browser.Single("standard-numeric-format1", SelectByDataUi);
                 var text2 = browser.Single("standard-numeric-format2", SelectByDataUi);
                 var text3 = browser.Single("standard-numeric-format3", SelectByDataUi);
@@ -50,7 +50,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StringInterpolation_CustomNumericFormatTest()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StringInterpolation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StringInterpolation_StringInterpolation);
                 var text1 = browser.Single("custom-numeric-format1", SelectByDataUi);
                 var text2 = browser.Single("custom-numeric-format2", SelectByDataUi);
                 var text3 = browser.Single("custom-numeric-format3", SelectByDataUi);
@@ -64,7 +64,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StringInterpolation_StandardDateFormatTest()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StringInterpolation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StringInterpolation_StringInterpolation);
                 var text1 = browser.Single("date-format1", SelectByDataUi);
                 var text2 = browser.Single("date-format2", SelectByDataUi);
                 var text3 = browser.Single("date-format3", SelectByDataUi);
@@ -86,7 +86,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_StringInterpolation_CustomDateFormatTest()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StringInterpolation);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StringInterpolation_StringInterpolation);
                 var text1 = browser.Single("custom-date-format1", SelectByDataUi);
                 var text2 = browser.Single("custom-date-format2", SelectByDataUi);
                 var text3 = browser.Single("custom-date-format3", SelectByDataUi);

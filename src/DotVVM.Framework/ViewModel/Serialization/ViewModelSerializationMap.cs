@@ -318,7 +318,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else
             {
-                if (property.Type.GetTypeInfo().IsValueType && reader.TokenType == JsonToken.Null)
+                if (property.Type.IsValueType && reader.TokenType == JsonToken.Null)
                 {
                     return Activator.CreateInstance(property.Type);
                 }
@@ -481,8 +481,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             return !(
                 // primitives can't contain encrypted fields
-                type.GetTypeInfo().IsPrimitive ||
-                type.GetTypeInfo().IsEnum ||
+                type.IsPrimitive ||
+                type.IsEnum ||
                 type == typeof(string)
            );
         }
