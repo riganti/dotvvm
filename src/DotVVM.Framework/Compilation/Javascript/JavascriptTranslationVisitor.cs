@@ -231,8 +231,9 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             if (annotation.ExtensionParameter != null)
             {
+                var type = ResolvedTypeDescriptor.ToSystemType(annotation.ExtensionParameter.ParameterType) ?? expression.Type;
                 return annotation.ExtensionParameter.GetJsTranslation(getDataContext(getContextSteps(annotation.DataContext)))
-                    .WithAnnotation(new ViewModelInfoAnnotation(annotation.ExtensionParameter.ParameterType.Apply(ResolvedTypeDescriptor.ToSystemType), extensionParameter: annotation.ExtensionParameter), append: false);
+                    .WithAnnotation(new ViewModelInfoAnnotation(type, extensionParameter: annotation.ExtensionParameter), append: false);
             }
             else
             {

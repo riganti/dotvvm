@@ -60,9 +60,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var propertyType = propAnnotation.MemberInfo.GetResultType();
                 var annotation = node.Annotation<ViewModelInfoAnnotation>() ?? new ViewModelInfoAnnotation(propertyType);
 
-                if (propAnnotation.SerializationMap == null && target?.Annotation<ViewModelInfoAnnotation>() is ViewModelInfoAnnotation targetAnnotation)
+                if (target?.Annotation<ViewModelInfoAnnotation>() is {} targetAnnotation)
                 {
-                    propAnnotation.SerializationMap = targetAnnotation.SerializationMap.Properties.FirstOrDefault(p => p.PropertyInfo == propAnnotation.MemberInfo);
+                    propAnnotation.SerializationMap ??=
+                        targetAnnotation.SerializationMap?.Properties
+                        .FirstOrDefault(p => p.PropertyInfo == propAnnotation.MemberInfo);
                     annotation.ContainsObservables ??= targetAnnotation.ContainsObservables;
                 }
                 if (propAnnotation.SerializationMap is ViewModelPropertyMap propertyMap)
@@ -92,7 +94,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 node.AddAnnotation(MayBeNullAnnotation.Instance);
             }
 
-            if (node.Annotation<ViewModelInfoAnnotation>() is var vmAnnotation && vmAnnotation?.Type != null && vmAnnotation.SerializationMap == null)
+            if (node.Annotation<ViewModelInfoAnnotation>() is { Type: {}, SerializationMap: null } vmAnnotation)
             {
                 vmAnnotation.SerializationMap = mapper.GetMap(vmAnnotation.Type);
             }
