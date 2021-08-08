@@ -472,7 +472,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void JsTranslator_ListAddOrUpdate()
         {
-            var result = CompileBinding("LongList.AddOrUpdate(12345L, (long item) => item == 12345, (long item) => 54321L)", new[] { typeof(TestViewModel) }, typeof(void), new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") });
+            var result = CompileBinding("LongList.AddOrUpdate(12345L, item => item == 12345, item => 54321L)", new[] { typeof(TestViewModel) }, typeof(void), new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") });
             Assert.AreEqual("dotvvm.translations.array.addOrUpdate(LongList,12345,function(item){return ko.unwrap(item)==12345;},function(item){return 54321;})", result);
         }
 
@@ -1010,12 +1010,26 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("StringProp.ToUpperInvariant()", "StringProp().toUpperCase()")]
         [DataRow("StringProp.ToLowerInvariant()", "StringProp().toLowerCase()")]
         [DataRow("StringProp.IndexOf('test')", "StringProp().indexOf(\"test\")")]
+        [DataRow("StringProp.IndexOf('test',StringComparison.InvariantCultureIgnoreCase)",
+            "dotvvm.translations.string.indexOf(StringProp(),0,\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("StringProp.IndexOf('test',1)", "StringProp().indexOf(\"test\",1)")]
+        [DataRow("StringProp.IndexOf('test',1,StringComparison.InvariantCultureIgnoreCase)",
+            "dotvvm.translations.string.indexOf(StringProp(),1,\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("StringProp.LastIndexOf('test')", "StringProp().lastIndexOf(\"test\")")]
+        [DataRow("StringProp.LastIndexOf('test',StringComparison.InvariantCultureIgnoreCase)",
+            "dotvvm.translations.string.lastIndexOf(StringProp(),0,\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("StringProp.LastIndexOf('test',2)", "StringProp().lastIndexOf(\"test\",2)")]
+        [DataRow("StringProp.LastIndexOf('test',2,StringComparison.InvariantCultureIgnoreCase)",
+            "dotvvm.translations.string.lastIndexOf(StringProp(),2,\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("StringProp.Contains('test')", "StringProp().includes(\"test\")")]
+        [DataRow("StringProp.Contains('test',StringComparison.InvariantCultureIgnoreCase)",
+            "dotvvm.translations.string.contains(StringProp(),\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("StringProp.StartsWith('test')", "StringProp().startsWith(\"test\")")]
+        [DataRow("StringProp.StartsWith('test',StringComparison.InvariantCultureIgnoreCase)",
+            "dotvvm.translations.string.startsWith(StringProp(),\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("StringProp.EndsWith('test')", "StringProp().endsWith(\"test\")")]
+        [DataRow("StringProp.EndsWith('test',StringComparison.InvariantCultureIgnoreCase)",
+            "dotvvm.translations.string.endsWith(StringProp(),\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("string.IsNullOrEmpty(StringProp)", "StringProp()==null||StringProp()===\"\"")]
         public void JavascriptCompilation_StringFunctions(string input, string expected)
         {
