@@ -8,7 +8,8 @@
     <title>Hello from DotVVM!</title>
 </head>
 <body ClientIDMode="Static">
-
+    <p> Checks that _index, _parent._index, ... work correctly. Each row should have the form "{parent indexes} - {_index}"
+    <p> Client rendering:
 
     <%--  Do not change the spans and the index format !!! The test recursively iterates all nodes and checks span content that has to be in format -x-y-z... --%>
     <div ID="client-side">
@@ -34,6 +35,8 @@
             </ItemTemplate>
         </dot:Repeater>
     </div>
+
+    <p> Server rendering:
 
     <div ID="server-side">
         <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul" RenderSettings.Mode="Server">
