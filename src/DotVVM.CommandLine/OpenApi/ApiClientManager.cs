@@ -80,10 +80,10 @@ namespace DotVVM.CommandLine.OpenApi
                     typeof(CSharpClientGeneratorSettings).Assembly
                 });
 
-            var resolver = new CSharpTypeResolver(settings.CSharpGeneratorSettings);
+            var resolver = GetDefaultCSharpTypeResolver(document, settings.CSharpGeneratorSettings);
             var generator = new DotvvmSwaggerToCSharpClientGenerator(document, settings, resolver);
             var csharp = generator.GenerateFile();
-            
+
             if (definition.GenerateWrapperClass && !definition.IsSingleClient)
             {
                 csharp = ApiClientUtils.InjectWrapperClass(csharp, className, clientNames);
@@ -92,6 +92,18 @@ namespace DotVVM.CommandLine.OpenApi
             File.WriteAllText(definition.CSharpClient, csharp);
 
             return (definition.IsSingleClient, className);
+        }
+
+        private static CSharpTypeResolver GetDefaultCSharpTypeResolver(OpenApiDocument document, CSharpGeneratorSettings settings)
+        {
+            var exceptionSchema = document.Definitions.ContainsKey("Exception") ? document.Definitions["Exception"] : null;
+
+            var resolver = new CSharpTypeResolver(settings, exceptionSchema);
+            resolver.RegisterSchemaDefinitions(document.Definitions
+                .Where(p => p.Value != exceptionSchema)
+                .ToDictionary(p => p.Key, p => p.Value));
+
+            return resolver;
         }
 
         public static void GenerateTypeScriptClient(
