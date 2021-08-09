@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var rootCallback = visitor.Visit(expression);
 
             var errorCallback = new JsIdentifierExpression("reject");
-            var js = SouldCompileCallback(rootCallback) ? new JsIdentifierExpression("resolve").Invoke(javascriptTranslator.CompileToJavascript(rootCallback, dataContext)) : null;
+            var js = SouldCompileCallback(rootCallback) ? new JsIdentifierExpression("resolve").Invoke(javascriptTranslator.CompileToJavascript(rootCallback, dataContext, preferUsingState: true)) : null;
 
             foreach (var param in visitor.ParameterOrder.Reverse<ParameterExpression>())
             {
@@ -156,12 +156,12 @@ namespace DotVVM.Framework.Compilation.Binding
                     );
                 }
             }
-            foreach (var sp in js.Descendants.OfType<JsSymbolicParameter>())
-            {
-                if (sp.Symbol == JavascriptTranslator.KnockoutContextParameter) sp.Symbol = currentContextVariable;
-                else if (sp.Symbol == JavascriptTranslator.KnockoutViewModelParameter) sp.ReplaceWith(new JsSymbolicParameter(currentContextVariable).Member("$data"));
-                else if (sp.Symbol == CommandBindingExpression.SenderElementParameter) sp.Symbol = senderVariable;
-            }
+            js = (JsExpression)js.AssignParameters(symbol =>
+                symbol == JavascriptTranslator.KnockoutContextParameter ? currentContextVariable.ToExpression() :
+                symbol == JavascriptTranslator.KnockoutViewModelParameter ? currentContextVariable.ToExpression().Member("$data") :
+                symbol == CommandBindingExpression.SenderElementParameter ? senderVariable.ToExpression() :
+                default
+            );
             return js;
         }
 
@@ -177,7 +177,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else { return null; }
             }
-            return p => new BindingParameterAnnotation(extensionParameter: new JavascriptTranslationVisitor.FakeExtensionParameter(_ => new JsIdentifierExpression(p.Name).WithAnnotation(new ViewModelInfoAnnotation(p.Type)), p.Name, new ResolvedTypeDescriptor(p.Type)));
+            return p => new BindingParameterAnnotation(extensionParameter: new JavascriptTranslationVisitor.FakeExtensionParameter(_ => new JsIdentifierExpression(p.Name).WithAnnotation(new ViewModelInfoAnnotation(p.Type, containsObservables: false)), p.Name, new ResolvedTypeDescriptor(p.Type)));
         }
 
         private static List<(CodeSymbolicParameter parameter, JsNode node)> ResolveOrderSensitiveExpressions(JsFunctionExpression callback, JsExpression invocationDependencies, JsNode replacedPostbackNode)
@@ -254,12 +254,13 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected virtual JsExpression CompileMethodCall(MethodCallExpression methodExpression, DataContextStack dataContext, JsExpression callbackFunction, JsExpression errorCallback)
         {
-            var jsTranslation = javascriptTranslator.TryTranslateMethodCall(methodExpression.Object, methodExpression.Arguments.ToArray(), methodExpression.Method, dataContext)
-                ?.ApplyAction(javascriptTranslator.AdjustViewModelProperties);
+            var jsTranslation = javascriptTranslator.TryTranslateMethodCall(methodExpression.Object, methodExpression.Arguments.ToArray(), methodExpression.Method, dataContext);
             if (jsTranslation != null)
             {
+                jsTranslation.AcceptVisitor(javascriptTranslator.AdjustingVisitor(preferUsingState: true));
                 if (!(jsTranslation.Annotation<ResultIsPromiseAnnotation>() is ResultIsPromiseAnnotation promiseAnnotation))
                     throw new Exception($"Expected javascript translation that returns a promise");
+
                 var resultPromise = promiseAnnotation.GetPromiseFromExpression?.Invoke(jsTranslation) ?? jsTranslation;
                 return resultPromise.Member("then").Invoke(callbackFunction, errorCallback);
             }
@@ -303,7 +304,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else
                 {
-                    clientArgs.Add(javascriptTranslator.CompileToJavascript(arg, dataContext));
+                    clientArgs.Add(javascriptTranslator.CompileToJavascript(arg, dataContext, preferUsingState: true));
                     return new StaticCommandParameterPlan(StaticCommandParameterType.Argument, arg.Type);
                 }
             }).ToArray();
