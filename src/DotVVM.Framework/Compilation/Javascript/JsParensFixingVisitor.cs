@@ -42,6 +42,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 5 => "||",
                 4 => "? :",
                 3 => "=",
+                1 => "method argument",
                 0 => ",",
                 _ => "?"
             };
