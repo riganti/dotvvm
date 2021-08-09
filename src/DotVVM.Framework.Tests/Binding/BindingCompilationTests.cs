@@ -276,7 +276,7 @@ namespace DotVVM.Framework.Tests.Binding
             var viewModel = new TestViewModel();
             var binding = ExecuteBinding(expr, viewModel);
             Assert.IsTrue(binding is Delegate);
-            Assert.AreEqual(lambdaType, binding.GetType());        
+            Assert.AreEqual(lambdaType, binding.GetType());
             Assert.AreEqual(returnType, ((Delegate)binding).DynamicInvoke()?.GetType());
         }
 
@@ -362,7 +362,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingCompiler_Invalid_LambdaParameters(string expr)
         {
             var viewModel = new TestViewModel();
-            Assert.ThrowsException<AggregateException>(() => ExecuteBinding(expr, viewModel));         
+            Assert.ThrowsException<AggregateException>(() => ExecuteBinding(expr, viewModel));
         }
 
         [TestMethod]
@@ -477,25 +477,6 @@ namespace DotVVM.Framework.Tests.Binding
             var viewModel = new TestViewModel();
             var result = (long[])ExecuteBinding("LongArray.Where((long item) => item % 2 != 0).ToArray()", new[] { new NamespaceImport("System.Linq") }, viewModel);
             CollectionAssert.AreEqual(viewModel.LongArray.Where(item => item % 2 != 0).ToArray(), result);
-        }
-
-        class MoqComponent : DotvvmBindableObject
-        {
-            public object Property
-            {
-                get { return (object)GetValue(PropertyProperty); }
-                set { SetValue(PropertyProperty, value); }
-            }
-            public static DotvvmProperty PropertyProperty;
-        }
-
-        [TestMethod]
-        public void BindingCompiler_PropertyRegisteredTwiceThrowException()
-        {
-            Assert.ThrowsException<ArgumentException>(() => {
-                MoqComponent.PropertyProperty = DotvvmProperty.Register<object, MoqComponent>(t => t.Property);
-                DotvvmProperty.Register<bool, MoqComponent>(t => t.Property);
-            });
         }
 
         [TestMethod]

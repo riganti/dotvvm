@@ -76,6 +76,21 @@ namespace DotVVM.Framework.Binding
         public bool IsBindingProperty { get; private set; }
 
         /// <summary>
+        /// Gets whether this property has been made obsolete.
+        /// </summary>
+        /// <remarks>
+        /// Is set to true if the property has the <see cref="ObsoleteAttribute"/>.
+        /// The workaround message from the attribute is contained in <see cref="WorkaroundMessage"/>.
+        /// </remarks>
+        public bool IsObsolete { get; protected set; }
+
+        /// <summary>
+        /// Gets the workaround message from the <see cref="ObsoleteAttribute"/> on the property field
+        /// if the attribute exists.
+        /// </summary>
+        public string? WorkaroundMessage { get; protected set; }
+
+        /// <summary>
         /// Gets the full name of the descriptor.
         /// </summary>
         public string DescriptorFullName
@@ -208,30 +223,86 @@ namespace DotVVM.Framework.Binding
             return property;
         }
 
-        public static void InitializeProperty(DotvvmProperty property, ICustomAttributeProvider attributeProvider)
+        public static DotvvmProperty RegisterAlias<TDeclaringType>(
+            Expression<Func<TDeclaringType, object?>> propertyAccessor,
+            DotvvmProperty aliasedProperty)
+        {
+            var property = ReflectionUtils.GetMemberFromExpression(propertyAccessor.Body) as PropertyInfo;
+            if (property == null)
+            {
+                throw new ArgumentException("The expression should be simple property access",
+                    nameof(propertyAccessor));
+            }
+            if (property.DeclaringType != aliasedProperty.DeclaringType)
+            {
+                throw new ArgumentException("The declaring type of the property alias must match the aliased property.",
+                    nameof(TDeclaringType));
+            }
+            return RegisterAlias(property.Name, aliasedProperty, property);
+        }
+
+        public static DotvvmProperty RegisterAlias(
+            string alias,
+            DotvvmProperty aliasedProperty,
+            ICustomAttributeProvider attributeProvider,
+            bool throwOnDuplicitRegistration = true)
+        {
+            var propertyAlias = new DotvvmPropertyAlias(aliasedProperty, alias);
+            InitializeProperty(propertyAlias, attributeProvider);
+            var fullName = propertyAlias.DeclaringType.FullName + "." + propertyAlias.Name;
+
+            if (!registeredProperties.TryAdd(fullName, propertyAlias))
+            {
+                if (throwOnDuplicitRegistration)
+                    throw new ArgumentException($"Property is already registered: {fullName}");
+                else
+                    return registeredProperties[fullName];
+            }
+            return propertyAlias;
+        }
+
+        public static void InitializeProperty(
+            DotvvmProperty property,
+            ICustomAttributeProvider attributeProvider,
+            DotvvmProperty? fallbackProperty = default)
         {
             var propertyInfo = property.DeclaringType.GetProperty(property.Name);
             var markupOptions = propertyInfo?.GetCustomAttribute<MarkupOptionsAttribute>()
                 ?? attributeProvider.GetCustomAttribute<MarkupOptionsAttribute>()
+                ?? fallbackProperty?.MarkupOptions
                 ?? new MarkupOptionsAttribute() {
                     AllowBinding = true,
                     AllowHardCodedValue = true,
                     MappingMode = MappingMode.Attribute,
                     Name = property.Name
                 };
-            if (string.IsNullOrEmpty(markupOptions.Name)) markupOptions.Name = property.Name;
+            if (string.IsNullOrEmpty(markupOptions.Name))
+                markupOptions.Name = property.Name;
 
-            if (property == null) property = new DotvvmProperty();
+            if (property == null)
+                property = new DotvvmProperty();
+
             property.PropertyInfo = propertyInfo;
             property.DataContextChangeAttributes = (propertyInfo != null ?
                 propertyInfo.GetCustomAttributes<DataContextChangeAttribute>(true) :
                 attributeProvider.GetCustomAttributes<DataContextChangeAttribute>()).ToArray();
+            if (property.DataContextChangeAttributes.Length == 0 && fallbackProperty != null)
+            {
+                property.DataContextChangeAttributes = fallbackProperty.DataContextChangeAttributes;
+            }
+
             property.DataContextManipulationAttribute = propertyInfo != null ?
                 propertyInfo.GetCustomAttribute<DataContextStackManipulationAttribute>(true) :
-                attributeProvider.GetCustomAttribute<DataContextStackManipulationAttribute>();
+                attributeProvider.GetCustomAttribute<DataContextStackManipulationAttribute>() ??
+                fallbackProperty?.DataContextManipulationAttribute;
             if (property.DataContextManipulationAttribute != null && property.DataContextChangeAttributes.Any()) throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set both at property '{property.FullName}'.");
             property.MarkupOptions = markupOptions;
             property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
+
+            var obsoleteAttribute = propertyInfo?.GetCustomAttribute<ObsoleteAttribute>()
+                ?? attributeProvider.GetCustomAttribute<ObsoleteAttribute>();
+            property.IsObsolete = obsoleteAttribute != null || fallbackProperty?.IsObsolete == true;
+            property.WorkaroundMessage = obsoleteAttribute?.Message ?? fallbackProperty?.WorkaroundMessage;
         }
 
         public static IEnumerable<DotvvmProperty> GetVirtualProperties(Type controlType)
