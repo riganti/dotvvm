@@ -1,0 +1,42 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ChildViewModelInvokeMethods.ChildViewModelInvokeMethodsViewModel, DotVVM.Samples.Common
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Hello from DotVVM!</title>
+</head>
+<body ClientIDMode="Static">
+    <fieldset>
+        <legend>ChildViewModel call base method</legend>
+        <fieldset>
+            <legend>Child Init call count should be equals to one</legend>
+            <dot:Literal data-ui="InitCount" Text="{value: ChildViewModel.InitCount}" />
+        </fieldset>
+        <fieldset>
+            <legend>Child Load call count should be equals to one</legend>
+            <dot:Literal data-ui="LoadCount" Text="{value: ChildViewModel.LoadCount}" />
+        </fieldset>
+        <fieldset>
+            <legend>Child PreRenderCount call count should be equals to one</legend>
+            <dot:Literal data-ui="PreRenderCount" Text="{value: ChildViewModel.PreRenderCount}" />
+        </fieldset>
+    </fieldset>
+
+    <fieldset>
+        <legend>ChildViewModel does not call base method</legend>
+        <fieldset>
+            <legend>Child Init call count should be equals to one</legend>
+            <dot:Literal data-ui="NastyInitCount" Text="{value: NastyChildViewModel.InitCount}" />
+        </fieldset>
+        <fieldset>
+            <legend>Child Load call count should be equals to one</legend>
+            <dot:Literal data-ui="NastyLoadCount" Text="{value: NastyChildViewModel.LoadCount}" />
+        </fieldset>
+        <fieldset>
+            <legend>Child PreRenderCount call count should be equals to one</legend>
+            <dot:Literal data-ui="NastyPreRenderCount" Text="{value: NastyChildViewModel.PreRenderCount}" />
+        </fieldset>
+    </fieldset>
+</body>
+</html>

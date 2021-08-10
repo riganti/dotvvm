@@ -1,0 +1,15 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.FileUpload.FileUploadViewModel, DotVVM.Samples.Common
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+	<dot:FileUpload UploadedFiles="{value: Files}" AllowMultipleFiles="false" UploadCompleted="{command: CheckFile()}" />
+    <div>
+        File size: <span class="fileSize">{{value: FileSize.FormattedText}}</span>
+    </div>
+</body>
+</html>

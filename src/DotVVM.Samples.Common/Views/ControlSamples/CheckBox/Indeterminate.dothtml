@@ -1,0 +1,31 @@
+
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox.CheckBoxViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Indeterminate CheckBox test</h1>
+
+        <div class="row">
+            <div class="col-md-6">
+                <fieldset>
+                    <legend>Indeterminate CheckBox</legend>
+                    <p>
+                        <dot:CheckBox Text="Indeterminate Test" Checked="{value: Indeterminate}" />
+                        &nbsp; &nbsp;
+                        <dot:Button Text="Reset" Click="{staticCommand: Indeterminate = null}" />
+                        &nbsp; &nbsp;
+                        <span class="value">{{value: Indeterminate == null ? "Indeterminate": "Other"}}</span>                        
+                    </p>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+

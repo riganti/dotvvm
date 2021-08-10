@@ -1,0 +1,12 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPA.DefaultViewModel, DotVVM.Samples.Common
+@masterPage Views/ComplexSamples/SPA/site.dotmaster
+
+<dot:Content ContentPlaceHolderID="Container">
+
+    <h2>Default</h2>
+
+    <dot:Button Click="{command: AddSampleText()}" Text="Validated command"/>
+
+    <dot:Literal data-ui="sample-text" RenderSpanElement="true" Text="{value: SampleText}"/>
+</dot:Content>
+

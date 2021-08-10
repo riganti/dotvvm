@@ -1,0 +1,5 @@
+@viewModel System.Object
+@baseType DotVVM.Samples.BasicSamples.Views.FeatureSamples.MarkupControl.ControlPropertyUpdating, DotVVM.Samples.Common
+
+<span data-uitest="result">{{controlProperty: ControlProperty + " HUHA"}}</span>
+<dot:Button Text="Update control property" Click="{controlCommand: UpdateProperty()}" />

@@ -1,0 +1,38 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingContexts.CollectionContextViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        .block {
+            border: 1px solid black;
+            margin: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <dot:Repeater DataSource="{value: Texts}" RenderSettings.Mode="{resource: RenderMode}">
+        <div class="block" RenderSettings.Mode="Client">
+            <span>The Text: </span>
+            <span>{{value: _this}}</span>
+            <br/>
+            <span>_collection.Index: </span>
+            <span class="collection-index">{{value: _collection.Index}}</span>
+            <br/>
+            <span>_collection.IsFirst: </span>
+            <span class="collection-is-first">{{value: _collection.IsFirst}}</span>
+            <br/>
+            <span>_collection.IsOdd: </span>
+            <span class="collection-is-odd">{{value: _collection.IsOdd}}</span>
+            <br/>
+            <span>_collection.IsEven: </span>
+            <span class="collection-is-even">{{value: _collection.IsEven}}</span>
+        </div>
+    </dot:Repeater>
+</body>
+</html>
+
+

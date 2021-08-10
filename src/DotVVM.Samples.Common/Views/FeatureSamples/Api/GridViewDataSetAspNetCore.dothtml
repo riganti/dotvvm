@@ -1,0 +1,51 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.GridViewDataSetAspNetCoreViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h1>Orders grid</h1>
+    <dot:GridView DataSource="{value: _api.RefreshOnEvent(_apiCore.ApiOrdersGet(20, 0, 20), "Refresh4")}">
+        <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: Id}" AllowSorting="true" />
+        <dot:GridViewTextColumn HeaderText="Number" ValueBinding="{value: Number}" AllowSorting="true" />
+        <dot:GridViewTextColumn HeaderText="CompanyId" ValueBinding="{value: CompanyId}" AllowSorting="true" />
+    </dot:GridView>
+    <p><dot:Button Text="Refresh" Click="{staticCommand: _api.PushEvent("Refresh4")}" /></p>
+
+    <h1>Grid with sorting</h1>
+    <dot:GridView DataSource="{value: _api.RefreshOnEvent(_apiCore.ApiCompaniesSortedGet(SortingOptions1), "Refresh1")}">
+        <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: Id}" AllowSorting="true" />
+        <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="true" />
+        <dot:GridViewTextColumn HeaderText="Owner" ValueBinding="{value: Owner}" AllowSorting="true" />
+    </dot:GridView>
+    <p><dot:Button Text="Refresh" Click="{staticCommand: _api.PushEvent("Refresh1")}" /></p>
+    <p>&nbsp;</p>
+
+    <h1>Grid with paging</h1>
+    <dot:GridView DataSource="{value: _api.Store(_api.RefreshOnEvent(_apiCore.ApiCompaniesPagedGet(DataSet1.PagingOptions), "Refresh2"), DataSet1)}">
+        <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: Id}" AllowSorting="true" />
+        <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="true" />
+        <dot:GridViewTextColumn HeaderText="Owner" ValueBinding="{value: Owner}" AllowSorting="true" />
+    </dot:GridView>
+    <dot:DataPager DataSet="{value: DataSet1}" />
+    <p><dot:Button Text="Refresh" Click="{staticCommand: _api.PushEvent("Refresh2")}" /></p>
+
+    <p>&nbsp;</p>
+
+    <h1>Grid with paging</h1>
+    <dot:GridView DataSource="{value: _api.Store(_api.RefreshOnEvent(_apiCore.ApiCompaniesSortedandpagedGet(DataSet2.SortingOptions, DataSet2.PagingOptions), "Refresh3"), DataSet2)}">
+        <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: Id}" AllowSorting="true" />
+        <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="true" />
+        <dot:GridViewTextColumn HeaderText="Owner" ValueBinding="{value: Owner}" AllowSorting="true" />
+    </dot:GridView>
+    <dot:DataPager DataSet="{value: DataSet2}" />
+    <p><dot:Button Text="Refresh" Click="{staticCommand: _api.PushEvent("Refresh3")}" /></p>
+    <p>&nbsp;</p>
+</body>
+</html>
+
+

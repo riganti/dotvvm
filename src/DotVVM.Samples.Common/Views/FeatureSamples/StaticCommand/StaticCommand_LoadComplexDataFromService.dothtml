@@ -1,0 +1,33 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand.StaticCommand_LoadComplexDataFromServiceViewModel, DotVVM.Samples.Common
+@service foodService = DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand.FoodService
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div Visible="{value: Message != null}">
+        {{value: Message}}
+    </div>
+
+    <dot:TextBox Text="{value: NewFood}" />
+    <dot:Button Text="Add food item" Click="{staticCommand:
+                    AddFoodsCallbackResult = foodService.AddFoodAsync(NewFood,Foods);
+                    Foods = AddFoodsCallbackResult.Foods;
+                    Message = AddFoodsCallbackResult.Message}" />
+
+    <dot:Repeater WrapperTagName="ol" DataSource="{value: Foods}">
+        <li class="food">{{value: _this}}</li>
+    </dot:Repeater>
+    
+    <dot:Repeater WrapperTagName="ol" DataSource="{value: Names}">
+        <li class="name">{{value: _this}}</li>
+    </dot:Repeater>
+
+</body>
+</html>
+
+

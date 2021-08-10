@@ -1,0 +1,210 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.RedirectAndUrl.ScrollingPageViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Scrolling test</title>
+</head>
+<body>
+    <dot:LinkButton data-ui="test-link" Text="Test message" Click="{command: TestMessage()}" /> |
+    <dot:LinkButton data-ui="go-to-2-url-link" Text="To 2 RedirectToUrl" Click="{command: GoToParagraph2WithRedirectToUrl()}" /> |
+    <dot:LinkButton data-ui="go-to-2-link" Text="To 2" Click="{command: GoToParagraph2()}" /> |
+    <dot:LinkButton data-ui="go-to-3-link" Text="To 3" Click="{command: TestQueryString()}" /> 
+    
+    <h2 ID="paragraph1" ClientIDMode="Static">Paragraph 1</h2>
+    <dot:Literal data-ui="message1" Text="{value: _this.Message}" />
+    <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo mauris ligula, non egestas orci iaculis sit amet. In faucibus aliquam tempus. Vestibulum a ante quis lectus venenatis tincidunt. Donec dignissim ac augue vel gravida. Donec accumsan ante ac felis elementum semper eu sit amet lorem. Nulla tincidunt nunc sit amet turpis tempus facilisis. Donec orci velit, tristique in lacus tempus, vulputate viverra urna. Aenean quis enim fermentum, venenatis nunc ornare, ultrices risus. Curabitur eleifend rutrum ligula id aliquam. Quisque tempor non mi at scelerisque. Integer accumsan malesuada nibh, et lacinia dui sagittis ac.
+    </p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <p>-</p>
+    <h2 ID="paragraph2">Paragraph 2</h2>
+    <dot:Literal data-ui="message2" Text="{value: _this.Message}" />
+    <p>
+        Duis bibendum urna magna, non sodales elit fringilla quis. Nullam vulputate, diam sed rutrum fermentum, dui nunc vehicula diam, et pulvinar sem elit sed sapien. Maecenas congue vestibulum felis vitae viverra. Sed elementum auctor quam, a placerat dolor ultrices in. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed malesuada nunc vel vestibulum lacinia. Ut laoreet tortor vel turpis egestas, quis pellentesque quam vestibulum. Aliquam erat volutpat. Proin semper ex nulla, non ultricies mi accumsan nec. Sed et nibh non nisl faucibus lacinia. Nulla eu lacinia velit, et pharetra libero. Proin a cursus arcu. Curabitur sed elit neque. Suspendisse feugiat sapien ut magna ornare porta. Suspendisse id lobortis nisl, non rutrum dolor.
+    </p>
+    <dot:LinkButton data-ui="go-to-1-link" Text="To 1" Click="{command: GoToParagraph1()}" />
+</body>
+</html>
+
+

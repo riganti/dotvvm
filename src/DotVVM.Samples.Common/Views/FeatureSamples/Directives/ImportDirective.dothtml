@@ -1,0 +1,23 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Directives.ImportDirectiveViewModel, DotVVM.Samples.Common
+@import NS = DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Directives1
+@import DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.DirectivesNonAlias
+@import Texts = DotVVM.Samples.Common.Resources.Resource
+@import VM = DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Directives.ImportDirectiveViewModel
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <p>{{resource: VM.Func()}}</p>
+    <p>{{resource: NS.TestClass1.Func()}}</p>
+    <p>{{resource: TestClassNonAlias.Func()}}</p>
+    <p>{{resource: Texts.DefaultDirectiveLocalization}}</p>
+    <p>{{resource: VM.NestedViewModel.StaticText}}</p>
+</body>
+</html>
+
+

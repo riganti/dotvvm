@@ -1,0 +1,41 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ServerSideStyles.ServerSideStylesViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div>
+        <cc:ServerSideStylesControl id="dotvvmControlNoAttr" />
+        <br />
+        <cc:ServerSideStylesControl id="dotvvmControlWithAttr"
+                                    value="Default text"
+                                    class="Default class" />
+    </div>
+    <div>
+        <customTagName id="htmlControlNoAttr">
+            Custom html control with no default attributes
+        </customTagName>
+        <br />
+
+        <customTagName id="htmlControlWithAttr"
+                       append="Default attribute"
+                       overwrite="Default attribute"
+                       ignore="Default attribute"
+                       class="default-class">
+            Custom html control with default attributes
+        </customTagName>
+    </div>
+
+    <div DataContext="{value: Object}">
+        <customDataContextTag id="nonMatchingDataContextAndRoot">
+            This control should not match RootDataContext and DataContext
+            rules and should not have dataContextCheck and rootDataContextCheck
+            attributes.
+        </customDataContextTag>
+    </div>
+</body>
+</html>

@@ -1,0 +1,30 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.ServerRendering.ControlUsageSampleViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Server rendering - sanitizer use case: working</title>
+</head>
+<body>
+    <div Visible="{value: !ShowEditForm}">
+        <dot:LinkButton data-ui="show-link" Click="{command: ShowFormClick()}" Text="ShowForm"></dot:LinkButton>
+    </div>
+    <div data-ui="context-1" DataContext="{value: EditedArticle}" Visible="{value: _root.ShowEditForm && _root.ShowFirstForm}">
+        <div RenderSettings.Mode="Server" PostBack.Update="true">
+            <sample:ArticleEditor Date="{value: DateSubmitted}"
+                                  OriginalMessage="{value: Message}"/>
+        </div>
+    </div>
+    <div data-ui="context-2" DataContext="{value: EditedArticle}" Visible="{value: _root.ShowEditForm && !_root.ShowFirstForm}">
+        <div RenderSettings.Mode="Server" PostBack.Update="true">
+            <sample:ArticleEditor Date="{value: DateSubmitted}"
+                                  OriginalMessage="{value: Message}" />
+        </div>
+    </div>
+    <dot:LinkButton data-ui="rewrite-link" Click="{command: RewriteArticle()}" Text="Rewrite"></dot:LinkButton>
+</body>
+</html>
+
+

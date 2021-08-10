@@ -1,0 +1,11 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPAViewModelReapplication.ViewModelB, DotVVM.Samples.Common
+@masterPage Views\ComplexSamples\SPAViewModelReapplication\master.dotmaster
+
+<dot:Content ContentPlaceHolderID="MainContent">
+
+	<dot:TextBox Text="{value: TestValueB}" />
+	<dot:TextBox Text="{value: TestValue}" />
+
+	<dot:Button Click="{command: Test()}" Text="Test" />
+
+</dot:Content>

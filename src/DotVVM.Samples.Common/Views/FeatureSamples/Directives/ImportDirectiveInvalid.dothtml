@@ -1,0 +1,25 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Directives.ImportDirectiveInvalidViewModel, DotVVM.Samples.Common
+
+@import aaaa(mm, dd)
+@import System
+@import System.jsskadkldl
+@import asafasffsa
+@import System.Collections.Generic.List<mmm>
+@import L = System.Collections.Generic.List<mmm>
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div ID="failed">
+        FAILED
+
+    </div>
+</body>
+</html>
+
+

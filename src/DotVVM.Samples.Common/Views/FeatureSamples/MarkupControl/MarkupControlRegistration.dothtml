@@ -1,0 +1,16 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.MarkupControl.MarkupControlRegistrationViewModel, DotVVM.Samples.Common
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <div class="container">
+        <h1>User Controls Sample</h1>
+
+        <sample:MarkupControlRegistrationControl DataContext="{value: ViewModel1}" Value="{value: Value}" Name="First Control" />
+        <sample:MarkupControlRegistrationControl DataContext="{value: ViewModel2}" Value="{value: Value}" Name="{value: _root.SecondControlName}" />
+    </div>
+
+</body>
+</html>

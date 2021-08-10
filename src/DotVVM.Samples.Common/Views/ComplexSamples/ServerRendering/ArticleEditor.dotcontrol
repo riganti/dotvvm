@@ -1,0 +1,10 @@
+﻿@viewModel System.Object, mscorlib
+@baseType DotVVM.Samples.BasicSamples.Views.ComplexSamples.ServerRendering.ArticleEditor, DotVVM.Samples.Common
+
+<article>
+    <ul>
+        <li>
+        <dot:Literal Text="{controlProperty: Date}" FormatString="d" /></li>
+        <li><dot:TextBox data-ui="textbox" Text="{controlProperty: OriginalMessage}" /></li>
+    </ul>
+</article>

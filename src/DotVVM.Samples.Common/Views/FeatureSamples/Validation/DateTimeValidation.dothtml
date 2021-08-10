@@ -1,0 +1,39 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation.DateTimeValidationViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        .has-error {
+            border: solid 1px red;
+        }
+    </style>
+</head>
+<body>
+    <p>
+        Nullable DateTime with disabled DotvvmClientFormat:
+        <dot:TextBox Validator.InvalidCssClass="has-error" Text="{value: Value1}" Validator.Value="{value:  Value1}" />
+    </p>
+    <p>
+        Nullable DateTime:
+        <dot:TextBox Validator.InvalidCssClass="has-error" Text="{value: Value2}" Validator.Value="{value:  Value2}" />
+    </p>
+    <p>
+        Nullable DateTime with Required:
+        <dot:TextBox Validator.InvalidCssClass="has-error" Text="{value: Value3}" Validator.Value="{value:  Value3}" />
+    </p>
+    <p>
+        Non-nullable:
+        <dot:TextBox Validator.InvalidCssClass="has-error" Text="{value: Value4}" Validator.Value="{value:  Value4}" />
+    </p>
+    <p>
+        Non-nullable with Required:
+        <dot:TextBox Validator.InvalidCssClass="has-error" Text="{value: Value5}" Validator.Value="{value:  Value5}" />
+    </p>
+    <dot:Button Text="Validate" Click="{command: ValidateRequiredDateTime()}" ID="ValidateButton" />
+</body>
+</html>
+

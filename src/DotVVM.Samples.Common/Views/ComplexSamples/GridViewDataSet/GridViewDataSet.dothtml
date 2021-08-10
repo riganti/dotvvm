@@ -1,0 +1,45 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet.GridViewDataSetViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+</head>
+<body>
+    <div>
+        <dot:GridView class="GridView" DataSource="{value: GridData}" RenderSettings.Mode="Client">
+            <Columns>
+                <dot:GridViewTextColumn ValueBinding="{value: DataId}" HeaderText="{resource: "Id"}" Width="40px" />
+                <dot:GridViewTextColumn ValueBinding="{value: Value}" HeaderText="{resource: "Name"}" Width="150px" />
+                <dot:GridViewTemplateColumn Width="10%">
+                    <ContentTemplate>
+                        <dot:Button ButtonTagName="button" class="button" data-ui="button-with-html-content">
+                            <h4>Choose</h4>
+                        </dot:Button>
+                    </ContentTemplate>
+                </dot:GridViewTemplateColumn>
+                <dot:GridViewTemplateColumn Width="10%">
+                    <ContentTemplate>
+                        <dot:AuthenticatedView>
+                            <NotAuthenticatedTemplate>
+                                <span data-ui="template-content">Not Authenticated</span>
+                            </NotAuthenticatedTemplate>
+                        </dot:AuthenticatedView>
+                    </ContentTemplate>
+                </dot:GridViewTemplateColumn>
+            </Columns>
+        </dot:GridView>
+
+        <dot:DataPager DataSet="{value: GridData}" class="pagination" RenderLinkForCurrentPage="{resource: true}">
+            <FirstPageTemplate>
+                <button>{{resource: "First"}}</button>
+            </FirstPageTemplate>
+            <LastPageTemplate>
+                <button>{{resource: "Last"}}</button>
+            </LastPageTemplate>
+            <NextPageTemplate>Next</NextPageTemplate>
+            <PreviousPageTemplate>Previous</PreviousPageTemplate>
+        </dot:DataPager>
+    </div>
+</body>
+</html>

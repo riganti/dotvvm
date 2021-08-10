@@ -1,0 +1,58 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.ClaimView.ClaimViewTestViewModel
+@import System.Security.Claims
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h1>ClaimView Test</h1>
+
+    <dot:ClaimView Claim="{value: ClaimTypes.Role}" Values="admin,moderator,tester" HideForAnonymousUsers="false">
+        <HasClaimTemplate>
+            <p class="result1">I am a member!</p>
+        </HasClaimTemplate>
+        <HasNotClaimTemplate>
+            <p class="result1">I am not a member!</p>
+        </HasNotClaimTemplate>
+    </dot:ClaimView>
+
+    <dot:ClaimView Claim="{value: ClaimTypes.Role}" Values="admin,moderator,tester">
+        <HasClaimTemplate>
+            <p class="result2">I am a member!</p>
+        </HasClaimTemplate>
+        <HasNotClaimTemplate>
+            <p class="result2">I am not a member!</p>
+        </HasNotClaimTemplate>
+    </dot:ClaimView>
+
+    <dot:ClaimView Claim="{value: ClaimTypes.Role}">
+        <HasClaimTemplate>
+            <p class="result3">I am a member!</p>
+        </HasClaimTemplate>
+        <HasNotClaimTemplate>
+            <p class="result3">I am not a member!</p>
+        </HasNotClaimTemplate>
+    </dot:ClaimView>
+
+    <fieldset>
+        <legend>Sign In</legend>
+
+        <p>
+            Desired Roles:
+            <dot:CheckBox Text="admin" CheckedValue="admin" CheckedItems="{value: DesiredRoles}" />
+            <dot:CheckBox Text="moderator" CheckedValue="moderator" CheckedItems="{value: DesiredRoles}" />
+            <dot:CheckBox Text="tester" CheckedValue="tester" CheckedItems="{value: DesiredRoles}" />
+            <dot:CheckBox Text="headhunter" CheckedValue="headhunter" CheckedItems="{value: DesiredRoles}" />
+        </p>
+
+        <dot:Button Text="Sign In" Click="{command: SignIn()}" />
+    </fieldset>
+
+    <dot:Button Text="Sign Out" Click="{command: SignOut()}" />
+
+</body>
+</html>

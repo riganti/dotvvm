@@ -1,0 +1,17 @@
+﻿{
+  "factories": {
+    "chrome:fast": {}
+  },
+  "baseUrls": [
+    "http://localhost:16018/"
+  ],
+  "testRunOptions": {
+    "runInParallel": false,
+    "testAttemptsCount": 1
+  },
+  "logging": {
+    "loggers": {
+      "testContext": {}
+    }
+  }
+}

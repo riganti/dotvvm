@@ -1,0 +1,43 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.ValidationSummary.IncludeErrorsFromTargetViewModel, DotVVM.Samples.Common
+@masterPage Views/ControlSamples/ValidationSummary/master.dotmaster
+
+<dot:Content ContentPlaceHolderID="MainContent">
+    <h1>IncludeErrorsFromTarget when PropertyPath of a custom validation error IS NOT null</h1>
+    <h2>The target is therefore the ViewModel</h2>
+    <div Validator.InvalidCssClass="has-error">
+        <form Visible="{value: !Login.IsLoggedIn}">
+            <label Validator.Value="{value: Login.Nick}">
+                Nick:
+                <dot:TextBox Text="{value: Login.Nick}"
+                             data-ui="nick-textbox"/>
+            </label>
+            <label Validator.Value="{value: Login.Password}">
+                Password:
+                <dot:TextBox Text="{value: Login.Password}"
+                             data-ui="password-textbox"/>
+            </label>
+            <div Visible="{value: !Login.IsLoggedIn}">
+                <dot:Button Text="Log In"
+                            data-ui="login-button"
+                            Click="{command: LogIn()}"
+                            IsSubmitButton="true"></dot:Button>
+            </div>
+            <dot:ValidationSummary IncludeErrorsFromTarget="true"
+                                   IncludeErrorsFromChildren="true"
+                                   data-ui="validationSummary"/>
+        </form>
+        <div Visible="{value: Login.IsLoggedIn}">
+            <dot:Button Text="Log Out"
+                        data-ui="logout-button"
+                        Click="{command: LogOut()}"
+                        Validation.Enabled="false"></dot:Button>
+        </div>
+        <div>
+            <dot:Button Text="PropertyPath = 'Login'"
+                        data-ui="setup-button"
+                        Click="{command: PropertyPath = "Login"}"
+                        PostBack.Update="true"
+                        Validation.Enabled="false"></dot:Button>
+        </div>
+    </div>
+</dot:Content>

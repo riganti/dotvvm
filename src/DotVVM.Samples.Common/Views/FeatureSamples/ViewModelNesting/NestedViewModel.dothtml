@@ -1,0 +1,83 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ViewModelNesting.NestedViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>
+
+            </th>
+            <th>
+                Knockout binding
+            </th>
+            <th>
+                Server binding
+            </th>
+            <th>
+                Expected value
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Nested ViewModel all method called
+            </td>
+            <td>
+                {{value: ViewModel2Property.Initialized && ViewModel2Property.Loaded && ViewModel2Property.PreRendered}}
+            </td>
+            <td>
+                {{resource: ViewModel2Property.Initialized && ViewModel2Property.Loaded && ViewModel2Property.PreRendered}}
+            </td>
+            <td>
+                true
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Query Parameter from child viewModel
+            </td>
+            <td>
+                {{value: ViewModel2Property.QueryParameterId}}
+            </td>
+            <td>
+                {{resource: ViewModel2Property.QueryParameterId}}
+            </td>
+            <td>
+                {{resource: Context.Query["Id"]}}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Query Parameter from child viewModel in collection
+            </td>
+            <td>
+                {{value: ViewModel2Collection[0].QueryParameterId}}
+            </td>
+            <td>
+                {{resource: ViewModel2Collection[0].QueryParameterId}}
+            </td>
+            <td>
+                {{resource: Context.Query["Id"]}}
+            </td>
+        </tr>
+    </table>
+
+    <div>
+        <p>
+            ViewModel1 tree
+        </p>
+        <dot:Repeater DataSource="{value: ViewModel1Property.AllChildren}">
+            <div style="{value: "padding-left: " + 30 * Offset + "px;"}">
+                Item (<span data-ui="{value: "offset_" + Offset}">{{value: Offset}}</span>):
+            </div>
+        </dot:Repeater>
+    </div>
+</body>
+</html>
+
+

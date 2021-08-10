@@ -1,0 +1,20 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.TextBox.TextBox_FormatDoublePropertyViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:TextBox Text="{value: DoubleProperty}" 
+                 FormatString="N2"
+                 data-ui="textBox"/>
+    <dot:Button Text="Set value" 
+                Click="{command: SetDoubleProperty()}"
+                data-ui="button"></dot:Button>
+</body>
+</html>
+
+

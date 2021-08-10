@@ -1,0 +1,39 @@
+{
+  "author": "RIGANTI",
+  "classifications": ["Web", "DotVVM"],
+  "name": "DotVVM Web Application",
+  "groupIdentity": "DotVVM.Templates",
+  "identity": "DotVVM.Templates.EmptyWeb",
+  "shortName": "dotvvm",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "DotvvmApplication1",
+  "preferNameDirectory": true,
+  "symbols": {
+    "IncludeApplicationInsights": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Whether or not to include Application Insights in the project"
+    },
+    "Framework": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "netcoreapp2.0",
+          "description": "Target netcoreapp2.0"
+        },
+		{
+          "choice": "net451",
+          "description": "Target net451"
+        }
+      ],
+      "replaces": "netcoreapp2.0",
+      "defaultValue": "netcoreapp2.0"
+    }
+  },
+  "primaryOutputs": [ { "path": "DotvvmApplication1.csproj" } ]
+}

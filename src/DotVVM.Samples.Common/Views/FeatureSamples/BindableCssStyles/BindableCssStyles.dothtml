@@ -1,0 +1,32 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.BindableCssStyles.BindableCssStylesViewModel
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Bindable style properties</title>
+</head>
+<body>
+    <div>
+        <dot:Literal Text="Literal - Font Size" Style-font-size="{value: FontSize + 'px'}" Style-font-weight="{value: 700}" data-ui="literal-font-size" />
+        <div Style-width="{value: Width + 'px'}" Style-height="50px" style="background-color: green" data-ui="div-width">
+            Div - Width
+        </div>
+        <span Style-color="{value: Color}" Style-display="{value: Condition ? 'none' : 'inline-block'}" data-ui="span-color">Span - Color/Display</span>
+    </div>
+
+    <div>
+        <dot:Button Click="{staticCommand: FontSize = FontSize + 1}" Text="FontSize++" data-ui="font-size-inc" />
+        <dot:Button Click="{staticCommand: FontSize = FontSize - 1}" Text="FontSize--" data-ui="font-size-dec" />
+
+        <dot:Button Click="{staticCommand: Width = Width + 10}" Text="Width + 10" data-ui="width-inc" />
+        <dot:Button Click="{staticCommand: Width = Width - 10}" Text="Width - 10" data-ui="width-dec" />
+
+        <dot:Button Click="{staticCommand: Color = 'green'}" Text="Color = green" data-ui="set-color-green" />
+        <dot:Button Click="{staticCommand: Color = 'red'}" Text="Color = red" data-ui="set-color-red" />
+
+        <dot:Button Click="{staticCommand: Condition = !Condition}" Text="Condition = !Condition" data-ui="change-condition" />
+    </div>
+</body>
+</html>

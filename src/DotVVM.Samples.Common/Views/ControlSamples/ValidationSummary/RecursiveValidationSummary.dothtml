@@ -1,0 +1,31 @@
+@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.ValidationSummary.RecursiveValidationSummaryViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container">
+
+        <div ID="test1">
+            <dot:TextBox Text="{value: Child1.Text}" />
+            <dot:TextBox Text="{value: Child1.Child.Text}" />
+            <dot:ValidationSummary Validation.Target="{value: Child1}" IncludeErrorsFromChildren="true" />
+            <dot:Button Validation.Target="{value: Child1}" Text="Test 1" Click="{command: Validate()}" />
+        </div>
+
+        <div ID="test1">
+            <dot:TextBox Text="{value: Child2.Text}" />
+            <dot:TextBox Text="{value: Child2.Child.Text}" />
+            <dot:ValidationSummary Validation.Target="{value: Child2}" />
+            <dot:Button Validation.Target="{value: Child2}" Text="Test 2" Click="{command: Validate()}" />
+        </div>
+
+        <dot:Button Text="Validate Collection" Validation.Target="{value: Children}" Click="{command: Validate()}" />
+
+        <div ID="result"><span>{{value: Validated}}</span></div>
+    </div>
+</body>
+</html>

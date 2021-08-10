@@ -1,0 +1,53 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostbackConcurrency.PostbackConcurrencyViewModel, DotVVM.Samples.Common
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <div class="container" Postback.concurrency="{resource: ConcurrencyMode}" PostBack.ConcurrencyQueue="test">
+        <h1>Double postback prevention</h1>
+        <p>
+            <dot:Button Text="Long action" data-ui="long-action-button" Click="{command: LongAction()}" />
+            <dot:Button Text="Short action" data-ui="short-action-button" Click="{command: ShortAction()}" />
+        </p>
+        <p>
+            <dot:Button Text="static - Long action" data-ui="long-static-action-button" Click="{staticCommand: State = PostbackConcurrencyViewModel.LongAction(State.CurrentIndex)}" />
+            <dot:Button Text="static - Short action" data-ui="short-static-action-button" Click="{staticCommand: State = PostbackConcurrencyViewModel.ShortAction(State.CurrentIndex)}" />
+        </p>
+        <p>
+            Postback index:
+            <span data-ui="postback-index">{{value: State.CurrentIndex}}</span>
+        </p>
+        <p>
+            Last action:
+            <span data-ui="last-action">{{value: State.LastAction}}</span>
+        </p>
+        <p>Click the long action and then immediately the short action. The first request result should not apply after the second request result.</p>
+
+
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+
+        <h1>Update progress</h1>
+        <div style="position: relative; border: solid 1px black; width: 400px; height: 300px; padding: 10px">
+
+            <dot:UpdateProgress data-ui="update-progress">
+                <div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background-color: gray; opacity: 0.6">
+                </div>
+                <div style="position: absolute; top: 50%; left: 50%; width: 100px; height: 40px; margin-left: -50px; margin-top: -20px; background-color: white; line-height: 40px; text-align: center">
+                    Loading...
+                </div>
+            </dot:UpdateProgress>
+        </div>
+
+        <div>
+            Concurrency Mode:
+            <a href="?concurrency=None">None</a> /
+            <a href="?concurrency=Queue">Queue</a> /
+            <a href="?concurrency=Deny">Deny</a>
+        </div>
+    </div>
+</body>
+</html>

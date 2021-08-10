@@ -1,0 +1,26 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.ComboBox.NullableViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+    <div>
+        <dot:ComboBox DataSource="{value: Items}"
+                      ItemTextBinding="{value: Text}"
+                      ItemValueBinding="{value: Value}"
+                      SelectedValue="{value: SelectedValue}"
+                      data-ui="combobox"/>
+    </div>
+    <div>
+        <p>SelectedValue: <span data-ui="selected-value">{{value: SelectedValue}}</span></p>
+    </div>
+    <div>
+        <dot:Button Click="{command: 0}" Text="Empty Postback" />
+        <dot:Button Click="{command: SetNull()}" Text="Set null" />
+        <dot:Button Click="{command: SetFirst()}" Text="Set first" />
+        <dot:Button Click="{command: SetSecond()}" Text="Set second" />
+    </div>
+</body>
+</html>

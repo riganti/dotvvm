@@ -1,0 +1,44 @@
+{
+  "activeProfile": "ExplicitAssemblyLoading",
+  "profiles": [
+    {
+      "name": "Default",
+      "config": {
+
+      }
+    },
+    {
+      "name": "LazyCsrfToken",
+      "config": {
+        "experimentalFeatures": {
+          "lazyCsrfToken": {
+            "enabled": true
+          }
+        }
+      }
+    },
+    {
+      "name": "ServerSideViewModelCache",
+      "config": {
+        "experimentalFeatures": {
+          "serverSideViewModelCache": {
+            "enabled": true
+          }
+        }
+      }
+    },
+    {
+      "name": "ExplicitAssemblyLoading",
+      "config": {
+        "experimentalFeatures": {
+          "explicitAssemblyLoading": {
+            "enabled": true
+          }
+        }
+      }
+    }
+  ],
+  "appSettings": {
+    "githubApiToken": ""
+  }
+}

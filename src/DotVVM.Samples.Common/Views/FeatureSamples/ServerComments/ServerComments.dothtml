@@ -1,0 +1,22 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ServerComments.ServerCommentsViewModel, DotVVM.Samples.Common
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <p ID="before">Before Server Comments</p>
+
+    <%--<p ID="firstHidden">Server Commented text</p>--%>
+
+    <p ID="afterFirst">After Server Comments</p>
+
+    <%--<p id="otherHidden">Other Server Commented text</p>--%>
+
+    <p ID="afterOther">After Other Server Comments</p>
+
+</body>
+</html>

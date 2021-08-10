@@ -1,0 +1,28 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.ServerRendering.ControlUsageSampleViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Server rendering - sanitizer use case: not working</title>
+</head>
+<body>
+    <dot:Repeater DataSource="{value: Articles}"
+                  WrapperTagName="div"
+                  RenderSettings.Mode="Server"
+                  PostBack.Update="true"
+                  data-ui="repeater">
+        <sample:ArticleDetail OriginalMessage="{value: Message}"
+                              EditClick="{command: _root.EditArticleClick(Id)}"
+                              Visible="{value: !_root.ShowEditForm || (Id != _root.EditedArticle.Id)}" />
+        <div>
+            <sample:ArticleEditor OriginalMessage="{value: _root.EditedArticle.Message}"
+                                  Date="{value: DateSubmitted}"
+                                  Visible="{value: _root.ShowEditForm && (Id == _root.EditedArticle.Id)}" />
+        </div>
+    </dot:Repeater>
+</body>
+</html>
+
+

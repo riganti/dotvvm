@@ -1,0 +1,10 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.EmptyViewModel, DotVVM.Samples.Common
+@masterPage Views/Errors/Master.dotmaster
+
+<dot:Content ID="Content1" ContentPlaceHolderID="MainContent" >
+	@viewmodel is not inherited from masterpage viewmodel
+
+	!!! In error page, viewModel directive should by underlined !!!
+
+
+</dot:Content>

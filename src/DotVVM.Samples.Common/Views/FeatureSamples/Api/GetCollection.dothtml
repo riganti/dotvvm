@@ -1,0 +1,42 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.GetCollectionViewModel
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:Repeater DataSource="{value: _apiOwin.Companies.Get()}">
+        <div class="id-company" data-company-id="{value: Id}">
+            {{value: Id}}: 
+            {{value: Name}}
+        
+            <div style="margin-left: 30px">
+                <dot:Button Text="select company" Click="{staticCommand: _parent.SelectedCompanyId = Id}" />
+            </div>
+        </div>
+    </dot:Repeater>
+    <hr />
+    <div style="margin-left: 30px">
+
+        <dot:Repeater DataSource="{value: SelectedCompanyId == -1 ? null : _api.RefreshOnChange(_apiOwin.Orders.Get(SelectedCompanyId, 0, 20), SelectedCompanyId)}">
+            <div Visible="{value: _root.EditedOrderId == Id}" class="id-order id-edit" data-order-id="{value: Id}">
+                OrderId: {{value: Id}} <br />
+                Date: <dot:TextBox Text="{value: Date}" FormatString="yyyy-MM-dd" /> <br /> 
+                <dot:Button Click="{staticCommand: _apiOwin.Orders.Put(Id, _this)}" Text="Apply" />
+                <dot:Button Click="{staticCommand: _root.EditedOrderId = -1}" Text="Exit" />
+            </div>
+            <div Visible="{value: _root.EditedOrderId != Id}" class="id-order" data-order-id="{value: Id}">
+                OrderId: {{value: Id}}, Date: <span class="id-date">{{value: Date.Value.ToString("yyyy-MM-dd")}}</span>, 
+                <dot:Button Click="{staticCommand: _apiOwin.Orders.Delete(Id)}" Text="Delete" />
+                <dot:Button Click="{staticCommand: _root.EditedOrderId = Id}" Text="Edit" />
+            </div>
+        </dot:Repeater>
+    </div>
+
+</body>
+</html>
+
+

@@ -1,0 +1,25 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Serialization.ObservableCollectionShouldContainObservablesViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+	<!-- This is a sample that tests whether the ComboBox supports SelectedValue binding to _this when _this is an object in an observable collection. -->
+
+	<dot:Repeater DataSource="{value: SelectedItemIds}" WrapperTagName="ul">
+		<li>
+			<dot:ComboBox DataSource="{value: _parent.Items}" ItemTextBinding="{value: Name}" ItemValueBinding="{value: Id}" SelectedValue="{value: _this}" />
+		</li>
+	</dot:Repeater>
+
+	<p><dot:Button Click="{command: PrintItems()}" Text="Print Selected Items" /></p>
+
+	<p class="result">{{value: Result}}</p>
+
+</body>
+</html>

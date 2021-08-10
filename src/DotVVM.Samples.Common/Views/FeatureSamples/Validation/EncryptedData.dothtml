@@ -1,0 +1,17 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation.EncryptedDataViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:Button data-ui="counter-button" Text="Click test" Click="{command: IncreaseCount()}" />
+
+    <span data-ui="result" InnerText="{value: PublicCount}"></span>
+</body>
+</html>
+
+

@@ -1,0 +1,24 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.JavascriptEvents.JavascriptEventsViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+	
+	<div class="container">
+		<h1>Javascript Events test</h1>
+		
+		<dot:Button Text="Test successful postback" Click="{command: Test()}" />
+		<dot:Button Text="Test error postback" Click="{command: TestError()}" />
+	</div>
+
+	<dot:InlineScript ID="eventTests" Dependencies="dotvvm" >
+		dotvvm.events.init.subscribe(function() { alert("init"); });
+		dotvvm.events.beforePostback.subscribe(function() { alert("beforePostback"); });
+		dotvvm.events.afterPostback.subscribe(function() { alert("afterPostback"); });
+		dotvvm.events.error.subscribe(function(args) { alert("custom error handler"); args.handled = true; });
+	</dot:InlineScript>
+</body>
+</html>

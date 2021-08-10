@@ -1,0 +1,18 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CommandArguments.ReturnValueViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <cc:RefreshTextButton Click="{command: RefreshText}" data-ui="refresh-text-command1">Uninitialized</cc:RefreshTextButton>
+    <cc:RefreshTextButton Click="{command: RefreshText()}" data-ui="refresh-text-command2">Uninitialized</cc:RefreshTextButton>
+    <cc:RefreshTextButton Click="{staticCommand: 'Text: ' + (Counter = Counter + 1)}" data-ui="refresh-text-static-command">Uninitialized</cc:RefreshTextButton>
+    <cc:RefreshTextButton Click="{staticCommand: ViewModel.JustGetTheText(Counter)}"  data-ui="get-text-static-command">Uninitialized</cc:RefreshTextButton>
+</body>
+</html>
+
+

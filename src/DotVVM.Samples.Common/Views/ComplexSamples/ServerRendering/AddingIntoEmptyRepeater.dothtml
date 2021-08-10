@@ -1,0 +1,37 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.ServerRendering.AddingIntoEmptyRepeaterViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Adding into empty repeater</title>
+</head>
+<body>
+    <div style="border: 2px dashed black;">
+        <dot:Repeater data-ui="empty-repeater"
+                      DataSource="{value: EmptyArticles}"
+                      WrapperTagName="div"
+                      RenderSettings.Mode="Server"
+                      PostBack.Update="true">
+            <sample:ArticleDetail OriginalMessage="{value: Message}"
+                                  EditClick="{command: _root.EditArticle(Id)}" />
+        </dot:Repeater>
+    </div>
+    <div style="border: 2px dotted red;">
+        <dot:Repeater data-ui="nonempty-repeater"
+                      DataSource="{value: NonEmptyArticles}"
+                      WrapperTagName="div"
+                      RenderSettings.Mode="Server"
+                      PostBack.Update="true">
+            <sample:ArticleDetail OriginalMessage="{value: Message}"
+                                  EditClick="{command: _root.EditArticle(Id)}" />
+        </dot:Repeater>
+    </div>
+    <dot:LinkButton data-ui="add-link"
+                    Click="{command: AddArticle()}"
+                    Text="Add article"></dot:LinkButton>
+</body>
+</html>
+
+

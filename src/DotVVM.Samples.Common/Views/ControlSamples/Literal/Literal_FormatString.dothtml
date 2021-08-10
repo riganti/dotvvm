@@ -1,0 +1,53 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Literal.LiteralViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <a ID="change-culture" href="?lang=cs-CZ">
+        Czech
+    </a>
+
+    <table>
+        <tr>
+            <td>
+
+                <h1>Client Rendering</h1>
+                <fieldset>
+                    <legend>d</legend>
+                    <dot:Literal ID="client-format-d" Text="{value: CurrentDate}" FormatString="d"  />
+                </fieldset>
+
+                <fieldset>
+                    <legend>D</legend>
+                    <dot:Literal ID="client-format-D" Text="{value: CurrentDate}" FormatString="D"  />
+                </fieldset>
+
+            </td>
+            <td RenderSettings.Mode="Server">
+                <h1>Server Rendering</h1>
+                <fieldset>
+                    <legend>d</legend>
+                    <dot:Literal ID="server-render-format-d" Text="{value: CurrentDate}" FormatString="d"  />
+                </fieldset>
+				 <fieldset>
+                    <legend>D</legend>
+                    <dot:Literal ID="server-render-format-D" Text="{value: CurrentDate}" FormatString="D"  />
+                </fieldset>
+
+            </td>
+        </tr>
+    </table>
+
+    <p>
+        d: <span ID="results-d">{{value: CorrectCurrentDateFormatString_d }}</span>
+    </p>
+    <p>
+        D: <span ID="results-D">{{value: CorrectCurrentDateFormatString_D }}</span>
+    </p>
+</body>
+</html>

@@ -1,0 +1,7 @@
+AggregateException occurred: Could not initialize binding '{ValueBindingExpression`1: value(DotVVM.Framework.Configuration.DotvvmConfiguration).ToString()}', requirement DotVVM.Framework.Binding.Properties.KnockoutExpressionBindingProperty was not met. (Unable to get property KnockoutExpressionBindingProperty of binding {ValueBindingExpression`1: value(DotVVM.Framework.Configuration.DotvvmConfiguration).ToString()}, unresolvable arguments. (Method Object.ToString can not be translated to Javascript))
+    at void DotVVM.Framework.Tests.Runtime.RuntimeErrorTests.InitResolverFailure()+() => { }
+
+BindingPropertyException occurred: Unable to get property KnockoutExpressionBindingProperty of binding {ValueBindingExpression`1: value(DotVVM.Framework.Configuration.DotvvmConfiguration).ToString()}, unresolvable arguments. (Method Object.ToString can not be translated to Javascript)
+
+NotSupportedException occurred: Method Object.ToString can not be translated to Javascript
+    at JsExpression DotVVM.Framework.Compilation.Javascript.JavascriptTranslationVisitor.TranslateMethodCall(MethodCallExpression expression)

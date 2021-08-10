@@ -1,0 +1,37 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Serialization.SerializationViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .completed {
+            color: maroon;
+            text-decoration: line-through;
+        }
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container">
+
+        <h1>Task List</h1>
+
+		<p>This value <strong>will not</strong> be transferred to the server. After postback, the value will disappear because the property is not set on the server.</p>
+		<p><dot:TextBox Text="{value: Value}" /></p>
+		<p>&nbsp;</p>
+
+		<p>This value <strong>will</strong> be transferred to the server. The value will still be the same after postback regardless of changes made on the server.</p>
+		<p><dot:TextBox Text="{value: Value2}" /></p>
+		<p>&nbsp;</p>
+
+		<p>
+			<dot:Button Text="Test" Click="{command: Test()}" />
+		</p>
+
+		<p><span>{{value: Results}}</span></p>
+
+    </div>
+
+</body>
+</html>

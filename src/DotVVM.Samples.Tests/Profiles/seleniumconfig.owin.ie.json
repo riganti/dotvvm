@@ -1,0 +1,17 @@
+﻿{
+  "factories": {
+    "ie:dev": {}
+  },
+  "baseUrls": [
+    "http://localhost:5407/"
+  ],
+  "testRunOptions": {
+    "runInParallel": true,
+    "testAttemptsCount": 2
+  },
+  "logging": {
+    "loggers": {
+      "testContext": {}
+    }
+  }
+}

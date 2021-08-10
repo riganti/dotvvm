@@ -1,0 +1,21 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.Errors.UndefinedRouteLinkParametersViewModel
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .invalid {
+            color: red;
+        }
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container">
+        <h1>RouteLink extra parameters should be prohibited</h1>
+
+        <dot:RouteLink RouteName="Errors_UndefinedRouteLinkParameters-PageDetail" Param-Id="5" Param-Op="Hello" Param-Desc="World" Text="RouteLink" />
+    </div>
+</body>
+</html>

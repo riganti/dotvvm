@@ -1,0 +1,42 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels.GeneratorViewModel, DotVVM.Samples.BasicSamples.Api.AspNetCore
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>Generate Web API Classes</h1>
+
+    <p>
+        Namespace: <dot:TextBox Text="{value: Namespace}" />
+    </p>
+
+    <fieldset style="width: 40%; display: inline-block">
+        <legend>C# Client</legend>
+
+        <p>
+            Output Path: <dot:TextBox Text="{value: CSharpPath}" />
+        </p>
+
+        <dot:Button Text="Generate" Click="{command: GenerateCSharp()}" />
+        <dot:Button Text="Generate Swagger.json" Click="{command: GenerateSwagger()}" />
+    </fieldset>
+
+    <fieldset style="width: 40%; display: inline-block">
+        <legend>JavaScript Client</legend>
+
+        <p>
+            Output Path: <dot:TextBox Text="{value: TSPath}" />
+        </p>
+
+        <dot:Button Text="Generate" Click="{command: GenerateTS()}" />
+    </fieldset>
+
+</body>
+</html>
+
+

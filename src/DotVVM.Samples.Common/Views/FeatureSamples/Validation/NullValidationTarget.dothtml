@@ -1,0 +1,34 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation.NullValidationTargetViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div DataContext="{value: NullObject}">
+        <p>
+            Email: <dot:TextBox Text="{value: Email}" />
+        </p>
+        <p>
+            Required: <dot:TextBox Text="{value: Required}" />
+        </p>
+    </div>
+    <div DataContext="{value: RealObject}">
+        <p>
+            Email: <dot:TextBox Text="{value: Email}" />
+        </p>
+        <p>
+            Required: <dot:TextBox Text="{value: Required}" />
+        </p>
+    </div>
+    <dot:ValidationSummary IncludeErrorsFromChildren="true" />
+    <dot:Button Text="ValidationTarget = root" Click="{command: 5}" Validation.Enabled="true" Validation.Target="{value: _root}" />
+    <dot:Button Text="ValidationTarget = null" Click="{command: 5}" Validation.Enabled="true" Validation.Target="{value: NullObject}" />
+    <dot:Button Text="ValidationTarget = some object" Click="{command: 5}" Validation.Enabled="true" Validation.Target="{value: RealObject}" />
+</body>
+</html>
+
+

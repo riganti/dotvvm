@@ -1,0 +1,38 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.ComboBox.ComboBoxViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .invalid {
+            color: red;
+        }
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container">
+        <h1>Hardcoded items in ComboBox</h1>
+
+        <dot:ComboBox SelectedValue="{value: SelectedValue}" data-ui="hardcoded-combobox">
+            <dot:SelectorItem Text="A" Value="1" />
+            <dot:SelectorItem Text="AA" Value="2" />
+            <dot:SelectorItem Text="AAA" Value="3" />
+            <dot:SelectorItem Text="AAAA" Value="4" />
+        </dot:ComboBox>
+        <span data-ui="selected-value">{{value: SelectedValue}}</span>
+    </div>
+     
+    <div class="container"> 
+        <h1>Binded items in ComboBox</h1>
+
+        <dot:ComboBox SelectedValue="{value: SelectedText}" DataSource="{value: Texts}" data-ui="binded-combobox"
+                      ItemValueBinding="{value: _this}"
+                      ItemTitleBinding="{value: _this}"
+                      ItemTextBinding="{value: _this}"/>
+        <span data-ui="selected-text">{{value: SelectedText}}</span>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+﻿## Serialization
+•% CPU Time spent Garbage Collecting: 43.0%
+
+20% JObject.ToString
+
+## Deserialization
+•% CPU Time spent Garbage Collecting: 52.6% (most allocations JObject.Parse)
+
+63% JObject.Parse

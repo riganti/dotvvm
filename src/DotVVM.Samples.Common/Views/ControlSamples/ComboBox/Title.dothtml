@@ -1,0 +1,28 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox.ComboBoxTitleViewModel, DotVVM.Samples.Common
+@import DotVVM.Samples.Common.Utilities
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:ComboBox DataSource="{value: List}"
+                  SelectedValue="{value: SelectedValue}"
+                  ItemTextBinding="{value: JavaScriptUtils.LimitLength(Text, 6)}"
+                  ItemValueBinding="{value: Value}"
+                  ItemTitleBinding="{value: Title}" />
+
+    Selected: <span class="result" >{{value: SelectedValue}}</span>
+
+    <dot:InlineScript>
+        function limitLength(text, length) {
+            return text.length > length ? text.substr(0, length) + '...' : text;
+        }
+    </dot:InlineScript>
+</body>
+</html>
+
+

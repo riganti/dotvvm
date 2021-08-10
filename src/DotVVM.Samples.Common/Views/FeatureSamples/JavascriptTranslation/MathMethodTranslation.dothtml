@@ -1,0 +1,65 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation.MathMethodTranslationViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <div>
+        <h2>Input</h2>
+        Arg1(int): <dot:TextBox Text="{value: IArg1}" />
+        Arg2(int): <dot:TextBox Text="{value: IArg2}" />
+        </br>
+        Arg1(double): <dot:TextBox Text="{value: DArg1}" />
+        Arg2(double): <dot:TextBox Text="{value: DArg2}" />
+    </div>
+
+    <div>
+        <h2>Operations</h2>
+        <h4>Rounding</h4>
+        <dot:Button Text="Ceiling(double1)" Click="{staticCommand: Result = Math.Ceiling(DArg1)}" />
+        <dot:Button Text="Floor(double1)" Click="{staticCommand: Result = Math.Floor(DArg1)}" />
+        <dot:Button Text="Round(double1)" Click="{staticCommand: Result = Math.Round(DArg1)}" />
+        <dot:Button Text="Round(double1,int1)" Click="{staticCommand: Result = Math.Round(DArg1,IArg1)}" />
+        <dot:Button Text="Truncate(double1)" Click="{staticCommand: Result = Math.Truncate(DArg1)}" />
+        </br>
+
+        <h4>Goniometric operations</h4>
+        <dot:Button Text="Acos(double1)" Click="{staticCommand: Result = Math.Acos(DArg1)}" />
+        <dot:Button Text="Asin(double1)" Click="{staticCommand: Result = Math.Asin(DArg1)}" />
+        <dot:Button Text="Atan(double1)" Click="{staticCommand: Result = Math.Atan(DArg1)}" />
+        <dot:Button Text="Atan2(double1,double2)" Click="{staticCommand: Result = Math.Atan2(DArg1,DArg2)}" />
+        <dot:Button Text="Cos(double1)" Click="{staticCommand: Result = Math.Cos(DArg1)}" />
+        <dot:Button Text="Cosh(double1)" Click="{staticCommand: Result = Math.Cosh(DArg1)}" />
+        <dot:Button Text="Tan(double1)" Click="{staticCommand: Result = Math.Tan(DArg1)}" />
+        <dot:Button Text="Tanh(double1)" Click="{staticCommand: Result = Math.Tanh(DArg1)}" />
+        </br>
+
+        <h4>Basic functions</h4>
+        <dot:Button Text="Abs(int1)" Click="{staticCommand: Result = Math.Abs(IArg1)}" />
+        <dot:Button Text="Abs(double1)" Click="{staticCommand: Result = Math.Abs(DArg1)}" />
+        <dot:Button Text="Exp(double1)" Click="{staticCommand: Result = Math.Exp(DArg1)}" />
+        <dot:Button Text="Log(double1)" Click="{staticCommand: Result = Math.Log(DArg1)}" />
+        <dot:Button Text="Log10(double1)" Click="{staticCommand: Result = Math.Log10(DArg1)}" />
+        <dot:Button Text="Max(int1,int2)" Click="{staticCommand: Result = Math.Max(IArg1, IArg2)}" />
+        <dot:Button Text="Max(double1,double2)" Click="{staticCommand: Result = Math.Max(DArg1, DArg2)}" />
+        <dot:Button Text="Min(int1,int2)" Click="{staticCommand: Result = Math.Min(IArg1, IArg2)}" />
+        <dot:Button Text="Min(double1,double2)" Click="{staticCommand: Result = Math.Min(DArg1, DArg2)}" />
+        <dot:Button Text="Pow(double1,double2)" Click="{staticCommand: Result = Math.Pow(DArg1, DArg2)}" />
+        <dot:Button Text="Sign(int1)" Click="{staticCommand: Result = Math.Sign(IArg1)}" />
+        <dot:Button Text="Sign(double1)" Click="{staticCommand: Result = Math.Sign(DArg1)}" />
+        <dot:Button Text="Sqrt(double1)" Click="{staticCommand: Result = Math.Sqrt(DArg1)}" />
+    </div>
+
+    <div>
+        <h2>Result</h2>
+        <dot:TextBox Text="{value: Result}" />
+    </div>
+</body>
+</html>
+
+

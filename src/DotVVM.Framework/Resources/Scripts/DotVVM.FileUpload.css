@@ -1,0 +1,40 @@
+.dotvvm-upload {
+    margin: 1em 0px;
+}
+
+.dotvvm-upload .dotvvm-upload-iframe {
+    position: absolute;
+    left: -100000px;
+    top: 0px;
+}
+
+.dotvvm-upload .dotvvm-upload-files {
+    display: inline-block;
+    margin-left: 2em;
+}
+
+.dotvvm-upload .dotvvm-upload-progress-wrapper {
+    display: inline-block;
+    margin-left: 2em;
+    width: 100px;
+    height: 14px;
+    line-height: 10px;
+    padding: 1px;
+    border: 1px solid #a0a0a0;
+    vertical-align: middle;
+}
+    .dotvvm-upload .dotvvm-upload-progress-wrapper .dotvvm-upload-progress {
+        height: 10px;
+        background-color: #0094ff;
+        display: inline-block;
+    }
+
+.dotvvm-upload .dotvvm-upload-result {
+    display: inline-block;
+    margin-left: 2em;
+}
+    .dotvvm-upload .dotvvm-upload-result.dotvvm-upload-result-success {
+    }
+    .dotvvm-upload .dotvvm-upload-result.dotvvm-upload-result-error {
+        color: #cc0000;
+    }

@@ -1,0 +1,29 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.AuthenticatedView.AuthenticatedViewTestViewModel
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>Authenticated View Test</h1>
+
+    <dot:AuthenticatedView>
+        <AuthenticatedTemplate>
+            <p class="result">I am authenticated!</p>
+        </AuthenticatedTemplate>
+        <NotAuthenticatedTemplate>
+            <p class="result">I am not authenticated!</p>
+        </NotAuthenticatedTemplate>
+    </dot:AuthenticatedView>
+
+    <dot:Button Text="Sign In" Click="{command: SignIn()}" />
+    <dot:Button Text="Sign Out" Click="{command: SignOut()}" />
+
+</body>
+</html>
+
+

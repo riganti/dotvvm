@@ -1,0 +1,16 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect.RedirectViewModel, DotVVM.Samples.Common
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Redirect test</h1>
+        <p><dot:Button Text="Test redirect" Click="{command: RedirectTest()}" /></p>
+        <p><dot:Button Text="Test RedirectToRoute object queryString" Click="{command: RedirectObjectQueryString()}"
+                       data-ui="object-redirect-button"/></p>
+        <p><dot:Button Text="Test RedirectToRoute dictionary queryString" Click="{command: RedirectDictionaryQueryString()}"
+                       data-ui="dictionary-redirect-button"/></p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,32 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.TextBox.TextBoxViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .invalid {
+            color: red;
+        }
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container">
+        <h1>TextBox sample</h1>
+        <dot:TextBox ID="TextBox1" 
+                     Text="text in property" />
+        <br/>
+        <dot:TextBox ID="TextBox2" 
+                     Text="{value: TextValue}" />
+        <br/>
+        <dot:TextBox ID="TextArea1" 
+                     Text="text in property" 
+                     Type="MultiLine" />
+        <br/>
+        <dot:TextBox ID="TextArea2" 
+                     Text="{value: TextValue}" 
+                     Type="MultiLine" />
+    </div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ActionFilterErrorHandling.ActionFilterRedirectViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    
+    <h1>Action Filter Redirects</h1>
+
+    <dot:Button Text="Try Command Exception" Click="{command: TestCommandException()}" />
+    <dot:Button Text="Try Page Exception" Click="{command: TestPageException()}" />
+
+</body>
+</html>
+
+

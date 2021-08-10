@@ -1,0 +1,14 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.Errors.CorruptedContentBetweenContentControlsViewModel, DotVVM.Samples.Common
+@masterPage Views/Errors/Master.dotmaster
+<dot:Content ContentPlaceHolderID="MainContent">
+    Line 1
+    Line 2
+    Line 3
+    Line 4
+    Line 5
+    Line 6
+</dot:Content>
+
+Do not change the spacing in this test!!!
+<dot:Literal Text="asd" />
+Do not change the spacing in this test!!!

@@ -1,0 +1,45 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Repeater.RouteLinkViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+	<div class="container">
+		<h1>RouteLink in Repeater</h1>
+		
+		<h3>Client rendered</h3>
+		<dot:Repeater DataSource="{value: Pages}" RenderSettings.Mode="Client">
+			<ItemTemplate>
+				<dot:RouteLink RouteName="RepeaterRouteLink-PageDetail" Param-Id="{value: Id}" Text="{value: Name}" />
+			</ItemTemplate>
+		</dot:Repeater>
+
+		<h3>Server rendered</h3>
+		<dot:Repeater DataSource="{value: Pages}" RenderSettings.Mode="Server">
+			<ItemTemplate>
+				<dot:RouteLink RouteName="RepeaterRouteLink-PageDetail" Param-Id="{value: Id}" Text="{value: Name}" />
+			</ItemTemplate>
+		</dot:Repeater>
+
+
+
+		<h3>Client rendered - lowercase</h3>
+		<dot:Repeater DataSource="{value: Pages}" RenderSettings.Mode="Client">
+			<ItemTemplate>
+				<dot:RouteLink routeName="RepeaterRouteLink-PageDetail" Param-id="{value: Id}" text="{value: Name}" />
+			</ItemTemplate>
+		</dot:Repeater>
+
+		<h3>Server rendered - lowercase</h3>
+		<DOT:rEPEATER dATAsOURCE="{VALUE: Pages}" rENDERsETTINGS.mODE="sERVER">
+			<iTEMtEMPLATE>
+				<DOT:routeLink routeName="RepeaterRouteLink-PageDetail" Param-id="{value: Id}" text="{value: Name}" />
+			</ItemTemplate>
+		</dot:Repeater>
+
+	</div>
+	
+</body>
+</html>

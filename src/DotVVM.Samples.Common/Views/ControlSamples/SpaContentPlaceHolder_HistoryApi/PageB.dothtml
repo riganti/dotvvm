@@ -1,0 +1,46 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceHolder_HistoryApi.PageBViewModel, DotVVM.Samples.Common
+@masterPage Views/ControlSamples/SpaContentPlaceHolder_HistoryApi/SpaMaster.dotmaster
+
+<dot:Content ContentPlaceHolderID="MainContent">
+
+    <div DataContext="{value: Sample1}">
+        <h1>Task List</h1>
+
+        <fieldset>
+            <legend>Add Task</legend>
+
+            <p>Title: <dot:TextBox Text="{value: NewTaskTitle}" /></p>
+            <p><dot:Button Text="Create" Click="{command: AddTask()}" /></p>
+        </fieldset>
+        <p>&nbsp;</p>
+
+        <span class="invisibleText">
+            testResource.css was not loaded correctly
+        </span>
+
+        <table class="table">
+            <dot:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
+                <ItemTemplate>
+                    <tr class="{value: IsCompleted ? "completed" : ""}">
+                        <td>{{value: Title}}</td>
+                        <td>
+                            <dot:LinkButton Text="done"
+                                            Click="{command: _parent.CompleteTask(TaskId)}"
+                                            Visible="{value: !IsCompleted}" />
+                        </td>
+                    </tr>
+                </ItemTemplate>
+            </dot:Repeater>
+        </table>
+    </div>
+
+    <div class="navigation">
+        <p><dot:Button Click="{command: RedirectInside()}" data-ui="redirect-inside-spa" Text="Redirect inside SPA test" /></p>
+        <p><dot:Button Click="{command: RedirectOutside()}" data-ui="redirect-outside-spa" Text="Redirect outside SPA test" /></p>
+    </div>
+
+    <dot:RequiredResource Name="ControlSamples_SpaContentPlaceHolder_testCss" />
+    <dot:RequiredResource Name="ControlSamples_SpaContentPlaceHolder_testJs" />
+
+</dot:Content>
+

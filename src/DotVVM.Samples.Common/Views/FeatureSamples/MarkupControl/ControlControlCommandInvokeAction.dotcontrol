@@ -1,0 +1,6 @@
+﻿@viewModel System.Object, mscorlib
+@baseType DotVVM.Samples.Common.Views.FeatureSamples.MarkupControl.ControlControlCommandInvokeAction, DotVVM.Samples.Common
+
+<dot:Button Text="Test button"
+            ButtonTagName="button"
+            Click="{controlCommand: OnGoToDetail()}" />

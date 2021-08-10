@@ -1,0 +1,42 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.DataPager.DataPagerViewModel, DotVVM.Samples.Common
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <div class="container">
+        <h1>DataPager HideWhenOnlyOnePage</h1>
+
+        <h3> The items </h3>
+
+        <dot:Repeater DataSource="{value: DataSet}" WrapperTagName="ul">
+            <ItemTemplate>
+                <li>{{value: Text}}</li>
+            </ItemTemplate>
+        </dot:Repeater>
+
+        <h3> standard pager </h3>
+
+        <dot:DataPager DataSet="{value: DataSet}" HideWhenOnlyOnePage="false" ID="pager1" class="pagination" Enabled="{value: Enabled}" />
+
+        <h3> pager with <code>HideWhenOnlyOnePage=true</code></h3>
+
+        <dot:DataPager DataSet="{value: DataSet}" HideWhenOnlyOnePage="true" ID="pager2" class="pagination" Enabled="{value: Enabled}" />
+
+        <h3> pager with <code>RenderLinkForCurrentPage=true</code></h3>
+
+        <dot:DataPager DataSet="{value: DataSet}" HideWhenOnlyOnePage="false" RenderLinkForCurrentPage="true" ID="pager3" class="pagination" Enabled="{value: Enabled}" />
+
+        <h3> always disabled pager </h3>
+
+        <dot:DataPager DataSet="{value: DataSet}" HideWhenOnlyOnePage="false" ID="pager4" class="pagination" Enabled=false />
+
+        <dot:Button Text="Populate with data" 
+                    Click="{command: Populate()}"
+                    data-ui="populate-button"/>
+
+        <dot:CheckBox ID="enableCheckbox" Text="DataPager enabled" Checked="{value: Enabled}" />
+    </div>
+</body>
+</html>

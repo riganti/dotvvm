@@ -1,0 +1,31 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Warnings.SelfClosingTagsViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <p>
+        Should print warnings in the JS Console and in the web server log that self closing tags should not contain content.
+    </p>
+
+    <input id="always_rendered_input">
+        Content is not allowed in the input tag
+    </input>
+
+    <div PostBack.Update>
+        <input id="rendered in postback" IncludeInPage="{resource: Context.IsPostBack}">
+            Content is not allowed in the input tag
+        </input>
+    </div>
+
+    <dot:Button Click="{command: 0}">Postback will come with more warnings.</dot:Button>
+
+</body>
+</html>
+
+

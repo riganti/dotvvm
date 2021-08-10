@@ -1,0 +1,35 @@
+{
+  "markup": {
+    "importedNamespaces": [
+      {
+        "namespace": "DotVVM.Framework.Binding.HelperNamespace"
+      },
+      {
+        "namespace": "System.Linq"
+      }
+    ],
+    "ViewCompilation": {
+      "compileInParallel": true
+    }
+  },
+  "resources": {},
+  "security": {},
+  "runtime": {},
+  "defaultCulture": "en-US",
+  "experimentalFeatures": {
+    "lazyCsrfToken": {
+      "enabled": true,
+      "excludedRoutes": [
+        "r1",
+        "r2"
+      ]
+    },
+    "serverSideViewModelCache": {
+      "includedRoutes": [
+        "r1",
+        "r2"
+      ]
+    }
+  },
+  "debug": false
+}

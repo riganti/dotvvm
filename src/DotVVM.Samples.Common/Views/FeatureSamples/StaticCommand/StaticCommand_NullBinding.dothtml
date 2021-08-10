@@ -1,0 +1,28 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand.StaticCommand_NullBindingViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div class="container">
+        <h2>Static command returning value</h2>
+        
+        <dot:Repeater ID="listObject" DataSource="{value: ListComplexObject}">
+            <ItemTemplate>
+                <dot:Button Text="{value: _this != null ? _this.Greeting : "null"}" Click="{staticCommand: _parent.SelectedComplex = _this}" />
+            </ItemTemplate>
+        </dot:Repeater>
+
+        <p>
+        <span ID="show-selected" Visible="{value: SelectedComplex != null}" InnerText="{value: SelectedComplex.Greeting}"></span>
+        </p>
+    </div>
+
+</body>
+</html>
+
+

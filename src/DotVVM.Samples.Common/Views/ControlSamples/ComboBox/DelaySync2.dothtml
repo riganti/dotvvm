@@ -1,0 +1,20 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox.ComboBoxDelaySync2ViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:Button Text="Postback" Click="{command: DoPostback()}" />
+    <dot:Repeater DataSource="{value: FirstList}">
+        <ItemTemplate>
+            <dot:ComboBox DataSource="{value: _parent.SecondList}" SelectedValue="{value: SelectedValue}" ItemTextBinding="{value: Text}" ItemValueBinding="{value: Value}" />
+
+            Selected: <span class="result">{{value: SelectedValue}}</span>
+        </ItemTemplate>
+    </dot:Repeater>
+</body>
+</html>

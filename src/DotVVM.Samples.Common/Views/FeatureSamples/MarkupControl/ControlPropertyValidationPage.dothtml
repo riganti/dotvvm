@@ -1,0 +1,32 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.MarkupControl.ControlPropertyValidationPageViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    MarkupControl
+    <p>
+        <sample:ControlPropertyValidation Value="{value: Text}" />
+    </p>
+    <hr />
+    <p>
+        <dot:TextBox Text="{value: Text}" />
+    </p>
+    <p>
+        ValidationErrors:
+        <dot:ValidationSummary></dot:ValidationSummary>
+    </p>
+    <dot:Button Click="{command: Postback()}" Text="postback" />
+
+    <p>
+        <!-- TODO UI test-->
+        On validation error (required, email) it has to be shown next to the first textbox AND in validation summary. Both textboxes MUST be synchronized
+    </p>
+</body>
+</html>
+
+

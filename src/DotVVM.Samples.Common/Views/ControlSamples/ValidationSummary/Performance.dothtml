@@ -1,0 +1,24 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.ValidationSummary.PerformanceViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>ValidationSummary Performance Test</title>
+    <dot:RequiredResource Name="StopwatchPostbackHandler" />
+    <dot:RequiredResource Name="ErrorCountPostbackHandler" />
+</head>
+<body>
+    <dot:Button Click="{command: 0}"
+                Text="Empty Postback">
+        <PostBack.Handlers>
+            <cc:StopwatchPostbackHandler ResultId="validation-time" />
+            <cc:ErrorCountPostbackHandler ResultId="error-count" />
+        </PostBack.Handlers>
+    </dot:Button>
+    <p>Validation Time: <span ID="validation-time" /></p>
+    <p>Error count: <span ID="error-count" /></p>
+    <p>ValidationSummary:</p>
+    <dot:ValidationSummary IncludeErrorsFromTarget="true"
+                           IncludeErrorsFromChildren="true" />
+</body>
+</html>

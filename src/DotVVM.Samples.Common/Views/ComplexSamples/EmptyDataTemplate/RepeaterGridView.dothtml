@@ -1,0 +1,115 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.EmptyDataTemplate.RepeaterGridViewViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />    
+    <title>Hello from DotVVM!</title>
+</head>
+<body ClientIDMode="Static">
+
+	<dot:Repeater DataSource="{value: Empty}" WrapperTagName="ul" ID="marker1_parent" Visible="{value: Visible}">
+		<ItemTemplate>{{value: FirstName}}</ItemTemplate>
+		<EmptyDataTemplate>
+			<p ID="marker1">This is an empty repeater.</p>
+		</EmptyDataTemplate>
+	</dot:Repeater>
+
+	<dot:Repeater DataSource="{value: Empty}" RenderSettings.Mode="Server" WrapperTagName="ul" ID="marker2_parent" Postback.Update="true" Visible="{value: Visible}">
+		<ItemTemplate>{{value: FirstName}}</ItemTemplate>
+		<EmptyDataTemplate>
+			<p ID="marker2">This is an empty repeater.</p>
+		</EmptyDataTemplate>
+	</dot:Repeater>
+
+	<dot:GridView DataSource="{value: Empty}" ID="marker3_parent" Visible="{value: Visible}">
+		<Columns>
+			<dot:GridViewTextColumn ValueBinding="{value: FirstName}" HeaderText="First Name" />
+		</Columns>
+		<EmptyDataTemplate>
+			<p ID="marker3">This is an empty grid.</p>
+		</EmptyDataTemplate>
+	</dot:GridView>
+
+	<dot:GridView DataSource="{value: Empty}" RenderSettings.Mode="Server" WrapperTagName="ul" ID="marker4_parent" Postback.Update="true" Visible="{value: Visible}">
+		<Columns>
+			<dot:GridViewTextColumn ValueBinding="{value: FirstName}" HeaderText="First Name" />
+		</Columns>
+		<EmptyDataTemplate>
+			<p ID="marker4">This is an empty grid.</p>
+		</EmptyDataTemplate>
+	</dot:GridView>
+
+
+
+	<dot:Repeater DataSource="{value: NonEmpty}" WrapperTagName="ul" ID="nonempty_marker1_parent" Visible="{value: Visible}">
+		<ItemTemplate>{{value: FirstName}}</ItemTemplate>
+		<EmptyDataTemplate>
+			<p ID="nonempty_marker1">This is an non empty repeater.</p>
+		</EmptyDataTemplate>
+	</dot:Repeater>
+
+	<dot:Repeater DataSource="{value: NonEmpty}" RenderSettings.Mode="Server" WrapperTagName="ul" ID="nonempty_marker2_parent" Postback.Update="true" Visible="{value: Visible}">
+		<ItemTemplate>{{value: FirstName}}</ItemTemplate>
+		<EmptyDataTemplate>
+			<p ID="nonempty_marker2">This is an non empty repeater.</p>
+		</EmptyDataTemplate>
+	</dot:Repeater>
+
+	<dot:GridView DataSource="{value: NonEmpty}" ID="nonempty_marker3_parent" Visible="{value: Visible}">
+		<Columns>
+			<dot:GridViewTextColumn ValueBinding="{value: FirstName}" HeaderText="First Name" />
+		</Columns>
+		<EmptyDataTemplate>
+			<p ID="nonempty_marker3">This is an non empty grid.</p>
+		</EmptyDataTemplate>
+	</dot:GridView>
+
+	<dot:GridView DataSource="{value: NonEmpty}" RenderSettings.Mode="Server" WrapperTagName="ul" ID="nonempty_marker4_parent" Postback.Update="true" Visible="{value: Visible}">
+		<Columns>
+			<dot:GridViewTextColumn ValueBinding="{value: FirstName}" HeaderText="First Name" />
+		</Columns>
+		<EmptyDataTemplate>
+			<p ID="nonempty_marker4">This is an non empty grid.</p>
+		</EmptyDataTemplate>
+	</dot:GridView>
+
+
+	
+	<dot:Repeater DataSource="{value: Null}" WrapperTagName="ul" ID="null_marker1_parent" Visible="{value: Visible}">
+		<ItemTemplate>{{value: FirstName}}</ItemTemplate>
+		<EmptyDataTemplate>
+			<p ID="null_marker1">This is an non empty repeater.</p>
+		</EmptyDataTemplate>
+	</dot:Repeater>
+
+	<dot:Repeater DataSource="{value: Null}" RenderSettings.Mode="Server" WrapperTagName="ul" ID="null_marker2_parent" Postback.Update="true" Visible="{value: Visible}">
+		<ItemTemplate>{{value: FirstName}}</ItemTemplate>
+		<EmptyDataTemplate>
+			<p ID="null_marker2">This is an non empty repeater.</p>
+		</EmptyDataTemplate>
+	</dot:Repeater>
+
+	<dot:GridView DataSource="{value: Null}" ID="null_marker3_parent" Visible="{value: Visible}">
+		<Columns>
+			<dot:GridViewTextColumn ValueBinding="{value: FirstName}" HeaderText="First Name" />
+		</Columns>
+		<EmptyDataTemplate>
+			<p ID="null_marker3">This is an non empty grid.</p>
+		</EmptyDataTemplate>
+	</dot:GridView>
+
+	<dot:GridView DataSource="{value: Null}" RenderSettings.Mode="Server" WrapperTagName="ul" ID="null_marker4_parent" Postback.Update="true" Visible="{value: Visible}">
+		<Columns>
+			<dot:GridViewTextColumn ValueBinding="{value: FirstName}" HeaderText="First Name" />
+		</Columns>
+		<EmptyDataTemplate>
+			<p ID="null_marker4">This is an non empty grid.</p>
+		</EmptyDataTemplate>
+	</dot:GridView>
+
+	<dot:CheckBox Checked="{value: Visible}" Text="Visible" />
+	<dot:Button Click="{command: 0}" Text="Update server rendered controls" />
+</body>
+</html>

@@ -1,0 +1,40 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation.DynamicValidationViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Validation rules loaded dynamically</h1>
+
+        <p><dot:Button Text="Load Validated Object" Click="{command: LoadCustomer()}" Validation.Enabled="false" /></p>
+
+        <fieldset>
+            <legend>Customer Data</legend>
+            <table DataContext="{value: Customer}">
+                <tr>
+                    <td>Name:</td>
+                    <td><dot:TextBox Text="{value: Name}" /></td>
+                </tr>
+                <tr>
+                    <td>E-mail:</td>
+                    <td><dot:TextBox Text="{value: Email}" /></td>
+                </tr>
+            </table>
+        </fieldset>
+
+        <div Validation.Target="{value: Customer}">
+            <dot:ValidationSummary />
+        </div>
+
+        <p><dot:Button Text="Validate" Click="{command: Validate()}" Validation.Target="{value: Customer}" /></p>
+        <p>
+            <span>{{value: IsValid}}</span>
+        </p>
+
+    </div>
+
+</body>
+</html>

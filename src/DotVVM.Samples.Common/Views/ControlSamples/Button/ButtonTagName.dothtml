@@ -1,0 +1,40 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Button.ButtonTagNameViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .invalid {
+            color: red;
+        }
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <h1>ButtonTagName property sample</h1>
+    <div class="container">
+        <dot:Button ID="ButtonTextProperty" ButtonTagName="button" Text="Button element"></dot:Button>
+        <br />
+        <dot:Button ID="ButtonTextBinding" ButtonTagName="button" Text="{value: ButtonText}"></dot:Button>
+        <br />
+        <dot:Button ID="InputTextProperty" ButtonTagName="input" Text="Input element"></dot:Button>
+        <br />
+        <dot:Button ID="InputTextBinding" ButtonTagName="input" Text="{value: ButtonText}"></dot:Button>
+        <br />
+        <dot:Button ID="ButtonInnerText" ButtonTagName="button">Button element - inner text</dot:Button>
+        <br />
+    </div>
+    <div class="container">
+        <h2>ButtonTagName property sample</h2>
+        <dot:Button ID="ButtonTextPropertyUpperCase" ButtonTagName="Button" Text="Button element"></dot:Button>
+        <br />
+        <dot:Button ID="ButtonTextBindingUpperCase" ButtonTagName="Button" Text="{value: ButtonText}"></dot:Button>
+        <br />
+        <dot:Button ID="InputTextPropertyUpperCase" ButtonTagName="inpuT" Text="Input element"></dot:Button>
+        <br />
+		<dot:Button ID="ButtonInnerTextUpperCase" ButtonTagName="Button">{{value: ButtonText }}</dot:Button>
+        <br />
+    </div>
+</body>
+</html>

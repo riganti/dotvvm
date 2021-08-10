@@ -1,0 +1,9 @@
+﻿@viewModel System.Object, mscorlib
+@baseType DotVVM.Samples.BasicSamples.Views.FeatureSamples.MarkupControl.ControlPropertyValidation, DotVVM.Samples.Common
+
+<div>
+    <dot:TextBox Text="{value: _control.Value}" placeholder="text"></dot:TextBox>
+    <dot:Validator Validator.Value="{value: _control.Value}">
+        VALIDATION ERROR
+    </dot:Validator>
+</div>

@@ -1,0 +1,44 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack.SuppressPostBackHandlerViewModel, DotVVM.Samples.Common
+
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Hello from DotVVM!</title>
+</head>
+<body ClientIDMode="Static">
+
+    <div>
+        <p>
+            <dot:Button Text="Static Suppress Value" Click="{command: PostBack()}" data-ui="static-suppress-value">
+                <PostBack.Handlers>
+                    <dot:SuppressPostBackHandler Suppress="true" />
+                </PostBack.Handlers>
+            </dot:Button>
+        </p>
+        <p>
+            <dot:Button Text="Multiple suppress handlers" Click="{command: PostBack()}" data-ui="multiple-suppress-handlers">
+                <PostBack.Handlers>
+                    <dot:SuppressPostBackHandler Suppress="false" />
+                    <dot:SuppressPostBackHandler Suppress="false" />
+                    <dot:SuppressPostBackHandler Suppress="true" />
+                </PostBack.Handlers>
+            </dot:Button>
+        </p>
+        <p>
+            <dot:Button Text="Value Binding suppress" Click="{command: PostBack()}" data-ui="value-binding-suppress">
+                <PostBack.Handlers>
+                    <dot:SuppressPostBackHandler Suppress="{value: Condition}" />
+                </PostBack.Handlers>
+            </dot:Button>
+        </p>
+    </div>
+
+    <dot:Button data-ui="change-condition" Text="ChangeCondition" Click="{command: ChangeCondition()}" />
+
+    <p>Condition: <dot:Literal data-ui="condition" Text="{value: Condition}"/></p>
+    <p>Counter: <dot:Literal data-ui="counter" Text="{value: Counter}"/></p>
+</body>
+</html>

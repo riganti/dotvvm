@@ -1,0 +1,2 @@
+BindingPropertyException occurred: Unable to get property OriginalStringBindingProperty of binding {ValueBindingExpression`1: 12}, resolver not found.
+    at void DotVVM.Framework.Tests.Runtime.RuntimeErrorTests.NonExistentBindingProperty()+() => { }

@@ -1,0 +1,46 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView.LargeGridViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:GridView DataSource="{value: DataSet}" RenderSettings.Mode="Server">
+        <Columns>
+            <dot:GridViewTextColumn ValueBinding="{value: FirstName}" />
+            <dot:GridViewTextColumn ValueBinding="{value: LastName}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataA}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataB}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataC}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataD}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataE}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataF}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataG}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataH}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataI}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataJ}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataK}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataL}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataM}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataN}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataO}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataP}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataQ}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataR}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataS}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataT}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataU}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataV}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataW}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataX}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataY}" />
+            <dot:GridViewTextColumn ValueBinding="{value: DataZ}" />
+        </Columns>
+    </dot:GridView>
+</body>
+</html>
+
+

@@ -1,0 +1,35 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Validation.InvalidCssClassNotDuplicatedViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <style type="text/css">
+        .has-error {
+            background: #ff9797;
+        }
+        .form-group {
+            padding: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>InvalidCssClass should be added only once</h1>
+
+    <div Validator.InvalidCssClass="has-error abc" Validator.Value="{value: Value}" class="form-group" data-id="validated-div">
+        <dot:TextBox Text="{value: Value}" />
+    </div>
+
+
+    <dot:Button Text="Validate" Click="{command: Validate()}" />
+
+    <dot:ValidationSummary />
+
+</body>
+</html>
+
+

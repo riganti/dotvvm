@@ -1,0 +1,26 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.FileUpload.FileUploadViewModel, DotVVM.Samples.Common
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+	<!-- The dot:FileUpload basic functionality test. -->
+
+	<dot:FileUpload UploadedFiles="{value: Files}" AllowMultipleFiles="true" ID="FileUploadTest" />
+	<p>
+		<dot:Button Text="Confirm upload" Click="{command: Process()}" Enabled="{value: !Files.IsBusy}" />
+	</p>
+	<p>&nbsp;</p>
+
+	<dot:Repeater DataSource="{value: FilesInStorage}" WrapperTagName="ul">
+		<ItemTemplate>
+			<li>{{value: _this}}</li>
+		</ItemTemplate>
+	</dot:Repeater>
+
+</body>
+</html>

@@ -1,0 +1,53 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Repeater.NestedRepeaterViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />    
+    <title>Hello from DotVVM!</title>
+</head>
+<body ClientIDMode="Static">
+
+    <div ID="sample1">
+        <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
+            <ItemTemplate>
+                <li>
+                    <p>{{value: Name}}</p>
+
+                    <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
+                        <ItemTemplate>
+                            <li>
+                                {{value: Name}}
+                                <dot:LinkButton Click="{command: _root.Click(_parent.Name, Name)}" Text="Select" />
+                            </li>
+                        </ItemTemplate>
+                    </dot:Repeater>
+                </li>
+            </ItemTemplate>
+        </dot:Repeater>
+    </div>
+
+    <div ID="sample2">
+        <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul" RenderSettings.Mode="Server">
+            <ItemTemplate>
+                <li>
+                    <p>{{value: Name}}</p>
+
+                    <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
+                        <ItemTemplate>
+                            <li>
+                                {{value: Name}}
+                                <dot:LinkButton Click="{command: _root.Click(_parent.Name, Name)}" Text="Select" />
+                            </li>
+                        </ItemTemplate>
+                    </dot:Repeater>
+                </li>
+            </ItemTemplate>
+        </dot:Repeater>
+    </div>
+
+    <p ID="result">{{value: ClickedChild}}</p>
+
+</body>
+</html>

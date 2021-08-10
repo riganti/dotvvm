@@ -1,0 +1,19 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization.LocalizationNestedViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/Localization/Master_ResourceType.dotmaster
+@import Texts=DotVVM.Samples.BasicSamples.Views.FeatureSamples.Localization.Localization2
+
+
+<dot:Content ContentPlaceHolderID="MainContent" ClientIDMode="Static">
+
+    <p ID="fromLocalizationFile1" ClientIDMode="Static">{{resource: DotVVM.Samples.BasicSamples.Localization_Resources.LocalizedString1}}</p>
+    <p ID="fromLocalizationFile2" ClientIDMode="Static">{{resource: Texts.NestedPageTitle}}</p>
+	<h3>Switch Language</h3>
+    <ul>
+        <li><a href="Localization_NestedPage_Type">English</a></li>
+        <li><a href="Localization_NestedPage_Type?lang=cs-CZ">Czech</a></li>
+    </ul>
+</dot:Content>
+
+
+
+     

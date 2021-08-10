@@ -1,0 +1,62 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Formatting.FormattingViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+	<div class="container">
+		<h1>Formatting Sample</h1>
+		
+		<div class="row">
+			<div class="col-xs-6">
+
+				<p>Format on client</p>
+				<ol class="list1">
+					<li><dot:Literal Text="{value: Number}" ValueType="Number" /></li>
+					<li><dot:Literal Text="{value: Number}" FormatString="c2" /></li>
+					<li><dot:Literal Text="{value: Number}" FormatString="n2" /></li>
+					<li><dot:Literal Text="{value: Date}" /></li>
+					<li><dot:Literal Text="{value: Date}" FormatString="d.M.yyyy H:mm:ss" /></li>
+					<li><dot:Literal Text="{value: Date}" FormatString="d" /></li>
+					<li><dot:Literal Text="{value: Date}" FormatString="D" /></li>
+					<li><dot:Literal Text="{value: Date}" FormatString="t" /></li>
+					<li><dot:Literal Text="{value: Date}" FormatString="T" /></li>
+					<li><dot:Literal Text="{value: Date}" FormatString="g" /></li>
+					<li><dot:Literal Text="{value: Date}" FormatString="G" /></li>
+					<li><dot:Literal Text="{value: Null}" /></li>
+					<li><dot:Literal Text="{value: Null}" FormatString="g" /></li>
+					<li><dot:Literal Text="{value: Null}" FormatString="d.M.yyyy H:mm:ss" /></li>
+				</ol>
+
+			</div>
+			<div class="col-xs-6">
+
+				<p>Format on server</p>
+				<ol class="list2" RenderSettings.Mode="Server" PostBack.Update="true">
+					<li><dot:Literal Text="{value: Number}" ValueType="Number" /></li>
+					<li><dot:Literal Text="{value: Number}" FormatString="c2" /></li>
+					<li><dot:Literal Text="{value: Number}" FormatString="n2" /></li>
+					<li><dot:Literal Text="{value: Date}" /></li>
+					<li><dot:Literal Text="{value: Date}" FormatString="d.M.yyyy H:mm:ss" /></li>
+					<li><dot:Literal Text="{value: Date}" FormatString="d" /></li>
+					<li><dot:Literal Text="{value: Date}" FormatString="D" /></li>
+					<li><dot:Literal Text="{value: Date}" FormatString="t" /></li>
+					<li><dot:Literal Text="{value: Date}" FormatString="T" /></li>
+					<li><dot:Literal Text="{value: Date}" FormatString="g" /></li>
+					<li><dot:Literal Text="{value: Date}" FormatString="G" /></li>
+					<li><dot:Literal Text="{value: Null}" /></li>
+					<li><dot:Literal Text="{value: Null}" FormatString="g" /></li>
+					<li><dot:Literal Text="{value: Null}" FormatString="d.M.yyyy H:mm:ss" /></li>
+				</ol>
+
+			</div>
+		</div>
+
+		<!-- verify that the formatting works after postback -->
+		<dot:Button Text="Do Postback" Click="{command: PostBack()}" />
+	</div>
+	
+</body>
+</html>

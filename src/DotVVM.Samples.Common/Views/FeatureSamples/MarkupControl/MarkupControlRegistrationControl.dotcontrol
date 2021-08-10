@@ -1,0 +1,10 @@
+﻿@viewModel System.Object, mscorlib
+@baseType DotVVM.Samples.BasicSamples.Views.FeatureSamples.MarkupControl.MarkupControlRegistrationControl, DotVVM.Samples.Common
+
+<h2>{{controlProperty: Name}}</h2>
+<p>
+    <dot:TextBox Text="{controlProperty: Value}" />
+    <dot:Button Text="Up" Click="{controlCommand: Up()}" />
+    <dot:Button Text="Down" Click="{controlCommand: Down()}" />
+</p>
+

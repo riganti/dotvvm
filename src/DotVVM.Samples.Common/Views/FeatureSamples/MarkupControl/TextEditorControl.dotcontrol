@@ -1,0 +1,8 @@
+﻿@viewModel System.Object, mscorlib
+@baseType DotVVM.Samples.BasicSamples.Views.FeatureSamples.MarkupControl.TextEditorControl, DotVVM.Samples.Common
+
+<label>
+    {{controlProperty: Label}}
+    <dot:TextBox Text="{controlProperty: Text}" data-uitest="editor" />
+</label>
+

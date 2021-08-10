@@ -1,0 +1,50 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RoleView.RoleViewTestViewModel
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h1>RoleView Test</h1>
+
+    <dot:RoleView Roles="admin, moderator , tester" HideForAnonymousUsers="false">
+        <IsMemberTemplate>
+            <p class="result1">I am a member!</p>
+        </IsMemberTemplate>
+        <IsNotMemberTemplate>
+            <p class="result1">I am not a member!</p>
+        </IsNotMemberTemplate>
+    </dot:RoleView>
+
+    <dot:RoleView Roles="admin, moderator , tester">
+        <IsMemberTemplate>
+            <p class="result2">I am a member!</p>
+        </IsMemberTemplate>
+        <IsNotMemberTemplate>
+            <p class="result2">I am not a member!</p>
+        </IsNotMemberTemplate>
+    </dot:RoleView>
+
+    <fieldset>
+        <legend>Sign In</legend>
+
+        <p>
+            Desired Roles: 
+            <dot:CheckBox Text="admin" CheckedValue="admin" CheckedItems="{value: DesiredRoles}" />
+            <dot:CheckBox Text="moderator" CheckedValue="moderator" CheckedItems="{value: DesiredRoles}" />
+            <dot:CheckBox Text="tester" CheckedValue="tester" CheckedItems="{value: DesiredRoles}" />
+            <dot:CheckBox Text="headhunter" CheckedValue="headhunter" CheckedItems="{value: DesiredRoles}" />
+        </p>
+
+        <dot:Button Text="Sign In" Click="{command: SignIn()}" />
+    </fieldset>
+        
+    <dot:Button Text="Sign Out" Click="{command: SignOut()}" />
+    
+</body>
+</html>
+
+

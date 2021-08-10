@@ -1,0 +1,39 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox.ComboxItemBindingViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h1>
+        Test description:
+    </h1>
+    <div>
+        <strong>
+            This tests whether combobox is able to convert string values correctly to enum field 'SelectedEnum'. If this works then after change in combobox the change has to be parsed on server and then set to the other field to confirm that field was correctly parsed.
+        </strong>
+        <p>
+            1) change value in combobox<br />
+            2) validate that  data-ui="enum" changed <br />
+            3) click to button <br />
+            4) validate data-ui="enum" has the same value as data-ui="enum2" <br />
+        </p>
+    </div>
+    <dot:ComboBox data-ui="string-to-enum"
+                  SelectedValue="{value:  SelectedEnum}"
+                  DataSource="{value:  EnumNames}" />
+    <div>
+        <span data-ui="enum">
+            {{value:  SelectedEnum}}
+        </span>
+        <dot:Button Click="{command: SetEnumValueToSecondaryField()}" data-ui="set-secondary-field" Text="Set secondary field"></dot:Button>
+    </div>
+    <div>
+        <span data-ui="enum2">
+            {{value:  SelectedEnum2}}
+        </span>
+    </div>
+</body>
+</html>

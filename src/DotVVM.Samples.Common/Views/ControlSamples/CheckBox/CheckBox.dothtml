@@ -1,0 +1,104 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox.CheckBoxViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <div class="container">
+        <h1>CheckBox test</h1>
+
+        <div class="row">
+            <div class="col-md-6">
+
+                <fieldset>
+                    <legend>Single CheckBox</legend>
+
+                    <p>
+                        <dot:CheckBox Text="Simple Test" Checked="{value: Checked}" />
+                        &nbsp; &nbsp;
+                        <dot:Button Text="Postback" Click="{command: UpdateCheckedDescription()}" />
+                        &nbsp; &nbsp;
+                        <span class="result">{{value: CheckedDescription}}</span>
+                    </p>
+                </fieldset>
+
+            </div>
+            <div class="col-md-6">
+
+                <fieldset>
+                    <legend>Multiple CheckBoxes</legend>
+
+                    <p>
+                        <dot:CheckBox Text="Red" CheckedItems="{value: CheckedItems}" CheckedValue="r" />
+                        &nbsp; &nbsp;
+                        <dot:CheckBox Text="Green" CheckedItems="{value: CheckedItems}" CheckedValue="g" />
+                        &nbsp; &nbsp;
+                        <dot:CheckBox Text="Blue" CheckedItems="{value: CheckedItems}" CheckedValue="b" />
+                        &nbsp; &nbsp;
+                        <dot:Button Text="Postback" Click="{command: UpdateCheckedItemsDescription()}" />
+                        &nbsp; &nbsp;
+                        <span class="result">{{value: CheckedItemsDescription}}</span>
+                    </p>
+                </fieldset>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <fieldset>
+                    <legend>Changed event</legend>
+                    <dot:CheckBox Checked="{value: ChangedValue}" Changed="{command: OnChanged()}" />
+                    <span class="result">{{value: NumberOfChanges}}</span>
+                </fieldset>
+            </div>
+            <div class="col-md-6">
+                <fieldset>
+                    <legend>Text binding CheckBox</legend>
+
+                    <p>
+                        <dot:CheckBox Text="{value: Text}" Checked="{value: Checked}" />
+                        &nbsp; &nbsp;
+                        <dot:Button Text="Postback" Click="{command: UpdateCheckedDescription()}" />
+                        &nbsp; &nbsp;
+                        <span class="result">{{value: CheckedDescription}}</span>
+                    </p>
+                </fieldset>
+
+            </div>
+            <div class="col-md-6">
+                <fieldset>
+                    <legend>Visible</legend>
+
+                    <p>
+                        <dot:CheckBox Text="Visible" Checked="{value: Checked}" Visible="{value: Visible}" />
+                        <dot:CheckBox Text="Hidden" Checked="{value: Checked}" Visible="{value: !Visible}" />
+                        &nbsp; &nbsp;
+                        <dot:Button Text="Switch" Click="{command: Visible = !Visible}" data-ui="switch" />
+                        &nbsp; &nbsp;
+                        <span>Visible property: </span>
+                        <span class="result">{{value: Visible}}</span>
+                    </p>
+                </fieldset>
+
+            </div>
+            <div class="col-md-6">
+                <fieldset>
+                    <legend>DataContext Change</legend>
+                    <p>
+                        <dot:CheckBox DataContext="{value: Bomb}"
+                                      Text="{value: Name}"
+                                      Checked="{value: HasPin}" />
+                        &nbsp; &nbsp;
+                        <span class="result">{{value: Bomb.HasPin}}</span>
+                    </p>
+                </fieldset>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+

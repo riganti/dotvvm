@@ -1,0 +1,37 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.DateTimeSerialization.DateTimeSerializationViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>DateTime serialization with custom format</title>
+</head>
+<body>
+
+    <div>
+        Enter date in the d.M.yyyy format:
+        <dot:TextBox Text="{value: Date1}" FormatString="d.M.yyyy" />
+        <div>
+            <dot:Button Text="Set Date" Click="{command: SetDate1()}" />
+            <dot:Button Text="Verify" Click="{command: VerifyDate1()}" />
+        </div>
+        <span>			{{value: Date1String}}</span>
+    </div>
+    <div>
+        Enter date in the yyyy-MM-dd HH:mm:ss format:
+        <dot:TextBox Text="{value: Date2}" FormatString="yyyy-MM-dd HH:mm:ss" />
+        <div>
+            <dot:Button Text="Set Date" Click="{command: SetDate2()}" />
+            <dot:Button Text="Verify" Click="{command: VerifyDate2()}" />
+        </div>
+        <span>		{{value: Date2String}}</span>
+    </div>
+    <div>
+        <dot:Button data-ui="set-static-date-button" Text="Set Date" Click="{command: SetStaticDate()}" />
+        <dot:TextBox data-ui="static-date" Text="{value: Date3}"/>
+    </div>
+
+
+</body>
+</html>

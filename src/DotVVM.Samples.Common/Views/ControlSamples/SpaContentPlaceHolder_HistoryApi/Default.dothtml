@@ -1,0 +1,9 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceHolder_HistoryApi.DefaultViewModel, DotVVM.Samples.Common
+@masterPage Views/ControlSamples/SpaContentPlaceHolder_HistoryApi/SpaMaster.dotmaster
+
+<dot:Content ContentPlaceHolderID="MainContent">
+
+
+
+</dot:Content>
+

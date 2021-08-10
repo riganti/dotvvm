@@ -1,0 +1,30 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.RenderSettingsModeServer.RenderSettingsModeServerPropertyViewModel, DotVVM.Samples.Common
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Server Rendering</h1>
+
+        <table>
+            <dot:Repeater DataSource="{value: Months}" WrapperTagName="tbody" RenderSettings.Mode="Server">
+                <ItemTemplate>
+                    <tr>
+                        <td><span>{{value: MonthName}}</span></td>
+                        <td>
+                            <dot:TextBox Text="{value: Hours}" Placeholder="enter number of hours" />
+                        </td>
+                    </tr>
+                </ItemTemplate>
+            </dot:Repeater>
+        </table>
+
+        <p><dot:Button Text="Recalculate" Click="{command: Recalculate()}" /></p>
+
+        <p><span>{{value: TotalHours}}</span></p>
+
+    </div>
+</body>
+</html>

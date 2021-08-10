@@ -1,0 +1,17 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation.RegexValidationViewModel, DotVVM.Samples.Common
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+<div class="container">
+	Number 
+	<dot:TextBox Text="{value: Number}" />
+	<dot:Validator Value="{value: Number}">Numbers only!</dot:Validator>
+	<dot:Button Text="Send" Click="{command: Add()}" /> <br>
+	Sum: <span>{{value: Sum}}</span>
+</div>
+
+</body>
+</html>

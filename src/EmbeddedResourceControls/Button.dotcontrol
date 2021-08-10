@@ -1,0 +1,3 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.EmbeddedResourceControls.EmbeddedResourceControlsViewModel, DotVVM.Samples.Common
+
+<dot:Button Text="{value: Text}" Click="{command: ChangeText()}" />

@@ -1,0 +1,11 @@
+﻿@viewModel object
+
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Invalid LocationFallback</title>
+    <dot:RequiredResource Name="Errors_InvalidLocationFallback"/>
+</head>
+<body>
+</body>
+</html>

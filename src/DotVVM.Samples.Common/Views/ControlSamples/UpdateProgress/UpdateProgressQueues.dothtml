@@ -1,0 +1,43 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.UpdateProgress.UpdateProgressQueuesViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>UpdateProgress IncludedQueues and ExcludedQueues</h1>
+
+    <div>
+        <dot:Button Text="Queue 1" Click="{command: Test()}" PostBack.ConcurrencyQueue="q1" />
+        <dot:Button Text="Queue 2" Click="{command: Test()}" PostBack.ConcurrencyQueue="q2" />
+        <dot:Button Text="Queue 3" Click="{command: Test()}">
+            <PostBack.ConcurrencyQueueSettings>
+                <dot:ConcurrencyQueueSetting EventName="Click" ConcurrencyQueue="q3" />
+            </PostBack.ConcurrencyQueueSettings>
+        </dot:Button>
+        <dot:Button Text="Default" Click="{command: Test()}" />
+    </div>
+    <p>
+        {{value: Counter}}
+    </p>
+
+    <dot:UpdateProgress class="updateprogress-allqueues">
+        All queues
+    </dot:UpdateProgress>
+    <dot:UpdateProgress class="updateprogress-queue1" IncludedQueues="q1">
+        Queue 1 Only
+    </dot:UpdateProgress>
+    <dot:UpdateProgress class="updateprogress-queue12" IncludedQueues="q1, q2">
+        Queue 1 and 2
+    </dot:UpdateProgress>
+    <dot:UpdateProgress class="updateprogress-exclude1default" ExcludedQueues="q1,default">
+        Excluding Queue 1 and Default
+    </dot:UpdateProgress>
+</body>
+</html>
+
+

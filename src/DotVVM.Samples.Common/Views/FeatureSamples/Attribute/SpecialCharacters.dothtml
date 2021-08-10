@@ -1,0 +1,13 @@
+@viewModel DotVVM.Samples.BasicSamples.Api.Common.Model.Order, DotVVM.Samples.BasicSamples.Api.Common
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Attribute special characters</h1>
+        <button [text]="'This is a attribute with special characters ' + (show ? 'true': 'false')" on="tap:setState({show: !showPassword})" (attr)=" {{world}}!">Show</button>
+    </div>
+</body>
+</html>

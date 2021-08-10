@@ -1,0 +1,11 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.EmptyViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+	<!--  Do not change command name - used in test as identifier -->
+<dot:Button Click="{command: NonExistingCommand()}" /></body>
+</html>

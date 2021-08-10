@@ -1,0 +1,38 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth.SecuredPageViewModel
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Secured page</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Page only for signed users</h1>
+
+        <h3>Last message</h3>
+        <p>
+        <span>{{value: LastMessage}}</span>    
+        </p>
+
+        <fieldset>
+            <legend>Replace the message</legend>
+            <dot:Roleview Roles="admin">
+                <IsMemberTemplate>
+					<p>You are logged as admin, so this should work well.</p>
+                </IsMemberTemplate>
+                <IsNotMemberTemplate>
+                    <p>You have to be admin to replace message and you are not. The postback will fail</p>
+                </IsNotMemberTemplate>
+            </dot:Roleview>
+            <p>Message: <dot:TextBox Text="{value: MessageEditor}" /></p>
+            <p>
+                <dot:Button Text="Replace" Click="{command: ReplaceMessage()}" />
+            </p>
+        </fieldset>
+
+        <dot:RouteLink RouteName="AuthorizedPresenter">Also check out simple IDotvvmPresenter with [Authorize] attribute on it</dot:RouteLink>
+
+        <a href="Login">Login page - change your credentials</a>
+    </div>
+</body>
+</html>

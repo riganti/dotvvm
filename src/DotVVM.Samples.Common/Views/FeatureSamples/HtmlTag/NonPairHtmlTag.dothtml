@@ -1,0 +1,22 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.HtmlTag.NonPairHtmlTagViewModel, DotVVM.Samples.Common
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />    
+    <title>Hello from DotVVM!</title>
+</head>
+<body ClientIDMode="Static">
+
+	<div DataContext="{value: Child1}">
+		<hr>
+		<div DataContext="{value: Child2}">
+			<hr>
+			<div DataContext="{value: Child3}">
+			<span>{{value: Test}}</span>	
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

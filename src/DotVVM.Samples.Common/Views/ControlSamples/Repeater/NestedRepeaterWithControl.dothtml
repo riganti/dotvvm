@@ -1,0 +1,55 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Repeater.NestedRepeaterViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+
+    <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
+        <li>
+            <p>{{value: Name}}</p>
+            <sample:ControlWithButton GoToDetailAction="{command: _root.IncrementCounter()}" />
+
+            <div DataContext="{value: Entry}">
+                <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
+                    <dot:Button ID="test" Text="YYY" Click="{command: _root.IncrementCounter()}" />
+                    <sample:ControlWithButton GoToDetailAction="{command: _root.IncrementCounter()}" DataContext="{value: Children}"/>
+                    <li>
+                        {{value: Name}}
+                        <dot:LinkButton Click="{command: _root.Click(_parent.Name, Name)}" Text="Select 1" />
+                    </li>
+                </dot:Repeater>
+            </div>
+
+
+            <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
+                <dot:Button ID="test" Text="ZZZ" Click="{command: _root.IncrementCounter()}" />
+                <sample:ControlWithButton GoToDetailAction="{command: _root.IncrementCounter()}" />
+                <li>
+                    {{value: Name}}
+                    <dot:LinkButton Click="{command: _root.Click(_parent.Name, Name)}" Text="Select 2" />
+                </li>
+
+                <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
+                    <dot:Button ID="test" Text="YYY" Click="{command: _root.IncrementCounter()}" />
+                    <sample:ControlWithButton GoToDetailAction="{command: _root.IncrementCounter()}" />
+                    <li>
+                        {{value: Name}}
+                        <dot:LinkButton Click="{command: _root.Click(_parent.Name, Name)}" Text="Inner Select" />
+                    </li>
+                </dot:Repeater>
+            </dot:Repeater>
+
+        </li>
+    </dot:Repeater>
+
+    <sample:ControlWithButton GoToDetailAction="{command: _root.IncrementCounter()}" />
+
+    <p ID="result" InnerText="{value: Counter}"></p>
+
+</body>
+</html>

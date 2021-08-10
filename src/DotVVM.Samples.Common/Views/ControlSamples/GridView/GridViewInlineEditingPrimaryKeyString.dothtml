@@ -1,0 +1,43 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView.GridViewInlineEditingPrimaryKeyStringViewModel, DotVVM.Samples.Common
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style type="text/css">
+        .alternate {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <dot:GridView DataSource="{value: CustomersDataSet}" class="table table-bordered"
+                       PostBack.Update="true" InlineEditing="true">
+            <Columns>
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" IsEditable="false"/>
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+				<dot:GridViewTextColumn HeaderText="Email" ValueBinding="{value: Email}" AllowSorting="True" />
+				<dot:GridViewTemplateColumn AllowSorting="false">
+					<ContentTemplate>
+						<dot:Button ButtonTagName="button" Text="Edit" Click="{command: _parent.EditItem(_this)}"></dot:Button>
+					</ContentTemplate>
+					<EditTemplate>
+						<dot:Button ButtonTagName="button" Text="Save" Click="{command: _parent.UpdateItem(_this)}"></dot:Button>
+						<dot:Button ButtonTagName="button" Text="Cancel" Click="{command: _parent.CancelEditItem()}"></dot:Button>
+					</EditTemplate>
+				</dot:GridViewTemplateColumn>
+            </Columns>
+        </dot:GridView>
+        <dot:DataPager DataSet="{value: CustomersDataSet}" class="pagination" />
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+
+   
+
+
+    </div>
+</body>
+</html>

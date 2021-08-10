@@ -1,0 +1,33 @@
+<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <!--Include Views-->
+    <Content Include="**/*.dothtml" Exclude="obj/**/*.*;bin/**/*.*">
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <!--Include MasterPage Views-->
+    <Content Include="**/*.dotmaster" Exclude="obj/**/*.*;bin/**/*.*">
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <!--Include Custom Control Views-->
+    <Content Include="**/*.dotcontrol" Exclude="obj/**/*.*;bin/**/*.*">
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="dotvvm_serialized_config.json.tmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
+    <PackageReference Include="DotVVM.AspNetCore" Version="2.4.0" />
+  </ItemGroup>
+  <Target Name="CreateWWWRoot" AfterTargets="AfterPublish">
+    <MakeDir Directories="$(PublishDir)wwwroot" Condition="!Exists('$(PublishDir)wwwroot')" />
+  </Target>
+</Project>

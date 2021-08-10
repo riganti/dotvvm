@@ -1,0 +1,40 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.BindingNamespaces.BindingUsingNamespaceViewModel, DotVVM.Samples.Common
+@import ImportAlias =   DotVVM.Samples.BasicSamples.TestNamespace2.SubNamespace
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div>
+        <table>
+            <tr>
+                <td>ViewModel namespace implicitly loaded</td>
+                <td data-ui="viewModel-namespace">{{resource: BindingUsingNamespaceViewModel.Property}}</td>
+            </tr>
+            <tr>
+                <td>Fully qualified name</td>
+                <td data-ui="fully-qualified-name">{{resource: DotVVM.Samples.BasicSamples.TestNamespace1.TestClass1.Property}}</td>
+            </tr>
+            <tr>
+                <td>Explicitly imported alias in DotvvmConfiguration</td>
+                <td data-ui="alias-in-config">{{resource: TestNamespaceAlias.TestClass1.Property}}</td>
+            </tr>
+            <tr>
+                <td>Explicitly imported in DotvvmConfiguration</td>
+                <td data-ui="import-in-config">{{resource: TestClass2.Property}}</td>
+            </tr>
+            <tr>
+                <td>Explicitly imported alias by @import directive</td>
+                <td data-ui="import-directive">{{resource: ImportAlias.Class1.Property}}</td>
+            </tr>
+        </table>
+        
+    </div>
+</body>
+</html>
+
+

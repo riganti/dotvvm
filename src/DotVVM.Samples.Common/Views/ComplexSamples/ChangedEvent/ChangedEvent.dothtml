@@ -1,0 +1,48 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.ChangedEvent.ChangedEventViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Event Changed</h1>
+
+        <h3>Changed event TextBox</h3>
+        <p><dot:TextBox Text="{value: Text}" UpdateTextOnInput="true" Changed="{command: OnChanged()}" /></p>
+        <p data-id="first-textbox"><dot:Literal Text="{value: Text}" /></p>
+
+        <p><dot:TextBox Text="{value: Text2}" Changed="{command: OnChanged()}" /></p>
+        <p data-id="second-textbox"><dot:Literal Text="{value: Text2}" /></p>
+
+        <p><dot:TextBox Text="{value: Text3}" UpdateTextOnInput="true" TextInput="{command: OnChanged()}" /></p>
+        <p data-id="third-textbox"><dot:Literal Text="{value: Text3}" /></p>
+
+        <h3>Changed event CheckBox</h3>
+        <p><dot:CheckBox Checked="{value: IsChecked}" Changed="{command: OnChanged()}" /></p>
+
+        <h3>Changed event RadioButton</h3>
+        <p>
+            <dot:Repeater DataSource="{value: DBRBChoices}">
+                <ItemTemplate>
+                    <dot:RadioButton Text="{value: Title}" GroupName="group2" CheckedItem="{value: _parent.DBRB}"
+                                     CheckedValue="{value: Title}" Changed="{command: _parent.OnChanged()}" />
+                    &nbsp; &nbsp;
+                </ItemTemplate>
+            </dot:Repeater>
+        </p>
+
+        <h3>Changed event ComboBox</h3>
+        <p>
+            <dot:ComboBox class="form-control" DataSource="{value: Cities}" SelectedValue="{value: SelectedName}"
+                          ItemValueBinding="{value: Name}" ItemTextBinding="{value: Name}" SelectionChanged="{command: OnChanged()}" />
+        </p>
+
+
+        <p data-id="total-changes"><dot:Literal Text="{value: IdChange}" /></p>
+
+    </div>
+	
+</body>
+</html>

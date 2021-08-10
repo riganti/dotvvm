@@ -1,0 +1,28 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand.StaticCommand_ComboBoxSelectionChanged_ObjectsViewModel, DotVVM.Samples.Common
+@import DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <dot:ComboBox DataSource="{value: Select1}"
+                  ItemTextBinding="{value: Text}"
+                  ItemValueBinding="{value: Id}"
+                  SelectedValue="{value: SelectedValue1.Value}"
+                  SelectionChanged="{staticCommand: SelectedValue2 = StaticCommand_ComboBoxSelectionChanged_ObjectsViewModel.Function2(SelectedValue1)}" />
+
+    <dot:ComboBox DataSource="{value: Select2}"
+                  ItemTextBinding="{value: Text}"
+                  ItemValueBinding="{value: Id}"
+                  SelectedValue="{value: SelectedValue2.Value}" />
+
+    <dot:Button Text="Set Value1 in CB1" Click="{staticCommand: SelectedValue1.Value = 1}" />
+    <dot:Button Text="Set Value4 in CB2" Click="{staticCommand: SelectedValue2.Value = 4}" />
+    <dot:Button Text="Set null in CB2" Click="{staticCommand: SelectedValue2.Value = null}" />
+</body>
+</html>

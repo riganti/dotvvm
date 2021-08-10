@@ -1,0 +1,19 @@
+﻿{
+  "factories": {
+    "chrome:fast": {
+      "capabilities": [ "--headless" ]
+    }
+  },
+  "baseUrls": [
+    "http://localhost:5407/"
+  ],
+  "testRunOptions": {
+    "runInParallel": true,
+    "testAttemptsCount": 2
+  },
+  "logging": {
+    "loggers": {
+      "testContext": {}
+    }
+  }
+}

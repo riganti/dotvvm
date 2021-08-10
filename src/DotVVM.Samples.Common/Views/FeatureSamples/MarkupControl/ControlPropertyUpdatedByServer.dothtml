@@ -1,0 +1,26 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.MarkupControl.ControlPropertyUpdatedByServerViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div>
+        Check that the controlProperty binding is two-way (type "test" in the second TextBox): <br />
+        <sample:TextEditorControl Text="{value: SimpleProperty == "test"}" Label="SimpleProperty" Trap="TRAP" />
+        <dot:TextBox Text="{value: SimpleProperty}" data-uitest="simpleProperty" />
+    </div>
+
+    <div>
+        Check that null viewmodels are not a problem and that we can modify it from the server: <br />
+        <sample:TextEditorControl Text="{value: ChildViewModel.Property}" Label="ChildViewModel.Property" Trap="TRAP" />
+        <dot:TextBox Text="{value: ChildViewModel.Property}" data-uitest="childProperty" />
+        <dot:Button Click="{command: AddViewModel()}" Text="Add ViewModel" data-uitest="childPropertyButton" />
+    </div>
+</body>
+</html>
+
+

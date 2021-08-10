@@ -1,0 +1,7 @@
+﻿@viewModel System.Object, mscorlib
+@baseType DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl.ControlCommandBinding, DotVVM.Samples.Common
+
+<div DataContext="{value:  _control.Data}">
+    <dot:Button Text="CommandBinding test" Click="{command:  Click() }" />
+    <span data-uitest="result2">{{value:  Value}}</span>
+</div>

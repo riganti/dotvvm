@@ -1,0 +1,20 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CommandArguments.CommandArgumentTypesViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <p>Value:</p>
+    <p data-ui="value">{{value: Value}}</p>
+    <div data-ui="button2">
+        <dot:TextBox Text={value: Parameter.MyProperty} />
+        <cc:ParametrizedButton Click={command: Command(obj.MyProperty + "(from second button)")} Parameter={value: Parameter}>
+            Button Parametrized by an object
+        </cc:ParametrizedButton>
+    </div>
+</body>
+</html>

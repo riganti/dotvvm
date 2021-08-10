@@ -1,0 +1,11 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.DotVVM.NamespaceCollisionViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    {{value: Test}}
+</body>
+</html>

@@ -1,0 +1,17 @@
+﻿@baseType DotVVM.Samples.Common.Views.FeatureSamples.StaticCommand.StaticCommand_ValueAssignmentControl, DotVVM.Samples.Common
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand.StaticCommand_ValueAssignmentInControlViewModel, DotVVM.Samples.Common
+
+<div>
+    <fieldset>
+        <legend>
+            Boolean values
+        </legend>
+
+        <dot:Button Text="Set text" ID="setText" Click="{staticCommand:  _control.Model.Value = "text"}" /><br />
+        <dot:Button Text="Set null" ID="setNull" Click="{staticCommand:  _control.Model.Value = null }" /><br />
+
+        Value:
+        <dot:Literal ID="result" Text="{value:  _control.Model.Value}">
+        </dot:Literal>
+    </fieldset>
+</div>

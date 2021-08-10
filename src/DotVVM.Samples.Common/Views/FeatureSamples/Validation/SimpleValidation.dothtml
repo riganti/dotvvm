@@ -1,0 +1,60 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation.SimpleValidationViewModel, DotVVM.Samples.Common
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+    .completed {
+        color: maroon;
+        text-decoration: line-through;
+    }
+    .validator {
+        color: red;
+    }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Task List With Validation</h1>
+        
+        <fieldset>
+            <legend>Add Task</legend>
+            
+            <p>
+                Title: <dot:TextBox Text="{value: NewTaskTitle}" />
+            </p>
+            <p>
+                <dot:Validator Id="hideWhenValid" Value="{value: NewTaskTitle}">Validation 1 - HideWhenValid</dot:Validator>
+                <dot:Validator Id="addCssClass" Value="{value: NewTaskTitle}" HideWhenValid="false" InvalidCssClass="validator">Validation 2 - AddCssClass</dot:Validator>
+                <dot:Validator Id="displayErrorMessage" Value="{value: NewTaskTitle}" ShowErrorMessageText="true">Validation 3 - DisplayErrorMessage</dot:Validator>
+            </p>
+            <p><dot:Button Text="Create" Click="{command: AddTask()}" /></p> 
+
+            <div class="validator"><dot:ValidationSummary Id="validationSummary" /></div>
+        </fieldset>
+        <p>&nbsp;</p>
+        
+        <table class="table">
+            <dot:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
+                <ItemTemplate>
+                    <tr class="{value: IsCompleted ? "completed" : ""}">
+                        <td>{{value: Title}}</td>
+                        <td>
+                            <dot:LinkButton 
+                                Text="done" 
+                                Click="{command: _parent.CompleteTask(TaskId)}" 
+                                Visible="{value: !IsCompleted}"
+                                Validation.Enabled="false" />
+                        </td>
+                    </tr>
+                </ItemTemplate>
+            </dot:Repeater>
+        </table>
+    </div>
+    
+    <p>
+        <dot:UpdateProgress>Loading...</dot:UpdateProgress>
+    </p>
+
+</body>
+</html>

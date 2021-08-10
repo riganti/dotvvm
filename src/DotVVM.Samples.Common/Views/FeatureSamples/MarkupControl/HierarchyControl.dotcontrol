@@ -1,0 +1,12 @@
+﻿@viewModel DotVVM.Samples.Common.Views.FeatureSamples.MarkupControl.HierarchicalItem
+@baseType DotVVM.Samples.Common.Views.FeatureSamples.MarkupControl.HierarchyControl, DotVVM.Samples.Common
+
+<span RenderSettings.Mode="Client" data-ui="title">{{value: _control.PrefixText}} & {{value: Title}}</span>
+<dot:Repeater WrapperTagName="ul" DataSource="{value: Children}" RenderSettings.Mode="Server">
+    <li>
+        <dot:LinkButton Text="Modify Title" Click="{command: _this.Title = _control.NewTitle}"
+                        html:title="{controlProperty: NewTitle}"
+                        data-ui="static-command"/>
+        <sample:HierarchyControl NewTitle="{value: Title + " & " + _control.NewTitle}" />
+    </li>
+</dot:Repeater>

@@ -1,0 +1,87 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView.GridViewPagingSortingViewModel, DotVVM.Samples.Common
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+	<style type="text/css">
+		.alternate {
+			background-color: yellow;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>GridView with IGridViewDataSet</h1>
+		<dot:GridView DataSource="{value: CustomersDataSet}" class="table table-bordered"
+					  RenderSettings.Mode="Server" PostBack.Update="true">
+			<Columns>
+				<!-- comment inside columns collection -->
+				<dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" CssClass="{value: CustomerId % 2 == 0 ? 'alternate' : ''}" AllowSorting="True" />
+				<dot:GridViewTextColumn HeaderText="{value: CustomNameForName}" ValueBinding="{value: Name}" AllowSorting="True" />
+				<dot:GridViewTextColumn ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True">
+                    <HeaderTemplate>
+						<span class="class123">Birth date</span>
+						<dot:Button Click="{command: _root.TestCommand()}" Text="Sort Button" ButtonTagName="button" />
+					</HeaderTemplate>
+                </dot:GridViewTextColumn>
+				<dot:GridViewCheckBoxColumn HeaderText="Message received" ValueBinding="{value: MessageReceived}" AllowSorting="True"></dot:GridViewCheckBoxColumn>
+			</Columns>
+			<!-- comment inside control -->
+		</dot:GridView>
+		<dot:DataPager DataSet="{value: CustomersDataSet}" class="pagination" />
+		<!-- comment outside control -->
+		<p>&nbsp;</p>
+		<p>&nbsp;</p>
+		<p>&nbsp;</p>
+
+		<h1>GridView with simple collection</h1>
+		<dot:GridView DataSource="{value: Customers}" SortChanged="{command: SortCustomers}" class="table table-bordered"
+					  RenderSettings.Mode="Server" PostBack.Update="true">
+			<Columns>
+				<dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
+				<dot:GridViewTextColumn HeaderText="{value: CustomNameForName}" ValueBinding="{value: Name}" AllowSorting="True" />
+				<dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+			</Columns>
+		</dot:GridView>
+		<p>Selected sort column: {{value: SelectedSortColumn}}</p>
+		<p>&nbsp;</p>
+		<p>&nbsp;</p>
+		<p>&nbsp;</p>
+
+		<h1>GridView with null DataSource</h1>
+		<dot:GridView DataSource="{value: Null}" class="table table-bordered" RenderSettings.Mode="Server">
+			<Columns>
+				<dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
+				<dot:GridViewTextColumn HeaderText="{value: CustomNameForName}" ValueBinding="{value: Name}" AllowSorting="True" />
+				<dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+			</Columns>
+		</dot:GridView>
+		
+		
+		<h1>EmptyData with data source</h1>
+		<dot:EmptyData DataSource="{value: CustomersDataSet}" RenderSettings.Mode="Server">
+			This is not displayed because data is not empty
+		</dot:EmptyData>
+		<h1>EmptyData with no data source</h1>
+		<dot:EmptyData DataSource="{value: Null}" RenderSettings.Mode="Server">
+			This is displayed because data is empty
+		</dot:EmptyData>
+
+        <h1>GridView with empty dataset and ShowHeaderWhenNoData true</h1>
+        <dot:GridView DataSource="{value: EmptyCustomersDataSet}" data-ui="ShowHeaderWhenNoDataGrid" ShowHeaderWhenNoData="true" RenderSettings.Mode="Server" class="table table-bordered">
+            <Columns>
+                <!-- comment inside columns collection -->
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" CssClass="{value: CustomerId % 2 == 0 ? 'alternate' : ''}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="{value: CustomNameForName}" ValueBinding="{value: Name}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Birth date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+            </Columns>
+            <!-- comment inside control -->
+        </dot:GridView>
+
+	</div>
+
+    <p>
+        Rename the `Name` string in Grid's headers: <dot:TextBox Text="{value: CustomNameForName}" />
+    </p>
+</body>
+</html>

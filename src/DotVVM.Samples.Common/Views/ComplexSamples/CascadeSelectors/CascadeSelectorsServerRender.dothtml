@@ -1,0 +1,26 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.CascadeSelectors.CascadeSelectorsViewModel, DotVVM.Samples.Common
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+	<div class="container" RenderSettings.Mode="Server">
+		<h1>Selectors with server rendering</h1>
+		<div class="row">
+			<div class="col-md-6">
+				<dot:ComboBox class="form-control" DataSource="{value: Cities}" SelectedValue="{value: SelectedCityId}" ItemValueBinding="{value: Id}" ItemTextBinding="{value: Name}" />
+				<dot:Button class="btn btn-block" Text="Select city" Click="{command: SelectedCityChanged()}" />
+			</div>
+			<div class="col-md-6" Visible="{value: HotelsInCity != null}">
+				<dot:ListBox class="form-control" DataSource="{value: HotelsInCity}" SelectedValue="{value: SelectedHotelId}" ItemValueBinding="{value: Id}" ItemTextBinding="{value: Name}" />
+				<dot:Button class="btn btn-block" Text="Select hotel" Click="{command: SelectedHotelChanged()}" />
+			</div>
+		</div>
+		<div DataContext="{value: SelectedHotel}" PostBack.Update="true">
+			<h2 InnerText="{value: Name}" />
+			<p>Hotel has been selected.</p>
+		</div>
+	</div>
+</body>
+</html>

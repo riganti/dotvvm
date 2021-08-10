@@ -1,0 +1,14 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization.Localization_ControlViewModel, DotVVM.Samples.Common
+@import Texts = DotVVM.Samples.BasicSamples.Views.FeatureSamples.Localization.Localization2
+
+<div data-ui="localization-control-bare">
+    <dot:CheckBox Text="{resource: DotVVM.Samples.BasicSamples.Views.FeatureSamples.Localization.Localization2.LocalizedResourceInControl_CheckBox}" Checked="{value: _this.Checked}"/>
+    <br />
+    <dot:Literal Text="{resource: DotVVM.Samples.BasicSamples.Views.FeatureSamples.Localization.Localization2.LocalizedResourceInControl_Literal}" />
+</div>
+<div data-ui="localization-control-import">
+    <dot:CheckBox Text="{resource: Texts.LocalizedResourceInControl_CheckBox}" Checked="{value: _this.Checked}" />
+    <br />
+    <dot:Literal Text="{resource: Texts.LocalizedResourceInControl_Literal}" />
+</div>
+

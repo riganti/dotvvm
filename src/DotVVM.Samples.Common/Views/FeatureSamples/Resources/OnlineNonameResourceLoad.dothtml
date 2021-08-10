@@ -1,0 +1,22 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Resource.OnlineNonameResourceLoad, DotVVM.Samples.Common
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <div class="container">
+		<h1>Online resource load</h1>
+
+		<dot:Button Text="Alert" Click="{command: Alert()}" />
+
+	</div>
+
+	<dot:BodyResourceLinks />
+
+	<dot:InlineScript Dependencies="dotvvm">
+		if (!window.dotvvm)
+			alert("DotVVM scripts were not loaded before this one ;(");
+	</dot:InlineScript>
+</body>
+</html>

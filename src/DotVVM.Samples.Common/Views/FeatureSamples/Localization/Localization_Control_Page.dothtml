@@ -1,0 +1,16 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization.Localization_Control_PageViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <h1>Localized resource in control</h1>
+    <sample:Localization_Control DataContext="{value: Control}"/>
+</body>
+</html>
+
+

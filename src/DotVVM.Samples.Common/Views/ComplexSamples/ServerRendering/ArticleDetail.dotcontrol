@@ -1,0 +1,11 @@
+﻿@viewModel System.Object, mscorlib
+@baseType DotVVM.Samples.BasicSamples.Views.ComplexSamples.ServerRendering.ArticleDetail, DotVVM.Samples.Common
+
+<article data-ui="test-article">
+    <ul>
+        <li><dot:Literal data-ui="detail-text" Text="{controlProperty: SanitizedMessage}"></li>
+        <li><dot:LinkButton Click="{controlCommand: OnEditClick()}" Text="Edit"></li>
+    </ul>
+</article>
+
+

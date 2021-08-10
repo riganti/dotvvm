@@ -1,0 +1,175 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.IncludeInPageProperty.IncludeInPageViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>A few samples testing the IncludeInPage property</title>
+    <style>
+        .block, .switch {
+            margin: 20px;
+            padding: 20px;
+            background-color: gray;
+        }
+        .switch {
+            background-color: bisque;
+        }
+    </style>
+</head>
+<body>
+    <div class="block">
+        <h2>A TextBox</h2>
+        <dot:TextBox Text="{value: Text}"
+                     IncludeInPage="{value: IncludeInPage}"
+                     data-ui="textbox"></dot:TextBox>
+    </div>
+    <div class="block">
+        <h2>A TextBox with Visible</h2>
+        <dot:TextBox Text="{value: Text}"
+                     IncludeInPage="{value: IncludeInPage}"
+                     Visible="{value: Visible}"
+                     data-ui="textbox-visible"></dot:TextBox>
+    </div>
+    <div class="block">
+        <h2>A TextBox with DataContext</h2>
+        <dot:TextBox Text="{value: Name}"
+                     DataContext="{value: Customers.Items[0]}"
+                     IncludeInPage="{value: _root.IncludeInPage}"
+                     data-ui="textbox-dataContext"></dot:TextBox>
+    </div>
+    <div class="block">
+        <h2>A TextBox with Visible and DataContext</h2>
+        <dot:TextBox Text="{value: Name}"
+                     DataContext="{value: Customers.Items[0]}"
+                     IncludeInPage="{value: _root.IncludeInPage}"
+                     Visible="{value: _root.Visible}"
+                     data-ui="textbox-visible-dataContext"></dot:TextBox>
+    </div>
+    <div class="block">
+        <h2>A Repeater with Literals inside</h2>
+        <dot:Repeater DataSource="{value: Texts}">
+            <ItemTemplate>
+                <p>
+                    <dot:Literal Text="{value: _this}"
+                                 IncludeInPage="{value: _root.IncludeInPage}"
+                                 data-ui="literal-repeater" />
+                </p>
+            </ItemTemplate>
+        </dot:Repeater>
+    </div>
+    <div class="block">
+        <h2>A single Literal with DataContext</h2>
+        <p><dot:Literal DataContext="{value: Texts[0]}"
+                     Text="{value: _this}"
+                     IncludeInPage="{value: _root.IncludeInPage}"
+                     data-ui="literal" /></p>
+    </div>
+    <div class="block">
+        <h2>A Repeater inside a table with a tbody wrapper tag rendering another repeater with tr wrapper tag rendering some td cells</h2>
+        <h3>IncludeInPage is on the first Repeater</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>#0</th>
+                    <th>#1</th>
+                    <th>#2</th>
+                    <th>#3</th>
+                </tr>
+            </thead>
+            <dot:Repeater WrapperTagName="tbody"
+                          DataSource="{value: Rows}"
+                          IncludeInPage="{value: IncludeInPage}"
+                          data-ui="repeater-first">
+                <dot:Repeater WrapperTagName="tr"
+                              DataSource="{value: _this}">
+                    <td>{{value: _this}}</td>
+                </dot:Repeater>
+            </dot:Repeater>
+        </table>
+    </div>
+    <div class="block">
+        <h2>A Repeater inside a table with a tbody wrapper tag rendering another repeater with tr wrapper tag rendering some td cells</h2>
+        <h3>IncludeInPage is on the second Repeater</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>#0</th>
+                    <th>#1</th>
+                    <th>#2</th>
+                    <th>#3</th>
+                </tr>
+            </thead>
+            <dot:Repeater WrapperTagName="tbody"
+                          DataSource="{value: Rows}">
+                <dot:Repeater WrapperTagName="tr"
+                              DataSource="{value: _this}"
+                              IncludeInPage="{value: _root.IncludeInPage}"
+                              data-ui="repeater-second">
+                    <td>{{value: _this}}</td>
+                </dot:Repeater>
+            </dot:Repeater>
+        </table>
+    </div>
+    <div class="block">
+        <h2>A GridView</h2>
+        <dot:GridView DataSource="{value: Customers}"
+                      IncludeInPage="{value: IncludeInPage}"
+                      data-ui="gridView">
+            <Columns>
+                <dot:GridViewTextColumn ValueBinding="{value: Id}"
+                                        HeaderText="ID" />
+                <dot:GridViewTextColumn ValueBinding="{value: Name}"
+                                        HeaderText="Name" />
+            </Columns>
+        </dot:GridView>
+    </div>
+    <div class="block">
+        <h2>A GridView with EmptyDataTemplate</h2>
+        <dot:GridView DataSource="{value: EmptyCustomers}"
+                      IncludeInPage="{value: IncludeInPage}"
+                      data-ui="gridView-emptyDataTemplate">
+            <Columns>
+                <dot:GridViewTextColumn ValueBinding="{value: Id}"
+                                        HeaderText="ID" />
+                <dot:GridViewTextColumn ValueBinding="{value: Name}"
+                                        HeaderText="Name" />
+            </Columns>
+            <EmptyDataTemplate>
+                <p data-ui="emptyDataTemplate">There are no Customers to display</p>
+            </EmptyDataTemplate>
+        </dot:GridView>
+    </div>
+
+    <div class="block">
+        <h2>Resource binding</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>#0</th>
+                    <th>#1</th>
+                    <th>#2</th>
+                    <th>#3</th>
+                </tr>
+            </thead>
+            <dot:Repeater WrapperTagName="tbody"
+                          DataSource="{value: Rows}">
+                <dot:Repeater WrapperTagName="tr"
+                              DataSource="{value: _this}"
+                              IncludeInPage="{resource: _root.IncludeInPage}">
+                    <td>{{value: _this}}</td>
+                </dot:Repeater>
+            </dot:Repeater>
+        </table>
+    </div>
+    <div class="switch">
+        <dot:Button Click="{command: IncludeInPage = !IncludeInPage}"
+                    data-ui="switch-includeInPage">
+            IncludeInPage = !IncludeInPage
+        </dot:Button>
+        <dot:Button Click="{command: Visible = !Visible}"
+                    data-ui="switch-visible">
+            Visible = !Visible
+        </dot:Button>
+    </div>
+</body>
+</html>

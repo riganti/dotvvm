@@ -1,0 +1,26 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ParameterBinding.ParameterBindingViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <ul>
+        <li class="root-a" InnerText="{value: A}"></li>
+        <li class="root-b" InnerText="{value: B}"></li>
+        <li class="nested-a" InnerText="{value: Nested.A}"></li>
+        <li class="nested-b" InnerText="{value: Nested.B}"></li>
+    </ul>
+
+    <p>
+        <a href="?B=abc">Add query string parameter</a>
+    </p>
+
+</body>
+</html>
+
+

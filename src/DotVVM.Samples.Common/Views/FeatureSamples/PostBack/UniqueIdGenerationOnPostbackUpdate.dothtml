@@ -1,0 +1,37 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBack.UniqueIdGenerationOnPostbackUpdateViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body RenderSettings.Mode="Server">
+
+    <p>
+        This tests tries if controlCommands and Postback.Update work even when deeply nested in Repeaters Grids and markup controls. Click on any button should simply update the current time displayed in all the literals
+    </p>
+
+    <%-- TODO: Write a test --%>
+    <dot:GridView DataSource="{value:  Data}">
+        <Columns>
+            <dot:GridViewTextColumn ValueBinding="{value: Now}" HeaderText="Time" />
+            <dot:GridViewTextColumn ValueBinding="{value: Text}" HeaderText="Time" />
+            <dot:GridViewTemplateColumn>
+                <ContentTemplate>
+                    <dot:Repeater DataSource="{value:  Data}">
+                        <ItemTemplate>
+                            <cc:RecursiveTextRepeater Data="{value:  Data}" />
+                        </ItemTemplate>
+                    </dot:Repeater>
+                </ContentTemplate>
+            </dot:GridViewTemplateColumn>
+        </Columns>
+    </dot:GridView>
+
+
+</body>
+</html>
+
+

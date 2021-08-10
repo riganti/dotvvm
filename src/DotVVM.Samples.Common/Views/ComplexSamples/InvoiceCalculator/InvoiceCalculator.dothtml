@@ -1,0 +1,106 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.InvoiceCalculator.InvoiceCalculatorViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+	<style>
+	.completed {
+		color: maroon;
+		text-decoration: line-through;
+	}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Invoice Editor</h1>
+		
+		<fieldset>
+			<legend>Invoice Details</legend>
+			
+			<div class="form-horizontal">
+				<div class="form-group">
+					<label>Invoice #:</label>
+					<div>
+						<dot:TextBox Text="{value: Number}" />
+					</div>
+				</div>
+				<div class="form-group">
+					<label>Due Date:</label>
+					<div>
+						<dot:TextBox Text="{value: DueDate}" />
+					</div>
+				</div>
+			</div>
+
+		</fieldset>
+		<p>&nbsp;</p>
+
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Item #</th>
+					<th>Tax Rate</th>
+					<th>Title</th>
+					<th>UnitPrice</th>
+					<th>Quantity</th>
+					<th>Total</th>
+					<th></th>
+					<th></th>
+				</tr>
+			</thead>
+			<dot:Repeater DataSource="{value: InvoiceLines}" WrapperTagName="tbody">
+				<ItemTemplate>
+					<tr>
+						<td>
+							<dot:TextBox Text="{value: Number}" style="width: 80px" />
+						</td>
+						<td>
+							<dot:ComboBox DataSource="{value: _parent.TaxRates}" 
+								ItemTextBinding="{value: Title}" 
+								ItemValueBinding="{value: Coeff}"
+								SelectedValue="{value: TaxCoeff}"
+								style="width: 120px" />
+						</td>
+						<td>
+							<dot:TextBox Text="{value: Title}" style="width: 200px" />
+						</td>
+						<td>
+							<dot:TextBox Text="{value: UnitPrice}" style="width: 80px" />
+						</td>
+						<td>
+							<dot:TextBox Text="{value: Quantity}" style="width: 80px" />
+						</td>
+						<td>
+							{{value: UnitPrice * Quantity * TaxCoeff}}
+						</td>
+						<td>
+							<dot:LinkButton Click="{command: _parent.RemoveLine(_this)}">
+								Remove
+							</dot:LinkButton>
+						</td>
+					</tr>
+				</ItemTemplate>
+			</dot:Repeater>
+			<tfoot>
+				<tr>
+					<th colspan="5">TOTAL</th>
+					<th>{{value: Total}}</th>
+					<th colspan="2"></th>
+				</tr>
+			</tfoot>
+		</table>
+		<div class="row">
+			<div class="col-xs-6">
+				<dot:LinkButton Click="{command: AddLine()}">
+					Add Invoice Line
+				</dot:LinkButton>
+			</div>
+			<div class="col-xs-6">
+				<dot:LinkButton Click="{command: Recalculate()}" Text="Recalculate" />
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

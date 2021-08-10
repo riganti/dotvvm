@@ -1,0 +1,18 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ReturnedFile.ReturnedFileSampleViewModel
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <%-- TODO: UI Test --%>
+    <dot:TextBox Text="{value: Text}" Type="Multiline"></dot:TextBox>
+    <dot:Button Text="Get File" Click="{command: GetFile()}" />
+    <dot:Button Text="Get File Inline" Click="{command: GetFileInline()}" />
+</body>
+</html>
+
+

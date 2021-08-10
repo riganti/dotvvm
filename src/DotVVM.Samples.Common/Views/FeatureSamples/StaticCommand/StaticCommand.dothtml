@@ -1,0 +1,34 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand.StaticCommandViewModel, DotVVM.Samples.Common
+@service greetingService = DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand.IGreetingComputationService
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Static command returning value</h2>
+        <p>Name: <dot:TextBox Text="{value:  Name}" /></p>
+        <dot:Button data-ui="compute-static-method" Text="Compute greeting using static command" Click="{staticCommand: Greeting = ViewModel.GetGreeting(Name)}" />
+        <dot:Button data-ui="compute-string" Text="Compute greeting pure js function" Click="{staticCommand: Greeting = 'Hello ' + Name + '!'}" />
+        <dot:Button data-ui="compute-service" Text="Compute using abstract service" Click="{staticCommand: Greeting = greetingService.GetGreeting(Name)}" />
+        <dot:Button data-ui="compute-service-async" Text="Compute using async abstract service" Click="{staticCommand: Greeting = greetingService.GetGreetingAsync(Name).Result}" />
+        <dot:Button data-ui="service-object" Text="Compute child object" Click="{staticCommand: Child = greetingService.GetObject()}" />
+        <dot:Button data-ui="service-null" Text="Fill child object with NULL" Click="{staticCommand: Child = greetingService.GetNull()}" />
+        <dot:Button data-ui="static-null" Text="Fill child object with NULL by static method" Click="{staticCommand: Child= DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand.StaticCommandTestMethods.GetNull()}" />
+        <dot:Button data-ui="null" Text="Set NULL value" Click="{staticCommand: Child= DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand.StaticCommandTestMethods.GetNull()}" />
+        <p>
+            <span InnerText="{value: Greeting}"></span>
+        </p>
+        <p>
+            <h3>
+                Child:
+            </h3>
+            <span>
+                Name:<span data-ui="name"> {{value: Child.Name}}</span><br />
+                Value:<span data-ui="value">{{value: Child.Value}}</span>
+            </span>
+        </p>
+    </div>
+</body>
+</html>

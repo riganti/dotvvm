@@ -1,0 +1,50 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.TaskList.TaskListViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .completed {
+            color: maroon;
+            text-decoration: line-through;
+        }
+        .alt-row {
+            background-color: #FFFFBB;
+        }
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container" class="a" data-attribute="&lt;">
+
+
+        <h1>Task List</h1>
+
+        <fieldset data-testattribute>
+            <legend>Add Task</legend>
+
+            <p>Title: <dot:TextBox text="{value: NewTaskTitle}" /></p>
+            <p><dot:Button text="Create" Click="{command: AddTask()}" /></p>
+        </fieldset>
+        <p>&nbsp;</p>
+
+        <table class="table">
+            <dot:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
+                <tr Class-completed="{value: IsCompleted}" Class-alt-row="{value: _collection.IsEven}">
+                    <td>{{value: Title}}</td>
+                    <td>
+                        <dot:LinkButton Text="done"
+                                        Click="{command: _parent.CompleteTask(TaskId)}"
+                                        Visible="{value: !IsCompleted}" ></dot:LinkButton>
+                    </td>
+                </tr>
+            </dot:Repeater>
+        </table>
+
+        <dot:Button Click="{command: SaveDataAsync()}" Text="Save to db" />
+    </div>
+
+    <%-- server-side comment not rendered in html --%>
+</body>
+</html>

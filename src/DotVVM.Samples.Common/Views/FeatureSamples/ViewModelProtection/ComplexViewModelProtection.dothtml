@@ -1,0 +1,94 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModelProtection.ComplexViewModelProtectionViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Complex ViewModel protection</title>
+    <style>
+        div {
+            margin: 20px;
+            padding: 20px;
+            border: solid 1px gray;
+            background-color: rgba(120, 120, 120, 0.10)
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h4>Signed string</h4>
+        <dot:RadioButton CheckedItem="{value: SignedColor}"
+                         CheckedValue="red"
+                         data-ui="radio-red" />
+        <dot:RadioButton CheckedItem="{value: SignedColor}"
+                         CheckedValue="green"
+                         data-ui="radio-green" />
+        <dot:RadioButton CheckedItem="{value: SignedColor}"
+                         CheckedValue="blue"
+                         data-ui="radio-blue" />
+        <span>Signed color: </span>
+        <span data-ui="selected-color">
+            {{value: SignedColor}}
+        </span>
+
+        <br />
+        <dot:Button Click="{staticCommand: SignedColor = "green"}"
+                    data-ui="change-color">
+            Change Selected color
+        </dot:Button>
+    </div>
+    <div>
+        <h4>Messages</h4>
+        <span>BothMessage: </span>
+        <span data-ui="bothMessage">{{value: BothMessage.Text}}</span><br />
+        <dot:Button data-ui="change-bothMessage"
+                    Click="{staticCommand: BothMessage.Text = ChangedText}">
+            Change through JS
+        </dot:Button><br />
+
+        <span>ClientToServerMessage: </span>
+        <span data-ui="clientToServerMessage">{{value: ClientToServerMessage.Text}}</span><br />
+        <dot:Button data-ui="change-clientToServerMessage"
+                    onclick="dotvvm.viewModels.root.viewModel.ClientToServerMessage({Text: ko.observable(dotvvm.viewModels.root.viewModel.ChangedText())})">
+            Create through JS
+        </dot:Button><br />
+
+        <span>IfInPostbackPathMessage: </span>
+        <span data-ui="ifInPostbackPathMessage">{{value: IfInPostbackPathMessage.Text}}</span><br />
+        <dot:Button data-ui="change-ifInPostbackPathMessage"
+                    Click="{staticCommand: IfInPostbackPathMessage.Text = ChangedText}">
+            Change through JS
+        </dot:Button><br />
+
+        <span>ServerToClientFirstRequestMessage: </span>
+        <span data-ui="serverToClientFirstRequestMessage">{{value: ServerToClientFirstRequestMessage.Text}}</span><br />
+        <dot:Button data-ui="change-serverToClientFirstRequestMessage"
+                    Click="{staticCommand: ServerToClientFirstRequestMessage.Text = ChangedText}">
+            Change through JS
+        </dot:Button><br />
+
+        <span>ServerToClientMessage: </span>
+        <span data-ui="serverToClientMessage">{{value: ServerToClientMessage.Text}}</span><br />
+        <dot:Button data-ui="change-serverToClientMessage"
+                    Click="{staticCommand: ServerToClientMessage.Text = ChangedText}">
+            Change through JS
+        </dot:Button><br />
+
+        <span>ServerToClientPostbackMessage: </span>
+        <span data-ui="serverToClientPostbackMessage">{{value: ServerToClientPostbackMessage.Text}}</span><br />
+        <dot:Button data-ui="change-serverToClientPostbackMessage"
+                    Click="{staticCommand: ServerToClientPostbackMessage.Text = ChangedText}">
+            Change through JS
+        </dot:Button><br />
+    </div>
+    <div>
+        <dot:Button Click="{command: 0}"
+                    data-ui="postback">
+            Postback
+        </dot:Button>
+    </div>
+</body>
+</html>
+
+

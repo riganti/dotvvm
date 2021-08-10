@@ -1,0 +1,12 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceHolder_HistoryApi.MultiSpaDefaultViewModel, DotVVM.Samples.Common
+@masterPage Views/ControlSamples/SpaContentPlaceHolder_HistoryApi/MultiSpaMaster.dotmaster
+
+<dot:Content ContentPlaceHolderID="FirstSpa">
+
+
+</dot:Content>
+
+<dot:Content ContentPlaceHolderID="SecondSpa">
+
+
+</dot:Content>

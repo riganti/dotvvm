@@ -1,0 +1,24 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect.LoginViewModel
+@masterPage Views/ComplexSamples/SPARedirect/site.dotmaster
+
+<dot:Content ContentPlaceHolderID="SpaHost">
+
+    <table>
+        <tr>
+            <td>User Name:</td>
+            <td>
+                <dot:TextBox Text="{value: UserName}" />
+            </td>
+        </tr>
+        <tr>
+            <td>Password:</td>
+            <td>
+                <dot:TextBox Text="{value: Password}" Type="Password" />
+            </td>
+        </tr>
+    </table>
+
+    <dot:Button Text="Login" Click="{command: Login()}" />
+
+
+</dot:Content>

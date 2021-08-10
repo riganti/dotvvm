@@ -1,0 +1,51 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.AzureFunctionsApiTableViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h3>Table</h3>
+    <div class="form-grid">
+        <dot:GridView DataSource="{value: _api.RefreshOnEvent(_azureFuncApi._api_GetTable_get(), "PreRender")}">
+            <Columns>
+                <dot:GridViewTextColumn ValueBinding="{value:  Text}" HeaderText="Text" />
+                <dot:GridViewTextColumn ValueBinding="{value: Number}" HeaderText="Number" />
+                <dot:GridViewTextColumn ValueBinding="{value: Date}" FormatString="yyyy-MM-dd HH:mm:ss" HeaderText="Date" />
+                <dot:GridViewTemplateColumn HeaderText="Delete">
+                    <ContentTemplate>
+                        <dot:CheckBox Checked="{value: ToDelete}" Changed="{staticCommand: _azureFuncApi._api_UpdateTableEntity_post(_this)}" />
+                    </ContentTemplate>
+            </Columns>
+        </dot:GridView>
+        <dot:Button Text="Delete" Click="{staticCommand: _azureFuncApi._api_DeleteEntities_delete()}" />
+    </div>
+    <h4>Add table entity</h4>
+    <div class="form-create">
+        <table>
+            <tr>
+                <td>Text: </td>
+                <td>
+                <dot:Textbox Text="{value: NewForm.Text}" /></td>
+            </tr>
+            <tr>
+                <td>Number:</td>
+                <td>
+                <dot:Textbox Text="{value: NewForm.Number}" /></td>
+            </tr>
+            <tr>
+                <td>Date:</td>
+                <td>
+                <dot:Textbox Text="{value: NewForm.Date}" FormatString="yyyy-MM-dd HH:mm:ss" /></td>
+            </tr>
+        </table>
+        <dot:Button Text="Add" Click="{staticCommand: _azureFuncApi._api_AddTableEntity_post(NewForm)}" />
+        <dot:Button Text="Refresh" Click="{staticCommand: _api.PushEvent("PreRender")}" />
+    </div>
+</body>
+</html>
+
+

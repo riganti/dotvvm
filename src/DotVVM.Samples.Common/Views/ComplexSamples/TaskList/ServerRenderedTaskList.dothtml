@@ -1,0 +1,42 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.TaskList.TaskListViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .completed {
+            color: maroon;
+            text-decoration: line-through;
+        }
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container">
+        <h1>Task List</h1>
+
+        <fieldset data-testattribute>
+            <legend>Add Task</legend>
+
+            <p>Title: <dot:TextBox Text="{value: NewTaskTitle}" /></p>
+            <p><dot:Button Text="Create" Click="{command: AddTask()}" /></p>
+        </fieldset>
+        <p>&nbsp;</p>
+
+        <table class="table">
+            <dot:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody" RenderSettings.Mode="Server" PostBack.Update="true">
+                <tr class="{value: IsCompleted ? ' completed' : '' }">
+                    <td>{{value: Title}}</td>
+                    <td>
+                        <dot:LinkButton Text="done"
+                                       Click="{command: _parent.CompleteTask(TaskId)}"
+                                       Visible="{value: !IsCompleted}" />
+                    </td>
+                </tr>
+            </dot:Repeater>
+        </table>
+    </div>
+
+</body>
+</html>

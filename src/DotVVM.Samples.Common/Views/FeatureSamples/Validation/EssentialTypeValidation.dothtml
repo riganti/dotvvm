@@ -1,0 +1,69 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation.EssentialTypeValidationViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <p>
+        int <dot:TextBox Text="{value: IntegerProperty}" />
+    </p>
+    <p class="nullableInt">
+        int? <dot:TextBox Text="{value: NullableIntegerProperty}" />
+    </p>
+    <p>
+        double <dot:TextBox Text="{value: FloatProperty}" />
+    </p>
+    <p>
+        double? <dot:TextBox Text="{value: NullableFloatProperty}" />
+    </p>
+
+    <div DataContext="{value: NestedVM}">
+        <b>NestedVM</b>
+        <p>
+            int <dot:TextBox Text="{value: IntegerProperty}" />
+        </p>
+        <p class="nullableInt">
+            int? <dot:TextBox Text="{value: NullableIntegerProperty}" />
+        </p>
+        <p>
+            double <dot:TextBox Text="{value: FloatProperty}" />
+        </p>
+        <p class="NaNTest">
+            double? <dot:TextBox Text="{value: NullableFloatProperty}" />
+        </p>
+    </div>
+    <div>
+        <dot:Repeater DataSource="{value: Collection}">
+            <div>
+                <b>Collection Item</b>
+                <p>
+                    int <dot:TextBox Text="{value: IntegerProperty}" />
+                </p>
+                <p class="nullableInt">
+                    int? <dot:TextBox Text="{value: NullableIntegerProperty}" />
+                </p>
+                <p>
+                    double <dot:TextBox Text="{value: FloatProperty}" />
+                </p>
+                <p>
+                    double? <dot:TextBox Text="{value: NullableFloatProperty}" />
+                </p>
+            </div> 
+        </dot:Repeater>
+    </div>
+    <p>
+        <dot:Button Click="{command: AddNestedVMs()}" Text="Add nested VMs" Validation.Enabled="false" />
+    </p>
+    <p>
+        <dot:Button Click="{command: Postback()}" Validation.Enabled="true" Validation.Target="{value: _root}" Text="Postback with validation" />
+        <dot:Button Click="{command: Postback()}" Validation.Enabled="false" Text="Postback without validation" />
+    </p>
+    <dot:ValidationSummary IncludeErrorsFromChildren="true" />
+</body>
+</html>
+
+

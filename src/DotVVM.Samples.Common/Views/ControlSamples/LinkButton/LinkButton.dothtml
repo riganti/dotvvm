@@ -1,0 +1,35 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Button.ButtonTagNameViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .invalid {
+            color: red;
+        }
+		a[disabled] {
+			color: gray;
+		}
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container">
+        <h1>ButtonTagName property sample</h1>
+		<p>
+			<dot:LinkButton ID="ButtonTextProperty" Text="LinkButton element"></dot:LinkButton>
+			<br/>
+			<dot:LinkButton ID="ButtonTextBinding" Text="{value: ButtonText}"></dot:LinkButton>
+			<br/>
+			<dot:LinkButton ID="ButtonInnerText">LinkButton element - inner text</dot:LinkButton>
+        </p>
+
+		<p>
+			<dot:LinkButton ID="EnabledLinkButton" Enabled="{value: Enabled}" Click="{command: Switch()}">Enable Disable</dot:LinkButton>
+			<dot:CheckBox Checked="{value: Enabled}" />
+			<span>{{value: Counter}}</span>
+        </p>
+    </div>
+</body>
+</html>

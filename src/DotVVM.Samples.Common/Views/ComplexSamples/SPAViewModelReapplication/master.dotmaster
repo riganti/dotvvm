@@ -1,0 +1,32 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPAViewModelReapplication.SPAViewModelReapplicationViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />    
+    <title>Hello from DotVVM!</title>
+</head>
+<body ClientIDMode="Static">
+
+	<dot:Repeater DataSource="{value: Children}" WrapperTagName="ul" ID="first" ClientIDMode="Static">
+		<ItemTemplate>
+			<li>
+				{{value: Name}}
+			</li>
+		</ItemTemplate>
+	</dot:Repeater>
+	
+	<p ID="test2">{{value: ChangedValue}}</p>
+
+	<dot:SpaContentPlaceHolder ID="MainContent" />
+
+	<span ID="testResult">{{value: TestResult}}</span>
+
+	<ul>
+		<li><dot:RouteLink RouteName="ComplexSamples_SPAViewModelReapplication_pageA" Text="Page A" id="pageA" /></li>
+		<li><dot:RouteLink RouteName="ComplexSamples_SPAViewModelReapplication_pageB" Text="Page B" id="pageB" /></li>
+	</ul>
+
+</body>
+</html>

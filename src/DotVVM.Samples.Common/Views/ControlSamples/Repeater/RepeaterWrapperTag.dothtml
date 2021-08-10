@@ -1,0 +1,68 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Repeater.RepeaterWrapperTagViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .invalid {
+            color: red;
+        }
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container">
+        <h1>Repeater wrapper tag demo</h1>
+
+        <fieldset id="part1"><legend>Sample 1</legend>
+            <dot:Repeater DataSource="{value: Items}">
+                <ItemTemplate>
+                    <p>Test {{value: _this}}</p>
+                </ItemTemplate>
+            </dot:Repeater>
+        </fieldset>
+
+        <fieldset id="part2"><legend>Sample 2</legend>
+            <dot:Repeater DataSource="{value: Items}" WrapperTagName="ul">
+                <ItemTemplate>
+                    <li>Test {{value: _this}}</li>
+                </ItemTemplate>
+            </dot:Repeater>
+        </fieldset>
+
+        <fieldset id="part3"><legend>Sample 3</legend>
+            <dot:Repeater DataSource="{value: Items}" RenderWrapperTag="false">
+                <ItemTemplate>
+                    <p>Test {{value: _this}}</p>
+                </ItemTemplate>
+            </dot:Repeater>
+        </fieldset>
+
+        <fieldset id="part1_server"><legend>Sample 4</legend>
+            <dot:Repeater DataSource="{value: Items}" RenderSettings.Mode="Server">
+                <ItemTemplate>
+                    <p>Test {{value: _this}}</p>
+                </ItemTemplate>
+            </dot:Repeater>
+        </fieldset>
+
+        <fieldset id="part2_server"><legend>Sample 5</legend>
+            <dot:Repeater DataSource="{value: Items}" WrapperTagName="ul" RenderSettings.Mode="Server">
+                <ItemTemplate>
+                    <li>Test {{value: _this}}</li>
+                </ItemTemplate>
+            </dot:Repeater>
+        </fieldset>
+
+        <fieldset id="part3_server"><legend>Sample 6</legend>
+            <dot:Repeater DataSource="{value: Items}" RenderWrapperTag="false" RenderSettings.Mode="Server">
+                <ItemTemplate>
+                    <p>Test {{value: _this}}</p>
+                </ItemTemplate>
+            </dot:Repeater>
+        </fieldset>
+
+    </div>
+</body>
+</html>

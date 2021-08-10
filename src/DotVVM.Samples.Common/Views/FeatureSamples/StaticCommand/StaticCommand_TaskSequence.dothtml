@@ -1,0 +1,22 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand.StaticCommand_TaskSequenceViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>Task sequences in commands</h1>
+
+    <dot:TextBox Text="{value: Value}" />
+
+    <dot:Button Text="Test Command" Click="{command: Increment(); Value = Value + 10; Multiply()}" />
+    <dot:Button Text="Test Static Command" Click="{staticCommand: Value = StaticCommand_TaskSequenceViewModel.StaticIncrement(Value).Result; Value = Value + 10; Value = StaticCommand_TaskSequenceViewModel.StaticMultiply(Value).Result}" />
+    <dot:Button Text="Test inner sequence Static Command" Click="{staticCommand: Value = StaticCommand_TaskSequenceViewModel.StaticIncrement(Value).Result + StaticCommand_TaskSequenceViewModel.StaticIncrement(Value).Result}" />
+</body>
+</html>
+
+
