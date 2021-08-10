@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Diagnostics.StatusPage.Sample.ViewModels.MasterPageViewModel, DotVVM.Diagnostics.StatusPage.Sample
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StatusPage.MasterPageViewModel, DotVVM.Samples.Common
 <!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -9,7 +9,7 @@
 </head>
 <body>
 
- 	
+
 
 	<dot:ContentPlaceHolder ID="MainContent" />
 

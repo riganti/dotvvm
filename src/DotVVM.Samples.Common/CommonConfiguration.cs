@@ -1,3 +1,4 @@
+using DotVVM.Diagnostics.StatusPage;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
@@ -56,6 +57,8 @@ namespace DotVVM.Samples.Common
 
             services.AddSingleton<IDiagnosticsInformationSender, TextFileDiagnosticsInformationSender>();
             services.AddTransient<VariablesStaticCommand>();
+            dotvvmServices.AddStatusPage();
+            dotvvmServices.AddStatusPageApi();
         }
 
         private static void RegisterResources(DotvvmResourceRepository resources)
@@ -127,6 +130,26 @@ namespace DotVVM.Samples.Common
             resources.SetEmbeddedResourceDebugFile("dotvvm.debug", "../DotVVM.Framework/Resources/Scripts/DotVVM.Debug.js");
             resources.SetEmbeddedResourceDebugFile("dotvvm.fileupload-css", "../DotVVM.Framework/Resources/Scripts/DotVVM.FileUploads.css");
             resources.SetEmbeddedResourceDebugFile("dotvvm.polyfill.bundle", "../DotVVM.Framework/obj/javascript/polyfill.bundle.js");
+
+            // TODO: Get rid of these once they're not needed by StatusPage samples.
+            resources.Register("bootstrap-css", new StylesheetResource
+            {
+                Location = new UrlResourceLocation("~/lib/bootstrap/dist/css/bootstrap.min.css")
+            });
+            resources.Register("bootstrap-theme", new StylesheetResource
+            {
+                Location = new UrlResourceLocation("~/lib/bootstrap/dist/css/bootstrap-theme.min.css"),
+                Dependencies = new[] { "bootstrap-css" }
+            });
+            resources.Register("bootstrap", new ScriptResource
+            {
+                Location = new UrlResourceLocation("~/lib/bootstrap/dist/js/bootstrap.min.js"),
+                Dependencies = new[] { "bootstrap-css", "jquery" }
+            });
+            resources.Register("jquery", new ScriptResource
+            {
+                Location = new UrlResourceLocation("~/lib/jquery/dist/jquery.min.js")
+            });
         }
     }
 }

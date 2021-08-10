@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Hosting;
 
-namespace DotVVM.Diagnostics.StatusPage.Sample.ViewModels
+namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.StatusPage
 {
     public class DefaultViewModel : MasterPageViewModel
     {

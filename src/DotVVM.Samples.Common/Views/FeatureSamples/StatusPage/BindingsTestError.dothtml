@@ -1,5 +1,5 @@
-﻿@viewModel DotVVM.Diagnostics.StatusPage.Sample.ViewModels.DefaultViewModel, DotVVM.Diagnostics.StatusPage.Sample
-@masterPage Views/MasterPage.dotmaster
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StatusPage.DefaultViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/StatusPage/MasterPage.dotmaster
 <dot:Content ContentPlaceHolderID="MainContent">
 
     <h1>{{value: Title}}</h1>
@@ -9,7 +9,7 @@
         Controls test
     </h1>
     <span>
-   
+
         {{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd")}} /{{value:  "asd"}} /
     </span>
 </dot:Content>
