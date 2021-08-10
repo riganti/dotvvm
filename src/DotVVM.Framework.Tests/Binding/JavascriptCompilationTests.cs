@@ -1022,7 +1022,15 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("StringProp.EndsWith('test')", "StringProp().endsWith(\"test\")")]
         [DataRow("StringProp.EndsWith('test',StringComparison.InvariantCultureIgnoreCase)",
             "dotvvm.translations.string.endsWith(StringProp(),\"test\",\"InvariantCultureIgnoreCase\")")]
+        [DataRow("StringProp.Trim()", "StringProp().trim()")]
+        [DataRow("StringProp.TrimStart()", "StringProp().trimStart()")]
+        [DataRow("StringProp.TrimEnd()", "StringProp().trimEnd()")]
+        [DataRow("StringProp.PadLeft(1)", "StringProp().padStart(1)")]
+        [DataRow("StringProp.PadRight(2)", "StringProp().padEnd(2)")]
+        [DataRow("StringProp.PadLeft(1,'#')", "StringProp().padStart(1,\"#\")")]
+        [DataRow("StringProp.PadRight(2,'#')", "StringProp().padEnd(2,\"#\")")]
         [DataRow("string.IsNullOrEmpty(StringProp)", "StringProp()==null||StringProp()===\"\"")]
+        [DataRow("string.IsNullOrWhiteSpace(StringProp)", "StringProp()==null||StringProp().trim()===\"\"")]
         public void JavascriptCompilation_StringFunctions(string input, string expected)
         {
             var result = CompileBinding(input, typeof(TestViewModel));
