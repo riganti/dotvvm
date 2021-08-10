@@ -91,6 +91,8 @@
     <None Remove="Views\FeatureSamples\LambdaExpressions\ClientSideFiltering.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\LambdaExpressions.dothtml" />
     <None Remove="Views\FeatureSamples\Localization\Globalize.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\MarkupDefinedProperties.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\MarkupDefinedPropertiesControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\ServiceDependency\ServiceDependencyControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\PostbackAbortSignal\LoadAbortViewModel.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\ByteArray.dothtml" />

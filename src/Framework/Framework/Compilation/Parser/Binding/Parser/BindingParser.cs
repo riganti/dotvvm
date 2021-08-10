@@ -47,6 +47,66 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return first;
         }
 
+        public BindingParserNode ReadPropertyDirectiveValue()
+        {
+            var startIndex = CurrentIndex;
+            var propertyType = ReadNamespaceOrTypeName();
+
+            if (Peek() == null)
+            {
+                propertyType.NodeErrors.Add($"Property name expected.");
+                return propertyType;
+            }
+
+            var propertyName = ReadNamespaceOrTypeName();
+            var propertyDeclaration = CreateNode(new PropertyDeclarationBindingParserNode(propertyType, propertyName), startIndex);
+
+            if (!(propertyName is SimpleNameBindingParserNode))
+            {
+                propertyDeclaration.NodeErrors.Add("Only simple name is allowed as property name.");
+                return propertyDeclaration;
+            }
+            if (!(propertyType is TypeReferenceBindingParserNode))
+            {
+                propertyDeclaration.NodeErrors.Add("Property type expected.");
+                return propertyDeclaration;
+            }
+
+            SkipWhiteSpace();
+
+            if (Peek()?.Type == BindingTokenType.AssignOperator)
+            {
+                Read();
+                SkipWhiteSpace();
+
+                var literal = ReadLiteralExpression();
+
+                if(!(literal is LiteralExpressionBindingParserNode))
+                {
+                    literal.NodeErrors.Add("Property initializer must be a constant.");
+                }
+                propertyDeclaration.Initializer = literal;
+            }
+            if (Peek()?.Type == BindingTokenType.ColonOperator)
+            {
+                Read();
+                SkipWhiteSpace();
+
+                var attributes = ReadArguments();
+
+                foreach (var attribute in attributes)
+                {
+                    if (!(attribute is BinaryOperatorBindingParserNode assigment && assigment.Operator == BindingTokenType.AssignOperator))
+                    {
+                        attribute.NodeErrors.Add("Property attributes must be in the form Attribute.Property = value.");
+                    }
+                    propertyDeclaration.Attributes.Add(attribute);
+                }
+            }
+
+            return propertyDeclaration;
+        }
+
         public BindingParserNode ReadDirectiveTypeName()
         {
             var startIndex = CurrentIndex;
@@ -641,6 +701,16 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             // function call
             Read();
+            var arguments = ReadArguments();
+            var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
+            Read();
+            SkipWhiteSpace();
+            expression = CreateNode(new FunctionCallBindingParserNode(expression, arguments), startIndex, error ? "The ')' was expected." : null);
+            return expression;
+        }
+
+        private List<BindingParserNode> ReadArguments()
+        {
             var arguments = new List<BindingParserNode>();
             int previousInnerIndex = -1;
             while (Peek() is BindingToken operatorToken && operatorToken.Type != BindingTokenType.CloseParenthesis && previousInnerIndex != CurrentIndex)
@@ -655,11 +725,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 }
                 arguments.Add(ReadExpression());
             }
-            var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
-            Read();
-            SkipWhiteSpace();
-            expression = CreateNode(new FunctionCallBindingParserNode(expression, arguments), startIndex, error ? "The ')' was expected." : null);
-            return expression;
+
+            return arguments;
         }
 
         private BindingParserNode ReadAtomicExpression()
