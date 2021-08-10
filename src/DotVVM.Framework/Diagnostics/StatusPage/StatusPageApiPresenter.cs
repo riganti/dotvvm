@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace DotVVM.Diagnostics.StatusPage
 {
-    public class StatusPageApiPresenter : IDotvvmPresenter
+    internal class StatusPageApiPresenter : IDotvvmPresenter
     {
         private readonly StatusPageApiOptions options;
         private readonly IDotvvmViewCompilationService compilationService;
@@ -19,7 +19,7 @@ namespace DotVVM.Diagnostics.StatusPage
             var authorized = await options.Authorize(context);
             var httpContext = context.HttpContext;
             var response = httpContext.Response;
-            
+
             if (!authorized && options.NonAuthorizedApiAccessMode==NonAuthorizedApiAccessMode.Deny)
             {
                 response.StatusCode = 401;

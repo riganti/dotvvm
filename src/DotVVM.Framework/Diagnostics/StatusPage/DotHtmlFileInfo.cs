@@ -4,14 +4,14 @@ using System.Collections.Immutable;
 
 namespace DotVVM.Diagnostics.StatusPage
 {
-    public sealed class DotHtmlFileInfo
+    internal sealed class DotHtmlFileInfo
     {
         public CompilationState Status { get; internal set; }
         public string Exception { get; internal set; }
 
         /// <summary>Gets or sets the virtual path to the view.</summary>
         public string VirtualPath { get; }
-        
+
         public string TagName { get; }
         public string Namespace { get; }
         public string Assembly { get; }
@@ -43,7 +43,7 @@ namespace DotVVM.Diagnostics.StatusPage
                 virtualPath.IndexOf(".dothtml", StringComparison.OrdinalIgnoreCase) > -1 ||
                 virtualPath.IndexOf(".dotmaster", StringComparison.OrdinalIgnoreCase) > -1 ||
                 virtualPath.IndexOf(".dotcontrol", StringComparison.OrdinalIgnoreCase) > -1 ||
-                virtualPath.IndexOf(".dotlayout", StringComparison.OrdinalIgnoreCase) > -1 
+                virtualPath.IndexOf(".dotlayout", StringComparison.OrdinalIgnoreCase) > -1
                 );
         }
     }

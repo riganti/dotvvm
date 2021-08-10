@@ -9,7 +9,7 @@ namespace DotVVM.Diagnostics.StatusPage
         public string RouteName { get; set; } = "StatusPageApi";
 
         public string Url { get; set; } = "_diagnostics/status/api";
-        
+
         public Func<IDotvvmRequestContext, Task<bool>> Authorize { get; set; }
             = context => Task.FromResult(context.HttpContext.Request.Url.IsLoopback);
 

@@ -7,7 +7,7 @@ using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Diagnostics.StatusPage
 {
-    public class StatusPagePresenter : DotvvmPresenter
+    internal class StatusPagePresenter : DotvvmPresenter
     {
         public StatusPagePresenter(DotvvmConfiguration configuration, IDotvvmViewBuilder viewBuilder, IViewModelLoader viewModelLoader,
             IViewModelSerializer viewModelSerializer, IOutputRenderer outputRender, ICsrfProtector csrfProtector,

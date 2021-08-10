@@ -12,7 +12,7 @@ using DotVVM.Framework.Controls.Infrastructure;
 
 namespace DotVVM.Diagnostics.StatusPage
 {
-    public class DotvvmViewCompilationService : IDotvvmViewCompilationService
+    internal class DotvvmViewCompilationService : IDotvvmViewCompilationService
     {
         private IControlBuilderFactory controlBuilderFactory;
         private readonly DotvvmConfiguration dotvvmConfiguration;

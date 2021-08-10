@@ -1,6 +1,6 @@
 ﻿namespace DotVVM.Diagnostics.StatusPage
 {
-    public enum CompilationState
+    internal enum CompilationState
     {
         None = 1,
         InProcess = 2,

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using DotVVM.Framework.Configuration;
 using Microsoft.Extensions.DependencyInjection;

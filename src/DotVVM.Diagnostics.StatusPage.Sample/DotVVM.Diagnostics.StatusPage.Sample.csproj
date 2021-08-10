@@ -34,6 +34,6 @@
         <PackageReference Include="DotVVM.AspNetCore" Version="3.1.0" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\DotVVM.Diagnostics.StatusPage\DotVVM.Diagnostics.StatusPage.csproj" />
+      <ProjectReference Include="..\DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj" />
     </ItemGroup>
 </Project>

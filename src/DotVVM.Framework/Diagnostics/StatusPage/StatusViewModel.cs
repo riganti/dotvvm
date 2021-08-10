@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Diagnostics.StatusPage
 {
-    public class StatusViewModel : DotvvmViewModelBase
+    internal class StatusViewModel : DotvvmViewModelBase
     {
         private readonly StatusPageOptions _statusPageOptions;
         private readonly IDotvvmViewCompilationService viewCompilationService;
