@@ -30,7 +30,9 @@ namespace DotVVM.Framework.Binding
                 DeclaringType = group.DeclaringType,
                 DefaultValue = group.DefaultValue,
                 IsValueInherited = false,
-                Name = propname
+                Name = propname,
+                IsObsolete = group.IsObsolete,
+                WorkaroundMessage = group.WorkaroundMessage
             };
             if (group.PropertyGroupMode == PropertyGroupMode.ValueCollection) prop.IsVirtual = true;
 

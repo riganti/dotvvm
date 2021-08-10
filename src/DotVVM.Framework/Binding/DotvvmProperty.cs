@@ -223,6 +223,9 @@ namespace DotVVM.Framework.Binding
             return property;
         }
 
+        /// <summary>
+        /// Registers an alias for a DotvvmProperty where the name of the alias is determined from an expression.
+        /// </summary>
         public static DotvvmProperty RegisterAlias<TDeclaringType>(
             Expression<Func<TDeclaringType, object?>> propertyAccessor,
             DotvvmProperty aliasedProperty)
@@ -241,6 +244,15 @@ namespace DotVVM.Framework.Binding
             return RegisterAlias(property.Name, aliasedProperty, property);
         }
 
+        /// <summary>
+        /// Registers and alias for a DotvvmProperty.
+        /// </summary>
+        /// <remarks>
+        /// The aliased property must be initialized by the time this method is called. Specifically,
+        /// it means that the aliased property is in the same partial class as the alias and is declared before the
+        /// alias (textually) unless the class has a static constructor.
+        /// This is required because of the way static fields are initialized.
+        /// </remarks>
         public static DotvvmProperty RegisterAlias(
             string alias,
             DotvvmProperty aliasedProperty,

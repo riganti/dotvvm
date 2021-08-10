@@ -1,4 +1,5 @@
 #nullable enable
+#pragma warning disable CS0618 // disable the warning about obsoletes
 
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
@@ -6,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace DotVVM.Framework.Tests.Runtime
@@ -60,6 +62,17 @@ namespace DotVVM.Framework.Tests.Runtime
             var resolvedAlias = DotvvmProperty.ResolveProperty(typeof(TestObject), nameof(TestObject.Alias));
             Assert.IsTrue(resolvedAlias == alias);
             Assert.IsTrue(alias.Aliased == TestObject.AliasedProperty);
+        }
+
+        [TestMethod]
+        public void DotvvmProperty_ObsoletePropagates()
+        {
+            Assert.IsTrue(TestObject.AliasProperty.IsObsolete);
+            var workaroundMessage = typeof(TestObject)
+                .GetProperty(nameof(TestObject.Alias))
+                ?.GetCustomAttribute<ObsoleteAttribute>()
+                ?.Message;
+            Assert.IsTrue(TestObject.AliasProperty.WorkaroundMessage == workaroundMessage);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using DotVVM.Framework.Binding;
+﻿#nullable enable
+
+using DotVVM.Framework.Binding;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -16,36 +18,41 @@ namespace DotVVM.Framework.Compilation.ControlTree
 {
     public class DotvvmPropertyGroup : IPropertyGroupDescriptor
     {
-        public PropertyInfo PropertyInfo { get; }
+        public PropertyInfo? PropertyInfo { get; }
 
-        public FieldInfo DescriptorField { get; }
+        public FieldInfo? DescriptorField { get; }
 
         public string[] Prefixes { get; }
 
         public string Name { get; }
 
-        public MarkupOptionsAttribute MarkupOptions { get; }
+        public MarkupOptionsAttribute? MarkupOptions { get; private set; }
 
-        public DataContextChangeAttribute[] DataContextChangeAttributes { get; }
+        public DataContextChangeAttribute[] DataContextChangeAttributes { get; private set; }
+            = new DataContextChangeAttribute[] {};
 
-        public DataContextStackManipulationAttribute DataContextManipulationAttribute { get; }
+        public DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; private set; }
 
         public object DefaultValue { get; }
 
         public Type DeclaringType { get; }
-        ITypeDescriptor IControlAttributeDescriptor.DeclaringType => new ResolvedTypeDescriptor(DeclaringType);
+        ITypeDescriptor IControlAttributeDescriptor.DeclaringType => ResolvedTypeDescriptor.Create(DeclaringType);
 
         public Type PropertyType { get; }
-        ITypeDescriptor IControlAttributeDescriptor.PropertyType => new ResolvedTypeDescriptor(PropertyType);
+        ITypeDescriptor IControlAttributeDescriptor.PropertyType => ResolvedTypeDescriptor.Create(PropertyType);
 
-        public Type CollectionType { get; }
-        ITypeDescriptor IPropertyGroupDescriptor.CollectionType => new ResolvedTypeDescriptor(CollectionType);
+        public Type? CollectionType { get; }
+        ITypeDescriptor? IPropertyGroupDescriptor.CollectionType => ResolvedTypeDescriptor.Create(CollectionType);
 
         public PropertyGroupMode PropertyGroupMode { get; }
 
+        public bool IsObsolete { get; private set; }
+
+        public string? WorkaroundMessage { get; private set; }
+
         private ConcurrentDictionary<string, DotvvmProperty> generatedProperties = new ConcurrentDictionary<string, DotvvmProperty>();
 
-        protected DotvvmPropertyGroup (PropertyInfo propertyInfo, PrefixArray prefixes, Type valueType, object defaultValue)
+        protected DotvvmPropertyGroup(PropertyInfo propertyInfo, PrefixArray prefixes, Type valueType, object defaultValue)
         {
             this.PropertyInfo = propertyInfo;
             this.DeclaringType = propertyInfo.DeclaringType;
@@ -55,17 +62,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
             this.Prefixes = prefixes.Values;
             this.PropertyGroupMode = PropertyGroupMode.ValueCollection;
             this.DefaultValue = defaultValue;
-
-            var markupOptions = this.MarkupOptions = propertyInfo.GetCustomAttribute<MarkupOptionsAttribute>(true) ?? new MarkupOptionsAttribute();
-            var dataContextChange = propertyInfo.GetCustomAttributes<DataContextChangeAttribute>(true);
-            var dataContextManipulation = propertyInfo.GetCustomAttribute<DataContextStackManipulationAttribute>(true);
-            if (dataContextManipulation != null && dataContextChange.Any()) throw new ArgumentException(
-                $"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set both at property '{propertyInfo.Name}'.");
-            DataContextChangeAttributes = dataContextChange.ToArray();
-            DataContextManipulationAttribute = dataContextManipulation;
+            InitializePropertyGroup(propertyInfo);
         }
 
-        protected DotvvmPropertyGroup (PrefixArray prefixes, Type valueType, FieldInfo descriptorField, string name, object defaultValue)
+        protected DotvvmPropertyGroup(PrefixArray prefixes, Type valueType, FieldInfo descriptorField, string name, object defaultValue)
         {
             this.PropertyInfo = null;
             this.DescriptorField = descriptorField;
@@ -75,14 +75,30 @@ namespace DotVVM.Framework.Compilation.ControlTree
             this.PropertyType = valueType;
             this.Prefixes = prefixes.Values;
             this.PropertyGroupMode = PropertyGroupMode.GeneratedDotvvmProperty;
+            InitializePropertyGroup(descriptorField);
+        }
 
-            var markupOptions = this.MarkupOptions = descriptorField.GetCustomAttribute<MarkupOptionsAttribute>(true) ?? new MarkupOptionsAttribute();
-            var dataContextChange = descriptorField.GetCustomAttributes<DataContextChangeAttribute>(true);
-            var dataContextManipulation = descriptorField.GetCustomAttribute<DataContextStackManipulationAttribute>(true);
-            if (dataContextManipulation != null && dataContextChange.Any()) throw new ArgumentException(
-                $"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set both at property '{name}'.");
+        private void InitializePropertyGroup(ICustomAttributeProvider attributeProvider)
+        {
+            var markupOptions = MarkupOptions = attributeProvider.GetCustomAttribute<MarkupOptionsAttribute>(true)
+                ?? new MarkupOptionsAttribute();
+            var dataContextChange = attributeProvider.GetCustomAttributes<DataContextChangeAttribute>(true);
+            var dataContextManipulation = attributeProvider
+                .GetCustomAttribute<DataContextStackManipulationAttribute>(true);
+            if (dataContextManipulation != null && dataContextChange.Any()) {
+                throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and "
+                    + $"{nameof(DataContextManipulationAttribute)} can not be set both at property '{Name}'.");
+            }
+
             DataContextChangeAttributes = dataContextChange.ToArray();
             DataContextManipulationAttribute = dataContextManipulation;
+
+            var obsoleteAttribute = attributeProvider.GetCustomAttribute<ObsoleteAttribute>();
+            if (obsoleteAttribute != null)
+            {
+                IsObsolete = true;
+                WorkaroundMessage = obsoleteAttribute.Message;
+            }
         }
 
         IPropertyDescriptor IPropertyGroupDescriptor.GetDotvvmProperty(string name) => GetDotvvmProperty(name);
@@ -94,14 +110,14 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public static (Type valueType, MethodBase constructor) GetValueType(Type declaringType)
         {
             var collectionCtors = (from ctor in declaringType.GetConstructors()
-                                  let parameters = ctor.GetParameters()
-                                  where parameters.Length == 1 && typeof(IEnumerable).IsAssignableFrom(parameters[0].ParameterType)
-                                  let elementType = ReflectionUtils.GetEnumerableType(parameters[0].ParameterType)
-                                      where elementType.GetTypeInfo().IsGenericType && elementType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)
-                                  let genArguments = elementType.GetGenericArguments()
-                                  where genArguments[0].IsAssignableFrom(typeof(string))
-                                  let valueType = genArguments[1]
-                                  select new { ctor, parameters, valueType }).ToArray();
+                                   let parameters = ctor.GetParameters()
+                                   where parameters.Length == 1 && typeof(IEnumerable).IsAssignableFrom(parameters[0].ParameterType)
+                                   let elementType = ReflectionUtils.GetEnumerableType(parameters[0].ParameterType)
+                                   where elementType.GetTypeInfo().IsGenericType && elementType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)
+                                   let genArguments = elementType.GetGenericArguments()
+                                   where genArguments[0].IsAssignableFrom(typeof(string))
+                                   let valueType = genArguments[1]
+                                   select new { ctor, parameters, valueType }).ToArray();
             if (collectionCtors.Length >= 1)
             {
                 return (collectionCtors[0].valueType, collectionCtors[0].ctor);
@@ -110,26 +126,25 @@ namespace DotVVM.Framework.Compilation.ControlTree
             throw new NotSupportedException($"Could not initialize {declaringType.Name} as property group collection - no suitable constructor found");
         }
 
-        private static ConcurrentDictionary<string, DotvvmPropertyGroup > descriptorDictionary = new ConcurrentDictionary<string, DotvvmPropertyGroup >();
+        private static ConcurrentDictionary<string, DotvvmPropertyGroup> descriptorDictionary = new ConcurrentDictionary<string, DotvvmPropertyGroup>();
 
-        public static DotvvmPropertyGroup  Create(PropertyInfo propertyInfo, object defaultValue)
+        public static DotvvmPropertyGroup Create(PropertyInfo propertyInfo, object defaultValue)
         {
-            return descriptorDictionary.GetOrAdd(propertyInfo.DeclaringType.Name + "." + propertyInfo.Name, fullName =>
-            {
+            return descriptorDictionary.GetOrAdd(propertyInfo.DeclaringType.Name + "." + propertyInfo.Name, fullName => {
                 var attribute = propertyInfo.GetCustomAttribute<PropertyGroupAttribute>();
                 var valueType = attribute.ValueType ?? GetValueType(propertyInfo.PropertyType).valueType;
-                return new DotvvmPropertyGroup (propertyInfo, attribute.Prefixes, valueType, defaultValue);
+                return new DotvvmPropertyGroup(propertyInfo, attribute.Prefixes, valueType, defaultValue);
             });
         }
 
-        public static DotvvmPropertyGroup  Register<TValue, TDeclaring>(PrefixArray prefixes, string name, TValue defaultValue = default(TValue)) =>
+        public static DotvvmPropertyGroup Register<TValue, TDeclaring>(PrefixArray prefixes, string name, TValue defaultValue = default(TValue)) =>
             Register(typeof(TDeclaring), prefixes, name, typeof(TValue), defaultValue);
 
-        public static DotvvmPropertyGroup  Register(Type declaringType, PrefixArray prefixes, string name, Type valueType, object defaultValue)
+        public static DotvvmPropertyGroup Register(Type declaringType, PrefixArray prefixes, string name, Type valueType, object defaultValue)
         {
             return descriptorDictionary.GetOrAdd(declaringType.Name + "." + name, fullName => {
                 var descriptorField = FindDescriptorField(declaringType, name);
-                return new DotvvmPropertyGroup (prefixes, valueType, descriptorField, name, defaultValue);
+                return new DotvvmPropertyGroup(prefixes, valueType, descriptorField, name, defaultValue);
             });
         }
 
@@ -222,7 +237,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         }
     }
 
-    public enum PropertyGroupMode: byte
+    public enum PropertyGroupMode : byte
     {
         /// <summary> Property group that is set into a real property with a Dictionary or so. Something like a virtual dotvvm property. </summary>
         ValueCollection,
