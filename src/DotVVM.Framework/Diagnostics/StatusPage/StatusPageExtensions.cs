@@ -33,7 +33,7 @@ namespace DotVVM.Diagnostics.StatusPage
 
             services.Services.Configure((DotvvmConfiguration config) =>
             {
-                config.RouteTable.Add(options.RouteName, options.Url, "embedded://DotVVM.Diagnostics.StatusPage/StatusPage/Status.dothtml", null, s => s.GetService<StatusPagePresenter>());
+                config.RouteTable.Add(options.RouteName, options.Url, "embedded://DotVVM.Framework/Diagnostics/StatusPage/Status.dothtml", null, s => s.GetService<StatusPagePresenter>());
             });
 
             return services;

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Diagnostics.StatusPage
 {
-    internal interface IDotvvmViewCompilationService
+    public interface IDotvvmViewCompilationService
     {
         /// <summary>
         /// Gets all DotHtmlFileInfos with Status CompilationFailed from last compilation.

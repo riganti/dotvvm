@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 
 namespace DotVVM.Diagnostics.StatusPage
 {
-    internal sealed class DotHtmlFileInfo
+    public sealed class DotHtmlFileInfo
     {
         public CompilationState Status { get; internal set; }
         public string Exception { get; internal set; }

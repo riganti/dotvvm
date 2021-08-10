@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Diagnostics.StatusPage.StatusViewModel, DotVVM.Diagnostics.StatusPage
+﻿@viewModel DotVVM.Diagnostics.StatusPage.StatusViewModel
 
 <!DOCTYPE html>
 
