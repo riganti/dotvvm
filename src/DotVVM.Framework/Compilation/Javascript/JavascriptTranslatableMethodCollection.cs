@@ -270,6 +270,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                     new JsBinaryExpression(a[1], BinaryOperatorType.Equal, new JsLiteral(null)),
                     BinaryOperatorType.ConditionalOr,
                     new JsBinaryExpression(a[1].Clone(), BinaryOperatorType.StrictlyEqual, new JsLiteral("")))));
+            AddMethodTranslator(typeof(string), nameof(string.IsNullOrWhiteSpace), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
+                a => new JsBinaryExpression(
+                    new JsBinaryExpression(a[1], BinaryOperatorType.Equal, new JsLiteral(null)),
+                    BinaryOperatorType.ConditionalOr,
+                    new JsBinaryExpression(a[1].Clone().Member("trim").Invoke(), BinaryOperatorType.StrictlyEqual, new JsLiteral("")))));
 
             var joinStringArrayMethod = typeof(string).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(m => m.Name == nameof(string.Join) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType == typeof(string[]) && m.GetParameters().First().ParameterType == typeof(string)).Single();
@@ -308,6 +313,21 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             AddMethodTranslator(typeof(string), nameof(NetFrameworkExtensions.Split), parameters: new[] { typeof(char[]) },
                 translator: new GenericMethodCompiler(args => args[0].Member("split").Invoke(args[1])));
+
+            AddMethodTranslator(typeof(string), nameof(string.Trim), parameterCount: 0, translator: new GenericMethodCompiler(
+                a => a[0].Member("trim").Invoke()));
+            AddMethodTranslator(typeof(string), nameof(string.TrimStart), parameterCount: 0, translator: new GenericMethodCompiler(
+                a => a[0].Member("trimStart").Invoke()));
+            AddMethodTranslator(typeof(string), nameof(string.TrimEnd), parameterCount: 0, translator: new GenericMethodCompiler(
+                a => a[0].Member("trimEnd").Invoke()));
+            AddMethodTranslator(typeof(string), nameof(string.PadLeft), parameterCount: 1, translator: new GenericMethodCompiler(
+                a => a[0].Member("padStart").Invoke(a[1])));
+            AddMethodTranslator(typeof(string), nameof(string.PadLeft), parameterCount: 2, translator: new GenericMethodCompiler(
+                a => a[0].Member("padStart").Invoke(a[1], a[2])));
+            AddMethodTranslator(typeof(string), nameof(string.PadRight), parameterCount: 1, translator: new GenericMethodCompiler(
+                a => a[0].Member("padEnd").Invoke(a[1])));
+            AddMethodTranslator(typeof(string), nameof(string.PadRight), parameterCount: 2, translator: new GenericMethodCompiler(
+                a => a[0].Member("padEnd").Invoke(a[1], a[2])));
         }
 
         private void AddDefaultMathTranslations()
