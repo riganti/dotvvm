@@ -31,14 +31,14 @@ namespace DotVVM.CommandLine
             var viewModelsDirectoryOpt = new Option<string>(
                 aliases: new[] { "-d", "--directory" },
                 getDefaultValue: () => "ViewModels/",
-                description: "The directory where the new viewModel is to be placed");
+                description: "The directory where the new ViewModel is to be placed");
             var controlsDirectoryOpt = new Option<string>(
                 aliases: new[] { "-d", "--directory" },
                 getDefaultValue: () => "Controls/",
                 description: "The directory where the new control is to be placed");
             var codeBehindOpt = new Option<bool>(
                 aliases: new [] {"-c", "--code-behind"},
-                description: "Creates a C# code-behind class for the control");
+                description: "Create a C# code-behind class for the control");
             var baseOpt = new Option<string>(
                 aliases: new [] {"-b", "--base"},
                 description: "The base class of the ViewModel");

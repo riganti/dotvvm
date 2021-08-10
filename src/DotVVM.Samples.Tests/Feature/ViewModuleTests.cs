@@ -7,6 +7,7 @@ using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.Core.Abstractions.Attributes;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -89,6 +90,19 @@ namespace DotVVM.Samples.Tests.Feature
                 var incrementValue = browser.First(".increment-value");
                 var result = browser.First(".named-command-result");
                 TestModule(browser, log, moduleButtons, incrementValue, result, "testViewModule");
+            });
+        }
+        [Fact]
+        [SkipBrowser("ie:fast", "View modules not supported in IE")]
+        [SkipBrowser("ie:dev", "View modules not supported in IE")]
+        public void Feature_ViewModules_ModuleRegistrationPropagation()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleRegistrationPropagation);
+                browser.WaitUntilDotvvmInited();
+
+                var log = browser.Single("#log");
+                log.WaitFor(s => s.Children.ThrowIfDifferentCountThan(2));
             });
         }
 
@@ -215,7 +229,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_IncrementerInRepeater);
- 
+
 
                 var buttons = browser.FindElements("input[type=button]");
 
@@ -250,7 +264,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // add incrementer
                 buttons[0].Click();
-                
+
                 // state must be persisted, ids have changed
                 incrementers = browser.FindElements(".incrementer").ThrowIfDifferentCountThan(3);
                 EnsureId(incrementers[0], "c23_0_incrementer");
@@ -287,7 +301,7 @@ namespace DotVVM.Samples.Tests.Feature
                 // remove incrementers
                 buttons[1].Click();
                 buttons[1].Click();
-                
+
                 browser.FindElements(".incrementer").ThrowIfDifferentCountThan(0);
 
                 // re-add them and check that everything works

@@ -6,45 +6,39 @@ namespace DotVVM.Compiler
 {
     public static class Program
     {
-        private static readonly string[] HelpOptions = new string[] {
-            "--help", "-h", "-?", "/help", "/h", "/?"
-        };
-
-        public static bool TryRun(FileInfo assembly, DirectoryInfo? projectDir)
+        private static void PrintHelp(TextWriter? writer = null)
         {
-            var executor = ProjectLoader.GetExecutor(assembly.FullName);
-            return executor.ExecuteCompile(assembly, projectDir);
+            var executableName = Path.GetFileNameWithoutExtension(Environment.GetCommandLineArgs()[0]);
+            writer ??= Console.Error;
+            writer.Write(
+$@"Usage: {executableName} [OPTIONS] <ASSEMBLY> <PROJECT_DIR>
+
+Arguments:
+  <ASSEMBLY>     Path to a DotVVM project assembly.
+  <PROJECT_DIR>  Path to a DotVVM project directory.
+
+Options:
+  -h|-?|--help   Print this help text.
+  --list-props   Print a list of DotVVM properties inside the assembly.
+");
         }
 
         public static int Main(string[] args)
         {
-            // To minimize dependencies, this tool deliberately reinvents the wheel instead of using System.CommandLine.
-            if (args.Length != 2 || (args.Length == 1 && HelpOptions.Contains(args[0])))
+            if (!CompilerArgs.TryParse(args, out var parsed))
             {
-                Console.Error.Write(
-@"Usage: DotVVM.Compiler <ASSEMBLY> <PROJECT_DIR>
-
-Arguments:
-  <ASSEMBLY>     Path to a DotVVM project assembly.
-  <PROJECT_DIR>  Path to a DotVVM project directory.");
+                PrintHelp(Console.Error);
                 return 1;
             }
 
-            var assemblyFile = new FileInfo(args[0]);
-            if (!assemblyFile.Exists)
+            if (parsed.IsHelp)
             {
-                Console.Error.Write($"Assembly '{assemblyFile}' does not exist.");
-                return 1;
+                PrintHelp(Console.Out);
+                return 0;
             }
 
-            var projectDir = new DirectoryInfo(args[1]);
-            if (!projectDir.Exists)
-            {
-                Console.Error.Write($"Project directory '{projectDir}' does not exist.");
-                return 1;
-            }
-
-            var success = TryRun(assemblyFile, projectDir);
+            var executor = ProjectLoader.GetExecutor(parsed.AssemblyFile.FullName);
+            var success = executor.ExecuteCompile(parsed);
             return success ? 0 : 1;
         }
     }

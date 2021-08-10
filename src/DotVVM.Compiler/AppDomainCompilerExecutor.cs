@@ -7,12 +7,9 @@ namespace DotVVM.Compiler
 {
     public class AppDomainCompilerExecutor : MarshalByRefObject, ICompilerExecutor
     {
-        private readonly DefaultCompilerExecutor inner = new();
-
         public AppDomainCompilerExecutor()
         {
-            AppDomain.CurrentDomain.AssemblyResolve += (s, e) =>
-            {
+            AppDomain.CurrentDomain.AssemblyResolve += (s, e) => {
                 if (string.IsNullOrEmpty(e.Name))
                 {
                     return null;
@@ -20,31 +17,38 @@ namespace DotVVM.Compiler
 
                 var assemblyName = new AssemblyName(e.Name);
 
-                var projectRelatedPath = Path.Combine(
-                        AppDomain.CurrentDomain.SetupInformation.ApplicationBase!,
-                        assemblyName.Name + ".dll");
-                if (File.Exists(projectRelatedPath))
-                {
-                    return Assembly.LoadFrom(projectRelatedPath);
-                }
-
-                var compilerRelatedPath = Path.Combine(
-                    Path.GetDirectoryName(typeof(AppDomainCompilerExecutor).Assembly.Location)!,
-                    assemblyName.Name + ".dll");
-                if (File.Exists(compilerRelatedPath))
-                {
-                    return Assembly.LoadFrom(compilerRelatedPath);
-                }
-
-                // Don't worry about the missing DotVVM.Framework.resources assembly. It's just the runtime looking for
-                // resources.
-                return null;
+                return ResolveAssembly(assemblyName, ".dll") ?? ResolveAssembly(assemblyName, ".exe");
             };
         }
 
-        public bool ExecuteCompile(FileInfo assemblyFile, DirectoryInfo? projectDir)
+        public bool ExecuteCompile(CompilerArgs args)
         {
-            return inner.ExecuteCompile(assemblyFile, projectDir);
+            var assembly = Assembly.LoadFile(args.AssemblyFile.FullName);
+            var inner = new DefaultCompilerExecutor(assembly);
+            return inner.ExecuteCompile(args);
+        }
+
+        private Assembly? ResolveAssembly(AssemblyName assemblyName, string extension)
+        {
+            var projectRelatedPath = Path.Combine(
+                AppDomain.CurrentDomain.SetupInformation.ApplicationBase!,
+                assemblyName.Name + extension);
+            if (File.Exists(projectRelatedPath))
+            {
+                return Assembly.LoadFrom(projectRelatedPath);
+            }
+
+            var compilerRelatedPath = Path.Combine(
+                Path.GetDirectoryName(typeof(AppDomainCompilerExecutor).Assembly.Location)!,
+                assemblyName.Name + extension);
+            if (File.Exists(compilerRelatedPath))
+            {
+                return Assembly.LoadFrom(compilerRelatedPath);
+            }
+
+            // Don't worry about the missing DotVVM.Framework.resources assembly. It's just the runtime looking for
+            // resources.
+            return null;
         }
     }
 }

@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Compilation.Static
             var dotvvmStartupType = GetDotvvmStartupType(assembly);
             if (dotvvmStartupType is null)
             {
-                throw new ArgumentException("Could not found an implementation of IDotvvmStartup "
+                throw new ArgumentException("Could not find an implementation of IDotvvmStartup "
                     + $"in '{assembly.FullName}'.");
             }
 

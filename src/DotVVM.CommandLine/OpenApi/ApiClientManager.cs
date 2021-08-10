@@ -81,7 +81,7 @@ namespace DotVVM.CommandLine.OpenApi
                 });
 
             var resolver = GetDefaultCSharpTypeResolver(document, settings.CSharpGeneratorSettings);
-            var generator = new DotvvmSwaggerToCSharpClientGenerator(document, settings, resolver);
+            var generator = new DotvvmCSharpClientGenerator(document, settings, resolver);
             var csharp = generator.GenerateFile();
 
             if (definition.GenerateWrapperClass && !definition.IsSingleClient)
