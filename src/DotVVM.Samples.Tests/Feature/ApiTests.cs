@@ -99,7 +99,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.First(".id-order.id-edit input[type=button][value=Apply]").Click().Wait();
                 browser.First(".id-order.id-edit input[type=button][value=Exit]").Click().Wait();
 
-                AssertUI.TextEquals(browser.First(".id-order[data-order-id='2'] .id-date"), "2000-01-01");
+                AssertUI.TextEquals(browser.First(".id-order[data-order-id='2'] .id-date"), "2000-01-01T00:00:00.0000000");
 
                 // change the order (ID = 2) date back so the test can be run once again
                 browser.First(".id-order[data-order-id='2'] input[type=button][value=Edit]").Click().Wait();
@@ -107,7 +107,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.First(".id-order.id-edit input[type=button][value=Apply]").Click().Wait();
                 browser.First(".id-order.id-edit input[type=button][value=Exit]").Click().Wait();
 
-                AssertUI.TextEquals(browser.First(".id-order[data-order-id='2'] .id-date"), "2010-01-01");
+                AssertUI.TextEquals(browser.First(".id-order[data-order-id='2'] .id-date"), "2010-01-01T00:00:00.0000000");
             });
         }
 

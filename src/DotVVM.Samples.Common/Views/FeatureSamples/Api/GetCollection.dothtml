@@ -29,7 +29,7 @@
                 <dot:Button Click="{staticCommand: _root.EditedOrderId = -1}" Text="Exit" />
             </div>
             <div Visible="{value: _root.EditedOrderId != Id}" class="id-order" data-order-id="{value: Id}">
-                OrderId: {{value: Id}}, Date: <span class="id-date">{{value: Date.Value.ToString("yyyy-MM-dd")}}</span>, 
+                OrderId: {{value: Id}}, Date: <span class="id-date">{{value: Date}}</span>,
                 <dot:Button Click="{staticCommand: _apiOwin.Orders.Delete(Id)}" Text="Delete" />
                 <dot:Button Click="{staticCommand: _root.EditedOrderId = Id}" Text="Edit" />
             </div>
