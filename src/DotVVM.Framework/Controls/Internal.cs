@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Controls
 
         public static bool IsViewCompilerProperty(DotvvmProperty property)
         {
-            return property == DataContextTypeProperty;
+            return property.DeclaringType == typeof(Internal);
         }
     }
 
