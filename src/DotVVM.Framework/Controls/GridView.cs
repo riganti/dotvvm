@@ -98,8 +98,6 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets a list of decorators that will be applied on the header row.
         /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
-        [ControlPropertyBindingDataContextChange("DataSource")]
-        [CollectionElementDataContextChange(1)]
         public List<Decorator>? HeaderRowDecorators
         {
             get { return (List<Decorator>?)GetValue(HeaderRowDecoratorsProperty); }

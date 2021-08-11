@@ -150,6 +150,22 @@ namespace DotVVM.Framework.Tests.ControlTests
             Assert.IsTrue(r.Html.QuerySelectorAll("td")[1].ClassList.Contains("cell-2"));
         }
 
+        [TestMethod]
+        public async Task GridViewColumn_HeaderRowDecorators()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <dot:GridView DataSource={value: Customers} RenderSettings.Mode=Server InlineEditing=true>
+                    <HeaderRowDecorators>
+                        <dot:Decorator class={value: 'header-' + Integer} />
+                    </HeaderRowDecorators>
+                    <Columns>
+                        <dot:GridViewTextColumn HeaderText=Id ValueBinding={value: Id} />
+                    </Columns>
+                </dot:GridView>");
+
+            Assert.IsTrue(r.Html.QuerySelectorAll("tr")[0].ClassList.Contains("header-10000000"));
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
