@@ -1240,7 +1240,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         public string Number { get; set; }
     
         [Newtonsoft.Json.JsonProperty("date", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? Date { get; set; }
+        public System.DateTime? Date { get; set; }
     
         [Newtonsoft.Json.JsonProperty("companyId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? CompanyId { get; set; }
