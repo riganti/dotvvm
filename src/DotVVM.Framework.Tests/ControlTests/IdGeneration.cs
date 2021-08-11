@@ -78,7 +78,6 @@ namespace DotVVM.Framework.Tests.ControlTests
                     .Select(x => new NestedViewModel { Id = $"row {x}" })
                     .AsQueryable()
                 );
-                await Task.CompletedTask;
             }
         }
 

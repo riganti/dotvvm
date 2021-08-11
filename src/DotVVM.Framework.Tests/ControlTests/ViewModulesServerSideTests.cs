@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Tests.ControlTests
 
                 <cc:CustomControlWithModule />
 
-                <dot:Repeater DataSource={value: Collection} RenderAsNamedTemplate=false>
+                <dot:Repeater DataSource={value: Collection}>
                     <cc:CustomControlWithModule />
                 </dot:Repeater>
                 ",
