@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Diagnostics.StatusPage
         /// </summary>
         public static IDotvvmServiceCollection AddStatusPage(this IDotvvmServiceCollection services, Action<StatusPageOptions> configure)
         {
-            var options = StatusPageOptions.CreateDefaultOptions();
+            var options = StatusPageOptions.CreateDefault();
             configure?.Invoke(options);
 
             return services.AddStatusPage(options);
@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Diagnostics.StatusPage
         /// </summary>
         public static IDotvvmServiceCollection AddStatusPage(this IDotvvmServiceCollection services, StatusPageOptions options = null)
         {
-            if (options == null) options = StatusPageOptions.CreateDefaultOptions();
+            if (options == null) options = StatusPageOptions.CreateDefault();
 
             if (services.Services.All(t => t.ServiceType != typeof(IDotvvmViewCompilationService)))
                 services.Services.AddSingleton<IDotvvmViewCompilationService, DotvvmViewCompilationService>();
