@@ -1,17 +1,5 @@
 [
     {
-      "swaggerFile": "http://ipfs.io/ipfs/QmRNXvUneTanzjjzrzrado6n5fX64ZUS9WJx1e3X4zUu3X",
-      "csharpClient": "./GithubApiClient.cs",
-      "typescriptClient": "./Scripts/GithubApiClient.ts",
-      "namespace": "GithubApiClient",
-      "compileTypescript": false,
-      "generateWrapperClass": true,
-      "isSingleClient": false,
-      "fetchOptions": {
-        "credentials": "same-origin"
-      }
-    },
-    {
       "swaggerFile": "http://localhost:5001/swagger/v1/swagger.json",
       "csharpClient": "./TestWebApiClientAspNetCore.cs",
       "typescriptClient": "./Scripts/TestWebApiClientAspNetCore.ts",
