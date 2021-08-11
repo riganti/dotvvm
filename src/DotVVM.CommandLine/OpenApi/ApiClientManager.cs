@@ -53,6 +53,7 @@ namespace DotVVM.CommandLine.OpenApi
                     ClassStyle = CSharpClassStyle.Poco,
                     Namespace = definition.Namespace,
                     ArrayType = "System.Collections.Generic.List",
+                    DateTimeType = "System.DateTime",
                     PropertyNameGenerator = new CustomPropertyNameGenerator(c => ConversionUtilities.ConvertToUpperCamelCase(c, true)),
                 }
             };
