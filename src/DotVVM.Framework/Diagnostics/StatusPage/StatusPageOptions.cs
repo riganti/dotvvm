@@ -3,7 +3,7 @@ using System;
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
-namespace DotVVM.Diagnostics.StatusPage
+namespace DotVVM.Framework.Diagnostics.StatusPage
 {
     public class StatusPageOptions
     {

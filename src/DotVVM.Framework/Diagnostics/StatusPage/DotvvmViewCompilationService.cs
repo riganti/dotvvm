@@ -10,7 +10,7 @@ using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls.Infrastructure;
 
-namespace DotVVM.Diagnostics.StatusPage
+namespace DotVVM.Framework.Diagnostics.StatusPage
 {
     internal class DotvvmViewCompilationService : IDotvvmViewCompilationService
     {
@@ -21,57 +21,57 @@ namespace DotVVM.Diagnostics.StatusPage
         {
             this.dotvvmConfiguration = dotvvmConfiguration;
             this.controlBuilderFactory = controlBuilderFactory;
-            masterPages = new Lazy<ConcurrentDictionary<string, DotHtmlFileInfo>>(InitMasterPagesCollection);
-            controls = new Lazy<ImmutableArray<DotHtmlFileInfo>>(InitControls);
-            routes = new Lazy<ImmutableArray<DotHtmlFileInfo>>(InitRoutes);
+            masterPages = new Lazy<ConcurrentDictionary<string, DothtmlFileInfo>>(InitMasterPagesCollection);
+            controls = new Lazy<ImmutableArray<DothtmlFileInfo>>(InitControls);
+            routes = new Lazy<ImmutableArray<DothtmlFileInfo>>(InitRoutes);
         }
 
-        public ImmutableArray<DotHtmlFileInfo> GetFilesWithFailedCompilation()
+        public ImmutableArray<DothtmlFileInfo> GetFilesWithFailedCompilation()
         {
             return masterPages.Value.Values.Concat(controls.Value).Concat(routes.Value)
                 .Where(t => t.Status == CompilationState.CompilationFailed).ToImmutableArray();
         }
 
-        private readonly Lazy<ConcurrentDictionary<string, DotHtmlFileInfo>> masterPages;
-        private ConcurrentDictionary<string, DotHtmlFileInfo> InitMasterPagesCollection()
+        private readonly Lazy<ConcurrentDictionary<string, DothtmlFileInfo>> masterPages;
+        private ConcurrentDictionary<string, DothtmlFileInfo> InitMasterPagesCollection()
         {
-            return new ConcurrentDictionary<string, DotHtmlFileInfo>();
+            return new ConcurrentDictionary<string, DothtmlFileInfo>();
         }
-        public ImmutableArray<DotHtmlFileInfo> GetMasterPages()
+        public ImmutableArray<DothtmlFileInfo> GetMasterPages()
         {
             return masterPages.Value.Values.ToImmutableArray();
         }
 
-        private readonly Lazy<ImmutableArray<DotHtmlFileInfo>> controls;
-        private ImmutableArray<DotHtmlFileInfo> InitControls()
+        private readonly Lazy<ImmutableArray<DothtmlFileInfo>> controls;
+        private ImmutableArray<DothtmlFileInfo> InitControls()
         {
             return
                 dotvvmConfiguration.Markup.Controls.Where(s => !string.IsNullOrWhiteSpace(s.Src))
-                    .Select(s => new DotHtmlFileInfo(s.Src, tagPrefix: s.TagPrefix, tagName: s.TagName,
+                    .Select(s => new DothtmlFileInfo(s.Src, tagPrefix: s.TagPrefix, tagName: s.TagName,
                         nameSpace: s.Namespace, assembly: s.Assembly)).ToImmutableArray();
         }
 
-        public ImmutableArray<DotHtmlFileInfo> GetControls()
+        public ImmutableArray<DothtmlFileInfo> GetControls()
         {
             return controls.Value;
         }
 
-        private readonly Lazy<ImmutableArray<DotHtmlFileInfo>> routes;
-        private ImmutableArray<DotHtmlFileInfo> InitRoutes()
+        private readonly Lazy<ImmutableArray<DothtmlFileInfo>> routes;
+        private ImmutableArray<DothtmlFileInfo> InitRoutes()
         {
             return dotvvmConfiguration.RouteTable.Select(r =>
-                new DotHtmlFileInfo(r.VirtualPath,
+                new DothtmlFileInfo(r.VirtualPath,
                     url: r.Url,
                     hasParameters: r.ParameterNames.Any(),
                     defaultValues: r.DefaultValues.Select(s => s.Key + ":" + s.Value).ToImmutableArray(),
                     routeName: r.RouteName)).ToImmutableArray();
         }
 
-        public ImmutableArray<DotHtmlFileInfo> GetRoutes()
+        public ImmutableArray<DothtmlFileInfo> GetRoutes()
         {
             return routes.Value;
         }
-        private IEnumerable<DotHtmlFileInfo> GetFilesToBeCompiled()
+        private IEnumerable<DothtmlFileInfo> GetFilesToBeCompiled()
         {
             return Enumerable.Union(controls.Value, routes.Value).Where(t => t.Status == CompilationState.None);
         }
@@ -83,7 +83,7 @@ namespace DotVVM.Diagnostics.StatusPage
             var exclusiveMode = false;
             try
             {
-                IEnumerable<DotHtmlFileInfo> filesToCompile = null;
+                IEnumerable<DothtmlFileInfo> filesToCompile = null;
                 if (forceRecompile)
                 {
                     filesToCompile = controls.Value.Union(routes.Value);
@@ -101,10 +101,10 @@ namespace DotVVM.Diagnostics.StatusPage
                             return GetFilesWithFailedCompilation().Any();
                     }
                 }
-                var discoveredMasterPages = new ConcurrentDictionary<string, DotHtmlFileInfo>();
+                var discoveredMasterPages = new ConcurrentDictionary<string, DothtmlFileInfo>();
 
 
-                Func<DotHtmlFileInfo, Action> compilationTaskFactory = t => new Action(() => {
+                Func<DothtmlFileInfo, Action> compilationTaskFactory = t => new Action(() => {
                     BuildView(t, out var masterPage);
                     if (masterPage != null && masterPage.Status == CompilationState.None) discoveredMasterPages.TryAdd(masterPage.VirtualPath, masterPage);
                 });
@@ -115,7 +115,7 @@ namespace DotVVM.Diagnostics.StatusPage
                 while (discoveredMasterPages.Any())
                 {
                     compileTasks = discoveredMasterPages.Values.Select(compilationTaskFactory).ToArray();
-                    discoveredMasterPages = new ConcurrentDictionary<string, DotHtmlFileInfo>();
+                    discoveredMasterPages = new ConcurrentDictionary<string, DothtmlFileInfo>();
 
                     await ExecuteCompileTasks(compileTasks, buildInParallel);
                 }
@@ -143,7 +143,7 @@ namespace DotVVM.Diagnostics.StatusPage
             }
         }
 
-        public bool BuildView(DotHtmlFileInfo file, out DotHtmlFileInfo masterPage)
+        public bool BuildView(DothtmlFileInfo file, out DothtmlFileInfo masterPage)
         {
             masterPage = null;
             if (file.Status != CompilationState.NonCompilable)
@@ -157,7 +157,7 @@ namespace DotVVM.Diagnostics.StatusPage
                     if (compiledControl is DotvvmView view &&
                         view.Directives.TryGetValue(ParserConstants.MasterPageDirective, out var masterPagePath))
                     {
-                        masterPage = masterPages.Value.GetOrAdd(masterPagePath, new DotHtmlFileInfo(masterPagePath));
+                        masterPage = masterPages.Value.GetOrAdd(masterPagePath, new DothtmlFileInfo(masterPagePath));
                     }
 
                     file.Status = CompilationState.CompletedSuccessfully;

@@ -3,30 +3,30 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
-namespace DotVVM.Diagnostics.StatusPage
+namespace DotVVM.Framework.Diagnostics.StatusPage
 {
     public interface IDotvvmViewCompilationService
     {
         /// <summary>
         /// Gets all DotHtmlFileInfos with Status CompilationFailed from last compilation.
         /// </summary>
-        ImmutableArray<DotHtmlFileInfo> GetFilesWithFailedCompilation();
+        ImmutableArray<DothtmlFileInfo> GetFilesWithFailedCompilation();
 
         /// <summary>
         /// Returns all currently known masterpages.
         /// </summary>
-        ImmutableArray<DotHtmlFileInfo> GetMasterPages();
+        ImmutableArray<DothtmlFileInfo> GetMasterPages();
 
         /// <summary>
         /// Returns all discovered controls.
         /// </summary>
-        ImmutableArray<DotHtmlFileInfo> GetControls();
+        ImmutableArray<DothtmlFileInfo> GetControls();
 
         /// <summary>
         /// Returns all discovered routes.
         /// </summary>
         /// <returns></returns>
-        ImmutableArray<DotHtmlFileInfo> GetRoutes();
+        ImmutableArray<DothtmlFileInfo> GetRoutes();
 
         /// <summary>
         /// Builds given DotHtml file.
@@ -34,7 +34,7 @@ namespace DotVVM.Diagnostics.StatusPage
         /// <param name="file">File to compile</param>
         /// <param name="masterPage">Master page associated with given file.</param>
         /// <returns></returns>
-        bool BuildView(DotHtmlFileInfo file, out DotHtmlFileInfo masterPage);
+        bool BuildView(DothtmlFileInfo file, out DothtmlFileInfo masterPage);
 
         /// <summary>
         /// Compiles all view which have not been compiled yet.

@@ -1,4 +1,4 @@
-using DotVVM.Diagnostics.StatusPage;
+using DotVVM.Framework.Diagnostics.StatusPage;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;

@@ -5,7 +5,7 @@ using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.ViewModel.Serialization;
 
-namespace DotVVM.Diagnostics.StatusPage
+namespace DotVVM.Framework.Diagnostics.StatusPage
 {
     internal class StatusPagePresenter : DotvvmPresenter
     {

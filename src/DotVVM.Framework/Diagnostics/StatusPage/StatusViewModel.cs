@@ -12,15 +12,15 @@ using DotVVM.Framework.Routing;
 using DotVVM.Framework.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DotVVM.Diagnostics.StatusPage
+namespace DotVVM.Framework.Diagnostics.StatusPage
 {
     public class StatusViewModel : DotvvmViewModelBase
     {
         private readonly StatusPageOptions _statusPageOptions;
         private readonly IDotvvmViewCompilationService viewCompilationService;
-        public ImmutableArray<DotHtmlFileInfo> Routes => viewCompilationService.GetRoutes();
-        public ImmutableArray<DotHtmlFileInfo> MasterPages => viewCompilationService.GetMasterPages();
-        public ImmutableArray<DotHtmlFileInfo> Controls => viewCompilationService.GetControls();
+        public ImmutableArray<DothtmlFileInfo> Routes => viewCompilationService.GetRoutes();
+        public ImmutableArray<DothtmlFileInfo> MasterPages => viewCompilationService.GetMasterPages();
+        public ImmutableArray<DothtmlFileInfo> Controls => viewCompilationService.GetControls();
         public string ApplicationPath { get; set; }
         public bool CompileAfterLoad { get; set; }
 
@@ -52,7 +52,7 @@ namespace DotVVM.Diagnostics.StatusPage
             await viewCompilationService.CompileAll(true,true);
         }
 
-        public void BuildView(DotHtmlFileInfo file)
+        public void BuildView(DothtmlFileInfo file)
         {
             viewCompilationService.BuildView(file, out _);
         }

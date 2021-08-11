@@ -4,7 +4,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>DotVVM.Diagnostics.StatusPage.Sample</title>
+    <title>DotVVM.Framework.Diagnostics.StatusPage.Sample</title>
     <dot:RequiredResource Name="bootstrap" />
 </head>
 <body>

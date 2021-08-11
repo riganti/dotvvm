@@ -3,7 +3,7 @@ using System.Linq;
 using DotVVM.Framework.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DotVVM.Diagnostics.StatusPage
+namespace DotVVM.Framework.Diagnostics.StatusPage
 {
     public static class StatusPageExtensions
     {

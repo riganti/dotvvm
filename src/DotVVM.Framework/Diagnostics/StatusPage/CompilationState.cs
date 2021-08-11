@@ -1,4 +1,4 @@
-﻿namespace DotVVM.Diagnostics.StatusPage
+﻿namespace DotVVM.Framework.Diagnostics.StatusPage
 {
     public enum CompilationState
     {

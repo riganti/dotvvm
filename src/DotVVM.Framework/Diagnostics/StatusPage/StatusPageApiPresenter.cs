@@ -2,7 +2,7 @@
 using DotVVM.Framework.Hosting;
 using Newtonsoft.Json;
 
-namespace DotVVM.Diagnostics.StatusPage
+namespace DotVVM.Framework.Diagnostics.StatusPage
 {
     internal class StatusPageApiPresenter : IDotvvmPresenter
     {

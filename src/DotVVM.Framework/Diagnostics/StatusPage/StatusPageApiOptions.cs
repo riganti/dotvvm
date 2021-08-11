@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 
-namespace DotVVM.Diagnostics.StatusPage
+namespace DotVVM.Framework.Diagnostics.StatusPage
 {
     public class StatusPageApiOptions : StatusPageOptions
     {

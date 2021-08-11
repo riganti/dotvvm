@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace DotVVM.Diagnostics.StatusPage
+namespace DotVVM.Framework.Diagnostics.StatusPage
 {
-    public sealed class DotHtmlFileInfo
+    public sealed class DothtmlFileInfo
     {
         public CompilationState Status { get; internal set; }
         public string Exception { get; internal set; }
@@ -21,7 +21,7 @@ namespace DotVVM.Diagnostics.StatusPage
         public ImmutableArray<string>? DefaultValues { get; }
         public bool? HasParameters { get; }
 
-        public DotHtmlFileInfo(string virtualPath, string tagName = null, string nameSpace = null, string assembly = null, string tagPrefix = null, string url = null, string routeName = null, ImmutableArray<string>? defaultValues = null, bool? hasParameters = null)
+        public DothtmlFileInfo(string virtualPath, string tagName = null, string nameSpace = null, string assembly = null, string tagPrefix = null, string url = null, string routeName = null, ImmutableArray<string>? defaultValues = null, bool? hasParameters = null)
         {
             VirtualPath = virtualPath;
             Status = IsDothtmlFile(virtualPath) ? CompilationState.None : CompilationState.NonCompilable;
