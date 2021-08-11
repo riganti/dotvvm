@@ -68,7 +68,7 @@ namespace DotVVM.CommandLine
             var executable = "dotnet";
             if (targetFramework.IsDesktop())
             {
-                executable = Path.Combine(cliDirectory, "tools/net461/any/DotVVM.Compiler.exe");
+                executable = Path.Combine(cliDirectory, "tools/net472/any/DotVVM.Compiler.exe");
             }
             else
             {

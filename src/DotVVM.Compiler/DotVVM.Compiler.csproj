@@ -10,7 +10,7 @@ for some reason. What fun. -->
 
   <!-- Related to compilation -->
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net461;net5.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net472;net5.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <OutputType>Exe</OutputType>
     <LangVersion>9.0</LangVersion>
@@ -45,12 +45,8 @@ for some reason. What fun. -->
     <ProjectReference Include="../DotVVM.Core/DotVVM.Core.csproj" Private="false" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <Reference Include="Microsoft.CSharp" />
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

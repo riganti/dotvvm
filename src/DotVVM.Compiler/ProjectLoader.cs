@@ -22,7 +22,7 @@ namespace DotVVM.Compiler
             var assembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
             return new DependencyContextCompilerExecutor(assembly);
 
-#elif NET461
+#elif NET472
             var setup = new AppDomainSetup
             {
                 ApplicationBase = Path.GetDirectoryName(assemblyPath)
