@@ -49,27 +49,11 @@ namespace DotVVM.Framework.Binding.HelperNamespace
         }
 
         /// <summary>
-        /// This is an extension method that allows using unavailable string.TrimStart(..) overload in .NET Framework
-        /// </summary>
-        public static string TrimStart(this string text, char character)
-        {
-            return text.TrimStart(character);
-        }
-
-        /// <summary>
         /// This is an extension method that allows using unavailable string.TrimEnd(..) overload in .NET Framework
         /// </summary>
         public static string TrimEnd(this string text)
         {
             return string.Concat(text.Reverse().SkipWhile(c => char.IsWhiteSpace(c)).Reverse());
-        }
-
-        /// <summary>
-        /// This is an extension method that allows using unavailable string.TrimEnd(..) overload in .NET Framework
-        /// </summary>
-        public static string TrimEnd(this string text, char character)
-        {
-            return text.TrimEnd(character);
         }
     }
 }
