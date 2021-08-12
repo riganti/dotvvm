@@ -28,68 +28,6 @@ if (!String.prototype.startsWith) {
         return this.substring(pos, pos + search.length) === search;
     }
 }
-if (!String.prototype.trimStart) {
-    String.prototype.trimStart = function (char) {
-        if (this == null) {
-            throw new TypeError('"this" is null or not defined');
-        }
-        if (char != null) {
-            char = String(char).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        }
-        else {
-            char = "\\s";
-        }
-
-        var pattern = new RegExp("^" + char + "*");
-        return String(this).replace(pattern, "");
-    }
-}
-if (!String.prototype.trimEnd) {
-    String.prototype.trimEnd = function (char) {
-        if (this == null) {
-            throw new TypeError('"this" is null or not defined');
-        }
-        if (char != null) {
-            char = String(char).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        }
-        else {
-            char = "\\s";
-        }
-        
-        var pattern = new RegExp(char + "*$");
-        return String(this).replace(pattern, "");
-    }
-}
-if (!String.prototype.padStart) {
-    String.prototype.padStart = function (length, char) {
-        if (this == null) {
-            throw new TypeError('"this" is null or not defined');
-        }
-        var string = String(this);
-        if (length == null || length <= string.length) {
-            return string;
-        }
-        if (char == null) {
-            char = " ";
-        }
-        return Array(length - string.length + 1).join(char) + string;
-    }
-}
-if (!String.prototype.padEnd) {
-    String.prototype.padEnd = function (length, char) {
-        if (this == null) {
-            throw new TypeError('"this" is null or not defined');
-        }
-        var string = String(this);
-        if (length == null || length <= string.length) {
-            return string;
-        }
-        if (char == null) {
-            char = " ";
-        }
-        return string + Array(length - string.length + 1).join(char);
-    }
-}
 if (!Array.prototype.includes) {
     Object.defineProperty(Array.prototype, 'includes', {
         value: function (searchElement, fromIndex) {
