@@ -29,19 +29,35 @@ if (!String.prototype.startsWith) {
     }
 }
 if (!String.prototype.trimStart) {
-    String.prototype.trimStart = function () {
+    String.prototype.trimStart = function (char) {
         if (this == null) {
             throw new TypeError('"this" is null or not defined');
         }
-        return String(this).replace(/^\s*/, "");
+        if (char != null) {
+            char = String(char).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+        else {
+            char = "\\s";
+        }
+
+        var pattern = new RegExp("^" + char + "*");
+        return String(this).replace(pattern, "");
     }
 }
 if (!String.prototype.trimEnd) {
-    String.prototype.trimEnd = function () {
+    String.prototype.trimEnd = function (char) {
         if (this == null) {
             throw new TypeError('"this" is null or not defined');
         }
-        return String(this).replace(/\s*$/, "");
+        if (char != null) {
+            char = String(char).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+        else {
+            char = "\\s";
+        }
+        
+        var pattern = new RegExp(char + "*$");
+        return String(this).replace(pattern, "");
     }
 }
 if (!String.prototype.padStart) {

@@ -316,10 +316,17 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             AddMethodTranslator(typeof(string), nameof(string.Trim), parameterCount: 0, translator: new GenericMethodCompiler(
                 a => a[0].Member("trim").Invoke()));
+            AddMethodTranslator(typeof(string), nameof(string.Trim), parameters: new[] { typeof(char) }, translator: new GenericMethodCompiler(
+                a => a[0].Member("trimStart").Invoke(a[1]).Member("trimEnd").Invoke(a[1].Clone())));
+
             AddMethodTranslator(typeof(string), nameof(string.TrimStart), parameterCount: 0, translator: new GenericMethodCompiler(
                 a => a[0].Member("trimStart").Invoke()));
+            AddMethodTranslator(typeof(string), nameof(string.TrimStart), parameters: new[] { typeof(char) }, translator: new GenericMethodCompiler(
+                a => a[0].Member("trimStart").Invoke(a[1])));
             AddMethodTranslator(typeof(string), nameof(string.TrimEnd), parameterCount: 0, translator: new GenericMethodCompiler(
                 a => a[0].Member("trimEnd").Invoke()));
+            AddMethodTranslator(typeof(string), nameof(string.TrimEnd), parameters: new[] { typeof(char) }, translator: new GenericMethodCompiler(
+                a => a[0].Member("trimEnd").Invoke(a[1])));
             AddMethodTranslator(typeof(string), nameof(string.PadLeft), parameterCount: 1, translator: new GenericMethodCompiler(
                 a => a[0].Member("padStart").Invoke(a[1])));
             AddMethodTranslator(typeof(string), nameof(string.PadLeft), parameterCount: 2, translator: new GenericMethodCompiler(

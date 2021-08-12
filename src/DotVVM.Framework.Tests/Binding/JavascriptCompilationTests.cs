@@ -1023,8 +1023,11 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("StringProp.EndsWith('test',StringComparison.InvariantCultureIgnoreCase)",
             "dotvvm.translations.string.endsWith(StringProp(),\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("StringProp.Trim()", "StringProp().trim()")]
+        [DataRow("StringProp.Trim('0')", "StringProp().trimStart(\"0\").trimEnd(\"0\")")]
         [DataRow("StringProp.TrimStart()", "StringProp().trimStart()")]
+        [DataRow("StringProp.TrimStart('0')", "StringProp().trimStart(\"0\")")]
         [DataRow("StringProp.TrimEnd()", "StringProp().trimEnd()")]
+        [DataRow("StringProp.TrimEnd('0')", "StringProp().trimEnd(\"0\")")]
         [DataRow("StringProp.PadLeft(1)", "StringProp().padStart(1)")]
         [DataRow("StringProp.PadRight(2)", "StringProp().padEnd(2)")]
         [DataRow("StringProp.PadLeft(1,'#')", "StringProp().padStart(1,\"#\")")]
