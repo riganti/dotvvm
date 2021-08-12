@@ -37,6 +37,7 @@
 
     <p>
         <dot:Button Text="IsNullOrEmpty(value)" Click="{staticCommand: OperationResult = String.IsNullOrEmpty(Value).ToString()}" />
+        <dot:Button Text="IsNullOrWhiteSpace(value)" Click="{staticCommand: OperationResult = String.IsNullOrWhiteSpace(Value).ToString()}" />
     </p>
 
     <p>
@@ -52,7 +53,17 @@
         <dot:Button Text="LastIndexOf(value,30)" Click="{staticCommand: Index = Joke.LastIndexOf(Value, 30)}" />
         <dot:Button Text="LastIndexOf(value,30,InvariantCulture)" Click="{staticCommand: Index = Joke.LastIndexOf(Value, 30, StringComparison.InvariantCulture)}" />
         <dot:Button Text="LastIndexOf(value,30,InvariantCultureIgnoreCase)" Click="{staticCommand: Index = Joke.LastIndexOf(Value, 30, StringComparison.InvariantCultureIgnoreCase)}" />
-    </p>  
+    </p>
+
+    <p>
+        <dot:Button Text="PadLeft(12)" Click="{staticCommand: OperationResult = Value.PadLeft(12)}" />
+        <dot:Button Text="PadLeft(12,#)" Click="{staticCommand: OperationResult = Value.PadLeft(12, '#')}" />
+    </p>
+
+    <p>
+        <dot:Button Text="PadRight(12)" Click="{staticCommand: OperationResult = Value.PadRight(12)}" />
+        <dot:Button Text="PadRight(12,#)" Click="{staticCommand: OperationResult = Value.PadRight(12, '#')}" />
+    </p>
 
     <p>
         <dot:Button Text="Replace(a, A)" Click="{staticCommand: OperationResult = Joke.Replace("a", "A")}" />
@@ -74,7 +85,22 @@
         <dot:Button Text="ToUpper()" Click="{staticCommand: OperationResult = Joke.ToUpper()}" />
     </p>
 
-    <p>Operation result</p><h2 data-ui="operation-result">{{value: OperationResult}}</h2>
+    <p>
+        <dot:Button Text="Trim()" Click="{staticCommand: OperationResult = Value.Trim()}" />
+        <dot:Button Text="Trim(#)" Click="{staticCommand: OperationResult = Value.Trim('#')}" />
+    </p>
+
+    <p>
+        <dot:Button Text="TrimStart()" Click="{staticCommand: OperationResult = Value.TrimStart()}" />
+        <dot:Button Text="TrimStart(#)" Click="{staticCommand: OperationResult = Value.TrimStart('#')}" />
+    </p>
+
+    <p>
+        <dot:Button Text="TrimEnd()" Click="{staticCommand: OperationResult = Value.TrimEnd()}" />
+        <dot:Button Text="TrimEnd(#)" Click="{staticCommand: OperationResult = Value.TrimEnd('#')}" />
+    </p>
+
+    <p>Operation result</p><pre><h2 data-ui="operation-result">{{value: OperationResult}}</h2></pre>
     <p>IndexOf result:</p> <h2 data-ui="index-result">{{value: Index}}</h2>
 
     <dot:Repeater DataSource="{value: SplitArray}" data-ui="repeater">
