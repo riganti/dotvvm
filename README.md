@@ -1,4 +1,4 @@
-![DotVVM](https://www.dotvvm.com/Content/img/logos/logo-full.png) 
+<img src="./logo.svg" width="250px" />
 
 Component-based MVVM framework for ASP.NET
 ==================
