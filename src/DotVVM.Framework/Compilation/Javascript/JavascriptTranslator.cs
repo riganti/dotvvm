@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -19,8 +20,64 @@ namespace DotVVM.Framework.Compilation.Javascript
 {
     public class JavascriptTranslator
     {
-        public static readonly CodeSymbolicParameter KnockoutContextParameter = new CodeSymbolicParameter("JavascriptTranslator.KnockoutContextParameter", CodeParameterAssignment.FromIdentifier("$context", true));
-        public static readonly CodeSymbolicParameter KnockoutViewModelParameter = new CodeSymbolicParameter("JavascriptTranslator.KnockoutViewModelParameter", CodeParameterAssignment.FromIdentifier("$data", true));
+        public static readonly CodeSymbolicParameter KnockoutContextParameter = new ContextSymbolicParameter(0, "");
+        public static readonly CodeSymbolicParameter ParentKnockoutContextParameter = new ContextSymbolicParameter(1, "Parent");
+        public static readonly CodeSymbolicParameter KnockoutViewModelParameter = new ViewModelSymbolicParameter(0, "", "$data");
+        public static readonly CodeSymbolicParameter ParentKnockoutViewModelParameter = new ViewModelSymbolicParameter(1, "Parent", "$parent");
+
+        public static CodeSymbolicParameter GetKnockoutViewModelParameter(int parentIndex) => parentIndex switch {
+            0 => KnockoutViewModelParameter,
+            1 => ParentKnockoutViewModelParameter,
+            _ => new ViewModelSymbolicParameter(parentIndex, $"Parent{parentIndex}", null)
+        };
+        public static CodeSymbolicParameter GetKnockoutContextParameter(int parentIndex) => parentIndex switch {
+            0 => KnockoutContextParameter,
+            1 => ParentKnockoutContextParameter,
+            _ => new ContextSymbolicParameter(parentIndex, $"Parent{parentIndex}")
+        };
+
+        public sealed class ViewModelSymbolicParameter: CodeSymbolicParameter
+        {
+            internal ViewModelSymbolicParameter(int parentIndex, string description, string? member): base(
+                $"JavascriptTranslator.{description}KnockoutViewModelParameter",
+                new CodeParameterAssignment(
+                    (member is null ? KnockoutContextParameter.ToExpression().Member("$parents").Indexer(new JsLiteral(parentIndex - 1))
+                                    : KnockoutContextParameter.ToExpression().Member(member)).FormatParametrizedScript(),
+                    isGlobalContext: parentIndex == 0
+                )
+            )
+            {
+                this.ParentIndex = parentIndex;
+            }
+            public int ParentIndex { get; }
+        }
+        public sealed class ContextSymbolicParameter: CodeSymbolicParameter
+        {
+            internal ContextSymbolicParameter(int parentIndex, string description): base(
+                $"JavascriptTranslator.{description}KnockoutContextParameter",
+                new CodeParameterAssignment(
+                    GetKnockoutContext(parentIndex).FormatParametrizedScript(),
+                    isGlobalContext: parentIndex == 0
+                )
+            )
+            {
+                this.ParentIndex = parentIndex;
+            }
+            public int ParentIndex { get; }
+
+            static JsExpression GetKnockoutContext(int dataContextLevel)
+            {
+                if (dataContextLevel == 0)
+                    return new JsIdentifierExpression("$context");
+
+                JsExpression currentContext = KnockoutContextParameter.ToExpression();
+                for (int i = 0; i < dataContextLevel; i++) currentContext = currentContext.Member("$parentContext");
+
+                return currentContext;
+            }
+        }
+
+
         private readonly IViewModelSerializationMapper mapper;
 
         public IJavascriptMethodTranslator DefaultMethodTranslator { get; }
@@ -35,64 +92,26 @@ namespace DotVVM.Framework.Compilation.Javascript
             return new JavascriptTranslationVisitor(dataContext, DefaultMethodTranslator).TryTranslateMethodCall(method, context, arguments);
         }
 
-        public void AdjustViewModelProperties(JsNode expr)
+        public JsViewModelPropertyAdjuster AdjustingVisitor(bool preferUsingState)
         {
-            expr.AcceptVisitor(new JsViewModelPropertyAdjuster(mapper));
+            return new JsViewModelPropertyAdjuster(mapper, preferUsingState);
         }
 
-        public JsExpression CompileToJavascript(Expression binding, DataContextStack dataContext)
+        public JsExpression CompileToJavascript(Expression binding, DataContextStack dataContext, bool preferUsingState = false)
         {
             var translator = new JavascriptTranslationVisitor(dataContext, DefaultMethodTranslator);
-            var script = translator.Translate(binding);
-            script.AcceptVisitor(new JsViewModelPropertyAdjuster(mapper));
-            return script;
-        }
-
-        // public static JsExpression RemoveTopObservables(JsExpression expression)
-        // {
-        //     foreach (var leaf in expression.GetLeafResultNodes())
-        //     {
-        //         JsExpression replacement = null;
-        //         if (leaf is JsInvocationExpression invocation && invocation.Annotation<ObservableUnwrapInvocationAnnotation>() != null)
-        //         {
-        //             replacement = invocation.Target;
-        //         }
-        //         else if (leaf is JsMemberAccessExpression member && member.MemberName == "$data" && member.Target is JsSymbolicParameter par && par.Symbol == JavascriptTranslator.KnockoutContextParameter ||
-        //             leaf is JsSymbolicParameter param && param.Symbol == JavascriptTranslator.KnockoutViewModelParameter)
-        //         {
-        //             replacement = new JsSymbolicParameter(KnockoutContextParameter).Member("$rawData")
-        //                 .WithAnnotation(leaf.Annotation<ViewModelInfoAnnotation>());
-        //         }
-
-        //         if (replacement != null)
-        //         {
-        //             if (leaf.Parent == null) expression = replacement;
-        //             else leaf.ReplaceWith(replacement);
-        //         }
-        //     }
-        //     return expression;
-        // }
-
-        public static (JsExpression context, JsExpression data) GetKnockoutContextParameters(int dataContextLevel)
-        {
-            JsExpression currentContext = new JsSymbolicParameter(KnockoutContextParameter);
-            for (int i = 0; i < dataContextLevel; i++) currentContext = currentContext.Member("$parentContext");
-
-            var currentData = dataContextLevel == 0 ? new JsSymbolicParameter(KnockoutContextParameter).Member("$data") :
-                              dataContextLevel == 1 ? new JsSymbolicParameter(KnockoutContextParameter).Member("$parent") :
-                              new JsSymbolicParameter(KnockoutContextParameter).Member("$parents").Indexer(new JsLiteral(dataContextLevel - 1));
-            return (currentContext, currentData);
+            var script = new JsParenthesizedExpression(translator.Translate(binding));
+            script.AcceptVisitor(AdjustingVisitor(preferUsingState));
+            return script.Expression.Detach();
         }
 
         public static ParametrizedCode AdjustKnockoutScriptContext(ParametrizedCode expression, int dataContextLevel)
         {
             if (dataContextLevel == 0) return expression;
-            var (contextExpression, dataExpression) = GetKnockoutContextParameters(dataContextLevel);
-            var (context, data) = (CodeParameterAssignment.FromExpression(contextExpression), CodeParameterAssignment.FromExpression(dataExpression));
             return expression.AssignParameters(o =>
-                o == KnockoutContextParameter ? context :
-                o == KnockoutViewModelParameter ? data :
-                default(CodeParameterAssignment)
+                o is ViewModelSymbolicParameter vm ? GetKnockoutViewModelParameter(vm.ParentIndex + dataContextLevel).ToParametrizedCode() :
+                o is ContextSymbolicParameter context ? GetKnockoutContextParameter(context.ParentIndex + dataContextLevel).ToParametrizedCode() :
+                default
             );
         }
 
@@ -112,18 +131,17 @@ namespace DotVVM.Framework.Compilation.Javascript
                 return adjusted.ToDefaultString();
             else
                 return adjusted.ToString(o =>
-                               o == KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("$data", allowDataGlobal) :
+                               o == KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("$data") :
                                default);
         }
 
         /// <summary>
         /// Get's Javascript code that can be executed inside knockout data-bind attribute.
         /// </summary>
-        public static string FormatKnockoutScript(ParametrizedCode expression, ParametrizedCode contextVariable, ParametrizedCode dataVariable = null)
+        public static string FormatKnockoutScript(ParametrizedCode expression, ParametrizedCode contextVariable, ParametrizedCode? dataVariable = null)
         {
-            if (dataVariable == null) dataVariable = new ParametrizedCode.Builder { contextVariable, ".$data" }.Build(OperatorPrecedence.Max);
             return expression
-                .ToString(o => o == KnockoutContextParameter ? new CodeParameterAssignment(contextVariable) :
+                .ToString(o => o == KnockoutContextParameter ? contextVariable :
                                o == KnockoutViewModelParameter ? dataVariable :
                                throw new Exception());
         }
@@ -133,10 +151,10 @@ namespace DotVVM.Framework.Compilation.Javascript
     {
         public Type Type { get; set; }
         public bool IsControl { get; set; }
-        public BindingExtensionParameter ExtensionParameter { get; set; }
+        public BindingExtensionParameter? ExtensionParameter { get; set; }
 
-        public ViewModelSerializationMap SerializationMap { get; set; }
-        public bool ContainsObservables { get; set; }
+        public ViewModelSerializationMap? SerializationMap { get; set; }
+        public bool? ContainsObservables { get; set; }
 
         public bool Equals(ViewModelInfoAnnotation other) =>
             Type == other.Type &&
@@ -146,19 +164,9 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public override bool Equals(object obj) => obj is ViewModelInfoAnnotation obj2 && this.Equals(obj2);
 
-        public override int GetHashCode()
-        {
-            var hash = 69848087;
-            hash += Type.GetHashCode();
-            hash *= 444_272_593;
-            hash += ExtensionParameter.GetHashCode();
-            hash *= 444_272_617;
-            if (IsControl) hash *= 444_272_629;
-            if (ContainsObservables) hash *= 444_272_641;
-            return hash;
-        }
+        public override int GetHashCode() => (Type, ExtensionParameter, IsControl, ContainsObservables).GetHashCode();
 
-        public ViewModelInfoAnnotation(Type type, bool isControl = false, BindingExtensionParameter extensionParameter = null, bool containsObservables = true)
+        public ViewModelInfoAnnotation(Type type, bool isControl = false, BindingExtensionParameter? extensionParameter = null, bool? containsObservables = null)
         {
             this.Type = type;
             this.IsControl = isControl;
@@ -167,10 +175,24 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
     }
 
+    /// <summary> Marks that the expression is essentially a member access on the target. We use this to keep track which objects have observables and which don't. </summary>
     public class VMPropertyInfoAnnotation
     {
-        public MemberInfo MemberInfo { get; set; }
-        public ViewModelPropertyMap SerializationMap { get; set; }
+        public VMPropertyInfoAnnotation(MemberInfo memberInfo, Type? resultType = null, ViewModelPropertyMap? serializationMap = null)
+        {
+            ResultType = resultType ?? memberInfo.GetResultType();
+            MemberInfo = memberInfo;
+            SerializationMap = serializationMap;
+        }
+
+        public VMPropertyInfoAnnotation(Type resultType)
+        {
+            ResultType = resultType;
+        }
+
+        public Type ResultType { get; }
+        public MemberInfo? MemberInfo { get; }
+        public ViewModelPropertyMap? SerializationMap { get; set; }
     }
 
     public class JavascriptTranslatorConfiguration: IJavascriptMethodTranslator

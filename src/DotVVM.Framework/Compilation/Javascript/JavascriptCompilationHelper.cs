@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
@@ -33,21 +34,44 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             ViewModelInfoAnnotation combine2(ViewModelInfoAnnotation a, ViewModelInfoAnnotation b)
             {
-                if (a == null ||  b == null) return a ?? b;
-                else if (a.Type.Equals(b.Type)) return b;
+                if (a == null || b == null) return a ?? b;
+                else if (a.Type.IsAssignableFrom(b.Type)) return a;
+                else if (b.Type.IsAssignableFrom(a.Type)) return b;
                 else return null;
             }
             if (expr.TryGetAnnotation<ViewModelInfoAnnotation>(out var vmInfo)) return vmInfo;
-            else if (expr is JsAssignmentExpression assignment && assignment.Operator == null) return GetResultType(assignment.Right);
-            else if (expr is JsBinaryExpression binary && (binary.Operator == BinaryOperatorType.ConditionalAnd || binary.Operator == BinaryOperatorType.ConditionalOr))
-                return combine2(
-                    GetResultType(binary.Left),
-                    GetResultType(binary.Right));
+            else if (expr is JsParenthesizedExpression parens) return parens.Expression.GetResultType();
+            else if (expr is JsAssignmentExpression assignment && assignment.Operator == null) return GetResultType(assignment.Right) ?? GetResultType(assignment.Left);
+            else if (expr is JsBinaryExpression binary)
+            {
+                switch (binary.Operator)
+                {
+                    case BinaryOperatorType.ConditionalAnd:
+                    case BinaryOperatorType.ConditionalOr:
+                        return combine2(
+                            GetResultType(binary.Left),
+                            GetResultType(binary.Right));
+                    case BinaryOperatorType.Sequence:
+                        return GetResultType(binary.Right);
+                    default:
+                        return null;
+                }
+            }
             else if (expr is JsConditionalExpression conditional)
                 return combine2(
                     GetResultType(conditional.TrueExpression),
                     GetResultType(conditional.FalseExpression));
             else if (expr is JsLiteral literal) return literal.Value != null ? new ViewModelInfoAnnotation(literal.Value.GetType(), containsObservables: false) : null;
+            // match IIFE (function () { return X })()
+            else if (expr is JsInvocationExpression invocationExpression &&
+                invocationExpression.Target is JsFunctionExpression functionExpression)
+            {
+                var returnStatements = functionExpression.Block.Body.OfType<JsReturnStatement>().ToArray();
+                if (returnStatements.Length == 1)
+                    return returnStatements[0].Expression.GetResultType();
+                else
+                    return null;
+            }
             else return null;
         }
 

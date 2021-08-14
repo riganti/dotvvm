@@ -10,6 +10,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
@@ -53,7 +54,7 @@ namespace DotVVM.Framework.Controls
             var viewModule = GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
             if (viewModule == null)
             {
-                throw new DotvvmControlException(this, "No module was registered. The NamedCommand control can not be used in pages without the @js directive.");
+                throw new DotvvmControlException(this, "Internal.ReferencedViewModuleInfoProperty was not set on the NamedCommand.");
             }
 
             var options = new PostbackScriptOptions(
@@ -84,6 +85,16 @@ namespace DotVVM.Framework.Controls
             if (!control.TreeRoot.TryGetProperty(Internal.ReferencedViewModuleInfoProperty, out var _))
             {
                 yield return new ControlUsageError("The NamedCommand control can be used only in pages or controls that have the @js directive.");
+            }
+        }
+
+        [ApplyControlStyle]
+        public static void AddReferencedViewModuleInfoProperty(ResolvedControl control)
+        {
+            if (control.TreeRoot.TryGetProperty(Internal.ReferencedViewModuleInfoProperty, out var x))
+            {
+                var value = ((ResolvedPropertyValue)x).Value;
+                control.SetProperty(new ResolvedPropertyValue(Internal.ReferencedViewModuleInfoProperty, value));
             }
         }
     }

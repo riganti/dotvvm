@@ -86,5 +86,19 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                     new JsBinaryExpression(new JsBinaryExpression(new JsLiteral(1), BinaryOperatorType.Sequence, new JsLiteral(2)), BinaryOperatorType.Sequence, new JsLiteral(3)))
             );
         }
+
+        [TestMethod]
+        public void JsParent_ParametrizedCodeBuilder()
+        {
+            Assert.AreEqual("a+b+(a*b)", new ParametrizedCode.Builder { 
+                new JsIdentifierExpression("a").FormatParametrizedScript(),
+                "+b+",
+                new JsBinaryExpression(
+                    new JsIdentifierExpression("a"),
+                    BinaryOperatorType.Times,
+                    new JsIdentifierExpression("b")
+                ).FormatParametrizedScript()
+            }.Build(default).ToDefaultString());
+        }
     }
 }

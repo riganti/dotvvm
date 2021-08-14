@@ -161,7 +161,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         public void VisitMemberAccessExpression(JsMemberAccessExpression memberAccessExpression)
         {
             if (!memberAccessExpression.MemberNameToken.IsValidName())
-                new JsIndexerExpression(memberAccessExpression.Target, new JsLiteral(memberAccessExpression.MemberNameToken))
+                new JsIndexerExpression(memberAccessExpression.Target.Clone(), new JsLiteral(memberAccessExpression.MemberNameToken))
                 .AcceptVisitor(this);
             else
             {
