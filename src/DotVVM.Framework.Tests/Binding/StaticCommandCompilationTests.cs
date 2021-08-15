@@ -16,6 +16,7 @@ using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Testing;
+using DotVVM.Framework.Security;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -27,7 +28,9 @@ namespace DotVVM.Framework.Tests.Binding
         public string CompileBinding(string expression, bool niceMode, params Type[] contexts) => CompileBinding(expression, niceMode, contexts, expectedType: typeof(Command));
         public string CompileBinding(string expression, bool niceMode, Type[] contexts, Type expectedType, Type currentMarkupControl = null)
         {
-            var configuration = DotvvmTestHelper.CreateConfiguration();
+            var configuration = DotvvmTestHelper.CreateConfiguration(s => {
+                s.AddSingleton<IViewModelProtector, DotvvmTestHelper.NopProtector>();
+            });
 
             configuration.RegisterApiClient(typeof(TestApiClient), "http://server/api", "./apiscript.js", "_api");
             configuration.Markup.ImportedNamespaces.Add(new NamespaceImport("DotVVM.Framework.Tests.Binding"));
@@ -76,7 +79,7 @@ namespace DotVVM.Framework.Tests.Binding
                 configuration.ServiceProvider.GetRequiredService<StaticCommandBindingCompiler>().CompileToJavascript(context, expressionTree);
             return KnockoutHelper.GenerateClientPostBackExpression(
                 "",
-                new FakeCommandBinding(BindingPropertyResolvers.FormatJavascript(jsExpression, nullChecks: false, niceMode: niceMode), null),
+                new FakeCommandBinding(BindingPropertyResolvers.FormatJavascript(jsExpression, allowObservableResult: false, nullChecks: false, niceMode: niceMode), null),
                 new Literal(),
                 new PostbackScriptOptions(
                     allowPostbackHandlers: false,
@@ -89,63 +92,63 @@ namespace DotVVM.Framework.Tests.Binding
         public void StaticCommandCompilation_SimpleCommand()
         {
             var result = CompileBinding("StaticCommands.GetLength(StringProp)", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("(function(a,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[b.$data.StringProp.state],options).then(function(r_0){resolve(r_0);},reject);});}(this,ko.contextFor(this)))", result);
+            Assert.AreEqual("(async function(a){return await dotvvm.staticCommandPostback(\"XXXX\",[a.$data.StringProp.state],options);}(ko.contextFor(this)))", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_AssignedCommand()
         {
             var result = CompileBinding("StringProp = StaticCommands.GetLength(StringProp).ToString()", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("(function(a,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[b.$data.StringProp.state],options).then(function(r_0){resolve(b.$data.StringProp(dotvvm.globalize.bindingNumberToString(r_0)()).StringProp());},reject);});}(this,ko.contextFor(this)))", result);
+            Assert.AreEqual("(async function(a){return a.$data.StringProp(dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[a.$data.StringProp()],options))()).StringProp();}(ko.contextFor(this)))", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_JsOnlyCommand()
         {
             var result = CompileBinding("StringProp = StringProp.Length.ToString()", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("(function(a){return Promise.resolve(a.$data.StringProp(dotvvm.globalize.bindingNumberToString(a.$data.StringProp().length)()).StringProp());}(ko.contextFor(this)))", result);
+            Assert.AreEqual("(function(a){return a.$data.StringProp(dotvvm.globalize.bindingNumberToString(a.$data.StringProp().length)()).StringProp();}(ko.contextFor(this)))", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_ChainedCommands()
         {
             var result = CompileBinding("StringProp = StaticCommands.GetLength(StaticCommands.GetLength(StringProp).ToString()).ToString()", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("(function(a,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[b.$data.StringProp.state],options).then(function(r_0){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[dotvvm.globalize.bindingNumberToString(r_0)()],options).then(function(r_1){resolve(b.$data.StringProp(dotvvm.globalize.bindingNumberToString(r_1)()).StringProp());},reject);},reject);});}(this,ko.contextFor(this)))", result);
+            Assert.AreEqual("(async function(a){return a.$data.StringProp(dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[a.$data.StringProp()],options))()],options))()).StringProp();}(ko.contextFor(this)))", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_MultipleCommandsWithVariable()
         {
             var result = CompileBinding("var lenVar = StaticCommands.GetLength(StringProp).ToString(); StringProp = StaticCommands.GetLength(lenVar).ToString();", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("(function(a,d,b,c){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[d.$data.StringProp.state],options).then(function(r_0){(c=b=dotvvm.globalize.bindingNumberToString(r_0)(),dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[b],options).then(function(r_1){resolve((c,d.$data.StringProp(dotvvm.globalize.bindingNumberToString(r_1)()).StringProp(),null));},reject));},reject);});}(this,ko.contextFor(this)))", result);
+            Assert.AreEqual("(async function(a,b){return (b=dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[a.$data.StringProp()],options))(),a.$data.StringProp(dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[b],options))()).StringProp(),null);}(ko.contextFor(this)))", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_ChainedCommandsWithSemicolon()
         {
             var result = CompileBinding("StringProp = StaticCommands.GetLength(StringProp).ToString(); StringProp = StaticCommands.GetLength(StringProp).ToString()", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("(function(a,c,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[c.$data.StringProp.state],options).then(function(r_0){(b=c.$data.StringProp(dotvvm.globalize.bindingNumberToString(r_0)()).StringProp(),dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXRMZW5ndGgiLFtdLCJBQT09Il0=\",[c.$data.StringProp.state],options).then(function(r_1){resolve((b,c.$data.StringProp(dotvvm.globalize.bindingNumberToString(r_1)()).StringProp()));},reject));},reject);});}(this,ko.contextFor(this)))", result);
+            Assert.AreEqual("(async function(a){return (a.$data.StringProp(dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[a.$data.StringProp()],options))()).StringProp(),a.$data.StringProp(dotvvm.globalize.bindingNumberToString(await dotvvm.staticCommandPostback(\"XXXX\",[a.$data.StringProp()],options))()).StringProp());}(ko.contextFor(this)))", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_DateTimeResultAssignment()
         {
             var result = CompileBinding("DateFrom = StaticCommands.GetDate()", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("(function(a,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJHZXREYXRlIixbXSwiIl0=\",[],options).then(function(r_0){resolve(b.$data.DateFrom(dotvvm.serialization.serializeDate(r_0,false)).DateFrom());},reject);});}(this,ko.contextFor(this)))", result);
+            Assert.AreEqual("(async function(a){return a.$data.DateFrom(dotvvm.serialization.serializeDate(await dotvvm.staticCommandPostback(\"XXXX\",[],options),false)).DateFrom();}(ko.contextFor(this)))", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_DateTimeAssignment()
         {
             var result = CompileBinding("DateFrom = DateTo", niceMode: false, typeof(TestViewModel));
-            Assert.AreEqual("(function(a){return Promise.resolve(a.$data.DateFrom(dotvvm.serialization.serializeDate(a.$data.DateTo.state,false)).DateFrom());}(ko.contextFor(this)))", result);
+            Assert.AreEqual("(function(a){return a.$data.DateFrom(dotvvm.serialization.serializeDate(a.$data.DateTo.state,false)).DateFrom();}(ko.contextFor(this)))", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_CommandArgumentUsage()
         {
             var result = CompileBinding("StringProp = arg.ToString()", niceMode: false, new[] { typeof(TestViewModel) }, typeof(Func<int, Task>));
-            Assert.AreEqual("(function(a){return Promise.resolve(a.$data.StringProp(dotvvm.globalize.bindingNumberToString(commandArguments[0])()).StringProp());}(ko.contextFor(this)))", result);
+            Assert.AreEqual("(function(a){return a.$data.StringProp(dotvvm.globalize.bindingNumberToString(commandArguments[0])()).StringProp();}(ko.contextFor(this)))", result);
         }
 
         [TestMethod]
@@ -153,47 +156,43 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("SomeString = injectedService.Load(SomeString)", niceMode: false, new[] { typeof(TestViewModel3) }, typeof(Func<string, string>));
 
-            Assert.AreEqual("(function(a,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd\",[b.$data.SomeString.state],options).then(function(r_0){resolve(b.$data.SomeString(r_0).SomeString());},reject);});}(this,ko.contextFor(this)))", result);
+            Assert.AreEqual("(async function(a){return a.$data.SomeString(await dotvvm.staticCommandPostback(\"XXXX\",[a.$data.SomeString.state],options)).SomeString();}(ko.contextFor(this)))", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_IndexParameter()
         {
             var result = CompileBinding("IntProp = _index", niceMode: false, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("(function(a){return Promise.resolve(a.$data.IntProp(a.$index()).IntProp());}(ko.contextFor(this)))", result);
+            Assert.AreEqual("(function(a){return a.$data.IntProp(a.$index()).IntProp();}(ko.contextFor(this)))", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_IndexParameterInParent()
         {
             var result = CompileBinding("_parent2.IntProp = _index", niceMode: false, new[] { typeof(TestViewModel), typeof(object), typeof(string) });
-            Assert.AreEqual("(function(a){return Promise.resolve(a.$parents[1].IntProp(a.$parentContext.$parentContext.$index()).IntProp());}(ko.contextFor(this)))", result);
+            Assert.AreEqual("(function(a){return a.$parents[1].IntProp(a.$parentContext.$parentContext.$index()).IntProp();}(ko.contextFor(this)))", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_ExpressionBetweenPostbacks_WithParameters()
         {
             var result = CompileBinding("StringProp = injectedService.Load(StringProp, StringProp); \"Test\"; StringProp = injectedService.Load(StringProp)", niceMode: false, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("(function(a,c,b){return new Promise(function(resolve,reject){dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBQSJd\",[c.$data.StringProp.state,c.$data.StringProp.state],options).then(function(r_0){(b=(c.$data.StringProp(r_0).StringProp(),\"Test\"),dotvvm.staticCommandPostback(a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd\",[c.$data.StringProp.state],options).then(function(r_1){resolve((b,c.$data.StringProp(r_1).StringProp()));},reject));},reject);});}(this,ko.contextFor(this)))", result);
+            Assert.AreEqual("(async function(a){return (a.$data.StringProp(await dotvvm.staticCommandPostback(\"XXXX\",[a.$data.StringProp.state,a.$data.StringProp.state],options)).StringProp(),\"Test\",a.$data.StringProp(await dotvvm.staticCommandPostback(\"XXXX\",[a.$data.StringProp.state],options)).StringProp());}(ko.contextFor(this)))", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_ExpressionBetweenPostbacks_NoParametersLast()
         {
             var result = CompileBinding("StringProp = injectedService.Load(IntProp); \"Test\"; StringProp2 = injectedService.Load()", niceMode: true, new[] { typeof(TestViewModel) });
-            var control = @"(function(a, b) {
-	return new Promise(function(resolve, reject) {
-		dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [b.$data.IntProp.state], options).then(function(r_0) {
-			dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVE9PSJd"", [], options).then(function(r_1) {
-				resolve((
-					b.$data.StringProp(r_0).StringProp() ,
-					""Test"" ,
-					b.$data.StringProp2(r_1).StringProp2()
-				));
-			}, reject);
-		}, reject);
-	});
-}(this, ko.contextFor(this)))";
+            Console.WriteLine(result);
+            var control = @"
+(async function(a) {
+	return (
+		a.$data.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [a.$data.IntProp.state], options)).StringProp() ,
+		""Test"" ,
+		a.$data.StringProp2(await dotvvm.staticCommandPostback(""XXXX"", [], options)).StringProp2()
+	);
+}(ko.contextFor(this)))";
 
             AreEqual(control, result);
         }
@@ -203,20 +202,15 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("injectedService.Save(IntProp); \"Test\"; StringProp = injectedService.Load()", niceMode: true, new[] { typeof(TestViewModel) });
 
+            Console.WriteLine(result);
             var control = @"
-(function(a, b) {
-	return new Promise(function(resolve, reject) {
-		dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSwiQVFBPSJd"", [b.$data.IntProp.state], options).then(function(r_0) {
-			dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVE9PSJd"", [], options).then(function(r_1) {
-				resolve((
-					r_0 ,
-					""Test"" ,
-					b.$data.StringProp(r_1).StringProp()
-				));
-			}, reject);
-		}, reject);
-	});
-}(this, ko.contextFor(this)))";
+(async function(a) {
+	return (
+		await dotvvm.staticCommandPostback(""XXXX"", [a.$data.IntProp.state], options) ,
+		""Test"" ,
+		a.$data.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [], options)).StringProp()
+	);
+}(ko.contextFor(this)))";
 
             AreEqual(control, result);
         }
@@ -226,21 +220,17 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("injectedService.SaveAsync(IntProp); \"Test\"; StringProp = injectedService.LoadAsync().Result", niceMode: true, new[] { typeof(TestViewModel) });
 
-            var control = @"(function(a, b) {
-	return new Promise(function(resolve, reject) {
-		dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlQXN5bmMiLFtdLCJBUUE9Il0="", [b.$data.IntProp.state], options).then(function(r_0) {
-			dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkQXN5bmMiLFtdLCJBUT09Il0="", [], options).then(function(r_1) {
-				resolve((
-					r_0 ,
-					(
-						""Test"" ,
-						b.$data.StringProp(r_1).StringProp()
-					)
-				));
-			}, reject);
-		}, reject);
-	});
-}(this, ko.contextFor(this)))";
+            Console.WriteLine(result);
+            var control = @"
+(async function(a) {
+	return (
+		await dotvvm.staticCommandPostback(""XXXX"", [a.$data.IntProp.state], options) ,
+		(
+			""Test"" ,
+			a.$data.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [], options)).StringProp()
+		)
+	);
+}(ko.contextFor(this)))";
 
             AreEqual(control, result);
         }
@@ -250,21 +240,14 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("StringProp = injectedService.Load(IntProp); StringProp = injectedService.Load(StringProp)", niceMode: true, new[] { typeof(TestViewModel) });
 
-            var control = @"(function(a, c, b) {
-	return new Promise(function(resolve, reject) {
-		dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [c.$data.IntProp.state], options).then(function(r_0) {
-			(
-				b = c.$data.StringProp(r_0).StringProp() ,
-				dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [c.$data.StringProp.state], options).then(function(r_1) {
-					resolve((
-						b ,
-						c.$data.StringProp(r_1).StringProp()
-					));
-				}, reject)
-			);
-		}, reject);
-	});
-}(this, ko.contextFor(this)))";
+            Console.WriteLine(result);
+            var control = @"
+(async function(a) {
+	return (
+		a.$data.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [a.$data.IntProp.state], options)).StringProp() ,
+		a.$data.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [a.$data.StringProp.state], options)).StringProp()
+	);
+}(ko.contextFor(this)))";
 
             AreEqual(control, result);
         }
@@ -274,15 +257,11 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("StringProp = _ext.Test(StringProp, StringProp = injectedService.Load(StringProp))", niceMode: true, new[] { typeof(TestViewModel) });
 
-            var control = @"(function(a, b) {
-	return new Promise(function(resolve, reject) {
-		dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [b.$data.StringProp.state], options).then(function(r_0) {
-			MethodExtensions.test(b.$data.StringProp, b.$data.StringProp(r_0).StringProp).then(function(r_1) {
-				resolve(b.$data.StringProp(r_1).StringProp());
-			}, reject);
-		}, reject);
-	});
-}(this, ko.contextFor(this)))";
+            Console.WriteLine(result);
+            var control = @"
+(async function(a) {
+	return a.$data.StringProp(await MethodExtensions.test(a.$data.StringProp, a.$data.StringProp(await dotvvm.staticCommandPostback(""XXXX"", [a.$data.StringProp()], options)).StringProp)).StringProp();
+}(ko.contextFor(this)))";
 
             AreEqual(control, result);
         }
@@ -292,18 +271,11 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("StringProp = _ext.Test(StringProp, \"a\") + injectedService.Load(StringProp)", niceMode: true, new[] { typeof(TestViewModel) });
 
-            var control = @"(function(a, c, b) {
-	return new Promise(function(resolve, reject) {
-		(
-			b = dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [c.$data.StringProp.state], options) ,
-			MethodExtensions.test(c.$data.StringProp, ""a"").then(function(r_0) {
-				b.then(function(r_1) {
-					resolve(c.$data.StringProp(r_0 + r_1).StringProp());
-				}, reject);
-			}, reject)
-		);
-	});
-}(this, ko.contextFor(this)))";
+            Console.WriteLine(result);
+            var control = @"
+(async function(a) {
+	return a.$data.StringProp(await MethodExtensions.test(a.$data.StringProp, ""a"") + await dotvvm.staticCommandPostback(""XXXX"", [a.$data.StringProp.state], options)).StringProp();
+}(ko.contextFor(this)))";
 
             AreEqual(control, result);
         }
@@ -315,15 +287,11 @@ namespace DotVVM.Framework.Tests.Binding
 
             var result = CompileBinding("_control.Save()", niceMode: true, new[] { typeof(object) }, typeof(Command), typeof(TestMarkupControl));
 
+            Console.WriteLine(result);
             var expectedResult = @"
-(function(a) {
-	return new Promise(function(resolve, reject) {
-		Promise.resolve(a.$control.Save.state()).then(function(r_0) {
-			resolve(r_0);
-		}, reject);
-	});
-}(ko.contextFor(this)))
-";
+(async function(a) {
+	return await Promise.resolve(a.$control.Save.state());
+}(ko.contextFor(this)))";
 
             AreEqual(expectedResult, result);
         }
@@ -335,17 +303,11 @@ namespace DotVVM.Framework.Tests.Binding
 
             var result = CompileBinding("injectedService.Load(_control.Load())", niceMode: true, new[] { typeof(object) }, typeof(Command), typeof(TestMarkupControl));
 
+            Console.WriteLine(result);
             var expectedResult = @"
-(function(a, b) {
-	return new Promise(function(resolve, reject) {
-		Promise.resolve(a.$control.Load.state()).then(function(r_0) {
-			dotvvm.staticCommandPostback(b, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [r_0], options).then(function(r_1) {
-				resolve(r_1);
-			}, reject);
-		}, reject);
-	});
-}(ko.contextFor(this), this))
-";
+(async function(a) {
+	return await dotvvm.staticCommandPostback(""XXXX"", [await Promise.resolve(a.$control.Load.state())], options);
+}(ko.contextFor(this)))";
 
             AreEqual(expectedResult, result);
         }
@@ -357,19 +319,11 @@ namespace DotVVM.Framework.Tests.Binding
 
             var result = CompileBinding("StringProp = _control.Change(StringProp) + injectedService.Load(StringProp)", niceMode: true, new[] { typeof(TestViewModel) }, typeof(Command), typeof(TestMarkupControl));
 
+            Console.WriteLine(result);
             var expectedResult = @"
-(function(a, c, b) {
-	return new Promise(function(resolve, reject) {
-		(
-			b = dotvvm.staticCommandPostback(a, ""WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJMb2FkIixbXSwiQVFBPSJd"", [c.$data.StringProp.state], options) ,
-			Promise.resolve(c.$control.Change.state(c.$data.StringProp.state)).then(function(r_0) {
-				b.then(function(r_1) {
-					resolve(c.$data.StringProp(r_0 + r_1).StringProp());
-				}, reject);
-			}, reject)
-		);
-	});
-}(this, ko.contextFor(this)))";
+(async function(a) {
+	return a.$data.StringProp(await Promise.resolve(a.$control.Change.state(a.$data.StringProp.state)) + await dotvvm.staticCommandPostback(""XXXX"", [a.$data.StringProp.state], options)).StringProp();
+}(ko.contextFor(this)))";
 
             AreEqual(expectedResult, result);
         }
@@ -381,16 +335,17 @@ namespace DotVVM.Framework.Tests.Binding
 
             var result = CompileBinding("StringProp = VmArray.Where(x => x.ChildObject.SomeString == 'x').FirstOrDefault().SomeString", niceMode: true, new[] { typeof(TestViewModel) }, typeof(Command));
 
-            var expectedReslt = @"
+            Console.WriteLine(result);
+            var expectedResult = @"
  (function(a) {
- 	return Promise.resolve(a.$data.StringProp(dotvvm.translations.array.firstOrDefault(a.$data.VmArray.state.filter(function(x) {
+ 	return a.$data.StringProp(dotvvm.translations.array.firstOrDefault(a.$data.VmArray.state.filter(function(x) {
  		return ko.unwrap(x).ChildObject.SomeString == ""x"";
  	}), function(arg) {
  		return true;
- 	}).SomeString).StringProp());
+ 	}).SomeString).StringProp();
  }(ko.contextFor(this)))";
 
-            AreEqual(expectedReslt, result);
+            AreEqual(expectedResult, result);
         }
 
         public void AreEqual(string expected, string actual)
