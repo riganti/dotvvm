@@ -99,7 +99,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var rewriter = new TaskSequenceRewriterExpressionVisitor();
             expression = rewriter.Visit(expression);
 
-            var jsExpression = javascriptTranslator.CompileToJavascript(expression, dataContext, preferUsingState: true);
+            var jsExpression = javascriptTranslator.CompileToJavascript(expression, dataContext, preferUsingState: true, isRootAsync: true);
             return (JsExpression)jsExpression.AssignParameters(symbol =>
                 symbol == JavascriptTranslator.KnockoutContextParameter ? currentContextVariable.ToExpression() :
                 symbol == JavascriptTranslator.KnockoutViewModelParameter ? currentContextVariable.ToExpression().Member("$data") :

@@ -68,14 +68,28 @@ namespace DotVVM.Framework.Compilation.Javascript
                         : default
                 );
             }
-            JsNode iife = new JsFunctionExpression(namedGroups.OrderBy(g => !g.vars.Any(v => v.Initializer != null)).Select(g => new JsIdentifier(g.name)),
+            var wrapperFunction = new JsFunctionExpression(namedGroups.OrderBy(g => !g.vars.Any(v => v.Initializer != null)).Select(g => new JsIdentifier(g.name)),
                 node is JsBlockStatement block ? block :
                 node is JsStatement statement ? new JsBlockStatement(statement) :
                 node is JsExpression expression ? new JsBlockStatement(new JsReturnStatement(expression)) :
-                throw new Exception()).Invoke(namedGroups.Select(g => g.vars.SingleOrDefault(v => v.Initializer != null)?.Initializer).Where(v => v != null));
-            if (node is JsStatement) iife = new JsExpressionStatement((JsExpression)iife);
-            return iife;
+                throw new Exception());
+            var iife = wrapperFunction.Invoke(namedGroups.Select(g => g.vars.SingleOrDefault(v => v.Initializer != null)?.Initializer).Where(v => v != null));
+
+            if (ContainsAwait(node))
+            {
+                wrapperFunction.IsAsync = true;
+                iife.AddAnnotation(new ResultIsPromiseAnnotation(e => e));
+            }
+
+            if (node is JsStatement)
+                return new JsExpressionStatement((JsExpression)iife);
+            else
+                return iife;
         }
+
+        static bool ContainsAwait(JsNode node) =>
+            node.DescendantNodesAndSelf(child => !(child is JsFunctionExpression))
+                .Any(child => child is JsUnaryExpression { Operator: UnaryOperatorType.Await });
 
         public static IEnumerable<string> GetNames(string baseName = null)
         {
