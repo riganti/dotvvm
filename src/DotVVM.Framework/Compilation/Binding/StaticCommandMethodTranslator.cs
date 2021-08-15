@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Compilation.Binding
             );
 
             return new JsIdentifierExpression("dotvvm").Member("staticCommandPostback")
-                .Invoke(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter), new JsLiteral(encryptedPlan), new JsArrayExpression(args), new JsSymbolicParameter(CommandBindingExpression.PostbackOptionsParameter))
+                .Invoke(new JsLiteral(encryptedPlan), new JsArrayExpression(args), new JsSymbolicParameter(CommandBindingExpression.PostbackOptionsParameter))
                 .WithAnnotation(new StaticCommandInvocationJsAnnotation(plan))
                 .WithAnnotation(new ResultIsPromiseAnnotation(e => e, resultTypeAnn))
                 .WithAnnotation(resultTypeAnn);
