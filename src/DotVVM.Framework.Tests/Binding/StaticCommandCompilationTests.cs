@@ -290,7 +290,7 @@ namespace DotVVM.Framework.Tests.Binding
             Console.WriteLine(result);
             var expectedResult = @"
 (async function(a) {
-	return await Promise.resolve(a.$control.Save.state());
+	return await a.$control.Save.state();
 }(ko.contextFor(this)))";
 
             AreEqual(expectedResult, result);
@@ -306,7 +306,7 @@ namespace DotVVM.Framework.Tests.Binding
             Console.WriteLine(result);
             var expectedResult = @"
 (async function(a) {
-	return await dotvvm.staticCommandPostback(""XXXX"", [await Promise.resolve(a.$control.Load.state())], options);
+	return await dotvvm.staticCommandPostback(""XXXX"", [await a.$control.Load.state()], options);
 }(ko.contextFor(this)))";
 
             AreEqual(expectedResult, result);
@@ -322,7 +322,7 @@ namespace DotVVM.Framework.Tests.Binding
             Console.WriteLine(result);
             var expectedResult = @"
 (async function(a) {
-	return a.$data.StringProp(await Promise.resolve(a.$control.Change.state(a.$data.StringProp.state)) + await dotvvm.staticCommandPostback(""XXXX"", [a.$data.StringProp.state], options)).StringProp();
+	return a.$data.StringProp(await a.$control.Change.state(a.$data.StringProp.state) + await dotvvm.staticCommandPostback(""XXXX"", [a.$data.StringProp.state], options)).StringProp();
 }(ko.contextFor(this)))";
 
             AreEqual(expectedResult, result);

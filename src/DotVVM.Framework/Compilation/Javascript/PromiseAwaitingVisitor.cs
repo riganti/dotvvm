@@ -16,17 +16,22 @@ namespace DotVVM.Framework.Compilation.Javascript
             this.isRootAsync = isRootAsync;
         }
 
-        void AssertIsInAsyncFunction(JsExpression expression)
+        bool AssertIsInAsyncFunction(JsExpression expression, bool onlyCheck)
         {
             var parentFunction = expression.Ancestors.OfType<JsFunctionExpression>().FirstOrDefault();
             if (parentFunction is null && !isRootAsync)
             {
+                if (onlyCheck)
+                    return false;
                 throw new Exception($"Can not use async expression in synchronous context. The expression: {expression.FormatScript(isDebugString: true)}");
             }
             if (parentFunction is { IsAsync: false })
             {
+                if (onlyCheck)
+                    return false;
                 throw new Exception($"Can not use async expression in non-async function. The expression: {expression.FormatScript(isDebugString: true)}; The function: {parentFunction.FormatScript(isDebugString: true)}");
             }
+            return true;
         }
 
         protected override void DefaultVisit(JsNode node)
@@ -41,12 +46,18 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             if (expr.Annotation<ResultIsPromiseAnnotation>() is {
                     GetPromiseFromExpression: var getPromise,
-                    ResultAnnotations: var resultAnnotations
+                    ResultAnnotations: var resultAnnotations,
+                    IsOptionalAwait: var isOptionalAwait,
+                    IsPromiseGetterOptional: var isGetterOptional
                 } && !IsAlreadyAwaited(expr))
             {
-                AssertIsInAsyncFunction(expr);
+                if (isGetterOptional)
+                    getPromise = e => e;
 
-                expr.ReplaceWith(e => AddAnnotations(getPromise(e).Await().WithAnnotations(resultAnnotations), expr));
+                if (AssertIsInAsyncFunction(expr, onlyCheck: isOptionalAwait))
+                {
+                    expr.ReplaceWith(e => AddAnnotations(getPromise(e).Await().WithAnnotations(resultAnnotations), expr));
+                }
             }
         }
 

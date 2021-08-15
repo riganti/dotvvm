@@ -29,7 +29,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             {
                 var invocationTargetExpressionCall = context.JsExpression().Invoke(arguments.Select(a => a.JsExpression()));
                 return invocationTargetExpressionCall
-                    .WithAnnotation(new ResultIsPromiseAnnotation(a=> new JsIdentifierExpression("Promise").Member("resolve").Invoke(a)));
+                    .WithAnnotation(new ResultIsPromiseAnnotation(a => new JsIdentifierExpression("Promise").Member("resolve").Invoke(a)) {
+                        // If the delegate is called from value binding, just don't await and hope for the best
+                        IsOptionalAwait = true,
+                        // Promise.resolve is not needed when doing `await X`
+                        IsPromiseGetterOptional = true
+                    });
             }
             return null;
         }
