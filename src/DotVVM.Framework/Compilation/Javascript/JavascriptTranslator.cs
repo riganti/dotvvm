@@ -86,6 +86,11 @@ namespace DotVVM.Framework.Compilation.Javascript
             this.DefaultMethodTranslator = config.Value;
             this.mapper = serializationMapper;
         }
+        public JavascriptTranslator(IJavascriptMethodTranslator config, IViewModelSerializationMapper serializationMapper)
+        {
+            this.DefaultMethodTranslator = config;
+            this.mapper = serializationMapper;
+        }
 
         public JsExpression TryTranslateMethodCall(Expression context, Expression[] arguments, MethodInfo method, DataContextStack dataContext)
         {

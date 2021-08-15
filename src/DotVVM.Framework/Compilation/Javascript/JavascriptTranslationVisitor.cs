@@ -388,6 +388,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 .WithAnnotation(new ViewModelInfoAnnotation(propInfo.GetResultType()));
 
         public JsExpression TryTranslateMethodCall(MethodInfo methodInfo, Expression target, IEnumerable<Expression> arguments) =>
+            methodInfo is null ? null :
             Translator.TryTranslateCall(
                 new LazyTranslatedExpression(target, Translate),
                 arguments.Select(a => new LazyTranslatedExpression(a, Translate)).ToArray(),

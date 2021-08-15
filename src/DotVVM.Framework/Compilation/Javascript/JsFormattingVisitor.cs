@@ -335,6 +335,10 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public void VisitFunctionExpression(JsFunctionExpression functionExpression)
         {
+            if (functionExpression.IsAsync)
+            {
+                Emit("async ");
+            }
             EmitOperator("function(", allowCosmeticSpace: false);
             var first = true;
             foreach (var item in functionExpression.Parameters)
