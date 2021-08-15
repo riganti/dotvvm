@@ -110,5 +110,23 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
             Assert.AreEqual("{a:{c:2},baa:null}", expr.FormatScript());
             Assert.AreEqual("{\n\ta: {c: 2},\n\tbaa: null\n}", expr.FormatScript(niceMode: true));
         }
+        [TestMethod]
+        public void JsFormatter_Await()
+        {
+            var expr = new JsIdentifierExpression("a").Await().Member("x");
+            Assert.AreEqual("(await a).x", expr.FormatScript(niceMode: false));
+            Assert.AreEqual("(await a).x", expr.FormatScript(niceMode: true));
+        }
+        [TestMethod]
+        public void JsFormatter_AsyncFunction()
+        {
+            var expr = new JsFunctionExpression(
+                new JsIdentifier[0],
+                new JsIdentifierExpression("a").Await().Member("x").Return().AsBlock(),
+                isAsync: true
+            );
+            Assert.AreEqual("async function(){return (await a).x;}", expr.FormatScript(niceMode: false));
+            Assert.AreEqual("async function() {\n\treturn (await a).x;\n}", expr.FormatScript(niceMode: true));
+        }
     }
 }
