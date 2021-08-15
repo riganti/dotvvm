@@ -168,7 +168,28 @@ namespace DotVVM.Framework.Controls
 
             if (generatedPostbackHandlers == null && options.AllowPostbackHandlers)
             {
-                return $"dotvvm.applyPostbackHandlers((options)=>{call},{options.ElementAccessor.Code!.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()},{commandArgsString},undefined,undefined,{SubstituteArguments(abortSignal.Code!)})";
+                var args = new List<string> {
+                    SubstituteArguments(options.ElementAccessor.Code!),
+                    getHandlerScript(),
+                    commandArgsString,
+                    "undefined",
+                    "undefined",
+                    SubstituteArguments(abortSignal.Code!)
+                };
+
+                // remove default values to reduce mess in generated HTML :)
+                if (args.Last() == "undefined")
+                {
+                    args.RemoveRange(3, 3);
+                    if (args.Last() == "[]")
+                    {
+                        args.RemoveAt(2);
+                        if (args.Last() == "[]")
+                            args.RemoveAt(1);
+                    }
+                }
+
+                return $"dotvvm.applyPostbackHandlers((options)=>{call},{string.Join(",", args)})";
             }
             else return call;
 
