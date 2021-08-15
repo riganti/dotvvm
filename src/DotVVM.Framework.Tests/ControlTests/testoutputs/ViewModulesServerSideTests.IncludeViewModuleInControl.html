@@ -28,9 +28,9 @@
 		<div>
 			<!-- ko dotvvm-with-control-properties: {  } -->
 			<!-- ko dotvvm-with-view-modules: { viewIdOrElement: $element, modules: ["controlModule"] } -->
-			<input type="button" value="" onclick="dotvvm.applyPostbackHandlers(function(options){return (function(a) {
+			<input type="button" value="" onclick="dotvvm.applyPostbackHandlers((options)=>(function(a) {
 	return dotvvm.viewModules.call(a, &quot;name&quot;, [1]);
-}(this))}.bind(this),this,[],[],undefined,undefined,undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">
+}(this)),this,[],[],undefined,undefined,undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">
 			<!-- /ko -->
 			<!-- /ko -->
 		</div>
@@ -38,9 +38,9 @@
 			<div>
 				<!-- ko dotvvm-with-control-properties: {  } -->
 				<!-- ko dotvvm-with-view-modules: { viewIdOrElement: $element, modules: ["controlModule"] } -->
-				<input type="button" value="" onclick="dotvvm.applyPostbackHandlers(function(options){return (function(a) {
+				<input type="button" value="" onclick="dotvvm.applyPostbackHandlers((options)=>(function(a) {
 	return dotvvm.viewModules.call(a, &quot;name&quot;, [1]);
-}(this))}.bind(this),this,[],[],undefined,undefined,undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">
+}(this)),this,[],[],undefined,undefined,undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">
 				<!-- /ko -->
 				<!-- /ko -->
 			</div>

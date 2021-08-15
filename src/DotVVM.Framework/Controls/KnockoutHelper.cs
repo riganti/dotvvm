@@ -168,7 +168,7 @@ namespace DotVVM.Framework.Controls
 
             if (generatedPostbackHandlers == null && options.AllowPostbackHandlers)
             {
-                return $"dotvvm.applyPostbackHandlers(function(options){{return {call}}}.bind(this),{options.ElementAccessor.Code!.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()},{commandArgsString},undefined,undefined,{SubstituteArguments(abortSignal.Code!)})";
+                return $"dotvvm.applyPostbackHandlers((options)=>{call},{options.ElementAccessor.Code!.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()},{commandArgsString},undefined,undefined,{SubstituteArguments(abortSignal.Code!)})";
             }
             else return call;
 

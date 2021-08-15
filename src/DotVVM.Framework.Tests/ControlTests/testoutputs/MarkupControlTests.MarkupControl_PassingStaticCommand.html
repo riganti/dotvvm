@@ -4,23 +4,23 @@
 		
 		<!-- ko with: int -->
 		<div>
-			<!-- ko dotvvm-with-control-properties: { "Click": function(){return dotvvm.applyPostbackHandlers(function(options){return (async function(a, b) {
+			<!-- ko dotvvm-with-control-properties: { "Click": function(){return dotvvm.applyPostbackHandlers((options)=>(async function(a, b) {
 	return await dotvvm.staticCommandPostback(a, "WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSwiQVFBPSJd", [b.$parent.int.state], options);
-}($element, ko.contextFor($element)))}.bind(this),$element,[],[],undefined,undefined,undefined)} } -->
-			<input type="button" value="" onclick="dotvvm.applyPostbackHandlers(function(options){return (async function(a, b) {
+}($element, ko.contextFor($element))),$element,[],[],undefined,undefined,undefined)} } -->
+			<input type="button" value="" onclick="dotvvm.applyPostbackHandlers((options)=>(async function(a, b) {
 	return await Promise.resolve((b = a.$control.Click.state) &amp;&amp; b());
-}(ko.contextFor(this)))}.bind(this),this,[],[],undefined,undefined,undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">
+}(ko.contextFor(this))),this,[],[],undefined,undefined,undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">
 			<!-- /ko -->
 		</div>
 		<!-- /ko -->
 		<div data-bind="foreach: { &quot;data&quot;: Collection }">
 			<div>
-				<!-- ko dotvvm-with-control-properties: { "Click": function(){return dotvvm.applyPostbackHandlers(function(options){return (async function(a, b) {
+				<!-- ko dotvvm-with-control-properties: { "Click": function(){return dotvvm.applyPostbackHandlers((options)=>(async function(a, b) {
 	return await dotvvm.staticCommandPostback(a, "WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSwiQVFBPSJd", [b.$rawData.state], options);
-}($element, ko.contextFor($element)))}.bind(this),$element,[],[],undefined,undefined,undefined)} } -->
-				<input type="button" value="" onclick="dotvvm.applyPostbackHandlers(function(options){return (async function(a, b) {
+}($element, ko.contextFor($element))),$element,[],[],undefined,undefined,undefined)} } -->
+				<input type="button" value="" onclick="dotvvm.applyPostbackHandlers((options)=>(async function(a, b) {
 	return await Promise.resolve((b = a.$control.Click.state) &amp;&amp; b());
-}(ko.contextFor(this)))}.bind(this),this,[],[],undefined,undefined,undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">
+}(ko.contextFor(this))),this,[],[],undefined,undefined,undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">
 				<!-- /ko -->
 			</div>
 		</div>
