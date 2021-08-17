@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
@@ -29,8 +30,13 @@ namespace DotVVM.Framework.Compilation.Javascript
                     foreach (var parameter in symExpr.EnumerateAllSymbols().OfType<JsTemporaryVariableParameter>())
                     {
                         if (allVariables.TryGetValue(parameter, out var currentInterval))
+                        {
                             allVariables[parameter] = (Math.Min(currentInterval.from, eulerPath.IndexOf((symExpr, true))), Math.Max(currentInterval.to, eulerPath.IndexOf((symExpr, false))));
-                        else allVariables.Add(parameter, (parameter.Initializer == null ? eulerPath.IndexOf((symExpr, true)) : 0, eulerPath.IndexOf((symExpr, false))));
+                        }
+                        else
+                        {
+                            allVariables.Add(parameter, (parameter.Initializer == null ? eulerPath.IndexOf((symExpr, true)) : 0, eulerPath.IndexOf((symExpr, false))));
+                        }
                     }
                 }
                 if (n is JsIdentifierExpression identifierExpression)
@@ -39,11 +45,24 @@ namespace DotVVM.Framework.Compilation.Javascript
                 }
             }
 
+            // inline variables which occur just once
+            foreach (var v in allVariables.Keys.ToArray())
+            {
+                var count = node.DescendantNodesAndSelf()
+                    .OfType<JsSymbolicParameter>()
+                    .SelectMany(s => s.EnumerateAllSymbols())
+                    .OfType<JsTemporaryVariableParameter>()
+                    .Count(p => p == v);
+                Debug.Assert(count >= 1);
+                if (count == 1 && v.AllowInlining)
+                {
+                    node = node.AssignParameters(p => p == v ? v.Initializer.Clone() : null);
+                    allVariables.Remove(v);
+                }
+            }
+
             if (allVariables.Count == 0) return node;
 
-            // TODO a?(b = 5 && b + 2):a
-            // a + a + (b)
-            //bool intersects(JsTemporaryVariableParameter a, JsTemporaryVariableParameter b) =>
             var groups = new SortedDictionary<int, List<JsTemporaryVariableParameter>>();
             foreach (var k in allVariables.OrderBy(k => k.Value.from))
             {
@@ -59,7 +78,16 @@ namespace DotVVM.Framework.Compilation.Javascript
                 }
             }
 
-            var namedGroups = groups.Zip(GetNames().Where(n => !usedNames.Contains(n)), (g, name) => (vars: g.Value, name: name)).ToArray();
+            var namedGroups = groups.Zip(GetNames().Where(n => !usedNames.Contains(n)), (g, name) => {
+                var preferredName = g.Value.Select(v => v.PreferredName).FirstOrDefault(n => n is object);
+                if (preferredName is object)
+                {
+                    name = GetNames(preferredName).First(n => !usedNames.Contains(n));
+                }
+
+                usedNames.Add(name);
+                return (vars: g.Value, name: name);
+            }).ToArray();
             foreach (var group in namedGroups)
             {
                 node = node.AssignParameters(p =>
@@ -68,23 +96,28 @@ namespace DotVVM.Framework.Compilation.Javascript
                         : default
                 );
             }
-            var wrapperFunction = new JsFunctionExpression(namedGroups.OrderBy(g => !g.vars.Any(v => v.Initializer != null)).Select(g => new JsIdentifier(g.name)),
-                node is JsBlockStatement block ? block :
-                node is JsStatement statement ? new JsBlockStatement(statement) :
-                node is JsExpression expression ? new JsBlockStatement(new JsReturnStatement(expression)) :
-                throw new Exception());
-            var iife = wrapperFunction.Invoke(namedGroups.Select(g => g.vars.SingleOrDefault(v => v.Initializer != null)?.Initializer).Where(v => v != null));
+            var wrapperBlock =
+                node is JsStatement statement ? statement.AsBlock() :
+                node is JsExpression expression ? expression.Return().AsBlock() :
+                throw new Exception();
 
-            if (ContainsAwait(node))
+
+            var firstNode = wrapperBlock.Body.FirstOrNullObject();
+            foreach (var g in namedGroups)
             {
-                wrapperFunction.IsAsync = true;
-                iife.AddAnnotation(new ResultIsPromiseAnnotation(e => e));
+                var variableDef = new JsVariableDefStatement(g.name, g.vars.SingleOrDefault(v => v.Initializer != null)?.Initializer);
+                wrapperBlock.Body.InsertBefore(firstNode, variableDef);
             }
 
             if (node is JsStatement)
-                return new JsExpressionStatement((JsExpression)iife);
+                return wrapperBlock;
             else
+            {
+                var isAsync = ContainsAwait(node);
+                var iife = JsArrowFunctionExpression.CreateIIFE(wrapperBlock, isAsync: isAsync);
+                iife.AddAnnotation(new ResultIsPromiseAnnotation(e => e));
                 return iife;
+            }
         }
 
         static bool ContainsAwait(JsNode node) =>
@@ -118,11 +151,14 @@ namespace DotVVM.Framework.Compilation.Javascript
     {
         public JsExpression Initializer { get; }
         public string PreferredName { get; }
+        public bool AllowInlining { get; }
 
-        public JsTemporaryVariableParameter(JsExpression initializer = null)
+        public JsTemporaryVariableParameter(JsExpression initializer = null, string preferredName = null, bool allowInlining = true)
             : base("tmp_var[" + initializer?.ToString() + "]")
         {
             this.Initializer = initializer;
+            this.PreferredName = preferredName;
+            this.AllowInlining = allowInlining;
         }
     }
 }

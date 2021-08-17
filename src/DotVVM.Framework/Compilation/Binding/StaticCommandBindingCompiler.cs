@@ -90,8 +90,9 @@ namespace DotVVM.Framework.Compilation.Binding
                     defaultAssignment: new JsIdentifierExpression("ko").Member("contextFor").Invoke(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter)).FormatParametrizedScript()
                 );
 
-            var currentContextVariable = new JsTemporaryVariableParameter(knockoutContext);
-            var senderVariable = new JsTemporaryVariableParameter(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter));
+            var currentContextVariable = new JsTemporaryVariableParameter(knockoutContext, preferredName: "cx");
+            var currentViewModelVariable = new JsTemporaryVariableParameter(new JsSymbolicParameter(JavascriptTranslator.KnockoutViewModelParameter), preferredName: "vm");
+            var senderVariable = new JsTemporaryVariableParameter(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter), preferredName: "sender");
 
             var invocationRewriter = new InvocationRewriterExpressionVisitor();
             expression = invocationRewriter.Visit(expression);
@@ -102,7 +103,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var jsExpression = javascriptTranslator.CompileToJavascript(expression, dataContext, preferUsingState: true, isRootAsync: true);
             return (JsExpression)jsExpression.AssignParameters(symbol =>
                 symbol == JavascriptTranslator.KnockoutContextParameter ? currentContextVariable.ToExpression() :
-                symbol == JavascriptTranslator.KnockoutViewModelParameter ? currentContextVariable.ToExpression().Member("$data") :
+                symbol == JavascriptTranslator.KnockoutViewModelParameter ? currentViewModelVariable.ToExpression() :
                 symbol == CommandBindingExpression.SenderElementParameter ? senderVariable.ToExpression() :
                 default
             );

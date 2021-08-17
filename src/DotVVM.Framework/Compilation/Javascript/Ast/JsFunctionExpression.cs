@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsFunctionExpression: JsExpression
+    public class JsFunctionExpression: JsBaseFunctionExpression
     {
         public JsIdentifier Identifier
         {
@@ -13,27 +13,10 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             set => SetChildByRole(JsTreeRoles.Identifier, value);
         }
 
-        private bool isAsync;
-        public bool IsAsync
-        {
-            get { return isAsync; }
-            set { ThrowIfFrozen(); isAsync = value; }
-        }
-
-        public static JsTreeRole<JsIdentifier> ParametersRole = new JsTreeRole<JsIdentifier>("Parameters");
-        public JsNodeCollection<JsIdentifier> Parameters => new JsNodeCollection<JsIdentifier>(this, ParametersRole);
-
         public string IdentifierName
         {
             get => Identifier?.Name;
             set => Identifier = new JsIdentifier(value);
-        }
-
-        public static JsTreeRole<JsBlockStatement> BlockRole = new JsTreeRole<JsBlockStatement>("Block");
-        public JsBlockStatement Block
-        {
-            get => GetChildByRole(BlockRole);
-            set => SetChildByRole(BlockRole, value);
         }
 
         public JsFunctionExpression(IEnumerable<JsIdentifier> parameters, JsBlockStatement bodyBlock, JsIdentifier name = null, bool isAsync = false)
@@ -45,14 +28,5 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         }
 
         public override void AcceptVisitor(IJsNodeVisitor visitor) => visitor.VisitFunctionExpression(this);
-
-        public static JsExpression CreateIIFE(JsBlockStatement block, IEnumerable<(string name, JsExpression initExpression)> parameters = null)
-        {
-            if (parameters == null) parameters = Enumerable.Empty<(string, JsExpression)>();
-            return new JsFunctionExpression(
-                parameters.Select(p => new JsIdentifier(p.name)),
-                block
-            ).Invoke(parameters.Select(p => p.initExpression));
-        }
     }
 }

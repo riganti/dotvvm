@@ -108,17 +108,13 @@ namespace DotVVM.Framework.Compilation.Javascript
         public JsExpression TranslateLambda(LambdaExpression expression)
         {
             var args = expression.Parameters.Select(p => new CodeSymbolicParameter($"lambda_param_" + p.Name)).ToArray();
-            var (body, additionalVariables, additionalVarNames) = TranslateLambdaBody(ReplaceVariables(expression.Body, expression.Parameters, args));
+            var body = Translate(ReplaceVariables(expression.Body, expression.Parameters, args));
             var usedNames = new HashSet<string>(body.DescendantNodesAndSelf().OfType<JsIdentifierExpression>().Select(i => i.Identifier));
             var argsNames = expression.Parameters.Select(p => JsTemporaryVariableResolver.GetNames(p.Name).First(usedNames.Add)).ToArray();
-            additionalVarNames = additionalVarNames.Select(p => JsTemporaryVariableResolver.GetNames(p).First(usedNames.Add)).ToArray();
 
-            var functionExpr = new JsFunctionExpression(
-                argsNames.Concat(additionalVarNames).Select(n => new JsIdentifier(n)),
-                body is JsBlockStatement block ? block :
-                body is JsStatement statement ? new JsBlockStatement(statement) :
-                body is JsExpression bodyExpression ? new JsBlockStatement(new JsReturnStatement(bodyExpression)) :
-                throw new NotSupportedException()
+            var functionExpr = new JsArrowFunctionExpression(
+                argsNames.Select(n => new JsIdentifier(n)),
+                body
             );
 
             foreach (var symArg in body.DescendantNodesAndSelf().OfType<JsSymbolicParameter>())
@@ -131,46 +127,21 @@ namespace DotVVM.Framework.Compilation.Javascript
                             .WithAnnotations(symArg.Annotations)
                             .WithAnnotation(ResultMayBeObservableAnnotation.Instance, append: false));
                 }
-                aIndex = Array.IndexOf(additionalVariables, symArg.Symbol);
-                if (aIndex >= 0)
-                {
-                    symArg.ReplaceWith(new JsIdentifierExpression(additionalVarNames[aIndex]));
-                }
             }
 
             return functionExpr;
         }
 
-        (JsNode node, object[] variables, string[] variableNames) TranslateLambdaBody(Expression expression)
+        public JsExpression TranslateBlock(BlockExpression block)
         {
-            if (expression is BlockExpression block)
-            {
-                var args = block.Variables.Select(_ => new CodeSymbolicParameter()).ToArray();
-                var expressions = block.Expressions.Select(s => Translate(ReplaceVariables(s, block.Variables, args))).ToArray();
-                return (
-                    new JsBlockStatement(
-                        expressions.Take(expressions.Length - 1).Select(e => (JsStatement)new JsExpressionStatement(e)).Concat(new[] { new JsReturnStatement(expressions.Last()) }).ToArray()
-                    ),
-                    args,
-                    block.Variables.Select(a => a.Name).ToArray()
-                );
-            }
-            else return (Translate(expression), new object[0], new string[0]);
-        }
+            if (block.Expressions.Count == 0)
+                return new JsLiteral(0).Unary(UnaryOperatorType.Void);
 
-        public JsExpression TranslateBlock(BlockExpression expression)
-        {
-            if (expression.Variables.Any())
-            {
-                return TranslateLambda(Expression.Lambda(expression)).Invoke();
-            }
-            else
-            {
-                var body = expression.Expressions;
-                if (body.Count == 1) return Translate(body[0]);
-                return body.Select(Translate).Aggregate(
-                    (a, b) => (JsExpression)new JsBinaryExpression(a, BinaryOperatorType.Sequence, b));
-            }
+            var vars = block.Variables.Select(v => new JsTemporaryVariableParameter(preferredName: v.Name)).ToArray();
+            var body = block.Expressions.Select(s => Translate(ReplaceVariables(s, block.Variables, vars))).ToArray();
+            if (body.Length == 1) return body[0];
+            return body.Aggregate(
+                (a, b) => (JsExpression)new JsBinaryExpression(a, BinaryOperatorType.Sequence, b));
         }
 
         public JsExpression TranslateAssign(BinaryExpression expression)

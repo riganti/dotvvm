@@ -33,6 +33,7 @@ type PostbackOptions = {
     readonly args: any[]
     readonly sender?: HTMLElement
     readonly viewModel?: any
+    readonly knockoutContext?: any
     serverResponseObject?: any
     validationTargetPath?: string,
     abortSignal?: AbortSignal

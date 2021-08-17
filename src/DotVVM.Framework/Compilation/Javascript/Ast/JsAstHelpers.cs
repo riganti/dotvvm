@@ -32,6 +32,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public static JsReturnStatement Return(this JsExpression expr) =>
             new JsReturnStatement(expr);
         public static JsBlockStatement AsBlock(this JsStatement statement) =>
+            statement is JsBlockStatement block ? block :
             new JsBlockStatement(statement);
         public static JsBlockStatement AsBlock(this IEnumerable<JsStatement> statements) =>
             new JsBlockStatement(statements);
@@ -180,9 +181,9 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             else if (expression.SatisfyResultCondition(n => n.HasAnnotation<ResultIsObservableAnnotation>()))
             {
                 var arguments = new List<JsExpression>(2) {
-                    new JsFunctionExpression(
-                        parameters: Enumerable.Empty<JsIdentifier>(),
-                        bodyBlock: new JsBlockStatement(new JsReturnStatement(expression.WithAnnotation(ShouldBeObservableAnnotation.Instance)))
+                    new JsArrowFunctionExpression(
+                        Enumerable.Empty<JsIdentifier>(),
+                        expression.WithAnnotation(ShouldBeObservableAnnotation.Instance)
                     )
                 };
 
@@ -197,9 +198,9 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             }
             else
             {
-                return new JsIdentifierExpression("ko").Member("pureComputed").Invoke(new JsFunctionExpression(
-                        parameters: Enumerable.Empty<JsIdentifier>(),
-                        bodyBlock: new JsBlockStatement(new JsReturnStatement(expression))
+                return new JsIdentifierExpression("ko").Member("pureComputed").Invoke(new JsArrowFunctionExpression(
+                        Enumerable.Empty<JsIdentifier>(),
+                        expression
                     ))
                     .WithAnnotation(ResultIsObservableAnnotation.Instance)
                     .WithAnnotation(ShouldBeObservableAnnotation.Instance);
