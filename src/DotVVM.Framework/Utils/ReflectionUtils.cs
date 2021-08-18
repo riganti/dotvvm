@@ -375,8 +375,12 @@ namespace DotVVM.Framework.Utils
         {
             if (type.IsGenericType && typeof(Task<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
                 return type.GetGenericArguments()[0];
-            else if (typeof(Task).IsAssignableFrom(type)) 
+            else if (typeof(Task).IsAssignableFrom(type))
                 return typeof(void);
+#if NETSTANDARD2_1
+            else if (type.IsGenericType && typeof(ValueTask<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
+                return type.GetGenericArguments()[0];
+#endif
             else
                 return type;
         }
