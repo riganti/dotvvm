@@ -42,9 +42,9 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation
         }
 
     }
-    public class JavascriptTranslationInnerTestModel<Tmodel>
+    public class JavascriptTranslationInnerTestModel<TModel>
     {
-        public Tmodel Value { get; set; }
+        public TModel Value { get; set; }
     }
     public static class JavascriptTranslationTestMethods
     {

@@ -112,12 +112,12 @@ namespace DotVVM.Framework.Compilation
                 }
                 return expr;
             }
+            if (IsImmutableObject(type))
+                return EmitValueReference(value);
             if (type.IsArray || typeof(System.Collections.IEnumerable).IsAssignableFrom(type))
             {
                 return EmitCreateArray(ReflectionUtils.GetEnumerableType(type), (System.Collections.IEnumerable)value);
             }
-            if (IsImmutableObject(type))
-                return EmitValueReference(value);
             throw new NotSupportedException($"Emitting value of type '{value.GetType().FullName}' is not supported.");
         }
 
@@ -234,8 +234,8 @@ namespace DotVVM.Framework.Compilation
         private static Type[] ImmutableContainers = new [] {
             typeof(ImmutableArray<>), typeof(ImmutableList<>), typeof(ImmutableDictionary<,>), typeof(ImmutableHashSet<>), typeof(ImmutableQueue<>), typeof(ImmutableSortedDictionary<,>), typeof(ImmutableSortedSet<>), typeof(ImmutableStack<>)
         };
-        private static Func<Type, bool> IsImmutableObject =
-            t => typeof(IBinding).IsAssignableFrom(t)
+        internal static bool IsImmutableObject(Type t) =>
+            typeof(IBinding).IsAssignableFrom(t)
               || t.GetCustomAttribute<HandleAsImmutableObjectInDotvvmPropertyAttribute>() is object
               || t.IsGenericType && ImmutableContainers.Contains(t.GetGenericTypeDefinition()) && t.GenericTypeArguments.All(IsImmutableObject);
         private static int _viewObjectsCount = 0;

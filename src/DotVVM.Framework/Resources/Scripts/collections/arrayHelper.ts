@@ -66,9 +66,10 @@ function distinct<T>(array: T[]): T[] {
 }
 
 function firstOrDefault<T>(array: T[], predicate: (s: T) => boolean): T | null {
-    for (let i = 0; i < array.length; i++) {
-        if (predicate(array[i])) {
-            return array[i];
+    for (const item of array) {
+        const itemUnwrapped = ko.unwrap(item)
+        if (predicate(itemUnwrapped)) {
+            return itemUnwrapped
         }
     }
     return null;
@@ -88,8 +89,9 @@ function insertRange<T>(observable: any, index: number, elements: T[]): void {
 
 function lastOrDefault<T>(array: T[], predicate: (s: T) => boolean): T | null {
     for (let i = array.length - 1; i >= 0; i--) {
-        if (predicate(array[i])) {
-            return array[i];
+        const itemUnwrapped = ko.unwrap(array[i])
+        if (predicate(itemUnwrapped)) {
+            return itemUnwrapped
         }
     }
     return null;

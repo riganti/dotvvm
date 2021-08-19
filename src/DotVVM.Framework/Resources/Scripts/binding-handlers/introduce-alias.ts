@@ -1,4 +1,5 @@
 import { deserialize } from '../serialization/deserialize'
+import { unmapKnockoutObservables } from '../state-manager';
 import { logWarning } from '../utils/logging';
 import { keys } from '../utils/objects';
 
@@ -22,7 +23,10 @@ function createWrapperComputed<T>(accessor: () => KnockoutObservable<T> | T, pro
     });
     computed["wrappedProperty"] = accessor;
     Object.defineProperty(computed, "state", {
-        get: () => (accessor() as any || {})["state"],
+        get: () => {
+            const x = (accessor() as any || {})
+            return x.state ?? unmapKnockoutObservables(x)
+        },
         configurable: false,
         enumerable: false
     })

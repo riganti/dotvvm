@@ -8,6 +8,7 @@ using DotVVM.Framework.Compilation.Parser;
 using System.Globalization;
 using System.Text;
 using System.Diagnostics;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -80,16 +81,13 @@ namespace DotVVM.Framework.ResourceManagement
         /// <returns>Resource ID</returns>
         public string AddTemplateResource(string template)
         {
-            using (var sha = System.Security.Cryptography.SHA256.Create())
+            var resourceId = HashUtils.HashAndBase64Encode(Encoding.Unicode.GetBytes(template));
+            if (!requiredResources.ContainsKey(resourceId))
             {
-                var resourceId = Convert.ToBase64String(sha.ComputeHash(Encoding.Unicode.GetBytes(template)));
-                if (!requiredResources.ContainsKey(resourceId))
-                {
-                    AddRequiredResource(resourceId, new TemplateResource(template));
-                }
-
-                return resourceId;
+                AddRequiredResource(resourceId, new TemplateResource(template));
             }
+
+            return resourceId;
         }
         /// <summary>
         /// Adds the resource with unique name.
@@ -156,7 +154,7 @@ namespace DotVVM.Framework.ResourceManagement
             });
         }
 
-        bool IsDeferred(string name) => this.FindResource(name) is IDeferableResource r && r.Defer;
+        bool IsDeferred(string name) => this.FindResource(name) is IDeferrableResource r && r.Defer;
 
         /// <summary>
         /// Adds the specified piece of javascript that will be executed when the page is loaded.

@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Configuration
             var BuildServiceProviderMethod = t.GetMethod(nameof(BuildServiceProvider), new Type[] { typeof(IServiceCollection) });
             Debug.Assert(BuildServiceProviderMethod != null);
 
-            return (IServiceProvider)BuildServiceProviderMethod.Invoke(null, new[] { services }).NotNull();
+            return (IServiceProvider)BuildServiceProviderMethod!.Invoke(null, new[] { services }).NotNull();
         }
     }
 }

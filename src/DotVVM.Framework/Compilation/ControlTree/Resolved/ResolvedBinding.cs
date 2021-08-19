@@ -65,5 +65,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public override void AcceptChildren(IResolvedControlTreeVisitor visitor)
         {
         }
+
+        public override string ToString() => Binding.ToString();
     }
 }

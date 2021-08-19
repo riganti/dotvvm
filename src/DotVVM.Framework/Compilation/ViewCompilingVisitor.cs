@@ -90,17 +90,10 @@ namespace DotVVM.Framework.Compilation
             emitter.PopMethod();
         }
 
-        private TypeSyntax ResolveTypeSyntax(string typeName)
-        {
-            return ReflectionUtils.IsFullName(typeName)
-                ? emitter.ParseTypeName(compiledAssemblyCache.FindType(typeName))
-                : SyntaxFactory.ParseTypeName(typeName);
-        }
-
         protected string EmitCreateControl(Type type, object[] arguments)
         {
             // if marked with [RequireDependencyInjection] attribute, invoke injected factory
-            if (type.GetTypeInfo().GetCustomAttribute(typeof(DependencyInjection.RequireDependencyInjectionAttribute)) is DependencyInjection.RequireDependencyInjectionAttribute requireDiAttr)
+            if (type.GetCustomAttribute(typeof(DependencyInjection.RequireDependencyInjectionAttribute)) is DependencyInjection.RequireDependencyInjectionAttribute requireDiAttr)
                 return emitter.EmitCustomInjectionFactoryInvocation(requireDiAttr.FactoryType, type);
             // if matching ctor exists, invoke it directly
             else if (type.GetConstructors().FirstOrDefault(ctor =>

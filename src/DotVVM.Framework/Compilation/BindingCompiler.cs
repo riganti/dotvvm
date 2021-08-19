@@ -20,6 +20,7 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Controls;
 using System.Diagnostics;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -56,8 +57,17 @@ namespace DotVVM.Framework.Compilation
                 {
                     if (ann.ExtensionParameter != null)
                     {
-                        // T+ inherited dataContext
-                        return ann.ExtensionParameter.GetServerEquivalent(CurrentControlParameter);
+                        // handle data context hierarchy
+                        var friendlyIdentifier = $"extension parameter {ann.ExtensionParameter.Identifier}";
+                        var targetControl =
+                            ContextMap[ann.DataContext] == 0
+                                ? CurrentControlParameter
+                                : ExpressionUtils.Replace(
+                                    (DotvvmBindableObject control) => BindingHelper.FindDataContextTarget(control, ann.DataContext, friendlyIdentifier).target,
+                                    CurrentControlParameter
+                                ).OptimizeConstants();
+
+                        return ann.ExtensionParameter.GetServerEquivalent(targetControl);
                     }
                     else
                     {

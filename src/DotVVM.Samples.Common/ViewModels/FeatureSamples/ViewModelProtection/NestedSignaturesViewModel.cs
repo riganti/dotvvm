@@ -9,7 +9,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModelProtection
     public class NestedSignaturesViewModel : DotvvmViewModelBase
     {
         [Protect(ProtectMode.SignData)]
-        public TypA ObjA { get; set; } = new TypA() { Next = new TypA() };
+        public TypeA ObjA { get; set; } = new TypeA() { Next = new TypeA() };
 
         public void CheckEverythingIsFine()
         {
@@ -24,10 +24,10 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModelProtection
                 throw new Exception();
         }
 
-        public class TypA
+        public class TypeA
         {
             [Protect(ProtectMode.SignData)]
-            public TypA Next { get; set; }
+            public TypeA Next { get; set; }
 
             [Protect(ProtectMode.SignData)]
             public string SignedThing { get; set; } = "A";
@@ -37,4 +37,3 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModelProtection
         }
     }
 }
-

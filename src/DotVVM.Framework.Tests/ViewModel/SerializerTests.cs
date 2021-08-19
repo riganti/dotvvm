@@ -10,6 +10,7 @@ using System.Linq;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Testing;
 using System.Text;
 
 namespace DotVVM.Framework.Tests.ViewModel

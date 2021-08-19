@@ -27,7 +27,7 @@
         }
 
         if (val.length > 12) {
-            target.passwordStrengthMessage("Excelent");
+            target.passwordStrengthMessage("Excellent");
         }
     }
 

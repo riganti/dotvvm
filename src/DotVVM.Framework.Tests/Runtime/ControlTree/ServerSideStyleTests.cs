@@ -1,12 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -18,22 +23,19 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         {
             config.Styles
                 .Register<Button>(m => m.HasHtmlAttribute("data-dangerous"))
-                .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty, s => s.SetProperty(c => c.Message, "Are you sure?"), StyleOverrideOptions.Append);
+                .AppendControlProperty(PostBack.HandlersProperty, new ConfirmPostBackHandler("Are you sure?"));
 
             config.Styles
                 .Register<Button>(m => m.HasHtmlAttribute("data-very-dangerous"))
-                .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty, s => s.SetProperty(c => c.Message, "Are you really really sure?"), StyleOverrideOptions.Append);
+                .AddCondition(x => x.HasHtmlAttribute("data-very-dangerous"))
+                .AppendControlProperty(PostBack.HandlersProperty, new ConfirmPostBackHandler("Are you really really sure?"));
 
             config.Styles
                 .Register<LinkButton>(m => m.HasHtmlAttribute("data-manyhandlers"))
-                .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty, s => s.SetProperty(c => c.Message, "1"), StyleOverrideOptions.Append)
-                .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty, s => s.SetProperty(c => c.Message, "2"), StyleOverrideOptions.Append)
-                .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty, s => s.SetProperty(c => c.Message, "3"), StyleOverrideOptions.Append)
-                .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty, s => s.SetProperty(c => c.Message, "4"), StyleOverrideOptions.Append);
-
-            config.Styles
-                .Register<Repeater>()
-                .SetHtmlControlProperty(Repeater.SeparatorTemplateProperty, "hr", options: StyleOverrideOptions.Ignore);
+                .AppendControlProperty(PostBack.HandlersProperty, new ConfirmPostBackHandler("1"))
+                .AppendControlProperty(PostBack.HandlersProperty, new ConfirmPostBackHandler("2"))
+                .AppendControlProperty(PostBack.HandlersProperty, new ConfirmPostBackHandler("3"))
+                .AppendControlProperty(PostBack.HandlersProperty, new ConfirmPostBackHandler("4"));
         }
 
         ResolvedTreeRoot Parse(string markup, string fileName = "default.dothtml") =>
@@ -76,8 +78,48 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         }
 
         [TestMethod]
+        public void SetControlProperty_AppendPostbackHandlerParametrized()
+        {
+            config.Styles.Register<Button>(c => c.HasHtmlAttribute("data-confirm-msg"))
+                .AppendControlProperty(PostBack.HandlersProperty, new ConfirmPostBackHandler(), s =>
+                    s.SetProperty(c => c.Message, c => c.Parent.GetHtmlAttribute("data-confirm-msg")));
+            var button = Parse(
+@"<dot:Button data-confirm-msg='The message'>
+</dot:Button>")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(Button));
+            var handlers = button.Properties[PostBack.HandlersProperty].CastTo<ResolvedPropertyControlCollection>().Controls;
+            Assert.AreEqual(1, handlers.Count);
+            Assert.AreEqual(typeof(ConfirmPostBackHandler), handlers[0].Metadata.Type);
+            var message = handlers[0].Properties[ConfirmPostBackHandler.MessageProperty].CastTo<ResolvedPropertyValue>().Value.CastTo<string>();
+            Assert.AreEqual("The message", message);
+        }
+
+        [TestMethod]
+        public void SetControlProperty_AppendPostbackHandlerParametrized2()
+        {
+            config.Styles.Register<Button>(c => c.HasHtmlAttribute("data-confirm-msg2"))
+                .SetDotvvmProperty(PostBack.HandlersProperty, c =>
+                    new ConfirmPostBackHandler("Are you sure to do: " + c.Property(b => b.Text)));
+            var button = Parse(
+@"<dot:Button data-confirm-msg2 Text='Delete biscuits'>
+</dot:Button>")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(Button));
+            var handlers = button.Properties[PostBack.HandlersProperty].CastTo<ResolvedPropertyControlCollection>().Controls;
+            Assert.AreEqual(1, handlers.Count);
+            Assert.AreEqual(typeof(ConfirmPostBackHandler), handlers[0].Metadata.Type);
+            var message = handlers[0].Properties[ConfirmPostBackHandler.MessageProperty].CastTo<ResolvedPropertyValue>().Value.CastTo<string>();
+            Assert.AreEqual("Are you sure to do: Delete biscuits", message);
+        }
+
+        [TestMethod]
         public void SetControlProperty_RepeaterTemplate()
         {
+            config.Styles
+                .Register<Repeater>()
+                .SetHtmlControlProperty(Repeater.SeparatorTemplateProperty, "hr", options: StyleOverrideOptions.Ignore);
+
             var repeater = Parse(
 @"<dot:Repeater DataSource='{value: _this}'>
     {{value: _this}}
@@ -87,6 +129,100 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var separator = repeater.Properties[Repeater.SeparatorTemplateProperty].CastTo<ResolvedPropertyTemplate>().Content.Single();
             Assert.AreEqual(typeof(HtmlGenericControl), separator.Metadata.Type);
             Assert.AreEqual("hr", separator.ConstructorParameters.Single());
+            var repeater2 = Parse(
+@"<dot:Repeater DataSource='{value: _this}'>
+    <SeparatorTemplate>XXX</SeparatorTemplate>
+    {{value: _this}}
+</dot:Repeater>")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(Repeater));
+            var separator2 = repeater2.Properties[Repeater.SeparatorTemplateProperty].CastTo<ResolvedPropertyTemplate>().Content.Single();
+            Assert.AreEqual(typeof(RawLiteral), separator2.Metadata.Type);
+        }
+
+        [TestMethod]
+        public void SetControlProperty_RepeaterTemplate2()
+        {
+            config.Styles
+                .Register<Repeater>()
+                .SetControlProperty(r => r.SeparatorTemplate, new HtmlGenericControl("hr"), options: StyleOverrideOptions.Ignore);
+
+            var repeater = Parse(
+@"<dot:Repeater DataSource='{value: _this}'>
+    {{value: _this}}
+</dot:Repeater>")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(Repeater));
+            var separator = repeater.Properties[Repeater.SeparatorTemplateProperty].CastTo<ResolvedPropertyTemplate>().Content.Single();
+            Assert.AreEqual(typeof(HtmlGenericControl), separator.Metadata.Type);
+            Assert.AreEqual("hr", separator.ConstructorParameters.Single());
+            var repeater2 = Parse(
+@"<dot:Repeater DataSource='{value: _this}'>
+    <SeparatorTemplate>XXX</SeparatorTemplate>
+    {{value: _this}}
+</dot:Repeater>")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(Repeater));
+            var separator2 = repeater2.Properties[Repeater.SeparatorTemplateProperty].CastTo<ResolvedPropertyTemplate>().Content.Single();
+            Assert.AreEqual(typeof(RawLiteral), separator2.Metadata.Type);
+        }
+
+        [TestMethod]
+        public void AppendControlProperty_RepeaterTemplate()
+        {
+            config.Styles
+                .Register<Repeater>()
+                .AppendControlProperty(r => r.SeparatorTemplate, new HtmlGenericControl("hr"));
+
+            var repeater = Parse(
+@"<dot:Repeater DataSource='{value: _this}'>
+    {{value: _this}}
+</dot:Repeater>")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(Repeater));
+            var separator = repeater.Properties[Repeater.SeparatorTemplateProperty].CastTo<ResolvedPropertyTemplate>().Content.Single();
+            Assert.AreEqual(typeof(HtmlGenericControl), separator.Metadata.Type);
+            Assert.AreEqual("hr", separator.ConstructorParameters.Single());
+            var repeater2 = Parse(
+@"<dot:Repeater DataSource='{value: _this}'>
+    <SeparatorTemplate>XXX</SeparatorTemplate>
+    {{value: _this}}
+</dot:Repeater>")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(Repeater));
+            var separator2 = repeater2.Properties[Repeater.SeparatorTemplateProperty].CastTo<ResolvedPropertyTemplate>().Content.ToArray();
+            Assert.AreEqual(2, separator2.Length);
+            Assert.AreEqual(typeof(RawLiteral), separator2[0].Metadata.Type);
+            Assert.AreEqual(typeof(HtmlGenericControl), separator2[1].Metadata.Type);
+        }
+
+        [TestMethod]
+        public void PrependControlProperty_RepeaterTemplate()
+        {
+            config.Styles
+                .Register<Repeater>()
+                .SetControlProperty(r => r.SeparatorTemplate, new HtmlGenericControl("hr"), options: StyleOverrideOptions.Prepend);
+
+            var repeater = Parse(
+@"<dot:Repeater DataSource='{value: _this}'>
+    {{value: _this}}
+</dot:Repeater>")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(Repeater));
+            var separator = repeater.Properties[Repeater.SeparatorTemplateProperty].CastTo<ResolvedPropertyTemplate>().Content.Single();
+            Assert.AreEqual(typeof(HtmlGenericControl), separator.Metadata.Type);
+            Assert.AreEqual("hr", separator.ConstructorParameters.Single());
+            var repeater2 = Parse(
+@"<dot:Repeater DataSource='{value: _this}'>
+    <SeparatorTemplate>XXX</SeparatorTemplate>
+    {{value: _this}}
+</dot:Repeater>")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(Repeater));
+            var separator2 = repeater2.Properties[Repeater.SeparatorTemplateProperty].CastTo<ResolvedPropertyTemplate>().Content.ToArray();
+            Assert.AreEqual(2, separator2.Length);
+            Assert.AreEqual(typeof(HtmlGenericControl), separator2[0].Metadata.Type);
+            Assert.AreEqual(typeof(RawLiteral), separator2[1].Metadata.Type);
         }
 
         [TestMethod]
@@ -137,6 +273,112 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual("2", messages[1]);
             Assert.AreEqual("3", messages[2]);
             Assert.AreEqual("4", messages[3]);
+        }
+
+        [TestMethod]
+        public void AddRequiredResourceControl()
+        {
+            config.Styles.RegisterRoot()
+                .PrependContent(new RequiredResource("my-resource"));
+            var rr = Parse("<div my-attr> <span> some text </span> <br> </div>")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(RequiredResource));
+            var resourceName = rr.Properties[RequiredResource.NameProperty].CastTo<ResolvedPropertyValue>().Value;
+            Assert.AreEqual("my-resource", resourceName);
+        }
+
+        [TestMethod]
+        public void AddParametrizedResourceControl()
+        {
+            config.Styles.Register<HtmlGenericControl>(m => m.HasHtmlAttribute("data-requireresource"))
+                .PrependContent(new RequiredResource(), s =>
+                    s.SetDotvvmProperty(RequiredResource.NameProperty,
+                        c => c.Parent.GetHtmlAttribute("data-requireresource"))
+                );
+            var rr = Parse("<div my-attr> <span data-requireresource=resourceX> some text </span> <br data-requireresource=resourceY> </div>")
+                .Content.SelectRecursively(c => c.Content)
+                .Where(c => c.Metadata.Type == typeof(RequiredResource))
+                .ToArray();
+            Assert.AreEqual(2, rr.Length);
+            var resourceName = rr[0].Properties[RequiredResource.NameProperty].CastTo<ResolvedPropertyValue>().Value;
+            Assert.AreEqual("resourceX", resourceName);
+            resourceName = rr[1].Properties[RequiredResource.NameProperty].CastTo<ResolvedPropertyValue>().Value;
+            Assert.AreEqual("resourceY", resourceName);
+        }
+
+        [TestMethod]
+        public void SetButtonDefaultContent()
+        {
+            config.Styles.Register<Button>()
+                .AddCondition(m => !m.HasProperty(b => b.Text))
+                .SetContent(
+                    new HtmlGenericControl("span") { Children = { RawLiteral.Create("test") } },
+                    options: StyleOverrideOptions.Ignore
+                );
+            var buttons = Parse("<dot:Button /> <dot:Button> <!-- nothing --> </dot:Button> <dot:Button Text='abc' /> <dot:Button> xx </dot:Button> ")
+                .Content.SelectRecursively(c => c.Content)
+                .Where(c => c.Metadata.Type == typeof(Button))
+                .ToArray();
+            Assert.AreEqual(4, buttons.Length);
+            Assert.AreEqual("span", buttons[0].Content.Single().ConstructorParameters.Single());
+            Assert.AreEqual("test", buttons[0].Content.Single().Content.Single().ConstructorParameters[0]);
+            Assert.AreEqual("span", buttons[1].Content.Single().ConstructorParameters.Single());
+            Assert.AreEqual("test", buttons[1].Content.Single().Content.Single().ConstructorParameters[0]);
+            Assert.AreEqual("abc", buttons[2].Properties[Button.TextProperty].CastTo<ResolvedPropertyValue>().Value);
+            Assert.IsTrue(buttons[2].HasOnlyWhiteSpaceContent());
+            Assert.IsFalse(buttons[3].HasOnlyWhiteSpaceContent());
+            Assert.AreEqual(typeof(RawLiteral), buttons[3].Content.Single().Metadata.Type);
+        }
+
+        [TestMethod]
+        public void SetBinding()
+        {
+            config.Styles.Register<TextBox>()
+                .AddCondition(m => m.HasDataContext<string>())
+                .SetPropertyBinding(r => r.Text, "_this", StyleOverrideOptions.Ignore)
+                .AddClassBinding("isempty", "_this == ''", StyleOverrideOptions.Ignore);
+
+            var repeater = Parse("<dot:Repeater DataSource={value: _this}> <dot:TextBox /> </dot:Repeater>")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(Repeater));
+
+            var r = repeater.Properties[Repeater.DataSourceProperty].CastTo<ResolvedPropertyBinding>().Binding;
+            Assert.AreEqual("$rawData", r.Binding.CastTo<IValueBinding>().KnockoutExpression.ToDefaultString());
+
+            var textbox = repeater.Properties[Repeater.ItemTemplateProperty].CastTo<ResolvedPropertyTemplate>().Content.Single(c => c.Metadata.Type == typeof(TextBox));
+            var tb = textbox.Properties[TextBox.TextProperty].CastTo<ResolvedPropertyBinding>().Binding;
+            Assert.AreEqual("$rawData", tb.Binding.CastTo<IValueBinding>().KnockoutExpression.ToDefaultString());
+            var tbc = textbox.Properties[HtmlGenericControl.CssClassesGroupDescriptor.GetDotvvmProperty("isempty")].CastTo<ResolvedPropertyBinding>().Binding;
+            Assert.AreEqual("$data==\"\"", tbc.Binding.CastTo<IValueBinding>().KnockoutExpression.ToDefaultString());
+        }
+
+        [TestMethod]
+        public void SetBinding_ConcatInHtmlAttributes()
+        {
+            config.Styles.Register("div")
+                .SetAttributeBinding("class", "'class1-' + _this[0]", options: StyleOverrideOptions.Append)
+                .SetAttributeBinding("class", "'class2-' + _this[1]", options: StyleOverrideOptions.Append);
+
+            var div = Parse("<div class='a' />")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(HtmlGenericControl));
+
+            var r = div.Properties.Values.OfType<ResolvedPropertyBinding>().Single().Binding;
+            Assert.AreEqual("\"a\"+\" \"+(\"class1-\"+$data[0]())+\" \"+(\"class2-\"+$data[1]())", r.Binding.CastTo<IValueBinding>().KnockoutExpression.ToDefaultString());
+        }
+
+        [TestMethod]
+        public void SetBinding_ConcatInHtmlAttributes_BindingTypeAdjust()
+        {
+            config.Styles.Register("div")
+                .SetAttributeBinding("class", "'class1-' + _this[0]", options: StyleOverrideOptions.Append);
+
+            var div = Parse("<div class={resource: 'a'} />")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(HtmlGenericControl));
+
+            var r = div.Properties.Values.OfType<ResolvedPropertyBinding>().Single().Binding;
+            Assert.IsInstanceOfType(r.Binding, typeof(ResourceBindingExpression));
         }
     }
 }

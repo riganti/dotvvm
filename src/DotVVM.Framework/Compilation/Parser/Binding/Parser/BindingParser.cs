@@ -404,7 +404,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
                 while (Peek()?.Type != BindingTokenType.CloseParenthesis)
                 {
-                    // Try read parameter definition (either implicitly defined type or explicitely)
+                    // Try read parameter definition (either implicitly defined type or explicitly)
                     if (!TryReadLambdaParameterDefinition(out var typeDef, out var nameDef))
                         return false;
                     parameters.Add(new LambdaParameterBindingParserNode(typeDef, nameDef!));

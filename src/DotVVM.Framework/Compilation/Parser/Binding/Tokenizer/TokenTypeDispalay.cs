@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
 {
-    public static class TokenTypeDispalay
+    public static class TokenTypeDisplay
     {
         [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         public static string ToDisplayString(this BindingTokenType tokenType)

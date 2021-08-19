@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         // TODO(exyi): add WriteTo(StringBuilder)
         /// <summary>
-        /// Converts this to string and assigns all parameters using `parameterAsssignment`. If there is any missing, exception is thrown.
+        /// Converts this to string and assigns all parameters using `parameterAssignment`. If there is any missing, exception is thrown.
         /// </summary>
         public string ToString(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssignment) => ToString(parameterAssignment, out var _);
         public string ToString(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssignment, out bool allIsDefault)
@@ -68,8 +68,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             sb.Append(stringParts[0]);
             for (int i = 0; i < codes.Length;)
             {
-                var isGlobalContext = codes[i].parameter.IsGlobalContext && parameters[i].IsSafeMemberAccess;
-                var needsParens = codes[i].parameter.Code!.OperatorPrecedence.NeedsParens(parameters[i].OperatorPrecedence);
+                var isGlobalContext = codes[i].parameter.IsGlobalContext && parameters![i].IsSafeMemberAccess;
+                var needsParens = codes[i].parameter.Code!.OperatorPrecedence.NeedsParens(parameters![i].OperatorPrecedence);
 
                 if (isGlobalContext)
                     sb.Append(stringParts[++i], 1, stringParts[i].Length - 1); // skip `.`
@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 return evaluatedDefault!;
             Debug.Assert(parameters is object);
             var sb = new StringBuilder();
-            for (int i = 0; i < parameters.Length; i++)
+            for (int i = 0; i < parameters!.Length; i++)
             {
                 sb.Append(stringParts[i]);
                 sb.Append(parameters[i].ToString());
@@ -137,18 +137,18 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var a = assignment[i];
                 if (a.Code == null)
                 {
-                    builder.Add(parameters[i]);
+                    builder.Add(parameters![i]);
                     builder.Add(stringParts[1 + i]);
                 }
                 else
                 {
-                    var isGlobalContext = a.IsGlobalContext && parameters[i].IsSafeMemberAccess;
+                    var isGlobalContext = a.IsGlobalContext && parameters![i].IsSafeMemberAccess;
 
                     if (isGlobalContext)
                         builder.Add(stringParts[1 + i].Substring(1, stringParts[i].Length - 1)); // skip `.`
                     else
                     {
-                        builder.Add(a.Code, parameters[i].OperatorPrecedence);
+                        builder.Add(a.Code, parameters![i].OperatorPrecedence);
                         builder.Add(stringParts[1 + i]);
                     }
                 }
@@ -206,6 +206,21 @@ namespace DotVVM.Framework.Compilation.Javascript
                     allIsDefault = false;
             }
             return pp;
+        }
+
+        public IEnumerable<CodeSymbolicParameter> EnumerateAllParameters()
+        {
+            if (this.parameters == null)
+                yield break;
+            foreach (var p in this.parameters)
+            {
+                yield return p.Parameter;
+                if (p.DefaultAssignment.Code != null)
+                {
+                    foreach (var inner in p.DefaultAssignment.Code.EnumerateAllParameters())
+                        yield return inner;
+                }
+            }
         }
 
         /// <summary>
@@ -321,7 +336,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         public static CodeParameterAssignment FromLiteral(string value, bool isGlobalContext = false) =>
             new CodeParameterAssignment(JsonConvert.ToString(value), OperatorPrecedence.Max, isGlobalContext);
 
-        public static implicit operator CodeParameterAssignment(ParametrizedCode val) => new CodeParameterAssignment(val);
+        public static implicit operator CodeParameterAssignment(ParametrizedCode? val) => new CodeParameterAssignment(val);
     }
 
     /// (Base) class for symbolic parameter descriptors.
@@ -337,6 +352,18 @@ namespace DotVVM.Framework.Compilation.Javascript
             this.Description = description ?? throw new ArgumentNullException(nameof(description));
             this.DefaultAssignment = defaultAssignment;
         }
+
+        public CodeParameterInfo ToInfo(OperatorPrecedence operatorPrecedence) => ToInfo(operatorPrecedence.Precedence);
+        public CodeParameterInfo ToInfo(byte operatorPrecedence) => new CodeParameterInfo(this, operatorPrecedence);
+        public CodeParameterInfo ToInfo() => ToInfo(this.DefaultAssignment.Code?.OperatorPrecedence ?? OperatorPrecedence.Max);
+
+        public ParametrizedCode ToParametrizedCode(OperatorPrecedence operatorPrecedence) =>
+            new ParametrizedCode(new [] { "", "" }, new [] { ToInfo(operatorPrecedence) }, operatorPrecedence);
+        public ParametrizedCode ToParametrizedCode() =>
+            ToParametrizedCode(this.DefaultAssignment.Code?.OperatorPrecedence ?? OperatorPrecedence.Max);
+
+        public JsSymbolicParameter ToExpression(CodeParameterAssignment? defaultAssignment = null) =>
+            new JsSymbolicParameter(this, defaultAssignment);
 
         public override string ToString()
         {

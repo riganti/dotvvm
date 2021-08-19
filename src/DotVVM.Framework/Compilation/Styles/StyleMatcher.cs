@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -13,7 +14,7 @@ namespace DotVVM.Framework.Compilation.Styles
 {
     public class StyleMatcher
     {
-        public StyleMatchContext Context { get; set; }
+        public IStyleMatchContext? Context { get; set; }
 
         public ILookup<Type, IStyle> Styles { get; set; }
 
@@ -28,7 +29,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public void PushControl(ResolvedControl control)
         {
-            Context = new StyleMatchContext() { Control = control, Parent = Context };
+            Context = new StyleMatchContext<DotvvmBindableObject>(Context, control, configuration);
         }
 
         public void PopControl()
@@ -44,13 +45,13 @@ namespace DotVVM.Framework.Compilation.Styles
 
         protected IEnumerable<IStyle> GetStyleCandidatesForControl()
         {
-            var type = Context.Control.Metadata.Type;
+            var type = Context!.Control.Metadata.Type;
 
             foreach (var s in GetImplicitStyles(type)) yield return s;
             foreach (var s in Styles[type]) yield return s;
             do
             {
-                type = type.GetTypeInfo().BaseType;
+                type = type.BaseType;
 
                 foreach (var s in Styles[type])
                     if (!s.ExactTypeMatch)
@@ -66,17 +67,19 @@ namespace DotVVM.Framework.Compilation.Styles
                 if (t.IsAssignableFrom(typeof(DotvvmBindableObject))) return ImmutableArray<IStyle>.Empty;
                 var configurationParameter = Expression.Parameter(typeof(DotvvmConfiguration));
                 var controlParameter = Expression.Parameter(typeof(ResolvedControl));
-                return GetImplicitStyles(t.GetTypeInfo().BaseType).Concat(
+                return GetImplicitStyles(t.BaseType).Concat(
                     from m in t.GetMethods(BindingFlags.Public | BindingFlags.Static)
                     where m.IsDefined(typeof(ApplyControlStyleAttribute))
                     let parameters = m.GetParameters()
                     where parameters[0].ParameterType == typeof(ResolvedControl)
                     let invocationExpression = Expression.Call(m, new Expression[] { controlParameter }.Concat(
                         from p in parameters.Skip(1)
-#pragma warning disable CS0618
-                        let services = Expression.Property(configurationParameter, nameof(DotvvmConfiguration.ServiceLocator))
-#pragma warning restore CS0618
-                        select Expression.Call(services, nameof(ServiceLocator.GetService), new[] { p.ParameterType })))
+                        let services = Expression.Property(configurationParameter, nameof(DotvvmConfiguration.ServiceProvider))
+                        select Expression.Call(
+                            typeof(Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions),
+                            nameof(IServiceProvider.GetService),
+                            new[] { p.ParameterType },
+                            services)))
                     let expression = Expression.Lambda<Action<ResolvedControl, DotvvmConfiguration>>(invocationExpression, controlParameter, configurationParameter)
                     select (IStyle)new GenericStyle(controlType, expression.Compile())
                     ).ToImmutableArray();
@@ -87,7 +90,7 @@ namespace DotVVM.Framework.Compilation.Styles
             public Type ControlType { get; }
             public Action<ResolvedControl, DotvvmConfiguration> Action { get; }
 
-            public IStyleApplicator Applicator => new GenericApplicatpr(Action);
+            public IStyleApplicator Applicator => new GenericApplicator(Action);
 
             public bool ExactTypeMatch => true;
 
@@ -97,27 +100,27 @@ namespace DotVVM.Framework.Compilation.Styles
                 this.Action = action;
             }
 
-            public bool Matches(StyleMatchContext currentControl) => true;
+            public bool Matches(IStyleMatchContext currentControl) => true;
         }
 
-        class GenericApplicatpr : IStyleApplicator
+        class GenericApplicator : IStyleApplicator
         {
             private readonly Action<ResolvedControl, DotvvmConfiguration> action;
 
-            public GenericApplicatpr(Action<ResolvedControl, DotvvmConfiguration> action)
+            public GenericApplicator(Action<ResolvedControl, DotvvmConfiguration> action)
             {
                 this.action = action;
             }
 
-            public void ApplyStyle(ResolvedControl control, DotvvmConfiguration configuration)
+            public void ApplyStyle(ResolvedControl control, IStyleMatchContext context)
             {
                 try
                 {
-                    action(control, configuration);
+                    action(control, context.Configuration);
                 }
                 catch(Exception ex)
                 {
-                    control.DothtmlNode.AddError($"Could not apply styles: {ex}");
+                    control.DothtmlNode?.AddError($"Could not apply styles: {ex}");
                 }
             }
         }

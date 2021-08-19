@@ -21,6 +21,7 @@ using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -472,12 +473,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <div class='a' class='{value: _this}' />");
             var value = root.Content.First(n => n.Metadata.Type == typeof(HtmlGenericControl)).GetHtmlAttribute("class");
             Assert.IsInstanceOfType(value, typeof(ResolvedPropertyBinding));
-            var expression = value.CastTo<ResolvedPropertyBinding>().Binding.GetExpression().CastTo<MethodCallExpression>();
-            Assert.AreEqual(expression.Method.Name, "Concat");
-            Assert.AreEqual(3, expression.Arguments.Count);
-            Assert.AreEqual("a", expression.Arguments[0].CastTo<ConstantExpression>().Value);
-            Assert.AreEqual(" ", expression.Arguments[1].CastTo<ConstantExpression>().Value);
-            Assert.AreEqual("_this", expression.Arguments[2].CastTo<ParameterExpression>().Name);
+            var expression = value.CastTo<ResolvedPropertyBinding>().Binding.GetExpression();
+            Assert.AreEqual("((\"a\" + \" \") + _this)", expression.ToString());
         }
 
         [TestMethod]
@@ -488,12 +485,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <div class='a' class='{resource: _this}' />");
             var value = root.Content.First(n => n.Metadata.Type == typeof(HtmlGenericControl)).GetHtmlAttribute("class");
             Assert.IsInstanceOfType(value, typeof(ResolvedPropertyBinding));
-            var expression = value.CastTo<ResolvedPropertyBinding>().Binding.GetExpression().CastTo<MethodCallExpression>();
-            Assert.AreEqual(expression.Method.Name, "Concat");
-            Assert.AreEqual(3, expression.Arguments.Count);
-            Assert.AreEqual("a", expression.Arguments[0].CastTo<ConstantExpression>().Value);
-            Assert.AreEqual(" ", expression.Arguments[1].CastTo<ConstantExpression>().Value);
-            Assert.AreEqual("_this", expression.Arguments[2].CastTo<ParameterExpression>().Name);
+            var expression = value.CastTo<ResolvedPropertyBinding>().Binding.GetExpression();
+            Assert.AreEqual("((\"a\" + \" \") + _this)", expression.ToString());
         }
 
         [TestMethod]
@@ -504,12 +497,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <div class='{value: _this}' class='{value: _this}' />");
             var value = root.Content.First(n => n.Metadata.Type == typeof(HtmlGenericControl)).GetHtmlAttribute("class");
             Assert.IsInstanceOfType(value, typeof(ResolvedPropertyBinding));
-            var expression = value.CastTo<ResolvedPropertyBinding>().Binding.GetExpression().CastTo<MethodCallExpression>();
-            Assert.AreEqual(expression.Method.Name, "Concat");
-            Assert.AreEqual(3, expression.Arguments.Count);
-            Assert.AreEqual("_this", expression.Arguments[0].CastTo<ParameterExpression>().Name);
-            Assert.AreEqual(" ", expression.Arguments[1].CastTo<ConstantExpression>().Value);
-            Assert.AreEqual("_this", expression.Arguments[2].CastTo<ParameterExpression>().Name);
+            var expression = value.CastTo<ResolvedPropertyBinding>().Binding.GetExpression();
+            Assert.AreEqual("((_this + \" \") + _this)", expression.ToString());
         }
 
 
@@ -729,7 +718,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsFalse(control2[2].DothtmlNode.HasNodeErrors);
 
 
-            var control3 = getControls(nameof(ControlWithOverridenRules));
+            var control3 = getControls(nameof(ControlWithOverriddenRules));
             Assert.IsFalse(control3[0].DothtmlNode.HasNodeErrors);
             Assert.IsFalse(control3[1].DothtmlNode.HasNodeErrors);
             Assert.IsFalse(control3[2].DothtmlNode.HasNodeErrors);
@@ -872,7 +861,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
     {
     }
 
-    public class ControlWithOverridenRules : ControlWithValidationRules
+    public class ControlWithOverriddenRules : ControlWithValidationRules
     {
         [ControlUsageValidator(Override = true)]
         public static IEnumerable<ControlUsageError> Validate(ResolvedControl control)

@@ -12,7 +12,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand
 {
-    public class Filtr: ExceptionFilterAttribute
+    public class Filter: ExceptionFilterAttribute
     {
         protected override Task OnCommandExceptionAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception ex)
         {
@@ -39,7 +39,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand
 
     public class CustomAwaitableViewModel : DotvvmViewModelBase
     {
-        [Filtr]
+        [Filter]
         [AllowStaticCommand]
         public TaskBag Test()
         {

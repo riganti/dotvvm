@@ -12,6 +12,8 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser.Annotations;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -19,6 +21,7 @@ namespace DotVVM.Framework.Compilation.Binding
     {
         public TypeRegistry Registry { get; set; }
         public Expression? Scope { get; set; }
+        /// <summary> We use the parser to parse directives where only type name is expected. At that place, the flag is set to true otherwise it's false </summary>
         public bool ResolveOnlyTypeName { get; set; }
         public Type? ExpectedType { get; set; }
         public ImmutableDictionary<string, ParameterExpression> Variables { get; set; } =
@@ -85,11 +88,6 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 throw new AggregateException(currentErrors);
             }
-        }
-
-        protected void RegisterSymbols(IEnumerable<KeyValuePair<string, Expression>> symbols)
-        {
-            Registry = Registry.AddSymbols(symbols);
         }
 
         public override Expression Visit(BindingParserNode node)
@@ -358,7 +356,34 @@ namespace DotVVM.Framework.Compilation.Binding
                 return resolvedTypeExpression;
             }
 
-            return memberExpressionFactory.GetMember(target, nameNode.Name, typeParameters, onlyMemberTypes: ResolveOnlyTypeName);
+            // we try to resolve member access into an extension parameter
+            // for example _parent._index should resolve into the _index extension parameter on the parent context
+            var extensionParameter = TryResolveExtensionParameter(target, nameNode);
+            
+            // even when we find the extension parameter, member properties should have priority (for compatibility, at least)
+
+            return
+                memberExpressionFactory.GetMember(
+                    target, nameNode.Name, typeParameters,
+                    throwExceptions: extensionParameter is null,
+                    onlyMemberTypes: ResolveOnlyTypeName
+                ) ?? extensionParameter!;
+        }
+
+        Expression? TryResolveExtensionParameter(Expression target, IdentifierNameBindingParserNode nameNode)
+        {
+            // target is _parent, _this, _root, ...
+            if (target.GetParameterAnnotation() is BindingParameterAnnotation { ExtensionParameter: null, DataContext: {} dataContext } &&
+                // name is simple (no generics)
+                nameNode is SimpleNameBindingParserNode { Name: {} name } &&
+                dataContext.ExtensionParameters.FirstOrDefault(e => e.Identifier == name) is {} parameter)
+            {
+                return Expression.Parameter(
+                    ResolvedTypeDescriptor.ToSystemType(parameter.ParameterType) ?? typeof(UnknownTypeSentinel),
+                    parameter.Identifier
+                ).AddParameterAnnotation(new BindingParameterAnnotation(dataContext, parameter));
+            }
+            return null;
         }
 
         protected override Expression VisitGenericName(GenericNameBindingParserNode node)
@@ -447,13 +472,13 @@ namespace DotVVM.Framework.Compilation.Binding
 
             if (node.ResolvedType != null)
             {
-                // Type was not specified but was infered
+                // Type was not specified but was inferred
                 return Expression.Parameter(node.ResolvedType, node.Name.ToDisplayString());
             }
             else
             {
                 // Type was specified and needs to be obtained from binding node
-                var parameterType = Visit(node.Type).Type;
+                var parameterType = Visit(node.Type!).Type;
                 return Expression.Parameter(parameterType, node.Name.ToDisplayString());
             }
         }

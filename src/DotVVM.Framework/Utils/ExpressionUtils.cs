@@ -14,46 +14,6 @@ namespace DotVVM.Framework.Utils
 {
     public static class ExpressionUtils
     {
-        public static Expression For(Expression length, Func<Expression, Expression> bodyFactory)
-        {
-            var i = Expression.Variable(typeof(int), "i");
-            return Expression.Block(new[] { i },
-                Expression.Assign(i, Expression.Constant(0)),
-                While(Expression.LessThan(i, length),
-                    Expression.Block(
-                        bodyFactory(i),
-                        Expression.PostIncrementAssign(i)
-                    )
-                )
-            );
-        }
-
-        public static Expression Foreach(Expression enumerable, Func<Expression, Expression> bodyFactory)
-        {
-            // use for(int i = 0; i < a.Length; i++) ... for Arrays
-            if (enumerable.Type.IsArray) {
-                return For(Expression.ArrayLength(enumerable), i => bodyFactory(Expression.ArrayIndex(enumerable, i)));
-            } else {
-                var getEnumMethod = Expression.Call(enumerable, "GetEnumerator", Type.EmptyTypes);
-                var enumerator = Expression.Variable(getEnumMethod.Type, "enumerator");
-                var body = new List<Expression>();
-                body.Add(Expression.Assign(enumerator, getEnumMethod));
-                body.Add(Expression.TryFinally(While(
-                    condition: Expression.Call(enumerator, nameof(IEnumerator<int>.MoveNext), Type.EmptyTypes),
-                    body: bodyFactory(Expression.Property(enumerator, nameof(IEnumerator<int>.Current)))
-                ),
-                    Expression.Call(enumerator, "Dispose", Type.EmptyTypes)
-                ));
-                return Expression.Block(new[] { enumerator }, body);
-            }
-        }
-        public static Expression While(Expression conditionBody)
-        {
-            var brkLabel = Expression.Label();
-            return Expression.Loop(
-                Expression.IfThen(Expression.Not(conditionBody), Expression.Goto(brkLabel)), brkLabel);
-        }
-
         public static Expression While(Expression condition, Expression body)
         {
             var brkLabel = Expression.Label();
@@ -76,28 +36,6 @@ namespace DotVVM.Framework.Utils
         public static BinaryExpression UpdateType(this BinaryExpression expr, ExpressionType type) =>
             Expression.MakeBinary(type, expr.Left, expr.Right);
 
-        public static Expression Indexer(Expression instance, Expression index)
-        {
-            return Expression.Property(instance,
-                            instance.Type.GetTypeInfo().GetProperty("Item", new[] { index.Type }),
-                            index);
-        }
-
-        public static Expression Replace(Expression ex, string paramName, Expression paramValue)
-        {
-            return Replace(ex, new[] { new KeyValuePair<string, Expression>(paramName, paramValue) });
-        }
-
-        public static Expression Replace(Expression ex, IEnumerable<KeyValuePair<string, Expression>> namedParameters)
-        {
-            var visitor = new ReplaceVisitor();
-            foreach (var p in namedParameters)
-            {
-                visitor.NamedParams.Add(p.Key, p.Value);
-            }
-            return visitor.Visit(ex);
-        }
-
         public static Expression Replace(LambdaExpression ex, params Expression[] parameters)
         {
             var visitor = new ReplaceVisitor();
@@ -108,13 +46,6 @@ namespace DotVVM.Framework.Utils
             var result = visitor.Visit(ex.Body);
             if (result.CanReduce) result = result.Reduce();
             return result;
-        }
-
-        [Conditional("DEBUG")]
-        public static void AddDebug(this IList<Expression> block, [CallerFilePath] string? fileName = null, [CallerLineNumber] int lineNumber = -1)
-        {
-            if (fileName == null || lineNumber < 0) throw new ArgumentException();
-            block.Add(Expression.DebugInfo(Expression.SymbolDocument(fileName), lineNumber, 0, lineNumber + 1, 0));
         }
 
         #region Replace overloads
@@ -337,14 +268,6 @@ namespace DotVVM.Framework.Utils
                 }
                 else return base.VisitUnary(node);
             }
-        }
-
-        public static List<T> AllDescendants<T>(this Expression expression, Func<T, bool>? predicate = null)
-            where T: Expression
-        {
-            var result = new List<T>();
-            new AnonymousActionVisitor(a => { if (a is T t && predicate?.Invoke(t) != false) result.Add(t); return a; }).Visit(expression);
-            return result;
         }
 
         public static Expression ReplaceAll(this Expression expr, Func<Expression, Expression> replacer)

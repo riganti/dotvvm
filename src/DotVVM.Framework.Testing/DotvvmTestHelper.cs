@@ -19,12 +19,11 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Compilation.Javascript;
-using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.ResourceManagement;
 
-namespace DotVVM.Framework.Tests
+namespace DotVVM.Framework.Testing
 {
     public static class DotvvmTestHelper
     {
@@ -89,15 +88,15 @@ namespace DotVVM.Framework.Tests
         });
         public static DotvvmConfiguration DefaultConfig => _defaultConfig.Value;
 
-        public static DotvvmConfiguration CreateConfiguration(Action<IServiceCollection> customServices = null) =>
+        public static DotvvmConfiguration CreateConfiguration(Action<IServiceCollection>? customServices = null) =>
             DotvvmConfiguration.CreateDefault(s => {
                 customServices?.Invoke(s);
                 RegisterMoqServices(s);
             });
 
         public static TestDotvvmRequestContext CreateContext(
-            DotvvmConfiguration configuration = null,
-            RouteBase route = null)
+            DotvvmConfiguration? configuration = null,
+            RouteBase? route = null)
         {
             configuration = configuration ?? DefaultConfig;
             var httpContext = new TestHttpContext();
@@ -119,13 +118,15 @@ namespace DotVVM.Framework.Tests
             return context;
         }
 
-        public static void CheckForErrors(DothtmlNode node)
+        public static void CheckForErrors(DothtmlNode? node)
         {
+            if (node is null) return;
+
             foreach (var n in node.EnumerateNodes())
                 if (n.HasNodeErrors)
                     throw new DotvvmCompilationException(string.Join(", ", n.NodeErrors), n.Tokens);
         }
-        public static ResolvedTreeRoot ParseResolvedTree(string markup, string fileName = "default.dothtml", DotvvmConfiguration configuration = null, bool checkErrors = true)
+        public static ResolvedTreeRoot ParseResolvedTree(string markup, string fileName = "default.dothtml", DotvvmConfiguration? configuration = null, bool checkErrors = true)
         {
             configuration = configuration ?? DefaultConfig;
 

@@ -1,5 +1,6 @@
 import { deserialize } from "../serialization/deserialize";
 import { serialize } from "../serialization/serialize";
+import { unmapKnockoutObservables } from "../state-manager";
 import { keys } from "../utils/objects";
 
 const registeredModules: { [name: string]: ModuleHandler } = {};
@@ -208,10 +209,10 @@ export class ModuleContext {
     
     public registerNamedCommand = (name: string, command: (...args: any[]) => Promise<any>) => {
         if (this.namedCommands[name]) {
-            throw new Error(`A named command is already registered under the name: ${name}. The conflict occured in: ${this.moduleName}.`);
+            throw new Error(`A named command is already registered under the name: ${name}. The conflict occurred in: ${this.moduleName}.`);
         }
 
-        this.namedCommands[name] = (...innerArgs) => command.apply(this, innerArgs.map(v => deserialize(v)));
+        this.namedCommands[name] = (...innerArgs) => command.apply(this, innerArgs.map(unmapKnockoutObservables));
     }
 
     public unregisterNamedCommand = (name: string) => {

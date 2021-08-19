@@ -1,73 +1,54 @@
-using Microsoft.Owin;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Runtime.Serialization;
+using System.Text;
 using System.Threading.Tasks;
-using DotVVM.Framework.Hosting.ErrorPages;
 
-namespace DotVVM.Framework.Hosting.Middlewares
+namespace DotVVM.Framework.Hosting.ErrorPages
 {
-    public class DotvvmErrorPageMiddleware : OwinMiddleware
+    public class DotvvmErrorPageRenderer
     {
+
         public ErrorFormatter Formatter { get; set; }
-
-        public DotvvmErrorPageMiddleware(OwinMiddleware next) : base(next)
-        {
-        }
-
-        public override async Task Invoke(IOwinContext context)
-        {
-            Exception error = null;
-            try
-            {
-                await Next.Invoke(context);
-            }
-            catch (Exception ex)
-            {
-                error = ex;
-            }
-
-            if (error != null)
-            {
-                context.Response.StatusCode = 500;
-                await RenderErrorResponse(context, error);
-            }
-        }
 
         /// <summary>
         /// Renders the error response.
         /// </summary>
-        public Task RenderErrorResponse(IOwinContext context, Exception error)
+        public Task RenderErrorResponse(IHttpContext context, Exception error)
         {
-            context.Response.ContentType = "text/html";
-
             try
             {
+                context.Response.ContentType = "text/html";
 
                 var text = (Formatter ?? (Formatter = CreateDefaultWithDemystifier()))
-                    .ErrorHtml(error, DotvvmMiddleware.ConvertHttpContext(context));
+                    .ErrorHtml(error, context);
                 return context.Response.WriteAsync(text);
             }
             catch (Exception exc)
             {
-                context.Response.ContentType = "text/plain";
-                try
-                {
-                    using (var writer = new StreamWriter(context.Response.Body))
-                    {
-                        writer.WriteLine("Error in Dotvvm Application:");
-                        writer.WriteLine(error.ToString());
-                        writer.WriteLine();
-                        writer.WriteLine("Error occurred while displaying the error page. This is internal error and should not happened, please report it:");
-                        writer.WriteLine(exc.ToString());
-                    }
-                }
-                catch { }
-                throw new Exception("Error occurred inside dotvvm error handler, this is internal error and should not happen; \n Original error:" + error.ToString(), exc);
+                return RenderFallbackMessage(context, error, exc);
             }
+        }
+
+        private static async Task RenderFallbackMessage(IHttpContext context, Exception error, Exception exc)
+        {
+            try
+            {
+                context.Response.ContentType = "text/plain";
+                using (var writer = new StreamWriter(context.Response.Body))
+                {
+                    await writer.WriteLineAsync("Error in DotVVM Application:");
+                    await writer.WriteLineAsync(error.ToString());
+                    await writer.WriteLineAsync();
+                    await writer.WriteLineAsync("Error occurred while displaying the error page. This is internal error and should not happen, please report it:");
+                    await writer.WriteLineAsync(exc.ToString());
+                }
+            }
+            catch { }
+            throw new Exception("Error occurred inside DotVVM error handler, this is internal error and should not happen; \n Original error:" + error.ToString(), exc);
         }
 
         private ErrorFormatter CreateDefaultWithDemystifier()
@@ -98,6 +79,6 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 },
                 methodFormatter: f => (f as EnhancedStackFrame)?.MethodInfo?.ToString());
         }
+
     }
 }
-

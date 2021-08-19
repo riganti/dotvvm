@@ -71,8 +71,13 @@ namespace DotVVM.Framework.Binding
         public static (int stepsUp, DotvvmBindableObject target) FindDataContextTarget(this IBinding binding, DotvvmBindableObject control)
         {
             if (control == null) throw new InvalidOperationException($"Can not evaluate binding without any dataContext.");
-            var controlContext = (DataContextStack?)control.GetValue(Internal.DataContextTypeProperty);
             var bindingContext = binding.GetProperty<DataContextStack>(ErrorHandlingMode.ReturnNull);
+            return FindDataContextTarget(control, bindingContext, binding);
+        }
+
+        internal static (int stepsUp, DotvvmBindableObject target) FindDataContextTarget(DotvvmBindableObject control, DataContextStack? bindingContext, object? contextObject)
+        {
+            var controlContext = (DataContextStack?)control.GetValue(Internal.DataContextTypeProperty);
             if (bindingContext == null || controlContext == null || controlContext.Equals(bindingContext)) return (0, control);
 
             var changes = 0;
@@ -84,7 +89,7 @@ namespace DotVVM.Framework.Binding
                 if (a.properties.Contains(DotvvmBindableObject.DataContextProperty)) changes++;
             }
 
-            throw new NotSupportedException($"Could not find DataContext space of binding '{binding}'. The DataContextType property of the binding does not correspond to DataContextType of the {control.GetType().Name} not any of its ancestor. Control's context is {controlContext}, binding's context is {bindingContext}.");
+            throw new NotSupportedException($"Could not find DataContext space of '{contextObject}'. The DataContextType property of the binding does not correspond to DataContextType of the {control.GetType().Name} not any of its ancestor. Control's context is {controlContext}, binding's context is {bindingContext}.");
         }
 
         /// <summary>
@@ -167,7 +172,7 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary>
-        /// Writes the value to binding - binded viewModel property is updated. May throw an exception when binding does not support assignment.
+        /// Writes the value to binding - bound viewModel property is updated. May throw an exception when binding does not support assignment.
         /// </summary>
         public static void UpdateSource(this IUpdatableValueBinding binding, object? value, DotvvmBindableObject control)
         {
@@ -178,7 +183,7 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary>
-        /// Writes the value to binding - binded viewModel property is updated. May throw an exception when binding does not support assignment.
+        /// Writes the value to binding - bound viewModel property is updated. May throw an exception when binding does not support assignment.
         /// </summary>
         public static void UpdateSource<T>(this IUpdatableValueBinding<T> binding, T value, DotvvmBindableObject control)
         {

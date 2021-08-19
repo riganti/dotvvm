@@ -112,14 +112,14 @@ namespace DotVVM.Framework.Compilation.Binding
             expression = rewriter.Visit(expression);
 
             //Extract all promise returning method calls so that  result can be 'awaited'
-            //Result of the call will be saved in auxiliary variable and the wariable is then used in original text
+            //Result of the call will be saved in auxiliary variable and the variable is then used in original text
             //example:
             //vm.D = A(B("a"), C("b")) ---> r_0 = B("a"), r_1 = C("b"), r_2 = A(r_0, r_1), vm.D = r_2
             var visitor = new ExtractExpressionVisitor(ex => CreatePromiseMethodCallAnnotationFactory(dataContext, ex));
             var rootCallback = visitor.Visit(expression);
 
             var errorCallback = new JsIdentifierExpression("reject");
-            var js = SouldCompileCallback(rootCallback) ? new JsIdentifierExpression("resolve").Invoke(javascriptTranslator.CompileToJavascript(rootCallback, dataContext)) : null;
+            var js = ShouldCompileCallback(rootCallback) ? new JsIdentifierExpression("resolve").Invoke(javascriptTranslator.CompileToJavascript(rootCallback, dataContext, preferUsingState: true)) : null;
 
             foreach (var param in visitor.ParameterOrder.Reverse<ParameterExpression>())
             {
@@ -128,11 +128,11 @@ namespace DotVVM.Framework.Compilation.Binding
                 var method = visitor.Replaced[param] as MethodCallExpression;
                 var methodInvocation = CompileMethodCall(method, dataContext, callback, errorCallback.Clone());
 
-                var invocationDependencies = ExtractPostbackCommandInvocationDependecies(methodInvocation);
+                var invocationDependencies = ExtractPostbackCommandInvocationDependencies(methodInvocation);
 
                 var replacedParameterNode = js.DescendantNodes().SingleOrDefault(n => n is JsIdentifierExpression identifier && identifier.Identifier == param.Name);
 
-                //These expressions would be affected by chaging order in which they are executed by putting them in .then(...) callback.
+                //These expressions would be affected by changing order in which they are executed by putting them in .then(...) callback.
                 var orderSensitiveExpressions = ResolveOrderSensitiveExpressions(callback, invocationDependencies, replacedParameterNode);
 
                 if (orderSensitiveExpressions.All(e => e.node is JsExpression))
@@ -156,12 +156,12 @@ namespace DotVVM.Framework.Compilation.Binding
                     );
                 }
             }
-            foreach (var sp in js.Descendants.OfType<JsSymbolicParameter>())
-            {
-                if (sp.Symbol == JavascriptTranslator.KnockoutContextParameter) sp.Symbol = currentContextVariable;
-                else if (sp.Symbol == JavascriptTranslator.KnockoutViewModelParameter) sp.ReplaceWith(new JsSymbolicParameter(currentContextVariable).Member("$data"));
-                else if (sp.Symbol == CommandBindingExpression.SenderElementParameter) sp.Symbol = senderVariable;
-            }
+            js = (JsExpression)js.AssignParameters(symbol =>
+                symbol == JavascriptTranslator.KnockoutContextParameter ? currentContextVariable.ToExpression() :
+                symbol == JavascriptTranslator.KnockoutViewModelParameter ? currentContextVariable.ToExpression().Member("$data") :
+                symbol == CommandBindingExpression.SenderElementParameter ? senderVariable.ToExpression() :
+                default
+            );
             return js;
         }
 
@@ -177,7 +177,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else { return null; }
             }
-            return p => new BindingParameterAnnotation(extensionParameter: new JavascriptTranslationVisitor.FakeExtensionParameter(_ => new JsIdentifierExpression(p.Name).WithAnnotation(new ViewModelInfoAnnotation(p.Type)), p.Name, new ResolvedTypeDescriptor(p.Type)));
+            return p => new BindingParameterAnnotation(extensionParameter: new JavascriptTranslationVisitor.FakeExtensionParameter(_ => new JsIdentifierExpression(p.Name).WithAnnotation(new ViewModelInfoAnnotation(p.Type, containsObservables: false)), p.Name, new ResolvedTypeDescriptor(p.Type)));
         }
 
         private static List<(CodeSymbolicParameter parameter, JsNode node)> ResolveOrderSensitiveExpressions(JsFunctionExpression callback, JsExpression invocationDependencies, JsNode replacedPostbackNode)
@@ -218,7 +218,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private static JsNode EnsureInvocationsAndTargetStayTogether(JsNode n) =>
             //If I am target of invocation and I am also a member access take my target, otherwise take whole invocation
-            //This is so that in cases like: `A(...).B(...)` we  don't split ten experession into `_temp = A(...).B, temp()` doing so would result in invalid this context in javascript
+            //This is so that in cases like: `A(...).B(...)` we  don't split ten expression into `_temp = A(...).B, temp()` doing so would result in invalid this context in javascript
             //in case like `Foo = A(...)` we are better of just taking A. If A is an identifier nothing will change.
             n.Parent is JsInvocationExpression invocation &&
             invocation.Target == n &&
@@ -226,7 +226,7 @@ namespace DotVVM.Framework.Compilation.Binding
             ? targetMemberAccess.Target
             : n;
 
-        private static JsExpression ExtractPostbackCommandInvocationDependecies(JsExpression methodInvocation)
+        private static JsExpression ExtractPostbackCommandInvocationDependencies(JsExpression methodInvocation)
         {
             var commandPostbackInvocation = ExtractCommandPostbackInvocation(methodInvocation);
 
@@ -246,7 +246,7 @@ namespace DotVVM.Framework.Compilation.Binding
             ? commandInvocation
             : null;
 
-        protected virtual bool SouldCompileCallback(Expression c)
+        protected virtual bool ShouldCompileCallback(Expression c)
         {
             if (c.NodeType == ExpressionType.Parameter) return false;
             return true;
@@ -254,12 +254,13 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected virtual JsExpression CompileMethodCall(MethodCallExpression methodExpression, DataContextStack dataContext, JsExpression callbackFunction, JsExpression errorCallback)
         {
-            var jsTranslation = javascriptTranslator.TryTranslateMethodCall(methodExpression.Object, methodExpression.Arguments.ToArray(), methodExpression.Method, dataContext)
-                ?.ApplyAction(javascriptTranslator.AdjustViewModelProperties);
+            var jsTranslation = javascriptTranslator.TryTranslateMethodCall(methodExpression.Object, methodExpression.Arguments.ToArray(), methodExpression.Method, dataContext);
             if (jsTranslation != null)
             {
+                jsTranslation.AcceptVisitor(javascriptTranslator.AdjustingVisitor(preferUsingState: true));
                 if (!(jsTranslation.Annotation<ResultIsPromiseAnnotation>() is ResultIsPromiseAnnotation promiseAnnotation))
                     throw new Exception($"Expected javascript translation that returns a promise");
+
                 var resultPromise = promiseAnnotation.GetPromiseFromExpression?.Invoke(jsTranslation) ?? jsTranslation;
                 return resultPromise.Member("then").Invoke(callbackFunction, errorCallback);
             }
@@ -303,7 +304,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else
                 {
-                    clientArgs.Add(javascriptTranslator.CompileToJavascript(arg, dataContext));
+                    clientArgs.Add(javascriptTranslator.CompileToJavascript(arg, dataContext, preferUsingState: true));
                     return new StaticCommandParameterPlan(StaticCommandParameterType.Argument, arg.Type);
                 }
             }).ToArray();

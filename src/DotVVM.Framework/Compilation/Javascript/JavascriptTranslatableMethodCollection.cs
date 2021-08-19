@@ -27,8 +27,8 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             if (method.Name == "Invoke" && typeof(Delegate).IsAssignableFrom(method.DeclaringType))
             {
-                var invocationTargetExpresionCall = context.JsExpression().Invoke(arguments.Select(a => a.JsExpression()));
-                return invocationTargetExpresionCall
+                var invocationTargetExpressionCall = context.JsExpression().Invoke(arguments.Select(a => a.JsExpression()));
+                return invocationTargetExpressionCall
                     .WithAnnotation(new ResultIsPromiseAnnotation(a=> new JsIdentifierExpression("Promise").Member("resolve").Invoke(a)));
             }
             return null;
@@ -86,7 +86,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         public void AddMethodTranslator(MethodInfo method, IJavascriptMethodTranslator translator)
         {
             MethodTranslators.Add(method, translator);
-            if (method.DeclaringType.GetTypeInfo().IsInterface)
+            if (method.DeclaringType.IsInterface)
                 Interfaces.Add(method.DeclaringType);
         }
 
@@ -105,11 +105,11 @@ namespace DotVVM.Framework.Compilation.Javascript
         static bool ToStringCheck(Expression expr)
         {
             while (expr.NodeType == ExpressionType.Convert) expr = ((UnaryExpression)expr).Operand;
-            return expr.Type.GetTypeInfo().IsPrimitive;
+            return expr.Type.IsPrimitive;
         }
 
         public static JsExpression BuildIndexer(JsExpression target, JsExpression index, MemberInfo member) =>
-            target.Indexer(index).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = member });
+            target.Indexer(index).WithAnnotation(new VMPropertyInfoAnnotation(member));
 
         public void AddDefaultMethodTranslators()
         {
@@ -156,7 +156,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(DotvvmBindableObject).GetMethods(BindingFlags.Instance | BindingFlags.Public).Single(m => m.Name == "GetValue" && !m.ContainsGenericParameters), new GenericMethodCompiler(
                 args => {
                     var dotvvmproperty = ((DotvvmProperty)((JsLiteral)args[1]).Value);
-                    return JavascriptTranslationVisitor.TranslateViewModelProperty(args[0], (MemberInfo)dotvvmproperty.PropertyInfo ?? dotvvmproperty.PropertyType.GetTypeInfo(), name: dotvvmproperty.Name);
+                    return JavascriptTranslationVisitor.TranslateViewModelProperty(args[0], (MemberInfo)dotvvmproperty.PropertyInfo ?? dotvvmproperty.PropertyType, name: dotvvmproperty.Name);
                 }
             ));
 
@@ -412,13 +412,13 @@ namespace DotVVM.Framework.Compilation.Javascript
                 translator: new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
 
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.FirstOrDefault), parameterCount: 1, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("firstOrDefault").Invoke(args[1], returnTrueFunc.Clone()).WithAnnotation(ResultIsObservableAnnotation.Instance)));
+                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("firstOrDefault").Invoke(args[1], returnTrueFunc.Clone())));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.FirstOrDefault), parameterCount: 2, parameterFilter: p => p[1].ParameterType.IsGenericType && p[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>), translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("firstOrDefault").Invoke(args[1], args[2]).WithAnnotation(ResultIsObservableAnnotation.Instance)));
+                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("firstOrDefault").Invoke(args[1], args[2])));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.LastOrDefault), parameterCount: 1, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("lastOrDefault").Invoke(args[1], returnTrueFunc.Clone()).WithAnnotation(ResultIsObservableAnnotation.Instance)));
+                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("lastOrDefault").Invoke(args[1], returnTrueFunc.Clone())));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.LastOrDefault), parameterCount: 2, parameterFilter: p => p[1].ParameterType.IsGenericType && p[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>), translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("lastOrDefault").Invoke(args[1], args[2]).WithAnnotation(ResultIsObservableAnnotation.Instance)));
+                new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("lastOrDefault").Invoke(args[1], args[2])));
 
             foreach (var type in new[] { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal), typeof(int?), typeof(long?), typeof(float?), typeof(double?), typeof(decimal?) })
             {
@@ -541,13 +541,13 @@ namespace DotVVM.Framework.Compilation.Javascript
             {
                 if (Interfaces.Contains(iface))
                 {
-                    var map = method.DeclaringType.GetTypeInfo().GetRuntimeInterfaceMap(iface);
+                    var map = method.DeclaringType.GetInterfaceMap(iface);
                     var imIndex = Array.IndexOf(map.TargetMethods, method);
                     if (imIndex >= 0 && MethodTranslators.TryGetValue(map.InterfaceMethods[imIndex], out var translator) && translator.TryTranslateCall(context, args, method) is JsExpression result)
                         return result;
                 }
             }
-            if (method.DeclaringType.GetTypeInfo().IsGenericType && !method.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
+            if (method.DeclaringType.IsGenericType && !method.DeclaringType.IsGenericTypeDefinition)
             {
                 var genericType = method.DeclaringType.GetGenericTypeDefinition();
                 var m2 = genericType.GetMethod(method.Name,

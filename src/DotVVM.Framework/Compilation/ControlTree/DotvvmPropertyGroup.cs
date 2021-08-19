@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public MarkupOptionsAttribute? MarkupOptions { get; private set; }
 
         public DataContextChangeAttribute[] DataContextChangeAttributes { get; private set; }
-            = new DataContextChangeAttribute[] {};
+            = new DataContextChangeAttribute[] { };
 
         public DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; private set; }
 
@@ -85,7 +85,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var dataContextChange = attributeProvider.GetCustomAttributes<DataContextChangeAttribute>(true);
             var dataContextManipulation = attributeProvider
                 .GetCustomAttribute<DataContextStackManipulationAttribute>(true);
-            if (dataContextManipulation != null && dataContextChange.Any()) {
+            if (dataContextManipulation != null && dataContextChange.Any())
+            {
                 throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and "
                     + $"{nameof(DataContextManipulationAttribute)} can not be set both at property '{Name}'.");
             }
@@ -113,7 +114,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                                    let parameters = ctor.GetParameters()
                                    where parameters.Length == 1 && typeof(IEnumerable).IsAssignableFrom(parameters[0].ParameterType)
                                    let elementType = ReflectionUtils.GetEnumerableType(parameters[0].ParameterType)
-                                   where elementType.GetTypeInfo().IsGenericType && elementType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)
+                                   where elementType.IsGenericType && elementType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)
                                    let genArguments = elementType.GetGenericArguments()
                                    where genArguments[0].IsAssignableFrom(typeof(string))
                                    let valueType = genArguments[1]
@@ -201,19 +202,21 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public static IEnumerable<DotvvmPropertyGroup> GetPropertyGroups(Type controlType)
         {
             RunClassConstructor(controlType);
-            foreach (var property in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
-            {
-                if (property.IsDefined(typeof(PropertyGroupAttribute)))
-                {
-                    yield return Create(property, null);
-                }
-            }
-
             foreach (var pg in descriptorDictionary.Values)
             {
                 if (pg.PropertyGroupMode == PropertyGroupMode.GeneratedDotvvmProperty && pg.DeclaringType.IsAssignableFrom(controlType))
                 {
                     yield return pg;
+                }
+            }
+
+            foreach (var property in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
+            {
+                if (property.IsDefined(typeof(PropertyGroupAttribute)))
+                {
+                    var pg = Create(property, null);
+                    if (pg.PropertyGroupMode == PropertyGroupMode.ValueCollection)
+                        yield return pg;
                 }
             }
         }

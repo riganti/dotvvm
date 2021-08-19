@@ -394,14 +394,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
             // process control contents
             ProcessControlContent(control, element.Content);
 
-            // check required properties
-            IAbstractPropertySetter missingProperty;
-            var missingProperties = control.Metadata.AllProperties.Where(p => p.MarkupOptions.Required && !control.TryGetProperty(p, out missingProperty)).ToList();
-            if (missingProperties.Any())
-            {
-                element.AddError($"The control '{ control.Metadata.Type.FullName }' is missing required properties: { string.Join(", ", missingProperties.Select(p => "'" + p.Name + "'")) }.");
-            }
-
             var unknownContent = control.Content.Where(c => !c.Metadata.Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmControl))));
             foreach (var unknownControl in unknownContent)
             {

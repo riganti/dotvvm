@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Runtime.Filters
                 do
                 {
                     result.AddRange(member.CastTo<ICustomAttributeProvider>().GetCustomAttributes<T>());
-                } while (data.includeParents && (member = member.DeclaringType?.GetTypeInfo()) != null);
+                } while (data.includeParents && (member = member.DeclaringType) != null);
                 return result.ToArray();
             });
         }
