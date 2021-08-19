@@ -41,6 +41,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
                         startupTracer?.TraceEvent(StartupTracingConstants.InvokeAllStaticConstructorsStarted);
                         InvokeStaticConstructorsOnAllControls();
+                        ResolveAllPropertyAliases();
                         startupTracer?.TraceEvent(StartupTracingConstants.InvokeAllStaticConstructorsFinished);
 
                         isInitialized = true;
@@ -120,6 +121,16 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         while (tt != null);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// After all DotvvmProperties have been registered, those marked with PropertyAliasAttribute can be resolved.
+        /// </summary>
+        private void ResolveAllPropertyAliases()
+        {
+            foreach (var alias in DotvvmProperty.GetRegisteredAliases()) {
+                DotvvmPropertyAlias.Resolve(alias.Value);
             }
         }
 

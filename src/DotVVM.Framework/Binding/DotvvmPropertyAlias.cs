@@ -7,18 +7,50 @@ namespace DotVVM.Framework.Binding
 {
     public class DotvvmPropertyAlias : DotvvmProperty
     {
+        private DotvvmProperty? aliased;
+
         public DotvvmPropertyAlias(
-            DotvvmProperty aliased,
-            string alias)
+            string aliasName,
+            Type declaringType,
+            string aliasedPropertyName,
+            Type aliasedPropertyDeclaringType)
         {
-            Aliased = aliased;
-            Name = alias;
-            DeclaringType = aliased.DeclaringType;
-            IsValueInherited = aliased.IsValueInherited;
-            DefaultValue = aliased.DefaultValue;
+            Name = aliasName;
+            DeclaringType = declaringType;
+            AliasedPropertyName = aliasedPropertyName;
+            AliasedPropertyDeclaringType = aliasedPropertyDeclaringType;
         }
 
-        public DotvvmProperty Aliased { get; }
+        public string AliasedPropertyName { get; }
+        public Type AliasedPropertyDeclaringType { get; }
+        public DotvvmProperty Aliased
+        {
+            get
+            {
+                if (aliased == null)
+                {
+                    throw new NotSupportedException($"The '{FullName}' property alias has " +
+                        "not been initialized yet.");
+                }
+                return aliased;
+            }
+        }
+        public override object? DefaultValue { get => Aliased.DefaultValue; }
+        public override Type PropertyType { get => Aliased.PropertyType; }
+        public override bool IsValueInherited { get => Aliased.IsValueInherited; }
+        public override MarkupOptionsAttribute MarkupOptions
+        {
+            get => Aliased.MarkupOptions;
+            set => Aliased.MarkupOptions = value;
+        }
+        public override bool IsBindingProperty { get => Aliased.IsBindingProperty; }
+
+        public static void Resolve(DotvvmPropertyAlias aliasProperty)
+        {
+            aliasProperty.aliased = DotvvmProperty.ResolveProperty(
+                aliasProperty.AliasedPropertyDeclaringType,
+                aliasProperty.AliasedPropertyName);
+        }
 
         public override object? GetValue(DotvvmBindableObject control, bool inherit = true)
         {
