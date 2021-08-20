@@ -31,8 +31,7 @@ namespace DotVVM.Framework.Binding
                 DefaultValue = group.DefaultValue,
                 IsValueInherited = false,
                 Name = propname,
-                IsObsolete = group.IsObsolete,
-                WorkaroundMessage = group.WorkaroundMessage
+                ObsoleteAttribute = group.ObsoleteAttribute
             };
             if (group.PropertyGroupMode == PropertyGroupMode.ValueCollection) prop.IsVirtual = true;
 

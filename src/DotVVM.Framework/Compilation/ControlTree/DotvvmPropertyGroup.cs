@@ -33,6 +33,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; private set; }
 
+        public ObsoleteAttribute? ObsoleteAttribute { get; private set; }
+
         public object DefaultValue { get; }
 
         public Type DeclaringType { get; }
@@ -45,10 +47,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
         ITypeDescriptor? IPropertyGroupDescriptor.CollectionType => ResolvedTypeDescriptor.Create(CollectionType);
 
         public PropertyGroupMode PropertyGroupMode { get; }
-
-        public bool IsObsolete { get; private set; }
-
-        public string? WorkaroundMessage { get; private set; }
 
         private ConcurrentDictionary<string, DotvvmProperty> generatedProperties = new ConcurrentDictionary<string, DotvvmProperty>();
 
@@ -67,11 +65,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         protected DotvvmPropertyGroup(PrefixArray prefixes, Type valueType, FieldInfo descriptorField, string name, object defaultValue)
         {
-            this.PropertyInfo = null;
             this.DescriptorField = descriptorField;
             this.DeclaringType = descriptorField.DeclaringType;
             this.CollectionType = null;
             this.Name = name;
+            this.DefaultValue = defaultValue;
             this.PropertyType = valueType;
             this.Prefixes = prefixes.Values;
             this.PropertyGroupMode = PropertyGroupMode.GeneratedDotvvmProperty;
@@ -94,12 +92,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             DataContextChangeAttributes = dataContextChange.ToArray();
             DataContextManipulationAttribute = dataContextManipulation;
 
-            var obsoleteAttribute = attributeProvider.GetCustomAttribute<ObsoleteAttribute>();
-            if (obsoleteAttribute != null)
-            {
-                IsObsolete = true;
-                WorkaroundMessage = obsoleteAttribute.Message;
-            }
+            ObsoleteAttribute = attributeProvider.GetCustomAttribute<ObsoleteAttribute>();
         }
 
         IPropertyDescriptor IPropertyGroupDescriptor.GetDotvvmProperty(string name) => GetDotvvmProperty(name);

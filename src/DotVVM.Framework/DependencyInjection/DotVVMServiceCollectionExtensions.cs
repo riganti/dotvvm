@@ -93,6 +93,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.ConfigureWithServices<ViewCompilerConfiguration>((o, s) => {
                 var controlResolver = s.GetRequiredService<IControlResolver>();
+                o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<ObsoletionVisitor>(s));
+                o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<AliasingVisitor>(s));
                 o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<StylingVisitor>(s));
                 var requiredResourceControl = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(RequiredResource)));
                 o.TreeVisitors.Add(() => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl));

@@ -38,12 +38,12 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets the default value of the property.
         /// </summary>
-        public virtual object? DefaultValue { get; protected set; }
+        public object? DefaultValue { get; protected set; }
 
         /// <summary>
         /// Gets the type of the property.
         /// </summary>
-        public virtual Type PropertyType { get; protected set; }
+        public Type PropertyType { get; protected set; }
 
         /// <summary>
         /// Gets the type of the class where the property is registered.
@@ -53,7 +53,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets whether the value can be inherited from the parent controls.
         /// </summary>
-        public virtual bool IsValueInherited { get; protected set; }
+        public bool IsValueInherited { get; protected set; }
 
         /// <summary>
         /// Gets or sets the Reflection property information.
@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets or sets the markup options.
         /// </summary>
-        public virtual MarkupOptionsAttribute MarkupOptions { get; set; }
+        public MarkupOptionsAttribute MarkupOptions { get; set; }
 
         /// <summary>
         /// Virtual DotvvmProperty are not explicitly registered but marked with [MarkupOptions] attribute on DotvvmControl
@@ -74,22 +74,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Determines if property type inherits from IBinding
         /// </summary>
-        public virtual bool IsBindingProperty { get; private set; }
-
-        /// <summary>
-        /// Gets whether this property has been made obsolete.
-        /// </summary>
-        /// <remarks>
-        /// Is set to true if the property has the <see cref="ObsoleteAttribute"/>.
-        /// The workaround message from the attribute is contained in <see cref="WorkaroundMessage"/>.
-        /// </remarks>
-        public bool IsObsolete { get; protected set; }
-
-        /// <summary>
-        /// Gets the workaround message from the <see cref="ObsoleteAttribute"/> on the property field
-        /// if the attribute exists.
-        /// </summary>
-        public string? WorkaroundMessage { get; protected set; }
+        public bool IsBindingProperty { get; private set; }
 
         /// <summary>
         /// Gets the full name of the descriptor.
@@ -108,10 +93,12 @@ namespace DotVVM.Framework.Binding
         }
 
         [JsonIgnore]
-        public virtual DataContextChangeAttribute[] DataContextChangeAttributes { get; private set; }
+        public DataContextChangeAttribute[] DataContextChangeAttributes { get; private set; }
 
         [JsonIgnore]
-        public virtual DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; private set; }
+        public DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; private set; }
+
+        public ObsoleteAttribute? ObsoleteAttribute { get; protected set; }
 
         /// <summary>
         /// Prevents a default instance of the <see cref="DotvvmProperty"/> class from being created.
@@ -394,10 +381,9 @@ namespace DotVVM.Framework.Binding
             ICustomAttributeProvider attributeProvider,
             DotvvmProperty? fallbackProperty = default)
         {
-            var obsoleteAttribute = propertyInfo?.GetCustomAttribute<ObsoleteAttribute>()
-                ?? attributeProvider.GetCustomAttribute<ObsoleteAttribute>();
-            property.IsObsolete = obsoleteAttribute != null || fallbackProperty?.IsObsolete == true;
-            property.WorkaroundMessage = obsoleteAttribute?.Message ?? fallbackProperty?.WorkaroundMessage;
+            property.ObsoleteAttribute = propertyInfo?.GetCustomAttribute<ObsoleteAttribute>()
+                ?? attributeProvider.GetCustomAttribute<ObsoleteAttribute>()
+                ?? fallbackProperty?.ObsoleteAttribute;
         }
 
         private static ConcurrentDictionary<string, DotvvmProperty> registeredProperties

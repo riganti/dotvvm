@@ -30,20 +30,11 @@ namespace DotVVM.Framework.Binding
                 if (aliased == null)
                 {
                     throw new NotSupportedException($"The '{FullName}' property alias has " +
-                        "not been initialized yet.");
+                        "not been resolved yet.");
                 }
                 return aliased;
             }
         }
-        public override object? DefaultValue { get => Aliased.DefaultValue; }
-        public override Type PropertyType { get => Aliased.PropertyType; }
-        public override bool IsValueInherited { get => Aliased.IsValueInherited; }
-        public override MarkupOptionsAttribute MarkupOptions
-        {
-            get => Aliased.MarkupOptions;
-            set => Aliased.MarkupOptions = value;
-        }
-        public override bool IsBindingProperty { get => Aliased.IsBindingProperty; }
 
         public static void Resolve(DotvvmPropertyAlias aliasProperty)
         {
@@ -54,17 +45,20 @@ namespace DotVVM.Framework.Binding
 
         public override object? GetValue(DotvvmBindableObject control, bool inherit = true)
         {
-            return Aliased.GetValue(control, inherit);
+            throw new NotSupportedException($"'{FullName}' is a property alias and doesn't support "
+                + $"'{nameof(GetValue)}'. Use '{Aliased.FullName}' instead.");
         }
 
         public override bool IsSet(DotvvmBindableObject control, bool inherit = true)
         {
-            return Aliased.IsSet(control, inherit);
+            throw new NotSupportedException($"'{FullName}' is a property alias and doesn't support "
+                + $"'{nameof(IsSet)}'. Use '{Aliased.FullName}' instead.");
         }
 
         public override void SetValue(DotvvmBindableObject control, object? value)
         {
-            Aliased.SetValue(control, value);
+            throw new NotSupportedException($"'{FullName}' is a property alias and doesn't support "
+                + $"'{nameof(SetValue)}'. Use '{Aliased.FullName}' instead.");
         }
     }
 }
