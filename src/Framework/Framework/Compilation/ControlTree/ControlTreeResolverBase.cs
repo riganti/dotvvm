@@ -98,6 +98,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 );
             }
 
+            foreach (var propertyDeclarationDirective in directives.OfType<ResolvedPropertyDeclarationDirective>().ToList())
+            {
+                CreateDotvvmPropertyFromDirective(propertyDeclarationDirective);
+            }
+
             ValidateMasterPage(view, masterPage, masterPageDirective?.First());
 
             ResolveRootContent(root, view, viewMetadata);
@@ -105,6 +110,14 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return view;
         }
 
+        protected virtual void CreateDotvvmPropertyFromDirective(ResolvedPropertyDeclarationDirective propertyDeclarationDirective) => DotvvmProperty.Register(
+                            propertyDeclarationDirective.NameSyntax.Name,
+                            propertyDeclarationDirective.PropertyType.As<ResolvedTypeDescriptor>()?.Type,
+                            propertyDeclarationDirective.DeclaringType.As<ResolvedTypeDescriptor>()?.Type,
+                            propertyDeclarationDirective.InitialValue,
+                            false,
+                            null,
+                            propertyDeclarationDirective, false);
         /// <summary>
         /// Resolves the content of the root node.
         /// </summary>
@@ -437,6 +450,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 return ProcessViewModuleDirective(directiveNode);
             }
+            else if (string.Equals(ParserConstants.PropertyDeclarationDirective, directiveNode.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                return ProcessPropertyDeclarationDirective(directiveNode);
+            }
 
             return treeBuilder.BuildDirective(directiveNode);
         }
@@ -451,14 +468,18 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return this.treeBuilder.BuildBaseTypeDirective(directiveNode, ParseDirectiveTypeName(directiveNode));
         }
 
-        protected virtual BindingParserNode ParseDirectiveTypeName(DothtmlDirectiveNode directiveNode)
+        protected virtual BindingParserNode ParseDirectiveTypeName(DothtmlDirectiveNode directiveNode) => ParseDirectiveCore(directiveNode, p => p.ReadDirectiveTypeName());
+        protected virtual BindingParserNode ParseImportDirectiveValue(DothtmlDirectiveNode directiveNode) => ParseDirectiveCore(directiveNode, p => p.ReadImportDirectiveValue());
+        protected virtual BindingParserNode ParsePropertyDirectiveValue(DothtmlDirectiveNode directiveNode) => ParseDirectiveCore(directiveNode, p => p.ReadPropertyDirectiveValue());
+
+        private static BindingParserNode ParseDirectiveCore(DothtmlDirectiveNode directiveNode, Func<BindingParser, BindingParserNode> parserFunc)
         {
             var tokenizer = new BindingTokenizer();
             tokenizer.Tokenize(directiveNode.ValueNode.Text);
             var parser = new BindingParser() {
                 Tokens = tokenizer.Tokens
             };
-            var valueSyntaxRoot = parser.ReadDirectiveTypeName();
+            var valueSyntaxRoot = parserFunc(parser);
             if (!parser.OnEnd())
             {
                 directiveNode.AddError($"Unexpected token: {parser.Peek()?.Text}.");
@@ -466,27 +487,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return valueSyntaxRoot;
         }
 
-        protected BindingParserNode ParseImportDirectiveValue(DothtmlDirectiveNode directiveNode)
-        {
-            var tokenizer = new BindingTokenizer();
-            tokenizer.Tokenize(directiveNode.ValueNode.Text);
-            var parser = new BindingParser() {
-                Tokens = tokenizer.Tokens
-            };
-            var result = parser.ReadDirectiveValue();
-
-            if (!parser.OnEnd())
-                directiveNode.AddError($"Unexpected token: {parser.Peek()?.Text}.");
-
-            return result;
-        }
-
         protected virtual IAbstractDirective ProcessImportDirective(DothtmlDirectiveNode directiveNode)
         {
             var valueSyntaxRoot = ParseImportDirectiveValue(directiveNode);
 
             BindingParserNode? alias = null;
-            BindingParserNode? name = null;
+            BindingParserNode? name;
             if (valueSyntaxRoot is BinaryOperatorBindingParserNode assignment)
             {
                 alias = assignment.FirstExpression;
@@ -526,6 +532,77 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             return treeBuilder.BuildViewModuleDirective(directiveNode, modulePath: directiveNode.Value, resourceName: directiveNode.Value);
         }
+
+        protected virtual IAbstractDirective ProcessPropertyDeclarationDirective(DothtmlDirectiveNode directiveNode)
+        {
+            var valueSyntaxRoot = ParsePropertyDirectiveValue(directiveNode);
+
+            var declaration = valueSyntaxRoot as PropertyDeclarationBindingParserNode;
+            if(declaration == null)
+            {
+                directiveNode.AddError("Cannot resolve the property declaration.");
+            }
+
+            var type = declaration?.PropertyType as TypeReferenceBindingParserNode;
+            if (type == null)
+            {
+                directiveNode.AddError($"Property type expected");
+                type = new ActualTypeReferenceBindingParserNode(new SimpleNameBindingParserNode("string"));
+            }
+
+            var name = declaration?.Name as SimpleNameBindingParserNode;
+            if (name == null)
+            {
+                directiveNode.AddError($"Property name expected.");
+                name = new SimpleNameBindingParserNode("");
+            }
+
+            var initializer = declaration?.Initializer as LiteralExpressionBindingParserNode;
+            if (declaration?.Initializer != null && initializer != null)
+            {
+                initializer = new LiteralExpressionBindingParserNode(null);
+                directiveNode.AddError("Property initializer must be a constant.");
+            }
+
+            var attributeSyntaxes = (declaration?.Attributes ?? new List<BindingParserNode>());
+            var resolvedAttributes = ProcessPropertyDirectiveAttributeReference(directiveNode, attributeSyntaxes)
+                .Select(a => treeBuilder.BuildPropertyDeclarationAttributeReferenceDirective(directiveNode, a.name, a.type, a.initializer))
+                .ToList();
+
+            return treeBuilder.BuildPropertyDeclarationDirective(directiveNode, type, name, initializer, resolvedAttributes, valueSyntaxRoot);
+        }
+
+        private List<(ActualTypeReferenceBindingParserNode type, IdentifierNameBindingParserNode name, LiteralExpressionBindingParserNode initializer)> ProcessPropertyDirectiveAttributeReference(DothtmlDirectiveNode directiveNode, List<BindingParserNode> attributeReferences)
+        {
+            var result = new List<(ActualTypeReferenceBindingParserNode, IdentifierNameBindingParserNode, LiteralExpressionBindingParserNode)> ();
+            foreach (var attributeReference in attributeReferences)
+            {
+                if (!(attributeReference is BinaryOperatorBindingParserNode assigment && assigment.Operator == BindingTokenType.AssignOperator))
+                {
+                    directiveNode.AddError("Property attributes must be in the form Attribute.Property = value.");
+                    continue;
+                }
+
+                var attributePropertyReference = assigment.FirstExpression as MemberAccessBindingParserNode;
+                var attributeTypeReference = attributePropertyReference?.TargetExpression;
+                var attributePropertyNameReference = attributePropertyReference?.MemberNameExpression;
+                var initializer = assigment.SecondExpression as LiteralExpressionBindingParserNode;
+
+                if (attributeTypeReference == null || attributePropertyNameReference == null)
+                {
+                    directiveNode.AddError("Property attributes must be in the form Attribute.Property = value.");
+                    continue;
+                }
+                if (initializer == null)
+                {
+                    directiveNode.AddError($"Value for property {attributeTypeReference.ToDisplayString()} of attribute {attributePropertyNameReference.ToDisplayString()} is missing or not a constant.");
+                    continue;
+                }
+                result.Add((new ActualTypeReferenceBindingParserNode(attributeTypeReference), attributePropertyNameReference, initializer));
+            }
+            return result;
+        }
+
 
         static HashSet<string> treatBindingAsHardCodedValue = new HashSet<string> { "resource" };
 

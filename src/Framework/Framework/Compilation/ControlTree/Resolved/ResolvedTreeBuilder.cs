@@ -10,6 +10,9 @@ using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Utils;
 using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Compilation.ViewCompiler;
+using System.Reflection;
+using System.Reflection.Emit;
+using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
@@ -141,6 +144,111 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public IAbstractDirective BuildViewModuleDirective(DothtmlDirectiveNode directiveNode, string modulePath, string resourceName) =>
             new ResolvedViewModuleDirective(modulePath, resourceName) { DothtmlNode = directiveNode };
 
+        public IAbstractDirective BuildPropertyDeclarationDirective(
+            DothtmlDirectiveNode directive,
+            TypeReferenceBindingParserNode typeSyntax,
+            SimpleNameBindingParserNode nameSyntax,
+            LiteralExpressionBindingParserNode? initializer,
+            IList<IAbstractDirectiveAttributeReference> resolvedAttributes,
+            BindingParserNode valueSyntaxRoot)
+        {
+            var propertyTypeDescriptor = ResolveTypeNameDirective(directive, typeSyntax);
+
+            if (propertyTypeDescriptor == null)
+            {
+                directive.AddError($"Could not resolve type {typeSyntax.ToDisplayString()}");
+            }
+
+            //Chack that I am not asigning incompatible types 
+            var initialValue = initializer?.Value ?? CreateDefaultValue(propertyTypeDescriptor);
+            var declaringTypeDecriptor = CreateDymanicDeclaringType();
+
+            var attributeInstances = InstantiateAttributes(resolvedAttributes).ToList();
+
+            return new ResolvedPropertyDeclarationDirective(nameSyntax, typeSyntax, propertyTypeDescriptor, declaringTypeDecriptor, initialValue, resolvedAttributes, attributeInstances) { DothtmlNode = directive };
+        }
+
+        private IEnumerable<object> InstantiateAttributes(IList<IAbstractDirectiveAttributeReference> resolvedAttributes)
+        {
+            var attributePropertyGrouping = resolvedAttributes.GroupBy(
+                a => a.Type.FullName,
+                a => a,
+                (name, attributes) => {
+
+                    var attributeType = attributes.First().CastTo<ResolvedTypeDescriptor>().Type;
+                    var properties = attributes.Select(a => (name: a.NameSyntax.Name, value: a.Initializer.Value));
+
+
+                    return (attributeType, properties);
+                }).ToList();
+
+            foreach (var grouping in attributePropertyGrouping)
+            {
+                var attributeInstance = Activator.CreateInstance(grouping.attributeType);
+
+                foreach (var property in grouping.properties)
+                {
+                    grouping.attributeType.GetProperty(property.name).SetValue(attributeInstance, property.value);
+                }
+                yield return attributeInstance;
+            }
+        }
+
+        private static ResolvedTypeDescriptor CreateDymanicDeclaringType()
+        {
+            AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Guid.NewGuid().ToString()), AssemblyBuilderAccess.Run);
+
+            var assemblyName = new AssemblyName($"DotvvmMarkupControlDynamicAssembly-{Guid.NewGuid()}");
+            var assemblyBuilder =
+                AssemblyBuilder.DefineDynamicAssembly(
+                    assemblyName,
+                    AssemblyBuilderAccess.Run);
+
+            // For a single-module assembly, the module name is usually
+            // the assembly name plus an extension.
+            var mb =
+                assemblyBuilder.DefineDynamicModule(assemblyName.Name);
+
+            var declaringTypeBuilder = mb.DefineType(
+                $"DotvvmMarkupControl-{Guid.NewGuid()}",
+                 TypeAttributes.Public, typeof(DotvvmMarkupControl));
+            var declaringTypeDecriptor = new ResolvedTypeDescriptor(declaringTypeBuilder);
+            return declaringTypeDecriptor;
+        }
+
+        public IAbstractDirectiveAttributeReference BuildPropertyDeclarationAttributeReferenceDirective(
+            DothtmlDirectiveNode directiveNode,
+            IdentifierNameBindingParserNode propertyNameSyntax,
+            ActualTypeReferenceBindingParserNode typeSyntax,
+            LiteralExpressionBindingParserNode initializer)
+        {
+            var typeDescriptor = ResolveTypeNameDirective(directiveNode, typeSyntax);
+
+            if (typeDescriptor == null)
+            {
+                directiveNode.AddError($"Could not resolve type {typeSyntax.ToDisplayString()} when trying to resolve property attribute type.");
+            }
+
+            return new ResolvedPropertyDirectiveAttributeReference(typeSyntax, propertyNameSyntax, typeDescriptor, initializer);
+        }
+
+
+
+        private object? CreateDefaultValue(ResolvedTypeDescriptor descriptor)
+        {
+            if (descriptor != null && descriptor.Type.IsValueType)
+            {
+                return Activator.CreateInstance(descriptor.Type);
+            }
+            return null;
+        }
+
+        public IAbstractBaseTypeDirective Build(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
+        {
+            var type = ResolveTypeNameDirective(directive, nameSyntax);
+            return new ResolvedBaseTypeDirective(nameSyntax, type) { DothtmlNode = directive };
+        }
+
         private ResolvedTypeDescriptor? ResolveTypeNameDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
         {
             var expression = ParseDirectiveExpression(directive, nameSyntax) as StaticClassIdentifierExpression;
@@ -198,5 +306,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         {
             ((ResolvedContentNode)control).AddChild((ResolvedControl)child);
         }
+
     }
 }

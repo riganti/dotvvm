@@ -8,19 +8,20 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class PropertyDeclarationBindingParserNode : BindingParserNode
     {
-        public BindingParserNode PropertyType { get; private set; }
         public BindingParserNode Name { get; private set; }
+        public BindingParserNode PropertyType { get; private set; }
         public BindingParserNode? Initializer { get; set; }
         public List<BindingParserNode> Attributes { get; set; } = new List<BindingParserNode>();
 
         public PropertyDeclarationBindingParserNode(BindingParserNode propertyType, BindingParserNode name)
         {
-            PropertyType = propertyType;
             Name = name;
+            PropertyType = propertyType;
         }
 
-        public override string ToDisplayString() => $"{PropertyType.ToDisplayString()} {Name.ToDisplayString()}{ToInitializerDisplayString()}{ToAttributeSeparatorDisplayString()}{ToAttributeListDisplayString()}";
-        private string ToAttributeSeparatorDisplayString() => Attributes.Count != 0 ? "," : "";
+        public override string ToDisplayString() => $"{ToPropertyTypeDisplayString()}{Name.ToDisplayString()}{ToInitializerDisplayString()}{ToAttributeSeparatorDisplayString()}{ToAttributeListDisplayString()}";
+        private string? ToPropertyTypeDisplayString() => PropertyType!= null? $"{PropertyType.ToDisplayString()} " : "";
+        private string ToAttributeSeparatorDisplayString() => Attributes.Count != 0 ? ", " : "";
         private string ToInitializerDisplayString() => Initializer != null ? $" = {Initializer.ToDisplayString()}" : "";
         private string ToAttributeListDisplayString() => string.Join(", ", Attributes.Select(a => a.ToDisplayString()));
 
