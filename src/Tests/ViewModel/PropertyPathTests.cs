@@ -13,6 +13,9 @@ namespace DotVVM.Framework.Tests.ViewModel
     [TestClass]
     public class PropertyPathTests
     {
+        public Action MyProperty { get; set; } = () => { };
+
+
         [TestMethod]
         public void PropertyPath_GetPropertyPath()
         {

@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         public BindingParserNode ParseImportDirective(string expression)
         {
             BindingParser parser = SetupParser(expression);
-            return parser.ReadDirectiveValue();
+            return parser.ReadImportDirectiveValue();
         }
 
         public BindingParserNode ParseMultiExpression(string expression)

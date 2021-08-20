@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
         }
 
-        public BindingParserNode ReadDirectiveValue()
+        public BindingParserNode ReadImportDirectiveValue()
         {
             var startIndex = CurrentIndex;
             var first = ReadNamespaceOrTypeName();
@@ -50,27 +50,12 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         public BindingParserNode ReadPropertyDirectiveValue()
         {
             var startIndex = CurrentIndex;
-            var propertyType = ReadNamespaceOrTypeName();
+            SkipWhiteSpace();
 
-            if (Peek() == null)
-            {
-                propertyType.NodeErrors.Add($"Property name expected.");
-                return propertyType;
-            }
+            TryReadTypeReference(out var propertyType);
 
             var propertyName = ReadNamespaceOrTypeName();
             var propertyDeclaration = CreateNode(new PropertyDeclarationBindingParserNode(propertyType, propertyName), startIndex);
-
-            if (!(propertyName is SimpleNameBindingParserNode))
-            {
-                propertyDeclaration.NodeErrors.Add("Only simple name is allowed as property name.");
-                return propertyDeclaration;
-            }
-            if (!(propertyType is TypeReferenceBindingParserNode))
-            {
-                propertyDeclaration.NodeErrors.Add("Property type expected.");
-                return propertyDeclaration;
-            }
 
             SkipWhiteSpace();
 
@@ -81,13 +66,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
                 var literal = ReadLiteralExpression();
 
-                if(!(literal is LiteralExpressionBindingParserNode))
-                {
-                    literal.NodeErrors.Add("Property initializer must be a constant.");
-                }
                 propertyDeclaration.Initializer = literal;
             }
-            if (Peek()?.Type == BindingTokenType.ColonOperator)
+            if (Peek()?.Type == BindingTokenType.Comma)
             {
                 Read();
                 SkipWhiteSpace();
@@ -96,10 +77,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
                 foreach (var attribute in attributes)
                 {
-                    if (!(attribute is BinaryOperatorBindingParserNode assigment && assigment.Operator == BindingTokenType.AssignOperator))
-                    {
-                        attribute.NodeErrors.Add("Property attributes must be in the form Attribute.Property = value.");
-                    }
                     propertyDeclaration.Attributes.Add(attribute);
                 }
             }
@@ -166,8 +143,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 if (lastIndex == CurrentIndex)
                 {
-                    var extraToken = Read()!;
-                    expressions.Add(CreateNode(new LiteralExpressionBindingParserNode(extraToken.Text), lastIndex, "Unexpected token"));
+                    var unexpectedToken = Read()!;
+                    expressions.Add(CreateNode(new LiteralExpressionBindingParserNode(unexpectedToken.Text) { IsUnexpectedToken = true }, lastIndex, "Unexpected token"));
                 }
 
                 lastIndex = CurrentIndex;
