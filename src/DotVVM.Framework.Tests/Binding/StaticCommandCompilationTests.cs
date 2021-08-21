@@ -86,9 +86,9 @@ namespace DotVVM.Framework.Tests.Binding
                     returnValue: null,
                     commandArgs: CodeParameterAssignment.FromIdentifier("commandArguments")
                 ));
-            if (expr.StartsWith("dotvvm.applyPostbackHandlers(async(options)=>") && expr.EndsWith(",this,[],commandArguments)"))
+            if (expr.StartsWith("dotvvm.applyPostbackHandlers(async(options)=>(") && expr.EndsWith("),this,[],commandArguments)"))
             {
-                expr = expr.Substring(45, expr.Length - 45 - 26);
+                expr = expr.Substring(46, expr.Length - 46 - 27);
             }
             return expr;
         }
