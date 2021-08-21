@@ -199,7 +199,7 @@ namespace DotVVM.Framework.Controls
                     }
                 }
 
-                return $"dotvvm.applyPostbackHandlers(async(options)=>{call},{string.Join(",", args)})";
+                return $"dotvvm.applyPostbackHandlers(async(options)=>({call}),{string.Join(",", args)})";
             }
             else return call;
 
