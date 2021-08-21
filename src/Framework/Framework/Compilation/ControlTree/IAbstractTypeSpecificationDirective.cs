@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Compilation.Parser.Binding.Parser;
+﻿using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,11 +15,5 @@ namespace DotVVM.Framework.Compilation.ControlTree
     }
     public interface IAbstractViewModelDirective : IAbstractTypeSpecificationDirective { }
     public interface IAbstractBaseTypeDirective : IAbstractTypeSpecificationDirective { }
-    public interface IAbstractPropertyDeclarationDirective : IAbstractDirective, ICustomAttributeProvider
-    {
-        SimpleNameBindingParserNode NameSyntax { get; }
-        TypeReferenceBindingParserNode PropertyTypeSyntax { get; }
-        ITypeDescriptor PropertyType { get; }
-    }
 
 }

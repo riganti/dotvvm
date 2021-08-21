@@ -164,11 +164,10 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
             //Chack that I am not asigning incompatible types 
             var initialValue = initializer?.Value ?? CreateDefaultValue(propertyTypeDescriptor);
-            var declaringTypeDecriptor = CreateDymanicDeclaringType();
 
             var attributeInstances = InstantiateAttributes(resolvedAttributes).ToList();
 
-            return new ResolvedPropertyDeclarationDirective(nameSyntax, typeSyntax, propertyTypeDescriptor, declaringTypeDecriptor, initialValue, resolvedAttributes, attributeInstances) { DothtmlNode = directive };
+            return new ResolvedPropertyDeclarationDirective(nameSyntax, typeSyntax, propertyTypeDescriptor, initialValue, resolvedAttributes, attributeInstances) { DothtmlNode = directive };
         }
 
         private IEnumerable<object> InstantiateAttributes(IList<IAbstractDirectiveAttributeReference> resolvedAttributes)
@@ -195,28 +194,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 }
                 yield return attributeInstance;
             }
-        }
-
-        private static ResolvedTypeDescriptor CreateDymanicDeclaringType()
-        {
-            AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Guid.NewGuid().ToString()), AssemblyBuilderAccess.Run);
-
-            var assemblyName = new AssemblyName($"DotvvmMarkupControlDynamicAssembly-{Guid.NewGuid()}");
-            var assemblyBuilder =
-                AssemblyBuilder.DefineDynamicAssembly(
-                    assemblyName,
-                    AssemblyBuilderAccess.Run);
-
-            // For a single-module assembly, the module name is usually
-            // the assembly name plus an extension.
-            var mb =
-                assemblyBuilder.DefineDynamicModule(assemblyName.Name);
-
-            var declaringTypeBuilder = mb.DefineType(
-                $"DotvvmMarkupControl-{Guid.NewGuid()}",
-                 TypeAttributes.Public, typeof(DotvvmMarkupControl));
-            var declaringTypeDecriptor = new ResolvedTypeDescriptor(declaringTypeBuilder);
-            return declaringTypeDecriptor;
         }
 
         public IAbstractDirectiveAttributeReference BuildPropertyDeclarationAttributeReferenceDirective(

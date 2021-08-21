@@ -8,7 +8,7 @@
     <title></title>
 </head>
 <body>
-    <sample:MarkupDefinedPropertiesControl />
+    <sample:MarkupDefinedPropertiesControl Items="{value: Buildings}"/>
 
 </body>
 </html>

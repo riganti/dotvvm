@@ -1,3 +1,6 @@
-﻿@viewModel System.Object, mscorlib
-@property string MyProperty1
+﻿@viewModel object
+@property System.Collections.Generic.IEnumerable<string> Items
 
+<dot:Repeater WrapperTagName="ol" DataSource="{value: _control.Items }">
+    <li>{{value: _this}}</li>
+</dot:Repeater>
