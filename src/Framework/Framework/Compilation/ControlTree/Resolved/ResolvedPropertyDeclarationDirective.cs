@@ -12,8 +12,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
     {
         public SimpleNameBindingParserNode NameSyntax { get; }
         public TypeReferenceBindingParserNode PropertyTypeSyntax { get; }
-        public ITypeDescriptor? PropertyType { get; }
-        public ITypeDescriptor? DeclaringType { get; }
+        public ITypeDescriptor? PropertyType { get; set; }
+        public ITypeDescriptor? DeclaringType { get; set; }
         public object? InitialValue { get; }
         public IList<IAbstractDirectiveAttributeReference> Attributes { get; }
         public IList<object> AttributeInstances { get; }
@@ -22,7 +22,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             SimpleNameBindingParserNode nameSyntax,
             TypeReferenceBindingParserNode typeSyntax,
             ITypeDescriptor? type,
-            ITypeDescriptor declaringType,
             object? initialValue,
             IList<IAbstractDirectiveAttributeReference> attributes,
             List<object> attributeInstances)
@@ -30,7 +29,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             NameSyntax = nameSyntax;
             PropertyTypeSyntax = typeSyntax;
             PropertyType = type;
-            DeclaringType = declaringType;
             InitialValue = initialValue;
             Attributes = attributes;
             AttributeInstances = attributeInstances;

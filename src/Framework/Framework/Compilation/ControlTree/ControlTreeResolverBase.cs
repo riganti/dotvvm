@@ -19,6 +19,8 @@ using DotVVM.Framework.Binding;
 using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.ResourceManagement;
+using System.Reflection.Emit;
+using System.Reflection;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -98,8 +100,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 );
             }
 
-            foreach (var propertyDeclarationDirective in directives.OfType<ResolvedPropertyDeclarationDirective>().ToList())
+            foreach (var propertyDeclarationDirective in directives.OfType<IAbstractPropertyDeclarationDirective>().ToList())
             {
+                propertyDeclarationDirective.DeclaringType = wrapperType;
                 CreateDotvvmPropertyFromDirective(propertyDeclarationDirective);
             }
 
@@ -110,7 +113,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return view;
         }
 
-        protected virtual void CreateDotvvmPropertyFromDirective(ResolvedPropertyDeclarationDirective propertyDeclarationDirective) => DotvvmProperty.Register(
+        protected virtual void CreateDotvvmPropertyFromDirective(IAbstractPropertyDeclarationDirective propertyDeclarationDirective) => DotvvmProperty.Register(
                             propertyDeclarationDirective.NameSyntax.Name,
                             propertyDeclarationDirective.PropertyType.As<ResolvedTypeDescriptor>()?.Type,
                             propertyDeclarationDirective.DeclaringType.As<ResolvedTypeDescriptor>()?.Type,
@@ -895,7 +898,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         private ITypeDescriptor ResolveWrapperType(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, string fileName)
         {
-            var wrapperType = GetDefaultWrapperType(fileName);
+            var wrapperType = GetDefaultWrapperType(fileName , directives);
 
             var baseControlDirective = !directives.ContainsKey(ParserConstants.BaseTypeDirective)
                 ? null
@@ -919,13 +922,42 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 }
             }
 
+            if(directives.TryGetValue(ParserConstants.PropertyDeclarationDirective, out var abstractDirectives))
+            {
+                wrapperType = CreateDymanicDeclaringType(wrapperType);
+            }
+
             return wrapperType;
+        }
+
+        protected virtual ITypeDescriptor CreateDymanicDeclaringType(ITypeDescriptor? originalWrapperType)
+        {
+
+            var baseType = originalWrapperType?.CastTo<ResolvedTypeDescriptor>().Type ?? typeof(DotvvmMarkupControl);
+            AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Guid.NewGuid().ToString()), AssemblyBuilderAccess.Run);
+
+            var assemblyName = new AssemblyName($"DotvvmMarkupControlDynamicAssembly-{Guid.NewGuid()}");
+            var assemblyBuilder =
+                AssemblyBuilder.DefineDynamicAssembly(
+                    assemblyName,
+                    AssemblyBuilderAccess.Run);
+
+            // For a single-module assembly, the module name is usually
+            // the assembly name plus an extension.
+            var mb =
+                assemblyBuilder.DefineDynamicModule(assemblyName.Name);
+
+            var declaringTypeBuilder = mb.DefineType(
+                $"DotvvmMarkupControl-{Guid.NewGuid()}",
+                 TypeAttributes.Public, baseType);
+            var declaringTypeDecriptor = new ResolvedTypeDescriptor(declaringTypeBuilder.CreateTypeInfo().AsType());
+            return declaringTypeDecriptor;
         }
 
         /// <summary>
         /// Gets the default type of the wrapper for the view.
         /// </summary>
-        private ITypeDescriptor GetDefaultWrapperType(string fileName)
+        private ITypeDescriptor GetDefaultWrapperType(string fileName, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives)
         {
             ITypeDescriptor wrapperType;
             if (fileName.EndsWith(".dotcontrol", StringComparison.Ordinal))
