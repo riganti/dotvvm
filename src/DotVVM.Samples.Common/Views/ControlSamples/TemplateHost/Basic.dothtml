@@ -1,0 +1,30 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.TemplateHost.BasicViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>TemplateHost</h1>
+
+    <cc:TemplatedMarkupControl HeaderText="Form 1">
+        <ContentTemplate>
+            <p>hello from template</p>
+        </ContentTemplate>
+    </cc:TemplatedMarkupControl>
+
+    <cc:TemplatedListControl DataSource="{value: ObjectList}" OnCreateItem="{command: _root.CreateObject}">
+        <ItemTemplate>
+            <big>{{value: Value}}</big>
+            <dot:Button Text="+" Click="{staticCommand:  Value = Value + 1}" />
+            <dot:Button Text="-" Click="{staticCommand:  Value = Value - 1}" />
+        </ItemTemplate>
+    </cc:TemplatedListControl>
+</body>
+</html>
+
+

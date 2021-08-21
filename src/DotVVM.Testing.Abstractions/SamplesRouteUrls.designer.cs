@@ -134,6 +134,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa1Spa2Page = "ControlSamples/SpaContentPlaceHolder_HistoryApi/Spa1Spa2Page";
         public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa2PageA = "ControlSamples/SpaContentPlaceHolder_HistoryApi/Spa2PageA";
         public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa2PageB = "ControlSamples/SpaContentPlaceHolder_HistoryApi/Spa2PageB";
+        public const string ControlSamples_TemplateHost_Basic = "ControlSamples/TemplateHost/Basic";
         public const string ControlSamples_TextBox_IntBoundTextBox = "ControlSamples/TextBox/IntBoundTextBox";
         public const string ControlSamples_TextBox_SelectAllOnFocus = "ControlSamples/TextBox/SelectAllOnFocus";
         public const string ControlSamples_TextBox_SimpleDateBox = "ControlSamples/TextBox/SimpleDateBox";
