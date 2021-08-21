@@ -21,7 +21,7 @@ namespace DotVVM.CommandLine
         {
             var createDefinitionArg = new Argument<Uri>(
                 name: "definition",
-                description: "Path or an URL to an OpenApi file");
+                description: "Path or a URL to an OpenAPI definition");
             var namespaceOpt = new Option<string>(
                 alias: "--namespace",
                 description: "The namespace of the generated C# API client");
@@ -47,7 +47,7 @@ namespace DotVVM.CommandLine
 
             var regenDefinitionArg = new Argument<Uri>(
                 name: "definition",
-                description: "Path or an URL to an OpenApi file");
+                description: "Path or a URL to an OpenAPI file");
             regenDefinitionArg.Arity = ArgumentArity.ZeroOrOne;
 
             var regenCmd = new Command("regen", "Regenerate a specific API client or all of them")
@@ -102,7 +102,7 @@ namespace DotVVM.CommandLine
                     DefaultConfigName));
                 var exists = config.Exists;
                 using var stream = config.Open(FileMode.OpenOrCreate);
-                var clients = exists 
+                var clients = exists
                     ? await JsonSerializer.DeserializeAsync<List<ApiClientDefinition>>(stream)
                         ?? new List<ApiClientDefinition>()
                     : new List<ApiClientDefinition>();

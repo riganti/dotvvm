@@ -11,12 +11,12 @@ using NSwag.CodeGeneration.CSharp.Models;
 
 namespace DotVVM.CommandLine.OpenApi
 {
-    public class DotvvmSwaggerToCSharpClientGenerator : CSharpClientGenerator
+    public class DotvvmCSharpClientGenerator : CSharpClientGenerator
     {
         private readonly OpenApiDocument document;
         private readonly CSharpTypeResolver resolver;
 
-        public DotvvmSwaggerToCSharpClientGenerator(
+        public DotvvmCSharpClientGenerator(
             OpenApiDocument document,
             CSharpClientGeneratorSettings settings,
             CSharpTypeResolver resolver)
@@ -34,7 +34,7 @@ namespace DotVVM.CommandLine.OpenApi
             HandleAsObjectParameters(operation, model, settings);
 
             model.AutoRefreshKey = string.Join("/", document.Operations.Single(o => o.Operation.OperationId == operation.OperationId).Operation.Tags);
-            
+
             return model;
         }
 
@@ -87,6 +87,6 @@ namespace DotVVM.CommandLine.OpenApi
             }
         }
 
-        
+
     }
 }

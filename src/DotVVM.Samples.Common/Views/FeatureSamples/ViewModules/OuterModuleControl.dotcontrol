@@ -1,0 +1,7 @@
+﻿@viewModel System.Object, mscorlib
+@js FeatureSamples_Resources_TestViewModule3
+
+<div>
+    This control contain @js module and should register this view to inited modules.
+    <sample:InnerModuleControl></sample:InnerModuleControl>
+</div>

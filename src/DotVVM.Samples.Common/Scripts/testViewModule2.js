@@ -47,7 +47,7 @@
         let result = "";
         for (let i = 0; i < args.length; i++) {
             if (i > 0) result += ", ";
-            result += JSON.stringify(args[i]);
+            result += JSON.stringify(args[i], Object.keys(args[i]).sort().reverse());
         }
         return result;
     }

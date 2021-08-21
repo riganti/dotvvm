@@ -231,8 +231,8 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_JavascriptTranslation_ListIndexerTranslation = "FeatureSamples/JavascriptTranslation/ListIndexerTranslation";
         public const string FeatureSamples_JavascriptTranslation_ListMethodTranslations = "FeatureSamples/JavascriptTranslation/ListMethodTranslations";
         public const string FeatureSamples_JavascriptTranslation_MathMethodTranslation = "FeatureSamples/JavascriptTranslation/MathMethodTranslation";
-        public const string FeatureSamples_JavascriptTranslation_WebUtilityTranslations = "FeatureSamples/JavascriptTranslation/WebUtilityTranslations";
         public const string FeatureSamples_JavascriptTranslation_StringMethodTranslations = "FeatureSamples/JavascriptTranslation/StringMethodTranslations";
+        public const string FeatureSamples_JavascriptTranslation_WebUtilityTranslations = "FeatureSamples/JavascriptTranslation/WebUtilityTranslations";
         public const string FeatureSamples_LambdaExpressions_ClientSideFiltering = "FeatureSamples/LambdaExpressions/ClientSideFiltering";
         public const string FeatureSamples_LambdaExpressions_LambdaExpressions = "FeatureSamples/LambdaExpressions/LambdaExpressions";
         public const string FeatureSamples_LambdaExpressions_StaticCommands = "FeatureSamples/LambdaExpressions/StaticCommands";
@@ -313,7 +313,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_StaticCommand_StaticCommand_NullBinding = "FeatureSamples/StaticCommand/StaticCommand_NullBinding";
         public const string FeatureSamples_StaticCommand_StaticCommand_TaskSequence = "FeatureSamples/StaticCommand/StaticCommand_TaskSequence";
         public const string FeatureSamples_StaticCommand_StaticCommand_ValueAssignmentInControl = "FeatureSamples/StaticCommand/StaticCommand_ValueAssignmentInControl";
-        public const string FeatureSamples_StringInterpolation = "FeatureSamples/StringInterpolation/StringInterpolation";
+        public const string FeatureSamples_StringInterpolation_StringInterpolation = "FeatureSamples/StringInterpolation/StringInterpolation";
         public const string FeatureSamples_UsageValidation_OverrideValidation = "FeatureSamples/UsageValidation/OverrideValidation";
         public const string FeatureSamples_Validation_ClientSideObservableUpdate = "FeatureSamples/Validation/ClientSideObservableUpdate";
         public const string FeatureSamples_Validation_CustomValidation = "FeatureSamples/Validation/CustomValidation";
@@ -349,6 +349,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ViewModules_ModuleInPageMasterPage = "FeatureSamples/ViewModules/ModuleInPageMasterPage";
         public const string FeatureSamples_ViewModules_ModuleInPageSpaMasterPage = "FeatureSamples/ViewModules/ModuleInPageSpaMasterPage";
         public const string FeatureSamples_ViewModules_ModuleInPageSpaMasterPage2 = "FeatureSamples/ViewModules/ModuleInPageSpaMasterPage2";
+        public const string FeatureSamples_ViewModules_ModuleRegistrationPropagation = "FeatureSamples/ViewModules/ModuleRegistrationPropagation";
         public const string FeatureSamples_Warnings_SelfClosingTags = "FeatureSamples/Warnings/SelfClosingTags";
         }
 }

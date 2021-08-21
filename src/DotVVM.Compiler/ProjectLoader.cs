@@ -19,8 +19,8 @@ namespace DotVVM.Compiler
                     : null;
             };
 
-            _ = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
-            return new DependencyContextCompilerExecutor();
+            var assembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
+            return new DependencyContextCompilerExecutor(assembly);
 
 #elif NET461
             var setup = new AppDomainSetup

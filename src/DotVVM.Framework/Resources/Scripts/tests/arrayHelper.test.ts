@@ -142,14 +142,14 @@ test("ListExtensions::RemoveLast", () => {
 
 test("Enumerable::FirstOrDefault", () => {
     prepareArray();
-    expect(arrayHelper.firstOrDefault(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) % 2 !== 0 })().Id()).toBe(1);
-    expect(arrayHelper.firstOrDefault(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) % 2 === 0 })().Id()).toBe(2);
+    expect(arrayHelper.firstOrDefault(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) % 2 !== 0 }).Id()).toBe(1);
+    expect(arrayHelper.firstOrDefault(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) % 2 === 0 }).Id()).toBe(2);
 })
 
 test("Enumerable::LastOrDefault", () => {
     prepareArray();
-    expect(arrayHelper.lastOrDefault(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) % 2 !== 0 })().Id()).toBe(5);
-    expect(arrayHelper.lastOrDefault(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) % 2 === 0 })().Id()).toBe(4);
+    expect(arrayHelper.lastOrDefault(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) % 2 !== 0 }).Id()).toBe(5);
+    expect(arrayHelper.lastOrDefault(vm.Array(), function (arg: any) { return ko.unwrap(ko.unwrap(arg).Id) % 2 === 0 }).Id()).toBe(4);
 })
 
 test("Enumerable::Max", () => {
