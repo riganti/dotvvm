@@ -14,14 +14,14 @@ public static partial class StyleBuilderExtensionMethods
         this T sb,
         PostBackHandler handler)
         where T: IStyleBuilder =>
-        sb.SetControlProperty(PostBack.ConcurrencyQueueSettingsProperty, handler, options: StyleOverrideOptions.Append);
+        sb.SetControlProperty(PostBack.HandlersProperty, handler, options: StyleOverrideOptions.Append);
 
     /// <summary> Adds a new postback handler to the PostBack.Handlers property </summary>
     public static IStyleBuilder<T> AddPostbackHandler<T>(
         this IStyleBuilder<T> sb,
         Func<IStyleMatchContext<T>, PostBackHandler> handler)
         where T: DotvvmBindableObject =>
-        sb.SetDotvvmProperty(PostBack.ConcurrencyQueueSettingsProperty, handler, StyleOverrideOptions.Append);
+        sb.SetDotvvmProperty(PostBack.HandlersProperty, handler, StyleOverrideOptions.Append);
 
 
     /// <summary> Requests a resource to be included if this control is in the page. </summary>

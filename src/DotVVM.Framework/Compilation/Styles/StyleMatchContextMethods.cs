@@ -288,13 +288,12 @@ public static class StyleMatchContextExtensionMethods
     /// </summary>
     public static DataContextStack ChildrenDataContextStack(this IStyleMatchContext c)
     {
-        if (c.Control.Metadata.IsContentAllowed)
-            return c.Control.DataContextTypeStack;
-        else if (c.Control.Metadata.DefaultContentProperty is DotvvmProperty contentProperty)
-        {
+        if (c.Control.Metadata.DefaultContentProperty is DotvvmProperty contentProperty)
             return contentProperty.GetDataContextType(c.Control);
-        }
-        throw new Exception($"Control {c.Control.Metadata.Type} does not support content.");
+        else if (c.Control.Metadata.IsContentAllowed)
+            return c.Control.DataContextTypeStack;
+        else
+            throw new Exception($"Control {c.Control.Metadata.Type} does not support content.");
     }
     /// <summary>
     /// Returns the data types that children will have

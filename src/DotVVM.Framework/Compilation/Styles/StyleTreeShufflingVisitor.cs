@@ -151,9 +151,9 @@ namespace DotVVM.Framework.Compilation.Styles
                 {
                     var group2 =
                         DotvvmPropertyGroup.GetPropertyGroups(newControl.Metadata.Type)
-                        .FirstOrDefault(g => g.Name == gProp.PropertyGroup.Name) ??
+                        .SingleOrDefault(g => g.Name == gProp.PropertyGroup.Name) ??
                         DotvvmPropertyGroup.GetPropertyGroups(newControl.Metadata.Type)
-                        .FirstOrDefault(g => g.Prefixes.Intersect(gProp.PropertyGroup.Prefixes).Any());
+                        .SingleOrDefault(g => g.Prefixes.Intersect(gProp.PropertyGroup.Prefixes).Any());
                     if (group2 is object)
                     {
                         var prop2 = group2.GetDotvvmProperty(gProp.GroupMemberName);
