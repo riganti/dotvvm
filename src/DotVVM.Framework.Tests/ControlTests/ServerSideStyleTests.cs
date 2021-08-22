@@ -22,6 +22,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         ControlTestHelper createHelper(Action<DotvvmConfiguration> c)
         {
             return new ControlTestHelper(config: config => {
+                config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);
                 c(config);
             });
         }
