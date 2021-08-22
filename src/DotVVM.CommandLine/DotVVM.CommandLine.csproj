@@ -39,8 +39,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="13.10.7" />
-    <PackageReference Include="NSwag.CodeGeneration.Typescript" Version="13.10.7" />
+    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="13.13.2" />
+    <PackageReference Include="NSwag.CodeGeneration.Typescript" Version="13.13.2" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

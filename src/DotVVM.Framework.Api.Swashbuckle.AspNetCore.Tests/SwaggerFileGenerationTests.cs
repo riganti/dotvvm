@@ -18,7 +18,6 @@ using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using NSwag.SwaggerGeneration.WebApi.Infrastructure;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 

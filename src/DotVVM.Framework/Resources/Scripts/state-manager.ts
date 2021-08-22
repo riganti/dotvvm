@@ -169,6 +169,7 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
                         u => this[updatePropertySymbol](p, u)
                     )
 
+                    const isDynamic = typeId === undefined || typeId.hasOwnProperty("type") && (typeId as any)["type"] === "dynamic";
                     if (typeInfo && p in typeInfo.properties) {
                         const clientExtenders = typeInfo.properties[p].clientExtenders;
                         if (clientExtenders) {
@@ -176,7 +177,7 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
                                 (ko.extenders as any)[e.name](newObs, e.parameter)
                             }
                         }
-                    } else if (p.indexOf("$") !== 0) {
+                    } else if (!isDynamic && p.indexOf("$") !== 0) {
                         logWarning("state-manager", `Unknown property '${p}' set on an object of type ${typeId}.`);
                     }
 

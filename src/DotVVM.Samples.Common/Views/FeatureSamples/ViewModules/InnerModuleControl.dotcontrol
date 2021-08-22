@@ -1,0 +1,6 @@
+﻿@viewModel System.Object, mscorlib
+
+<div>
+    This control does not contain @JS directive. Therefore no module should be registered on this view.
+</div>
+<span html:ID="load">{{value: "Loaded"}}</span>

@@ -1,10 +1,14 @@
 import { logWarning } from "../utils/logging";
 
-export function parseDate(value: string): Date | null {
+export function parseDate(value: string, convertFromUtc: boolean = false): Date | null {
     const match = value.match("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]{1,7})$");
     if (match) {
-        return new Date(parseInt(match[1], 10), parseInt(match[2], 10) - 1, parseInt(match[3], 10),
+        const date = new Date(parseInt(match[1], 10), parseInt(match[2], 10) - 1, parseInt(match[3], 10),
             parseInt(match[4], 10), parseInt(match[5], 10), parseInt(match[6], 10), match.length > 7 ? parseInt(match[7].substring(1, 4), 10) : 0);
+        if (convertFromUtc) {
+            date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+        }
+        return date;
     }
     return null;
 }

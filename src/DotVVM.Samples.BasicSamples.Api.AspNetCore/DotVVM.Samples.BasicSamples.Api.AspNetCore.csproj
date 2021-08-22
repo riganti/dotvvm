@@ -20,13 +20,14 @@
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.3" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.1.0" />
-    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="11.3.5" />
-    <PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="11.3.5" />
-    <PackageReference Include="NSwag.SwaggerGeneration.WebApi" Version="11.3.5" />
-    <PackageReference Include="NJsonSchema.CodeGeneration" Version="9.4.5" />
+    <PackageReference Include="NSwag.AspNetCore" Version="13.13.2" />
+    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="13.13.2" />
+    <PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="13.13.2" />
+    <PackageReference Include="NSwag.Generation.WebApi" Version="13.13.2" />
+    <PackageReference Include="NJsonSchema.CodeGeneration" Version="10.5.2" />
     <PackageReference Include="Faker.NETCore" Version="1.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.4.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.4.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.5" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.1.5" />
   </ItemGroup>
 
   <ItemGroup>

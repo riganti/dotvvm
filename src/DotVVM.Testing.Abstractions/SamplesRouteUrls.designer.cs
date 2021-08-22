@@ -189,7 +189,6 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Api_AzureFunctionsApiTable = "FeatureSamples/Api/AzureFunctionsApiTable";
         public const string FeatureSamples_Api_BindingSharing = "FeatureSamples/Api/BindingSharing";
         public const string FeatureSamples_Api_GetCollection = "FeatureSamples/Api/GetCollection";
-        public const string FeatureSamples_Api_GithubRepoApi = "FeatureSamples/Api/GithubRepoApi";
         public const string FeatureSamples_Api_GridViewDataSetAspNetCore = "FeatureSamples/Api/GridViewDataSetAspNetCore";
         public const string FeatureSamples_Api_GridViewDataSetOwin = "FeatureSamples/Api/GridViewDataSetOwin";
         public const string FeatureSamples_AttachedProperties_AttachedProperties = "FeatureSamples/AttachedProperties/AttachedProperties";
@@ -351,6 +350,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ViewModules_ModuleInPageMasterPage = "FeatureSamples/ViewModules/ModuleInPageMasterPage";
         public const string FeatureSamples_ViewModules_ModuleInPageSpaMasterPage = "FeatureSamples/ViewModules/ModuleInPageSpaMasterPage";
         public const string FeatureSamples_ViewModules_ModuleInPageSpaMasterPage2 = "FeatureSamples/ViewModules/ModuleInPageSpaMasterPage2";
+        public const string FeatureSamples_ViewModules_ModuleRegistrationPropagation = "FeatureSamples/ViewModules/ModuleRegistrationPropagation";
         public const string FeatureSamples_Warnings_SelfClosingTags = "FeatureSamples/Warnings/SelfClosingTags";
         }
 }
