@@ -122,6 +122,42 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task PostbackHandlers()
+        {
+            var cth = createHelper(c => {
+
+                // Repeater does not allow children but has a default content property
+                c.Styles.RegisterAnyControl(c => c.HasTag("a") || c.HasTag("b"))
+                    .AddPostbackHandler(
+                        new ConfirmPostBackHandler("a") { EventName = "Click" }
+                    );
+                c.Styles.RegisterAnyControl(c => c.HasTag("b"))
+                    .AddPostbackHandler(
+                        c => new ConfirmPostBackHandler(c.GetHtmlAttribute("data-msg"))
+                    )
+                    .AddPostbackHandler(
+                        c => new ConfirmPostBackHandler(c.GetHtmlAttribute("Handler for some other property")) { EventName = "Bazmek" }
+                    );
+                c.Styles.RegisterAnyControl(c => c.HasTag("c"))
+                    .SetDotvvmProperty(
+                        PostBack.HandlersProperty,
+                        c => new ConfirmPostBackHandler("C"),
+                        StyleOverrideOptions.Overwrite
+                    );
+            });
+
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                One handler
+                <dot:Button Styles.Tag=a Click={command: 0} />
+                Two handlers
+                <dot:Button Styles.Tag=b Click={command: 0} data-msg=ahoj />
+                One handler, because override
+                <dot:Button Styles.Tag='a,b,c' Click={command: 0} data-msg=ahoj />
+            ");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
