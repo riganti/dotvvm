@@ -60,22 +60,25 @@ namespace DotVVM.Framework.Testing
                 TypeConversion.ImplicitConversion(parsedExpression, expectedType, true, true);
         }
 
-        public ParametrizedCode ValueBindingToParametrizedCode(string expression, Type[] contexts, Type? expectedType = null, NamespaceImport[]? imports = null, bool nullChecks = false, bool niceMode = true)
+        public ParametrizedCode ValueBindingToParametrizedCode(string expression, Type[] contexts, Type? expectedType = null, NamespaceImport[]? imports = null, bool nullChecks = false, bool niceMode = true) =>
+            ValueBindingToParametrizedCode(expression, CreateDataContext(contexts), expectedType, imports, nullChecks, niceMode);
+        public ParametrizedCode ValueBindingToParametrizedCode(string expression, DataContextStack context, Type? expectedType = null, NamespaceImport[]? imports = null, bool nullChecks = false, bool niceMode = true)
         {
             expectedType ??= typeof(object);
 
-            var context = CreateDataContext(contexts);
             var expressionTree = ParseBinding(expression, context, expectedType, imports);
             var jsExpression = JavascriptTranslator.CompileToJavascript(expressionTree, context);
             return BindingPropertyResolvers.FormatJavascript(jsExpression, allowObservableResult: true, nullChecks: nullChecks, niceMode: niceMode);
         }
 
-        public string ValueBindingToJs(string expression, Type[] contexts, Type? expectedType = null, NamespaceImport[]? imports = null, bool nullChecks = false, bool niceMode = true)
-        {
-            return JavascriptTranslator.FormatKnockoutScript(
+        public string ValueBindingToJs(string expression, Type[] contexts, Type? expectedType = null, NamespaceImport[]? imports = null, bool nullChecks = false, bool niceMode = true) =>
+            JavascriptTranslator.FormatKnockoutScript(
                 ValueBindingToParametrizedCode(expression, contexts, expectedType, imports, nullChecks, niceMode)
             );
-        }
+        public string ValueBindingToJs(string expression, DataContextStack context, Type? expectedType = null, NamespaceImport[]? imports = null, bool nullChecks = false, bool niceMode = true) =>
+            JavascriptTranslator.FormatKnockoutScript(
+                ValueBindingToParametrizedCode(expression, context, expectedType, imports, nullChecks, niceMode)
+            );
 
         public ValueBindingExpression<T> ValueBinding<T>(string expression, Type[] contexts)
         {

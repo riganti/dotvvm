@@ -45,6 +45,27 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(result, "false");
             });
         }
+
+        [Fact]
+        public void Feature_StaticCommand_String_Method_Contains_WithCaseSensitivity()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var buttonCaseSensitive = browser.First($"//input[@value='Contains(value,InvariantCulture)']", By.XPath);
+                var buttonCaseInsensitive = browser.First($"//input[@value='Contains(value,InvariantCultureIgnoreCase)']", By.XPath);
+                var result = browser.First("[data-ui=operation-result]");
+
+                textbox.Click().SendKeys("BECAUSE");
+                buttonCaseSensitive.Click();
+                AssertUI.InnerTextEquals(result, "false");
+
+                buttonCaseInsensitive.Click();
+                AssertUI.InnerTextEquals(result, "true");
+            });
+        }
+
         [Fact]
         public void Feature_StaticCommand_String_Method_EndsWith()
         {
@@ -73,6 +94,27 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(result, "false");
             });
         }
+
+        [Fact]
+        public void Feature_StaticCommand_String_Method_EndsWith_WithCaseSensitivity()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var buttonCaseSensitive = browser.First($"//input[@value='EndsWith(value,InvariantCulture)']", By.XPath);
+                var buttonCaseInsensitive = browser.First($"//input[@value='EndsWith(value,InvariantCultureIgnoreCase)']", By.XPath);
+                var result = browser.First("[data-ui=operation-result]");
+
+                textbox.Click().SendKeys("c#.");
+                buttonCaseSensitive.Click();
+                AssertUI.InnerTextEquals(result, "false");
+
+                buttonCaseInsensitive.Click();
+                AssertUI.InnerTextEquals(result, "true");
+            });
+        }
+
         [Fact]
         public void Feature_StaticCommand_String_Method_IndexOf()
         {
@@ -101,6 +143,27 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(result, "5");
             });
         }
+
+        [Fact]
+        public void Feature_StaticCommand_String_Method_IndexOf_WithCaseSensitivity()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var buttonCaseSensitive = browser.First($"//input[@value='IndexOf(value,InvariantCulture)']", By.XPath);
+                var buttonCaseInsensitive = browser.First($"//input[@value='IndexOf(value,InvariantCultureIgnoreCase)']", By.XPath);
+                var result = browser.First("[data-ui=index-result]");
+
+                textbox.Click().SendKeys("GLASSES");
+                buttonCaseSensitive.Click();
+                AssertUI.InnerTextEquals(result, "-1");
+
+                buttonCaseInsensitive.Click();
+                AssertUI.InnerTextEquals(result, "37");
+            });
+        }
+
         [Fact]
         public void Feature_StaticCommand_String_Method_IndexOf_StartIndex()
         {
@@ -127,6 +190,26 @@ namespace DotVVM.Samples.Tests.Feature
 
                 button.Click();
                 AssertUI.InnerTextEquals(result, "30");
+            });
+        }
+
+        [Fact]
+        public void Feature_StaticCommand_String_Method_IndexOf_StartIndex_WithCaseSensitivity()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var buttonCaseSensitive = browser.First($"//input[@value='IndexOf(value,30,InvariantCulture)']", By.XPath);
+                var buttonCaseInsensitive = browser.First($"//input[@value='IndexOf(value,30,InvariantCultureIgnoreCase)']", By.XPath);
+                var result = browser.First("[data-ui=index-result]");
+
+                textbox.Click().SendKeys("GLASSES");
+                buttonCaseSensitive.Click();
+                AssertUI.InnerTextEquals(result, "-1");
+
+                buttonCaseInsensitive.Click();
+                AssertUI.InnerTextEquals(result, "37");
             });
         }
 
@@ -215,6 +298,27 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(result, "63");
             });
         }
+
+        [Fact]
+        public void Feature_StaticCommand_String_Method_LastIndexOf_WithCaseSensitivity()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var buttonCaseSensitive = browser.First($"//input[@value='LastIndexOf(value,InvariantCulture)']", By.XPath);
+                var buttonCaseInsensitive = browser.First($"//input[@value='LastIndexOf(value,InvariantCultureIgnoreCase)']", By.XPath);
+                var result = browser.First("[data-ui=index-result]");
+
+                textbox.Click().SendKeys("GLASSES");
+                buttonCaseSensitive.Click();
+                AssertUI.InnerTextEquals(result, "-1");
+
+                buttonCaseInsensitive.Click();
+                AssertUI.InnerTextEquals(result, "37");
+            });
+        }
+
         [Fact]
         public void Feature_StaticCommand_String_Method_LastIndexOf_StartIndex()
         {
@@ -223,7 +327,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 
                 var textbox = browser.First("[data-ui=textbox]");
-                var button = browser.First($"//input[@value='LastIndexOf(value, 30)']", By.XPath);
+                var button = browser.First($"//input[@value='LastIndexOf(value,30)']", By.XPath);
                 var result = browser.First("[data-ui=index-result]");
 
                 textbox.Click();
@@ -243,6 +347,27 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(result, "30");
             });
         }
+
+        [Fact]
+        public void Feature_StaticCommand_String_Method_LastIndexOf_StartIndex_WithCaseSensitivity()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var buttonCaseSensitive = browser.First($"//input[@value='LastIndexOf(value,30,InvariantCulture)']", By.XPath);
+                var buttonCaseInsensitive = browser.First($"//input[@value='LastIndexOf(value,30,InvariantCultureIgnoreCase)']", By.XPath);
+                var result = browser.First("[data-ui=index-result]");
+
+                textbox.Click().SendKeys("GLASSES");
+                buttonCaseSensitive.Click();
+                AssertUI.InnerTextEquals(result, "-1");
+
+                buttonCaseInsensitive.Click();
+                AssertUI.InnerTextEquals(result, "37");
+            });
+        }
+
         [Fact]
         public void Feature_StaticCommand_String_Method_Replace()
         {
@@ -287,6 +412,27 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(result[2], "not C#.");
             });
         }
+
+        [Fact]
+        public void Feature_StaticCommand_String_Method_StartsWith_WithCaseSensitivity()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var buttonCaseSensitive = browser.First($"//input[@value='StartsWith(value,InvariantCulture)']", By.XPath);
+                var buttonCaseInsensitive = browser.First($"//input[@value='StartsWith(value,InvariantCultureIgnoreCase)']", By.XPath);
+                var result = browser.First("[data-ui=operation-result]");
+
+                textbox.Click().SendKeys("WHY");
+                buttonCaseSensitive.Click();
+                AssertUI.InnerTextEquals(result, "false");
+
+                buttonCaseInsensitive.Click();
+                AssertUI.InnerTextEquals(result, "true");
+            });
+        }
+
         [Fact]
         public void Feature_StaticCommand_String_Method_ChangeLetters()
         {

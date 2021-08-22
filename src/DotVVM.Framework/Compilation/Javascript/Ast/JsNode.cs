@@ -327,40 +327,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             nextSibling = null;
         }
 
-        public JsNode ReplaceWith(Func<JsNode, JsNode> replaceFunction)
-        {
-            if (replaceFunction == null)
-                throw new ArgumentNullException("replaceFunction");
-            if (parent == null) {
-                throw new InvalidOperationException("Cannot replace the root node");
-            }
-            var oldParent = parent;
-            var oldSuccessor = nextSibling;
-            var oldRole = this.Role;
-            Remove();
-            JsNode replacement = replaceFunction(this);
-            if (oldSuccessor != null && oldSuccessor.parent != oldParent)
-                throw new InvalidOperationException("replace function changed nextSibling of node being replaced?");
-            if (replacement != null) {
-                if (replacement.parent != null)
-                    throw new InvalidOperationException("replace function must return the root of a tree");
-                if (!oldRole.IsValid(replacement)) {
-                    throw new InvalidOperationException(string.Format("The new node '{0}' is not valid in the role {1}", replacement.GetType().Name, oldRole.ToString()));
-                }
-
-                if (oldSuccessor != null)
-                    oldParent.InsertChildBeforeUnsafe(oldSuccessor, replacement, oldRole);
-                else
-                    oldParent.AddChildUnsafe(replacement, oldRole);
-            }
-            return replacement;
-        }
-
-        /// <summary>
-        /// Clones the whole subtree starting at this AST node.
-        /// </summary>
-        /// <remarks>Annotations are copied over to the new nodes; and any annotations implementing ICloneable will be cloned.</remarks>
-        public JsNode Clone()
+        internal JsNode CloneImpl()
         {
             JsNode copy = (JsNode)this.MemberwiseClone();
             // First, reset the shallow pointer copies
@@ -373,7 +340,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
             // Then perform a deep copy:
             for (JsNode cur = firstChild; cur != null; cur = cur.nextSibling) {
-                copy.AddChildUnsafe(cur.Clone(), cur.Role);
+                copy.AddChildUnsafe(cur.CloneImpl(), cur.Role);
             }
 
             // Finally, clone the annotation, if necessary
@@ -453,6 +420,5 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                 prev = prev.PrevSibling;
             return prev;
         }
-
     }
 }

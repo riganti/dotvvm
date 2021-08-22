@@ -7,6 +7,7 @@ import * as events from '../events';
 import * as gate from './gate';
 import { DotvvmPostbackError } from '../shared-classes';
 import { logError } from '../utils/logging';
+import { handleRedirect } from './redirect';
 
 const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
     internalHandlers.suppressOnDisabledElementHandler,
@@ -56,8 +57,9 @@ export async function postBack(
         }
 
         if (err instanceof DotvvmPostbackError) {
-            const wasInterrupted = isInterruptingErrorReason(err);
-            const serverResponseObject = extractServerResponseObject(err);
+            const reason = err.reason
+            const wasInterrupted = isInterruptingErrorReason(reason);
+            const serverResponseObject = extractServerResponseObject(reason);
             
             if (wasInterrupted) {
                 // trigger postbackRejected event
@@ -74,17 +76,17 @@ export async function postBack(
                 serverResponseObject,
                 wasInterrupted,
                 commandResult: null,
-                response: (err.reason as any)?.response,
+                response: (reason as any)?.response,
                 error: err
             }
             events.afterPostback.trigger(eventArgs);
 
-            if (shouldTriggerErrorEvent(err)) {
+            if (shouldTriggerErrorEvent(reason)) {
                 // trigger error event
                 const errorEventArgs: DotvvmErrorEventArgs = {
                     ...options,
                     serverResponseObject,
-                    response: (err.reason as any)?.response,
+                    response: (reason as any)?.response,
                     error: err,
                     handled: false
                 }
@@ -95,7 +97,7 @@ export async function postBack(
                     return {
                         ...options,
                         serverResponseObject,
-                        response: (err.reason as any)?.response,
+                        response: (reason as any)?.response,
                         error: err
                     };
                 }
@@ -159,14 +161,17 @@ export async function applyPostbackHandlers(
         }
         
         if (err instanceof DotvvmPostbackError) {
-
-            if (shouldTriggerErrorEvent(err)) {
+            var reason = err.reason;
+            if (reason.type == "redirect") {
+                return await handleRedirect(options, reason.responseObject, reason.response!)
+            }
+            else if (shouldTriggerErrorEvent(reason)) {
                 // trigger error event
-                const serverResponseObject = extractServerResponseObject(err);
+                const serverResponseObject = extractServerResponseObject(reason);
                 const errorEventArgs: DotvvmErrorEventArgs = {
                     ...options,
                     serverResponseObject,
-                    response: (err.reason as any)?.response,
+                    response: (reason as any)?.response,
                     error: err,
                     handled: false
                 }
@@ -178,7 +183,7 @@ export async function applyPostbackHandlers(
                     return {
                         ...options,
                         serverResponseObject,
-                        response: (err.reason as any)?.response,
+                        response: (reason as any)?.response,
                         error: err
                     };
                 }
@@ -291,21 +296,21 @@ export function sortHandlers(handlers: DotvvmPostbackHandler[]): DotvvmPostbackH
     return result;
 }
 
-function isInterruptingErrorReason(err: DotvvmPostbackError) {
-    return ["event", "handler", "abort"].includes(err.reason.type);
+function isInterruptingErrorReason(reason: DotvvmPostbackErrorReason) {
+    return ["event", "handler", "abort"].includes(reason.type);
 }
-function shouldTriggerErrorEvent(err: DotvvmPostbackError) {
-    return ["network", "serverError" ].includes(err.reason.type);
+function shouldTriggerErrorEvent(reason: DotvvmPostbackErrorReason) {
+    return ["network", "serverError" ].includes(reason.type);
 }
-function extractServerResponseObject(err: DotvvmPostbackError) {
-    if (!err.reason) return null;
-    if (err.reason.type == "commit" && err.reason.args) {
-        return err.reason.args.serverResponseObject;
+function extractServerResponseObject(reason: DotvvmPostbackErrorReason | undefined) {
+    if (!reason) return null;
+    if (reason.type == "commit" && reason.args) {
+        return reason.args.serverResponseObject;
     } 
-    else if (err.reason.type == "network") {
-        return err.reason.err;
-    } else if (err.reason.type == "serverError") {
-        return err.reason.responseObject;
+    else if (reason.type == "network") {
+        return reason.err;
+    } else if (reason.type == "serverError" || reason.type == "redirect") {
+        return reason.responseObject;
     }
     return null;
 }

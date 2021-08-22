@@ -169,7 +169,7 @@ namespace DotVVM.Framework.Compilation.Binding
         private int tmpCounter;
         protected Expression CheckForNull(Expression parameter, Func<Expression, Expression> callback, bool checkReferenceTypes = true, bool suppress = false)
         {
-            if (suppress || parameter == null || (parameter.Type.GetTypeInfo().IsValueType && !parameter.Type.IsNullable()) || !checkReferenceTypes && !parameter.Type.GetTypeInfo().IsValueType)
+            if (suppress || parameter == null || (parameter.Type.IsValueType && !parameter.Type.IsNullable()) || !checkReferenceTypes && !parameter.Type.IsValueType)
                 return callback(parameter);
             var p2 = Expression.Parameter(parameter.Type, "tmp" + tmpCounter++);
             var eresult = callback(p2.Type.IsNullable() ? (Expression)Expression.Property(p2, "Value") : p2);

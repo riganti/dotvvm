@@ -215,7 +215,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         public static JsExpression BuildIndexer(JsExpression target, JsExpression index, MemberInfo member) =>
-            target.Indexer(index).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = member });
+            target.Indexer(index).WithAnnotation(new VMPropertyInfoAnnotation(member));
 
         public JsExpression TranslateParameter(Expression expression, BindingParameterAnnotation annotation)
         {
@@ -228,24 +228,18 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
             int getContextSteps(DataContextStack item) =>
                 item == null ? 0 : ContextMap[item];
-            JsExpression contextParameter(string name, int parentContexts, Type type) =>
-                getDataContext(parentContexts).Member(name).WithAnnotation(new ViewModelInfoAnnotation(type));
 
             if (annotation.ExtensionParameter != null)
             {
+                var type = ResolvedTypeDescriptor.ToSystemType(annotation.ExtensionParameter.ParameterType) ?? expression.Type;
                 return annotation.ExtensionParameter.GetJsTranslation(getDataContext(getContextSteps(annotation.DataContext)))
-                    .WithAnnotation(new ViewModelInfoAnnotation(annotation.ExtensionParameter.ParameterType.Apply(ResolvedTypeDescriptor.ToSystemType), extensionParameter: annotation.ExtensionParameter), append: false);
+                    .WithAnnotation(new ViewModelInfoAnnotation(type, extensionParameter: annotation.ExtensionParameter), append: false);
             }
             else
             {
                 var index = getContextSteps(annotation.DataContext);
-                if (index == 0)
-                    return new JsSymbolicParameter(JavascriptTranslator.KnockoutViewModelParameter).WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
-                else if (index == 1)
-                    return contextParameter("$parent", 0, expression.Type);
-                else return new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter)
-                        .Member("$parents").Indexer(new JsLiteral(index - 1))
-                        .WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
+                var data = JavascriptTranslator.GetKnockoutViewModelParameter(index).ToExpression();
+                return data.WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
             }
         }
 
@@ -259,10 +253,10 @@ namespace DotVVM.Framework.Compilation.Javascript
             new JsLiteral(expression.Type.IsValueType && expression.Type != typeof(void) ?
                           Activator.CreateInstance(expression.Type) :
                           null)
-            .WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
+            .WithAnnotation(new ViewModelInfoAnnotation(expression.Type, containsObservables: false));
 
         public JsLiteral TranslateConstant(ConstantExpression expression) =>
-            new JsLiteral(expression.Value).WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
+            new JsLiteral(expression.Value).WithAnnotation(new ViewModelInfoAnnotation(expression.Type, containsObservables: false));
 
         public JsExpression TranslateMethodCall(MethodCallExpression expression)
         {
@@ -390,7 +384,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public static JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string name = null) =>
             new JsMemberAccessExpression(context, name ?? propInfo.Name)
-                .WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = propInfo })
+                .WithAnnotation(new VMPropertyInfoAnnotation(propInfo))
                 .WithAnnotation(new ViewModelInfoAnnotation(propInfo.GetResultType()));
 
         public JsExpression TryTranslateMethodCall(MethodInfo methodInfo, Expression target, IEnumerable<Expression> arguments) =>

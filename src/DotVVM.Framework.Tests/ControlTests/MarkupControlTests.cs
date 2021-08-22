@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
 
                 <cc:CustomControlWithCommand DataContext={value: Integer} Click={staticCommand: s.Save(_parent.Integer)} />
-                <dot:Repeater DataSource={value: Collection}>
+                <dot:Repeater DataSource={value: Collection} RenderAsNamedTemplate=false>
                     <cc:CustomControlWithCommand Click={staticCommand: s.Save(_this)} />
                 </dot:Repeater>
                 ",

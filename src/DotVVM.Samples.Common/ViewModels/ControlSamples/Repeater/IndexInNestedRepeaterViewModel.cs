@@ -6,7 +6,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Repeater
 {
-    public class NestedRepeaterViewModel : DotvvmViewModelBase
+    public class IndexInNestedRepeaterViewModel : DotvvmViewModelBase
     {
 
         public List<NestedRepeaterEntry> Children { get; set; }
@@ -28,7 +28,16 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Repeater
                         {
                             new NestedRepeaterEntry() { Name = "Subchild 1", Children = new List<NestedRepeaterEntry>()
                                 {
-                                    new NestedRepeaterEntry() { Name = "SubSubchild 1" }
+                                    new NestedRepeaterEntry() { Name = "SubSubchild 1" },
+                                    new NestedRepeaterEntry() { Name = "SubSubchild 2" }
+                                }
+                            },
+                            new NestedRepeaterEntry() { Name = "Subchild 2", Children = new List<NestedRepeaterEntry>()
+                                {
+                                    new NestedRepeaterEntry() { Name = "SubSubchild 1" },
+                                    new NestedRepeaterEntry() { Name = "SubSubchild 2" },
+                                    new NestedRepeaterEntry() { Name = "SubSubchild 3" },
+                                    new NestedRepeaterEntry() { Name = "SubSubchild 4" }
                                 }
                             },
                             new NestedRepeaterEntry() { Name = "Subchild 2" },

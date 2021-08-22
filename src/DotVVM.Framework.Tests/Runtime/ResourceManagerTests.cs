@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Tests.Runtime
             var config1 = DotvvmTestHelper.CreateConfiguration();
             config1.Resources.Register("rs1", new ScriptResource(new FileResourceLocation("file.js")));
             config1.Resources.Register("rs2", new StylesheetResource(new UrlResourceLocation("http://c.c/")));
-            config1.Resources.Register("rs3", new StylesheetResource(new EmbeddedResourceLocation(typeof(DotvvmConfiguration).GetTypeInfo().Assembly, "DotVVM.Framework.Resources.Scripts.knockout-latest.js", "../file.js")));
+            config1.Resources.Register("rs3", new StylesheetResource(new EmbeddedResourceLocation(typeof(DotvvmConfiguration).Assembly, "DotVVM.Framework.Resources.Scripts.knockout-latest.js", "../file.js")));
             config1.Resources.Register("rs4", new InlineScriptResource("CODE", ResourceRenderPosition.Head));
             config1.Resources.Register("rs5", new NullResource());
             config1.Resources.Register("rs6", new ScriptResource(
