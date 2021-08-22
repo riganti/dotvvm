@@ -1,3 +1,4 @@
+using System.Net.Http;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
@@ -46,6 +47,7 @@ namespace DotVVM.Samples.Common
 
             services.AddSingleton<IViewModelServerStore, TestingInMemoryViewModelServerStore>();
 
+            services.AddTransient<HttpClient>();
             services.AddSingleton<ResetClient>();
             services.AddSingleton<OrdersClient>();
             services.AddSingleton<CompaniesClient>();
