@@ -157,6 +157,7 @@ namespace DotVVM.Framework.Controls
                     // adjustedExpression != expression.CommandJavascript ?
                     new CodeParameterAssignment(new ParametrizedCode.Builder { "ko.contextFor(", options.ElementAccessor.Code!, ")" }.Build(OperatorPrecedence.Max))
                 );
+                viewModel = JavascriptTranslator.KnockoutViewModelParameter.DefaultAssignment.Code;
             }
             else
             {
