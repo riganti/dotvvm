@@ -1,7 +1,11 @@
-﻿using DotVVM.Framework.Configuration;
+﻿using System;
+using System.Linq;
+using DotVVM.Framework.Configuration;
 using DotVVM.Tracing.ApplicationInsights;
 using DotVVM.Tracing.ApplicationInsights.AspNetCore;
+using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.AspNetCore;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -17,7 +21,15 @@ namespace DotVVM.Framework.Configuration
         /// <returns></returns>
         public static IDotvvmServiceCollection AddApplicationInsightsTracing(this IDotvvmServiceCollection services)
         {
-            services.AddApplicationInsightsTracingInternal();
+            if (!services.Services.Any(s => s.ServiceType == typeof(TelemetryClient)))
+            {
+                throw new InvalidOperationException("Application Insights must be configured before DotVVM. Make sure you call services.AddApplicationInsightsTelemetry(configuration) before services.AddDotVVM<DotvvmStartup>().");
+            }
+
+            services.Services.AddHttpContextAccessor();
+            services.AddDotvvmApplicationInsights();
+
+            services.Services.AddApplicationInsightsTelemetryProcessor<RequestTelemetryFilter>();
 
             services.Services.TryAddSingleton<JavaScriptSnippet>();
             services.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, ApplicationInsightSetup>();

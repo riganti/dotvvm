@@ -1,7 +1,12 @@
 ﻿using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using Microsoft.ApplicationInsights.AspNetCore;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.ApplicationInsights;
+using Microsoft.Extensions.Options;
 
 namespace DotVVM.Tracing.ApplicationInsights.AspNetCore
 {
@@ -10,6 +15,20 @@ namespace DotVVM.Tracing.ApplicationInsights.AspNetCore
     /// </summary>
     public class ApplicationInsightsJavascript : DotvvmControl
     {
+        private readonly IOptions<TelemetryConfiguration> telemetryConfiguration;
+        private readonly IOptions<ApplicationInsightsServiceOptions> applicationInsightsServiceOptions;
+        private readonly IHttpContextAccessor httpContextAccessor;
+
+        public ApplicationInsightsJavascript(
+            IOptions<TelemetryConfiguration> telemetryConfiguration, 
+            IOptions<ApplicationInsightsServiceOptions> applicationInsightsServiceOptions,
+            IHttpContextAccessor httpContextAccessor)
+        {
+            this.telemetryConfiguration = telemetryConfiguration;
+            this.applicationInsightsServiceOptions = applicationInsightsServiceOptions;
+            this.httpContextAccessor = httpContextAccessor;
+        }
+
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             var doNotTrack = false;
@@ -20,7 +39,7 @@ namespace DotVVM.Tracing.ApplicationInsights.AspNetCore
 
             if (!doNotTrack)
             {
-                var javascriptSnippet = context.Services.GetRequiredService<JavaScriptSnippet>();
+                var javascriptSnippet = new JavaScriptSnippet(telemetryConfiguration.Value, applicationInsightsServiceOptions, httpContextAccessor);
 
                 writer.WriteUnencodedText(javascriptSnippet.FullScript);
             }

@@ -1,6 +1,9 @@
 ﻿using DotVVM.Tracing.ApplicationInsights;
 using DotVVM.Tracing.ApplicationInsights.Owin;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace DotVVM.Framework.Configuration
@@ -14,7 +17,10 @@ namespace DotVVM.Framework.Configuration
         /// <returns></returns>
         public static IDotvvmServiceCollection AddApplicationInsightsTracing(this IDotvvmServiceCollection services)
         {
-            services.AddApplicationInsightsTracingInternal();
+            TelemetryConfiguration.Active.TelemetryProcessorChainBuilder.Use(next => new RequestTelemetryFilter(next)).Build();
+
+            services.Services.TryAddSingleton<TelemetryClient>();
+            services.AddDotvvmApplicationInsights();
             services.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, ApplicationInsightSetup>();
 
             return services;
