@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Compilation.Validation
                 throw new Exception($"ControlUsageValidator attributes on '{type.FullName}' are in an inconsistent state. Make sure all attributes have an Override property set to the same value.");
 
             if (overrideValidation.Any() && overrideValidation[0]) return methods;
-            var ancestorMethods = FindMethods(type.GetTypeInfo().BaseType);
+            var ancestorMethods = FindMethods(type.BaseType);
             return ancestorMethods.Concat(methods).ToArray();
         }
 

@@ -159,6 +159,7 @@ $packages = @(
     [pscustomobject]@{ Package = "DotVVM"; Directory = "DotVVM.Framework" },
     [pscustomobject]@{ Package = "DotVVM.Owin"; Directory = "DotVVM.Framework.Hosting.Owin" },
     [pscustomobject]@{ Package = "DotVVM.AspNetCore"; Directory = "DotVVM.Framework.Hosting.AspNetCore" },
+    [pscustomobject]@{ Package = "DotVVM.Testing"; Directory = "DotVVM.Framework.Testing" },
     [pscustomobject]@{ Package = "DotVVM.CommandLine"; Directory = "DotVVM.CommandLine" },
     [pscustomobject]@{ Package = "DotVVM.Tools.StartupPerf"; Directory = "DotVVM.Tools.StartupPerfTester" },
     [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.AspNetCore"; Directory = "DotVVM.Framework.Api.Swashbuckle.AspNetCore" },

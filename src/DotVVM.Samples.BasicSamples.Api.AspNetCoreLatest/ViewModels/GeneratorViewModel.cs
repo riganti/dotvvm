@@ -69,7 +69,6 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest.ViewModels
             var generator = new WebApiToSwaggerGenerator(settings);
 
             var controllers = typeof(GeneratorViewModel)
-                .GetTypeInfo()
                 .Assembly.GetTypes()
                 .Where(t => typeof(Controller).IsAssignableFrom(t));
             var d = await generator.GenerateForControllersAsync(controllers);
@@ -95,7 +94,6 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest.ViewModels
             var generator = new WebApiToSwaggerGenerator(settings);
 
             var controllers = typeof(GeneratorViewModel)
-                .GetTypeInfo()
                 .Assembly.GetTypes()
                 .Where(t => typeof(Controller).IsAssignableFrom(t));
             var d = await generator.GenerateForControllersAsync(controllers);

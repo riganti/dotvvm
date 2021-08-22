@@ -5,20 +5,18 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
-using DotVVM.Framework.ViewModel.Serialization;
+using DotVVM.Framework.Testing;
 using DotVVM.Framework.Configuration;
 using System.Linq.Expressions;
 using Microsoft.Extensions.DependencyInjection;
-using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -26,57 +24,20 @@ namespace DotVVM.Framework.Tests.Binding
     public class JavascriptCompilationTests
     {
         private DotvvmConfiguration configuration;
-        private BindingCompilationService bindingService;
+        private BindingTestHelper bindingHelper;
 
         [TestInitialize]
         public void Init()
         {
             this.configuration = DotvvmTestHelper.CreateConfiguration();
             configuration.RegisterApiClient(typeof(TestApiClient), "http://server/api", "./apiscript.js", "_testApi");
-            this.bindingService = configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
+            this.bindingHelper = new BindingTestHelper(configuration);
         }
         public string CompileBinding(string expression, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object));
         public string CompileBinding(string expression, NamespaceImport[] imports, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object), imports);
         public string CompileBinding(string expression, Type[] contexts, Type expectedType, NamespaceImport[] imports = null)
         {
-            var context = DataContextStack.Create(contexts.FirstOrDefault() ?? typeof(object), extensionParameters: new BindingExtensionParameter[]{
-                new CurrentCollectionIndexExtensionParameter(),
-                new BindingCollectionInfoExtensionParameter("_collection"),
-                new BindingPageInfoExtensionParameter(),
-                new BindingApiExtensionParameter(),
-                }.Concat(configuration.Markup.DefaultExtensionParameters).ToArray());
-            for (int i = 1; i < contexts.Length; i++)
-            {
-                context = DataContextStack.Create(contexts[i], context);
-            }
-            var parser = new BindingExpressionBuilder(configuration.ServiceProvider.GetRequiredService<CompiledAssemblyCache>(), configuration.ServiceProvider.GetRequiredService<ExtensionMethodsCache>());
-            var parsedExpression = parser.ParseWithLambdaConversion(expression, context, BindingParserOptions.Value.AddImports(imports), expectedType);
-            var expressionTree =
-                TypeConversion.MagicLambdaConversion(parsedExpression, expectedType) ??
-                TypeConversion.ImplicitConversion(parsedExpression, expectedType, true, true);
-            var jsExpression = new JsParenthesizedExpression(configuration.ServiceProvider.GetRequiredService<JavascriptTranslator>().CompileToJavascript(expressionTree, context));
-            jsExpression.AcceptVisitor(new KnockoutObservableHandlingVisitor(true));
-            JsTemporaryVariableResolver.ResolveVariables(jsExpression);
-            return JavascriptTranslator.FormatKnockoutScript(jsExpression.Expression);
-        }
-
-        public ValueBindingExpression CompileValueBinding(string expression, Type[] contexts, Type expectedType)
-        {
-            var context = DataContextStack.Create(contexts.FirstOrDefault() ?? typeof(object), extensionParameters: new BindingExtensionParameter[]{
-                new BindingPageInfoExtensionParameter(),
-                }.Concat(configuration.Markup.DefaultExtensionParameters).ToArray());
-            for (int i = 1; i < contexts.Length; i++)
-            {
-                context = DataContextStack.Create(contexts[i], context);
-            }
-
-            var valueBinding = new ValueBindingExpression(bindingService, new object[] {
-                context,
-                new OriginalStringBindingProperty(expression),
-                new BindingParserOptions(typeof(ValueBindingExpression)).AddImports(configuration.Markup.ImportedNamespaces),
-                new ExpectedTypeBindingProperty(expectedType ?? typeof(object))
-            });
-            return valueBinding;
+            return bindingHelper.ValueBindingToJs(expression, contexts, expectedType, imports, niceMode: false);
         }
 
         public static string FormatKnockoutScript(ParametrizedCode code) => JavascriptTranslator.FormatKnockoutScript(code);
@@ -133,7 +94,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_InterpolatedString(string expression)
         {
             var js = CompileBinding(expression, new[] { typeof(TestViewModel) }, typeof(string));
-            Assert.AreEqual("dotvvm.globalize.format(\"Interpolated {0} {1}\",[StringProp(),StringProp()])", js);
+            Assert.AreEqual("dotvvm.translations.string.format(\"Interpolated {0} {1}\",[StringProp(),StringProp()])", js);
         }
 
         [TestMethod]
@@ -256,7 +217,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void JavascriptCompilation_WrappedIdentifierExpression()
         {
-            var result = CompileValueBinding("_this", new [] {typeof(TestViewModel) }, typeof(object));
+            var result = bindingHelper.ValueBinding<object>("_this", new [] {typeof(TestViewModel) });
             Assert.AreEqual("$data", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
             Assert.AreEqual("$rawData", FormatKnockoutScript(result.KnockoutExpression));
             Assert.AreEqual("$rawData", FormatKnockoutScript(result.WrappedKnockoutExpression));
@@ -265,7 +226,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void JavascriptCompilation_WrappedPropertyAccessExpression()
         {
-            var result = CompileValueBinding("StringProp", new [] {typeof(TestViewModel) }, typeof(object));
+            var result = bindingHelper.ValueBinding<object>("StringProp", new [] {typeof(TestViewModel) });
             Assert.AreEqual("StringProp()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
             Assert.AreEqual("StringProp", FormatKnockoutScript(result.KnockoutExpression));
             Assert.AreEqual("StringProp", FormatKnockoutScript(result.WrappedKnockoutExpression));
@@ -274,7 +235,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void JavascriptCompilation_WrappedNestedPropertyAccessExpression()
         {
-            var result = CompileValueBinding("TestViewModel2.SomeString", new[] { typeof(TestViewModel) }, typeof(object));
+            var result = bindingHelper.ValueBinding<object>("TestViewModel2.SomeString", new[] { typeof(TestViewModel) });
             Assert.AreEqual("TestViewModel2()&&TestViewModel2().SomeString()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
             Assert.AreEqual("(TestViewModel2()||{}).SomeString", FormatKnockoutScript(result.KnockoutExpression));
             Assert.AreEqual("dotvvm.evaluator.wrapObservable(function(){return TestViewModel2()&&TestViewModel2().SomeString;})", FormatKnockoutScript(result.WrappedKnockoutExpression));
@@ -283,7 +244,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void JavascriptCompilation_WrappedNestedListAccessExpression()
         {
-            var result = CompileValueBinding("TestViewModel2.Collection", new[] { typeof(TestViewModel) }, typeof(object));
+            var result = bindingHelper.ValueBinding<object>("TestViewModel2.Collection", new[] { typeof(TestViewModel) });
             Assert.AreEqual("TestViewModel2()&&TestViewModel2().Collection()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
             Assert.AreEqual("(TestViewModel2()||{}).Collection", FormatKnockoutScript(result.KnockoutExpression));
             Assert.AreEqual("dotvvm.evaluator.wrapObservable(function(){return TestViewModel2()&&TestViewModel2().Collection;},true)", FormatKnockoutScript(result.WrappedKnockoutExpression));
@@ -292,7 +253,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void JavascriptCompilation_WrappedNegatedBooleanAccessExpression()
         {
-            var result = CompileValueBinding("!Value", new[] { typeof(Something) }, typeof(object));
+            var result = bindingHelper.ValueBinding<object>("!Value", new[] { typeof(Something) });
             Assert.AreEqual("!Value()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
             Assert.AreEqual("!Value()", FormatKnockoutScript(result.KnockoutExpression));
             Assert.AreEqual("ko.pureComputed(function(){return !Value();})", FormatKnockoutScript(result.WrappedKnockoutExpression));
@@ -301,7 +262,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void JavascriptCompilation_WrappedExpression()
         {
-            var result = CompileValueBinding("StringProp.Length + 43", new [] {typeof(TestViewModel) }, typeof(object));
+            var result = bindingHelper.ValueBinding<object>("StringProp.Length + 43", new [] {typeof(TestViewModel) });
             Assert.AreEqual("(StringProp()==null?null:StringProp().length)+43", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
             Assert.AreEqual("(StringProp()==null?null:StringProp().length)+43", FormatKnockoutScript(result.KnockoutExpression));
             Assert.AreEqual("ko.pureComputed(function(){return (StringProp()==null?null:StringProp().length)+43;})", FormatKnockoutScript(result.WrappedKnockoutExpression));
@@ -310,7 +271,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void JavascriptCompilation_FormatStringExpression()
         {
-            var result = CompileValueBinding("LongProperty.ToString('0000')", new [] {typeof(TestViewModel) }, typeof(object));
+            var result = bindingHelper.ValueBinding<object>("LongProperty.ToString('0000')", new [] {typeof(TestViewModel) });
             Assert.AreEqual("dotvvm.globalize.bindingNumberToString(LongProperty,\"0000\")()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
             Assert.AreEqual("dotvvm.globalize.bindingNumberToString(LongProperty,\"0000\")", FormatKnockoutScript(result.KnockoutExpression));
             Assert.AreEqual("dotvvm.globalize.bindingNumberToString(LongProperty,\"0000\")", FormatKnockoutScript(result.WrappedKnockoutExpression));
@@ -337,14 +298,14 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_LambdaWithParameter()
         {
             var result = this.CompileBinding("_this + arg", new [] { typeof(string) }, typeof(Func<string, string>));
-            Assert.AreEqual("function(arg){return $data+ko.unwrap(arg);}", result);
+            Assert.AreEqual("(function(arg){return $data+ko.unwrap(arg);})", result);
         }
 
         [TestMethod]
         public void JsTranslator_LambdaWithDelegateInvocation()
         {
             var result = this.CompileBinding("arg(12) + _this", new [] { typeof(string) }, typeof(Func<Func<int, string>, string>));
-            Assert.AreEqual("function(arg){return ko.unwrap(arg)(12)+$data;}", result);
+            Assert.AreEqual("(function(arg){return ko.unwrap(arg)(12)+$data;})", result);
         }
 
         [TestMethod]
@@ -360,7 +321,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void JsTranslator_DataContextShift()
         {
-            var result = CompileValueBinding("_this.StringProp", new [] { typeof(TestViewModel) }, typeof(string));
+            var result = bindingHelper.ValueBinding<object>("_this.StringProp", new [] { typeof(TestViewModel) });
             var expr0 = JavascriptTranslator.FormatKnockoutScript(result.KnockoutExpression, dataContextLevel: 0);
             var expr0_explicit = JavascriptTranslator.FormatKnockoutScript(result.KnockoutExpression, allowDataGlobal: false, dataContextLevel: 0);
             var expr1 = JavascriptTranslator.FormatKnockoutScript(result.KnockoutExpression, dataContextLevel: 1);
@@ -511,7 +472,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void JsTranslator_ListAddOrUpdate()
         {
-            var result = CompileBinding("LongList.AddOrUpdate(12345L, (long item) => item == 12345, (long item) => 54321L)", new[] { typeof(TestViewModel) }, typeof(void), new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") });
+            var result = CompileBinding("LongList.AddOrUpdate(12345L, item => item == 12345, item => 54321L)", new[] { typeof(TestViewModel) }, typeof(void), new[] { new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace") });
             Assert.AreEqual("dotvvm.translations.array.addOrUpdate(LongList,12345,function(item){return ko.unwrap(item)==12345;},function(item){return 54321;})", result);
         }
 
@@ -913,52 +874,99 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void StaticCommandCompilation_IndexParameter()
+        [DataRow("_collection.IsEven", "$index()%2==0")]
+        [DataRow("_this._collection.IsEven", "$index()%2==0")]
+        [DataRow("_root._index", "$index()")]
+        [DataRow("_index", "$index()")]
+        [DataRow("_root._page.EvaluatingOnClient", "true")]
+        [DataRow("_page.EvaluatingOnClient", "true")]
+        public void StaticCommandCompilation_Parameters(string expr, string expectedResult)
         {
-            var result = CompileBinding("_index", new [] { typeof(TestViewModel)});
+            var result = CompileBinding(expr, new [] { typeof(TestViewModel) });
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        [TestMethod]
+        [DataRow("_index", "$parentContext.$parentContext.$index()")]
+        [DataRow("_parent2._index", "$parentContext.$parentContext.$index()")]
+        [DataRow("_root._index", "$parentContext.$parentContext.$index()")]
+        [DataRow("_collection.IsEven", "$parentContext.$parentContext.$index()%2==0")]
+        public void StaticCommandCompilation_ParametersInHierarchy(string expr, string expectedResult)
+        {
+            var result = CompileBinding(expr, new [] { typeof(TestViewModel), typeof(object), typeof(string) });
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        [TestMethod]
+        [DataRow("_this._index", "IndexProperty")]
+        [DataRow("_root._index", "IndexProperty")]
+        [DataRow("_index", "IndexProperty")]
+        [DataRow("_collection.Index", "$index()")]
+        public void StaticCommandCompilation_ParameterPropertyConflict(string expr, string expectedResult)
+        {
+            var result = CompileBinding(expr, new [] { typeof(TestExtensionParameterConflictViewModel) });
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_ParameterPropertyNotExists()
+        {
+            // _index exists on parent, but not on _this
+            var e = Assert.ThrowsException<Exception>(() =>
+                CompileBinding("_this._index", new [] { typeof(object), typeof(string) }));
+            Assert.AreEqual("Could not find instance member _index on type System.String.", e.Message);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_MultipleExplicitIndexParameters()
+        {
+            var dc1 = DataContextStack.Create(
+                typeof(TestViewModel),
+                extensionParameters: new [] {
+                    new CurrentCollectionIndexExtensionParameter()
+                });
+            var dc2 = DataContextStack.Create(
+                typeof(int),
+                parent: dc1,
+                extensionParameters: new [] {
+                    new CurrentCollectionIndexExtensionParameter()
+                });
+            var result = bindingHelper.ValueBindingToJs("_index + _this._index + _parent._index + _root._index", dc2);
+            Assert.AreEqual("$index() + $index() + $parentContext.$index() + $parentContext.$index()", result);
+        }
+        [TestMethod]
+        public void StaticCommandCompilation_ExplicitIndexParameterInThis()
+        {
+            var result = CompileBinding("_this._index", new [] { typeof(TestViewModel) });
             Assert.AreEqual("$index()", result);
-        }
-
-        [TestMethod]
-        public void StaticCommandCompilation_CollectionInfoParameter()
-        {
-            var result = CompileBinding("_collection.IsEven", typeof(TestViewModel));
-            Assert.AreEqual("$index()%2==0", result);
-        }
-
-        [TestMethod]
-        public void StaticCommandCompilation_IndexParameterInParent()
-        {
-            var result = CompileBinding("_index", new [] { typeof(TestViewModel), typeof(object), typeof(string) });
-            Assert.AreEqual("$parentContext.$parentContext.$index()", result);
         }
 
         [TestMethod]
         public void JavascriptCompilation_Variable()
         {
             var result = CompileBinding("var a = 1; var b = 2; var c = 3; a + b + c", typeof(TestViewModel));
-            Assert.AreEqual("function(a,b,c){a=1;b=2;c=3;return a+b+c;}()", result);
+            Assert.AreEqual("(function(a,b,c){a=1;b=2;c=3;return a+b+c;}())", result);
         }
 
         [TestMethod]
         public void JavascriptCompilation_Variable_Nested()
         {
             var result = CompileBinding("var a = 1; var b = (var a = 5; a + 1); a + b", typeof(TestViewModel));
-            Assert.AreEqual("function(a0,b){a0=1;b=function(a){a=5;return a+1;}();return a0+b;}()", result);
+            Assert.AreEqual("(function(a0,b){a0=1;b=function(a){a=5;return a+1;}();return a0+b;}())", result);
         }
 
         [TestMethod]
         public void JavascriptCompilation_Variable_Property()
         {
             var result = CompileBinding("var a = _this.StringProp; var b = _this.StringProp2; StringProp2 = a + b", typeof(TestViewModel));
-            Assert.AreEqual("function(a,b){a=StringProp();b=StringProp2();return StringProp2(a+b);}()", result);
+            Assert.AreEqual("(function(a,b){a=StringProp();b=StringProp2();return StringProp2(a+b);}())", result);
         }
 
         [TestMethod]
         public void JavascriptCompilation_Variable_VM()
         {
             var result = CompileBinding("var a = _parent; var b = _this.StringProp2; StringProp2 = a + b", new [] { typeof(string), typeof(TestViewModel) });
-            Assert.AreEqual("function(a,b){a=$parent;b=StringProp2();return StringProp2(a+b);}()", result);
+            Assert.AreEqual("(function(a,b){a=$parent;b=StringProp2();return StringProp2(a+b);}())", result);
         }
 
         [TestMethod]
@@ -979,7 +987,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_AssignAndUseObjectArray()
         {
             var result = CompileBinding("StringProp2 = (_this.VmArray[1] = (_this.VmArray[0] = _this.VmArray[3])).SomeString", typeof(TestViewModel));
-            Assert.AreEqual("", result);
+            Assert.AreEqual("function(abc){return abc+\"def\";}", result);
         }
 
         [TestMethod]
@@ -1002,18 +1010,38 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("StringProp.ToUpperInvariant()", "StringProp().toUpperCase()")]
         [DataRow("StringProp.ToLowerInvariant()", "StringProp().toLowerCase()")]
         [DataRow("StringProp.IndexOf('test')", "StringProp().indexOf(\"test\")")]
+        [DataRow("StringProp.IndexOf('test',StringComparison.InvariantCultureIgnoreCase)",
+            "dotvvm.translations.string.indexOf(StringProp(),0,\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("StringProp.IndexOf('test',1)", "StringProp().indexOf(\"test\",1)")]
+        [DataRow("StringProp.IndexOf('test',1,StringComparison.InvariantCultureIgnoreCase)",
+            "dotvvm.translations.string.indexOf(StringProp(),1,\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("StringProp.LastIndexOf('test')", "StringProp().lastIndexOf(\"test\")")]
+        [DataRow("StringProp.LastIndexOf('test',StringComparison.InvariantCultureIgnoreCase)",
+            "dotvvm.translations.string.lastIndexOf(StringProp(),0,\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("StringProp.LastIndexOf('test',2)", "StringProp().lastIndexOf(\"test\",2)")]
+        [DataRow("StringProp.LastIndexOf('test',2,StringComparison.InvariantCultureIgnoreCase)",
+            "dotvvm.translations.string.lastIndexOf(StringProp(),2,\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("StringProp.Contains('test')", "StringProp().includes(\"test\")")]
+        [DataRow("StringProp.Contains('test',StringComparison.InvariantCultureIgnoreCase)",
+            "dotvvm.translations.string.contains(StringProp(),\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("StringProp.StartsWith('test')", "StringProp().startsWith(\"test\")")]
+        [DataRow("StringProp.StartsWith('test',StringComparison.InvariantCultureIgnoreCase)",
+            "dotvvm.translations.string.startsWith(StringProp(),\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("StringProp.EndsWith('test')", "StringProp().endsWith(\"test\")")]
+        [DataRow("StringProp.EndsWith('test',StringComparison.InvariantCultureIgnoreCase)",
+            "dotvvm.translations.string.endsWith(StringProp(),\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("string.IsNullOrEmpty(StringProp)", "StringProp()==null||StringProp()===\"\"")]
         public void JavascriptCompilation_StringFunctions(string input, string expected)
         {
             var result = CompileBinding(input, typeof(TestViewModel));
             Assert.AreEqual(expected, result);
         }
+    }
+
+    public class TestExtensionParameterConflictViewModel
+    {
+        [Bind(Name = "IndexProperty")]
+        public int _index { get; }
     }
 
     public class TestApiClient

@@ -4,10 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Threading.Tasks;
 using CheckTestOutput;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.ViewModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -164,6 +166,41 @@ namespace DotVVM.Framework.Tests.ControlTests
                 </dot:GridView>");
 
             Assert.IsTrue(r.Html.QuerySelectorAll("tr")[0].ClassList.Contains("header-10000000"));
+        }
+
+        [TestMethod]
+        public async Task GridViewColumn_Usage_Validators()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <dot:GridView DataSource={value: Customers} InlineEditing=true>
+                    <dot:GridViewTextColumn ValueBinding={value: Name} ValidatorPlacement=AttachToControl />
+                </dot:GridView>");
+
+            Assert.IsTrue(r.Html.QuerySelector("input[type=text]").GetAttribute("data-bind").Contains("dotvvm-validation: Name"));
+        }
+
+        [TestMethod]
+        public async Task GridViewColumn_Usage_AttachedProperties()
+        {
+            var exception = await Assert.ThrowsExceptionAsync<DotvvmCompilationException>(() => 
+                cth.RunPage(typeof(BasicTestViewModel), @"
+                <dot:GridView DataSource={value: Customers}>
+                    <dot:GridViewCheckBoxColumn Validation.Enabled=false ValueBinding={value: Enabled} />
+                </dot:GridView>"));
+
+            Assert.IsTrue(exception.Message.Contains("The column doesn't support the property Validation.Enabled! If you need to set an attached property applied to a table cell, use the CellDecorators property."));
+        }
+
+        [TestMethod]
+        public async Task GridViewColumn_Usage_DataContext()
+        {
+            var exception = await Assert.ThrowsExceptionAsync<DotvvmCompilationException>(() => 
+                cth.RunPage(typeof(BasicTestViewModel), @"
+                <dot:GridView DataSource={value: Customers}>
+                    <dot:GridViewTextColumn DataContext={value: _this} ValueBinding={value: Name} />
+                </dot:GridView>"));
+
+            Assert.IsTrue(exception.Message.Contains("Changing the DataContext property on the GridViewColumn is not supported!"));
         }
 
         public class BasicTestViewModel: DotvvmViewModelBase

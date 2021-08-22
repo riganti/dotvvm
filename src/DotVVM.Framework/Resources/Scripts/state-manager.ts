@@ -11,7 +11,7 @@ import { logWarning } from "./utils/logging";
 import { observable } from "knockout";
 
 export const currentStateSymbol = Symbol("currentState")
-const notifySymbol = Symbol("notify")
+export const notifySymbol = Symbol("notify")
 export const lastSetErrorSymbol = Symbol("lastSetError")
 
 const internalPropCache = Symbol("internalPropCache")

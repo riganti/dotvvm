@@ -5,6 +5,7 @@ using System.Linq;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls.Infrastructure;
+using DotVVM.Framework.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree

@@ -36,6 +36,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
         public static ParametrizedCode FormatParametrizedScript(this JsNode node, bool niceMode = false, string indent = "\t")
         {
+            if (node is null)
+                throw new ArgumentNullException(nameof(node));
             node.FixParenthesis();
             var visitor = new JsFormattingVisitor(niceMode, indent);
             node.AcceptVisitor(visitor);
@@ -76,6 +78,83 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public static T Detach<T>(this T node) where T : JsNode
         {
             node.Remove();
+            return node;
+        }
+
+        public static TNewNode ReplaceWith<TNode, TNewNode>(this TNode node, Func<TNode, TNewNode> replaceFunction)
+            where TNode: JsNode
+            where TNewNode: JsNode
+        {
+            if (replaceFunction == null)
+            throw new ArgumentNullException("replaceFunction");
+            if (node.Parent == null) {
+                throw new InvalidOperationException("Cannot replace the root node");
+            }
+            var oldParent = node.Parent;
+            var oldSuccessor = node.NextSibling;
+            var oldRole = node.Role;
+            node.Remove();
+            var replacement = replaceFunction(node);
+            if (oldSuccessor != null && oldSuccessor.Parent != oldParent)
+                throw new InvalidOperationException("replace function changed nextSibling of node being replaced?");
+            if (replacement != null) {
+                if (replacement.Parent != null)
+                    throw new InvalidOperationException("replace function must return the root of a tree");
+                if (!oldRole.IsValid(replacement)) {
+                    throw new InvalidOperationException(string.Format("The new node '{0}' is not valid in the role {1}", replacement.GetType().Name, oldRole.ToString()));
+                }
+
+                if (oldSuccessor != null)
+                    oldParent.InsertChildBeforeUnsafe(oldSuccessor, replacement, oldRole);
+                else
+                    oldParent.AddChildUnsafe(replacement, oldRole);
+            }
+            return replacement;
+        }
+
+
+        /// <summary>
+        /// Clones the whole subtree starting at this AST node.
+        /// </summary>
+        /// <remarks>Annotations are copied over to the new nodes; and any annotations implementing ICloneable will be cloned.</remarks>
+        public static TNode Clone<TNode>(this TNode node)
+            where TNode: JsNode
+        {
+            return (TNode)node.CloneImpl();
+        }
+
+        public static JsNode AssignParameters(this JsNode node, Func<CodeSymbolicParameter, JsNode> parameterAssignment)
+        {
+            foreach (var sp in node.Descendants.OfType<JsSymbolicParameter>())
+            {
+                var assignment = parameterAssignment(sp.Symbol);
+                if (assignment is JsSymbolicParameter assignmentS)
+                {
+                    sp.Symbol = assignmentS.Symbol;
+                    sp.DefaultAssignment = assignmentS.DefaultAssignment;
+                }
+                else if (assignment != null)
+                {
+                    if (sp == node)
+                    {
+                        node = assignment;
+                        if (sp.Parent != null)
+                            sp.ReplaceWith(assignment);
+                    }
+                    else
+                    {
+                        sp.ReplaceWith(assignment);
+                    }
+                }
+                else if (sp.GetDefaultAssignment() is CodeParameterAssignment defaultAssignment)
+                {
+                    var newDefault = defaultAssignment.Code.AssignParameters(p =>
+                        parameterAssignment(p)?.FormatParametrizedScript()
+                    );
+                    if (newDefault != defaultAssignment.Code)
+                        sp.DefaultAssignment = new CodeParameterAssignment(newDefault);
+                }
+            }
             return node;
         }
 

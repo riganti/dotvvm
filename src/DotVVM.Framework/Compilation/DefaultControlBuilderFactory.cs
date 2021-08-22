@@ -173,7 +173,7 @@ namespace DotVVM.Framework.Compilation
                     if (codeBase!.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) return assembly;
                 }
             }
-            foreach (var assemblyDirectory in new[] { Path.GetDirectoryName(typeof(DefaultControlBuilderFactory).GetTypeInfo().Assembly.GetCodeBasePath()), configuration.ApplicationPhysicalPath })
+            foreach (var assemblyDirectory in new[] { Path.GetDirectoryName(typeof(DefaultControlBuilderFactory).Assembly.GetCodeBasePath()), configuration.ApplicationPhysicalPath })
             {
                 if (!string.IsNullOrEmpty(assemblyDirectory))
                 {
@@ -198,7 +198,7 @@ namespace DotVVM.Framework.Compilation
             }
             var builders = assembly.GetTypes().Select(t => new {
                 type = t,
-                attribute = t.GetTypeInfo().GetCustomAttribute<LoadControlBuilderAttribute>()
+                attribute = t.GetCustomAttribute<LoadControlBuilderAttribute>()
             }).Where(t => t.attribute != null);
             foreach (var builder in builders)
             {

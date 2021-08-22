@@ -2,10 +2,14 @@
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using System;
+using System.Linq;
 using System.Collections.Generic;
+using System.Reflection;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using System.Threading.Tasks;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Validation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Controls
@@ -245,6 +249,29 @@ namespace DotVVM.Framework.Controls
             // TODO: verify that sortExpression is a single property name
             return SortExpression;
         }
+
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        {
+            if (control.Properties.ContainsKey(DataContextProperty))
+            {
+                yield return new ControlUsageError("Changing the DataContext property on the GridViewColumn is not supported!", control.DothtmlNode);
+            }
+
+            // disallow attached properties on columns
+            foreach (var property in control.Properties)
+            {
+                // ignore attached properties that are set by runtime and not from markup
+                if (Internal.IsViewCompilerProperty(property.Key)) continue;
+
+                if (!typeof(GridViewColumn).IsAssignableFrom(property.Key.DeclaringType))
+                {
+                    yield return new ControlUsageError($"The column doesn't support the property {property.Key.FullName}! If you need to set an attached property applied to a table cell, use the CellDecorators property.",
+                        new[] { property.Value.DothtmlNode }.Where(n => n != null));
+                }
+            }
+        }
+
     }
 
 }

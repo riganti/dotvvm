@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public static IBinding CreateBinding(this BindingCompilationService service, Type binding, object?[] properties)
         {
-            if (binding.GetTypeInfo().ContainsGenericParameters)
+            if (binding.ContainsGenericParameters)
             {
                 var nonGenericBase = binding.BaseType;
                 Debug.Assert(nonGenericBase != null && !nonGenericBase.ContainsGenericParameters && nonGenericBase.Name  + "`1" == binding.Name);

@@ -60,14 +60,14 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
             // handle iEnumerables
             Type iEnumerable;
-            if (Type.GetTypeInfo().IsGenericType && Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            if (Type.IsGenericType && Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
             {
                 iEnumerable = Type;
             }
             else
             {
                 iEnumerable = Type.GetInterfaces()
-                    .FirstOrDefault(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
             }
             if (iEnumerable != null)
             {

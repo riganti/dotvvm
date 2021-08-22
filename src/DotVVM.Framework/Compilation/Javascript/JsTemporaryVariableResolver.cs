@@ -24,11 +24,14 @@ namespace DotVVM.Framework.Compilation.Javascript
             var usedNames = new HashSet<string>();
             foreach (var n in node.DescendantNodesAndSelf())
             {
-                if (n is JsSymbolicParameter symExpr && symExpr.Symbol is JsTemporaryVariableParameter parameter)
+                if (n is JsSymbolicParameter symExpr)
                 {
-                    if (allVariables.TryGetValue(parameter, out var currentInterval))
-                        allVariables[parameter] = (Math.Min(currentInterval.from, eulerPath.IndexOf((symExpr, true))), Math.Max(currentInterval.to, eulerPath.IndexOf((symExpr, false))));
-                    else allVariables.Add(parameter, (parameter.Initializer == null ? eulerPath.IndexOf((symExpr, true)) : 0, eulerPath.IndexOf((symExpr, false))));
+                    foreach (var parameter in symExpr.EnumerateAllSymbols().OfType<JsTemporaryVariableParameter>())
+                    {
+                        if (allVariables.TryGetValue(parameter, out var currentInterval))
+                            allVariables[parameter] = (Math.Min(currentInterval.from, eulerPath.IndexOf((symExpr, true))), Math.Max(currentInterval.to, eulerPath.IndexOf((symExpr, false))));
+                        else allVariables.Add(parameter, (parameter.Initializer == null ? eulerPath.IndexOf((symExpr, true)) : 0, eulerPath.IndexOf((symExpr, false))));
+                    }
                 }
                 if (n is JsIdentifierExpression identifierExpression)
                 {
@@ -59,8 +62,11 @@ namespace DotVVM.Framework.Compilation.Javascript
             var namedGroups = groups.Zip(GetNames().Where(n => !usedNames.Contains(n)), (g, name) => (vars: g.Value, name: name)).ToArray();
             foreach (var group in namedGroups)
             {
-                foreach (var symbolNode in node.DescendantNodesAndSelf().OfType<JsSymbolicParameter>().Where(s => s.Symbol is JsTemporaryVariableParameter p && group.vars.Contains(p)))
-                    symbolNode.ReplaceWith(new JsIdentifierExpression(group.name));
+                node = node.AssignParameters(p =>
+                    p is JsTemporaryVariableParameter v && group.vars.Contains(v)
+                        ? new JsIdentifierExpression(group.name)
+                        : default
+                );
             }
             JsNode iife = new JsFunctionExpression(namedGroups.OrderBy(g => !g.vars.Any(v => v.Initializer != null)).Select(g => new JsIdentifier(g.name)),
                 node is JsBlockStatement block ? block :

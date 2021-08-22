@@ -3,6 +3,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static DotVVM.Framework.Tests.Binding.CommandResolverTests;
