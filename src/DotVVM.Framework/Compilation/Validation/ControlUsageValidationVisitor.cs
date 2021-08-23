@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Compilation.Validation
 {
     public class ControlUsageValidationVisitor: ResolvedControlTreeVisitor
     {
-        public List<ControlUsageError> Errors { get; set; } = new List<ControlUsageError>();
+        public List<(ResolvedControl control, ControlUsageError err)> Errors { get; set; } = new List<(ResolvedControl, ControlUsageError)>();
         readonly IControlUsageValidator validator;
         public ControlUsageValidationVisitor(IControlUsageValidator validator)
         {
@@ -19,10 +19,12 @@ namespace DotVVM.Framework.Compilation.Validation
         public override void VisitControl(ResolvedControl control)
         {
             var err = validator.Validate(control);
-            Errors.AddRange(err);
             foreach (var e in err)
+            {
+                Errors.Add((control, e));
                 foreach (var node in e.Nodes)
                     node.AddError(e.ErrorMessage);
+            }
             base.VisitControl(control);
         }
 
@@ -34,7 +36,13 @@ namespace DotVVM.Framework.Compilation.Validation
             if (this.Errors.Any())
             {
                 var controlUsageError = this.Errors.First();
-                throw new DotvvmCompilationException(controlUsageError.ErrorMessage, controlUsageError.Nodes.SelectMany(n => n.Tokens));
+                var lineNumber =
+                    controlUsageError.control.GetAncestors()
+                        .Select(c => c.DothtmlNode)
+                        .FirstOrDefault(n => n != null)
+                        ?.Tokens.FirstOrDefault()?.LineNumber;
+                var message = $"Validation error in {controlUsageError.control.Metadata.Type.Name} at line {lineNumber}: {controlUsageError.err.ErrorMessage}";
+                throw new DotvvmCompilationException(message, controlUsageError.err.Nodes.SelectMany(n => n.Tokens));
             }
         }
     }

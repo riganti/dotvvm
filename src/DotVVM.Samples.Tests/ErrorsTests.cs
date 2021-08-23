@@ -448,7 +448,7 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_InvalidRouteName);
 
                 AssertUI.TextEquals(browser.First("exceptionType", By.ClassName), "DotVVM.Framework.Compilation.DotvvmCompilationException");
-                AssertUI.TextEquals(browser.First(".exceptionMessage"), "RouteName \"NonExistingRouteName\" does not exist.",
+                AssertUI.TextEquals(browser.First(".exceptionMessage"), "Validation error in RouteLink at line 18: RouteName \"NonExistingRouteName\" does not exist.",
                    failureMessage: "Exception should contain information about the undefined route name");
             });
         }

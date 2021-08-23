@@ -88,6 +88,20 @@ namespace DotVVM.Framework.Compilation.Styles
         public StyleBuilder<DotvvmControl> RegisterRoot() =>
             Register<DotvvmControl>(c => c.Parent is null);
 
+        /// <summary>
+        /// Registers a server-side style for any component of type DotvvmControl (which is almost everything with exception of special objects like GridViewColumn)
+        /// </summary>
+        /// <returns>A <see cref="StyleBuilder{T}"/> that can be used to style the control.</returns>
+        public StyleBuilder<DotvvmControl> RegisterAnyControl(Func<StyleMatchContext<DotvvmControl>, bool> matcher = null) =>
+            Register<DotvvmControl>(matcher);
+
+        /// <summary>
+        /// Registers a server-side style for any component (including special objects like GridViewColumn)
+        /// </summary>
+        /// <returns>A <see cref="StyleBuilder{T}"/> that can be used to style the control.</returns>
+        public StyleBuilder<DotvvmBindableObject> RegisterAnyObject(Func<StyleMatchContext<DotvvmBindableObject>, bool> matcher = null) =>
+            Register<DotvvmBindableObject>(matcher);
+
         private bool isFrozen = false;
         private void ThrowIfFrozen()
         {
