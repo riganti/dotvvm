@@ -101,6 +101,15 @@ namespace DotVVM.Framework.Controls
             return control;
         }
 
+        [Obsolete("Please prefer the SetProperty method with the same signature")]
+        public static TControl SetBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop, IBinding? binding)
+            where TControl : DotvvmBindableObject =>
+            control.SetProperty(prop, binding);
+        [Obsolete("Please prefer the SetProperty method with the same signature")]
+        public static TControl SetValue<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop, TProperty value)
+            where TControl : DotvvmBindableObject =>
+            control.SetProperty(prop, value);
+
         public static TControl SetProperty<TControl, TProperty>(this TControl control, Func<TControl, VirtualPropertyGroupDictionary<TProperty>> prop, string key, IBinding? binding)
             where TControl : DotvvmBindableObject
         {
@@ -222,7 +231,7 @@ namespace DotVVM.Framework.Controls
             var c = DotvvmCapabilityProperty.Find(control.GetType(), typeof(TCapability), prefix);
             if (c is null)
                 throw new Exception($"Capability {prefix}{typeof(TCapability)} is not defined on {control.GetType()}");
-            return (TCapability)c.GetValue(control);
+            return (TCapability)c.GetValue(control)!;
         }
 
         internal static object? TryGeyValue(this DotvvmBindableObject control, DotvvmProperty property)
