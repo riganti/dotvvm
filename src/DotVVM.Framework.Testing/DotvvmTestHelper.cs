@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Testing
 {
     public static class DotvvmTestHelper
     {
-        class FakeProtector : IViewModelProtector
+        public class FakeProtector : IViewModelProtector
         {
             // I hope I will not see this message anywhere on the web ;)
             public const string WarningPrefix = "WARNING - Message not encryped: ";
@@ -60,7 +60,15 @@ namespace DotVVM.Framework.Testing
             }
         }
 
-        class FakeCsrfProtector : ICsrfProtector
+        public class NopProtector : IViewModelProtector
+        {
+            public string Protect(string serializedData, IDotvvmRequestContext context) => "XXX";
+            public byte[] Protect(byte[] plaintextData, params string[] purposes) => Convert.FromBase64String("XXXX");
+            public string Unprotect(string protectedData, IDotvvmRequestContext context) => throw new NotImplementedException();
+            public byte[] Unprotect(byte[] protectedData, params string[] purposes) => throw new NotImplementedException();
+        }
+
+        public class FakeCsrfProtector : ICsrfProtector
         {
             public string GenerateToken(IDotvvmRequestContext context)
             {

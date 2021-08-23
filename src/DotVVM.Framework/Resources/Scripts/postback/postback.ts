@@ -38,6 +38,7 @@ export async function postBack(
         sender,
         args: ko.toJS(commandArgs) || [],  // TODO: consult with @exyi to fix it properly. Whether commandArgs should or not be serialized via dotvvm serializer.
         viewModel: context.$data,
+        knockoutContext: context,
         commandType: "postback",
         abortSignal
     }
@@ -133,7 +134,6 @@ export async function applyPostbackHandlers(
     handlerConfigurations?: ClientFriendlyPostbackHandlerConfiguration[],
     args: any[] = [],
     context = ko.contextFor(sender),
-    viewModel = context.$root,
     abortSignal?: AbortSignal
 ): Promise<DotvvmAfterPostBackEventArgs> {
     const saneNext = (o: PostbackOptions) => {
@@ -146,6 +146,7 @@ export async function applyPostbackHandlers(
         sender,
         args,
         viewModel: context.$data,
+        knockoutContext: context,
         abortSignal
     }
 

@@ -15,6 +15,7 @@ using System.Globalization;
 using System.Collections.Concurrent;
 using DotVVM.Framework.Compilation.Binding;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Utils
 {
@@ -367,6 +368,19 @@ namespace DotVVM.Framework.Utils
             return type.IsValueType && Nullable.GetUnderlyingType(type) == null && type != typeof(void) ? typeof(Nullable<>).MakeGenericType(type) : type;
         }
 
+        public static Type UnwrapTaskType(this Type type)
+        {
+            if (type.IsGenericType && typeof(Task<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
+                return type.GetGenericArguments()[0];
+            else if (typeof(Task).IsAssignableFrom(type))
+                return typeof(void);
+#if NETSTANDARD2_1
+            else if (type.IsGenericType && typeof(ValueTask<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
+                return type.GetGenericArguments()[0];
+#endif
+            else
+                return type;
+        }
 
         public static T GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
             (T)attributeProvider.GetCustomAttributes(typeof(T), inherit).FirstOrDefault();

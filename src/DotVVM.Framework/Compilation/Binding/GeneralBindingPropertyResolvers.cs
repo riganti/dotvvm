@@ -319,7 +319,7 @@ namespace DotVVM.Framework.Compilation.Binding
             new StaticCommandJsAstProperty(this.staticCommandBindingCompiler.CompileToJavascript(dataContext, expression.Expression));
 
         public StaticCommandJavascriptProperty FormatStaticCommand(StaticCommandJsAstProperty code) =>
-            new StaticCommandJavascriptProperty(FormatJavascript(code.Expression, niceMode: configuration.Debug));
+            new StaticCommandJavascriptProperty(FormatJavascript(code.Expression, allowObservableResult: false, niceMode: configuration.Debug));
 
         public LocationInfoBindingProperty GetLocationInfo(ResolvedBinding resolvedBinding, AssignedPropertyBindingProperty assignedProperty = null)
         {

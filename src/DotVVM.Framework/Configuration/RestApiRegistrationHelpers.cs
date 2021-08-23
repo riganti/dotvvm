@@ -136,7 +136,7 @@ namespace DotVVM.Framework.Configuration
                              .WithAnnotation(new ResultIsPromiseAnnotation(
                                  e => e.WithAnnotation(ShouldBeObservableAnnotation.Instance).Member("refreshValue").Invoke(new JsLiteral(true)),
                                  new ViewModelInfoAnnotation(method.ReturnType, containsObservables: false)
-                             ))
+                             ) { IsOptionalAwait = true })
                         ));
                     }
                 }

@@ -622,11 +622,11 @@ test("staticCommand (with server call) + success", async () => {
     const cleanup = watchEvents(false);
     try {
 
-        await applyPostbackHandlers(options => (function(a,b){
+        await applyPostbackHandlers(options => (function(){
             return new Promise(function(resolve,reject){
-                dotvvm.staticCommandPostback(a,"test",[],options).then(function(r_0){resolve(r_0);},reject);
+                dotvvm.staticCommandPostback("test",[],options).then(function(r_0){resolve(r_0);},reject);
             });
-        }(window.document.body, ko.contextFor(window.document.body))), window.document.body, [], []);
+        }()), window.document.body, [], []);
         
         var history = getEventHistory();
 
@@ -650,15 +650,15 @@ test("staticCommand (with two server call) + success", async () => {
     const cleanup = watchEvents(false);
     try {
 
-        await applyPostbackHandlers(options => (function(a,b){
+        await applyPostbackHandlers(options => (function(){
             return new Promise(function(resolve,reject){
-                dotvvm.staticCommandPostback(a,"test",[],options).then(function(r_0){
-                    dotvvm.staticCommandPostback(a,"test2",[],options).then(function(r_1){
+                dotvvm.staticCommandPostback("test",[],options).then(function(r_0){
+                    dotvvm.staticCommandPostback("test2",[],options).then(function(r_1){
                         resolve(r_1);
                     }, reject);
                 }, reject);
             });
-        }(window.document.body, ko.contextFor(window.document.body))), window.document.body, [], []);
+        }()), window.document.body, [], []);
 
         var history = getEventHistory();
 
@@ -688,11 +688,11 @@ test("staticCommand (with server call) + server error", async () => {
     try {
 
         await expect(
-            applyPostbackHandlers(options => (function(a,b){
+            applyPostbackHandlers(options => (function(){
                 return new Promise(function(resolve,reject){
-                    dotvvm.staticCommandPostback(a,"test",[],options).then(function(r_0){resolve(r_0);},reject);
+                    dotvvm.staticCommandPostback("test",[],options).then(function(r_0){resolve(r_0);},reject);
                 });
-            }(window.document.body, ko.contextFor(window.document.body))), window.document.body, [], [])
+            }()), window.document.body, [], [])
         ).rejects.toBeInstanceOf(DotvvmPostbackError)
         
         var history = getEventHistory();

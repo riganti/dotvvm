@@ -29,7 +29,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             {
                 var invocationTargetExpressionCall = context.JsExpression().Invoke(arguments.Select(a => a.JsExpression()));
                 return invocationTargetExpressionCall
-                    .WithAnnotation(new ResultIsPromiseAnnotation(a=> new JsIdentifierExpression("Promise").Member("resolve").Invoke(a)));
+                    .WithAnnotation(new ResultIsPromiseAnnotation(a => new JsIdentifierExpression("Promise").Member("resolve").Invoke(a)) {
+                        // If the delegate is called from value binding, just don't await and hope for the best
+                        IsOptionalAwait = true,
+                        // Promise.resolve is not needed when doing `await X`
+                        IsPromiseGetterOptional = true
+                    });
             }
             return null;
         }
@@ -449,9 +454,9 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         private void AddDefaultEnumerableTranslations()
         {
-            var returnTrueFunc = new JsFunctionExpression(new[] { new JsIdentifier("arg") }, new JsBlockStatement(new JsReturnStatement(new JsLiteral(true))));
-            var selectIdentityFunc = new JsFunctionExpression(new[] { new JsIdentifier("arg") },
-                new JsBlockStatement(new JsReturnStatement(new JsIdentifierExpression("ko").Member("unwrap").Invoke(new JsIdentifierExpression("arg")))));
+            var returnTrueFunc = new JsArrowFunctionExpression(Enumerable.Empty<JsIdentifier>(), new JsLiteral(true));
+            var selectIdentityFunc = new JsArrowFunctionExpression(new[] { new JsIdentifier("arg") },
+                new JsIdentifierExpression("ko").Member("unwrap").Invoke(new JsIdentifierExpression("arg")));
 
             bool EnsureIsComparableInJavascript(MethodInfo method, Type type)
             {

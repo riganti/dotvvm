@@ -5,7 +5,7 @@ import * as http from './http'
 import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
 import { DotvvmPostbackError } from '../shared-classes';
 
-export async function staticCommandPostback(sender: HTMLElement, command: string, args: any[], options: PostbackOptions): Promise<any> {
+export async function staticCommandPostback(command: string, args: any[], options: PostbackOptions): Promise<any> {
 
     let data: any;
     let response: http.WrappedResponse<DotvvmStaticCommandResponse>;
