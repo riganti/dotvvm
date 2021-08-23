@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Controls
             DotvvmCapabilityProperty.RegisterCapability("TextOrContentCapability", typeof(ButtonBase), typeof(TextOrContentCapability),
                 control => TextOrContentCapability.FromChildren((ButtonBase)control, TextProperty),
                 (control, boxedValue) => {
-                    var value = (TextOrContentCapability)boxedValue;
+                    var value = (TextOrContentCapability)boxedValue!;
                     value.WriteToChildren((DotvvmControl)control, TextProperty);
                 }
             );

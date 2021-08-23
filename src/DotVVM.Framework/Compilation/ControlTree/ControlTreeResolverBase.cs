@@ -569,10 +569,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         private void ProcessAttribute(IPropertyDescriptor property, DothtmlAttributeNode attribute, IAbstractControl control, IDataContextStack dataContext)
         {
-            if (property.IsBindingProperty || property.DataContextManipulationAttribute != null) // when DataContextManipulationAttribute is set, lets hope that author knows what is he doing.
-            {
-                dataContext = GetDataContextChange(dataContext, control, property);
-            }
+            dataContext = GetDataContextChange(dataContext, control, property);
 
             if (!property.MarkupOptions.MappingMode.HasFlag(MappingMode.Attribute))
             {

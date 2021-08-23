@@ -4,7 +4,10 @@
 		
 		<!-- simple list -->
 		<p data-bind="foreach: { &quot;data&quot;: List }">
-			<button onclick="dotvvm.postBack(this,[&quot;List/[$index]&quot;],&quot;WHRHt9Mi4BuLdRIz&quot;,'',null,[&quot;validate-root&quot;]).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button"></button>
+			<button onclick="dotvvm.postBack(this,[&quot;List/[$index]&quot;],&quot;WHRHt9Mi4BuLdRIz&quot;,'',null,[&quot;validate-root&quot;],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button">
+				<!-- ko text: $parent.Label() + $data -->
+				<!-- /ko -->
+			</button>
 		</p>
 	</body>
 </html>

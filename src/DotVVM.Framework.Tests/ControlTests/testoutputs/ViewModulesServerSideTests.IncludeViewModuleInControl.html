@@ -2,21 +2,21 @@
 	<head>
 		
 		<!-- Resource knockout of type ScriptResource. Pointing to EmbeddedResourceLocation. -->
-		<script src="/dotvvmResource/knockout/knockout" defer=""></script>
+		<script defer="" src="/dotvvmResource/knockout/knockout"></script>
 		
 		<!-- Resource dotvvm.polyfill.bundle of type ScriptModuleResource. Pointing to EmbeddedResourceLocation. -->
-		<script nomodule="" src="/dotvvmResource/dotvvm--polyfill--bundle/dotvvm--polyfill--bundle?type=nomodule" defer=""></script>
+		<script defer="" nomodule="" src="/dotvvmResource/dotvvm--polyfill--bundle/dotvvm--polyfill--bundle?type=nomodule"></script>
 		
 		<!-- Resource dotvvm.internal of type ScriptModuleResource. Pointing to EmbeddedResourceLocation. -->
-		<script src="/dotvvmResource/dotvvm--internal/dotvvm--internal" type="module" defer=""></script>
-		<script nomodule="" src="/dotvvmResource/dotvvm--internal/dotvvm--internal?type=nomodule" defer=""></script>
+		<script defer="" src="/dotvvmResource/dotvvm--internal/dotvvm--internal" type="module"></script>
+		<script defer="" nomodule="" src="/dotvvmResource/dotvvm--internal/dotvvm--internal?type=nomodule"></script>
 		
 		<!-- Resource dotvvm of type InlineScriptResource. -->          
 		<!-- Resource viewModule.import.lIquTPFe3a42GboPePTmYZ4Xc1S4ok-JXmZud9HUybE of type ViewModuleImportResource. -->
 		<script type="module">import * as m0 from '/dotvvmResource/controlModule/controlModule';dotvvm.viewModules.registerMany({'controlModule': m0});</script>
 		
 		<!-- Resource dotvvm.debug of type ScriptResource. Pointing to EmbeddedResourceLocation. -->
-		<script src="/dotvvmResource/dotvvm--debug/dotvvm--debug" defer=""></script>
+		<script defer="" src="/dotvvmResource/dotvvm--debug/dotvvm--debug"></script>
 		
 		<!-- Resource viewModule.import.HIj399FcjVwbyaIvDKFctn7Ghr0UMajY-haUgZypcHs of type ViewModuleImportResource. -->
 		<script type="module">import * as m0 from '/dotvvmResource/viewModule/viewModule';dotvvm.viewModules.registerMany({'viewModule': m0});</script>
@@ -28,7 +28,7 @@
 		<div>
 			<!-- ko dotvvm-with-control-properties: {  } -->
 			<!-- ko dotvvm-with-view-modules: { viewIdOrElement: $element, modules: ["controlModule"] } -->
-			<input type="button" value="" onclick="dotvvm.applyPostbackHandlers(async(options)=>(dotvvm.viewModules.call(this, &quot;name&quot;, [1])),this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">
+			<input onclick="dotvvm.applyPostbackHandlers(async(options)=>(dotvvm.viewModules.call(this, &quot;name&quot;, [1])),this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
 			<!-- /ko -->
 			<!-- /ko -->
 		</div>
@@ -36,7 +36,7 @@
 			<div>
 				<!-- ko dotvvm-with-control-properties: {  } -->
 				<!-- ko dotvvm-with-view-modules: { viewIdOrElement: $element, modules: ["controlModule"] } -->
-				<input type="button" value="" onclick="dotvvm.applyPostbackHandlers(async(options)=>(dotvvm.viewModules.call(this, &quot;name&quot;, [1])),this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;">
+				<input onclick="dotvvm.applyPostbackHandlers(async(options)=>(dotvvm.viewModules.call(this, &quot;name&quot;, [1])),this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
 				<!-- /ko -->
 				<!-- /ko -->
 			</div>
@@ -44,7 +44,7 @@
 			<!-- ko dotvvm-with-control-properties: {  } -->                         This control should not have any module, it's just a text
 			<!-- /ko -->
 		</div>
-		<input type="hidden" id="__dot_viewmodel_root" value="{
+		<input id="__dot_viewmodel_root" type="hidden" value="{
   &quot;viewModel&quot;: {
     &quot;$type&quot;: &quot;pdNkUAJOJLvXJV5/R35miJ1si64=&quot;,
     &quot;Collection&quot;: [

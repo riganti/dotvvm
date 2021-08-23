@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using CheckTestOutput;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Testing;
 using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.ViewModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,6 +18,7 @@ namespace DotVVM.Framework.Tests.ControlTests
     public class CompositeControlTests
     {
         ControlTestHelper cth = new ControlTestHelper(config: config => {
+            config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);
             config.Markup.AddCodeControls("cc", exampleControl: typeof(WrappedHtmlControl));
         });
         OutputChecker check = new OutputChecker("testoutputs");
@@ -133,6 +136,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         )
         {
             return new Repeater() {
+                RenderAsNamedTemplate = false,
                 WrapperTagName = wrapperTagName,
                 ItemTemplate = new DelegateTemplate(_ =>
                     new Button { ButtonTagName = ButtonTagName.button }

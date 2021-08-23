@@ -16,20 +16,20 @@ namespace DotVVM.Framework.Binding
 {
     public partial class DotvvmCapabilityProperty : DotvvmProperty
     {
-        public Func<DotvvmBindableObject, object?> Getter { get; }
+        public Func<DotvvmBindableObject, object> Getter { get; }
         public Action<DotvvmBindableObject, object?> Setter { get; }
         public string Prefix { get; }
 
         private static ConcurrentDictionary<(Type declaringType, Type capabilityType, string prefix), DotvvmCapabilityProperty> capabilityRegistry = new();
 
-        private DotvvmCapabilityProperty(Func<DotvvmBindableObject, object?> getter, Action<DotvvmBindableObject, object?> setter, string prefix)
+        private DotvvmCapabilityProperty(Func<DotvvmBindableObject, object> getter, Action<DotvvmBindableObject, object?> setter, string prefix)
         {
             this.Getter = getter ?? throw new ArgumentNullException(nameof(getter));
             this.Setter = setter ?? throw new ArgumentNullException(nameof(setter));
             this.Prefix = prefix;
         }
 
-        public override object? GetValue(DotvvmBindableObject control, bool inherit = true) => Getter(control);
+        public override object GetValue(DotvvmBindableObject control, bool inherit = true) => Getter(control);
 
         public override void SetValue(DotvvmBindableObject control, object? value) => Setter(control, value);
 
@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Binding
             return RegisterCapability(name, declaringType, capabilityType, getter, setter, globalPrefix);
         }
 
-        public static DotvvmCapabilityProperty RegisterCapability(string name, Type declaringType, Type capabilityType, Func<DotvvmBindableObject, object?> getter, Action<DotvvmBindableObject, object?> setter, string prefix = "")
+        public static DotvvmCapabilityProperty RegisterCapability(string name, Type declaringType, Type capabilityType, Func<DotvvmBindableObject, object> getter, Action<DotvvmBindableObject, object?> setter, string prefix = "")
         {
             AssertNotDefined(declaringType, capabilityType, name, prefix);
             var property = new DotvvmCapabilityProperty(getter, setter, prefix);
