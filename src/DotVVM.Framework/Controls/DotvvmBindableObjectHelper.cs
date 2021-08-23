@@ -234,7 +234,7 @@ namespace DotVVM.Framework.Controls
             return (TCapability)c.GetValue(control)!;
         }
 
-        internal static object? TryGeyValue(this DotvvmBindableObject control, DotvvmProperty property)
+        internal static object? TryGetValue(this DotvvmBindableObject control, DotvvmProperty property)
         {
             try
             {
@@ -250,7 +250,7 @@ namespace DotVVM.Framework.Controls
         {
             if (control == null) return "null";
 
-            config = config ?? (control.TryGeyValue(Internal.RequestContextProperty) as IDotvvmRequestContext)?.Configuration;
+            config = config ?? (control.TryGetValue(Internal.RequestContextProperty) as IDotvvmRequestContext)?.Configuration;
 
             var type = control.GetType();
             var properties = (from kvp in control.Properties
@@ -270,11 +270,11 @@ namespace DotVVM.Framework.Controls
                               select new { p, name, croppedValue, value, isAttached }
                              ).ToArray();
 
-            var location = (file: control.TryGeyValue(Internal.MarkupFileNameProperty) as string, line: control.TryGeyValue(Internal.MarkupLineNumberProperty) as int? ?? -1);
+            var location = (file: control.TryGetValue(Internal.MarkupFileNameProperty) as string, line: control.TryGetValue(Internal.MarkupLineNumberProperty) as int? ?? -1);
             var reg = config?.Markup.Controls.FirstOrDefault(c => c.Namespace == type.Namespace && Type.GetType(c.Namespace + "." + type.Name + ", " + c.Assembly) == type) ??
                       config?.Markup.Controls.FirstOrDefault(c => c.Namespace == type.Namespace) ??
                       config?.Markup.Controls.FirstOrDefault(c => c.Assembly == type.Assembly.GetName().Name);
-            var ns = reg?.TagPrefix ?? "?";
+            var ns = reg?.TagPrefix ?? (type.Namespace == "DotVVM.Framework.Controls" ? "dot" : "_");
             var tagName = type == typeof(HtmlGenericControl) ? ((HtmlGenericControl)control).TagName : ns + ":" + type.Name;
 
             var dothtmlString = $"<{tagName} ";

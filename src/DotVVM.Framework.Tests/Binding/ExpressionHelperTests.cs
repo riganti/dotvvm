@@ -8,6 +8,7 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Testing;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CSharp.RuntimeBinder;
 using Microsoft.Extensions.DependencyInjection;

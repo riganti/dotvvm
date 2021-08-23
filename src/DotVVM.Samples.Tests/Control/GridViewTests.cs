@@ -391,6 +391,8 @@ namespace DotVVM.Samples.Tests.Control
                 browser.ElementAt("table", 0).FindElements("tr").ThrowIfDifferentCountThan(6);
                 browser.ElementAt("table", 1).FindElements("tr").ThrowIfDifferentCountThan(6);
 
+                AssertUI.HasClass(browser.ElementAt("table", 0).ElementAt("tr", 0), "header-row");
+
                 // check that clicking selects the row which gets the 'selected' class
                 // we dont want to check if element is clickable, it is not a button just fire click event
                 browser.ElementAt("tr", 3).ElementAt("td", 0).Click();
@@ -454,6 +456,48 @@ namespace DotVVM.Samples.Tests.Control
 
                 routeLinks.First().Click();
                 AssertUI.UrlEquals(browser, browser.BaseUrl);
+            });
+        }
+
+        [Fact]
+        public void Control_GridView_GridViewCellDecorators()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewCellDecorators);
+
+                for (int t = 0; t < 2; t++)
+                {
+                    var table = browser.ElementAt("table", t);
+                    table.FindElements("tr").ThrowIfDifferentCountThan(6);
+
+                    for (int i = 0; i < 6; i++)
+                    {
+                        var cells = table.ElementAt("tr", i)
+                            .FindElements(i == 0 ? "th" : "td");
+                        for (int j = 0; j < 3; j++)
+                        {
+                            if (i == 0)
+                            {
+                                AssertUI.HasClass(cells[j], $"header-{j + 1}");
+                            }
+                            else if (i != 2)
+                            {
+                                AssertUI.HasClass(cells[j], $"col-{j + 1}");
+                            }
+                            else
+                            {
+                                if (j == 0)
+                                {
+                                    AssertUI.HasClass(cells[j], $"col-{j + 1}-edit");
+                                }
+                                else
+                                {
+                                    AssertUI.HasClass(cells[j], $"col-{j + 1}");
+                                }
+                            }
+                        }
+                    }
+                }
             });
         }
 
@@ -616,7 +660,7 @@ namespace DotVVM.Samples.Tests.Control
                 // click the Name column in the first table
                 tables[0].ElementAt("th", 1).Single("a").Click();
                 AssertUI.TextEquals(sortExpression, "Name");
-                AssertUI.TextEquals(sortDescending, "false"); 
+                AssertUI.TextEquals(sortDescending, "false");
 
                 // click the Name column in the first table again to change sort direction
                 tables[0].ElementAt("th", 1).Single("a").Click();

@@ -34,9 +34,13 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutDataBind("attr", group);
             }
 
-            if (control.RenderOnServer || !containsBinding)
+            try
             {
                 writer.AddAttribute("href", EvaluateRouteUrl(control.RouteName, control, context));
+            }
+            catch when (!control.RenderOnServer && containsBinding)
+            {
+                // ignore exception when binding is also rendered
             }
         }
 
@@ -159,7 +163,7 @@ namespace DotVVM.Framework.Controls
             {
                 expression = JsonConvert.SerializeObject(param.Value, DefaultSerializerSettingsProvider.Instance.Settings);
             }
-            return KnockoutHelper.MakeStringLiteral(caseSensitive ? param.Key : param.Key.ToLower()) + ": " + expression;
+            return KnockoutHelper.MakeStringLiteral(caseSensitive ? param.Key : param.Key.ToLowerInvariant()) + ": " + expression;
         }
 
         private static void EnsureValidBindingType(IBinding binding)

@@ -91,30 +91,30 @@ namespace DotVVM.Framework.Controls
         }
 
 
-        private bool shouldRenderText = false;
-
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             RouteLinkHelpers.WriteRouteLinkHrefAttribute(this, writer, context);
 
-            writer.AddKnockoutDataBind("text", this, TextProperty, () => {
-                shouldRenderText = true;
-            });
 
-            var enabledBinding = GetValueRaw(EnabledProperty);
-
-            if (enabledBinding is bool)
+            var textBinding = GetValueBinding(TextProperty);
+            if (textBinding is object)
             {
-                WriteEnabledBinding(writer, (bool)enabledBinding);
+                writer.AddKnockoutDataBind("text", textBinding, this);
             }
-            else if (enabledBinding is IValueBinding)
+
+            var enabledBinding = GetValueBinding(EnabledProperty);
+
+            if (enabledBinding is object)
             {
-                WriteEnabledBinding(writer, (IValueBinding)enabledBinding);
+                WriteEnabledBinding(writer, enabledBinding);
             }
 
             if (GetValue<bool?>(EnabledProperty) == false)
             {
                 writer.AddAttribute("disabled", "disabled");
+
+                if (enabledBinding is null)
+                    WriteEnabledBinding(writer, false);
             }
 
             WriteOnClickAttribute(writer, context);
@@ -124,7 +124,7 @@ namespace DotVVM.Framework.Controls
 
         protected virtual void WriteEnabledBinding(IHtmlWriter writer, bool binding)
         {
-            writer.AddKnockoutDataBind("dotvvm-enable", binding.ToString().ToLower());
+            writer.AddKnockoutDataBind("dotvvm-enable", binding.ToString().ToLowerInvariant());
         }
 
         protected virtual void WriteEnabledBinding(IHtmlWriter writer, IValueBinding binding)
@@ -134,16 +134,18 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (shouldRenderText)
+            var hasChildren = !HasOnlyWhiteSpaceContent();
+            if (hasChildren && (HasBinding(TextProperty) || !string.IsNullOrEmpty(Text)))
             {
-                if (!HasOnlyWhiteSpaceContent())
-                {
-                    base.RenderContents(writer, context);
-                }
-                else
-                {
-                    writer.WriteText(Text);
-                }
+                throw new DotvvmControlException(this, "Text property and inner content of the <dot:RouteLink> control cannot be set at the same time!");
+            }
+            else if (hasChildren)
+            {
+                base.RenderContents(writer, context);
+            }
+            else
+            {
+                writer.WriteText(Text);
             }
         }
 

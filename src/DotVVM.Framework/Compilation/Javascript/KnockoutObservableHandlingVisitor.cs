@@ -66,13 +66,13 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             JsNode resultExpression;
             // change assignment to observable property to observable invocation
-            // only do for RestultIsObservable, not ResultMayBeObservable
+            // only do for ResultIsObservable, not ResultMayBeObservable
             if (assignmentExpression.Left.HasAnnotation<ResultIsObservableAnnotation>())
             {
+                var resultType = assignmentExpression.GetResultType();
                 var value = assignmentExpression.Right.Detach();
                 var assignee = assignmentExpression.Left.Detach();
                 assignee.RemoveAnnotations<ResultIsObservableAnnotation>();
-                var resultType = value.GetResultType() ?? assignee.GetResultType();
                 if (value.IsComplexType() || assignee.IsComplexType())
                     resultExpression = assignmentExpression.ReplaceWith(_ => new JsIdentifierExpression("dotvvm").Member("serialization").Member("deserialize").Invoke(value, assignee, new JsLiteral(true))
                                                                              .WithAnnotation(ResultIsObservableAnnotation.Instance));
@@ -104,6 +104,13 @@ namespace DotVVM.Framework.Compilation.Javascript
                 }
 
                 resultExpression.WithAnnotation(assignmentExpression.Annotation<ShouldBeObservableAnnotation>());
+            }
+            else if (assignmentExpression.Left.GetResultType() is ViewModelInfoAnnotation { ContainsObservables: true } && assignmentExpression.Left.IsComplexType())
+            {
+                var value = assignmentExpression.Right;
+                resultExpression = assignmentExpression.Right.ReplaceWith(_ =>
+                    new JsIdentifierExpression("dotvvm").Member("serialization").Member("deserialize").Invoke(value, new JsObjectExpression(), new JsLiteral(true))
+                );
             }
             else resultExpression = assignmentExpression;
 

@@ -2,18 +2,17 @@ import { serialize } from '../serialization/serialize';
 import { getInitialUrl } from '../dotvvm-base';
 import * as events from '../events';
 import * as http from './http'
-import { handleRedirect } from './redirect';
 import { getKnownTypes, updateTypeInfo } from '../metadata/typeMap';
 import { DotvvmPostbackError } from '../shared-classes';
 
-export async function staticCommandPostback(sender: HTMLElement, command: string, args: any[], options: PostbackOptions): Promise<any> {
+export async function staticCommandPostback(command: string, args: any[], options: PostbackOptions): Promise<any> {
 
     let data: any;
     let response: http.WrappedResponse<DotvvmStaticCommandResponse>;
 
     try {
         await http.retryOnInvalidCsrfToken(async () => {
-            const csrfToken = await http.fetchCsrfToken();
+            const csrfToken = await http.fetchCsrfToken(options.abortSignal);
             data = { 
                 args: args.map(a => serialize(a)), 
                 command, 
@@ -31,14 +30,17 @@ export async function staticCommandPostback(sender: HTMLElement, command: string
         response = await http.postJSON<DotvvmStaticCommandResponse>(
             getInitialUrl(),
             JSON.stringify(data),
+            options.abortSignal,
             { "X-PostbackType": "StaticCommand" }
         );
 
         if ("action" in response.result) {
             if (response.result.action == "redirect") {
-                // redirect
-                await handleRedirect(options, response.result, response.response!);
-                return;
+                throw new DotvvmPostbackError({
+                    type: "redirect",
+                    response: response.response,
+                    responseObject: response.result
+                })
             } else {
                 throw new Error(`Invalid action ${response.result.action}`);
             }

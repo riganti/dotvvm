@@ -33,11 +33,13 @@
     <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_String.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_StringToObject.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\Nullable.dothtml" />
+    <None Remove="Views\ControlSamples\GridView\GridViewCellDecorators.dothtml" />
     <None Remove="Views\ControlSamples\Literal\Literal_NumberBinding.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\binded.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
     <None Remove="Views\ControlSamples\RadioButton\Nullable.dothtml" />
     <None Remove="Views\ControlSamples\RadioButton\RadioButton_Objects.dothtml" />
+    <None Remove="Views\ControlSamples\Repeater\IndexInNestedRepeater.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\NamedTemplate.dothtml" />
     <None Remove="Views\ControlSamples\RouteLink\RouteLinkQueryParameters.dothtml" />
     <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressQueues.dothtml" />
@@ -54,21 +56,33 @@
     <None Remove="Views\Errors\InvalidLocationFallback.dothtml" />
     <None Remove="Views\Errors\ResourceCircularDependency.dothtml" />
     <None Remove="Views\FeatureSamples\Attribute\ToStringConversion.dothtml" />
+    <None Remove="Views\FeatureSamples\BindingVariables\StaticCommandVariablesWithService_Complex.dothtml" />
+    <None Remove="Views\FeatureSamples\BindingVariables\StaticCommandVariablesWithService_Complex2.dothtml" />
+    <None Remove="Views\FeatureSamples\BindingVariables\StaticCommandVariablesWithService_Simple.dothtml" />
     <None Remove="Views\FeatureSamples\Caching\CachedValues.dothtml" />
     <None Remove="Views\FeatureSamples\CompositeControls\ControlPropertyNamingConflict.dothtml" />
     <None Remove="Views\FeatureSamples\CommandActionFilter\CommandActionFilter.dothtml" />
+    <None Remove="Views\FeatureSamples\JavascriptTranslation\ArrayTranslation.dothtml" />
+    <None Remove="Views\FeatureSamples\JavascriptTranslation\DateTimeTranslations.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\DictionaryIndexerTranslation.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\GenericMethodTranslation.dothtml" />
+    <None Remove="Views\FeatureSamples\JavascriptTranslation\ListIndexerTranslation.dothtml" />
+    <None Remove="Views\FeatureSamples\JavascriptTranslation\ListMethodTranslations.dothtml" />
+    <None Remove="Views\FeatureSamples\JavascriptTranslation\WebUtilityTranslations.dothtml" />
+    <None Remove="Views\FeatureSamples\JavascriptTranslation\StringMethodTranslations.dothtml" />
     <None Remove="Views\FeatureSamples\JsDirectives\BasicSample.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\ClientSideFiltering.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\LambdaExpressions.dothtml" />
     <None Remove="Views\FeatureSamples\Localization\Globalize.dothtml" />
+    <None Remove="Views\FeatureSamples\PostbackAbortSignal\LoadAbortViewModel.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\ByteArray.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\TimeSpan.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\EnumSerializationCoercion.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\SerializationDateTimeOffset.dothtml" />
+    <None Remove="Views\FeatureSamples\StringInterpolation\StringInterpolation.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\Incrementer.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\IncrementerInRepeater.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\InnerModuleControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleInMarkupControl.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleInMarkupControlTwice.dothtml" />
@@ -78,6 +92,7 @@
     <None Remove="Views\FeatureSamples\ViewModules\ModuleInPageSpaMasterPage.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleInPageSpaMasterPage2.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleMasterPage.dotmaster" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleRegistrationPropagation.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleSpaMasterPage.dotmaster" />
     <None Remove="Views\FeatureSamples\MarkupControl\CommandPropertiesInMarkupControl.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\Device.dotcontrol" />
@@ -104,6 +119,7 @@
     <None Remove="Views\FeatureSamples\Validation\EnforceClientSideValidationDisabled.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\InvalidCssClassNotDuplicated.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModelCache\ViewModelCache_Miss.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\OuterModuleControl.dotcontrol" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="sampleConfig.json">
@@ -127,6 +143,12 @@
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
     <ProjectReference Include="..\DotVVM.Samples.BasicSamples.Api.Common\DotVVM.Samples.BasicSamples.Api.Common.csproj" />
     <ProjectReference Include="..\EmbeddedResourceControls\EmbeddedResourceControls.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Resources\Resource.Designer.cs">

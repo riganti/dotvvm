@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Compilation.Validation
         public ControlUsageError(string message, IEnumerable<DothtmlNode> nodes)
         {
             ErrorMessage = message;
-            Nodes = nodes.ToArray();
+            Nodes = nodes.Where(n => n != null).ToArray();
         }
         public ControlUsageError(string message, params DothtmlNode[] nodes) : this(message, (IEnumerable<DothtmlNode>)nodes) { }
     }

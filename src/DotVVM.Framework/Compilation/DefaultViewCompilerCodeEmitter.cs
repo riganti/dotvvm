@@ -59,8 +59,8 @@ namespace DotVVM.Framework.Compilation
         public string UseType(Type type)
         {
             if (type == null) return null;
-            UseType(type.GetTypeInfo().BaseType);
-            return usedAssemblies.GetOrAdd(type.GetTypeInfo().Assembly, _ => "Asm_" + Interlocked.Increment(ref assemblyIdCtr));
+            UseType(type.BaseType);
+            return usedAssemblies.GetOrAdd(type.Assembly, _ => "Asm_" + Interlocked.Increment(ref assemblyIdCtr));
         }
 
         private List<MemberDeclarationSyntax> otherDeclarations = new List<MemberDeclarationSyntax>();
@@ -206,29 +206,6 @@ namespace DotVVM.Framework.Compilation
                         SyntaxKind.ArrayInitializerExpression,
                         SyntaxFactory.SeparatedList(
                             values)));
-        }
-
-        public ExpressionSyntax EmitAttributeInitializer(CustomAttributeData attr)
-        {
-            UseType(attr.AttributeType);
-            return SyntaxFactory.ObjectCreationExpression(
-                ParseTypeName(attr.AttributeType),
-                SyntaxFactory.ArgumentList(
-                    SyntaxFactory.SeparatedList(
-                        attr.ConstructorArguments.Select(a => SyntaxFactory.Argument(EmitValue(a.Value)))
-                    )
-                ),
-                SyntaxFactory.InitializerExpression(SyntaxKind.ObjectInitializerExpression,
-                    SyntaxFactory.SeparatedList(
-                        attr.NamedArguments.Select(np =>
-                             (ExpressionSyntax)SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
-                                SyntaxFactory.IdentifierName(np.MemberName),
-                                EmitValue(np.TypedValue.Value)
-                            )
-                        )
-                    )
-                )
-            );
         }
 
         /// <summary>
@@ -698,7 +675,7 @@ namespace DotVVM.Framework.Compilation
             {
                 return SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
             }
-            else if (!type.GetTypeInfo().IsGenericType)
+            else if (!type.IsGenericType)
             {
                 return SyntaxFactory.ParseTypeName($"{asmName}::{type.FullName.Replace('+', '.')}");
             }

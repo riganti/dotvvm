@@ -5,6 +5,7 @@ using System.Linq;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Testing;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;

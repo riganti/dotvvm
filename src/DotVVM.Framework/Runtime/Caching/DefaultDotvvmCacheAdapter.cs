@@ -12,10 +12,10 @@ namespace DotVVM.Framework.Runtime.Caching
         }
 
         public T Get<T>(object key) => lru.TryGetValue(key, out var result) ? (T)result : default!;
-        public T GetOrAdd<Tkey, T>(Tkey key, Func<Tkey, DotvvmCachedItem<T>> factoryFunc) where Tkey : notnull =>
+        public T GetOrAdd<TKey, T>(TKey key, Func<TKey, DotvvmCachedItem<T>> factoryFunc) where TKey : notnull =>
             (T)lru.GetOrCreate(key, key => {
                 if (factoryFunc == null) return default;
-                var v = factoryFunc((Tkey)key);
+                var v = factoryFunc((TKey)key);
                 if(v is object)return v.Value;
                 return default;
             });

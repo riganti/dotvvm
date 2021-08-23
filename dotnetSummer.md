@@ -31,9 +31,9 @@ We are using Visual Studio 2017, the solution will probably not open in previous
 
 Open the `src/DotVVM.sln` solution in Visual Studio, or open the `src` folder in VS Code. Set `Samples/DotVVM.Samples.BasicSamples.AspNetCore` as a startup project and launch it. It should just work. If it does not, feel free to ask. For VS Code try to my [launch.json](https://gist.github.com/exyi/860821793b617b3ed0c9c9bb91157111) and [tasks.json](https://gist.github.com/exyi/3055cd3cec7d246475d660d1ec82a7fd). You can also try to rebuild `Tests/DotVVM.Framework.Tests.Common` project and run the unit/integration tests - it should complete in few seconds, everything should be green. :)
 
-Almost everying is in the `DotVVM.Framework` project, except few base interfaces and attributes in `DotVVM.Core` (so you don't have to reference entire dotvvm framework in a bussiess layer of the application, if you just want suppress serialization of certain fields). 
+Almost everything is in the `DotVVM.Framework` project, except few base interfaces and attributes in `DotVVM.Core` (so you don't have to reference entire dotvvm framework in a business layer of the application, if you just want suppress serialization of certain fields). 
 
-The OWIN and ASP.NET Core integration is splited in two projects called `DotVVM.Framework.Hosting.AspNetCore` and `...Owin`, so you don't have to reference Owin in your AspNetCore project and vice versa. 
+The OWIN and ASP.NET Core integration is split in two projects called `DotVVM.Framework.Hosting.AspNetCore` and `...Owin`, so you don't have to reference Owin in your AspNetCore project and vice versa. 
 
 `DotVVM.Compiler` project is a command line application that can be used for view precompilation and is used by our VS Extension to dump configuration from the project after the DotvvmStartup has run. 
 
@@ -45,4 +45,4 @@ If you have any questions or want to ask anything, you can use a [Gitter chat](h
 
 ## Prague event
 
-Together with PEACHPIE Compiler Platform, we are organizing an event on **11 August** in Prague. Come to this all-day event, network with the community, contribute to some open source project, and meet the authors of Czech projects DotVVM and Peachpie. You can find more information at [geekcore.cz  - registarion portal in czech](https://www.geekcore.cz/events/6085) or at [Facebook](https://www.facebook.com/events/574625029377690)
+Together with PEACHPIE Compiler Platform, we are organizing an event on **11 August** in Prague. Come to this all-day event, network with the community, contribute to some open source project, and meet the authors of Czech projects DotVVM and Peachpie. You can find more information at [geekcore.cz  - registration portal in czech](https://www.geekcore.cz/events/6085) or at [Facebook](https://www.facebook.com/events/574625029377690)

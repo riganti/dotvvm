@@ -612,6 +612,6 @@ namespace DotVVM.Framework.Controls
             return Children;
         }
 
-        IEnumerable<DotvvmBindableObject> IDotvvmControl.GetAllAncestors(bool incudingThis) => this.GetAllAncestors(incudingThis);
+        IEnumerable<DotvvmBindableObject> IDotvvmControl.GetAllAncestors(bool includingThis) => this.GetAllAncestors(includingThis);
     }
 }

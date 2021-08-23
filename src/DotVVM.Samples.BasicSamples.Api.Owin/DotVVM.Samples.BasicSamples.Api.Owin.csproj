@@ -125,6 +125,7 @@
     <Compile Include="Controllers\CompaniesController.cs" />
     <Compile Include="Controllers\OrdersController.cs" />
     <Compile Include="Controllers\ResetController.cs" />
+    <Compile Include="NoCacheAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>

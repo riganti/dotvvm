@@ -11,7 +11,7 @@
 </head>
 <body>
     <%-- TODO: UI Test
-         When you uncheck the checkbox, last column of moth tables should diappear --%>
+         When you uncheck the checkbox, last column of moth tables should disappear --%>
     <div class="container">
         <h1>GridView with IGridViewDataSet and server rendering.</h1>
         <dot:CheckBox Checked="{value: IsBirthDateVisible}" Text="Birth date visible" />

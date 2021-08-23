@@ -1,4 +1,4 @@
-![DotVVM](https://www.dotvvm.com/Content/img/logos/logo-full.png) 
+<img src="./logo.svg" width="250px" />
 
 Component-based MVVM framework for ASP.NET
 ==================
@@ -90,7 +90,7 @@ There is also [dotnet new template](https://www.dotvvm.com/docs/tutorials/how-to
 
 |                         | ASP.NET Core                | OWIN                  |
 |-------------------------|-----------------------------|-----------------------|
-| Current stable version  | `DotVVM.AspNetCore 3.0.4`   | `DotVVM.Owin 3.0.4`   |
+| Current stable version  | `DotVVM.AspNetCore 3.1.0`   | `DotVVM.Owin 3.1.0`   |
 | Minimum runtime version | `.NET Core 2.1`             | `.NET 4.5.1`          | 
 | Minimum ASP.NET version | `ASP.NET Core 2.1`          | `OWIN 3.0.1`          |
 
@@ -110,7 +110,7 @@ You can get more productive with DotVVM and **support development of the framewo
 
 ## Get involved
 
-We'll be glad to accept any contribution. It doesn't need to be a pull-request - you can help us by spreading the word about the project in a blog or a user group, fix a typo in a documentnation or send us your feedback and thoughts.
+We'll be glad to accept any contribution. It doesn't need to be a pull-request - you can help us by spreading the word about the project in a blog or a user group, fix a typo in a documentation or send us your feedback and thoughts.
 
 You can find more info in [Contribution Guidelines](contributing.md). We kindly ask you to respect the [Code of Conduct](code-of-conduct.md). 
 

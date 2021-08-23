@@ -91,7 +91,7 @@ namespace DotVVM.Framework.Compilation.Inference
                 }
                 else if (parameterType.ContainsGenericParameters)
                 {
-                    // Check if we already infered instantion for these generics
+                    // Check if we already inferred instantiation for these generics
                     if (!parameterType.GetGenericArguments().Any(param => !context.Generics.ContainsKey(param.Name)))
                         continue;
 
@@ -102,7 +102,7 @@ namespace DotVVM.Framework.Compilation.Inference
                         continue;
                 }
 
-                // Fill instantations
+                // Fill instantiations
                 foreach (var (key, val) in tempInstantiations)
                 {
                     if (!newInstantiations.ContainsKey(key))
@@ -122,6 +122,9 @@ namespace DotVVM.Framework.Compilation.Inference
 
         private bool TryInferInstantiation(Type generic, Type concrete, Dictionary<string, Type> generics)
         {
+            if (generic == concrete)
+                return true;
+
             if (generic.IsGenericParameter)
             {
                 // We found the instantiation

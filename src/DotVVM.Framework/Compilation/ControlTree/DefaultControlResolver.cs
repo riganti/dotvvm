@@ -54,7 +54,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         private void InvokeStaticConstructorsOnAllControls()
         {
-            var dotvvmAssembly = typeof(DotvvmControl).GetTypeInfo().Assembly.GetName().Name;
+            var dotvvmAssembly = typeof(DotvvmControl).Assembly.GetName().Name;
 
             if (configuration.ExperimentalFeatures.ExplicitAssemblyLoading.Enabled)
             {
@@ -88,15 +88,14 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 var allTypes = GetAllLoadableTypes(dotvvmAssembly);
                 foreach (var type in allTypes)
                 {
-                    if (type.GetTypeInfo().GetCustomAttribute<ContainsDotvvmPropertiesAttribute>(true) != null)
+                    if (type.GetCustomAttribute<ContainsDotvvmPropertiesAttribute>(true) != null)
                     {
                         var tt = type;
                         do
                         {
                             RegisterCompositeControlProperties(tt);
                             RuntimeHelpers.RunClassConstructor(tt.TypeHandle);
-                            tt = tt.GetTypeInfo().BaseType;
-
+                            tt = tt.BaseType;
                         }
                         while (tt != null);
                     }
@@ -116,10 +115,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
 
 #if DotNetCore
-                var allTypes = compiledAssemblyCache.GetAllAssemblies()
+            var allTypes = compiledAssemblyCache.GetAllAssemblies()
                    .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly))
-                   .Concat(new[] { typeof(DotvvmControl).GetTypeInfo().Assembly })
-                   .SelectMany(a => a.GetLoadableTypes()).Where(t => t.GetTypeInfo().IsClass).ToList();
+                   .Concat(new[] { typeof(DotvvmControl).Assembly })
+                   .SelectMany(a => a.GetLoadableTypes()).Where(t => t.IsClass).ToList();
 #else
 
             var loadedAssemblies = compiledAssemblyCache.GetAllAssemblies()
@@ -133,8 +132,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 .SelectRecursively(a => a.GetReferencedAssemblies().Where(an => visitedAssemblies.Add(an.FullName)).Select(an => Assembly.Load(an)))
                 .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly))
                 .Distinct()
-                .Concat(new[] { typeof(DotvvmControl).GetTypeInfo().Assembly })
-                .SelectMany(a => a.GetLoadableTypes()).Where(t => t.GetTypeInfo().IsClass);
+                .Concat(new[] { typeof(DotvvmControl).Assembly })
+                .SelectMany(a => a.GetLoadableTypes()).Where(t => t.IsClass);
 #endif
             return allTypes;
         }

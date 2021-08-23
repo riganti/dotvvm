@@ -55,9 +55,15 @@ namespace DotVVM.Framework.Compilation
         internal static IEnumerable<Assembly> BuildReferencedAssembliesCache(DotvvmConfiguration configuration)
         {
             var diAssembly = typeof(ServiceCollection).Assembly;
+            var markupAssemblies =
+                configuration.Markup.Controls.Select(c => c.Assembly)
+                    .Concat(configuration.Markup.Assemblies)
+                    .Distinct()
+                    .Where(s=> !string.IsNullOrWhiteSpace(s))
+                    .Select(n => Assembly.Load(new AssemblyName(n)));
 
             var references = diAssembly.GetReferencedAssemblies().Select(Assembly.Load)
-                .Concat(configuration.Markup.Assemblies.Select(e => Assembly.Load(new AssemblyName(e))))
+                .Concat(markupAssemblies)
                 .Concat(new[] {
                     diAssembly,
                     Assembly.Load(new AssemblyName("mscorlib")),
@@ -68,10 +74,12 @@ namespace DotVVM.Framework.Compilation
                     typeof(DotvvmConfiguration).Assembly,
 #if DotNetCore
                     Assembly.Load(new AssemblyName("System.Runtime")),
+                    Assembly.Load(new AssemblyName("System.Private.CoreLib")),
                     Assembly.Load(new AssemblyName("System.Collections.Concurrent")),
                     Assembly.Load(new AssemblyName("System.Collections")),
 #else
-                    typeof(List<>).Assembly
+                    typeof(List<>).Assembly,
+                    typeof(System.Net.WebUtility).Assembly
 #endif
                 });
 

@@ -15,10 +15,10 @@ namespace DotVVM.Framework.Compilation
 {
     public class BindingRequiredResourceVisitor : ResolvedControlTreeVisitor
     {
-        private readonly ControlResolverMetadata requiredResourceConrolMetadata;
+        private readonly ControlResolverMetadata requiredResourceControlMetadata;
         public BindingRequiredResourceVisitor(ControlResolverMetadata requiredResourceConrolMetadata)
         {
-            this.requiredResourceConrolMetadata = requiredResourceConrolMetadata;
+            this.requiredResourceControlMetadata = requiredResourceConrolMetadata;
         }
 
         ImmutableHashSet<string> requiredResources = ImmutableHashSet<string>.Empty;
@@ -30,11 +30,13 @@ namespace DotVVM.Framework.Compilation
 
         public override void VisitView(ResolvedTreeRoot view)
         {
+            AddResourcesFromProperties(view);
             Visit(view, view.Content, base.VisitView);
         }
 
         public override void VisitControl(ResolvedControl control)
         {
+            AddResourcesFromProperties(control);
             if (control.Metadata.Type == typeof(Content))
             {
                 Visit(control, control.Content, base.VisitControl);
@@ -54,16 +56,27 @@ namespace DotVVM.Framework.Compilation
                 nodeContent.AddRange(
                     requiredResources
                         .Except(original)
-                        .Select(name => CreateRequiredResourceControl(name, node.DothtmlNode, nodeContent.First().DataContextTypeStack)));
+                        .Select(name => CreateRequiredResourceControl(name, node, node.DothtmlNode, nodeContent.First().DataContextTypeStack)));
                 requiredResources = original;
             }
         }
 
-        private ResolvedControl CreateRequiredResourceControl(string resource, Parser.Dothtml.Parser.DothtmlNode node, DataContextStack dataContext)
+        private ResolvedControl CreateRequiredResourceControl(string resource, ResolvedTreeNode parent, Parser.Dothtml.Parser.DothtmlNode node, DataContextStack dataContext)
         {
-            var control = new ResolvedControl(requiredResourceConrolMetadata, node, dataContext);
+            var control = new ResolvedControl(requiredResourceControlMetadata, node, dataContext);
+            control.Parent = parent;
             control.SetProperty(new ResolvedPropertyValue(RequiredResource.NameProperty, resource));
             return control;
+        }
+
+        private void AddResourcesFromProperties(ResolvedControl control)
+        {
+            if (control.TryGetProperty(Controls.Styles.RequiredResourcesProperty, out var value))
+            {
+                var newResources = (string[])((ResolvedPropertyValue)value).Value;
+                if (newResources != null)
+                    requiredResources = requiredResources.Union(newResources);
+            }
         }
 
         public override void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding)

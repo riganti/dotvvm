@@ -34,7 +34,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
 
         public override Task PreRender()
         {
-            Devices.LoadFromQueryable(FakeDb.GetQueriable());
+            Devices.LoadFromQueryable(FakeDb.GetQueryable());
             return base.PreRender();
         }
         [AllowStaticCommand]
@@ -57,7 +57,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
         public static DeviceModel Blank() => new DeviceModel { };
 
         [AllowStaticCommand]
-        public static IList<DeviceModel> List() => FakeDb.GetQueriable().ToList();
+        public static IList<DeviceModel> List() => FakeDb.GetQueryable().ToList();
 
         [AllowStaticCommand]
         public static Task<DeviceModel> Get(Guid id) => Task.FromResult(FakeDb.Get(id));

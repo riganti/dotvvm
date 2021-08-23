@@ -30,12 +30,12 @@
             var customProperties = document.querySelector('[data-ui="customProperties"]');
             customProperties.innerText = "";
         }
-        dotvvm.events.staticCommandMethodInvoked.subscribe(e => {
+        dotvvm.events.staticCommandMethodInvoked.subscribe(function(e) {
             var customPropertiesInput = document.querySelector('[data-ui="customProperties"]');
             customPropertiesInput.innerText = e.serverResponseObject.customProperties.Message;
         });
 
-        dotvvm.events.postbackResponseReceived.subscribe(e => {
+        dotvvm.events.postbackResponseReceived.subscribe(function (e) {
             var customPropertiesInput = document.querySelector('[data-ui="customProperties"]');
             customPropertiesInput.innerText = e.serverResponseObject.customProperties.Message;
         });

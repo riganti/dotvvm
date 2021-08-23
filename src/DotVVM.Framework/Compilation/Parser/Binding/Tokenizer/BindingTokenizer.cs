@@ -242,7 +242,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         }
                         else
                         {
-                            EnsureUnsupportedOperator(BindingTokenType.QuestionMarkOperator);
+                            CreateToken(BindingTokenType.QuestionMarkOperator);
                         }
                         break;
                     case ';':
@@ -284,7 +284,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
             }
         }
 
-        internal void EnsureUnsupportedOperator(BindingTokenType preferedOperatorToken)
+        internal void EnsureUnsupportedOperator(BindingTokenType preferredOperatorToken)
         {
             if (IsOperator(Peek()))
             {
@@ -296,7 +296,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
             }
             else
             {
-                CreateToken(preferedOperatorToken);
+                CreateToken(preferredOperatorToken);
             }
         }
 
@@ -344,35 +344,43 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
             errorMessage = null;
         }
 
-        internal static void ReadInterpolatedString(Func<char> peekFunction, Func<char> readFunction, out string? errorMessage)
+        internal static void ReadInterpolatedString(Func<int, char> peekFunction, Func<char> readFunction, out string? errorMessage)
         {
             readFunction();
             var quoteChar = readFunction();
             var exprDepth = 0;
 
-            while (peekFunction() != quoteChar || exprDepth != 0)
+            while (peekFunction(0) != quoteChar || exprDepth != 0)
             {
-                if (peekFunction() == NullChar)
+                if (peekFunction(0) == NullChar)
                 {
                     errorMessage = "Interpolated string was not closed!";
                     return;
                 }
 
-                if (peekFunction() == '\\' && exprDepth == 0)
+                if (peekFunction(0) == '\\' && exprDepth == 0)
                 {
                     readFunction();
                 }
-                else if (peekFunction() == '{')
+                else if (peekFunction(0) == '{' && peekFunction(1) != '{')
                 {
                     exprDepth++;
                 }
-                else if (peekFunction() == '}')
+                else if (peekFunction(0) == '{' && peekFunction(1) == '{')
+                {
+                    readFunction();
+                }
+                else if (peekFunction(0) == '}' && peekFunction(1) != '}')
                 {
                     if (--exprDepth <= -1)
                     {
                         errorMessage = "Could not find matching '{' character!";
                         return;
                     }
+                }
+                else if (peekFunction(0) == '}' && peekFunction(1) == '}')
+                {
+                    readFunction();
                 }
 
                 readFunction();

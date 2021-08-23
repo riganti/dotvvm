@@ -1,0 +1,33 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation.WebUtilityTranslationsViewModel, DotVVM.Samples.Common
+@import System.Net
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>WebUtility Url(En|De)code testing</h1>
+
+    <p>
+        <span><b>Input:</b></span>
+        <dot:TextBox data-ui="textbox" Text="{value: InputString}" />
+    </p>
+
+    <p>
+        <span><b>Encoded:</b></span>
+        <span data-ui="encoded">{{value: WebUtility.UrlEncode(InputString)}}</span>
+    </p>
+
+    <p>
+        <span><b>Decoded:</b></span>
+        <span data-ui="decoded">{{value: WebUtility.UrlDecode(WebUtility.UrlEncode(InputString))}}</span>
+    </p>
+
+</body>
+</html>
+
+

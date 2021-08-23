@@ -28,7 +28,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public DotvvmMarkupControl() : this("div")
         {
-            LifecycleRequirements |= ControlLifecycleRequirements.PreInit;
         }
 
         /// <summary>
@@ -36,6 +35,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public DotvvmMarkupControl(string? wrapperTagName) : base(wrapperTagName)
         {
+            LifecycleRequirements |= ControlLifecycleRequirements.PreInit;
             SetValue(Internal.IsNamingContainerProperty, true);
             SetValue(Internal.IsControlBindingTargetProperty, true);
         }
@@ -120,7 +120,7 @@ namespace DotVVM.Framework.Controls
             else if (GetBinding(property) is ICommandBinding command)
             {
                 // just few commands have arguments so it's worth checking if we need to clutter the output with argument propagation
-                var hasArguments = command.CommandJavascript.Parameters.Any(p => p.Parameter == CommandBindingExpression.CommandArgumentsParameter);
+                var hasArguments = command.CommandJavascript.EnumerateAllParameters().Any(p => p == CommandBindingExpression.CommandArgumentsParameter);
                 var call = KnockoutHelper.GenerateClientPostBackExpression(
                     property.Name,
                     command,
@@ -130,11 +130,9 @@ namespace DotVVM.Framework.Controls
                         commandArgs: hasArguments ? new CodeParameterAssignment(new ParametrizedCode("commandArguments", OperatorPrecedence.Max)) : default
                     ));
 
-                var collectArgs = hasArguments ? "var commandArguments=[].slice.call(arguments); " : "";
-
                 return new PropertySerializeInfo(
                     property,
-                    $"function(){{{collectArgs}return {call}}}"
+                    hasArguments ? $"(...commandArguments)=>({call})" : $"()=>({call})"
                 );
             }          
             else

@@ -18,6 +18,7 @@ using DotVVM.Framework.Utils;
 using System.Collections.ObjectModel;
 using DotVVM.Framework.Binding;
 using System.Diagnostics.CodeAnalysis;
+using DotVVM.Framework.ResourceManagement;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -28,6 +29,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
     {
         protected readonly IControlResolver controlResolver;
         protected readonly IAbstractTreeBuilder treeBuilder;
+        protected readonly DotvvmResourceRepository? resourceRepo;
 
         protected Lazy<IControlResolverMetadata> rawLiteralMetadata;
         protected Lazy<IControlResolverMetadata> literalMetadata;
@@ -36,11 +38,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlTreeResolverBase"/> class.
         /// </summary>
-        public ControlTreeResolverBase(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder)
+        public ControlTreeResolverBase(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder, DotvvmResourceRepository? resourceRepo)
         {
             this.controlResolver = controlResolver;
             this.treeBuilder = treeBuilder;
-
+            this.resourceRepo = resourceRepo;
             rawLiteralMetadata = new Lazy<IControlResolverMetadata>(() => controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(RawLiteral))));
             literalMetadata = new Lazy<IControlResolverMetadata>(() => controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(Literal))));
             placeholderMetadata = new Lazy<IControlResolverMetadata>(() => controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(PlaceHolder))));
@@ -86,12 +88,16 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directives, masterPage);
             view.FileName = fileName;
-            treeBuilder.AddProperty(
-                view,
-                treeBuilder.BuildPropertyValue(Internal.ReferencedViewModuleInfoProperty, viewModule?.resource, null),
-                out _
-            );
 
+            if (viewModule.HasValue)
+            {
+                treeBuilder.AddProperty(
+                    view,
+                    treeBuilder.BuildPropertyValue(Internal.ReferencedViewModuleInfoProperty, viewModule.Value.resource, null),
+                    out _
+                );
+            }
+            
             ValidateMasterPage(view, masterPage, masterPageDirective?.First());
 
             ResolveRootContent(root, view, viewMetadata);
@@ -184,7 +190,18 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var resources =
                 moduleDirectives
                 .Cast<IAbstractViewModuleDirective>()
-                .Select(x => x.ImportedResourceName)
+                .Select(x => {
+                    if (this.resourceRepo is object && x.DothtmlNode is object)
+                    {
+                        var resource = this.resourceRepo.FindResource(x.ImportedResourceName);
+                        var node = (x.DothtmlNode as DothtmlDirectiveNode)?.ValueNode ?? x.DothtmlNode;
+                        if (resource is null)
+                            node.AddError($"Cannot find resource named '{x.ImportedResourceName}' referenced by the @js directive!");
+                        else if (!(resource is ScriptModuleResource))
+                            node.AddError($"The resource named '{x.ImportedResourceName}' referenced by the @js directive must be of the ScriptModuleResource type!");
+                    }
+                    return x.ImportedResourceName;
+                })
                 .ToArray();
 
             return (new JsExtensionParameter(id, isMarkupControl), new ViewModuleReferenceInfo(id, resources, isMarkupControl));
@@ -376,14 +393,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             // process control contents
             ProcessControlContent(control, element.Content);
-
-            // check required properties
-            IAbstractPropertySetter missingProperty;
-            var missingProperties = control.Metadata.AllProperties.Where(p => p.MarkupOptions.Required && !control.TryGetProperty(p, out missingProperty)).ToList();
-            if (missingProperties.Any())
-            {
-                element.AddError($"The control '{ control.Metadata.Type.FullName }' is missing required properties: { string.Join(", ", missingProperties.Select(p => "'" + p.Name + "'")) }.");
-            }
 
             var unknownContent = control.Content.Where(c => !c.Metadata.Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmControl))));
             foreach (var unknownControl in unknownContent)

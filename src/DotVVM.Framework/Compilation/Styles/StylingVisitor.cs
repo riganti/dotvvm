@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Compilation.Styles
             Matcher.PushControl(control);
             foreach (var style in Matcher.GetMatchingStyles())
             {
-                style.ApplyStyle(control, configuration);
+                style.ApplyStyle(control, Matcher.Context);
             }
             base.VisitControl(control);
             Matcher.PopControl();

@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Testing;
 using System.IO;
 
 namespace DotVVM.Framework.Tests.Runtime

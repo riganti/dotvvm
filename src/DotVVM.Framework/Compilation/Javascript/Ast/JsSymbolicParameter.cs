@@ -12,12 +12,30 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             get { return defaultAssignment;}
             set { ThrowIfFrozen(); defaultAssignment = value;}
         }
+
+        public CodeParameterAssignment? GetDefaultAssignment()
+        {
+            if (DefaultAssignment != null)
+                return DefaultAssignment;
+            if (Symbol.HasDefault)
+                return Symbol.DefaultAssignment;
+            return null;
+        }
+
         private CodeSymbolicParameter symbol;
 
         public CodeSymbolicParameter Symbol
         {
             get { return symbol; }
             set { ThrowIfFrozen(); symbol = value; }
+        }
+
+        public IEnumerable<CodeSymbolicParameter> EnumerateAllSymbols()
+        {
+            yield return Symbol;
+            if (GetDefaultAssignment() is CodeParameterAssignment d)
+                foreach (var inDefault in d.Code.EnumerateAllParameters())
+                    yield return inDefault;
         }
 
         public JsSymbolicParameter(CodeSymbolicParameter symbol, CodeParameterAssignment? defaultAssignment = null)

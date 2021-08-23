@@ -7,6 +7,7 @@ using System.Reflection;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Compilation.Validation
 {
@@ -21,12 +22,38 @@ namespace DotVVM.Framework.Compilation.Validation
 
         protected static DotvvmConfiguration Configuration { get; private set; }
 
+        public static IEnumerable<ControlUsageError> ValidateDefaultRules(IAbstractControl control)
+        {
+            // check required properties
+            var missingProperties = control.Metadata.AllProperties.Where(p => p.MarkupOptions.Required && !control.TryGetProperty(p, out _)).ToList();
+            if (missingProperties.Any())
+            {
+                yield return new ControlUsageError(
+                    $"The control '{ control.Metadata.Type.FullName }' is missing required properties: { string.Join(", ", missingProperties.Select(p => "'" + p.Name + "'")) }.",
+                    control.DothtmlNode
+                );
+            }
+
+            var unknownContent = control.Content.Where(c => !c.Metadata.Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmControl))));
+            foreach (var unknownControl in unknownContent)
+            {
+                yield return new ControlUsageError(
+                    $"The control '{ unknownControl.Metadata.Type.FullName }' does not inherit from DotvvmControl and thus cannot be used in content.",
+                    control.DothtmlNode
+                );
+            }
+        }
+
         public IEnumerable<ControlUsageError> Validate(IAbstractControl control)
         {
             var type = GetControlType(control.Metadata);
             if (type == null) return null;
 
             var result = new List<ControlUsageError>();
+            result.AddRange(ValidateDefaultRules(control));
+            if (result.Any())
+                return result;
+
             var methods = cache.GetOrAdd(type, FindMethods);
             foreach (var method in methods)
             {
@@ -85,7 +112,7 @@ namespace DotVVM.Framework.Compilation.Validation
                 throw new Exception($"ControlUsageValidator attributes on '{type.FullName}' are in an inconsistent state. Make sure all attributes have an Override property set to the same value.");
 
             if (overrideValidation.Any() && overrideValidation[0]) return methods;
-            var ancestorMethods = FindMethods(type.GetTypeInfo().BaseType);
+            var ancestorMethods = FindMethods(type.BaseType);
             return ancestorMethods.Concat(methods).ToArray();
         }
 

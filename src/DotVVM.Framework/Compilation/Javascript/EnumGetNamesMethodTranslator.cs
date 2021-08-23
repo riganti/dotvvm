@@ -11,8 +11,8 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             var enumNames = (string[])method.Invoke(null, new object[0]);
 
-            return new JsIdentifierExpression("dotvvm").Member("serialization").Member("deserialize")
-                .Invoke(new JsArrayExpression(enumNames.Select(n => new JsLiteral(n))));
+            return new JsArrayExpression(enumNames.Select(n => new JsLiteral(n)))
+                .WithAnnotation(new ViewModelInfoAnnotation(typeof(string[]), containsObservables: false));
         }
     }
 }

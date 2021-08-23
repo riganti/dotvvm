@@ -13,6 +13,7 @@ $packages = @(
     [pscustomobject]@{ Package = "DotVVM"; Directory = "DotVVM.Framework" ; Type = "standard" },
     [pscustomobject]@{ Package = "DotVVM.Owin"; Directory = "DotVVM.Framework.Hosting.Owin"; Type = "standard" },
     [pscustomobject]@{ Package = "DotVVM.AspNetCore"; Directory = "DotVVM.Framework.Hosting.AspNetCore" ; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.Testing"; Directory = "DotVVM.Framework.Testing" ; Type = "standard" },
     [pscustomobject]@{ Package = "DotVVM.CommandLine"; Directory = "DotVVM.CommandLine"; Type = "tool" },
     [pscustomobject]@{ Package = "DotVVM.Templates"; Directory = "Templates" ; Type = "template" },
     [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.AspNetCore"; Directory = "DotVVM.Framework.Api.Swashbuckle.AspNetCore"; Type = "standard" },

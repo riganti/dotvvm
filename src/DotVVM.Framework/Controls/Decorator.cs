@@ -50,5 +50,25 @@ namespace DotVVM.Framework.Controls
         {
             // do nothing
         }
+
+        public static DotvvmControl ApplyDecorators(DotvvmControl control, IEnumerable<Decorator>? decorators)
+        {
+            if (decorators != null)
+            {
+                foreach (var decorator in decorators)
+                {
+                    control = ApplyDecorator(control, decorator);
+                }
+            }
+
+            return control;
+        }
+
+        public static DotvvmControl ApplyDecorator(DotvvmControl control, Decorator decorator)
+        {
+            var decoratorInstance = decorator.Clone();
+            decoratorInstance.Children.Add(control);
+            return decoratorInstance;
+        }
     }
 }

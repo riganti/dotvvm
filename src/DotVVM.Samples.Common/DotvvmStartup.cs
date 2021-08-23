@@ -26,11 +26,15 @@ using DotVVM.Framework.Utils;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation;
+using DotVVM.Samples.Common.Views.FeatureSamples.PostbackAbortSignal;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables;
 
 namespace DotVVM.Samples.BasicSamples
 {
     public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
     {
+        public const string GitHubTokenEnvName = "GITHUB_TOKEN";
+        public const string GitHubTokenConfigName = "githubApiToken";
 
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
@@ -55,7 +59,6 @@ namespace DotVVM.Samples.BasicSamples
             config.RegisterApiGroup(typeof(Common.Api.Owin.TestWebApiClientOwin), "http://localhost:61453/", "Scripts/TestWebApiClientOwin.js", "_apiOwin");
             config.RegisterApiClient(typeof(Common.Api.AspNetCore.TestWebApiClientAspNetCore), "http://localhost:5001/", "Scripts/TestWebApiClientAspNetCore.js", "_apiCore");
 
-            config.RegisterApiGroup(typeof(GithubApiClient.GithubApiClient), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "githubAuthenticatedFetch");
             config.RegisterApiClient(typeof(AzureFunctionsApi.Client), "https://dotvvmazurefunctionstest.azurewebsites.net/", "Scripts/AzureFunctionsApiClient.js", "_azureFuncApi");
 
             LoadSampleConfiguration(config, applicationPath);
@@ -81,6 +84,12 @@ namespace DotVVM.Samples.BasicSamples
             var profile = profiles.Single(p => p.Value<string>("name") == activeProfile);
 
             JsonConvert.PopulateObject(profile.Value<JObject>("config").ToString(), config);
+
+            var githubTokenEnv = Environment.GetEnvironmentVariable(GitHubTokenEnvName);
+            if (githubTokenEnv is object)
+            {
+                json.Value<JObject>("appSettings")[GitHubTokenConfigName] = githubTokenEnv;
+            }
 
             SampleConfiguration.Initialize(
                 json.Value<JObject>("appSettings").Properties().ToDictionary(p => p.Name, p => p.Value.Value<string>())
@@ -117,8 +126,7 @@ namespace DotVVM.Samples.BasicSamples
                 .SetAttribute("addedAttr", "Added attribute");
 
             config.Styles.Register<Button>(c => c.HasHtmlAttribute("server-side-style-attribute"))
-               .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty,
-                    (style) => style.SetDotvvmProperty(ConfirmPostBackHandler.MessageProperty, "ConfirmPostBackHandler Content"));
+               .SetControlProperty(PostBack.HandlersProperty, new ConfirmPostBackHandler("ConfirmPostBackHandler Content"));
         }
 
         private static void AddRedirections(DotvvmConfiguration config)
@@ -186,9 +194,10 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddMarkupControl("cc", "RecursiveTextRepeater2", "Views/FeatureSamples/PostBack/RecursiveTextRepeater2.dotcontrol");
             config.Markup.AddMarkupControl("cc", "ModuleControl", "Views/FeatureSamples/ViewModules/ModuleControl.dotcontrol");
             config.Markup.AddMarkupControl("cc", "Incrementer", "Views/FeatureSamples/ViewModules/Incrementer.dotcontrol");
+            config.Markup.AddCodeControls("cc", typeof(Loader));
 
             config.Markup.AddMarkupControl("sample", "EmbeddedResourceControls_Button", "embedded://EmbeddedResourceControls/Button.dotcontrol");
-            
+
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/"));
 
         }

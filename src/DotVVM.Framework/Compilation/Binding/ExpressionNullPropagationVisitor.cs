@@ -42,12 +42,19 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
-
             Expression createExpr(Expression left)
             {
                 return CheckForNull(Visit(node.Right), right =>
-                                Expression.MakeBinary(node.NodeType, left, right, false, node.Method, node.Conversion),
-                            checkReferenceTypes: false);
+                {
+                    // When assigning values to nullable types, convert value to nullable first
+                    if (node.NodeType == ExpressionType.Assign)
+                    {
+                        if (ReflectionUtils.IsNullableType(left.Type) && !ReflectionUtils.IsNullableType(right.Type))
+                            right = Expression.Convert(right, left.Type);
+                    }
+
+                    return Expression.MakeBinary(node.NodeType, left, right, false, node.Method, node.Conversion);
+                }, checkReferenceTypes: false);
             }
 
             if (node.NodeType.ToString().EndsWith("Assign"))
@@ -162,7 +169,7 @@ namespace DotVVM.Framework.Compilation.Binding
         private int tmpCounter;
         protected Expression CheckForNull(Expression parameter, Func<Expression, Expression> callback, bool checkReferenceTypes = true, bool suppress = false)
         {
-            if (suppress || parameter == null || (parameter.Type.GetTypeInfo().IsValueType && !parameter.Type.IsNullable()) || !checkReferenceTypes && !parameter.Type.GetTypeInfo().IsValueType)
+            if (suppress || parameter == null || (parameter.Type.IsValueType && !parameter.Type.IsNullable()) || !checkReferenceTypes && !parameter.Type.IsValueType)
                 return callback(parameter);
             var p2 = Expression.Parameter(parameter.Type, "tmp" + tmpCounter++);
             var eresult = callback(p2.Type.IsNullable() ? (Expression)Expression.Property(p2, "Value") : p2);

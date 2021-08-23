@@ -11,12 +11,12 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
     public class NullValidationTargetViewModel : DotvvmViewModelBase
     {
         [Required]
-        public SomeValidatebleObject NullObject { get; set; }
+        public SomeValidatableObject NullObject { get; set; }
         [Required]
-        public SomeValidatebleObject RealObject { get; set; } = new SomeValidatebleObject();
+        public SomeValidatableObject RealObject { get; set; } = new SomeValidatableObject();
     }
 
-    public class SomeValidatebleObject
+    public class SomeValidatableObject
     {
         [OnlyServerSideEmailAddress]
         public string Email { get; set; }

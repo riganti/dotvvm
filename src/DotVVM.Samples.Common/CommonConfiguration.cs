@@ -1,3 +1,4 @@
+using System.Net.Http;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
@@ -10,6 +11,7 @@ using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 using DotVVM.Samples.Common.Api.AspNetCore;
 using DotVVM.Samples.Common.Api.Owin;
 using DotVVM.Samples.Common.Utilities;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBack;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBackSpaNavigation;
@@ -41,10 +43,11 @@ namespace DotVVM.Samples.Common
             dotvvmServices.AddDefaultTempStorages("Temp");
             services.AddScoped<ViewModelScopedDependency>();
             services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
-            services.AddSingleton<FoodSevice>();
+            services.AddSingleton<FoodService>();
 
             services.AddSingleton<IViewModelServerStore, TestingInMemoryViewModelServerStore>();
 
+            services.AddTransient<HttpClient>();
             services.AddSingleton<ResetClient>();
             services.AddSingleton<OrdersClient>();
             services.AddSingleton<CompaniesClient>();
@@ -54,6 +57,7 @@ namespace DotVVM.Samples.Common
             services.AddSingleton<DenyPostbacksOnSpaNavigationService>();
 
             services.AddSingleton<IDiagnosticsInformationSender, TextFileDiagnosticsInformationSender>();
+            services.AddTransient<VariablesStaticCommand>();
         }
 
         private static void RegisterResources(DotvvmResourceRepository resources)
@@ -84,6 +88,8 @@ namespace DotVVM.Samples.Common
 
             resources.Register("FeatureSamples_Resources_TestViewModule", new ScriptModuleResource(new FileResourceLocation("~/Scripts/testViewModule.js")));
             resources.Register("FeatureSamples_Resources_TestViewModule2", new ScriptModuleResource(new FileResourceLocation("~/Scripts/testViewModule2.js")));
+            resources.Register("FeatureSamples_Resources_TestViewModule3", new ScriptModuleResource(new FileResourceLocation("~/Scripts/testViewModule3.js")));
+            
             resources.Register("FeatureSamples_Resources_Incrementer", new ScriptModuleResource(new FileResourceLocation("~/Scripts/incrementerModule.js")));
 
             resources.Register("testJsModule", new ScriptModuleResource(new InlineResourceLocation("export const commands = { myCommand() { console.info(\"Hello from page module\") } }")));

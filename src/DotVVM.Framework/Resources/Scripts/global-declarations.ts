@@ -13,7 +13,7 @@ type DotvvmPostbackErrorLike = {
     readonly reason: DotvvmPostbackErrorReason
 }
 
-type DotvvmPostbackErrorReason =
+type DotvvmPostbackErrorReason = (
     | { type: 'handler', handlerName: string, message?: string }
     | { type: 'network', err?: any }
     | { type: 'gate' }
@@ -22,7 +22,9 @@ type DotvvmPostbackErrorReason =
     | { type: 'serverError', status?: number, responseObject: any, response?: Response }
     | { type: 'event' }
     | { type: 'validation', responseObject: any, response?: Response }
-    & { options?: PostbackOptions }
+    | { type: 'abort' }
+    | { type: 'redirect', responseObject: any, response?: Response }
+    ) & { options?: PostbackOptions }
 
 type PostbackCommandType = "postback" | "staticCommand" | "spaNavigation"
 
@@ -32,8 +34,10 @@ type PostbackOptions = {
     readonly args: any[]
     readonly sender?: HTMLElement
     readonly viewModel?: any
+    readonly knockoutContext?: any
     serverResponseObject?: any
-    validationTargetPath?: string
+    validationTargetPath?: string,
+    abortSignal?: AbortSignal
 }
 
 type DotvvmErrorEventArgs = PostbackOptions & {
@@ -227,7 +231,8 @@ type DotvvmObservable<T> = DeepKnockoutObservable<T> & {
 type RootViewModel = {
     $type: string
     $csrfToken?: string
-}
+    [name: string]: any
+} 
 
 type TypeMap = {
     [typeId: string]: TypeMetadata
@@ -240,7 +245,8 @@ type ObjectTypeMetadata = {
 
 type EnumTypeMetadata = {
     type: "enum",
-    values: { [name: string]: number }
+    values: { [name: string]: number },
+    isFlags?: boolean
 }
 
 type TypeMetadata = ObjectTypeMetadata | EnumTypeMetadata;

@@ -159,7 +159,9 @@ namespace DotVVM.Framework.Binding
             return control.Properties.Remove(group.GetDotvvmProperty(key));
         }
 
+#pragma warning disable CS8767
         public bool TryGetValue(string key, [MaybeNullWhen(false)] out TValue value)
+#pragma warning restore CS8767
         {
             var prop = group.GetDotvvmProperty(key);
             if (control.IsPropertySet(prop))

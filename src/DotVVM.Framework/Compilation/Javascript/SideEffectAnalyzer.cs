@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 ComputePossibleMutations(result, node);
             return result;
         }
-        static bool isNameOverriden(object name, JsNode n, JsNode rootNode)
+        static bool isNameOverridden(object name, JsNode n, JsNode rootNode)
         {
             if (!(name is string)) return false;
             while (n != null && n != rootNode)
@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
         static IEnumerable<object> getAssignedPath(JsExpression expression, JsNode rootNode)
         {
-            if (expression is JsIdentifierExpression identifier && !isNameOverriden(identifier.Identifier, identifier, rootNode))
+            if (expression is JsIdentifierExpression identifier && !isNameOverridden(identifier.Identifier, identifier, rootNode))
                 return new [] { identifier.Identifier };
             else if (expression is JsSymbolicParameter symbol)
                 return new [] { symbol.Symbol };

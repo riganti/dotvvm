@@ -24,7 +24,7 @@ namespace DotVVM.CommandLine.OpenApi
 
         public override string Generate(JsonSchema schema, string typeNameHint, IEnumerable<string> reservedTypeNames)
         {
-            if (pairs.TryGetValue(typeNameHint, out var type))
+            if (typeNameHint != null && pairs.TryGetValue(typeNameHint, out var type))
             {
                 if (IsGenericType(type))
                 {
@@ -42,21 +42,21 @@ namespace DotVVM.CommandLine.OpenApi
         {
             // Its generic type, we need to resolve proper name of inner types
             var (genericTypeName, innerTypes) = RetrieveGenericParameters(type);
-            var paramameters = new List<string>(innerTypes.Length);
+            var parameters = new List<string>(innerTypes.Length);
             foreach (var innerType in innerTypes)
             {
                 if (document.Definitions.TryGetValue(innerType, out var schema2))
                 {
-                    paramameters.Add(Generate(schema2, innerType, this.ReservedTypeNames));
+                    parameters.Add(Generate(schema2, innerType, this.ReservedTypeNames));
                 }
                 else
                 {
                     // Inner type is in FullName form
-                    paramameters.Add(innerType);
+                    parameters.Add(innerType);
                 }
             }
 
-            return CreateTypeName(genericTypeName, paramameters);
+            return CreateTypeName(genericTypeName, parameters);
         }
 
         private void GenerateTypeNamesPairs(OpenApiDocument document)

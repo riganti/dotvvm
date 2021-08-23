@@ -10,7 +10,7 @@ for some reason. What fun. -->
 
   <!-- Related to compilation -->
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net461;net50</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net461;net5.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <OutputType>Exe</OutputType>
     <LangVersion>9.0</LangVersion>
@@ -52,10 +52,6 @@ for some reason. What fun. -->
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-
-  <!-- <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'" Version="">
-    <PackageReference Include="" />
-  </ItemGroup> -->
 
   <ItemGroup>
     <None Include="dotvvmwizard.snk" />
