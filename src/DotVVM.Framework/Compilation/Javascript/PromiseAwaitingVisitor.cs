@@ -51,12 +51,12 @@ namespace DotVVM.Framework.Compilation.Javascript
                     IsPromiseGetterOptional: var isGetterOptional
                 } && !IsAlreadyAwaited(expr))
             {
-                if (isGetterOptional)
-                    getPromise = e => e;
-
                 if (AssertIsInAsyncFunction(expr, onlyCheck: isOptionalAwait))
                 {
-                    expr.ReplaceWith(e => AddAnnotations(getPromise(e).Await().WithAnnotations(resultAnnotations), expr));
+                    expr.ReplaceWith(e => {
+                        var promiseExpr = isGetterOptional ? e : getPromise(e);
+                        return AddAnnotations(promiseExpr.Await().WithAnnotations(resultAnnotations), promiseExpr);
+                    });
                 }
             }
         }
