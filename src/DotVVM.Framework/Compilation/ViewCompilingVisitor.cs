@@ -245,8 +245,8 @@ namespace DotVVM.Framework.Compilation
                 name = emitter.EmitInvokeControlBuilder(control.Metadata.Type, control.Metadata.VirtualPath);
             }
             emitter.RegisterDotvvmProperties(name);
-            // RawLiterals don't need these helper properties
-            if (control.Metadata.Type != typeof(RawLiteral))
+            // RawLiterals don't need these helper properties unless in root
+            if (control.Metadata.Type != typeof(RawLiteral) || control.Parent is ResolvedTreeRoot)
             {
                 // set unique id
                 emitter.EmitSetDotvvmProperty(name, Internal.UniqueIDProperty, name);
