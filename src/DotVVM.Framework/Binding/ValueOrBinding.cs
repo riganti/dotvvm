@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using Newtonsoft.Json;
 
@@ -77,13 +78,13 @@ namespace DotVVM.Framework.Binding
 
         public ParametrizedCode GetParametrizedJsExpression(DotvvmBindableObject control, bool unwrapped = false) =>
             ProcessValueBinding(control,
-                value => new ParametrizedCode(JsonConvert.SerializeObject(value), OperatorPrecedence.Max),
+                value => new ParametrizedCode(JsonConvert.SerializeObject(value, DefaultSerializerSettingsProvider.Instance.Settings), OperatorPrecedence.Max),
                 binding => binding.GetParametrizedKnockoutExpression(control, unwrapped)
             );
 
         public string GetJsExpression(DotvvmBindableObject control, bool unwrapped = false) =>
             ProcessValueBinding(control,
-                value => JsonConvert.SerializeObject(value),
+                value => JsonConvert.SerializeObject(value, DefaultSerializerSettingsProvider.Instance.Settings),
                 binding => binding.GetKnockoutBindingExpression(control, unwrapped)
             );
 

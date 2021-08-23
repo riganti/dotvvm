@@ -169,10 +169,8 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Determines whether the control has only white space content.
         /// </summary>
-        public bool HasOnlyWhiteSpaceContent()
-        {
-            return Children.All(c => (c is RawLiteral lit && lit.IsWhitespace));
-        }
+        public bool HasOnlyWhiteSpaceContent() =>
+            Children.HasOnlyWhiteSpaceContent();
 
         /// <summary>
         /// Renders the control into the specified writer.

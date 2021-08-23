@@ -85,16 +85,16 @@ namespace DotVVM.Framework.Controls
         internal object? EvalPropertyValue(DotvvmProperty property, object? value)
         {
             if (property.IsBindingProperty) return value;
-            while (value is IBinding binding) //TODO: MERGE CONFLICT
+            if (value is IBinding)
             {
                 DotvvmBindableObject control = this;
                 // DataContext is always bound to it's parent, setting it right here is a bit faster
                 if (property == DataContextProperty)
                     control = control.Parent ?? throw new DotvvmControlException(this, "Can not set DataContext binding on the root control");
                 // handle binding
-                if (value is IStaticValueBinding svbinding)
+                if (value is IStaticValueBinding binding)
                 {
-                    value = svbinding.Evaluate(control);
+                    value = binding.Evaluate(control);
                 }
                 else if (value is ICommandBinding command)
                 {

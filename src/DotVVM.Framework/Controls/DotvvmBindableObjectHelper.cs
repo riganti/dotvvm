@@ -144,13 +144,13 @@ namespace DotVVM.Framework.Controls
             return control;
         }
 
-        public static TControl SetAttribute<TControl, TProperty>(this TControl control, string attribute, ValueOrBinding<TProperty> value)
+        public static TControl SetAttribute<TControl, TValue>(this TControl control, string attribute, ValueOrBinding<TValue> value)
             where TControl : IControlWithHtmlAttributes
         {
             return SetAttribute(control, attribute, value.BindingOrDefault ?? value.BoxedValue);
         }
 
-        public static TControl SetAttribute<TControl, TProperty>(this TControl control, string attribute, ValueOrBinding<TProperty>? value)
+        public static TControl SetAttribute<TControl, TValue>(this TControl control, string attribute, ValueOrBinding<TValue>? value)
             where TControl : IControlWithHtmlAttributes
         {
             return SetAttribute(control, attribute, value?.BindingOrDefault ?? value?.BoxedValue);
@@ -169,13 +169,31 @@ namespace DotVVM.Framework.Controls
             return control;
         }
 
-        public static T AppendChildren<T>(this T control, IEnumerable<DotvvmControl>? children) where T : DotvvmControl 
+        public static T AppendChildren<T>(this T control, params DotvvmControl?[]? children)
+            where T : DotvvmControl
         {
             if (children != null)
             {
                 foreach (var child in children)
                 {
-                    control.Children.Add(child);
+                    if (child is not null)
+                        control.Children.Add(child);
+                }
+            }
+
+            return control;
+
+        }
+
+        public static T AppendChildren<T>(this T control, IEnumerable<DotvvmControl?>? children)
+            where T : DotvvmControl 
+        {
+            if (children != null)
+            {
+                foreach (var child in children)
+                {
+                    if (child is not null)
+                        control.Children.Add(child);
                 }
             }
 

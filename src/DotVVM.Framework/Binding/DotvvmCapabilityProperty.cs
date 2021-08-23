@@ -56,7 +56,7 @@ namespace DotVVM.Framework.Binding
 
         public static DotvvmCapabilityProperty RegisterCapability(string name, Type declaringType, Type capabilityType, string globalPrefix = "", ICustomAttributeProvider? capabilityAttributeProvider = null)
         {
-            AssertNotDefined(declaringType, capabilityType, name, globalPrefix, postContent: true);
+            AssertNotDefined(declaringType, capabilityType, name, globalPrefix, postContent: false);
             var (getterExpression, setterExpression) = InitializeCapability(declaringType, capabilityType, globalPrefix, capabilityAttributeProvider);
             AssertNotDefined(declaringType, capabilityType, name, globalPrefix, postContent: true);
 
@@ -92,6 +92,13 @@ namespace DotVVM.Framework.Binding
         static (LambdaExpression getter, LambdaExpression setter) InitializeCapability(Type declaringType, Type capabilityType, string globalPrefix, ICustomAttributeProvider? parentAttributeProvider)
         {
             var properties = capabilityType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+
+            if (properties.Length == 0)
+                throw new Exception($"Capability {capabilityType} does not have any properties. It was registered as property in {declaringType}.");
+
+            if (capabilityType.GetConstructor(Type.EmptyTypes) == null)
+                throw new Exception($"Capability {capabilityType} does not have a parameterless constructor. It was registered as property in {declaringType}.");
+
             var instance = Activator.CreateInstance(capabilityType);
             var valueParameter = Expression.Parameter(capabilityType, "value");
             var getterBody = new List<Expression> {
@@ -367,11 +374,8 @@ namespace DotVVM.Framework.Binding
     public class DotvvmControlCapabilityAttribute : Attribute
     {
         public string Prefix { get; }
-        public bool Optional { get; }
-        public DotvvmControlCapabilityAttribute(string prefix = "", bool optional = false)
+        public DotvvmControlCapabilityAttribute(string prefix = "")
         {
-            if (optional) throw new NotSupportedException("Optional capabilities are not supported.");
-            this.Optional = optional;
             this.Prefix = prefix;
         }
     }

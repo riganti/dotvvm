@@ -24,6 +24,8 @@ namespace DotVVM.Framework.Controls
 
         public void WriteToChildren(DotvvmControl control, DotvvmProperty textProperty)
         {
+            if (!control.HasOnlyWhiteSpaceContent())
+                throw new DotvvmControlException(control, "Can not set TextOrContentCapability into the control since it already has some content.");
             control.SetProperty(textProperty, Text);
             control.Children.Clear();
             if (Content is not null)
