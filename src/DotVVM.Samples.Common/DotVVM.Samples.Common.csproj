@@ -33,6 +33,7 @@
     <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_String.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_StringToObject.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\Nullable.dothtml" />
+    <None Remove="Views\ControlSamples\GridView\GridViewCellDecorators.dothtml" />
     <None Remove="Views\ControlSamples\Literal\Literal_NumberBinding.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\binded.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
@@ -80,6 +81,7 @@
     <None Remove="Views\FeatureSamples\StringInterpolation\StringInterpolation.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\Incrementer.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\IncrementerInRepeater.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\InnerModuleControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleInMarkupControl.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleInMarkupControlTwice.dothtml" />
@@ -89,6 +91,7 @@
     <None Remove="Views\FeatureSamples\ViewModules\ModuleInPageSpaMasterPage.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleInPageSpaMasterPage2.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleMasterPage.dotmaster" />
+    <None Remove="Views\FeatureSamples\ViewModules\ModuleRegistrationPropagation.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\ModuleSpaMasterPage.dotmaster" />
     <None Remove="Views\FeatureSamples\MarkupControl\CommandPropertiesInMarkupControl.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\Device.dotcontrol" />
@@ -115,6 +118,7 @@
     <None Remove="Views\FeatureSamples\Validation\EnforceClientSideValidationDisabled.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\InvalidCssClassNotDuplicated.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModelCache\ViewModelCache_Miss.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModules\OuterModuleControl.dotcontrol" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="sampleConfig.json">

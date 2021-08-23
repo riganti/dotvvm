@@ -22,6 +22,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.ResourceManagement;
+using Microsoft.Extensions.Options;
 
 namespace DotVVM.Framework.Testing
 {
@@ -147,13 +148,21 @@ namespace DotVVM.Framework.Testing
             if (checkErrors) CheckForErrors(tree);
 
             var controlTreeResolver = configuration.ServiceProvider.GetRequiredService<IControlTreeResolver>();
+            var controlResolver = configuration.ServiceProvider.GetRequiredService<IControlResolver>();
             var validator = ActivatorUtilities.CreateInstance<ControlUsageValidationVisitor>(configuration.ServiceProvider);
-            return controlTreeResolver.ResolveTree(tree, fileName)
-                .CastTo<ResolvedTreeRoot>()
-                .ApplyAction(new DataContextPropertyAssigningVisitor().VisitView)
-                .ApplyAction(x => { if (checkErrors) CheckForErrors(x.DothtmlNode); })
-                .ApplyAction(new StylingVisitor(configuration).VisitView)
-                .ApplyAction(x => { if (checkErrors) validator.VisitAndAssert(x); else validator.VisitView(x); });
+
+            var visitors = configuration.ServiceProvider.GetRequiredService<IOptions<ViewCompilerConfiguration>>().Value.TreeVisitors;
+            var root = controlTreeResolver.ResolveTree(tree, fileName).CastTo<ResolvedTreeRoot>();
+            if (checkErrors) CheckForErrors(root.DothtmlNode);
+            foreach (var v in visitors)
+            {
+                v().VisitView(root);
+            }
+            if (checkErrors)
+                validator.VisitAndAssert(root);
+            else
+                validator.VisitView(root);
+            return root;
         }
 
         public static void EnsureCompiledAssemblyCache()

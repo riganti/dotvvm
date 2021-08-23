@@ -28,7 +28,7 @@ namespace DotVVM.CommandLine.OpenApi
             IClientGenerator generator,
             TypeResolverBase resolver,
             DotvvmCSharpOperationModel operation)
-            : base(parameterName, variableName, typeName, parameter, allParameters, settings, generator, resolver)
+            : base(parameterName, variableName, variableName, typeName, parameter, allParameters, settings, generator, resolver)
         {
             this.operation = operation;
         }

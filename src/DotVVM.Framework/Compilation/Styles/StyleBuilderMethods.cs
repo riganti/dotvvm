@@ -26,6 +26,7 @@ public static partial class StyleBuilderExtensionMethods
             throw new Exception($"Property {name} has an invalid backing field. It was expected to contain DotvvmProperty.");
     }
 
+    /// <summary> Sets a specified property on the matching controls. The referenced property must be a wrapper around a DotvvmProperty. </summary>
     public static IStyleBuilder<TControl> SetProperty<TControl, TProperty>(
         this IStyleBuilder<TControl> sb,
         Expression<Func<TControl, TProperty>> property,
@@ -36,6 +37,8 @@ public static partial class StyleBuilderExtensionMethods
         return sb.SetDotvvmProperty(sb.GetProperty(propertyName), value, options);
     }
 
+    /// <summary> Sets a control to the specified property on the matching controls. </summary>
+    /// <param name="styleBuilder">This style builder can be used to set properties on the added component.</param>
     public static T SetControlProperty<T, TControl>(
         this T sb,
         DotvvmProperty property,
@@ -53,6 +56,8 @@ public static partial class StyleBuilderExtensionMethods
         );
     }
 
+    /// <summary> Sets a control to the specified property on the matching controls. </summary>
+    /// <param name="styleBuilder">This style builder can be used to set properties on the added component.</param>
     public static IStyleBuilder<TControl> SetControlProperty<TControl, TInnerControl>(
         this IStyleBuilder<TControl> sb,
         Expression<Func<TControl, object>> property,
@@ -66,6 +71,8 @@ public static partial class StyleBuilderExtensionMethods
             sb.GetProperty(propertyName), prototypeControl, styleBuilder, options);
     }
 
+    /// <summary> Adds a control to the specified property on the matching controls. </summary>
+    /// <param name="styleBuilder">This style builder can be used to set properties on the added component.</param>
     public static IStyleBuilder<TControl> AppendControlProperty<TControl, TInnerControl>(
         this IStyleBuilder<TControl> sb,
         Expression<Func<TControl, object>> property,
@@ -74,6 +81,8 @@ public static partial class StyleBuilderExtensionMethods
         where TInnerControl: DotvvmBindableObject =>
         sb.SetControlProperty(property, prototypeControl, styleBuilder, StyleOverrideOptions.Append);
 
+    /// <summary> Adds a control to the specified property on the matching controls. </summary>
+    /// <param name="styleBuilder">This style builder can be used to set properties on the added component.</param>
     public static T AppendControlProperty<T, TControl>(
         this T sb,
         DotvvmProperty property,
@@ -83,7 +92,7 @@ public static partial class StyleBuilderExtensionMethods
         where TControl: DotvvmBindableObject =>
         sb.SetControlProperty(property, controlPrototype, styleBuilder, StyleOverrideOptions.Append);
 
-    /// <summary> Inserts an HTML control into the specified control property </summary>
+    /// <summary> Inserts an HTML control into the specified control property. </summary>
     public static T SetHtmlControlProperty<T>(
         this T sb,
         DotvvmProperty property,
@@ -107,15 +116,7 @@ public static partial class StyleBuilderExtensionMethods
 
         sb.SetControlProperty(property, RawLiteral.Create(text), options: options);
 
-
-    public static T SetDotvvmProperty<T>(
-        this T sb,
-        ResolvedPropertySetter setter,
-        StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
-        where T: IStyleBuilder =>
-
-        sb.AddApplicator(new PropertyStyleApplicator(setter, options));
-
+    /// <summary> Sets a specified property on the matching controls </summary>
     public static T SetDotvvmProperty<T>(
         this T sb,
         DotvvmProperty property,
@@ -138,24 +139,19 @@ public static partial class StyleBuilderExtensionMethods
             throw new ArgumentException($"Value '{value}' of type {value.GetType()} is not assignable to property {property} of type {property.PropertyType}", nameof(value));
         }
 
-        return sb.SetDotvvmProperty(new ResolvedPropertyValue(property, value), options);
+        return sb.AddApplicator(new PropertyStyleApplicator(property, value, options));
     }
 
-    public static IStyleBuilder<T> SetDotvvmProperty<T>(
-        this IStyleBuilder<T> sb,
-        Func<IStyleMatchContext<T>, ResolvedPropertySetter> setter,
-        StyleOverrideOptions options = StyleOverrideOptions.Overwrite) =>
-
-        sb.AddApplicator(new GenericPropertyStyleApplicator<T>(setter, options));
-
+    /// <summary> Sets a specified property on the matching controls. The value can be computed from any property on the control using the IStyleMatchContext. </summary>
     public static IStyleBuilder<T> SetDotvvmProperty<T>(
         this IStyleBuilder<T> sb,
         DotvvmProperty property,
         Func<IStyleMatchContext<T>, object?> value,
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite) =>
         
-        sb.SetDotvvmProperty(c => ResolvedControlHelper.TranslateProperty(property, value(c), c.Control.DataContextTypeStack), options);
+        sb.AddApplicator(new GenericPropertyStyleApplicator<T>(property, value, options));
 
+    /// <summary> Sets a specified property on the matching controls. The value can be computed from any property on the control using the IStyleMatchContext. </summary>
     public static IStyleBuilder<TControl> SetProperty<TControl, TProperty>(
         this IStyleBuilder<TControl> sb,
         Expression<Func<TControl, TProperty>> property,
@@ -164,6 +160,28 @@ public static partial class StyleBuilderExtensionMethods
     {
         var propertyName = ReflectionUtils.GetMemberFromExpression(property).Name;
         return sb.SetDotvvmProperty(sb.GetProperty(propertyName), c => (object?)value(c), options);
+    }
+
+    /// <summary> Sets the specified property to a binding.
+    /// Value binding is used by default, alternative binding types can be set using the bindingOptions parameter.
+    /// Note that the binding is parsed according to the data context of the control, you can check that using c.HasDataContext. </summary>
+    public static T SetPropertyBinding<T>(
+        this T sb,
+        Expression<Func<T, object>> property,
+        string binding,
+        StyleOverrideOptions options = StyleOverrideOptions.Overwrite,
+        BindingParserOptions? bindingOptions = null)
+        where T: IStyleBuilder
+    {
+        var propertyName = ReflectionUtils.GetMemberFromExpression(property).Name;
+        var dotprop = GetProperty(sb, propertyName);
+        return sb.AddApplicator(new PropertyStyleBindingApplicator(
+            dotprop,
+            binding,
+            options,
+            bindingOptions ?? GetDefaultBindingType(dotprop),
+            allowChangingBindingType: bindingOptions == null
+        ));
     }
 
     /// <summary> Sets the specified property to a binding.
@@ -372,16 +390,19 @@ public static partial class StyleBuilderExtensionMethods
         return sb;
     }
 
+    /// <summary> Applies this style only to controls matching this condition. When multiple conditions are specified, all are combined using the AND operator. </summary>
     [Obsolete("Usage of AddCondition should be preferred. The methods are equivalent, but the name WithCondition falsely indicates that new builder with the condition is created.")]
     public static T WithCondition<T>(this T sb, Func<IStyleMatchContext, bool> condition)
         where T: IStyleBuilder =>
         sb.AddCondition(condition);
+    /// <summary> Applies this style only to controls matching this condition. When multiple conditions are specified, all are combined using the AND operator. </summary>
     public static T AddCondition<T>(this T sb, Func<IStyleMatchContext, bool> condition)
         where T: IStyleBuilder
     {
         sb.AddConditionImpl(condition);
         return sb;
     }
+    /// <summary> Applies this style only to controls matching this condition. When multiple conditions are specified, all are combined using the AND operator. </summary>
     public static IStyleBuilder<TControl> AddCondition<TControl>(this IStyleBuilder<TControl> sb, Func<IStyleMatchContext<TControl>, bool> condition)
     {
         sb.AddConditionImpl(condition);

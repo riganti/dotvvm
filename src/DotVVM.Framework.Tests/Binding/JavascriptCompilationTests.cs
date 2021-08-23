@@ -210,7 +210,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_Api_DateParameter()
         {
             var result = CompileBinding("_testApi.PostDateToString(DateFrom.Value)", typeof(TestViewModel));
-            Assert.IsTrue(result.StartsWith("dotvvm.api.invoke(dotvvm.api._testApi,\"postDateToString\",function(){return [dotvvm.globalize.parseDate(DateFrom())];},function(args){return [];},function(args){return [\"DotVVM.Framework.Tests.Binding.TestApiClient/\"];},$element,function(args){return \""));
+            Assert.IsTrue(result.StartsWith("dotvvm.api.invoke(dotvvm.api._testApi,\"postDateToString\",function(){return [dotvvm.serialization.parseDate(DateFrom(),true)];},function(args){return [];},function(args){return [\"DotVVM.Framework.Tests.Binding.TestApiClient/\"];},$element,function(args){return \""));
             Assert.IsTrue(result.EndsWith("\";})"));
         }
 
@@ -1030,7 +1030,18 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("StringProp.EndsWith('test')", "StringProp().endsWith(\"test\")")]
         [DataRow("StringProp.EndsWith('test',StringComparison.InvariantCultureIgnoreCase)",
             "dotvvm.translations.string.endsWith(StringProp(),\"test\",\"InvariantCultureIgnoreCase\")")]
+        [DataRow("StringProp.Trim()", "StringProp().trim()")]
+        [DataRow("StringProp.Trim('0')", "dotvvm.translations.string.trimEnd(dotvvm.translations.string.trimStart(StringProp(),\"0\"),\"0\")")]
+        [DataRow("StringProp.TrimStart()", "dotvvm.translations.string.trimStart(StringProp())")]
+        [DataRow("StringProp.TrimStart('0')", "dotvvm.translations.string.trimStart(StringProp(),\"0\")")]
+        [DataRow("StringProp.TrimEnd()", "dotvvm.translations.string.trimEnd(StringProp())")]
+        [DataRow("StringProp.TrimEnd('0')", "dotvvm.translations.string.trimEnd(StringProp(),\"0\")")]
+        [DataRow("StringProp.PadLeft(1)", "dotvvm.translations.string.padStart(StringProp(),1)")]
+        [DataRow("StringProp.PadRight(2)", "dotvvm.translations.string.padEnd(StringProp(),2)")]
+        [DataRow("StringProp.PadLeft(1,'#')", "dotvvm.translations.string.padStart(StringProp(),1,\"#\")")]
+        [DataRow("StringProp.PadRight(2,'#')", "dotvvm.translations.string.padEnd(StringProp(),2,\"#\")")]
         [DataRow("string.IsNullOrEmpty(StringProp)", "StringProp()==null||StringProp()===\"\"")]
+        [DataRow("string.IsNullOrWhiteSpace(StringProp)", "StringProp()==null||StringProp().trim()===\"\"")]
         public void JavascriptCompilation_StringFunctions(string input, string expected)
         {
             var result = CompileBinding(input, typeof(TestViewModel));

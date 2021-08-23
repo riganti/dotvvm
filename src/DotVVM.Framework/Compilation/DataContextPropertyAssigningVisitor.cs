@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation
@@ -16,7 +17,11 @@ namespace DotVVM.Framework.Compilation
         {
             if (control.DataContextTypeStack != control.Parent?.As<ResolvedControl>()?.DataContextTypeStack || control.Parent is ResolvedTreeRoot)
             {
-                control.SetProperty(new ResolvedPropertyValue(Internal.DataContextTypeProperty, control.DataContextTypeStack));
+                // RawLiteral don't need datacontext type, it only slows down compilation
+                if (control.Metadata.Type != typeof(RawLiteral))
+                {
+                    control.SetProperty(new ResolvedPropertyValue(Internal.DataContextTypeProperty, control.DataContextTypeStack));
+                }
             }
             base.VisitControl(control);
         }

@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Controls
             set { SetValue(RenderAsNamedTemplateProperty, value); }
         }
         public static readonly DotvvmProperty RenderAsNamedTemplateProperty =
-            DotvvmProperty.Register<bool, Repeater>(nameof(RenderAsNamedTemplate), defaultValue: false);
+            DotvvmProperty.Register<bool, Repeater>(nameof(RenderAsNamedTemplate), defaultValue: true);
 
         protected override bool RendersHtmlTag => RenderWrapperTag;
 

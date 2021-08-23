@@ -27,6 +27,9 @@
     <div class="container">
         <h1>GridView with Decorators</h1>
         <dot:GridView DataSource="{value: CustomersDataSet}" class="table table-bordered">
+            <HeaderRowDecorators>
+                <dot:Decorator class="header-row" />
+            </HeaderRowDecorators>
             <RowDecorators>
                 <dot:Decorator Events.Click="{command: _root.SelectCustomer(CustomerId)}"
                                class="{value: _root.SelectedRowId == CustomerId ? 'selected' : ''}" />
