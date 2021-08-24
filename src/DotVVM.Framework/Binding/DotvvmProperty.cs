@@ -277,22 +277,20 @@ namespace DotVVM.Framework.Binding
             bool throwOnDuplicitRegistration = true)
         {
             var propertyInfo = declaringType.GetProperty(aliasName);
-            var aliasAttribute = propertyInfo?.GetCustomAttribute<PropertyAliasAttribute>()
-                ?? attributeProvider.GetCustomAttribute<PropertyAliasAttribute>();
+            attributeProvider = propertyInfo ?? attributeProvider;
+            var aliasAttribute = attributeProvider.GetCustomAttribute<PropertyAliasAttribute>();
             if (aliasAttribute is null)
             {
                 throw new ArgumentException($"A property alias must have a {nameof(PropertyAliasAttribute)}.");
             }
 
-            var aliasPropertyDeclaringType = aliasAttribute.AliasedPropertyDeclaringType
-                ?? declaringType;
-
             var propertyAlias = new DotvvmPropertyAlias(
                 aliasName,
                 declaringType,
                 aliasAttribute.AliasedPropertyName,
-                aliasPropertyDeclaringType);
-            InitializeObsoleteAttribute(propertyAlias, propertyInfo, attributeProvider);
+                aliasAttribute.AliasedPropertyDeclaringType ?? declaringType);
+            propertyAlias.AttributeProvider = attributeProvider;
+            propertyAlias.ObsoleteAttribute = attributeProvider.GetCustomAttribute<ObsoleteAttribute>();
             var fullName = propertyAlias.DeclaringType.FullName + "." + propertyAlias.Name;
 
             if (!registeredProperties.TryAdd(fullName, propertyAlias))
@@ -336,8 +334,7 @@ namespace DotVVM.Framework.Binding
                 throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} cannot be set both at once on the '{property.FullName}' property.");
             property.MarkupOptions = markupOptions;
             property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
-
-            InitializeObsoleteAttribute(property, propertyInfo, attributeProvider);
+            property.ObsoleteAttribute = property.AttributeProvider.GetCustomAttribute<ObsoleteAttribute>();
         }
 
         public static IEnumerable<DotvvmProperty> GetVirtualProperties(Type controlType)
@@ -363,17 +360,6 @@ namespace DotVVM.Framework.Binding
             if (mo == null) return null;
             mo.AllowBinding = false;
             return mo;
-        }
-
-        private static void InitializeObsoleteAttribute(
-            DotvvmProperty property,
-            PropertyInfo? propertyInfo,
-            ICustomAttributeProvider attributeProvider,
-            DotvvmProperty? fallbackProperty = default)
-        {
-            property.ObsoleteAttribute = propertyInfo?.GetCustomAttribute<ObsoleteAttribute>()
-                ?? attributeProvider.GetCustomAttribute<ObsoleteAttribute>()
-                ?? fallbackProperty?.ObsoleteAttribute;
         }
 
         private static ConcurrentDictionary<string, DotvvmProperty> registeredProperties
