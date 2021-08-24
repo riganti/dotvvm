@@ -11,13 +11,23 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Controls.Infrastructure;
 
 public static class StyleMatchContextExtensionMethods
 {
+    /// <summary> Ensures that control is of type <typeparamref name="T"/>, otherwise throws an exception. </summary>
     public static IStyleMatchContext<T> Cast<T>(this IStyleMatchContext x) =>
         x is IStyleMatchContext<T> xx ? xx :
         new StyleMatchContext<T>(x.Parent, x.Control, x.Configuration);
 
+    /// <summary> Checks if the control is of type <typeparamref name="T"/> (or of a derived type) </summary>
+    public static bool IsType<T>(this IStyleMatchContext x) =>
+        typeof(T).IsAssignableFrom(x.Control.Metadata.Type);
+    /// <summary> Checks if the control is of type <paramref name="type"/> (or of a derived type) </summary>
+    public static bool IsType(this IStyleMatchContext x, Type type) =>
+        type.IsAssignableFrom(x.Control.Metadata.Type);
+    /// <summary> Checks if the control is of type <typeparamref name="T"/> (or of a derived type). In case it is, the <see cref="IStyleMatchContext{T}" /> is available from the result parameter. </summary>
     public static bool IsType<T>(this IStyleMatchContext x, [NotNullWhen(true)] out IStyleMatchContext<T>? result)
     {
         if (x is IStyleMatchContext<T> xx)
@@ -33,9 +43,11 @@ public static class StyleMatchContextExtensionMethods
         result = null;
         return false;
     }
+    /// <summary> Convert the IStyleMatchContext to control type <typeparamref name="T"/>. If it's not possible, returns null. </summary>
     public static IStyleMatchContext<T>? AsType<T>(this IStyleMatchContext x) =>
         x.IsType<T>(out var xx) ? xx : null;
 
+    /// <summary> Returns a list of all ancestor controls - the parent, parent of the parent, ... up to the tree root. </summary>
     public static IEnumerable<IStyleMatchContext> GetAncestors(this IStyleMatchContext c)
     {
         var p = c.Parent;
@@ -46,6 +58,7 @@ public static class StyleMatchContextExtensionMethods
         }
     }
 
+    /// <summary> Returns a list of all ancestor controls - the parent, parent of the parent, ... up to the tree root. Filters only those of type <typeparamref name="T"/>. </summary>
     public static IEnumerable<IStyleMatchContext<T>> AncestorsOfType<T>(this IStyleMatchContext c)
     {
         var p = c.Parent;
@@ -189,6 +202,14 @@ public static class StyleMatchContextExtensionMethods
         return false;
     }
 
+    public static Type ControlType(this IStyleMatchContext c) => c.Control.Metadata.Type;
+
+    public static string? TagName(this IStyleMatchContext c) =>
+        c.ControlType() == typeof(HtmlGenericControl) ? c.Control.ConstructorParameters![0] as string :
+        c.IsType<ConfigurableHtmlControl>() ? c.Property<string>(ConfigurableHtmlControl.WrapperTagNameProperty) :
+        c.IsType<Repeater>() ? c.Property<string>(Repeater.WrapperTagNameProperty) :
+        null;
+
     /// <summary> Gets the property value or null if it's not defined. </summary>
     public static T? Property<T>(this IStyleMatchContext c, DotvvmProperty property)
         where T : class
@@ -230,6 +251,29 @@ public static class StyleMatchContextExtensionMethods
         ResolvedPropertySetter s = c.Control.Properties.FirstOrDefault(p => p.Key.PropertyInfo == member).Value;
         return (s as ResolvedPropertyValue)?.Value as TProp;
     }
+
+    private static IStyleMatchContext ChildContext(this IStyleMatchContext c, ResolvedControl control) =>
+        new StyleMatchContext<DotvvmBindableObject>(c, control, c.Configuration);
+
+    public static IStyleMatchContext[] ControlProperty(this IStyleMatchContext c, DotvvmProperty property, bool includeRawLiterals = false)
+    {
+        if (!c.Control.Properties.TryGetValue(property, out var setter))
+            return new IStyleMatchContext[0];
+
+        var value = setter.GetValue();
+        if (value is ResolvedControl control)
+            return new [] { c.ChildContext(control) };
+        else if (value is IEnumerable<ResolvedControl> controls)
+            return controls.Select(c.ChildContext).Where(c => !c.IsRawLiteral() || includeRawLiterals).ToArray();
+        else if (value is not null && value is not IBinding)
+            throw new Exception($"Property {property} contains value {value} which is not a control");
+        else
+            return new IStyleMatchContext[0];
+    }
+
+    public static IStyleMatchContext<T>[] ControlProperty<T>(this IStyleMatchContext c, DotvvmProperty property, bool includeRawLiterals = false)
+        where T: DotvvmBindableObject =>
+        c.ControlProperty(property, includeRawLiterals).ControlsOfType<T>();
 
     /// <summary>
     /// Gets the DataContext of the control.
@@ -299,6 +343,95 @@ public static class StyleMatchContextExtensionMethods
     /// </summary>
     public static Type ChildrenDataContext(this IStyleMatchContext c) =>
         c.ChildrenDataContextStack().DataContextType;
+
+    /// <summary> Returns list of controls in the Children collection or controls in the DefaultContentProperty. </summary>
+    public static IStyleMatchContext[] Children(this IStyleMatchContext c, bool includeRawLiterals = false, bool allowDefaultContentProperty = true)
+    {
+        if (c.Control.Metadata.IsContentAllowed)
+            return c.Control.Content.Select(c.ChildContext).Where(c => !c.IsRawLiteral() || includeRawLiterals).ToArray();
+        else if (allowDefaultContentProperty && c.Control.Metadata.DefaultContentProperty is {} prop)
+            return c.ControlProperty(prop, includeRawLiterals);
+        else
+            return new IStyleMatchContext[0];
+    }
+
+    public static bool IsRawLiteral(this IStyleMatchContext c) =>
+        c.Control.Metadata.Type == typeof(RawLiteral);
+    public static bool IsOnlyWhitespace(this IStyleMatchContext c) =>
+        c.Control.IsOnlyWhitespace();
+    public static bool IsRawLiteral(this IStyleMatchContext c, [NotNullWhen(true)] out string? encodedText, [NotNullWhen(true)] out string? unencodedText)
+    {
+        if (c.Control.Metadata.Type == typeof(RawLiteral))
+        {
+            encodedText = (string)c.Control.ConstructorParameters![0];
+            unencodedText = (string)c.Control.ConstructorParameters[1];
+            return true;
+        }
+        else
+        {
+            encodedText = unencodedText = null;
+            return false;
+        }
+    }
+
+    /// <summary> Returns list of controls in the Children collection or controls in the DefaultContentProperty. Filters them to find only instances of <typeparamref name="T"/> </summary>
+    public static IStyleMatchContext<T>[] Children<T>(this IStyleMatchContext c, bool filterRawLiterals = true, bool allowDefaultContentProperty = true)
+        where T: DotvvmBindableObject =>
+        c.Children(filterRawLiterals, allowDefaultContentProperty).ControlsOfType<T>();
+
+    public static IStyleMatchContext<T>[] ControlsOfType<T>(this IEnumerable<IStyleMatchContext> cs)
+        where T: DotvvmBindableObject
+    {
+        var r = new List<IStyleMatchContext<T>>();
+        foreach (var c in cs)
+            if (c.IsType<T>(out var cT))
+                r.Add(cT);
+        return r.ToArray();
+    }
+
+    /// <summary> Returns a single child of type T or null. If the control contains more than one matching child, an exception is thrown. <typeparamref name="T"/> </summary>
+    public static IStyleMatchContext<T>? Child<T>(this IStyleMatchContext c)
+        where T: DotvvmBindableObject =>
+        c.Children<T>().SingleOrDefault();
+
+    /// <summary> Returns all child controls - those in Children and also those in any control property. </summary>
+    public static IStyleMatchContext[] AllChildren(this IStyleMatchContext c, bool includeRawLiterals = false) =>
+        c.Children(includeRawLiterals, allowDefaultContentProperty: false)
+        .Concat(
+            c.Control.Properties
+            .Where(p => p.Value is ResolvedPropertyTemplate or ResolvedPropertyControl or ResolvedPropertyControlCollection)
+            .SelectMany(p => c.ControlProperty(p.Key, includeRawLiterals))
+        )
+        .ToArray();
+
+    /// <summary> Returns all child controls of type <typeparamref name="T"/> - those in Children and also those in any control property. </summary>
+    public static IStyleMatchContext<T>[] AllChildren<T>(this IStyleMatchContext c, bool includeRawLiterals = false)
+        where T: DotvvmBindableObject =>
+        c.AllChildren(includeRawLiterals).ControlsOfType<T>();
+
+    /// <summary> Returns child controls, children child controls, ... </summary>
+    public static IStyleMatchContext[] Descendants(this IStyleMatchContext c, bool includeThis = false, bool includeRawLiterals = false, bool allowDefaultContentProperty = true) =>
+        new [] { c }
+        .SelectRecursively(c => c.Children(includeRawLiterals, allowDefaultContentProperty))
+        .Skip(includeThis ? 0 : 1)
+        .ToArray();
+
+    /// <summary> Returns child controls, children child controls, ... Filter only those of type <typeparamref name="T"/> </summary>
+    public static IStyleMatchContext[] Descendants<T>(this IStyleMatchContext c, bool includeThis = false, bool includeRawLiterals = false, bool allowDefaultContentProperty = true)
+        where T: DotvvmBindableObject =>
+        c.Descendants(includeThis, includeRawLiterals, allowDefaultContentProperty).ControlsOfType<T>();
+
+    /// <summary> Returns child control, children child controls, ... Unlike Descendants, this method includes all children including those in control properties. </summary>
+    public static IStyleMatchContext[] AllDescendants(this IStyleMatchContext c, bool includeThis = false, bool includeRawLiterals = false) =>
+        new [] { c }
+        .SelectRecursively(c => c.AllChildren(includeRawLiterals))
+        .Skip(includeThis ? 0 : 1)
+        .ToArray();
+
+    /// <summary> Returns child controls, children child controls, ... Filter only those of type <typeparamref name="T"/>. Unlike Descendants, this method includes all children including those in control properties. </summary>
+    public static IStyleMatchContext[] AllDescendants<T>(this IStyleMatchContext c, bool includeThis = false, bool includeRawLiterals = false)
+        where T: DotvvmBindableObject =>
+        c.AllDescendants(includeThis, includeRawLiterals).ControlsOfType<T>();
 
     /// <summary> Returns the contents of Styles.Tag property or an empty array if none is specified. </summary>
     public static string[] GetTags(this IStyleMatchContext context)

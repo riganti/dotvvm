@@ -11,6 +11,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls.Infrastructure;
 using System.Collections.Generic;
 using DotVVM.Framework.Compilation.Styles;
+using System.Linq;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -152,6 +153,49 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <dot:Button Styles.Tag=b Click={command: 0} data-msg=ahoj />
                 One handler, because override
                 <dot:Button Styles.Tag='a,b,c' Click={command: 0} data-msg=ahoj />
+            ");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task ChildrenMatching()
+        {
+            var cth = createHelper(c => {
+
+                c.Styles.Register<HtmlGenericControl>(c => c.AllChildren<ConfirmPostBackHandler>().Any())
+                    .AppendAttribute("data-confirm-handler", c => c.ControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty).First().Property(p => p.Message));
+                c.Styles.Register<HtmlGenericControl>(c => c.AllDescendants().Any(d => d.HasClass("magic-class")))
+                    .AddClass("magic-class");
+                c.Styles.Register<HtmlGenericControl>(c => c.Descendants<TextBox>(allowDefaultContentProperty: false).Any())
+                    .AddClass("beware-textbox");
+                c.Styles.Register<HtmlGenericControl>(c => c.Descendants().Any(c => c.ControlType() == typeof(RawLiteral)))
+                    .AddClass("never-happens");
+                c.Styles.Register<HtmlGenericControl>(c => c.Descendants(includeRawLiterals: true).Any(c => c.IsRawLiteral(out _, out var text) && text.Contains("bazmek")))
+                    .AddClass("contains-bazmek");
+            });
+
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                magic-class and contains-bazmek should be propagated through the hierarchy
+                beware-textbox does not propagate through the Repeater
+                <div>
+                    <dot:Repeater DataSource={value: Collection}>
+                        <div class=magic-class>
+                            <span> bazmek <dot:TextBox Text={value: _this} /> </span>
+                        </div>
+                    </dot:Repeater>
+                </div>
+                magic-class should be propagated, but contains-bazmek shouldn't
+                <div>
+                    <dot:Repeater DataSource={value: Collection}>
+                        <SeparatorTemplate>
+                        <div class=magic-class>
+                            <span> bazmek </span>
+                        </div>
+                        </SeparatorTemplate>
+                        something
+                    </dot:Repeater>
+                    
+                </div>
             ");
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
