@@ -63,12 +63,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
             this.Prefixes = prefixes.Values;
             this.PropertyGroupMode = PropertyGroupMode.ValueCollection;
             this.DefaultValue = defaultValue;
-            InitializePropertyGroup(this, propertyInfo);
+            InitializePropertyGroup(this, AttributeProvider);
         }
 
         internal protected DotvvmPropertyGroup(
             PrefixArray prefixes,
             Type valueType,
+            Type declaringType,
             FieldInfo descriptorField,
             ICustomAttributeProvider attributeProvider,
             string name,
@@ -83,24 +84,25 @@ namespace DotVVM.Framework.Compilation.ControlTree
             this.PropertyType = valueType;
             this.Prefixes = prefixes.Values;
             this.PropertyGroupMode = PropertyGroupMode.GeneratedDotvvmProperty;
-            InitializePropertyGroup(this, descriptorField);
+            InitializePropertyGroup(this, AttributeProvider);
         }
 
         private static void InitializePropertyGroup(
             DotvvmPropertyGroup propertyGroup,
             ICustomAttributeProvider attributeProvider)
         {
-            var markupOptions = MarkupOptions = attributeProvider.GetCustomAttribute<MarkupOptionsAttribute>(true)
-                ?? new MarkupOptionsAttribute();
             var dataContextChange = attributeProvider.GetCustomAttributes<DataContextChangeAttribute>(true);
             var dataContextManipulation = attributeProvider
                 .GetCustomAttribute<DataContextStackManipulationAttribute>(true);
             if (dataContextManipulation != null && dataContextChange.Any())
             {
                 throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and "
-                    + $"{nameof(DataContextManipulationAttribute)} can not be set both at property '{Name}'.");
+                    + $"{nameof(DataContextManipulationAttribute)} can not be set both at property "
+                    + $"'{propertyGroup.Name}'.");
             }
 
+            propertyGroup.MarkupOptions = attributeProvider.GetCustomAttribute<MarkupOptionsAttribute>(true)
+                ?? new MarkupOptionsAttribute();
             propertyGroup.DataContextChangeAttributes = dataContextChange.ToArray();
             propertyGroup.DataContextManipulationAttribute = dataContextManipulation;
             propertyGroup.ObsoleteAttribute = attributeProvider.GetCustomAttribute<ObsoleteAttribute>();
@@ -148,8 +150,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public static DotvvmPropertyGroup Register(Type declaringType, PrefixArray prefixes, string name, Type valueType, object defaultValue)
         {
             return descriptorDictionary.GetOrAdd(declaringType.Name + "." + name, fullName => {
-                var descriptorField = FindDescriptorField(declaringType, name);
-                return new DotvvmPropertyGroup(prefixes, valueType, descriptorField, name, defaultValue);
+                var field = FindDescriptorField(declaringType, name);
+                return new DotvvmPropertyGroup(
+                    prefixes,
+                    valueType,
+                    declaringType,
+                    field,
+                    field as ICustomAttributeProvider,
+                    name,
+                    defaultValue);
             });
         }
         internal static DotvvmPropertyGroup Register(DotvvmPropertyGroup group)
