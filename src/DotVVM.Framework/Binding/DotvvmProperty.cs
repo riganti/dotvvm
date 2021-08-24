@@ -311,10 +311,7 @@ namespace DotVVM.Framework.Binding
             return propertyAlias;
         }
 
-        public static void InitializeProperty(
-            DotvvmProperty property,
-            ICustomAttributeProvider attributeProvider,
-            DotvvmProperty? fallbackProperty = default)
+        public static void InitializeProperty(DotvvmProperty property, ICustomAttributeProvider attributeProvider, DotvvmProperty? fallbackProperty = default)
         {
             var propertyInfo = property.PropertyInfo ?? property.DeclaringType.GetProperty(property.Name);
             property.AttributeProvider = attributeProvider = propertyInfo ?? attributeProvider ?? throw new ArgumentNullException(nameof(attributeProvider));
@@ -333,23 +330,10 @@ namespace DotVVM.Framework.Binding
                 property = new DotvvmProperty();
 
             property.PropertyInfo = propertyInfo;
-            property.DataContextChangeAttributes = (propertyInfo != null ?
-                propertyInfo.GetCustomAttributes<DataContextChangeAttribute>(true) :
-                attributeProvider.GetCustomAttributes<DataContextChangeAttribute>()).ToArray();
-            if (property.DataContextChangeAttributes.Length == 0 && fallbackProperty != null)
-            {
-                property.DataContextChangeAttributes = fallbackProperty.DataContextChangeAttributes;
-            }
-
-            property.DataContextManipulationAttribute = propertyInfo != null ?
-                propertyInfo.GetCustomAttribute<DataContextStackManipulationAttribute>(true) :
-                attributeProvider.GetCustomAttribute<DataContextStackManipulationAttribute>() ??
-                fallbackProperty?.DataContextManipulationAttribute;
-            if (property.DataContextManipulationAttribute != null && property.DataContextChangeAttributes.Any()) {
-                throw new ArgumentException($"{nameof(DataContextChangeAttributes)} "
-                    + $"and {nameof(DataContextManipulationAttribute)} can not be set both at once on property "
-                    + $"'{property.FullName}'.");
-            }
+            property.DataContextChangeAttributes = attributeProvider.GetCustomAttributes<DataContextChangeAttribute>().ToArray();
+            property.DataContextManipulationAttribute = attributeProvider.GetCustomAttribute<DataContextStackManipulationAttribute>();
+            if (property.DataContextManipulationAttribute != null && property.DataContextChangeAttributes.Any())
+                throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} cannot be set both at once on the '{property.FullName}' property.");
             property.MarkupOptions = markupOptions;
             property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
 
