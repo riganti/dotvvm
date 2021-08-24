@@ -2,18 +2,18 @@
 	<head>
 		
 		<!-- Resource knockout of type ScriptResource. Pointing to EmbeddedResourceLocation. -->
-		<script src="/dotvvmResource/knockout/knockout" defer=""></script>
+		<script defer="" src="/dotvvmResource/knockout/knockout"></script>
 		
 		<!-- Resource dotvvm.polyfill.bundle of type ScriptModuleResource. Pointing to EmbeddedResourceLocation. -->
-		<script nomodule="" src="/dotvvmResource/dotvvm--polyfill--bundle/dotvvm--polyfill--bundle?type=nomodule" defer=""></script>
+		<script defer="" nomodule="" src="/dotvvmResource/dotvvm--polyfill--bundle/dotvvm--polyfill--bundle?type=nomodule"></script>
 		
 		<!-- Resource dotvvm.internal of type ScriptModuleResource. Pointing to EmbeddedResourceLocation. -->
-		<script src="/dotvvmResource/dotvvm--internal/dotvvm--internal" type="module" defer=""></script>
-		<script nomodule="" src="/dotvvmResource/dotvvm--internal/dotvvm--internal?type=nomodule" defer=""></script>
+		<script defer="" src="/dotvvmResource/dotvvm--internal/dotvvm--internal" type="module"></script>
+		<script defer="" nomodule="" src="/dotvvmResource/dotvvm--internal/dotvvm--internal?type=nomodule"></script>
 		
 		<!-- Resource dotvvm of type InlineScriptResource. -->          
 		<!-- Resource dotvvm.debug of type ScriptResource. Pointing to EmbeddedResourceLocation. -->
-		<script src="/dotvvmResource/dotvvm--debug/dotvvm--debug" defer=""></script>
+		<script defer="" src="/dotvvmResource/dotvvm--debug/dotvvm--debug"></script>
 		
 		<!-- Resource viewModule.import.6DLlOTYMqGV5yPAJoz5k_moKDBgEmZ3_HLLQ2zKDo74 of type ViewModuleImportResource. -->
 		<script type="module">import * as m0 from '/dotvvmResource/myModule/myModule';dotvvm.viewModules.registerMany({'myModule': m0});</script>
@@ -22,7 +22,7 @@
 		<script type="module">dotvvm.viewModules.init('myModule', 'p0', document.body);</script>
 	</head>
 	<body>
-		<input type="hidden" id="__dot_viewmodel_root" value="{
+		<input id="__dot_viewmodel_root" type="hidden" value="{
   &quot;viewModel&quot;: {
     &quot;$csrfToken&quot;: &quot;Not a CSRF token.&quot;
   },

@@ -15,6 +15,7 @@ using System.Globalization;
 using System.Collections.Concurrent;
 using DotVVM.Framework.Compilation.Binding;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Utils
@@ -420,5 +421,23 @@ namespace DotVVM.Framework.Utils
             member is MethodInfo method ? method.ReturnType :
             member is TypeInfo type ? type.AsType() :
             throw new NotImplementedException($"Could not get return type of member {member.GetType().FullName}");
+
+        public static string ToEnumString<T>(this T instance) where T : Enum
+        {
+            return ToEnumString(instance.GetType(), instance.ToString());
+        }
+        public static string ToEnumString(Type enumType, string name)
+        {
+            var field = enumType.GetField(name);
+            if (field != null)
+            {
+                var attr = (EnumMemberAttribute)field.GetCustomAttributes(typeof(EnumMemberAttribute), false).SingleOrDefault();
+                if (attr != null)
+                {
+                    return attr.Value;
+                }
+            }
+            return name;
+        }
     }
 }

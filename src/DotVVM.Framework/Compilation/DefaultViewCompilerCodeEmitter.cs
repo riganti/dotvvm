@@ -125,13 +125,12 @@ namespace DotVVM.Framework.Compilation
                     })))
                 .Apply(a => SyntaxFactory.CastExpression(ParseTypeName(controlType), a))
                 .Apply(EmitCreateVariable);
-        
+
         public string EmitInjectionFactoryInvocation(
             Type type,
             (Type type, ExpressionSyntax expression)[] arguments,
             Func<Type, Type[], ExpressionSyntax> factoryInvocation) =>
-                this.injectionFactoryCache.GetOrAdd((type, string.Join(";", arguments.Select(i => i.type))), _ =>
-                {
+                this.injectionFactoryCache.GetOrAdd((type, string.Join(";", arguments.Select(i => i.type))), _ => {
                     var fieldName = "Obj_" + type.Name + "_Factory_" + otherDeclarations.Count;
                     otherDeclarations.Add(SyntaxFactory.FieldDeclaration(SyntaxFactory.VariableDeclaration(
                             this.ParseTypeName(typeof(ObjectFactory)))
@@ -155,7 +154,7 @@ namespace DotVVM.Framework.Compilation
                     })))
                 .Apply(a => SyntaxFactory.CastExpression(ParseTypeName(type), a))
                 .Apply(EmitCreateVariable);
-        
+
         /// <summary>
         /// Emits the create object expression.
         /// </summary>
@@ -305,9 +304,8 @@ namespace DotVVM.Framework.Compilation
 
         public ExpressionSyntax CreateDotvvmPropertyIdentifier(DotvvmProperty property)
         {
-            if (property is GroupedDotvvmProperty)
+            if (property is GroupedDotvvmProperty gprop && gprop.PropertyGroup.DescriptorField != null)
             {
-                var gprop = (GroupedDotvvmProperty)property;
                 string fieldName;
                 if (!cachedGroupedDotvvmProperties.TryGetValue(gprop, out fieldName))
                 {
@@ -337,11 +335,18 @@ namespace DotVVM.Framework.Compilation
                 }
                 return SyntaxFactory.ParseName(fieldName);
             }
-            else
+            else if (property.DeclaringType.GetField(property.Name + "Property", BindingFlags.Static | BindingFlags.Public) != null)
             {
                 return SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
                     ParseTypeName(property.DeclaringType),
                     SyntaxFactory.IdentifierName(property.Name + "Property"));
+            }
+            else
+            {
+                //throw new NotImplementedException();
+                return SyntaxFactory.CastExpression(
+                    this.ParseTypeName(typeof(DotvvmProperty)),
+                    this.valueEmitter.EmitValueReference(property));
             }
         }
 
@@ -727,7 +732,7 @@ namespace DotVVM.Framework.Compilation
         //         .Where(g => g.Count() > 2);
         //     foreach (var ng in nodes)
         //     {
-                
+
         //     }
         // }
 

@@ -13,12 +13,12 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Binding
 {
-    public struct VirtualPropertyGroupDictionary<TValue> : IDictionary<string, TValue>, IReadOnlyDictionary<string, TValue>
+    public readonly struct VirtualPropertyGroupDictionary<TValue> : IDictionary<string, TValue>, IReadOnlyDictionary<string, TValue>
     {
         private readonly DotvvmBindableObject control;
-        private readonly DotvvmPropertyGroup  group;
+        private readonly DotvvmPropertyGroup group;
 
-        public VirtualPropertyGroupDictionary(DotvvmBindableObject control, DotvvmPropertyGroup  group)
+        public VirtualPropertyGroupDictionary(DotvvmBindableObject control, DotvvmPropertyGroup group)
         {
             this.control = control;
             this.group = group;
@@ -103,12 +103,57 @@ namespace DotVVM.Framework.Binding
         {
             control.SetValue(group.GetDotvvmProperty(key), value);
         }
-
-        public void AddBinding(string key, IBinding binding)
+        public void Add(string key, ValueOrBinding<TValue> value)
+        {
+            control.SetValue(group.GetDotvvmProperty(key), value);
+        }
+        public void AddBinding(string key, IBinding? binding)
         {
             control.SetBinding(group.GetDotvvmProperty(key), binding);
         }
 
+        public void CopyFrom(IEnumerable<KeyValuePair<string, TValue>> values, bool clear = false)
+        {
+            if (clear) this.Clear();
+            foreach (var item in values)
+            {
+                Add(item);
+            }
+        }
+
+        public void CopyFrom(IEnumerable<KeyValuePair<string, ValueOrBinding<TValue>>> values, bool clear = false)
+        {
+            if (clear) this.Clear();
+            foreach (var item in values)
+            {
+                Add(item.Key, item.Value);
+            }
+        }
+        public static IDictionary<string, TValue> CreateValueDictionary(DotvvmBindableObject control, DotvvmPropertyGroup group)
+        {
+            var result = new Dictionary<string, TValue>();
+            foreach (var (p, _) in control.properties)
+            {
+                if (p is GroupedDotvvmProperty pg && pg.PropertyGroup == group && control.GetValue(p) is TValue value)
+                {
+                    result.Add(pg.GroupMemberName, value);
+                }
+            }
+            return result;
+        }
+
+        public static IDictionary<string, ValueOrBinding<TValue>> CreatePropertyDictionary(DotvvmBindableObject control, DotvvmPropertyGroup group)
+        {
+            var result = new Dictionary<string, ValueOrBinding<TValue>>();
+            foreach (var (p, _) in control.properties)
+            {
+                if (p is GroupedDotvvmProperty pg && pg.PropertyGroup == group)
+                {
+                    result.Add(pg.GroupMemberName, control.GetValueOrBinding<TValue>(pg));
+                }
+            }
+            return result;
+        }
         public bool Remove(string key)
         {
             return control.Properties.Remove(group.GetDotvvmProperty(key));
