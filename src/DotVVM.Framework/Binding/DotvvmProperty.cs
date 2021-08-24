@@ -311,7 +311,7 @@ namespace DotVVM.Framework.Binding
             return propertyAlias;
         }
 
-        public static void InitializeProperty(DotvvmProperty property, ICustomAttributeProvider attributeProvider, DotvvmProperty? fallbackProperty = default)
+        public static void InitializeProperty(DotvvmProperty property, ICustomAttributeProvider attributeProvider)
         {
             var propertyInfo = property.PropertyInfo ?? property.DeclaringType.GetProperty(property.Name);
             property.AttributeProvider = attributeProvider = propertyInfo ?? attributeProvider ?? throw new ArgumentNullException(nameof(attributeProvider));
@@ -337,7 +337,7 @@ namespace DotVVM.Framework.Binding
             property.MarkupOptions = markupOptions;
             property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
 
-            InitializeObsoleteAttribute(property, propertyInfo, attributeProvider, fallbackProperty);
+            InitializeObsoleteAttribute(property, propertyInfo, attributeProvider);
         }
 
         public static IEnumerable<DotvvmProperty> GetVirtualProperties(Type controlType)
