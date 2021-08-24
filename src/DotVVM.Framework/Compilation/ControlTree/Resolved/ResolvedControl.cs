@@ -59,6 +59,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             error = null;
             if (!Properties.TryGetValue(value.Property, out var oldValue) || replace)
             {
+                value.Parent = this;
                 Properties[value.Property] = value;
             }
             else
@@ -71,9 +72,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                     error = $"Could not merge values using {value.Property.MarkupOptions.AttributeValueMerger.Name}: {error}";
                     return false;
                 }
+                mergedValue.Parent = this;
                 Properties[mergedValue.Property] = mergedValue;
             }
-            value.Parent = this;
             return true;
         }
 

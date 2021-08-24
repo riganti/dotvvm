@@ -66,7 +66,7 @@ namespace DotVVM.Framework.Controls
             if (ButtonTagName == ButtonTagName.button && HasValueBinding(TextProperty))
             {
                 var literal = new Literal { RenderSpanElement = false };
-                literal.SetBinding(c => c.Text, GetBinding(TextProperty));
+                literal.SetBinding(Literal.TextProperty, GetBinding(TextProperty));
                 Children.Add(literal);
             }
 

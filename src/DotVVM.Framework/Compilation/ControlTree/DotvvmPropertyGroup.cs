@@ -22,6 +22,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public FieldInfo? DescriptorField { get; }
 
+        public ICustomAttributeProvider AttributeProvider { get; }
+
         public string[] Prefixes { get; }
 
         public string Name { get; }
@@ -53,6 +55,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         protected DotvvmPropertyGroup(PropertyInfo propertyInfo, PrefixArray prefixes, Type valueType, object defaultValue)
         {
             this.PropertyInfo = propertyInfo;
+            this.AttributeProvider = propertyInfo;
             this.DeclaringType = propertyInfo.DeclaringType;
             this.CollectionType = propertyInfo.PropertyType;
             this.Name = propertyInfo.Name;
@@ -60,23 +63,32 @@ namespace DotVVM.Framework.Compilation.ControlTree
             this.Prefixes = prefixes.Values;
             this.PropertyGroupMode = PropertyGroupMode.ValueCollection;
             this.DefaultValue = defaultValue;
-            InitializePropertyGroup(propertyInfo);
+            InitializePropertyGroup(this, propertyInfo);
         }
 
-        protected DotvvmPropertyGroup(PrefixArray prefixes, Type valueType, FieldInfo descriptorField, string name, object defaultValue)
+        internal protected DotvvmPropertyGroup(
+            PrefixArray prefixes,
+            Type valueType,
+            FieldInfo descriptorField,
+            ICustomAttributeProvider attributeProvider,
+            string name,
+            object defaultValue)
         {
             this.DescriptorField = descriptorField;
-            this.DeclaringType = descriptorField.DeclaringType;
+            this.DeclaringType = declaringType;
+            this.AttributeProvider = attributeProvider;
             this.CollectionType = null;
             this.Name = name;
             this.DefaultValue = defaultValue;
             this.PropertyType = valueType;
             this.Prefixes = prefixes.Values;
             this.PropertyGroupMode = PropertyGroupMode.GeneratedDotvvmProperty;
-            InitializePropertyGroup(descriptorField);
+            InitializePropertyGroup(this, descriptorField);
         }
 
-        private void InitializePropertyGroup(ICustomAttributeProvider attributeProvider)
+        private static void InitializePropertyGroup(
+            DotvvmPropertyGroup propertyGroup,
+            ICustomAttributeProvider attributeProvider)
         {
             var markupOptions = MarkupOptions = attributeProvider.GetCustomAttribute<MarkupOptionsAttribute>(true)
                 ?? new MarkupOptionsAttribute();
@@ -89,10 +101,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     + $"{nameof(DataContextManipulationAttribute)} can not be set both at property '{Name}'.");
             }
 
-            DataContextChangeAttributes = dataContextChange.ToArray();
-            DataContextManipulationAttribute = dataContextManipulation;
-
-            ObsoleteAttribute = attributeProvider.GetCustomAttribute<ObsoleteAttribute>();
+            propertyGroup.DataContextChangeAttributes = dataContextChange.ToArray();
+            propertyGroup.DataContextManipulationAttribute = dataContextManipulation;
+            propertyGroup.ObsoleteAttribute = attributeProvider.GetCustomAttribute<ObsoleteAttribute>();
         }
 
         IPropertyDescriptor IPropertyGroupDescriptor.GetDotvvmProperty(string name) => GetDotvvmProperty(name);
@@ -141,15 +152,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 return new DotvvmPropertyGroup(prefixes, valueType, descriptorField, name, defaultValue);
             });
         }
-
-        internal static FieldInfo FindDescriptorField(Type declaringType, string name)
-        {
-            var fieldName = name + "GroupDescriptor";
-            var field = declaringType.GetField(fieldName, BindingFlags.Public | BindingFlags.Static);
-            if (field == null) throw new InvalidOperationException($"Could not declare property group '{declaringType.Name}.{name}' because backing field {fieldName} was not found.");
-            return field;
-        }
-
         internal static DotvvmPropertyGroup Register(DotvvmPropertyGroup group)
         {
             var key = @group.DeclaringType.Name + "." + @group.Name;
@@ -159,6 +161,23 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
             descriptorDictionary[key] = group;
             return group;
+        }
+        internal static FieldInfo FindDescriptorField(Type declaringType, string name)
+        {
+            var fieldName = name + "GroupDescriptor";
+            var field = declaringType.GetField(fieldName, BindingFlags.Public | BindingFlags.Static);
+            if (field == null) throw new InvalidOperationException($"Could not declare property group '{declaringType.Name}.{name}' because backing field {fieldName} was not found.");
+            return field;
+        }
+
+        public static DotvvmPropertyGroup Register(Type declaringType, PrefixArray prefixes, string name, Type valueType, ICustomAttributeProvider attributeProvider, object defaultValue)
+        {
+            return descriptorDictionary.GetOrAdd(declaringType.Name + "." + name, fullName =>
+            {
+                // the field is optional, here
+                var field = declaringType.GetField(name + "GroupDescriptor", BindingFlags.Public | BindingFlags.Static);
+                return new DotvvmPropertyGroup(prefixes, valueType, declaringType, field, attributeProvider, name, defaultValue);
+            });
         }
 
         public static IEnumerable<DotvvmPropertyGroup> FindAttachedPropertyCandidates(string typeName)

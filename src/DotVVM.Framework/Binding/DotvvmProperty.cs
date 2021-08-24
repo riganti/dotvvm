@@ -62,6 +62,12 @@ namespace DotVVM.Framework.Binding
         public PropertyInfo? PropertyInfo { get; private set; }
 
         /// <summary>
+        /// Provider of custom attributes for this property.
+        /// </summary>
+        public ICustomAttributeProvider AttributeProvider { get; private set; }
+
+
+        /// <summary>
         /// Gets or sets the markup options.
         /// </summary>
         public MarkupOptionsAttribute MarkupOptions { get; set; }
@@ -310,7 +316,8 @@ namespace DotVVM.Framework.Binding
             ICustomAttributeProvider attributeProvider,
             DotvvmProperty? fallbackProperty = default)
         {
-            var propertyInfo = property.DeclaringType.GetProperty(property.Name);
+            var propertyInfo = property.PropertyInfo ?? property.DeclaringType.GetProperty(property.Name);
+            property.AttributeProvider = attributeProvider = propertyInfo ?? attributeProvider ?? throw new ArgumentNullException(nameof(attributeProvider));
             var markupOptions = propertyInfo?.GetCustomAttribute<MarkupOptionsAttribute>()
                 ?? attributeProvider.GetCustomAttribute<MarkupOptionsAttribute>()
                 ?? fallbackProperty?.MarkupOptions

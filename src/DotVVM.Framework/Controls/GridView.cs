@@ -95,6 +95,19 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<List<Decorator>?, GridView>(c => c.RowDecorators);
 
         /// <summary>
+        /// Gets or sets a list of decorators that will be applied on the header row.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
+        public List<Decorator>? HeaderRowDecorators
+        {
+            get { return (List<Decorator>?)GetValue(HeaderRowDecoratorsProperty); }
+            set { SetValue(HeaderRowDecoratorsProperty, value); }
+        }
+
+        public static readonly DotvvmProperty HeaderRowDecoratorsProperty =
+            DotvvmProperty.Register<List<Decorator>?, GridView>(c => c.HeaderRowDecorators);
+        
+        /// <summary>
         /// Gets or sets a list of decorators that will be applied on each row in edit mode.
         /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
@@ -240,12 +253,15 @@ namespace DotVVM.Framework.Controls
             var gridViewDataSet = DataSource as IGridViewDataSet;
 
             var headerRow = new HtmlGenericControl("tr");
-            head.Children.Add(headerRow);
+            var decoratedHeaderRow = Decorator.ApplyDecorators(headerRow, HeaderRowDecorators);
+            head.Children.Add(decoratedHeaderRow);
+
             foreach (var column in Columns.NotNull("GridView.Columns must be set"))
             {
                 var cell = new HtmlGenericControl("th");
                 SetCellAttributes(column, cell, true);
-                headerRow.Children.Add(cell);
+                var decoratedCell = Decorator.ApplyDecorators(cell, column.HeaderCellDecorators);
+                headerRow.Children.Add(decoratedCell);
 
                 column.CreateHeaderControls(context, this, sortCommand, cell, gridViewDataSet);
                 if (FilterPlacement == GridViewFilterPlacement.HeaderRow)
@@ -317,12 +333,15 @@ namespace DotVVM.Framework.Controls
             // create cells
             foreach (var column in Columns.NotNull("GridView.Columns must be set"))
             {
+                var editMode = isInEditMode && column.IsEditable;
+
                 var cell = new HtmlGenericControl("td");
                 cell.SetValue(Internal.DataContextTypeProperty, column.GetValueRaw(Internal.DataContextTypeProperty));
                 SetCellAttributes(column, cell, false);
-                row.Children.Add(cell);
+                var decoratedCell = Decorator.ApplyDecorators(cell, editMode ? column.EditCellDecorators : column.CellDecorators);
+                row.Children.Add(decoratedCell);
 
-                if (isInEditMode && column.IsEditable)
+                if (editMode)
                 {
                     column.CreateEditControls(context, cell);
                 }
@@ -337,18 +356,9 @@ namespace DotVVM.Framework.Controls
         {
             var row = new HtmlGenericControl("tr");
 
-            DotvvmControl container = row;
-            var decorators = isInEditMode ? EditRowDecorators : RowDecorators;
-            if (decorators != null)
-            {
-                foreach (var decorator in decorators)
-                {
-                    var decoratorInstance = decorator.Clone();
-                    decoratorInstance.Children.Add(container);
-                    container = decoratorInstance;
-                }
-            }
-            placeholder.Children.Add(container);
+            var decoratedRow = Decorator.ApplyDecorators(row, isInEditMode ? EditRowDecorators : RowDecorators);
+            placeholder.Children.Add(decoratedRow);
+
             return row;
         }
 
@@ -396,11 +406,15 @@ namespace DotVVM.Framework.Controls
             // create cells
             foreach (var column in Columns.NotNull("GridView.Columns must be set"))
             {
+                var editMode = isInEditMode && column.IsEditable;
+
                 var cell = new HtmlGenericControl("td");
                 cell.SetValue(Internal.DataContextTypeProperty, column.GetValueRaw(Internal.DataContextTypeProperty));
-                row.Children.Add(cell);
                 SetCellAttributes(column, cell, false);
-                if (isInEditMode && column.IsEditable)
+                var decoratedCell = Decorator.ApplyDecorators(cell, editMode ? column.EditCellDecorators : column.CellDecorators);
+                row.Children.Add(decoratedCell);
+
+                if (editMode)
                 {
                     column.CreateEditControls(context, cell);
                 }
