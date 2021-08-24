@@ -372,7 +372,7 @@ namespace DotVVM.Framework.Compilation
                 }
                 else
                 {
-                    EmitSetProperty(controlName, property.PropertyInfo.Name, value);
+                    throw new NotSupportedException("Virtual properties are not supported anymore.");
                 }
             }
             else
@@ -556,101 +556,12 @@ namespace DotVVM.Framework.Compilation
             UseType(property.PropertyType);
 
             if (property.IsVirtual)
-            {
-                StatementSyntax initializer;
-                if (property.PropertyInfo.SetMethod != null)
-                {
-                    initializer = SyntaxFactory.ExpressionStatement(
-                            SyntaxFactory.AssignmentExpression(
-                                SyntaxKind.SimpleAssignmentExpression,
-                                SyntaxFactory.MemberAccessExpression(
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    SyntaxFactory.IdentifierName(parentName),
-                                    SyntaxFactory.IdentifierName(property.Name)
-                                ),
-                                SyntaxFactory.ObjectCreationExpression(ParseTypeName(property.PropertyType))
-                                    .WithArgumentList(
-                                        SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new ArgumentSyntax[] { }))
-                                    )
-                            )
-                        );
-                }
-                else
-                {
-                    initializer = SyntaxFactory.ThrowStatement(
-                        CreateObjectExpression(typeof(InvalidOperationException),
-                            new[] { EmitValue($"Property '{ property.FullName }' can't be used as control collection since it is not initialized and does not have setter available for automatic initialization") }
-                        )
-                    );
-                }
-                CurrentStatements.Add(
-                    SyntaxFactory.IfStatement(
-                        SyntaxFactory.BinaryExpression(
-                            SyntaxKind.EqualsExpression,
-                            SyntaxFactory.MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                SyntaxFactory.IdentifierName(parentName),
-                                SyntaxFactory.IdentifierName(property.Name)
-                            ),
-                            SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
-                        ),
-                        initializer
-                    )
-                );
+                throw new NotSupportedException("Virtual properties are not supported anymore.");
 
-                return EmitCreateVariable(
-                    SyntaxFactory.MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        SyntaxFactory.IdentifierName(parentName),
-                        SyntaxFactory.IdentifierName(property.Name)
-                    )
-                );
-            }
-            else
-            {
-                CurrentStatements.Add(
-                    SyntaxFactory.IfStatement(
-                        SyntaxFactory.BinaryExpression(
-                            SyntaxKind.EqualsExpression,
-                            SyntaxFactory.InvocationExpression(
-                                SyntaxFactory.MemberAccessExpression(
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    SyntaxFactory.IdentifierName(parentName),
-                                    SyntaxFactory.IdentifierName("GetValue")
-                                ),
-                                SyntaxFactory.ArgumentList(
-                                    SyntaxFactory.SeparatedList(new[] {
-                                        SyntaxFactory.Argument(this.CreateDotvvmPropertyIdentifier(property))
-                                    })
-                                )
-                            ),
-                            SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
-                        ),
-                        SyntaxFactory.ExpressionStatement(
-                            SyntaxFactory.InvocationExpression(
-                                SyntaxFactory.MemberAccessExpression(
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    SyntaxFactory.IdentifierName(parentName),
-                                    SyntaxFactory.IdentifierName("SetValue")
-                                ),
-                                SyntaxFactory.ArgumentList(
-                                    SyntaxFactory.SeparatedList(new[] {
-                                        SyntaxFactory.Argument(this.CreateDotvvmPropertyIdentifier(property)),
-                                        SyntaxFactory.Argument(
-                                            SyntaxFactory.ObjectCreationExpression(ParseTypeName(property.PropertyType))
-                                                .WithArgumentList(
-                                                    SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new ArgumentSyntax[] { }))
-                                                )
-                                        )
-                                    })
-                                )
-                            )
-                        )
-                    )
-                );
-                return EmitCreateVariable(
-                    SyntaxFactory.CastExpression(
-                        ParseTypeName(property.PropertyType),
+            CurrentStatements.Add(
+                SyntaxFactory.IfStatement(
+                    SyntaxFactory.BinaryExpression(
+                        SyntaxKind.EqualsExpression,
                         SyntaxFactory.InvocationExpression(
                             SyntaxFactory.MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
@@ -662,10 +573,48 @@ namespace DotVVM.Framework.Compilation
                                     SyntaxFactory.Argument(this.CreateDotvvmPropertyIdentifier(property))
                                 })
                             )
+                        ),
+                        SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
+                    ),
+                    SyntaxFactory.ExpressionStatement(
+                        SyntaxFactory.InvocationExpression(
+                            SyntaxFactory.MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                SyntaxFactory.IdentifierName(parentName),
+                                SyntaxFactory.IdentifierName("SetValue")
+                            ),
+                            SyntaxFactory.ArgumentList(
+                                SyntaxFactory.SeparatedList(new[] {
+                                    SyntaxFactory.Argument(this.CreateDotvvmPropertyIdentifier(property)),
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.ObjectCreationExpression(ParseTypeName(property.PropertyType))
+                                            .WithArgumentList(
+                                                SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new ArgumentSyntax[] { }))
+                                            )
+                                    )
+                                })
+                            )
                         )
                     )
-                );
-            }
+                )
+            );
+            return EmitCreateVariable(
+                SyntaxFactory.CastExpression(
+                    ParseTypeName(property.PropertyType),
+                    SyntaxFactory.InvocationExpression(
+                        SyntaxFactory.MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            SyntaxFactory.IdentifierName(parentName),
+                            SyntaxFactory.IdentifierName("GetValue")
+                        ),
+                        SyntaxFactory.ArgumentList(
+                            SyntaxFactory.SeparatedList(new[] {
+                                SyntaxFactory.Argument(this.CreateDotvvmPropertyIdentifier(property))
+                            })
+                        )
+                    )
+                )
+            );
         }
 
         public TypeSyntax ParseTypeName(Type type)
