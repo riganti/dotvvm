@@ -12,8 +12,8 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <PackageId>DotVVM.Testing</PackageId>
-    <VersionPrefix>4.0.0-preview01-118303</VersionPrefix>
-    <PackageVersion>4.0.0-preview01-118303</PackageVersion>
+    <VersionPrefix>4.0.0-preview01-118311</VersionPrefix>
+    <PackageVersion>4.0.0-preview01-118311</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>
       This package contains helpers for testing DotVVM controls and other components.
