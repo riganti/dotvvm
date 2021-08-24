@@ -33,6 +33,7 @@
     <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_String.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_StringToObject.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\Nullable.dothtml" />
+    <None Remove="Views\ControlSamples\GridView\GridViewCellDecorators.dothtml" />
     <None Remove="Views\ControlSamples\Literal\Literal_NumberBinding.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\binded.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
@@ -59,6 +60,7 @@
     <None Remove="Views\FeatureSamples\BindingVariables\StaticCommandVariablesWithService_Complex2.dothtml" />
     <None Remove="Views\FeatureSamples\BindingVariables\StaticCommandVariablesWithService_Simple.dothtml" />
     <None Remove="Views\FeatureSamples\Caching\CachedValues.dothtml" />
+    <None Remove="Views\FeatureSamples\CompositeControls\ControlPropertyNamingConflict.dothtml" />
     <None Remove="Views\FeatureSamples\CommandActionFilter\CommandActionFilter.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\ArrayTranslation.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\DateTimeTranslations.dothtml" />

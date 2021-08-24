@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             if (NiceMode)
             {
-                while (result.Length > 0 && result[result.Length - 1] == ' ') result.Remove(result.Length - 1, 1);
+                while (result.Length > 0 && result[result.Length - 1] == ' ' && parameters?.LastOrDefault().index != result.Length) result.Remove(result.Length - 1, 1);
 
                 result.Append("\n");
                 for (int i = 0; i < indentLevel; i++)
@@ -42,15 +42,32 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         protected void OptionalSpace()
         {
-            if (NiceMode && result.Length > 0 && !char.IsWhiteSpace(result[result.Length - 1])) Emit(" ");
+            var endsWithCharacter =
+                result.Length > 0 && !char.IsWhiteSpace(result[result.Length - 1]);
+            var endsWithParameter =
+                parameters != null && parameters.Count > 0 && parameters[parameters.Count - 1].index == result.Length;
+            if (NiceMode && (endsWithCharacter || endsWithParameter)) Emit(" ");
         }
 
-        bool IsOperatorChar(char ch) => ch == '+' || ch == '-' || ch == '&' || ch == '|' || ch == '?' || ch == '=' || ch == '*' || ch == '/';
-        bool IsIdentifierChar(char ch) => char.IsLetterOrDigit(ch) || ch == '_' || ch == '$';
-        bool IsDangerousTuple(char a, char b) => IsOperatorChar(a) && (a == b || b == '=') || IsIdentifierChar(a) && IsIdentifierChar(b);
+        static bool IsOperatorChar(char ch) => ch == '+' || ch == '-' || ch == '&' || ch == '|' || ch == '?' || ch == '=' || ch == '*' || ch == '/';
+        static bool IsIdentifierChar(char ch) => char.IsLetterOrDigit(ch) || ch == '_' || ch == '$';
+        static bool IsDangerousTuple(char a, char b) => IsOperatorChar(a) && (a == b || b == '=') || IsIdentifierChar(a) && IsIdentifierChar(b);
+
+        public static bool NeedSpaceBetween(StringBuilder a, string b)
+        {
+            if (a.Length == 0 || b.Length == 0)
+                return false;
+            if (char.IsWhiteSpace(a[a.Length - 1]) || char.IsWhiteSpace(b[0]))
+                return false;
+            return IsDangerousTuple(a[a.Length - 1], b[0]);
+        }
         protected void SpaceBeforeOp(string op, bool allowCosmeticSpace = true)
         {
-            if (result.Length > 0 && op.Length > 0 && parameters?.LastOrDefault().index != result.Length && IsDangerousTuple(result[result.Length - 1], op.First()))
+            var needsSpace =
+                NeedSpaceBetween(result, op) &&
+                parameters?.LastOrDefault().index != result.Length;
+
+            if (needsSpace)
                 Emit(" ");
             else if (allowCosmeticSpace) OptionalSpace();
         }
@@ -248,6 +265,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         public void VisitSymbolicParameter(JsSymbolicParameter symbolicParameter)
         {
             if (parameters == null) parameters = new List<(int, CodeParameterInfo)>();
+            SpaceBeforeOp("X", allowCosmeticSpace: false);
             parameters.Add((result.Length, CodeParameterInfo.FromExpression(symbolicParameter)));
         }
 
@@ -317,6 +335,19 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         }
 
+        public void VisitVariableDefStatement(JsVariableDefStatement variableDefStatement)
+        {
+            Emit(variableDefStatement.Keyword);
+            Emit(" ");
+            variableDefStatement.NameIdentifier.AcceptVisitor(this);
+            if (variableDefStatement.Initialization is object)
+            {
+                EmitOperator("=");
+                variableDefStatement.Initialization.AcceptVisitor(this);
+            }
+            EndStatement();
+        }
+
         public void VisitIfStatement(JsIfStatement ifStatement)
         {
             Emit("if(");
@@ -332,9 +363,52 @@ namespace DotVVM.Framework.Compilation.Javascript
                 CommitLine();
             }
         }
+        public void VisitArrowFunctionExpression(JsArrowFunctionExpression functionExpression)
+        {
+            if (functionExpression.IsAsync)
+            {
+                Emit("async ");
+            }
+            EmitOperator("(", allowCosmeticSpace: false);
+            var first = true;
+            foreach (var item in functionExpression.Parameters)
+            {
+                if (!first) { Emit(","); OptionalSpace(); }
+                else first = false;
+
+                item.AcceptVisitor(this);
+            }
+            Emit(")");
+            OptionalSpace();
+            Emit("=>");
+            OptionalSpace();
+
+            // `() => { return X }` is written out as `() => X`
+            if (functionExpression.ExpressionBody is {} exprBody)
+            {
+                var needsParens = exprBody is JsBinaryExpression { Operator: BinaryOperatorType.Sequence } ||
+                                  exprBody is JsObjectExpression ||
+                                  exprBody is JsLiteral literal && literal.LiteralValue.StartsWith("{");
+                if (needsParens)
+                    Emit("(");
+                
+                exprBody.AcceptVisitor(this);
+
+                if (needsParens)
+                    Emit(")");
+            }
+            else
+            {
+                functionExpression.Block.AcceptVisitor(this);
+            }
+        }
 
         public void VisitFunctionExpression(JsFunctionExpression functionExpression)
         {
+            if (functionExpression.IsAsync)
+            {
+                Emit("async ");
+            }
             EmitOperator("function(", allowCosmeticSpace: false);
             var first = true;
             foreach (var item in functionExpression.Parameters)

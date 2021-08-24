@@ -10,13 +10,10 @@ namespace DotVVM.Framework.Binding
 {
     public abstract class ActiveDotvvmPropertyGroup : DotvvmPropertyGroup
     {
-        protected ActiveDotvvmPropertyGroup(PrefixArray prefixes, Type valueType, FieldInfo descriptorField, string name, object defaultValue) : base(prefixes, valueType, descriptorField, name, defaultValue)
+        protected internal ActiveDotvvmPropertyGroup(PrefixArray prefixes, Type valueType, Type declaringType, FieldInfo descriptorField, ICustomAttributeProvider attributeProvider, string name, object defaultValue) : base(prefixes, valueType, declaringType, descriptorField, attributeProvider, name, defaultValue)
         {
         }
 
-
         public abstract void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context, DotvvmControl control, IEnumerable<DotvvmProperty> properties);
-
-
     }
 }

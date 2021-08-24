@@ -15,6 +15,8 @@ using System.Globalization;
 using System.Collections.Concurrent;
 using DotVVM.Framework.Compilation.Binding;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Utils
 {
@@ -129,19 +131,17 @@ namespace DotVVM.Framework.Utils
         /// </summary>
         public static object? ConvertValue(object? value, Type type)
         {
-            var typeinfo = type;
-
             // handle null values
             if (value == null)
             {
-                if (typeinfo.IsValueType)
+                if (type.IsValueType)
                     return Activator.CreateInstance(type);
                 else
                     return null;
             }
 
             // handle nullable types
-            if (typeinfo.IsGenericType && Nullable.GetUnderlyingType(type) is Type nullableElementType)
+            if (type.IsGenericType && Nullable.GetUnderlyingType(type) is Type nullableElementType)
             {
                 if (value is string && (string)value == string.Empty)
                 {
@@ -151,7 +151,6 @@ namespace DotVVM.Framework.Utils
 
                 // value is not null
                 type = nullableElementType;
-                typeinfo = type;
             }
 
             // handle exceptions
@@ -165,7 +164,7 @@ namespace DotVVM.Framework.Utils
             }
 
             // handle enums
-            if (typeinfo.IsEnum && value is string)
+            if (type.IsEnum && value is string)
             {
                 var split = ((string)value).Split(',', '|');
                 var isFlags = type.IsDefined(typeof(FlagsAttribute));
@@ -200,7 +199,7 @@ namespace DotVVM.Framework.Utils
             if (value is string str && type.IsArray)
             {
                 var objectArray = str.Split(',')
-                    .Select(s => ConvertValue(s.Trim(), typeinfo.GetElementType()!))
+                    .Select(s => ConvertValue(s.Trim(), type.GetElementType()!))
                     .ToArray();
                 var array = Array.CreateInstance(type.GetElementType()!, objectArray.Length);
                 objectArray.CopyTo(array, 0);
@@ -370,6 +369,19 @@ namespace DotVVM.Framework.Utils
             return type.IsValueType && Nullable.GetUnderlyingType(type) == null && type != typeof(void) ? typeof(Nullable<>).MakeGenericType(type) : type;
         }
 
+        public static Type UnwrapTaskType(this Type type)
+        {
+            if (type.IsGenericType && typeof(Task<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
+                return type.GetGenericArguments()[0];
+            else if (typeof(Task).IsAssignableFrom(type))
+                return typeof(void);
+#if NETSTANDARD2_1
+            else if (type.IsGenericType && typeof(ValueTask<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
+                return type.GetGenericArguments()[0];
+#endif
+            else
+                return type;
+        }
 
         public static T GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
             (T)attributeProvider.GetCustomAttributes(typeof(T), inherit).FirstOrDefault();
@@ -409,5 +421,23 @@ namespace DotVVM.Framework.Utils
             member is MethodInfo method ? method.ReturnType :
             member is TypeInfo type ? type.AsType() :
             throw new NotImplementedException($"Could not get return type of member {member.GetType().FullName}");
+
+        public static string ToEnumString<T>(this T instance) where T : Enum
+        {
+            return ToEnumString(instance.GetType(), instance.ToString());
+        }
+        public static string ToEnumString(Type enumType, string name)
+        {
+            var field = enumType.GetField(name);
+            if (field != null)
+            {
+                var attr = (EnumMemberAttribute)field.GetCustomAttributes(typeof(EnumMemberAttribute), false).SingleOrDefault();
+                if (attr != null)
+                {
+                    return attr.Value;
+                }
+            }
+            return name;
+        }
     }
 }

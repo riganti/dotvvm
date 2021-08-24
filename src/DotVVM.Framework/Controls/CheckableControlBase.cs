@@ -68,6 +68,19 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty EnabledProperty =
             DotvvmPropertyWithFallback.Register<bool, CheckableControlBase>(nameof(Enabled), FormControls.EnabledProperty);
 
+        public TextOrContentCapability TextOrContentCapability
+        {
+            get => (TextOrContentCapability)TextOrContentCapabilityProperty.GetValue(this);
+            set => TextOrContentCapabilityProperty.SetValue(this, value);
+        }
+        public static readonly DotvvmCapabilityProperty TextOrContentCapabilityProperty =
+            DotvvmCapabilityProperty.RegisterCapability("TextOrContentCapability", typeof(CheckableControlBase), typeof(TextOrContentCapability),
+                control => TextOrContentCapability.FromChildren((CheckableControlBase)control, TextProperty),
+                (control, boxedValue) => {
+                    var value = (TextOrContentCapability)boxedValue;
+                    value.WriteToChildren((CheckableControlBase)control, TextProperty);
+                }
+            );
 
         /// <summary>
         /// Gets or sets a property that retrieves an unique key for the CheckedValue so it can be compared with objects in the CheckedItems collection. This property must be set if the value of the CheckedValue property is not a primitive type.

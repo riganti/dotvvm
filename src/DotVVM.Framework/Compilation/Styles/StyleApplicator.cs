@@ -52,18 +52,22 @@ namespace DotVVM.Framework.Compilation.Styles
 
     class PropertyStyleApplicator : IStyleApplicator
     {
+        readonly DotvvmProperty property;
+        readonly object? value;
         readonly StyleOverrideOptions options;
-        readonly ResolvedPropertySetter value;
 
-        public PropertyStyleApplicator(ResolvedPropertySetter value, StyleOverrideOptions options)
+        public PropertyStyleApplicator(DotvvmProperty property, object? value, StyleOverrideOptions options)
         {
-            this.options = options;
+            this.property = property;
             this.value = value;
+            this.options = options;
         }
 
         public void ApplyStyle(ResolvedControl control, IStyleMatchContext context)
         {
-            if (!control.SetProperty(value, options, out var error))
+            var dataContext = property.GetDataContextType(control);
+            var setter = ResolvedControlHelper.TranslateProperty(property, value, dataContext);
+            if (!control.SetProperty(setter, options, out var error))
                 throw new DotvvmCompilationException("Can not apply style property: " + error, control.DothtmlNode?.Tokens);
         }
 
@@ -72,25 +76,29 @@ namespace DotVVM.Framework.Compilation.Styles
 
     public class GenericPropertyStyleApplicator<T> : IStyleApplicator
     {
+        readonly DotvvmProperty property;
+        readonly Func<IStyleMatchContext<T>, object?> value;
         readonly StyleOverrideOptions options;
-        readonly Func<IStyleMatchContext<T>, ResolvedPropertySetter> value;
 
-        public GenericPropertyStyleApplicator(Func<IStyleMatchContext<T>, ResolvedPropertySetter> value, StyleOverrideOptions options)
+        public GenericPropertyStyleApplicator(DotvvmProperty property, Func<IStyleMatchContext<T>, object?> value, StyleOverrideOptions options)
         {
-            this.options = options;
+            this.property = property;
             this.value = value;
+            this.options = options;
         }
 
         public void ApplyStyle(ResolvedControl control, IStyleMatchContext context)
         {
             if (context.IsType<T>(out var c))
             {
+                var dataContext = property.GetDataContextType(control);
                 var v = value(c);
-                if (!control.SetProperty(v, options, out var error))
+                var setter = ResolvedControlHelper.TranslateProperty(property, v, dataContext);
+                if (!control.SetProperty(setter, options, out var error))
                     throw new DotvvmCompilationException("Can not apply style property: " + error, control.DothtmlNode?.Tokens);
             }
         }
-        public override string ToString() => $"GenericPropertyStyleApplicator (on conflict {options})";
+        public override string ToString() => $"GenericPropertyStyleApplicator {property} (on conflict {options})";
     }
 
     internal class PropertyStyleBindingApplicator : IStyleApplicator
@@ -119,6 +127,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public void ApplyStyle(ResolvedControl control, IStyleMatchContext context)
         {
+            var dataContext = property.GetDataContextType(control);
             var bindingOptions = this.bindingOptions;
             if (allowChangingBindingType && control.Properties.GetValueOrDefault(property) is ResolvedPropertyBinding rb)
             {
@@ -129,7 +138,7 @@ namespace DotVVM.Framework.Compilation.Styles
             var b = new ResolvedBinding(
                 context.Configuration.ServiceProvider.GetRequiredService<BindingCompilationService>(),
                 bindingOptions,
-                control.DataContextTypeStack,
+                dataContext,
                 code: binding,
                 property: property
             );
@@ -163,11 +172,12 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public void ApplyStyle(ResolvedControl control, IStyleMatchContext context)
         {
-            var innerControl = ResolvedControlHelper.FromRuntimeControl(this.prototypeControl, control.DataContextTypeStack);
+            var dataContext = property.GetDataContextType(control);
+            var innerControl = ResolvedControlHelper.FromRuntimeControl(this.prototypeControl, dataContext);
             innerControl.Parent = control;
             innerControlStyle.Applicator.ApplyStyle(innerControl, new StyleMatchContext<DotvvmBindableObject>(context, innerControl, context.Configuration));
 
-            var value = ResolvedControlHelper.TranslateProperty(property, innerControl, control.DataContextTypeStack);
+            var value = ResolvedControlHelper.TranslateProperty(property, innerControl, dataContext);
             if (!control.SetProperty(value, options, out var error))
                 throw new DotvvmCompilationException("Can not apply style property: " + error, control.DothtmlNode?.Tokens);
         }
@@ -198,9 +208,11 @@ namespace DotVVM.Framework.Compilation.Styles
         public void ApplyStyle(ResolvedControl control, IStyleMatchContext context)
         {
             if (!context.AllowsContent())
-                throw new NotSupportedException($"Control {control.Metadata.Name} is not allowed to have content (it was attempted to set it using Styles).");
+                throw new NotSupportedException($"Control {control.Metadata.Name} is not allowed to have content (it was attempted to set it using Styles). If you want to apply this style only controls that can have content, use the context.AllowsContent() method in the style condition.");
+
+            var dataContext = context.ChildrenDataContextStack();
             var innerControls = this.prototypeControls.Invoke(context).Select(c =>
-                ResolvedControlHelper.FromRuntimeControl(c, control.DataContextTypeStack))
+                ResolvedControlHelper.FromRuntimeControl(c, dataContext))
                 .ToArray();
             foreach (var c in innerControls)
             {
@@ -208,25 +220,7 @@ namespace DotVVM.Framework.Compilation.Styles
                 innerControlsStyle.Applicator.ApplyStyle(c, new StyleMatchContext<DotvvmBindableObject>(context, c, context.Configuration));
             }
 
-            switch (options) {
-                case StyleOverrideOptions.Append:
-                    control.Content.AddRange(innerControls);
-                    break;
-                case StyleOverrideOptions.Prepend:
-                    control.Content.InsertRange(0, innerControls);
-                    break;
-                case StyleOverrideOptions.Overwrite:
-                    control.Content.Clear();
-                    control.Content.AddRange(innerControls);
-                    break;
-                case StyleOverrideOptions.Ignore:
-                    if (control.HasOnlyWhiteSpaceContent())
-                    {
-                        control.Content.Clear();
-                        control.Content.AddRange(innerControls);
-                    }
-                    break;
-            };
+            ResolvedControlHelper.SetContent(control, innerControls, options);
         }
 
         public override string ToString()

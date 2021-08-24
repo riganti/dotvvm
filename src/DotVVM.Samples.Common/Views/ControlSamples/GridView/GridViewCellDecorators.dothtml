@@ -1,0 +1,93 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.GridView.GridViewCellDecoratorsViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div class="container">
+        <h1>GridView with Decorators</h1>
+        <dot:GridView DataSource="{value: CustomersDataSet}" InlineEditing="true" class="table table-bordered">
+            <Columns>
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True">
+                    <HeaderCellDecorators>
+                        <dot:Decorator class="header-1" />
+                    </HeaderCellDecorators>
+                    <CellDecorators>
+                        <dot:Decorator class="col-1" />
+                    </CellDecorators>
+                    <EditCellDecorators>
+                        <dot:Decorator class="col-1-edit" />
+                    </EditCellDecorators>
+                </dot:GridViewTextColumn>
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" IsEditable="false">
+                    <HeaderCellDecorators>
+                        <dot:Decorator class="header-2" />
+                    </HeaderCellDecorators>
+                    <CellDecorators>
+                        <dot:Decorator class="col-2" />
+                    </CellDecorators>
+                    <EditCellDecorators>
+                        <dot:Decorator class="col-2-edit" />
+                    </EditCellDecorators>
+                </dot:GridViewTextColumn>
+                <dot:GridViewTemplateColumn IsEditable="false">
+                    <HeaderCellDecorators>
+                        <dot:Decorator class="header-3" />
+                    </HeaderCellDecorators>
+                    <CellDecorators>
+                        <dot:Decorator class="col-3" />
+                    </CellDecorators>
+                    <ContentTemplate>
+                        {{value: BirthDate}}
+                    </ContentTemplate>
+                </dot:GridViewTemplateColumn>
+            </Columns>
+        </dot:GridView>
+
+        <dot:GridView DataSource="{value: CustomersDataSet}" InlineEditing="true" RenderSettings.Mode="Server" class="table table-bordered">
+            <Columns>
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True">
+                    <HeaderCellDecorators>
+                        <dot:Decorator class="header-1" />
+                    </HeaderCellDecorators>
+                    <CellDecorators>
+                        <dot:Decorator class="col-1" />
+                    </CellDecorators>
+                    <EditCellDecorators>
+                        <dot:Decorator class="col-1-edit" />
+                    </EditCellDecorators>
+                </dot:GridViewTextColumn>
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" IsEditable="false">
+                    <HeaderCellDecorators>
+                        <dot:Decorator class="header-2" />
+                    </HeaderCellDecorators>
+                    <CellDecorators>
+                        <dot:Decorator class="col-2" />
+                    </CellDecorators>
+                    <EditCellDecorators>
+                        <dot:Decorator class="col-2-edit" />
+                    </EditCellDecorators>
+                </dot:GridViewTextColumn>
+                <dot:GridViewTemplateColumn IsEditable="false">
+                    <HeaderCellDecorators>
+                        <dot:Decorator class="header-3" />
+                    </HeaderCellDecorators>
+                    <CellDecorators>
+                        <dot:Decorator class="col-3" />
+                    </CellDecorators>
+                    <ContentTemplate>
+                        {{value: BirthDate}}
+                    </ContentTemplate>
+                </dot:GridViewTemplateColumn>
+            </Columns>
+        </dot:GridView>
+    </div>
+
+</body>
+</html>
+
+

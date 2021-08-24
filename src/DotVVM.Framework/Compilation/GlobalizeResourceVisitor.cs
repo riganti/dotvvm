@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Compilation
                 content.Add(new ResolvedControl(
                     globalizeResourceControl,
                     node.DothtmlNode,
-                    node.TreeRoot.DataContextTypeStack));
+                    node.TreeRoot.DataContextTypeStack) { Parent = node });
                 isResourcePlaced = true;
             }
         }

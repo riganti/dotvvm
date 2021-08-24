@@ -11,18 +11,23 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
     [TestClass]
     public class JsParensInsertionTests
     {
-        private void AssertFormatting(string expectedString, JsNode node)
+        public static void AssertFormatting(string expectedString, JsNode node, bool niceMode = false)
         {
-            Assert.AreEqual(expectedString, node.Clone().FormatScript());
+            Assert.AreEqual(expectedString, node.Clone().FormatScript(niceMode));
 
             foreach (var dd in node.Descendants.OfType<JsExpression>()) {
                 var symbol = new JsSymbolicParameter(new CodeSymbolicParameter());
                 dd.ReplaceWith(symbol);
-                var parametrized = node.Clone().FormatParametrizedScript();
+                var parametrized = node.Clone().FormatParametrizedScript(niceMode);
                 var resolved = parametrized.ToString(o =>
-                    o == symbol.Symbol ? CodeParameterAssignment.FromExpression(dd) :
+                    o == symbol.Symbol ? CodeParameterAssignment.FromExpression(dd.Clone(), niceMode: niceMode) :
                     throw new Exception());
-                Assert.AreEqual(expectedString, resolved, $"Replaced expression: {dd.FormatScript()}");
+                Assert.AreEqual(expectedString, resolved, $"Replaced expression: {dd}, pcode: {parametrized.ToDebugString()}");
+
+                var resolved2 = parametrized.AssignParameters(o =>
+                    o == symbol.Symbol ? CodeParameterAssignment.FromExpression(dd.Clone(), niceMode: niceMode) :
+                    throw new Exception());
+                Assert.AreEqual(expectedString, resolved2.ToDefaultString(), $"Replaced expression2: {dd}, pcode: {parametrized.ToDebugString()}");
                 symbol.ReplaceWith(dd);
             }
         }
@@ -70,6 +75,16 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                 new JsAssignmentExpression(
                     new JsIdentifierExpression("b"),
                     new JsConditionalExpression(new JsLiteral(1), new JsLiteral(2), new JsLiteral(3)))));
+        }
+        [TestMethod]
+        public void JsParens_AssignmentVsEquals()
+        {
+            AssertFormatting("(a=b)==null", new JsBinaryExpression(
+                new JsAssignmentExpression(
+                    new JsIdentifierExpression("a"),
+                    new JsIdentifierExpression("b")),
+                BinaryOperatorType.Equal,
+                new JsIdentifierExpression("null")));
         }
 
         [TestMethod]
