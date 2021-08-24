@@ -35,30 +35,42 @@ namespace DotVVM.Framework.Binding
                 return aliased;
             }
         }
+        public bool IsResolved => aliased is object;
 
-        public static void Resolve(DotvvmPropertyAlias aliasProperty)
+        public static void Resolve(DotvvmPropertyAlias alias)
         {
-            aliasProperty.aliased = DotvvmProperty.ResolveProperty(
-                aliasProperty.AliasedPropertyDeclaringType,
-                aliasProperty.AliasedPropertyName);
+            var aliased = DotvvmProperty.ResolveProperty(
+                alias.AliasedPropertyDeclaringType,
+                alias.AliasedPropertyName);
+            if (aliased is null)
+            {
+                throw new ArgumentException($"Property alias '{alias}' could not be resolved.");
+            }
+
+            alias.aliased = aliased;
+            alias.DefaultValue = aliased.DefaultValue;
+            alias.PropertyType = aliased.PropertyType;
+            alias.IsValueInherited = aliased.IsValueInherited;
+            alias.MarkupOptions = aliased.MarkupOptions;
+            alias.IsVirtual = aliased.IsVirtual;
+            alias.IsBindingProperty = aliased.IsBindingProperty;
+            alias.DataContextChangeAttributes = aliased.DataContextChangeAttributes;
+            alias.DataContextManipulationAttribute = aliased.DataContextManipulationAttribute;
         }
 
         public override object? GetValue(DotvvmBindableObject control, bool inherit = true)
         {
-            throw new NotSupportedException($"'{FullName}' is a property alias and doesn't support "
-                + $"'{nameof(GetValue)}'. Use '{Aliased.FullName}' instead.");
+            return Aliased.GetValue(control, inherit);
         }
 
         public override bool IsSet(DotvvmBindableObject control, bool inherit = true)
         {
-            throw new NotSupportedException($"'{FullName}' is a property alias and doesn't support "
-                + $"'{nameof(IsSet)}'. Use '{Aliased.FullName}' instead.");
+            return Aliased.IsSet(control, inherit);
         }
 
         public override void SetValue(DotvvmBindableObject control, object? value)
         {
-            throw new NotSupportedException($"'{FullName}' is a property alias and doesn't support "
-                + $"'{nameof(SetValue)}'. Use '{Aliased.FullName}' instead.");
+            Aliased.SetValue(control, value);
         }
     }
 }

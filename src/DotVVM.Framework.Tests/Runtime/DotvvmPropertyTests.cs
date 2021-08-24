@@ -2,7 +2,9 @@
 #pragma warning disable CS0618 // disable the warning about obsoletes
 
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -70,6 +72,7 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             [AttachedProperty(typeof(string))]
             [PropertyAlias("One", typeof(AttachedOne))]
+            [Obsolete("Use 'AttachedOne.One' instead.")]
             public static readonly DotvvmProperty TwoProperty =
                 DotvvmProperty.RegisterAlias<AttachedTwo>(() => TwoProperty);
         }
@@ -87,7 +90,7 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             var resolvedAlias = DotvvmProperty.ResolveProperty(typeof(TestObject), nameof(TestObject.Alias));
             Assert.IsTrue(resolvedAlias == TestObject.AliasProperty);
-            Assert.IsTrue(((DotvvmPropertyAlias)TestObject.AliasedProperty).Aliased == TestObject.AliasedProperty);
+            Assert.IsTrue(((DotvvmPropertyAlias)TestObject.AliasProperty).Aliased == TestObject.AliasedProperty);
         }
 
         [TestMethod]
@@ -105,12 +108,44 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void DotvvmProperty_ObsoleteAttribute()
         {
-            Assert.IsTrue(TestObject.AliasProperty.IsObsolete);
-            var workaroundMessage = typeof(TestObject)
+            Assert.IsTrue(TestObject.AliasProperty.ObsoleteAttribute is object);
+            var obsolete = typeof(TestObject)
                 .GetProperty(nameof(TestObject.Alias))
-                ?.GetCustomAttribute<ObsoleteAttribute>()
-                ?.Message;
-            Assert.IsTrue(TestObject.AliasProperty.WorkaroundMessage == workaroundMessage);
+                ?.GetCustomAttribute<ObsoleteAttribute>();
+            Assert.IsTrue(TestObject.AliasProperty.ObsoleteAttribute?.Message == obsolete?.Message);
+        }
+
+        [TestMethod]
+        public void DotvvmProperty_CompileTimeAliasing()
+        {
+            var tree = DotvvmTestHelper.ParseResolvedTree(
+@"@viewModel System.Object
+<span AttachedTwo.Two=Test></span>");
+            Assert.IsFalse(tree.Content.First().TryGetProperty(AttachedTwo.TwoProperty, out _));
+            Assert.IsTrue(tree.Content.First().TryGetProperty(AttachedOne.OneProperty, out _));
+        }
+
+        [TestMethod]
+        public void DotvvmProperty_ObsoleteWarning()
+        {
+            var tree = DotvvmTestHelper.ParseResolvedTree(
+@"@viewModel System.Object
+<span AttachedTwo.Two=Test></span>");
+
+            // the property is aliased so we need to get the alias
+            if (tree.Content.First().TryGetProperty(AttachedOne.OneProperty, out var setter))
+            {
+                Assert.IsTrue(setter.DothtmlNode!.NodeWarnings.Any());
+            }
+        }
+
+        [TestMethod]
+        public void DotvvmProperty_CompileTimeAliasingError()
+        {
+            var tree = DotvvmTestHelper.ParseResolvedTree(
+@"@viewModel System.Object
+<span AttachedOne.One=Test1 AttachedTwo.Two=Test2></span>");
+            Assert.ThrowsException<DotvvmCompilationException>(() => DotvvmTestHelper.CheckForErrors(tree.DothtmlNode));
         }
     }
 }

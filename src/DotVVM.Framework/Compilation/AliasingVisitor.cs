@@ -1,3 +1,4 @@
+using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
@@ -9,7 +10,10 @@ namespace DotVVM.Framework.Compilation
         {
             base.VisitControl(control);
 
-            foreach(var pair in control.Properties)
+            // create a copy so that the aliases can be removed
+            var props = control.Properties.ToList();
+
+            foreach(var pair in props)
             {
                 if (pair.Key is DotvvmPropertyAlias alias)
                 {

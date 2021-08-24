@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Determines if property type inherits from IBinding
         /// </summary>
-        public bool IsBindingProperty { get; private set; }
+        public bool IsBindingProperty { get; protected set; }
 
         /// <summary>
         /// Gets the full name of the descriptor.
@@ -99,10 +99,10 @@ namespace DotVVM.Framework.Binding
         }
 
         [JsonIgnore]
-        public DataContextChangeAttribute[] DataContextChangeAttributes { get; private set; }
+        public DataContextChangeAttribute[] DataContextChangeAttributes { get; protected set; }
 
         [JsonIgnore]
-        public DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; private set; }
+        public DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; protected set; }
 
         public ObsoleteAttribute? ObsoleteAttribute { get; protected set; }
 
@@ -292,7 +292,7 @@ namespace DotVVM.Framework.Binding
                 declaringType,
                 aliasAttribute.AliasedPropertyName,
                 aliasPropertyDeclaringType);
-            InitializeObsoletionMetadata(propertyAlias, propertyInfo, attributeProvider);
+            InitializeObsoleteAttribute(propertyAlias, propertyInfo, attributeProvider);
             var fullName = propertyAlias.DeclaringType.FullName + "." + propertyAlias.Name;
 
             if (!registeredProperties.TryAdd(fullName, propertyAlias))
@@ -320,7 +320,6 @@ namespace DotVVM.Framework.Binding
             property.AttributeProvider = attributeProvider = propertyInfo ?? attributeProvider ?? throw new ArgumentNullException(nameof(attributeProvider));
             var markupOptions = propertyInfo?.GetCustomAttribute<MarkupOptionsAttribute>()
                 ?? attributeProvider.GetCustomAttribute<MarkupOptionsAttribute>()
-                ?? fallbackProperty?.MarkupOptions
                 ?? new MarkupOptionsAttribute() {
                     AllowBinding = true,
                     AllowHardCodedValue = true,
@@ -354,7 +353,7 @@ namespace DotVVM.Framework.Binding
             property.MarkupOptions = markupOptions;
             property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
 
-            InitializeObsoletionMetadata(property, propertyInfo, attributeProvider, fallbackProperty);
+            InitializeObsoleteAttribute(property, propertyInfo, attributeProvider, fallbackProperty);
         }
 
         public static IEnumerable<DotvvmProperty> GetVirtualProperties(Type controlType)
@@ -382,7 +381,7 @@ namespace DotVVM.Framework.Binding
             return mo;
         }
 
-        private static void InitializeObsoletionMetadata(
+        private static void InitializeObsoleteAttribute(
             DotvvmProperty property,
             PropertyInfo? propertyInfo,
             ICustomAttributeProvider attributeProvider,
