@@ -11,12 +11,12 @@ namespace DotVVM.Framework.ViewModel
 {
     public class DotvvmViewModelBase : IDotvvmViewModel
     {
-        private IDotvvmRequestContext _context;
+        private IDotvvmRequestContext? _context;
 
         [JsonIgnore]
         public IDotvvmRequestContext Context
         {
-            get { return _context; }
+            get { return _context!; }
             set
             {
                 _context = value;

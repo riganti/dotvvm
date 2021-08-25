@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Hosting;
+﻿using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.ResourceManagement
 {

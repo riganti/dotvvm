@@ -151,7 +151,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Finds the compiled control.
         /// </summary>
-        protected override IControlType FindCompiledControl(string tagName, string namespaceName, string assemblyName)
+        protected override IControlType? FindCompiledControl(string tagName, string namespaceName, string assemblyName)
         {
             var type = compiledAssemblyCache.FindType(namespaceName + "." + tagName + ", " + assemblyName, ignoreCase: true);
             if (type == null)
@@ -181,7 +181,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return new ControlResolverMetadata((ControlType)type);
         }
 
-        protected override IPropertyDescriptor FindGlobalPropertyOrGroup(string name)
+        protected override IPropertyDescriptor? FindGlobalPropertyOrGroup(string name)
         {
             // try to find property
             var property = DotvvmProperty.ResolveProperty(name, caseSensitive: false);

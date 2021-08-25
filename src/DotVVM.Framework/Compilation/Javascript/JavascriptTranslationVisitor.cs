@@ -152,7 +152,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var target = Translate(property.Expression);
                 var value = Translate(expression.Right);
                 return TryTranslateMethodCall((property.Member as PropertyInfo)?.SetMethod, property.Expression, new[] { expression.Right }) ??
-                    SetProperty(target, property.Member as PropertyInfo, value);
+                    SetProperty(target, property.Member, value);
             }
             else if (expression.Left.GetParameterAnnotation() is BindingParameterAnnotation annotation)
             {
@@ -165,7 +165,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             throw new NotSupportedException($"Can not assign expression of type {expression.Left.NodeType}!");
         }
 
-        private JsExpression SetProperty(JsExpression target, PropertyInfo property, JsExpression value) =>
+        private JsExpression SetProperty(JsExpression target, MemberInfo property, JsExpression value) =>
             new JsAssignmentExpression(TranslateViewModelProperty(target, property), value);
 
         public JsExpression TranslateConditional(ConditionalExpression expression) =>
@@ -197,7 +197,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     context = context.Member("$parentContext");
                 return context;
             }
-            int getContextSteps(DataContextStack item) =>
+            int getContextSteps(DataContextStack? item) =>
                 item == null ? 0 : ContextMap[item];
 
             if (annotation.ExtensionParameter != null)
@@ -353,15 +353,15 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
         }
 
-        public static JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string name = null) =>
+        public static JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string? name = null) =>
             new JsMemberAccessExpression(context, name ?? propInfo.Name)
                 .WithAnnotation(new VMPropertyInfoAnnotation(propInfo))
                 .WithAnnotation(new ViewModelInfoAnnotation(propInfo.GetResultType()));
 
-        public JsExpression TryTranslateMethodCall(MethodInfo methodInfo, Expression target, IEnumerable<Expression> arguments) =>
+        public JsExpression? TryTranslateMethodCall(MethodInfo? methodInfo, Expression? target, IEnumerable<Expression> arguments) =>
             methodInfo is null ? null :
             Translator.TryTranslateCall(
-                new LazyTranslatedExpression(target, Translate),
+                target is null ? null : new LazyTranslatedExpression(target, Translate),
                 arguments.Select(a => new LazyTranslatedExpression(a, Translate)).ToArray(),
                 methodInfo)
                 ?.WithAnnotation(new ViewModelInfoAnnotation(methodInfo.ReturnType), append: false);
@@ -370,7 +370,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             private readonly Func<JsExpression, JsExpression> getJsTranslation;
 
-            public FakeExtensionParameter(Func<JsExpression, JsExpression> getJsTranslation, string identifier = "__", ITypeDescriptor type = null, bool inherit = false) : base(identifier, type, inherit)
+            public FakeExtensionParameter(Func<JsExpression, JsExpression> getJsTranslation, string identifier = "__", ITypeDescriptor? type = null, bool inherit = false) : base(identifier, type, inherit)
             {
                 this.getJsTranslation = getJsTranslation;
             }
@@ -383,14 +383,13 @@ namespace DotVVM.Framework.Compilation.Javascript
     /// Represents an Linq.Expression that is being translated to JsAst.
     public class LazyTranslatedExpression
     {
-        private static readonly Lazy<JsExpression> nullLazy = new Lazy<JsExpression>(() => null);
         private readonly Lazy<JsExpression> lazyJsExpression;
         public JsExpression JsExpression() => lazyJsExpression.Value;
         public Expression OriginalExpression { get; }
         public LazyTranslatedExpression(Expression expr, Func<Expression, JsExpression> translateMethod)
         {
-            this.OriginalExpression = expr;
-            this.lazyJsExpression = expr == null ? nullLazy : new Lazy<JsExpression>(() => translateMethod(expr));
+            this.OriginalExpression = expr ?? throw new ArgumentNullException(nameof(expr));
+            this.lazyJsExpression = new(() => translateMethod(expr));
         }
     }
 }

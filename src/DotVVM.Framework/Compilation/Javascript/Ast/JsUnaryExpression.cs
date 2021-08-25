@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
     {
         public JsExpression Expression
         {
-            get { return GetChildByRole(JsTreeRoles.Expression); }
+            get { return GetChildByRole(JsTreeRoles.Expression)!; }
             set { SetChildByRole(JsTreeRoles.Expression, value); }
         }
 

@@ -49,10 +49,11 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         {
             if (node is null)
                 throw new ArgumentNullException(nameof(node));
-            node.FixParenthesis();
+            node = node.FixParenthesis();
             var visitor = new JsFormattingVisitor(niceMode, indent);
             node.AcceptVisitor(visitor);
-            return visitor.GetResult(JsParensFixingVisitor.GetOperatorPrecedence(node as JsExpression));
+            var precedence = node is JsExpression expr ? JsParensFixingVisitor.GetOperatorPrecedence(expr) : OperatorPrecedence.Max;
+            return visitor.GetResult(precedence);
         }
 
         public static JsNode FixParenthesis(this JsNode node)
@@ -103,7 +104,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             }
             var oldParent = node.Parent;
             var oldSuccessor = node.NextSibling;
-            var oldRole = node.Role;
+            var oldRole = node.Role!;
             node.Remove();
             var replacement = replaceFunction(node);
             if (oldSuccessor != null && oldSuccessor.Parent != oldParent)
@@ -120,7 +121,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                 else
                     oldParent.AddChildUnsafe(replacement, oldRole);
             }
-            return replacement;
+            return replacement!;
         }
 
 
@@ -134,7 +135,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             return (TNode)node.CloneImpl();
         }
 
-        public static JsNode AssignParameters(this JsNode node, Func<CodeSymbolicParameter, JsNode> parameterAssignment)
+        public static JsNode AssignParameters(this JsNode node, Func<CodeSymbolicParameter, JsNode?> parameterAssignment)
         {
             foreach (var sp in node.Descendants.OfType<JsSymbolicParameter>())
             {
@@ -157,12 +158,12 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                         sp.ReplaceWith(assignment);
                     }
                 }
-                else if (sp.GetDefaultAssignment() is CodeParameterAssignment defaultAssignment)
+                else if (sp.GetDefaultAssignment() is { Code: {} defaultAssignment })
                 {
-                    var newDefault = defaultAssignment.Code.AssignParameters(p =>
+                    var newDefault = defaultAssignment.AssignParameters(p =>
                         parameterAssignment(p)?.FormatParametrizedScript()
                     );
-                    if (newDefault != defaultAssignment.Code)
+                    if (newDefault != defaultAssignment)
                         sp.DefaultAssignment = new CodeParameterAssignment(newDefault);
                 }
             }

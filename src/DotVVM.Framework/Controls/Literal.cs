@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Linq;
 using System.Net;
@@ -24,7 +23,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public string Text
         {
-            get { return GetValue(TextProperty)?.ToString(); }
+            get { return GetValue(TextProperty)?.ToString() ?? ""; }
             set { SetValue(TextProperty, value); }
         }
 

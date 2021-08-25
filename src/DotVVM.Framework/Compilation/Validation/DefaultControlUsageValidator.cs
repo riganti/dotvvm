@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Compilation.Validation
 
         public static ConcurrentDictionary<Type, MethodInfo[]> cache = new ConcurrentDictionary<Type, MethodInfo[]>();
 
-        protected static DotvvmConfiguration Configuration { get; private set; }
+        protected DotvvmConfiguration Configuration { get; }
 
         public static IEnumerable<ControlUsageError> ValidateDefaultRules(IAbstractControl control)
         {
@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Compilation.Validation
         public IEnumerable<ControlUsageError> Validate(IAbstractControl control)
         {
             var type = GetControlType(control.Metadata);
-            if (type == null) return null;
+            if (type == null) return Enumerable.Empty<ControlUsageError>();
 
             var result = new List<ControlUsageError>();
             result.AddRange(ValidateDefaultRules(control));
@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Compilation.Validation
             return ancestorMethods.Concat(methods).ToArray();
         }
 
-        protected virtual Type GetControlType(IControlResolverMetadata metadata)
+        protected virtual Type? GetControlType(IControlResolverMetadata metadata)
         {
             var type = metadata.Type as ResolvedTypeDescriptor;
             return type?.Type;

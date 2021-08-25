@@ -10,6 +10,6 @@ namespace DotVVM.Framework.Compilation
 {
     public interface IAttributeValueMerger
     {
-        ResolvedPropertySetter MergeValues(ResolvedPropertySetter a, ResolvedPropertySetter b, out string error);
+        ResolvedPropertySetter? MergeValues(ResolvedPropertySetter a, ResolvedPropertySetter b, out string? error);
     }
 }

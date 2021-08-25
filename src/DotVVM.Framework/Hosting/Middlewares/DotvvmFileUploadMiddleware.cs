@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -122,8 +121,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
         {
             // parse the stream
             var multiPartReader = new MultipartReader(boundary.Value, context.Request.Body);
-            MultipartSection section;
-            while ((section = await multiPartReader.ReadNextSectionAsync()) != null)
+            while (await multiPartReader.ReadNextSectionAsync() is MultipartSection section)
             {
                 // process the section
                 var result = await StoreFile(context, section, fileStorage);

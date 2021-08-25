@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -55,7 +54,7 @@ namespace DotVVM.Framework.Binding.Expressions
                         .DescendantNodesAndSelf()
                         .Select(n => n.Annotation<RequiredRuntimeResourcesBindingProperty>())
                         .Where(n => n != null)
-                        .SelectMany(n => n.Resources)
+                        .SelectMany(n => n!.Resources)
                         .ToImmutableArray();
 
                     return resources.Length == 0

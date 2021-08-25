@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
@@ -12,15 +11,8 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
-using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Security;
-using DotVVM.Framework.Testing;
 using DotVVM.Framework.Utils;
-using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Bson;
-using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Options;
 
 namespace DotVVM.Framework.Compilation.Binding
@@ -46,7 +38,7 @@ namespace DotVVM.Framework.Compilation.Binding
                         _ => new JsSymbolicParameter(CommandBindingExpression.CommandArgumentsParameter)
                              .Indexer(new JsLiteral(extensionParam.ArgumentIndex))
                     ))) :
-                e
+                e!
             );
 
         public JsExpression CompileToJavascript(DataContextStack dataContext, Expression expression)
@@ -125,7 +117,7 @@ namespace DotVVM.Framework.Compilation.Binding
             yield return Method;
             foreach (var arg in Arguments)
                 if (arg.Type == StaticCommandParameterType.Invocation)
-                    foreach (var r in arg.Arg.CastTo<StaticCommandInvocationPlan>().GetAllMethods())
+                    foreach (var r in arg.Arg!.CastTo<StaticCommandInvocationPlan>().GetAllMethods())
                         yield return r;
         }
     }
@@ -133,9 +125,9 @@ namespace DotVVM.Framework.Compilation.Binding
     public class StaticCommandParameterPlan
     {
         public StaticCommandParameterType Type { get; }
-        public object Arg { get; }
+        public object? Arg { get; }
 
-        public StaticCommandParameterPlan(StaticCommandParameterType type, object arg)
+        public StaticCommandParameterPlan(StaticCommandParameterType type, object? arg)
         {
             this.Type = type;
             this.Arg = arg;

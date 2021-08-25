@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -92,7 +91,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             this.mapper = serializationMapper;
         }
 
-        public JsExpression TryTranslateMethodCall(Expression context, Expression[] arguments, MethodInfo method, DataContextStack dataContext)
+        public JsExpression? TryTranslateMethodCall(Expression? context, Expression[] arguments, MethodInfo? method, DataContextStack dataContext)
         {
             return new JavascriptTranslationVisitor(dataContext, DefaultMethodTranslator).TryTranslateMethodCall(method, context, arguments);
         }
@@ -213,7 +212,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             Translators.Add(new DelegateInvokeMethodTranslator());
         }
 
-        public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] arguments, MethodInfo method) =>
+        public JsExpression? TryTranslateCall(LazyTranslatedExpression? context, LazyTranslatedExpression[] arguments, MethodInfo method) =>
             Translators.Select(t => t.TryTranslateCall(context, arguments, method)).FirstOrDefault(d => d != null);
     }
 }

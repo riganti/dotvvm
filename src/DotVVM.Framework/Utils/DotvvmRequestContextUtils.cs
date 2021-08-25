@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 

@@ -1,4 +1,3 @@
-#nullable enable
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;

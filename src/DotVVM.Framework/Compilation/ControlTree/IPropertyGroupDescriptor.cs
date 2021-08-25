@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
     public interface IPropertyGroupDescriptor: IControlAttributeDescriptor
     {
         string[] Prefixes { get; }
-        ITypeDescriptor CollectionType { get; }
+        ITypeDescriptor? CollectionType { get; }
         IPropertyDescriptor GetDotvvmProperty(string name);
     }
 }

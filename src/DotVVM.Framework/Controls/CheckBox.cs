@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -134,8 +133,8 @@ namespace DotVVM.Framework.Controls
             {
                 yield return new ControlUsageError(
                     $"Type of items in CheckedItems \'{to}\' must be same as CheckedValue type \'{from}\'.",
-                    control.GetValue(CheckedItemsProperty).DothtmlNode,
-                    control.GetValue(CheckedValueProperty).DothtmlNode
+                    control.GetValue(CheckedItemsProperty)?.DothtmlNode,
+                    control.GetValue(CheckedValueProperty)?.DothtmlNode
                 );
             }
         }

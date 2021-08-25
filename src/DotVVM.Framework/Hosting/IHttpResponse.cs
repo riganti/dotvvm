@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Collections;
+﻿using System.Collections;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;

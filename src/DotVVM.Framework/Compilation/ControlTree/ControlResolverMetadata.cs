@@ -15,10 +15,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public new Type Type => controlType.Type;
 
         [JsonIgnore]
-        public new DotvvmProperty DefaultContentProperty => (DotvvmProperty) base.DefaultContentProperty;
+        public new DotvvmProperty? DefaultContentProperty => (DotvvmProperty?) base.DefaultContentProperty;
 
         [JsonIgnore]
-        public new Type DataContextConstraint => controlType.DataContextRequirement;
+        public new Type? DataContextConstraint => controlType.DataContextRequirement;
 
         public ControlResolverMetadata(ControlType controlType) : base(controlType)
         {
@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         [JsonIgnore]
         public override sealed DataContextChangeAttribute[] DataContextChangeAttributes { get; }
         [JsonIgnore]
-        public override sealed DataContextStackManipulationAttribute DataContextManipulationAttribute { get; }
+        public override sealed DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; }
 
 
         protected override void LoadProperties(Dictionary<string, IPropertyDescriptor> result)
@@ -52,10 +52,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Finds the property.
         /// </summary>
-        public DotvvmProperty FindProperty(string name)
+        public DotvvmProperty? FindProperty(string name)
         {
-            IPropertyDescriptor result;
-            return Properties.TryGetValue(name, out result) ? (DotvvmProperty)result : null;
+            return Properties.TryGetValue(name, out var result) ? (DotvvmProperty)result : null;
         }
 
         protected override void LoadPropertyGroups(List<PropertyGroupMatcher> result)

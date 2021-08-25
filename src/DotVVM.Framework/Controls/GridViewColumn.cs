@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using System;
@@ -267,7 +266,7 @@ namespace DotVVM.Framework.Controls
                 if (!typeof(GridViewColumn).IsAssignableFrom(property.Key.DeclaringType))
                 {
                     yield return new ControlUsageError($"The column doesn't support the property {property.Key.FullName}! If you need to set an attached property applied to a table cell, use the CellDecorators property.",
-                        new[] { property.Value.DothtmlNode }.Where(n => n != null));
+                        property.Value.DothtmlNode);
                 }
             }
         }

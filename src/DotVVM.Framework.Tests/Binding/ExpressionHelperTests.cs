@@ -71,10 +71,10 @@ namespace DotVVM.Framework.Tests.Binding
 
         private void Call_FindOverload_Generic(Type targetType, string methodName, Type[] argTypes, Type resultIdentifierType, Type[] expectedGenericArgs)
         {
-            Expression target = new MethodGroupExpression() {
-                MethodName = methodName,
-                Target = new StaticClassIdentifierExpression(targetType)
-            };
+            Expression target = new MethodGroupExpression(
+                new StaticClassIdentifierExpression(targetType),
+                methodName
+            );
 
             var j = 0;
             var arguments = argTypes.Select(s => Expression.Parameter(s, $"param_{j++}")).ToArray();
@@ -169,10 +169,10 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow(typeof(GenericTestResult2), new Type[] { typeof(string), typeof(int), typeof(string), typeof(int) }, new Type[] { typeof(string), typeof(object[]) })]
         public void Call_FindOverload_Params_Array(Type resultIdentifierType, Type[] argTypes, Type[] expectedArgsTypes)
         {
-            Expression target = new MethodGroupExpression() {
-                MethodName = MethodsParamsArgumentsResolvingSampleObject.MethodName,
-                Target = new StaticClassIdentifierExpression(typeof(MethodsParamsArgumentsResolvingSampleObject))
-            };
+            Expression target = new MethodGroupExpression(
+                new StaticClassIdentifierExpression(typeof(MethodsParamsArgumentsResolvingSampleObject)),
+                MethodsParamsArgumentsResolvingSampleObject.MethodName
+            );
 
             var j = 0;
             var arguments = argTypes.Select(s => Expression.Parameter(s, $"param_{j++}")).ToArray();
@@ -195,10 +195,10 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow(typeof(GenericTestResult4), new Type[] { typeof(float), /* default argument, params empty */ }, new Type[] { typeof(float), typeof(double), typeof(int[]) })]
         public void Call_FindOverload_Params_Empty(Type resultIdentifierType, Type[] argTypes, Type[] expectedArgsTypes)
         {
-            Expression target = new MethodGroupExpression() {
-                MethodName = MethodsParamsArgumentsResolvingSampleObject.MethodName,
-                Target = new StaticClassIdentifierExpression(typeof(MethodsParamsArgumentsResolvingSampleObject))
-            };
+            Expression target = new MethodGroupExpression(
+                new StaticClassIdentifierExpression(typeof(MethodsParamsArgumentsResolvingSampleObject)),
+                MethodsParamsArgumentsResolvingSampleObject.MethodName
+            );
 
             var j = 0;
             var arguments = argTypes.Select(s => Expression.Parameter(s, $"param_{j++}")).ToArray();
@@ -219,10 +219,10 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow(typeof(GenericTestResult3), new Type[] { typeof(bool), typeof(int), typeof(string), typeof(int) }, new Type[] { typeof(bool), typeof(int[]) })]
         public void Call_FindOverload_Params_Array_Invalid(Type resultIdentifierType, Type[] argTypes, Type[] expectedArgsTypes)
         {
-            Expression target = new MethodGroupExpression() {
-                MethodName = MethodsParamsArgumentsResolvingSampleObject.MethodName,
-                Target = new StaticClassIdentifierExpression(typeof(MethodsParamsArgumentsResolvingSampleObject))
-            };
+            Expression target = new MethodGroupExpression(
+                new StaticClassIdentifierExpression(typeof(MethodsParamsArgumentsResolvingSampleObject)),
+                MethodsParamsArgumentsResolvingSampleObject.MethodName
+            );
 
             var j = 0;
             var arguments = argTypes.Select(s => Expression.Parameter(s, $"param_{j++}")).ToArray();
@@ -245,10 +245,10 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow(new Type[] { typeof(string), typeof(int) }, typeof((string, int[])))]
         public void Call_FindOverload_DoNotPrioritizeParams(Type[] argTypes, Type resultType)
         {
-            Expression target = new MethodGroupExpression() {
-                MethodName = nameof(ParamsPrioritizationTest.Method),
-                Target = new StaticClassIdentifierExpression(typeof(ParamsPrioritizationTest))
-            };
+            Expression target = new MethodGroupExpression(
+                new StaticClassIdentifierExpression(typeof(ParamsPrioritizationTest)),
+                nameof(ParamsPrioritizationTest.Method)
+            );
 
             var j = 0;
             var arguments = argTypes.Select(s => Expression.Parameter(s, $"param_{j++}")).ToArray();

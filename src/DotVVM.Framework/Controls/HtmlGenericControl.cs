@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
@@ -141,7 +140,7 @@ namespace DotVVM.Framework.Controls
                     CssStyles = VirtualPropertyGroupDictionary<object>.CreatePropertyDictionary(control, CssStylesGroupDescriptor)
                 },
                 (control, boxedValue) => {
-                    var value = (HtmlCapability)boxedValue;
+                    var value = (HtmlCapability?)boxedValue ?? new HtmlCapability();
                     control.SetValue(VisibleProperty, value.Visible);
                     ((HtmlGenericControl)control).Attributes = value.Attributes.ToDictionary(t => t.Key, t => t.Value.BindingOrDefault ?? t.Value.BoxedValue);
                     ((HtmlGenericControl)control).CssClasses.CopyFrom(value.CssClasses, clear: true);

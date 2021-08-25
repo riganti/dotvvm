@@ -1,3 +1,4 @@
+#nullable disable
 namespace DotVVM.Framework.Routing
 {
     public class RouteStrategyMarkupFileInfo
