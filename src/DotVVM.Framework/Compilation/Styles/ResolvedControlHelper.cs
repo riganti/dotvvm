@@ -52,14 +52,7 @@ namespace DotVVM.Framework.Compilation.Styles
                 );
             }
 
-            foreach (var p in DotvvmProperty.GetVirtualProperties(type))
-            {
-                var value = p.PropertyInfo!.GetValue(obj);
-                rc.SetProperty(
-                    TranslateProperty(p, value, dataContext),
-                    replace: true
-                );
-            }
+            DotvvmProperty.CheckAllPropertiesAreRegistered(type);
 
             foreach (var pg in DotvvmPropertyGroup.GetPropertyGroups(type).Where(pg => pg.PropertyGroupMode == PropertyGroupMode.ValueCollection))
             {

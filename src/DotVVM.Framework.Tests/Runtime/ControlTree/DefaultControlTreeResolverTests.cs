@@ -605,10 +605,20 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         {
             var root = ParseSource(@"
 @viewModel object
-<cc:ClassWithDefaultDotvvmControlContent_NoDotvvmProperty>some text</cc:ClassWithDefaultDotvvmControlContent_NoDotvvmProperty>");
-            var control = root.Content.First(n => n.Metadata.Type == typeof(ClassWithDefaultDotvvmControlContent_NoDotvvmProperty));
+<cc:ClassWithDefaultDotvvmControlContent>some text</cc:ClassWithDefaultDotvvmControlContent>");
+            var control = root.Content.First(n => n.Metadata.Type == typeof(ClassWithDefaultDotvvmControlContent));
             Assert.AreEqual(0, control.Content.Count);
             Assert.IsTrue(control.Properties.Any(p => p.Value is ResolvedPropertyControlCollection));
+        }
+
+        [TestMethod]
+        public void ResolvedTree_VirtualPropertiesNotSupported()
+        {
+            var exception = Assert.ThrowsException<DotvvmCompilationException>(() => ParseSource(@"
+@viewModel object
+<cc:ClassWithDefaultDotvvmControlContent_NoDotvvmProperty>some text</cc:ClassWithDefaultDotvvmControlContent_NoDotvvmProperty>"));
+            Assert.IsInstanceOfType(exception.InnerException, typeof(NotSupportedException));
+            StringAssert.Contains(exception.InnerException.Message, "Control 'ClassWithDefaultDotvvmControlContent_NoDotvvmProperty' has properties that are not registered as a DotvvmProperty but have a MarkupOptionsAttribute: Property.");
         }
 
         [TestMethod]
