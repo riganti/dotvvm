@@ -8,6 +8,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -22,13 +23,13 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the comma-separated list of resources that should be loaded before this script is executed.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string? Dependencies
+        public string[] Dependencies
         {
-            get { return (string?)GetValue(DependenciesProperty); }
+            get { return (string[])GetValue(DependenciesProperty)! ?? new string[] { ResourceConstants.DotvvmResourceName }; }
             set { SetValue(DependenciesProperty, value); }
         }
         public static readonly DotvvmProperty DependenciesProperty =
-            DotvvmProperty.Register<string, InlineScript>(c => c.Dependencies, ResourceConstants.DotvvmResourceName);
+            DotvvmProperty.Register<string[], InlineScript>(c => c.Dependencies, new string[] { ResourceConstants.DotvvmResourceName });
 
         [MarkupOptions(MappingMode = MappingMode.InnerElement, AllowBinding = false)]
         public string? Script
@@ -45,18 +46,10 @@ namespace DotVVM.Framework.Controls
             var script = Script;
             if (script is object && !string.IsNullOrWhiteSpace(script))
             {
-                var dep = Dependencies?.Split(',') ?? new string[] { ResourceConstants.DotvvmResourceName };
-                context.ResourceManager.AddStartupScript("inlinescript_" + (ClientID ?? GetScriptUniqueId()), script, dep);
+                context.ResourceManager.AddInlineScript(script, Dependencies);
             }
 
             base.OnPreRender(context);
-        }
-
-        private string GetScriptUniqueId()
-        {
-            var uniqueId = GetDotvvmUniqueId() as string;
-            if (uniqueId == null) throw new DotvvmControlException(this, $"Can not generate ID for InlineScript inside client template. Try to assign it ID manually.");
-            return uniqueId;
         }
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
