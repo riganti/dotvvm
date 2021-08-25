@@ -100,7 +100,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 );
             }
 
-            foreach (var propertyDeclarationDirective in directives.OfType<IAbstractPropertyDeclarationDirective>().ToList())
+            var resolvedDirectives = directives.TryGetValue(ParserConstants.PropertyDeclarationDirective, out var declarations)
+                ? declarations.OfType<IAbstractPropertyDeclarationDirective>().ToList()
+                : new List<IAbstractPropertyDeclarationDirective>();
+
+            foreach (var propertyDeclarationDirective in resolvedDirectives)
             {
                 propertyDeclarationDirective.DeclaringType = wrapperType;
                 CreateDotvvmPropertyFromDirective(propertyDeclarationDirective);
