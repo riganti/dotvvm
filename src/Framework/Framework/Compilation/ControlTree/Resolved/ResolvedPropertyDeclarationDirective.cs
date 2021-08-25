@@ -34,8 +34,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             AttributeInstances = attributeInstances;
         }
 
-        public object[] GetCustomAttributes(Type attributeType, bool inherit) => throw new NotImplementedException();
+        public object[] GetCustomAttributes(Type attributeType, bool inherit) => GetCustomAttributes(inherit).Where(attributeType.IsInstanceOfType).ToArray();
         public object[] GetCustomAttributes(bool inherit) => AttributeInstances.ToArray();
-        public bool IsDefined(Type attributeType, bool inherit) => throw new NotImplementedException();
+        public bool IsDefined(Type attributeType, bool inherit) => GetCustomAttributes(attributeType, inherit).Any();
     }
 }
