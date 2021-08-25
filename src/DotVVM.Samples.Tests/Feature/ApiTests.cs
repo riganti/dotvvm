@@ -15,52 +15,6 @@ namespace DotVVM.Samples.Tests.Feature
     public class ApiTests : AppSeleniumTest
     {
         [Fact]
-        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_Api_GithubRepoApi))]
-        public void Feature_Api_GithubRepoApi()
-        {
-            RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_GithubRepoApi);
-
-                IEnumerable<IElementWrapper> options = null;
-                browser.WaitFor(() => {
-                    options = browser.First("select").FindElements("option");
-                    return options.Any(o => o.GetInnerText() == "dotvvm");
-                }, 10000);
-
-                // check dotvvm repo issues
-                browser.Wait(2000);
-                var dotvvmIssues = browser.First("table").FindElements("tr").Skip(1).ToList();
-                Assert.True(dotvvmIssues.Count > 10);
-
-                // get text of the first issue
-                dotvvmIssues.ElementAt(0).First("a").Click();
-                browser.Wait(2000);
-                var firstIssueText = browser.First(".id-current-issue-text").GetInnerText();
-
-                // make sure it changes when I click another issue
-                dotvvmIssues.ElementAt(dotvvmIssues.Count - 1).First("a").Click();
-                browser.Wait(2000);
-                var lastIssueText = browser.First(".id-current-issue-text").GetInnerText();
-
-                Assert.NotEqual(firstIssueText, lastIssueText);
-
-                // switch to DotVVM Docs
-                Assert.Contains(options, o => o.GetInnerText() == "dotvvm-docs");
-                browser.First("select").Select("dotvvm-docs");
-                browser.Wait(2000);
-
-                // make sure that the table has changed
-                var docsIssues = browser.First("table").FindElements("tr").Skip(1).ToList();
-                Assert.True(docsIssues.Count > 1);
-
-                docsIssues.ElementAt(0).First("a").Click();
-                browser.Wait(2000);
-                var firstIssueText2 = browser.First(".id-current-issue-text").GetInnerText();
-                Assert.NotEqual(firstIssueText, firstIssueText2);
-            });
-        }
-
-        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_Api_GetCollection))]
         public void Feature_Api_GetCollection()
         {

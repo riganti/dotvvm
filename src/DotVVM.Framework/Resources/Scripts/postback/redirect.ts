@@ -26,7 +26,7 @@ export async function handleRedirect(options: PostbackOptions, resultObject: any
         url,
         replace,
         serverResponseObject: resultObject,
-        response: response
+        response: response,
     }
     events.redirect.trigger(redirectArgs);
 

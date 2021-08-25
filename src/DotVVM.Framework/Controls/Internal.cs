@@ -6,6 +6,7 @@ using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
@@ -60,6 +61,11 @@ namespace DotVVM.Framework.Controls
 
         public static DotvvmProperty ReferencedViewModuleInfoProperty =
             DotvvmProperty.Register<ViewModuleReferenceInfo, Internal>(() => ReferencedViewModuleInfoProperty);
+
+        public static bool IsViewCompilerProperty(DotvvmProperty property)
+        {
+            return property.DeclaringType == typeof(Internal);
+        }
     }
 
     public static class InternalPropertyExtensions

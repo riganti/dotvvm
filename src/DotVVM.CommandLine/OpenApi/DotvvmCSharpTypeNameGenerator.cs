@@ -24,7 +24,7 @@ namespace DotVVM.CommandLine.OpenApi
 
         public override string Generate(JsonSchema schema, string typeNameHint, IEnumerable<string> reservedTypeNames)
         {
-            if (pairs.TryGetValue(typeNameHint, out var type))
+            if (typeNameHint != null && pairs.TryGetValue(typeNameHint, out var type))
             {
                 if (IsGenericType(type))
                 {

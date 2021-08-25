@@ -36,19 +36,32 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return Properties.TryGetValue(name, out value);
         }
 
-        public bool IsContentAllowed => (attribute?.AllowContent ?? true) && Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IDotvvmControl)));
+        public bool IsContentAllowed =>
+            (attribute?.AllowContent ?? true) &&
+            Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IDotvvmControl))) &&
+            // composite controls can not contain children, only content properties
+            !Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(CompositeControl)));
 
         [JsonIgnore]
         public IPropertyDescriptor DefaultContentProperty
         {
             get
             {
+                IPropertyDescriptor result;
+                if (Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(CompositeControl))))
+                {
+                    // properties Content and ContentTemplate are used as content by default, if they exist
+                    if (Properties.TryGetValue("Content", out result))
+                        return result;
+                    if (Properties.TryGetValue("ContentTemplate", out result))
+                        return result;
+                }
+
                 if (string.IsNullOrEmpty(attribute?.DefaultContentProperty))
                 {
                     return null;
                 }
 
-                IPropertyDescriptor result;
                 return Properties.TryGetValue(attribute?.DefaultContentProperty, out result) ? result : null;
             }
         }

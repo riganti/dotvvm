@@ -239,6 +239,33 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(result, "true");
             });
         }
+
+        [Fact]
+        public void Feature_StaticCommand_String_Method_IsNullOrWhiteSpace()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var button = browser.First($"//input[@value='IsNullOrWhiteSpace(value)']", By.XPath);
+                var result = browser.First("[data-ui=operation-result]");
+
+                textbox.Click();
+                textbox.SendKeys("glasses");
+
+                button.Click();
+                AssertUI.InnerTextEquals(result, "false");
+
+                textbox.Click();
+                textbox.Clear();
+                textbox.SendKeys("    ");
+
+                button.Click();
+                AssertUI.InnerTextEquals(result, "true");
+            });
+        }
+
         [Fact]
         public void Feature_StaticCommand_String_Method_Join_List()
         {
@@ -452,5 +479,164 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_StaticCommand_String_Method_Trim()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var button = browser.First($"//input[@value='Trim()']", By.XPath);
+                var result = browser.First("[data-ui=operation-result]");
+
+                textbox.SendKeys(" Hello world ");
+                button.Click();
+                AssertUI.InnerTextEquals(result, "Hello world");
+            });
+        }
+
+        [Fact]
+        public void Feature_StaticCommand_String_Method_Trim_SpecialChar()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var button = browser.First($"//input[@value='Trim(#)']", By.XPath);
+                var result = browser.First("[data-ui=operation-result]");
+
+                textbox.SendKeys("#Hello world#");
+                button.Click();
+                AssertUI.InnerTextEquals(result, "Hello world");
+            });
+        }
+
+        [Fact]
+        public void Feature_StaticCommand_String_Method_TrimStart()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var button = browser.First($"//input[@value='TrimStart()']", By.XPath);
+                var result = browser.First("[data-ui=operation-result]");
+
+                textbox.SendKeys(" Hello world ");
+                button.Click();
+                AssertUI.InnerTextEquals(result, "Hello world ", trim: false);
+            });
+        }
+
+        [Fact]
+        public void Feature_StaticCommand_String_Method_TrimStart_SpecialChar()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var button = browser.First($"//input[@value='TrimStart(#)']", By.XPath);
+                var result = browser.First("[data-ui=operation-result]");
+
+                textbox.SendKeys("#Hello world#");
+                button.Click();
+                AssertUI.InnerTextEquals(result, "Hello world#");
+            });
+        }
+
+        [Fact]
+        public void Feature_StaticCommand_String_Method_TrimEnd()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var button = browser.First($"//input[@value='TrimEnd()']", By.XPath);
+                var result = browser.First("[data-ui=operation-result]");
+
+                textbox.SendKeys(" Hello world ");
+                button.Click();
+                AssertUI.InnerTextEquals(result, " Hello world", trim: false);
+            });
+        }
+
+        [Fact]
+        public void Feature_StaticCommand_String_Method_TrimEnd_SpecialChar()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var button = browser.First($"//input[@value='TrimEnd(#)']", By.XPath);
+                var result = browser.First("[data-ui=operation-result]");
+
+                textbox.SendKeys("#Hello world#");
+                button.Click();
+                AssertUI.InnerTextEquals(result, "#Hello world");
+            });
+        }
+
+        [Fact]
+        public void Feature_StaticCommand_String_Method_PadLeft()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var button = browser.First($"//input[@value='PadLeft(12)']", By.XPath);
+                var result = browser.First("[data-ui=operation-result]");
+
+                textbox.SendKeys("Hello world");
+                button.Click();
+                AssertUI.InnerTextEquals(result, " Hello world", trim: false);
+            });
+        }
+
+        [Fact]
+        public void Feature_StaticCommand_String_Method_PadLeft_SpecialChar()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var button = browser.First($"//input[@value='PadLeft(12,#)']", By.XPath);
+                var result = browser.First("[data-ui=operation-result]");
+
+                textbox.SendKeys("Hello world");
+                button.Click();
+                AssertUI.InnerTextEquals(result, "#Hello world");
+            });
+        }
+
+        [Fact]
+        public void Feature_StaticCommand_String_Method_PadRight()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var button = browser.First($"//input[@value='PadRight(12)']", By.XPath);
+                var result = browser.First("[data-ui=operation-result]");
+
+                textbox.SendKeys("Hello world");
+                button.Click();
+                AssertUI.InnerTextEquals(result, "Hello world ", trim: false);
+            });
+        }
+
+        [Fact]
+        public void Feature_StaticCommand_String_Method_PadRight_SpecialChar()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_StringMethodTranslations);
+
+                var textbox = browser.First("[data-ui=textbox]");
+                var button = browser.First($"//input[@value='PadRight(12,#)']", By.XPath);
+                var result = browser.First("[data-ui=operation-result]");
+
+                textbox.SendKeys("Hello world");
+                button.Click();
+                AssertUI.InnerTextEquals(result, "Hello world#");
+            });
+        }
     }
 }

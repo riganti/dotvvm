@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using DotVVM.Framework.Compilation.Javascript;
+using static DotVVM.Framework.Tests.Runtime.JavascriptCompilation.JsParensInsertionTests;
 
 namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
 {
@@ -13,31 +14,31 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         [TestMethod]
         public void JsFormatter_BinaryOperator()
         {
-            Assert.AreEqual("a+5", new JsBinaryExpression(new JsIdentifierExpression("a"), BinaryOperatorType.Plus, new JsLiteral(5)).FormatScript());
+            AssertFormatting("a+5", new JsBinaryExpression(new JsIdentifierExpression("a"), BinaryOperatorType.Plus, new JsLiteral(5)));
         }
 
         [TestMethod]
         public void JsFormatter_StringLiteral()
         {
-            Assert.AreEqual("\"\\\"\"", new JsLiteral("\"").FormatScript());
+            AssertFormatting("\"\\\"\"", new JsLiteral("\""));
         }
 
         [TestMethod]
         public void JsFormatter_MemberAccess()
         {
-            Assert.AreEqual("a.b.c", new JsIdentifierExpression("a").Member("b").Member("c").FormatScript());
+            AssertFormatting("a.b.c", new JsIdentifierExpression("a").Member("b").Member("c"));
         }
 
         [TestMethod]
         public void JsFormatter_Invocation()
         {
-            Assert.AreEqual("a.b(4,5)", new JsIdentifierExpression("a").Member("b").Invoke(new JsLiteral(4), new JsLiteral(5)).FormatScript());
+            AssertFormatting("a.b(4,5)", new JsIdentifierExpression("a").Member("b").Invoke(new JsLiteral(4), new JsLiteral(5)));
         }
 
         [TestMethod]
         public void JsFormatter_Indexer()
         {
-            Assert.AreEqual("a[b]", new JsIdentifierExpression("a").Indexer(new JsIdentifierExpression("b")).FormatScript());
+            AssertFormatting("a[b]", new JsIdentifierExpression("a").Indexer(new JsIdentifierExpression("b")));
         }
 
         [TestMethod]
@@ -55,18 +56,25 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         public void JsFormatter_FunctionExpression()
         {
             var expr = new JsFunctionExpression(new[] { new JsIdentifier("a") }, new JsBlockStatement(new JsReturnStatement(new JsBinaryExpression(new JsIdentifierExpression("a"), BinaryOperatorType.Plus, new JsLiteral(2)))));
-            Assert.AreEqual("function(a){return a+2;}", expr.FormatScript());
-            Assert.AreEqual("function(a) {\n\treturn a + 2;\n}", expr.FormatScript(niceMode: true));
+            AssertFormatting("function(a){return a+2;}", expr);
+            AssertFormatting("function(a) {\n\treturn a + 2;\n}", expr, niceMode: true);
         }
 
         [TestMethod]
         public void JsFormatter_AssignmentExpression()
         {
             var expr = new JsBinaryExpression(new JsAssignmentExpression(new JsIdentifierExpression("a"), new JsIdentifierExpression("c")), BinaryOperatorType.Equal, new JsIdentifierExpression("b"));
-            Assert.AreEqual("(a=c)==b", expr.FormatScript());
-            Assert.AreEqual("(a = c) == b", expr.FormatScript(niceMode: true));
+            AssertFormatting("(a=c)==b", expr);
+            AssertFormatting("(a = c) == b", expr, niceMode: true);
         }
 
+        [TestMethod]
+        public void JsFormatter_NotExpression()
+        {
+            var expr = new JsIdentifierExpression("a").Unary(UnaryOperatorType.LogicalNot);
+            AssertFormatting("!a", expr, niceMode: true);
+            AssertFormatting("!a", expr);
+        }
         [TestMethod]
         public void JsFormatter_UnaryExpression()
         {
@@ -75,8 +83,8 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                 BinaryOperatorType.Plus,
                 new JsIdentifierExpression("a").Unary(UnaryOperatorType.Increment, isPrefix: true))
                 .Unary(UnaryOperatorType.LogicalNot);
-            Assert.AreEqual("!(a++ + ++a)", expr.FormatScript());
-            Assert.AreEqual("!(a++ + ++a)", expr.FormatScript(niceMode: true));
+            AssertFormatting("!(a++ + ++a)", expr);
+            AssertFormatting("!(a++ + ++a)", expr, niceMode: true);
         }
 
         [TestMethod]
@@ -86,8 +94,8 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                 new JsIdentifierExpression("a").Unary(UnaryOperatorType.TypeOf),
                 BinaryOperatorType.Plus,
                 new JsLiteral(0).Unary(UnaryOperatorType.Void).Unary(UnaryOperatorType.Minus));
-            Assert.AreEqual("typeof a+-void 0", expr.FormatScript());
-            Assert.AreEqual("typeof a + -void 0", expr.FormatScript(niceMode: true));
+            AssertFormatting("typeof a+-void 0", expr);
+            AssertFormatting("typeof a + -void 0", expr, niceMode: true);
         }
 
         [TestMethod]
@@ -97,8 +105,8 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                 new JsIdentifierExpression("a"),
                 BinaryOperatorType.LessOrEqual,
                 new JsIdentifierExpression("b"));
-            Assert.AreEqual("a<=b", expr.FormatScript());
-            Assert.AreEqual("a <= b", expr.FormatScript(niceMode: true));
+            AssertFormatting("a<=b", expr);
+            AssertFormatting("a <= b", expr, niceMode: true);
         }
 
         [TestMethod]
@@ -107,8 +115,70 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
             var expr = new JsObjectExpression(
                 new JsObjectProperty("a", new JsObjectExpression(new JsObjectProperty("c", new JsLiteral(2)))),
                 new JsObjectProperty("baa", new JsLiteral(null)));
-            Assert.AreEqual("{a:{c:2},baa:null}", expr.FormatScript());
-            Assert.AreEqual("{\n\ta: {c: 2},\n\tbaa: null\n}", expr.FormatScript(niceMode: true));
+            AssertFormatting("{a:{c:2},baa:null}", expr);
+            AssertFormatting("{\n\ta: {c: 2},\n\tbaa: null\n}", expr, niceMode: true);
+        }
+        [TestMethod]
+        public void JsFormatter_Await()
+        {
+            var expr = new JsIdentifierExpression("a").Await().Member("x");
+            AssertFormatting("(await a).x", expr, niceMode: false);
+            AssertFormatting("(await a).x", expr, niceMode: true);
+        }
+        [TestMethod]
+        public void JsFormatter_AsyncFunction()
+        {
+            var expr = new JsFunctionExpression(
+                new JsIdentifier[0],
+                new JsIdentifierExpression("a").Await().Member("x").Return().AsBlock(),
+                isAsync: true
+            );
+            AssertFormatting("async function(){return (await a).x;}", expr, niceMode: false);
+            AssertFormatting("async function() {\n\treturn (await a).x;\n}", expr, niceMode: true);
+        }
+        [TestMethod]
+        public void JsFormatter_AsyncArrowFunction()
+        {
+            var expr = new JsArrowFunctionExpression(
+                new JsIdentifier[0],
+                new JsIdentifierExpression("a").Await().Member("x"),
+                isAsync: true
+            );
+            AssertFormatting("async ()=>(await a).x", expr, niceMode: false);
+            AssertFormatting("async () => (await a).x", expr, niceMode: true);
+        }
+        [TestMethod]
+        public void JsFormatter_ArrowFunctionAndVariable()
+        {
+            var expr = new JsArrowFunctionExpression(
+                new JsIdentifier[0],
+                new JsStatement[] {
+                    new JsVariableDefStatement("a", new JsLiteral(1)),
+                    new JsVariableDefStatement("b"),
+                    new JsIdentifierExpression("a").Member("x").Return(),
+                    new JsExpressionStatement(new JsIdentifierExpression("a").Invoke())
+                }.AsBlock()
+            );
+            AssertFormatting("()=>{let a=1;let b;return a.x;a();}", expr, niceMode: false);
+            AssertFormatting("() => {\n\tlet a = 1;\n\tlet b;\n\treturn a.x;\n\ta();\n}", expr, niceMode: true);
+        }
+
+        [TestMethod]
+        public void JsFormatter_2ArrowFunctions()
+        {
+            var expr = new JsArrowFunctionExpression(
+                new JsIdentifier[] { new JsIdentifier("a") },
+                new JsArrowFunctionExpression(
+                    new JsIdentifier[] { new JsIdentifier("b") },
+                    new JsBinaryExpression(
+                        new JsIdentifierExpression("a"),
+                        BinaryOperatorType.Plus,
+                        new JsIdentifierExpression("b")
+                    )
+                )
+            );
+            AssertFormatting("(a)=>(b)=>a+b", expr, niceMode: false);
+            AssertFormatting("(a) => (b) => a + b", expr, niceMode: true);
         }
     }
 }

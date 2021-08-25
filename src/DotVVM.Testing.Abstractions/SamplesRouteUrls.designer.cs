@@ -76,6 +76,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_FileUpload_FileUpload = "ControlSamples/FileUpload/FileUpload";
         public const string ControlSamples_FileUpload_IsAllowedOrNot = "ControlSamples/FileUpload/IsAllowedOrNot";
         public const string ControlSamples_GridView_ColumnVisible = "ControlSamples/GridView/ColumnVisible";
+        public const string ControlSamples_GridView_GridViewCellDecorators = "ControlSamples/GridView/GridViewCellDecorators";
         public const string ControlSamples_GridView_GridViewInlineEditing = "ControlSamples/GridView/GridViewInlineEditing";
         public const string ControlSamples_GridView_GridViewInlineEditingPrimaryKeyGuid = "ControlSamples/GridView/GridViewInlineEditingPrimaryKeyGuid";
         public const string ControlSamples_GridView_GridViewInlineEditingPrimaryKeyString = "ControlSamples/GridView/GridViewInlineEditingPrimaryKeyString";
@@ -188,7 +189,6 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Api_AzureFunctionsApiTable = "FeatureSamples/Api/AzureFunctionsApiTable";
         public const string FeatureSamples_Api_BindingSharing = "FeatureSamples/Api/BindingSharing";
         public const string FeatureSamples_Api_GetCollection = "FeatureSamples/Api/GetCollection";
-        public const string FeatureSamples_Api_GithubRepoApi = "FeatureSamples/Api/GithubRepoApi";
         public const string FeatureSamples_Api_GridViewDataSetAspNetCore = "FeatureSamples/Api/GridViewDataSetAspNetCore";
         public const string FeatureSamples_Api_GridViewDataSetOwin = "FeatureSamples/Api/GridViewDataSetOwin";
         public const string FeatureSamples_AttachedProperties_AttachedProperties = "FeatureSamples/AttachedProperties/AttachedProperties";
