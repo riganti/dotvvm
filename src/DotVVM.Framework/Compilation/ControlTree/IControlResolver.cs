@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Resolves the metadata for specified element.
         /// </summary>
-        IControlResolverMetadata ResolveControl(string tagPrefix, string tagName, out object[] activationParameters);
+        IControlResolverMetadata? ResolveControl(string? tagPrefix, string tagName, out object[]? activationParameters);
 
         /// <summary>
         /// Resolves the control metadata for specified type.
@@ -28,11 +28,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Resolves the binding type.
         /// </summary>
-        BindingParserOptions ResolveBinding(string bindingType);
+        BindingParserOptions? ResolveBinding(string bindingType);
 
         /// <summary>
         /// Finds the property in the control metadata.
         /// </summary>
-        IPropertyDescriptor FindProperty(IControlResolverMetadata controlMetadata, string name);
+        IPropertyDescriptor? FindProperty(IControlResolverMetadata controlMetadata, string name);
     }
 }

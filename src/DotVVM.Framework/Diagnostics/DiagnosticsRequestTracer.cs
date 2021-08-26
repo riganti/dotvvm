@@ -38,12 +38,11 @@ namespace DotVVM.Framework.Diagnostics
 
         private EventTiming CreateEventTiming(string eventName)
         {
-            return new EventTiming
-            {
-                Duration = stopwatch.ElapsedMilliseconds - ElapsedMillisSinceLastLog,
-                TotalDuration = stopwatch.ElapsedMilliseconds,
-                EventName = eventName
-            };
+            return new EventTiming(
+                eventName,
+                stopwatch.ElapsedMilliseconds - ElapsedMillisSinceLastLog,
+                stopwatch.ElapsedMilliseconds
+            );
         }
 
         public Task EndRequest(IDotvvmRequestContext context)
@@ -77,26 +76,23 @@ namespace DotVVM.Framework.Diagnostics
 
         private DiagnosticsInformation BuildDiagnosticsData(IDotvvmRequestContext request)
         {
-            return new DiagnosticsInformation
-            {
-                RequestDiagnostics = BuildRequestDiagnostics(request),
-                ResponseDiagnostics = BuildResponseDiagnostics(request),
-                EventTimings = events,
-                TotalDuration = stopwatch.ElapsedMilliseconds
-            };
+            return new DiagnosticsInformation(
+                BuildRequestDiagnostics(request),
+                BuildResponseDiagnostics(request),
+                events,
+                stopwatch.ElapsedMilliseconds
+            );
         }
 
         private RequestDiagnostics BuildRequestDiagnostics(IDotvvmRequestContext request)
         {
-            return new RequestDiagnostics
-            {
-                RequestType = RequestTypeFromContext(request),
-                Method = request.HttpContext.Request.Method,
-                Url = request.HttpContext.Request.Url.AbsolutePath,
-                Headers = request.HttpContext.Request.Headers.Select(HttpHeaderItem.FromKeyValuePair)
-                    .ToList(),
-                ViewModelJson = request.ReceivedViewModelJson?.GetValue("viewModel")?.ToString()
-            };
+            return new RequestDiagnostics(
+                RequestTypeFromContext(request),
+                request.HttpContext.Request.Method,
+                request.HttpContext.Request.Url.AbsolutePath,
+                request.HttpContext.Request.Headers.Select(HttpHeaderItem.FromKeyValuePair),
+                request.ReceivedViewModelJson?.GetValue("viewModel")?.ToString()
+            );
         }
 
         private RequestType RequestTypeFromContext(IDotvvmRequestContext context)

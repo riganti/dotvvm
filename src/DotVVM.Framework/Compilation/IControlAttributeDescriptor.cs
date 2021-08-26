@@ -11,11 +11,11 @@ namespace DotVVM.Framework.Compilation
 {
 	public interface IControlAttributeDescriptor
 	{
-        string  Name { get; }
+        string Name { get; }
 
         MarkupOptionsAttribute MarkupOptions { get; }
         DataContextChangeAttribute[] DataContextChangeAttributes { get; }
-		DataContextStackManipulationAttribute DataContextManipulationAttribute { get; }
+		DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; }
         ITypeDescriptor DeclaringType { get; }
         ITypeDescriptor PropertyType { get; }
 	}

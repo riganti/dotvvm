@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 using System.Collections.Generic;
 using System.Diagnostics;

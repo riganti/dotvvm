@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
@@ -323,7 +322,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public CodeParameterAssignment(string code, OperatorPrecedence operatorPrecedence, bool isGlobalContext = false)
             : this(new ParametrizedCode(code, operatorPrecedence), isGlobalContext) { }
-        public CodeParameterAssignment(ParametrizedCode code, bool isGlobalContext = false)
+        public CodeParameterAssignment(ParametrizedCode? code, bool isGlobalContext = false)
         {
             this.Code = code;
             this.IsGlobalContext = isGlobalContext;

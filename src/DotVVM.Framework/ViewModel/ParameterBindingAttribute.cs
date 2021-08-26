@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
@@ -15,13 +16,13 @@ namespace DotVVM.Framework.ViewModel
             map.TransferAfterPostback = map.TransferToServer = map.TransferToServerOnlyInPath = false;
         }
 
-        public bool TryGetValue<T>(IDotvvmRequestContext context, out T value)
+        public bool TryGetValue<T>(IDotvvmRequestContext context, out T? value)
         {
             if (TryGetValueCore(context, out var valueUnconverted))
             {
                 try
                 {
-                    value = (T) ConvertValue(valueUnconverted, typeof(T));
+                    value = (T?) ConvertValue(valueUnconverted, typeof(T));
                     return true;
                 }
                 catch
@@ -34,12 +35,12 @@ namespace DotVVM.Framework.ViewModel
             return false;
         }
 
-        protected virtual object ConvertValue(object valueUnconverted, Type targetType)
+        protected virtual object? ConvertValue(object? valueUnconverted, Type targetType)
         {
             return ReflectionUtils.ConvertValue(valueUnconverted, targetType);
         }
 
-        protected abstract bool TryGetValueCore(IDotvvmRequestContext context, out object value);
+        protected abstract bool TryGetValueCore(IDotvvmRequestContext context, out object? value);
 
     }
 }

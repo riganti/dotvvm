@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Runtime.Commands
             // validate the command against the control
             if (result.Control is IEventValidationHandler)
             {
-                if (!((IEventValidationHandler)result.Control).ValidateCommand(result.Property))
+                if (!((IEventValidationHandler)result.Control).ValidateCommand(result.Property!))
                 {
                     throw EventValidationException(result?.ErrorMessage, result?.CandidateBindings);
                 }
@@ -50,18 +50,18 @@ namespace DotVVM.Framework.Runtime.Commands
         /// <param name="findControl">Determinate whether finding control command binding or not</param>
         /// <returns></returns>
         private FindBindingResult FindCommandBinding(string[] path, string commandId, 
-            DotvvmBindableObject viewRootControl, DotvvmBindableObject targetControl, 
-            string validationTargetPath, bool findControl)
+            DotvvmBindableObject viewRootControl, DotvvmBindableObject? targetControl, 
+            string? validationTargetPath, bool findControl)
         {
             // walk the control tree and find the path
-            CommandBindingExpression resultBinding = null;
-            DotvvmBindableObject resultControl = null;
-            DotvvmProperty resultProperty = null;
+            CommandBindingExpression? resultBinding = null;
+            DotvvmBindableObject? resultControl = null;
+            DotvvmProperty? resultProperty = null;
 
             bool checkControl;
             bool bindingInPath = false;
             var candidateBindings = new Dictionary<string, CandidateBindings>();
-            string errorMessage = null;
+            string? errorMessage = null;
 
             var walker = new ControlTreeWalker(viewRootControl);
             walker.ProcessControlTree((control) =>
@@ -191,17 +191,17 @@ namespace DotVVM.Framework.Runtime.Commands
         /// <summary>
         /// Throws the event validation exception.
         /// </summary>
-        private InvalidCommandInvocationException EventValidationException(string errorMessage = null, Dictionary<string, CandidateBindings> data = null)
+        private InvalidCommandInvocationException EventValidationException(string? errorMessage = null, Dictionary<string, CandidateBindings>? data = null)
             => new InvalidCommandInvocationException(errorMessage == null ? "Invalid command invocation!" : errorMessage, data);
     }
 
     public class FindBindingResult
     {
-        public string ErrorMessage { get; set; }
-        public Dictionary<string, CandidateBindings> CandidateBindings { get; set; }
+        public string? ErrorMessage { get; set; }
+        public Dictionary<string, CandidateBindings> CandidateBindings { get; set; } = new();
 
-        public CommandBindingExpression Binding { get; set; }
-        public DotvvmBindableObject Control { get; set; }
-        public DotvvmProperty Property { get; set; }
+        public CommandBindingExpression? Binding { get; set; }
+        public DotvvmBindableObject? Control { get; set; }
+        public DotvvmProperty? Property { get; set; }
     }
 }

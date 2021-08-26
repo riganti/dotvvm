@@ -1,5 +1,4 @@
-﻿#nullable enable
-
+﻿
 using System.Collections.Generic;
 
 namespace DotVVM.Framework.Compilation.ControlTree

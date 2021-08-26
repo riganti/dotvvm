@@ -18,14 +18,9 @@ namespace DotVVM.Framework.Compilation.Javascript
 {
     public class DelegateInvokeMethodTranslator : IJavascriptMethodTranslator
     {
-        public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] arguments, MethodInfo method)
+        public JsExpression? TryTranslateCall(LazyTranslatedExpression? context, LazyTranslatedExpression[] arguments, MethodInfo method)
         {
-            if (method == null)
-            {
-                return null;
-            }
-
-            if (method.Name == "Invoke" && typeof(Delegate).IsAssignableFrom(method.DeclaringType))
+            if (context is object && method.Name == "Invoke" && typeof(Delegate).IsAssignableFrom(method.DeclaringType))
             {
                 var invocationTargetExpressionCall = context.JsExpression().Invoke(arguments.Select(a => a.JsExpression()));
                 return invocationTargetExpressionCall
@@ -50,7 +45,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddDefaultMethodTranslators();
         }
 
-        public void AddMethodTranslator(Type declaringType, string methodName, IJavascriptMethodTranslator translator, Type[] parameters = null, bool allowGeneric = true, bool allowMultipleMethods = false)
+        public void AddMethodTranslator(Type declaringType, string methodName, IJavascriptMethodTranslator translator, Type[]? parameters = null, bool allowGeneric = true, bool allowMultipleMethods = false)
         {
             var methods = declaringType.GetMethods()
                 .Where(m => m.Name == methodName && (allowGeneric || !m.IsGenericMethod));
@@ -65,7 +60,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodsCore(methods.ToArray(), translator, allowMultipleMethods);
         }
 
-        public void AddMethodTranslator(Type declaringType, string methodName, IJavascriptMethodTranslator translator, int parameterCount, bool allowMultipleMethods = false, Func<ParameterInfo[], bool> parameterFilter = null)
+        public void AddMethodTranslator(Type declaringType, string methodName, IJavascriptMethodTranslator translator, int parameterCount, bool allowMultipleMethods = false, Func<ParameterInfo[], bool>? parameterFilter = null)
         {
             var methods = declaringType.GetMethods()
                 .Where(m => m.Name == methodName)
@@ -160,8 +155,8 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             AddMethodTranslator(typeof(DotvvmBindableObject).GetMethods(BindingFlags.Instance | BindingFlags.Public).Single(m => m.Name == "GetValue" && !m.ContainsGenericParameters), new GenericMethodCompiler(
                 args => {
-                    var dotvvmproperty = ((DotvvmProperty)((JsLiteral)args[1]).Value);
-                    return JavascriptTranslationVisitor.TranslateViewModelProperty(args[0], (MemberInfo)dotvvmproperty.PropertyInfo ?? dotvvmproperty.PropertyType, name: dotvvmproperty.Name);
+                    var dotvvmproperty = ((DotvvmProperty)((JsLiteral)args[1]).Value!);
+                    return JavascriptTranslationVisitor.TranslateViewModelProperty(args[0], (MemberInfo?)dotvvmproperty.PropertyInfo ?? dotvvmproperty.PropertyType, name: dotvvmproperty.Name);
                 }
             ));
 
@@ -182,7 +177,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         private void AddDefaultToStringTranslations()
         {
             AddMethodTranslator(typeof(object), "ToString", new GenericMethodCompiler(
-                a => new JsIdentifierExpression("String").Invoke(a[0]), (m, c, a) => ToStringCheck(c)), 0);
+                a => new JsIdentifierExpression("String").Invoke(a[0]), (m, c, a) => ToStringCheck(c!)), 0);
             AddMethodTranslator(typeof(Convert), "ToString", new GenericMethodCompiler(
                 a => new JsIdentifierExpression("String").Invoke(a[1]), (m, c, a) => ToStringCheck(a[0])), 1, true);
 
@@ -479,7 +474,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), parameterCount: 1, translator: new GenericMethodCompiler(args => args[1].Member("length")));
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Distinct), parameterCount: 1,
                 translator: new GenericMethodCompiler(args => new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("distinct").Invoke(args[1]),
-                check: (method, target, arguments) => EnsureIsComparableInJavascript(method, target?.Type ?? ReflectionUtils.GetEnumerableType(arguments.First().Type))));
+                check: (method, target, arguments) => EnsureIsComparableInJavascript(method, ReflectionUtils.GetEnumerableType(arguments.First().Type).NotNull())));
 
             AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.ElementAt), parameterCount: 2, parameterFilter: p => p[1].ParameterType == typeof(int),
                 translator: new GenericMethodCompiler((args, method) => BuildIndexer(args[1], args[2], method)));
@@ -589,13 +584,8 @@ namespace DotVVM.Framework.Compilation.Javascript
                 new JsNewExpression(new JsIdentifierExpression("Date"), args[0]).Member("getMilliseconds").Invoke()));
         }
 
-        public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] args, MethodInfo method)
+        public JsExpression? TryTranslateCall(LazyTranslatedExpression? context, LazyTranslatedExpression[] args, MethodInfo method)
         {
-            if (method == null)
-            {
-                return null;
-            }
-
             {
                 if (MethodTranslators.TryGetValue(method, out var translator) && translator.TryTranslateCall(context, args, method) is JsExpression result)
                 {

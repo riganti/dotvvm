@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
     public class JsParensFixingVisitor : JsNodeVisitor
     {
-        public static byte OperatorLevel(JsExpression expression)
+        public static byte OperatorLevel(JsExpression? expression)
         {
             switch (expression) {
                 case JsParenthesizedExpression _:

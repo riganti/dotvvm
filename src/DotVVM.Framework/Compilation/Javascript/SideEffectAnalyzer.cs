@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 ComputePossibleMutations(result, node);
             return result;
         }
-        static bool isNameOverridden(object name, JsNode n, JsNode rootNode)
+        static bool isNameOverridden(object name, JsNode? n, JsNode? rootNode)
         {
             if (!(name is string)) return false;
             while (n != null && n != rootNode)
@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
             return false;
         }
-        static IEnumerable<object> getAssignedPath(JsExpression expression, JsNode rootNode)
+        static IEnumerable<object>? getAssignedPath(JsExpression? expression, JsNode? rootNode)
         {
             if (expression is JsIdentifierExpression identifier && !isNameOverridden(identifier.Identifier, identifier, rootNode))
                 return new [] { identifier.Identifier };
@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     path?.ApplyAction(result.SetMutatedMember);
                     var rightPath = getAssignedPath(assignment.Right, node);
                     if (path != null && rightPath != null)
-                        result.GetMember(rightPath).EqualTo.Add(result.GetMember(path));
+                        result.GetMember(rightPath).NotNull().EqualTo.Add(result.GetMember(path).NotNull());
                 }
                 else if (n is JsInvocationExpression invocation)
                 {
@@ -105,10 +105,10 @@ namespace DotVVM.Framework.Compilation.Javascript
             return result;
         }
 
-        public ExpressionMutationList GetMember(IEnumerable<object> path) =>
+        public ExpressionMutationList? GetMember(IEnumerable<object>? path) =>
             path?.Aggregate(this, (p, m) => p.GetMember(m));
 
         public void SetMutatedMember(IEnumerable<object> path) =>
-            GetMember(path).MutatesRoot = true;
+            GetMember(path).NotNull("Could not find path.").MutatesRoot = true;
     }
 }

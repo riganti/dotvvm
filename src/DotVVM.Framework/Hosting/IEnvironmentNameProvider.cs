@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace DotVVM.Framework.Hosting
+﻿namespace DotVVM.Framework.Hosting
 {
     public interface IEnvironmentNameProvider
     {

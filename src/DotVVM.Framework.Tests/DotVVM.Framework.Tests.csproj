@@ -1,6 +1,8 @@
 <Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <!-- This async method lacks 'await' -->
+    <NoWarn>$(NoWarn);CS1998</NoWarn>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <SignAssembly>True</SignAssembly>

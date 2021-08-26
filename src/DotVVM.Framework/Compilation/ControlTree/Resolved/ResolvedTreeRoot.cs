@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
@@ -7,6 +6,7 @@ using System.Collections.Immutable;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
@@ -17,6 +17,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public ControlBuilderDescriptor? MasterPage { get; }
 
         IAbstractControlBuilderDescriptor? IAbstractTreeRoot.MasterPage => MasterPage;
+
+        public new DothtmlNode DothtmlNode => base.DothtmlNode.NotNull("View must have a DothtmlNode");
 
         public ControlBuilderDescriptor ControlBuilderDescriptor =>
             new ControlBuilderDescriptor(

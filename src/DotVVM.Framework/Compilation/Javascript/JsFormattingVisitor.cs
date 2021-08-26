@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         StringBuilder result = new StringBuilder();
-        List<(int index, CodeParameterInfo parameter)> parameters;
+        List<(int index, CodeParameterInfo parameter)>? parameters;
         protected void Emit(string str)
         {
             Debug.Assert(!str.Contains("\n"));

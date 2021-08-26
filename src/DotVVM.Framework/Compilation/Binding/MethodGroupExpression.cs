@@ -15,16 +15,25 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public override bool CanReduce => GetMethod() != null;
 
-        public Expression Target { get; set; }
-        public string MethodName { get; set; }
-        public Type[] TypeArgs { get; set; }
-        public List<MethodInfo> Candidates { get; set; }
-        public bool HasExtensionCandidates { get; set; }
+        public Expression Target { get; }
+        public string MethodName { get; }
+        public Type[]? TypeArgs { get; }
+        public List<MethodInfo>? Candidates { get; set; }
+        public bool HasExtensionCandidates { get; }
         public bool IsStatic => Target is StaticClassIdentifierExpression;
 
         private static MethodInfo CreateDelegateMethodInfo = typeof(Delegate).GetMethod("CreateDelegate", new[] { typeof(Type), typeof(object), typeof(MethodInfo) });
 
-        public Expression CreateDelegateExpression(Type delegateType, bool throwException = true)
+        public MethodGroupExpression(Expression target, string methodName, Type[]? typeArgs = null, List<MethodInfo>? candidates = null, bool hasExtensionCandidates = false)
+        {
+            Target = target;
+            MethodName = methodName;
+            TypeArgs = typeArgs;
+            Candidates = candidates;
+            HasExtensionCandidates = hasExtensionCandidates;
+        }
+
+        public Expression? CreateDelegateExpression(Type delegateType, bool throwException = true)
         {
             if (delegateType == null || delegateType == typeof(object)) return CreateDelegateExpression();
             if (!typeof(Delegate).IsAssignableFrom(delegateType)) if (throwException) throw new Exception("Could not convert method group expression to a non delegate type."); else return null;
@@ -79,7 +88,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var argsArray = args.ToArray();
             if (IsStatic)
             {
-                return memberExpressionFactory.CallMethod((Target as StaticClassIdentifierExpression).Type, BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy, MethodName, TypeArgs, argsArray);
+                return memberExpressionFactory.CallMethod(((StaticClassIdentifierExpression)Target).Type, BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy, MethodName, TypeArgs, argsArray);
             }
             else
             {

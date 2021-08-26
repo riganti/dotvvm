@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     if ((parameter?.ParameterType ?? plan.Method.DeclaringType).Equals(arg.Arg))
                         array.Add(JValue.CreateNull());
                     else
-                        array.Add(new JValue(arg.Arg.CastTo<Type>().Apply(GetTypeFullName)));
+                        array.Add(new JValue(arg.Arg!.CastTo<Type>().Apply(GetTypeFullName)));
                 }
                 else if (arg.Type == StaticCommandParameterType.Constant)
                 {
@@ -43,11 +43,11 @@ namespace DotVVM.Framework.Compilation.Binding
                     if ((parameter?.ParameterType ?? plan.Method.DeclaringType).Equals(arg.Arg))
                         array.Add(JValue.CreateNull());
                     else
-                        array.Add(new JValue(arg.Arg.CastTo<Type>().Apply(GetTypeFullName)));
+                        array.Add(new JValue(arg.Arg!.CastTo<Type>().Apply(GetTypeFullName)));
                 }
                 else if (arg.Type == StaticCommandParameterType.Invocation)
                 {
-                    array.Add(SerializePlan((StaticCommandInvocationPlan)arg.Arg));
+                    array.Add(SerializePlan((StaticCommandInvocationPlan)arg.Arg!));
                 }
                 else throw new NotSupportedException(arg.Type.ToString());
             }
@@ -108,7 +108,7 @@ namespace DotVVM.Framework.Compilation.Binding
                         case StaticCommandParameterType.Constant:
                             return new StaticCommandParameterPlan(a.type, a.arg.ToObject(a.parameter?.ParameterType ?? methodFound.DeclaringType));
                         case StaticCommandParameterType.DefaultValue:
-                            return new StaticCommandParameterPlan(a.type, a.parameter.DefaultValue);
+                            return new StaticCommandParameterPlan(a.type, a.parameter?.DefaultValue);
                         case StaticCommandParameterType.Invocation:
                             return new StaticCommandParameterPlan(a.type, DeserializePlan(a.arg));
                         default:

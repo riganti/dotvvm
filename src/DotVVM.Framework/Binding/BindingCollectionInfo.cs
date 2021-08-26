@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Hosting;
+﻿using DotVVM.Framework.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +28,7 @@ namespace DotVVM.Framework.Binding
             IJavascriptMethodTranslator memberAccess(string name) =>
                 new GenericMethodCompiler(
                     builder: a => a[0].CastTo<JsObjectExpression>().Properties.Single(p => p.Name == name).Expression.Clone(),
-                    check: (_m, a, _a) => a.GetParameterAnnotation() is BindingParameterAnnotation ann && ann.ExtensionParameter is BindingCollectionInfoExtensionParameter
+                    check: (_m, a, _a) => a?.GetParameterAnnotation() is BindingParameterAnnotation ann && ann.ExtensionParameter is BindingCollectionInfoExtensionParameter
                 );
             methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(Index), memberAccess(nameof(Index)));
             methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(IsFirst), memberAccess(nameof(IsFirst)));

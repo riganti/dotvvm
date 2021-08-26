@@ -1,4 +1,3 @@
-#nullable enable
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using DotVVM.Framework.Binding;

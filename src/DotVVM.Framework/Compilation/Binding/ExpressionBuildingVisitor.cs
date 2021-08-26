@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
@@ -44,7 +43,7 @@ namespace DotVVM.Framework.Compilation.Binding
         protected T HandleErrors<T, TNode>(TNode node, Func<TNode, T> action, string defaultErrorMessage = "Binding compilation failed", bool allowResultNull = true)
             where TNode : BindingParserNode
         {
-            T result = default(T);
+            T result = default!;
             try
             {
                 result = action(node);
@@ -115,15 +114,15 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitInterpolatedStringExpression(InterpolatedStringBindingParserNode node)
         {
-            var target = new MethodGroupExpression() {
-                MethodName = nameof(String.Format),
-                Target = new StaticClassIdentifierExpression(typeof(string))
-            };
+            var target = new MethodGroupExpression(
+                new StaticClassIdentifierExpression(typeof(string)),
+                nameof(String.Format)
+            );
 
             if (node.Arguments.Any())
             {
                 // Translate to a String.Format(...) call
-                var arguments = node.Arguments.Select((arg, index) => HandleErrors(node.Arguments[index], Visit)).ToArray();
+                var arguments = node.Arguments.Select((arg, index) => HandleErrors(node.Arguments[index], Visit)!).ToArray();
                 return memberExpressionFactory.Call(target, new[] { Expression.Constant(node.Format) }.Concat(arguments).ToArray());
             }
             else
@@ -243,7 +242,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
             }
 
-            return memberExpressionFactory.GetBinaryOperator(left, right, eop);
+            return memberExpressionFactory.GetBinaryOperator(left!, right!, eop);
         }
 
         protected override Expression VisitArrayAccess(ArrayAccessBindingParserNode node)
@@ -252,7 +251,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var index = HandleErrors(node.ArrayIndexExpression, Visit);
             ThrowOnErrors();
 
-            var expression = ExpressionHelper.GetIndexer(target, index);
+            var expression = ExpressionHelper.GetIndexer(target!, index!);
             if (expression is IndexExpression indexExpression && !node.Annotations.Contains(WriteAccessAnnotation.Instance))
             {
                 // Convert to get_{Indexer}(index, value) call
@@ -544,12 +543,12 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitFormattedExpression(FormattedBindingParserNode node)
         {
-            var target = new MethodGroupExpression() {
-                MethodName = nameof(String.Format),
-                Target = new StaticClassIdentifierExpression(typeof(string))
-            };
+            var target = new MethodGroupExpression(
+                new StaticClassIdentifierExpression(typeof(string)),
+                nameof(String.Format)
+            );
 
-            var nodeObj = HandleErrors(node.Node, Visit);
+            var nodeObj = Visit(node.Node);
             return memberExpressionFactory.Call(target, new[] { Expression.Constant(node.Format), nodeObj });
         }
 

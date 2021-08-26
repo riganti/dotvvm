@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Binding
             Type declaringType,
             FieldInfo descriptorField,
             string name,
-            object defaultValue,
+            object? defaultValue,
             Action<IHtmlWriter, IDotvvmRequestContext, DotvvmPropertyGroup, DotvvmControl, IEnumerable<DotvvmProperty>> func)
             : base(prefixes, valueType, declaringType, descriptorField, descriptorField, name, defaultValue)
         {
@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Binding
             PrefixArray prefixes,
             string name,
             Action<IHtmlWriter, IDotvvmRequestContext, DotvvmPropertyGroup, DotvvmControl, IEnumerable<DotvvmProperty>> func,
-            TValue defaultValue = default(TValue))
+            TValue? defaultValue = default(TValue))
         {
             var descriptorField = DotvvmPropertyGroup.FindDescriptorField(typeof(TDeclaringType), name);
             return (DelegateActionPropertyGroup<TValue>)DotvvmPropertyGroup.Register(

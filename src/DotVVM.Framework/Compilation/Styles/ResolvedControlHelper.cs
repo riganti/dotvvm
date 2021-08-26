@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
@@ -56,7 +55,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
             foreach (var pg in DotvvmPropertyGroup.GetPropertyGroups(type).Where(pg => pg.PropertyGroupMode == PropertyGroupMode.ValueCollection))
             {
-                var dictionary = pg.PropertyInfo.GetValue(obj) as IDictionary<string, object?>;
+                var dictionary = pg.PropertyInfo!.GetValue(obj) as IDictionary<string, object?>;
                 if (dictionary is null) continue;
                 foreach (var p in dictionary)
                 {

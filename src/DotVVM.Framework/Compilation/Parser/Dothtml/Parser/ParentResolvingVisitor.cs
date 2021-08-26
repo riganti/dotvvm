@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
+﻿namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
     public class ParentResolvingVisitor : IDothtmlSyntaxTreeVisitor
     {

@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 {
     public static class JavascriptCompilationHelper
     {
-        public static string CompileConstant(object obj) => JsonConvert.SerializeObject(obj, DefaultSerializerSettingsProvider.Instance.Settings);
+        public static string CompileConstant(object? obj) => JsonConvert.SerializeObject(obj, DefaultSerializerSettingsProvider.Instance.Settings);
 
         private static readonly CodeSymbolicParameter indexerTargetParameter = new CodeSymbolicParameter("JavascriptCompilationHelper.indexerTargetParameter");
         private static readonly CodeSymbolicParameter indexerExpressionParameter = new CodeSymbolicParameter("JavascriptCompilationHelper.indexerExpressionParameter");
@@ -30,9 +30,9 @@ namespace DotVVM.Framework.Compilation.Javascript
                 default(CodeParameterAssignment));
         }
 
-        public static ViewModelInfoAnnotation GetResultType(this JsExpression expr)
+        public static ViewModelInfoAnnotation? GetResultType(this JsExpression expr)
         {
-            ViewModelInfoAnnotation combine2(ViewModelInfoAnnotation a, ViewModelInfoAnnotation b)
+            ViewModelInfoAnnotation? combine2(ViewModelInfoAnnotation? a, ViewModelInfoAnnotation? b)
             {
                 if (a == null || b == null) return a ?? b;
                 else if (a.Type.IsAssignableFrom(b.Type)) return a;
@@ -76,7 +76,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         public static bool IsComplexType(this JsExpression expr) =>
-            GetResultType(expr) is ViewModelInfoAnnotation vmInfo && ReflectionUtils.IsComplexType(vmInfo.Type);
+            GetResultType(expr) is { Type: var type } && ReflectionUtils.IsComplexType(type);
 
         public static bool IsRootResultExpression(this JsNode node) =>
             SatisfyResultCondition(node, n => n.Parent == null || n.Parent is JsExpressionStatement);
@@ -85,7 +85,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             (node.Parent is JsParenthesizedExpression ||
                 node.Role == JsConditionalExpression.FalseRole ||
                 node.Role == JsConditionalExpression.TrueRole
-            ) && node.Parent.SatisfyResultCondition(predicate);
+            ) && node.Parent!.SatisfyResultCondition(predicate);
 
     }
 }

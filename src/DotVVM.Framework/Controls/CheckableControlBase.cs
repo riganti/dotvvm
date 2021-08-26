@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
@@ -77,7 +76,7 @@ namespace DotVVM.Framework.Controls
             DotvvmCapabilityProperty.RegisterCapability("TextOrContentCapability", typeof(CheckableControlBase), typeof(TextOrContentCapability),
                 control => TextOrContentCapability.FromChildren((CheckableControlBase)control, TextProperty),
                 (control, boxedValue) => {
-                    var value = (TextOrContentCapability)boxedValue;
+                    var value = (TextOrContentCapability?)boxedValue ?? new TextOrContentCapability();
                     value.WriteToChildren((CheckableControlBase)control, TextProperty);
                 }
             );

@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -179,7 +178,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         protected virtual ImmutableList<InjectedServiceExtensionParameter> ResolveInjectDirectives(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives) =>
             directives.Values.SelectMany(d => d).OfType<IAbstractServiceInjectDirective>()
             .Where(d => d.Type != null)
-            .Select(d => new InjectedServiceExtensionParameter(d.NameSyntax.Name, d.Type))
+            .Select(d => new InjectedServiceExtensionParameter(d.NameSyntax.Name, d.Type!))
             .ToImmutableList();
 
         private (JsExtensionParameter extensionParameter, ViewModuleReferenceInfo resource)? ResolveImportedViewModules(string id, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, bool isMarkupControl)
@@ -355,7 +354,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var controlMetadata = controlResolver.ResolveControl(element.TagPrefix, element.TagName, out var constructorParameters);
             if (controlMetadata == null)
             {
-                controlMetadata = controlResolver.ResolveControl("", element.TagName, out constructorParameters);
+                controlMetadata = controlResolver.ResolveControl("", element.TagName, out constructorParameters).NotNull();
                 constructorParameters = new[] { element.FullTagName };
                 element.AddError($"The control <{element.FullTagName}> could not be resolved! Make sure that the tagPrefix is registered in DotvvmConfiguration.Markup.Controls collection!");
             }
@@ -369,13 +368,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 ProcessAttribute(DotvvmBindableObject.DataContextProperty, dataContextAttribute, control, dataContext);
             }
 
-            IAbstractPropertySetter dataContextProperty;
-            if (control.TryGetProperty(DotvvmBindableObject.DataContextProperty, out dataContextProperty) && dataContextProperty is IAbstractPropertyBinding)
+            if (control.TryGetProperty(DotvvmBindableObject.DataContextProperty, out var dataContextProperty) && dataContextProperty is IAbstractPropertyBinding { Binding: var dataContextBinding } )
             {
-                var dataContextBinding = ((IAbstractPropertyBinding)dataContextProperty).Binding;
                 if (dataContextBinding?.ResultType != null)
                 {
-                    dataContext = CreateDataContextTypeStack(dataContextBinding?.ResultType, parentDataContextStack: dataContext);
+                    dataContext = CreateDataContextTypeStack(dataContextBinding.ResultType, parentDataContextStack: dataContext);
                 }
                 else
                 {
@@ -412,7 +409,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             if (bindingOptions == null)
             {
                 node.NameNode.AddError($"Binding {node.Name} could not be resolved.");
-                bindingOptions = controlResolver.ResolveBinding("value"); // just try it as with value binding
+                bindingOptions = controlResolver.ResolveBinding("value").NotNull(); // just try it as with value binding
             }
 
             if (context?.NamespaceImports.Count > 0)
@@ -900,7 +897,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var manipulationAttribute = property != null ? property.DataContextManipulationAttribute : control.Metadata.DataContextManipulationAttribute;
             if (manipulationAttribute != null)
             {
-                return manipulationAttribute.ChangeStackForChildren(dataContext, control, property, (parent, changeType) => CreateDataContextTypeStack(changeType, parentDataContextStack: parent));
+                return manipulationAttribute.ChangeStackForChildren(dataContext, control, property!, (parent, changeType) => CreateDataContextTypeStack(changeType, parentDataContextStack: parent));
             }
 
             var attributes = property != null ? property.DataContextChangeAttributes : control.Metadata.DataContextChangeAttributes;

@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             w.WriteUnencoded("</div><hr />");
         }
 
-        public virtual SourceModel ExtractSource(Exception exc)
+        public virtual SourceModel? ExtractSource(Exception exc)
         {
             if (exc is DotvvmCompilationException)
             {
@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return null;
         }
 
-        private SourceModel ExtractSourceFromDotvvmCompilationException(DotvvmCompilationException compilationException)
+        private SourceModel? ExtractSourceFromDotvvmCompilationException(DotvvmCompilationException compilationException)
         {
             if (compilationException.Tokens != null && compilationException.Tokens.Any())
             {
@@ -88,7 +88,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return null;
         }
 
-        private SourceModel ExtractSourceFromBindingCompilationException(BindingCompilationException bce)
+        private SourceModel? ExtractSourceFromBindingCompilationException(BindingCompilationException bce)
         {
             if (bce.Expression != null)
             {
@@ -124,7 +124,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         public void WriteHead(IErrorWriter w)
         { }
 
-        public static DotvvmMarkupErrorSection Create(Exception ex)
+        public static DotvvmMarkupErrorSection? Create(Exception ex)
         {
             var iex = ex;
             while (iex != null)

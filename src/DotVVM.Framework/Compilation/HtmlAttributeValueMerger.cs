@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Compilation
             // return Expression.Call(typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(string), typeof(string) }), a, Expression.Constant(separator), b);
         }
 
-        public static string MergeValues(GroupedDotvvmProperty property, string a, string b) =>
+        public static string? MergeValues(GroupedDotvvmProperty property, string? a, string? b) =>
             HtmlWriter.JoinAttributeValues(property.GroupMemberName, a, b);
     }
 }

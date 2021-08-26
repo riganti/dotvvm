@@ -7,9 +7,9 @@ namespace DotVVM.Framework.Compilation
 
         ITypeDescriptor Type { get; }
         
-        string VirtualPath { get; }
+        string? VirtualPath { get; }
 
-        ITypeDescriptor DataContextRequirement { get; }
+        ITypeDescriptor? DataContextRequirement { get; }
 
     }
 }
