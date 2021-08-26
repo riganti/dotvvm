@@ -396,6 +396,11 @@ namespace DotVVM.Framework.Configuration
                     typeof(DotvvmConfiguration).Assembly,
                     "DotVVM.Framework.Resources.Styles.DotVVM.FileUpload.css")));
 
+            configuration.Resources.Register(ResourceConstants.DotvvmInternalCssResourceName,
+                new StylesheetResource(new EmbeddedResourceLocation(
+                    typeof(DotvvmConfiguration).Assembly,
+                    "DotVVM.Framework.Resources.Styles.DotVVM.Internal.css")));
+
             RegisterGlobalizeResources(configuration);
         }
 
