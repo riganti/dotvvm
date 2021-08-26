@@ -1,9 +1,9 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StatusPage.DefaultViewModel, DotVVM.Samples.Common
-@masterPage Views/FeatureSamples/StatusPage/MasterPage.dotmaster
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CompilationPage.DefaultViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/CompilationPage/MasterPage.dotmaster
 <dot:Content ContentPlaceHolderID="MainContent">
 
     <h1>{{value: Title}}</h1>
-    <dot:RouteLink RouteName="StatusPage">Show Compilation Status Page</dot:RouteLink>
+    <dot:RouteLink RouteName="_CompilationPage">Show Compilation Status Page</dot:RouteLink>
 
     <h1>
         Controls test
@@ -11,4 +11,5 @@
     <span>
         {{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /
     </span>
+    <sample:control2></sample:control2>
 </dot:Content>

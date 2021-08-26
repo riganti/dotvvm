@@ -1,0 +1,10 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CompilationPage.DefaultViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/CompilationPage/MasterPage.dotmaster
+    <dot:Content ContentPlaceHolderID="MainContent">
+        <dot:RouteLink RouteName="_CompilationPage">Show Compilation Status Page</dot:RouteLink>
+
+        <h1>
+            Controls test
+        </h1>
+        <cc:ControlError></cc:ControlError>
+    </dot:Content>
