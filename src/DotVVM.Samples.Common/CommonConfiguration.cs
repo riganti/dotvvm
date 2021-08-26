@@ -132,28 +132,9 @@ namespace DotVVM.Samples.Common
             resources.SetEmbeddedResourceDebugFile("dotvvm.internal", "../DotVVM.Framework/obj/javascript/root-only-debug/dotvvm-root.js");
             resources.SetEmbeddedResourceDebugFile("dotvvm.internal-spa", "../DotVVM.Framework/obj/javascript/root-spa-debug/dotvvm-root.js");
             resources.SetEmbeddedResourceDebugFile("dotvvm.debug", "../DotVVM.Framework/Resources/Scripts/DotVVM.Debug.js");
-            resources.SetEmbeddedResourceDebugFile("dotvvm.fileupload-css", "../DotVVM.Framework/Resources/Scripts/DotVVM.FileUploads.css");
+            resources.SetEmbeddedResourceDebugFile("dotvvm.fileupload-css", "../DotVVM.Framework/Resources/Styles/DotVVM.FileUpload.css");
+            resources.SetEmbeddedResourceDebugFile("dotvvm.internal-css", "../DotVVM.Framework/Resources/Styles/DotVVM.Internal.css");
             resources.SetEmbeddedResourceDebugFile("dotvvm.polyfill.bundle", "../DotVVM.Framework/obj/javascript/polyfill.bundle.js");
-
-            // TODO: Get rid of these once they're not needed by StatusPage samples.
-            resources.Register("bootstrap-css", new StylesheetResource
-            {
-                Location = new UrlResourceLocation("~/lib/bootstrap/dist/css/bootstrap.min.css")
-            });
-            resources.Register("bootstrap-theme", new StylesheetResource
-            {
-                Location = new UrlResourceLocation("~/lib/bootstrap/dist/css/bootstrap-theme.min.css"),
-                Dependencies = new[] { "bootstrap-css" }
-            });
-            resources.Register("bootstrap", new ScriptResource
-            {
-                Location = new UrlResourceLocation("~/lib/bootstrap/dist/js/bootstrap.min.js"),
-                Dependencies = new[] { "bootstrap-css", "jquery" }
-            });
-            resources.Register("jquery", new ScriptResource
-            {
-                Location = new UrlResourceLocation("~/lib/jquery/dist/jquery.min.js")
-            });
         }
     }
 }

@@ -5,7 +5,6 @@
 <head>
     <meta charset="utf-8" />
     <title>DotVVM.Framework.Diagnostics.StatusPage.Sample</title>
-    <dot:RequiredResource Name="bootstrap" />
 </head>
 <body>
 
