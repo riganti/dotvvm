@@ -138,3 +138,61 @@ hr {
     margin: 11px 0 5px 0;
     font-size: 12px;
 }
+
+.table-danger {
+    color: #de1212;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.table-success .status {
+    color: green;
+}
+
+.table td {
+    padding: 0.3rem;
+}
+
+h1, h2 {
+    margin-top: 25px;
+}
+
+nav {
+    margin-top: 15px;
+}
+
+.update-box {
+    position: absolute;
+    top: 10px;
+    margin-right: 40%;
+    margin-left: 40%;
+    text-align: center;
+    width: 20%;
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: 5px;
+    vertical-align: middle;
+    padding: 5px;
+    background-color: #fff;
+}
+
+.compiling-update-progress {
+    margin: 0;
+}
+
+@keyframes blink {
+    50% {
+        color: transparent
+    }
+}
+
+.compiling-update-progress span {
+    animation: 1s blink infinite
+}
+
+    .compiling-update-progress span:nth-child(2) {
+        animation-delay: 250ms
+    }
+
+    .compiling-update-progress span:nth-child(3) {
+        animation-delay: 500ms
+    }

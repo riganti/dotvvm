@@ -1,5 +1,4 @@
 using System.Net.Http;
-using DotVVM.Framework.Diagnostics.StatusPage;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
@@ -59,8 +58,6 @@ namespace DotVVM.Samples.Common
 
             services.AddSingleton<IDiagnosticsInformationSender, TextFileDiagnosticsInformationSender>();
             services.AddTransient<VariablesStaticCommand>();
-            dotvvmServices.AddStatusPage();
-            dotvvmServices.AddStatusPageApi();
         }
 
         private static void RegisterResources(DotvvmResourceRepository resources)

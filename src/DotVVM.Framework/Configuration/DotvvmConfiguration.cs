@@ -142,6 +142,20 @@ namespace DotVVM.Framework.Configuration
         }
         private bool _debug;
 
+        /// <summary>
+        /// Gets or sets the configuration for features meant for use during the development of a DotVVM application.
+        /// </summary>
+        /// <remarks>
+        /// These options only apply if the application runs in <see cref="Debug"/> mode.
+        /// </remarks>
+        [JsonProperty("development")]
+        public DotvvmDevelopmentConfiguration Development
+        {
+            get { return _development; }
+            set { ThrowIfFrozen(); _development = value; }
+        }
+        private DotvvmDevelopmentConfiguration _development = new DotvvmDevelopmentConfiguration();
+
         private void ThrowIfFrozen()
         {
             if (isFrozen)
