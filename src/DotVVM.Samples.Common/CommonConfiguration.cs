@@ -1,3 +1,4 @@
+using System.Net.Http;
 using DotVVM.Framework.Diagnostics.StatusPage;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
@@ -47,6 +48,7 @@ namespace DotVVM.Samples.Common
 
             services.AddSingleton<IViewModelServerStore, TestingInMemoryViewModelServerStore>();
 
+            services.AddTransient<HttpClient>();
             services.AddSingleton<ResetClient>();
             services.AddSingleton<OrdersClient>();
             services.AddSingleton<CompaniesClient>();
@@ -89,6 +91,8 @@ namespace DotVVM.Samples.Common
 
             resources.Register("FeatureSamples_Resources_TestViewModule", new ScriptModuleResource(new FileResourceLocation("~/Scripts/testViewModule.js")));
             resources.Register("FeatureSamples_Resources_TestViewModule2", new ScriptModuleResource(new FileResourceLocation("~/Scripts/testViewModule2.js")));
+            resources.Register("FeatureSamples_Resources_TestViewModule3", new ScriptModuleResource(new FileResourceLocation("~/Scripts/testViewModule3.js")));
+            
             resources.Register("FeatureSamples_Resources_Incrementer", new ScriptModuleResource(new FileResourceLocation("~/Scripts/incrementerModule.js")));
 
             resources.Register("testJsModule", new ScriptModuleResource(new InlineResourceLocation("export const commands = { myCommand() { console.info(\"Hello from page module\") } }")));

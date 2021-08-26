@@ -360,8 +360,8 @@ namespace DotVVM.Framework.Hosting
                 var command = postData["command"].Value<string>();
                 var arguments = postData["args"] as JArray;
                 var executionPlan =
-                    StaticCommandBindingCompiler.DecryptJson(Convert.FromBase64String(command), context.Services.GetRequiredService<IViewModelProtector>())
-                        .Apply(StaticCommandBindingCompiler.DeserializePlan);
+                    StaticCommandExecutionPlanSerializer.DecryptJson(Convert.FromBase64String(command), context.Services.GetRequiredService<IViewModelProtector>())
+                        .Apply(StaticCommandExecutionPlanSerializer.DeserializePlan);
 
                 var actionInfo = new ActionInfo {
                     IsControlCommand = false,

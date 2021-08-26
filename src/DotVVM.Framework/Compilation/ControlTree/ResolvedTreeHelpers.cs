@@ -26,6 +26,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
             property is ResolvedPropertyControl control ? control.Control.Metadata.Type :
             property.Property.PropertyType;
 
+        public static object GetValue(this ResolvedPropertySetter setter) =>
+            setter switch {
+                ResolvedPropertyValue value => value.Value,
+                ResolvedPropertyTemplate value => value.Content,
+                ResolvedPropertyControl value => value.Control,
+                ResolvedPropertyControlCollection value => value.Controls,
+                _ => throw new NotSupportedException()
+            };
+
         
         public static bool IsOnlyWhitespace(this IAbstractControl control) =>
             control.Metadata.Type.IsEqualTo(ResolvedTypeDescriptor.Create(typeof(RawLiteral))) && control.DothtmlNode?.IsNotEmpty() == false;

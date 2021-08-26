@@ -81,7 +81,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// <returns>Resource ID</returns>
         public string AddTemplateResource(string template)
         {
-            var resourceId = HashUtils.HashAndBase64Encode(Encoding.Unicode.GetBytes(template));
+            var resourceId = HashUtils.HashAndBase64Encode(template);
             if (!requiredResources.ContainsKey(resourceId))
             {
                 AddRequiredResource(resourceId, new TemplateResource(template));
@@ -188,6 +188,20 @@ namespace DotVVM.Framework.ResourceManagement
         public void AddStartupScript(string javascriptCode, bool defer, params string[] dependentResourceNames)
         {
             AddRequiredResource(new InlineScriptResource(javascriptCode, defer: defer) { Dependencies = dependentResourceNames });
+        }
+
+        /// <summary> Adds a script tag with inline content. The script is identified by the hash of it's content, so it will be in the page only once. </summary>
+        public string AddInlineScript(string javascriptCode, params string[] dependentResourceNames)
+        {
+            var resourceId = "iscr_" + HashUtils.HashAndBase64Encode(javascriptCode);
+            if (!requiredResources.ContainsKey(resourceId))
+            {
+                var defer = dependentResourceNames.Any(IsDeferred);
+                AddRequiredResource(resourceId, new InlineScriptResource(javascriptCode, defer: defer) { Dependencies = dependentResourceNames });
+            }
+
+            return resourceId;
+
         }
 
         /// <summary>
