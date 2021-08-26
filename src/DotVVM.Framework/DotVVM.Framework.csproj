@@ -34,7 +34,8 @@
     <None Remove="node_modules\**" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.css" />
+    <EmbeddedResource Include="Resources\Styles\DotVVM.FileUpload.css" />
+    <EmbeddedResource Include="Resources\Styles\DotVVM.Internal.css" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
