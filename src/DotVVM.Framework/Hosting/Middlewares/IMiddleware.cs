@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Hosting.Middlewares

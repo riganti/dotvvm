@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Compilation;
 using System;
 using System.Collections.Generic;
@@ -9,7 +8,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Declares instructions for control builder.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple = false)]
     public class MarkupOptionsAttribute : Attribute
     {
 

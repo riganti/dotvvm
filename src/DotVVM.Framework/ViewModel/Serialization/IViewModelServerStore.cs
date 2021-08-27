@@ -9,7 +9,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         void Store(string hash, byte[] cacheData);
 
-        byte[] Retrieve(string hash);
+        byte[]? Retrieve(string hash);
 
     }
 }

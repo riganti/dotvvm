@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -60,6 +59,12 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         [JsonIgnore]
         public PropertyInfo? PropertyInfo { get; private set; }
+
+        /// <summary>
+        /// Provider of custom attributes for this property.
+        /// </summary>
+        public ICustomAttributeProvider AttributeProvider { get; private set; }
+
 
         /// <summary>
         /// Gets or sets the markup options.
@@ -211,7 +216,8 @@ namespace DotVVM.Framework.Binding
 
         public static void InitializeProperty(DotvvmProperty property, ICustomAttributeProvider attributeProvider)
         {
-            var propertyInfo = property.DeclaringType.GetProperty(property.Name);
+            var propertyInfo = property.PropertyInfo ?? property.DeclaringType.GetProperty(property.Name);
+            property.AttributeProvider = attributeProvider = propertyInfo ?? attributeProvider ?? throw new ArgumentNullException(nameof(attributeProvider));
             var markupOptions = propertyInfo?.GetCustomAttribute<MarkupOptionsAttribute>()
                 ?? attributeProvider.GetCustomAttribute<MarkupOptionsAttribute>()
                 ?? new MarkupOptionsAttribute() {
@@ -224,40 +230,31 @@ namespace DotVVM.Framework.Binding
 
             if (property == null) property = new DotvvmProperty();
             property.PropertyInfo = propertyInfo;
-            property.DataContextChangeAttributes = (propertyInfo != null ?
-                propertyInfo.GetCustomAttributes<DataContextChangeAttribute>(true) :
-                attributeProvider.GetCustomAttributes<DataContextChangeAttribute>()).ToArray();
-            property.DataContextManipulationAttribute = propertyInfo != null ?
-                propertyInfo.GetCustomAttribute<DataContextStackManipulationAttribute>(true) :
-                attributeProvider.GetCustomAttribute<DataContextStackManipulationAttribute>();
+            property.DataContextChangeAttributes = attributeProvider.GetCustomAttributes<DataContextChangeAttribute>().ToArray();
+            property.DataContextManipulationAttribute = attributeProvider.GetCustomAttribute<DataContextStackManipulationAttribute>();
             if (property.DataContextManipulationAttribute != null && property.DataContextChangeAttributes.Any()) throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set both at property '{property.FullName}'.");
             property.MarkupOptions = markupOptions;
             property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
         }
 
-        public static IEnumerable<DotvvmProperty> GetVirtualProperties(Type controlType)
-            => from p in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-               where !registeredProperties.ContainsKey(p.DeclaringType!.FullName + "." + p.Name)
-               let markupOptions = GetVirtualPropertyMarkupOptions(p)
-               where markupOptions != null
-               where p.GetCustomAttribute<PropertyGroupAttribute>() == null
-               where markupOptions.MappingMode != MappingMode.Exclude
-               select new DotvvmProperty {
-                   DeclaringType = controlType,
-                   IsValueInherited = false,
-                   MarkupOptions = markupOptions,
-                   Name = p.Name,
-                   PropertyInfo = p,
-                   PropertyType = p.PropertyType,
-                   IsVirtual = true
-               };
-
-        private static MarkupOptionsAttribute? GetVirtualPropertyMarkupOptions(PropertyInfo p)
+        public static void CheckAllPropertiesAreRegistered(Type controlType)
         {
-            var mo = p.GetCustomAttribute<MarkupOptionsAttribute>();
-            if (mo == null) return null;
-            mo.AllowBinding = false;
-            return mo;
+            var properties =
+               (from p in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                where !registeredProperties.ContainsKey(p.DeclaringType!.FullName + "." + p.Name)
+                where p.GetCustomAttribute<PropertyGroupAttribute>() == null
+                let markupOptions = p.GetCustomAttribute<MarkupOptionsAttribute>()
+                where markupOptions != null && markupOptions.MappingMode != MappingMode.Exclude
+                select p).ToArray();
+
+            if (properties.Any())
+            {
+                var controlHasOtherProperties = registeredProperties.Values.Any(p => p.DeclaringType == controlType);
+                var explicitLoadingHelp =
+                    !controlHasOtherProperties ? $" The control does not have any other properties registered. It could indicate that DotVVM did not register properties from this assembly - it is common with ExplicitAssemblyLoading enabled, try to register {controlType.Assembly.GetName().Name} into config.Markup.Assemblies." : "";
+                var deprecationHelp = " DotVVM version <= 3.x did support this, but this feature was removed as it lead to many issues. Please register the property using DotvvmProperty.Register. If you find this annoyingly verbose, you could use control capabilities instead (using DotvvmCapabilityProperty.Register).";
+                throw new NotSupportedException($"Control '{controlType.Name}' has properties that are not registered as a DotvvmProperty but have a MarkupOptionsAttribute: {string.Join(", ", properties.Select(p => p.Name))}." + explicitLoadingHelp + deprecationHelp);
+            }
         }
 
         private static ConcurrentDictionary<string, DotvvmProperty> registeredProperties = new ConcurrentDictionary<string, DotvvmProperty>();

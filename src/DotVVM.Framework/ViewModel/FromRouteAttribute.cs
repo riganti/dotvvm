@@ -15,9 +15,9 @@ namespace DotVVM.Framework.ViewModel
             ParameterName = parameterName;
         }
 
-        protected override bool TryGetValueCore(IDotvvmRequestContext context, out object value)
+        protected override bool TryGetValueCore(IDotvvmRequestContext context, out object? value)
         {
-            return context.Parameters.TryGetValue(ParameterName, out value);
+            return context.Parameters!.TryGetValue(ParameterName, out value);
         }
     }
 }

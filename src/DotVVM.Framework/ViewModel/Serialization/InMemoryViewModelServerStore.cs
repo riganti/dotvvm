@@ -16,7 +16,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             this.cacheConfigurationOptions = cacheConfigurationOptions;
         }
 
-        public byte[] Retrieve(string hash)
+        public byte[]? Retrieve(string hash)
         {
             return cacheAdapter.Get<byte[]>(BuildKey(hash));
         }

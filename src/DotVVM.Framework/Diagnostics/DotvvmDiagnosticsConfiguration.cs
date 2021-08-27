@@ -10,10 +10,10 @@ namespace DotVVM.Framework.Diagnostics
 
     public class DotvvmDiagnosticsConfiguration
     {
-        private DiagnosticsServerConfiguration configuration;
+        private DiagnosticsServerConfiguration? configuration;
         private DateTime configurationLastWriteTimeUtc;
 
-        public string GetDiagnosticsServerHostname()
+        public string? GetDiagnosticsServerHostname()
         {
             RefreshConfiguration();
             return configuration?.HostName;

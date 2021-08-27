@@ -1,0 +1,3 @@
+﻿[DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("{{ operation.HttpMethodUpper }}")]
+[DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("{{ operation.Path }}{% for parameter in operation.QueryParameters %}/{{ parameter.VariableName | prepend:'{' }}}{% endfor %}")]
+[DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("{{ operation.AutoRefreshKey }}")]

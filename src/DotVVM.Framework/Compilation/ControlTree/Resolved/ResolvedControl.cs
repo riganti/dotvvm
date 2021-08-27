@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -59,21 +58,22 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             error = null;
             if (!Properties.TryGetValue(value.Property, out var oldValue) || replace)
             {
+                value.Parent = this;
                 Properties[value.Property] = value;
             }
             else
             {
                 if (!value.Property.MarkupOptions.AllowValueMerging) error = $"Property '{value.Property}' is already set and it's value can't be merged.";
                 var merger = (IAttributeValueMerger)Activator.CreateInstance(value.Property.MarkupOptions.AttributeValueMerger)!;
-                var mergedValue = (ResolvedPropertySetter)merger.MergeValues(oldValue, value, out error);
-                if (error != null)
+                var mergedValue = (ResolvedPropertySetter?)merger.MergeValues(oldValue, value, out error);
+                if (error is not null || mergedValue is null)
                 {
                     error = $"Could not merge values using {value.Property.MarkupOptions.AttributeValueMerger.Name}: {error}";
                     return false;
                 }
+                mergedValue.Parent = this;
                 Properties[mergedValue.Property] = mergedValue;
             }
-            value.Parent = this;
             return true;
         }
 

@@ -1,3 +1,4 @@
+#nullable disable
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ViewModel.Validation

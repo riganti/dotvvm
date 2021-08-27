@@ -13,7 +13,7 @@ using NSwag;
 using NSwag.CodeGeneration.CSharp;
 using NSwag.CodeGeneration.OperationNameGenerators;
 using NSwag.CodeGeneration.TypeScript;
-using NSwag.SwaggerGeneration.WebApi;
+using NSwag.Generation.WebApi;
 
 namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
 {
@@ -30,7 +30,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
         {
             var document = await GetSwaggerDocument();
 
-            var settings = new SwaggerToCSharpClientGeneratorSettings() {
+            var settings = new CSharpClientGeneratorSettings() {
                 GenerateSyncMethods = true,
                 OperationNameGenerator = new CustomNameGenerator(),
                 GenerateOptionalParameters = true,
@@ -39,7 +39,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
             settings.CSharpGeneratorSettings.PropertyNameGenerator = new MyPropertyNameGenerator(c => ConversionUtilities.ConvertToUpperCamelCase(c, true));
 
 
-            var generator = new SwaggerToCSharpClientGenerator(document, settings);
+            var generator = new CSharpClientGenerator(document, settings);
             Context.ReturnFile(Encoding.UTF8.GetBytes(generator.GenerateFile()), "ApiClient.cs", "text/plain");
             //File.WriteAllText(CSharpPath, generator.GenerateFile());
         }
@@ -48,7 +48,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
         {
             var document = await GetSwaggerDocument();
 
-            var settings = new SwaggerToTypeScriptClientGeneratorSettings() {
+            var settings = new TypeScriptClientGeneratorSettings() {
                 Template = TypeScriptTemplate.Fetch,
                 OperationNameGenerator = new CustomNameGenerator()
             };
@@ -56,7 +56,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
             settings.TypeScriptGeneratorSettings.NullValue = NJsonSchema.CodeGeneration.TypeScript.TypeScriptNullValue.Null;
 
 
-            var generator = new SwaggerToTypeScriptClientGenerator(document, settings);
+            var generator = new TypeScriptClientGenerator(document, settings);
             var ts = generator.GenerateFile();
             ts = "namespace " + Namespace + " {\n" + ConversionUtilities.Tab(ts, 1).TrimEnd('\n') + "\n}\n";
             Context.ReturnFile(Encoding.UTF8.GetBytes(ts), "ApiClient.ts", "text/plain");
@@ -65,8 +65,8 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
 
         public async Task GenerateSwagger()
         {
-            var settings = new WebApiToSwaggerGeneratorSettings();
-            var generator = new WebApiToSwaggerGenerator(settings);
+            var settings = new WebApiOpenApiDocumentGeneratorSettings();
+            var generator = new WebApiOpenApiDocumentGenerator(settings);
 
             var controllers = typeof(GeneratorViewModel)
                 .Assembly.GetTypes()
@@ -75,10 +75,10 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
             Context.ReturnFile(Encoding.UTF8.GetBytes(d.ToJson()), "WebApi.swagger.json", "text/json");
         }
 
-        private async Task<SwaggerDocument> GetSwaggerDocument()
+        private async Task<OpenApiDocument> GetSwaggerDocument()
         {
             // Workaround: NSwag semm to have a bug in enum handling
-            void editEnumType(JsonSchema4 type)
+            void editEnumType(JsonSchema type)
             {
                 if (type.IsEnumeration && type.Type == JsonObjectType.None)
                     type.Type = JsonObjectType.Integer;
@@ -90,8 +90,8 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
            
 
 
-            var settings = new WebApiToSwaggerGeneratorSettings();
-            var generator = new WebApiToSwaggerGenerator(settings);
+            var settings = new WebApiOpenApiDocumentGeneratorSettings();
+            var generator = new WebApiOpenApiDocumentGenerator(settings);
 
             var controllers = typeof(GeneratorViewModel)
                 .Assembly.GetTypes()
@@ -104,13 +104,13 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
             return d;
         }
 
-        private void PopulateOperationIds(SwaggerDocument d)
+        private void PopulateOperationIds(OpenApiDocument d)
         {
             // Generate missing IDs
             foreach (var operation in d.Operations.Where(o => string.IsNullOrEmpty(o.Operation.OperationId)))
                 operation.Operation.OperationId = GetOperationNameFromPath(operation);
 
-            void consolidateGroup(string name, SwaggerOperationDescription[] operations)
+            void consolidateGroup(string name, OpenApiOperationDescription[] operations)
             {
                 if (operations.Count() == 1) return;
 
@@ -118,7 +118,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
                 if (!name.EndsWith("All") && !d.Operations.Any(n => n.Operation.OperationId == name + "All"))
                 {
                     var arrayResponseOperations = operations.Where(
-                            a => a.Operation.Responses.Any(r => HttpUtilities.IsSuccessStatusCode(r.Key) && r.Value.ActualResponseSchema != null && r.Value.ActualResponseSchema.Type == JsonObjectType.Array)).ToArray();
+                            a => a.Operation.Responses.Any(r => HttpUtilities.IsSuccessStatusCode(r.Key) && r.Value.Schema != null && r.Value.Schema.Type == JsonObjectType.Array)).ToArray();
 
                     foreach (var op in arrayResponseOperations)
                     {
@@ -149,7 +149,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
             }
         }
 
-        private string GetOperationNameFromPath(SwaggerOperationDescription operation)
+        private string GetOperationNameFromPath(OpenApiOperationDescription operation)
         {
             var pathSegments = operation.Path.Trim('/').Split('/').Where(s => !s.Contains('{')).ToArray();
             var lastPathSegment = pathSegments.LastOrDefault();
@@ -167,7 +167,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
             this.editCasing = editCasing;
         }
 
-        public string Generate(JsonProperty property)
+        public string Generate(JsonSchemaProperty property)
         {
             if (!property.Name.All(c => char.IsLetterOrDigit(c) || c == '.' || c == '-' || c == '_' || c == '+'))
                 // crazy property name, encode it in hex
@@ -189,10 +189,9 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
         /// <summary>Gets the client name for a given operation (may be empty).</summary>
         /// <param name="document">The Swagger document.</param>
         /// <param name="path">The HTTP path.</param>
-        /// <param name="httpMethod">The HTTP method.</param>
         /// <param name="operation">The operation.</param>
         /// <returns>The client name.</returns>
-        public string GetClientName(SwaggerDocument document, string path, SwaggerOperationMethod httpMethod, SwaggerOperation operation)
+        public string GetClientName(OpenApiDocument document, string path, string httpMethod, OpenApiOperation operation)
         {
             return GetClientName(operation);
         }
@@ -200,10 +199,9 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
         /// <summary>Gets the operation name for a given operation.</summary>
         /// <param name="document">The Swagger document.</param>
         /// <param name="path">The HTTP path.</param>
-        /// <param name="httpMethod">The HTTP method.</param>
         /// <param name="operation">The operation.</param>
         /// <returns>The operation name.</returns>
-        public string GetOperationName(SwaggerDocument document, string path, SwaggerOperationMethod httpMethod, SwaggerOperation operation)
+        public string GetOperationName(OpenApiDocument document, string path, string httpMethod, OpenApiOperation operation)
         {
             var clientName = GetClientName(operation);
             var operationName = GetOperationName(operation);
@@ -217,8 +215,8 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
                 if (operationName.ToLowerInvariant().StartsWith("get"))
                 {
                     var isArrayResponse = operation.Responses.ContainsKey("200") &&
-                                          operation.Responses["200"].ActualResponseSchema != null &&
-                                          operation.Responses["200"].ActualResponseSchema.Type.HasFlag(JsonObjectType.Array);
+                                          operation.Responses["200"].Schema != null &&
+                                          operation.Responses["200"].Schema.Type.HasFlag(JsonObjectType.Array);
 
                     if (isArrayResponse)
                         return "GetAll" + operationName.Substring(3);
@@ -228,13 +226,13 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
             return operationName;
         }
 
-        private string GetClientName(SwaggerOperation operation)
+        private string GetClientName(OpenApiOperation operation)
         {
             var segments = operation.OperationId.Split('_').ToArray();
             return segments.Length >= 2 ? segments[0] : string.Empty;
         }
 
-        private string GetOperationName(SwaggerOperation operation)
+        private string GetOperationName(OpenApiOperation operation)
         {
             var segments = operation.OperationId.Split('_').ToArray();
             if (segments.Length >= 2) segments = segments.Skip(1).ToArray();

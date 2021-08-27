@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -129,6 +130,45 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public async Task GridViewColumn_CellDecorators()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <dot:GridView DataSource={value: Customers} RenderSettings.Mode=Server InlineEditing=true>
+                    <dot:GridViewTextColumn HeaderText=Id ValueBinding={value: Id}>
+                        <HeaderCellDecorators>
+                            <dot:Decorator class={value: 'header-' + Integer} />
+                        </HeaderCellDecorators>
+                        <CellDecorators>
+                            <dot:Decorator class={value: 'cell-' + Id} />
+                        </CellDecorators>
+                        <EditCellDecorators>
+                            <dot:Decorator class={value: 'cell-' + Id + '-edit'} />
+                        </EditCellDecorators>
+                    </dot:GridViewTextColumn>
+                </dot:GridView>");
+
+            Assert.IsTrue(r.Html.QuerySelectorAll("th")[0].ClassList.Contains("header-10000000"));
+            Assert.IsTrue(r.Html.QuerySelectorAll("td")[0].ClassList.Contains("cell-1-edit"));
+            Assert.IsTrue(r.Html.QuerySelectorAll("td")[1].ClassList.Contains("cell-2"));
+        }
+
+        [TestMethod]
+        public async Task GridViewColumn_HeaderRowDecorators()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <dot:GridView DataSource={value: Customers} RenderSettings.Mode=Server InlineEditing=true>
+                    <HeaderRowDecorators>
+                        <dot:Decorator class={value: 'header-' + Integer} />
+                    </HeaderRowDecorators>
+                    <Columns>
+                        <dot:GridViewTextColumn HeaderText=Id ValueBinding={value: Id} />
+                    </Columns>
+                </dot:GridView>");
+
+            Assert.IsTrue(r.Html.QuerySelectorAll("tr")[0].ClassList.Contains("header-10000000"));
+        }
+
+        [TestMethod]
         public async Task GridViewColumn_Usage_Validators()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
@@ -177,6 +217,10 @@ namespace DotVVM.Framework.Tests.ControlTests
                 RowEditOptions = {
                     EditRowId = 1,
                     PrimaryKeyPropertyName = nameof(CustomerData.Id)
+                },
+                Items = {
+                    new CustomerData() { Id = 1, Name = "One" },
+                    new CustomerData() { Id = 2, Name = "Two" }
                 }
             };
 

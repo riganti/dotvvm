@@ -1,10 +1,10 @@
-#nullable enable
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
-    [DebuggerDisplay("{Property.Name} = \"{Value}\"")]
     public class ResolvedPropertyValue : ResolvedPropertySetter, IAbstractPropertyValue
     {
         public object? Value { get; set; }
@@ -23,6 +23,11 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         {
         }
 
-        public override string ToString() => $"{Property}=\"{Value}\"";
+        private static string DebugFormatValue(object? v) =>
+            v is null ? "null" :
+            v is IEnumerable<object> vs ? $"[{string.Join(", ", vs.Select(DebugFormatValue))}]" :
+            v.ToString();
+
+        public override string ToString() => $"{Property}=\"{DebugFormatValue(Value)}\"";
     }
 }

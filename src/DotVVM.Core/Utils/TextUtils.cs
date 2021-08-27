@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM;
+﻿using DotVVM;
 
 namespace DotVVM.Core.Utils
 {

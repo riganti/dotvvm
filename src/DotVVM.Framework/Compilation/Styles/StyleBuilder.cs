@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
@@ -69,6 +68,9 @@ namespace DotVVM.Framework.Compilation.Styles
 
             public override bool Matches(IStyleMatchContext context)
             {
+                if (context.PropertyS<bool>(Controls.Styles.ExcludeProperty) == true)
+                    return false;
+
                 return Matcher != null ? Matcher(new StyleMatchContext<T>(context.Parent, context.Control, context.Configuration)) : true;
             }
         }

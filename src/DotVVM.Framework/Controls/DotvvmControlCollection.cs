@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -368,6 +367,21 @@ namespace DotVVM.Framework.Controls
         private static bool IsInParentsChildren(DotvvmControl item)
         {
             return item.Parent is DotvvmControl control && control.Children.Contains(item);
+        }
+
+        /// <summary>
+        /// Determines whether the control has only white space content.
+        /// </summary>
+        public bool HasOnlyWhiteSpaceContent()
+        {
+            if (controls.Count == 0) return true;
+
+            foreach (var c in controls)
+            {
+                if (c is not Infrastructure.RawLiteral lit || !lit.IsWhitespace)
+                    return false;
+            }
+            return true;
         }
     }
 }

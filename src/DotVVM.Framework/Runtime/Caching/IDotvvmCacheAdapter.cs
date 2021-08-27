@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,7 +9,7 @@ namespace DotVVM.Framework.Runtime.Caching
         T GetOrAdd<TKey, T>(TKey key, Func<TKey, DotvvmCachedItem<T>> factoryFunc)
             where TKey: notnull;
 
-        T Get<T>(object key);
+        T? Get<T>(object key);
 
         object? Remove(object key);
     }

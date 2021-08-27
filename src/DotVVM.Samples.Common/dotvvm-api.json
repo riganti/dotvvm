@@ -1,0 +1,26 @@
+[
+    {
+      "swaggerFile": "http://localhost:5001/swagger/v1/swagger.json",
+      "csharpClient": "./TestWebApiClientAspNetCore.cs",
+      "typescriptClient": "./Scripts/TestWebApiClientAspNetCore.ts",
+      "namespace": "DotVVM.Samples.Common.Api.AspNetCore",
+      "compileTypescript": true,
+      "generateWrapperClass": true,
+      "isSingleClient": true,
+      "fetchOptions": {
+        "credentials": "same-origin"
+      }
+    },
+    {
+      "swaggerFile": "http://localhost:61453/swagger/docs/v1",
+      "csharpClient": "./TestWebApiClientOwin.cs",
+      "typescriptClient": "./Scripts/TestWebApiClientOwin.ts",
+      "namespace": "DotVVM.Samples.Common.Api.Owin",
+      "compileTypescript": true,
+      "generateWrapperClass": true,
+      "isSingleClient": false,
+      "fetchOptions": {
+        "credentials": "same-origin"
+      }
+    }
+  ]

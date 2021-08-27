@@ -42,7 +42,7 @@ namespace DotVVM.Framework.Configuration
                 return instance;
             }
         }
-        private static DefaultSerializerSettingsProvider instance;
+        private static DefaultSerializerSettingsProvider? instance;
 
         private DefaultSerializerSettingsProvider()
         {

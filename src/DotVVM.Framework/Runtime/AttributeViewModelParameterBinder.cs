@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,7 +94,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Called from the generated lambda expressions to perform the parameter binding.
         /// </summary>
-        private static T SetProperty<T>(IDotvvmRequestContext context, ParameterBindingAttribute attribute, T defaultValue)
+        private static T? SetProperty<T>(IDotvvmRequestContext context, ParameterBindingAttribute attribute, T? defaultValue)
         {
             if (attribute.TryGetValue<T>(context, out var result))
             {

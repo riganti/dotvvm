@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -60,7 +59,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<IValueBinding?, Internal>(() => CurrentIndexBindingProperty);
 
         public static DotvvmProperty ReferencedViewModuleInfoProperty =
-            DotvvmProperty.Register<ViewModuleReferenceInfo, Internal>(() => ReferencedViewModuleInfoProperty, isValueInherited: true);
+            DotvvmProperty.Register<ViewModuleReferenceInfo, Internal>(() => ReferencedViewModuleInfoProperty);
 
         public static bool IsViewCompilerProperty(DotvvmProperty property)
         {

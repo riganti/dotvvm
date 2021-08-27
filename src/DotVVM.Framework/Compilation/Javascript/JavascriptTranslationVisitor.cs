@@ -108,17 +108,13 @@ namespace DotVVM.Framework.Compilation.Javascript
         public JsExpression TranslateLambda(LambdaExpression expression)
         {
             var args = expression.Parameters.Select(p => new CodeSymbolicParameter($"lambda_param_" + p.Name)).ToArray();
-            var (body, additionalVariables, additionalVarNames) = TranslateLambdaBody(ReplaceVariables(expression.Body, expression.Parameters, args));
+            var body = Translate(ReplaceVariables(expression.Body, expression.Parameters, args));
             var usedNames = new HashSet<string>(body.DescendantNodesAndSelf().OfType<JsIdentifierExpression>().Select(i => i.Identifier));
             var argsNames = expression.Parameters.Select(p => JsTemporaryVariableResolver.GetNames(p.Name).First(usedNames.Add)).ToArray();
-            additionalVarNames = additionalVarNames.Select(p => JsTemporaryVariableResolver.GetNames(p).First(usedNames.Add)).ToArray();
 
-            var functionExpr = new JsFunctionExpression(
-                argsNames.Concat(additionalVarNames).Select(n => new JsIdentifier(n)),
-                body is JsBlockStatement block ? block :
-                body is JsStatement statement ? new JsBlockStatement(statement) :
-                body is JsExpression bodyExpression ? new JsBlockStatement(new JsReturnStatement(bodyExpression)) :
-                throw new NotSupportedException()
+            var functionExpr = new JsArrowFunctionExpression(
+                argsNames.Select(n => new JsIdentifier(n)),
+                body
             );
 
             foreach (var symArg in body.DescendantNodesAndSelf().OfType<JsSymbolicParameter>())
@@ -131,46 +127,21 @@ namespace DotVVM.Framework.Compilation.Javascript
                             .WithAnnotations(symArg.Annotations)
                             .WithAnnotation(ResultMayBeObservableAnnotation.Instance, append: false));
                 }
-                aIndex = Array.IndexOf(additionalVariables, symArg.Symbol);
-                if (aIndex >= 0)
-                {
-                    symArg.ReplaceWith(new JsIdentifierExpression(additionalVarNames[aIndex]));
-                }
             }
 
             return functionExpr;
         }
 
-        (JsNode node, object[] variables, string[] variableNames) TranslateLambdaBody(Expression expression)
+        public JsExpression TranslateBlock(BlockExpression block)
         {
-            if (expression is BlockExpression block)
-            {
-                var args = block.Variables.Select(_ => new CodeSymbolicParameter()).ToArray();
-                var expressions = block.Expressions.Select(s => Translate(ReplaceVariables(s, block.Variables, args))).ToArray();
-                return (
-                    new JsBlockStatement(
-                        expressions.Take(expressions.Length - 1).Select(e => (JsStatement)new JsExpressionStatement(e)).Concat(new[] { new JsReturnStatement(expressions.Last()) }).ToArray()
-                    ),
-                    args,
-                    block.Variables.Select(a => a.Name).ToArray()
-                );
-            }
-            else return (Translate(expression), new object[0], new string[0]);
-        }
+            if (block.Expressions.Count == 0)
+                return new JsLiteral(0).Unary(UnaryOperatorType.Void);
 
-        public JsExpression TranslateBlock(BlockExpression expression)
-        {
-            if (expression.Variables.Any())
-            {
-                return TranslateLambda(Expression.Lambda(expression)).Invoke();
-            }
-            else
-            {
-                var body = expression.Expressions;
-                if (body.Count == 1) return Translate(body[0]);
-                return body.Select(Translate).Aggregate(
-                    (a, b) => (JsExpression)new JsBinaryExpression(a, BinaryOperatorType.Sequence, b));
-            }
+            var vars = block.Variables.Select(v => new JsTemporaryVariableParameter(preferredName: v.Name)).ToArray();
+            var body = block.Expressions.Select(s => Translate(ReplaceVariables(s, block.Variables, vars))).ToArray();
+            if (body.Length == 1) return body[0];
+            return body.Aggregate(
+                (a, b) => (JsExpression)new JsBinaryExpression(a, BinaryOperatorType.Sequence, b));
         }
 
         public JsExpression TranslateAssign(BinaryExpression expression)
@@ -181,7 +152,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var target = Translate(property.Expression);
                 var value = Translate(expression.Right);
                 return TryTranslateMethodCall((property.Member as PropertyInfo)?.SetMethod, property.Expression, new[] { expression.Right }) ??
-                    SetProperty(target, property.Member as PropertyInfo, value);
+                    SetProperty(target, property.Member, value);
             }
             else if (expression.Left.GetParameterAnnotation() is BindingParameterAnnotation annotation)
             {
@@ -194,7 +165,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             throw new NotSupportedException($"Can not assign expression of type {expression.Left.NodeType}!");
         }
 
-        private JsExpression SetProperty(JsExpression target, PropertyInfo property, JsExpression value) =>
+        private JsExpression SetProperty(JsExpression target, MemberInfo property, JsExpression value) =>
             new JsAssignmentExpression(TranslateViewModelProperty(target, property), value);
 
         public JsExpression TranslateConditional(ConditionalExpression expression) =>
@@ -226,7 +197,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     context = context.Member("$parentContext");
                 return context;
             }
-            int getContextSteps(DataContextStack item) =>
+            int getContextSteps(DataContextStack? item) =>
                 item == null ? 0 : ContextMap[item];
 
             if (annotation.ExtensionParameter != null)
@@ -382,14 +353,15 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
         }
 
-        public static JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string name = null) =>
+        public static JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string? name = null) =>
             new JsMemberAccessExpression(context, name ?? propInfo.Name)
                 .WithAnnotation(new VMPropertyInfoAnnotation(propInfo))
                 .WithAnnotation(new ViewModelInfoAnnotation(propInfo.GetResultType()));
 
-        public JsExpression TryTranslateMethodCall(MethodInfo methodInfo, Expression target, IEnumerable<Expression> arguments) =>
+        public JsExpression? TryTranslateMethodCall(MethodInfo? methodInfo, Expression? target, IEnumerable<Expression> arguments) =>
+            methodInfo is null ? null :
             Translator.TryTranslateCall(
-                new LazyTranslatedExpression(target, Translate),
+                target is null ? null : new LazyTranslatedExpression(target, Translate),
                 arguments.Select(a => new LazyTranslatedExpression(a, Translate)).ToArray(),
                 methodInfo)
                 ?.WithAnnotation(new ViewModelInfoAnnotation(methodInfo.ReturnType), append: false);
@@ -398,7 +370,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             private readonly Func<JsExpression, JsExpression> getJsTranslation;
 
-            public FakeExtensionParameter(Func<JsExpression, JsExpression> getJsTranslation, string identifier = "__", ITypeDescriptor type = null, bool inherit = false) : base(identifier, type, inherit)
+            public FakeExtensionParameter(Func<JsExpression, JsExpression> getJsTranslation, string identifier = "__", ITypeDescriptor? type = null, bool inherit = false) : base(identifier, type, inherit)
             {
                 this.getJsTranslation = getJsTranslation;
             }
@@ -411,14 +383,13 @@ namespace DotVVM.Framework.Compilation.Javascript
     /// Represents an Linq.Expression that is being translated to JsAst.
     public class LazyTranslatedExpression
     {
-        private static readonly Lazy<JsExpression> nullLazy = new Lazy<JsExpression>(() => null);
         private readonly Lazy<JsExpression> lazyJsExpression;
         public JsExpression JsExpression() => lazyJsExpression.Value;
         public Expression OriginalExpression { get; }
         public LazyTranslatedExpression(Expression expr, Func<Expression, JsExpression> translateMethod)
         {
-            this.OriginalExpression = expr;
-            this.lazyJsExpression = expr == null ? nullLazy : new Lazy<JsExpression>(() => translateMethod(expr));
+            this.OriginalExpression = expr ?? throw new ArgumentNullException(nameof(expr));
+            this.lazyJsExpression = new(() => translateMethod(expr));
         }
     }
 }

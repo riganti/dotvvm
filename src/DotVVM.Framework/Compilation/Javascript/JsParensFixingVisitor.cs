@@ -42,6 +42,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 5 => "||",
                 4 => "? :",
                 3 => "=",
+                2 => "arrow function",
                 1 => "method argument",
                 0 => ",",
                 _ => "?"
@@ -54,7 +55,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
     public class JsParensFixingVisitor : JsNodeVisitor
     {
-        public static byte OperatorLevel(JsExpression expression)
+        public static byte OperatorLevel(JsExpression? expression)
         {
             switch (expression) {
                 case JsParenthesizedExpression _:
@@ -115,6 +116,8 @@ namespace DotVVM.Framework.Compilation.Javascript
                     return 4;
                 case JsAssignmentExpression ae:
                     return 3;
+                case JsArrowFunctionExpression arrowFunction:
+                    return 2;
                 case null:
                     return 0;
                 default: throw new NotSupportedException();

@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Controls

@@ -1,3 +1,4 @@
+#nullable disable
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -76,7 +77,7 @@ namespace DotVVM.Framework.Configuration
             new JsIdentifierExpression("dotvvm").Member("serialization").Member("serialize").Invoke(expr.WithAnnotation(ShouldBeObservableAnnotation.Instance));
         
         private static JsExpression SerializeDate(JsExpression expr) =>
-            new JsIdentifierExpression("dotvvm").Member("globalize").Member("parseDate").Invoke(expr);
+            new JsIdentifierExpression("dotvvm").Member("serialization").Member("parseDate").Invoke(expr, new JsLiteral(true));
 
         private static JsExpression[] ReplaceDefaultWithUndefined(IEnumerable<JsExpression> arguments, ParameterInfo[] parameters)
         {
@@ -136,7 +137,7 @@ namespace DotVVM.Framework.Configuration
                              .WithAnnotation(new ResultIsPromiseAnnotation(
                                  e => e.WithAnnotation(ShouldBeObservableAnnotation.Instance).Member("refreshValue").Invoke(new JsLiteral(true)),
                                  new ViewModelInfoAnnotation(method.ReturnType, containsObservables: false)
-                             ))
+                             ) { IsOptionalAwait = true })
                         ));
                     }
                 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
@@ -10,7 +11,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
     public abstract class ControlResolverMetadataBase : IControlResolverMetadata
     {
         private readonly IControlType controlType;
-        private readonly ControlMarkupOptionsAttribute attribute;
+        private readonly ControlMarkupOptionsAttribute? attribute;
 
         private readonly Lazy<Dictionary<string, IPropertyDescriptor>> properties;
         public IReadOnlyDictionary<string, IPropertyDescriptor> Properties => properties.Value;
@@ -19,7 +20,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public IReadOnlyList<PropertyGroupMatcher> PropertyGroups => _propertyGroups.Value;
 
 
-        public string Namespace => controlType.Type.Namespace;
+        public string? Namespace => controlType.Type.Namespace;
 
         public string Name => controlType.Type.Name;
 
@@ -31,35 +32,50 @@ namespace DotVVM.Framework.Compilation.ControlTree
         [JsonIgnore]
         public IEnumerable<string> PropertyNames => Properties.Keys;
 
-        public bool TryGetProperty(string name, out IPropertyDescriptor value)
+        public bool TryGetProperty(string name, [NotNullWhen(true)] out IPropertyDescriptor? value)
         {
             return Properties.TryGetValue(name, out value);
         }
 
-        public bool IsContentAllowed => (attribute?.AllowContent ?? true) && Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IDotvvmControl)));
+        public bool IsContentAllowed =>
+            (attribute?.AllowContent ?? true) &&
+            Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IDotvvmControl))) &&
+            // composite controls can not contain children, only content properties
+            !Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(CompositeControl)));
 
         [JsonIgnore]
-        public IPropertyDescriptor DefaultContentProperty
+        public IPropertyDescriptor? DefaultContentProperty
         {
             get
             {
-                if (string.IsNullOrEmpty(attribute?.DefaultContentProperty))
+                IPropertyDescriptor result;
+                if (Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(CompositeControl))))
+                {
+                    // properties Content and ContentTemplate are used as content by default, if they exist
+                    if (Properties.TryGetValue("Content", out result))
+                        return result;
+                    if (Properties.TryGetValue("ContentTemplate", out result))
+                        return result;
+                }
+
+                var prop = attribute?.DefaultContentProperty;
+
+                if (string.IsNullOrEmpty(prop))
                 {
                     return null;
                 }
 
-                IPropertyDescriptor result;
-                return Properties.TryGetValue(attribute?.DefaultContentProperty, out result) ? result : null;
+                return Properties.TryGetValue(prop, out result) ? result : null;
             }
         }
 
-        public string DefaultContentPropertyName => attribute?.DefaultContentProperty;
+        public string? DefaultContentPropertyName => attribute?.DefaultContentProperty;
 
         [JsonIgnore]
-        public string VirtualPath => controlType?.VirtualPath;
+        public string? VirtualPath => controlType?.VirtualPath;
 
         [JsonIgnore]
-        public ITypeDescriptor DataContextConstraint => controlType?.DataContextRequirement;
+        public ITypeDescriptor? DataContextConstraint => controlType?.DataContextRequirement;
 
         [JsonIgnore]
         public IEnumerable<IPropertyDescriptor> AllProperties => Properties.Values;
@@ -67,7 +83,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         [JsonIgnore]
         public abstract DataContextChangeAttribute[] DataContextChangeAttributes { get; }
         [JsonIgnore]
-        public abstract DataContextStackManipulationAttribute DataContextManipulationAttribute { get; }
+        public abstract DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; }
 
 
         public ControlResolverMetadataBase(IControlType controlType)

@@ -1,0 +1,27 @@
+<html>
+	<head></head>
+	<body>
+		This repeater will not get the default content.
+		<div data-bind="foreach: { &quot;data&quot;: Collection }">
+			Content
+		</div>
+		But these two will
+		<div data-bind="foreach: { &quot;data&quot;: Collection, &quot;separatorTemplate&quot;: &quot;cOvMmUhlJiLLj5tqZbMciSiRJeRRjviJeyXbpWBMycU=&quot; }">
+			<span data-bind="text: $rawData"></span>
+		</div>
+		<div data-bind="foreach: { &quot;data&quot;: Collection }">
+			<span data-bind="text: $rawData"></span>
+		</div>
+		This one will automatically get a separator
+		<div data-bind="foreach: { &quot;data&quot;: Collection }">
+			<!-- ko if: !($index() == 0) -->
+			<span>|</span>
+			<!-- /ko -->
+			<span data-bind="text: dotvvm.globalize.bindingNumberToString(length)"></span>
+		</div>
+		This will have some generated content
+		<div>
+			<div class="a">Something</div>
+		</div>
+	</body>
+</html>

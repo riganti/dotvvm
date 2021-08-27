@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.IO;
+﻿using System.IO;
 using DotVVM.Framework.Hosting;
 using System.Reflection;
 using Newtonsoft.Json;

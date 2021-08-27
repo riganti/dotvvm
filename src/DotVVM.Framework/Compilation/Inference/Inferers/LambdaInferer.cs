@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -32,7 +31,7 @@ namespace DotVVM.Framework.Compilation.Inference
                 var index = context.CurrentArgumentIndex;
                 
                 // Check if we can match any method candidate
-                foreach (var candidate in context.Target!.Candidates)
+                foreach (var candidate in context.Target!.Candidates.NotNull("Invalid context.Target without candidates"))
                 {
                     var parameters = candidate.GetParameters();
                     if (index >= parameters.Length || parameters.Length > context.Arguments.Length)

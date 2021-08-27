@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -127,11 +126,31 @@ namespace DotVVM.Framework.Controls
             this.properties.AssignBulk(keys, values, hashSeed);
         }
 
+        public void SetValue<T>(DotvvmProperty property, ValueOrBinding<T> valueOrBinding)
+        {
+            if (valueOrBinding.BindingOrDefault == null)
+                this.SetValue(property, valueOrBinding.BoxedValue);
+            else
+                this.SetBinding(property, valueOrBinding.BindingOrDefault);
+        }
+
+        public ValueOrBinding<T> GetValueOrBinding<T>(DotvvmProperty property, bool inherit = true)
+        {
+            var value = this.GetValueRaw(property, inherit);
+            if (value is IBinding binding)
+                return new ValueOrBinding<T>(binding);
+            else return new ValueOrBinding<T>((T)value!);
+        }
+
         /// <summary>
         /// Sets the value of a specified property.
         /// </summary>
         public virtual void SetValue(DotvvmProperty property, object? value)
         {
+            // "unbox" ValueOrBinding instances
+            if (value is ValueOrBinding valueOrBinding)
+                value = valueOrBinding.BindingOrDefault ?? valueOrBinding.BoxedValue;
+
             var originalValue = GetValueRaw(property, false);
             // TODO: really do we want to update the value binding only if it's not a binding
             if (originalValue is IUpdatableValueBinding && !(value is BindingExpression))

@@ -8,11 +8,11 @@ namespace DotVVM.Framework.Compilation.Validation
     {
         public string ErrorMessage { get; }
         public DothtmlNode[] Nodes { get; }
-        public ControlUsageError(string message, IEnumerable<DothtmlNode> nodes)
+        public ControlUsageError(string message, IEnumerable<DothtmlNode?> nodes)
         {
             ErrorMessage = message;
-            Nodes = nodes.ToArray();
+            Nodes = nodes.Where(n => n != null).ToArray()!;
         }
-        public ControlUsageError(string message, params DothtmlNode[] nodes) : this(message, (IEnumerable<DothtmlNode>)nodes) { }
+        public ControlUsageError(string message, params DothtmlNode?[] nodes) : this(message, nodes.AsEnumerable()) { }
     }
 }

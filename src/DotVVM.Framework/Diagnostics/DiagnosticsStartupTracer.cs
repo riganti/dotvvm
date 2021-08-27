@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Diagnostics
 
         private long ElapsedMillisecondsSinceLastLog => events.Sum(e => e.Duration);
 
-        private event Func<DiagnosticsInformation, Task> LateInfoReported;
+        private event Func<DiagnosticsInformation, Task>? LateInfoReported;
 
         public void TraceEvent(string eventName)
         {
@@ -67,23 +67,27 @@ namespace DotVVM.Framework.Diagnostics
         {
             var elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
 
-            return new EventTiming {
-                Duration = elapsedMilliseconds - ElapsedMillisecondsSinceLastLog,
-                TotalDuration = elapsedMilliseconds,
-                EventName = eventName
-            };
+            return new EventTiming(
+                eventName,
+                elapsedMilliseconds - ElapsedMillisecondsSinceLastLog,
+                elapsedMilliseconds
+            );
         }
 
         private DiagnosticsInformation BuildDiagnosticsInformation(IList<EventTiming> eventTimings)
         {
-            return new DiagnosticsInformation() {
-                RequestDiagnostics = new RequestDiagnostics() {
-                    Url = "{APPLICATION_STARTUP}"
-                },
-                ResponseDiagnostics = new ResponseDiagnostics(),
-                EventTimings = eventTimings,
-                TotalDuration = stopwatch.ElapsedMilliseconds
-            };
+            return new DiagnosticsInformation(
+                new RequestDiagnostics(
+                    RequestType.Init,
+                    "",
+                    "{APPLICATION_STARTUP}",
+                    Enumerable.Empty<HttpHeaderItem>(),
+                    null
+                ),
+                new ResponseDiagnostics(),
+                eventTimings,
+                stopwatch.ElapsedMilliseconds
+            );
         }
     }
 }

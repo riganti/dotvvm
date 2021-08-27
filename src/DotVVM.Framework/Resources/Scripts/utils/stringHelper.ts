@@ -49,3 +49,43 @@ export function join<T>(elements: T[], delimiter: string): string {
 export function format(pattern: string, expressions: any[]): string {
     return formatImpl(pattern, ...expressions);
 }
+
+export function trimStart(text: string, char: string) {
+    if (char != null) {
+        char = char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    else {
+        char = "\\s";
+    }
+    return text.replace(new RegExp("^" + char + "*"), "");
+}
+
+export function trimEnd(text: string, char: string) {
+    if (char != null) {
+        char = char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    else {
+        char = "\\s";
+    }
+    return text.replace(new RegExp(char + "*$"), "");
+}
+
+export function padStart(text: string, length: number, char: string) {
+    if (length <= text.length) {
+        return text;
+    }
+    if (char == null) {
+        char = " ";
+    }
+    return Array(length - text.length + 1).join(char) + text;
+}
+
+export function padEnd(text: string, length: number, char: string) {
+    if (length <= text.length) {
+        return text;
+    }
+    if (char == null) {
+        char = " ";
+    }
+    return text + Array(length - text.length + 1).join(char);
+}
