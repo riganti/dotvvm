@@ -171,6 +171,20 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("options.viewModel.IntProp(options.knockoutContext.$index()).IntProp()", result);
         }
 
+
+        [TestMethod]
+        public void StaticCommandCompilation_ListIndexer()
+        {
+            var result = CompileBinding("LongList[1] = LongList[0] + LongArray[0]", niceMode: false, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("(function(a){return Promise.resolve(dotvvm.translations.array.setItem(a.$data.LongList,1,a.$data.LongList.state[0]+a.$data.LongArray.state[0]));}(ko.contextFor(this)))", result);
+        }
+        [TestMethod]
+        public void StaticCommandCompilation_ArrayIndexer()
+        {
+            var result = CompileBinding("LongArray[1] = LongList[0] + LongArray[0]", niceMode: false, new[] { typeof(TestViewModel) });
+            Assert.AreEqual("(function(a){return Promise.resolve(dotvvm.translations.array.setItem(a.$data.LongArray,1,a.$data.LongList.state[0]+a.$data.LongArray.state[0]));}(ko.contextFor(this)))", result);
+        }
+
         [TestMethod]
         public void StaticCommandCompilation_IndexParameterInParent()
         {
