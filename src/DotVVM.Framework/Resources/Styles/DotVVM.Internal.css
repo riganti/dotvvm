@@ -1,70 +1,119 @@
+/* Reset CSS */
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video, * {
+    box-sizing: border-box !important;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    vertical-align: baseline;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+html {
+    width: 100%;
+    height: 100%;
+    font-size: 62.5%;
+    line-height: 1;
+    scroll-behavior: smooth;
+}
+
+/* Variables */
+
+:root {
+    --heading-color: #a82f23;
+    --nav-color: #2980b9;
+    --activate-color: #de1212;
+    --idle-color: #bcbcbc;
+    --text-color: #333333;
+    --hint-color: #bbbbbb;
+    --error-color: #de1212;
+    --success-color: green;
+}
+
+
 body {
     font-family: "Segoe UI", Tahoma, sans-serif;
-    font-size: 11pt;
-    color: #333;
+    font-size: 1.5rem;
+    color: var(--text-color);
+    margin: 1rem;
+    line-height: 1.2;
 }
 
 h1 {
     font-weight: normal;
-    font-size: 24pt;
+    font-size: 3.2rem;
     font-style: italic;
-    color: #a82f23;
+    color: var(--heading-color);
+    margin: 2rem 0;
 }
 
 h2 {
     font-style: normal;
-    font-size: 16pt;
+    font-size: 2.4rem;
     font-weight: bold;
-    margin-bottom: 35px;
+    margin: 1.5rem 0;
 }
 
 h3 {
-    color: #004fbd;
+    color: var(--nav-color);
     font-weight: normal;
-    font-size: 14pt;
+    font-size: 1.8rem;
 }
 
 p.summary {
-    color: #004fbd;
-    font-size: 1.5em;
+    margin: 1.5rem 0;
 }
 
 table {
     border-collapse: separate;
     border-spacing: 0;
-    margin: 0 0 20px;
+    margin: 0 0 2rem;
 }
 
 th {
     vertical-align: bottom;
-    padding: 10px 5px 5px 5px;
+    padding: 1rem;
     font-weight: 400;
-    color: #a0a0a0;
+    color: var(--hint-color);
     text-align: left;
 }
 
 td {
-    padding: 3px 10px;
+    padding: 0.3rem 1rem;
 }
 
 th,
 td {
-    border-right: 1px #ddd solid;
-    border-bottom: 1px #ddd solid;
-    border-left: 1px transparent solid;
-    border-top: 1px transparent solid;
+    border-right: 0.1rem var(--hint-color) solid;
+    border-bottom: 0.1rem var(--hint-color) solid;
+    border-left: 0.1rem transparent solid;
+    border-top: 0.1rem transparent solid;
     box-sizing: border-box;
 }
 
     th:last-child,
     td:last-child {
-        border-right: 1px transparent solid;
+        border-right: 0.1rem transparent solid;
     }
 
 pre {
-    font-size: 12pt;
-    margin: 0px;
-    font-family: "Consolas", monospace;
+    margin: 1rem 0;
+    font-family: "Cascadia Mono", "Consolas", monospace;
 }
 
 .source .source-errorLine {
@@ -73,9 +122,9 @@ pre {
 
 .errorUnderline {
     background-color: #fff7f7;
-    border: 1px solid #ff8888;
+    border: 0.1rem solid #ff8888;
     color: #ff0909;
-    padding: 4px 0;
+    padding: 0.2rem;
 }
 
 input.collapse {
@@ -94,23 +143,39 @@ input[type="checkbox"]:checked.collapse ~ .collapse-off {
     display: none;
 }
 
-.lineNumber {
-    color: #bababa;
-}
-
-label.nav {
-    display: inline-block;
-    padding: 4px 20px;
-    font-size: 1.1em;
+.execute {
+    background-color: var(--hint-color);
+    padding: 0.4rem 2rem;
     color: white;
     cursor: pointer;
-    background-color: #bcbcbc;
+    border: none;
+}
+
+    .execute:hover {
+        background-color: var(--activate-color);
+    }
+
+.lineNumber {
+    color: var(--hint-color);
+}
+
+.nav {
+    display: inline-block;
+    padding: 0.4rem 2rem;
+    color: white;
+    cursor: pointer;
+    background-color: var(--idle-color);
+}
+
+.nav.active {
+    background-color: var(--nav-color);
 }
 
 hr {
     border: none;
-    height: 1px;
-    background-color: #bcbcbc;
+    height: 0.1rem;
+    background-color: var(--idle-color);
+    margin: 0.8rem 0;
 }
 
 .code {
@@ -119,11 +184,7 @@ hr {
 
 .object-obj,
 .object-arr {
-    padding-left: 10px;
-}
-
-.container {
-    display: none;
+    padding-left: 1rem;
 }
 
 .object-browser .propname {
@@ -135,49 +196,41 @@ hr {
 }
 
 .source.file {
-    margin: 11px 0 5px 0;
-    font-size: 12px;
+    margin: 1rem 0 0.5rem 0;
+    font-size: 1.2rem;
 }
 
 .table-danger {
-    color: #de1212;
-    font-weight: bold;
-    font-size: 0.9rem;
+    color: var(--error-color);
 }
 
 .table-success .status {
-    color: green;
+    color: var(--success-color);
 }
 
 .table td {
     padding: 0.3rem;
 }
 
-h1, h2 {
-    margin-top: 25px;
-}
-
 nav {
-    margin-top: 15px;
+    margin-top: 1.5rem;
 }
 
-.update-box {
+.compile-progress {
     position: absolute;
-    top: 10px;
-    margin-right: 40%;
-    margin-left: 40%;
+    top: 1rem;
+    left: 0;
+    right: 0;
     text-align: center;
-    width: 20%;
-    border: 1px solid rgba(0,0,0,.125);
-    border-radius: 5px;
-    vertical-align: middle;
-    padding: 5px;
-    background-color: #fff;
 }
 
-.compiling-update-progress {
-    margin: 0;
-}
+    .compile-progress > div {
+        display: inline-block;
+        padding: 0.5rem;
+        background-color: white;
+        border: 0.1rem solid var(--hint-color);
+        min-width: 20rem;
+    }
 
 @keyframes blink {
     50% {
