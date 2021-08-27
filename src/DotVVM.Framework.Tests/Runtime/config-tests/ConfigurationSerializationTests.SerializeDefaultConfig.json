@@ -145,5 +145,8 @@
   "runtime": {},
   "defaultCulture": "en-US",
   "experimentalFeatures": {},
-  "debug": false
+  "debug": false,
+  "development": {
+    "compilationPage": {}
+  }
 }
