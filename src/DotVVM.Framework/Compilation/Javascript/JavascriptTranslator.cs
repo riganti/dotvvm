@@ -178,9 +178,9 @@ namespace DotVVM.Framework.Compilation.Javascript
     /// <summary> Marks that the expression is essentially a member access on the target. We use this to keep track which objects have observables and which don't. </summary>
     public class VMPropertyInfoAnnotation
     {
-        public VMPropertyInfoAnnotation(MemberInfo memberInfo, Type? resultType = null, ViewModelPropertyMap? serializationMap = null)
+        public VMPropertyInfoAnnotation(MemberInfo? memberInfo, Type? resultType = null, ViewModelPropertyMap? serializationMap = null)
         {
-            ResultType = resultType ?? memberInfo.GetResultType();
+            ResultType = resultType ?? memberInfo!.GetResultType();
             MemberInfo = memberInfo;
             SerializationMap = serializationMap;
         }

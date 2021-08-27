@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 else if (target.HasAnnotation<ObservableSetterInvocationAnnotation>())
                     throw new NotImplementedException();
 
-                var propertyType = propAnnotation.MemberInfo.GetResultType();
+                var propertyType = propAnnotation.ResultType;
                 var annotation = node.Annotation<ViewModelInfoAnnotation>() ?? new ViewModelInfoAnnotation(propertyType);
 
                 if (target?.Annotation<ViewModelInfoAnnotation>() is {} targetAnnotation)
