@@ -11,7 +11,21 @@
 
     <h1>TemplateHost</h1>
 
-    <cc:TemplatedMarkupControl HeaderText="Form 1">
+    <cc:CompositeControlWithTemplate HeaderText="Form 1">
+        <ContentTemplate>
+            <p>hello from template</p>
+        </ContentTemplate>
+    </cc:CompositeControlWithTemplate>
+
+    <cc:CompositeListControlWithTemplate DataSource="{value: ObjectList}" OnCreateItem="{command: _root.CreateObject}">
+        <ItemTemplate>
+            <big>{{value: Value}}</big>
+            <dot:Button Text="+" Click="{staticCommand:  Value = Value + 1}" />
+            <dot:Button Text="-" Click="{staticCommand:  Value = Value - 1}" />
+        </ItemTemplate>
+    </cc:CompositeListControlWithTemplate>
+
+    <%--<cc:TemplatedMarkupControl HeaderText="Form 1">
         <ContentTemplate>
             <p>hello from template</p>
         </ContentTemplate>
@@ -23,7 +37,7 @@
             <dot:Button Text="+" Click="{staticCommand:  Value = Value + 1}" />
             <dot:Button Text="-" Click="{staticCommand:  Value = Value - 1}" />
         </ItemTemplate>
-    </cc:TemplatedListControl>
+    </cc:TemplatedListControl>--%>
 </body>
 </html>
 

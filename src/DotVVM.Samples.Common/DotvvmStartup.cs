@@ -28,6 +28,7 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation;
 using DotVVM.Samples.Common.Views.FeatureSamples.PostbackAbortSignal;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables;
+using DotVVM.Samples.Common.Views.ControlSamples.TemplateHost;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -195,6 +196,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddMarkupControl("cc", "Incrementer", "Views/FeatureSamples/ViewModules/Incrementer.dotcontrol");
             config.Markup.AddMarkupControl("cc", "TemplatedListControl", "Views/ControlSamples/TemplateHost/TemplatedListControl.dotcontrol");
             config.Markup.AddMarkupControl("cc", "TemplatedMarkupControl", "Views/ControlSamples/TemplateHost/TemplatedMarkupControl.dotcontrol");
+            config.Markup.AddCodeControls("cc", typeof(CompositeControlWithTemplate));
             config.Markup.AddCodeControls("cc", typeof(Loader));
             config.Markup.AddMarkupControl("sample", "EmbeddedResourceControls_Button", "embedded://EmbeddedResourceControls/Button.dotcontrol");
 
