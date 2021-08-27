@@ -130,10 +130,46 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
+            if (node.Method.Attributes.HasFlag(MethodAttributes.SpecialName))
+            {
+                var expr = TryVisitMethodCallWithSpecialName(node);
+                if (expr != null)
+                    return expr;
+            }
+
             return CheckForNull(Visit(node.Object), target =>
                 Expression.Call(target, node.Method, UnwrapNullableTypes(node.Arguments)),
                 suppress: node.Object?.Type?.IsNullable() ?? true
             );
+        }
+
+        private Expression TryVisitMethodCallWithSpecialName(MethodCallExpression node)
+        {
+            // Check if we are translating an access to indexer property
+            if (node.Method.Name.StartsWith("get_", StringComparison.Ordinal) || node.Method.Name.StartsWith("set_", StringComparison.Ordinal))
+            {
+                var targetType = node.Object?.Type;
+                if (targetType == null)
+                    return null;
+
+                var indexer = targetType.GetProperties().SingleOrDefault(p => p.GetIndexParameters().Length > 0);
+                if (indexer == null)
+                    return null;
+
+                if (!node.Method.Name.Equals($"get_{indexer.Name}", StringComparison.Ordinal) && !node.Method.Name.Equals($"set_{indexer.Name}", StringComparison.Ordinal))
+                    return null;
+
+                return CheckForNull(Visit(node.Object), target =>
+                {
+                    return CheckForNull(Visit(node.Arguments.First()), index =>
+                    {
+                        var convertedIndex = TypeConversion.ImplicitConversion(index, node.Method.GetParameters().First().ParameterType);
+                        return Expression.Call(target, node.Method, new[] { convertedIndex }.Concat(node.Arguments.Skip(1)));
+                    });
+                }, suppress: node.Object?.Type?.IsNullable() ?? true);
+            }
+
+            return null;
         }
 
         protected override Expression VisitNew(NewExpression node)
