@@ -17,6 +17,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         void VisitArrayExpression(JsArrayExpression jsArrayExpression);
         void VisitInvocationExpression(JsInvocationExpression invocationExpression);
         void VisitBlockStatement(JsBlockStatement jsBlockStatement);
+        void VisitVariableDefStatement(JsVariableDefStatement variableDefStatement);
         void VisitParenthesizedExpression(JsParenthesizedExpression parenthesizedExpression);
         void VisitUnaryExpression(JsUnaryExpression unaryExpression);
         void VisitLiteral(JsLiteral jsLiteral);
@@ -26,6 +27,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         void VisitAssignmentExpression(JsAssignmentExpression assignmentExpression);
         void VisitIfStatement(JsIfStatement jsIfStatement);
         void VisitFunctionExpression(JsFunctionExpression jsFunctionExpression);
+        void VisitArrowFunctionExpression(JsArrowFunctionExpression jsArrowFunctionExpression);
         void VisitObjectProperty(JsObjectProperty jsObjectProperty);
     }
 
@@ -39,11 +41,15 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
         public virtual void VisitBlockStatement(JsBlockStatement jsBlockStatement) => DefaultVisit(jsBlockStatement);
 
+        public virtual void VisitVariableDefStatement(JsVariableDefStatement variableDefStatement) => DefaultVisit(variableDefStatement);
+
         public virtual void VisitConditionalExpression(JsConditionalExpression conditionalExpression) => DefaultVisit(conditionalExpression);
 
         public virtual void VisitExpressionStatement(JsExpressionStatement jsExpressionStatement) => DefaultVisit(jsExpressionStatement);
 
         public virtual void VisitFunctionExpression(JsFunctionExpression jsFunctionExpression) => DefaultVisit(jsFunctionExpression);
+
+        public virtual void VisitArrowFunctionExpression(JsArrowFunctionExpression jsFunctionExpression) => DefaultVisit(jsFunctionExpression);
 
         public virtual void VisitIdentifier(JsIdentifier identifier) => DefaultVisit(identifier);
 
@@ -78,5 +84,6 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             foreach (var c in node.Children)
                 c.AcceptVisitor(this);
         }
+
     }
 }

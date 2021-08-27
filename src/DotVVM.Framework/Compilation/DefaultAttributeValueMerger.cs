@@ -13,6 +13,7 @@ using DotVVM.Framework.Compilation.Binding;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -27,7 +28,7 @@ namespace DotVVM.Framework.Compilation
         const string MergeValuesMethodName = "MergeValues";
         const string MergeExpressionsMethodName = "MergeExpressions";
 
-        public virtual ResolvedPropertySetter MergeValues(ResolvedPropertySetter a, ResolvedPropertySetter b, out string error)
+        public virtual ResolvedPropertySetter? MergeValues(ResolvedPropertySetter a, ResolvedPropertySetter b, out string? error)
         {
             var property = a.Property;
 
@@ -43,10 +44,10 @@ namespace DotVVM.Framework.Compilation
                 return new ResolvedPropertyTemplate(property, Enumerable.Concat(firstTemplate.Content, secondTemplate.Content).ToList());
             }
 
-            ResolvedBinding bindingA;
-            Expression valA = GetExpression(a, out bindingA);
-            ResolvedBinding bindingB;
-            Expression valB = GetExpression(b, out bindingB);
+            ResolvedBinding? bindingA;
+            var valA = GetExpression(a, out bindingA);
+            ResolvedBinding? bindingB;
+            var valB = GetExpression(b, out bindingB);
 
             if (valA == null) { error = $"Could not merge with property type '{a.GetType().Name}"; return null; }
             if (valB == null) { error = $"Could not merge with property type '{b.GetType().Name}"; return null; }
@@ -61,7 +62,7 @@ namespace DotVVM.Framework.Compilation
 
             var resultExpression = TryOptimizeMethodCall(TryFindMethod(GetType(), MergeExpressionsMethodName, Expression.Constant(property), Expression.Constant(valA), Expression.Constant(valB))) as Expression;
 
-            // Try to find MegeValues method if MergeExpression does not exists, or try to eval it to constant if expression is not constant
+            // Try to find MergeValues method if MergeExpression does not exists, or try to eval it to constant if expression is not constant
             if (resultExpression == null || valA.NodeType == ExpressionType.Constant && valB.NodeType == ExpressionType.Constant && resultExpression.NodeType != ExpressionType.Constant)
             {
                 var methodCall = TryFindMergeMethod(property, valA, valB);
@@ -78,23 +79,23 @@ namespace DotVVM.Framework.Compilation
             }
             else
             {
-                return EmitBinding(resultExpression, property, bindingA ?? bindingB, ref error);
+                return EmitBinding(resultExpression, property, bindingA ?? bindingB!, ref error);
             }
         }
 
-        protected virtual ResolvedPropertySetter EmitConstant(object value, DotvvmProperty property, ref string error)
+        protected virtual ResolvedPropertySetter EmitConstant(object value, DotvvmProperty property, ref string? error)
         {
             return new ResolvedPropertyValue(property, value);
         }
 
-        protected virtual ResolvedPropertySetter EmitBinding(Expression expression, DotvvmProperty property, ResolvedBinding originalBidning, ref string errror)
+        protected virtual ResolvedPropertySetter? EmitBinding(Expression expression, DotvvmProperty property, ResolvedBinding originalBinding, ref string? error)
         {
-            if (originalBidning == null) { errror = $"Could not merge constant values to binding '{expression}'."; return null; }
+            if (originalBinding == null) { error = $"Could not merge constant values to binding '{expression}'."; return null; }
             return new ResolvedPropertyBinding(property,
-                new ResolvedBinding(originalBidning.BindingService, originalBidning.Binding.GetProperty<BindingParserOptions>(), originalBidning.DataContextTypeStack, null, expression, property)) { DothtmlNode = originalBidning.DothtmlNode };
+                new ResolvedBinding(originalBinding.BindingService, originalBinding.Binding.GetProperty<BindingParserOptions>(), originalBinding.DataContextTypeStack, null, expression, property)) { DothtmlNode = originalBinding.DothtmlNode };
         }
 
-        protected virtual Expression GetExpression(ResolvedPropertySetter a, out ResolvedBinding binding)
+        protected virtual Expression? GetExpression(ResolvedPropertySetter a, out ResolvedBinding? binding)
         {
             binding = null;
             if (a is ResolvedPropertyValue)
@@ -109,7 +110,7 @@ namespace DotVVM.Framework.Compilation
             else return null;
         }
 
-        protected virtual object TryOptimizeMethodCall(MethodCallExpression methodCall)
+        protected virtual object? TryOptimizeMethodCall(MethodCallExpression? methodCall)
         {
             if (methodCall != null && methodCall.Arguments.All(a => a.NodeType == ExpressionType.Constant) && (methodCall.Object == null || methodCall.Object.NodeType == ExpressionType.Constant))
                 return methodCall.Method.Invoke(methodCall.Object.CastTo<ConstantExpression>()?.Value,
@@ -117,14 +118,14 @@ namespace DotVVM.Framework.Compilation
             return null;
         }
 
-        protected virtual MethodCallExpression TryFindMergeMethod(DotvvmProperty property, Expression a, Expression b)
+        protected virtual MethodCallExpression? TryFindMergeMethod(DotvvmProperty property, Expression a, Expression b)
         {
             return
                 TryFindMethod(GetType(), MergeValuesMethodName, Expression.Constant(property), a, b) ??
                 TryFindMethod(GetType(), MergeValuesMethodName, a, b);
         }
 
-        private static MethodCallExpression TryFindMethod(Type context, string name, params Expression[] parameters)
+        private static MethodCallExpression? TryFindMethod(Type context, string name, params Expression[] parameters)
         {
             var binder = (DynamicMetaObjectBinder)Microsoft.CSharp.RuntimeBinder.Binder.InvokeMember(
                 CSharpBinderFlags.None, name, null, context,

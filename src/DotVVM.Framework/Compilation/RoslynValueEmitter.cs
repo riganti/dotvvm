@@ -24,22 +24,22 @@ namespace DotVVM.Framework.Compilation
 
         protected Func<Type, TypeSyntax> UseType { get; }
 
-        private ConditionalWeakTable<ExpressionSyntax, object> inverseEmitValue = new ConditionalWeakTable<ExpressionSyntax, object>();
+        private ConditionalWeakTable<ExpressionSyntax, object?> inverseEmitValue = new();
 
         /// <summary>
         /// Emits the value.
         /// </summary>
-        public ExpressionSyntax EmitValue(object value)
+        public ExpressionSyntax EmitValue(object? value)
         {
             var result = EmitValueCore(value);
             inverseEmitValue.GetValue(result, _ => value);
             return result;
         }
 
-        public bool TryInvertExpression(ExpressionSyntax expression, out object value) =>
+        public bool TryInvertExpression(ExpressionSyntax expression, out object? value) =>
             inverseEmitValue.TryGetValue(expression, out value);
 
-        private ExpressionSyntax EmitValueCore(object value)
+        private ExpressionSyntax EmitValueCore(object? value)
         {
             if (value == null)
             {
@@ -81,9 +81,9 @@ namespace DotVVM.Framework.Compilation
             {
                 return EmitStandardNumericLiteral((double)value);
             }
-            if (value is Type)
+            if (value is Type valueAsType)
             {
-                return SyntaxFactory.TypeOfExpression(UseType(value as Type));
+                return SyntaxFactory.TypeOfExpression(UseType(valueAsType));
             }
 
             var type = value.GetType();
@@ -112,12 +112,12 @@ namespace DotVVM.Framework.Compilation
                 }
                 return expr;
             }
-            if (type.IsArray || typeof(System.Collections.IEnumerable).IsAssignableFrom(type))
-            {
-                return EmitCreateArray(ReflectionUtils.GetEnumerableType(type), (System.Collections.IEnumerable)value);
-            }
             if (IsImmutableObject(type))
                 return EmitValueReference(value);
+            if (type.IsArray || typeof(System.Collections.IEnumerable).IsAssignableFrom(type))
+            {
+                return EmitCreateArray(ReflectionUtils.GetEnumerableType(type)!, (System.Collections.IEnumerable)value);
+            }
             throw new NotSupportedException($"Emitting value of type '{value.GetType().FullName}' is not supported.");
         }
 
@@ -234,8 +234,8 @@ namespace DotVVM.Framework.Compilation
         private static Type[] ImmutableContainers = new [] {
             typeof(ImmutableArray<>), typeof(ImmutableList<>), typeof(ImmutableDictionary<,>), typeof(ImmutableHashSet<>), typeof(ImmutableQueue<>), typeof(ImmutableSortedDictionary<,>), typeof(ImmutableSortedSet<>), typeof(ImmutableStack<>)
         };
-        private static Func<Type, bool> IsImmutableObject =
-            t => typeof(IBinding).IsAssignableFrom(t)
+        internal static bool IsImmutableObject(Type t) =>
+            typeof(IBinding).IsAssignableFrom(t)
               || t.GetCustomAttribute<HandleAsImmutableObjectInDotvvmPropertyAttribute>() is object
               || t.IsGenericType && ImmutableContainers.Contains(t.GetGenericTypeDefinition()) && t.GenericTypeArguments.All(IsImmutableObject);
         private static int _viewObjectsCount = 0;

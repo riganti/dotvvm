@@ -20,8 +20,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
 	{
 		private readonly DotvvmMarkupConfiguration configuration;
 
-		private readonly ConcurrentDictionary<string, IControlType> cachedTagMappings = new ConcurrentDictionary<string, IControlType>(StringComparer.OrdinalIgnoreCase);
-		private readonly ConcurrentDictionary<IControlType, IControlResolverMetadata> cachedMetadata = new ConcurrentDictionary<IControlType, IControlResolverMetadata>();
+		private readonly ConcurrentDictionary<string, IControlType?> cachedTagMappings = new(StringComparer.OrdinalIgnoreCase);
+		private readonly ConcurrentDictionary<IControlType, IControlResolverMetadata> cachedMetadata = new();
 
 		private readonly Lazy<IControlResolverMetadata> htmlGenericControlMetadata;
 
@@ -37,13 +37,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
 			}
 
 
-			htmlGenericControlMetadata = new Lazy<IControlResolverMetadata>(() => ResolveControl(new ResolvedTypeDescriptor(typeof(HtmlGenericControl))));
+			htmlGenericControlMetadata = new(() => ResolveControl(new ResolvedTypeDescriptor(typeof(HtmlGenericControl))));
 		}
 
 		/// <summary>
 		/// Resolves the metadata for specified element.
 		/// </summary>
-		public virtual IControlResolverMetadata ResolveControl(string tagPrefix, string tagName, out object[] activationParameters)
+		public virtual IControlResolverMetadata? ResolveControl(string? tagPrefix, string tagName, out object[]? activationParameters)
 		{
 			// html element has no prefix
 			if (string.IsNullOrEmpty(tagPrefix))
@@ -82,21 +82,20 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
 		public Dictionary<string, BindingParserOptions> BindingTypes = new Dictionary<string, BindingParserOptions>(StringComparer.OrdinalIgnoreCase)
 		{
-			{ ParserConstants.ValueBinding, BindingParserOptions.Create(typeof(ValueBindingExpression<>)) },
-			{ ParserConstants.CommandBinding, BindingParserOptions.Create(typeof(CommandBindingExpression<>)) },
+			{ ParserConstants.ValueBinding, BindingParserOptions.Value },
+			{ ParserConstants.CommandBinding, BindingParserOptions.Command },
 			{ ParserConstants.ControlPropertyBinding, BindingParserOptions.Create(typeof(ControlPropertyBindingExpression<>), "_control") },
 			{ ParserConstants.ControlCommandBinding, BindingParserOptions.Create(typeof(ControlCommandBindingExpression<>), "_control") },
-			{ ParserConstants.ResourceBinding, BindingParserOptions.Create(typeof(ResourceBindingExpression<>)) },
-			{ ParserConstants.StaticCommandBinding, BindingParserOptions.Create(typeof(StaticCommandBindingExpression<>)) },
+			{ ParserConstants.ResourceBinding, BindingParserOptions.Resource },
+			{ ParserConstants.StaticCommandBinding, BindingParserOptions.StaticCommand },
 		};
 
 		/// <summary>
 		/// Resolves the binding type.
 		/// </summary>
-		public virtual BindingParserOptions ResolveBinding(string bindingType)
+		public virtual BindingParserOptions? ResolveBinding(string bindingType)
 		{
-			BindingParserOptions bpo;
-			if (BindingTypes.TryGetValue(bindingType, out bpo))
+			if (BindingTypes.TryGetValue(bindingType, out var bpo))
 			{
 				return bpo;
 			}
@@ -109,7 +108,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 		/// <summary>
 		/// Finds the control metadata.
 		/// </summary>
-		protected virtual IControlType FindControlType(string tagPrefix, string tagName)
+		protected virtual IControlType? FindControlType(string tagPrefix, string tagName)
 		{
 			// try to match the tag prefix and tag name
 			var rules = configuration.Controls.Where(r => r.IsMatch(tagPrefix, tagName)).ToArray();
@@ -135,14 +134,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
 				}
 			}
 			return null;
-
-			throw new Exception($"The control <{tagPrefix}:{tagName}> could not be resolved! Make sure that the tagPrefix is registered in DotvvmConfiguration.Markup.Controls collection!");
 		}
 
         /// <summary>
         /// Finds the property in the control metadata.
         /// </summary>
-        public IPropertyDescriptor FindProperty(IControlResolverMetadata controlMetadata, string name)
+        public IPropertyDescriptor? FindProperty(IControlResolverMetadata controlMetadata, string name)
         {
             if (name.Contains("."))
             {
@@ -156,11 +153,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
         }
 
-        private IPropertyDescriptor FindControlPropertyOrGroup(IControlResolverMetadata controlMetadata, string name)
+        private IPropertyDescriptor? FindControlPropertyOrGroup(IControlResolverMetadata controlMetadata, string name)
         {
             // try to find the property in metadata
-            IPropertyDescriptor property;
-            if (controlMetadata.TryGetProperty(name, out property))
+            if (controlMetadata.TryGetProperty(name, out var property))
             {
                 return property;
             }
@@ -182,12 +178,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Finds the DotVVM property in the global property store.
         /// </summary>
-        protected abstract IPropertyDescriptor FindGlobalPropertyOrGroup(string name);
+        protected abstract IPropertyDescriptor? FindGlobalPropertyOrGroup(string name);
 
         /// <summary>
         /// Finds the compiled control.
         /// </summary>
-        protected abstract IControlType FindCompiledControl(string tagName, string namespaceName, string assemblyName);
+        protected abstract IControlType? FindCompiledControl(string tagName, string namespaceName, string assemblyName);
 
 		/// <summary>
 		/// Finds the markup control.

@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 

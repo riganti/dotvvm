@@ -1,4 +1,3 @@
-#nullable enable
 using System.Linq;
 using System.Diagnostics.CodeAnalysis;
 

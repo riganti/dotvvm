@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Compilation.ControlTree
@@ -11,15 +12,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         IEnumerable<string> PropertyNames { get; }
 
-        bool TryGetProperty(string name, out IPropertyDescriptor value);
+        bool TryGetProperty(string name, [NotNullWhen(true)] out IPropertyDescriptor? value);
 
         bool IsContentAllowed { get; }
 
-        IPropertyDescriptor DefaultContentProperty { get; }
+        IPropertyDescriptor? DefaultContentProperty { get; }
 
-        string VirtualPath { get; }
+        string? VirtualPath { get; }
 
-        ITypeDescriptor DataContextConstraint { get; }
+        ITypeDescriptor? DataContextConstraint { get; }
 
         IEnumerable<IPropertyDescriptor> AllProperties { get; }
 		
@@ -29,6 +30,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
 		IReadOnlyList<PropertyGroupMatcher> PropertyGroups { get; }
 
         DataContextChangeAttribute[] DataContextChangeAttributes { get; }
-		DataContextStackManipulationAttribute DataContextManipulationAttribute { get; }
+		DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; }
 	}
 }

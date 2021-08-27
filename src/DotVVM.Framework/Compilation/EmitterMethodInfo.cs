@@ -15,10 +15,11 @@ namespace DotVVM.Framework.Compilation
 
         public TypeSyntax ReturnType { get; set; }
 
-        public EmitterMethodInfo(TypeSyntax returnType, params ParameterSyntax[] parameters)
+        public EmitterMethodInfo(TypeSyntax returnType, string name, params ParameterSyntax[] parameters)
         {
             Parameters = SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters));
             ReturnType = returnType;
+            Name = name;
             Statements = new List<StatementSyntax>();
         }
     }

@@ -1,4 +1,3 @@
-#nullable enable
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
 
@@ -28,5 +27,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 c.Accept(visitor);
             }
         }
+
+        public override string ToString() => $"{Property}={string.Join("", Content)}";
     }
 }

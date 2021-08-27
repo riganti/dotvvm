@@ -11,17 +11,29 @@ namespace DotVVM.Framework.ViewModel.Serialization
 {
     public class ViewModelPropertyMap
     {
+        public ViewModelPropertyMap(PropertyInfo propertyInfo, string name, ProtectMode viewModelProtection, Type type, bool transferToServer, bool transferAfterPostback, bool transferFirstRequest, bool populate)
+        {
+            PropertyInfo = propertyInfo;
+            Name = name;
+            ViewModelProtection = viewModelProtection;
+            Type = type;
+            TransferToServer = transferToServer;
+            TransferAfterPostback = transferAfterPostback;
+            TransferFirstRequest = transferFirstRequest;
+            Populate = populate;
+        }
+
         public PropertyInfo PropertyInfo { get; set; }
 
         public string Name { get; set; } 
 
-        public List<ClientExtenderInfo> ClientExtenders { get; set; }
+        public List<ClientExtenderInfo> ClientExtenders { get; } = new();
 
         public ProtectMode ViewModelProtection { get; set; }
 
         public Type Type { get; set; }
 
-        public Direction BindDirection { get; set; }
+        public Direction BindDirection { get; set; } = Direction.None;
 
         public bool TransferToServer { get; set; }
         public bool TransferToServerOnlyInPath { get; set; }
@@ -30,14 +42,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public bool TransferFirstRequest { get; set; }
         public bool Populate { get; set; }
 
-        public List<ViewModelPropertyValidationRule> ValidationRules { get; set; }
+        public List<ViewModelPropertyValidationRule> ValidationRules { get; } = new();
 
         public IEnumerable<ViewModelPropertyValidationRule> ClientValidationRules
         {
             get { return ValidationRules.Where(r => !string.IsNullOrEmpty(r.ClientRuleName)); }
         }
 
-        public JsonConverter JsonConverter { get; set; }
+        public JsonConverter? JsonConverter { get; set; }
 
         /// <summary>
         /// Gets whether the property is transferred both ways.

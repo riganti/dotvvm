@@ -124,11 +124,6 @@ namespace Owin
             startup.Configure(config, applicationRootPath);
             startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureFinished);
 
-            if (useErrorPages)
-            {
-                app.Use<DotvvmErrorPageMiddleware>();
-            }
-
             modifyConfiguration?.Invoke(config);
             config.Freeze();
 
@@ -140,7 +135,7 @@ namespace Owin
                 DotvvmFileUploadMiddleware.TryCreate(config.ServiceProvider),
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
-            }.Where(t => t != null).ToArray());
+            }.Where(t => t != null).ToArray(), useErrorPages);
 
             startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmFinished); 
 

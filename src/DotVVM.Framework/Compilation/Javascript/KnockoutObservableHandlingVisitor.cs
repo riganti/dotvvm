@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
@@ -31,7 +32,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 node.ReplaceWith(_ => transform.TransformExpression(expression2));
             }
 
-            if (node is JsExpression expression && IsObservableResult(node) && !node.Parent.HasAnnotation<ObservableUnwrapInvocationAnnotation>() && !(node.Role == JsAssignmentExpression.LeftRole && node.Parent is JsAssignmentExpression) && node.Parent != null)
+            if (node is JsExpression expression && IsObservableResult(node) && !node.Parent!.HasAnnotation<ObservableUnwrapInvocationAnnotation>() && !(node.Role == JsAssignmentExpression.LeftRole && node.Parent is JsAssignmentExpression) && node.Parent != null)
             {
                 if (ShouldUnwrap(node))
                 {
@@ -66,10 +67,10 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             JsNode resultExpression;
             // change assignment to observable property to observable invocation
-            // only do for RestultIsObservable, not ResultMayBeObservable
+            // only do for ResultIsObservable, not ResultMayBeObservable
             if (assignmentExpression.Left.HasAnnotation<ResultIsObservableAnnotation>())
             {
-                var resultType = assignmentExpression.GetResultType();
+                var resultType = assignmentExpression.GetResultType().NotNull("Can not process assignment operator with unknown type.");
                 var value = assignmentExpression.Right.Detach();
                 var assignee = assignmentExpression.Left.Detach();
                 assignee.RemoveAnnotations<ResultIsObservableAnnotation>();

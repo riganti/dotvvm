@@ -1,4 +1,3 @@
-﻿#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -179,7 +178,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         protected virtual ImmutableList<InjectedServiceExtensionParameter> ResolveInjectDirectives(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives) =>
             directives.Values.SelectMany(d => d).OfType<IAbstractServiceInjectDirective>()
             .Where(d => d.Type != null)
-            .Select(d => new InjectedServiceExtensionParameter(d.NameSyntax.Name, d.Type))
+            .Select(d => new InjectedServiceExtensionParameter(d.NameSyntax.Name, d.Type!))
             .ToImmutableList();
 
         private (JsExtensionParameter extensionParameter, ViewModuleReferenceInfo resource)? ResolveImportedViewModules(string id, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, bool isMarkupControl)
@@ -355,7 +354,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var controlMetadata = controlResolver.ResolveControl(element.TagPrefix, element.TagName, out var constructorParameters);
             if (controlMetadata == null)
             {
-                controlMetadata = controlResolver.ResolveControl("", element.TagName, out constructorParameters);
+                controlMetadata = controlResolver.ResolveControl("", element.TagName, out constructorParameters).NotNull();
                 constructorParameters = new[] { element.FullTagName };
                 element.AddError($"The control <{element.FullTagName}> could not be resolved! Make sure that the tagPrefix is registered in DotvvmConfiguration.Markup.Controls collection!");
             }
@@ -369,13 +368,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 ProcessAttribute(DotvvmBindableObject.DataContextProperty, dataContextAttribute, control, dataContext);
             }
 
-            IAbstractPropertySetter dataContextProperty;
-            if (control.TryGetProperty(DotvvmBindableObject.DataContextProperty, out dataContextProperty) && dataContextProperty is IAbstractPropertyBinding)
+            if (control.TryGetProperty(DotvvmBindableObject.DataContextProperty, out var dataContextProperty) && dataContextProperty is IAbstractPropertyBinding { Binding: var dataContextBinding } )
             {
-                var dataContextBinding = ((IAbstractPropertyBinding)dataContextProperty).Binding;
                 if (dataContextBinding?.ResultType != null)
                 {
-                    dataContext = CreateDataContextTypeStack(dataContextBinding?.ResultType, parentDataContextStack: dataContext);
+                    dataContext = CreateDataContextTypeStack(dataContextBinding.ResultType, parentDataContextStack: dataContext);
                 }
                 else
                 {
@@ -393,14 +390,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             // process control contents
             ProcessControlContent(control, element.Content);
-
-            // check required properties
-            IAbstractPropertySetter missingProperty;
-            var missingProperties = control.Metadata.AllProperties.Where(p => p.MarkupOptions.Required && !control.TryGetProperty(p, out missingProperty)).ToList();
-            if (missingProperties.Any())
-            {
-                element.AddError($"The control '{ control.Metadata.Type.FullName }' is missing required properties: { string.Join(", ", missingProperties.Select(p => "'" + p.Name + "'")) }.");
-            }
 
             var unknownContent = control.Content.Where(c => !c.Metadata.Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmControl))));
             foreach (var unknownControl in unknownContent)
@@ -420,7 +409,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             if (bindingOptions == null)
             {
                 node.NameNode.AddError($"Binding {node.Name} could not be resolved.");
-                bindingOptions = controlResolver.ResolveBinding("value"); // just try it as with value binding
+                bindingOptions = controlResolver.ResolveBinding("value").NotNull(); // just try it as with value binding
             }
 
             if (context?.NamespaceImports.Count > 0)
@@ -577,10 +566,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         private void ProcessAttribute(IPropertyDescriptor property, DothtmlAttributeNode attribute, IAbstractControl control, IDataContextStack dataContext)
         {
-            if (property.IsBindingProperty || property.DataContextManipulationAttribute != null) // when DataContextManipulationAttribute is set, lets hope that author knows what is he doing.
-            {
-                dataContext = GetDataContextChange(dataContext, control, property);
-            }
+            dataContext = GetDataContextChange(dataContext, control, property);
 
             if (!property.MarkupOptions.MappingMode.HasFlag(MappingMode.Attribute))
             {
@@ -669,21 +655,21 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     content.Add(node);
                 }
             }
-            if (control.Metadata.DefaultContentProperty != null)
+            if (control.Metadata.DefaultContentProperty is IPropertyDescriptor contentProperty)
             {
                 // don't assign the property, when content is empty
                 if (content.All(c => !c.IsNotEmpty()))
                     return;
 
-                if (control.HasProperty(control.Metadata.DefaultContentProperty))
+                if (control.HasProperty(contentProperty))
                 {
                     foreach (var c in content)
                         if (c.IsNotEmpty())
-                            c.AddError($"Property { control.Metadata.DefaultContentProperty.FullName } was already set.");
+                            c.AddError($"Property { contentProperty.FullName } was already set.");
                 }
                 else
                 {
-                    if (!treeBuilder.AddProperty(control, ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content, null), out var error))
+                    if (!treeBuilder.AddProperty(control, ProcessElementProperty(control, contentProperty, content, null), out var error))
                         content.First().AddError(error);
                 }
             }
@@ -695,7 +681,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     {
                         if (item.IsNotEmpty())
                         {
-                            item.AddError($"Content not allowed inside {control.Metadata.Type.Name}.");
+                            var compositeControlHelp =
+                                control.Metadata.Type.IsAssignableTo(new ResolvedTypeDescriptor
+                            (typeof(CompositeControl))) ?
+                                " CompositeControls don't allow content by default and Content or ContentTemplate property is missing on this control." : "";
+                            item.AddError($"Content not allowed inside {control.Metadata.Type.Name}.{compositeControlHelp}");
                         }
                     }
                 }
@@ -907,7 +897,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var manipulationAttribute = property != null ? property.DataContextManipulationAttribute : control.Metadata.DataContextManipulationAttribute;
             if (manipulationAttribute != null)
             {
-                return manipulationAttribute.ChangeStackForChildren(dataContext, control, property, (parent, changeType) => CreateDataContextTypeStack(changeType, parentDataContextStack: parent));
+                return manipulationAttribute.ChangeStackForChildren(dataContext, control, property!, (parent, changeType) => CreateDataContextTypeStack(changeType, parentDataContextStack: parent));
             }
 
             var attributes = property != null ? property.DataContextChangeAttributes : control.Metadata.DataContextChangeAttributes;

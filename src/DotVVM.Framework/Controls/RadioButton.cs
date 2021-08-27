@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -108,7 +107,7 @@ namespace DotVVM.Framework.Controls
         }
 
         [ControlUsageValidator]
-        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        public static new IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
         {
             var to = control.GetValue(CheckedItemProperty)?.GetResultType();
             var nonNullableTo = to?.UnwrapNullableType();
@@ -120,8 +119,8 @@ namespace DotVVM.Framework.Controls
                 yield return new ControlUsageError(
                     $"CheckedItem type \'{to}\' must be the same as or a nullable " +
                     $"variant of the CheckedValue type \'{from}\'.",
-                    control.GetValue(CheckedItemProperty).DothtmlNode,
-                    control.GetValue(CheckedValueProperty).DothtmlNode
+                    control.GetValue(CheckedItemProperty)?.DothtmlNode,
+                    control.GetValue(CheckedValueProperty)?.DothtmlNode
                 );
             }
         }

@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,6 +13,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Hosting.ErrorPages;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Caching;
@@ -78,6 +78,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddScoped<RuntimeWarningCollector>();
             services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
             services.TryAddScoped<ResourceManager, ResourceManager>();
+            services.TryAddSingleton<StaticCommandMethodTranslator>();
             services.TryAddSingleton(s => DotvvmConfiguration.CreateDefault(s));
             services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Markup);
             services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Resources);
@@ -92,16 +93,18 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.ConfigureWithServices<ViewCompilerConfiguration>((o, s) => {
                 var controlResolver = s.GetRequiredService<IControlResolver>();
+                o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<StylingVisitor>(s));
                 var requiredResourceControl = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(RequiredResource)));
+                o.TreeVisitors.Add(() => new StyleTreeShufflingVisitor(controlResolver));
                 o.TreeVisitors.Add(() => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl));
                 var requiredGlobalizeControl = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(GlobalizeResource)));
                 o.TreeVisitors.Add(() => new GlobalizeResourceVisitor((ControlResolverMetadata)requiredGlobalizeControl));
-                o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<StylingVisitor>(s));
                 o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<DataContextPropertyAssigningVisitor>(s));
                 o.TreeVisitors.Add(() => new LifecycleRequirementsAssigningVisitor());
             });
 
             services.TryAddSingleton<IDotvvmCacheAdapter, DefaultDotvvmCacheAdapter>();
+            services.TryAddSingleton<DotvvmErrorPageRenderer>();
 
             return services;
         }

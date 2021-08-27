@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,11 +21,11 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public static IBinding CreateBinding(this BindingCompilationService service, Type binding, object?[] properties)
         {
-            if (binding.GetTypeInfo().ContainsGenericParameters)
+            if (binding.ContainsGenericParameters)
             {
                 var nonGenericBase = binding.BaseType;
                 Debug.Assert(nonGenericBase != null && !nonGenericBase.ContainsGenericParameters && nonGenericBase.Name  + "`1" == binding.Name);
-                var tmpBinding = CreateBinding(service, nonGenericBase, properties);
+                var tmpBinding = CreateBinding(service, nonGenericBase!, properties);
                 var type = tmpBinding.GetProperty<ExpectedTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type ??
                            tmpBinding.GetProperty<ResultTypeBindingProperty>().Type;
                 binding = binding.MakeGenericType(new [] { type });

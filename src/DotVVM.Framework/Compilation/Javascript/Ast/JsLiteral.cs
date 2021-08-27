@@ -8,9 +8,9 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
     public class JsLiteral : JsExpression
     {
-        private object value;
+        private object? value;
 
-        public object Value
+        public object? Value
         {
             get { return value; }
             set { ThrowIfFrozen(); this.value = value; }
@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         }
 
         public JsLiteral() { }
-        public JsLiteral(object value)
+        public JsLiteral(object? value)
         {
             this.Value = value;
         }

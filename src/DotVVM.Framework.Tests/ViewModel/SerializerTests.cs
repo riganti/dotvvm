@@ -10,6 +10,7 @@ using System.Linq;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Testing;
 using System.Text;
 
 namespace DotVVM.Framework.Tests.ViewModel
@@ -25,9 +26,7 @@ namespace DotVVM.Framework.Tests.ViewModel
                 config.ServiceProvider.GetRequiredService<IViewModelSerializationMapper>(),
                 config.ServiceProvider,
                 encryptedValues
-            ) {
-                UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
-            };
+            );
         }
 
         static string Serialize<T>(T viewModel, out JObject encryptedValues, bool isPostback = false)

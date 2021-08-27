@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
     public class JsNullChecksTests
     {
         [TestMethod]
-        public void JsNullCheck_SimpleMemeberAccess()
+        public void JsNullCheck_SimpleMemberAccess()
         {
             var expr =
                 new JsIdentifierExpression("a").WithAnnotation(MayBeNullAnnotation.Instance)
@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         }
 
         [TestMethod]
-        public void JsNullCheck_SimpleMemeberAccess2()
+        public void JsNullCheck_SimpleMemberAccess2()
         {
             var expr =
                 new JsIdentifierExpression("a").WithAnnotation(MayBeNullAnnotation.Instance)
@@ -31,11 +31,11 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                 .Member("c");
             expr = JavascriptNullCheckAdder.AddNullChecks(expr);
             var node = JsTemporaryVariableResolver.ResolveVariables(expr);
-            Assert.AreEqual("function(b){return (b=a==null?null:a.b)==null?null:b.c;}()", node.FormatScript(), node.FormatScript(niceMode: true));
+            Assert.AreEqual("(()=>{let b;return (b=a==null?null:a.b)==null?null:b.c;})()", node.FormatScript(), node.FormatScript(niceMode: true));
         }
 
         [TestMethod]
-        public void JsNullCheck_SimpleObjectMemeberAccess()
+        public void JsNullCheck_SimpleObjectMemberAccess()
         {
             var expr =
                 new JsIdentifierExpression("a").WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(new ViewModelInfoAnnotation(typeof(JsNullChecksTests)))
@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         }
 
         [TestMethod]
-        public void JsNullCheck_SimpleObjectMemeberAccess2()
+        public void JsNullCheck_SimpleObjectMemberAccess2()
         {
             var expr =
                 new JsIdentifierExpression("a").WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(new ViewModelInfoAnnotation(typeof(JsNullChecksTests)))
@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
         }
 
         [TestMethod]
-        public void JsNullCheck_SimpleObjectMemeberAccess3()
+        public void JsNullCheck_SimpleObjectMemberAccess3()
         {
             var expr =
                 new JsIdentifierExpression("a").WithAnnotation(MayBeNullAnnotation.Instance).WithAnnotation(new ViewModelInfoAnnotation(typeof(JsNullChecksTests)))
@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                 .Member("c").Invoke();
             expr = JavascriptNullCheckAdder.AddNullChecks(expr);
             var node = JsTemporaryVariableResolver.ResolveVariables(expr);
-            Assert.AreEqual("function(b){return (b=a&&a.b())&&b.c();}()", node.FormatScript(), node.FormatScript(niceMode: true));
+            Assert.AreEqual("(()=>{let b;return (b=a&&a.b())&&b.c();})()", node.FormatScript(), node.FormatScript(niceMode: true));
         }
 
         [TestMethod]
@@ -110,7 +110,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
 
             expr = JavascriptNullCheckAdder.AddNullChecks(expr);
             var node = JsTemporaryVariableResolver.ResolveVariables(expr);
-            Assert.AreEqual("function(b){return (b=c?a:c2?a2:a3)==null?null:b.length;}()", node.FormatScript(), node.FormatScript(niceMode: true));
+            Assert.AreEqual("(()=>{let b;return (b=c?a:c2?a2:a3)==null?null:b.length;})()", node.FormatScript(), node.FormatScript(niceMode: true));
         }
     }
 }

@@ -24,8 +24,8 @@ namespace DotVVM.Framework.Compilation
 
         protected int currentTemplateIndex;
         protected string className;
-        protected ControlResolverMetadata lastMetadata;
-        protected string controlName;
+        protected ControlResolverMetadata? lastMetadata;
+        protected string? controlName;
 
         public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, CompiledAssemblyCache compiledAssemblyCache, IBindingCompiler bindingCompiler,
             string className)
@@ -90,17 +90,10 @@ namespace DotVVM.Framework.Compilation
             emitter.PopMethod();
         }
 
-        private TypeSyntax ResolveTypeSyntax(string typeName)
-        {
-            return ReflectionUtils.IsFullName(typeName)
-                ? emitter.ParseTypeName(compiledAssemblyCache.FindType(typeName))
-                : SyntaxFactory.ParseTypeName(typeName);
-        }
-
-        protected string EmitCreateControl(Type type, object[] arguments)
+        protected string EmitCreateControl(Type type, object[]? arguments)
         {
             // if marked with [RequireDependencyInjection] attribute, invoke injected factory
-            if (type.GetTypeInfo().GetCustomAttribute(typeof(DependencyInjection.RequireDependencyInjectionAttribute)) is DependencyInjection.RequireDependencyInjectionAttribute requireDiAttr)
+            if (type.GetCustomAttribute(typeof(DependencyInjection.RequireDependencyInjectionAttribute)) is DependencyInjection.RequireDependencyInjectionAttribute requireDiAttr)
                 return emitter.EmitCustomInjectionFactoryInvocation(requireDiAttr.FactoryType, type);
             // if matching ctor exists, invoke it directly
             else if (type.GetConstructors().FirstOrDefault(ctor =>
@@ -133,7 +126,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public override void VisitControl(ResolvedControl node)
         {
-            var parentName = controlName;
+            var parentName = controlName.NotNull();
             var localControlName = controlName = CreateControl(node);
 
             base.VisitControl(node);
@@ -151,29 +144,35 @@ namespace DotVVM.Framework.Compilation
             // set special properties as fields
             if (property == LifecycleRequirementsAssigningVisitor.CompileTimeLifecycleRequirementsProperty)
                 emitter.EmitSetProperty(controlName, nameof(DotvvmControl.LifecycleRequirements), value);
-
+            if (property is CompileTimeOnlyDotvvmProperty)
+            {
+                // just don't set compile time only properties
+            }
             else emitter.EmitSetDotvvmProperty(controlName, property, value);
         }
 
-        private void SetPropertyValue(string controlName, DotvvmProperty property, object value)
+        private void SetPropertyValue(string controlName, DotvvmProperty property, object? value)
             => SetProperty(controlName, property, emitter.EmitValue(value));
 
         public override void VisitPropertyValue(ResolvedPropertyValue propertyValue)
         {
-            SetPropertyValue(controlName, propertyValue.Property, propertyValue.Value);
+            SetPropertyValue(controlName.NotNull(), propertyValue.Property, propertyValue.Value);
             base.VisitPropertyValue(propertyValue);
         }
 
         public override void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding)
         {
-            SetProperty(controlName, propertyBinding.Property, ProcessBinding(propertyBinding.Binding));
+            SetProperty(controlName.NotNull(), propertyBinding.Property, ProcessBinding(propertyBinding.Binding));
             base.VisitPropertyBinding(propertyBinding);
         }
 
         public override void VisitPropertyControl(ResolvedPropertyControl propertyControl)
         {
-            var control = propertyControl.Control;
-            var parentName = controlName;
+            if (propertyControl.Property is CompileTimeOnlyDotvvmProperty)
+                return;
+
+            var control = propertyControl.Control.NotNull();
+            var parentName = controlName.NotNull();
             controlName = CreateControl(control);
             // compile control content
             base.VisitControl(control);
@@ -186,7 +185,10 @@ namespace DotVVM.Framework.Compilation
 
         public override void VisitPropertyControlCollection(ResolvedPropertyControlCollection propertyControlCollection)
         {
-            var parentName = controlName;
+            if (propertyControlCollection.Property is CompileTimeOnlyDotvvmProperty)
+                return;
+
+            var parentName = controlName.NotNull();
             var collectionName = emitter.EmitEnsureCollectionInitialized(parentName, propertyControlCollection.Property);
 
             foreach (var control in propertyControlCollection.Controls)
@@ -207,7 +209,10 @@ namespace DotVVM.Framework.Compilation
 
         public override void VisitPropertyTemplate(ResolvedPropertyTemplate propertyTemplate)
         {
-            var parentName = controlName;
+            if (propertyTemplate.Property is CompileTimeOnlyDotvvmProperty)
+                return;
+
+            var parentName = controlName.NotNull();
             var methodName = DefaultViewCompilerCodeEmitter.BuildTemplateFunctionName + $"_{propertyTemplate.Property.DeclaringType.Name}_{propertyTemplate.Property.Name}_{currentTemplateIndex++}";
             emitter.PushNewMethod(methodName, typeof(void), emitter.EmitControlBuilderParameters().Concat(new [] { emitter.EmitParameter("templateContainer", typeof(DotvvmControl))}).ToArray());
             // build the statements
@@ -240,13 +245,17 @@ namespace DotVVM.Framework.Compilation
                 name = emitter.EmitInvokeControlBuilder(control.Metadata.Type, control.Metadata.VirtualPath);
             }
             emitter.RegisterDotvvmProperties(name);
-            // set unique id
-            emitter.EmitSetDotvvmProperty(name, Internal.UniqueIDProperty, name);
-
-            if (control.DothtmlNode != null && control.DothtmlNode.Tokens.Count > 0)
+            // RawLiterals don't need these helper properties unless in root
+            if (control.Metadata.Type != typeof(RawLiteral) || control.Parent is ResolvedTreeRoot)
             {
-                // set line number
-                emitter.EmitSetDotvvmProperty(name, Internal.MarkupLineNumberProperty, control.DothtmlNode.Tokens.First().LineNumber);
+                // set unique id
+                emitter.EmitSetDotvvmProperty(name, Internal.UniqueIDProperty, name);
+
+                if (control.DothtmlNode != null && control.DothtmlNode.Tokens.Count > 0)
+                {
+                    // set line number
+                    emitter.EmitSetDotvvmProperty(name, Internal.MarkupLineNumberProperty, control.DothtmlNode.Tokens.First().LineNumber);
+                }
             }
 
             return name;

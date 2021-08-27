@@ -21,6 +21,7 @@ using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -118,7 +119,7 @@ namespace DotVVM.Framework.Tests.Runtime
             var binding = ValueBindingExpression.CreateBinding(bindingService, a => false, DataContextStack.Create(typeof(string)));
             var control = new HtmlGenericControl("div");
             control.SetValue(Internal.DataContextTypeProperty, DataContextStack.Create(typeof(string), DataContextStack.Create(typeof(int))));
-            control.SetBinding(c => c.Visible, binding);
+            control.SetProperty(c => c.Visible, binding);
             check.CheckException(() => control.Visible.ToString());
         }
     }

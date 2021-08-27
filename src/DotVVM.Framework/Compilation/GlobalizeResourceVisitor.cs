@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -68,7 +67,7 @@ namespace DotVVM.Framework.Compilation
                 content.Add(new ResolvedControl(
                     globalizeResourceControl,
                     node.DothtmlNode,
-                    node.TreeRoot.DataContextTypeStack));
+                    node.TreeRoot.DataContextTypeStack) { Parent = node });
                 isResourcePlaced = true;
             }
         }

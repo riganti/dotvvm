@@ -8,8 +8,6 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Testing;
-using DotVVM.Framework.Tests.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using DotVVM.Framework.Utils;
@@ -25,7 +23,7 @@ using DotVVM.Framework.Binding.Properties;
 using Newtonsoft.Json;
 using DotVVM.Framework.ResourceManagement;
 
-namespace DotVVM.Framework.Tests.ControlTests
+namespace DotVVM.Framework.Testing
 {
     public class ControlTestHelper
     {
@@ -35,7 +33,7 @@ namespace DotVVM.Framework.Tests.ControlTests
 
         IControlBuilderFactory controlBuilderFactory => configuration.ServiceProvider.GetRequiredService<IControlBuilderFactory>();
 
-        public ControlTestHelper(bool debug = true, Action<DotvvmConfiguration> config = null, Action<IServiceCollection> services = null)
+        public ControlTestHelper(bool debug = true, Action<DotvvmConfiguration>? config = null, Action<IServiceCollection>? services = null)
         {
             fileLoader = new FakeMarkupFileLoader(null);
             this.configuration = DotvvmTestHelper.CreateConfiguration(s => {
@@ -52,7 +50,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         private (ControlBuilderDescriptor descriptor, Lazy<IControlBuilder> builder) CompilePage(
             string markup,
             string fileName,
-            Dictionary<string, string> markupFiles = null)
+            Dictionary<string, string>? markupFiles = null)
         {
             if (!fileLoader.MarkupFiles.TryAdd(fileName, markup))
                 throw new Exception($"File {fileName} already exists");
@@ -68,12 +66,12 @@ namespace DotVVM.Framework.Tests.ControlTests
 
         private TestDotvvmRequestContext PrepareRequest(
             string fileName,
-            PostbackRequestModel postback = null
+            PostbackRequestModel? postback = null
         )
         {
             var context = DotvvmTestHelper.CreateContext(
                 configuration,
-                route: new Framework.Routing.DotvvmRoute("testpage", fileName, null, null, configuration));
+                route: new Framework.Routing.DotvvmRoute("testpage", fileName, null, _ => throw new Exception(), configuration));
             context.CsrfToken = null;
             var httpContext = (TestHttpContext)context.HttpContext;
 
@@ -93,8 +91,8 @@ namespace DotVVM.Framework.Tests.ControlTests
 
         private TestDotvvmRequestContext PreparePage(
             string markup,
-            Dictionary<string, string> markupFiles,
-            string fileName
+            Dictionary<string, string>? markupFiles,
+            string? fileName
         )
         {
             CultureInfo.CurrentCulture = new CultureInfo("en-US");
@@ -109,10 +107,10 @@ namespace DotVVM.Framework.Tests.ControlTests
         public async Task<PageRunResult> RunPage(
             Type viewModel,
             string markup,
-            Dictionary<string, string> markupFiles = null,
+            Dictionary<string, string>? markupFiles = null,
             string directives = "",
             bool renderResources = false,
-            [CallerMemberName] string fileName = null)
+            [CallerMemberName] string? fileName = null)
         {
             if (!markup.Contains("<body"))
             {
@@ -168,6 +166,14 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             var p = new HtmlParser();
             var htmlDocument = p.ParseDocument(htmlOutput);
+
+            foreach (var el in htmlDocument.All)
+            {
+                // order attributes by name
+                var attrs = el.Attributes.OrderBy(a => a.Name).ToArray();
+                foreach (var attr in attrs) el.RemoveAttribute(attr.NamespaceUri!, attr.LocalName);
+                foreach (var attr in attrs) el.SetAttribute(attr.NamespaceUri!, attr.LocalName, attr.Value);
+            }
             return new PageRunResult(
                 this,
                 context.Route.VirtualPath,
@@ -189,7 +195,7 @@ namespace DotVVM.Framework.Tests.ControlTests
 
         }
         public JObject ResultJson { get; }
-        public JObject ViewModelJson => ResultJson["viewModel"] as JObject ?? ResultJson["viewModelDiff"] as JObject;
+        public JObject? ViewModelJson => ResultJson["viewModel"] as JObject ?? ResultJson["viewModelDiff"] as JObject;
     }
 
     public class PostbackRequestModel
@@ -198,9 +204,9 @@ namespace DotVVM.Framework.Tests.ControlTests
             JObject viewModel,
             string[] currentPath,
             string command,
-            string controlUniqueId,
+            string? controlUniqueId,
             object[] commandArgs,
-            string validationTargetPath
+            string? validationTargetPath
         )
         {
             ViewModel = viewModel;
@@ -218,11 +224,11 @@ namespace DotVVM.Framework.Tests.ControlTests
         [JsonProperty("command")]
         public string Command { get; }
         [JsonProperty("controlUniqueId")]
-        public string ControlUniqueId { get; }
+        public string? ControlUniqueId { get; }
         [JsonProperty("commandArgs")]
         public object[] CommandArgs { get; }
         [JsonProperty("validationTargetPath")]
-        public string ValidationTargetPath { get; }
+        public string? ValidationTargetPath { get; }
     }
 
     public class PageRunResult
@@ -232,8 +238,8 @@ namespace DotVVM.Framework.Tests.ControlTests
             string filePath,
             JObject resultJson,
             string outputString,
-            string headResources,
-            string bodyResources,
+            string? headResources,
+            string? bodyResources,
             IHtmlDocument html,
             (DotvvmControl, DotvvmProperty, ICommandBinding)[] commands
         )
@@ -254,8 +260,8 @@ namespace DotVVM.Framework.Tests.ControlTests
         public JObject ViewModelJson => (JObject)ResultJson["viewModel"];
         public dynamic ViewModel => ViewModelJson;
         public string OutputString { get; }
-        public string HeadResources { get; }
-        public string BodyResources { get; }
+        public string? HeadResources { get; }
+        public string? BodyResources { get; }
         public IHtmlDocument Html { get; }
         public (DotvvmControl control, DotvvmProperty property, ICommandBinding command)[] Commands { get; }
 
@@ -269,7 +275,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             }
         }
 
-        public (DotvvmControl, DotvvmProperty, ICommandBinding) FindCommand(string text, object viewModel = null)
+        public (DotvvmControl, DotvvmProperty, ICommandBinding) FindCommand(string text, object? viewModel = null)
         {
             var filtered =
                 this.Commands
@@ -284,7 +290,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             return filtered.Single();
         }
 
-        public async Task<CommandRunResult> RunCommand(string text, object viewModel = null, bool applyChanges = true, object[] args = null)
+        public async Task<CommandRunResult> RunCommand(string text, object? viewModel = null, bool applyChanges = true, object[]? args = null)
         {
             var (control, property, binding) = FindCommand(text, viewModel);
             if (binding is CommandBindingExpression command)
@@ -298,7 +304,7 @@ namespace DotVVM.Framework.Tests.ControlTests
                 var viewModelJson = this.ViewModelJson; // TODO: process as on client-side
                 var r = await this.TestHelper.RunCommand(this.FilePath, new PostbackRequestModel(
                     viewModelJson,
-                    path,
+                    path!,
                     command.BindingId,
                     null,
                     args ?? new object[0],
@@ -309,7 +315,7 @@ namespace DotVVM.Framework.Tests.ControlTests
                 {
                     JsonUtils.Patch(
                         (JObject)this.ResultJson["viewModel"],
-                        r.ViewModelJson
+                        r.ViewModelJson!
                     );
                 }
                 return r;
@@ -323,7 +329,7 @@ namespace DotVVM.Framework.Tests.ControlTests
 
     public class FakeBodyResourceLink : BodyResourceLinks
     {
-        public string CapturedHtml { get; private set; }
+        public string? CapturedHtml { get; private set; }
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             var str = new StringWriter();
@@ -339,7 +345,7 @@ namespace DotVVM.Framework.Tests.ControlTests
 
     public class FakeHeadResourceLink : HeadResourceLinks
     {
-        public string CapturedHtml { get; private set; }
+        public string? CapturedHtml { get; private set; }
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             var str = new StringWriter();

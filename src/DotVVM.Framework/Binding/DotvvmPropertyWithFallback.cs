@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Controls;
@@ -49,7 +48,7 @@ namespace DotVVM.Framework.Binding
         /// <param name="isValueInherited">Indicates whether the value can be inherited from the parent controls.</param>
         public static DotvvmProperty Register<TPropertyType, TDeclaringType>(Expression<Func<TDeclaringType, object>> propertyAccessor, DotvvmProperty fallbackProperty, bool isValueInherited = false)
         {
-            var property = ReflectionUtils.GetMemberFromExpression(propertyAccessor.Body) as PropertyInfo;
+            var property = ReflectionUtils.GetMemberFromExpression(propertyAccessor) as PropertyInfo;
             if (property == null) throw new ArgumentException("The expression should be simple property access", nameof(propertyAccessor));
             return Register<TPropertyType, TDeclaringType>(property.Name, fallbackProperty, isValueInherited);
         }

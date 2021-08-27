@@ -46,7 +46,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             this.viewModelSerializationMapper = viewModelSerializationMapper;
         }
 
-        public JToken SerializeTypeMetadata(IEnumerable<ViewModelSerializationMap> usedSerializationMaps, ISet<string> ignoredTypes = null)
+        public JToken SerializeTypeMetadata(IEnumerable<ViewModelSerializationMap> usedSerializationMaps, ISet<string>? ignoredTypes = null)
         {
             var dependentEnumTypes = new HashSet<Type>();
             var resultJson = new JObject();
@@ -183,7 +183,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else if (ReflectionUtils.IsCollection(type))
             {
-                return new JArray(GetTypeIdentifier(ReflectionUtils.GetEnumerableType(type), dependentObjectTypes, dependentEnumTypes));
+                return new JArray(GetTypeIdentifier(ReflectionUtils.GetEnumerableType(type)!, dependentObjectTypes, dependentEnumTypes));
             }
             else
             {
@@ -218,7 +218,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var values = new JObject();
             foreach (var v in enumValues)
             {
-                values.Add(v.Name, JToken.FromObject(v.Value));
+                values.Add(ReflectionUtils.ToEnumString(type, v.Name), JToken.FromObject(v.Value));
             }
             e["values"] = values;
 

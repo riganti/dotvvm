@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,9 +33,13 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutDataBind("attr", group);
             }
 
-            if (control.RenderOnServer || !containsBinding)
+            try
             {
                 writer.AddAttribute("href", EvaluateRouteUrl(control.RouteName, control, context));
+            }
+            catch when (!control.RenderOnServer && containsBinding)
+            {
+                // ignore exception when binding is also rendered
             }
         }
 
@@ -79,7 +82,7 @@ namespace DotVVM.Framework.Controls
             foreach (var param in parameters.Where(p => p.Value is IStaticValueBinding).ToList())
             {
                 EnsureValidBindingType((IBinding)param.Value!);
-                parameters[param.Key] = ((IValueBinding)param.Value).Evaluate(control);   // TODO: see below
+                parameters[param.Key] = ((IValueBinding)param.Value!).Evaluate(control);   // TODO: see below
             }
 
             // generate the URL
@@ -104,14 +107,7 @@ namespace DotVVM.Framework.Controls
             var link = GenerateRouteLinkCore(routeName, control, context);
 
             var urlSuffix = GetUrlSuffixExpression(control);
-            if ((bool)control.GetValue(Internal.IsSpaPageProperty)! && !context.Configuration.UseHistoryApiSpaNavigation)
-            {
-                return $"'#!/' + {link}{(urlSuffix == null ? "" : " + " + urlSuffix)}";
-            }
-            else
-            {
-                return $"'{context.TranslateVirtualPath("~/")}' + {link}{(urlSuffix == null ? "" : " + " + urlSuffix)}";
-            }
+            return $"'{context.TranslateVirtualPath("~/")}' + {link}{(urlSuffix == null ? "" : " + " + urlSuffix)}";
         }
 
         private static string? GetUrlSuffixExpression(RouteLink control)

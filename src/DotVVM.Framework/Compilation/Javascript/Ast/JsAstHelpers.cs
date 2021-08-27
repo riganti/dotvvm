@@ -25,6 +25,17 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
         public static JsExpression Unary(this JsExpression target, UnaryOperatorType type, bool isPrefix = true) =>
             new JsUnaryExpression(type, target, isPrefix);
+        public static JsExpression Await(this JsExpression target) =>
+            target.Unary(UnaryOperatorType.Await);
+
+        /// Builds `return {expr}`
+        public static JsReturnStatement Return(this JsExpression expr) =>
+            new JsReturnStatement(expr);
+        public static JsBlockStatement AsBlock(this JsStatement statement) =>
+            statement is JsBlockStatement block ? block :
+            new JsBlockStatement(statement);
+        public static JsBlockStatement AsBlock(this IEnumerable<JsStatement> statements) =>
+            new JsBlockStatement(statements);
 
         public static string FormatScript(this JsNode node, bool niceMode = false, string indent = "\t", bool isDebugString = false)
         {
@@ -38,10 +49,11 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         {
             if (node is null)
                 throw new ArgumentNullException(nameof(node));
-            node.FixParenthesis();
+            node = node.FixParenthesis();
             var visitor = new JsFormattingVisitor(niceMode, indent);
             node.AcceptVisitor(visitor);
-            return visitor.GetResult(JsParensFixingVisitor.GetOperatorPrecedence(node as JsExpression));
+            var precedence = node is JsExpression expr ? JsParensFixingVisitor.GetOperatorPrecedence(expr) : OperatorPrecedence.Max;
+            return visitor.GetResult(precedence);
         }
 
         public static JsNode FixParenthesis(this JsNode node)
@@ -92,7 +104,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             }
             var oldParent = node.Parent;
             var oldSuccessor = node.NextSibling;
-            var oldRole = node.Role;
+            var oldRole = node.Role!;
             node.Remove();
             var replacement = replaceFunction(node);
             if (oldSuccessor != null && oldSuccessor.Parent != oldParent)
@@ -109,7 +121,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                 else
                     oldParent.AddChildUnsafe(replacement, oldRole);
             }
-            return replacement;
+            return replacement!;
         }
 
 
@@ -123,7 +135,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             return (TNode)node.CloneImpl();
         }
 
-        public static JsNode AssignParameters(this JsNode node, Func<CodeSymbolicParameter, JsNode> parameterAssignment)
+        public static JsNode AssignParameters(this JsNode node, Func<CodeSymbolicParameter, JsNode?> parameterAssignment)
         {
             foreach (var sp in node.Descendants.OfType<JsSymbolicParameter>())
             {
@@ -146,12 +158,12 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                         sp.ReplaceWith(assignment);
                     }
                 }
-                else if (sp.GetDefaultAssignment() is CodeParameterAssignment defaultAssignment)
+                else if (sp.GetDefaultAssignment() is { Code: {} defaultAssignment })
                 {
-                    var newDefault = defaultAssignment.Code.AssignParameters(p =>
+                    var newDefault = defaultAssignment.AssignParameters(p =>
                         parameterAssignment(p)?.FormatParametrizedScript()
                     );
-                    if (newDefault != defaultAssignment.Code)
+                    if (newDefault != defaultAssignment)
                         sp.DefaultAssignment = new CodeParameterAssignment(newDefault);
                 }
             }
@@ -170,9 +182,9 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             else if (expression.SatisfyResultCondition(n => n.HasAnnotation<ResultIsObservableAnnotation>()))
             {
                 var arguments = new List<JsExpression>(2) {
-                    new JsFunctionExpression(
-                        parameters: Enumerable.Empty<JsIdentifier>(),
-                        bodyBlock: new JsBlockStatement(new JsReturnStatement(expression.WithAnnotation(ShouldBeObservableAnnotation.Instance)))
+                    new JsArrowFunctionExpression(
+                        Enumerable.Empty<JsIdentifier>(),
+                        expression.WithAnnotation(ShouldBeObservableAnnotation.Instance)
                     )
                 };
 
@@ -187,9 +199,9 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             }
             else
             {
-                return new JsIdentifierExpression("ko").Member("pureComputed").Invoke(new JsFunctionExpression(
-                        parameters: Enumerable.Empty<JsIdentifier>(),
-                        bodyBlock: new JsBlockStatement(new JsReturnStatement(expression))
+                return new JsIdentifierExpression("ko").Member("pureComputed").Invoke(new JsArrowFunctionExpression(
+                        Enumerable.Empty<JsIdentifier>(),
+                        expression
                     ))
                     .WithAnnotation(ResultIsObservableAnnotation.Instance)
                     .WithAnnotation(ShouldBeObservableAnnotation.Instance);

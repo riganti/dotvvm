@@ -43,7 +43,7 @@ namespace DotVVM.Samples.Common
             dotvvmServices.AddDefaultTempStorages("Temp");
             services.AddScoped<ViewModelScopedDependency>();
             services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
-            services.AddSingleton<FoodSevice>();
+            services.AddSingleton<FoodService>();
 
             services.AddSingleton<IViewModelServerStore, TestingInMemoryViewModelServerStore>();
 

@@ -20,6 +20,7 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Controls;
 using System.Diagnostics;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -56,12 +57,22 @@ namespace DotVVM.Framework.Compilation
                 {
                     if (ann.ExtensionParameter != null)
                     {
-                        // T+ inherited dataContext
-                        return ann.ExtensionParameter.GetServerEquivalent(CurrentControlParameter);
+                        // handle data context hierarchy
+                        var friendlyIdentifier = $"extension parameter {ann.ExtensionParameter.Identifier}";
+                        var targetControl =
+                            ann.DataContext is null || ContextMap[ann.DataContext] == 0
+                                ? CurrentControlParameter
+                                : ExpressionUtils.Replace(
+                                    (DotvvmBindableObject control) => BindingHelper.FindDataContextTarget(control, ann.DataContext, friendlyIdentifier).target,
+                                    CurrentControlParameter
+                                ).OptimizeConstants();
+
+                        return ann.ExtensionParameter.GetServerEquivalent(targetControl);
                     }
                     else
                     {
-                        return Expression.Convert(Expression.ArrayIndex(ViewModelsParameter, Expression.Constant(ContextMap[ann.DataContext])), ann.DataContext.DataContextType);
+                        var dc = ann.DataContext.NotNull("Invalid BindingParameterAnnotation");
+                        return Expression.Convert(Expression.ArrayIndex(ViewModelsParameter, Expression.Constant(ContextMap[dc])), dc.DataContextType);
                     }
                 }
                 return base.Visit(node);
@@ -117,7 +128,7 @@ namespace DotVVM.Framework.Compilation
             return requirements.Required.Concat(requirements.Optional)
                     .Concat(new[] { typeof(OriginalStringBindingProperty), typeof(DataContextStack), typeof(LocationInfoBindingProperty), typeof(BindingParserOptions), typeof(BindingCompilationRequirementsAttribute), typeof(ExpectedTypeBindingProperty), typeof(AssignedPropertyBindingProperty) })
                     .Select(p => binding.GetProperty(p, ErrorHandlingMode.ReturnNull))
-                    .Where(p => p != null).ToArray();
+                    .Where(p => p != null).ToArray()!;
         }
 
         public virtual ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding)
@@ -157,7 +168,13 @@ namespace DotVVM.Framework.Compilation
 
         class DebugInfoExpressionVisitor : ExpressionVisitor
         {
-            public DebugInfoExpression DebugInfo { get; set; }
+            public DebugInfoExpression DebugInfo { get; }
+
+            public DebugInfoExpressionVisitor(DebugInfoExpression debugInfo)
+            {
+                DebugInfo = debugInfo;
+            }
+
             protected override Expression VisitLambda<T>(Expression<T> node)
             {
                 node = node.Update(Expression.Block(DebugInfo, node.Body), node.Parameters);

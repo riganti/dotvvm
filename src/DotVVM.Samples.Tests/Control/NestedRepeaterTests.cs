@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
@@ -56,6 +57,36 @@ namespace DotVVM.Samples.Tests.Control
                 browser.ElementAt("a", 11).Click();
                 AssertUI.InnerTextEquals(result, "Child 3 Subchild 1");
             });
+        }
+        [Theory]
+        [InlineData("#client-side")]
+        [InlineData("#server-side")]
+        public void Control_Repeater_IndexInNestedRepeater(string sampleId)
+        {
+            base.RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_IndexInNestedRepeater);
+                browser.WaitUntilDotvvmInited();
+
+                var sample = browser.First(sampleId).First("ul");
+                CheckRepeaterIndexesRecursively(sample, 0, "");
+            });
+        }
+
+        private void CheckRepeaterIndexesRecursively(IElementWrapper ulElement, int level, string testText)
+        {
+            for (int i = 0; i < ulElement.Children.Count; i++)
+            {
+                var result = testText + "-" + (i + 1).ToString();
+                var child = ulElement.Children[i];
+                AssertUI.TagName(child, "li");
+                TestOutput.WriteLine($"Testing level {level} / child {i}");
+                AssertUI.InnerTextEquals(child.First("span"), result);
+                var innerUL = child.FirstOrDefault("ul");
+                if (innerUL is not null)
+                {
+                    CheckRepeaterIndexesRecursively(innerUL, level + 1, testText + "-" + (i + 1).ToString());
+                }
+            }
         }
 
         [Fact]

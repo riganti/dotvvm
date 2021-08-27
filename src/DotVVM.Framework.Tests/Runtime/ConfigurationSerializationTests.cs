@@ -8,6 +8,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Framework.Tests.Runtime
@@ -156,7 +157,6 @@ namespace DotVVM.Framework.Tests.Runtime
             c.ApplicationPhysicalPath = "/opt/myApp";
             c.ClientSideValidation = false;
             c.DefaultCulture = "cs-CZ";
-            c.UseHistoryApiSpaNavigation = true;
 
             checkConfig(c);
         }

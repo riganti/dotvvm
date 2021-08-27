@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,36 +71,49 @@ namespace DotVVM.Framework.Controls
         public static DotvvmPropertyGroup QueryParametersGroupDescriptor =
             DotvvmPropertyGroup.Register<object, RouteLink>("Query-", "QueryParameters");
 
+        public TextOrContentCapability TextOrContentCapability
+        {
+            get => (TextOrContentCapability)TextOrContentCapabilityProperty.GetValue(this);
+            set => TextOrContentCapabilityProperty.SetValue(this, value);
+        }
+        public static readonly DotvvmCapabilityProperty TextOrContentCapabilityProperty =
+            DotvvmCapabilityProperty.RegisterCapability("TextOrContentCapability", typeof(RouteLink), typeof(TextOrContentCapability),
+                control => TextOrContentCapability.FromChildren((RouteLink)control, TextProperty),
+                (control, boxedValue) => {
+                    var value = (TextOrContentCapability?)boxedValue ?? new TextOrContentCapability();
+                    value.WriteToChildren((DotvvmControl)control, TextProperty);
+                }
+            );
 
         public RouteLink() : base("a")
         {
         }
 
 
-        private bool shouldRenderText = false;
-
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             RouteLinkHelpers.WriteRouteLinkHrefAttribute(this, writer, context);
 
-            writer.AddKnockoutDataBind("text", this, TextProperty, () => {
-                shouldRenderText = true;
-            });
 
-            var enabledBinding = GetValueRaw(EnabledProperty);
-
-            if (enabledBinding is bool)
+            var textBinding = GetValueBinding(TextProperty);
+            if (textBinding is object)
             {
-                WriteEnabledBinding(writer, (bool)enabledBinding);
+                writer.AddKnockoutDataBind("text", textBinding, this);
             }
-            else if (enabledBinding is IValueBinding)
+
+            var enabledBinding = GetValueBinding(EnabledProperty);
+
+            if (enabledBinding is object)
             {
-                WriteEnabledBinding(writer, (IValueBinding)enabledBinding);
+                WriteEnabledBinding(writer, enabledBinding);
             }
 
             if (GetValue<bool?>(EnabledProperty) == false)
             {
                 writer.AddAttribute("disabled", "disabled");
+
+                if (enabledBinding is null)
+                    WriteEnabledBinding(writer, false);
             }
 
             WriteOnClickAttribute(writer, context);
@@ -121,16 +133,18 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (shouldRenderText)
+            var hasChildren = !HasOnlyWhiteSpaceContent();
+            if (hasChildren && (HasBinding(TextProperty) || !string.IsNullOrEmpty(Text)))
             {
-                if (!HasOnlyWhiteSpaceContent())
-                {
-                    base.RenderContents(writer, context);
-                }
-                else
-                {
-                    writer.WriteText(Text);
-                }
+                throw new DotvvmControlException(this, "Text property and inner content of the <dot:RouteLink> control cannot be set at the same time!");
+            }
+            else if (hasChildren)
+            {
+                base.RenderContents(writer, context);
+            }
+            else
+            {
+                writer.WriteText(Text);
             }
         }
 
@@ -153,10 +167,9 @@ namespace DotVVM.Framework.Controls
         public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control, DotvvmConfiguration configuration)
         {
             var routeNameProperty = control.GetValue(RouteNameProperty);
-            if ((routeNameProperty.As<ResolvedPropertyValue>()) == null)
+            if (routeNameProperty is not ResolvedPropertyValue { Value: string routeName })
                 yield break;
 
-            var routeName = (string)routeNameProperty.CastTo<ResolvedPropertyValue>().Value!;
             if (!configuration.RouteTable.Contains(routeName))
             {
                 yield return new ControlUsageError(

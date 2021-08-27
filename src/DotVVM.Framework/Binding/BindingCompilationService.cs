@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -115,7 +114,7 @@ namespace DotVVM.Framework.Binding
         BindingResolverCollection GetResolversForBinding(Type bindingType)
         {
             return bindingResolverCache.GetOrAdd(bindingType, t =>
-                new BindingResolverCollection(t.GetTypeInfo().GetCustomAttributes<BindingCompilationOptionsAttribute>(true)
+                new BindingResolverCollection(t.GetCustomAttributes<BindingCompilationOptionsAttribute>(true)
                 .SelectMany(o => o.GetResolvers())));
         }
 
@@ -123,7 +122,7 @@ namespace DotVVM.Framework.Binding
         protected BindingCompilationRequirementsAttribute GetDefaultRequirements(Type bindingType)
         {
             return defaultRequirementCache.GetOrAdd(bindingType, t =>
-                t.GetTypeInfo().GetCustomAttributes<BindingCompilationRequirementsAttribute>(inherit: true).Aggregate((a, b) => a.ApplySecond(b)));
+                t.GetCustomAttributes<BindingCompilationRequirementsAttribute>(inherit: true).Aggregate((a, b) => a.ApplySecond(b)));
         }
 
         public BindingCompilationRequirementsAttribute GetRequirements(IBinding binding, IEnumerable<BindingCompilationRequirementsAttribute>? bindingRequirements = null)

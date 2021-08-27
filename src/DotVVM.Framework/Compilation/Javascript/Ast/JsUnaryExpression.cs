@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
     {
         public JsExpression Expression
         {
-            get { return GetChildByRole(JsTreeRoles.Expression); }
+            get { return GetChildByRole(JsTreeRoles.Expression)!; }
             set { SetChildByRole(JsTreeRoles.Expression, value); }
         }
 
@@ -66,6 +66,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                     return "++";
                 case UnaryOperatorType.Decrement:
                     return "--";
+                case UnaryOperatorType.Await:
+                    return "await";
                 default:
                     throw new NotSupportedException($"Operator {op} is not supported.");
             }
@@ -92,5 +94,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         Increment,
         [EnumMember(Value = "--")]
         Decrement,
+        [EnumMember(Value = "await")]
+        Await
     }
 }

@@ -23,7 +23,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
 
         public override Task PreRender()
         {
-            Devices.LoadFromQueryable(FakeDb.GetQueriable());
+            Devices.LoadFromQueryable(FakeDb.GetQueryable());
             return base.PreRender();
         }
 

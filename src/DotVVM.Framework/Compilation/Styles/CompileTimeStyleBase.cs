@@ -10,125 +10,22 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
-    public abstract class CompileTimeStyleBase : IStyle
+    internal abstract class CompileTimeStyleBase : IStyle
     {
-        public List<(DotvvmProperty property, IPropertyInsertionInfo value)> SetProperties { get; } = new List<(DotvvmProperty property, IPropertyInsertionInfo value)>();
-
-        public IStyleApplicator Applicator => new StyleApplicator(this);
-
-        public abstract Type ControlType { get; }
-
-        public bool ExactTypeMatch { get; protected set; }
-
-        public abstract bool Matches(StyleMatchContext context);
-
-        protected virtual void ApplyStyle(ResolvedControl control, DotvvmConfiguration configuration)
+        readonly List<IStyleApplicator> applicators = new List<IStyleApplicator>();
+        public Type ControlType { get; }
+        public bool ExactTypeMatch { get; }
+        protected CompileTimeStyleBase(Type controlType, bool exactTypeMatch)
         {
-            if (SetProperties != null)
-            {
-                foreach (var prop in SetProperties)
-                {
-                    if (!control.Properties.ContainsKey(prop.property)
-                        || prop.value.Type == StyleOverrideOptions.Append
-                        || prop.value.Type == StyleOverrideOptions.Overwrite)
-                    {
-                        control.SetProperty(prop.value.GetPropertySetter(control, configuration),
-                            prop.value.Type == StyleOverrideOptions.Overwrite, out string error);
-                    }
-                }
-            }
+            ControlType = controlType;
+            ExactTypeMatch = exactTypeMatch;
         }
+        public IStyleApplicator Applicator => MonoidStyleApplicator.Combine(applicators);
 
-        class StyleApplicator : IStyleApplicator
-        {
-            CompileTimeStyleBase @this;
+        public abstract bool Matches(IStyleMatchContext context);
+        public void AddApplicator(IStyleApplicator a) => applicators.Add(a);
 
-            public StyleApplicator(CompileTimeStyleBase @this)
-            {
-                this.@this = @this;
-            }
 
-            public void ApplyStyle(ResolvedControl control, DotvvmConfiguration configuration)
-            {
-                @this.ApplyStyle(control, configuration);
-            }
-        }
-
-        public class PropertyInsertionInfo : IPropertyInsertionInfo
-        {
-            private readonly ResolvedPropertySetter value;
-            public StyleOverrideOptions Type { get; }
-
-            public PropertyInsertionInfo(ResolvedPropertySetter value, StyleOverrideOptions type)
-            {
-                this.value = value;
-                this.Type = type;
-            }
-
-            public ResolvedPropertySetter GetPropertySetter(ResolvedControl resolvedControl, DotvvmConfiguration configuration)
-            {
-                return value;
-            }
-        }
-
-        public class PropertyControlCollectionInsertionInfo : IPropertyInsertionInfo
-        {
-            enum PropertyKind
-            {
-                Template,
-                Collection,
-                SingleControl
-            }
-
-            private readonly DotvvmProperty dotvvmProperty;
-            private readonly PropertyKind propertyKind;
-            private readonly ControlResolverMetadata metadata;
-            private readonly IStyle innerControlStyle;
-            private readonly object[] ctorParameters;
-
-            public StyleOverrideOptions Type { get; }
-
-            public PropertyControlCollectionInsertionInfo(DotvvmProperty dotvvmProperty, StyleOverrideOptions type,
-                ControlResolverMetadata metadata, IStyle innerControlStyle, object[] ctorParameters)
-            {
-                this.dotvvmProperty = dotvvmProperty;
-                this.Type = type;
-                this.metadata = metadata;
-                this.innerControlStyle = innerControlStyle;
-                this.ctorParameters = ctorParameters;
-                this.propertyKind = DeterminePropertyKind(dotvvmProperty, metadata);
-            }
-
-            static PropertyKind DeterminePropertyKind(DotvvmProperty property, ControlResolverMetadata controlMetadata)
-            {
-                var propType = property.PropertyType;
-                if (typeof(ITemplate).IsAssignableFrom(propType))
-                    return PropertyKind.Template;
-                else if (typeof(System.Collections.ICollection).IsAssignableFrom(propType) &&
-                         ReflectionUtils.GetEnumerableType(propType).IsAssignableFrom(controlMetadata.Type))
-                    return PropertyKind.Collection;
-                else if (typeof(DotvvmBindableObject).IsAssignableFrom(propType) &&
-                         propType.IsAssignableFrom(controlMetadata.Type))
-                    return PropertyKind.SingleControl;
-                else
-                    throw new Exception($"Can not set a control of type {controlMetadata.Type} to a property of type {propType}.");
-            }
-
-            public ResolvedPropertySetter GetPropertySetter(ResolvedControl resolvedControl, DotvvmConfiguration configuration)
-            {
-                var resolvedInnerControl = new ResolvedControl(metadata, null, resolvedControl.DataContextTypeStack);
-                resolvedInnerControl.ConstructorParameters = this.ctorParameters;
-                innerControlStyle.Applicator.ApplyStyle(resolvedInnerControl, configuration);
-
-                if (this.propertyKind == PropertyKind.Template)
-                    return new ResolvedPropertyTemplate(dotvvmProperty, new List<ResolvedControl> { resolvedInnerControl });
-                else if (this.propertyKind == PropertyKind.Collection)
-                    return new ResolvedPropertyControlCollection(dotvvmProperty, new List<ResolvedControl> { resolvedInnerControl });
-                else if (this.propertyKind == PropertyKind.SingleControl)
-                    return new ResolvedPropertyControl(dotvvmProperty, resolvedInnerControl);
-                else
-                    throw new Exception();
-            }
-        }
+        public override string ToString() => $"Style for {(ExactTypeMatch ? "exactly " : "")}{ControlType}: {Applicator}";
     }
 }

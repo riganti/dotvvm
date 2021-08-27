@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Framework.Tests.Runtime
@@ -25,10 +26,8 @@ namespace DotVVM.Framework.Tests.Runtime
             var output = new StringWriter();
             var writer = new HtmlWriter(output, cx);
 
-            var template = new TemplateResource(forbiddenString);
             var inlineScript = new InlineScriptResource(forbiddenString);
 
-            template.Render(writer, cx, "a");
             inlineScript.Render(writer, cx, "b");
             Assert.IsFalse(output.ToString().Contains(forbiddenString));
         }

@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -22,7 +21,7 @@ namespace DotVVM.Framework.Runtime.Filters
                 do
                 {
                     result.AddRange(member.CastTo<ICustomAttributeProvider>().GetCustomAttributes<T>());
-                } while (data.includeParents && (member = member.DeclaringType?.GetTypeInfo()) != null);
+                } while (data.includeParents && (member = member.DeclaringType) != null);
                 return result.ToArray();
             });
         }

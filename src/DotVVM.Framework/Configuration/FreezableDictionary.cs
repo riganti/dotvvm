@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -64,9 +63,9 @@ namespace DotVVM.Framework.Configuration
             return dict.Remove(key);
         }
 
-#pragma warning disable CS8717
+#pragma warning disable CS8767
         public bool TryGetValue(K key, [MaybeNullWhen(false)] out V value) => dict.TryGetValue(key, out value);
-#pragma warning restore CS8717
+#pragma warning restore CS8767
         public void Add(KeyValuePair<K, V> item)
         {
             ThrowIfFrozen();

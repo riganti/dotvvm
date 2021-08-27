@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
@@ -14,127 +13,65 @@ using System.Net;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
-    public class StyleBuilder<T> : IStyleBuilder
+    // not generic interface
+    public interface IStyleBuilder
+    {
+        void AddConditionImpl(Func<IStyleMatchContext, bool> condition);
+        void AddApplicatorImpl(IStyleApplicator applicator);
+        IStyle GetStyle();
+        Type ControlType { get; }
+    }
+
+    public interface IStyleBuilder<out TControl> : IStyleBuilder
+    {
+        void AddConditionImpl(Func<IStyleMatchContext<TControl>, bool> condition);
+    }
+
+    public class StyleBuilder<T> : IStyleBuilder<T>
     {
         private Style style;
 
-        public StyleBuilder(Func<StyleMatchContext, bool>? matcher, bool allowDerived)
+        public Type ControlType => style.ControlType;
+
+        public StyleBuilder(Func<StyleMatchContext<T>, bool>? matcher, bool allowDerived)
         {
             style = new Style(!allowDerived, matcher);
         }
 
-        private static DotvvmProperty? GetProperty(string name)
-        {
-            var field = typeof(T).GetField(name + "Property", BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
-            return field?.GetValue(null) as DotvvmProperty;
-        }
+        public IStyle GetStyle() => style;
 
-        public StyleBuilder<T> SetProperty<TProperty>(Expression<Func<T, TProperty>> property, TProperty value, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
-        {
-            var propertyName = ReflectionUtils.GetMemberFromExpression(property.Body).Name;
-            return SetDotvvmProperty(GetProperty(propertyName)!, value, options);
-        }
-
-        public StyleBuilder<T> SetControlProperty<TControlType>(DotvvmProperty property, Action<StyleBuilder<TControlType>>? styleBuilder = null,
-            StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
-        {
-            var innerControlStyleBuilder = new StyleBuilder<TControlType>(null, false);
-            styleBuilder?.Invoke(innerControlStyleBuilder);
-
-            var value = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
-                new ControlResolverMetadata(typeof(TControlType)), innerControlStyleBuilder.GetStyle(), ctorParameters: null);
-            style.SetProperties.Add((property, value));
-
-            return this;
-        }
-
-        public StyleBuilder<T> SetHtmlControlProperty(DotvvmProperty property, string tag, Action<StyleBuilder<HtmlGenericControl>>? styleBuilder = null, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
-        {
-            if (tag == null)
-                throw new ArgumentNullException(nameof(tag));
-
-            var innerControlStyleBuilder = new StyleBuilder<HtmlGenericControl>(null, false);
-            styleBuilder?.Invoke(innerControlStyleBuilder);
-
-            var value = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
-                new ControlResolverMetadata(typeof(HtmlGenericControl)), innerControlStyleBuilder.GetStyle(), ctorParameters: new object[] { tag });
-
-            style.SetProperties.Add((property, value));
-
-            return this;
-        }
-
-        public StyleBuilder<T> SetLiteralControlProperty(DotvvmProperty property, string text, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
-        {
-            var innerControlStyleBuilder = new StyleBuilder<RawLiteral>(null, false);
-
-            var ctorParameters = new object[] {
-                WebUtility.HtmlEncode(text),
-                text,
-                String.IsNullOrWhiteSpace(text)
-            };
-
-            var value = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
-                new ControlResolverMetadata(typeof(RawLiteral)), innerControlStyleBuilder.GetStyle(), ctorParameters);
-            style.SetProperties.Add((property, value));;
-
-            return this;
-        }
-
-        public StyleBuilder<T> SetDotvvmProperty(ResolvedPropertySetter setter, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
-        {
-            style.SetProperties.Add((setter.Property, new CompileTimeStyleBase.PropertyInsertionInfo(setter, options)));
-            return this;
-        }
-
-        public StyleBuilder<T> SetDotvvmProperty(DotvvmProperty property, object? value, StyleOverrideOptions options = StyleOverrideOptions.Overwrite) =>
-            SetDotvvmProperty(new ResolvedPropertyValue(property, value), options);
-
-        public StyleBuilder<T> SetAttribute(string attribute, object value, StyleOverrideOptions options = StyleOverrideOptions.Ignore) =>
-            SetPropertyGroupMember("", attribute, value, options);
-
-        public StyleBuilder<T> SetPropertyGroupMember(string prefix, string memberName, object value, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
-        {
-            var prop = DotvvmPropertyGroup.GetPropertyGroups(typeof(T)).Single(p => p.Prefixes.Contains(prefix));
-            return SetDotvvmProperty(prop.GetDotvvmProperty(memberName), value, options);
-        }
-
-        public StyleBuilder<T> WithCondition(Func<StyleMatchContext, bool> condition)
+        public void AddConditionImpl(Func<IStyleMatchContext<T>, bool> condition)
         {
             var oldMatcher = style.Matcher;
             if (oldMatcher is null)
                 style.Matcher = condition;
             else
                 style.Matcher = m => oldMatcher(m) && condition(m);
-            return this;
         }
 
-        public IStyle GetStyle()
+        public void AddApplicatorImpl(IStyleApplicator applicator)
         {
-            return style;
+            style.AddApplicator(applicator);
         }
 
-        IStyleBuilder IStyleBuilder.SetDotvvmProperty(DotvvmProperty property, object value)
-            => SetDotvvmProperty(property, value);
+        void IStyleBuilder.AddConditionImpl(Func<IStyleMatchContext, bool> condition) => AddConditionImpl(condition);
 
-        IStyleBuilder IStyleBuilder.WithCondition(Func<StyleMatchContext, bool> condition)
-            => WithCondition(condition);
-
-        public class Style : CompileTimeStyleBase
+        class Style : CompileTimeStyleBase
         {
-            public Style(bool exactTypeMatch = false, Func<StyleMatchContext, bool>? matcher = null)
+            public Style(bool exactTypeMatch, Func<StyleMatchContext<T>, bool>? matcher)
+                : base(typeof(T), exactTypeMatch)
             {
                 Matcher = matcher;
-                ExactTypeMatch = exactTypeMatch;
             }
 
-            public override Type ControlType => typeof(T);
+            public Func<StyleMatchContext<T>, bool>? Matcher { get; set; }
 
-            public Func<StyleMatchContext, bool>? Matcher { get; set; }
-
-            public override bool Matches(StyleMatchContext context)
+            public override bool Matches(IStyleMatchContext context)
             {
-                return Matcher != null ? Matcher(context) : true;
+                if (context.PropertyS<bool>(Controls.Styles.ExcludeProperty) == true)
+                    return false;
+
+                return Matcher != null ? Matcher(new StyleMatchContext<T>(context.Parent, context.Control, context.Configuration)) : true;
             }
         }
     }

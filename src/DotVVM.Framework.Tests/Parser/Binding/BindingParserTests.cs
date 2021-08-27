@@ -72,7 +72,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        public void BindingParser_NestedMemberAccess_Number_ArithmeticsOperatorPrecendence_Valid()
+        public void BindingParser_NestedMemberAccess_Number_ArithmeticsOperatorPrecedence_Valid()
         {
             var result = bindingParserNodeFactory.Parse("a.c.d * b + 3.14");
 
@@ -191,7 +191,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         [DataRow("$'{DateProperty:dd/MM/yyyy}'", "{0:dd/MM/yyyy}")]
         [DataRow("$'{IntProperty:####}'", "{0:####}")]
-        public void BindingParser_InterpolatedString_WithFormattingComponenet_Valid(string expression, string formatOptions)
+        public void BindingParser_InterpolatedString_WithFormattingComponent_Valid(string expression, string formatOptions)
         {
             var result = bindingParserNodeFactory.Parse(expression) as InterpolatedStringBindingParserNode;
             Assert.IsFalse(result.HasNodeErrors);
@@ -358,7 +358,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        public void BindingParser_MultipleUnsuportedBinaryOperators_Valid()
+        public void BindingParser_MultipleUnsupportedBinaryOperators_Valid()
         {
             var parser = bindingParserNodeFactory.SetupParser("_root.MyCoolProperty += _this.Number1 + Number2^_parent0.Exponent * Multiplikator");
             var node = parser.ReadExpression();
@@ -387,7 +387,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        public void BindingParser_UnsuportedUnaryOperators_Valid()
+        public void BindingParser_UnsupportedUnaryOperators_Valid()
         {
             var parser = bindingParserNodeFactory.SetupParser("MyCoolProperty = ^&Number1 + ^&Number2 * ^&Number3");
             var node = parser.ReadExpression();
@@ -421,7 +421,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        public void BindingParser_BinaryAndUnaryUnsuportedOperators_Valid()
+        public void BindingParser_BinaryAndUnaryUnsupportedOperators_Valid()
         {
             var parser = bindingParserNodeFactory.SetupParser("MyCoolProperty += ^& Number1");
             var node = parser.ReadExpression();
@@ -449,13 +449,13 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.IsTrue(parser.OnEnd());
             Assert.IsTrue(node is MultiExpressionBindingParserNode);
 
-            var multiExpresionNode = node as MultiExpressionBindingParserNode;
+            var multiExpressionNode = node as MultiExpressionBindingParserNode;
 
-            Assert.IsTrue(multiExpresionNode.Expressions.Count == 3);
+            Assert.IsTrue(multiExpressionNode.Expressions.Count == 3);
 
-            Assert.IsTrue(multiExpresionNode.Expressions[0] is MemberAccessBindingParserNode);
-            Assert.IsTrue(multiExpresionNode.Expressions[1] is LiteralExpressionBindingParserNode);
-            Assert.IsTrue(multiExpresionNode.Expressions[2] is LiteralExpressionBindingParserNode);
+            Assert.IsTrue(multiExpressionNode.Expressions[0] is MemberAccessBindingParserNode);
+            Assert.IsTrue(multiExpressionNode.Expressions[1] is LiteralExpressionBindingParserNode);
+            Assert.IsTrue(multiExpressionNode.Expressions[2] is LiteralExpressionBindingParserNode);
         }
 
         [TestMethod]
@@ -492,9 +492,9 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.IsTrue(parser.OnEnd());
             Assert.IsTrue(node is MultiExpressionBindingParserNode);
 
-            var multiExpresionNode = node as MultiExpressionBindingParserNode;
+            var multiExpressionNode = node as MultiExpressionBindingParserNode;
 
-            Assert.IsTrue(multiExpresionNode.Expressions.Count == 12);
+            Assert.IsTrue(multiExpressionNode.Expressions.Count == 12);
         }
 
         [TestMethod]
@@ -506,12 +506,12 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.IsTrue(parser.OnEnd());
             Assert.IsTrue(node is MultiExpressionBindingParserNode);
 
-            var multiExpresionNode = node as MultiExpressionBindingParserNode;
+            var multiExpressionNode = node as MultiExpressionBindingParserNode;
 
-            Assert.IsTrue(multiExpresionNode.Expressions.Count == 2);
+            Assert.IsTrue(multiExpressionNode.Expressions.Count == 2);
 
-            Assert.IsTrue(multiExpresionNode.Expressions[0] is BinaryOperatorBindingParserNode);
-            Assert.IsTrue(multiExpresionNode.Expressions[1] is LiteralExpressionBindingParserNode);
+            Assert.IsTrue(multiExpressionNode.Expressions[0] is BinaryOperatorBindingParserNode);
+            Assert.IsTrue(multiExpressionNode.Expressions[1] is LiteralExpressionBindingParserNode);
         }
 
         [TestMethod]
@@ -613,7 +613,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        public void BindingParser_GenericExpresion_SimpleList()
+        public void BindingParser_GenericExpression_SimpleList()
         {
             var parser = bindingParserNodeFactory.SetupParser("System.Collections.Generic.List<string>.Enumerator");
             var node = parser.ReadExpression();
@@ -631,7 +631,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        public void BindingParser_GenericExpresion_Dictionary()
+        public void BindingParser_GenericExpression_Dictionary()
         {
             var parser = bindingParserNodeFactory.SetupParser("System.Collections.Generic.Dictionary<string, int>.ValueCollection");
             var node = parser.ReadExpression();
@@ -651,7 +651,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        public void BindingParser_GenericExpresion_DictionaryTupleInside()
+        public void BindingParser_GenericExpression_DictionaryTupleInside()
         {
             var originalString = "System.Collections.Generic.Dictionary<Tuple<bool, bool>, Tuple<string, int>>.ValueCollection";
             var parser = bindingParserNodeFactory.SetupParser(originalString);
@@ -668,7 +668,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        public void BindingParser_GenericExpresion_DictionaryTupleInside_Invalid()
+        public void BindingParser_GenericExpression_DictionaryTupleInside_Invalid()
         {
             var originalString = "System.Collections.Generic.Dictionary<Tuple<bool, bool>, Tuple<string, int>.ValueCollection";
             var parser = bindingParserNodeFactory.SetupParser(originalString);
@@ -684,11 +684,11 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             Assert.IsTrue(multi.Expressions.Count == 4);
             Assert.IsTrue(multi.Expressions[0] is BinaryOperatorBindingParserNode);
-            //Then there is whitespace, comma it doesnt metter much how those are parsed just that they are eaten away
+            //Then there is whitespace, comma it doesn't matter much how those are parsed just that they are eaten away
             Assert.IsTrue(multi.Expressions[3] is MemberAccessBindingParserNode);
 
-            //With multiple expesions we are able to eat the evil extra tokens and finis the expresion 
-            //Expresion Tuple<string, int>.ValueCollection is parsed correctly
+            //With multiple expressions we are able to eat the evil extra tokens and finish the expression 
+            //Expression Tuple<string, int>.ValueCollection is parsed correctly
             Assert.IsTrue(string.Equals(multi.Expressions[0].ToDisplayString(), "System.Collections.Generic.Dictionary < Tuple<bool, bool>"));
             Assert.IsTrue(string.Equals(multi.Expressions[1].ToDisplayString(), ""));
             Assert.IsTrue(string.Equals(multi.Expressions[2].ToDisplayString(), ","));
@@ -696,19 +696,19 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        public void BindingParser_GenericExpresion_JustComparision()
+        public void BindingParser_GenericExpression_JustComparison()
         {
             var originalString = "System.Collections.Generic.Dictionary<Tuple.Count&&Meep>Squeee";
             var parser = bindingParserNodeFactory.SetupParser(originalString);
             var node = parser.ReadExpression();
 
-            //Just comparition no generics or anything
+            //Just comparison no generics or anything
             Assert.IsTrue(node is BinaryOperatorBindingParserNode);
             Assert.IsTrue(string.Equals(originalString, node.ToDisplayString().Replace(" ", "")));
         }
 
         [TestMethod]
-        public void BindingParser_GenericExpresion_MultipleInside()
+        public void BindingParser_GenericExpression_MultipleInside()
         {
             var originalString = "System.Collections.Generic.Dictionary<Generic.List<Generic.List<Generic.Set<Generic.List<System.String>>>>>";
             var parser = bindingParserNodeFactory.SetupParser(originalString);
@@ -719,7 +719,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        public void BindingParser_GenericExpresion_MemberAccessInsteadOfType_Invalid()
+        public void BindingParser_GenericExpression_MemberAccessInsteadOfType_Invalid()
         {
             var originalString = "System.Collections.Generic.Dictionary<Generic.List<int>.Items[0].Delf()>";
             var parser = bindingParserNodeFactory.SetupParser(originalString);
@@ -907,7 +907,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(firstExpression.EndPosition + 1, secondExpression.StartPosition);
 
 
-            //display string does not really deal with whitespace tokens, we dont care about those.
+            //display string does not really deal with whitespace tokens, we don't care about those.
             //Just making sure the expression syntax itself remains the same
             Assert.AreEqual(SkipWhitespaces(bindingExpression), SkipWhitespaces(node.ToDisplayString()));
         }
@@ -915,7 +915,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [DataTestMethod]
         [DataRow("StringProp = StringProp + 1;", 0, DisplayName = "Multiblock expression, bare semicolon at the end.")]
         [DataRow("StringProp = StringProp + 1; ", 1, DisplayName = "Multiblock expression, semicolon and whitespace at the end.")]
-        public void BindingParser_MultiblockExpression_SemicolonEnd_Invalid(string bindingExpression, int lastBlockExpectedLenght)
+        public void BindingParser_MultiblockExpression_SemicolonEnd_Invalid(string bindingExpression, int lastBlockExpectedLength)
         {
             var parser = bindingParserNodeFactory.SetupParser(bindingExpression);
             var node = parser.ReadExpression();
@@ -933,10 +933,10 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(0, node.StartPosition);
             Assert.AreEqual(node.EndPosition, secondExpression.EndPosition);
             Assert.AreEqual(firstExpression.EndPosition + 1, secondExpression.StartPosition);
-            Assert.AreEqual(lastBlockExpectedLenght, secondExpression.Length);
+            Assert.AreEqual(lastBlockExpectedLength, secondExpression.Length);
 
 
-            //display string does not really deal with whitespace tokens, we dont care about those.
+            //display string does not really deal with whitespace tokens, we don't care about those.
             //Just making sure the expression syntax itself remains the same
             Assert.AreEqual(bindingExpression.Trim(), node.ToDisplayString().Trim());
         }
@@ -944,7 +944,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [DataTestMethod]
         [DataRow("StringProp = StringProp + 1;;test", 0, DisplayName = "Multiblock expression, bare semicolon in the middle.")]
         [DataRow("StringProp = StringProp + 1; ;test", 1, DisplayName = "Multiblock expression, semicolon and whitespace in the middle.")]
-        public void BindingParser_MultiblockExpression_EmptyBlockMiddle_Invalid(string bindingExpression, int voidBlockExpectedLenght)
+        public void BindingParser_MultiblockExpression_EmptyBlockMiddle_Invalid(string bindingExpression, int voidBlockExpectedLength)
         {
             var parser = bindingParserNodeFactory.SetupParser(bindingExpression);
             var node = parser.ReadExpression();
@@ -970,7 +970,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(firstExpression.EndPosition + 1, middleExpression.StartPosition);
             Assert.AreEqual(middleExpression.EndPosition + 1, lastExpression.StartPosition);
             Assert.AreEqual(node.EndPosition, lastExpression.EndPosition);
-            Assert.AreEqual(voidBlockExpectedLenght, middleExpression.Length);
+            Assert.AreEqual(voidBlockExpectedLength, middleExpression.Length);
 
         }
         [DataRow("var x=A(); !x", "x", DisplayName = "Variable (var) expression")]
@@ -1001,7 +1001,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [DataTestMethod]
         [DataRow("StringProp = StringProp + 1;;test;test2", 0, DisplayName = "Multiblock expression, bare semicolon among four blocks.")]
         [DataRow("StringProp = StringProp + 1; ;test;test2", 1, DisplayName = "Multiblock expression, semicolon and whitespace among four blocks.")]
-        public void BindingParser_MultiblockExpression_EmptyBlockFourBlocks_Invalid(string bindingExpression, int voidBlockExpectedLenght)
+        public void BindingParser_MultiblockExpression_EmptyBlockFourBlocks_Invalid(string bindingExpression, int voidBlockExpectedLength)
         {
             var parser = bindingParserNodeFactory.SetupParser(bindingExpression);
             var node = parser.ReadExpression();
@@ -1036,7 +1036,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(voidExpression.EndPosition + 1, test.StartPosition);
             Assert.AreEqual(test.EndPosition + 1, test2.StartPosition);
             Assert.AreEqual(test2.EndPosition, node.EndPosition);
-            Assert.AreEqual(voidBlockExpectedLenght, voidExpression.Length);
+            Assert.AreEqual(voidBlockExpectedLength, voidExpression.Length);
 
             Assert.AreEqual(SkipWhitespaces(bindingExpression), SkipWhitespaces(node.ToDisplayString()));
         }

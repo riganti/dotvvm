@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Binding;
+﻿using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using System;
@@ -13,7 +12,7 @@ namespace DotVVM.Framework.Controls
         ClientIDMode ClientIDMode { get; set; }
         string ID { get; set; }
         DotvvmBindableObject? Parent { get; set; }
-        IEnumerable<DotvvmBindableObject> GetAllAncestors(bool incudingThis = false);
+        IEnumerable<DotvvmBindableObject> GetAllAncestors(bool includingThis = false);
 
         IEnumerable<DotvvmControl> GetAllDescendants(Func<DotvvmControl, bool>? enumerateChildrenCondition = null);
 

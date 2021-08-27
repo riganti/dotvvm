@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -155,8 +154,8 @@ namespace DotVVM.Framework.Configuration
         public void AddCodeControls(string tagPrefix, Type exampleControl)
         {
             ThrowIfFrozen();
-            AddAssembly(exampleControl.GetTypeInfo().Assembly.FullName!);
-            Controls.Add(new DotvvmControlConfiguration { TagPrefix = tagPrefix, Namespace = exampleControl.Namespace, Assembly = exampleControl.GetTypeInfo().Assembly.FullName });
+            AddAssembly(exampleControl.Assembly.FullName!);
+            Controls.Add(new DotvvmControlConfiguration { TagPrefix = tagPrefix, Namespace = exampleControl.Namespace, Assembly = exampleControl.Assembly.FullName });
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

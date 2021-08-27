@@ -16,8 +16,8 @@ using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Binding.Properties;
 using System.Linq;
 using DotVVM.Framework.DependencyInjection;
-using System.Collections.Concurrent;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -46,7 +46,7 @@ test <dot:Literal Text='test' />";
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_ElementWithBindingProperty()
         {
-            var markup = string.Format("@viewModel {0}, {1}\r\ntest <dot:Literal Text='{{{{value: FirstName}}}}' />", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).GetTypeInfo().Assembly.GetName().Name);
+            var markup = string.Format("@viewModel {0}, {1}\r\ntest <dot:Literal Text='{{{{value: FirstName}}}}' />", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).Assembly.GetName().Name);
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
@@ -64,7 +64,7 @@ test <dot:Literal Text='test' />";
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_BindingInText()
         {
-            var markup = string.Format("@viewModel {0}, {1}\r\ntest {{{{value: FirstName}}}}", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).GetTypeInfo().Assembly.GetName().Name);
+            var markup = string.Format("@viewModel {0}, {1}\r\ntest {{{{value: FirstName}}}}", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).Assembly.GetName().Name);
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
@@ -135,7 +135,7 @@ test <dot:Literal><a /></dot:Literal>";
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_Template()
         {
-            var markup = string.Format("@viewModel {0}, {1}\r\n", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).GetTypeInfo().Assembly.GetName().Name) +
+            var markup = string.Format("@viewModel {0}, {1}\r\n", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).Assembly.GetName().Name) +
 @"<dot:Repeater DataSource=""{value: FirstName}"">
     <ItemTemplate>
         <p>This is a test</p>
@@ -210,7 +210,7 @@ test <dot:Literal><a /></dot:Literal>";
 <cc:Test2 />";
             var page = CompileMarkup(markup, new Dictionary<string, string>()
             {
-                { "test2.dothtml", string.Format("@baseType {0}, {1}\r\n@viewModel System.Object, mscorlib\r\n<dot:Literal Text='aaa' />", typeof(TestControl), typeof(TestControl).GetTypeInfo().Assembly.GetName().Name) }
+                { "test2.dothtml", string.Format("@baseType {0}, {1}\r\n@viewModel System.Object, mscorlib\r\n<dot:Literal Text='aaa' />", typeof(TestControl), typeof(TestControl).Assembly.GetName().Name) }
             });
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
@@ -245,7 +245,7 @@ test <dot:Literal><a /></dot:Literal>";
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_MarkupControl_InTemplate()
         {
-            var markup = string.Format("@viewModel {0}, {1}\r\n", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).GetTypeInfo().Assembly.GetName().Name) +
+            var markup = string.Format("@viewModel {0}, {1}\r\n", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).Assembly.GetName().Name) +
 @"<dot:Repeater DataSource=""{value: FirstName}"">
     <ItemTemplate>
         <cc:Test3 />
@@ -279,7 +279,7 @@ test <dot:Literal><a /></dot:Literal>";
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_MarkupControl_InTemplate_CacheTest()
         {
-            var markup = string.Format("@viewModel {0}, {1}\r\n", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).GetTypeInfo().Assembly.GetName().Name) +
+            var markup = string.Format("@viewModel {0}, {1}\r\n", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).Assembly.GetName().Name) +
 @"<dot:Repeater DataSource=""{value: FirstName}"">
     <ItemTemplate>
         <cc:Test4 />
@@ -450,7 +450,7 @@ test <dot:Literal><a /></dot:Literal>";
             Assert.IsFalse(ex.ToString().Contains("This is most probably bug in the DotVVM framework."));
         }
 
-        // Well, DotvvmProperties work even whenthey are internal. So I can not add the check in order to remain backwards compatible :/
+        // Well, DotvvmProperties work even when they are internal. So I can not add the check in order to remain backwards compatible :/
 
 //         [TestMethod]
 //         public void DefaultViewCompiler_InternalDotvvmProperty_Error()
@@ -506,7 +506,7 @@ test <dot:Literal><a /></dot:Literal>";
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test4", Src = "test4.dothtml" });
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test5", Src = "test5.dothtml" });
             context.Configuration.Markup.AddCodeControls("ff", typeof(TestControl));
-            context.Configuration.Markup.AddAssembly(typeof(DefaultViewCompilerTests).GetTypeInfo().Assembly.GetName().Name);
+            context.Configuration.Markup.AddAssembly(typeof(DefaultViewCompilerTests).Assembly.GetName().Name);
 
             var controlBuilderFactory = context.Services.GetRequiredService<IControlBuilderFactory>();
             var (_, controlBuilder) = controlBuilderFactory.GetControlBuilder(fileName + ".dothtml");
@@ -610,26 +610,6 @@ test <dot:Literal><a /></dot:Literal>";
         public bool IsCorrectlyCreated { get; set; } = false;
 
         public TestCustomDependencyInjectionControl(string something) { }
-    }
-
-    public class FakeMarkupFileLoader : IMarkupFileLoader
-    {
-        public readonly ConcurrentDictionary<string, string> MarkupFiles;
-
-        public FakeMarkupFileLoader(Dictionary<string, string> markupFiles = null)
-        {
-            this.MarkupFiles = new ConcurrentDictionary<string, string>(markupFiles ?? new Dictionary<string, string>());
-        }
-
-        public MarkupFile GetMarkup(DotvvmConfiguration configuration, string virtualPath)
-        {
-            return new MarkupFile(virtualPath, virtualPath, MarkupFiles[virtualPath]);
-        }
-
-        public string GetMarkupFileVirtualPath(Hosting.IDotvvmRequestContext context)
-        {
-            return context.Route.VirtualPath;
-        }
     }
 
     public class ControlWithCompileDependentProperties: DotvvmControl

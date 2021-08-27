@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
@@ -12,6 +11,8 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser.Annotations;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -19,6 +20,7 @@ namespace DotVVM.Framework.Compilation.Binding
     {
         public TypeRegistry Registry { get; set; }
         public Expression? Scope { get; set; }
+        /// <summary> We use the parser to parse directives where only type name is expected. At that place, the flag is set to true otherwise it's false </summary>
         public bool ResolveOnlyTypeName { get; set; }
         public Type? ExpectedType { get; set; }
         public ImmutableDictionary<string, ParameterExpression> Variables { get; set; } =
@@ -41,7 +43,7 @@ namespace DotVVM.Framework.Compilation.Binding
         protected T HandleErrors<T, TNode>(TNode node, Func<TNode, T> action, string defaultErrorMessage = "Binding compilation failed", bool allowResultNull = true)
             where TNode : BindingParserNode
         {
-            T result = default(T);
+            T result = default!;
             try
             {
                 result = action(node);
@@ -87,11 +89,6 @@ namespace DotVVM.Framework.Compilation.Binding
             }
         }
 
-        protected void RegisterSymbols(IEnumerable<KeyValuePair<string, Expression>> symbols)
-        {
-            Registry = Registry.AddSymbols(symbols);
-        }
-
         public override Expression Visit(BindingParserNode node)
         {
             var regBackup = Registry;
@@ -117,15 +114,15 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitInterpolatedStringExpression(InterpolatedStringBindingParserNode node)
         {
-            var target = new MethodGroupExpression() {
-                MethodName = nameof(String.Format),
-                Target = new StaticClassIdentifierExpression(typeof(string))
-            };
+            var target = new MethodGroupExpression(
+                new StaticClassIdentifierExpression(typeof(string)),
+                nameof(String.Format)
+            );
 
             if (node.Arguments.Any())
             {
                 // Translate to a String.Format(...) call
-                var arguments = node.Arguments.Select((arg, index) => HandleErrors(node.Arguments[index], Visit)).ToArray();
+                var arguments = node.Arguments.Select((arg, index) => HandleErrors(node.Arguments[index], Visit)!).ToArray();
                 return memberExpressionFactory.Call(target, new[] { Expression.Constant(node.Format) }.Concat(arguments).ToArray());
             }
             else
@@ -245,7 +242,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
             }
 
-            return memberExpressionFactory.GetBinaryOperator(left, right, eop);
+            return memberExpressionFactory.GetBinaryOperator(left!, right!, eop);
         }
 
         protected override Expression VisitArrayAccess(ArrayAccessBindingParserNode node)
@@ -254,7 +251,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var index = HandleErrors(node.ArrayIndexExpression, Visit);
             ThrowOnErrors();
 
-            var expression = ExpressionHelper.GetIndexer(target, index);
+            var expression = ExpressionHelper.GetIndexer(target!, index!);
             if (expression is IndexExpression indexExpression && !node.Annotations.Contains(WriteAccessAnnotation.Instance))
             {
                 // Convert to get_{Indexer}(index, value) call
@@ -358,7 +355,34 @@ namespace DotVVM.Framework.Compilation.Binding
                 return resolvedTypeExpression;
             }
 
-            return memberExpressionFactory.GetMember(target, nameNode.Name, typeParameters, onlyMemberTypes: ResolveOnlyTypeName);
+            // we try to resolve member access into an extension parameter
+            // for example _parent._index should resolve into the _index extension parameter on the parent context
+            var extensionParameter = TryResolveExtensionParameter(target, nameNode);
+            
+            // even when we find the extension parameter, member properties should have priority (for compatibility, at least)
+
+            return
+                memberExpressionFactory.GetMember(
+                    target, nameNode.Name, typeParameters,
+                    throwExceptions: extensionParameter is null,
+                    onlyMemberTypes: ResolveOnlyTypeName
+                ) ?? extensionParameter!;
+        }
+
+        Expression? TryResolveExtensionParameter(Expression target, IdentifierNameBindingParserNode nameNode)
+        {
+            // target is _parent, _this, _root, ...
+            if (target.GetParameterAnnotation() is BindingParameterAnnotation { ExtensionParameter: null, DataContext: {} dataContext } &&
+                // name is simple (no generics)
+                nameNode is SimpleNameBindingParserNode { Name: {} name } &&
+                dataContext.ExtensionParameters.FirstOrDefault(e => e.Identifier == name) is {} parameter)
+            {
+                return Expression.Parameter(
+                    ResolvedTypeDescriptor.ToSystemType(parameter.ParameterType) ?? typeof(UnknownTypeSentinel),
+                    parameter.Identifier
+                ).AddParameterAnnotation(new BindingParameterAnnotation(dataContext, parameter));
+            }
+            return null;
         }
 
         protected override Expression VisitGenericName(GenericNameBindingParserNode node)
@@ -447,13 +471,13 @@ namespace DotVVM.Framework.Compilation.Binding
 
             if (node.ResolvedType != null)
             {
-                // Type was not specified but was infered
+                // Type was not specified but was inferred
                 return Expression.Parameter(node.ResolvedType, node.Name.ToDisplayString());
             }
             else
             {
                 // Type was specified and needs to be obtained from binding node
-                var parameterType = Visit(node.Type).Type;
+                var parameterType = Visit(node.Type!).Type;
                 return Expression.Parameter(parameterType, node.Name.ToDisplayString());
             }
         }
@@ -519,12 +543,12 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitFormattedExpression(FormattedBindingParserNode node)
         {
-            var target = new MethodGroupExpression() {
-                MethodName = nameof(String.Format),
-                Target = new StaticClassIdentifierExpression(typeof(string))
-            };
+            var target = new MethodGroupExpression(
+                new StaticClassIdentifierExpression(typeof(string)),
+                nameof(String.Format)
+            );
 
-            var nodeObj = HandleErrors(node.Node, Visit);
+            var nodeObj = Visit(node.Node);
             return memberExpressionFactory.Call(target, new[] { Expression.Constant(node.Format), nodeObj });
         }
 

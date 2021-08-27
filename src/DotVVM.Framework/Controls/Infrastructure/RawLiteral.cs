@@ -1,11 +1,11 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Hosting;
+using System.Net;
 
 namespace DotVVM.Framework.Controls.Infrastructure
 {
@@ -21,6 +21,12 @@ namespace DotVVM.Framework.Controls.Infrastructure
             IsWhitespace = isWhitespace;
             LifecycleRequirements = ControlLifecycleRequirements.None;
         }
+
+        public static RawLiteral Create(string text) =>
+            new RawLiteral(
+                WebUtility.HtmlEncode(text),
+                text,
+                String.IsNullOrWhiteSpace(text));
 
         public override void Render(IHtmlWriter writer, IDotvvmRequestContext context)
         {

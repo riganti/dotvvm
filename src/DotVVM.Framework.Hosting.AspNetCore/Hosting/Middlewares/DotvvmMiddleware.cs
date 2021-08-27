@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Hosting.ErrorPages;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.ViewModel.Serialization;
@@ -20,6 +21,7 @@ namespace DotVVM.Framework.Hosting
     {
         public readonly DotvvmConfiguration Configuration;
         private readonly IList<IDotvvmMiddleware> middlewares;
+        private readonly bool useErrorPage;
         private readonly RequestDelegate next;
 
         private int configurationSaved;
@@ -27,11 +29,12 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMiddleware" /> class.
         /// </summary>
-        public DotvvmMiddleware(RequestDelegate next, DotvvmConfiguration configuration, IList<IDotvvmMiddleware> middlewares)
+        public DotvvmMiddleware(RequestDelegate next, DotvvmConfiguration configuration, IList<IDotvvmMiddleware> middlewares, bool useErrorPage)
         {
             this.next = next;
             Configuration = configuration;
             this.middlewares = middlewares;
+            this.useErrorPage = useErrorPage;
         }
 
         /// <summary>
@@ -52,7 +55,9 @@ namespace DotVVM.Framework.Hosting
 
             if (requestCultureFeature == null)
             {
+#pragma warning disable CS0618
                 dotvvmContext.ChangeCurrentCulture(Configuration.DefaultCulture);
+#pragma warning restore CS0618
             }
 
             try
@@ -62,7 +67,21 @@ namespace DotVVM.Framework.Hosting
                     if (await middleware.Handle(dotvvmContext)) return;
                 }
             }
-            catch (DotvvmInterruptRequestExecutionException) { return; }
+            catch (DotvvmInterruptRequestExecutionException)
+            {
+                return;
+            }
+            catch (Exception ex) when (useErrorPage)
+            {
+                if (context.Response.HasStarted)
+                    throw; // the response has already started, don't do anything, we can't write anyway
+
+                context.Response.StatusCode = 500;
+                var dotvvmErrorPageRenderer = context.RequestServices.GetRequiredService<DotvvmErrorPageRenderer>();
+                await dotvvmErrorPageRenderer.RenderErrorResponse(dotvvmContext.HttpContext, ex);
+                return;
+            }
+
             await next(context);
         }
 

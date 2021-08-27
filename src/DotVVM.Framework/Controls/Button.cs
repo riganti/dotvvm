@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Runtime;
 using System;
@@ -9,6 +8,7 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Controls
 {
@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Controls
             if (ButtonTagName == ButtonTagName.button && HasValueBinding(TextProperty))
             {
                 var literal = new Literal { RenderSpanElement = false };
-                literal.SetBinding(c => c.Text, GetBinding(TextProperty));
+                literal.SetBinding(Literal.TextProperty, GetBinding(TextProperty));
                 Children.Add(literal);
             }
 
@@ -155,7 +155,7 @@ namespace DotVVM.Framework.Controls
         [ControlUsageValidator]
         public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
         {
-            if (control.Properties.ContainsKey(TextProperty) && control.Content.Any(n => n.DothtmlNode.IsNotEmpty()))
+            if (control.Properties.ContainsKey(TextProperty) && !control.HasOnlyWhiteSpaceContent())
             {
                 yield return new ControlUsageError("Text property and inner content of the <dot:Button> control cannot be set at the same time!", control.DothtmlNode);
             }

@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Hosting;

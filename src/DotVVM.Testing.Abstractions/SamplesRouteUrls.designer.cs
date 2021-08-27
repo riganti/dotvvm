@@ -76,6 +76,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_FileUpload_FileUpload = "ControlSamples/FileUpload/FileUpload";
         public const string ControlSamples_FileUpload_IsAllowedOrNot = "ControlSamples/FileUpload/IsAllowedOrNot";
         public const string ControlSamples_GridView_ColumnVisible = "ControlSamples/GridView/ColumnVisible";
+        public const string ControlSamples_GridView_GridViewCellDecorators = "ControlSamples/GridView/GridViewCellDecorators";
         public const string ControlSamples_GridView_GridViewInlineEditing = "ControlSamples/GridView/GridViewInlineEditing";
         public const string ControlSamples_GridView_GridViewInlineEditingPrimaryKeyGuid = "ControlSamples/GridView/GridViewInlineEditingPrimaryKeyGuid";
         public const string ControlSamples_GridView_GridViewInlineEditingPrimaryKeyString = "ControlSamples/GridView/GridViewInlineEditingPrimaryKeyString";
@@ -107,6 +108,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_RadioButton_RadioButton_Objects = "ControlSamples/RadioButton/RadioButton_Objects";
         public const string ControlSamples_Repeater_CollectionIndex = "ControlSamples/Repeater/CollectionIndex";
         public const string ControlSamples_Repeater_DataSourceNull = "ControlSamples/Repeater/DataSourceNull";
+        public const string ControlSamples_Repeater_IndexInNestedRepeater = "ControlSamples/Repeater/IndexInNestedRepeater";
         public const string ControlSamples_Repeater_NamedTemplate = "ControlSamples/Repeater/NamedTemplate";
         public const string ControlSamples_Repeater_NestedRepeater = "ControlSamples/Repeater/NestedRepeater";
         public const string ControlSamples_Repeater_NestedRepeaterWithControl = "ControlSamples/Repeater/NestedRepeaterWithControl";

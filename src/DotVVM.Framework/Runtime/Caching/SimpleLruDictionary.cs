@@ -1,4 +1,3 @@
-#nullable enable
 
 using System.Collections.Concurrent;
 using System;
@@ -16,7 +15,7 @@ namespace DotVVM.Framework.Runtime.Caching
     /// Actually, the entries are not removed, the reference is just weakened, so GC can collect it. If the object is actually from another place, it will stay in the cache.
     /// </summary>
     public class SimpleLruDictionary<TKey, TValue>
-        where TValue : class
+        where TValue : class?
         where TKey : notnull
     {
         // new generation
@@ -74,7 +73,7 @@ namespace DotVVM.Framework.Runtime.Caching
             }
         }
 
-        public bool TryGetValue(TKey key, [NotNullWhen(true)] out TValue? value)
+        public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue? value)
         {
             if (hot.TryGetValue(key, out value))
                 return true;

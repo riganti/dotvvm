@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Controls;
 using System;
 using System.Collections.Generic;
@@ -13,7 +12,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 namespace DotVVM.Framework.Binding
 {
     /// Controls which data context should be used inside of the marked control or property
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class, Inherited = true, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class | AttributeTargets.Field | AttributeTargets.Parameter, Inherited = true, AllowMultiple = true)]
     public abstract class DataContextChangeAttribute : Attribute
     {
         /// When there is multiple of these attributes, they are executed in order which is determined by this parameter

@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Controls;
 using System;
 using System.Collections.Generic;
@@ -16,6 +15,7 @@ using System.Runtime.CompilerServices;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Compilation.Binding;
 
 namespace DotVVM.Framework.Binding
 {
@@ -71,8 +71,13 @@ namespace DotVVM.Framework.Binding
         public static (int stepsUp, DotvvmBindableObject target) FindDataContextTarget(this IBinding binding, DotvvmBindableObject control)
         {
             if (control == null) throw new InvalidOperationException($"Can not evaluate binding without any dataContext.");
-            var controlContext = (DataContextStack?)control.GetValue(Internal.DataContextTypeProperty);
             var bindingContext = binding.GetProperty<DataContextStack>(ErrorHandlingMode.ReturnNull);
+            return FindDataContextTarget(control, bindingContext, binding);
+        }
+
+        internal static (int stepsUp, DotvvmBindableObject target) FindDataContextTarget(DotvvmBindableObject control, DataContextStack? bindingContext, object? contextObject)
+        {
+            var controlContext = (DataContextStack?)control.GetValue(Internal.DataContextTypeProperty);
             if (bindingContext == null || controlContext == null || controlContext.Equals(bindingContext)) return (0, control);
 
             var changes = 0;
@@ -84,7 +89,7 @@ namespace DotVVM.Framework.Binding
                 if (a.properties.Contains(DotvvmBindableObject.DataContextProperty)) changes++;
             }
 
-            throw new NotSupportedException($"Could not find DataContext space of binding '{binding}'. The DataContextType property of the binding does not correspond to DataContextType of the {control.GetType().Name} not any of its ancestor. Control's context is {controlContext}, binding's context is {bindingContext}.");
+            throw new NotSupportedException($"Could not find DataContext space of '{contextObject}'. The DataContextType property of the binding does not correspond to DataContextType of the {control.GetType().Name} not any of its ancestor. Control's context is {controlContext}, binding's context is {bindingContext}.");
         }
 
         /// <summary>
@@ -167,7 +172,7 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary>
-        /// Writes the value to binding - binded viewModel property is updated. May throw an exception when binding does not support assignment.
+        /// Writes the value to binding - bound viewModel property is updated. May throw an exception when binding does not support assignment.
         /// </summary>
         public static void UpdateSource(this IUpdatableValueBinding binding, object? value, DotvvmBindableObject control)
         {
@@ -178,7 +183,7 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary>
-        /// Writes the value to binding - binded viewModel property is updated. May throw an exception when binding does not support assignment.
+        /// Writes the value to binding - bound viewModel property is updated. May throw an exception when binding does not support assignment.
         /// </summary>
         public static void UpdateSource<T>(this IUpdatableValueBinding<T> binding, T value, DotvvmBindableObject control)
         {
@@ -229,10 +234,23 @@ namespace DotVVM.Framework.Binding
             JavascriptTranslator.AdjustKnockoutScriptContext(binding.CommandJavascript,
                 dataContextLevel: FindDataContextTarget(binding, control).stepsUp);
 
+        public static object? GetBindingValue(this IBinding binding, DotvvmBindableObject control)
+        {
+            if (binding is IStaticValueBinding valueBinding)
+            {
+                return valueBinding.Evaluate(control);
+            }
+            else if (binding is ICommandBinding command)
+            {
+                return command.GetCommandDelegate(control);
+            }
+            else throw new NotSupportedException();
+        }
+
         /// <summary>
         /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService. 
         /// </summary>
-        public static TBinding DeriveBinding<TBinding>(this TBinding binding, DataContextStack newDataContext, Expression expression, params object[] properties)
+        public static TBinding DeriveBinding<TBinding>(this TBinding binding, DataContextStack newDataContext, Expression expression, params object?[] properties)
             where TBinding : IBinding
         {
             return binding.DeriveBinding(
@@ -319,6 +337,45 @@ namespace DotVVM.Framework.Binding
             if (childType is null) return null; // childType is null in case there is some error in processing (e.g. enumerable was expected).
             else return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
         }
+
+        /// <summary> Return the expected data context type for this property. Returns null if the type is unknown. </summary>
+        public static DataContextStack GetDataContextType(this DotvvmProperty property, ResolvedControl obj)
+        {
+            var dataContextType = obj.DataContextTypeStack;
+
+            if (property.DataContextManipulationAttribute != null)
+            {
+                return (DataContextStack)property.DataContextManipulationAttribute.ChangeStackForChildren(
+                    dataContextType, obj, property,
+                    (parent, changeType) => DataContextStack.Create(ResolvedTypeDescriptor.ToSystemType(changeType), (DataContextStack)parent));
+            }
+
+            if (property.DataContextChangeAttributes == null || property.DataContextChangeAttributes.Length == 0)
+            {
+                return dataContextType;
+            }
+
+            var (childType, extensionParameters) = ApplyDataContextChange(dataContextType, property.DataContextChangeAttributes, obj, property);
+
+            if (childType is null)
+                childType = typeof(UnknownTypeSentinel);
+            
+            return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
+        }
+
+        public static (Type? type, List<BindingExtensionParameter> extensionParameters) ApplyDataContextChange(DataContextStack dataContext, DataContextChangeAttribute[] attributes, ResolvedControl control, DotvvmProperty? property)
+        {
+            var type = ResolvedTypeDescriptor.Create(dataContext.DataContextType);
+            var extensionParameters = new List<BindingExtensionParameter>();
+            foreach (var attribute in attributes.OrderBy(a => a.Order))
+            {
+                if (type == null) break;
+                extensionParameters.AddRange(attribute.GetExtensionParameters(type));
+                type = attribute.GetChildDataContextType(type, dataContext, control, property);
+            }
+            return (ResolvedTypeDescriptor.ToSystemType(type), extensionParameters);
+        }
+
 
         private static (Type? childType, List<BindingExtensionParameter> extensionParameters) ApplyDataContextChange(DataContextStack dataContextType, DataContextChangeAttribute[] attributes, DotvvmBindableObject obj, DotvvmProperty property)
         {

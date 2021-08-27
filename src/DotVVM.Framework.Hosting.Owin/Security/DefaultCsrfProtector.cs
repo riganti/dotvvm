@@ -102,7 +102,7 @@ namespace DotVVM.Framework.Security
                 catch (Exception ex)
                 {
                     // Incorrect Base64 formatting of crypto protection error
-                    // Generate new one or thow error if can't
+                    // Generate new one or throw error if can't
                     if (!canGenerate)
                         throw new CorruptedCsrfTokenException("Value of the SessionID cookie is corrupted or has been tampered with.", ex);
                     // else suppress error and generate new SID

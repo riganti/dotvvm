@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Compilation.ControlTree;
+﻿using DotVVM.Framework.Compilation.ControlTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +33,7 @@ namespace DotVVM.Framework.Binding
             };
             if (group.PropertyGroupMode == PropertyGroupMode.ValueCollection) prop.IsVirtual = true;
 
-            DotvvmProperty.InitializeProperty(prop, (MemberInfo)group.DescriptorField ?? group.PropertyInfo);
+            DotvvmProperty.InitializeProperty(prop, group.AttributeProvider);
             return prop;
         }
     }

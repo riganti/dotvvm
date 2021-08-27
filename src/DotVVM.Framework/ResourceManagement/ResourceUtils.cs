@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Controls;
+﻿using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System;
@@ -69,13 +68,13 @@ namespace DotVVM.Framework.ResourceManagement
             {
                 if (stack.Contains(nextDependencyIdentifier))
                 {
-                    var dependancyChain = stack
+                    var dependencyChain = stack
                         .Reverse()
                         .Concat(new[] { nextDependencyIdentifier })
                         .StringJoin(" --> ");
 
                     // dependency cycle detected
-                    throw new DotvvmResourceException($"Resource \"{name}\" has a cyclic dependency: {dependancyChain}");
+                    throw new DotvvmResourceException($"Resource \"{name}\" has a cyclic dependency: {dependencyChain}");
                 }
 
                 stack.Push(nextDependencyIdentifier);

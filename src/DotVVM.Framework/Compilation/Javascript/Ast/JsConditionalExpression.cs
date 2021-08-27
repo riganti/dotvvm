@@ -11,18 +11,18 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public readonly static JsTreeRole<JsExpression> FalseRole = new JsTreeRole<JsExpression>("False");
         public JsExpression Condition
         {
-            get { return GetChildByRole(JsTreeRoles.Condition); }
+            get { return GetChildByRole(JsTreeRoles.Condition)!; }
             set { SetChildByRole(JsTreeRoles.Condition, value); }
         }
 
         public JsExpression TrueExpression
         {
-            get { return GetChildByRole(TrueRole); }
+            get { return GetChildByRole(TrueRole)!; }
             set { SetChildByRole(TrueRole, value); }
         }
         public JsExpression FalseExpression
         {
-            get { return GetChildByRole(FalseRole); }
+            get { return GetChildByRole(FalseRole)!; }
             set { SetChildByRole(FalseRole, value); }
         }
         public JsConditionalExpression()

@@ -19,16 +19,16 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Compilation.Javascript;
-using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.ResourceManagement;
+using Microsoft.Extensions.Options;
 
-namespace DotVVM.Framework.Tests
+namespace DotVVM.Framework.Testing
 {
     public static class DotvvmTestHelper
     {
-        class FakeProtector : IViewModelProtector
+        public class FakeProtector : IViewModelProtector
         {
             // I hope I will not see this message anywhere on the web ;)
             public const string WarningPrefix = "WARNING - Message not encryped: ";
@@ -60,7 +60,15 @@ namespace DotVVM.Framework.Tests
             }
         }
 
-        class FakeCsrfProtector : ICsrfProtector
+        public class NopProtector : IViewModelProtector
+        {
+            public string Protect(string serializedData, IDotvvmRequestContext context) => "XXX";
+            public byte[] Protect(byte[] plaintextData, params string[] purposes) => Convert.FromBase64String("XXXX");
+            public string Unprotect(string protectedData, IDotvvmRequestContext context) => throw new NotImplementedException();
+            public byte[] Unprotect(byte[] protectedData, params string[] purposes) => throw new NotImplementedException();
+        }
+
+        public class FakeCsrfProtector : ICsrfProtector
         {
             public string GenerateToken(IDotvvmRequestContext context)
             {
@@ -89,15 +97,15 @@ namespace DotVVM.Framework.Tests
         });
         public static DotvvmConfiguration DefaultConfig => _defaultConfig.Value;
 
-        public static DotvvmConfiguration CreateConfiguration(Action<IServiceCollection> customServices = null) =>
+        public static DotvvmConfiguration CreateConfiguration(Action<IServiceCollection>? customServices = null) =>
             DotvvmConfiguration.CreateDefault(s => {
                 customServices?.Invoke(s);
                 RegisterMoqServices(s);
             });
 
         public static TestDotvvmRequestContext CreateContext(
-            DotvvmConfiguration configuration = null,
-            RouteBase route = null)
+            DotvvmConfiguration? configuration = null,
+            RouteBase? route = null)
         {
             configuration = configuration ?? DefaultConfig;
             var httpContext = new TestHttpContext();
@@ -119,13 +127,15 @@ namespace DotVVM.Framework.Tests
             return context;
         }
 
-        public static void CheckForErrors(DothtmlNode node)
+        public static void CheckForErrors(DothtmlNode? node)
         {
+            if (node is null) return;
+
             foreach (var n in node.EnumerateNodes())
                 if (n.HasNodeErrors)
                     throw new DotvvmCompilationException(string.Join(", ", n.NodeErrors), n.Tokens);
         }
-        public static ResolvedTreeRoot ParseResolvedTree(string markup, string fileName = "default.dothtml", DotvvmConfiguration configuration = null, bool checkErrors = true)
+        public static ResolvedTreeRoot ParseResolvedTree(string markup, string fileName = "default.dothtml", DotvvmConfiguration? configuration = null, bool checkErrors = true)
         {
             configuration = configuration ?? DefaultConfig;
 
@@ -138,13 +148,21 @@ namespace DotVVM.Framework.Tests
             if (checkErrors) CheckForErrors(tree);
 
             var controlTreeResolver = configuration.ServiceProvider.GetRequiredService<IControlTreeResolver>();
+            var controlResolver = configuration.ServiceProvider.GetRequiredService<IControlResolver>();
             var validator = ActivatorUtilities.CreateInstance<ControlUsageValidationVisitor>(configuration.ServiceProvider);
-            return controlTreeResolver.ResolveTree(tree, fileName)
-                .CastTo<ResolvedTreeRoot>()
-                .ApplyAction(new DataContextPropertyAssigningVisitor().VisitView)
-                .ApplyAction(x => { if (checkErrors) CheckForErrors(x.DothtmlNode); })
-                .ApplyAction(new StylingVisitor(configuration).VisitView)
-                .ApplyAction(x => { if (checkErrors) validator.VisitAndAssert(x); else validator.VisitView(x); });
+
+            var visitors = configuration.ServiceProvider.GetRequiredService<IOptions<ViewCompilerConfiguration>>().Value.TreeVisitors;
+            var root = controlTreeResolver.ResolveTree(tree, fileName).CastTo<ResolvedTreeRoot>();
+            if (checkErrors) CheckForErrors(root.DothtmlNode);
+            foreach (var v in visitors)
+            {
+                v().VisitView(root);
+            }
+            if (checkErrors)
+                validator.VisitAndAssert(root);
+            else
+                validator.VisitView(root);
+            return root;
         }
 
         public static void EnsureCompiledAssemblyCache()

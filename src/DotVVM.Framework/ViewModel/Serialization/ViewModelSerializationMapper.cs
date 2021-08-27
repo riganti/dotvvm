@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,17 +50,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 if (property.GetCustomAttribute<JsonIgnoreAttribute>() != null) continue;
 
-                var propertyMap = new ViewModelPropertyMap() {
-                    PropertyInfo = property,
-                    Name = propertySerialization.ResolveName(property),
-                    ViewModelProtection = ProtectMode.None,
-                    Type = property.PropertyType,
-                    TransferAfterPostback = property.GetMethod != null && property.GetMethod.IsPublic,
-                    TransferFirstRequest = property.GetMethod != null && property.GetMethod.IsPublic,
-                    TransferToServer = IsSetterSupported(property),
-                    JsonConverter = GetJsonConverter(property),
-                    Populate = ViewModelJsonConverter.CanConvertType(property.PropertyType) && property.GetMethod != null
-                };
+                var propertyMap = new ViewModelPropertyMap(
+                    property,
+                    propertySerialization.ResolveName(property),
+                    ProtectMode.None,
+                    property.PropertyType,
+                    transferToServer: IsSetterSupported(property),
+                    transferAfterPostback: property.GetMethod != null && property.GetMethod.IsPublic,
+                    transferFirstRequest: property.GetMethod != null && property.GetMethod.IsPublic,
+                    populate: ViewModelJsonConverter.CanConvertType(property.PropertyType) && property.GetMethod != null
+                );
+                propertyMap.JsonConverter = GetJsonConverter(property);
 
                 foreach (ISerializationInfoAttribute attr in property.GetCustomAttributes().OfType<ISerializationInfoAttribute>())
                 {
@@ -80,14 +79,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     propertyMap.ViewModelProtection = viewModelProtectionAttribute.Settings;
                 }
 
-                propertyMap.ClientExtenders =
+                propertyMap.ClientExtenders.AddRange(
                     property.GetCustomAttributes<ClientExtenderAttribute>()
                     .OrderBy(c => c.Order)
-                    .Select(extender => new ClientExtenderInfo() { Name = extender.Name, Parameter = extender.Parameter })
-                    .ToList();
+                    .Select(extender => new ClientExtenderInfo(extender.Name, extender.Parameter))
+                );
 
                 var validationAttributes = validationMetadataProvider.GetAttributesForProperty(property);
-                propertyMap.ValidationRules = validationRuleTranslator.TranslateValidationRules(property, validationAttributes).ToList();
+                propertyMap.ValidationRules.AddRange(validationRuleTranslator.TranslateValidationRules(property, validationAttributes));
 
                 propertyMap.ValidateSettings();
 
@@ -99,7 +98,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         private static bool IsSetterSupported(PropertyInfo property)
         {
-            // support all properties of KeyValuepair<,>
+            // support all properties of KeyValuePair<,>
             if (property.DeclaringType.IsGenericType && property.DeclaringType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)) return true;
 
             return property.SetMethod != null && property.SetMethod.IsPublic;

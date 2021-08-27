@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
@@ -50,7 +49,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         // TODO(exyi): add WriteTo(StringBuilder)
         /// <summary>
-        /// Converts this to string and assigns all parameters using `parameterAsssignment`. If there is any missing, exception is thrown.
+        /// Converts this to string and assigns all parameters using `parameterAssignment`. If there is any missing, exception is thrown.
         /// </summary>
         public string ToString(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssignment) => ToString(parameterAssignment, out var _);
         public string ToString(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssignment, out bool allIsDefault)
@@ -68,17 +67,23 @@ namespace DotVVM.Framework.Compilation.Javascript
             sb.Append(stringParts[0]);
             for (int i = 0; i < codes.Length;)
             {
-                var isGlobalContext = codes[i].parameter.IsGlobalContext && parameters[i].IsSafeMemberAccess;
-                var needsParens = codes[i].parameter.Code!.OperatorPrecedence.NeedsParens(parameters[i].OperatorPrecedence);
+                var isGlobalContext = codes[i].parameter.IsGlobalContext && parameters![i].IsSafeMemberAccess;
+                var needsParens = codes[i].parameter.Code!.OperatorPrecedence.NeedsParens(parameters![i].OperatorPrecedence);
 
                 if (isGlobalContext)
                     sb.Append(stringParts[++i], 1, stringParts[i].Length - 1); // skip `.`
                 else
                 {
-                    if (needsParens) sb.Append("(");
+                    if (needsParens)
+                        sb.Append("(");
+                    else if (JsFormattingVisitor.NeedSpaceBetween(sb, codes[i].code))
+                        sb.Append(" ");
                     sb.Append(codes[i].code);
+                    i++;
                     if (needsParens) sb.Append(")");
-                    sb.Append(stringParts[++i]);
+                    else if (JsFormattingVisitor.NeedSpaceBetween(sb, stringParts[i]))
+                        sb.Append(" ");
+                    sb.Append(stringParts[i]);
                 }
             }
             var result = sb.ToString();
@@ -98,7 +103,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             if (this.evaluatedDefault != null)
                 return this.evaluatedDefault;
-            return ToString(_ => default);
+            return this.evaluatedDefault = ToString(_ => default);
         }
 
         public string ToDebugString()
@@ -107,7 +112,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 return evaluatedDefault!;
             Debug.Assert(parameters is object);
             var sb = new StringBuilder();
-            for (int i = 0; i < parameters.Length; i++)
+            for (int i = 0; i < parameters!.Length; i++)
             {
                 sb.Append(stringParts[i]);
                 sb.Append(parameters[i].ToString());
@@ -137,18 +142,18 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var a = assignment[i];
                 if (a.Code == null)
                 {
-                    builder.Add(parameters[i]);
+                    builder.Add(parameters![i]);
                     builder.Add(stringParts[1 + i]);
                 }
                 else
                 {
-                    var isGlobalContext = a.IsGlobalContext && parameters[i].IsSafeMemberAccess;
+                    var isGlobalContext = a.IsGlobalContext && parameters![i].IsSafeMemberAccess;
 
                     if (isGlobalContext)
                         builder.Add(stringParts[1 + i].Substring(1, stringParts[i].Length - 1)); // skip `.`
                     else
                     {
-                        builder.Add(a.Code, parameters[i].OperatorPrecedence);
+                        builder.Add(a.Code, parameters![i].OperatorPrecedence);
                         builder.Add(stringParts[1 + i]);
                     }
                 }
@@ -229,18 +234,20 @@ namespace DotVVM.Framework.Compilation.Javascript
         public class Builder : System.Collections.IEnumerable
         {
             private readonly List<string> stringParts = new List<string>();
+            private readonly StringBuilder lastPart = new StringBuilder();
             private readonly List<CodeParameterInfo> parameters = new List<CodeParameterInfo>();
 
             public void Add(string code)
             {
-                if (stringParts.Count > parameters.Count)
-                    stringParts[stringParts.Count - 1] = stringParts[stringParts.Count - 1] + code;
-                else stringParts.Add(code);
+                if (JsFormattingVisitor.NeedSpaceBetween(lastPart, code))
+                    lastPart.Append(" ");
+                lastPart.Append(code);
             }
 
             public void Add(CodeParameterInfo parameter)
             {
-                if (parameters.Count >= stringParts.Count) stringParts.Add(string.Empty);
+                stringParts.Add(lastPart.ToString());
+                lastPart.Clear();
                 parameters.Add(parameter);
             }
 
@@ -252,8 +259,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                 if (needsParens) Add(")");
             }
 
-            public ParametrizedCode Build(OperatorPrecedence operatorPrecedence) =>
-                new ParametrizedCode(stringParts.ToArray(), parameters.ToArray(), operatorPrecedence);
+            public ParametrizedCode Build(OperatorPrecedence operatorPrecedence)
+            {
+                stringParts.Add(lastPart.ToString());
+                return new ParametrizedCode(stringParts.ToArray(), parameters.ToArray(), operatorPrecedence);
+            }
 
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
             {
@@ -312,7 +322,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public CodeParameterAssignment(string code, OperatorPrecedence operatorPrecedence, bool isGlobalContext = false)
             : this(new ParametrizedCode(code, operatorPrecedence), isGlobalContext) { }
-        public CodeParameterAssignment(ParametrizedCode code, bool isGlobalContext = false)
+        public CodeParameterAssignment(ParametrizedCode? code, bool isGlobalContext = false)
         {
             this.Code = code;
             this.IsGlobalContext = isGlobalContext;
@@ -325,9 +335,9 @@ namespace DotVVM.Framework.Compilation.Javascript
             return Code.ToDebugString();
         }
 
-        public static CodeParameterAssignment FromExpression(JsExpression expression, bool isGlobalContext = false)
+        public static CodeParameterAssignment FromExpression(JsExpression expression, bool isGlobalContext = false, bool niceMode = false)
         {
-            var code = expression.FormatParametrizedScript();
+            var code = expression.FormatParametrizedScript(niceMode: niceMode);
             return new CodeParameterAssignment(code, isGlobalContext);
         }
 

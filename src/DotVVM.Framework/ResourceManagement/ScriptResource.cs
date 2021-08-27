@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +11,7 @@ namespace DotVVM.Framework.ResourceManagement
     /// <summary>
     /// Reference to a javascript file.
     /// </summary>
-    public class ScriptResource : LinkResourceBase, IPreloadResource, IDeferableResource
+    public class ScriptResource : LinkResourceBase, IPreloadResource, IDeferrableResource
     {
         public bool Defer { get; }
         public ScriptResource(IResourceLocation location, bool defer = true)

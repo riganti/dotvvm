@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +7,7 @@ using DotVVM.Framework.Compilation.Parser;
 using System.Globalization;
 using System.Text;
 using System.Diagnostics;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -80,16 +80,13 @@ namespace DotVVM.Framework.ResourceManagement
         /// <returns>Resource ID</returns>
         public string AddTemplateResource(string template)
         {
-            using (var sha = System.Security.Cryptography.SHA256.Create())
+            var resourceId = HashUtils.HashAndBase64Encode(template);
+            if (!requiredResources.ContainsKey(resourceId))
             {
-                var resourceId = Convert.ToBase64String(sha.ComputeHash(Encoding.Unicode.GetBytes(template)));
-                if (!requiredResources.ContainsKey(resourceId))
-                {
-                    AddRequiredResource(resourceId, new TemplateResource(template));
-                }
-
-                return resourceId;
+                AddRequiredResource(resourceId, new TemplateResource(template));
             }
+
+            return resourceId;
         }
         /// <summary>
         /// Adds the resource with unique name.
@@ -156,7 +153,7 @@ namespace DotVVM.Framework.ResourceManagement
             });
         }
 
-        bool IsDeferred(string name) => this.FindResource(name) is IDeferableResource r && r.Defer;
+        bool IsDeferred(string name) => this.FindResource(name) is IDeferrableResource r && r.Defer;
 
         /// <summary>
         /// Adds the specified piece of javascript that will be executed when the page is loaded.
@@ -190,6 +187,20 @@ namespace DotVVM.Framework.ResourceManagement
         public void AddStartupScript(string javascriptCode, bool defer, params string[] dependentResourceNames)
         {
             AddRequiredResource(new InlineScriptResource(javascriptCode, defer: defer) { Dependencies = dependentResourceNames });
+        }
+
+        /// <summary> Adds a script tag with inline content. The script is identified by the hash of it's content, so it will be in the page only once. </summary>
+        public string AddInlineScript(string javascriptCode, params string[] dependentResourceNames)
+        {
+            var resourceId = "iscr_" + HashUtils.HashAndBase64Encode(javascriptCode);
+            if (!requiredResources.ContainsKey(resourceId))
+            {
+                var defer = dependentResourceNames.Any(IsDeferred);
+                AddRequiredResource(resourceId, new InlineScriptResource(javascriptCode, defer: defer) { Dependencies = dependentResourceNames });
+            }
+
+            return resourceId;
+
         }
 
         /// <summary>

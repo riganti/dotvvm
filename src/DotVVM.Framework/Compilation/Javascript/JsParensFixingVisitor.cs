@@ -10,18 +10,18 @@ namespace DotVVM.Framework.Compilation.Javascript
     public readonly struct OperatorPrecedence
     {
         public readonly byte Precedence;
-        public readonly bool IsPreferedSide;
+        public readonly bool IsPreferredSide;
 
-        public OperatorPrecedence(byte precedence, bool isPreferedSide)
+        public OperatorPrecedence(byte precedence, bool isPreferredSide)
         {
             this.Precedence = precedence;
-            this.IsPreferedSide = isPreferedSide;
+            this.IsPreferredSide = isPreferredSide;
         }
 
         public bool NeedsParens(byte parentPrecedence)
         {
             return Precedence < parentPrecedence ||
-                (Precedence == parentPrecedence & !IsPreferedSide);
+                (Precedence == parentPrecedence & !IsPreferredSide);
         }
 
         public override string ToString()
@@ -42,11 +42,12 @@ namespace DotVVM.Framework.Compilation.Javascript
                 5 => "||",
                 4 => "? :",
                 3 => "=",
+                2 => "arrow function",
                 1 => "method argument",
                 0 => ",",
                 _ => "?"
             };
-            return Precedence + (IsPreferedSide ? "+" : "-") + " (" + name + ")";
+            return Precedence + (IsPreferredSide ? "+" : "-") + " (" + name + ")";
         }
 
         public static readonly OperatorPrecedence Max = new OperatorPrecedence(20, true);
@@ -54,7 +55,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
     public class JsParensFixingVisitor : JsNodeVisitor
     {
-        public static byte OperatorLevel(JsExpression expression)
+        public static byte OperatorLevel(JsExpression? expression)
         {
             switch (expression) {
                 case JsParenthesizedExpression _:
@@ -92,7 +93,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                         case BinaryOperatorType.Equal:
                         case BinaryOperatorType.NotEqual:
                         case BinaryOperatorType.StrictlyEqual:
-                        case BinaryOperatorType.StricltyNotEqual:
+                        case BinaryOperatorType.StrictlyNotEqual:
                             return 10;
                         case BinaryOperatorType.BitwiseAnd:
                             return 9;
@@ -115,13 +116,15 @@ namespace DotVVM.Framework.Compilation.Javascript
                     return 4;
                 case JsAssignmentExpression ae:
                     return 3;
+                case JsArrowFunctionExpression arrowFunction:
+                    return 2;
                 case null:
                     return 0;
                 default: throw new NotSupportedException();
             }
         }
 
-        public static bool IsPreferedSide(JsExpression expression)
+        public static bool IsPreferredSide(JsExpression expression)
         {
             switch (expression)
             {
@@ -146,7 +149,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 return new OperatorPrecedence(1, true);
             if (expression.Role == JsTreeRoles.Argument || expression.Parent is JsParenthesizedExpression)
                 return OperatorPrecedence.Max;
-            return new OperatorPrecedence(OperatorLevel(expression), IsPreferedSide(expression));
+            return new OperatorPrecedence(OperatorLevel(expression), IsPreferredSide(expression));
         }
 
         /// <summary>

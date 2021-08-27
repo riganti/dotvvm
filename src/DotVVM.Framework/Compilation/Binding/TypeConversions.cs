@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Compilation.Binding
     public class TypeConversion
     {
         private static Dictionary<Type, List<Type>> ImplicitNumericConversions = new Dictionary<Type, List<Type>>();
-        private static readonly Dictionary<Type, int> typePrecedence = null;
+        private static readonly Dictionary<Type, int> typePrecedence;
 
         /// <summary>
         /// Performs implicit conversion between two expressions depending on their type precedence
@@ -89,9 +89,9 @@ namespace DotVVM.Framework.Compilation.Binding
         // Furthermore an enum-type can be converted to the type System.Enum.
         // A boxing conversion exists from a nullable-type to a reference type, if and only if a boxing conversion exists from the underlying non-nullable-value-type to the reference type.
         // A value type has a boxing conversion to an interface type I if it has a boxing conversion to an interface type I0 and I0 has an identity conversion to I.
-        public static Expression BoxingConversion(Expression src, Type destType)
+        public static Expression? BoxingConversion(Expression src, Type destType)
         {
-            if (src.Type.GetTypeInfo().IsValueType && src.Type != typeof(void) && destType == typeof(object))
+            if (src.Type.IsValueType && src.Type != typeof(void) && destType == typeof(object))
             {
                 return Expression.Convert(src, destType);
             }
@@ -99,7 +99,7 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         //6.1.4 Nullable Type conversions
-        public static Expression NullableConversion(Expression src, Type destType)
+        public static Expression? NullableConversion(Expression src, Type destType)
         {
             if (Nullable.GetUnderlyingType(src.Type) == destType)
             {
@@ -123,7 +123,7 @@ namespace DotVVM.Framework.Compilation.Binding
         // 6.1.5 Null literal conversions
         // An implicit conversion exists from the null literal to any nullable type.
         // This conversion produces the null value (§4.1.10) of the given nullable type.
-        public static Expression NullLiteralConversion(Expression src, Type destType)
+        public static Expression? NullLiteralConversion(Expression src, Type destType)
         {
             if (src.NodeType == ExpressionType.Constant && src.Type == typeof(object) && ((ConstantExpression)src).Value == null)
             {
@@ -131,7 +131,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     return Expression.Constant(Activator.CreateInstance(destType), destType);
                 }
-                if (!destType.GetTypeInfo().IsValueType)
+                if (!destType.IsValueType)
                 {
                     return Expression.Constant(null, destType);
                 }
@@ -139,7 +139,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return null;
         }
 
-        public static Expression ReferenceConversion(Expression src, Type destType)
+        public static Expression? ReferenceConversion(Expression src, Type destType)
         {
             if (destType.IsAssignableFrom(src.Type) && src.Type != typeof(void))
             {
@@ -149,11 +149,11 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         // 6.1 Implicit Conversions
-        public static Expression ImplicitConversion(Expression src, Type destType, bool throwException = false, bool allowToString = false)
+        public static Expression? ImplicitConversion(Expression src, Type destType, bool throwException = false, bool allowToString = false)
         {
-            if (src is MethodGroupExpression)
+            if (src is MethodGroupExpression methodGroup)
             {
-                return ((MethodGroupExpression)src).CreateDelegateExpression(destType, throwException);
+                return methodGroup.CreateDelegateExpression(destType, throwException);
             }
             if (src.Type == destType) return src;
             var result = ImplicitConstantConversion(src, destType) ??
@@ -173,12 +173,12 @@ namespace DotVVM.Framework.Compilation.Binding
 		public static bool IsStringConversionAllowed(Type fromType)
 		{
 			// allow primitive types, IConvertibles, types that override ToString
-			return fromType.GetTypeInfo().IsPrimitive || typeof(IConvertible).IsAssignableFrom(fromType) || fromType.GetTypeInfo().GetMethod("ToString", Type.EmptyTypes)?.DeclaringType != typeof(object);
+			return fromType.IsPrimitive || typeof(IConvertible).IsAssignableFrom(fromType) || fromType.GetMethod("ToString", Type.EmptyTypes)?.DeclaringType != typeof(object);
 		}
 
-        public static Expression ToStringConversion(Expression src)
+        public static Expression? ToStringConversion(Expression src)
         {
-            var toStringMethod = src.Type.GetTypeInfo().GetMethod("ToString", Type.EmptyTypes);
+            var toStringMethod = src.Type.GetMethod("ToString", Type.EmptyTypes);
             if (toStringMethod?.DeclaringType == typeof(object))
                 toStringMethod = null;
             // is the conversion allowed?
@@ -200,7 +200,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         // 6.1.9 Implicit constant expression conversions
         [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
-        public static Expression ImplicitConstantConversion(Expression src, Type destType)
+        public static Expression? ImplicitConstantConversion(Expression src, Type destType)
         {
             if (src.NodeType == ExpressionType.Conditional && src is ConditionalExpression conditional &&
                 ImplicitConversion(conditional.IfTrue, destType) is Expression ifTrue &&
@@ -278,7 +278,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 var value = (string)srcValue;
                 // to enum
-                if (destType.GetTypeInfo().IsEnum)
+                if (destType.IsEnum)
                 {
                     // Enum.TryParse is generic and wants TEnum
                     try
@@ -297,38 +297,11 @@ namespace DotVVM.Framework.Compilation.Binding
             return null;
         }
 
-        public static Type GetBaseCommonType(IEnumerable<Expression> expressions)
-        {
-            Type baseType = null;
-
-            foreach (var expression in expressions)
-            {
-                if (baseType == null)
-                {
-                    baseType = expression.Type;
-                }
-                else
-                {
-                    switch (CanConvert(expression.Type, baseType))
-                    {
-                        case 1:
-                            baseType = expression.Type;
-                            break;
-
-                        case -1:
-                            throw new Exception(string.Format("Cannot convert between types {0} and {1}", baseType.Name, expression.Type.Name));
-                    }
-                }
-            }
-
-            return baseType;
-        }
-
         // 6.1.2 Implicit numeric conversions
         /// <summary>
         /// Tries to perform implicit numeric conversion
         /// </summary>
-        public static Expression ImplicitNumericConversion(Expression src, Type target)
+        public static Expression? ImplicitNumericConversion(Expression src, Type target)
         {
             List<Type> allowed;
             if (ImplicitNumericConversions.TryGetValue(src.Type, out allowed))
@@ -342,9 +315,9 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         /// This is a strange conversion that wraps the entire expression into a Lambda
-        /// and makes an invokable delegate from a normal expression.
+        /// and makes an invocable delegate from a normal expression.
         /// It also replaces special ExtensionParameters attached to the expression for lambda parameters
-        public static Expression MagicLambdaConversion(Expression expr, Type expectedType)
+        public static Expression? MagicLambdaConversion(Expression expr, Type expectedType)
         {
             if (expectedType.IsDelegate())
             {
@@ -366,7 +339,7 @@ namespace DotVVM.Framework.Compilation.Binding
                         arg?.GetParameterAnnotation()?.ExtensionParameter is MagicLambdaConversionExtensionParameter extensionParam ?
                             delegateArgs.Single(a => a.Name == extensionParam.Identifier)
                             .Assert(p => p.Type == ResolvedTypeDescriptor.ToSystemType(extensionParam.ParameterType)) :
-                        arg
+                        arg!
                     );
                     return Expression.Lambda(
                         expectedType,
@@ -401,7 +374,7 @@ namespace DotVVM.Framework.Compilation.Binding
             => taskType.GetProperty("Result")?.PropertyType ?? typeof(void);
 
         /// Performs conversions by wrapping or unwrapping results to/from <see cref="Task" />
-        public static Expression TaskConversion(Expression expr, Type expectedType)
+        public static Expression? TaskConversion(Expression expr, Type expectedType)
         {
             if (typeof(Task).IsAssignableFrom(expectedType))
             {

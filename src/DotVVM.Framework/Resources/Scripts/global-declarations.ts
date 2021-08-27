@@ -13,7 +13,7 @@ type DotvvmPostbackErrorLike = {
     readonly reason: DotvvmPostbackErrorReason
 }
 
-type DotvvmPostbackErrorReason =
+type DotvvmPostbackErrorReason = (
     | { type: 'handler', handlerName: string, message?: string }
     | { type: 'network', err?: any }
     | { type: 'gate' }
@@ -23,7 +23,8 @@ type DotvvmPostbackErrorReason =
     | { type: 'event' }
     | { type: 'validation', responseObject: any, response?: Response }
     | { type: 'abort' }
-    & { options?: PostbackOptions }
+    | { type: 'redirect', responseObject: any, response?: Response }
+    ) & { options?: PostbackOptions }
 
 type PostbackCommandType = "postback" | "staticCommand" | "spaNavigation"
 
@@ -33,6 +34,7 @@ type PostbackOptions = {
     readonly args: any[]
     readonly sender?: HTMLElement
     readonly viewModel?: any
+    readonly knockoutContext?: any
     serverResponseObject?: any
     validationTargetPath?: string,
     abortSignal?: AbortSignal

@@ -52,6 +52,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         public string SerializeViewModel(IDotvvmRequestContext context)
         {
+            context.ViewModelJson ??= new JObject();
             if (SendDiff && context.ReceivedViewModelJson != null && context.ViewModelJson["viewModel"] != null)
             {
                 context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], false, i => ShouldIncludeProperty(i.TypeId, i.Property));
@@ -82,13 +83,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Builds the view model for the client.
         /// </summary>
-        public void BuildViewModel(IDotvvmRequestContext context, object commandResult)
+        public void BuildViewModel(IDotvvmRequestContext context, object? commandResult)
         {
             // serialize the ViewModel
             var serializer = CreateJsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services) {
-                UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
-            };
+            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services);
             serializer.Converters.Add(viewModelConverter);
             var writer = new JTokenWriter();
             try
@@ -97,12 +96,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
+                throw new Exception($"Could not serialize viewModel of type { context.ViewModel!.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
             }
             var viewModelToken = writer.Token;
 
-            string viewModelCacheId = null;
-            if (context.Configuration.ExperimentalFeatures.ServerSideViewModelCache.IsEnabledForRoute(context.Route.RouteName))
+            string? viewModelCacheId = null;
+            if (context.Configuration.ExperimentalFeatures.ServerSideViewModelCache.IsEnabledForRoute(context.Route?.RouteName))
             {
                 viewModelCacheId = viewModelServerCache.StoreViewModel(context, (JObject)viewModelToken);
             }
@@ -166,15 +165,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var renderedResources = new HashSet<string>(context.ReceivedViewModelJson?["renderedResources"]?.Values<string>() ?? new string[] { });
             var resourcesObject = BuildResourcesJson(context, rn => !renderedResources.Contains(rn));
             if (resourcesObject.Count > 0)
-                context.ViewModelJson["resources"] = resourcesObject;
+                context.ViewModelJson!["resources"] = resourcesObject;
         }
 
-        public string BuildStaticCommandResponse(IDotvvmRequestContext context, object result)
+        public string BuildStaticCommandResponse(IDotvvmRequestContext context, object? result)
         {
             var serializer = CreateJsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services) {
-                UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
-            };
+            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services);
             serializer.Converters.Add(viewModelConverter);
             var response = new JObject();
             response["result"] = WriteCommandData(result, serializer, "the static command result");
@@ -195,7 +192,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             context.CustomResponseProperties.PropertiesSerialized = true;
         }
 
-        private static JToken WriteCommandData(object data, JsonSerializer serializer, string description)
+        private static JToken WriteCommandData(object? data, JsonSerializer serializer, string description)
         {
             var writer = new JTokenWriter();
             try
@@ -204,7 +201,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not serialize {description} of type '{ data.GetType().FullName}'. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
+                throw new Exception($"Could not serialize {description} of type '{ data?.GetType().FullName ?? "null"}'. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
             }
             return writer.Token;
         }
@@ -306,7 +303,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             JObject viewModelToken;
             if (data["viewModelCacheId"] != null)
             {
-                if (!context.Configuration.ExperimentalFeatures.ServerSideViewModelCache.IsEnabledForRoute(context.Route.RouteName))
+                if (!context.Configuration.ExperimentalFeatures.ServerSideViewModelCache.IsEnabledForRoute(context.Route?.RouteName))
                 {
                     throw new InvalidOperationException("The server-side viewmodel caching is not enabled for the current route!");
                 }
@@ -339,18 +336,18 @@ namespace DotVVM.Framework.ViewModel.Serialization
             serializer.Converters.Add(viewModelConverter);
             try
             {
-                viewModelConverter.Populate(viewModelToken.CreateReader(), serializer, context.ViewModel);
+                viewModelConverter.Populate(viewModelToken.CreateReader(), serializer, context.ViewModel!);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not deserialize viewModel of type { context.ViewModel.GetType().Name }. {GeneralViewModelRecommendations}", ex);
+                throw new Exception($"Could not deserialize viewModel of type { context.ViewModel?.GetType().Name ?? "null" }. {GeneralViewModelRecommendations}", ex);
             }
         }
 
         /// <summary>
         /// Resolves the command for the specified post data.
         /// </summary>
-        public ActionInfo ResolveCommand(IDotvvmRequestContext context, DotvvmView view)
+        public ActionInfo? ResolveCommand(IDotvvmRequestContext context, DotvvmView view)
         {
             // get properties
             var data = context.ReceivedViewModelJson ?? throw new NotSupportedException("Could not find ReceivedViewModelJson in request context.");

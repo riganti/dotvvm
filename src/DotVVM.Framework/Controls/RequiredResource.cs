@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +26,12 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty NameProperty =
             DotvvmProperty.Register<string?, RequiredResource>(c => c.Name);
+
+        public RequiredResource() { }
+        public RequiredResource(string name)
+        {
+            this.Name = name;
+        }
 
         internal protected override void OnPreRender(IDotvvmRequestContext context)
         {

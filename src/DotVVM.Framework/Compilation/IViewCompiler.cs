@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Runtime;

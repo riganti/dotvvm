@@ -39,7 +39,6 @@ namespace DotVVM.Samples.BasicSamples
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
             config.DefaultCulture = "en-US";
-            config.UseHistoryApiSpaNavigation = true;
 
             AddControls(config);
             AddStyles(config);
@@ -126,8 +125,7 @@ namespace DotVVM.Samples.BasicSamples
                 .SetAttribute("addedAttr", "Added attribute");
 
             config.Styles.Register<Button>(c => c.HasHtmlAttribute("server-side-style-attribute"))
-               .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty,
-                    (style) => style.SetDotvvmProperty(ConfirmPostBackHandler.MessageProperty, "ConfirmPostBackHandler Content"));
+               .SetControlProperty(PostBack.HandlersProperty, new ConfirmPostBackHandler("ConfirmPostBackHandler Content"));
         }
 
         private static void AddRedirections(DotvvmConfiguration config)

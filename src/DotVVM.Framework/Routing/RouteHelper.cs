@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Configuration;
+﻿using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ViewModel;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
@@ -86,7 +85,7 @@ namespace DotVVM.Framework.Routing
                     }
                 }
 
-                if (!string.IsNullOrWhiteSpace(control.Src) && loader.GetMarkup(config, control.Src) == null)
+                if (!string.IsNullOrWhiteSpace(control.Src) && loader.GetMarkup(config, control.Src!) == null)
                 {
                     invalidControls.Add(new DotvvmConfigurationAssertResult<DotvvmControlConfiguration>(control, DotvvmConfigurationAssertReason.MissingFile));
                 }

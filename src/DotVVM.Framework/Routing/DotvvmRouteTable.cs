@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -278,7 +277,7 @@ namespace DotVVM.Framework.Routing
 
             if (string.IsNullOrEmpty(appendedPath))
             {
-                return prefix;
+                return prefix!;
             }
 
             return $"{prefix}/{appendedPath}";

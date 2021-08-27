@@ -15,17 +15,17 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public new Type Type => controlType.Type;
 
         [JsonIgnore]
-        public new DotvvmProperty DefaultContentProperty => (DotvvmProperty) base.DefaultContentProperty;
+        public new DotvvmProperty? DefaultContentProperty => (DotvvmProperty?) base.DefaultContentProperty;
 
         [JsonIgnore]
-        public new Type DataContextConstraint => controlType.DataContextRequirement;
+        public new Type? DataContextConstraint => controlType.DataContextRequirement;
 
         public ControlResolverMetadata(ControlType controlType) : base(controlType)
         {
             this.controlType = controlType;
 
-            DataContextChangeAttributes = Type.GetTypeInfo().GetCustomAttributes<DataContextChangeAttribute>(true).ToArray();
-            DataContextManipulationAttribute = Type.GetTypeInfo().GetCustomAttribute<DataContextStackManipulationAttribute>(true);
+            DataContextChangeAttributes = Type.GetCustomAttributes<DataContextChangeAttribute>(true).ToArray();
+            DataContextManipulationAttribute = Type.GetCustomAttribute<DataContextStackManipulationAttribute>(true);
             if (DataContextManipulationAttribute != null && DataContextChangeAttributes.Any())
                 throw new Exception($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set at the same time at control '{controlType.Type.FullName}'.");
         }
@@ -37,12 +37,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
         [JsonIgnore]
         public override sealed DataContextChangeAttribute[] DataContextChangeAttributes { get; }
         [JsonIgnore]
-        public override sealed DataContextStackManipulationAttribute DataContextManipulationAttribute { get; }
+        public override sealed DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; }
 
 
         protected override void LoadProperties(Dictionary<string, IPropertyDescriptor> result)
         {
-            foreach (var property in DotvvmProperty.ResolveProperties(controlType.Type).Concat(DotvvmProperty.GetVirtualProperties(controlType.Type)))
+            DotvvmProperty.CheckAllPropertiesAreRegistered(controlType.Type);
+            foreach (var property in DotvvmProperty.ResolveProperties(controlType.Type))
             {
                 result.Add(property.Name, property);
             }
@@ -51,10 +52,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Finds the property.
         /// </summary>
-        public DotvvmProperty FindProperty(string name)
+        public DotvvmProperty? FindProperty(string name)
         {
-            IPropertyDescriptor result;
-            return Properties.TryGetValue(name, out result) ? (DotvvmProperty)result : null;
+            return Properties.TryGetValue(name, out var result) ? (DotvvmProperty)result : null;
         }
 
         protected override void LoadPropertyGroups(List<PropertyGroupMatcher> result)

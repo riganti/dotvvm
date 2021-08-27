@@ -1,9 +1,9 @@
-﻿#nullable enable
-using DotVVM.Framework.Controls;
+﻿using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Binding
             if(func != null) func(writer, context, this, control);
         }
 
-        public static DelegateActionProperty<TValue> Register<TDeclaringType>(string name, Action<IHtmlWriter, IDotvvmRequestContext, DotvvmProperty, DotvvmControl> func, TValue defaultValue = default(TValue))
+        public static DelegateActionProperty<TValue> Register<TDeclaringType>(string name, Action<IHtmlWriter, IDotvvmRequestContext, DotvvmProperty, DotvvmControl> func, [AllowNull] TValue defaultValue = default(TValue))
         {
             return (DelegateActionProperty<TValue>)DotvvmProperty.Register<TValue, TDeclaringType>(name, defaultValue, false, new DelegateActionProperty<TValue>(func));
         }

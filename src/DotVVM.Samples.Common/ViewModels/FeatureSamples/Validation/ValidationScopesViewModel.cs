@@ -49,7 +49,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
             return base.Load();
         }
 
-        public void DoSomehting()
+        public void DoSomething()
         {
 
         }

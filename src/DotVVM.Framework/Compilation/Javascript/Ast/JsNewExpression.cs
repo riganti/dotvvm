@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
     {
 		public JsExpression Target
 		{
-			get { return GetChildByRole(JsTreeRoles.TargetExpression); }
+			get { return GetChildByRole(JsTreeRoles.TargetExpression)!; }
 			set { SetChildByRole(JsTreeRoles.TargetExpression, value); }
 		}
 		public JsNodeCollection<JsExpression> Arguments
