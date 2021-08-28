@@ -244,10 +244,9 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_MultiControlHierarchy);
                 WaitForExecutor.WaitFor(() => {
                     var ul = browser.First("ul", By.CssSelector);
-                    ul.FindElements("li", By.CssSelector).ThrowIfDifferentCountThan(20);
+                    ul.FindElements("li", By.CssSelector).ThrowIfDifferentCountThan(20, WaitForOptions.Disabled);
                 });
-
-            });
+            }); 
         }
 
         [Fact]
