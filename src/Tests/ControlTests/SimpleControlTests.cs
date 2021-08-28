@@ -110,6 +110,33 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public async Task HtmlControl()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                just some attributes
+                <span id=a class=x onclick='alert(1)'/>
+
+                just some attributes with binding
+                <span id={value: 'xx' + Integer} class={value: 'xx-' + Integer} class=another-class/>
+
+                visible after loaded
+                <div Visible={value: _page.EvaluatingOnClient}> X </div>
+
+                control with just Id
+                <div id=xxxx />
+
+                class and style
+                <div Class-xxx={value: Integer > 100}
+                     Style-height={value: Integer + 'em'} />
+                <div Class-another-class
+                     Style-color=blue > X </div>
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
         public async Task CommandBinding()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"

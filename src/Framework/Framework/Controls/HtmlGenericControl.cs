@@ -222,7 +222,6 @@ namespace DotVVM.Framework.Controls
 
         protected void AddAttributesCore(IHtmlWriter writer, ref RenderState r)
         {
-            AddClientIdAttribute(ref r);
             CheckInnerTextUsage(in r);
 
             if (!r.RendersHtmlTag)
@@ -294,17 +293,6 @@ namespace DotVVM.Framework.Controls
             {
                 writer.RenderEndTag();
             }
-        }
-
-        private void AddClientIdAttribute(ref RenderState r)
-        {
-            if (r.HasId && r.ClientId == null)
-            {
-                SetValueRaw(ClientIDProperty, r.ClientId = CreateClientId());
-            }
-
-            if (r.ClientId != null)
-                Attributes.Add("id", r.ClientId);
         }
 
         private void AddCssClassesToRender(IHtmlWriter writer)
@@ -405,10 +393,8 @@ namespace DotVVM.Framework.Controls
 
         private void AddHtmlAttributesToRender(ref RenderState r, IHtmlWriter writer)
         {
-            if (!r.HasAttributes)
-                return;
             KnockoutBindingGroup? attributeBindingGroup = null;
-            foreach (var (prop, valueRaw) in this.properties)
+            if (r.HasAttributes) foreach (var (prop, valueRaw) in this.properties)
             {
                 if (prop is not GroupedDotvvmProperty gprop || gprop.PropertyGroup != AttributesGroupDescriptor)
                     continue;
@@ -429,6 +415,22 @@ namespace DotVVM.Framework.Controls
                 }
                 AddHtmlAttribute(writer, gprop.GroupMemberName, valueRaw);
             }
+
+            if (r.HasId)
+            {
+                var clientId = r.ClientId ?? CreateClientId();
+                if (clientId is IValueBinding binding)
+                {
+                    if (attributeBindingGroup == null) attributeBindingGroup = new KnockoutBindingGroup();
+                    attributeBindingGroup.Add("id", binding.GetKnockoutBindingExpression(this));
+                }
+                else
+                {
+                    // TODO: we currently don't support server-side rendering of value binding IDs
+                    AddHtmlAttribute(writer, "id", clientId);
+                }
+            }
+
             if (attributeBindingGroup != null)
             {
                 writer.AddKnockoutDataBind("attr", attributeBindingGroup);
