@@ -136,7 +136,7 @@ DISPLAY="${DISPLAY:-":42"}"
 export DISPLAY
 SLN="$ROOT/ci/linux/Linux.sln"
 TEST_RESULTS_DIR="$ROOT/artifacts/test"
-SAMPLES_DIR="$ROOT/src/DotVVM.Samples.Tests"
+SAMPLES_DIR="$ROOT/src/samples/tests/Tests"
 SAMPLES_PROFILE="${SAMPLES_PROFILE:-seleniumconfig.aspnetcorelatest.chrome.json}"
 SAMPLES_PORT="${SAMPLES_PORT:-16019}"
 SAMPLES_PORT_API="${SAMPLES_PORT_API:-5001}"
@@ -197,7 +197,7 @@ fi
 
 if [ $NPM_BUILD -eq 1 ]; then
     ensure_named_command "npm build" \
-        "cd \"$ROOT/src/DotVVM.Framework\" \
+        "cd \"$ROOT/src/framework/Framework\" \
             && npm ci --cache \"$ROOT/.npm\" --prefer-offline \
             && npm run build"
 fi
@@ -233,7 +233,7 @@ fi
 
 if [ $UNIT_TESTS -eq 1 ]; then
     run_named_command "unit tests" \
-        "dotnet test \"$ROOT/src/DotVVM.Framework.Tests\" \
+        "dotnet test \"$ROOT/src/tests/UnitTests\" \
             --no-build \
             --configuration $CONFIGURATION \
             --logger 'trx;LogFileName=unit-test-results.trx' \
@@ -243,7 +243,7 @@ fi
 
 if [ $JS_TESTS -eq 1 ]; then
     run_named_command "JS tests" \
-        "cd \"$ROOT/src/DotVVM.Framework\" \
+        "cd \"$ROOT/src/framework/Framework\" \
             && npx jest --ci --reporters=\"jest-junit\" \
             && cp ./junit.xml \"$TEST_RESULTS_DIR/js-test-results.xml\" \
             && cd \"$ROOT\""
@@ -252,14 +252,14 @@ fi
 if [ $UI_TESTS -eq 1 ]; then
     clean_uitest
 
-    Xvfb $DISPLAY -screen 0 800x600x16 &
+    Xvfb $DISPLAY -screen 0 1920x1080x16 &
     XVFB_PID=$!
     if [ $? -ne 0 ]; then
         echo >&2 "Xvfb failed to start."
         exit 1
     fi
 
-    dotnet run --project "$ROOT/src/DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest" \
+    dotnet run --project "$ROOT/src/samples/Api.AspNetCoreLatest" \
         --no-build \
         --configuration "$CONFIGURATION" \
         --urls "http://localhost:${SAMPLES_PORT_API}/" >/dev/null &
@@ -270,7 +270,7 @@ if [ $UI_TESTS -eq 1 ]; then
         exit 1
     fi
 
-    dotnet run --project "$ROOT/src/DotVVM.Samples.BasicSamples.AspNetCoreLatest" \
+    dotnet run --project "$ROOT/src/samples/AspNetCoreLatest" \
         --no-build \
         --configuration "$CONFIGURATION" \
         --urls "http://localhost:${SAMPLES_PORT}/" >/dev/null &
