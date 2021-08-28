@@ -63,8 +63,8 @@
   </ItemGroup>
 
   <Target Name="BuildCompiler" BeforeTargets="BeforeBuild">
-    <MSBuild Projects="..\DotVVM.Compiler\DotVVM.Compiler.csproj" Targets="Restore;Build;Publish" Properties="TargetFramework=netcoreapp3.1;Configuration=$(Configuration);PublishDir=$(ProjectDir)$(OutputPath)tools\netcoreapp3.1\any" />
-    <MSBuild Projects="..\DotVVM.Compiler\DotVVM.Compiler.csproj" Targets="Restore;Build;Publish" Properties="TargetFramework=net461;Configuration=$(Configuration);PublishDir=$(ProjectDir)$(OutputPath)tools\net461\any" />
+    <MSBuild Projects="..\Compiler\DotVVM.Compiler.csproj" Targets="Restore;Build;Publish" Properties="TargetFramework=netcoreapp3.1;Configuration=$(Configuration);PublishDir=$(ProjectDir)$(OutputPath)tools\netcoreapp3.1\any" />
+    <MSBuild Projects="..\Compiler\DotVVM.Compiler.csproj" Targets="Restore;Build;Publish" Properties="TargetFramework=net461;Configuration=$(Configuration);PublishDir=$(ProjectDir)$(OutputPath)tools\net461\any" />
   </Target>
 
   <Target Name="AddCompilerToPublish" BeforeTargets="Publish;Pack">
@@ -98,7 +98,7 @@
         $(_IconUrlElement)
         $(_ReleaseNotesElement)
       </_CommonMetadataElements>
-      <_CompilerPath>..\DotVVM.Compiler\bin\$(Configuration)\</_CompilerPath>
+      <_CompilerPath>..\Compiler\bin\$(Configuration)\</_CompilerPath>
     </PropertyGroup>
     <ItemGroup>
       <NuspecProperty Include="PackageType=$(PackageType)" />
