@@ -54,7 +54,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     .OfType<JsTemporaryVariableParameter>()
                     .Count(p => p == v);
                 Debug.Assert(count >= 1);
-                if (count == 1 && v.AllowInlining)
+                if (count == 1 && v.AllowInlining && v.Initializer is object)
                 {
                     node = node.AssignParameters(p => p == v ? v.Initializer.Clone() : null);
                     allVariables.Remove(v);
@@ -124,7 +124,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             node.DescendantNodesAndSelf(child => !(child is JsFunctionExpression))
                 .Any(child => child is JsUnaryExpression { Operator: UnaryOperatorType.Await });
 
-        public static IEnumerable<string> GetNames(string baseName = null)
+        public static IEnumerable<string> GetNames(string? baseName = null)
         {
             IEnumerable<char> getChars(bool isFirst)
             {
@@ -149,11 +149,11 @@ namespace DotVVM.Framework.Compilation.Javascript
     }
     public sealed class JsTemporaryVariableParameter: CodeSymbolicParameter
     {
-        public JsExpression Initializer { get; }
-        public string PreferredName { get; }
+        public JsExpression? Initializer { get; }
+        public string? PreferredName { get; }
         public bool AllowInlining { get; }
 
-        public JsTemporaryVariableParameter(JsExpression initializer = null, string preferredName = null, bool allowInlining = true)
+        public JsTemporaryVariableParameter(JsExpression? initializer = null, string? preferredName = null, bool allowInlining = true)
             : base("tmp_var[" + initializer?.ToString() + "]")
         {
             this.Initializer = initializer;

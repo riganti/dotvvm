@@ -13,25 +13,19 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         public IEnumerable Keys { get; set; }
         public IEnumerable Values { get; set; }
 
-        public DictionarySection(string name, string id)
+        public DictionarySection(string name, string id, IEnumerable keys, IEnumerable values)
         {
             DisplayName = name;
             Id = id;
+            Keys = keys;
+            Values = values;
         }
 
         public static DictionarySection Create(string name, string id, IDictionary dictionary)
-            => new DictionarySection(name, id)
-            {
-                Keys = dictionary.Keys,
-                Values = dictionary.Values
-            };
+            => new DictionarySection(name, id, dictionary.Keys, dictionary.Values);
 
         public static DictionarySection Create<TKey, TValue>(string name, string id, IEnumerable<KeyValuePair<TKey, TValue>> kvps)
-            => new DictionarySection(name, id)
-            {
-                Keys = kvps.Select(kvp => kvp.Key).ToArray(),
-                Values = kvps.Select(kvp => kvp.Value).ToArray()
-            };
+            => new DictionarySection(name, id, kvps.Select(kvp => kvp.Key), kvps.Select(kvp => kvp.Value));
 
         public void WriteBody(IErrorWriter writer)
         {

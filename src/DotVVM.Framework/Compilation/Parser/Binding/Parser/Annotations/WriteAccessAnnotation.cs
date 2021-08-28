@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser.Annotations
 
         }
 
-        private static WriteAccessAnnotation instance;
+        private static WriteAccessAnnotation? instance;
         public static WriteAccessAnnotation Instance
         {
             get

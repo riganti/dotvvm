@@ -54,10 +54,11 @@ namespace DotVVM.Framework.Testing
 
         public Expression ParseBinding(string expression, DataContextStack context, Type? expectedType = null, NamespaceImport[]? imports = null)
         {
+            expectedType ??= typeof(object);
             var parsedExpression = ExpressionBuilder.ParseWithLambdaConversion(expression, context, BindingParserOptions.Value.AddImports(imports), expectedType);
             return
                 TypeConversion.MagicLambdaConversion(parsedExpression, expectedType) ??
-                TypeConversion.ImplicitConversion(parsedExpression, expectedType, true, true);
+                TypeConversion.ImplicitConversion(parsedExpression, expectedType, true, true)!;
         }
 
         public ParametrizedCode ValueBindingToParametrizedCode(string expression, Type[] contexts, Type? expectedType = null, NamespaceImport[]? imports = null, bool nullChecks = false, bool niceMode = true) =>

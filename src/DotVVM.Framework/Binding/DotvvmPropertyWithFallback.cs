@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Controls;

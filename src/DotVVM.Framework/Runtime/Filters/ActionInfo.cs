@@ -10,9 +10,16 @@ namespace DotVVM.Framework.Runtime.Filters
 {
     public class ActionInfo
     {
-        public ICommandBinding Binding { get; set; }
+        public ActionInfo(ICommandBinding? binding, Func<object?> action, bool isControlCommand)
+        {
+            Binding = binding;
+            IsControlCommand = isControlCommand;
+            Action = action;
+        }
+
+        public ICommandBinding? Binding { get; set; }
         public bool IsControlCommand { get; internal set; }
 
-        public Func<object> Action { get; set; }
+        public Func<object?> Action { get; set; }
     }
 }

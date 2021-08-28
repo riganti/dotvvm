@@ -26,9 +26,7 @@ namespace DotVVM.Framework.Tests.ViewModel
                 config.ServiceProvider.GetRequiredService<IViewModelSerializationMapper>(),
                 config.ServiceProvider,
                 encryptedValues
-            ) {
-                UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
-            };
+            );
         }
 
         static string Serialize<T>(T viewModel, out JObject encryptedValues, bool isPostback = false)

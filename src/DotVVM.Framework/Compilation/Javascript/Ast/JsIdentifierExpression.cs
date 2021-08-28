@@ -8,13 +8,13 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
     {
         public string Identifier
         {
-            get => GetChildByRole(JsTreeRoles.Identifier).Name;
-            set => SetChildByRole(JsTreeRoles.Identifier, new JsIdentifier(value));
+            get => IdentifierToken.Name;
+            set => IdentifierToken = new JsIdentifier(value);
         }
 
         public JsIdentifier IdentifierToken
         {
-            get => GetChildByRole(JsTreeRoles.Identifier);
+            get => GetChildByRole(JsTreeRoles.Identifier)!;
             set => SetChildByRole(JsTreeRoles.Identifier, value);
         }
 

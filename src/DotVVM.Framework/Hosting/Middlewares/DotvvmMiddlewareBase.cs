@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace DotVVM.Framework.Hosting.Middlewares
+﻿namespace DotVVM.Framework.Hosting.Middlewares
 {
     public abstract class DotvvmMiddlewareBase
     {

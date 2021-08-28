@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
     public class DotvvmErrorPageRenderer
     {
 
-        public ErrorFormatter Formatter { get; set; }
+        public ErrorFormatter? Formatter { get; set; }
 
         /// <summary>
         /// Renders the error response.

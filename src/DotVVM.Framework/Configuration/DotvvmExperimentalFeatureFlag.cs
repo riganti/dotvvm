@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -84,9 +83,9 @@ namespace DotVVM.Framework.Configuration
             return Enabled || IncludedRoutes.Count > 0;
         }
 
-        public bool IsEnabledForRoute(string routeName)
+        public bool IsEnabledForRoute(string? routeName)
         {
-            return (Enabled && !ExcludedRoutes.Contains(routeName)) || (!Enabled && IncludedRoutes.Contains(routeName));
+            return (Enabled && !ExcludedRoutes.Contains(routeName!)) || (!Enabled && IncludedRoutes.Contains(routeName!));
         }
 
         private bool isFrozen = false;

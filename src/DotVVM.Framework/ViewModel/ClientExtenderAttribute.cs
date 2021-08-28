@@ -13,11 +13,11 @@ namespace DotVVM.Framework.ViewModel
 
         public int Order { get; set; }
 
-        public object Parameter { get; set; }
+        public object? Parameter { get; set; }
 
-        public ClientExtenderAttribute(string name, object parameter = null, int order = 0)
+        public ClientExtenderAttribute(string name, object? parameter = null, int order = 0)
         {
-            this.Name = name;
+            this.Name = name ?? throw new ArgumentNullException(nameof(name));
             this.Parameter = parameter;
             this.Order = order;
         }

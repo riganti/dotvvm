@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         {
             yield return Symbol;
             if (GetDefaultAssignment() is CodeParameterAssignment d)
-                foreach (var inDefault in d.Code.EnumerateAllParameters())
+                foreach (var inDefault in d.Code!.EnumerateAllParameters())
                     yield return inDefault;
         }
 

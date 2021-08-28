@@ -16,6 +16,7 @@ namespace DotVVM.Samples.Tests.Feature
             string[] prefixes = { "b", "c", "cb", "lb", "rb", "tb" };
 
             RunInAllBrowsers(browser => {
+                browser.Driver.Manage().Window.Size = new System.Drawing.Size(1920, 1000);
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_FormControlsEnabled_FormControlsEnabled);
 
                 // LinkButton tests. Selenium does not recognize them as disabled as that is handled by DotVVM.

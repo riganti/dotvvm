@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -56,9 +55,10 @@ namespace DotVVM.Framework.Utils
             return $"'{funcName}' with closure [{fieldsFormatted}]";
         }
 
-        public static TOut CastTo<TOut>(this object original)
+        [return: NotNullIfNotNull("original")]
+        public static TOut? CastTo<TOut>(this object? original)
             where TOut : class
-            => (TOut)original;
+            => (TOut?)original;
 
         public static TOut? As<TOut>(this object? original)
             where TOut : class

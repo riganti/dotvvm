@@ -146,7 +146,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             SkipWhitespace(false);
 
             // whitespace
-            if (LastToken.Type != DothtmlTokenType.WhiteSpace)
+            if (LastToken!.Type != DothtmlTokenType.WhiteSpace)
             {
                 CreateToken(DothtmlTokenType.WhiteSpace, errorProvider: t => CreateTokenError(t, DothtmlTokenType.DirectiveStart, DothtmlTokenizerErrors.DirectiveValueExpected));
             }
@@ -623,8 +623,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
                     if (ch == '\'' || ch == '"')
                     {
                         // string literal - ignore curly braces inside
-                        string errorMessage;
-                        BindingTokenizer.ReadStringLiteral(Peek, Read, out errorMessage);
+                        BindingTokenizer.ReadStringLiteral(Peek, Read, out _);
                     }
                     else if (ch == NullChar)
                     {

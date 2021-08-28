@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Configuration
 {

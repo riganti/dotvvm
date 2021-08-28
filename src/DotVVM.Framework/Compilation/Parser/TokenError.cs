@@ -1,4 +1,3 @@
-#nullable enable
 namespace DotVVM.Framework.Compilation.Parser
 {
 	public abstract class TokenError

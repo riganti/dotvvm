@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 
@@ -20,13 +19,13 @@ namespace DotVVM.Framework.Runtime.Commands
             
         }
 
-        public InvalidCommandInvocationException(string message, Dictionary<string, CandidateBindings> data)
+        public InvalidCommandInvocationException(string message, Dictionary<string, CandidateBindings>? data)
             : this(message, (Exception?)null, data)
         {
 
         }
 
-        public InvalidCommandInvocationException(string message, Exception? innerException, Dictionary<string, CandidateBindings> data)
+        public InvalidCommandInvocationException(string message, Exception? innerException, Dictionary<string, CandidateBindings>? data)
             : base(message, innerException)
         {
             if(data != null)

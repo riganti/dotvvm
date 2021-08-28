@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Testing
 
         public ImmutableArray<IActionFilter> ActionFilters => ImmutableArray<IActionFilter>.Empty;
 
-        public object GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
+        public object? GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
         {
             if (errorMode == ErrorHandlingMode.ReturnNull)
                 return null;

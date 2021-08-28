@@ -171,8 +171,8 @@ namespace DotVVM.Framework.Testing
             {
                 // order attributes by name
                 var attrs = el.Attributes.OrderBy(a => a.Name).ToArray();
-                foreach (var attr in attrs) el.RemoveAttribute(attr.NamespaceUri, attr.LocalName);
-                foreach (var attr in attrs) el.SetAttribute(attr.NamespaceUri, attr.LocalName, attr.Value);
+                foreach (var attr in attrs) el.RemoveAttribute(attr.NamespaceUri!, attr.LocalName);
+                foreach (var attr in attrs) el.SetAttribute(attr.NamespaceUri!, attr.LocalName, attr.Value);
             }
             return new PageRunResult(
                 this,

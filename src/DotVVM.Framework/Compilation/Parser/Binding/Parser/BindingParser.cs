@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -503,8 +502,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 {
                     // Nullable
                     Read();
-                    expression = (!(expression is TypeReferenceBindingParserNode)) ? new ActualTypeReferenceBindingParserNode(expression) : expression;
-                    expression = CreateNode(new NullableTypeReferenceBindingParserNode(expression as TypeReferenceBindingParserNode), startIndex);
+                    var typeExpr = expression as TypeReferenceBindingParserNode ?? new ActualTypeReferenceBindingParserNode(expression);
+                    expression = CreateNode(new NullableTypeReferenceBindingParserNode(typeExpr), startIndex);
                 }
                 else if (next.Type == BindingTokenType.OpenArrayBrace)
                 {
@@ -514,8 +513,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     if (next?.Type != BindingTokenType.CloseArrayBrace)
                         return false;
                     Read();
-                    expression = (!(expression is TypeReferenceBindingParserNode)) ? new ActualTypeReferenceBindingParserNode(expression) : expression;
-                    expression = CreateNode(new ArrayTypeReferenceBindingParserNode(expression as TypeReferenceBindingParserNode), startIndex);
+                    var typeExpr = expression as TypeReferenceBindingParserNode ?? new ActualTypeReferenceBindingParserNode(expression);
+                    expression = CreateNode(new ArrayTypeReferenceBindingParserNode(typeExpr), startIndex);
                 }
                 else
                 {
@@ -524,8 +523,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 next = Peek();
             }
 
-            expression = (!(expression is TypeReferenceBindingParserNode)) ? new ActualTypeReferenceBindingParserNode(expression) : expression;
-            typeNode = (expression as TypeReferenceBindingParserNode)!;
+            typeNode = expression as TypeReferenceBindingParserNode ?? new ActualTypeReferenceBindingParserNode(expression);
             return true;
         }
 

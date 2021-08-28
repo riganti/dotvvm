@@ -25,31 +25,31 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                 child.Freeze();
         }
 
-        JsNode firstChild;
-        JsNode lastChild;
-        JsNode parent;
-        JsNode prevSibling;
-        JsNode nextSibling;
+        JsNode? firstChild;
+        JsNode? lastChild;
+        JsNode? parent;
+        JsNode? prevSibling;
+        JsNode? nextSibling;
 
-        private JsTreeRole role;
-        public JsTreeRole Role
+        private JsTreeRole? role;
+        public JsTreeRole? Role
         {
             get { return role; }
             set { role = value; }
         }
 
-        public JsNode Parent => parent;
-        public JsNode NextSibling => nextSibling;
-        public JsNode PrevSibling => prevSibling;
-        public JsNode FirstChild => firstChild;
-        public JsNode LastChild => lastChild;
+        public JsNode? Parent => parent;
+        public JsNode? NextSibling => nextSibling;
+        public JsNode? PrevSibling => prevSibling;
+        public JsNode? FirstChild => firstChild;
+        public JsNode? LastChild => lastChild;
         public bool HasChildren => firstChild != null;
 
         public IEnumerable<JsNode> Children
         {
             get {
-                JsNode next;
-                for (JsNode cur = firstChild; cur != null; cur = next) {
+                JsNode? next;
+                for (var cur = firstChild; cur != null; cur = next) {
                     Debug.Assert(cur.parent == this);
                     // Remember next before yielding cur.
                     // This allows removing/replacing nodes while iterating through the list.
@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public IEnumerable<JsNode> Ancestors
         {
             get {
-                for (JsNode cur = parent; cur != null; cur = cur.parent) {
+                for (JsNode? cur = parent; cur != null; cur = cur.parent) {
                     yield return cur;
                 }
             }
@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public IEnumerable<JsNode> AncestorsAndSelf
         {
             get {
-                for (JsNode cur = this; cur != null; cur = cur.parent) {
+                for (JsNode? cur = this; cur != null; cur = cur.parent) {
                     yield return cur;
                 }
             }
@@ -94,17 +94,17 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// </summary>
         public IEnumerable<JsNode> DescendantsAndSelf => GetDescendantsImpl(true);
 
-        public IEnumerable<JsNode> DescendantNodes(Func<JsNode, bool> descendIntoChildren = null)
+        public IEnumerable<JsNode> DescendantNodes(Func<JsNode, bool>? descendIntoChildren = null)
         {
             return GetDescendantsImpl(false, descendIntoChildren);
         }
 
-        public IEnumerable<JsNode> DescendantNodesAndSelf(Func<JsNode, bool> descendIntoChildren = null)
+        public IEnumerable<JsNode> DescendantNodesAndSelf(Func<JsNode, bool>? descendIntoChildren = null)
         {
             return GetDescendantsImpl(true, descendIntoChildren);
         }
 
-        IEnumerable<JsNode> GetDescendantsImpl(bool includeSelf, Func<JsNode, bool> descendIntoChildren = null)
+        IEnumerable<JsNode> GetDescendantsImpl(bool includeSelf, Func<JsNode, bool>? descendIntoChildren = null)
         {
             if (includeSelf) {
                 yield return this;
@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                     yield break;
             }
 
-            Stack<JsNode> nextStack = new Stack<JsNode>();
+            var nextStack = new Stack<JsNode?>();
             nextStack.Push(null);
             var pos = firstChild;
             while (pos != null) {
@@ -132,7 +132,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 		/// Gets the first child with the specified role.
 		/// Returns the role's null object if the child is not found.
 		/// </summary>
-		public T GetChildByRole<T>(JsTreeRole<T> role) where T : JsNode
+		public T? GetChildByRole<T>(JsTreeRole<T> role) where T : JsNode
         {
             if (role == null)
                 throw new ArgumentNullException("role");
@@ -148,7 +148,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             return new JsNodeCollection<T>(this, role);
         }
 
-        protected void SetChildByRole<T>(JsTreeRole<T> role, T newChild) where T : JsNode
+        protected void SetChildByRole<T>(JsTreeRole<T> role, T? newChild) where T : JsNode
         {
             if (GetChildByRole(role) is T oldChild)
                 oldChild.ReplaceWith(newChild);
@@ -156,7 +156,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                 AddChild(newChild, role);
         }
 
-        public void AddChild<T>(T child, JsTreeRole<T> role) where T : JsNode
+        public void AddChild<T>(T? child, JsTreeRole<T> role) where T : JsNode
         {
             if (role == null) throw new ArgumentNullException("role");
             if (child == null)
@@ -168,7 +168,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             AddChildUnsafe(child, role);
         }
 
-        public void AddChildWithExistingRole(JsNode child)
+        public void AddChildWithExistingRole(JsNode? child)
         {
             if (child == null)
                 return;
@@ -185,20 +185,20 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// <summary>
         /// Adds a child without performing any safety checks.
         /// </summary>
-        internal void AddChildUnsafe(JsNode child, JsTreeRole role)
+        internal void AddChildUnsafe(JsNode child, JsTreeRole? role)
         {
             child.parent = this;
             child.role = role;
             if (firstChild == null) {
                 lastChild = firstChild = child;
             } else {
-                lastChild.nextSibling = child;
+                lastChild!.nextSibling = child;
                 child.prevSibling = lastChild;
                 lastChild = child;
             }
         }
 
-        public void InsertChildBefore<T>(JsNode nextSibling, T child, JsTreeRole<T> role) where T : JsNode
+        public void InsertChildBefore<T>(JsNode? nextSibling, T child, JsTreeRole<T> role) where T : JsNode
         {
             if (role == null)
                 throw new ArgumentNullException("role");
@@ -238,7 +238,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             nextSibling.prevSibling = child;
         }
 
-        public void InsertChildAfter<T>(JsNode prevSibling, T child, JsTreeRole<T> role) where T : JsNode
+        public void InsertChildAfter<T>(JsNode? prevSibling, T child, JsTreeRole<T> role) where T : JsNode
         {
             InsertChildBefore(prevSibling == null ? firstChild : prevSibling.nextSibling, child, role);
         }
@@ -274,7 +274,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// <summary>
         /// Replaces this node with the new node.
         /// </summary>
-        public void ReplaceWith(JsNode newNode)
+        public void ReplaceWith(JsNode? newNode)
         {
             if (newNode == null) {
                 Remove();
@@ -287,7 +287,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             ThrowIfFrozen();
             // Because this method doesn't statically check the new node's type with the role,
             // we perform a runtime test:
-            if (!this.Role.IsValid(newNode)) {
+            if (!this.Role!.IsValid(newNode)) {
                 throw new ArgumentException($"The new node '{newNode.GetType().Name}' is not valid in the role {this.Role.ToString()}", "newNode");
             }
             if (newNode.parent != null) {
@@ -339,7 +339,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             copy.isFrozen = false;
 
             // Then perform a deep copy:
-            for (JsNode cur = firstChild; cur != null; cur = cur.nextSibling) {
+            for (JsNode? cur = firstChild; cur != null; cur = cur.nextSibling) {
                 copy.AddChildUnsafe(cur.CloneImpl(), cur.Role);
             }
 
@@ -351,7 +351,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
         public abstract void AcceptVisitor(IJsNodeVisitor visitor);
 
-        public JsNode GetNextNode()
+        public JsNode? GetNextNode()
         {
             if (NextSibling != null)
                 return NextSibling;
@@ -365,7 +365,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// </summary>
         /// <returns>The next node.</returns>
         /// <param name="pred">The predicate.</param>
-        public JsNode GetNextNode(Func<JsNode, bool> pred)
+        public JsNode? GetNextNode(Func<JsNode, bool> pred)
         {
             var next = GetNextNode();
             while (next != null && !pred(next))
@@ -373,7 +373,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             return next;
         }
 
-        public JsNode GetPrevNode()
+        public JsNode? GetPrevNode()
         {
             if (PrevSibling != null)
                 return PrevSibling;
@@ -387,7 +387,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// </summary>
         /// <returns>The next node.</returns>
         /// <param name="pred">The predicate.</param>
-        public JsNode GetPrevNode(Func<JsNode, bool> pred)
+        public JsNode? GetPrevNode(Func<JsNode, bool> pred)
         {
             var prev = GetPrevNode();
             while (prev != null && !pred(prev))
@@ -400,7 +400,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// </summary>
         /// <returns>The next node.</returns>
         /// <param name="pred">The predicate.</param>
-        public JsNode GetNextSibling(Func<JsNode, bool> pred)
+        public JsNode? GetNextSibling(Func<JsNode, bool> pred)
         {
             var next = NextSibling;
             while (next != null && !pred(next))
@@ -413,7 +413,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// </summary>
         /// <returns>The next node.</returns>
         /// <param name="pred">The predicate.</param>
-        public JsNode GetPrevSibling(Func<JsNode, bool> pred)
+        public JsNode? GetPrevSibling(Func<JsNode, bool> pred)
         {
             var prev = PrevSibling;
             while (prev != null && !pred(prev))

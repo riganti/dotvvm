@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -9,6 +8,7 @@ using System.Collections.Immutable;
 using DotVVM.Framework.Configuration;
 using System.Linq.Expressions;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public IEnumerable<IStyleApplicator> GetMatchingStyles()
         {
-            return GetStyleCandidatesForControl().Where(s => s.Matches(Context)).Select(s => s.Applicator);
+            return GetStyleCandidatesForControl().Where(s => s.Matches(Context.NotNull("not initialized"))).Select(s => s.Applicator);
         }
 
         protected IEnumerable<IStyle> GetStyleCandidatesForControl()

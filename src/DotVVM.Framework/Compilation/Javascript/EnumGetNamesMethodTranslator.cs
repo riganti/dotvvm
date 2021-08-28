@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 {
     public class EnumGetNamesMethodTranslator : IJavascriptMethodTranslator
     {
-        public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] arguments, MethodInfo method)
+        public JsExpression TryTranslateCall(LazyTranslatedExpression? context, LazyTranslatedExpression[] arguments, MethodInfo method)
         {
             var enumNames = (string[])method.Invoke(null, new object[0]);
 

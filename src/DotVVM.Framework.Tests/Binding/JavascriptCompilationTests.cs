@@ -343,7 +343,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_ArrayIndexer()
         {
             var result = CompileBinding("LongArray[1] == 3 && VmArray[0].MyProperty == 1 && VmArray.Length > 1", new [] { typeof(TestViewModel)});
-            Assert.AreEqual("LongArray()[1]()==3&&(VmArray()[0]().MyProperty()==1&&VmArray().length>1)", result);
+            Assert.AreEqual("LongArray()[1]==3&&(VmArray()[0].MyProperty()==1&&VmArray().length>1)", result);
         }
 
         [TestMethod]
@@ -980,7 +980,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_AssignAndUseObject()
         {
             var result = CompileBinding("StringProp2 = (_this.TestViewModel2B = _this.TestViewModel2 = _this.VmArray[3]).SomeString", typeof(TestViewModel));
-            Assert.AreEqual("StringProp2(dotvvm.serialization.deserialize(dotvvm.serialization.deserialize(VmArray()[3](),TestViewModel2,true)(),TestViewModel2B,true)().SomeString()).StringProp2", result);
+            Assert.AreEqual("StringProp2(dotvvm.serialization.deserialize(dotvvm.serialization.deserialize(VmArray()[3],TestViewModel2,true)(),TestViewModel2B,true)().SomeString()).StringProp2", result);
         }
 
         [TestMethod, Ignore] // ignored because https://github.com/dotnet/corefx/issues/33074

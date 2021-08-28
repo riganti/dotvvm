@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,7 +80,7 @@ namespace DotVVM.Framework.Controls
             DotvvmCapabilityProperty.RegisterCapability("TextOrContentCapability", typeof(RouteLink), typeof(TextOrContentCapability),
                 control => TextOrContentCapability.FromChildren((RouteLink)control, TextProperty),
                 (control, boxedValue) => {
-                    var value = (TextOrContentCapability)boxedValue;
+                    var value = (TextOrContentCapability?)boxedValue ?? new TextOrContentCapability();
                     value.WriteToChildren((DotvvmControl)control, TextProperty);
                 }
             );
@@ -168,10 +167,9 @@ namespace DotVVM.Framework.Controls
         public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control, DotvvmConfiguration configuration)
         {
             var routeNameProperty = control.GetValue(RouteNameProperty);
-            if ((routeNameProperty.As<ResolvedPropertyValue>()) == null)
+            if (routeNameProperty is not ResolvedPropertyValue { Value: string routeName })
                 yield break;
 
-            var routeName = (string)routeNameProperty.CastTo<ResolvedPropertyValue>().Value!;
             if (!configuration.RouteTable.Contains(routeName))
             {
                 yield return new ControlUsageError(

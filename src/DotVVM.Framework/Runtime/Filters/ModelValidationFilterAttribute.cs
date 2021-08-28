@@ -1,4 +1,3 @@
-#nullable enable
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;

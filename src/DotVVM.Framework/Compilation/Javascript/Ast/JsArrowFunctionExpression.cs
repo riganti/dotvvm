@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
     public class JsArrowFunctionExpression: JsBaseFunctionExpression
     {
 
-        public JsExpression ExpressionBody
+        public JsExpression? ExpressionBody
         {
             get {
                 if (Block.Body.Count == 1 &&
@@ -17,7 +18,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                 else
                     return null;
             }
-            set { Block = value.Return().AsBlock(); }
+            set { Block = value.NotNull().Return().AsBlock(); }
         }
         
 
@@ -33,9 +34,9 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
         public override void AcceptVisitor(IJsNodeVisitor visitor) => visitor.VisitArrowFunctionExpression(this);
 
-        public static JsExpression CreateIIFE(JsExpression expression, IEnumerable<(string name, JsExpression initExpression)> parameters = null, bool isAsync = false) =>
+        public static JsExpression CreateIIFE(JsExpression expression, IEnumerable<(string name, JsExpression initExpression)>? parameters = null, bool isAsync = false) =>
             CreateIIFE(expression.Return().AsBlock(), parameters, isAsync);
-        public static JsExpression CreateIIFE(JsBlockStatement block, IEnumerable<(string name, JsExpression initExpression)> parameters = null, bool isAsync = false)
+        public static JsExpression CreateIIFE(JsBlockStatement block, IEnumerable<(string name, JsExpression initExpression)>? parameters = null, bool isAsync = false)
         {
             if (parameters == null) parameters = Enumerable.Empty<(string, JsExpression)>();
             return new JsArrowFunctionExpression(

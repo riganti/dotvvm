@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -130,13 +129,13 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public IAbstractViewModelDirective BuildViewModelDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
         {
             var type = ResolveTypeNameDirective(directive, nameSyntax);
-            return new ResolvedViewModelDirective(nameSyntax, type) { DothtmlNode = directive };
+            return new ResolvedViewModelDirective(nameSyntax, type!) { DothtmlNode = directive };
         }
 
         public IAbstractBaseTypeDirective BuildBaseTypeDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
         {
             var type = ResolveTypeNameDirective(directive, nameSyntax);
-            return new ResolvedBaseTypeDirective(nameSyntax, type) { DothtmlNode = directive };
+            return new ResolvedBaseTypeDirective(nameSyntax, type!) { DothtmlNode = directive };
         }
         public IAbstractDirective BuildViewModuleDirective(DothtmlDirectiveNode directiveNode, string modulePath, string resourceName) =>
             new ResolvedViewModuleDirective(modulePath, resourceName) { DothtmlNode = directiveNode };

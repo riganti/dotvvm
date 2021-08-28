@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Utils;
+﻿using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
