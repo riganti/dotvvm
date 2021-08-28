@@ -6,6 +6,7 @@ using DotVVM.Framework.Hosting;
 using System.IO;
 using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -18,7 +19,8 @@ namespace DotVVM.Framework.ResourceManagement
         public IResourceLocation Location { get; set; }
         public ResourceLocationFallback? LocationFallback { get; set; }
         public string MimeType { get; private set; }
-        public bool VerifyResourceIntegrity { get; set; }
+        [DefaultValue(true)]
+        public bool VerifyResourceIntegrity { get; set; } = true;
         public string? IntegrityHash { get; set; }
 
         public LinkResourceBase(ResourceRenderPosition renderPosition, string mimeType, IResourceLocation location) : base(renderPosition)
@@ -104,18 +106,24 @@ namespace DotVVM.Framework.ResourceManagement
         protected string? ComputeIntegrityHash(IDotvvmRequestContext context)
         {
             var hasher = context.Services.GetRequiredService<IResourceHashService>();
-            var localLocation = GetLocations().OfType<ILocalResourceLocation>().First();
+            var localLocation = GetLocations().OfType<ILocalResourceLocation>().FirstOrDefault();
             if (localLocation != null) return hasher.GetIntegrityHash(localLocation, context);
             else return null;
         }
 
-        protected void AddIntegrityAttribute(IHtmlWriter writer, IDotvvmRequestContext context)
+        protected void AddIntegrityAttribute(IHtmlWriter writer, IDotvvmRequestContext context, string url)
         {
             var hash = IntegrityHash ?? ComputeIntegrityHash(context);
             if (hash != null)
             {
                 writer.AddAttribute("integrity", hash);
                 writer.AddAttribute("crossorigin", "anonymous");
+            }
+            else
+            {
+                context.DebugWarning(
+                    $"Resource seems to be pointing to a 3rd party URL '{url}', but it does not have IntegrityHash specified. Please specify this property or serve the resource from your server (using FileResourceLocation) to eliminate the potential security risk. See https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity for more information."
+                );
             }
         }
 
@@ -125,7 +133,7 @@ namespace DotVVM.Framework.ResourceManagement
 
             if (url.Contains("://") && VerifyResourceIntegrity)
             {
-                AddIntegrityAttribute(writer, context);
+                AddIntegrityAttribute(writer, context, url);
             }
         }
     }
