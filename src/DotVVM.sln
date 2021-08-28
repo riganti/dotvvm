@@ -5,71 +5,69 @@ VisualStudioVersion = 16.6.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{0AE0961C-5838-4868-B84C-B73D23A997A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests", "api\Swashbuckle.AspNetCore.Tests\DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests.csproj", "{F8BD5766-A21F-4DED-8CEF-E9B7F145BFF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests", "api\Swashbuckle.AspNetCore.Tests\DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests.csproj", "{F8BD5766-A21F-4DED-8CEF-E9B7F145BFF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Api.Swashbuckle.AspNetCore", "api\Swashbuckle.AspNetCore\DotVVM.Framework.Api.Swashbuckle.AspNetCore.csproj", "{C6D75B1C-6EBE-4FEE-802F-5FBB92CD6498}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Api.Swashbuckle.AspNetCore", "api\Swashbuckle.AspNetCore\DotVVM.Framework.Api.Swashbuckle.AspNetCore.csproj", "{C6D75B1C-6EBE-4FEE-802F-5FBB92CD6498}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Api.Swashbuckle.Owin.Tests", "api\Swashbuckle.Owin.Tests\DotVVM.Framework.Api.Swashbuckle.Owin.Tests.csproj", "{CDAA2A06-2070-4F85-BD35-8C910013FB77}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Api.Swashbuckle.Owin", "api\Swashbuckle.Owin\DotVVM.Framework.Api.Swashbuckle.Owin.csproj", "{F84F7D75-0EB6-40B7-992E-9125D638B2D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Api.Swashbuckle.Owin", "api\Swashbuckle.Owin\DotVVM.Framework.Api.Swashbuckle.Owin.csproj", "{F84F7D75-0EB6-40B7-992E-9125D638B2D5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "framework", "framework", "{F211156C-FEE6-464C-A7A7-317D16DD3D8B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Core", "framework\Core\DotVVM.Core.csproj", "{4719C637-BF14-4CB8-B8F3-C69F9AD12E38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Core", "framework\Core\DotVVM.Core.csproj", "{4719C637-BF14-4CB8-B8F3-C69F9AD12E38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework", "framework\Framework\DotVVM.Framework.csproj", "{D7CDC661-0C0F-4621-9A33-369352F12FE8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework", "framework\Framework\DotVVM.Framework.csproj", "{D7CDC661-0C0F-4621-9A33-369352F12FE8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Hosting.AspNetCore", "framework\Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj", "{0EAEF5D7-FE08-4E42-BF21-93876A88B26E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Hosting.AspNetCore", "framework\Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj", "{0EAEF5D7-FE08-4E42-BF21-93876A88B26E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Hosting.Owin", "framework\Hosting.Owin\DotVVM.Framework.Hosting.Owin.csproj", "{C288FAE4-80F4-422D-9019-03C5039C1829}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Hosting.Owin", "framework\Hosting.Owin\DotVVM.Framework.Hosting.Owin.csproj", "{C288FAE4-80F4-422D-9019-03C5039C1829}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Testing.SeleniumHelpers", "framework\Testing.SeleniumHelpers\DotVVM.Framework.Testing.SeleniumHelpers.csproj", "{DFBB6D46-9F24-4E3D-A66C-9B5DDB9E761A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Testing.SeleniumHelpers", "framework\Testing.SeleniumHelpers\DotVVM.Framework.Testing.SeleniumHelpers.csproj", "{DFBB6D46-9F24-4E3D-A66C-9B5DDB9E761A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Testing", "framework\Testing\DotVVM.Framework.Testing.csproj", "{2E077EBA-5F60-4C3A-8F1B-48A3B7CB00C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Testing", "framework\Testing\DotVVM.Framework.Testing.csproj", "{2E077EBA-5F60-4C3A-8F1B-48A3B7CB00C0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{DC6E006E-EE9D-481D-B94C-8A53331BCBC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Api.AspNetCore", "samples\Api.AspNetCore\DotVVM.Samples.BasicSamples.Api.AspNetCore.csproj", "{AF04B0BD-AB1A-4704-8B9E-D10C6DDF1DCF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.BasicSamples.Api.AspNetCore", "samples\Api.AspNetCore\DotVVM.Samples.BasicSamples.Api.AspNetCore.csproj", "{AF04B0BD-AB1A-4704-8B9E-D10C6DDF1DCF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest", "samples\Api.AspNetCoreLatest\DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest.csproj", "{2B898435-9787-4B9B-BDD2-4C3FA429C647}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest", "samples\Api.AspNetCoreLatest\DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest.csproj", "{2B898435-9787-4B9B-BDD2-4C3FA429C647}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Api.Common", "samples\Api.Common\DotVVM.Samples.BasicSamples.Api.Common.csproj", "{B7C75D47-3F68-45A0-98EF-FCA1E44F67B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.BasicSamples.Api.Common", "samples\Api.Common\DotVVM.Samples.BasicSamples.Api.Common.csproj", "{B7C75D47-3F68-45A0-98EF-FCA1E44F67B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.AspNetCore", "samples\AspNetCore\DotVVM.Samples.BasicSamples.AspNetCore.csproj", "{FDF65F2D-0BA3-44D6-BF2B-1236C8507EC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.BasicSamples.AspNetCore", "samples\AspNetCore\DotVVM.Samples.BasicSamples.AspNetCore.csproj", "{FDF65F2D-0BA3-44D6-BF2B-1236C8507EC3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.AspNetCoreLatest", "samples\AspNetCoreLatest\DotVVM.Samples.BasicSamples.AspNetCoreLatest.csproj", "{7A25D65A-FE0C-4518-AC69-8312E3DD80D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.BasicSamples.AspNetCoreLatest", "samples\AspNetCoreLatest\DotVVM.Samples.BasicSamples.AspNetCoreLatest.csproj", "{7A25D65A-FE0C-4518-AC69-8312E3DD80D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.Common", "samples\Common\DotVVM.Samples.Common.csproj", "{BD655B36-4C34-41B1-85B5-B04C7B22B9C5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.Common", "samples\Common\DotVVM.Samples.Common.csproj", "{BD655B36-4C34-41B1-85B5-B04C7B22B9C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmbeddedResourceControls", "samples\EmbeddedResourceControls\EmbeddedResourceControls.csproj", "{29B37908-B216-4652-B793-E53E39780E01}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmbeddedResourceControls", "samples\EmbeddedResourceControls\EmbeddedResourceControls.csproj", "{29B37908-B216-4652-B793-E53E39780E01}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{AAB4D0DA-18DD-4FF5-B832-2BF1BADEDD22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Testing.Abstractions", "samples\tests\Abstractions\DotVVM.Testing.Abstractions.csproj", "{01D2BD97-49DD-47A9-B471-652967BD393E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Testing.Abstractions", "samples\tests\Abstractions\DotVVM.Testing.Abstractions.csproj", "{01D2BD97-49DD-47A9-B471-652967BD393E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.Tests.CompletenessChecker", "samples\tests\CompletenessChecker\DotVVM.Samples.Tests.CompletenessChecker.csproj", "{3501259A-7A3B-43FF-A648-3930ECD0C324}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.Tests.CompletenessChecker", "samples\tests\CompletenessChecker\DotVVM.Samples.Tests.CompletenessChecker.csproj", "{3501259A-7A3B-43FF-A648-3930ECD0C324}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.Tests", "samples\tests\Tests\DotVVM.Samples.Tests.csproj", "{4C40EAF3-C76F-48F2-B6CB-E866AF613D01}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{B04D2A06-DB87-40AC-902D-592B0DE13AD3}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{8CE0F5F1-56A6-4BE8-B3B7-F79B7F8AD8A2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotvvmApplication1", "Templates\content\EmptyWeb\DotvvmApplication1.csproj", "{546FBC70-730E-4D1A-B80D-4E3F14F14DC7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.Tests", "samples\tests\Tests\DotVVM.Samples.Tests.csproj", "{4C40EAF3-C76F-48F2-B6CB-E866AF613D01}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{39D9C693-FDAF-4EAD-AFC6-D5F311AAF27F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Tests", "tests\UnitTests\DotVVM.Framework.Tests.csproj", "{5A957493-0B4D-4133-B067-CF5FE3F114F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Tests", "tests\UnitTests\DotVVM.Framework.Tests.csproj", "{5A957493-0B4D-4133-B067-CF5FE3F114F9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{E57EE0B8-30FC-4702-B310-FB82C19D7473}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.CommandLine", "tools\CommandLine\DotVVM.CommandLine.csproj", "{E6C4B4CA-5F18-4E38-AE1E-9B4391B611D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.CommandLine", "tools\CommandLine\DotVVM.CommandLine.csproj", "{E6C4B4CA-5F18-4E38-AE1E-9B4391B611D0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Compiler", "tools\Compiler\DotVVM.Compiler.csproj", "{6BF17743-8422-4458-837C-22B247B9DC38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Compiler", "tools\Compiler\DotVVM.Compiler.csproj", "{6BF17743-8422-4458-837C-22B247B9DC38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Tools.SeleniumGenerator", "tools\SeleniumGenerator\DotVVM.Framework.Tools.SeleniumGenerator.csproj", "{74880ED6-7C49-4143-BDA2-784FCB78C431}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Tools.SeleniumGenerator", "tools\SeleniumGenerator\DotVVM.Framework.Tools.SeleniumGenerator.csproj", "{74880ED6-7C49-4143-BDA2-784FCB78C431}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Tools.StartupPerfTester", "tools\StartupPerfTester\DotVVM.Tools.StartupPerfTester.csproj", "{15931432-CB16-4E1F-A8D9-87DD0A8C6CC8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Tools.StartupPerfTester", "tools\StartupPerfTester\DotVVM.Tools.StartupPerfTester.csproj", "{15931432-CB16-4E1F-A8D9-87DD0A8C6CC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Api.Owin", "samples\Api.Owin\DotVVM.Samples.BasicSamples.Api.Owin.csproj", "{5B5B07E7-BC20-4168-BE55-CF9414575D47}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Owin", "samples\Owin\DotVVM.Samples.BasicSamples.Owin.csproj", "{1C7A9914-8CDC-4075-9422-37BD0E51C076}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -79,9 +77,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{F8BD5766-A21F-4DED-8CEF-E9B7F145BFF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -324,18 +319,6 @@ Global
 		{4C40EAF3-C76F-48F2-B6CB-E866AF613D01}.Release|x64.Build.0 = Release|Any CPU
 		{4C40EAF3-C76F-48F2-B6CB-E866AF613D01}.Release|x86.ActiveCfg = Release|Any CPU
 		{4C40EAF3-C76F-48F2-B6CB-E866AF613D01}.Release|x86.Build.0 = Release|Any CPU
-		{546FBC70-730E-4D1A-B80D-4E3F14F14DC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{546FBC70-730E-4D1A-B80D-4E3F14F14DC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{546FBC70-730E-4D1A-B80D-4E3F14F14DC7}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{546FBC70-730E-4D1A-B80D-4E3F14F14DC7}.Debug|x64.Build.0 = Debug|Any CPU
-		{546FBC70-730E-4D1A-B80D-4E3F14F14DC7}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{546FBC70-730E-4D1A-B80D-4E3F14F14DC7}.Debug|x86.Build.0 = Debug|Any CPU
-		{546FBC70-730E-4D1A-B80D-4E3F14F14DC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{546FBC70-730E-4D1A-B80D-4E3F14F14DC7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{546FBC70-730E-4D1A-B80D-4E3F14F14DC7}.Release|x64.ActiveCfg = Release|Any CPU
-		{546FBC70-730E-4D1A-B80D-4E3F14F14DC7}.Release|x64.Build.0 = Release|Any CPU
-		{546FBC70-730E-4D1A-B80D-4E3F14F14DC7}.Release|x86.ActiveCfg = Release|Any CPU
-		{546FBC70-730E-4D1A-B80D-4E3F14F14DC7}.Release|x86.Build.0 = Release|Any CPU
 		{5A957493-0B4D-4133-B067-CF5FE3F114F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5A957493-0B4D-4133-B067-CF5FE3F114F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A957493-0B4D-4133-B067-CF5FE3F114F9}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -396,6 +379,33 @@ Global
 		{15931432-CB16-4E1F-A8D9-87DD0A8C6CC8}.Release|x64.Build.0 = Release|Any CPU
 		{15931432-CB16-4E1F-A8D9-87DD0A8C6CC8}.Release|x86.ActiveCfg = Release|Any CPU
 		{15931432-CB16-4E1F-A8D9-87DD0A8C6CC8}.Release|x86.Build.0 = Release|Any CPU
+		{5B5B07E7-BC20-4168-BE55-CF9414575D47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B5B07E7-BC20-4168-BE55-CF9414575D47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B5B07E7-BC20-4168-BE55-CF9414575D47}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5B5B07E7-BC20-4168-BE55-CF9414575D47}.Debug|x64.Build.0 = Debug|Any CPU
+		{5B5B07E7-BC20-4168-BE55-CF9414575D47}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5B5B07E7-BC20-4168-BE55-CF9414575D47}.Debug|x86.Build.0 = Debug|Any CPU
+		{5B5B07E7-BC20-4168-BE55-CF9414575D47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B5B07E7-BC20-4168-BE55-CF9414575D47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B5B07E7-BC20-4168-BE55-CF9414575D47}.Release|x64.ActiveCfg = Release|Any CPU
+		{5B5B07E7-BC20-4168-BE55-CF9414575D47}.Release|x64.Build.0 = Release|Any CPU
+		{5B5B07E7-BC20-4168-BE55-CF9414575D47}.Release|x86.ActiveCfg = Release|Any CPU
+		{5B5B07E7-BC20-4168-BE55-CF9414575D47}.Release|x86.Build.0 = Release|Any CPU
+		{1C7A9914-8CDC-4075-9422-37BD0E51C076}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C7A9914-8CDC-4075-9422-37BD0E51C076}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C7A9914-8CDC-4075-9422-37BD0E51C076}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1C7A9914-8CDC-4075-9422-37BD0E51C076}.Debug|x64.Build.0 = Debug|Any CPU
+		{1C7A9914-8CDC-4075-9422-37BD0E51C076}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1C7A9914-8CDC-4075-9422-37BD0E51C076}.Debug|x86.Build.0 = Debug|Any CPU
+		{1C7A9914-8CDC-4075-9422-37BD0E51C076}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C7A9914-8CDC-4075-9422-37BD0E51C076}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C7A9914-8CDC-4075-9422-37BD0E51C076}.Release|x64.ActiveCfg = Release|Any CPU
+		{1C7A9914-8CDC-4075-9422-37BD0E51C076}.Release|x64.Build.0 = Release|Any CPU
+		{1C7A9914-8CDC-4075-9422-37BD0E51C076}.Release|x86.ActiveCfg = Release|Any CPU
+		{1C7A9914-8CDC-4075-9422-37BD0E51C076}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F8BD5766-A21F-4DED-8CEF-E9B7F145BFF0} = {0AE0961C-5838-4868-B84C-B73D23A997A3}
@@ -419,12 +429,15 @@ Global
 		{01D2BD97-49DD-47A9-B471-652967BD393E} = {AAB4D0DA-18DD-4FF5-B832-2BF1BADEDD22}
 		{3501259A-7A3B-43FF-A648-3930ECD0C324} = {AAB4D0DA-18DD-4FF5-B832-2BF1BADEDD22}
 		{4C40EAF3-C76F-48F2-B6CB-E866AF613D01} = {AAB4D0DA-18DD-4FF5-B832-2BF1BADEDD22}
-		{8CE0F5F1-56A6-4BE8-B3B7-F79B7F8AD8A2} = {B04D2A06-DB87-40AC-902D-592B0DE13AD3}
-		{546FBC70-730E-4D1A-B80D-4E3F14F14DC7} = {8CE0F5F1-56A6-4BE8-B3B7-F79B7F8AD8A2}
 		{5A957493-0B4D-4133-B067-CF5FE3F114F9} = {39D9C693-FDAF-4EAD-AFC6-D5F311AAF27F}
 		{E6C4B4CA-5F18-4E38-AE1E-9B4391B611D0} = {E57EE0B8-30FC-4702-B310-FB82C19D7473}
 		{6BF17743-8422-4458-837C-22B247B9DC38} = {E57EE0B8-30FC-4702-B310-FB82C19D7473}
 		{74880ED6-7C49-4143-BDA2-784FCB78C431} = {E57EE0B8-30FC-4702-B310-FB82C19D7473}
 		{15931432-CB16-4E1F-A8D9-87DD0A8C6CC8} = {E57EE0B8-30FC-4702-B310-FB82C19D7473}
+		{5B5B07E7-BC20-4168-BE55-CF9414575D47} = {DC6E006E-EE9D-481D-B94C-8A53331BCBC1}
+		{1C7A9914-8CDC-4075-9422-37BD0E51C076} = {DC6E006E-EE9D-481D-B94C-8A53331BCBC1}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {61F8A195-365E-47B1-A6F2-CD3534E918F8}
 	EndGlobalSection
 EndGlobal
