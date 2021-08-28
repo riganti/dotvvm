@@ -126,6 +126,7 @@ namespace DotVVM.Framework.Controls
         {
             if (values == null)
             {
+                Debug.Assert(keys == null);
                 var d = new Dictionary<DotvvmProperty, object?>();
                 d[p] = value;
                 this.values = d;
@@ -160,6 +161,64 @@ namespace DotVVM.Framework.Controls
                 }
             }
         }
+
+        /// <summary> Tries to set value into the dictionary without overwriting anything. </summary>
+        public bool TryAdd(DotvvmProperty p, object? value)
+        {
+            if (values == null)
+            {
+                Debug.Assert(keys == null);
+                var d = new Dictionary<DotvvmProperty, object?>();
+                d[p] = value;
+                this.values = d;
+                return true;
+            }
+            else if (keys == null)
+            {
+                Debug.Assert(values is Dictionary<DotvvmProperty, object?>);
+#if CSharp8Polyfill
+                if (valuesAsDictionary.TryGetValue(p, out var existingValue))
+                    return Object.Equals(existingValue, value);
+                else
+                {
+                    valuesAsDictionary.Add(p, value);
+                    return true;
+                }
+#else
+                if (valuesAsDictionary.TryAdd(p, value))
+                    return true;
+                else
+                    return Object.Equals(valuesAsDictionary[p], value);
+#endif
+            }
+            else
+            {
+                Debug.Assert(this.values is object[]);
+                Debug.Assert(this.keys is DotvvmProperty[]);
+                var keys = this.keysAsArray;
+                var values = this.valuesAsArray;
+                var slot = PropertyImmutableHashtable.FindSlot(keys, this.hashSeed, p);
+                if (slot >= 0)
+                {
+                    // value already exists
+                    return Object.Equals(values[slot], value);
+                }
+                else
+                {
+                    var d = new Dictionary<DotvvmProperty, object?>();
+                    for (int i = 0; i < keys.Length; i++)
+                    {
+                        if (keys[i] != null)
+                            d[keys[i]!] = values[i];
+                    }
+                    d[p] = value;
+                    this.valuesAsDictionary = d;
+                    this.keys = null;
+                    return true;
+                }
+            }
+        }
+
 
         public DotvvmControlPropertiesEnumerator GetEnumerator()
         {
@@ -270,9 +329,12 @@ namespace DotVVM.Framework.Controls
 
         public void Add(DotvvmProperty key, object? value)
         {
-            if (control.properties.TryGet(key, out _))
+            if (!control.properties.TryAdd(key, value))
                 throw new System.ArgumentException("An item with the same key has already been added.");
-            control.properties.Set(key, value);
+        }
+        public bool TryAdd(DotvvmProperty key, object? value)
+        {
+            return control.properties.TryAdd(key, value);
         }
 
         public void Add(KeyValuePair<DotvvmProperty, object?> item) => Add(item.Key, item.Value);

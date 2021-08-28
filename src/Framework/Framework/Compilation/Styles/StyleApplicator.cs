@@ -112,8 +112,6 @@ namespace DotVVM.Framework.Compilation.Styles
         {
             if (property == DotvvmBindableObject.DataContextProperty)
                 throw new NotSupportedException("Can not set the DataContext property using styles. This property affects the compilation itself, and styles are applied after that.");
-            if (property.IsVirtual && !property.PropertyType.IsAssignableFrom(bindingOptions.BindingType))
-                throw new Exception($"Can not assign binding of type {bindingOptions.BindingType} into {property}. This property is not DotvvmProperty, so it can not contain bindings.");
             if (!property.MarkupOptions.AllowBinding && bindingOptions.BindingType != typeof(ResourceBindingExpression))
                 throw new Exception($"Property {property} does not allow bindings to be set. You could maybe use a resource binding (set bindingOptions to BindingParserOptions.Resource).");
 

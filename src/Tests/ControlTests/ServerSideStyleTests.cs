@@ -32,15 +32,15 @@ namespace DotVVM.Framework.Tests.ControlTests
         {
             var cth = createHelper(c => {
                 c.Styles.Register("div", c => c.HasAncestorWithTag("no-divs"))
-                    .ReplaceWith(new HtmlGenericControl("not-a-div") { Attributes = { ["data-explanation"] = "Obviously, this is a div but not really" }});
+                    .ReplaceWith(new HtmlGenericControl("not-a-div").SetAttribute("data-explanation", "Obviously, this is a div but not really"));
                 c.Styles.RegisterAnyControl(c => c.HasTag("prepend-icon"))
-                    .Prepend(new HtmlGenericControl("img") { Attributes = { ["href"] = "myicon.png" } });
+                    .Prepend(new HtmlGenericControl("img").SetAttribute("href", "myicon.png"));
                 c.Styles.RegisterAnyControl(c => c.HasTag("add-icon"))
-                    .Append(new HtmlGenericControl("img") { Attributes = { ["href"] = "myicon.png" } });
+                    .Append(new HtmlGenericControl("img").SetAttribute("href", "myicon.png"));
                 c.Styles.RegisterAnyControl(c => c.HasTag("wrap-to-box"))
-                    .WrapWith(new HtmlGenericControl("div") { Attributes = { ["class"] = "box" }});
+                    .WrapWith(new HtmlGenericControl("div").SetAttribute("class", "box"));
                 c.Styles.RegisterAnyControl(c => c.HasTag("wrap-to-panel"))
-                    .WrapWith(new HtmlGenericControl("div") { Attributes = { ["class"] = "panel" }});
+                    .WrapWith(new HtmlGenericControl("div").SetAttribute("class", "panel"));
                 var authView = new AuthenticatedView();
                 authView.WrapperTagName = null;
                 authView.properties.Set(AuthenticatedView.NotAuthenticatedTemplateProperty, RawLiteral.Create("You are not allowed to see this"));
@@ -87,12 +87,9 @@ namespace DotVVM.Framework.Tests.ControlTests
                     );
                 c.Styles.RegisterAnyControl(c => c.HasTag("add-something"))
                     .SetContent(
-                        new HtmlGenericControl("div") {
-                            Attributes = { ["class"] = "a" },
-                            Children = {
-                                RawLiteral.Create("Something")
-                            }
-                        },
+                        new HtmlGenericControl("div")
+                            .SetAttribute("class", "a")
+                            .AppendChildren(RawLiteral.Create("Something")),
                         options: StyleOverrideOptions.Overwrite
                     );
             });

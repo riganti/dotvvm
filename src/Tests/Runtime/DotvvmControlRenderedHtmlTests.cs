@@ -151,12 +151,7 @@ namespace DotVVM.Framework.Tests.Runtime
             mockHttpContext.Setup(p => p.Request).Returns(mockHttpRequest.Object);
             context.HttpContext = mockHttpContext.Object;
 
-            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("meta") {
-                Attributes =
-                {
-                    { "content", "~/test" }
-                }
-            }, context);
+            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("meta").SetAttribute("content", "~/test"), context);
 
             Assert.IsTrue(clientHtml.Contains("<meta"));
             Assert.IsTrue(clientHtml.Contains("/home/test"));

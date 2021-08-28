@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Controls
         {
             if (context.Configuration.Debug && control is HtmlGenericControl)
             {
-                ((HtmlGenericControl) control).Attributes["data-uitest-name"] = prop.GetValue(control);
+                ((HtmlGenericControl) control).Attributes.Add("data-uitest-name", prop.GetValue(control));
             }
         }
     }

@@ -32,11 +32,6 @@ namespace DotVVM.Framework.Controls
                 decorator.properties.Set(prop.Key, prop.Value);
             }
 
-            foreach (var attr in Attributes)
-            {
-                decorator.Attributes[attr.Key] = attr.Value;
-            }
-
             return decorator;
         }
 

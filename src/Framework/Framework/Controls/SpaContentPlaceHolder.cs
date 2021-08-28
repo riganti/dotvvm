@@ -85,8 +85,8 @@ namespace DotVVM.Framework.Controls
 
             rootObject.SetValue(Internal.UseHistoryApiSpaNavigationProperty, true);
 
-            Attributes["name"] = HostingConstants.SpaContentPlaceHolderID;
-            Attributes[HostingConstants.SpaContentPlaceHolderDataAttributeName] = GetSpaContentPlaceHolderUniqueId();
+            Attributes.Add("name", HostingConstants.SpaContentPlaceHolderID);
+            Attributes.Add(HostingConstants.SpaContentPlaceHolderDataAttributeName, GetSpaContentPlaceHolderUniqueId());
             
             AddDotvvmUniqueIdAttribute();
 

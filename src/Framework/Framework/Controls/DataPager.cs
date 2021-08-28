@@ -194,7 +194,7 @@ namespace DotVVM.Framework.Controls
                     li.SetBinding(DataContextProperty, GetNearIndexesBinding(context, i, dataContextType));
                     if (number == dataSet.PagingOptions.PageIndex)
                     {
-                        li.Attributes["class"] = ActiveItemCssClass;
+                        li.Attributes.Set("class", ActiveItemCssClass);
                     }
                     var link = new LinkButton() { Text = (number + 1).ToString() };
                     link.SetBinding(ButtonBase.ClickProperty, bindings.GoToThisPageCommand);

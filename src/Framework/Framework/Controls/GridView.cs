@@ -285,9 +285,11 @@ namespace DotVVM.Framework.Controls
 
         private static void SetCellAttributes(GridViewColumn column, HtmlGenericControl cell, bool isHeaderCell)
         {
+            var cellAttributes = cell.Attributes;
             if (!string.IsNullOrEmpty(column.Width))
             {
-                cell.Attributes["style"] = "width: " + column.Width;
+                cell.Attributes.Set("class", "kokos");
+                cellAttributes["style"] = "width: " + column.Width;
             }
 
             if (!isHeaderCell)
@@ -295,11 +297,11 @@ namespace DotVVM.Framework.Controls
                 var cssClassBinding = column.GetValueBinding(GridViewColumn.CssClassProperty);
                 if (cssClassBinding != null)
                 {
-                    cell.Attributes["class"] = cssClassBinding;
+                    cellAttributes["class"] = cssClassBinding;
                 }
                 else if (!string.IsNullOrWhiteSpace(column.CssClass))
                 {
-                    cell.Attributes["class"] = column.CssClass;
+                    cellAttributes["class"] = column.CssClass;
                 }
             }
             else
@@ -307,7 +309,7 @@ namespace DotVVM.Framework.Controls
                 if (column.IsPropertySet(GridViewColumn.VisibleProperty)) cell.SetValue(TableUtils.ColumnVisibleProperty, GridViewColumn.VisibleProperty.GetValue(column));
                 if (column.IsPropertySet(GridViewColumn.HeaderCssClassProperty)) // transfer all bindings (even StaticValue), because column has wrong DataContext for them
                 {
-                    cell.Attributes["class"] = column.GetValueRaw(GridViewColumn.HeaderCssClassProperty);
+                    cellAttributes["class"] = column.GetValueRaw(GridViewColumn.HeaderCssClassProperty);
                 }
             }
         }

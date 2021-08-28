@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Controls
     public interface IControlWithHtmlAttributes
     {
 
-        Dictionary<string, object?> Attributes { get; } 
+        IDictionary<string, object?> Attributes { get; } 
 
     }
 }

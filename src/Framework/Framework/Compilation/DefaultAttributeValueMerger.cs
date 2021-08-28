@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Compilation
         const string MergeValuesMethodName = "MergeValues";
         const string MergeExpressionsMethodName = "MergeExpressions";
 
-        public virtual ResolvedPropertySetter? MergeValues(ResolvedPropertySetter a, ResolvedPropertySetter b, out string? error)
+        public virtual ResolvedPropertySetter? MergeResolvedValues(ResolvedPropertySetter a, ResolvedPropertySetter b, out string? error)
         {
             var property = a.Property;
 
@@ -142,6 +142,11 @@ namespace DotVVM.Framework.Compilation
             if (methodCall != null && methodCall.Arguments.SequenceEqual(parameters))
                 return methodCall;
             else return null;
+        }
+
+        public virtual object? MergePlainValues(DotvvmProperty prop, object? a, object? b)
+        {
+            return ((dynamic)this).MergeValues(prop, a, b);
         }
     }
 }

@@ -24,5 +24,18 @@ namespace DotVVM.Framework.Compilation
 
         public static string? MergeValues(GroupedDotvvmProperty property, string? a, string? b) =>
             HtmlWriter.JoinAttributeValues(property.GroupMemberName, a, b);
+
+
+        public override object? MergePlainValues(DotvvmProperty prop, object? a, object? b)
+        {
+            var gProp = (GroupedDotvvmProperty)prop;
+            if (a is null) return b;
+            if (b is null) return a;
+
+            if (a is string aString && b is string bString)
+                return HtmlWriter.JoinAttributeValues(gProp.GroupMemberName, aString, bString);
+            
+            throw new NotSupportedException($"Can not merge html attribute values {a} and {b}, the values must be of type string.");
+        }
     }
 }

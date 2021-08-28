@@ -34,7 +34,7 @@ namespace DotVVM.Samples.Common.Controls
 
         protected override void OnPreRender(IDotvvmRequestContext context)
         {
-            Attributes["value"] = GetValueRaw(ValueProperty);
+            Attributes.Set("value", GetValueRaw(ValueProperty));
         }
 
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)

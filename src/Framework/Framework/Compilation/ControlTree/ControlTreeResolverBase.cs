@@ -592,11 +592,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 // binding
                 var bindingNode = valueBindingNode.BindingNode;
-                if (property.IsVirtual && !property.IsBindingProperty && property.PropertyType.FullName != "System.Object")
-                {
-                    attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain bindings because it's not DotvvmProperty.");
-                }
-                else if (!treatBindingAsHardCodedValue.Contains(bindingNode.Name))
+                if (!treatBindingAsHardCodedValue.Contains(bindingNode.Name))
                 {
                     if (!property.MarkupOptions.AllowBinding)
                         attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain {bindingNode.Name} binding.");

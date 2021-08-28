@@ -68,7 +68,35 @@ namespace DotVVM.Framework.Binding
             }
         }
 
-        public int Count => Keys.Count();
+        public int Count
+        {
+            get
+            {
+                var count = 0;
+                foreach (var (p, _) in control.properties)
+                {
+                    var pg = p as GroupedDotvvmProperty;
+                    if (pg != null && pg.PropertyGroup == group)
+                    {
+                        count++;
+                    }
+                }
+                return count;
+            }
+        }
+
+        public bool Any()
+        {
+            foreach (var (p, _) in control.properties)
+            {
+                var pg = p as GroupedDotvvmProperty;
+                if (pg != null && pg.PropertyGroup == group)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public bool IsReadOnly => false;
 
@@ -80,35 +108,62 @@ namespace DotVVM.Framework.Binding
         {
             get
             {
-                return (TValue)control.GetValue(group.GetDotvvmProperty(key))!;
+                var p = group.GetDotvvmProperty(key);
+                if (control.properties.TryGet(p, out var value))
+                    return (TValue)control.EvalPropertyValue(p, value)!;
+                else
+                    return (TValue)p.DefaultValue!;
             }
             set
             {
-                control.SetValue(group.GetDotvvmProperty(key), value);
+                control.properties.Set(group.GetDotvvmProperty(key), value);
             }
         }
 
         public IValueBinding? GetValueBinding(string key) => control.GetValueBinding(group.GetDotvvmProperty(key));
         public IBinding? GetBinding(string key) => control.GetBinding(group.GetDotvvmProperty(key));
-        public object? GetValueRaw(string key) => control.GetValueRaw(group.GetDotvvmProperty(key));
+        public object? GetValueRaw(string key)
+        {
+            var p = group.GetDotvvmProperty(key);
+            if (control.properties.TryGet(p, out var value))
+                return value;
+            else
+                return p.DefaultValue!;
+        }
 
+        public void Set(string key, ValueOrBinding<TValue> value)
+        {
+            var val = value.BindingOrDefault ?? value.BoxedValue;
+            control.properties.Set(group.GetDotvvmProperty(key), val);
+        }
 
         public bool ContainsKey(string key)
         {
-            return control.IsPropertySet(group.GetDotvvmProperty(key));
+            return control.Properties.ContainsKey(group.GetDotvvmProperty(key));
         }
 
-        public void Add(string key, TValue value)
+        private void AddOnConflict(GroupedDotvvmProperty property, object? value)
         {
-            control.SetValue(group.GetDotvvmProperty(key), value);
+            var merger = this.group.ValueMerger;
+            if (merger is null)
+                throw new ArgumentException($"Can not Add({property.Name}, {value}) since the value is already set and merging is not enabled on this property group.");
+            var mergedValue = merger.MergePlainValues(property, control.properties.GetOrThrow(property), value);
+            control.properties.Set(property, value);
         }
+
         public void Add(string key, ValueOrBinding<TValue> value)
         {
-            control.SetValue(group.GetDotvvmProperty(key), value);
+            var prop = group.GetDotvvmProperty(key);
+            object? val = value.BindingOrDefault ?? (object?)value.ValueOrDefault;
+            if (!control.properties.TryAdd(prop, val))
+                AddOnConflict(prop, val);
         }
+        void IDictionary<string, TValue>.Add(string key, TValue value) =>
+            this.Add(key, value);
+
         public void AddBinding(string key, IBinding? binding)
         {
-            control.SetBinding(group.GetDotvvmProperty(key), binding);
+            Add(key, new ValueOrBinding<TValue>(binding!));
         }
 
         public void CopyFrom(IEnumerable<KeyValuePair<string, TValue>> values, bool clear = false)
@@ -116,7 +171,7 @@ namespace DotVVM.Framework.Binding
             if (clear) this.Clear();
             foreach (var item in values)
             {
-                Add(item);
+                Set(item.Key, item.Value);
             }
         }
 
@@ -125,17 +180,21 @@ namespace DotVVM.Framework.Binding
             if (clear) this.Clear();
             foreach (var item in values)
             {
-                Add(item.Key, item.Value);
+                Set(item.Key, item.Value);
             }
         }
         public static IDictionary<string, TValue> CreateValueDictionary(DotvvmBindableObject control, DotvvmPropertyGroup group)
         {
             var result = new Dictionary<string, TValue>();
-            foreach (var (p, _) in control.properties)
+            foreach (var (p, valueRaw) in control.properties)
             {
-                if (p is GroupedDotvvmProperty pg && pg.PropertyGroup == group && control.GetValue(p) is TValue value)
+                if (p is GroupedDotvvmProperty pg && pg.PropertyGroup == group)
                 {
-                    result.Add(pg.GroupMemberName, value);
+                    var valueObj = control.EvalPropertyValue(p, valueRaw);
+                    if (valueObj is TValue value)
+                        result.Add(pg.GroupMemberName, value);
+                    else if (valueObj is null)
+                        result.Add(pg.GroupMemberName, default!);
                 }
             }
             return result;
@@ -144,11 +203,11 @@ namespace DotVVM.Framework.Binding
         public static IDictionary<string, ValueOrBinding<TValue>> CreatePropertyDictionary(DotvvmBindableObject control, DotvvmPropertyGroup group)
         {
             var result = new Dictionary<string, ValueOrBinding<TValue>>();
-            foreach (var (p, _) in control.properties)
+            foreach (var (p, valRaw) in control.properties)
             {
                 if (p is GroupedDotvvmProperty pg && pg.PropertyGroup == group)
                 {
-                    result.Add(pg.GroupMemberName, control.GetValueOrBinding<TValue>(pg));
+                    result.Add(pg.GroupMemberName, ValueOrBinding<TValue>.FromBoxedValue(valRaw));
                 }
             }
             return result;
@@ -163,9 +222,9 @@ namespace DotVVM.Framework.Binding
 #pragma warning restore CS8767
         {
             var prop = group.GetDotvvmProperty(key);
-            if (control.IsPropertySet(prop))
+            if (control.properties.TryGet(prop, out var valueRaw))
             {
-                value = (TValue)control.GetValue(prop)!;
+                value = (TValue)control.EvalPropertyValue(prop, valueRaw)!;
                 return true;
             }
             else

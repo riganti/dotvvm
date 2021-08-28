@@ -62,10 +62,6 @@ namespace DotVVM.Compiler
                         {
                             info.Add("binding");
                         }
-                        if (prop.IsVirtual)
-                        {
-                            info.Add("virtual");
-                        }
                         if (prop.DataContextChangeAttributes.Length != 0
                             || prop.DataContextManipulationAttribute is object)
                         {
