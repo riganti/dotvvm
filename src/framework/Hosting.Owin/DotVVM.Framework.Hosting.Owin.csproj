@@ -36,8 +36,8 @@
     <None Include="dotvvmwizard.snk" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
-    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj">
+    <ProjectReference Include="../Framework/DotVVM.Framework.csproj" />
+    <ProjectReference Include="../Core/DotVVM.Core.csproj">
       <FromP2P>true</FromP2P>
     </ProjectReference>
   </ItemGroup>

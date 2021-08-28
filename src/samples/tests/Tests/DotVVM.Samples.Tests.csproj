@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Testing.Abstractions\DotVVM.Testing.Abstractions.csproj" />
+    <ProjectReference Include="../Abstractions/DotVVM.Testing.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

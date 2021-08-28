@@ -21,10 +21,9 @@
     <None Include="dotvvmwizard.snk" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
-    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
-    <ProjectReference Include="..\DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj" />
-    <ProjectReference Include="..\DotVVM.Framework.Testing\DotVVM.Framework.Testing.csproj" />
+    <ProjectReference Include="../../framework/Framework/DotVVM.Framework.csproj" />
+    <ProjectReference Include="../../framework/Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />
+    <ProjectReference Include="../../framework/Testing/DotVVM.Framework.Testing.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="0.16.0" />

@@ -36,9 +36,9 @@
     <PackageReference Include="AngleSharp" Version="0.16.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
-    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
-    <!-- <ProjectReference Include="..\DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj" /> -->
+    <ProjectReference Include="../Framework/DotVVM.Framework.csproj" />
+    <ProjectReference Include="../Core/DotVVM.Core.csproj" />
+    <!-- <ProjectReference Include="../Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" /> -->
   </ItemGroup>
 
 </Project>

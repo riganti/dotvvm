@@ -31,11 +31,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
-    <ProjectReference Include="..\DotVVM.Framework.Api.Swashbuckle.AspNetCore\DotVVM.Framework.Api.Swashbuckle.AspNetCore.csproj" />
-    <ProjectReference Include="..\DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj" />
-    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
-    <ProjectReference Include="..\DotVVM.Samples.BasicSamples.Api.Common\DotVVM.Samples.BasicSamples.Api.Common.csproj" />
+    <ProjectReference Include="../../api/Swashbuckle.AspNetCore/DotVVM.Framework.Api.Swashbuckle.AspNetCore.csproj" />
+    <ProjectReference Include="../../framework/Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />
+    <ProjectReference Include="../Api.Common/DotVVM.Samples.BasicSamples.Api.Common.csproj" />
   </ItemGroup>
 
 </Project>

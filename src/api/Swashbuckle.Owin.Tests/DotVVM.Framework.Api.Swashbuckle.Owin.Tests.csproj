@@ -73,19 +73,19 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj">
+    <ProjectReference Include="../../framework/Core/DotVVM.Core.csproj">
       <Project>{45FA2F43-D92B-4A9B-9B93-9AB519AD0127}</Project>
       <Name>DotVVM.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DotVVM.Framework.Api.Swashbuckle.Owin\DotVVM.Framework.Api.Swashbuckle.Owin.csproj">
+    <ProjectReference Include="../Swashbuckle.Owin/DotVVM.Framework.Api.Swashbuckle.Owin.csproj">
       <Project>{bd72f6fc-a6ca-4b10-8098-3d27693e25ba}</Project>
       <Name>DotVVM.Framework.Api.Swashbuckle.Owin</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DotVVM.Samples.BasicSamples.Api.Common\DotVVM.Samples.BasicSamples.Api.Common.csproj">
+    <ProjectReference Include="../../samples/Api.Common/DotVVM.Samples.BasicSamples.Api.Common.csproj">
       <Project>{E6072462-B15A-4C3E-B3DC-61859DAFB1AF}</Project>
       <Name>DotVVM.Samples.BasicSamples.Api.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DotVVM.Samples.BasicSamples.Api.Owin\DotVVM.Samples.BasicSamples.Api.Owin.csproj">
+    <ProjectReference Include="../../samples/Api.Owin/DotVVM.Samples.BasicSamples.Api.Owin.csproj">
       <Project>{5B5B07E7-BC20-4168-BE55-CF9414575D47}</Project>
       <Name>DotVVM.Samples.BasicSamples.Api.Owin</Name>
     </ProjectReference>

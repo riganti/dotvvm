@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Samples.Tests\DotVVM.Samples.Tests.csproj" />
-    <ProjectReference Include="..\DotVVM.Testing.Abstractions\DotVVM.Testing.Abstractions.csproj" />
+    <ProjectReference Include="../Tests/DotVVM.Samples.Tests.csproj" />
+    <ProjectReference Include="../Abstractions/DotVVM.Testing.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

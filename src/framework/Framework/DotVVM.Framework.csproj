@@ -56,7 +56,7 @@
     <None Include="Resources\Scripts\typings\knockout\knockout.d.ts" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
+    <ProjectReference Include="../Core/DotVVM.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.1.0" />

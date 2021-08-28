@@ -11,8 +11,8 @@
     <EmbeddedResource Include="compiler\resources\**\*" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
-    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj">
+    <ProjectReference Include="../../framework/Framework/DotVVM.Framework.csproj" />
+    <ProjectReference Include="../../framework/Core/DotVVM.Core.csproj">
       <FromP2P>true</FromP2P>
     </ProjectReference>
   </ItemGroup>
