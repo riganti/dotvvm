@@ -176,13 +176,13 @@ namespace DotVVM.Framework.Tests.Binding
         public void StaticCommandCompilation_ListIndexer()
         {
             var result = CompileBinding("LongList[1] = LongList[0] + LongArray[0]", niceMode: false, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("(function(a){return Promise.resolve(dotvvm.translations.array.setItem(a.$data.LongList,1,a.$data.LongList.state[0]+a.$data.LongArray.state[0]));}(ko.contextFor(this)))", result);
+            Assert.AreEqual("(()=>{let vm=options.viewModel;return dotvvm.translations.array.setItem(vm.LongList,1,vm.LongList.state[0]+vm.LongArray.state[0]);})()", result);
         }
         [TestMethod]
         public void StaticCommandCompilation_ArrayIndexer()
         {
             var result = CompileBinding("LongArray[1] = LongList[0] + LongArray[0]", niceMode: false, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("(function(a){return Promise.resolve(dotvvm.translations.array.setItem(a.$data.LongArray,1,a.$data.LongList.state[0]+a.$data.LongArray.state[0]));}(ko.contextFor(this)))", result);
+            Assert.AreEqual("(()=>{let vm=options.viewModel;return dotvvm.translations.array.setItem(vm.LongArray,1,vm.LongList.state[0]+vm.LongArray.state[0]);})()", result);
         }
 
         [TestMethod]
