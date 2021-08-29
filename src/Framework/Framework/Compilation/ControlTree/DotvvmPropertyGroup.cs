@@ -8,35 +8,42 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
 using System.Runtime.CompilerServices;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
-    public class DotvvmPropertyGroup : IPropertyGroupDescriptor
-    {
-        public FieldInfo DescriptorField { get; }
+public class DotvvmPropertyGroup : IPropertyGroupDescriptor
+{
+    public FieldInfo DescriptorField { get; }
 
-        public ICustomAttributeProvider AttributeProvider { get; }
+    public ICustomAttributeProvider AttributeProvider { get; }
 
-        public string[] Prefixes { get; }
+    public string[] Prefixes { get; }
 
-        public string Name { get; }
+    public string Name { get; }
 
-        public MarkupOptionsAttribute MarkupOptions { get; }
+    public MarkupOptionsAttribute MarkupOptions { get; }
 
-        public DataContextChangeAttribute[] DataContextChangeAttributes { get; }
+    public DataContextChangeAttribute[] DataContextChangeAttributes { get; }
 
-        public DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; }
+    public DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; }
 
-        public object? DefaultValue { get; }
+    public object? DefaultValue { get; }
 
-        public Type DeclaringType { get; }
-        ITypeDescriptor IControlAttributeDescriptor.DeclaringType => new ResolvedTypeDescriptor(DeclaringType);
+    public Type DeclaringType { get; }
+    ITypeDescriptor IControlAttributeDescriptor.DeclaringType => new ResolvedTypeDescriptor(DeclaringType);
 
-        public Type PropertyType { get; }
-        ITypeDescriptor IControlAttributeDescriptor.PropertyType => new ResolvedTypeDescriptor(PropertyType);
-        public IAttributeValueMerger? ValueMerger { get; }
+    public Type PropertyType { get; }
+    ITypeDescriptor IControlAttributeDescriptor.PropertyType => new ResolvedTypeDescriptor(PropertyType);
+    public IAttributeValueMerger? ValueMerger { get; }
 
         private ConcurrentDictionary<string, GroupedDotvvmProperty> generatedProperties = new();
+
+        /// <summary> The capability which declared this property. When the property is declared by an capability, it can only be used by this capability. </summary>
+        public DotvvmCapabilityProperty? OwningCapability { get; internal set; }
+        /// <summary> The capabilities which use this property. </summary>
+        public ImmutableArray<DotvvmCapabilityProperty> UsedInCapabilities { get; internal set; } = ImmutableArray<DotvvmCapabilityProperty>.Empty;
+
 
         internal DotvvmPropertyGroup(PrefixArray prefixes, Type valueType, Type declaringType, FieldInfo descriptorField, ICustomAttributeProvider attributeProvider, string name, object? defaultValue)
         {

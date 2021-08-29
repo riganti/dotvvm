@@ -13,6 +13,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using Newtonsoft.Json;
 using System.Diagnostics.CodeAnalysis;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Binding
 {
@@ -97,6 +98,11 @@ namespace DotVVM.Framework.Binding
 
         [JsonIgnore]
         public DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; private set; }
+
+        /// <summary> The capability which declared this property. When the property is declared by an capability, it can only be used by this capability. </summary>
+        public DotvvmCapabilityProperty? OwningCapability { get; internal set; }
+        /// <summary> The capabilities which use this property. </summary>
+        public ImmutableArray<DotvvmCapabilityProperty> UsedInCapabilities { get; internal set; } = ImmutableArray<DotvvmCapabilityProperty>.Empty;
 
         /// <summary>
         /// Prevents a default instance of the <see cref="DotvvmProperty"/> class from being created.
