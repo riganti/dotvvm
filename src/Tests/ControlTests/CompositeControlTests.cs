@@ -44,6 +44,8 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <!-- Content -->
                 <cc:WrappedHtmlControl TagName=div> <!-- empty content --> </cc:WrappedHtmlControl>
                 <cc:WrappedHtmlControl TagName=div> Something here </cc:WrappedHtmlControl>
+
+                <cc:WithPrivateGetContents TagName=article />
                 "
             );
 
@@ -148,5 +150,21 @@ namespace DotVVM.Framework.Tests.ControlTests
             .SetProperty(Repeater.DataSourceProperty, dataSource)
             .SetCapability(html);
         }
+    }
+
+    public class WithPrivateGetContents: CompositeControl
+    {
+        public string TagName
+        {
+            get { return (string)GetValue(TagNameProperty); }
+            set { SetValue(TagNameProperty, value); }
+        }
+        public static readonly DotvvmProperty TagNameProperty =
+            DotvvmProperty.Register<string, WithPrivateGetContents>(nameof(TagName));
+        DotvvmControl GetContents()
+        {
+            return new HtmlGenericControl(TagName);
+        }
+
     }
 }
