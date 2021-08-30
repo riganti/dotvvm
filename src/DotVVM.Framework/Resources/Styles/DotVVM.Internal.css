@@ -42,10 +42,11 @@ html {
     --text-color: #333333;
     --hint-color: #bbbbbb;
     --error-color: #de1212;
+    --error-dark-color: #a82f23;
     --success-color: green;
 }
 
-
+/* Basic text */
 body {
     font-family: "Segoe UI", Tahoma, sans-serif;
     font-size: 1.5rem;
@@ -75,42 +76,79 @@ h3 {
     font-size: 1.8rem;
 }
 
-p.summary {
+.summary {
     margin: 1.5rem 0;
 }
 
+
+/* Tables */
 table {
-    border-collapse: separate;
     border-spacing: 0;
     margin: 0 0 2rem;
+    width: 100%;
 }
 
-th {
-    vertical-align: bottom;
-    padding: 1rem;
-    font-weight: 400;
-    color: var(--hint-color);
-    text-align: left;
-}
-
-td {
-    padding: 0.3rem 1rem;
-}
-
-th,
-td {
-    border-right: 0.1rem var(--hint-color) solid;
-    border-bottom: 0.1rem var(--hint-color) solid;
-    border-left: 0.1rem transparent solid;
-    border-top: 0.1rem transparent solid;
-    box-sizing: border-box;
-}
-
-    th:last-child,
-    td:last-child {
-        border-right: 0.1rem transparent solid;
+    table th {
+        vertical-align: bottom;
+        padding: 1rem;
+        font-weight: 400;
+        color: var(--hint-color);
+        text-align: left;
     }
 
+    table td {
+        padding: 0.3rem 1rem;
+    }
+
+    table.nowrap th,
+    table.nowrap td {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        max-width: 40rem;
+    }
+
+    table th,
+    table td {
+        border-right: 0.1rem var(--hint-color) solid;
+        border-bottom: 0.1rem var(--hint-color) solid;
+        border-left: 0.1rem transparent solid;
+        border-top: 0.1rem transparent solid;
+        box-sizing: border-box;
+    }
+
+        table th:last-child,
+        table td:last-child {
+            border-right: 0.1rem transparent solid;
+        }
+
+        table th.explosive,
+        table td.explosive {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        table th.fit,
+        table td.fit {
+            width: 1px;
+        }
+
+    table tr.failure {
+        background-color: var(--error-dark-color);
+        color: white;
+    }
+
+        table tr.failure span,
+        table tr.failure a {
+            color: white;
+        }
+
+    table tr.success .status {
+        color: var(--success-color);
+    }
+
+
+/* Source code */
 pre {
     margin: 1rem 0;
     font-family: "Cascadia Mono", "Consolas", monospace;
@@ -127,6 +165,34 @@ pre {
     padding: 0.2rem;
 }
 
+.code {
+    font-family: "Consolas", monospace;
+}
+
+.lineNumber {
+    color: var(--hint-color);
+}
+
+.source.file {
+    margin: 1rem 0 0.5rem 0;
+    font-size: 1.2rem;
+}
+
+.object-obj,
+.object-arr {
+    padding-left: 1rem;
+}
+
+.object-browser .propname {
+    font-weight: bold;
+}
+
+.docLinks {
+    float: right;
+}
+
+
+/* Navigation */
 input.collapse {
     display: none;
 }
@@ -143,20 +209,14 @@ input[type="checkbox"]:checked.collapse ~ .collapse-off {
     display: none;
 }
 
-.execute {
-    background-color: var(--hint-color);
-    padding: 0.4rem 2rem;
-    color: white;
+a {
+    color: var(--nav-color);
     cursor: pointer;
-    border: none;
+    text-decoration: none;
 }
 
-    .execute:hover {
-        background-color: var(--activate-color);
-    }
-
-.lineNumber {
-    color: var(--hint-color);
+nav {
+    margin-top: 1.5rem;
 }
 
 .nav {
@@ -167,10 +227,39 @@ input[type="checkbox"]:checked.collapse ~ .collapse-off {
     background-color: var(--idle-color);
 }
 
-.nav.active {
-    background-color: var(--nav-color);
+    .nav.active {
+        background-color: var(--nav-color);
+    }
+
+.container {
+    /* containers are hidden by default and shown using radio buttons */
+    display: none;
 }
 
+/* Interaction */
+input.execute {
+    background-color: var(--hint-color);
+    padding: 0.4rem 2rem;
+    color: white;
+    cursor: pointer;
+    border: none;
+}
+
+    input.execute:hover {
+        background-color: var(--activate-color);
+    }
+
+a.execute {
+    color: var(--text-color);
+    cursor: pointer;
+    font-weight: bold;
+}
+
+    a.execute:hover {
+        color: var(--activate-color);
+    }
+
+/* Decoration */
 hr {
     border: none;
     height: 0.1rem;
@@ -178,48 +267,7 @@ hr {
     margin: 0.8rem 0;
 }
 
-.code {
-    font-family: "Consolas", monospace;
-}
-
-.object-obj,
-.object-arr {
-    padding-left: 1rem;
-}
-
-.object-browser .propname {
-    font-weight: bold;
-}
-
-.docLinks {
-    float: right;
-}
-
-.source.file {
-    margin: 1rem 0 0.5rem 0;
-    font-size: 1.2rem;
-}
-
-.table-danger {
-    color: var(--error-color);
-}
-
-.table-success .status {
-    color: var(--success-color);
-}
-
-.table td {
-    padding: 0.3rem;
-}
-
-nav {
-    margin-top: 1.5rem;
-}
-
-.container {
-    display: none;
-}
-
+/* Compile progress */
 .compile-progress {
     position: absolute;
     top: 1rem;
