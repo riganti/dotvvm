@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 
@@ -32,7 +33,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 		public int Count {
 			get {
 				int count = 0;
-				for (JsNode cur = node.FirstChild; cur != null; cur = cur.NextSibling) {
+				for (var cur = node.FirstChild; cur != null; cur = cur.NextSibling) {
 					if (cur.Role == role)
 						count++;
 				}
@@ -40,31 +41,31 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 			}
 		}
 		
-		public void Add(T element)
+		public void Add(T? element)
 		{
 			node.AddChild(element, role);
 		}
 		
-		public void AddRange(IEnumerable<T> nodes)
+		public void AddRange(IEnumerable<T?> nodes)
 		{
 			// Evaluate 'nodes' first, since it might change when we add the new children
 			// Example: collection.AddRange(collection);
 			if (nodes != null) {
-				foreach (T node in nodes.ToList())
+				foreach (T? node in nodes.ToList())
 					Add(node);
 			}
 		}
 		
-		public void AddRange(T[] nodes)
+		public void AddRange(T?[] nodes)
 		{
 			// Fast overload for arrays - we don't need to create a copy
 			if (nodes != null) {
-				foreach (T node in nodes)
+				foreach (T? node in nodes)
 					Add(node);
 			}
 		}
 		
-		public void ReplaceWith(IEnumerable<T> nodes)
+		public void ReplaceWith(IEnumerable<T?>? nodes)
 		{
 			// Evaluate 'nodes' first, since it might change when we call Clear()
 			// Example: collection.ReplaceWith(collection);
@@ -72,7 +73,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 				nodes = nodes.ToList();
 			Clear();
 			if (nodes != null) {
-				foreach (T node in nodes)
+				foreach (T? node in nodes)
 					Add(node);
 			}
 		}
@@ -87,12 +88,12 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 			}
 		}
 		
-		public bool Contains(T element)
+		public bool Contains([NotNullWhen(true)] T? element)
 		{
 			return element != null && element.Parent == node && element.Role == role;
 		}
 		
-		public bool Remove(T element)
+		public bool Remove(T? element)
 		{
 			if (Contains(element)) {
 				element.Remove();
@@ -118,7 +119,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 		/// Returns the first element for which the predicate returns true,
 		/// or the null node (JsNode with IsNull=true) if no such object is found.
 		/// </summary>
-		public T FirstOrNullObject(Func<T, bool> predicate = null)
+		public T? FirstOrNullObject(Func<T, bool>? predicate = null)
 		{
 			foreach (T item in this)
 				if (predicate == null || predicate(item))
@@ -130,9 +131,9 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 		/// Returns the last element for which the predicate returns true,
 		/// or the null node (JsNode with IsNull=true) if no such object is found.
 		/// </summary>
-		public T LastOrNullObject(Func<T, bool> predicate = null)
+		public T? LastOrNullObject(Func<T, bool>? predicate = null)
 		{
-			T result = null;
+			T? result = null;
 			foreach (T item in this)
 				if (predicate == null || predicate(item))
 					result = item;
@@ -145,8 +146,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 		
 		public IEnumerator<T> GetEnumerator()
 		{
-			JsNode next;
-			for (JsNode cur = node.FirstChild; cur != null; cur = next) {
+			JsNode? next;
+			for (var cur = node.FirstChild; cur != null; cur = next) {
 				Debug.Assert(cur.Parent == node);
 				// Remember next before yielding cur.
 				// This allows removing/replacing nodes while iterating through the list.
@@ -167,21 +168,21 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 			return node.GetHashCode() ^ role.GetHashCode();
 		}
 		
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
-			JsNodeCollection<T> other = obj as JsNodeCollection<T>;
+			var other = obj as JsNodeCollection<T>;
 			if (other == null)
 				return false;
 			return this.node == other.node && this.role == other.role;
 		}
 		#endregion
 		
-		public void InsertAfter(T existingItem, T newItem)
+		public void InsertAfter(T? existingItem, T newItem)
 		{
 			node.InsertChildAfter(existingItem, newItem, role);
 		}
 		
-		public void InsertBefore(T existingItem, T newItem)
+		public void InsertBefore(T? existingItem, T newItem)
 		{
 			node.InsertChildBefore(existingItem, newItem, role);
 		}
@@ -191,8 +192,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 		/// </summary>
 		public void AcceptVisitor(IJsNodeVisitor visitor)
 		{
-			JsNode next;
-			for (JsNode cur = node.FirstChild; cur != null; cur = next) {
+			JsNode? next;
+			for (var cur = node.FirstChild; cur != null; cur = next) {
 				Debug.Assert(cur.Parent == node);
 				// Remember next before yielding cur.
 				// This allows removing/replacing nodes while iterating through the list.

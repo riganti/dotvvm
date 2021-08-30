@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Compilation.ControlTree;
+﻿using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
 using System;
 using System.Collections.Generic;

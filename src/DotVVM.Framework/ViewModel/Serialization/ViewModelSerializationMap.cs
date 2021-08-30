@@ -43,17 +43,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
             writerFactory = null;
         }
 
-        private ReaderDelegate readerFactory;
+        private ReaderDelegate? readerFactory;
         /// <summary>
         /// Gets the JSON reader factory.
         /// </summary>
         public ReaderDelegate ReaderFactory => readerFactory ?? (readerFactory = CreateReaderFactory());
-        private WriterDelegate writerFactory;
+        private WriterDelegate? writerFactory;
         /// <summary>
         /// Gets the JSON writer factory.
         /// </summary>
         public WriterDelegate WriterFactory => writerFactory ?? (writerFactory = CreateWriterFactory());
-        private Func<IServiceProvider, object> constructorFactory;
+        private Func<IServiceProvider, object>? constructorFactory;
         /// <summary>
         /// Gets the constructor factory.
         /// </summary>
@@ -295,7 +295,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
         }
 
-        private static object Deserialize(JsonSerializer serializer, JsonReader reader, ViewModelPropertyMap property, object existingValue)
+        private static object? Deserialize(JsonSerializer serializer, JsonReader reader, ViewModelPropertyMap property, object existingValue)
         {
             if (property.JsonConverter != null && property.JsonConverter.CanRead && property.JsonConverter.CanConvert(property.Type))
             {

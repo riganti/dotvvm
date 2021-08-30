@@ -22,13 +22,13 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
         public JsExpression Left
         {
-            get { return GetChildByRole(LeftRole); }
+            get { return GetChildByRole(LeftRole)!; }
             set { SetChildByRole(LeftRole, value); }
         }
 
         public JsExpression Right
         {
-            get { return GetChildByRole(RightRole); }
+            get { return GetChildByRole(RightRole)!; }
             set { SetChildByRole(RightRole, value); }
         }
 

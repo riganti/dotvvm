@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using DotVVM.Framework.Utils;
@@ -11,16 +12,16 @@ namespace DotVVM.Framework.Compilation.Binding
     {
         private readonly CompiledAssemblyCache compiledAssemblyCache;
         private readonly ImmutableDictionary<string, Expression> registry;
-        private readonly ImmutableList<Func<string, Expression>> resolvers;
+        private readonly ImmutableList<Func<string, Expression?>> resolvers;
 
-        public TypeRegistry(CompiledAssemblyCache compiledAssemblyCache, ImmutableDictionary<string, Expression> registry, ImmutableList<Func<string, Expression>> resolvers)
+        public TypeRegistry(CompiledAssemblyCache compiledAssemblyCache, ImmutableDictionary<string, Expression> registry, ImmutableList<Func<string, Expression?>> resolvers)
         {
             this.compiledAssemblyCache = compiledAssemblyCache;
             this.registry = registry;
             this.resolvers = resolvers;
         }
 
-        public Expression Resolve(string name, bool throwOnNotFound = true)
+        public Expression? Resolve(string name, bool throwOnNotFound = true)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -28,7 +29,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 else return null;
             }
 
-            Expression expr;
+            Expression? expr;
             if (registry.TryGetValue(name, out expr))
             {
                 return expr;
@@ -47,12 +48,13 @@ namespace DotVVM.Framework.Compilation.Binding
             return new TypeRegistry(compiledAssemblyCache, registry.AddRange(symbols), resolvers);
         }
 
-        public TypeRegistry AddSymbols(IEnumerable<Func<string, Expression>> symbols)
+        public TypeRegistry AddSymbols(IEnumerable<Func<string, Expression?>> symbols)
         {
             return new TypeRegistry(compiledAssemblyCache, registry, resolvers.InsertRange(0, symbols));
         }
 
-        public static Expression CreateStatic(Type type)
+        [return: NotNullIfNotNull("type")]
+        public static Expression? CreateStatic(Type? type)
         {
             return type == null ? null : new StaticClassIdentifierExpression(type);
         }
@@ -87,12 +89,12 @@ namespace DotVVM.Framework.Compilation.Binding
                 .Add("Double", CreateStatic(typeof(Double)))
                 .Add("Single", CreateStatic(typeof(Single)))
                 .Add("String", CreateStatic(typeof(String))),
-            ImmutableList<Func<string, Expression>>.Empty
+            ImmutableList<Func<string, Expression?>>.Empty
                 .Add(type => CreateStatic(compiledAssemblyCache.FindType(type)))
                 .Add(type => CreateStatic(compiledAssemblyCache.FindType("System." + type)))
             );
 
-        public static TypeRegistry DirectivesDefault(CompiledAssemblyCache compiledAssemblyCache, string assemblyName = null) => new TypeRegistry(compiledAssemblyCache,
+        public static TypeRegistry DirectivesDefault(CompiledAssemblyCache compiledAssemblyCache, string? assemblyName = null) => new TypeRegistry(compiledAssemblyCache,
            ImmutableDictionary<string, Expression>.Empty
                .Add("object", CreateStatic(typeof(Object)))
                .Add("bool", CreateStatic(typeof(Boolean)))
@@ -122,7 +124,7 @@ namespace DotVVM.Framework.Compilation.Binding
                .Add("Double", CreateStatic(typeof(Double)))
                .Add("Single", CreateStatic(typeof(Single)))
                .Add("String", CreateStatic(typeof(String))),
-           ImmutableList<Func<string, Expression>>.Empty
+           ImmutableList<Func<string, Expression?>>.Empty
                .Add(type => CreateStatic(compiledAssemblyCache.FindType(type + (assemblyName != null ? $", {assemblyName}" : ""))))
            );
     }

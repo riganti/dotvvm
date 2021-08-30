@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;

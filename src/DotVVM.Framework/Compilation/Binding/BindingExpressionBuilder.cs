@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Compilation.Binding
     {
         private readonly CompiledAssemblyCache compiledAssemblyCache;
         private readonly ExtensionMethodsCache extensionMethodsCache;
-        private MemberExpressionFactory memberExpressionFactory;
+        private MemberExpressionFactory? memberExpressionFactory;
 
         public BindingExpressionBuilder(CompiledAssemblyCache compiledAssemblyCache, ExtensionMethodsCache extensionMethodsCache)
         {
@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Compilation.Binding
             this.extensionMethodsCache = extensionMethodsCache;
         }
 
-        public Expression Parse(string expression, DataContextStack dataContexts, BindingParserOptions options, Type expectedType = null, params KeyValuePair<string, Expression>[] additionalSymbols)
+        public Expression Parse(string expression, DataContextStack dataContexts, BindingParserOptions options, Type? expectedType = null, params KeyValuePair<string, Expression>[] additionalSymbols)
         {
             try
             {
@@ -40,9 +40,10 @@ namespace DotVVM.Framework.Compilation.Binding
                 var node = parser.ReadExpression();
                 if (!parser.OnEnd())
                 {
+                    var bindingToken = parser.Peek().NotNull();
                     throw new BindingCompilationException(
-                        $"Unexpected token '{expression.Substring(0, parser.Peek().StartPosition)} ---->{parser.Peek().Text}<---- {expression.Substring(parser.Peek().EndPosition)}'",
-                        null, new TokenBase[] { parser.Peek() });
+                        $"Unexpected token '{expression.Substring(0, bindingToken.StartPosition)} ---->{bindingToken.Text}<---- {expression.Substring(bindingToken.EndPosition)}'",
+                        null, new TokenBase[] { bindingToken });
                 }
                 foreach (var n in node.EnumerateNodes())
                 {
@@ -86,7 +87,7 @@ namespace DotVVM.Framework.Compilation.Binding
             .AddSymbols(dataContext.Enumerable()
                 .Select((t, i) => new KeyValuePair<string, Expression>($"Parent{i}ViewModel", TypeRegistry.CreateStatic(t))))
             // import all viewModel namespaces
-            .AddSymbols(namespaces.Select(ns => (Func<string, Expression>)(typeName => TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(ns + "." + typeName)))));
+            .AddSymbols(namespaces.Select(ns => (Func<string, Expression?>)(typeName => TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(ns + "." + typeName)))));
         }
 
         public static IEnumerable<ParameterExpression> GetParameters(DataContextStack dataContext)
@@ -111,12 +112,12 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     yield return CreateParameter(dataContext, "_root");
                 }
-                dataContext = dataContext.Parent;
+                dataContext = dataContext.Parent!;
                 index++;
             }
         }
 
-        static ParameterExpression CreateParameter(DataContextStack stackItem, string name, BindingExtensionParameter extensionParameter = null) =>
+        static ParameterExpression CreateParameter(DataContextStack stackItem, string name, BindingExtensionParameter? extensionParameter = null) =>
             Expression.Parameter(
                 (extensionParameter == null
                     ? stackItem.DataContextType

@@ -26,7 +26,7 @@
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <LangVersion>9.0</LangVersion>
-    <!-- <Nullable>enable</Nullable> -->
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="node_modules\**" />

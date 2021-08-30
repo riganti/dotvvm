@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Compilation.Javascript;
+﻿using DotVVM.Framework.Compilation.Javascript;
 
 namespace DotVVM.Framework.Binding.Expressions
 {

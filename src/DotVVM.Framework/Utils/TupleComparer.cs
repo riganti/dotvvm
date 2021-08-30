@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -7,10 +6,10 @@ namespace DotVVM.Framework.Utils
 {
     public class TupleComparer<T1, T2> : IEqualityComparer<(T1, T2)>
     {
-        private readonly IEqualityComparer<T1> comparer1;
-        private readonly IEqualityComparer<T2> comparer2;
+        private readonly IEqualityComparer<T1>? comparer1;
+        private readonly IEqualityComparer<T2>? comparer2;
 
-        public TupleComparer(IEqualityComparer<T1> comparer1, IEqualityComparer<T2> comparer2)
+        public TupleComparer(IEqualityComparer<T1>? comparer1, IEqualityComparer<T2>? comparer2)
         {
             this.comparer1 = comparer1;
             this.comparer2 = comparer2;

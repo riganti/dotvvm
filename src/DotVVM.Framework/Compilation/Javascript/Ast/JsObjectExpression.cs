@@ -25,18 +25,18 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
     {
         public JsIdentifier Identifier
         {
-            get => GetChildByRole(JsTreeRoles.Identifier);
+            get => GetChildByRole(JsTreeRoles.Identifier)!;
             set => SetChildByRole(JsTreeRoles.Identifier, value);
         }
         public string Name
         {
-            get => GetChildByRole(JsTreeRoles.Identifier).Name;
-            set => SetChildByRole(JsTreeRoles.Identifier, new JsIdentifier(value));
+            get => Identifier.Name;
+            set => Identifier = new JsIdentifier(value);
         }
 
         public JsExpression Expression
         {
-            get => GetChildByRole(JsTreeRoles.Expression);
+            get => GetChildByRole(JsTreeRoles.Expression)!;
             set => SetChildByRole(JsTreeRoles.Expression, value);
         }
 

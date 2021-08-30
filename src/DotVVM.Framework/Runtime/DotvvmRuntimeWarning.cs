@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Runtime
 {
     public class DotvvmRuntimeWarning
     {
-        public DotvvmRuntimeWarning(string message, Exception relatedException = null, DotvvmBindableObject relatedControl = null)
+        public DotvvmRuntimeWarning(string message, Exception? relatedException = null, DotvvmBindableObject? relatedControl = null)
         {
             this.Message = message ?? throw new ArgumentNullException(nameof(message));
             this.RelatedException = relatedException;
@@ -16,12 +16,12 @@ namespace DotVVM.Framework.Runtime
         }
 
         public string Message { get; }
-        public Exception RelatedException { get; }
-        public DotvvmBindableObject RelatedControl { get; }
+        public Exception? RelatedException { get; }
+        public DotvvmBindableObject? RelatedControl { get; }
 
         public override string ToString()
         {
-            var sections = new string[] {
+            var sections = new string?[] {
                 Message,
                 RelatedControl?.Apply(c => "related to:\n" + c.DebugString()),
                 RelatedException?.ToString(),

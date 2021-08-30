@@ -27,9 +27,9 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             return true;
         }
 
-        public JsIdentifier(string name = "")
+        public JsIdentifier(string? name = "")
         {
-            Name = name;
+            this.name = name ?? "";
         }
 
         public override void AcceptVisitor(IJsNodeVisitor visitor) => visitor.VisitIdentifier(this);

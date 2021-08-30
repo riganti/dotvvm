@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
@@ -26,13 +25,13 @@ namespace DotVVM.Framework.Runtime.Commands
                 eventValidator.ValidateCommand(path, commandId, viewRootControl, validationTargetPath) :
                 eventValidator.ValidateControlCommand(path, commandId, viewRootControl, targetControl, validationTargetPath);
 
-            context.ModelState.ValidationTarget = findResult.Control.GetValue(DotVVM.Framework.Controls.Validation.TargetProperty) ?? context.ViewModel;
+            context.ModelState.ValidationTarget = findResult.Control!.GetValue(DotVVM.Framework.Controls.Validation.TargetProperty) ?? context.ViewModel;
 
-            return new ActionInfo {
-                Action = () => findResult.Binding.Evaluate(findResult.Control, args),
-                Binding = findResult.Binding,
-                IsControlCommand = targetControl != null
-            };
+            return new ActionInfo(
+                findResult.Binding,
+                () => findResult.Binding!.Evaluate(findResult.Control, args),
+                targetControl != null
+            );
         }
 
         /// <summary>

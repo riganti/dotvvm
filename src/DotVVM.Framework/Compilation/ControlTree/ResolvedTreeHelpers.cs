@@ -17,16 +17,16 @@ namespace DotVVM.Framework.Compilation.ControlTree
 {
     public static class ResolvedTreeHelpers
     {
-        public static ResolvedPropertySetter GetValue(this ResolvedControl control, DotvvmProperty property) =>
+        public static ResolvedPropertySetter? GetValue(this ResolvedControl control, DotvvmProperty property) =>
             control.Properties.TryGetValue(property, out var value) ? value : null;
         
         public static Type GetResultType(this ResolvedPropertySetter property) =>
-            property is ResolvedPropertyBinding binding ? ResolvedTypeDescriptor.ToSystemType(binding.Binding.ResultType) :
-            property is ResolvedPropertyValue value ? value.Value?.GetType() ?? property.Property.PropertyType :
-            property is ResolvedPropertyControl control ? control.Control.Metadata.Type :
-            property.Property.PropertyType;
+           (property is ResolvedPropertyBinding binding ? ResolvedTypeDescriptor.ToSystemType(binding.Binding.ResultType) :
+            property is ResolvedPropertyValue value ? value.Value?.GetType() :
+            property is ResolvedPropertyControl control ? control.Control?.Metadata.Type :
+            null) ?? property.Property.PropertyType;
 
-        public static object GetValue(this ResolvedPropertySetter setter) =>
+        public static object? GetValue(this ResolvedPropertySetter setter) =>
             setter switch {
                 ResolvedPropertyValue value => value.Value,
                 ResolvedPropertyTemplate value => value.Content,

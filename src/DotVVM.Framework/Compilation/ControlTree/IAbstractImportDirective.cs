@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 {
     public interface IAbstractImportDirective : IAbstractDirective
     {
-        BindingParserNode AliasSyntax { get; }
+        BindingParserNode? AliasSyntax { get; }
         BindingParserNode NameSyntax { get; }
 
         bool IsNamespace { get; }

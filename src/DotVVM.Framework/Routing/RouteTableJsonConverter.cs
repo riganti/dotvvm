@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Routing
 {
@@ -14,7 +15,7 @@ namespace DotVVM.Framework.Routing
     {
         public override bool CanConvert(Type objectType) => objectType == typeof(DotvvmRouteTable);
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var rt = existingValue as DotvvmRouteTable;
             if (rt == null) return null;
@@ -27,7 +28,7 @@ namespace DotVVM.Framework.Routing
                 }
                 catch (Exception error)
                 {
-                    rt.Add(prop.Key, new ErrorRoute(route["url"].Value<string>(), route["virtualPath"].Value<string>(), prop.Key, route["defaultValues"].ToObject<IDictionary<string, object>>(), error));
+                    rt.Add(prop.Key, new ErrorRoute(route["url"].Value<string>(), route["virtualPath"].Value<string>(), prop.Key, route["defaultValues"].ToObject<IDictionary<string, object?>>(), error));
                 }
             }
             return rt;
@@ -54,7 +55,7 @@ namespace DotVVM.Framework.Routing
         {
             private readonly Exception error;
 
-            public ErrorRoute(string url, string virtualPath, string name, IDictionary<string, object> defaultValues, Exception error) : base(url, virtualPath, name, defaultValues)
+            public ErrorRoute(string url, string virtualPath, string name, IDictionary<string, object?>? defaultValues, Exception error) : base(url, virtualPath, name, defaultValues)
             {
                 this.error = error;
             }
@@ -65,9 +66,9 @@ namespace DotVVM.Framework.Routing
 
             public override IDotvvmPresenter GetPresenter(IServiceProvider provider) => throw new InvalidOperationException($"Could not create route {RouteName}", error);
 
-            public override bool IsMatch(string url, out IDictionary<string, object> values) => throw new InvalidOperationException($"Could not create route {RouteName}", error);
+            public override bool IsMatch(string url, [MaybeNullWhen(false)] out IDictionary<string, object?> values) => throw new InvalidOperationException($"Could not create route {RouteName}", error);
 
-            protected override string BuildUrlCore(Dictionary<string, object> values) => throw new InvalidOperationException($"Could not create route {RouteName}", error);
+            protected override string BuildUrlCore(Dictionary<string, object?> values) => throw new InvalidOperationException($"Could not create route {RouteName}", error);
             protected override void Freeze2()
             {
                 // no mutable properties in this class

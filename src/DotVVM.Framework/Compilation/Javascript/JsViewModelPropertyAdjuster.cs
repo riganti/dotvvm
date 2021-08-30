@@ -49,34 +49,34 @@ namespace DotVVM.Framework.Compilation.Javascript
                 }
             }
 
-            if (node.Annotation<VMPropertyInfoAnnotation>() is VMPropertyInfoAnnotation propAnnotation)
+            if (node.Annotation<VMPropertyInfoAnnotation>() is { MemberInfo: {} member } propAnnotation)
             {
-                var target = node.GetChildByRole(JsTreeRoles.TargetExpression);
+                var target = node.GetChildByRole(JsTreeRoles.TargetExpression)!;
                 if (target.HasAnnotation<ObservableUnwrapInvocationAnnotation>())
                     target = target.GetChildByRole(JsTreeRoles.TargetExpression);
                 else if (target.HasAnnotation<ObservableSetterInvocationAnnotation>())
                     throw new NotImplementedException();
 
-                var propertyType = propAnnotation.MemberInfo.GetResultType();
+                var propertyType = propAnnotation.ResultType;
                 var annotation = node.Annotation<ViewModelInfoAnnotation>() ?? new ViewModelInfoAnnotation(propertyType);
 
                 if (target?.Annotation<ViewModelInfoAnnotation>() is {} targetAnnotation)
                 {
                     propAnnotation.SerializationMap ??=
                         targetAnnotation.SerializationMap?.Properties
-                        .FirstOrDefault(p => p.PropertyInfo == propAnnotation.MemberInfo);
+                        .FirstOrDefault(p => p.PropertyInfo == member);
                     annotation.ContainsObservables ??= targetAnnotation.ContainsObservables;
                 }
                 if (propAnnotation.SerializationMap is ViewModelPropertyMap propertyMap)
                 {
-                    if (propertyMap.ViewModelProtection == ViewModel.ProtectMode.EncryptData) throw new Exception($"Property {propAnnotation.MemberInfo.Name} is encrypted and cannot be used in JS.");
+                    if (propertyMap.ViewModelProtection == ViewModel.ProtectMode.EncryptData) throw new Exception($"Property {member.Name} is encrypted and cannot be used in JS.");
                     if (node is JsMemberAccessExpression memberAccess && propertyMap.Name != memberAccess.MemberName)
                     {
                         memberAccess.MemberName = propertyMap.Name;
                     }
                 }
-                else if (propAnnotation.MemberInfo is FieldInfo)
-                    throw new NotSupportedException($"Can not translate field '{propAnnotation.MemberInfo}' to Javascript");
+                else if (member is FieldInfo)
+                    throw new NotSupportedException($"Can not translate field '{member}' to Javascript");
 
                 annotation.ContainsObservables ??= !this.preferUsingState; // we don't know -> guess what is the current preference
 
@@ -106,7 +106,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (preferUsingState && expr.Target is JsSymbolicParameter { Symbol: JavascriptTranslator.ViewModelSymbolicParameter vmSymbol })
             {
                 var propertyAnnotation = expr.Annotation<VMPropertyInfoAnnotation>();
-                var typeAnnotation = expr.Annotation<ViewModelInfoAnnotation>() ?? new ViewModelInfoAnnotation(propertyAnnotation.MemberInfo.GetResultType());
+                var typeAnnotation = expr.Annotation<ViewModelInfoAnnotation>() ?? new ViewModelInfoAnnotation(propertyAnnotation!.MemberInfo!.GetResultType());
                 expr = (JsMemberAccessExpression)expr.ReplaceWith(_ =>
                     expr.WithAnnotation(ShouldBeObservableAnnotation.Instance)
                         .Member("state")

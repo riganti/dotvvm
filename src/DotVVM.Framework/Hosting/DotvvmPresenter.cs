@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -232,12 +231,12 @@ namespace DotVVM.Framework.Hosting
                     await requestTracer.TraceEvent(RequestTracingConstants.LoadCompleted, context);
 
                     // invoke the postback command
-                    var actionInfo = ViewModelSerializer.ResolveCommand(context, page);
+                    var actionInfo = ViewModelSerializer.ResolveCommand(context, page).NotNull("Command not found?");
 
                     // get filters
                     var methodFilters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
                         .Concat(ActionFilterHelper.GetActionFilters<ICommandActionFilter>(context.ViewModel.GetType()));
-                    if (actionInfo.Binding.GetProperty<ActionFiltersBindingProperty>(ErrorHandlingMode.ReturnNull) is ActionFiltersBindingProperty filters)
+                    if (actionInfo.Binding?.GetProperty<ActionFiltersBindingProperty>(ErrorHandlingMode.ReturnNull) is ActionFiltersBindingProperty filters)
                         methodFilters = methodFilters.Concat(filters.Filters.OfType<ICommandActionFilter>());
 
                     commandResult = await ExecuteCommand(actionInfo, context, methodFilters);
@@ -257,7 +256,7 @@ namespace DotVVM.Framework.Hosting
                 await requestTracer.TraceEvent(RequestTracingConstants.PreRenderCompleted, context);
 
                 // generate CSRF token if required
-                if (string.IsNullOrEmpty(context.CsrfToken) && !context.Configuration.ExperimentalFeatures.LazyCsrfToken.IsEnabledForRoute(context.Route!.RouteName))
+                if (string.IsNullOrEmpty(context.CsrfToken) && !context.Configuration.ExperimentalFeatures.LazyCsrfToken.IsEnabledForRoute(context.Route?.RouteName))
                 {
                     context.CsrfToken = CsrfProtector.GenerateToken(context);
                 }
@@ -330,14 +329,14 @@ namespace DotVVM.Framework.Hosting
         private object? ExecuteStaticCommandPlan(StaticCommandInvocationPlan plan, Queue<JToken> arguments, IDotvvmRequestContext context)
         {
             var methodArgs = plan.Arguments.Select((a, index) =>
-                a.Type == StaticCommandParameterType.Argument ? arguments.Dequeue().ToObject((Type)a.Arg) :
+                a.Type == StaticCommandParameterType.Argument ? arguments.Dequeue().ToObject((Type)a.Arg!) :
                 a.Type == StaticCommandParameterType.Constant || a.Type == StaticCommandParameterType.DefaultValue ? a.Arg :
                 a.Type == StaticCommandParameterType.Inject ?
 #pragma warning disable CS0618
 
-                                                              StaticCommandServiceLoader.GetStaticCommandService((Type)a.Arg, context) :
+                                                              StaticCommandServiceLoader.GetStaticCommandService((Type)a.Arg!, context) :
 #pragma warning restore CS0618
-                a.Type == StaticCommandParameterType.Invocation ? ExecuteStaticCommandPlan((StaticCommandInvocationPlan)a.Arg, arguments, context) :
+                a.Type == StaticCommandParameterType.Invocation ? ExecuteStaticCommandPlan((StaticCommandInvocationPlan)a.Arg!, arguments, context) :
                 throw new NotSupportedException("" + a.Type)
             ).ToArray();
             return plan.Method.Invoke(plan.Method.IsStatic ? null : methodArgs.First(), plan.Method.IsStatic ? methodArgs : methodArgs.Skip(1).ToArray());
@@ -363,10 +362,11 @@ namespace DotVVM.Framework.Hosting
                     StaticCommandExecutionPlanSerializer.DecryptJson(Convert.FromBase64String(command), context.Services.GetRequiredService<IViewModelProtector>())
                         .Apply(StaticCommandExecutionPlanSerializer.DeserializePlan);
 
-                var actionInfo = new ActionInfo {
-                    IsControlCommand = false,
-                    Action = () => { return ExecuteStaticCommandPlan(executionPlan, new Queue<JToken>(arguments.NotNull()), context); }
-                };
+                var actionInfo = new ActionInfo(
+                    binding: null,
+                    () => { return ExecuteStaticCommandPlan(executionPlan, new Queue<JToken>(arguments.NotNull()), context); },
+                    false
+                );
                 var filters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
                     .Concat(executionPlan.GetAllMethods().SelectMany(m => ActionFilterHelper.GetActionFilters<ICommandActionFilter>(m)))
                     .ToArray();

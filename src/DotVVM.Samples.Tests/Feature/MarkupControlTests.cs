@@ -242,10 +242,11 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_MultiControlHierarchy);
-
-                var ul = browser.First("ul", By.CssSelector);
-                ul.FindElements("li", By.CssSelector).ThrowIfDifferentCountThan(20);
-            });
+                WaitForExecutor.WaitFor(() => {
+                    var ul = browser.First("ul", By.CssSelector);
+                    ul.FindElements("li", By.CssSelector).ThrowIfDifferentCountThan(20, WaitForOptions.Disabled);
+                });
+            }); 
         }
 
         [Fact]
@@ -338,7 +339,7 @@ namespace DotVVM.Samples.Tests.Feature
                 input().Clear().SendKeys("test1");
                 save().Click();
 
-                browser.WaitFor(()=>AssertUI.TextEquals(browser.Last("article>span"), "test1"),2000);
+                browser.WaitFor(() => AssertUI.TextEquals(browser.Last("article>span"), "test1"), 2000);
 
 
                 editButton().Click();
@@ -359,5 +360,5 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.WaitFor(() => AssertUI.All(browser.FindElements("article>span")).TextNotEquals("changed"), 2000);
             });
         }
-    } 
+    }
 }

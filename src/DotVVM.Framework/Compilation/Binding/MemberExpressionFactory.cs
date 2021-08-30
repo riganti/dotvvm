@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -21,16 +22,13 @@ namespace DotVVM.Framework.Compilation.Binding
         private readonly ExtensionMethodsCache extensionMethodsCache;
         private static readonly Type ParamArrayAttributeType = typeof(ParamArrayAttribute);
 
-        public MemberExpressionFactory(ExtensionMethodsCache extensionMethodsCache, IReadOnlyList<NamespaceImport> importedNamespaces = null)
+        public MemberExpressionFactory(ExtensionMethodsCache extensionMethodsCache, IReadOnlyList<NamespaceImport>? importedNamespaces = null)
         {
-            if (importedNamespaces == null)
-                importedNamespaces = ImmutableList<NamespaceImport>.Empty;
-
             this.extensionMethodsCache = extensionMethodsCache;
-            this.importedNamespaces = importedNamespaces;
+            this.importedNamespaces = importedNamespaces ?? ImmutableList<NamespaceImport>.Empty;
         }
 
-        public Expression GetMember(Expression target, string name, Type[] typeArguments = null, bool throwExceptions = true, bool onlyMemberTypes = false)
+        public Expression? GetMember(Expression target, string name, Type[]? typeArguments = null, bool throwExceptions = true, bool onlyMemberTypes = false)
         {
             if (target is MethodGroupExpression)
                 throw new Exception("Can not access member on method group.");
@@ -41,7 +39,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var isStatic = target is StaticClassIdentifierExpression;
 
             var isGeneric = typeArguments != null && typeArguments.Length != 0;
-            var genericName = isGeneric ? $"{name}`{typeArguments.Length}" : name;
+            var genericName = isGeneric ? $"{name}`{typeArguments!.Length}" : name;
 
             if (!isGeneric && !onlyMemberTypes && typeof(DotvvmBindableObject).IsAssignableFrom(target.Type) &&
                 GetDotvvmPropertyMember(target, name) is Expression result) return result;
@@ -88,7 +86,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
 
             var candidates = members.Cast<MethodInfo>().ToList();
-            return new MethodGroupExpression() { MethodName = name, Target = target, TypeArgs = typeArguments, Candidates = candidates, HasExtensionCandidates = isExtension };
+            return new MethodGroupExpression(target, name, typeArguments, candidates, isExtension);
         }
 
         private bool ExtensionMethodsFilter(Expression target, MethodInfo method)
@@ -111,7 +109,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
         }
 
-        private Expression GetDotvvmPropertyMember(Expression target, string name)
+        private Expression? GetDotvvmPropertyMember(Expression target, string name)
         {
             var property = DotvvmProperty.ResolveProperty(target.Type, name);
             if (property == null) return null;
@@ -138,7 +136,7 @@ namespace DotVVM.Framework.Compilation.Binding
         /// replaced with a <see cref="DotvvmBindableObject.SetValue(DotvvmProperty, object)"/>
         /// call.
         /// </remarks>
-        public Expression UpdateMember(Expression node, Expression value)
+        public Expression? UpdateMember(Expression node, Expression value)
         {
             if ((node.NodeType == ExpressionType.MemberAccess
                 && node is MemberExpression member
@@ -175,7 +173,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return null;
         }
 
-        public Expression Call(Expression target, Expression[] arguments)
+        public Expression Call(Expression? target, Expression[] arguments)
         {
             if (target is MethodGroupExpression)
             {
@@ -184,7 +182,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return Expression.Invoke(target, arguments);
         }
 
-        public Expression CallMethod(Expression target, BindingFlags flags, string name, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs = null)
+        public Expression CallMethod(Expression target, BindingFlags flags, string name, Type[]? typeArguments, Expression[] arguments, IDictionary<string, Expression>? namedArgs = null)
         {
             // the following piece of code is nicer and more readable than method recognition done in roslyn, C# dynamic and also expression evaluator :)
             var method = FindValidMethodOverloads(target, target.Type, name, flags, typeArguments, arguments, namedArgs);
@@ -197,7 +195,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return Expression.Call(target, method.Method, method.Arguments);
         }
 
-        public Expression CallMethod(Type target, BindingFlags flags, string name, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs = null)
+        public Expression CallMethod(Type target, BindingFlags flags, string name, Type[]? typeArguments, Expression[] arguments, IDictionary<string, Expression>? namedArgs = null)
         {
             // the following piece of code is nicer and more readable than method recognition done in roslyn, C# dynamic and also expression evaluator :)
             var method = FindValidMethodOverloads(null, target, name, flags, typeArguments, arguments, namedArgs);
@@ -205,7 +203,7 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
 
-        private MethodRecognitionResult FindValidMethodOverloads(Expression target, Type type, string name, BindingFlags flags, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
+        private MethodRecognitionResult FindValidMethodOverloads(Expression? target, Type type, string name, BindingFlags flags, Type[]? typeArguments, Expression[] arguments, IDictionary<string, Expression>? namedArgs)
         {
             var methods = FindValidMethodOverloads(type.GetAllMembers(flags).OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, arguments, namedArgs).ToList();
 
@@ -252,7 +250,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     yield return method;
         }
 
-        private IEnumerable<MethodRecognitionResult> FindValidMethodOverloads(IEnumerable<MethodInfo> methods, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
+        private IEnumerable<MethodRecognitionResult> FindValidMethodOverloads(IEnumerable<MethodInfo> methods, Type[]? typeArguments, Expression[] arguments, IDictionary<string, Expression>? namedArgs)
             => from m in methods
                let r = TryCallMethod(m, typeArguments, arguments, namedArgs)
                where r != null
@@ -261,6 +259,17 @@ namespace DotVVM.Framework.Compilation.Binding
 
         class MethodRecognitionResult
         {
+            public MethodRecognitionResult(int automaticTypeArgCount, int castCount, Expression[] arguments, MethodInfo method, int paramsArrayCount, bool isExtension, bool hasParamsAttribute)
+            {
+                AutomaticTypeArgCount = automaticTypeArgCount;
+                CastCount = castCount;
+                Arguments = arguments;
+                Method = method;
+                ParamsArrayCount = paramsArrayCount;
+                IsExtension = isExtension;
+                HasParamsAttribute = hasParamsAttribute;
+            }
+
             public int AutomaticTypeArgCount { get; set; }
             public int CastCount { get; set; }
             public Expression[] Arguments { get; set; }
@@ -270,10 +279,10 @@ namespace DotVVM.Framework.Compilation.Binding
             public bool HasParamsAttribute { get; set; }
         }
 
-        private MethodRecognitionResult TryCallMethod(MethodInfo method, Type[] typeArguments, Expression[] positionalArguments, IDictionary<string, Expression> namedArguments)
+        private MethodRecognitionResult? TryCallMethod(MethodInfo method, Type[]? typeArguments, Expression[] positionalArguments, IDictionary<string, Expression>? namedArguments)
         {
             var parameters = method.GetParameters();
-            var hasParamsArrayAttributes = parameters?.LastOrDefault()?.GetCustomAttribute(ParamArrayAttributeType) is object;
+            var hasParamsArrayAttributes = parameters.LastOrDefault()?.GetCustomAttribute(ParamArrayAttributeType) is object;
 
             if (!TryPrepareArguments(parameters, positionalArguments, namedArguments, out var args, out var castCount))
                 return null;
@@ -345,21 +354,22 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
             }
 
-            return new MethodRecognitionResult {
-                CastCount = castCount,
-                AutomaticTypeArgCount = automaticTypeArgs,
-                Method = method,
-                Arguments = args,
-                ParamsArrayCount = positionalArguments.Length - args.Length,
-                HasParamsAttribute = hasParamsArrayAttributes
-            };
+            return new MethodRecognitionResult(
+                automaticTypeArgCount: automaticTypeArgs,
+                castCount: castCount,
+                method: method,
+                arguments: args,
+                paramsArrayCount: positionalArguments.Length - args.Length,
+                hasParamsAttribute: hasParamsArrayAttributes,
+                isExtension: false
+            );
         }
-        private static bool TryPrepareArguments(ParameterInfo[] parameters, Expression[] positionalArguments, IDictionary<string, Expression> namedArguments, out Expression[] arguments, out int castCount)
+        private static bool TryPrepareArguments(ParameterInfo[] parameters, Expression[] positionalArguments, IDictionary<string, Expression>? namedArguments, [MaybeNullWhen(false)] out Expression[] arguments, out int castCount)
         {
             castCount = 0;
             arguments = null;
             var addedArguments = 0;
-            var hasParamsArrayAttribute = parameters?.LastOrDefault()?.GetCustomAttribute(ParamArrayAttributeType) is object;
+            var hasParamsArrayAttribute = parameters.LastOrDefault()?.GetCustomAttribute(ParamArrayAttributeType) is object;
 
             // For methods without `params` arguments count must be at least equal to parameters count
             if (!hasParamsArrayAttribute && parameters.Length < positionalArguments.Length)
@@ -420,7 +430,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return true;
         }
 
-        private Type GetGenericParameterType(Type genericArg, Type[] searchedGenericTypes, Type[] expressionTypes)
+        private Type? GetGenericParameterType(Type genericArg, Type[] searchedGenericTypes, Type[] expressionTypes)
         {
             for (var i = 0; i < searchedGenericTypes.Length; i++)
             {
@@ -441,7 +451,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else if (sgt.IsGenericType)
                 {
-                    Type[] genericArguments = null;
+                    Type[]? genericArguments = null;
                     var expression = expressionTypes[i];
 
                     if (expression.IsArray)
@@ -495,8 +505,8 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public Expression EqualsMethod(Expression left, Expression right)
         {
-            Expression equatable = null;
-            Expression theOther = null;
+            Expression? equatable = null;
+            Expression? theOther = null;
             if (typeof(IEquatable<>).IsAssignableFrom(left.Type))
             {
                 equatable = left;
@@ -510,7 +520,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
             if (equatable != null)
             {
-                var m = CallMethod(equatable, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy, "Equals", null, new[] { theOther });
+                var m = CallMethod(equatable, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy, "Equals", null, new[] { theOther! });
                 if (m != null) return m;
             }
 
@@ -527,7 +537,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
             if (equatable != null)
             {
-                theOther = TypeConversion.ImplicitConversion(theOther, equatable.Type);
+                theOther = TypeConversion.ImplicitConversion(theOther!, equatable.Type);
                 if (theOther != null) return Expression.Equal(equatable, theOther);
             }
 
@@ -537,8 +547,8 @@ namespace DotVVM.Framework.Compilation.Binding
         public Expression CompareMethod(Expression left, Expression right)
         {
             Type compareType = typeof(object);
-            Expression equatable = null;
-            Expression theOther = null;
+            Expression? equatable = null;
+            Expression? theOther = null;
             if (typeof(IComparable<>).IsAssignableFrom(left.Type))
             {
                 equatable = left;
@@ -562,7 +572,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
             if (equatable != null)
             {
-                return CallMethod(equatable, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy, "Compare", null, new[] { theOther });
+                return CallMethod(equatable, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy, "Compare", null, new[] { theOther! });
             }
             throw new NotSupportedException("IComparable is not implemented on any of specified types");
         }
@@ -571,7 +581,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             var binder = (DynamicMetaObjectBinder)Microsoft.CSharp.RuntimeBinder.Binder.UnaryOperation(
                 CSharpBinderFlags.None, operation, typeof(object), ExpressionHelper.GetBinderArguments(1));
-            return ExpressionHelper.ApplyBinder(binder, true, expr);
+            return ExpressionHelper.ApplyBinder(binder, true, expr)!;
         }
 
         public Expression GetBinaryOperator(Expression left, Expression right, ExpressionType operation)

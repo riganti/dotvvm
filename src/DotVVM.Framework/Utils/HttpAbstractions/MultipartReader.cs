@@ -52,7 +52,7 @@ namespace Microsoft.AspNet.WebUtilities
         /// </summary>
         public int TotalHeaderSizeLimit { get; set; }
 
-        public async Task<MultipartSection> ReadNextSectionAsync(CancellationToken cancellationToken = new CancellationToken())
+        public async Task<MultipartSection?> ReadNextSectionAsync(CancellationToken cancellationToken = new CancellationToken())
         {
             // Drain the prior section.
             await _currentStream.DrainAsync(cancellationToken);

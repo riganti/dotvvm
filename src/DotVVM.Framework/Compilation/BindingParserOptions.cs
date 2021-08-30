@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
 using DotVVM.Framework.Compilation.Binding;
@@ -37,7 +36,7 @@ namespace DotVVM.Framework.Compilation
 
         private static Func<string, Expression?> CreateTypeLoader(NamespaceImport import, CompiledAssemblyCache compiledAssemblyCache)
         {
-            if (import.HasAlias)
+            if (import.Alias is not null)
                 return t => {
                     if (t.Length >= import.Alias.Length && t.StartsWith(import.Alias, StringComparison.Ordinal))
                     {
@@ -76,7 +75,7 @@ namespace DotVVM.Framework.Compilation
         public static readonly BindingParserOptions StaticCommand = Create(typeof(StaticCommandBindingExpression<>));
 
         public BindingParserOptions AddImports(params NamespaceImport[]? imports)
-            => AddImports((IEnumerable<NamespaceImport>)imports);
+            => AddImports((IEnumerable<NamespaceImport>?)imports);
         public BindingParserOptions AddImports(IEnumerable<NamespaceImport>? imports)
             => imports == null ? this :
                new BindingParserOptions(BindingType, ScopeParameter, ImportNamespaces.AddRange(imports), ExtensionParameters);

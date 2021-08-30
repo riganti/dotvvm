@@ -157,7 +157,6 @@ namespace DotVVM.Framework.Tests.Runtime
             c.ApplicationPhysicalPath = "/opt/myApp";
             c.ClientSideValidation = false;
             c.DefaultCulture = "cs-CZ";
-            c.UseHistoryApiSpaNavigation = true;
 
             checkConfig(c);
         }

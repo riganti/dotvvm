@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -355,7 +354,7 @@ namespace DotVVM.Framework.Configuration
         private static void RegisterResources(DotvvmConfiguration configuration)
         {
             configuration.Resources.Register(ResourceConstants.PolyfillBundleResourceName,
-                new ScriptModuleResource(location: null,
+                new ScriptModuleResource(location: null!,
                     nomoduleLocation: new EmbeddedResourceLocation(
                         typeof(DotvvmConfiguration).Assembly,
                             "DotVVM.Framework.obj.javascript.polyfill.bundle.js")

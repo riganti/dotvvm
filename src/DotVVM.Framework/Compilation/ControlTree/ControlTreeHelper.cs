@@ -11,22 +11,19 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public static bool HasProperty(this IAbstractControl control, IPropertyDescriptor property)
         {
-            IAbstractPropertySetter blackHole;
-            return control.TryGetProperty(property, out blackHole);
+            return control.TryGetProperty(property, out _);
         }
 
         public static bool HasPropertyValue(this IAbstractControl control, IPropertyDescriptor property)
         {
-            IAbstractPropertySetter setter;
-            return control.TryGetProperty(property, out setter) && setter is IAbstractPropertyValue;
+            return control.TryGetProperty(property, out var setter) && setter is IAbstractPropertyValue;
         }
 
-        public static IAbstractPropertySetter GetHtmlAttribute(this IAbstractControl control, string memberName) =>
+        public static IAbstractPropertySetter? GetHtmlAttribute(this IAbstractControl control, string memberName) =>
             GetPropertyGroupMember(control, "", memberName);
-        public static IAbstractPropertySetter GetPropertyGroupMember(this IAbstractControl control, string prefix, string memberName)
+        public static IAbstractPropertySetter? GetPropertyGroupMember(this IAbstractControl control, string prefix, string memberName)
         {
-            IAbstractPropertySetter value;
-            control.TryGetProperty(control.Metadata.GetPropertyGroupMember(prefix, memberName), out value);
+            control.TryGetProperty(control.Metadata.GetPropertyGroupMember(prefix, memberName), out var value);
             return value;
         }
 

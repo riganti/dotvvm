@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
     public static class TypeDescriptorUtils
     {
 
-        public static bool IsPrimitiveTypeDescriptor(this ITypeDescriptor type)
+        public static bool IsPrimitiveTypeDescriptor(this ITypeDescriptor? type)
         {
             return type is ResolvedTypeDescriptor resolvedType
                 && ReflectionUtils.IsPrimitiveType(resolvedType.Type);
@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             // handle GridViewDataSet
             if (type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IBaseGridViewDataSet))))
             {
-                var itemsType = type.TryGetPropertyType(nameof(IBaseGridViewDataSet.Items));
+                var itemsType = type.TryGetPropertyType(nameof(IBaseGridViewDataSet.Items)).NotNull();
                 return itemsType.TryGetArrayElementOrIEnumerableType() ?? throw new Exception("This is strange and should not happen. IBaseGridViewDataSet.Items is not IEnumerable.");
             }
 

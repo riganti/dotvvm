@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -10,7 +11,7 @@ namespace DotVVM.Framework.Compilation
 
         public override void VisitControl(ResolvedControl control)
         {
-            if (control.DothtmlNode.HasNodeErrors)
+            if (control.DothtmlNode is { HasNodeErrors: true })
             {
                 throw new DotvvmCompilationException(string.Join("\r\n", control.DothtmlNode.NodeErrors), control.DothtmlNode.Tokens);
             }
@@ -26,7 +27,7 @@ namespace DotVVM.Framework.Compilation
                 throw new DotvvmCompilationException(
                     errors.GetErrorMessage(propertyBinding.Binding.Binding),
                     errors.Exceptions.Count() > 1 ? new AggregateException(errors.Exceptions) : errors.Exceptions.SingleOrDefault(),
-                    propertyBinding.Binding.BindingNode.Tokens);
+                    propertyBinding.Binding.BindingNode?.Tokens);
             }
             base.VisitPropertyBinding(propertyBinding);
         }

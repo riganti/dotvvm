@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Compilation;
 using System;
 using System.Collections.Generic;

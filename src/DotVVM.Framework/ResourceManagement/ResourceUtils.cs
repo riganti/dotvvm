@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Controls;
+﻿using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System;

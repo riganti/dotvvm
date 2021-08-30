@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Runtime.Filters;
 

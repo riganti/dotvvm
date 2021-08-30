@@ -24,8 +24,8 @@ namespace DotVVM.Framework.Compilation
 
         protected int currentTemplateIndex;
         protected string className;
-        protected ControlResolverMetadata lastMetadata;
-        protected string controlName;
+        protected ControlResolverMetadata? lastMetadata;
+        protected string? controlName;
 
         public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, CompiledAssemblyCache compiledAssemblyCache, IBindingCompiler bindingCompiler,
             string className)
@@ -90,7 +90,7 @@ namespace DotVVM.Framework.Compilation
             emitter.PopMethod();
         }
 
-        protected string EmitCreateControl(Type type, object[] arguments)
+        protected string EmitCreateControl(Type type, object[]? arguments)
         {
             // if marked with [RequireDependencyInjection] attribute, invoke injected factory
             if (type.GetCustomAttribute(typeof(DependencyInjection.RequireDependencyInjectionAttribute)) is DependencyInjection.RequireDependencyInjectionAttribute requireDiAttr)
@@ -126,7 +126,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public override void VisitControl(ResolvedControl node)
         {
-            var parentName = controlName;
+            var parentName = controlName.NotNull();
             var localControlName = controlName = CreateControl(node);
 
             base.VisitControl(node);
@@ -151,18 +151,18 @@ namespace DotVVM.Framework.Compilation
             else emitter.EmitSetDotvvmProperty(controlName, property, value);
         }
 
-        private void SetPropertyValue(string controlName, DotvvmProperty property, object value)
+        private void SetPropertyValue(string controlName, DotvvmProperty property, object? value)
             => SetProperty(controlName, property, emitter.EmitValue(value));
 
         public override void VisitPropertyValue(ResolvedPropertyValue propertyValue)
         {
-            SetPropertyValue(controlName, propertyValue.Property, propertyValue.Value);
+            SetPropertyValue(controlName.NotNull(), propertyValue.Property, propertyValue.Value);
             base.VisitPropertyValue(propertyValue);
         }
 
         public override void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding)
         {
-            SetProperty(controlName, propertyBinding.Property, ProcessBinding(propertyBinding.Binding));
+            SetProperty(controlName.NotNull(), propertyBinding.Property, ProcessBinding(propertyBinding.Binding));
             base.VisitPropertyBinding(propertyBinding);
         }
 
@@ -171,8 +171,8 @@ namespace DotVVM.Framework.Compilation
             if (propertyControl.Property is CompileTimeOnlyDotvvmProperty)
                 return;
 
-            var control = propertyControl.Control;
-            var parentName = controlName;
+            var control = propertyControl.Control.NotNull();
+            var parentName = controlName.NotNull();
             controlName = CreateControl(control);
             // compile control content
             base.VisitControl(control);
@@ -188,7 +188,7 @@ namespace DotVVM.Framework.Compilation
             if (propertyControlCollection.Property is CompileTimeOnlyDotvvmProperty)
                 return;
 
-            var parentName = controlName;
+            var parentName = controlName.NotNull();
             var collectionName = emitter.EmitEnsureCollectionInitialized(parentName, propertyControlCollection.Property);
 
             foreach (var control in propertyControlCollection.Controls)
@@ -212,7 +212,7 @@ namespace DotVVM.Framework.Compilation
             if (propertyTemplate.Property is CompileTimeOnlyDotvvmProperty)
                 return;
 
-            var parentName = controlName;
+            var parentName = controlName.NotNull();
             var methodName = DefaultViewCompilerCodeEmitter.BuildTemplateFunctionName + $"_{propertyTemplate.Property.DeclaringType.Name}_{propertyTemplate.Property.Name}_{currentTemplateIndex++}";
             emitter.PushNewMethod(methodName, typeof(void), emitter.EmitControlBuilderParameters().Concat(new [] { emitter.EmitParameter("templateContainer", typeof(DotvvmControl))}).ToArray());
             // build the statements

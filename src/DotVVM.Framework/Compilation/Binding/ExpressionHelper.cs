@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return arr;
         }
 
-        public static Expression ApplyBinder(DynamicMetaObjectBinder binder, bool throwException, params Expression[] expressions)
+        public static Expression? ApplyBinder(DynamicMetaObjectBinder binder, bool throwException, params Expression[] expressions)
         {
             var result = binder.Bind(DynamicMetaObject.Create(null, expressions[0]),
                 expressions.Skip(1).Select(e =>

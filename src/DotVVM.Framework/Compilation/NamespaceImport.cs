@@ -13,15 +13,16 @@ namespace DotVVM.Framework.Compilation
 		[JsonProperty("namespace")]
 		public readonly string Namespace;
 		[JsonProperty("alias")]
-		public readonly string Alias;
+		public readonly string? Alias;
 
 		[JsonIgnore]
-		public bool HasAlias => Alias != null;
+		public bool HasAlias => Alias is not null;
 
 		[JsonConstructor]
-		public NamespaceImport(string @namespace, string alias = null)
+		public NamespaceImport(string @namespace, string? alias = null)
 		{
 			if (@namespace == null) throw new ArgumentNullException(nameof(@namespace));
+			if (alias == "") throw new ArgumentException("Alias can not be empty string, use null instead.");
 			this.Namespace = @namespace;
 			this.Alias = alias;
 		}
