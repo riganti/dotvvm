@@ -99,10 +99,6 @@
     <None Update="Controls\DelegateTemplate.d.ts">
       <DependentUpon>DelegateTemplate.cs</DependentUpon>
     </None>
-    <None Update="Hosting\ErrorPages\ErrorPageTemplate.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>ErrorPageTemplate.cs</LastGenOutput>
-    </None>
     <None Update="ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>JQueryGlobalizeRegisterTemplate.cs</LastGenOutput>
@@ -112,11 +108,6 @@
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Hosting\ErrorPages\ErrorPageTemplate.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ErrorPageTemplate.tt</DependentUpon>
-    </Compile>
     <Compile Update="ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

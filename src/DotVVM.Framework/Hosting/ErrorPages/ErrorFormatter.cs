@@ -300,16 +300,15 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         public string ErrorHtml(Exception exception, IHttpContext context)
         {
-            var template = new ErrorPageTemplate {
-                Formatters = Formatters
+            var template = new ErrorPageTemplate(
+                formatters: Formatters
                     .Select(f => f(exception, context))
                     .Concat(context.GetEnvironmentTabs().Select(o => DictionarySection.Create(o.Item1, "env_" + o.Item1.GetHashCode(), o.Item2)))
                     .Where(t => t != null)
                     .ToArray(),
-                ErrorCode = context.Response.StatusCode,
-                ErrorDescription = "Unhandled exception occurred",
-                Summary = exception.GetType().FullName + ": " + exception.Message.LimitLength(600)
-            };
+                errorCode: context.Response.StatusCode,
+                errorDescription: "Unhandled exception occurred",
+                summary: exception.GetType().FullName + ": " + exception.Message.LimitLength(600));
 
             return template.TransformText();
         }
