@@ -110,7 +110,6 @@ namespace Owin
                 s.TryAddSingleton<IRequestCancellationTokenProvider, RequestCancellationTokenProvider>();
                 s.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
                 s.TryAddScoped<IDotvvmRequestContext>(services => services.GetRequiredService<DotvvmRequestContextStorage>().Context);
-                s.AddSingleton<IDotvvmViewCompilationService, DotvvmViewCompilationService>();
                 s.TryAddSingleton<IStartupTracer>(startupTracer);
 
                 startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserServicesRegistrationStarted);
@@ -125,8 +124,7 @@ namespace Owin
             startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureFinished);
 
             modifyConfiguration?.Invoke(config);
-            if (config.Debug)
-                config.Development.Apply(config);
+            config.Development.Apply(config);
             config.Freeze();
 
             startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmStarted);

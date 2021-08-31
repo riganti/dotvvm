@@ -14,8 +14,6 @@ namespace DotVVM.Framework.Diagnostics
         public ImmutableArray<DotHtmlFileInfo> Routes => viewCompilationService.GetRoutes();
         public ImmutableArray<DotHtmlFileInfo> MasterPages => viewCompilationService.GetMasterPages();
         public ImmutableArray<DotHtmlFileInfo> Controls => viewCompilationService.GetControls();
-        public string? ApplicationPath { get; set; }
-        public bool CompileAfterLoad { get; set; }
         public int ActiveTab { get; set; } = 0;
 
         public CompilationPageViewModel(IDotvvmViewCompilationService viewCompilationService)
@@ -25,8 +23,13 @@ namespace DotVVM.Framework.Diagnostics
 
         public override async Task Init()
         {
-            ApplicationPath = Context.Configuration.ApplicationPhysicalPath;
-            CompileAfterLoad = Context.Configuration.Development.CompilationPage.ShouldCompileAllOnLoad;
+            var isAuthorized = await Context.Configuration.Development.CompilationPage.AuthorizationPredicate(Context);
+            if (!isAuthorized)
+            {
+                Context.HttpContext.Response.StatusCode = 403;
+                Context.InterruptRequest();
+                return;
+            }
 
             await base.Init();
         }

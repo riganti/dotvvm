@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Diagnostics;
+using DotVVM.Framework.Hosting;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Configuration
@@ -18,14 +19,18 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets whether the compilation status page is enabled.
         /// </summary>
+        /// <remarks>
+        /// When null, the compilation page is automatically enabled if <see cref="DotvvmConfiguration.Debug"/>
+        /// is true.
+        /// </remarks>
         [JsonProperty("isEnabled", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        [DefaultValue(true)]
-        public bool IsEnabled
+        [DefaultValue(null)]
+        public bool? IsEnabled
         {
             get { return _isEnabled; }
             set { ThrowIfFrozen(); _isEnabled = value; }
         }
-        private bool _isEnabled = true;
+        private bool? _isEnabled = null;
 
         /// <summary>
         /// Gets or sets whether the compilation status page API is enabled.
@@ -83,6 +88,22 @@ namespace DotVVM.Framework.Configuration
         }
         private bool _shouldCompileAllOnLoad = true;
 
+        /// <summary>
+        /// Gets or sets a predicate used to check that a request to the compilation page
+        /// or the API (enabled by <see cref="IsApiEnabled"/>) is authorized.
+        /// </summary>
+        /// <remarks>
+        /// By default, only local requests are authorized.
+        /// </remarks>
+        [JsonIgnore]
+        public Func<IDotvvmRequestContext, Task<bool>> AuthorizationPredicate
+        {
+            get { return _authorizationPredicate; }
+            set { ThrowIfFrozen(); _authorizationPredicate = value; }
+        }
+        private Func<IDotvvmRequestContext, Task<bool>> _authorizationPredicate
+            = context => Task.FromResult(context.HttpContext.Request.Url.IsLoopback);
+
         private bool isFrozen = false;
 
         private void ThrowIfFrozen()
@@ -98,7 +119,7 @@ namespace DotVVM.Framework.Configuration
 
         public void Apply(DotvvmConfiguration config)
         {
-            if (IsEnabled)
+            if (IsEnabled == true || (IsEnabled == null && config.Debug))
             {
                 config.RouteTable.Add(
                     routeName: RouteName,

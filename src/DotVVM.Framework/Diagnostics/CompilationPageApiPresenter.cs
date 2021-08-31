@@ -14,9 +14,16 @@ namespace DotVVM.Framework.Diagnostics
         {
             this.compilationService = compilationService;
         }
+
         public async Task ProcessRequest(IDotvvmRequestContext context)
         {
             var response = context.HttpContext.Response;
+            var isAuthorized = await context.Configuration.Development.CompilationPage.AuthorizationPredicate(context);
+            if (!isAuthorized)
+            {
+                response.StatusCode = 403;
+                return;
+            }
 
             var result = await compilationService.CompileAll(false);
             if (result)

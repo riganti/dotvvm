@@ -12,8 +12,8 @@
     <dot:Button ID="compile-all-button"
                 Click="{command: CompileAll()}"
                 Text="Compile All"
-                class="execute">
-    </dot:Button>
+                class="execute"
+                class-js-compile-auto="{resource: Context.Configuration.Development.CompilationPage.ShouldCompileAllOnLoad}"/>
     <dot:UpdateProgress class="compile-progress">
         <div>Compiling<span>.</span><span>.</span><span>.</span></div>
     </dot:UpdateProgress>
@@ -153,8 +153,8 @@
     </dot:InlineScript>
 
     <dot:InlineScript>
-        dotvvm.events.init.subscribe(function () {
-            var button = document.getElementById('compile-all-button');
+        dotvvm.events.initCompleted.subscribe(function () {
+            var button = document.getElementById("compile-all-button");
             if (button.classList.contains("js-compile-auto")) {
                 button.click();
             }

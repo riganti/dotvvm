@@ -269,7 +269,7 @@ hr {
 
 /* Compile progress */
 .compile-progress {
-    position: absolute;
+    position: fixed;
     top: 1rem;
     left: 0;
     right: 0;
@@ -290,14 +290,14 @@ hr {
     }
 }
 
-.compiling-update-progress span {
+.compile-progress span {
     animation: 1s blink infinite
 }
 
-    .compiling-update-progress span:nth-child(2) {
+    .compile-progress span:nth-child(2) {
         animation-delay: 250ms
     }
 
-    .compiling-update-progress span:nth-child(3) {
+    .compile-progress span:nth-child(3) {
         animation-delay: 500ms
     }

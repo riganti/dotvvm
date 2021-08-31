@@ -69,6 +69,9 @@ namespace DotVVM.Samples.BasicSamples
                                             .Invoke(a[1])
                                     ), allowGeneric: true, allowMultipleMethods: true);
 
+            config.Development.CompilationPage.IsApiEnabled = true;
+            config.Development.CompilationPage.ShouldCompileAllOnLoad = false;
+
         }
 
         private void LoadSampleConfiguration(DotvvmConfiguration config, string applicationPath)

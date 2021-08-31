@@ -144,9 +144,6 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets the configuration for features meant for use during the development of a DotVVM application.
         /// </summary>
-        /// <remarks>
-        /// These options only apply if the application runs in <see cref="Debug"/> mode.
-        /// </remarks>
         [JsonProperty("development")]
         public DotvvmDevelopmentConfiguration Development
         {
