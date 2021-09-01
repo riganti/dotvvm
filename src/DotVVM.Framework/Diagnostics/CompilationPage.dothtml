@@ -13,7 +13,7 @@
                 Click="{command: CompileAll()}"
                 Text="Compile All"
                 class="execute"
-                class-js-compile-auto="{resource: Context.Configuration.Development.CompilationPage.ShouldCompileAllOnLoad}"/>
+                class-js-compile-auto="{resource: Context.Configuration.Diagnostics.CompilationPage.ShouldCompileAllOnLoad}"/>
     <dot:UpdateProgress class="compile-progress">
         <div>Compiling<span>.</span><span>.</span><span>.</span></div>
     </dot:UpdateProgress>
