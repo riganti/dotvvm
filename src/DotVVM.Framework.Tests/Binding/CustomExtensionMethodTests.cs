@@ -33,11 +33,10 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void Call_FindCustomExtensionMethod()
         {
-            var target = new MethodGroupExpression()
-            {
-                MethodName = nameof(TestExtensions.Increment),
-                Target = Expression.Constant(11)
-            };
+            var target = new MethodGroupExpression(
+                Expression.Constant(11),
+                nameof(TestExtensions.Increment)
+            );
 
             var expression = CreateCall(target, Array.Empty<Expression>(), new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding") });
             var result = Expression.Lambda<Func<int>>(expression).Compile().Invoke();
@@ -48,20 +47,20 @@ namespace DotVVM.Framework.Tests.Binding
         [ExpectedException(typeof(InvalidOperationException))]
         public void Call_AmbiguousExtensionMethodsThrows()
         {
-            var nonAmbiguousTarget = new MethodGroupExpression() {
-                MethodName = nameof(AmbiguousExtensions.Extensions1.Decrement),
-                Target = Expression.Constant(11)
-            };
+            var nonAmbiguousTarget = new MethodGroupExpression(
+                Expression.Constant(11),
+                nameof(AmbiguousExtensions.Extensions1.Decrement)
+            );
 
             // Non-ambiguous
             var expression = CreateCall(nonAmbiguousTarget, Array.Empty<Expression>(), new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding.AmbiguousExtensions") });
             var result = Expression.Lambda<Func<int>>(expression).Compile().Invoke();
             Assert.AreEqual(10, result);
 
-            var ambiguousTarget = new MethodGroupExpression() {
-                MethodName = nameof(AmbiguousExtensions.Extensions1.Increment),
-                Target = Expression.Constant(11)
-            };
+            var ambiguousTarget = new MethodGroupExpression(
+                Expression.Constant(11),
+                nameof(AmbiguousExtensions.Extensions1.Increment)
+            );
 
             // Ambiguous
             CreateCall(ambiguousTarget, Array.Empty<Expression>(), new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding.AmbiguousExtensions") });
@@ -71,20 +70,20 @@ namespace DotVVM.Framework.Tests.Binding
         [ExpectedException(typeof(InvalidOperationException))]
         public void Call_NotImportedExtensionMethodThrows()
         {
-            var importedTarget = new MethodGroupExpression() {
-                MethodName = nameof(AmbiguousExtensions.Extensions1.Decrement),
-                Target = Expression.Constant(11)
-            };
+            var importedTarget = new MethodGroupExpression(
+                Expression.Constant(11),
+                nameof(AmbiguousExtensions.Extensions1.Decrement)
+            );
 
             // Imported extension
             var expression = CreateCall(importedTarget, Array.Empty<Expression>(), new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding.AmbiguousExtensions") });
             var result = Expression.Lambda<Func<int>>(expression).Compile().Invoke();
             Assert.AreEqual(10, result);
 
-            var notImportedTarget = new MethodGroupExpression() {
-                MethodName = nameof(AmbiguousExtensions.Extensions1.Decrement),
-                Target = Expression.Constant(11)
-            };
+            var notImportedTarget = new MethodGroupExpression(
+                Expression.Constant(11),
+                nameof(AmbiguousExtensions.Extensions1.Decrement)
+            );
 
             // Not imported extension
             CreateCall(notImportedTarget, Array.Empty<Expression>(), new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding") });
@@ -93,10 +92,10 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void Call_ExtensionMethodsWithOptionalArguments_UseDefaultValue()
         {
-            var importedTarget = new MethodGroupExpression() {
-                MethodName = nameof(TestExtensions.ExtensionMethodWithOptionalArgument),
-                Target = Expression.Constant(11)
-            };
+            var importedTarget = new MethodGroupExpression(
+                Expression.Constant(11),
+                nameof(TestExtensions.ExtensionMethodWithOptionalArgument)
+            );
 
             // Imported extension
             var expression = CreateCall(importedTarget, Array.Empty<Expression>(), new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding"), new NamespaceImport("DotVVM.Framework.Tests.Binding") });
@@ -107,10 +106,10 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void Call_ExtensionMethodsWithOptionalArguments_OverrideDefaultValue()
         {
-            var importedTarget = new MethodGroupExpression() {
-                MethodName = nameof(TestExtensions.ExtensionMethodWithOptionalArgument),
-                Target = Expression.Constant(11)
-            };
+            var importedTarget = new MethodGroupExpression(
+                Expression.Constant(11),
+                nameof(TestExtensions.ExtensionMethodWithOptionalArgument)
+            );
 
             // Imported extension
             var expression = CreateCall(importedTarget, new[] { Expression.Constant(123) }, new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding") });
@@ -121,10 +120,10 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void Call_ExtensionMethods_DuplicitImport_DoesNotThrow()
         {
-            var importedTarget = new MethodGroupExpression() {
-                MethodName = nameof(TestExtensions.Increment),
-                Target = Expression.Constant(11)
-            };
+            var importedTarget = new MethodGroupExpression(
+                Expression.Constant(11),
+                nameof(TestExtensions.Increment)
+            );
 
             // Imported extension
             var expression = CreateCall(importedTarget, Array.Empty<Expression>(),

@@ -39,7 +39,6 @@ namespace DotVVM.Samples.BasicSamples
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
             config.DefaultCulture = "en-US";
-            config.UseHistoryApiSpaNavigation = true;
 
             AddControls(config);
             AddStyles(config);

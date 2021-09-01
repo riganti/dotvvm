@@ -15,9 +15,10 @@ namespace DotVVM.Samples.Tests.Complex
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_SPAViewModelReapplication_pageA);
-
-                // verify items count
-                browser.FindElements("ul#first li").ThrowIfDifferentCountThan(3);
+                WaitForExecutor.WaitFor(() => {
+                    // verify items count
+                    browser.FindElements("ul#first li").ThrowIfDifferentCountThan(3);
+                });
                 AssertUI.InnerText(browser.Single("#first"), s => s.Contains("Entry 1") && s.Contains("Entry 2") && s.Contains("Entry 3"));
 
                 AssertUI.InnerTextEquals(browser.First("#test2"), "A");

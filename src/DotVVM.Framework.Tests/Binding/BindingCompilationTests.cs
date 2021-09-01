@@ -984,6 +984,7 @@ namespace DotVVM.Framework.Tests.Binding
     {
         public string StringProp { get; set; }
         public int IntProp { get; set; }
+        public int? NullableIntProp { get; set; }
         public double DoubleProp { get; set; }
         public TestViewModel2 TestViewModel2 { get; set; }
         public TestViewModel2 TestViewModel2B { get; set; }
@@ -1002,6 +1003,8 @@ namespace DotVVM.Framework.Tests.Binding
         public long[] LongArray => new long[] { 1, 2, long.MaxValue };
         public List<long> LongList => new List<long>() { 1, 2, long.MaxValue };
         public string[] StringArray => new string[] { "Hello ", "DotVVM" };
+        public Dictionary<string, TestViewModel2> StringVmDictionary = new() { { "a", new TestViewModel2() }, { "b", new TestViewModel2() } };
+        public Dictionary<int?, TestViewModel2> NullableIntVmDictionary = new() { { 0, new TestViewModel2() }, { 1, new TestViewModel2() } };
         public TestViewModel2[] VmArray => new TestViewModel2[] { new TestViewModel2() };
         public int[] IntArray { get; set; }
 

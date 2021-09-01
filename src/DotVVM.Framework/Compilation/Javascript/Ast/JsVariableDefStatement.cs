@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
@@ -15,8 +16,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
         public JsIdentifier NameIdentifier
         {
-            get { return GetChildByRole(JsTreeRoles.Identifier); }
-            set { SetChildByRole(JsTreeRoles.Identifier, value); }
+            get { return GetChildByRole(JsTreeRoles.Identifier).NotNull(); }
+            set { SetChildByRole(JsTreeRoles.Identifier, value.NotNull()); }
         }
 
         public string Name
@@ -26,13 +27,13 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         }
         
 
-        public JsExpression Initialization
+        public JsExpression? Initialization
         {
             get { return GetChildByRole(JsTreeRoles.Expression); }
             set { SetChildByRole(JsTreeRoles.Expression, value); }
         }
 
-        public JsVariableDefStatement(string name, JsExpression expr = null)
+        public JsVariableDefStatement(string name, JsExpression? expr = null)
         {
             this.Name = name;
             this.Initialization = expr;

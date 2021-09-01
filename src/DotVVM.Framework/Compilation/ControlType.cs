@@ -8,13 +8,13 @@ namespace DotVVM.Framework.Compilation
     {
         public Type Type { get; private set; }
 
-        public string VirtualPath { get; private set; }
+        public string? VirtualPath { get; private set; }
 
-        public Type DataContextRequirement { get; private set; }
+        public Type? DataContextRequirement { get; private set; }
 
         ITypeDescriptor IControlType.Type => new ResolvedTypeDescriptor(Type);
 
-        ITypeDescriptor IControlType.DataContextRequirement => DataContextRequirement != null ? new ResolvedTypeDescriptor(DataContextRequirement) : null;
+        ITypeDescriptor? IControlType.DataContextRequirement => ResolvedTypeDescriptor.Create(DataContextRequirement);
 
         protected static void ValidateControlClass(Type control)
         {
@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlType"/> class.
         /// </summary>
-        public ControlType(Type type, string virtualPath = null, Type dataContextRequirement = null)
+        public ControlType(Type type, string? virtualPath = null, Type? dataContextRequirement = null)
         {
             ValidateControlClass(type);
             Type = type;

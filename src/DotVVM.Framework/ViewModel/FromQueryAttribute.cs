@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Hosting;
+﻿using System.Diagnostics.CodeAnalysis;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.ViewModel
 {
@@ -15,7 +16,7 @@ namespace DotVVM.Framework.ViewModel
             ParameterName = parameterName;
         }
 
-        protected override bool TryGetValueCore(IDotvvmRequestContext context, out object value)
+        protected override bool TryGetValueCore(IDotvvmRequestContext context, [MaybeNullWhen(false)] out object value)
         {
             var isPresent = context.Query.TryGetValue(ParameterName, out var stringValue);
             value = stringValue;

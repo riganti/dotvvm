@@ -11,7 +11,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
     public class EncryptedValuesReader
     {
         JsonSerializer serializer;
-        Stack<(int prop, JObject obj)> stack = new Stack<(int prop, JObject obj)>();
+        Stack<(int prop, JObject? obj)> stack = new();
         int virtualNests = 0;
         int lastPropertyIndex = -1;
         public bool Suppressed { get; private set; } = false;
@@ -22,9 +22,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             this.serializer = new JsonSerializer();
         }
 
-        private JObject json => stack.Peek().obj;
+        private JObject? json => stack.Peek().obj;
 
-        private JProperty Property(int index)
+        private JProperty? Property(int index)
         {
             var name = index.ToString();
             return virtualNests == 0 ? json?.Property(name) : null;
@@ -46,7 +46,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 virtualNests++;
             }
-            stack.Push((property, (JObject)prop?.Value));
+            stack.Push((property, (JObject?)prop?.Value));
             // remove read nodes and then make sure that JObject is empty
             prop?.Remove();
             lastPropertyIndex = -1;
@@ -63,7 +63,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else
             {
-                if (json.Properties().Count() > 0)
+                if (json!.Properties().Count() > 0)
                     throw SecurityError();
             }
             lastPropertyIndex = stack.Pop().prop;

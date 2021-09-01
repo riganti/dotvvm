@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Configuration;
+﻿using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Routing;

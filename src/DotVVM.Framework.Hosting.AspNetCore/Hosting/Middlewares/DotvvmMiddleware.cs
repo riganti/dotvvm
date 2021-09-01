@@ -55,7 +55,9 @@ namespace DotVVM.Framework.Hosting
 
             if (requestCultureFeature == null)
             {
+#pragma warning disable CS0618
                 dotvvmContext.ChangeCurrentCulture(Configuration.DefaultCulture);
+#pragma warning restore CS0618
             }
 
             try

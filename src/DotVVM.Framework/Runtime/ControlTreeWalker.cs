@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +11,9 @@ namespace DotVVM.Framework.Runtime
 
         private DotvvmBindableObject root;
 
-        public Stack<string> CurrentPath { get; private set; } = null!;
+        public Stack<string> CurrentPath { get; } = new Stack<string>();
 
-        public string[]? CurrentPathArray { get; private set; }
+        public string[] CurrentPathArray { get; private set; } = new string[0];
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlTreeWalker"/> class.
@@ -30,7 +29,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         public void ProcessControlTree(Action<DotvvmBindableObject> action)
         {
-            CurrentPath = new Stack<string>();
+            CurrentPath.Clear();
             RefreshCurrentPathArray();
 
             ProcessControlTreeCore(root, action);

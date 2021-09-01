@@ -1,4 +1,3 @@
-#nullable enable
 using System.Collections;
 using DotVVM.Framework.Binding;
 

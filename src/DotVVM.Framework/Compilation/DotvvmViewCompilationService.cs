@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Compilation
         {
             return 
                 dotvvmConfiguration.Markup.Controls.Where(s => !string.IsNullOrWhiteSpace(s.Src))
-                    .Select(s => new DotHtmlFileInfo(s.Src, tagPrefix: s.TagPrefix, tagName: s.TagName,
+                    .Select(s => new DotHtmlFileInfo(s.Src!, tagPrefix: s.TagPrefix, tagName: s.TagName,
                         nameSpace: s.Namespace, assembly: s.Assembly)).ToImmutableArray();
         }
 
@@ -82,7 +82,7 @@ namespace DotVVM.Framework.Compilation
             var exclusiveMode = false;
             try
             {
-                IEnumerable<DotHtmlFileInfo> filesToCompile = null;
+                IEnumerable<DotHtmlFileInfo>? filesToCompile = null;
                 if (forceRecompile)
                 {
                     filesToCompile = controls.Value.Union(routes.Value);
@@ -142,7 +142,7 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
-        public bool BuildView(DotHtmlFileInfo file, out DotHtmlFileInfo masterPage)
+        public bool BuildView(DotHtmlFileInfo file, out DotHtmlFileInfo? masterPage)
         {
             masterPage = null;
             if (file.Status != CompilationState.NonCompilable)
@@ -154,7 +154,7 @@ namespace DotVVM.Framework.Compilation
                     var compiledControl = pageBuilder.builder.Value.BuildControl(controlBuilderFactory, dotvvmConfiguration.ServiceProvider);
 
                     if (compiledControl is DotvvmView view &&
-                        view.Directives.TryGetValue(ParserConstants.MasterPageDirective, out var masterPagePath))
+                        view.Directives!.TryGetValue(ParserConstants.MasterPageDirective, out var masterPagePath))
                     {
                         masterPage = masterPages.Value.GetOrAdd(masterPagePath, new DotHtmlFileInfo(masterPagePath));
                     }

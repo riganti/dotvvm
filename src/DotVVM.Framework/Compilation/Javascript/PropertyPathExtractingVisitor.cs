@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Compilation.Javascript.Ast;
+﻿#nullable disable
+using DotVVM.Framework.Compilation.Javascript.Ast;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {

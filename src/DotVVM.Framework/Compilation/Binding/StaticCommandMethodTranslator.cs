@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Compilation.Binding
             this.protector = protector;
         }
 
-        public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] arguments, MethodInfo method)
+        public JsExpression? TryTranslateCall(LazyTranslatedExpression? context, LazyTranslatedExpression[] arguments, MethodInfo method)
         {
             // throw new Exception($"Method '{methodExpression.Method.DeclaringType.Name}.{methodExpression.Method.Name}' used in static command has to be marked with [AllowStaticCommand] attribute.");
             if (!method.IsDefined(typeof(AllowStaticCommandAttribute)))
@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 .WithAnnotation(resultTypeAnn);
         }
 
-        private (StaticCommandInvocationPlan plan, JsExpression[] clientArgs) CreateExecutionPlan(LazyTranslatedExpression context, LazyTranslatedExpression[] arguments, MethodInfo method)
+        private (StaticCommandInvocationPlan plan, JsExpression[] clientArgs) CreateExecutionPlan(LazyTranslatedExpression? context, LazyTranslatedExpression[] arguments, MethodInfo method)
         {
             var allArguments = (context?.OriginalExpression is null ? new LazyTranslatedExpression[0] : new[] { context }).Concat(arguments).ToArray();
             var clientArgs = new List<JsExpression>();

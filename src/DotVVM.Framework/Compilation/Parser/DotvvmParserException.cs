@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Compilation.Parser
 
         public int PositionOnLine { get; set; }
 
-        public string FileName { get; set; }
+        public string? FileName { get; set; }
 
         
         public DotvvmParserException(string message) : base(message)

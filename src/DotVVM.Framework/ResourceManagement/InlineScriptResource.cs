@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,7 +52,7 @@ namespace DotVVM.Framework.ResourceManagement
         public bool Defer { get; }
         public bool ShouldSerializeCode() => code?.IsValueCreated == true;
 
-        internal static bool InlineScriptContentGuard(string? code)
+        static bool InlineScriptContentGuard(string? code)
         {
             // We have to make sure, that the element is not ended in the middle.
             // <style> and <script> tags have "raw text" content - https://html.spec.whatwg.org/multipage/syntax.html#raw-text-elements
@@ -82,7 +81,7 @@ namespace DotVVM.Framework.ResourceManagement
                 RenderClassicScript(writer, code);
         }
 
-        internal static void RenderClassicScript(IHtmlWriter writer, string code)
+        static void RenderClassicScript(IHtmlWriter writer, string code)
         {
             writer.RenderBeginTag("script");
             writer.WriteUnencodedText(code);

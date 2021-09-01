@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -27,7 +28,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// <typeparam name='T'>
         /// The type of the annotation.
         /// </typeparam>
-        T Annotation<T>() where T : class;
+        T? Annotation<T>() where T : class;
 
         /// <summary>
         /// Gets the first annotation of the specified type.
@@ -36,7 +37,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// <param name='type'>
         /// The type of the annotation.
         /// </param>
-        object Annotation(Type type);
+        object? Annotation(Type type);
 
         /// <summary>
         /// Adds an annotation to this instance.
@@ -73,7 +74,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         // or to an AnnotationList.
         // Once it is pointed at an AnnotationList, it will never change (this allows thread-safety support by locking the list)
 
-        object annotations;
+        object? annotations;
 
         /// <summary>
         /// Clones all annotations.
@@ -119,7 +120,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             {
                 return annotation; // we successfully added a single annotation
             }
-            AnnotationList list = oldAnnotation as AnnotationList;
+            AnnotationList? list = oldAnnotation as AnnotationList;
             if (list == null)
             {
                 // we need to transform the old annotation into a list
@@ -146,7 +147,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public virtual void RemoveAnnotations<T>() where T : class
         {
             retry: // Retry until successful
-            object oldAnnotations = this.annotations;
+            var oldAnnotations = this.annotations;
             if (oldAnnotations is AnnotationList list)
             {
                 lock (list)
@@ -167,7 +168,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             if (type == null)
                 throw new ArgumentNullException("type");
             retry: // Retry until successful
-            object oldAnnotations = this.annotations;
+            var oldAnnotations = this.annotations;
             if (oldAnnotations is AnnotationList list)
             {
                 lock (list)
@@ -183,9 +184,9 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             }
         }
 
-        public T Annotation<T>() where T : class
+        public T? Annotation<T>() where T : class
         {
-            object annotations = this.annotations;
+            var annotations = this.annotations;
             if (annotations is AnnotationList list)
             {
                 lock (list)
@@ -204,11 +205,11 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             }
         }
 
-        public object Annotation(Type type)
+        public object? Annotation(Type type)
         {
             if (type == null)
                 throw new ArgumentNullException("type");
-            object annotations = this.annotations;
+            var annotations = this.annotations;
             if (annotations is AnnotationList list)
             {
                 lock (list)
@@ -235,7 +236,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         {
             get
             {
-                object annotations = this.annotations;
+                var annotations = this.annotations;
                 if (annotations is AnnotationList list)
                 {
                     lock (list)
@@ -256,7 +257,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
     public static class AnnotatableUtils
     {
-        public static T WithAnnotation<T>(this T node, object annotation, bool append = true)
+        public static T WithAnnotation<T>(this T node, object? annotation, bool append = true)
             where T : class, IAnnotatable
         {
             if (annotation != null && (append || !node.HasAnnotation<T>())) node.AddAnnotation(annotation);
@@ -271,7 +272,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             return node;
         }
 
-        public static T WithAnnotations<T>(this T node, IEnumerable<object> annotations)
+        public static T WithAnnotations<T>(this T node, IEnumerable<object?> annotations)
             where T : class, IAnnotatable
         {
             foreach (var annotation in annotations) if (annotation != null) node.AddAnnotation(annotation);
@@ -282,7 +283,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             where T : class
             => node.Annotation<T>() != null;
 
-        public static bool TryGetAnnotation<T>(this IAnnotatable node, out T annotation)
+        public static bool TryGetAnnotation<T>(this IAnnotatable node, [NotNullWhen(true)] out T? annotation)
             where T : class
             => (annotation = node.Annotation<T>()) != null;
 

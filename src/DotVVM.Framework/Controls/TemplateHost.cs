@@ -18,12 +18,12 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the template that will be rendered inside this control.
         /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.Attribute, Required = true)]
-        public ITemplate ContentTemplate { get; set; }
+        public ITemplate? ContentTemplate { get; set; }
 
 
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
-            ContentTemplate.BuildContent(context, this);
+            ContentTemplate?.BuildContent(context, this);
             base.OnLoad(context);
         }
     }

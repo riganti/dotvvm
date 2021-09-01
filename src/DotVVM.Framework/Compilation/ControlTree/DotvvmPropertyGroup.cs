@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public ObsoleteAttribute? ObsoleteAttribute { get; private set; }
 
-        public object DefaultValue { get; }
+        public object? DefaultValue { get; }
 
         public Type DeclaringType { get; }
         ITypeDescriptor IControlAttributeDescriptor.DeclaringType => ResolvedTypeDescriptor.Create(DeclaringType);
@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             FieldInfo descriptorField,
             ICustomAttributeProvider attributeProvider,
             string name,
-            object defaultValue)
+            object? defaultValue)
         {
             this.DescriptorField = descriptorField;
             this.DeclaringType = declaringType;
@@ -135,7 +135,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         private static ConcurrentDictionary<string, DotvvmPropertyGroup> descriptorDictionary = new ConcurrentDictionary<string, DotvvmPropertyGroup>();
 
-        public static DotvvmPropertyGroup Create(PropertyInfo propertyInfo, object defaultValue)
+        public static DotvvmPropertyGroup Create(PropertyInfo propertyInfo, object? defaultValue)
         {
             return descriptorDictionary.GetOrAdd(propertyInfo.DeclaringType.Name + "." + propertyInfo.Name, fullName => {
                 var attribute = propertyInfo.GetCustomAttribute<PropertyGroupAttribute>();
@@ -144,10 +144,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
             });
         }
 
-        public static DotvvmPropertyGroup Register<TValue, TDeclaring>(PrefixArray prefixes, string name, TValue defaultValue = default(TValue)) =>
+        public static DotvvmPropertyGroup Register<TValue, TDeclaring>(PrefixArray prefixes, string name, TValue? defaultValue = default(TValue)) =>
             Register(typeof(TDeclaring), prefixes, name, typeof(TValue), defaultValue);
 
-        public static DotvvmPropertyGroup Register(Type declaringType, PrefixArray prefixes, string name, Type valueType, object defaultValue)
+        public static DotvvmPropertyGroup  Register(Type declaringType, PrefixArray prefixes, string name, Type valueType, object? defaultValue)
         {
             return descriptorDictionary.GetOrAdd(declaringType.Name + "." + name, fullName => {
                 var field = FindDescriptorField(declaringType, name);
@@ -179,7 +179,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return field;
         }
 
-        public static DotvvmPropertyGroup Register(Type declaringType, PrefixArray prefixes, string name, Type valueType, ICustomAttributeProvider attributeProvider, object defaultValue)
+        public static DotvvmPropertyGroup Register(Type declaringType, PrefixArray prefixes, string name, Type valueType, ICustomAttributeProvider attributeProvider, object? defaultValue)
         {
             return descriptorDictionary.GetOrAdd(declaringType.Name + "." + name, fullName =>
             {
@@ -196,7 +196,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                              && pg.DeclaringType.Name == typeName);
         }
 
-        public static IPropertyDescriptor ResolvePropertyGroup(string name, bool caseSensitive)
+        public static IPropertyDescriptor? ResolvePropertyGroup(string name, bool caseSensitive)
         {
             var nameParts = name.Split('.');
             var groups = FindAttachedPropertyCandidates(nameParts[0])

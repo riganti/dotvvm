@@ -27,10 +27,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// When the extension parameter is introduced in a specific data context, this parameter controls if the parameter will also be valid in child data contexts.
         public bool Inherit { get; }
 
-        public BindingExtensionParameter(string identifier, ITypeDescriptor type, bool inherit)
+        public BindingExtensionParameter(string identifier, ITypeDescriptor? type, bool inherit)
         {
             this.Identifier = identifier;
-            this.ParameterType = type;
+            this.ParameterType = type ?? ResolvedTypeDescriptor.Create(typeof(object));
             this.Inherit = inherit;
         }
 
@@ -149,7 +149,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         private object ResolveStaticCommandService(DotvvmBindableObject c, Type type)
         {
-            var context = (IDotvvmRequestContext)c.GetValue(Internal.RequestContextProperty, true);
+            var context = (IDotvvmRequestContext)c.GetValue(Internal.RequestContextProperty, true).NotNull();
 #pragma warning disable CS0618
             return context.Services.GetRequiredService<IStaticCommandServiceLoader>().GetStaticCommandService(type, context);
 #pragma warning restore CS0618

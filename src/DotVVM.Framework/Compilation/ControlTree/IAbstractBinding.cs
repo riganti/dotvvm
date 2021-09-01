@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         
         IDataContextStack DataContextTypeStack { get; }
         
-        ITypeDescriptor ResultType { get; }
+        ITypeDescriptor? ResultType { get; }
 
     }
 }

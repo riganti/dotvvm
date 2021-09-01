@@ -1,4 +1,3 @@
-#nullable enable
 namespace DotVVM.Framework.Compilation.Parser
 {
     public abstract class TokenBase : ITextRange
@@ -26,10 +25,7 @@ namespace DotVVM.Framework.Compilation.Parser
 
         public TokenError? Error { get; set; }
 
-        public bool HasError
-        {
-            get { return Error != null; }
-        }
+        public bool HasError => Error is not null;
         public override string ToString()
         {
             return string.Format("Token ({0}:{1}): {2}", StartPosition, Length, Text);

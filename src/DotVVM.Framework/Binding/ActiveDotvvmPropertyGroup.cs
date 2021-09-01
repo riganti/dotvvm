@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Binding
 {
     public abstract class ActiveDotvvmPropertyGroup : DotvvmPropertyGroup
     {
-        protected internal ActiveDotvvmPropertyGroup(PrefixArray prefixes, Type valueType, Type declaringType, FieldInfo descriptorField, ICustomAttributeProvider attributeProvider, string name, object defaultValue) : base(prefixes, valueType, declaringType, descriptorField, attributeProvider, name, defaultValue)
+        protected internal ActiveDotvvmPropertyGroup(PrefixArray prefixes, Type valueType, Type declaringType, FieldInfo descriptorField, ICustomAttributeProvider attributeProvider, string name, object? defaultValue) : base(prefixes, valueType, declaringType, descriptorField, attributeProvider, name, defaultValue)
         {
         }
 

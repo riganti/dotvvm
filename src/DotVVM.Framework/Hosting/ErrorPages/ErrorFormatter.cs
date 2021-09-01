@@ -18,16 +18,10 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 {
     public class ErrorFormatter
     {
-        public ExceptionModel LoadException(Exception exception, StackFrameModel[] existingTrace = null, Func<Exception, StackFrame[]> stackFrameGetter = null,
-            Func<StackFrame, string> methodFormatter = null)
+        public ExceptionModel LoadException(Exception exception, StackFrameModel[]? existingTrace = null, Func<Exception, StackFrame[]?>? stackFrameGetter = null,
+            Func<StackFrame, string?>? methodFormatter = null)
         {
             stackFrameGetter = stackFrameGetter ?? (ex => new StackTrace(ex, true).GetFrames());
-
-            var m = new ExceptionModel {
-                Message = exception.Message,
-                OriginalException = exception,
-                TypeName = exception.GetType().FullName
-            };
 
             var frames = stackFrameGetter(exception) ?? new StackFrame[0];
             var stack = new List<StackFrameModel>();
@@ -35,27 +29,36 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             for (int i = frames.Length - 1; i >= 0; i--)
             {
                 var f = frames[i];
-                if (skipping && existingTrace.Length > i && f.GetMethod() == existingTrace[i].Method) continue;
+                if (skipping && existingTrace!.Length > i && f.GetMethod() == existingTrace[i].Method) continue;
                 skipping = false;
 
-                stack.Add(AddMoreInfo(new StackFrameModel {
-                    Method = f.GetMethod(),
-                    FormattedMethod = methodFormatter?.Invoke(f),
-                    At = LoadSourcePiece(f.GetFileName(), f.GetFileLineNumber(),
-                        errorColumn: f.GetFileColumnNumber())
-                }));
+                stack.Add(AddMoreInfo(new StackFrameModel(
+                    f.GetMethod(),
+                    methodFormatter?.Invoke(f),
+                    LoadSourcePiece(f.GetFileName(), f.GetFileLineNumber(),
+                        errorColumn: f.GetFileColumnNumber()),
+                    null
+                )));
 
-                //Adding additional information to ExceptionModel from InfoLoaders and InfoCollectionLoader
-                m.AdditionalInfo = InfoLoaders.Select(info => info(exception))
-                    .Where(info => info != null && info.Objects != null).ToArray()
-                    .Union(InfoCollectionLoader.Select(infoCollection => infoCollection(exception))
-                        .Where(infoCollection => infoCollection != null)
-                        .SelectMany(infoCollection => infoCollection)
-                        .Where(info => info != null && info.Objects != null).ToArray())
-                    .ToArray();
             }
+            //Adding additional information to ExceptionModel from InfoLoaders and InfoCollectionLoader
+            var additionalInfos = InfoLoaders.Select(info => info(exception))
+                .Where(info => info != null && info.Objects != null).ToArray()
+                .Union(InfoCollectionLoader.Select(infoCollection => infoCollection(exception))
+                    .Where(infoCollection => infoCollection != null)
+                    .SelectMany(infoCollection => infoCollection)
+                    .Where(info => info != null && info.Objects != null).ToArray())
+                .ToArray();
+
             stack.Reverse();
-            m.Stack = stack.ToArray();
+
+            var m = new ExceptionModel(
+                exception.GetType().FullName,
+                exception.Message,
+                stack.ToArray(),
+                exception,
+                additionalInfos!
+            );
             if (exception.InnerException != null) m.InnerException = LoadException(exception.InnerException, m.Stack, stackFrameGetter, methodFormatter);
             return m;
         }
@@ -64,7 +67,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         {
             try
             {
-                frame.MoreInfo = FrameInfoLoaders.Select(f => f(frame)).Where(f => f != null).ToArray();
+                frame.MoreInfo = FrameInfoLoaders.Select(f => f(frame)).Where(f => f != null).ToArray()!;
             }
             catch
             {
@@ -74,15 +77,15 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return frame;
         }
 
-        public List<Func<StackFrameModel, IFrameMoreInfo>> FrameInfoLoaders =
-            new List<Func<StackFrameModel, IFrameMoreInfo>>()
+        public List<Func<StackFrameModel, IFrameMoreInfo?>> FrameInfoLoaders =
+            new List<Func<StackFrameModel, IFrameMoreInfo?>>()
             {
                 CreateDotvvmDocsLink,
                 CreateReferenceSourceLink,
                 CreateGithubLink
             };
 
-        protected static IFrameMoreInfo CreateDotvvmDocsLink(StackFrameModel frame)
+        protected static IFrameMoreInfo? CreateDotvvmDocsLink(StackFrameModel frame)
         {
             const string DotvvmThumb = "https://dotvvm.com/Content/assets/ico/favicon.png";
             var type = frame.Method?.DeclaringType;
@@ -97,29 +100,30 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return null;
         }
 
-        protected static IFrameMoreInfo CreateGithubLink(StackFrameModel frame)
+        protected static IFrameMoreInfo? CreateGithubLink(StackFrameModel frame)
         {
             const string GithubUrl = @"https://github.com/riganti/dotvvm/blob/master/src/";
             const string Octocat = @"https://assets-cdn.github.com/favicon.ico";
             if (frame.Method?.DeclaringType?.Assembly == typeof(ErrorFormatter).Assembly)
             {
+                var fileName = frame.At?.FileName;
                 // dotvvm github
-                if (!string.IsNullOrEmpty(frame.At?.FileName))
+                if (!string.IsNullOrEmpty(fileName))
                 {
-                    var fileName =
-                        frame.At.FileName.Substring(
-                            frame.At.FileName.LastIndexOf("DotVVM.Framework", StringComparison.Ordinal));
-                    var url = GithubUrl + fileName.Replace('\\', '/').TrimStart('/') + "#L" + frame.At.LineNumber;
+                    var urlFileName =
+                        fileName.Substring(
+                            fileName.LastIndexOf("DotVVM.Framework", StringComparison.Ordinal));
+                    var url = GithubUrl + fileName.Replace('\\', '/').TrimStart('/') + "#L" + frame.At!.LineNumber;
                     return FrameMoreInfo.CreateThumbLink(url, Octocat);
                 }
                 else
                 {
                     // guess by method name
-                    var fileName = frame.Method.DeclaringType.FullName.Replace("DotVVM.Framework", "")
+                    var urlFileName = frame.Method.DeclaringType.FullName.Replace("DotVVM.Framework", "")
                         .Replace('.', '/');
-                    if (fileName.Contains("+"))
-                        fileName = fileName.Remove(fileName.IndexOf('+')); // remove nested class
-                    var url = GithubUrl + "DotVVM.Framework" + fileName + ".cs";
+                    if (urlFileName.Contains("+"))
+                        urlFileName = urlFileName.Remove(urlFileName.IndexOf('+')); // remove nested class
+                    var url = GithubUrl + "DotVVM.Framework" + urlFileName + ".cs";
                     return FrameMoreInfo.CreateThumbLink(url, Octocat);
                 }
             }
@@ -176,7 +180,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             "System.Private.CoreLib"
         };
 
-        protected static IFrameMoreInfo CreateReferenceSourceLink(StackFrameModel frame)
+        protected static IFrameMoreInfo? CreateReferenceSourceLink(StackFrameModel frame)
         {
             const string DotNetIcon = "http://referencesource.microsoft.com/favicon.ico";
             const string SourceUrl = "http://referencesource.microsoft.com/";
@@ -231,11 +235,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return sb.ToString();
         }
 
-        public List<Func<Exception, IEnumerable<ExceptionAdditionalInfo>>> InfoCollectionLoader =
-            new List<Func<Exception, IEnumerable<ExceptionAdditionalInfo>>>();
+        public List<Func<Exception, IEnumerable<ExceptionAdditionalInfo>?>> InfoCollectionLoader = new();
 
-        public List<Func<Exception, ExceptionAdditionalInfo>> InfoLoaders =
-            new List<Func<Exception, ExceptionAdditionalInfo>>();
+        public List<Func<Exception, ExceptionAdditionalInfo?>> InfoLoaders = new();
 
         public void AddInfoLoader<T>(Func<T, ExceptionAdditionalInfo> func)
             where T : Exception
@@ -251,7 +253,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         /// </summary>
         /// <typeparam name="T">type of the exception</typeparam>
         /// <param name="func">function that returns a collection of ExceptionAdditionalInfo</param>
-        public void AddInfoCollectionLoader<T>(Func<T, IEnumerable<ExceptionAdditionalInfo>> func)
+        public void AddInfoCollectionLoader<T>(Func<T, IEnumerable<ExceptionAdditionalInfo>?> func)
             where T : Exception
         {
             InfoCollectionLoader.Add(e => {
@@ -260,7 +262,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             });
         }
 
-        public static SourceModel LoadSourcePiece(string fileName, int lineNumber,
+        public static SourceModel LoadSourcePiece(string? fileName, int lineNumber,
             int additionalLineCount = 7,
             int errorColumn = 0,
             int errorLength = 0)
@@ -295,8 +297,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return result;
         }
 
-        public List<Func<Exception, IHttpContext, IErrorSectionFormatter>> Formatters =
-            new List<Func<Exception, IHttpContext, IErrorSectionFormatter>>();
+        public List<Func<Exception, IHttpContext, IErrorSectionFormatter?>> Formatters = new();
 
         public string ErrorHtml(Exception exception, IHttpContext context)
         {
@@ -343,17 +344,17 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                         .Select(a => new KeyValuePair<object, object>(a.name, a.value))
                     ).ToArray());
             });
-            f.AddInfoLoader<ReflectionTypeLoadException>(e => new ExceptionAdditionalInfo {
-                Title = "Loader Exceptions",
-                Objects = e.LoaderExceptions.Select(lde => lde.GetType().Name + ": " + lde.Message).ToArray(),
-                Display = ExceptionAdditionalInfo.DisplayMode.ToString
-            });
+            f.AddInfoLoader<ReflectionTypeLoadException>(e => new ExceptionAdditionalInfo(
+                "Loader Exceptions",
+                e.LoaderExceptions.Select(lde => lde.GetType().Name + ": " + lde.Message).ToArray(),
+                ExceptionAdditionalInfo.DisplayMode.ToString
+            ));
             f.AddInfoLoader<DotvvmCompilationException>(e => {
-                var info = new ExceptionAdditionalInfo() {
-                    Title = "DotVVM Compiler",
-                    Objects = null,
-                    Display = ExceptionAdditionalInfo.DisplayMode.ToString
-                };
+                var info = new ExceptionAdditionalInfo(
+                    "DotVVM Compiler",
+                    null,
+                    ExceptionAdditionalInfo.DisplayMode.ToString
+                );
                 if (e.Tokens != null && e.Tokens.Any())
                 {
                     info.Objects = new object[]
@@ -372,11 +373,11 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 var infos = new List<ExceptionAdditionalInfo>();
                 foreach (var data in e.AdditionData)
                 {
-                    infos.Add(new ExceptionAdditionalInfo() {
-                        Title = data.Key,
-                        Objects = data.Value,
-                        Display = ExceptionAdditionalInfo.DisplayMode.ToHtmlList
-                    });
+                    infos.Add(new ExceptionAdditionalInfo(
+                        data.Key,
+                        data.Value,
+                        ExceptionAdditionalInfo.DisplayMode.ToHtmlList
+                    ));
                 }
                 return infos;
             });

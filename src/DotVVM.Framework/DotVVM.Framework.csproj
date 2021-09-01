@@ -26,7 +26,7 @@
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <LangVersion>9.0</LangVersion>
-    <!-- <Nullable>enable</Nullable> -->
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="node_modules\**" />
@@ -128,4 +128,32 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- the wildcard would not work in Target.Inputs, it only works in Include -->
+    <TypescriptFile Include="Resources/Scripts/**/*.ts" />
+  </ItemGroup>
+
+  <!-- DispatchToInnerBuilds is there to run it just once for all TargetFrameworks -->
+  <Target Name="CompileJS" Inputs="@(TypescriptFile)" Outputs="obj/javascript/root-only/dotvvm-root.js;obj/javascript/root-only-debug/dotvvm-root.js;obj/javascript/root-spa/dotvvm-root.js;obj/javascript/root-spa-debug/dotvvm-root.js"
+    BeforeTargets="DispatchToInnerBuilds">
+
+    <!-- Check if yarn exists, so we can fallback to npm otherwise -->
+    <!-- Some Linux distros use yarnpkg as name for  -->
+    <Exec Command="yarnpkg --version" IgnoreExitCode="True" ConsoleToMsBuild="True" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="YarnVersionExitCode" />
+    </Exec>
+
+    <Exec Command="yarnpkg install --frozen-lockfile" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true"/>
+    <Exec Command="npm ci" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true"/>
+
+    <Exec Command="yarnpkg build-production" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true"/>
+    <Exec Command="yarnpkg build-development" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true"/>
+    <Exec Command="yarnpkg build-polyfills" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true"/>
+
+    <Exec Command="npm run build-production" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" />
+    <Exec Command="npm run build-development" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" />
+    <Exec Command="npm run build-polyfills" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True"  />
+  </Target>
+
 </Project>

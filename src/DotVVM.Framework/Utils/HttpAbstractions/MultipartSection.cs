@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 // This class comes from https://github.com/aspnet/HttpAbstractions and was slightly modified to support good old .NET Framework 4.5.1
-
+#nullable disable
 using System.Collections.Generic;
 using System.IO;
 

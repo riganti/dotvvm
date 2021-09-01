@@ -286,6 +286,15 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void IndexerArgument()
+        {
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.IntArray[v.NullableIntProp.Value], new TestViewModel()));
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.TestViewModel2.Collection[v.NullableIntProp.Value], new TestViewModel()));
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.StringVmDictionary[v.StringProp], new TestViewModel()));
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.NullableIntVmDictionary[v.NullableIntProp], new TestViewModel()));
+        }
+
+        [TestMethod]
         public void Coalesce()
         {
             Assert.AreEqual(1, EvalExpression<object>(v => v ?? 1, null));

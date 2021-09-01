@@ -8,23 +8,23 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
     {
         public JsExpression Condition
         {
-            get => GetChildByRole(JsTreeRoles.Condition);
+            get => GetChildByRole(JsTreeRoles.Condition)!;
             set => SetChildByRole(JsTreeRoles.Condition, value);
         }
         public static JsTreeRole<JsStatement> TrueBranchRole = new JsTreeRole<JsStatement>("TrueBranch");
         public JsStatement TrueBranch
         {
-            get => GetChildByRole(TrueBranchRole);
+            get => GetChildByRole(TrueBranchRole)!;
             set => SetChildByRole(TrueBranchRole, value);
         }
         public static JsTreeRole<JsStatement> FalseBranchRole = new JsTreeRole<JsStatement>("FalseBranch");
-        public JsStatement FalseBranch
+        public JsStatement? FalseBranch
         {
             get => GetChildByRole(FalseBranchRole);
             set => SetChildByRole(FalseBranchRole, value);
         }
 
-        public JsIfStatement(JsExpression condition, JsStatement trueBranch, JsStatement falseBranch = null)
+        public JsIfStatement(JsExpression condition, JsStatement trueBranch, JsStatement? falseBranch = null)
         {
             this.Condition = condition;
             this.TrueBranch = trueBranch;

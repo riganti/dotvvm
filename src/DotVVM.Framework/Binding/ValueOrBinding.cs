@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -58,9 +57,9 @@ namespace DotVVM.Framework.Binding
             value is ValueOrBinding vob ? new ValueOrBinding<T>(vob.BindingOrDefault, (T)vob.BoxedValue!) :
             new ValueOrBinding<T>((T)value!);
 
-
+        [return: MaybeNull]
         public T Evaluate(DotvvmBindableObject control) =>
-            binding != null ? (T)binding.GetBindingValue(control) : value;
+            binding is object ? (T)binding.GetBindingValue(control)! : value;
 
         public T ValueOrDefault => value;
         public IBinding? BindingOrDefault => binding;
@@ -122,7 +121,7 @@ namespace DotVVM.Framework.Binding
             else if (binding is IValueBinding valueBinding)
                 processBinding?.Invoke(valueBinding);
             else
-                processValue?.Invoke(this.Evaluate(control));
+                processValue?.Invoke(this.Evaluate(control)!);
         }
 
         public TResult ProcessValueBinding<TResult>(DotvvmBindableObject control, Func<T, TResult> processValue, Func<IValueBinding, TResult> processBinding)
@@ -132,7 +131,7 @@ namespace DotVVM.Framework.Binding
             else if (binding is IValueBinding valueBinding)
                 return processBinding(valueBinding);
             else
-                return processValue(this.Evaluate(control));
+                return processValue(this.Evaluate(control)!);
         }
 
         public static implicit operator ValueOrBinding<T>(T val) => new ValueOrBinding<T>(val);
@@ -145,10 +144,12 @@ namespace DotVVM.Framework.Binding
         public static bool operator !=(ValueOrBinding<T> a, ValueOrBinding<T> b) =>
             throw new NotSupportedException(EqualsDisabledReason);
 
+#pragma warning disable CS0809
         [Obsolete(EqualsDisabledReason, error: true)]
         public override bool Equals(object? obj) => throw new NotSupportedException(EqualsDisabledReason);
 
         [Obsolete(EqualsDisabledReason, error: true)]
         public override int GetHashCode() => throw new NotSupportedException(EqualsDisabledReason);
+#pragma warning restore CS0809
     }
 }

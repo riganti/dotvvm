@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
-        private ResolvedControl CreateRequiredResourceControl(string resource, ResolvedTreeNode parent, Parser.Dothtml.Parser.DothtmlNode node, DataContextStack dataContext)
+        private ResolvedControl CreateRequiredResourceControl(string resource, ResolvedTreeNode parent, Parser.Dothtml.Parser.DothtmlNode? node, DataContextStack dataContext)
         {
             var control = new ResolvedControl(requiredResourceControlMetadata, node, dataContext);
             control.Parent = parent;
@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Compilation
         {
             if (control.TryGetProperty(Controls.Styles.RequiredResourcesProperty, out var value))
             {
-                var newResources = (string[])((ResolvedPropertyValue)value).Value;
+                var newResources = (string[]?)((ResolvedPropertyValue)value).Value;
                 if (newResources != null)
                     requiredResources = requiredResources.Union(newResources);
             }

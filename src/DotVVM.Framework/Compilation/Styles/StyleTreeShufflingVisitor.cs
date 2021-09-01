@@ -6,6 +6,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 using static DotVVM.Framework.Controls.Styles;
 
 namespace DotVVM.Framework.Compilation.Styles
@@ -42,6 +43,8 @@ namespace DotVVM.Framework.Compilation.Styles
         public override void VisitPropertyControl(ResolvedPropertyControl propertyControl)
         {
             var control = propertyControl.Control;
+            if (control is null)
+                return;
             if (control.Properties.ContainsKey(AppendProperty) ||
                 control.Properties.ContainsKey(PrependProperty))
                 throw new Exception(
@@ -130,7 +133,7 @@ namespace DotVVM.Framework.Compilation.Styles
             if (!control.Properties.TryGetValue(ReplaceWithProperty, out var setter))
                 return control;
             control.Properties.Remove(ReplaceWithProperty);
-            var newControl = ((ResolvedPropertyControl)setter).Control;
+            var newControl = ((ResolvedPropertyControl)setter).Control.NotNull();
 
             // Copy content
             ResolvedControlHelper.SetContent(newControl, control.Content.ToArray(), StyleOverrideOptions.Append);

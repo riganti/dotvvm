@@ -10,19 +10,17 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     public class ResolvedImportDirective : ResolvedDirective, IAbstractImportDirective
     {
-        public BindingParserNode AliasSyntax { get; }
+        public BindingParserNode? AliasSyntax { get; }
         public BindingParserNode NameSyntax { get; }
 
-        public ITextRange NameRange { get; }
-
-        public bool HasError => DothtmlNode.HasNodeErrors;
-        public Type Type { get; }
+        public bool HasError => DothtmlNode?.HasNodeErrors == true;
+        public Type? Type { get; }
 
         public bool HasAlias => AliasSyntax != null;
         public bool IsNamespace => Type == null && !HasError;
         public bool IsType => Type != null;
 
-        public ResolvedImportDirective(BindingParserNode aliasSyntax, BindingParserNode nameSyntax, Type type)
+        public ResolvedImportDirective(BindingParserNode? aliasSyntax, BindingParserNode nameSyntax, Type? type)
         {
             AliasSyntax = aliasSyntax;
             NameSyntax = nameSyntax;

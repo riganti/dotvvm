@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Configuration;
+﻿using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ViewModel;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;

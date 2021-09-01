@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public static JsTreeRole<JsBlockStatement> BlockRole = new JsTreeRole<JsBlockStatement>("Block");
         public JsBlockStatement Block
         {
-            get => GetChildByRole(BlockRole);
+            get => GetChildByRole(BlockRole)!;
             set => SetChildByRole(BlockRole, value);
         }
     }
