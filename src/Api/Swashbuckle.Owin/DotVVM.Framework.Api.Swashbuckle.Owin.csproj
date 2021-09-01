@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../framework/Core/DotVVM.Core.csproj" />
+    <ProjectReference Include="../../Framework/Core/DotVVM.Core.csproj" />
   </ItemGroup>
 
 </Project>

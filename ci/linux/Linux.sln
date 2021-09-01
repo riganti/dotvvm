@@ -3,29 +3,29 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.6.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.CommandLine", "..\..\src\tools\CommandLine\DotVVM.CommandLine.csproj", "{F21F41FA-071E-448A-B57F-0A75B8CE1846}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.CommandLine", "..\..\src\Tools\CommandLine\DotVVM.CommandLine.csproj", "{F21F41FA-071E-448A-B57F-0A75B8CE1846}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Compiler", "..\..\src\tools\Compiler\DotVVM.Compiler.csproj", "{93776A64-92A0-4BF1-9862-10B4F1B62F22}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Compiler", "..\..\src\Tools\Compiler\DotVVM.Compiler.csproj", "{93776A64-92A0-4BF1-9862-10B4F1B62F22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Core", "..\..\src\framework\Core\DotVVM.Core.csproj", "{C9E43998-B6A3-4AC4-88A2-22B35C88749D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Core", "..\..\src\Framework\Core\DotVVM.Core.csproj", "{C9E43998-B6A3-4AC4-88A2-22B35C88749D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework", "..\..\src\framework\Framework\DotVVM.Framework.csproj", "{801BF323-4DFE-47E8-8E41-1D9E45C34E57}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework", "..\..\src\Framework\Framework\DotVVM.Framework.csproj", "{801BF323-4DFE-47E8-8E41-1D9E45C34E57}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Hosting.AspNetCore", "..\..\src\framework\Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj", "{DD92FD7F-7466-42AA-B311-A0A9703A6184}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Hosting.AspNetCore", "..\..\src\Framework\Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj", "{DD92FD7F-7466-42AA-B311-A0A9703A6184}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Tests", "..\..\src\tests\UnitTests\DotVVM.Framework.Tests.csproj", "{17A0237C-21D2-4BBA-8CBB-E7E08F35B834}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Tests", "..\..\src\Tests\DotVVM.Framework.Tests.csproj", "{17A0237C-21D2-4BBA-8CBB-E7E08F35B834}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest", "..\..\src\samples\Api.AspNetCoreLatest\DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest.csproj", "{3B73B5B1-D362-4916-99AF-D0A8A5EF8E5A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest", "..\..\src\Samples\Api.AspNetCoreLatest\DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest.csproj", "{3B73B5B1-D362-4916-99AF-D0A8A5EF8E5A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Api.Common", "..\..\src\samples\Api.Common\DotVVM.Samples.BasicSamples.Api.Common.csproj", "{FF837318-06C9-4023-8FF8-809CDB4520AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Api.Common", "..\..\src\Samples\Api.Common\DotVVM.Samples.BasicSamples.Api.Common.csproj", "{FF837318-06C9-4023-8FF8-809CDB4520AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.AspNetCoreLatest", "..\..\src\samples\AspNetCoreLatest\DotVVM.Samples.BasicSamples.AspNetCoreLatest.csproj", "{918508C4-0A96-4299-86B2-188C5CD24DE0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.AspNetCoreLatest", "..\..\src\Samples\AspNetCoreLatest\DotVVM.Samples.BasicSamples.AspNetCoreLatest.csproj", "{918508C4-0A96-4299-86B2-188C5CD24DE0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.Common", "..\..\src\samples\Common\DotVVM.Samples.Common.csproj", "{264BA3B0-3B31-4025-9D95-EFC4CA74F5A7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.Common", "..\..\src\Samples\Common\DotVVM.Samples.Common.csproj", "{264BA3B0-3B31-4025-9D95-EFC4CA74F5A7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.Tests", "..\..\src\samples\tests\Tests\DotVVM.Samples.Tests.csproj", "{D5A5ECF2-9437-46AC-BD27-1C905735A427}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.Tests", "..\..\src\Samples\Tests\Tests\DotVVM.Samples.Tests.csproj", "{D5A5ECF2-9437-46AC-BD27-1C905735A427}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Testing.Abstractions", "..\..\src\samples\tests\Abstractions\DotVVM.Testing.Abstractions.csproj", "{34EF1FBD-3E5E-47A1-A821-B6614C7615A2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Testing.Abstractions", "..\..\src\Samples\Tests\Abstractions\DotVVM.Testing.Abstractions.csproj", "{34EF1FBD-3E5E-47A1-A821-B6614C7615A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

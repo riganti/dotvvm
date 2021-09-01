@@ -130,15 +130,15 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../framework/Core/DotVVM.Core.csproj">
+    <ProjectReference Include="../../Framework/Core/DotVVM.Core.csproj">
       <Project>{45fa2f43-d92b-4a9b-9b93-9ab519ad0127}</Project>
       <Name>DotVVM.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="../../api/Swashbuckle.Owin/DotVVM.Framework.Api.Swashbuckle.Owin.csproj">
+    <ProjectReference Include="../../Api/Swashbuckle.Owin/DotVVM.Framework.Api.Swashbuckle.Owin.csproj">
       <Project>{bd72f6fc-a6ca-4b10-8098-3d27693e25ba}</Project>
       <Name>DotVVM.Framework.Api.Swashbuckle.Owin</Name>
     </ProjectReference>
-    <ProjectReference Include="../../samples/Api.Common/DotVVM.Samples.BasicSamples.Api.Common.csproj">
+    <ProjectReference Include="../../Samples/Api.Common/DotVVM.Samples.BasicSamples.Api.Common.csproj">
       <Project>{e6072462-b15a-4c3e-b3dc-61859dafb1af}</Project>
       <Name>DotVVM.Samples.BasicSamples.Api.Common</Name>
     </ProjectReference>
@@ -176,7 +176,7 @@
     <Error Condition="!Exists('..\..\packages\Microsoft.Net.Compilers.3.11.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Net.Compilers.3.11.0\build\Microsoft.Net.Compilers.props'))" />
   </Target>
   <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.3.6.0\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.3.6.0\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets')" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

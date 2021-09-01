@@ -3,27 +3,27 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.6.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Core", "..\..\src\framework\Core\DotVVM.Core.csproj", "{AC29851A-CD08-4314-B06E-627B76216CC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Core", "..\..\src\Framework\Core\DotVVM.Core.csproj", "{AC29851A-CD08-4314-B06E-627B76216CC6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework", "..\..\src\framework\Framework\DotVVM.Framework.csproj", "{5BE1C047-AAE1-4ECB-B2FA-7836CB374C54}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework", "..\..\src\Framework\Framework\DotVVM.Framework.csproj", "{5BE1C047-AAE1-4ECB-B2FA-7836CB374C54}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Hosting.Owin", "..\..\src\framework\Hosting.Owin\DotVVM.Framework.Hosting.Owin.csproj", "{24A484DF-F910-4E97-B17D-5A58D586256A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Hosting.Owin", "..\..\src\Framework\Hosting.Owin\DotVVM.Framework.Hosting.Owin.csproj", "{24A484DF-F910-4E97-B17D-5A58D586256A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.BasicSamples.Api.Common", "..\..\src\samples\Api.Common\DotVVM.Samples.BasicSamples.Api.Common.csproj", "{F66E6B33-1B31-47A9-8F9F-540F47DA3327}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.BasicSamples.Api.Common", "..\..\src\Samples\Api.Common\DotVVM.Samples.BasicSamples.Api.Common.csproj", "{F66E6B33-1B31-47A9-8F9F-540F47DA3327}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Api.Owin", "..\..\src\samples\Api.Owin\DotVVM.Samples.BasicSamples.Api.Owin.csproj", "{5B5B07E7-BC20-4168-BE55-CF9414575D47}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Api.Owin", "..\..\src\Samples\Api.Owin\DotVVM.Samples.BasicSamples.Api.Owin.csproj", "{5B5B07E7-BC20-4168-BE55-CF9414575D47}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.Common", "..\..\src\samples\Common\DotVVM.Samples.Common.csproj", "{F71D638B-D258-40BE-8861-213A5E5CACCC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.Common", "..\..\src\Samples\Common\DotVVM.Samples.Common.csproj", "{F71D638B-D258-40BE-8861-213A5E5CACCC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Owin", "..\..\src\samples\Owin\DotVVM.Samples.BasicSamples.Owin.csproj", "{1C7A9914-8CDC-4075-9422-37BD0E51C076}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Owin", "..\..\src\Samples\Owin\DotVVM.Samples.BasicSamples.Owin.csproj", "{1C7A9914-8CDC-4075-9422-37BD0E51C076}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmbeddedResourceControls", "..\..\src\samples\EmbeddedResourceControls\EmbeddedResourceControls.csproj", "{5E5BD33D-024A-4D20-A0CB-9551818ACF91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmbeddedResourceControls", "..\..\src\Samples\EmbeddedResourceControls\EmbeddedResourceControls.csproj", "{5E5BD33D-024A-4D20-A0CB-9551818ACF91}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Tests", "..\..\src\tests\UnitTests\DotVVM.Framework.Tests.csproj", "{3CFCFABD-72F9-4E8F-8F36-886815FCA76E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Tests", "..\..\src\Tests\DotVVM.Framework.Tests.csproj", "{3CFCFABD-72F9-4E8F-8F36-886815FCA76E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Testing.Abstractions", "..\..\src\samples\tests\Abstractions\DotVVM.Testing.Abstractions.csproj", "{7442ED9B-BFF3-4CCB-A304-3196678A2A7E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Testing.Abstractions", "..\..\src\Samples\Tests\Abstractions\DotVVM.Testing.Abstractions.csproj", "{7442ED9B-BFF3-4CCB-A304-3196678A2A7E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.Tests", "..\..\src\samples\tests\Tests\DotVVM.Samples.Tests.csproj", "{667A7061-9EED-4C4F-A716-BF1B6D62357E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.Tests", "..\..\src\Samples\Tests\Tests\DotVVM.Samples.Tests.csproj", "{667A7061-9EED-4C4F-A716-BF1B6D62357E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

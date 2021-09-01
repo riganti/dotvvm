@@ -41,8 +41,8 @@ for some reason. What fun. -->
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../framework/Framework/DotVVM.Framework.csproj" Private="false" />
-    <ProjectReference Include="../../framework/Core/DotVVM.Core.csproj" Private="false" />
+    <ProjectReference Include="../../Framework/Framework/DotVVM.Framework.csproj" Private="false" />
+    <ProjectReference Include="../../Framework/Core/DotVVM.Core.csproj" Private="false" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net461'">

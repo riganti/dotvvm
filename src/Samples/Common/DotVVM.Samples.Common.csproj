@@ -140,7 +140,7 @@
     <EmbeddedResource Include="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../framework/Framework/DotVVM.Framework.csproj" />
+    <ProjectReference Include="../../Framework/Framework/DotVVM.Framework.csproj" />
     <ProjectReference Include="../Api.Common/DotVVM.Samples.BasicSamples.Api.Common.csproj" />
     <ProjectReference Include="../EmbeddedResourceControls/EmbeddedResourceControls.csproj" />
   </ItemGroup>

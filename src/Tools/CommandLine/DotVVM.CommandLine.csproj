@@ -59,7 +59,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../framework/Framework/DotVVM.Framework.csproj" />
+    <ProjectReference Include="../../Framework/Framework/DotVVM.Framework.csproj" />
   </ItemGroup>
 
   <Target Name="BuildCompiler" BeforeTargets="BeforeBuild">

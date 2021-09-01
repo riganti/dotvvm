@@ -30,7 +30,7 @@ if ([string]::IsNullOrEmpty($Config)) {
 $sln = "$Root\ci\windows\Windows.sln"
 $packagesDir = "$Root\src\packages\"
 $testResultsDir = "$Root\artifacts\test\"
-$samplesDir = "$Root\src\samples\tests\Tests\"
+$samplesDir = "$Root\src\Samples\Tests\Tests\"
 $ciDir = "$Root\ci\windows\"
 
 Write-Host "ROOT=$Root"
@@ -133,7 +133,7 @@ if ($NoSlnBuild -ne $true) {
 
 if ($NoUnitTests -ne $true) {
     Run-Command "unit tests" {
-        dotnet test src/tests/UnitTests `
+        dotnet test "$Root\src\Tests" `
             --no-build `
             --configuration "$Config" `
             --logger "trx;LogFileName=unit-test-results.trx" `
@@ -144,7 +144,7 @@ if ($NoUnitTests -ne $true) {
 
 if ($NoJSTests -ne $true) {
     Run-Command "JS tests" {
-        Set-Location "$Root\src\framework\Framework"
+        Set-Location "$Root\src\Framework\Framework"
         npx jest --ci --reporters="jest-junit"
         Copy-Item junit.xml "$testResultsDir\js-test-results.xml"
         Set-Location "$Root"
@@ -167,7 +167,7 @@ if ($NoUITests -ne $true) {
             -BindingInformation "*:${SamplesPortApi}:"
 
         Copy-Item -Force -Recurse `
-            "$Root\src\samples\Common" `
+            "$Root\src\Samples\Common" `
             "$Root\artifacts"
 
         $uiTestProcess = Start-Process -PassThru -NoNewWindow -FilePath "dotnet.exe" `

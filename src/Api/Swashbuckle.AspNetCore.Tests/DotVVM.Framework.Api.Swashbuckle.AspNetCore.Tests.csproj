@@ -15,8 +15,8 @@
 
   <ItemGroup>
     <ProjectReference Include="../Swashbuckle.AspNetCore/DotVVM.Framework.Api.Swashbuckle.AspNetCore.csproj" />
-    <ProjectReference Include="../../samples/Api.AspNetCore/DotVVM.Samples.BasicSamples.Api.AspNetCore.csproj" />
-    <ProjectReference Include="../../samples/Api.Common/DotVVM.Samples.BasicSamples.Api.Common.csproj" />
+    <ProjectReference Include="../../Samples/Api.AspNetCore/DotVVM.Samples.BasicSamples.Api.AspNetCore.csproj" />
+    <ProjectReference Include="../../Samples/Api.Common/DotVVM.Samples.BasicSamples.Api.Common.csproj" />
   </ItemGroup>
 
 </Project>
