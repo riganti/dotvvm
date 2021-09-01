@@ -13,8 +13,8 @@ namespace DotVVM.Framework.Configuration
 {
     public class DotvvmCompilationPageConfiguration
     {
-        public const string DefaultUrl = "_dotvvm/compilation";
-        public const string DefaultRouteName = "_CompilationPage";
+        public const string DefaultUrl = "_dotvvm/diagnostics/compilation";
+        public const string DefaultRouteName = "_dotvvm_diagnostics_compilation";
 
         /// <summary>
         /// Gets or sets whether the compilation status page is enabled.
@@ -130,7 +130,7 @@ namespace DotVVM.Framework.Configuration
             if (IsApiEnabled)
             {
                 config.RouteTable.Add(
-                    routeName: $"{RouteName}Api",
+                    routeName: $"{RouteName}_api",
                     url: $"{Url}/api",
                     presenterType: typeof(CompilationPageApiPresenter));
             }
