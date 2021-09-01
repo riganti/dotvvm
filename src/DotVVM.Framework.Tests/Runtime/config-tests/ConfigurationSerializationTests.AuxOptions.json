@@ -20,7 +20,7 @@
   "clientSideValidation": false,
   "experimentalFeatures": {},
   "debug": true,
-  "development": {
+  "diagnostics": {
     "compilationPage": {}
   }
 }

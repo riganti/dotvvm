@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Diagnostics
         public async Task ProcessRequest(IDotvvmRequestContext context)
         {
             var response = context.HttpContext.Response;
-            var isAuthorized = await context.Configuration.Development.CompilationPage.AuthorizationPredicate(context);
+            var isAuthorized = await context.Configuration.Diagnostics.CompilationPage.AuthorizationPredicate(context);
             if (!isAuthorized)
             {
                 response.StatusCode = 403;

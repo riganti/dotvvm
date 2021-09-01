@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Diagnostics
 
         public override async Task Init()
         {
-            var isAuthorized = await Context.Configuration.Development.CompilationPage.AuthorizationPredicate(Context);
+            var isAuthorized = await Context.Configuration.Diagnostics.CompilationPage.AuthorizationPredicate(Context);
             if (!isAuthorized)
             {
                 Context.HttpContext.Response.StatusCode = 403;

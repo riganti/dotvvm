@@ -124,7 +124,7 @@ namespace Owin
             startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureFinished);
 
             modifyConfiguration?.Invoke(config);
-            config.Development.Apply(config);
+            config.Diagnostics.Apply(config);
             config.Freeze();
 
             startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmStarted);

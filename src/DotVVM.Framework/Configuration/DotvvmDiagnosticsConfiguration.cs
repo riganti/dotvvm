@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Configuration
 {
-    public class DotvvmDevelopmentConfiguration
+    public class DotvvmDiagnosticsConfiguration
     {
         /// <summary>
         /// Gets or sets the options of the compilation status page.
@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Configuration
         private void ThrowIfFrozen()
         {
             if (isFrozen)
-                throw FreezableUtils.Error(nameof(DotvvmDevelopmentConfiguration));
+                throw FreezableUtils.Error(nameof(DotvvmDiagnosticsConfiguration));
         }
 
         public void Freeze()

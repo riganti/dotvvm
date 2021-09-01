@@ -142,15 +142,15 @@ namespace DotVVM.Framework.Configuration
         private bool _debug;
 
         /// <summary>
-        /// Gets or sets the configuration for features meant for use during the development of a DotVVM application.
+        /// Gets or sets the configuration for diagnostic features useful during the development of an application.
         /// </summary>
-        [JsonProperty("development")]
-        public DotvvmDevelopmentConfiguration Development
+        [JsonProperty("diagnostics")]
+        public DotvvmDiagnosticsConfiguration Diagnostics
         {
-            get { return _development; }
-            set { ThrowIfFrozen(); _development = value; }
+            get { return _diagnostics; }
+            set { ThrowIfFrozen(); _diagnostics = value; }
         }
-        private DotvvmDevelopmentConfiguration _development = new DotvvmDevelopmentConfiguration();
+        private DotvvmDiagnosticsConfiguration _diagnostics = new();
 
         private void ThrowIfFrozen()
         {

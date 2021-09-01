@@ -74,7 +74,7 @@
   "defaultCulture": "en-US",
   "experimentalFeatures": {},
   "debug": false,
-  "development": {
+  "diagnostics": {
     "compilationPage": {}
   }
 }
