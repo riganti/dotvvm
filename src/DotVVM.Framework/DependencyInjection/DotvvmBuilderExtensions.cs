@@ -90,7 +90,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">The <see cref="IDotvvmServiceCollection" /> instance.</param>
         public static IDotvvmServiceCollection AddDiagnosticServices(this IDotvvmServiceCollection services)
         {
-            services.Services.TryAddSingleton<DotVVM.Framework.Diagnostics.DotvvmDiagnosticsConfiguration>();
+            services.Services.TryAddSingleton<DiagnosticsServerConfiguration>();
             services.Services.TryAddSingleton<IDiagnosticsInformationSender, DiagnosticsInformationSender>();
 
             services.Services.TryAddSingleton<IOutputRenderer, DiagnosticsRenderer>();
