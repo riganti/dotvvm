@@ -6,6 +6,13 @@ using System.Collections.Generic;
 
 namespace DotVVM.Framework.Controls
 {
+    public interface IDotvvmObjectLike
+    {
+        DotvvmBindableObject Self { get; }
+    }
+    public interface IObjectWithCapability<TCapability>: IDotvvmObjectLike
+    {
+    }
     public interface IDotvvmControl: IRenderable
     {
         DotvvmControlCollection Children { get; }
