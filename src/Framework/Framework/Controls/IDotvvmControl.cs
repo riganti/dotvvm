@@ -6,14 +6,17 @@ using System.Collections.Generic;
 
 namespace DotVVM.Framework.Controls
 {
+    /// <summary> Object which is basically DotvvmBindableObject. This interface is useful for defining interfaces for controls, otherwise please prefer using DotvvmBindableObject directly. </summary>
     public interface IDotvvmObjectLike
     {
+        /// <summary> Returns itself. This is a kinda hack which allows interfaces to inherit from almost DotvvmBindableObject </summary>
         DotvvmBindableObject Self { get; }
     }
+    /// <summary> Marker interface for DotvvmBindableObject which have the specified capability. If no capability of type TCapability is defined, it will be registered automatically. </summary>
     public interface IObjectWithCapability<TCapability>: IDotvvmObjectLike
     {
     }
-    public interface IDotvvmControl: IRenderable
+    public interface IDotvvmControl: IRenderable, IDotvvmObjectLike
     {
         DotvvmControlCollection Children { get; }
         ClientIDMode ClientIDMode { get; set; }

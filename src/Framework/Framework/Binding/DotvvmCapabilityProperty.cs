@@ -41,6 +41,15 @@ namespace DotVVM.Framework.Binding
             return null;
         }
 
+        public static IEnumerable<DotvvmCapabilityProperty> GetCapabilities(Type declaringType) =>
+            capabilityRegistry.Values.Where(c => c.DeclaringType.IsAssignableFrom(declaringType));
+
+        public IEnumerable<DotvvmCapabilityProperty> ThisAndOwners()
+        {
+            for (var x = this; x is object; x = x.OwningCapability)
+                yield return x;
+        }
+
         private static void AssertNotDefined(Type declaringType, Type capabilityType, string propertyName, string globalPrefix, bool postContent = false)
         {
             var postContentHelp = postContent ? $"It seems that the capability {capabilityType} contains a property of the same type, which leads to the conflict. " : "";
@@ -60,7 +69,6 @@ namespace DotVVM.Framework.Binding
                 PropertyType = capabilityType,
                 DeclaringType = declaringType,
                 AttributeProvider = capabilityAttributeProvider!,
-                DeclaringType = declaringType
             };
             if (declaringCapability is object)
             {
@@ -109,11 +117,17 @@ namespace DotVVM.Framework.Binding
         {
             var properties = capabilityType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
 
+            if (!capabilityType.IsDefined(typeof(DotvvmControlCapabilityAttribute)))
+                throw new Exception($"Class {capabilityType} is used as a DotVVM capability, but it is missing the [DotvvmControlCapability] attribute.");
+
             if (properties.Length == 0)
                 throw new Exception($"Capability {capabilityType} does not have any properties. It was registered as property in {declaringType}.");
 
             if (capabilityType.GetConstructor(Type.EmptyTypes) == null)
                 throw new Exception($"Capability {capabilityType} does not have a parameterless constructor. It was registered as property in {declaringType}.");
+
+            if (!capabilityType.IsSealed)
+                throw new Exception($"Capability {capabilityType} must be a sealed class or a struct. It was registered as property in {declaringType}.");
 
             var instance = Activator.CreateInstance(capabilityType);
             var valueParameter = Expression.Parameter(capabilityType, "value");
@@ -129,7 +143,7 @@ namespace DotVVM.Framework.Binding
             {
                 var defaultValue = ValueOrBinding<object>.FromBoxedValue(prop.GetValue(instance));
                 var attrProvider = CombinedDataContextAttributeProvider.Create(parentAttributeProvider, prop);
-                var (propGetter, propSetter) = InitializeArgument(attrProvider, globalPrefix + prop.Name, prop.PropertyType, declaringType, capabilityType, defaultValue, resultProperty);
+                var (propGetter, propSetter) = InitializeArgument(attrProvider, globalPrefix + prop.Name, prop.PropertyType, declaringType, resultProperty, defaultValue);
 
                 getterBody.Add(Expression.Assign(Expression.Property(valueParameter, prop), ExpressionUtils.Replace(propGetter, currentControlParameter)));
 
@@ -157,8 +171,9 @@ namespace DotVVM.Framework.Binding
         }
 
         private static readonly ParameterExpression currentControlParameter = Expression.Parameter(typeof(DotvvmBindableObject), "control");
-        internal static (LambdaExpression getter, LambdaExpression setter) InitializeArgument(ICustomAttributeProvider attributeProvider, string propertyName, Type propertyType, Type declaringType, Type? capabilityType, ValueOrBinding<object>? defaultValue, DotvvmCapabilityProperty? declaringCapability)
+        internal static (LambdaExpression getter, LambdaExpression setter) InitializeArgument(ICustomAttributeProvider attributeProvider, string propertyName, Type propertyType, Type declaringType, DotvvmCapabilityProperty? declaringCapability, ValueOrBinding<object>? defaultValue)
         {
+            var capabilityType = declaringCapability?.PropertyType;
             propertyName = char.ToUpperInvariant(propertyName[0]) + propertyName.Substring(1);
 
             if (attributeProvider.GetCustomAttribute<DefaultValueAttribute>() is DefaultValueAttribute defaultAttribute)
