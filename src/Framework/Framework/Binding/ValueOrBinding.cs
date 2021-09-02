@@ -65,6 +65,11 @@ namespace DotVVM.Framework.Binding
         public IBinding? BindingOrDefault => binding;
         public object? BoxedValue => (object?)value;
 
+        public bool HasValue => binding is null;
+
+        [MemberNotNullWhenAttribute(true, "BindingOrDefault", "binding")]
+        public bool HasBinding => binding is object;
+
         public static ValueOrBinding<T> DownCast<T2>(ValueOrBinding<T2> createFrom)
             where T2 : T => new ValueOrBinding<T>(createFrom.binding, createFrom.value!);
 
@@ -151,5 +156,10 @@ namespace DotVVM.Framework.Binding
         [Obsolete(EqualsDisabledReason, error: true)]
         public override int GetHashCode() => throw new NotSupportedException(EqualsDisabledReason);
 #pragma warning restore CS0809
+
+        public override string ToString() =>
+            HasBinding ? binding.ToString() :
+            value is null ? "null" : value.ToString();
+
     }
 }
