@@ -42,7 +42,8 @@ namespace DotVVM.Framework.Binding
                 alias.AliasedPropertyName);
             if (aliased is null)
             {
-                throw new ArgumentException($"Property alias '{alias}' could not be resolved.");
+                throw new ArgumentException($"Property alias '{alias}' could not be resolved. "
+                    + $"The aliased property '{alias.AliasedPropertyDeclaringType.Name}.{alias.AliasedPropertyName}' is not registered.");
             }
 
             alias.aliased = aliased;
