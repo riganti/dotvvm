@@ -164,7 +164,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (prop == null) return new BindingResolverCollection(Enumerable.Empty<Delegate>());
 
             return new BindingResolverCollection(
-                prop.AttributeProvider.GetCustomAttributes<BindingCompilationOptionsAttribute>()
+                prop.GetAttributes<BindingCompilationOptionsAttribute>()
                 .SelectMany(o => o.GetResolvers())
                 .Concat(stack?.EnumerableItems().Reverse().SelectMany(s => s.BindingPropertyResolvers) ?? Enumerable.Empty<Delegate>())
                 .ToImmutableArray());
@@ -177,7 +177,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
             return
                 new[] { new BindingCompilationRequirementsAttribute() }
-                .Concat(prop.AttributeProvider.GetCustomAttributes<BindingCompilationRequirementsAttribute>())
+                .Concat(prop.GetAttributes<BindingCompilationRequirementsAttribute>())
                 .Aggregate((a, b) => a.ApplySecond(b));
         }
 

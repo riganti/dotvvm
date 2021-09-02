@@ -64,8 +64,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Provider of custom attributes for this property.
         /// </summary>
-        public ICustomAttributeProvider AttributeProvider { get; private set; }
-
+        internal ICustomAttributeProvider AttributeProvider { get; set; }
 
         /// <summary>
         /// Gets or sets the markup options.
@@ -104,15 +103,54 @@ namespace DotVVM.Framework.Binding
         /// <summary> The capabilities which use this property. </summary>
         public ImmutableArray<DotvvmCapabilityProperty> UsedInCapabilities { get; internal set; } = ImmutableArray<DotvvmCapabilityProperty>.Empty;
 
+
+        internal void AddUsedInCapability(DotvvmCapabilityProperty? p)
+        {
+            if (p is object)
+                lock(this)
+                {
+                    UsedInCapabilities = UsedInCapabilities.Add(p);
+                }
+        }
+
         /// <summary>
         /// Prevents a default instance of the <see cref="DotvvmProperty"/> class from being created.
         /// </summary>
 #pragma warning disable CS8618 // DotvvmProperty is usually initialized by InitializeProperty
         internal DotvvmProperty()
-#pragma warning restore CS8618
         {
         }
+        internal DotvvmProperty(
+#pragma warning restore CS8618
+            string name,
+            Type type,
+            Type declaringType,
+            object? defaultValue,
+            bool isValueInherited,
+            ICustomAttributeProvider attributeProvider
+        )
+        {
+            this.Name = name;
+            this.PropertyType = type;
+            this.DeclaringType = declaringType;
+            this.DefaultValue = defaultValue;
+            this.IsValueInherited = isValueInherited;
+            this.AttributeProvider = attributeProvider;
+            InitializeProperty(this);
+        }
 
+        public IEnumerable<T> GetAttributes<T>() =>
+            AttributeProvider.GetCustomAttributes<T>().Concat(
+                PropertyInfo?.GetCustomAttributes<T>() ?? Enumerable.Empty<T>()
+            );
+
+        public bool IsOwnedByCapability(Type capability) =>
+            (this is DotvvmCapabilityProperty && this.PropertyType == capability) ||
+            OwningCapability?.IsOwnedByCapability(capability) == true;
+
+        public bool IsOwnedByCapability(DotvvmCapabilityProperty capability) =>
+            this == capability ||
+            OwningCapability?.IsOwnedByCapability(capability) == true;
 
         /// <summary>
         /// Gets the value of the property.
@@ -192,8 +230,6 @@ namespace DotVVM.Framework.Binding
 
         public static DotvvmProperty Register(string propertyName, Type propertyType, Type declaringType, object? defaultValue, bool isValueInherited, DotvvmProperty? property, ICustomAttributeProvider attributeProvider, bool throwOnDuplicateRegistration = true)
         {
-            var fullName = declaringType.FullName + "." + propertyName;
-
             if (property == null) property = new DotvvmProperty();
 
             property.Name = propertyName;
@@ -201,40 +237,52 @@ namespace DotVVM.Framework.Binding
             property.DeclaringType = declaringType;
             property.PropertyType = propertyType;
             property.DefaultValue = defaultValue;
+            property.AttributeProvider = attributeProvider;
 
-            InitializeProperty(property, attributeProvider);
+            return Register(property, throwOnDuplicateRegistration);
+        }
 
-            if (!registeredProperties.TryAdd(fullName, property))
+        internal static DotvvmProperty Register(DotvvmProperty property, bool throwOnDuplicateRegistration = true)
+        {
+            InitializeProperty(property);
+
+            var key = (property.DeclaringType, property.Name);
+            if (!registeredProperties.TryAdd(key, property))
             {
                 if (throwOnDuplicateRegistration)
-                    throw new ArgumentException($"Property is already registered: {fullName}");
+                    throw new ArgumentException($"Property is already registered: {property.FullName}");
                 else
-                    property = registeredProperties[fullName];
+                    property = registeredProperties[key];
             }
 
             return property;
         }
 
-        public static void InitializeProperty(DotvvmProperty property, ICustomAttributeProvider attributeProvider)
+        public static void InitializeProperty(DotvvmProperty property, ICustomAttributeProvider? attributeProvider = null)
         {
-            var propertyInfo = property.PropertyInfo ?? property.DeclaringType.GetProperty(property.Name);
-            property.AttributeProvider = attributeProvider = propertyInfo ?? attributeProvider ?? throw new ArgumentNullException(nameof(attributeProvider));
-            var markupOptions = propertyInfo?.GetCustomAttribute<MarkupOptionsAttribute>()
-                ?? attributeProvider.GetCustomAttribute<MarkupOptionsAttribute>()
-                ?? new MarkupOptionsAttribute() {
-                    AllowBinding = true,
-                    AllowHardCodedValue = true,
-                    MappingMode = MappingMode.Attribute,
-                    Name = property.Name
-                };
-            if (string.IsNullOrEmpty(markupOptions.Name)) markupOptions.Name = property.Name;
+            if (string.IsNullOrWhiteSpace(property.Name))
+                throw new Exception("DotvvmProperty must not have empty name.");
+            if (property.DeclaringType is null || property.PropertyType is null)
+                throw new Exception($"DotvvmProperty {property.DeclaringType?.Name}.{property.Name} must have PropertyType and DeclaringType.");
 
-            if (property == null) property = new DotvvmProperty();
-            property.PropertyInfo = propertyInfo;
-            property.DataContextChangeAttributes = attributeProvider.GetCustomAttributes<DataContextChangeAttribute>().ToArray();
-            property.DataContextManipulationAttribute = attributeProvider.GetCustomAttribute<DataContextStackManipulationAttribute>();
-            if (property.DataContextManipulationAttribute != null && property.DataContextChangeAttributes.Any()) throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set both at property '{property.FullName}'.");
-            property.MarkupOptions = markupOptions;
+
+            property.PropertyInfo ??= property.DeclaringType.GetProperty(property.Name);
+            property.AttributeProvider ??=
+                attributeProvider ??
+                property.PropertyInfo ??
+                throw new ArgumentNullException(nameof(attributeProvider));
+            property.MarkupOptions ??=
+                property.GetAttributes<MarkupOptionsAttribute>().SingleOrDefault()
+                ?? new MarkupOptionsAttribute();
+            if (string.IsNullOrEmpty(property.MarkupOptions.Name))
+                property.MarkupOptions.Name = property.Name;
+
+            property.DataContextChangeAttributes ??=
+                property.GetAttributes<DataContextChangeAttribute>().ToArray();
+            property.DataContextManipulationAttribute ??=
+                property.GetAttributes<DataContextStackManipulationAttribute>().SingleOrDefault();
+            if (property.DataContextManipulationAttribute != null && property.DataContextChangeAttributes.Any())
+                throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set both at property '{property.FullName}'.");
             property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
         }
 
@@ -242,7 +290,7 @@ namespace DotVVM.Framework.Binding
         {
             var properties =
                (from p in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                where !registeredProperties.ContainsKey(p.DeclaringType!.FullName + "." + p.Name)
+                where !registeredProperties.ContainsKey((p.DeclaringType!, p.Name))
                 where p.GetCustomAttribute<PropertyGroupAttribute>() == null
                 let markupOptions = p.GetCustomAttribute<MarkupOptionsAttribute>()
                 where markupOptions != null && markupOptions.MappingMode != MappingMode.Exclude
@@ -258,20 +306,17 @@ namespace DotVVM.Framework.Binding
             }
         }
 
-        private static ConcurrentDictionary<string, DotvvmProperty> registeredProperties = new ConcurrentDictionary<string, DotvvmProperty>();
+        private static ConcurrentDictionary<(Type, string), DotvvmProperty> registeredProperties = new();
 
         /// <summary>
         /// Resolves the <see cref="DotvvmProperty"/> by the declaring type and name.
         /// </summary>
         public static DotvvmProperty? ResolveProperty(Type type, string name)
         {
-            var fullName = type.FullName + "." + name;
-
             DotvvmProperty? property;
-            while (!registeredProperties.TryGetValue(fullName, out property) && type.BaseType != null)
+            while (!registeredProperties.TryGetValue((type, name), out property) && type.BaseType != null)
             {
                 type = type.BaseType;
-                fullName = type.FullName + "." + name;
             }
             return property;
         }

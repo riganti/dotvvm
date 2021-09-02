@@ -58,6 +58,8 @@ namespace DotVVM.Framework.Binding
             var prop = new DotvvmCapabilityProperty(globalPrefix) {
                 Name = name,
                 PropertyType = capabilityType,
+                DeclaringType = declaringType,
+                AttributeProvider = capabilityAttributeProvider!,
                 DeclaringType = declaringType
             };
             if (declaringCapability is object)
