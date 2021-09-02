@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return true;
         }
 
-        public bool UnsetProperty(DotvvmProperty property)
+        public bool RemoveProperty(DotvvmProperty property)
         {
             if (Properties.TryGetValue(property, out _))
             {

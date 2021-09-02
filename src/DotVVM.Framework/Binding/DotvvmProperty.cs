@@ -401,14 +401,14 @@ namespace DotVVM.Framework.Binding
             return registeredProperties.Values.Where(p => types.Contains(p.DeclaringType)).ToArray();
         }
 
-        public static IReadOnlyDictionary<string, DotvvmProperty> GetRegisteredProperties()
+        public static IEnumerable<DotvvmProperty> GetRegisteredProperties()
         {
-            return ReadOnlyDictionaryWrapper<string, DotvvmProperty>.WrapIfNeeded(registeredProperties);
+            return registeredProperties.Values;
         }
 
-        public static IReadOnlyDictionary<string, DotvvmPropertyAlias> GetRegisteredAliases()
+        public static IEnumerable<DotvvmPropertyAlias> GetRegisteredAliases()
         {
-            return ReadOnlyDictionaryWrapper<string, DotvvmPropertyAlias>.WrapIfNeeded(registeredAliases);
+            return registeredAliases.Values;
         }
 
         public override string ToString()

@@ -7,7 +7,9 @@ namespace DotVVM.Framework.Compilation
         public override void DefaultVisit(IResolvedTreeNode node)
         {
             base.DefaultVisit(node);
-            if (!(node is ResolvedPropertySetter setter) || setter.Property.ObsoleteAttribute is null)
+            if (node is not ResolvedPropertySetter setter
+                || setter.Property.ObsoleteAttribute is null
+                || setter.DothtmlNode is null)
             {
                 return;
             }

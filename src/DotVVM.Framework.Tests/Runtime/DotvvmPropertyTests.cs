@@ -1,4 +1,3 @@
-#nullable enable
 #pragma warning disable CS0618 // disable the warning about obsoletes
 
 using DotVVM.Framework.Binding;

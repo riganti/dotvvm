@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Compilation
                     {
                         pair.Value.Property = alias.Aliased;
                         control.SetProperty(pair.Value);
-                        control.UnsetProperty(pair.Key);
+                        control.RemoveProperty(pair.Key);
                     }
                 }
             }

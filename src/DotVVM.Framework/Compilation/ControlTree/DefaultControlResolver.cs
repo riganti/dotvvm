@@ -145,7 +145,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private void ResolveAllPropertyAliases()
         {
             foreach (var alias in DotvvmProperty.GetRegisteredAliases()) {
-                DotvvmPropertyAlias.Resolve(alias.Value);
+                DotvvmPropertyAlias.Resolve(alias);
             }
         }
 
