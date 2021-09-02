@@ -1,0 +1,23 @@
+AggregateException occurred: Could not initialize binding '{ValueBindingExpression: _parent.LOL}', requirements DotVVM.Framework.Binding.Properties.KnockoutExpressionBindingProperty, DotVVM.Framework.Binding.Properties.ResultTypeBindingProperty, DotVVM.Framework.Binding.Expressions.BindingDelegate were not met. (Unable to get property KnockoutExpressionBindingProperty of binding {ValueBindingExpression: _parent.LOL}, unresolvable arguments. (Unable to get property KnockoutJsExpressionBindingProperty of binding {ValueBindingExpression: _parent.LOL}, unresolvable arguments. (Unable to get property CastedExpressionBindingProperty of binding {ValueBindingExpression: _parent.LOL}, unresolvable arguments. (Could not resolve identifier '_parent.LOL'.)))) (Unable to get property ResultTypeBindingProperty of binding {ValueBindingExpression: _parent.LOL}, unresolvable arguments. (Could not resolve identifier '_parent.LOL'.)) (Unable to get property Expression`1 of binding {ValueBindingExpression: _parent.LOL}, unresolvable arguments. (Unable to get property CastedExpressionBindingProperty of binding {ValueBindingExpression: _parent.LOL}, unresolvable arguments. (Could not resolve identifier '_parent.LOL'.)))
+    at void DotVVM.Framework.Tests.Runtime.RuntimeErrorTests.BindingErrorsShouldBeReasonable()+() => { }
+
+BindingPropertyException occurred: Unable to get property KnockoutExpressionBindingProperty of binding {ValueBindingExpression: _parent.LOL}, unresolvable arguments. (Unable to get property KnockoutJsExpressionBindingProperty of binding {ValueBindingExpression: _parent.LOL}, unresolvable arguments. (Unable to get property CastedExpressionBindingProperty of binding {ValueBindingExpression: _parent.LOL}, unresolvable arguments. (Could not resolve identifier '_parent.LOL'.)))
+
+BindingPropertyException occurred: Unable to get property KnockoutJsExpressionBindingProperty of binding {ValueBindingExpression: _parent.LOL}, unresolvable arguments. (Unable to get property CastedExpressionBindingProperty of binding {ValueBindingExpression: _parent.LOL}, unresolvable arguments. (Could not resolve identifier '_parent.LOL'.))
+
+BindingPropertyException occurred: Unable to get property CastedExpressionBindingProperty of binding {ValueBindingExpression: _parent.LOL}, unresolvable arguments. (Could not resolve identifier '_parent.LOL'.)
+
+Exception occurred: Could not resolve identifier '_parent.LOL'.
+    at Expression DotVVM.Framework.Compilation.Binding.UnknownStaticClassIdentifierExpression.Reduce()
+
+BindingPropertyException occurred: Unable to get property ResultTypeBindingProperty of binding {ValueBindingExpression: _parent.LOL}, unresolvable arguments. (Could not resolve identifier '_parent.LOL'.)
+
+Exception occurred: Could not resolve identifier '_parent.LOL'.
+    at Expression DotVVM.Framework.Compilation.Binding.UnknownStaticClassIdentifierExpression.Reduce()
+
+BindingPropertyException occurred: Unable to get property Expression`1 of binding {ValueBindingExpression: _parent.LOL}, unresolvable arguments. (Unable to get property CastedExpressionBindingProperty of binding {ValueBindingExpression: _parent.LOL}, unresolvable arguments. (Could not resolve identifier '_parent.LOL'.))
+
+BindingPropertyException occurred: Unable to get property CastedExpressionBindingProperty of binding {ValueBindingExpression: _parent.LOL}, unresolvable arguments. (Could not resolve identifier '_parent.LOL'.)
+
+Exception occurred: Could not resolve identifier '_parent.LOL'.
+    at Expression DotVVM.Framework.Compilation.Binding.UnknownStaticClassIdentifierExpression.Reduce()

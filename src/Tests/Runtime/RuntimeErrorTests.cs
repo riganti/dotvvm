@@ -72,7 +72,6 @@ namespace DotVVM.Framework.Tests.Runtime
         BindingCompilationService bindingService => config.ServiceProvider.GetService<BindingCompilationService>();
 
         [TestMethod]
-        [Ignore("Doesn't work on Windows because of different EOL sequences.")]
         public void NonExistentBindingProperty()
         {
             var binding = ValueBindingExpression.CreateBinding(bindingService, a => 12, DataContextStack.Create(typeof(string)));
@@ -81,7 +80,6 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
-        [Ignore("Doesn't work on Windows because of different EOL sequences.")]
         public void PropertyResolverFailure()
         {
             var binding = ValueBindingExpression.CreateBinding(bindingService.WithoutInitialization(), a => config.ToString(), DataContextStack.Create(typeof(string)));
@@ -91,11 +89,21 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
-        [Ignore("Doesn't work on Windows because of different EOL sequences.")]
         public void InitResolverFailure()
         {
 
             check.CheckException(() => ValueBindingExpression.CreateBinding(bindingService, a => config.ToString(), DataContextStack.Create(typeof(string))));
+        }
+
+        [TestMethod]
+        public void BindingErrorsShouldBeReasonable()
+        {
+
+            check.CheckException(() => new ValueBindingExpression(bindingService, new object[] {
+                DataContextStack.Create(typeof(string)),
+                new OriginalStringBindingProperty("_parent.LOL"),
+                BindingParserOptions.Value
+            }));
         }
 
         [TestMethod]

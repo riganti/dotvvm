@@ -51,7 +51,7 @@ namespace DotVVM.Framework.Tests.Binding
             var binding = new ResourceBindingExpression(bindingService, new object[] {
                 contextType,
                 new OriginalStringBindingProperty(expression),
-                new BindingParserOptions(typeof(ResourceBindingExpression), importNamespaces: imports?.ToImmutableList()),
+                BindingParserOptions.Resource.AddImports(imports),
                 new ExpectedTypeBindingProperty(expectedType ?? typeof(object))
             });
             return binding.BindingDelegate.Invoke(contexts, control);
