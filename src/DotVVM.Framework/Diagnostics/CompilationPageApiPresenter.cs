@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Diagnostics
                 return;
             }
 
-            var result = await compilationService.CompileAll(false);
+            var result = await compilationService.CompileAll(buildInParallel: true);
             if (result)
             {
                 response.StatusCode = 200;
