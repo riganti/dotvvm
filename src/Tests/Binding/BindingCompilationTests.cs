@@ -367,7 +367,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingCompiler_Invalid_LambdaParameters(string expr)
         {
             var viewModel = new TestViewModel();
-            Assert.ThrowsException<AggregateException>(() => ExecuteBinding(expr, viewModel));         
+            Assert.ThrowsException<BindingPropertyException>(() => ExecuteBinding(expr, viewModel));         
         }
 
         [TestMethod]
@@ -547,7 +547,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_Invalid_EnumStringComparison()
         {
-            Assert.ThrowsException<AggregateException>(() => {
+            Assert.ThrowsException<BindingPropertyException>(() => {
                 var viewModel = new TestViewModel { EnumProperty = TestEnum.A };
                 ExecuteBinding("Enum == 'ghfjdskdjhbvdksdj'", viewModel);
             });
@@ -720,7 +720,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_Invalid_ToStringConversion()
         {
-            Assert.ThrowsException<AggregateException>(() => {
+            Assert.ThrowsException<BindingPropertyException>(() => {
                 var testViewModel = new TestViewModel();
                 var result = ExecuteBinding("_this", new[] { testViewModel }, null, expectedType: typeof(string));
             });
@@ -824,7 +824,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [ExpectedExceptionMessageSubstring(typeof(AggregateException), "Identifier name")]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Identifier name")]
         public void BindingCompiler_MemberAccessIdentifierMissing_Throws()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
@@ -890,7 +890,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [ExpectedExceptionMessageSubstring(typeof(AggregateException), "Could not implicitly convert expression of type System.Void to System.Object")]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Could not implicitly convert expression of type System.Void to System.Object")]
         public void BindingCompiler_MultiBlockExpression_EmptyBlockAtEnd_Throws()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
@@ -898,7 +898,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [ExpectedExceptionMessageSubstring(typeof(AggregateException), "Could not implicitly convert expression of type System.Void to System.Object")]
+        [ExpectedExceptionMessageSubstring(typeof(BindingPropertyException), "Could not implicitly convert expression of type System.Void to System.Object")]
         public void BindingCompiler_MultiBlockExpression_WhitespaceBlockAtEnd_Throws()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
@@ -994,7 +994,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_Errors_AssigningToType()
         {
-            var aggEx = Assert.ThrowsException<AggregateException>(() => ExecuteBinding("System.String = 123", new [] { new TestViewModel() }));
+            var aggEx = Assert.ThrowsException<BindingPropertyException>(() => ExecuteBinding("System.String = 123", new [] { new TestViewModel() }));
             var ex = aggEx.AllInnerExceptions().Single(e => e.InnerException == null);
             Assert.IsTrue(ex.Message.Contains("Expression must be writeable"));
         }

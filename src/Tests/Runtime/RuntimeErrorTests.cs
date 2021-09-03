@@ -107,7 +107,6 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
-        [Ignore("Doesn't work on Windows because of different EOL sequences.")]
         public void DataContextStack_ToString()
         {
             var parent = DataContextStack.Create(typeof(string), DataContextStack.Create(typeof(RuntimeErrorTests)));
@@ -121,7 +120,6 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
-        [Ignore("Doesn't work at all.")]
         public void CantFindDataContextSpace()
         {
             var binding = ValueBindingExpression.CreateBinding(bindingService, a => false, DataContextStack.Create(typeof(string)));

@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Compilation
                 // TODO: aggregate all errors from the page
                 throw new DotvvmCompilationException(
                     errors.GetErrorMessage(propertyBinding.Binding.Binding),
-                    errors.Exceptions.Count() > 1 ? new AggregateException(errors.Exceptions) : errors.Exceptions.SingleOrDefault(),
+                    errors.Exceptions.FirstOrDefault(),
                     propertyBinding.Binding.BindingNode?.Tokens);
             }
             base.VisitPropertyBinding(propertyBinding);
