@@ -10,10 +10,13 @@
 <body ClientIDMode="Static">
     <h1>Compilation Status Page</h1>
     <dot:Button ID="compile-all-button"
-                Click="{command: CompileAll()}"
-                Text="Compile All"
+                Click="{command: CompileAll(false)}"
+                Text="Compile all"
                 class="execute"
                 class-js-compile-auto="{resource: Context.Configuration.Diagnostics.CompilationPage.ShouldCompileAllOnLoad}" />
+    <dot:Button Click="{command: CompileAll(true)}"
+                Text="Force recompile all"
+                class="execute" />
     <dot:UpdateProgress class="compile-progress">
         <div>Compiling<span>.</span><span>.</span><span>.</span></div>
     </dot:UpdateProgress>
@@ -38,8 +41,8 @@
             <h2>Routes</h2>
             <dot:GridView DataSource="{value: Routes}" class="nowrap">
                 <RowDecorators>
-                    <dot:Decorator Class-failure="{value: Status == 'CompilationFailed'}" />
-                    <dot:Decorator Class-success="{value: Status == 'CompletedSuccessfully'}" />
+                    <dot:Decorator Class-failure="{value: Status == 'CompilationFailed'}"
+                                   Class-success="{value: Status == 'CompletedSuccessfully'}" />
                 </RowDecorators>
                 <Columns>
                     <dot:GridViewTextColumn ValueBinding="{value: RouteName}"
@@ -77,8 +80,8 @@
             <h2>Controls</h2>
             <dot:GridView DataSource="{value: Controls}" class="nowrap">
                 <RowDecorators>
-                    <dot:Decorator Class-failure="{value: Status == 'CompilationFailed'}" />
-                    <dot:Decorator Class-success="{value: Status == 'CompletedSuccessfully'}" />
+                    <dot:Decorator Class-failure="{value: Status == 'CompilationFailed'}"
+                                   Class-success="{value: Status == 'CompletedSuccessfully'}" />
                 </RowDecorators>
                 <Columns>
                     <dot:GridViewTextColumn ValueBinding="{value: TagPrefix}"
@@ -105,8 +108,8 @@
             <dot:GridView DataSource="{value: MasterPages}" class="nowrap">
 
                 <RowDecorators>
-                    <dot:Decorator Class-failure="{value: Status == 'CompilationFailed'}" />
-                    <dot:Decorator Class-success="{value: Status == 'CompletedSuccessfully'}" />
+                    <dot:Decorator Class-failure="{value: Status == 'CompilationFailed'}"
+                                   Class-success="{value: Status == 'CompletedSuccessfully'}" />
                 </RowDecorators>
                 <Columns>
                     <dot:GridViewTextColumn ValueBinding="{value: VirtualPath}" HeaderText="Virtual Path" />

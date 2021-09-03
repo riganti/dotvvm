@@ -34,9 +34,9 @@ namespace DotVVM.Framework.Diagnostics
             await base.Init();
         }
 
-        public async Task CompileAll()
+        public async Task CompileAll(bool forceRecompile)
         {
-            await viewCompilationService.CompileAll(true, true);
+            await viewCompilationService.CompileAll(buildInParallel: true, forceRecompile: forceRecompile);
         }
 
         public void BuildView(DotHtmlFileInfo file)
