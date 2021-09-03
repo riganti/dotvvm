@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Collections;
@@ -47,7 +46,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         {
             Write(str);
         }
-        
+
         public string TransformText()
         {
             // head
