@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyTitle>DotVVM</AssemblyTitle>
     <VersionPrefix>4.0.0-preview01-116912</VersionPrefix>
-    <TargetFrameworks>net472;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net472</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
@@ -116,7 +116,7 @@
   <PropertyGroup Condition=" '$(TargetFramework)' != 'net472' ">
     <DefineConstants>$(DefineConstants);DotNetCore</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net472' or '$(TargetFramework)' == 'netstandard2.0' ">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <DefineConstants>$(DefineConstants);CSharp8Polyfill;INTERNAL_NULLABLE_ATTRIBUTES</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">

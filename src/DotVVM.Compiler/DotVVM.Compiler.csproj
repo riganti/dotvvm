@@ -10,7 +10,7 @@ for some reason. What fun. -->
 
   <!-- Related to compilation -->
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net472;net461;net5.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <OutputType>Exe</OutputType>
     <LangVersion>9.0</LangVersion>

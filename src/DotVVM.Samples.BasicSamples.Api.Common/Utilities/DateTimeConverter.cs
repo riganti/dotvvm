@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest.Utilities
+namespace DotVVM.Samples.BasicSamples.Api.Common.Utilities
 {
     public class DateTimeConverter : JsonConverter<DateTime>
     {

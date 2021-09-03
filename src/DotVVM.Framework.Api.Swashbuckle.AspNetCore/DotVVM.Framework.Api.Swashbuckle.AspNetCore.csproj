@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <PackageId>DotVVM.Api.Swashbuckle.AspNetCore</PackageId>
     <PackageVersion>4.0.0-preview01-116912</PackageVersion>
     <Authors>RIGANTI</Authors>
