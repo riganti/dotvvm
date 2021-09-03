@@ -1,0 +1,163 @@
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyTitle>DotVVM</AssemblyTitle>
+    <VersionPrefix>4.0.0-preview01-116912</VersionPrefix>
+    <TargetFrameworks>net451;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <PackageId>DotVVM</PackageId>
+    <PackageVersion>4.0.0-preview01-116912</PackageVersion>
+    <Authors>RIGANTI</Authors>
+    <Description>DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore;dnx</PackageTags>
+    <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="node_modules\**" />
+    <EmbeddedResource Remove="node_modules\**" />
+    <None Remove="node_modules\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
+    <EmbeddedResource Include="obj/javascript/root-only/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-only-debug/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-spa/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-spa-debug/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-only-system/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-only-system-debug/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-spa-system/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-spa-system-debug/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/polyfill.bundle.js" />
+    <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.min.js" />
+    <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
+    <EmbeddedResource Include="Resources\Scripts\knockout-latest.debug.js" />
+    <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.js" />
+    <None Include="Resources\Scripts\DotVVM.Globalize.ts" />
+    <None Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
+    <None Include="Resources\Scripts\typings\knockout\knockout.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Core/DotVVM.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Ben.Demystifier" Version="0.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.1" />
+    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' != 'net451' ">
+    <PackageReference Include="System.CodeDom" Version="4.4.0" />
+    <PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
+    <PackageReference Include="System.Diagnostics.Contracts" Version="4.3.0" />
+    <PackageReference Include="System.Diagnostics.Process" Version="4.3.0" />
+    <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
+    <PackageReference Include="System.Security.Claims" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.6.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.0.2" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="1.0.0" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <Reference Include="System" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Controls\DelegateTemplate.d.ts">
+      <DependentUpon>DelegateTemplate.cs</DependentUpon>
+    </None>
+    <None Update="Hosting\ErrorPages\ErrorPageTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>ErrorPageTemplate.cs</LastGenOutput>
+    </None>
+    <None Update="ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>JQueryGlobalizeRegisterTemplate.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Hosting\ErrorPages\ErrorPageTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ErrorPageTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Update="ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>JQueryGlobalizeRegisterTemplate.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' != 'net451' ">
+    <DefineConstants>$(DefineConstants);DotNetCore</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net451' or '$(TargetFramework)' == 'netstandard2.0' ">
+    <DefineConstants>$(DefineConstants);CSharp8Polyfill;INTERNAL_NULLABLE_ATTRIBUTES</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- the wildcard would not work in Target.Inputs, it only works in Include -->
+    <TypescriptFile Include="Resources/Scripts/**/*.ts" />
+  </ItemGroup>
+
+  <!-- DispatchToInnerBuilds is there to run it just once for all TargetFrameworks -->
+  <Target Name="CompileJS" Inputs="@(TypescriptFile)" Outputs="obj/javascript/root-only/dotvvm-root.js;obj/javascript/root-only-debug/dotvvm-root.js;obj/javascript/root-spa/dotvvm-root.js;obj/javascript/root-spa-debug/dotvvm-root.js"
+    BeforeTargets="DispatchToInnerBuilds">
+
+    <PropertyGroup>
+      <EnvOverrides>NO_COLOR=1;FORCE_COLOR=0;TERM=dumb</EnvOverrides>
+    </PropertyGroup>
+
+    <!-- Check if yarn exists, so we can fallback to npm otherwise -->
+    <!-- Some Linux distros use yarnpkg as name for  -->
+    <Exec Command="yarnpkg --version" IgnoreExitCode="True" ConsoleToMsBuild="True" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)">
+      <Output TaskParameter="ExitCode" PropertyName="YarnVersionExitCode" />
+    </Exec>
+
+    <Exec Command="yarnpkg install --frozen-lockfile" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="npm ci" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)" />
+
+    <Exec Command="yarnpkg build-production" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="yarnpkg build-development" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="yarnpkg build-polyfills" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
+
+    <Exec Command="npm run build-production" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="npm run build-development" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="npm run build-polyfills" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
+  </Target>
+
+</Project>
