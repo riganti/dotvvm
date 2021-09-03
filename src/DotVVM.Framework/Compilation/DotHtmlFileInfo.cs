@@ -9,9 +9,7 @@ namespace DotVVM.Framework.Compilation
         public CompilationState Status { get; internal set; }
         public string? Exception { get; internal set; }
 
-        /// <summary>
-        /// Gets or sets the virtual path to the view.
-        /// </summary>
+        /// <summary>Gets or sets the virtual path to the view.</summary>
         public string VirtualPath { get; }
 
         public string? TagName { get; }
