@@ -14,7 +14,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)DotvvmTimingStorage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IMiniProfilerRequestTracer.cs" />
-    <Compile Include="..\DotVVM.Tracing.MiniProfiler.Shared\IRequestTimingStorage.cs" />
+    <Compile Include="..\MiniProfiler.Shared\IRequestTimingStorage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MiniProfilerActionFilter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MiniProfilerJavascriptResourceManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MiniProfilerTracer.cs" />

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyTitle>DotVVM.Tracing.ApplicationInsights.Owin</AssemblyTitle>
     <VersionPrefix>3.2.0</VersionPrefix>
-    <TargetFrameworks>net452</TargetFrameworks>
+    <TargetFrameworks>net472</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
@@ -17,16 +17,16 @@
     <PackageTags>dotvvm;asp.net;mvvm;owin</PackageTags>
     <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PreserveCompilationContext>true</PreserveCompilationContext>  
+    <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotVVM" Version="$(DotvvmVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.0" />
     <PackageReference Include="System.Text.Encodings.Web" Version="4.3.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Tracing.ApplicationInsights\DotVVM.Tracing.ApplicationInsights.csproj" />
+    <ProjectReference Include="../../Framework/Hosting.Owin/DotVVM.Framework.Hosting.Owin.csproj" />
+    <ProjectReference Include="../ApplicationInsights/DotVVM.Tracing.ApplicationInsights.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Resources.Designer.cs">

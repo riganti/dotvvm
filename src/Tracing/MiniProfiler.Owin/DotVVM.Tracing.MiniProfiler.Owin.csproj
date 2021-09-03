@@ -3,7 +3,7 @@
   <PropertyGroup>
   	<AssemblyTitle>DotVVM.Tracing.MiniProfiler.Owin</AssemblyTitle>
     <VersionPrefix>3.2.0</VersionPrefix>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
@@ -20,14 +20,18 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <DefineConstants>TRACE;OWIN</DefineConstants>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="DotVVM.Owin" Version="$(DotvvmVersion)" />
+    <ProjectReference Include="../../Framework/Hosting.Owin/DotVVM.Framework.Hosting.Owin.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MiniProfiler" Version="4.2.22" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="System.Web" />
   </ItemGroup>
-  <Import Project="..\DotVVM.Tracing.MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.projitems" Label="Shared" />
+  <Import Project="..\MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.projitems" Label="Shared" />
 
 </Project>
