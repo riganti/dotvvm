@@ -1,0 +1,9 @@
+﻿@viewModel DotVVM.Samples.MiniProfiler.AspNetCore.ViewModels.Page1ViewModel
+@masterPage Views/default.dotmaster
+
+<dot:Content ContentPlaceHolderID="ContentPlaceHolder">
+
+    <h3>Page1 Content</h3>
+
+</dot:Content>
+

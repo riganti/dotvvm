@@ -1,0 +1,21 @@
+﻿@viewModel DotVVM.Samples.ApplicationInsights.AspNetCore.ViewModels.DefaultViewModel, DotVVM.Samples.ApplicationInsights.AspNetCore
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <dot:ApplicationInsightsJavascript />
+</head>
+<body>
+    <dot:RouteLink RouteName="InitException" Text="Redirect to init exception view" />
+    <br />
+    <dot:RouteLink RouteName="CommandException" Text="Redirect to view with button command exception" />
+    <br />
+    <dot:RouteLink RouteName="Correct" Text="Redirect to correct view" />
+    <br />
+    <dot:RouteLink RouteName="CorrectCommand" Text="Redirect to correct view with button" />
+</body>
+</html>

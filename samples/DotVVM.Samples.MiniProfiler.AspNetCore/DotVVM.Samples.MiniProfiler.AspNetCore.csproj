@@ -1,0 +1,28 @@
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk.Web">
+	<PropertyGroup>
+		<TargetFramework>netcoreapp2.0</TargetFramework>
+	</PropertyGroup>
+	<ItemGroup>
+		<Content Include="**\*.dothtml" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Remove="dotvvm_serialized_config.json.tmp" />
+		<None Remove="Views\page1.dothtml" />
+		<None Remove="Views\page2.dothtml" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Content Include="Views\default.dotmaster" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.0.3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.0.3" />
+		<PackageReference Include="MiniProfiler.AspNetCore" Version="4.2.22" />
+		<PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.2.22" />
+		<PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.2.22" />
+	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\DotVVM.Tracing.MiniProfiler.AspNetCore\DotVVM.Tracing.MiniProfiler.AspNetCore.csproj" />
+  </ItemGroup>
+</Project>
