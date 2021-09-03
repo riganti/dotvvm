@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DotVVM.Core.Common;
 using DotVVM.Framework.Api.Swashbuckle.AspNetCore;
 using DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters;
+using DotVVM.Samples.BasicSamples.Api.Common.Utilities;
 using DotVVM.Samples.BasicSamples.Api.Common.DataStore;
 using DotVVM.Samples.BasicSamples.Api.Common.Model;
 using Microsoft.AspNetCore.Builder;
@@ -39,8 +40,8 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
             // Add framework services.
             services.AddMvc().AddJsonOptions(options =>
             {
-                options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-            }); 
+                options.JsonSerializerOptions.Converters.Add(new DateTimeConverter());
+            });
 
             services.AddDotVVM<DotvvmServiceConfigurator>();
 
@@ -56,9 +57,6 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
-
             app.UseCors(p => {
                 p.AllowAnyOrigin();
                 p.AllowAnyMethod();
