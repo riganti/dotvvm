@@ -32,6 +32,7 @@ namespace DotVVM.Framework.Configuration
         public void Freeze()
         {
             isFrozen = true;
+            CompilationPage.Freeze();
         }
 
         public void Apply(DotvvmConfiguration config)
