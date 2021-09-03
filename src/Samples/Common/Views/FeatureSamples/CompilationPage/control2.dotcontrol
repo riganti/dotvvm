@@ -1,0 +1,5 @@
+﻿@viewModel System.Object, mscorlib
+<span> {{value:  "Control rendered" }} </span>
+
+<sample:NestedControl>
+</sample:NestedControl>

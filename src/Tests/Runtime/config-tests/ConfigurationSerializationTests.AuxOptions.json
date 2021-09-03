@@ -19,5 +19,8 @@
   "defaultCulture": "cs-CZ",
   "clientSideValidation": false,
   "experimentalFeatures": {},
-  "debug": true
+  "debug": true,
+  "diagnostics": {
+    "compilationPage": {}
+  }
 }
