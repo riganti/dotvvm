@@ -98,6 +98,17 @@ namespace DotVVM.Framework.Binding.Properties
     }
 
     /// <summary>
+    /// Contains JS code, that will invoke the static command wrapped in (options) => ... lambda. May contain symbolic parameters from `CommandBindingExpression`, knockout context is taken from the options
+    /// </summary>
+    public sealed class StaticCommandOptionsLambdaJavascriptProperty
+    {
+        public readonly ParametrizedCode Code;
+        public StaticCommandOptionsLambdaJavascriptProperty(ParametrizedCode code)
+        {
+            this.Code = code;
+        }
+    }
+    /// <summary>
     /// Contains JS code, that will invoke the static command. May contain symbolic parameters from `JavascriptTranslator` and `CommandBindingExpression`
     /// </summary>
     public sealed class StaticCommandJavascriptProperty

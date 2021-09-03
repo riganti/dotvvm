@@ -97,6 +97,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 );
             }
             var wrapperBlock =
+                node is JsArrowFunctionExpression functionExpression ? functionExpression.Block :
                 node is JsStatement statement ? statement.AsBlock() :
                 node is JsExpression expression ? expression.Return().AsBlock() :
                 throw new Exception();
@@ -105,25 +106,22 @@ namespace DotVVM.Framework.Compilation.Javascript
             var firstNode = wrapperBlock.Body.FirstOrNullObject();
             foreach (var g in namedGroups)
             {
-                var variableDef = new JsVariableDefStatement(g.name, g.vars.SingleOrDefault(v => v.Initializer != null)?.Initializer);
+                var variableDef = new JsVariableDefStatement(g.name, g.vars.SingleOrDefault(v => v.Initializer != null)?.Initializer?.Clone());
                 wrapperBlock.Body.InsertBefore(firstNode, variableDef);
             }
 
+            if (node is JsArrowFunctionExpression)
+                return node;
             if (node is JsStatement)
                 return wrapperBlock;
             else
             {
-                var isAsync = ContainsAwait(node);
+                var isAsync = node.ContainsAwait();
                 var iife = JsArrowFunctionExpression.CreateIIFE(wrapperBlock, isAsync: isAsync);
                 iife.AddAnnotation(new ResultIsPromiseAnnotation(e => e));
                 return iife;
             }
         }
-
-        static bool ContainsAwait(JsNode node) =>
-            node.DescendantNodesAndSelf(child => !(child is JsFunctionExpression))
-                .Any(child => child is JsUnaryExpression { Operator: UnaryOperatorType.Await });
-
         public static IEnumerable<string> GetNames(string? baseName = null)
         {
             IEnumerable<char> getChars(bool isFirst)

@@ -514,7 +514,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_EnumerableFirstOrDefault(string binding)
         {
             var result = CompileBinding(binding, new[] { new NamespaceImport("System.Linq") }, new[] { typeof(TestViewModel) });
-            Assert.AreEqual("dotvvm.translations.array.firstOrDefault(LongArray(),()=>true)", result);
+            Assert.AreEqual("LongArray()[0]", result);
         }
 
         [TestMethod]
@@ -945,28 +945,28 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_Variable()
         {
             var result = CompileBinding("var a = 1; var b = 2; var c = 3; a + b + c", typeof(TestViewModel));
-            Assert.AreEqual("(()=>{let a;let b;let c;return (a=1,b=2,c=3,a+b+c);})()", result);
+            Assert.AreEqual("(()=>{let a=1;let b=2;let c=3;return a+b+c;})()", result);
         }
 
         [TestMethod]
         public void JavascriptCompilation_Variable_Nested()
         {
             var result = CompileBinding("var a = 1; var b = (var a = 5; a + 1); a + b", typeof(TestViewModel));
-            Assert.AreEqual("(()=>{let a;let a0;let b;return (a0=1,b=(a=5,a+1),a0+b);})()", result);
+            Assert.AreEqual("(()=>{let a0=1;let a=5;let b=a+1;return a0+b;})()", result);
         }
 
         [TestMethod]
         public void JavascriptCompilation_Variable_Property()
         {
             var result = CompileBinding("var a = _this.StringProp; var b = _this.StringProp2; StringProp2 = a + b", typeof(TestViewModel));
-            Assert.AreEqual("(()=>{let a;let b;return (a=StringProp(),b=StringProp2(),StringProp2(a+b).StringProp2());})()", result);
+            Assert.AreEqual("(()=>{let a=StringProp();let b=StringProp2();return StringProp2(a+b).StringProp2();})()", result);
         }
 
         [TestMethod]
         public void JavascriptCompilation_Variable_VM()
         {
             var result = CompileBinding("var a = _parent; var b = _this.StringProp2; StringProp2 = a + b", new [] { typeof(string), typeof(TestViewModel) });
-            Assert.AreEqual("(()=>{let a;let b;return (a=$parent,b=StringProp2(),StringProp2(a+b).StringProp2());})()", result);
+            Assert.AreEqual("(()=>{let a=$parent;let b=StringProp2();return StringProp2(a+b).StringProp2();})()", result);
         }
 
         [TestMethod]

@@ -86,7 +86,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     assignee.RemoveAnnotations<MayBeNullAnnotation>();
                     JsExpression newExpression = new JsInvocationExpression(assignee, value)
                         .WithAnnotation(ObservableSetterInvocationAnnotation.Instance);
-                    if (assignmentExpression.Parent is JsExpression resultConsumer)
+                    if (!assignmentExpression.IsResultIgnored())
                     {
                         // assignment's result
                         if (assignee is JsMemberAccessExpression memberAccess)

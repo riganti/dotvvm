@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Binding.Expressions
         required: new[] { typeof(StaticCommandJavascriptProperty), /*typeof(BindingDelegate)*/ }
     )]
     [Options]
-    public class StaticCommandBindingExpression : BindingExpression, ICommandBinding
+    public class StaticCommandBindingExpression : BindingExpression, IStaticCommandBinding
     {
         public StaticCommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
 
@@ -24,6 +24,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public ParametrizedCode CommandJavascript => this.GetProperty<StaticCommandJavascriptProperty>().Code;
 
+        public ParametrizedCode OptionsLambdaJavascript => this.GetProperty<StaticCommandOptionsLambdaJavascriptProperty>().Code;
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
@@ -36,7 +37,7 @@ namespace DotVVM.Framework.Binding.Expressions
         }
     }
 
-    public class StaticCommandBindingExpression<T>: StaticCommandBindingExpression, ICommandBinding<T>
+    public class StaticCommandBindingExpression<T>: StaticCommandBindingExpression, IStaticCommandBinding<T>
     {
         public StaticCommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
         public new BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
