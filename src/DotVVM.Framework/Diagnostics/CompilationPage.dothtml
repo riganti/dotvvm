@@ -13,7 +13,7 @@
                 Click="{command: CompileAll()}"
                 Text="Compile All"
                 class="execute"
-                class-js-compile-auto="{resource: Context.Configuration.Diagnostics.CompilationPage.ShouldCompileAllOnLoad}"/>
+                class-js-compile-auto="{resource: Context.Configuration.Diagnostics.CompilationPage.ShouldCompileAllOnLoad}" />
     <dot:UpdateProgress class="compile-progress">
         <div>Compiling<span>.</span><span>.</span><span>.</span></div>
     </dot:UpdateProgress>
@@ -22,15 +22,15 @@
         <dot:Button Click="{staticCommand: ActiveTab = 0}"
                     Text="Routes"
                     class="nav"
-                    Class-active="{value: ActiveTab == 0}"/>
+                    Class-active="{value: ActiveTab == 0}" />
         <dot:Button Click="{staticCommand: ActiveTab = 1}"
                     Text="Controls"
                     class="nav"
-                    Class-active="{value: ActiveTab == 1}"/>
+                    Class-active="{value: ActiveTab == 1}" />
         <dot:Button Click="{staticCommand: ActiveTab = 2}"
                     Text="Master pages"
                     class="nav"
-                    Class-active="{value: ActiveTab == 2}"/>
+                    Class-active="{value: ActiveTab == 2}" />
     </nav>
     <hr />
     <main>
@@ -38,14 +38,14 @@
             <h2>Routes</h2>
             <dot:GridView DataSource="{value: Routes}" class="nowrap">
                 <RowDecorators>
-                    <dot:Decorator Class-failure="{value: Status == CompilationState.CompilationFailed}" />
-                    <dot:Decorator Class-success="{value: Status == CompilationState.CompletedSuccessfully}" />
+                    <dot:Decorator Class-failure="{value: Status == 'CompilationFailed'}" />
+                    <dot:Decorator Class-success="{value: Status == 'CompletedSuccessfully'}" />
                 </RowDecorators>
                 <Columns>
                     <dot:GridViewTextColumn ValueBinding="{value: RouteName}"
                                             HeaderText="Route"
                                             HeaderCssClass="explosive"
-                                            CssClass="explosive"/>
+                                            CssClass="explosive" />
                     <dot:GridViewTemplateColumn HeaderText="Url">
                         <ContentTemplate>
                             <span data-bind="if: !HasParameters()">
@@ -57,15 +57,15 @@
                         </ContentTemplate>
                     </dot:GridViewTemplateColumn>
                     <dot:GridViewTextColumn ValueBinding="{value: VirtualPath}"
-                                            HeaderText="Virtual Path"/>
+                                            HeaderText="Virtual Path" />
                     <dot:GridViewTextColumn ValueBinding="{value: Status}"
                                             HeaderText="Status"
                                             HeaderCssClass="fit"
                                             CssClass="fit status" />
                     <dot:GridViewTemplateColumn HeaderText="Actions" HeaderCssClass="fit" CssClass="fit">
                         <ContentTemplate>
-                            <span Visible="{value: Status != CompilationState.NonCompilable}">
-                                <dot:LinkButton Click="{command: _root.BuildView(_this)}" Text="Compile" class="execute"/>
+                            <span Visible="{value: Status != 'NonCompilable'}">
+                                <dot:LinkButton Click="{command: _root.BuildView(_this)}" Text="Compile" class="execute" />
                             </span>
                         </ContentTemplate>
                     </dot:GridViewTemplateColumn>
@@ -77,8 +77,8 @@
             <h2>Controls</h2>
             <dot:GridView DataSource="{value: Controls}" class="nowrap">
                 <RowDecorators>
-                    <dot:Decorator Class-failure="{value: Status == CompilationState.CompilationFailed}" />
-                    <dot:Decorator Class-success="{value: Status == CompilationState.CompletedSuccessfully}" />
+                    <dot:Decorator Class-failure="{value: Status == 'CompilationFailed'}" />
+                    <dot:Decorator Class-success="{value: Status == 'CompletedSuccessfully'}" />
                 </RowDecorators>
                 <Columns>
                     <dot:GridViewTextColumn ValueBinding="{value: TagPrefix}"
@@ -105,8 +105,8 @@
             <dot:GridView DataSource="{value: MasterPages}" class="nowrap">
 
                 <RowDecorators>
-                    <dot:Decorator Class-failure="{value: Status == CompilationState.CompilationFailed}" />
-                    <dot:Decorator Class-success="{value: Status == CompilationState.CompletedSuccessfully}" />
+                    <dot:Decorator Class-failure="{value: Status == 'CompilationFailed'}" />
+                    <dot:Decorator Class-success="{value: Status == 'CompletedSuccessfully'}" />
                 </RowDecorators>
                 <Columns>
                     <dot:GridViewTextColumn ValueBinding="{value: VirtualPath}" HeaderText="Virtual Path" />
@@ -117,7 +117,7 @@
                     <dot:GridViewTemplateColumn HeaderText="Actions" HeaderCssClass="fit" CssClass="fit">
                         <ContentTemplate>
                             <span Visible="{value: Status != CompilationState.NonCompilable}">
-                                <dot:LinkButton Click="{command: _root.BuildView(_this)}" Text="Compile" class="execute"/>
+                                <dot:LinkButton Click="{command: _root.BuildView(_this)}" Text="Compile" class="execute" />
                             </span>
                         </ContentTemplate>
                     </dot:GridViewTemplateColumn>

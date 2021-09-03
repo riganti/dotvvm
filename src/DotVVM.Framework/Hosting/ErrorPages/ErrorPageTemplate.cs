@@ -55,8 +55,8 @@ $@"<!DOCTYPE html>
 <html>
     <head>
         <title>Server Error in Application</title>
-        <meta charset=""UTF-8"" />
-        <style type=""text/css"">
+        <meta charset=UTF-8 />
+        <style type=text/css>
 ");
             using (var cssStream = typeof(DotvvmConfiguration).Assembly.GetManifestResourceStream(InternalCssResourceName))
             using (var cssReader = new StreamReader(cssStream))
@@ -81,7 +81,7 @@ $@"<!DOCTYPE html>
 $@"
     <body>
         <h1>Server Error, HTTP {ErrorCode}: {WebUtility.HtmlEncode(ErrorDescription)}</h1>
-        <p class=""summary"">{WebUtility.HtmlEncode(Summary)}</p>
+        <p class=summary>{WebUtility.HtmlEncode(Summary)}</p>
         <hr />
         <div>
 ");
@@ -90,8 +90,8 @@ $@"
                 var checkedStr = f == Formatters[0] ? "checked='checked'" : "";
                 WriteUnencoded(
 $@"
-            <input type=""radio"" id=""menu_radio_{f.Id}"" class=""collapse"" name=""menu"" {checkedStr} />
-            <label for=""menu_radio_{f.Id}"" class=""nav"">
+            <input type=radio id='menu_radio_{f.Id}' class=collapse name=menu {checkedStr} />
+            <label for='menu_radio_{f.Id}' class=nav>
                 {f.DisplayName}
             </label>
 ");
@@ -99,7 +99,7 @@ $@"
             WriteLine("<hr />");
             foreach (var f in Formatters)
             {
-                WriteLine($"<div class=\"container\" id=\"container_{f.Id}\">\n");
+                WriteLine($"<div class=container id='container_{f.Id}'>");
                 f.WriteBody(this);
                 WriteLine("</div>");
             }
