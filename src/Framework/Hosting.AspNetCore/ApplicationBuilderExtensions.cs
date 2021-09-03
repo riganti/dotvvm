@@ -63,6 +63,7 @@ namespace Microsoft.AspNetCore.Builder
             startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureFinished);
 
             modifyConfiguration?.Invoke(config);
+            config.Diagnostics.Apply(config);
             config.Freeze();
 
             startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmStarted);

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using DotVVM.Core.Common;
 using DotVVM.Framework.Api.Swashbuckle.AspNetCore;
 using DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters;
-using DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest.Utilities;
+using DotVVM.Samples.BasicSamples.Api.Common.Utilities;
 using DotVVM.Samples.BasicSamples.Api.Common.DataStore;
 using DotVVM.Samples.BasicSamples.Api.Common.Model;
 using Microsoft.AspNetCore.Builder;
@@ -41,7 +41,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest
             services.AddMvc().AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.Converters.Add(new DateTimeConverter());
-            }); 
+            });
 
             services.AddDotVVM<DotvvmServiceConfigurator>();
 

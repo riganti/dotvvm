@@ -27,7 +27,7 @@ namespace DotVVM.Compiler
 
         private static void ReplaceDefaultDependencyContext(Assembly projectAssembly)
         {
-#if NET461
+#if NET472
             return;
 #else
             var projectContext = Microsoft.Extensions.DependencyModel.DependencyContext.Load(projectAssembly);

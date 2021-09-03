@@ -13,17 +13,17 @@ namespace DotVVM.Framework.Diagnostics
 
     public class DiagnosticsInformationSender : IDiagnosticsInformationSender
     {
-        private DotvvmDiagnosticsConfiguration configuration;
+        private DiagnosticsServerConfiguration configuration;
 
-        public DiagnosticsInformationSender(DotvvmDiagnosticsConfiguration configuration)
+        public DiagnosticsInformationSender(DiagnosticsServerConfiguration configuration)
         {
             this.configuration = configuration;
         }
 
         public async Task SendInformationAsync(DiagnosticsInformation information)
         {
-            var hostname = configuration.GetDiagnosticsServerHostname();
-            var port = configuration.GetDiagnosticsServerPort();
+            var hostname = configuration.GetFreshHostName();
+            var port = configuration.GetFreshPort();
             if (hostname != null && port.HasValue)
             {
                 using (var client = new TcpClient())

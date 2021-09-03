@@ -134,8 +134,17 @@
         "Location": {
           "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
           "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css",
-          "DebugName": "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css"
+          "Name": "DotVVM.Framework.Resources.Styles.DotVVM.FileUpload.css",
+          "DebugName": "DotVVM.Framework.Resources.Styles.DotVVM.FileUpload.css"
+        },
+        "MimeType": "text/css"
+      },
+      "dotvvm.internal-css": {
+        "Location": {
+          "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
+          "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
+          "Name": "DotVVM.Framework.Resources.Styles.DotVVM.Internal.css",
+          "DebugName": "DotVVM.Framework.Resources.Styles.DotVVM.Internal.css"
         },
         "MimeType": "text/css"
       }
@@ -145,5 +154,8 @@
   "runtime": {},
   "defaultCulture": "en-US",
   "experimentalFeatures": {},
-  "debug": false
+  "debug": false,
+  "diagnostics": {
+    "compilationPage": {}
+  }
 }

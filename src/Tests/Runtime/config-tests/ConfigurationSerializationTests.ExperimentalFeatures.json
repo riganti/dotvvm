@@ -31,5 +31,8 @@
       ]
     }
   },
-  "debug": false
+  "debug": false,
+  "diagnostics": {
+    "compilationPage": {}
+  }
 }

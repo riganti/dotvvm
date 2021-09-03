@@ -141,6 +141,17 @@ namespace DotVVM.Framework.Configuration
         }
         private bool _debug;
 
+        /// <summary>
+        /// Gets or sets the configuration for diagnostic features useful during the development of an application.
+        /// </summary>
+        [JsonProperty("diagnostics")]
+        public DotvvmDiagnosticsConfiguration Diagnostics
+        {
+            get { return _diagnostics; }
+            set { ThrowIfFrozen(); _diagnostics = value; }
+        }
+        private DotvvmDiagnosticsConfiguration _diagnostics = new();
+
         private void ThrowIfFrozen()
         {
             if (isFrozen)
@@ -393,7 +404,12 @@ namespace DotVVM.Framework.Configuration
             configuration.Resources.Register(ResourceConstants.DotvvmFileUploadCssResourceName,
                 new StylesheetResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).Assembly,
-                    "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css")));
+                    "DotVVM.Framework.Resources.Styles.DotVVM.FileUpload.css")));
+
+            configuration.Resources.Register(ResourceConstants.DotvvmInternalCssResourceName,
+                new StylesheetResource(new EmbeddedResourceLocation(
+                    typeof(DotvvmConfiguration).Assembly,
+                    "DotVVM.Framework.Resources.Styles.DotVVM.Internal.css")));
 
             RegisterGlobalizeResources(configuration);
         }
