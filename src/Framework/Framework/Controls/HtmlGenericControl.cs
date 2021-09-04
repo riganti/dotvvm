@@ -25,7 +25,6 @@ namespace DotVVM.Framework.Controls
         public HtmlGenericControl(bool allowImplicitLifecycleRequirements = true)
 #pragma warning restore CS8618
         {
-            Attributes = new Dictionary<string, object?>();
             if (allowImplicitLifecycleRequirements && GetType() == typeof(HtmlGenericControl))
             {
                 LifecycleRequirements = ControlLifecycleRequirements.None;
@@ -71,25 +70,27 @@ namespace DotVVM.Framework.Controls
             if (allowImplicitLifecycleRequirements)
                 LifecycleRequirements = ControlLifecycleRequirements.None;
 
-            Attributes = new Dictionary<string, object?>();
             content?.WriteToChildren(this, InnerTextProperty);
         }
 
         /// <summary>
         /// Gets the attributes.
         /// </summary>
-        [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger), AllowAttributeWithoutValue = true)]
         [PropertyGroup(new[] { "", "html:" })]
-        public Dictionary<string, object?> Attributes { get; private set; }
+        public VirtualPropertyGroupDictionary<object?> Attributes => new(this, AttributesGroupDescriptor);
+
+        [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger), AllowAttributeWithoutValue = true)]
+        public static DotvvmPropertyGroup AttributesGroupDescriptor =
+            DotvvmPropertyGroup.Register<object, HtmlGenericControl>(new [] { "", "html:" }, nameof(Attributes));
 
         [PropertyGroup("Class-", ValueType = typeof(bool))]
-        public VirtualPropertyGroupDictionary<bool> CssClasses => new VirtualPropertyGroupDictionary<bool>(this, CssClassesGroupDescriptor);
+        public VirtualPropertyGroupDictionary<bool> CssClasses => new(this, CssClassesGroupDescriptor);
 
         public static DotvvmPropertyGroup CssClassesGroupDescriptor =
             DotvvmPropertyGroup.Register<bool, HtmlGenericControl>("Class-", nameof(CssClasses));
 
         [PropertyGroup("Style-")]
-        public VirtualPropertyGroupDictionary<object> CssStyles => new VirtualPropertyGroupDictionary<object>(this, CssStylesGroupDescriptor);
+        public VirtualPropertyGroupDictionary<object> CssStyles => new(this, CssStylesGroupDescriptor);
 
         public static DotvvmPropertyGroup CssStylesGroupDescriptor =
             DotvvmPropertyGroup.Register<object, HtmlGenericControl>("Style-", nameof(CssStyles));
@@ -135,14 +136,14 @@ namespace DotVVM.Framework.Controls
             DotvvmCapabilityProperty.RegisterCapability("HtmlCapability", typeof(HtmlGenericControl), typeof(HtmlCapability),
                 control => new HtmlCapability {
                     Visible = control.GetValueOrBinding<bool>(VisibleProperty),
-                    Attributes = ((HtmlGenericControl)control).Attributes.ToDictionary(k => k.Key, k => ValueOrBinding<object?>.FromBoxedValue(k.Value)),
+                    Attributes = VirtualPropertyGroupDictionary<object?>.CreatePropertyDictionary(control, AttributesGroupDescriptor),
                     CssClasses = VirtualPropertyGroupDictionary<bool>.CreatePropertyDictionary(control, CssClassesGroupDescriptor),
                     CssStyles = VirtualPropertyGroupDictionary<object>.CreatePropertyDictionary(control, CssStylesGroupDescriptor)
                 },
                 (control, boxedValue) => {
                     var value = (HtmlCapability?)boxedValue ?? new HtmlCapability();
                     control.SetValue(VisibleProperty, value.Visible);
-                    ((HtmlGenericControl)control).Attributes = value.Attributes.ToDictionary(t => t.Key, t => t.Value.BindingOrDefault ?? t.Value.BoxedValue);
+                    ((HtmlGenericControl)control).Attributes.CopyFrom(value.Attributes, clear: true);
                     ((HtmlGenericControl)control).CssClasses.CopyFrom(value.CssClasses, clear: true);
                     ((HtmlGenericControl)control).CssStyles.CopyFrom(value.CssStyles, clear: true);
                 }
@@ -153,6 +154,8 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected virtual bool RendersHtmlTag => TagName is object;
 
+        IDictionary<string, object?> IControlWithHtmlAttributes.Attributes => this.Attributes;
+
         protected new struct RenderState
         {
             public object? Visible;
@@ -161,6 +164,7 @@ namespace DotVVM.Framework.Controls
             public bool HasId;
             public bool HasClass;
             public bool HasStyle;
+            public bool HasAttributes;
             public bool HasPostbackUpdate;
             public bool RendersHtmlTag;
 
@@ -193,6 +197,8 @@ namespace DotVVM.Framework.Controls
                     r.HasClass = true;
                 else if (gp.PropertyGroup == CssStylesGroupDescriptor)
                     r.HasStyle = true;
+                else if (gp.PropertyGroup == AttributesGroupDescriptor)
+                    r.HasAttributes = true;
                 else return false;
             }
             else return false;
@@ -216,7 +222,6 @@ namespace DotVVM.Framework.Controls
 
         protected void AddAttributesCore(IHtmlWriter writer, ref RenderState r)
         {
-            AddClientIdAttribute(ref r);
             CheckInnerTextUsage(in r);
 
             if (!r.RendersHtmlTag)
@@ -256,7 +261,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         private void EnsureNoAttributesSet(in RenderState r)
         {
-            if (Attributes.Count > 0 || r.HasClass || r.HasStyle || (r.Visible != null && !true.Equals(r.Visible)) || r.HasPostbackUpdate)
+            if (r.HasAttributes || r.HasClass || r.HasStyle || (r.Visible != null && !true.Equals(r.Visible)) || r.HasPostbackUpdate)
             {
                 throw new DotvvmControlException(this, "Cannot set HTML attributes, Visible, ID, Postback.Update, ... bindings on a control which does not render its own element!");
             }
@@ -288,16 +293,6 @@ namespace DotVVM.Framework.Controls
             {
                 writer.RenderEndTag();
             }
-        }
-
-        private void AddClientIdAttribute(ref RenderState r)
-        {
-            if (r.HasId && r.ClientId == null)
-            {
-                SetValueRaw(ClientIDProperty, r.ClientId = CreateClientId());
-            }
-
-            if (r.ClientId != null) Attributes["id"] = r.ClientId;
         }
 
         private void AddCssClassesToRender(IHtmlWriter writer)
@@ -399,24 +394,43 @@ namespace DotVVM.Framework.Controls
         private void AddHtmlAttributesToRender(ref RenderState r, IHtmlWriter writer)
         {
             KnockoutBindingGroup? attributeBindingGroup = null;
-            foreach (var attribute in Attributes)
+            if (r.HasAttributes) foreach (var (prop, valueRaw) in this.properties)
             {
-                if (attribute.Value is IValueBinding binding)
+                if (prop is not GroupedDotvvmProperty gprop || gprop.PropertyGroup != AttributesGroupDescriptor)
+                    continue;
+                
+                if (valueRaw is IValueBinding binding)
                 {
-                    if (attribute.Key == "class")
+                    if (gprop.GroupMemberName == "class")
                     {
                         writer.AddKnockoutDataBind("class", binding, this);
                     }
                     else
                     {
                         if (attributeBindingGroup == null) attributeBindingGroup = new KnockoutBindingGroup();
-                        attributeBindingGroup.Add(attribute.Key, binding.GetKnockoutBindingExpression(this));
+                        attributeBindingGroup.Add(gprop.GroupMemberName, binding.GetKnockoutBindingExpression(this));
                     }
                     if (!r.RenderOnServer(this))
                         continue;
                 }
-                AddHtmlAttribute(writer, attribute.Key, attribute.Value);
+                AddHtmlAttribute(writer, gprop.GroupMemberName, valueRaw);
             }
+
+            if (r.HasId)
+            {
+                var clientId = r.ClientId ?? CreateClientId();
+                if (clientId is IValueBinding binding)
+                {
+                    if (attributeBindingGroup == null) attributeBindingGroup = new KnockoutBindingGroup();
+                    attributeBindingGroup.Add("id", binding.GetKnockoutBindingExpression(this));
+                }
+                else
+                {
+                    // TODO: we currently don't support server-side rendering of value binding IDs
+                    AddHtmlAttribute(writer, "id", clientId);
+                }
+            }
+
             if (attributeBindingGroup != null)
             {
                 writer.AddKnockoutDataBind("attr", attributeBindingGroup);

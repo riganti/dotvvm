@@ -72,11 +72,6 @@ namespace DotVVM.Framework.Binding
         public MarkupOptionsAttribute MarkupOptions { get; set; }
 
         /// <summary>
-        /// Virtual DotvvmProperty are not explicitly registered but marked with [MarkupOptions] attribute on DotvvmControl
-        /// </summary>
-        public bool IsVirtual { get; set; }
-
-        /// <summary>
         /// Determines if property type inherits from IBinding
         /// </summary>
         public bool IsBindingProperty { get; private set; }

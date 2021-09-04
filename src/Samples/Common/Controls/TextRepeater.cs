@@ -58,10 +58,10 @@ namespace DotVVM.Samples.BasicSamples.Controls
 
             var repeater = new Repeater();
             {
-                repeater.SetBinding(c => c.DataSource, GetValueBinding(DataSourceProperty));
+                repeater.SetProperty(c => c.DataSource, GetValueBinding(DataSourceProperty));
                 repeater.ItemTemplate = new DelegateTemplate(_ => {
                     return new Literal()
-                        .SetBinding(c => c.Text, ItemTextBinding);
+                        .SetProperty(c => c.Text, ItemTextBinding);
                 });
             };
 

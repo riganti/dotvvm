@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Binding
 {
+    /// <summary> Attribute for annotating DotVVM property group. It is important for VS Extension to understand the property groups, it is irrelevant for DotVVM runtime.  </summary>
     public class PropertyGroupAttribute : Attribute
     {
         public string[] Prefixes { get; }

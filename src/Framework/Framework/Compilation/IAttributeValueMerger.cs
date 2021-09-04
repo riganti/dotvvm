@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Compilation.ControlTree;
+﻿using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace DotVVM.Framework.Compilation
 {
     public interface IAttributeValueMerger
     {
-        ResolvedPropertySetter? MergeValues(ResolvedPropertySetter a, ResolvedPropertySetter b, out string? error);
+        ResolvedPropertySetter? MergeResolvedValues(ResolvedPropertySetter a, ResolvedPropertySetter b, out string? error);
+        object? MergePlainValues(DotvvmProperty prop, object? a, object? b);
     }
 }

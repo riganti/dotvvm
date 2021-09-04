@@ -7,6 +7,5 @@ namespace DotVVM.Framework.Compilation.ControlTree
     {
         bool IsBindingProperty { get; }
         string FullName { get; }
-        bool IsVirtual { get; }
     }
 }

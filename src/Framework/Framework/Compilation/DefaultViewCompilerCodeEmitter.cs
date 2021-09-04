@@ -178,11 +178,6 @@ namespace DotVVM.Framework.Compilation
             );
         }
 
-        public ExpressionSyntax CreateObjectExpression(Type type, IEnumerable<ExpressionSyntax> arguments)
-        {
-            return EmitCreateObjectExpression(ParseTypeName(type), arguments);
-        }
-
         private ExpressionSyntax EmitCreateObjectExpression(TypeSyntax type, IEnumerable<ExpressionSyntax> arguments)
         {
             return SyntaxFactory.ObjectCreationExpression(type).WithArgumentList(
@@ -365,22 +360,7 @@ namespace DotVVM.Framework.Compilation
             UseType(property.DeclaringType);
             UseType(property.PropertyType);
 
-            if (property.IsVirtual)
-            {
-                var gProperty = property as GroupedDotvvmProperty;
-                if (gProperty != null && gProperty.PropertyGroup.PropertyGroupMode == PropertyGroupMode.ValueCollection)
-                {
-                    EmitAddToDictionary(controlName, property.CastTo<GroupedDotvvmProperty>().PropertyGroup.Name, gProperty.GroupMemberName, value);
-                }
-                else
-                {
-                    throw new NotSupportedException("Virtual properties are not supported anymore.");
-                }
-            }
-            else
-            {
-                propertyList.Add((property, value));
-            }
+            propertyList.Add((property, value));
         }
 
         /// Instructs the emitter that this object can receive DotvvmProperties
@@ -486,36 +466,6 @@ namespace DotVVM.Framework.Compilation
         }
 
         /// <summary>
-        /// Emits the add HTML attribute.
-        /// </summary>
-        public void EmitAddToDictionary(string controlName, string propertyName, string key, ExpressionSyntax valueSyntax)
-        {
-            CurrentStatements.Add(
-                SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.AssignmentExpression(
-                        SyntaxKind.SimpleAssignmentExpression,
-                        SyntaxFactory.ElementAccessExpression(
-                            SyntaxFactory.MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                SyntaxFactory.IdentifierName(controlName),
-                                SyntaxFactory.IdentifierName(propertyName)
-                            ),
-                            SyntaxFactory.BracketedArgumentList(
-                                SyntaxFactory.SeparatedList(
-                                    new[]
-                                    {
-                                        SyntaxFactory.Argument(EmitValue(key))
-                                    }
-                                )
-                            )
-                        ),
-                        valueSyntax
-                    )
-                )
-            );
-        }
-
-        /// <summary>
         /// Emits the identifier.
         /// </summary>
         public NameSyntax EmitIdentifier(string identifier)
@@ -556,9 +506,6 @@ namespace DotVVM.Framework.Compilation
         public string EmitEnsureCollectionInitialized(string parentName, DotvvmProperty property)
         {
             UseType(property.PropertyType);
-
-            if (property.IsVirtual)
-                throw new NotSupportedException("Virtual properties are not supported anymore.");
 
             CurrentStatements.Add(
                 SyntaxFactory.IfStatement(
