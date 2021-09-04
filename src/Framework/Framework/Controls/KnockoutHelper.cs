@@ -413,7 +413,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Encodes the string so it can be used in Javascript code.
         /// </summary>
-        public static string MakeStringLiteral(string value, bool useApos = true)
+        public static string MakeStringLiteral(string value, bool useApos = false)
         {
             return JsonConvert.ToString(value, useApos ? '\'' : '"', StringEscapeHandling.Default);
         }

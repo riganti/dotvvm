@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Tests.Runtime
                 a.AddKnockoutDataBind("a", new KnockoutBindingGroup());
                 a.RenderSelfClosingTag("b");
             });
-            Assert.AreEqual("<b data-bind=\"a: {}\"/>", text);
+            Assert.AreEqual("<b data-bind=\"a: {}\" />", text);
         }
     }
 }
