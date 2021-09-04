@@ -143,7 +143,7 @@ namespace DotVVM.Framework.Compilation.Binding
             );
         }
 
-        private Expression TryVisitMethodCallWithSpecialName(MethodCallExpression node)
+        private Expression? TryVisitMethodCallWithSpecialName(MethodCallExpression node)
         {
             // Check if we are translating an access to indexer property
             if (node.Method.Name.StartsWith("get_", StringComparison.Ordinal) || node.Method.Name.StartsWith("set_", StringComparison.Ordinal))
