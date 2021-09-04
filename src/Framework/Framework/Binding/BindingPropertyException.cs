@@ -28,8 +28,8 @@ namespace DotVVM.Framework.Binding
             var coreMsg = (message, innerException) switch {
                 (null, null) => ".",
                 ({}, null)   => ", " + message,
-                (null, {})   => ": " + innerException.Message,
-                ({}, {})     => $", {message}: {innerException.Message}"
+                (null, {})   => ": " + innerException!.Message,
+                ({}, {})     => $", {message}: {innerException!.Message}"
             };
             if (!coreMsg.EndsWith("."))
                 coreMsg += ".";

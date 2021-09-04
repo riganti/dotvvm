@@ -1,0 +1,73 @@
+name: Github Actions
+
+on: ["push"]
+
+env:
+  DOTVVM_ROOT: ${{ github.workspace }}
+  DOTNET_NOLOGO: 1
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_VERSION: '5.0.301'
+
+jobs:
+  build-WarnAsError:
+    name: build without warnings
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install dependencies
+      run: dotnet restore src/Framework/Framework/DotVVM.Framework.csproj
+      
+    - name: Build (without WarnAsError)
+      run: dotnet build src/Framework/Framework/DotVVM.Framework.csproj --configuration Release --no-restore --no-incremental
+    - name: Build
+      run: dotnet build src/Framework/Framework/DotVVM.Framework.csproj --configuration Release --no-restore --no-incremental --framework netstandard2.1 /WarnAsError
+    - name: Build (Debug)
+      run: dotnet build src/Framework/Framework/DotVVM.Framework.csproj --configuration Debug --no-restore --no-incremental --framework netstandard2.1 /WarnAsError
+
+  unit-tests:
+    name: dotnet unit tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install dependencies
+      run: dotnet restore src/Tests
+
+    - name: Build framework
+      run: dotnet build src/Framework/Framework/DotVVM.Framework.csproj --no-restore --no-incremental
+    - name: Build Tests (Release)
+      run: dotnet build src/Tests --configuration Release --no-restore
+    - name: Build Tests (Debug)
+      run: dotnet build src/Tests --configuration Debug --no-restore
+    - name: Unit tests (Release)
+      run: |
+          dotnet test src/Tests --no-build --logger "GitHubActions;report-warnings=true" --configuration Release
+    - name: Unit tests (Debug)
+      run: |
+          dotnet test src/Tests --no-build --logger "GitHubActions;report-warnings=true" --configuration Debug
+
+  js-tests:
+    runs-on: ubuntu-latest
+    name: JS unit tests
+    steps:
+    - uses: actions/checkout@v2
+    - name: yarn install
+      run: yarn --cwd src/Framework/Framework/ install --frozen-lockfile
+    - name: TypeScript check
+      run: yarn --cwd src/Framework/Framework/ tsc-check
+    - name: yarn jest
+      run: yarn --cwd src/Framework/Framework/ jest --ci --reporters=default --reporters=jest-github-actions-reporter
+     
