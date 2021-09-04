@@ -17,7 +17,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_SPAViewModelReapplication_pageA);
                 WaitForExecutor.WaitFor(() => {
                     // verify items count
-                    browser.FindElements("ul#first li").ThrowIfDifferentCountThan(3);
+                    browser.FindElements("ul#first li").ThrowIfDifferentCountThan(3, WaitForOptions.Disabled);
                 });
                 AssertUI.InnerText(browser.Single("#first"), s => s.Contains("Entry 1") && s.Contains("Entry 2") && s.Contains("Entry 3"));
 

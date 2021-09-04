@@ -1,5 +1,5 @@
 @viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPAViewModelReapplication.ViewModelB, DotVVM.Samples.Common
-@masterPage Views\ComplexSamples\SPAViewModelReapplication\master.dotmaster
+@masterPage Views/ComplexSamples/SPAViewModelReapplication/master.dotmaster
 
 <dot:Content ContentPlaceHolderID="MainContent">
 
