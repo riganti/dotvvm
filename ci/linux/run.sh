@@ -284,6 +284,7 @@ if [ $UI_TESTS -eq 1 ]; then
     run_named_command "UI tests" \
         "dotnet test \"$SAMPLES_DIR\" \
             --no-build \
+            --filter Category!=owin-only \
             --configuration $CONFIGURATION \
             --logger 'trx;LogFileName=ui-test-results.trx' \
             --results-directory \"$TEST_RESULTS_DIR\""
