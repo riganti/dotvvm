@@ -86,5 +86,17 @@ namespace DotVVM.Framework.Compilation
 
         public BindingParserOptions WithScopeParameter(string scopeParameter)
             => new BindingParserOptions(BindingType, scopeParameter, ImportNamespaces, ExtensionParameters);
+
+        public override string ToString()
+        {
+            string?[] features = new [] {
+                BindingType.Name,
+                ImportNamespaces.Any() ? "imports=[" + string.Join(", ", this.ImportNamespaces) + "]" : null,
+                ExtensionParameters.Any() ? "ext=[" + string.Join(", ", this.ExtensionParameters.Select(e => e.Identifier + ": " + e.ParameterType.Name)) + "]" : null,
+                ScopeParameter != "_this" ? "scope=" + ScopeParameter : null,
+            };
+            return "{" + features.Where(a => a != null).StringJoin(", ") + "}";
+
+        }
     }
 }

@@ -64,7 +64,7 @@
 
   <Target Name="BuildCompiler" BeforeTargets="BeforeBuild">
     <MSBuild Projects="..\Compiler\DotVVM.Compiler.csproj" Targets="Restore;Build;Publish" Properties="TargetFramework=netcoreapp3.1;Configuration=$(Configuration);PublishDir=$(ProjectDir)$(OutputPath)tools\netcoreapp3.1\any" />
-    <MSBuild Projects="..\DotVVM.Compiler\DotVVM.Compiler.csproj" Targets="Restore;Build;Publish" Properties="TargetFramework=net472;Configuration=$(Configuration);PublishDir=$(ProjectDir)$(OutputPath)tools\net461\any" />
+    <MSBuild Projects="..\Compiler\DotVVM.Compiler.csproj" Condition=" '$(OS)' == 'Windows_NT' " Targets="Restore;Build;Publish" Properties="TargetFramework=net472;Configuration=$(Configuration);PublishDir=$(ProjectDir)$(OutputPath)tools\net461\any" />
   </Target>
 
   <Target Name="AddCompilerToPublish" BeforeTargets="Publish;Pack">

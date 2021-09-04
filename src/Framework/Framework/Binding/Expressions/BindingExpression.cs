@@ -55,7 +55,16 @@ namespace DotVVM.Framework.Binding.Expressions
                     // Binding.ToString is used in error handling, so it should not fail
                     value = $"Unable to get binding string due to {ex.GetType().Name}: {ex.Message}";
                 }
-                return $"{{{this.GetType().Name}: {value}}}";
+                var typeName = this switch {
+                    ControlPropertyBindingExpression => "controlProperty",
+                    ValueBindingExpression => "value",
+                    ResourceBindingExpression => "resource",
+                    ControlCommandBindingExpression => "controlCommand",
+                    StaticCommandBindingExpression => "staticCommand",
+                    CommandBindingExpression => "command",
+                    _ => this.GetType().Name
+                };
+                return $"{{{typeName}: {value}}}";
             });
 
             foreach (var prop in properties)
@@ -88,8 +97,8 @@ namespace DotVVM.Framework.Binding.Expressions
 
         static Func<Exception, Exception> GetExceptionFactory(IBinding contextBinding, Type propType) =>
             innerException =>
-            innerException is BindingPropertyException bpe && bpe.StackTrace == null && bpe.Binding == contextBinding && bpe.Property == propType ?
-            new BindingPropertyException(bpe.Binding, bpe.Property, bpe.CoreMessage, bpe.InnerException) :
+            innerException is BindingPropertyException bpe && bpe.Binding == contextBinding ?
+            bpe.Nest(propType) :
             new BindingPropertyException(contextBinding, propType, innerException);
 
         public object? GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
