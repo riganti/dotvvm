@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Binding
 
             Exception? checkArguments(object?[] arguments) =>
                 arguments.OfType<Exception>().ToArray() is var exceptions && exceptions.Any() ?
-                new BindingPropertyException(binding, type, "unresolvable arguments", exceptions) :
+                BindingPropertyException.FromArgumentExceptions(binding, type, exceptions) :
                 null;
 
             if (resolver != null)
@@ -153,7 +153,15 @@ namespace DotVVM.Framework.Binding
                     reporter.Errors.Push((req, error, DiagnosticSeverity.Error));
             }
             if (throwException && reporter.HasErrors)
-                throw new AggregateException(reporter.GetErrorMessage(binding), reporter.Exceptions);
+            {
+                var e = reporter.Errors.Where(e => e.severity == DiagnosticSeverity.Error).ToArray();
+                throw BindingPropertyException.FromArgumentExceptions(
+                    binding,
+                    e[0].req,
+                    e.Select(e => e.error).ToArray(),
+                    isRequiredProperty: true
+                );
+            }
         }
 
         public static Delegate[] GetDelegates(IEnumerable<object> objects) => (
