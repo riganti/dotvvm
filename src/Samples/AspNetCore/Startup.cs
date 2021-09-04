@@ -83,10 +83,6 @@ namespace DotVVM.Samples.BasicSamples
             });
 
 
-#if AssertConfiguration
-            // this compilation symbol is set by CI server
-            config.AssertConfigurationIsValid();
-#endif
             app.UseStaticFiles();
         }
 

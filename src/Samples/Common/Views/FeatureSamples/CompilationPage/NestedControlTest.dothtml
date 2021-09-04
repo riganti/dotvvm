@@ -11,5 +11,5 @@
     <span>
         {{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /
     </span>
-    <sample:control2></sample:control2>
+    <sample:nestedControlParent />
 </dot:Content>
