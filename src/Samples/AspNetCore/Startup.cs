@@ -91,6 +91,6 @@ namespace DotVVM.Samples.BasicSamples
         }
 
         private string GetApplicationPath(IHostingEnvironment env)
-            => Path.Combine(Path.GetDirectoryName(env.ContentRootPath), "DotVVM.Samples.Common");
+            => Path.Combine(Path.GetDirectoryName(env.ContentRootPath), "Common");
     }
 }
