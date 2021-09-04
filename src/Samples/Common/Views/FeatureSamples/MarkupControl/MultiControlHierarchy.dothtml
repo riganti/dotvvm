@@ -1,0 +1,16 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl.MultiControlHierarchyViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <%--TODO: UI test--%>
+    <%--It should just render the list without crashing--%>
+    <sample:Control1 MyProperty="{value: "0123456789abcdefghij"}" />
+
+</body>
+</html>

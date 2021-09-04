@@ -1,0 +1,56 @@
+﻿<!-- NB: You might ask "Why does a console app need the Web SDK?". It's because AssemblyDependencyResolver can't deal
+with targeting packs (i.e. common assemblies such as Microsoft.AspNetCore.Hosting.dll in a shared system-wide
+directory).
+
+The docs at https://docs.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support recommend us to
+reference `Microsoft.AspNetCore.App` package, which has been deprecated in .NET Core 3. There's also the
+`Microsoft.AspNetCore.App.Ref` package that cannot be referenced directly but only through the Sdk attribute below
+for some reason. What fun. -->
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!-- Related to compilation -->
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
+    <IsPackable>true</IsPackable>
+    <OutputType>Exe</OutputType>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <RuntimeIdentifiers>win7-x86;win7-x64;win10-x64;ubuntu.16.10-x64</RuntimeIdentifiers>
+    <TargetLatestDotNetRuntime>false</TargetLatestDotNetRuntime>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <RollForward>LatestMajor</RollForward>
+  </PropertyGroup>
+
+  <!-- Related to packaging -->
+  <PropertyGroup>
+    <Authors>RIGANTI</Authors>
+    <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
+    <AssemblyTitle>DotVVM.Compiler</AssemblyTitle>
+    <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../Framework/Framework/DotVVM.Framework.csproj" Private="false" />
+    <ProjectReference Include="../../Framework/Core/DotVVM.Core.csproj" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="dotvvmwizard.snk" />
+  </ItemGroup>
+
+</Project>

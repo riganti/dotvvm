@@ -1,0 +1,14 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.EmptyViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <!-- DO NOT CHANGE THE TAG NAME AND PROPERTY NAME - the tag name is used in tests-->
+    <dot:InlineScript NonExistingProperty="test">
+    </dot:InlineScript>
+
+</body>
+</html>

@@ -121,7 +121,7 @@
   <Add Test="DotVVM.Samples.Tests.Control.ComboBoxTests.Control_ComboBox" />
   <Add Test="DotVVM.Samples.Tests.Control.RepeaterWrapperTagTests.Control_RepeaterWrapperTag" />
   <Add Test="DotVVM.Samples.Tests.Control.GridViewTests.Control_GridViewInlineEditingPrimaryKeyString" />
-  <Add Test="DotVVM.Samples.Tests.Complex.SPAViewModelReaplicationTests.Complex_SPAViewModelReapplication" />
+  <Add Test="DotVVM.Samples.Tests.Complex.SPAViewModelReapplicationTests.Complex_SPAViewModelReapplication" />
   <Add Test="DotVVM.Samples.Tests.Feature.LocalizationTests.Feature_Localization_ResourceTypeAndNamespaceDirectives" />
   <Add Test="DotVVM.Samples.Tests.Control.SpaContentPlaceHolderTests.Control_SpaContentPlaceHolder_SpaContentPlaceHolder_PrefixRouteName_EnteredFromPageB" />
   <Add Test="DotVVM.Samples.Tests.Feature.ViewModelDeserializationTests.Feature_ViewModelDeserialization_DoesNotDropObject" />

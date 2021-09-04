@@ -1,0 +1,41 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.TextBox.TextBoxTypesViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div class="container">
+        <h1>TextBox Types sample</h1>
+
+        <dot:TextBox Text="{value: Date}" Type="Date" data-ui="date-textbox" />
+        <br />
+        <dot:TextBox Text="{value: NullableDate}" Type="Date" data-ui="nullable-date-textbox" />
+        <br />
+        <dot:TextBox Text="{value: Date}" Type="Time" data-ui="time-textbox" />
+        <br />
+        <dot:TextBox Text="{value: NullableDate}" Type="Time" data-ui="nullable-time-textbox" />
+        <br />
+        <dot:TextBox Text="{value: Date}" Type="DateTimeLocal" data-ui="datetime-textbox" />
+        <br />
+        <dot:TextBox Text="{value: NullableDate}" Type="DateTimeLocal" data-ui="nullable-datetime-textbox" />
+        <br />
+        <dot:TextBox Text="{value: Date}" Type="Month" data-ui="month-textbox" />
+        <br />
+        <dot:TextBox Text="{value: NullableDate}" Type="Month" data-ui="nullable-month-textbox" />
+        <br />
+        <dot:TextBox Text="{value: Number}" Type="Number" data-ui="number-textbox" />
+        <br />
+        <dot:TextBox Text="{value: NullableNumber}" Type="Number" data-ui="nullable-number-textbox" />
+        <br />
+        <dot:TextBox Text="{value: Int}" Type="Number" data-ui="int-textbox" />
+        <br />
+        <dot:TextBox Text="{value: NullableInt}" Type="Number" data-ui="nullable-int-textbox" />
+    </div>
+</body>
+</html>
+
+
