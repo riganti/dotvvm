@@ -15,7 +15,7 @@
                 Click="{command: 0}"
                 data-ui="postback-button" />
 
-    <!-- UI test: should increment ID on every request and postback -->
+    <p> UI test: should increment both IDs on every request and postback
 </body>
 </html>
 
