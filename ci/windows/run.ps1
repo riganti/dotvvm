@@ -9,7 +9,6 @@ param(
     [switch] $NoSlnRestore = $false,
     [switch] $NoSlnBuild = $false,
     [switch] $NoUnitTests = $false,
-    [switch] $NoJSTests = $false,
     [switch] $NoUITests = $false)
 
 # ==================
@@ -139,15 +138,6 @@ if ($NoUnitTests -ne $true) {
             --logger "trx;LogFileName=unit-test-results.trx" `
             --results-directory "$testResultsDir" `
             --collect "Code Coverage"
-    }
-}
-
-if ($NoJSTests -ne $true) {
-    Run-Command "JS tests" {
-        Set-Location "$Root\src\Framework\Framework"
-        npx jest --ci --reporters="jest-junit"
-        Copy-Item junit.xml "$testResultsDir\js-test-results.xml"
-        Set-Location "$Root"
     }
 }
 
