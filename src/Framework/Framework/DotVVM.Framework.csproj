@@ -2,7 +2,8 @@
   <PropertyGroup>
     <AssemblyTitle>DotVVM</AssemblyTitle>
     <VersionPrefix>4.0.0-preview01-116912</VersionPrefix>
-    <TargetFrameworks>netstandard2.1;net472</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' " >netstandard2.1;net472</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' " >netstandard2.1</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>

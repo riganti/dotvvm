@@ -10,7 +10,8 @@ for some reason. What fun. -->
 
   <!-- Related to compilation -->
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' " >netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' " >netcoreapp3.1;net472</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <OutputType>Exe</OutputType>
     <LangVersion>9.0</LangVersion>
