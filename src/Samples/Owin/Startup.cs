@@ -76,6 +76,6 @@ namespace DotVVM.Samples.BasicSamples
         }
 
         private string GetApplicationPath()
-            => Path.Combine(Path.GetDirectoryName(HostingEnvironment.ApplicationPhysicalPath.TrimEnd('\\', '/')), "DotVVM.Samples.Common");
+            => Path.Combine(Path.GetDirectoryName(HostingEnvironment.ApplicationPhysicalPath.TrimEnd('\\', '/')), "Common");
     }
 }
