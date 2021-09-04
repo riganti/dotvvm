@@ -30,6 +30,9 @@ namespace DotVVM.Framework.Compilation.Binding
         private readonly JavascriptTranslator javascriptTranslator;
         private readonly ExtensionMethodsCache extensionsMethodCache;
 
+        // few switches for testing (and maybe some hacks)
+        internal bool AddNullChecks { get; set; } = true;
+
         public BindingPropertyResolvers(IBindingExpressionBuilder bindingParser, StaticCommandBindingCompiler staticCommandBindingCompiler, JavascriptTranslator javascriptTranslator, DotvvmConfiguration configuration, ExtensionMethodsCache extensionsCache)
         {
             this.configuration = configuration;
@@ -119,9 +122,9 @@ namespace DotVVM.Framework.Compilation.Binding
         public KnockoutExpressionBindingProperty FormatJavascript(KnockoutJsExpressionBindingProperty expression)
         {
             return new KnockoutExpressionBindingProperty(
-                FormatJavascript(expression.Expression, true, niceMode: configuration.Debug),
-                FormatJavascript(expression.Expression, false, niceMode: configuration.Debug),
-                FormatJavascript(expression.Expression.Clone().EnsureObservableWrapped(), true, niceMode: configuration.Debug));
+                FormatJavascript(expression.Expression, true, configuration.Debug, AddNullChecks),
+                FormatJavascript(expression.Expression, false, configuration.Debug, AddNullChecks),
+                FormatJavascript(expression.Expression.Clone().EnsureObservableWrapped(), true, configuration.Debug, AddNullChecks));
         }
 
         public static ParametrizedCode FormatJavascript(JsExpression node, bool allowObservableResult = true, bool niceMode = false, bool nullChecks = true)
@@ -130,6 +133,7 @@ namespace DotVVM.Framework.Compilation.Binding
             expr.AcceptVisitor(new KnockoutObservableHandlingVisitor(allowObservableResult));
             if (nullChecks) JavascriptNullCheckAdder.AddNullChecks(expr);
             expr = new JsParenthesizedExpression((JsExpression)JsTemporaryVariableResolver.ResolveVariables(expr.Expression.Detach()));
+            JsPrettificationVisitor.Prettify(expr);
             return (StartsWithStatementLikeExpression(expr.Expression) ? expr : expr.Expression).FormatParametrizedScript(niceMode);
         }
 
@@ -319,7 +323,23 @@ namespace DotVVM.Framework.Compilation.Binding
             new StaticCommandJsAstProperty(this.staticCommandBindingCompiler.CompileToJavascript(dataContext, expression.Expression));
 
         public StaticCommandJavascriptProperty FormatStaticCommand(StaticCommandJsAstProperty code) =>
-            new StaticCommandJavascriptProperty(FormatJavascript(code.Expression, allowObservableResult: false, niceMode: configuration.Debug));
+            new StaticCommandJavascriptProperty(FormatJavascript(code.Expression, allowObservableResult: false, configuration.Debug, AddNullChecks));
+
+        public StaticCommandOptionsLambdaJavascriptProperty FormatStaticCommandOptionsLambda(StaticCommandJsAstProperty code)
+        {
+            var body = code.Expression.Clone();
+            var lambda = new JsArrowFunctionExpression(
+                new [] { new JsIdentifier("options") },
+                (JsExpression)body.AssignParameters(p =>
+                    p == JavascriptTranslator.KnockoutContextParameter ? new JsIdentifierExpression("options").Member("knockoutContext") :
+                    p == JavascriptTranslator.KnockoutViewModelParameter ? new JsIdentifierExpression("options").Member("viewModel") :
+                    p == CommandBindingExpression.PostbackOptionsParameter ? new JsIdentifierExpression("options") :
+                    null
+                ),
+                isAsync: body.ContainsAwait()
+            );
+            return new StaticCommandOptionsLambdaJavascriptProperty(FormatJavascript(lambda, allowObservableResult: false, configuration.Debug, AddNullChecks));
+        }
 
         public LocationInfoBindingProperty GetLocationInfo(ResolvedBinding resolvedBinding, AssignedPropertyBindingProperty? assignedProperty = null)
         {
