@@ -31,11 +31,20 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// Builds `return {expr}`
         public static JsReturnStatement Return(this JsExpression expr) =>
             new JsReturnStatement(expr);
+        public static JsStatement AsStatement(this JsNode node) =>
+            node is JsExpression expr ? new JsExpressionStatement(expr) :
+            node is JsStatement s ? s :
+            throw new NotSupportedException();
         public static JsBlockStatement AsBlock(this JsStatement statement) =>
             statement is JsBlockStatement block ? block :
             new JsBlockStatement(statement);
         public static JsBlockStatement AsBlock(this IEnumerable<JsStatement> statements) =>
             new JsBlockStatement(statements);
+
+        
+        public static bool ContainsAwait(this JsNode node) =>
+            node.DescendantNodesAndSelf(child => !(child is JsFunctionExpression))
+                .Any(child => child is JsUnaryExpression { Operator: UnaryOperatorType.Await });
 
         public static string FormatScript(this JsNode node, bool niceMode = false, string indent = "\t", bool isDebugString = false)
         {

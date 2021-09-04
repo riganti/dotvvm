@@ -89,6 +89,15 @@ namespace DotVVM.Framework.Configuration
                         sb.Append(control.Value.Src ?? "<null>");
                         sb.Append("'.");
                     }
+
+                    if (control.Reason == DotvvmConfigurationAssertReason.Conflict)
+                    {
+                        sb.Append("Control <")
+                            .Append(control.Value.TagPrefix)
+                            .Append(":")
+                            .Append(control.Value.TagName)
+                            .Append("> is registered multiple times.");
+                    }
                     sb.AppendLine();
                 }
             }

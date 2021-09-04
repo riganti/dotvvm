@@ -63,6 +63,14 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public static bool IsRootResultExpression(this JsNode node) =>
             SatisfyResultCondition(node, n => n.Parent == null || n.Parent is JsExpressionStatement);
+
+        public static bool IsResultIgnored(this JsExpression e) =>
+            e.SatisfyResultCondition(
+                e => e.Parent is JsExpressionStatement ||
+                     e.Parent is JsBinaryExpression { Operator: BinaryOperatorType.Sequence } && e.Role == JsBinaryExpression.LeftRole ||
+                     e.Parent is JsUnaryExpression { Operator: UnaryOperatorType.Void }
+            );
+        
         public static bool SatisfyResultCondition(this JsNode node, Func<JsNode, bool> predicate) =>
             predicate(node) ||
             (node.Parent is JsParenthesizedExpression ||
