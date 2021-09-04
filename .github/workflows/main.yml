@@ -23,8 +23,8 @@ jobs:
     - name: Install dependencies
       run: dotnet restore src/Framework/Framework/DotVVM.Framework.csproj
       
-    - name: Build (without WarnAsError)
-      run: dotnet build src/Framework/Framework/DotVVM.Framework.csproj --configuration Release --no-restore --no-incremental
+    - name: Build (without warnings)
+      run: dotnet build src/Framework/Framework/DotVVM.Framework.csproj --configuration Release --no-restore --no-incremental /property:WarningLevel=0
     - name: Build
       run: dotnet build src/Framework/Framework/DotVVM.Framework.csproj --configuration Release --no-restore --no-incremental --framework netstandard2.1 /WarnAsError
     - name: Build (Debug)
@@ -47,7 +47,7 @@ jobs:
       run: dotnet restore src/Tests
 
     - name: Build framework
-      run: dotnet build src/Framework/Framework/DotVVM.Framework.csproj --no-restore --no-incremental
+      run: dotnet build src/Framework/Framework/DotVVM.Framework.csproj --no-restore --no-incremental /property:WarningLevel=0
     - name: Build Tests (Release)
       run: dotnet build src/Tests --configuration Release --no-restore
     - name: Build Tests (Debug)
