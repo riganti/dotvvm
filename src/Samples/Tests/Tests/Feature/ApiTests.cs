@@ -15,6 +15,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class ApiTests : AppSeleniumTest
     {
         [Fact]
+        [Trait("Category", "owin-only")]
         [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_Api_GetCollection))]
         public void Feature_Api_GetCollection()
         {
