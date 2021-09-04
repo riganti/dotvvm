@@ -4,6 +4,7 @@
     {
         MissingFile,
         MissingRouteName,
-        InvalidCombination
+        InvalidCombination,
+        Conflict
     }
 }
