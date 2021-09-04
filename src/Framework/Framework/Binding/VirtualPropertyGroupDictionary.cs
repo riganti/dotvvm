@@ -72,6 +72,8 @@ namespace DotVVM.Framework.Binding
         {
             get
             {
+                // we don't want to use Linq Enumerable.Count() as it would allocate
+                // the enumerator. foreach gets the struct enumerator so it does not allocate anything
                 var count = 0;
                 foreach (var (p, _) in control.properties)
                 {

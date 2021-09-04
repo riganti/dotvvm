@@ -288,7 +288,6 @@ namespace DotVVM.Framework.Controls
             var cellAttributes = cell.Attributes;
             if (!string.IsNullOrEmpty(column.Width))
             {
-                cell.Attributes.Set("class", "kokos");
                 cellAttributes["style"] = "width: " + column.Width;
             }
 
