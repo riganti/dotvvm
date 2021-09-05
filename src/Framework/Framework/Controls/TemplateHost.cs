@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -20,9 +21,9 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the template that will be rendered inside this control.
         /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.Attribute, Required = true)]
-        public ITemplate Template
+        public ITemplate? Template
         {
-            get { return (ITemplate)GetValue(TemplateProperty); }
+            get { return (ITemplate?)GetValue(TemplateProperty); }
             set { SetValue(TemplateProperty, value); }
         }
         public static readonly DotvvmProperty TemplateProperty
@@ -33,7 +34,7 @@ namespace DotVVM.Framework.Controls
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
             var placeHolder = new PlaceHolder();
-            Template.BuildContent(context, placeHolder);
+            Template.NotNull("TemplateHost.Template is required").BuildContent(context, placeHolder);
 
             // validate data context of the passed template
             var myDataContext = this.GetDataContextType()!;
