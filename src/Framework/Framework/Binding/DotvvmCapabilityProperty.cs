@@ -15,16 +15,14 @@ namespace DotVVM.Framework.Binding
 {
     public partial class DotvvmCapabilityProperty : DotvvmProperty
     {
-        public Func<DotvvmBindableObject, object> Getter { get; }
-        public Action<DotvvmBindableObject, object?> Setter { get; }
+        internal Func<DotvvmBindableObject, object> Getter { get; private set; } = null!;
+        internal Action<DotvvmBindableObject, object?> Setter { get; private set; } = null!;
         public string Prefix { get; }
 
         private static ConcurrentDictionary<(Type declaringType, Type capabilityType, string prefix), DotvvmCapabilityProperty> capabilityRegistry = new();
 
-        private DotvvmCapabilityProperty(Func<DotvvmBindableObject, object> getter, Action<DotvvmBindableObject, object?> setter, string prefix)
+        private DotvvmCapabilityProperty(string prefix)
         {
-            this.Getter = getter ?? throw new ArgumentNullException(nameof(getter));
-            this.Setter = setter ?? throw new ArgumentNullException(nameof(setter));
             this.Prefix = prefix;
         }
 
@@ -43,6 +41,15 @@ namespace DotVVM.Framework.Binding
             return null;
         }
 
+        public static IEnumerable<DotvvmCapabilityProperty> GetCapabilities(Type declaringType) =>
+            capabilityRegistry.Values.Where(c => c.DeclaringType.IsAssignableFrom(declaringType));
+
+        public IEnumerable<DotvvmCapabilityProperty> ThisAndOwners()
+        {
+            for (var x = this; x is object; x = x.OwningCapability)
+                yield return x;
+        }
+
         private static void AssertNotDefined(Type declaringType, Type capabilityType, string propertyName, string globalPrefix, bool postContent = false)
         {
             var postContentHelp = postContent ? $"It seems that the capability {capabilityType} contains a property of the same type, which leads to the conflict. " : "";
@@ -53,29 +60,47 @@ namespace DotVVM.Framework.Binding
                 throw new($"Capability {propertyName} conflicts with existing property. {postContentHelp2}Consider giving the capability a different name.");
         }
 
-        public static DotvvmCapabilityProperty RegisterCapability(string name, Type declaringType, Type capabilityType, string globalPrefix = "", ICustomAttributeProvider? capabilityAttributeProvider = null)
+        public static DotvvmCapabilityProperty RegisterCapability(string name, Type declaringType, Type capabilityType, string globalPrefix = "", ICustomAttributeProvider? capabilityAttributeProvider = null, DotvvmCapabilityProperty? declaringCapability = null)
         {
             AssertNotDefined(declaringType, capabilityType, name, globalPrefix, postContent: false);
-            var (getterExpression, setterExpression) = InitializeCapability(declaringType, capabilityType, globalPrefix, capabilityAttributeProvider);
+
+            var prop = new DotvvmCapabilityProperty(globalPrefix) {
+                Name = name,
+                PropertyType = capabilityType,
+                DeclaringType = declaringType,
+                AttributeProvider = capabilityAttributeProvider!,
+            };
+            if (declaringCapability is object)
+            {
+                prop.OwningCapability = declaringCapability;
+                prop.UsedInCapabilities = prop.UsedInCapabilities.Add(declaringCapability);
+            }
+            InitializeCapability(prop, declaringType, capabilityType, globalPrefix, capabilityAttributeProvider);
+
             AssertNotDefined(declaringType, capabilityType, name, globalPrefix, postContent: true);
 
-            var getter = Expression.Lambda<Func<DotvvmBindableObject, object>>(
-                            Expression.Convert(getterExpression.Body, typeof(object)),
-                            getterExpression.Parameters)
-                         .Compile();
             var valueParameter = Expression.Parameter(typeof(object), "value");
-            var setter = Expression.Lambda<Action<DotvvmBindableObject, object?>>(
-                            ExpressionUtils.Replace(setterExpression, currentControlParameter, Expression.Convert(valueParameter, capabilityType)),
-                            currentControlParameter, valueParameter)
-                         .Compile();
 
-            return RegisterCapability(name, declaringType, capabilityType, getter, setter, globalPrefix);
+            return RegisterCapability(prop);
         }
 
-        public static DotvvmCapabilityProperty RegisterCapability(string name, Type declaringType, Type capabilityType, Func<DotvvmBindableObject, object> getter, Action<DotvvmBindableObject, object?> setter, string prefix = "")
+        public static DotvvmCapabilityProperty RegisterCapability(string name, Type declaringType, Type capabilityType, Func<DotvvmBindableObject, object> getter, Action<DotvvmBindableObject, object?> setter, string prefix = "") =>
+            RegisterCapability(
+                new DotvvmCapabilityProperty(prefix) {
+                    Getter = getter,
+                    Setter = setter,
+                    Name = name,
+                    DeclaringType = declaringType,
+                    PropertyType = capabilityType
+                }
+            );
+
+        static DotvvmCapabilityProperty RegisterCapability(DotvvmCapabilityProperty property)
         {
-            AssertNotDefined(declaringType, capabilityType, name, prefix);
-            var property = new DotvvmCapabilityProperty(getter, setter, prefix);
+            var declaringType = property.DeclaringType.NotNull();
+            var capabilityType = property.PropertyType.NotNull();
+            var name = property.Name.NotNull();
+            AssertNotDefined(declaringType, capabilityType, name, property.Prefix);
             var attributes = new CustomAttributesProvider(
                 new MarkupOptionsAttribute
                 {
@@ -83,14 +108,17 @@ namespace DotVVM.Framework.Binding
                 }
             );
             DotvvmProperty.Register(name, capabilityType, declaringType, DBNull.Value, false, property, attributes);
-            if (!capabilityRegistry.TryAdd((declaringType, capabilityType, prefix), property))
-                AssertNotDefined(declaringType, capabilityType, name, prefix);
+            if (!capabilityRegistry.TryAdd((declaringType, capabilityType, property.Prefix), property))
+                AssertNotDefined(declaringType, capabilityType, name, property.Prefix);
             return property;
         }
 
-        static (LambdaExpression getter, LambdaExpression setter) InitializeCapability(Type declaringType, Type capabilityType, string globalPrefix, ICustomAttributeProvider? parentAttributeProvider)
+        static void InitializeCapability(DotvvmCapabilityProperty resultProperty, Type declaringType, Type capabilityType, string globalPrefix, ICustomAttributeProvider? parentAttributeProvider)
         {
             var properties = capabilityType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+
+            if (!capabilityType.IsDefined(typeof(DotvvmControlCapabilityAttribute)))
+                throw new Exception($"Class {capabilityType} is used as a DotVVM capability, but it is missing the [DotvvmControlCapability] attribute.");
 
             if (properties.Length == 0)
                 throw new Exception($"Capability {capabilityType} does not have any properties. It was registered as property in {declaringType}.");
@@ -98,17 +126,24 @@ namespace DotVVM.Framework.Binding
             if (capabilityType.GetConstructor(Type.EmptyTypes) == null)
                 throw new Exception($"Capability {capabilityType} does not have a parameterless constructor. It was registered as property in {declaringType}.");
 
+            if (!capabilityType.IsSealed)
+                throw new Exception($"Capability {capabilityType} must be a sealed class or a struct. It was registered as property in {declaringType}.");
+
             var instance = Activator.CreateInstance(capabilityType);
             var valueParameter = Expression.Parameter(capabilityType, "value");
+            var valueObjectParameter = Expression.Parameter(typeof(object), "valueOb");
             var getterBody = new List<Expression> {
                 Expression.Assign(valueParameter, Expression.New(capabilityType))
             };
             var setterBody = new List<Expression>();
+            setterBody.Add(
+                Expression.Assign(valueParameter, Expression.Convert(valueObjectParameter, capabilityType))
+            );
             foreach (var prop in properties)
             {
                 var defaultValue = ValueOrBinding<object>.FromBoxedValue(prop.GetValue(instance));
                 var attrProvider = CombinedDataContextAttributeProvider.Create(parentAttributeProvider, prop);
-                var (propGetter, propSetter) = InitializeArgument(attrProvider, globalPrefix + prop.Name, prop.PropertyType, declaringType, capabilityType, defaultValue);
+                var (propGetter, propSetter) = InitializeArgument(attrProvider, globalPrefix + prop.Name, prop.PropertyType, declaringType, resultProperty, defaultValue);
 
                 getterBody.Add(Expression.Assign(Expression.Property(valueParameter, prop), ExpressionUtils.Replace(propGetter, currentControlParameter)));
 
@@ -119,22 +154,26 @@ namespace DotVVM.Framework.Binding
             }
             getterBody.Add(valueParameter);
 
-            return (
-                Expression.Lambda(
-                    Expression.Block(new [] { valueParameter }, getterBody),
-                    currentControlParameter
-                ),
-                Expression.Lambda(
-                    Expression.Block(setterBody),
-                    currentControlParameter,
-                    valueParameter
-                )
-            );
+            resultProperty.Getter =
+                Expression.Lambda<Func<DotvvmBindableObject, object>>(
+                    Expression.Convert(Expression.Block(new [] { valueParameter }, getterBody), typeof(object)),
+                    currentControlParameter)
+                .Compile();
+
+            resultProperty.Setter =
+                Expression.Lambda<Action<DotvvmBindableObject, object?>>(
+                    Expression.Block(
+                        new [] { valueParameter },
+                        setterBody
+                    ),
+                    currentControlParameter, valueObjectParameter)
+                .Compile();
         }
 
         private static readonly ParameterExpression currentControlParameter = Expression.Parameter(typeof(DotvvmBindableObject), "control");
-        internal static (LambdaExpression getter, LambdaExpression setter) InitializeArgument(ICustomAttributeProvider attributeProvider, string propertyName, Type propertyType, Type declaringType, Type? capabilityType, ValueOrBinding<object>? defaultValue = null)
+        internal static (LambdaExpression getter, LambdaExpression setter) InitializeArgument(ICustomAttributeProvider attributeProvider, string propertyName, Type propertyType, Type declaringType, DotvvmCapabilityProperty? declaringCapability, ValueOrBinding<object>? defaultValue)
         {
+            var capabilityType = declaringCapability?.PropertyType;
             propertyName = char.ToUpperInvariant(propertyName[0]) + propertyName.Substring(1);
 
             if (attributeProvider.GetCustomAttribute<DefaultValueAttribute>() is DefaultValueAttribute defaultAttribute)
@@ -170,6 +209,12 @@ namespace DotVVM.Framework.Binding
                     attributeProvider,
                     boxedDefaultValue
                 );
+
+                if (declaringCapability is object)
+                {
+                    propertyGroup.OwningCapability = declaringCapability;
+                    propertyGroup.UsedInCapabilities = propertyGroup.UsedInCapabilities.Add(declaringCapability);
+                }
 
                 var ctor = typeof(VirtualPropertyGroupDictionary<>)
                     .MakeGenericType(unwrappedType)
@@ -215,7 +260,7 @@ namespace DotVVM.Framework.Binding
                 checkNameConflict(propertyName);
 
                 var prefix = attributeProvider.GetCustomAttribute<DotvvmControlCapabilityAttribute>()?.Prefix ?? "";
-                var capability = DotvvmCapabilityProperty.RegisterCapability(propertyName, declaringType, propertyType, prefix, attributeProvider);
+                var capability = DotvvmCapabilityProperty.RegisterCapability(propertyName, declaringType, propertyType, prefix, attributeProvider, declaringCapability);
                 return CreatePropertyLambdas(propertyType, valueParameter, capability);
             }
             // Standard property
@@ -232,6 +277,12 @@ namespace DotVVM.Framework.Binding
 
                 var dotvvmProperty = new DotvvmProperty();
                 DotvvmProperty.Register(propertyName, type, declaringType, boxedDefaultValue, false, dotvvmProperty, attributeProvider);
+
+                if (declaringCapability is object)
+                {
+                    dotvvmProperty.OwningCapability = declaringCapability;
+                    dotvvmProperty.UsedInCapabilities = dotvvmProperty.UsedInCapabilities.Add(declaringCapability);
+                }
 
                 if (!defaultValue.HasValue && !isNullable)
                     dotvvmProperty.MarkupOptions.Required = true;

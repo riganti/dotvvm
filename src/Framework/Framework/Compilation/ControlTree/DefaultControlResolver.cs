@@ -68,46 +68,62 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
                 foreach (var type in allTypes)
                 {
-                    if (type.GetCustomAttribute<ContainsDotvvmPropertiesAttribute>(true) != null)
-                    {
-                        var tt = type;
-                        do
-                        {
-                            RegisterCompositeControlProperties(tt);
-                            RuntimeHelpers.RunClassConstructor(tt.TypeHandle);
-                            tt = tt.BaseType;
-                        }
-                        while (tt != null);
-                    }
+                    if (type.IsDefined(typeof(ContainsDotvvmPropertiesAttribute), true))
+                        InitType(type);
                 }
             }
             else
             {
-                // keep the old way as it was
-                // PERF: too many allocations - type.GetCustomAttribute<T> does ~220k allocs -> 4MB, get all types allocates additional 1.5MB
                 var allTypes = GetAllLoadableTypes(dotvvmAssembly);
                 foreach (var type in allTypes)
                 {
-                    if (type.GetCustomAttribute<ContainsDotvvmPropertiesAttribute>(true) != null)
-                    {
-                        var tt = type;
-                        do
-                        {
-                            RegisterCompositeControlProperties(tt);
-                            RuntimeHelpers.RunClassConstructor(tt.TypeHandle);
-                            tt = tt.BaseType;
-                        }
-                        while (tt != null);
-                    }
+                    if (type.IsDefined(typeof(ContainsDotvvmPropertiesAttribute), true))
+                        InitType(type);
                 }
             }
         }
 
+        private static void InitType(Type type)
+        {
+            if (type.BaseType != null)
+                InitType(type.BaseType);
+
+            RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+
+            RegisterCompositeControlProperties(type);
+            RegisterCapabilitiesFromInterfaces(type);
+        }
+
         private static void RegisterCompositeControlProperties(Type type)
         {
-            if (type is object && !type.IsAbstract && typeof(CompositeControl).IsAssignableFrom(type))
+            if (!type.IsAbstract && typeof(CompositeControl).IsAssignableFrom(type))
             {
                 CompositeControl.RegisterProperties(type);
+            }
+        }
+
+        private static void RegisterCapabilitiesFromInterfaces(Type type)
+        {
+            foreach (var capability in type.GetInterfaces())
+            {
+                if (capability.IsGenericType && capability.GetGenericTypeDefinition() == typeof(IObjectWithCapability<>))
+                {
+                    var capabilityType = capability.GetGenericArguments()[0];
+                    // defined in generic type and contains generic arguments
+                    // it will be probably registered in a derived control
+                    if (capabilityType.ContainsGenericParameters)
+                        continue;
+
+                    if (DotvvmCapabilityProperty.GetCapabilities(type).Any(c => c.PropertyType == capabilityType))
+                        continue;
+
+                    var name = capabilityType.Name;
+                    // auto append Capability to the end. Tends to prevent conflicts
+                    if (!name.EndsWith("capability", StringComparison.OrdinalIgnoreCase))
+                        name += "Capability";
+
+                    DotvvmCapabilityProperty.RegisterCapability(type.Name, type, capabilityType, capabilityAttributeProvider: new CustomAttributesProvider());
+                }
             }
         }
 

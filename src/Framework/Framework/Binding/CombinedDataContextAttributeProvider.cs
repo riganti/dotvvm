@@ -59,20 +59,18 @@ namespace DotVVM.Framework.Binding
                 (typeof(DataContextChangeAttribute).IsAssignableFrom(attributeType) && baseAttributes.Any()) ||
                 (typeof(DataContextStackManipulationAttribute).IsAssignableFrom(attributeType) && baseManipulationAttribute is not null);
         }
-
-	    class CustomAttributesProvider : ICustomAttributeProvider
+    }
+    internal class CustomAttributesProvider : ICustomAttributeProvider
+    {
+        private readonly object[] attributes;
+        public CustomAttributesProvider(params object[] attributes)
         {
-            private readonly object[] attributes;
-            public CustomAttributesProvider(params object[] attributes)
-            {
-                this.attributes = attributes;
-            }
-            public object[] GetCustomAttributes(bool inherit) => attributes;
-
-            public object[] GetCustomAttributes(Type attributeType, bool inherit) => GetCustomAttributes(inherit).Where(attributeType.IsInstanceOfType).ToArray();
-
-            public bool IsDefined(Type attributeType, bool inherit) => GetCustomAttributes(attributeType, inherit).Any();
+            this.attributes = attributes;
         }
+        public object[] GetCustomAttributes(bool inherit) => attributes;
 
+        public object[] GetCustomAttributes(Type attributeType, bool inherit) => GetCustomAttributes(inherit).Where(attributeType.IsInstanceOfType).ToArray();
+
+        public bool IsDefined(Type attributeType, bool inherit) => GetCustomAttributes(attributeType, inherit).Any();
     }
 }
