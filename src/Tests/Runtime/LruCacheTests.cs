@@ -75,6 +75,8 @@ namespace DotVVM.Framework.Tests.Runtime
             }
             Thread.Sleep(30); // let's give the timer some margin so this test does not fail randomly
             GC.Collect(2, GCCollectionMode.Forced);
+            Thread.Sleep(30);
+            GC.Collect(2, GCCollectionMode.Forced);
             Assert.IsFalse(dict.TryGetValue(1, out _));
         }
 
