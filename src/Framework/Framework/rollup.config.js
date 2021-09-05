@@ -8,12 +8,12 @@ const build = process.env.BUILD || "debug";
 const production = build == "production";
 const suffix = production ? "" : "-debug";
 
-const config = ({ minify, input, output, spa, legacy }) => ({
+const config = ({ minify, input, output, spa }) => ({
     input,
 
     output: [
         {
-            format: legacy ? 'iife' : 'esm',
+            format: 'esm',
             dir: `./obj/javascript/${output}`,
             sourcemap: true,
             name: 'dotvvm'
@@ -23,14 +23,13 @@ const config = ({ minify, input, output, spa, legacy }) => ({
     // treeshake: false,
     plugins: [
         typescript({ 
-            target: legacy ? "es5" : "es2018", 
+            target: "es2018", 
             declaration: false
         }),
         resolve({ browser: true }),
         commonjs(),
         replace({
-            "compileConstants.isSpa": spa,
-            "compileConstants.nomodules": legacy,
+            "compileConstants.isSpa": spa
         }),
 
         minify && terser({
@@ -51,7 +50,7 @@ const config = ({ minify, input, output, spa, legacy }) => ({
         }),
 
         minify && terser({
-            ecma: legacy ? 5 : 6,
+            ecma: 6,
             // compress: false,
             compress: {
                 pure_getters: true,
@@ -72,7 +71,7 @@ const config = ({ minify, input, output, spa, legacy }) => ({
                 keep_fnames: !production
             },
             output: {
-                ecma: legacy ? 5 : 8,
+                ecma: 8,
                 indent_level: 4,
                 beautify: !production,
                 ascii_only: true
@@ -94,22 +93,6 @@ export default [
         input: ['./Resources/Scripts/dotvvm-root.ts'],
         output: "root-spa" + suffix,
         spa: true,
-    }),
-    config({
-        // this configuration is for IE (system.js)
-        minify: production,
-        input: ['./Resources/Scripts/dotvvm-root.ts'],
-        output: "root-only-system" + suffix,
-        spa: false,
-        legacy: true
-    }),
-    config({
-        // this configuration is for IE (system.js)
-        minify: production,
-        input: ['./Resources/Scripts/dotvvm-root.ts'],
-        output: "root-spa-system" + suffix,
-        spa: true,
-        legacy: true
     }),
     //config({
     //  minify: production,

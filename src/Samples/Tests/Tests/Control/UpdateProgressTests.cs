@@ -21,8 +21,6 @@ namespace DotVVM.Samples.Tests.Control
     {
 
         [Fact]
-        [SkipBrowser("ie:dev", reason: "Download popup window hangs IE.")]
-        [SkipBrowser("ie:fast", reason: "Download popup window hangs IE.")]
         public void Control_UpdateProgress_UpdateProgress()
         {
             RunInAllBrowsers(browser => {

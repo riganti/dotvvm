@@ -69,23 +69,3 @@ export function trimEnd(text: string, char: string) {
     }
     return text.replace(new RegExp(char + "*$"), "");
 }
-
-export function padStart(text: string, length: number, char: string) {
-    if (length <= text.length) {
-        return text;
-    }
-    if (char == null) {
-        char = " ";
-    }
-    return Array(length - text.length + 1).join(char) + text;
-}
-
-export function padEnd(text: string, length: number, char: string) {
-    if (length <= text.length) {
-        return text;
-    }
-    if (char == null) {
-        char = " ";
-    }
-    return text + Array(length - text.length + 1).join(char);
-}

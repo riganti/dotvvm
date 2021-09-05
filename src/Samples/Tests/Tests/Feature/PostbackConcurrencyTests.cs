@@ -19,7 +19,6 @@ namespace DotVVM.Samples.Tests.Feature
         [InlineData("input[data-ui=long-action-button]")]
         [InlineData("input[data-ui=long-static-action-button]")]
         [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_PostbackConcurrencyMode))]
-        [SkipBrowser("ie:fast", reason: "This scenario works in IE but it's hard to time it properly because click in IE last 500 ms avg")]
         public void Feature_PostbackConcurrency_UpdateProgressControl(string longActionSelector)
         {
             RunInAllBrowsers(browser => {
@@ -36,7 +35,6 @@ namespace DotVVM.Samples.Tests.Feature
 
         [Theory]
         [InlineData("input[data-ui=long-action-button]", "input[data-ui=short-action-button]")]
-        [SkipBrowser("ie:fast", reason: "This scenario works in IE but it's hard to time it properly because click in IE last 500 ms avg")]
         public void Feature_PostbackConcurrency_DefaultMode(string longActionSelector, string shortActionSelector)
         {
             RunInAllBrowsers(browser => {
@@ -64,8 +62,6 @@ namespace DotVVM.Samples.Tests.Feature
         [Theory]
         [InlineData("input[data-ui=long-action-button]", "input[data-ui=short-action-button]")]
         [InlineData("input[data-ui=long-static-action-button]", "input[data-ui=short-static-action-button]")]
-        [SkipBrowser("ie:dev", reason: "This scenario works in IE but it's hard to time it properly because click in IE last 500 ms avg")]
-        [SkipBrowser("ie:fast", reason: "This scenario works in IE but it's hard to time it properly because click in IE last 500 ms avg")]
         public void Feature_PostbackConcurrency_QueueMode(string longActionSelector, string shortActionSelector)
         {
             RunInAllBrowsers(browser => {
@@ -101,8 +97,6 @@ namespace DotVVM.Samples.Tests.Feature
         [Theory]
         [InlineData("input[data-ui=long-action-button]", "input[data-ui=short-action-button]")]
         [InlineData("input[data-ui=long-static-action-button]", "input[data-ui=short-static-action-button]")]
-        [SkipBrowser("ie:dev", reason: "This scenario works in IE but it's hard to time it properly because click in IE last 500 ms avg")]
-        [SkipBrowser("ie:fast", reason: "This scenario works in IE but it's hard to time it properly because click in IE last 500 ms avg")]
         public void Feature_PostbackConcurrency_DenyMode(string longActionSelector, string shortActionSelector)
         {
             RunInAllBrowsers(browser => {
