@@ -43,6 +43,9 @@
     <None Remove="Views\ControlSamples\Repeater\IndexInNestedRepeater.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\NamedTemplate.dothtml" />
     <None Remove="Views\ControlSamples\RouteLink\RouteLinkQueryParameters.dothtml" />
+    <None Remove="Views\ControlSamples\TemplateHost\Basic.dothtml" />
+    <None Remove="Views\ControlSamples\TemplateHost\TemplatedListControl.dotcontrol" />
+    <None Remove="Views\ControlSamples\TemplateHost\TemplatedMarkupControl.dotcontrol" />
     <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressQueues.dothtml" />
     <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressRedirect.dotmaster" />
     <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressRedirect1.dothtml" />
