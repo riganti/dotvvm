@@ -1,0 +1,303 @@
+/* Reset CSS */
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video, * {
+    box-sizing: border-box !important;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    vertical-align: baseline;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+html {
+    width: 100%;
+    height: 100%;
+    font-size: 62.5%;
+    line-height: 1;
+    scroll-behavior: smooth;
+}
+
+/* Variables */
+
+:root {
+    --heading-color: #a82f23;
+    --nav-color: #2980b9;
+    --activate-color: #de1212;
+    --idle-color: #bcbcbc;
+    --text-color: #333333;
+    --hint-color: #bbbbbb;
+    --error-color: #de1212;
+    --error-dark-color: #a82f23;
+    --success-color: green;
+}
+
+/* Basic text */
+body {
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    font-size: 1.5rem;
+    color: var(--text-color);
+    margin: 1rem;
+    line-height: 1.2;
+}
+
+h1 {
+    font-weight: normal;
+    font-size: 3.2rem;
+    font-style: italic;
+    color: var(--heading-color);
+    margin: 2rem 0;
+}
+
+h2 {
+    font-style: normal;
+    font-size: 2.4rem;
+    font-weight: bold;
+    margin: 1.5rem 0;
+}
+
+h3 {
+    color: var(--nav-color);
+    font-weight: normal;
+    font-size: 1.8rem;
+}
+
+.summary {
+    margin: 1.5rem 0;
+}
+
+
+/* Tables */
+table {
+    border-spacing: 0;
+    margin: 0 0 2rem;
+    width: 100%;
+}
+
+    table th {
+        vertical-align: bottom;
+        padding: 1rem;
+        font-weight: 400;
+        color: var(--hint-color);
+        text-align: left;
+    }
+
+    table td {
+        padding: 0.3rem 1rem;
+    }
+
+    table.nowrap th,
+    table.nowrap td {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        max-width: 40rem;
+    }
+
+    table th,
+    table td {
+        border-right: 0.1rem var(--hint-color) solid;
+        border-bottom: 0.1rem var(--hint-color) solid;
+        border-left: 0.1rem transparent solid;
+        border-top: 0.1rem transparent solid;
+        box-sizing: border-box;
+    }
+
+        table th:last-child,
+        table td:last-child {
+            border-right: 0.1rem transparent solid;
+        }
+
+        table th.explosive,
+        table td.explosive {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        table th.fit,
+        table td.fit {
+            width: 1px;
+        }
+
+    table tr.failure {
+        background-color: var(--error-dark-color);
+        color: white;
+    }
+
+        table tr.failure span,
+        table tr.failure a {
+            color: white;
+        }
+
+    table tr.success .status {
+        color: var(--success-color);
+    }
+
+
+/* Source code */
+pre {
+    margin: 1rem 0;
+    font-family: "Cascadia Mono", "Consolas", monospace;
+}
+
+.source .source-errorLine {
+    color: #a82f23;
+}
+
+.errorUnderline {
+    background-color: #fff7f7;
+    border: 0.1rem solid #ff8888;
+    color: #ff0909;
+    padding: 0.2rem;
+}
+
+.code {
+    font-family: "Consolas", monospace;
+}
+
+.lineNumber {
+    color: var(--hint-color);
+}
+
+.source.file {
+    margin: 1rem 0 0.5rem 0;
+    font-size: 1.2rem;
+}
+
+.object-obj,
+.object-arr {
+    padding-left: 1rem;
+}
+
+.object-browser .propname {
+    font-weight: bold;
+}
+
+.docLinks {
+    float: right;
+}
+
+
+/* Navigation */
+input.collapse {
+    display: none;
+}
+
+input[type="checkbox"].collapse ~ .collapse-on {
+    display: none;
+}
+
+input[type="checkbox"]:checked.collapse ~ .collapse-on {
+    display: inherit;
+}
+
+input[type="checkbox"]:checked.collapse ~ .collapse-off {
+    display: none;
+}
+
+a {
+    color: var(--nav-color);
+    cursor: pointer;
+    text-decoration: none;
+}
+
+nav {
+    margin-top: 1.5rem;
+}
+
+.nav {
+    display: inline-block;
+    padding: 0.4rem 2rem;
+    color: white;
+    cursor: pointer;
+    background-color: var(--idle-color);
+}
+
+    .nav.active {
+        background-color: var(--nav-color);
+    }
+
+.container {
+    /* containers are hidden by default and shown using radio buttons */
+    display: none;
+}
+
+/* Interaction */
+input.execute {
+    background-color: var(--hint-color);
+    padding: 0.4rem 2rem;
+    color: white;
+    cursor: pointer;
+    border: none;
+}
+
+    input.execute:hover {
+        background-color: var(--activate-color);
+    }
+
+a.execute {
+    color: var(--text-color);
+    cursor: pointer;
+    font-weight: bold;
+}
+
+    a.execute:hover {
+        color: var(--activate-color);
+    }
+
+/* Decoration */
+hr {
+    border: none;
+    height: 0.1rem;
+    background-color: var(--idle-color);
+    margin: 0.8rem 0;
+}
+
+/* Compile progress */
+.compile-progress {
+    position: fixed;
+    top: 1rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+}
+
+    .compile-progress > div {
+        display: inline-block;
+        padding: 0.5rem;
+        background-color: white;
+        border: 0.1rem solid var(--hint-color);
+        min-width: 20rem;
+    }
+
+@keyframes blink {
+    50% {
+        color: transparent
+    }
+}
+
+.compile-progress span {
+    animation: 1s blink infinite
+}
+
+    .compile-progress span:nth-child(2) {
+        animation-delay: 250ms
+    }
+
+    .compile-progress span:nth-child(3) {
+        animation-delay: 500ms
+    }

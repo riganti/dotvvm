@@ -1,0 +1,26 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- ko with: int -->
+		<div>
+			<!-- ko dotvvm-with-control-properties: { "Click": ()=>(dotvvm.applyPostbackHandlers(async (options) => await dotvvm.staticCommandPostback("WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSwiQVFBPSJd", [options.knockoutContext.$parent.int.state], options),$element)) } -->
+			<input onclick="dotvvm.applyPostbackHandlers(async (options) => {
+	let a;
+	return await((a = options.knockoutContext.$control.Click.state) &amp;&amp; a());
+},this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
+			<!-- /ko -->
+		</div>
+		<!-- /ko -->
+		<div data-bind="foreach: { &quot;data&quot;: Collection }">
+			<div>
+				<!-- ko dotvvm-with-control-properties: { "Click": ()=>(dotvvm.applyPostbackHandlers(async (options) => await dotvvm.staticCommandPostback("WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSwiQVFBPSJd", [options.knockoutContext.$rawData.state], options),$element)) } -->
+				<input onclick="dotvvm.applyPostbackHandlers(async (options) => {
+	let a;
+	return await((a = options.knockoutContext.$control.Click.state) &amp;&amp; a());
+},this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
+				<!-- /ko -->
+			</div>
+		</div>
+	</body>
+</html>
