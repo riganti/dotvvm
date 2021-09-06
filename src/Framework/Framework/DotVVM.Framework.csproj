@@ -125,7 +125,7 @@
   </ItemGroup>
 
   <!-- BeforeBuild is ran for every target framework. However, unless its input files change, this target is skipped. -->
-  <Target Name="CompileJS" Inputs="@(TypescriptFile)" Outputs="obj/javascript/root-only/dotvvm-root.js;obj/javascript/root-only-debug/dotvvm-root.js;obj/javascript/root-spa/dotvvm-root.js;obj/javascript/root-spa-debug/dotvvm-root.js" BeforeTargets="BeforeBuild">
+  <Target Name="CompileJS" Inputs="@(TypescriptFile)" Outputs="obj/javascript/root-only/dotvvm-root.js;obj/javascript/root-only-debug/dotvvm-root.js;obj/javascript/root-spa/dotvvm-root.js;obj/javascript/root-spa-debug/dotvvm-root.js" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
 
     <PropertyGroup>
       <EnvOverrides>NO_COLOR=1;FORCE_COLOR=0;TERM=dumb</EnvOverrides>
