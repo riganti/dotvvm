@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Compilation.Inference.Results
 {
-    internal class LambdaTypeInferenceResult : ITypeInferenceResult
+    public class LambdaTypeInferenceResult : ITypeInferenceResult
     {
         public bool Result { get; private set; }
         public Type? Type { get; private set; }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Compilation.Inference.Results
 {
-    internal interface ITypeInferenceResult
+    public interface ITypeInferenceResult
     {
         bool Result { get; }
         Type? Type { get; }

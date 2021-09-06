@@ -9,7 +9,7 @@ using DotVVM.Framework.Compilation.Inference.Results;
 
 namespace DotVVM.Framework.Compilation.Inference
 {
-    internal interface ITypeInferer
+    public interface ITypeInferer
     {
         void BeginFunctionCall(MethodGroupExpression? target, int argsCount);
         void EndFunctionCall();
@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Compilation.Inference
         IFluentInferer Infer(Type? expectedType = null);
     }
 
-    internal interface IFluentInferer
+    public interface IFluentInferer
     {
         LambdaTypeInferenceResult Lambda(int argsCount);
     }

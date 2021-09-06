@@ -10,7 +10,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Inference
 {
-    internal partial class TypeInferer
+    public partial class TypeInferer
     {
         LambdaTypeInferenceResult IFluentInferer.Lambda(int argsCount)
         {

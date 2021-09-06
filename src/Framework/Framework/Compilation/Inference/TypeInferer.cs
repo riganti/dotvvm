@@ -12,7 +12,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Inference
 {
-    internal partial class TypeInferer : ITypeInferer, IFluentInferer
+    public partial class TypeInferer : ITypeInferer, IFluentInferer
     {
         private readonly Stack<InfererContext> contextStack;
         private Type? expectedType;
