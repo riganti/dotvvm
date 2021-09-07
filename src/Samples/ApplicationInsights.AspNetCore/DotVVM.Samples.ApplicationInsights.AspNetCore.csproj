@@ -1,26 +1,23 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk.Web">
-	<PropertyGroup>
-		<TargetFramework>netcoreapp2.0</TargetFramework>
-		<ApplicationInsightsResourceId>/subscriptions/1f41fa3c-37d6-4b89-b5dc-913463de0d9a/resourcegroups/DotVVMWeb/providers/microsoft.insights/components/DotvvmTrackingPoints</ApplicationInsightsResourceId>
-		<ApplicationInsightsAnnotationResourceId>/subscriptions/1f41fa3c-37d6-4b89-b5dc-913463de0d9a/resourcegroups/DotVVMWeb/providers/microsoft.insights/components/DotvvmTrackingPoints</ApplicationInsightsAnnotationResourceId>
-	</PropertyGroup>
-	<ItemGroup>
-		<Content Include="**\*.dothtml" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Remove="dotvvm_serialized_config.json.tmp" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="DotVVM.AspNetCore" Version="$(DotvvmVersion)" />
-		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.18.0" />
-		<PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
-		<PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.2" />
-	</ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <ApplicationInsightsResourceId>/subscriptions/1f41fa3c-37d6-4b89-b5dc-913463de0d9a/resourcegroups/DotVVMWeb/providers/microsoft.insights/components/DotvvmTrackingPoints</ApplicationInsightsResourceId>
+    <ApplicationInsightsAnnotationResourceId>/subscriptions/1f41fa3c-37d6-4b89-b5dc-913463de0d9a/resourcegroups/DotVVMWeb/providers/microsoft.insights/components/DotvvmTrackingPoints</ApplicationInsightsAnnotationResourceId>
+  </PropertyGroup>
   <ItemGroup>
-    <DotNetCliToolReference Include="DotVVM.Compiler.Light" Version="1.1.0.1" />
+    <Content Include="**\*.dothtml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\DotVVM.Tracing.ApplicationInsights.AspNetCore\DotVVM.Tracing.ApplicationInsights.AspNetCore.csproj" />
+    <None Remove="dotvvm_serialized_config.json.tmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.18.0" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Framework/Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />
+    <ProjectReference Include="../../Tracing/ApplicationInsights.AspNetCore/DotVVM.Tracing.ApplicationInsights.AspNetCore.csproj" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services" />

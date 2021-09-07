@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.ApplicationInsights.Owin.ViewModels.Test.CorrectCommandViewModel, DotVVM.Samples.ApplicationInsingts.Owin
+﻿@viewModel DotVVM.Samples.ApplicationInsights.Owin.ViewModels.Test.CorrectCommandViewModel, DotVVM.Samples.ApplicationInsights.Owin
 
 <!DOCTYPE html>
 
@@ -10,7 +10,7 @@
 <body>
     <dot:Button Text="Redirect to default" Click="{command: Redirect()}" />
     <br />
-    <dot:Button Text="This button does nothing" Click="{command: Submit()}" /> 
+    <dot:Button Text="This button does nothing" Click="{command: Submit()}" />
     <br />
     <dot:RouteLink RouteName="Default" Text="Redirect to default view" />
 </body>

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 
 namespace DotVVM.Samples.ApplicationInsights.AspNetCore
 {
@@ -10,7 +10,7 @@ namespace DotVVM.Samples.ApplicationInsights.AspNetCore
     {
         public IConfigurationRoot Configuration { get; set; }
 
-        public Startup(IHostingEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -33,10 +33,8 @@ namespace DotVVM.Samples.ApplicationInsights.AspNetCore
             services.AddDotVVM<DotvvmStartup>();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            loggerFactory.AddConsole();
-            
             app.UseDotVVM<DotvvmStartup>(env.ContentRootPath);
         }
     }

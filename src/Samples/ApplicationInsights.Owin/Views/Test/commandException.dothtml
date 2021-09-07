@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.ApplicationInsights.Owin.ViewModels.Test.CommandExceptionViewModel, DotVVM.Samples.ApplicationInsingts.Owin
+﻿@viewModel DotVVM.Samples.ApplicationInsights.Owin.ViewModels.Test.CommandExceptionViewModel, DotVVM.Samples.ApplicationInsights.Owin
 
 <!DOCTYPE html>
 
