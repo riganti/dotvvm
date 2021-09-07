@@ -90,9 +90,9 @@ There is also [dotnet new template](https://www.dotvvm.com/docs/tutorials/how-to
 
 |                         | ASP.NET Core                | OWIN                  |
 |-------------------------|-----------------------------|-----------------------|
-| Current stable version  | `DotVVM.AspNetCore 3.1.0`   | `DotVVM.Owin 3.1.0`   |
-| Minimum runtime version | `.NET Core 2.1`             | `.NET 4.5.1`          |
-| Minimum ASP.NET version | `ASP.NET Core 2.1`          | `OWIN 3.0.1`          |
+| Current stable version  | `DotVVM.AspNetCore 3.2.0`   | `DotVVM.Owin 3.2.0`   |
+| Minimum runtime version | `.NET Core 3.1`             | `.NET 4.7.2`          |
+| Minimum ASP.NET version | `ASP.NET Core 3.1`          | `OWIN 3.0.1`          |
 
 You can find the plans for next releases in the [roadmap](roadmap.md).
 

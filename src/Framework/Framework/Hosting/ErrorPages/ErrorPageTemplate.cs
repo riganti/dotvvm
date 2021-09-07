@@ -37,12 +37,16 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         public string Summary { get; }
         public IErrorSectionFormatter[] Formatters { get; }
 
-        public void WriteText(string str)
+        public void WriteText(string? str)
         {
+            if (string.IsNullOrEmpty(str))
+            {
+                return;
+            }
             Write(WebUtility.HtmlEncode(str));
         }
 
-        public void WriteUnencoded(string str)
+        public void WriteUnencoded(string? str)
         {
             Write(str);
         }
@@ -116,7 +120,7 @@ $@"
             return builder.ToString();
         }
 
-        public void ObjectBrowser(object obj)
+        public void ObjectBrowser(object? obj)
         {
             var settings = new JsonSerializerSettings() {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
@@ -298,7 +302,7 @@ $@"
                 WriteText(Convert.ToString(obj));
         }
 
-        private void Write(string textToAppend)
+        private void Write(string? textToAppend)
         {
             if (string.IsNullOrEmpty(textToAppend))
             {
@@ -311,13 +315,6 @@ $@"
         {
             Write(textToAppend);
             builder.AppendLine();
-        }
-
-        private class SourceLine
-        {
-            public int? LineNumber { get; set; }
-
-            public string Text { get; set; }
         }
     }
 }

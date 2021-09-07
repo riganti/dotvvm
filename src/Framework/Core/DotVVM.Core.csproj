@@ -1,7 +1,8 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <VersionPrefix>4.0.0-preview01-116912</VersionPrefix>
-    <TargetFrameworks>netstandard2.1;net472</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' " >netstandard2.1;net472</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' " >netstandard2.1</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>DotVVM.Core</AssemblyName>

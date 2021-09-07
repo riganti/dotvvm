@@ -83,14 +83,10 @@ namespace DotVVM.Samples.BasicSamples
             });
 
 
-#if AssertConfiguration
-            // this compilation symbol is set by CI server
-            config.AssertConfigurationIsValid();
-#endif
             app.UseStaticFiles();
         }
 
         private string GetApplicationPath(IHostingEnvironment env)
-            => Path.Combine(Path.GetDirectoryName(env.ContentRootPath), "DotVVM.Samples.Common");
+            => Path.Combine(Path.GetDirectoryName(env.ContentRootPath), "Common");
     }
 }

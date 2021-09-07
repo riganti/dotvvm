@@ -306,7 +306,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     .Select(f => f(exception, context))
                     .Concat(context.GetEnvironmentTabs().Select(o => DictionarySection.Create(o.Item1, "env_" + o.Item1.GetHashCode(), o.Item2)))
                     .Where(t => t != null)
-                    .ToArray(),
+                    .ToArray()!,
                 errorCode: context.Response.StatusCode,
                 errorDescription: "Unhandled exception occurred",
                 summary: exception.GetType().FullName + ": " + exception.Message.LimitLength(600));

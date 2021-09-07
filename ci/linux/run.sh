@@ -22,7 +22,6 @@ NPM_BUILD=1
 SLN_RESTORE=1
 SLN_BUILD=1
 UNIT_TESTS=1
-JS_TESTS=1
 UI_TESTS=1
 
 while true; do
@@ -44,7 +43,6 @@ Options:
     --[no-]sln-restore  Restore NuGet packages (default = 1).
     --[no-]sln-build    Build ~/ci/linux/Linux.sln (default = 1).
     --[no-]unit-tests   Run the Framework tests (default = 1).
-    --[no-]js-tests     Run Framework's Jest tests (default = 1).
     --[no-]ui-tests     Run the AspNetCoreLatest tests (default = 1).
 EOF
             shift
@@ -58,7 +56,6 @@ EOF
             SLN_RESTORE=$VALUE
             SLN_BUILD=$VALUE
             UNIT_TESTS=$VALUE
-            JS_TESTS=$VALUE
             UI_TESTS=$VALUE
             shift
             continue
@@ -241,14 +238,6 @@ if [ $UNIT_TESTS -eq 1 ]; then
             --collect \"Code Coverage\""
 fi
 
-if [ $JS_TESTS -eq 1 ]; then
-    run_named_command "JS tests" \
-        "cd \"$ROOT/src/Framework/Framework\" \
-            && npx jest --ci --reporters=\"jest-junit\" \
-            && cp ./junit.xml \"$TEST_RESULTS_DIR/js-test-results.xml\" \
-            && cd \"$ROOT\""
-fi
-
 if [ $UI_TESTS -eq 1 ]; then
     clean_uitest
 
@@ -284,6 +273,7 @@ if [ $UI_TESTS -eq 1 ]; then
     run_named_command "UI tests" \
         "dotnet test \"$SAMPLES_DIR\" \
             --no-build \
+            --filter Category!=owin-only \
             --configuration $CONFIGURATION \
             --logger 'trx;LogFileName=ui-test-results.trx' \
             --results-directory \"$TEST_RESULTS_DIR\""

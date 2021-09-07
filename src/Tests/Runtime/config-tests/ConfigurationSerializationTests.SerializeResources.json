@@ -48,7 +48,6 @@
           "DebugUrl": "x"
         },
         "MimeType": "text/javascript",
-        "VerifyResourceIntegrity": true,
         "IntegrityHash": "hash, maybe"
       },
       "r2": {
@@ -93,7 +92,6 @@
           "DebugUrl": "s"
         },
         "MimeType": "text/css",
-        "VerifyResourceIntegrity": true,
         "IntegrityHash": "hash, maybe"
       }
     }

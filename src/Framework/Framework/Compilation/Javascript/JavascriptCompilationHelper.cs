@@ -13,23 +13,6 @@ namespace DotVVM.Framework.Compilation.Javascript
     {
         public static string CompileConstant(object? obj) => JsonConvert.SerializeObject(obj, DefaultSerializerSettingsProvider.Instance.Settings);
 
-        private static readonly CodeSymbolicParameter indexerTargetParameter = new CodeSymbolicParameter("JavascriptCompilationHelper.indexerTargetParameter");
-        private static readonly CodeSymbolicParameter indexerExpressionParameter = new CodeSymbolicParameter("JavascriptCompilationHelper.indexerExpressionParameter");
-        private static readonly ParametrizedCode indexerCode =
-            new JsIdentifierExpression("ko").Member("unwrap").Invoke(new JsSymbolicParameter(indexerTargetParameter)).Indexer(new JsSymbolicParameter(indexerExpressionParameter))
-            .FormatParametrizedScript();
-        [Obsolete]
-        public static ParametrizedCode AddIndexerToViewModel(ParametrizedCode script, object index, bool unwrap = false) =>
-            AddIndexerToViewModel(script, new JsLiteral(index), unwrap);
-        [Obsolete]
-        public static ParametrizedCode AddIndexerToViewModel(ParametrizedCode script, JsExpression indexer, bool unwrap = false)
-        {
-            return indexerCode.AssignParameters(o =>
-                o == indexerTargetParameter ? new CodeParameterAssignment(script) :
-                o == indexerExpressionParameter ? CodeParameterAssignment.FromExpression(indexer) :
-                default(CodeParameterAssignment));
-        }
-
         public static ViewModelInfoAnnotation? GetResultType(this JsExpression expr)
         {
             ViewModelInfoAnnotation? combine2(ViewModelInfoAnnotation? a, ViewModelInfoAnnotation? b)
@@ -80,6 +63,14 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public static bool IsRootResultExpression(this JsNode node) =>
             SatisfyResultCondition(node, n => n.Parent == null || n.Parent is JsExpressionStatement);
+
+        public static bool IsResultIgnored(this JsExpression e) =>
+            e.SatisfyResultCondition(
+                e => e.Parent is JsExpressionStatement ||
+                     e.Parent is JsBinaryExpression { Operator: BinaryOperatorType.Sequence } && e.Role == JsBinaryExpression.LeftRole ||
+                     e.Parent is JsUnaryExpression { Operator: UnaryOperatorType.Void }
+            );
+        
         public static bool SatisfyResultCondition(this JsNode node, Func<JsNode, bool> predicate) =>
             predicate(node) ||
             (node.Parent is JsParenthesizedExpression ||

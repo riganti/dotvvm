@@ -61,6 +61,7 @@ namespace DotVVM.Framework.Routing
                     invalidRoutes.Add(new DotvvmConfigurationAssertResult<RouteBase>(route, DotvvmConfigurationAssertReason.MissingFile));
                 }
             }
+            var validControls = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
             foreach (var control in config.Markup.Controls)
             {
 
@@ -78,6 +79,15 @@ namespace DotVVM.Framework.Routing
                 }
                 else
                 {
+                    // check controls are unique
+                    if (!validControls.Add($"{control.TagPrefix}:{control.TagName}"))
+                    {
+                        invalidControls.Add(new DotvvmConfigurationAssertResult<DotvvmControlConfiguration>(
+                            control,
+                            DotvvmConfigurationAssertReason.Conflict
+                        ));
+                    }
+
                     if (string.IsNullOrEmpty(control.Src) || !string.IsNullOrEmpty(control.Namespace) || !string.IsNullOrEmpty(control.Assembly))
                     {
                         invalidControls.Add(new DotvvmConfigurationAssertResult<DotvvmControlConfiguration>(control, DotvvmConfigurationAssertReason.InvalidCombination));
@@ -96,8 +106,6 @@ namespace DotVVM.Framework.Routing
             {
                 throw new DotvvmConfigurationException(invalidRoutes, invalidControls);
             }
-
-
         }
 
 

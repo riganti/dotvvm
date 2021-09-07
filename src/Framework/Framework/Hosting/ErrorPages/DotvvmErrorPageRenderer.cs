@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         {
             try
             {
-                context.Response.ContentType = "text/html";
+                context.Response.ContentType = "text/html; charset=utf-8";
 
                 var text = (Formatter ?? (Formatter = CreateDefaultWithDemystifier()))
                     .ErrorHtml(error, context);

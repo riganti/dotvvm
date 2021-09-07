@@ -15,4 +15,13 @@ namespace DotVVM.Framework.Binding.Expressions
     {
         new BindingDelegate<T> BindingDelegate { get; }
     }
+
+    public interface IStaticCommandBinding : ICommandBinding
+    {
+        /// <summary> Returns code that should be placed in dotvvm.applyPostbackHandlers </summary>
+        ParametrizedCode OptionsLambdaJavascript { get; }
+    }
+    public interface IStaticCommandBinding<out T> : ICommandBinding<T>, IStaticCommandBinding
+    {
+    }
 }

@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Hosting;
 using DotVVM.Core.Storage;
+using DotVVM.Framework.Runtime;
 
 public static class DotvvmRequestContextExtensions
 {
@@ -235,5 +236,15 @@ public static class DotvvmRequestContextExtensions
         var generatedFileId = returnedFileStorage.StoreFileAsync(stream, metadata).Result;
         context.SetRedirectResponse(context.TranslateVirtualPath("~/dotvvmReturnedFile?id=" + generatedFileId));
         throw new DotvvmInterruptRequestExecutionException(InterruptReason.ReturnFile, fileName);
+    }
+
+    public static void DebugWarning(this IDotvvmRequestContext context, string message, Exception? relatedException = null, DotvvmBindableObject? relatedControl = null)
+    {
+        if (context.Configuration.Debug)
+        {
+            context.Services
+                .GetRequiredService<RuntimeWarningCollector>()
+                .Warn(new DotvvmRuntimeWarning(message, relatedException, relatedControl));
+        }
     }
 }

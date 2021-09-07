@@ -31,8 +31,8 @@ namespace DotVVM.Framework.Tests.Runtime
             var viewModel = new[] { "ROW 1", "ROW 2", "ROW 3" };
             var html = InvokeLifecycleAndRender(gridView, CreateContext(viewModel));
 
-            Assert.IsTrue(html.Contains("ROW 2"));
-            Assert.IsTrue(html.Contains("class=\"lol\""));
+            StringAssert.Contains(html, "ROW 2");
+            StringAssert.Contains(html, "class=lol");
         }
 
         [TestMethod]
@@ -100,7 +100,7 @@ namespace DotVVM.Framework.Tests.Runtime
                 { "test", new TextBox(){ Type = TextBoxType.Date }, TextBox.TypeProperty }
             });
             html.RenderSelfClosingTag("span");
-            Assert.AreEqual("<spandata-bind=\"tt:{&quot;test&quot;:&quot;Date&quot;}\"/>", writer.ToString().Replace(" ", ""));
+            Assert.AreEqual("<spandata-bind='tt:{\"test\":\"Date\"}'/>", writer.ToString().Replace(" ", ""));
         }
 
         [TestMethod]
@@ -151,12 +151,7 @@ namespace DotVVM.Framework.Tests.Runtime
             mockHttpContext.Setup(p => p.Request).Returns(mockHttpRequest.Object);
             context.HttpContext = mockHttpContext.Object;
 
-            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("meta") {
-                Attributes =
-                {
-                    { "content", "~/test" }
-                }
-            }, context);
+            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("meta").SetAttribute("content", "~/test"), context);
 
             Assert.IsTrue(clientHtml.Contains("<meta"));
             Assert.IsTrue(clientHtml.Contains("/home/test"));

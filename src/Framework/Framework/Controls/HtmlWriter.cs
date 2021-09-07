@@ -202,7 +202,7 @@ namespace DotVVM.Framework.Controls
         public void RenderSelfClosingTag(string name)
         {
             RenderBeginTagCore(name);
-            writer.Write("/>");
+            writer.Write(" />");
 
             if (this.enableWarnings && !IsSelfClosing(name))
                 Warn($"Element {name} is not self-closing but is rendered as so. It may be interpreted as a start tag without an end tag by the browsers.");
@@ -332,30 +332,193 @@ namespace DotVVM.Framework.Controls
 
         public void WriteHtmlAttribute(string attributeName, string? attributeValue)
         {
+            // See for context: https://html.spec.whatwg.org/#attributes-2
             writer.Write(" ");
             writer.Write(attributeName);
-            if (attributeValue != null)
+
+            // Empty attribute syntax:
+            // Just the attribute name. The value is implicitly the empty string.
+            if (string.IsNullOrEmpty(attributeValue))
+                return;
+
+
+            writer.Write('=');
+
+            WriteAttributeValue(attributeValue);
+        }
+
+        private void WriteAttributeValue(string value)
+        {
+            Debug.Assert(value.Length > 0);
+
+            if (CanBeUnquoted(value))
             {
-                if (this.debug)
+                writer.Write(value);
+                return;
+            }
+
+            var useQuotes = CountQuotesAndApos(value) <= 0;
+            if (useQuotes)
+            {
+                writer.Write('"');
+                WriteEncodedText(value, escapeQuotes: true, escapeApos: false);
+                writer.Write('"');
+            }
+            else
+            {
+                writer.Write('\'');
+                WriteEncodedText(value, escapeQuotes: false, escapeApos: true);
+                writer.Write('\'');
+            }
+        }
+
+        private bool CanBeUnquoted(string value)
+        {
+            // The attribute name, followed by zero or more ASCII whitespace, followed by a single U+003D EQUALS SIGN character, followed by zero or more ASCII whitespace, followed by the attribute value, which, in addition to the requirements given above for attribute values, must not contain any literal ASCII whitespace, any U+0022 QUOTATION MARK characters ("), U+0027 APOSTROPHE characters ('), U+003D EQUALS SIGN characters (=), U+003C LESS-THAN SIGN characters (<), U+003E GREATER-THAN SIGN characters (>), or U+0060 GRAVE ACCENT characters (`), and must not be the empty string.
+            var length = value.Length;
+            if (length > 50) return false;
+            for (int i = 0; i < length; i++)
+            {
+                var ch = value[i];
+                if (IsInRange(ch, 'A', 'Z') || IsInRange(ch, 'a', 'z'))
+                    continue;
+                // Range of -./0123456789:
+                if (IsInRange(ch, '-', ':') || ch == '_')
+                    continue;
+
+                return false;
+            }
+            return true;
+        }
+
+        private int CountQuotesAndApos(string value)
+        {
+            // it's not that important we get it right, so limit the search to 190 chars
+            var length = Math.Min(value.Length, 190);
+            var result = 0;
+            for (int i = 0; i < length; i++)
+            {
+                switch(value[i])
                 {
-                    writer.Write("=");
-                    // this is only for debug, as I'm not sure about performance and security implications
-                    // TODO: make this production ready (including proper performance comparison and security analysis)
-                    var (singleCount, doubleCount) = (attributeValue.Count(c => c == '\''), attributeValue.Count(c => c == '"'));
-                    var separator = singleCount > doubleCount ? "\"" : "'";
-                    writer.Write(separator);
-                    writer.Write(
-                        (separator == "'" ? attributeValue.Replace("&", "&amp;").Replace("'", "&#39;") : attributeValue.Replace("&", "&amp;").Replace("\"", "&quot;"))
-                        .Replace(">", "&gt;").Replace("<", "&lt;"));
-                    writer.Write(separator.ToString());
-                } else
+                    case '\'':
+                        result--;
+                        break;
+                    case '"':
+                        result++;
+                        break;
+                }
+            }
+            return result;
+        }
+
+
+        private void WriteEncodedText(string input, bool escapeQuotes, bool escapeApos)
+        {
+            int index = 0;
+            while (true) {
+                var startIndex = index;
+                index = IndexOfHtmlEncodingChars(input, startIndex, escapeQuotes, escapeApos);
+                if (index < 0)
                 {
-                    writer.Write("=\"");
-                    WriteText(attributeValue);
-                    writer.Write("\"");
+                    if (startIndex == 0)
+                    {
+                        writer.Write(input);
+                        return;
+                    }
+                    
+#if NoSpan
+                    writer.Write(input.Substring(startIndex));
+#else
+                    writer.Write(input.AsSpan().Slice(startIndex));
+#endif
+                    return;
+                }
+                else
+                {
+#if NoSpan
+                    writer.Write(input.Substring(startIndex, index - startIndex));
+#else
+                    writer.Write(input.AsSpan().Slice(startIndex, index - startIndex));
+#endif
+                    switch (input[index])
+                    {
+                        case '<':
+                            writer.Write("&lt;");
+                            break;
+                        case '>':
+                            writer.Write("&gt;");
+                            break;
+                        case '"':
+                            writer.Write("&quot;");
+                            break;
+                        case '\'':
+                            writer.Write("&#39;");
+                            break;
+                        case '&':
+                            writer.Write("&amp;");
+                            break;
+                        default:
+                            throw new Exception("Should not happen.");
+                    }
+                    index++;
                 }
             }
         }
+
+        private static int IndexOfHtmlEncodingChars(string input, int startIndex, bool escapeQuotes, bool escapeApos)
+        {
+            for (int i = startIndex; i < input.Length; i++)
+            {
+                char ch = input[i];
+                if (ch <= '>')
+                {
+                    switch (ch)
+                    {
+                        case '<':
+                        case '>':
+                            return i;
+                        case '"':
+                            if (escapeQuotes)
+                                return i;
+                            break;
+                        case '\'':
+                            if (escapeApos)
+                                return i;
+                            break;
+                        case '&':
+                            // HTML spec permits ampersands, if they are not ambiguous:
+
+                            // An ambiguous ampersand is a U+0026 AMPERSAND character (&) that is followed by one or more ASCII alphanumerics, followed by a U+003B SEMICOLON character (;), where these characters do not match any of the names given in the named character references section.
+
+                            // so if the next character is not alphanumeric, we can leave it there
+                            if (i == input.Length)
+                                return i;
+                            var nextChar = input[i + 1];
+                            if (IsInRange(nextChar, 'a', 'z') ||
+                                IsInRange(nextChar, 'A', 'Z') ||
+                                IsInRange(nextChar, '0', '9') ||
+                                nextChar == '#')
+                                return i;
+                            break;
+                    }
+                }
+                else if (char.IsSurrogate(ch))
+                {
+                    // surrogates are fine, but they must not code for ASCII characters
+
+                    var value = Char.ConvertToUtf32(ch, input[i + 1]);
+                    if (value < 256)
+                        throw new InvalidOperationException("Encountered UTF16 surrogate coding for ASCII char, this is not allowed.");
+
+                    i++;
+                }
+            }
+ 
+            return -1;
+        }
+
+        // from Char.cs
+        internal static bool IsInRange(char c, char min, char max) => (uint)(c - min) <= (uint)(max - min);
 
         /// <summary>
         /// Renders the end tag.
@@ -391,7 +554,7 @@ namespace DotVVM.Framework.Controls
         {
             if (text == null || text.Length == 0) return;
             EnsureTagFullyOpen();
-            WebUtility.HtmlEncode(text, this.writer);
+            WriteEncodedText(text, escapeApos: false, escapeQuotes: false);
         }
 
         /// <summary>

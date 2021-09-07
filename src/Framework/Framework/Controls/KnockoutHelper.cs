@@ -128,7 +128,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (!options.AllowPostbackHandlers) return "[]";
                 // turn validation off for static commands
-                var validationPath = expression is StaticCommandBindingExpression ? null : GetValidationTargetExpression(control);
+                var validationPath = expression is IStaticCommandBinding ? null : GetValidationTargetExpression(control);
                 return GetPostBackHandlersScript(control, propertyName,
                     // validation handler
                     validationPath == null ? null :
@@ -144,13 +144,18 @@ namespace DotVVM.Framework.Controls
                     GenerateConcurrencyModeHandler(propertyName, control)
                 );
             }
-            var isPostback = expression is CommandBindingExpression;
-
-            var adjustedExpression = expression.GetParametrizedCommandJavascript(control);
+            var (isStaticCommand, jsExpression) =
+                expression switch {
+                    IStaticCommandBinding { OptionsLambdaJavascript: var optionsLambdaExpression } => (true, optionsLambdaExpression),
+                    _ => (false, expression.CommandJavascript)
+                };
+            var adjustedExpression = 
+                JavascriptTranslator.AdjustKnockoutScriptContext(jsExpression,
+                    dataContextLevel: BindingHelper.FindDataContextTarget(expression, control).stepsUp);
             // when the expression changes the dataContext, we need to override the default knockout context fo the command binding.
             CodeParameterAssignment knockoutContext;
             CodeParameterAssignment viewModel = default;
-            if (isPostback)
+            if (!isStaticCommand)
             {
                 knockoutContext = options.KoContext ?? (
                     // adjustedExpression != expression.CommandJavascript ?
@@ -166,15 +171,15 @@ namespace DotVVM.Framework.Controls
             var abortSignal = options.AbortSignal ?? CodeParameterAssignment.FromIdentifier("undefined");
 
             var optionalKnockoutContext =
-                options.KoContext is object && adjustedExpression != expression.CommandJavascript ?
+                options.KoContext is object && adjustedExpression != jsExpression ?
                 knockoutContext :
                 default;
 
-            var commandArgsString = (options.CommandArgs?.Code != null) ? SubstituteArguments(options.CommandArgs!.Value.Code!) : "[]";
             var call = SubstituteArguments(adjustedExpression);
 
-            if (!isPostback)
+            if (isStaticCommand)
             {
+                var commandArgsString = (options.CommandArgs?.Code != null) ? SubstituteArguments(options.CommandArgs!.Value.Code!) : "[]";
                 var args = new List<string> {
                     SubstituteArguments(options.ElementAccessor.Code!),
                     getHandlerScript(),
@@ -199,14 +204,13 @@ namespace DotVVM.Framework.Controls
                     }
                 }
 
-                return $"dotvvm.applyPostbackHandlers(async(options)=>({call}),{string.Join(",", args)})";
+                return $"dotvvm.applyPostbackHandlers({call},{string.Join(",", args)})";
             }
             else return call;
 
             string SubstituteArguments(ParametrizedCode parametrizedCode)
             {
                 return parametrizedCode.ToString(p =>
-                    p == CommandBindingExpression.PostbackOptionsParameter ? CodeParameterAssignment.FromIdentifier("options") :
                     p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
                     p == CommandBindingExpression.CurrentPathParameter ? CodeParameterAssignment.FromIdentifier(getContextPath(control)) :
                     p == CommandBindingExpression.ControlUniqueIdParameter ? (
@@ -409,7 +413,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Encodes the string so it can be used in Javascript code.
         /// </summary>
-        public static string MakeStringLiteral(string value, bool useApos = true)
+        public static string MakeStringLiteral(string value, bool useApos = false)
         {
             return JsonConvert.ToString(value, useApos ? '\'' : '"', StringEscapeHandling.Default);
         }

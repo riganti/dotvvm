@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 
 namespace DotVVM.Framework.Binding
 {
@@ -56,6 +57,33 @@ namespace DotVVM.Framework.Binding
                 optional: Optional,
                 excluded: Excluded
             );
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder("[BindingCompilationRequirements(");
+
+            if (!Required.IsEmpty)
+            {
+                sb.Append("required: [")
+                    .Append(string.Join(", ", Required.Select(r => r.Name)))
+                    .Append("], ");
+            }
+            if (!Optional.IsEmpty)
+            {
+                sb.Append("optional: [")
+                    .Append(string.Join(", ", Optional.Select(r => r.Name)))
+                    .Append("], ");
+            }
+            if (!Excluded.IsEmpty)
+            {
+                sb.Append("excluded: [")
+                    .Append(string.Join(", ", Excluded.Select(r => r.Name)))
+                    .Append("], ");
+            }
+
+            sb.Append(")]");
+            return sb.ToString();
         }
     }
 }

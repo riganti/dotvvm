@@ -22,11 +22,12 @@
     "build-development": "rollup -c",
     "build": "npm run build-production && npm run build-development && npm run build-polyfills",
     "build-production": "rollup -c --environment BUILD:production",
-    "tsc-build": "tsc -p .",
+    "tsc-check": "tsc -p . --noEmit",
     "tsc-types": "tsc -d -p . --outFile ./obj/typescript-types/dotvvm.d.ts --emitDeclarationOnly --skipLibCheck",
     "build-polyfills": "terser -o obj/javascript/polyfill.bundle.js -c -m --ecma 5 -- Resources/Scripts/Polyfills/promise.js Resources/Scripts/Polyfills/eventTarget.js Resources/Scripts/Polyfills/abortController.js Resources/Scripts/Polyfills/fetch.js node_modules/systemjs/dist/system.js node_modules/symbol-es6/symbol-es6.js Resources/Scripts/Polyfills/utils.js"
   },
   "dependencies": {
+    "jest-github-actions-reporter": "^1.0.3",
     "jest-junit": "^12.2.0"
   }
 }

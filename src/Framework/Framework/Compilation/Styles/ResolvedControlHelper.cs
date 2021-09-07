@@ -53,20 +53,6 @@ namespace DotVVM.Framework.Compilation.Styles
 
             DotvvmProperty.CheckAllPropertiesAreRegistered(type);
 
-            foreach (var pg in DotvvmPropertyGroup.GetPropertyGroups(type).Where(pg => pg.PropertyGroupMode == PropertyGroupMode.ValueCollection))
-            {
-                var dictionary = pg.PropertyInfo!.GetValue(obj) as IDictionary<string, object?>;
-                if (dictionary is null) continue;
-                foreach (var p in dictionary)
-                {
-                    var property = pg.GetDotvvmProperty(p.Key);
-                    rc.SetProperty(
-                        TranslateProperty(property, p.Value, dataContext),
-                        replace: true
-                    );
-                }
-            }
-
             return rc;
         }
 

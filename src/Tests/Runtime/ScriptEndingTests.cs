@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Tests.Runtime
             foreach (var a in resources)
                 a.Render(w, cx, forbiddenString);
 
-            Assert.IsFalse(output.ToString().Contains(forbiddenString));
+            Assert.IsFalse(output.ToString().Contains(forbiddenString), $"{output} : {forbiddenString}");
         }
     }
 }

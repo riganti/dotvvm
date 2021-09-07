@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Binding
 {
-    public class GroupedDotvvmProperty : DotvvmProperty
+    public sealed class GroupedDotvvmProperty : DotvvmProperty
     {
         public DotvvmPropertyGroup PropertyGroup { get; }
 
@@ -31,7 +31,6 @@ namespace DotVVM.Framework.Binding
                 IsValueInherited = false,
                 Name = propname
             };
-            if (group.PropertyGroupMode == PropertyGroupMode.ValueCollection) prop.IsVirtual = true;
 
             DotvvmProperty.InitializeProperty(prop, group.AttributeProvider);
             return prop;
