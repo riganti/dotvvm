@@ -155,7 +155,7 @@ namespace DotVVM.Framework.Testing
             from property in control.Properties
             let binding = property.Value as ICommandBinding
             where binding != null
-            select (view, property.Key, binding);
+            select (control, property.Key, binding);
 
         private PageRunResult CreatePageResult(TestDotvvmRequestContext context)
         {
@@ -275,22 +275,23 @@ namespace DotVVM.Framework.Testing
             }
         }
 
-        public (DotvvmControl, DotvvmProperty, ICommandBinding) FindCommand(string text, object? viewModel = null)
+        public (DotvvmControl, DotvvmProperty, ICommandBinding) FindCommand(string text, Func<object?, bool>? viewModel = null)
         {
+            viewModel ??= _ => true;
             var filtered =
                 this.Commands
                     .Where(c => c.command.GetProperty<OriginalStringBindingProperty>(ErrorHandlingMode.ReturnNull)?.Code?.Trim() == text.Trim()
-                             && (viewModel is null || viewModel.Equals(c.control.DataContext)))
+                             && (viewModel(c.control.DataContext)))
                     .ToArray();
             if (filtered.Length == 0)
                 throw new Exception($"Command '{text}' was not found" + (viewModel is null ? "" : $" on viewModel={viewModel}"));
             if (filtered.Length > 1)
-                throw new Exception($"Multiple commands '{text}' were found" + (viewModel is null ? "" : $" on viewModel={viewModel}") + $": " + string.Join(", ", filtered.Select(c => c.command)));
+                throw new Exception($"Multiple commands '{text}' were found: " + string.Join(", ", filtered.Select(c => c.command)));
 
             return filtered.Single();
         }
 
-        public async Task<CommandRunResult> RunCommand(string text, object? viewModel = null, bool applyChanges = true, object[]? args = null)
+        public async Task<CommandRunResult> RunCommand(string text, Func<object?, bool>? viewModel = null, bool applyChanges = true, object[]? args = null)
         {
             var (control, property, binding) = FindCommand(text, viewModel);
             if (binding is CommandBindingExpression command)
