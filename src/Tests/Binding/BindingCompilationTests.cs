@@ -976,8 +976,8 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingCompiler_Errors_AssigningToType()
         {
             var aggEx = Assert.ThrowsException<BindingPropertyException>(() => ExecuteBinding("System.String = 123", new [] { new TestViewModel() }));
-            var ex = aggEx.AllInnerExceptions().Single(e => e.InnerException == null);
-            Assert.IsTrue(ex.Message.Contains("Expression must be writeable"));
+            var ex = aggEx.GetBaseException();
+            StringAssert.Contains(ex.Message, "cannot be assigned into");
         }
     }
     class TestViewModel
