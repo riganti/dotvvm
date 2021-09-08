@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Binding
                 yield return x;
         }
 
-        private static void AssertNotDefined(Type declaringType, Type capabilityType, string propertyName, string globalPrefix, bool postContent = false)
+        private static void AssertPropertyNotDefined(Type declaringType, Type capabilityType, string propertyName, string globalPrefix, bool postContent = false)
         {
             var postContentHelp = postContent ? $"It seems that the capability {capabilityType} contains a property of the same type, which leads to the conflict. " : "";
             if (Find(declaringType, capabilityType, globalPrefix) != null)
@@ -60,24 +60,29 @@ namespace DotVVM.Framework.Binding
                 throw new($"Capability {propertyName} conflicts with existing property. {postContentHelp2}Consider giving the capability a different name.");
         }
 
+        public static DotvvmCapabilityProperty RegisterCapability<TCapabilityType, TDeclaringType>(string name, string globalPrefix = "", ICustomAttributeProvider? capabilityAttributeProvider = null) =>
+            RegisterCapability(name, typeof(TDeclaringType), typeof(TCapabilityType), globalPrefix, capabilityAttributeProvider);
         public static DotvvmCapabilityProperty RegisterCapability(string name, Type declaringType, Type capabilityType, string globalPrefix = "", ICustomAttributeProvider? capabilityAttributeProvider = null, DotvvmCapabilityProperty? declaringCapability = null)
         {
-            AssertNotDefined(declaringType, capabilityType, name, globalPrefix, postContent: false);
+            AssertPropertyNotDefined(declaringType, capabilityType, name, globalPrefix, postContent: false);
+
+            capabilityAttributeProvider ??=
+                declaringType.GetProperty(name) ??
+                declaringType.GetField(name) ??
+                (ICustomAttributeProvider)declaringType.GetField(name + "Property") ??
+                throw new Exception("Capability backing field could not be found and capabilityAttributeProvider argument was not provided.");
 
             var prop = new DotvvmCapabilityProperty(globalPrefix) {
                 Name = name,
                 PropertyType = capabilityType,
                 DeclaringType = declaringType,
                 AttributeProvider = capabilityAttributeProvider!,
+                OwningCapability = declaringCapability,
             };
-            if (declaringCapability is object)
-            {
-                prop.OwningCapability = declaringCapability;
-                prop.UsedInCapabilities = prop.UsedInCapabilities.Add(declaringCapability);
-            }
+            prop.AddUsedInCapability(declaringCapability);
             InitializeCapability(prop, declaringType, capabilityType, globalPrefix, capabilityAttributeProvider);
 
-            AssertNotDefined(declaringType, capabilityType, name, globalPrefix, postContent: true);
+            AssertPropertyNotDefined(declaringType, capabilityType, name, globalPrefix, postContent: true);
 
             var valueParameter = Expression.Parameter(typeof(object), "value");
 
@@ -100,7 +105,7 @@ namespace DotVVM.Framework.Binding
             var declaringType = property.DeclaringType.NotNull();
             var capabilityType = property.PropertyType.NotNull();
             var name = property.Name.NotNull();
-            AssertNotDefined(declaringType, capabilityType, name, property.Prefix);
+            AssertPropertyNotDefined(declaringType, capabilityType, name, property.Prefix);
             var attributes = new CustomAttributesProvider(
                 new MarkupOptionsAttribute
                 {
@@ -109,7 +114,7 @@ namespace DotVVM.Framework.Binding
             );
             DotvvmProperty.Register(name, capabilityType, declaringType, DBNull.Value, false, property, attributes);
             if (!capabilityRegistry.TryAdd((declaringType, capabilityType, property.Prefix), property))
-                AssertNotDefined(declaringType, capabilityType, name, property.Prefix);
+                AssertPropertyNotDefined(declaringType, capabilityType, name, property.Prefix);
             return property;
         }
 
@@ -187,19 +192,8 @@ namespace DotVVM.Framework.Binding
             // Property Group
             if (attributeProvider.GetCustomAttribute<PropertyGroupAttribute>() is PropertyGroupAttribute groupAttribute)
             {
-                // get value type from dictionary
-                var elementType =
-                    propertyType.IsGenericType && (propertyType.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>) || propertyType.GetGenericTypeDefinition() == typeof(IDictionary<,>)) ?
-                        propertyType.GetGenericArguments()
-                        .Assert(p => p[0] == typeof(string))
-                        [1] :
-                    throw new NotSupportedException($"{propertyType.FullName} is not supported property group type. Use IDictionary<K, V> or IReadOnlyDictionary<K, V>.");
-
-                var unwrappedType =
-                    elementType.IsGenericType && elementType.GetGenericTypeDefinition() == typeof(ValueOrBinding<>) ?
-                    elementType.GenericTypeArguments.Single() :
-                    elementType;
-
+                var elementType = Helpers.GetDictionaryElement(propertyType);
+                var unwrappedType = elementType.UnwrapValueOrBinding();
 
                 var propertyGroup = DotvvmPropertyGroup.Register(
                     declaringType,
@@ -257,167 +251,93 @@ namespace DotVVM.Framework.Binding
                 // auto append Capability to the end. Tends to prevent conflicts
                 if (!propertyName.EndsWith("capability", StringComparison.OrdinalIgnoreCase))
                     propertyName += "Capability";
-                checkNameConflict(propertyName);
 
                 var prefix = attributeProvider.GetCustomAttribute<DotvvmControlCapabilityAttribute>()?.Prefix ?? "";
-                var capability = DotvvmCapabilityProperty.RegisterCapability(propertyName, declaringType, propertyType, prefix, attributeProvider, declaringCapability);
-                return CreatePropertyLambdas(propertyType, valueParameter, capability);
+
+                DotvvmCapabilityProperty capability;
+                if (Find(declaringType, propertyType, prefix) is {} existingProperty)
+                {
+                    checkPropertyConflict(existingProperty, propertyType);
+                    capability = existingProperty;
+                    capability.AddUsedInCapability(declaringCapability);
+                }
+                else
+                {
+                    capability = DotvvmCapabilityProperty.RegisterCapability(propertyName, declaringType, propertyType, prefix, attributeProvider, declaringCapability);
+                }
+                return Helpers.CreatePropertyLambdas(propertyType, valueParameter, capability);
             }
             // Standard property
             else
             {
-                checkNameConflict(propertyName);
-                var type = propertyType.UnwrapNullableType();
-                type =
-                    type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ValueOrBinding<>) ?
-                    type.GenericTypeArguments.Single() :
-                    type;
-                var isNullable = propertyType.IsNullable() || type.IsNullable();
-                type = type.UnwrapNullableType();
+                var type = propertyType.UnwrapValueOrBinding().UnwrapNullableType();
 
-                var dotvvmProperty = new DotvvmProperty();
-                DotvvmProperty.Register(propertyName, type, declaringType, boxedDefaultValue, false, dotvvmProperty, attributeProvider);
-
-                if (declaringCapability is object)
+                DotvvmProperty dotvvmProperty;
+                if (DotvvmProperty.ResolveProperty(declaringType, propertyName) is {} existingProperty)
                 {
-                    dotvvmProperty.OwningCapability = declaringCapability;
-                    dotvvmProperty.UsedInCapabilities = dotvvmProperty.UsedInCapabilities.Add(declaringCapability);
-                }
-
-                if (!defaultValue.HasValue && !isNullable)
-                    dotvvmProperty.MarkupOptions.Required = true;
-
-                if (typeof(IBinding).IsAssignableFrom(propertyType))
-                    dotvvmProperty.MarkupOptions.AllowHardCodedValue = false;
-                else if (!typeof(ValueOrBinding).IsAssignableFrom(propertyType.UnwrapNullableType()))
-                    dotvvmProperty.MarkupOptions.AllowBinding = false;
-
-                if (typeof(DotvvmBindableObject).IsAssignableFrom(type) ||
-                    typeof(ITemplate).IsAssignableFrom(type) ||
-                    typeof(IEnumerable<DotvvmBindableObject>).IsAssignableFrom(type))
-                    dotvvmProperty.MarkupOptions.MappingMode = MappingMode.Both;
-
-                return CreatePropertyLambdas(propertyType, valueParameter, dotvvmProperty);
-            }
-
-            void checkNameConflict(string propertyName)
-            {
-                if (DotvvmProperty.ResolveProperty(declaringType, propertyName) is DotvvmProperty existingProperty)
-                {
-                    var capabilityHelp = capabilityType is null ? "" : $"The property is being defined because it is in {capabilityType} capability, you can set prefix of the capability to prevent conflict. ";
-                    var compositeHelp =
-                        capabilityType is null && typeof(CompositeControl).IsAssignableFrom(declaringType) ?
-                        $"The property is being defined because parameter of it's name is defined in the {declaringType}.GetContents method. " : "";
-                    throw new Exception($"Can not define property {declaringType}.{propertyName} as it already exists. {capabilityHelp}");
-                }
-            }
-        }
-
-        private static (LambdaExpression getter, LambdaExpression setter) CreatePropertyLambdas(Type type, ParameterExpression valueParameter, DotvvmProperty property)
-        {
-            var unwrappedType = type.UnwrapNullableType();
-            if (typeof(IBinding).IsAssignableFrom(type))
-            {
-                var getValueRawMethod = typeof(DotvvmBindableObject).GetMethod("GetValueRaw");
-                var setValueRawMethod = typeof(DotvvmBindableObject).GetMethod("SetValueRaw", new[] { typeof(DotvvmProperty), typeof(object) });
-                return (
-                    Expression.Lambda(
-                        Expression.Convert(
-                            Expression.Call(currentControlParameter, getValueRawMethod, Expression.Constant(property), Expression.Constant(false)),
-                            type
-                        ),
-                        currentControlParameter
-                    ),
-                    Expression.Lambda(
-                        Expression.Call(currentControlParameter, setValueRawMethod, Expression.Constant(property), Expression.Convert(valueParameter, typeof(object))),
-                        currentControlParameter, valueParameter
-                    )
-                );
-            }
-            else if (unwrappedType.IsGenericType && unwrappedType.GetGenericTypeDefinition() == typeof(ValueOrBinding<>))
-            {
-                // could hamper some optimizations, we can fix it later if needed
-                if (property.GetType() != typeof(DotvvmProperty))
-                    throw new NotSupportedException($"Can not create getter/setter for ValueOrBinding and {property.GetType()}");
-                if (property.IsValueInherited)
-                    throw new NotSupportedException($"Can not create getter/setter for ValueOrBinding and inherited property");
-
-                var isNullable = type.IsNullable();
-                var innerType = unwrappedType.GetGenericArguments().Single();
-                var getValueOrBindingMethod =
-                    typeof(Helpers).GetMethod(
-                        isNullable ? "GetOptionalValueOrBinding" : "GetValueOrBinding"
-                    ).MakeGenericMethod(innerType);
-                var setValueOrBindingMethod =
-                    typeof(Helpers).GetMethod(
-                        isNullable ? "SetOptionalValueOrBinding" : "SetValueOrBinding"
-                    ).MakeGenericMethod(innerType);
-                return (
-                    Expression.Lambda(
-                        Expression.Call(getValueOrBindingMethod, currentControlParameter, Expression.Constant(property)),
-                        currentControlParameter
-                    ),
-                    Expression.Lambda(
-                        Expression.Call(setValueOrBindingMethod, currentControlParameter, Expression.Constant(property), valueParameter),
-                        currentControlParameter, valueParameter
-                    )
-                );
-            }
-            else
-            {
-                var getValueMethod = (from m in typeof(DotvvmBindableObject).GetMethods()
-                                      where m.Name == "GetValue" && !m.IsGenericMethod
-                                      select m).Single();
-                var setValueMethod = typeof(DotvvmBindableObject).GetMethod("SetValue", new[] { typeof(DotvvmProperty), typeof(object) });
-                return (
-                    Expression.Lambda(
-                        Expression.Convert(
-                            Expression.Call(currentControlParameter, getValueMethod, Expression.Constant(property), Expression.Constant(false)),
-                            type
-                        ),
-                        currentControlParameter
-                    ),
-                    Expression.Lambda(
-                        Expression.Call(currentControlParameter, setValueMethod, Expression.Constant(property), Expression.Convert(valueParameter, typeof(object))),
-                        currentControlParameter, valueParameter
-                    )
-                );
-            }
-        }
-
-        internal static class Helpers
-        {
-            public static ValueOrBinding<T>? GetOptionalValueOrBinding<T>(DotvvmBindableObject c, DotvvmProperty p)
-            {
-                if (c.properties.TryGet(p, out var x))
-                    return ValueOrBinding<T>.FromBoxedValue(x);
-                else return null;
-            }
-            public static ValueOrBinding<T> GetValueOrBinding<T>(DotvvmBindableObject c, DotvvmProperty p)
-            {
-                if (!c.properties.TryGet(p, out var x))
-                    x = p.DefaultValue;
-                return ValueOrBinding<T>.FromBoxedValue(x);
-            }
-            public static void SetOptionalValueOrBinding<T>(DotvvmBindableObject c, DotvvmProperty p, ValueOrBinding<T>? val)
-            {
-                if (val.HasValue)
-                {
-                    var v = val.GetValueOrDefault();
-                    var boxedVal = v.BindingOrDefault ?? v.BoxedValue;
-                    c.properties.Set(p, boxedVal);
+                    checkPropertyConflict(existingProperty, type);
+                    dotvvmProperty = existingProperty;
                 }
                 else
                 {
-                    c.properties.Remove(p);
+                    dotvvmProperty = new DotvvmProperty(propertyName, type, declaringType, boxedDefaultValue, false, attributeProvider);
+                    dotvvmProperty.OwningCapability = declaringCapability;
+
+                    var isNullable = propertyType.IsNullable() || propertyType.UnwrapValueOrBinding().IsNullable();
+
+                    if (!defaultValue.HasValue && !isNullable)
+                        dotvvmProperty.MarkupOptions.Required = true;
+
+                    if (typeof(IBinding).IsAssignableFrom(propertyType))
+                        dotvvmProperty.MarkupOptions.AllowHardCodedValue = false;
+                    else if (!typeof(ValueOrBinding).IsAssignableFrom(propertyType.UnwrapNullableType()))
+                        dotvvmProperty.MarkupOptions.AllowBinding = false;
+
+                    if (typeof(DotvvmBindableObject).IsAssignableFrom(type) ||
+                        typeof(ITemplate).IsAssignableFrom(type) ||
+                        typeof(IEnumerable<DotvvmBindableObject>).IsAssignableFrom(type))
+                        dotvvmProperty.MarkupOptions.MappingMode = MappingMode.Both;
+
+                    DotvvmProperty.Register(dotvvmProperty);
                 }
+
+                dotvvmProperty.AddUsedInCapability(declaringCapability);
+
+                return Helpers.CreatePropertyLambdas(propertyType, valueParameter, dotvvmProperty);
             }
-            public static void SetValueOrBinding<T>(DotvvmBindableObject c, DotvvmProperty p, ValueOrBinding<T> val)
+
+            void checkPropertyConflict(DotvvmProperty existingProperty, Type newPropertyType)
             {
-                // TODO: remove the property in case of default value?
-                var boxedVal = val.BindingOrDefault ?? val.BoxedValue;
-                c.properties.Set(p, boxedVal);
+                CheckPropertyConflict(existingProperty, newPropertyType, declaringType, declaringCapability);
             }
+        }
+        static void CheckPropertyConflict(DotvvmProperty existingProperty, Type newPropertyType, Type declaringType, DotvvmCapabilityProperty? declaringCapability)
+        {
+            string error = "";
+            // same type
+            if (newPropertyType != existingProperty.PropertyType)
+                error += $" The properties have different types: '{newPropertyType}' vs '{existingProperty.PropertyType}'.";
+
+            // the existing property must be declared above this one
+            if (existingProperty.OwningCapability is {} existingCapability && declaringCapability is object)
+            {
+                var commonAncestor = existingCapability.ThisAndOwners().Intersect(declaringCapability.ThisAndOwners()).FirstOrDefault();
+                var commonAncestorStr = commonAncestor?.PropertyType.Name ?? declaringType.Name;
+                if (!declaringCapability.IsOwnedByCapability(existingCapability))
+                    error += $" The property is declared in capabilities {existingCapability.PropertyType.Name} and {declaringCapability.Name} - to resolve the conflict declare the property in {commonAncestorStr}.";
+            }
+            // It is allowed to share property when it's declared in the control (existingCapability is null)
+            // And it's allowed to share property with GetContents parameter (declaringCapability is null)
+
+            if (error.Length == 0)
+                return;
+
+            var capabilityType = declaringCapability?.PropertyType;
+            var capabilityHelp = capabilityType is null ? "" : $"The property is being defined because it is in {capabilityType.Name}, you can set prefix of the capability to prevent conflict. ";
+            var compositeHelp =
+                capabilityType is null && typeof(CompositeControl).IsAssignableFrom(declaringType) ?
+                $"The property is being defined because parameter of it's name is defined in the {declaringType}.GetContents method. " : "";
+            throw new Exception($"Can not define property {declaringType}.{existingProperty.Name} as it already exists.{error} {capabilityHelp}");
         }
     }
 
