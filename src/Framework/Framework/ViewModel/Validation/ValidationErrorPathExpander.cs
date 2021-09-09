@@ -11,7 +11,7 @@ using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.ViewModel.Validation
 {
-    internal class ModelStateDecoratorContext
+    internal class ValidationErrorPathExpanderContext
     {
         internal readonly IDictionary<object, List<ViewModelValidationError>> ValidationErrorsLookup;
         internal readonly object? ValidationTarget;
@@ -19,7 +19,7 @@ namespace DotVVM.Framework.ViewModel.Validation
 
         internal string? ValidationTargetPath { get; set; }
 
-        public ModelStateDecoratorContext(object? validationTarget, List<ViewModelValidationError> errors)
+        public ValidationErrorPathExpanderContext(object? validationTarget, List<ViewModelValidationError> errors)
         {
             errors.ForEach(item => item.TargetObject = item.TargetObject ?? validationTarget);
             this.ValidationErrorsLookup = errors.GroupBy(e => e.TargetObject ?? validationTarget).ToDictionary(e => e.Key, e => e.ToList());
@@ -28,11 +28,11 @@ namespace DotVVM.Framework.ViewModel.Validation
         }
     }
 
-    internal class ModelStateDecorator : IModelStateDecorator
+    internal class ValidationErrorPathExpander : IValidationErrorPathExpander
     {
         private readonly IViewModelSerializationMapper viewModelSerializationMapper;
 
-        public ModelStateDecorator(IViewModelSerializationMapper viewModelMapper)
+        public ValidationErrorPathExpander(IViewModelSerializationMapper viewModelMapper)
         {
             this.viewModelSerializationMapper = viewModelMapper;
         }
@@ -49,20 +49,20 @@ namespace DotVVM.Framework.ViewModel.Validation
             }
         }
 
-        public void Decorate(ModelState modelState, object viewModel)
+        public void Expand(ModelState modelState, object viewModel)
         {
             // Check that model state does not contain validation target paths in the old format
             EnsurePropertyPathsAreCorrect(modelState.Errors);
 
             // Add information about absolute paths to errors
-            var modelStateDecoratorContext = new ModelStateDecoratorContext(modelState.ValidationTarget, modelState.Errors);
-            Decorate(viewModel, string.Empty, modelStateDecoratorContext);
+            var modelStateDecoratorContext = new ValidationErrorPathExpanderContext(modelState.ValidationTarget, modelState.Errors);
+            Expand(viewModel, string.Empty, modelStateDecoratorContext);
 
             // Remove not found errors
             modelState.Errors.RemoveAll(error => !modelStateDecoratorContext.AlreadyProcessedNodes.Contains(error.TargetObject));
         }
 
-        private void Decorate(object? viewModel, string pathPrefix, ModelStateDecoratorContext context)
+        private void Expand(object? viewModel, string pathPrefix, ValidationErrorPathExpanderContext context)
         {
             if (viewModel == null || context.AlreadyProcessedNodes.Contains(viewModel))
                 return;
@@ -78,7 +78,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                 // Traverse each element of a collection
                 var index = 0;
                 foreach (var item in (IEnumerable)viewModel)
-                    Decorate(item, $"{pathPrefix}/{index++}", context);
+                    Expand(item, $"{pathPrefix}/{index++}", context);
 
                 return;
             }
@@ -93,7 +93,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                         continue;
 
                     if (ReflectionUtils.IsComplexType(property.Type))
-                        Decorate(value, $"{pathPrefix}/{property.Name}", context);
+                        Expand(value, $"{pathPrefix}/{property.Name}", context);
                 }
             }
 

@@ -7,8 +7,8 @@ using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.ViewModel.Validation
 {
-    public interface IModelStateDecorator
+    public interface IValidationErrorPathExpander
     {
-        void Decorate(ModelState modelState, object viewModel);
+        void Expand(ModelState modelState, object viewModel);
     }
 }

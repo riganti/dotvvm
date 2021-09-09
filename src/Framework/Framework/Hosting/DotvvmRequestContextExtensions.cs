@@ -174,8 +174,8 @@ public static class DotvvmRequestContextExtensions
     {
         if (!context.ModelState.IsValid)
         {
-            var modelStateDecorator = context.Services.GetRequiredService<IModelStateDecorator>();
-            modelStateDecorator.Decorate(context.ModelState, context.ViewModel);
+            var modelStateErrorExpander = context.Services.GetRequiredService<IValidationErrorPathExpander>();
+            modelStateErrorExpander.Expand(context.ModelState, context.ViewModel);
         }
     }
 
