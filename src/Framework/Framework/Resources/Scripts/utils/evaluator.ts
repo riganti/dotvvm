@@ -12,6 +12,9 @@ const shouldBeConvertedFromDataContext = (currentLevel: any, remainingParts: str
 
 export function traverseContext(context: any, path: string): any 
 {
+    if (path == null)
+        path = "";
+
     var parts = path.split(/[/[\.\]]+/);
     var currentLevel = context;
     var currentPath = "";

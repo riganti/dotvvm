@@ -291,10 +291,7 @@ export function showValidationErrorsFromServer(serverResponseObject: any, option
             // find the property
             const propertyPath = prop.propertyPath;
             let rootVM = dotvvm.viewModels.root.viewModel;
-            const property =
-                propertyPath ?
-                    evaluator.traverseContext(rootVM, propertyPath) :
-                rootVM;
+            const property = evaluator.traverseContext(rootVM, propertyPath);
 
             ValidationError.attach(prop.errorMessage, property);
         }
