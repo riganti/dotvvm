@@ -30,21 +30,21 @@ const assertObservableString = (object: any, expected: string) => {
     expect(object()).toBe(expected)
 }
 
-describe("DotVVM.Utils.Evaluator - evaluateValidationPath", () => {
+describe("DotVVM.Utils.Evaluator - traverseContext", () => {
 
     test("evaluate $parent path", () => {
         const hierarchy = createComplexObservableTargetWithNullArrayElement();
 
         const fakeContext = getParentedContext();
 
-        const prop21 =  evaluator.evaluateValidationPath(fakeContext,"$parent.Prop21")
+        const prop21 = evaluator.traverseContext(fakeContext,"$parent.Prop21")
         assertObservableString(prop21, "b");
     })
 
     test("evaluate $data path", () => {       
         const fakeContext = getParentedContext();
 
-        const dotvvmThis =  evaluator.evaluateValidationPath(fakeContext,"$data")
+        const dotvvmThis = evaluator.traverseContext(fakeContext,"$data")
         expect(dotvvmThis).toBe("c");
 
     })
@@ -52,15 +52,15 @@ describe("DotVVM.Utils.Evaluator - evaluateValidationPath", () => {
     test("evaluate $root path", () => {    
         const fakeContext = getParentedContext();
 
-        const root =  evaluator.evaluateValidationPath(fakeContext,"$root")
+        const root = evaluator.traverseContext(fakeContext,"$root")
         assertObservableString(root.Prop1, "a");
     })
 
     test("evaluate absolute path", () => {    
         const fakeContext = getParentedContext();
 
-        const rootSlash =  evaluator.evaluateValidationPath(fakeContext.$root,"/Prop2/Prop22")
-        const rootDot =  evaluator.evaluateValidationPath(fakeContext.$root,"Prop2.Prop22")
+        const rootSlash = evaluator.traverseContext(fakeContext.$root,"/Prop2/Prop22")
+        const rootDot = evaluator.traverseContext(fakeContext.$root,"Prop2.Prop22")
         assertObservableString(rootSlash, "c");
         assertObservableString(rootDot, "c");
     })
@@ -68,8 +68,8 @@ describe("DotVVM.Utils.Evaluator - evaluateValidationPath", () => {
     test("evaluate absolute array path", () => {    
         const fakeContext = getParentedContext();
 
-        const rootSlash =  evaluator.evaluateValidationPath(fakeContext.$root,"/Prop2/Prop23[1]/Prop231")
-        const rootDot =  evaluator.evaluateValidationPath(fakeContext.$root,"Prop2.Prop23[1].Prop231")
+        const rootSlash = evaluator.traverseContext(fakeContext.$root,"/Prop2/Prop23[1]/Prop231")
+        const rootDot = evaluator.traverseContext(fakeContext.$root,"Prop2.Prop23[1].Prop231")
         assertObservableString(rootSlash, "e");
         assertObservableString(rootDot, "e");
     })

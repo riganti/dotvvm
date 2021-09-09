@@ -10,9 +10,9 @@ const shouldBeConvertedFromDataContext = (currentLevel: any, remainingParts: str
 };
 
 
-export function evaluateValidationPath(context: any, expression: string): any 
+export function traverseContext(context: any, path: string): any 
 {
-    var parts = expression.split(/[/[\.\]]+/);
+    var parts = path.split(/[/[\.\]]+/);
     var currentLevel = context;
     var currentPath = "";
     for (var i = 0; i < parts.length; i++) {
@@ -27,7 +27,7 @@ export function evaluateValidationPath(context: any, expression: string): any
 
         var nextNode = currentLevelExpanded[expressionPart];
         if (nextNode==undefined) {
-            throw `Validation error could not been applied to property specified by propertyPath ${expression}. Property with name ${expressionPart} does not exist on ${currentPath}.`;
+            throw `Validation error could not been applied to property specified by propertyPath ${path}. Property with name ${expressionPart} does not exist on ${currentPath}.`;
         }
         currentPath += "/"+expressionPart;
         currentLevel = nextNode;
