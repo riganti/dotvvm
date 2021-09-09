@@ -334,20 +334,20 @@ namespace DotVVM.Framework.Binding
                 aliasAttribute.AliasedPropertyDeclaringType ?? declaringType);
             propertyAlias.AttributeProvider = attributeProvider;
             propertyAlias.ObsoleteAttribute = attributeProvider.GetCustomAttribute<ObsoleteAttribute>();
-            var fullName = propertyAlias.DeclaringType.FullName + "." + propertyAlias.Name;
+            var key = (propertyAlias.DeclaringType, propertyAlias.Name);
 
-            if (!registeredProperties.TryAdd(fullName, propertyAlias))
+            if (!registeredProperties.TryAdd(key, propertyAlias))
             {
                 if (throwOnDuplicitRegistration)
-                    throw new ArgumentException($"Property is already registered: {fullName}");
+                    throw new ArgumentException($"Property is already registered: {propertyAlias.FullName}");
             }
 
-            if (!registeredAliases.TryAdd(fullName, propertyAlias))
+            if (!registeredAliases.TryAdd(key, propertyAlias))
             {
                 if (throwOnDuplicitRegistration)
-                    throw new ArgumentException($"Property alias is already registered: {fullName}");
+                    throw new ArgumentException($"Property alias is already registered: {propertyAlias.FullName}");
                 else
-                    return registeredAliases[fullName];
+                    return registeredAliases[key];
             }
             return propertyAlias;
         }
@@ -401,8 +401,8 @@ namespace DotVVM.Framework.Binding
             }
         }
 
-        private static ConcurrentDictionary<string, DotvvmProperty> registeredProperties = new();
-        private static ConcurrentDictionary<string, DotvvmPropertyAlias> registeredAliases = new();
+        private static ConcurrentDictionary<(Type, string), DotvvmProperty> registeredProperties = new();
+        private static ConcurrentDictionary<(Type, string), DotvvmPropertyAlias> registeredAliases = new();
 
         /// <summary>
         /// Resolves the <see cref="DotvvmProperty"/> by the declaring type and name.

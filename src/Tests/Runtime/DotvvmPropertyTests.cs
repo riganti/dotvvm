@@ -47,7 +47,8 @@ namespace DotVVM.Framework.Tests.Runtime
             public static DotvvmProperty AliasedProperty
                 = DotvvmProperty.Register<int, TestObject>(c => c.Aliased);
 
-            [Obsolete("Use 'Aliased' instead.")]
+            // NB: In actual use, IsError should be set to true.
+            [Obsolete("Use 'Aliased' instead.", false)]
             [PropertyAlias(nameof(Aliased))]
             public string? Alias
             {
@@ -93,9 +94,12 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
-        public void DotvvmProperty_AliasMarkupOptionsPropagates()
+        public void DotvvmProperty_AliasUsageThrows()
         {
-            Assert.IsTrue(TestObject.AliasProperty.MarkupOptions.Required);
+            var dummy = new HtmlGenericControl("div");
+            Assert.ThrowsException<NotSupportedException>(() => TestObject.AliasProperty.GetValue(dummy));
+            Assert.ThrowsException<NotSupportedException>(() => TestObject.AliasProperty.IsSet(dummy));
+            Assert.ThrowsException<NotSupportedException>(() => TestObject.AliasProperty.SetValue(dummy, ""));
         }
 
         [TestMethod]

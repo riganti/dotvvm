@@ -1,3 +1,4 @@
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Compilation
@@ -14,7 +15,8 @@ namespace DotVVM.Framework.Compilation
                 return;
             }
 
-            if (setter.Property.ObsoleteAttribute.IsError)
+            // NB: the obsolete attribute should NEVER cause a compilation error in dothtml if the property is an alias
+            if (setter.Property.ObsoleteAttribute.IsError && setter.Property is not DotvvmPropertyAlias)
             {
                 setter.DothtmlNode.AddError(setter.Property.ObsoleteAttribute.Message);
             }

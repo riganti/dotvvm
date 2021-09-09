@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Binding
@@ -17,6 +18,8 @@ namespace DotVVM.Framework.Binding
             DeclaringType = declaringType;
             AliasedPropertyName = aliasedPropertyName;
             AliasedPropertyDeclaringType = aliasedPropertyDeclaringType;
+            MarkupOptions = new MarkupOptionsAttribute();
+            DataContextChangeAttributes = Array.Empty<DataContextChangeAttribute>();
         }
 
         public string AliasedPropertyName { get; }
@@ -43,15 +46,18 @@ namespace DotVVM.Framework.Binding
             if (aliased is null)
             {
                 throw new ArgumentException($"Property alias '{alias}' could not be resolved. "
-                    + $"The aliased property '{alias.AliasedPropertyDeclaringType.Name}.{alias.AliasedPropertyName}' is not registered.");
+                    + $"The aliased property '{alias.AliasedPropertyDeclaringType.Name}.{alias.AliasedPropertyName}' "
+                    + "is not registered.");
             }
 
             alias.aliased = aliased;
+
+            // NB: this property copying is required for the dothtml compiler to resolve the property correctly
+            //     before the alias can be applied
             alias.DefaultValue = aliased.DefaultValue;
             alias.PropertyType = aliased.PropertyType;
             alias.IsValueInherited = aliased.IsValueInherited;
             alias.MarkupOptions = aliased.MarkupOptions;
-            alias.IsVirtual = aliased.IsVirtual;
             alias.IsBindingProperty = aliased.IsBindingProperty;
             alias.DataContextChangeAttributes = aliased.DataContextChangeAttributes;
             alias.DataContextManipulationAttribute = aliased.DataContextManipulationAttribute;
@@ -59,17 +65,23 @@ namespace DotVVM.Framework.Binding
 
         public override object? GetValue(DotvvmBindableObject control, bool inherit = true)
         {
-            return Aliased.GetValue(control, inherit);
+            throw GetException();
         }
 
         public override bool IsSet(DotvvmBindableObject control, bool inherit = true)
         {
-            return Aliased.IsSet(control, inherit);
+            throw GetException();
         }
 
         public override void SetValue(DotvvmBindableObject control, object? value)
         {
-            Aliased.SetValue(control, value);
+            throw GetException();
+        }
+
+        private Exception GetException([CallerMemberName] string member = "<missing>")
+        {
+            return new NotSupportedException($"'{FullName}' is a property alias and doesn't support "
+                + $"'{member}'. Use '{Aliased.FullName}' instead.");
         }
     }
 }
