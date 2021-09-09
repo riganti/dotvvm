@@ -16,6 +16,7 @@ using DotVVM.Framework.Compilation.Binding;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Utils
 {
@@ -378,6 +379,17 @@ namespace DotVVM.Framework.Utils
             else if (type.IsGenericType && typeof(ValueTask<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
                 return type.GetGenericArguments()[0];
 #endif
+            else
+                return type;
+        }
+
+        public static Type UnwrapValueOrBinding(this Type type)
+        {
+            type = type.UnwrapNullableType();
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ValueOrBinding<>))
+                return type.GenericTypeArguments.Single();
+            else if (typeof(ValueOrBinding).IsAssignableFrom(type))
+                return typeof(object);
             else
                 return type;
         }
