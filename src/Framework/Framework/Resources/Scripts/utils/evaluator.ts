@@ -10,6 +10,15 @@ const shouldBeConvertedFromDataContext = (currentLevel: any, remainingParts: str
 };
 
 
+
+/**
+ * Traverses provided context according to given path.
+ * @example / - returns context
+ * @example "" or null - returns context
+ * @example /exampleProp/A - returns prop A located withing property exampleProp located at provided context
+ * @example /exampleProp/B/1 - returns second item from collection B located within property exampleProp located at provided context
+ * @returns found property as unwrapped object
+ */
 export function traverseContext(context: any, path: string): any 
 {
     if (path == null)
@@ -26,13 +35,13 @@ export function traverseContext(context: any, path: string): any
         if (expressionPart === "")
             continue;
 
-        var currentLevelExpanded = currentLevel instanceof Function ? currentLevel() : currentLevel;
+        var currentLevelExpanded = currentLevel instanceof Function ? ko.unwrap(currentLevel) : currentLevel;
 
         var nextNode = currentLevelExpanded[expressionPart];
         if (nextNode==undefined) {
             throw `Validation error could not been applied to property specified by propertyPath ${path}. Property with name ${expressionPart} does not exist on ${currentPath}.`;
         }
-        currentPath += "/"+expressionPart;
+        currentPath += `/${expressionPart}`;
         currentLevel = nextNode;
     }
 

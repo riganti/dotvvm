@@ -90,11 +90,12 @@ export function init() {
     ko.bindingHandlers["dotvvm-validationSummary"] = {
         init: (element: HTMLElement, valueAccessor: () => ValidationSummaryBinding) => {
             const binding = valueAccessor();
-            const target = evaluator.traverseContext(ko.contextFor(element), ko.unwrap(binding.target));
+            const validationTarget = evaluator.traverseContext(ko.contextFor(element), ko.unwrap(binding.target));
+
             validationErrorsChanged.subscribe(_ => {
                 element.innerHTML = "";
                 const errors = getValidationErrors(
-                    target,
+                    validationTarget,
                     binding.includeErrorsFromChildren,
                     binding.includeErrorsFromTarget
                 );
@@ -288,9 +289,10 @@ export function showValidationErrorsFromServer(serverResponseObject: any, option
         // add validation errors
         for (const prop of serverResponseObject.modelState) {
             
+            let rootVM = dotvvm.viewModels.root.viewModel;
+
             // find the property
             const propertyPath = prop.propertyPath;
-            let rootVM = dotvvm.viewModels.root.viewModel;
             const property = evaluator.traverseContext(rootVM, propertyPath);
 
             ValidationError.attach(prop.errorMessage, property);
