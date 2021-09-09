@@ -65,7 +65,7 @@
             while (list.firstChild) {
                 list.removeChild(list.firstChild);
             }
-            t.serverResponseObject.modelState.forEach(s => {
+            t.error.reason.responseObject.modelState.forEach(s => {
                 var node = document.createElement("li");
                 var textnode = document.createTextNode(s.propertyPath);
                 node.appendChild(textnode);
