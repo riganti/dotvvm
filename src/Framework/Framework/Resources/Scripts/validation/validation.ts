@@ -4,7 +4,7 @@ import { allErrors, detachAllErrors, ValidationError, getErrors } from "./error"
 import { DotvvmEvent } from '../events'
 import * as spaEvents from '../spa/events'
 import { postbackHandlers } from "../postback/handlers"
-import { DotvvmValidationContext, ErrorsPropertyName } from "./common"
+import { DotvvmValidationContext, ErrorsPropertySymbol } from "./common"
 import { isPrimitive, keys } from "../utils/objects"
 import { elementActions } from "./actions"
 import { DotvvmPostbackError } from "../shared-classes"
@@ -236,8 +236,8 @@ function getValidationErrors<T>(
 
     let errors: ValidationError[] = [];
 
-    if (includeErrorsFromTarget && ko.isObservable(targetObservable) && ErrorsPropertyName in targetObservable) {
-        errors = errors.concat(targetObservable[ErrorsPropertyName]);
+    if (includeErrorsFromTarget && ErrorsPropertySymbol in targetObservable) {
+        errors = errors.concat((targetObservable as any)[ErrorsPropertySymbol]);
     }
 
     if (!includeErrorsFromChildren) {

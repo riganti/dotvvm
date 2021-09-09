@@ -10,7 +10,7 @@ import { wrapObservable } from "./utils/knockout";
 import { logWarning } from "./utils/logging";
 import { observable } from "knockout";
 import {ValidationError} from "./validation/error";
-import { ErrorsPropertyName } from "./validation/common";
+import { ErrorsPropertySymbol } from "./validation/common";
 
 
 export const currentStateSymbol = Symbol("currentState")
@@ -125,7 +125,7 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
 
 class FakeObservableObject<T extends object> implements UpdatableObjectExtensions<T> {
     public [currentStateSymbol]: T
-    public [ErrorsPropertyName]: Array<ValidationError>
+    public [ErrorsPropertySymbol]: Array<ValidationError>
     public [updateSymbol]: UpdateDispatcher<T>
     public [notifySymbol](newValue: T) {
         console.assert(newValue)
@@ -154,7 +154,7 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
     constructor(initialValue: T, updater: UpdateDispatcher<T>, typeId: TypeDefinition, typeInfo: ObjectTypeMetadata | undefined, additionalProperties: string[]) {
         this[currentStateSymbol] = initialValue
         this[updateSymbol] = updater
-        this[ErrorsPropertyName] = []
+        this[ErrorsPropertySymbol] = []
         for (const p of keys(typeInfo?.properties || {}).concat(additionalProperties)) {
             this[internalPropCache][p] = null
         
