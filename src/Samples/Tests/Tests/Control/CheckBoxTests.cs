@@ -107,6 +107,10 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckedItemsNull);
+                browser.WaitUntilDotvvmInited();
+
+                var elm = browser.FirstOrDefault("loaded", SelectByDataUi);
+                AssertUI.TextEquals(elm, "loaded", failureMessage: "Page have not loaded in time! There can be JS error!");
             });
         }
 

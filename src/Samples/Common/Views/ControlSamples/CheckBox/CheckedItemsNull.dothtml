@@ -26,6 +26,7 @@
                     Click="{command: SetCheckedItems()}" />
         <span data-ui="selectedColors">{{value: SelectedColors}}</span>
     </fieldset>
+    <span data-ui="loaded">{{value:  "loaded"}}</span>
 </body>
 </html>
 
