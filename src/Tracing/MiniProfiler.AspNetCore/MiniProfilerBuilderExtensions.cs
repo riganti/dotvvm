@@ -1,4 +1,5 @@
 ﻿using System;
+using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Tracing.MiniProfiler;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,15 +21,20 @@ namespace DotVVM.Framework.Configuration
             services.Services.AddScoped<IMiniProfilerRequestTracer, MiniProfilerTracer>();
             services.Services.AddScoped<IRequestTimingStorage, DotvvmTimingStorage>();
 
-            services.Services.Configure((MiniProfilerOptions opt) =>
-            {
+            services.Services.Configure((MiniProfilerOptions opt) => {
                 opt.IgnoredPaths.Add("/dotvvmResource/");
             });
 
-            services.Services.Configure((DotvvmConfiguration conf) =>
-            {
+            services.Services.Configure((DotvvmConfiguration conf) => {
                 conf.Markup.AddCodeControls(DotvvmConfiguration.DotvvmControlTagPrefix, typeof(MiniProfilerWidget));
                 conf.Runtime.GlobalFilters.Add(new MiniProfilerActionFilter());
+                conf.Resources.Register(MiniProfilerWidget.IntegrationJSResourceName,
+                    new ScriptResource(location: new EmbeddedResourceLocation(
+                        typeof(MiniProfilerWidget).Assembly,
+                        MiniProfilerWidget.IntegrationJSEmbeddedResourceName)) {
+                        Dependencies = new[] { ResourceConstants.DotvvmResourceName },
+                        RenderPosition = ResourceRenderPosition.Head
+                    });
             });
 
             return services;

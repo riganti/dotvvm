@@ -1,5 +1,5 @@
-using DotVVM.Tracing.MiniProfiler.Shared;
 using System;
+using System.IO;
 using Xunit;
 
 namespace DotVVM.Tracing.MiniProfiler.Tests
@@ -9,7 +9,9 @@ namespace DotVVM.Tracing.MiniProfiler.Tests
         [Fact]
         public void Widget_InlineJavascript()
         {
-            var data = MiniProfilerJavascriptResourceManager.GetWigetInlineJavascriptContent();
+            using var reader = new StreamReader(typeof(MiniProfilerWidget).Assembly
+                .GetManifestResourceStream(MiniProfilerWidget.IntegrationJSEmbeddedResourceName));
+            var data = reader.ReadToEnd();
             Assert.NotEmpty(data);
         }
     }

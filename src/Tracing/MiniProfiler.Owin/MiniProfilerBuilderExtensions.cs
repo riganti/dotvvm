@@ -1,4 +1,5 @@
 ﻿using DotVVM.Framework.Configuration;
+using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime.Tracing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -35,6 +36,13 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
         {
             options.Markup.AddCodeControls(DotvvmConfiguration.DotvvmControlTagPrefix, typeof(MiniProfilerWidget));
             options.Runtime.GlobalFilters.Add(new MiniProfilerActionFilter());
+            options.Resources.Register(MiniProfilerWidget.IntegrationJSResourceName,
+                    new ScriptResource(location: new EmbeddedResourceLocation(
+                        typeof(MiniProfilerWidget).Assembly,
+                        MiniProfilerWidget.IntegrationJSEmbeddedResourceName)) {
+                        Dependencies = new[] { ResourceConstants.DotvvmResourceName },
+                        RenderPosition = ResourceRenderPosition.Head
+                    });
         }
     }
 }

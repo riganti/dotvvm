@@ -5,16 +5,19 @@ using System.Web;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.ResourceManagement;
-using DotVVM.Tracing.MiniProfiler.Shared;
 using StackExchange.Profiling;
+using StackExchange.Profiling.Internal;
 
 namespace DotVVM.Tracing.MiniProfiler
 {
     public class MiniProfilerWidget : DotvvmControl
     {
+        public const string IntegrationJSResourceName = "dotvvm.miniprofiler";
+        public static readonly string IntegrationJSEmbeddedResourceName
+            = $"{typeof(MiniProfilerWidget).Assembly.GetName().Name}.MiniProfilerIntegration.js";
+
         /// <summary>
-        /// The UI position to render the profiler in (defaults to <see cref="StackExchange.Profiling.MiniProfiler.DefaultOptions.PopupRenderPosition"/>).
+        /// The UI position to render the profiler in (defaults to <see cref="MiniProfilerBaseOptions.PopupRenderPosition"/>).
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public RenderPosition? Position
@@ -27,7 +30,7 @@ namespace DotVVM.Tracing.MiniProfiler
             = DotvvmProperty.Register<RenderPosition?, MiniProfilerWidget>(c => c.Position, null);
 
         /// <summary>
-        /// Whether to show trivial timings column initially or not (defaults to <see cref="StackExchange.Profiling.MiniProfiler.DefaultOptions.PopupShowTrivial"/>).
+        /// Whether to show trivial timings column initially or not (defaults to <see cref="MiniProfilerBaseOptions.PopupShowTrivial"/>).
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool? ShowTrivial
@@ -40,7 +43,7 @@ namespace DotVVM.Tracing.MiniProfiler
             = DotvvmProperty.Register<bool?, MiniProfilerWidget>(c => c.ShowTrivial, null);
 
         /// <summary>
-        /// Whether to show time with children column initially or not (defaults to <see cref="StackExchange.Profiling.MiniProfiler.DefaultOptions.PopupShowTimeWithChildren"/>).
+        /// Whether to show time with children column initially or not (defaults to <see cref="MiniProfilerBaseOptions.PopupShowTimeWithChildren"/>).
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool? ShowTimeWithChildren
@@ -53,7 +56,7 @@ namespace DotVVM.Tracing.MiniProfiler
             = DotvvmProperty.Register<bool?, MiniProfilerWidget>(c => c.ShowTimeWithChildren, null);
 
         /// <summary>
-        /// The maximum number of profilers to show (before the oldest is removed - defaults to <see cref="StackExchange.Profiling.MiniProfiler.DefaultOptions.PopupMaxTracesToShow"/>).
+        /// The maximum number of profilers to show (before the oldest is removed - defaults to <see cref="MiniProfilerBaseOptions.PopupMaxTracesToShow"/>).
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public int? MaxTraces
@@ -66,7 +69,7 @@ namespace DotVVM.Tracing.MiniProfiler
             = DotvvmProperty.Register<int?, MiniProfilerWidget>(c => c.MaxTraces, null);
 
         /// <summary>
-        /// Whether to show the controls (defaults to <see cref="StackExchange.Profiling.MiniProfiler.DefaultOptions.ShowControls"/>).
+        /// Whether to show the controls (defaults to <see cref="MiniProfilerBaseOptions.ShowControls"/>).
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool? ShowControls
@@ -79,7 +82,7 @@ namespace DotVVM.Tracing.MiniProfiler
             = DotvvmProperty.Register<bool?, MiniProfilerWidget>(c => c.ShowControls, null);
 
         /// <summary>
-        /// Whether to start hidden (defaults to <see cref="StackExchange.Profiling.MiniProfiler.DefaultOptions.PopupStartHidden"/>).
+        /// Whether to start hidden (defaults to <see cref="MiniProfilerBaseOptions.PopupStartHidden"/>).
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool? StartHidden
@@ -102,22 +105,19 @@ namespace DotVVM.Tracing.MiniProfiler
             if (options != null)
             {
                 authorized = options.ResultsAuthorize?.Invoke(context.GetAspNetCoreContext().Request) ?? false;
-      
+
                 if (options.ResultsAuthorize == null && options.ResultsAuthorizeAsync is object)
                 {
                     // TODO: REVIEW whether this usage is correctly implemented
-                    authorized = Task.Run(async () =>
-                   {
-                       return await options.ResultsAuthorizeAsync(context.GetAspNetCoreContext().Request).ConfigureAwait(false);
-                   }).GetAwaiter().GetResult();
+                    authorized = Task.Run(async () => {
+                        return await options.ResultsAuthorizeAsync(context.GetAspNetCoreContext().Request).ConfigureAwait(false);
+                    }).GetAwaiter().GetResult();
                 }
             }
 #endif
             if (authorized)
             {
-                var javascript = MiniProfilerJavascriptResourceManager.GetWigetInlineJavascriptContent();
-
-                context.ResourceManager.AddStartupScript("DotVVM-MiniProfiler-Integration", javascript, "dotvvm");
+                context.ResourceManager.AddRequiredResource(IntegrationJSResourceName);
             }
             base.OnPreRender(context);
         }
@@ -132,14 +132,14 @@ namespace DotVVM.Tracing.MiniProfiler
             {
 
 #if AspNetCore
-            var html = StackExchange.Profiling.MiniProfiler.Current.RenderIncludes(
-                          context.GetAspNetCoreContext(),
-                          position: Position,
-                          showTrivial: ShowTrivial,
-                          showTimeWithChildren: ShowTimeWithChildren,
-                          maxTracesToShow: MaxTraces,
-                          showControls: ShowControls,
-                          startHidden: StartHidden);
+                var html = StackExchange.Profiling.MiniProfiler.Current.RenderIncludes(
+                              context.GetAspNetCoreContext(),
+                              position: Position,
+                              showTrivial: ShowTrivial,
+                              showTimeWithChildren: ShowTimeWithChildren,
+                              maxTracesToShow: MaxTraces,
+                              showControls: ShowControls,
+                              startHidden: StartHidden);
 #else
                 var html = StackExchange.Profiling.MiniProfiler.Current.RenderIncludes(
                               position: Position,

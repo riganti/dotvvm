@@ -1,6 +1,7 @@
 ﻿using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Tracing;
 using StackExchange.Profiling;
+using System;
 using System.Threading.Tasks;
 
 namespace DotVVM.Tracing.MiniProfiler
@@ -10,7 +11,6 @@ namespace DotVVM.Tracing.MiniProfiler
         /// <summary>
         /// Returns an <see cref="Timing"/> (<see cref="IDisposable"/>) that will time the code between its creation and disposal.
         /// </summary>
-        /// <param name="profiler">The current profiling session or null.</param>
         /// <param name="name">A descriptive name for the code that is encapsulated by the resulting Timing's lifetime.</param>
         /// <returns>the profile step</returns>
         Timing Step(string name);
