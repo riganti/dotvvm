@@ -225,7 +225,7 @@ function validateProperty(viewModel: any, property: KnockoutObservable<any>, val
  * @returns By default returns only errors from the viewModel's immediate children
  */
 function getValidationErrors<T>(
-    targetObservable: KnockoutObservable<T> | T | null | any,
+    targetObservable: KnockoutObservable<T> | T | null,
     includeErrorsFromGrandChildren: boolean,
     includeErrorsFromTarget: boolean,
     includeErrorsFromChildren = true): ValidationError[] {
