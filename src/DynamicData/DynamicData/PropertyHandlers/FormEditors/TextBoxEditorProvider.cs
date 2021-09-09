@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             var cssClass = ControlHelpers.ConcatCssClasses(ControlCssClass, property.Styles?.FormControlCssClass);
             if (!string.IsNullOrEmpty(cssClass))
             {
-                textBox.Attributes["class"] = cssClass;
+                textBox.Attributes.Set("class", cssClass);
             }
 
             textBox.ValueType = TextBoxHelper.GetValueTypeOrDefault(property.PropertyInfo);

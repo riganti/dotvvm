@@ -14,12 +14,12 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         public string FormGroupCssClass { get; set; } = "form-group";
 
         public string LabelCssClass { get; set; } = "control-label";
-        
+
 
         public override void BuildForm(DotvvmControl hostControl, DynamicDataContext dynamicDataContext)
         {
             var entityPropertyListProvider = dynamicDataContext.RequestContext.Configuration.ServiceProvider.GetService<IEntityPropertyListProvider>();
-            
+
             // create the rows
             var properties = GetPropertiesToDisplay(dynamicDataContext, entityPropertyListProvider);
             foreach (var property in properties)
@@ -43,20 +43,20 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
             }
         }
 
-        
+
 
         protected virtual HtmlGenericControl InitializeFormGroup(DotvvmControl hostControl, PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext, out HtmlGenericControl labelElement, out HtmlGenericControl controlElement)
         {
             var formGroup = new HtmlGenericControl("div");
-            formGroup.Attributes["class"] = ControlHelpers.ConcatCssClasses(FormGroupCssClass, property.Styles?.FormRowCssClass);
+            formGroup.Attributes.Set("class", ControlHelpers.ConcatCssClasses(FormGroupCssClass, property.Styles?.FormRowCssClass));
             hostControl.Children.Add(formGroup);
 
             labelElement = new HtmlGenericControl("label");
-            labelElement.Attributes["class"] = LabelCssClass;
+            labelElement.Attributes.Set("class", LabelCssClass);
             formGroup.Children.Add(labelElement);
 
             controlElement = new HtmlGenericControl("div");
-            controlElement.Attributes["class"] = ControlHelpers.ConcatCssClasses(property.Styles?.FormControlContainerCssClass);
+            controlElement.Attributes.Set("class", ControlHelpers.ConcatCssClasses(property.Styles?.FormControlContainerCssClass));
             formGroup.Children.Add(controlElement);
 
             return formGroup;
@@ -79,7 +79,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
             {
                 if (control is TextBox || control is ComboBox)
                 {
-                    ((HtmlGenericControl) control).Attributes["class"] = "form-control";
+                    ((HtmlGenericControl) control).Attributes.Set("class", "form-control");
                 }
             }
         }
@@ -88,7 +88,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         {
             if (dynamicDataContext.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
             {
-                labelElement.Attributes["class"] = ControlHelpers.ConcatCssClasses(labelElement.Attributes["class"] as string, "dynamicdata-required");
+                labelElement.Attributes.Set("class", ControlHelpers.ConcatCssClasses(labelElement.Attributes["class"] as string, "dynamicdata-required"));
             }
 
             if (editorProvider.CanValidate)

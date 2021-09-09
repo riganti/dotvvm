@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             var cssClass = ControlHelpers.ConcatCssClasses(ControlCssClass, property.Styles?.FormControlCssClass);
             if (!string.IsNullOrEmpty(cssClass))
             {
-                comboBox.Attributes["class"] = cssClass;
+                comboBox.Attributes.Set("class", cssClass);
             }
 
             if (container.IsPropertySet(DynamicEntity.EnabledProperty))

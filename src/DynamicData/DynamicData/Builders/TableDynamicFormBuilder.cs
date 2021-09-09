@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         {
             if (dynamicDataContext.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
             {
-                labelCell.Attributes["class"] += " dynamicdata-required";
+                labelCell.Attributes.Set("class", " dynamicdata-required");
             }
 
             if (editorProvider.CanValidate)
@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         protected virtual HtmlGenericControl InitializeTable(DotvvmControl hostControl, DynamicDataContext dynamicDataContext)
         {
             var table = new HtmlGenericControl("table");
-            table.Attributes["class"] = "dotvvm-dynamicdata-form-table";
+            table.Attributes.Set("class", "dotvvm-dynamicdata-form-table");
 
             hostControl.Children.Add(table);
             return table;
@@ -82,15 +82,15 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         protected virtual HtmlGenericControl InitializeTableRow(HtmlGenericControl table, PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext, out HtmlGenericControl labelCell, out HtmlGenericControl editorCell)
         {
             var row = new HtmlGenericControl("tr");
-            row.Attributes["class"] = property.Styles?.FormRowCssClass;
+            row.Attributes.Set("class", property.Styles?.FormRowCssClass);
             table.Children.Add(row);
 
             labelCell = new HtmlGenericControl("td");
-            labelCell.Attributes["class"] = ControlHelpers.ConcatCssClasses("dynamicdata-label", LabelCellCssClass);
+            labelCell.Attributes.Set("class", ControlHelpers.ConcatCssClasses("dynamicdata-label", LabelCellCssClass));
             row.Children.Add(labelCell);
 
             editorCell = new HtmlGenericControl("td");
-            editorCell.Attributes["class"] = ControlHelpers.ConcatCssClasses("dynamicdata-editor", EditorCellCssClass, property.Styles?.FormControlContainerCssClass);
+            editorCell.Attributes.Set("class", ControlHelpers.ConcatCssClasses("dynamicdata-editor", EditorCellCssClass, property.Styles?.FormControlContainerCssClass));
             row.Children.Add(editorCell);
             
             return row;
