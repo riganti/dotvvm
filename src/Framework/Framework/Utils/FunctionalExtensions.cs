@@ -88,5 +88,7 @@ namespace DotVVM.Framework.Utils
         public static T NotNull<T>(this T? target, string message = "Unexpected null value.")
             where T : class =>
             target ?? throw new Exception(message);
+
+        public static SortedDictionary<K, V> ToSorted<K, V>(this IDictionary<K, V> d) => new(d);
     }
 }

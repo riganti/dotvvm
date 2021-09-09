@@ -450,6 +450,7 @@ namespace DotVVM.Framework.Binding
         {
             return registeredAliases.Values;
         }
+        public static IEnumerable<DotvvmProperty> AllProperties => registeredProperties.Values;
 
         public override string ToString()
         {
