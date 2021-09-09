@@ -22,7 +22,6 @@ NPM_BUILD=1
 SLN_RESTORE=1
 SLN_BUILD=1
 UNIT_TESTS=1
-JS_TESTS=1
 UI_TESTS=1
 
 while true; do
@@ -44,7 +43,6 @@ Options:
     --[no-]sln-restore  Restore NuGet packages (default = 1).
     --[no-]sln-build    Build ~/ci/linux/Linux.sln (default = 1).
     --[no-]unit-tests   Run the Framework tests (default = 1).
-    --[no-]js-tests     Run Framework's Jest tests (default = 1).
     --[no-]ui-tests     Run the AspNetCoreLatest tests (default = 1).
 EOF
             shift
@@ -58,7 +56,6 @@ EOF
             SLN_RESTORE=$VALUE
             SLN_BUILD=$VALUE
             UNIT_TESTS=$VALUE
-            JS_TESTS=$VALUE
             UI_TESTS=$VALUE
             shift
             continue
@@ -136,7 +133,7 @@ DISPLAY="${DISPLAY:-":42"}"
 export DISPLAY
 SLN="$ROOT/ci/linux/Linux.sln"
 TEST_RESULTS_DIR="$ROOT/artifacts/test"
-SAMPLES_DIR="$ROOT/src/DotVVM.Samples.Tests"
+SAMPLES_DIR="$ROOT/src/Samples/Tests/Tests"
 SAMPLES_PROFILE="${SAMPLES_PROFILE:-seleniumconfig.aspnetcorelatest.chrome.json}"
 SAMPLES_PORT="${SAMPLES_PORT:-16019}"
 SAMPLES_PORT_API="${SAMPLES_PORT_API:-5001}"
@@ -197,7 +194,7 @@ fi
 
 if [ $NPM_BUILD -eq 1 ]; then
     ensure_named_command "npm build" \
-        "cd \"$ROOT/src/DotVVM.Framework\" \
+        "cd \"$ROOT/src/Framework/Framework\" \
             && npm ci --cache \"$ROOT/.npm\" --prefer-offline \
             && npm run build"
 fi
@@ -233,7 +230,7 @@ fi
 
 if [ $UNIT_TESTS -eq 1 ]; then
     run_named_command "unit tests" \
-        "dotnet test \"$ROOT/src/DotVVM.Framework.Tests\" \
+        "dotnet test \"$ROOT/src/Tests\" \
             --no-build \
             --configuration $CONFIGURATION \
             --logger 'trx;LogFileName=unit-test-results.trx' \
@@ -241,25 +238,17 @@ if [ $UNIT_TESTS -eq 1 ]; then
             --collect \"Code Coverage\""
 fi
 
-if [ $JS_TESTS -eq 1 ]; then
-    run_named_command "JS tests" \
-        "cd \"$ROOT/src/DotVVM.Framework\" \
-            && npx jest --ci --reporters=\"jest-junit\" \
-            && cp ./junit.xml \"$TEST_RESULTS_DIR/js-test-results.xml\" \
-            && cd \"$ROOT\""
-fi
-
 if [ $UI_TESTS -eq 1 ]; then
     clean_uitest
 
-    Xvfb $DISPLAY -screen 0 800x600x16 &
+    Xvfb $DISPLAY -screen 0 1920x1080x16 &
     XVFB_PID=$!
     if [ $? -ne 0 ]; then
         echo >&2 "Xvfb failed to start."
         exit 1
     fi
 
-    dotnet run --project "$ROOT/src/DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest" \
+    dotnet run --project "$ROOT/src/Samples/Api.AspNetCoreLatest" \
         --no-build \
         --configuration "$CONFIGURATION" \
         --urls "http://localhost:${SAMPLES_PORT_API}/" >/dev/null &
@@ -270,7 +259,7 @@ if [ $UI_TESTS -eq 1 ]; then
         exit 1
     fi
 
-    dotnet run --project "$ROOT/src/DotVVM.Samples.BasicSamples.AspNetCoreLatest" \
+    dotnet run --project "$ROOT/src/Samples/AspNetCoreLatest" \
         --no-build \
         --configuration "$CONFIGURATION" \
         --urls "http://localhost:${SAMPLES_PORT}/" >/dev/null &
@@ -284,6 +273,7 @@ if [ $UI_TESTS -eq 1 ]; then
     run_named_command "UI tests" \
         "dotnet test \"$SAMPLES_DIR\" \
             --no-build \
+            --filter Category!=owin-only \
             --configuration $CONFIGURATION \
             --logger 'trx;LogFileName=ui-test-results.trx' \
             --results-directory \"$TEST_RESULTS_DIR\""

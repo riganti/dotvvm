@@ -1,0 +1,7 @@
+﻿@viewModel System.Object, mscorlib
+@baseType DotVVM.Samples.Common.Views.ControlSamples.TemplateHost.TemplatedMarkupControl, DotVVM.Samples.Common
+
+<fieldset>
+    <legend>{{value: _control.HeaderText}}</legend>
+    <dot:TemplateHost Template="{resource: _control.ContentTemplate}" />
+</fieldset>

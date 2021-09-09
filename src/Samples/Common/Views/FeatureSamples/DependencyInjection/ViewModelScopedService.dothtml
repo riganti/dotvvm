@@ -1,0 +1,22 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection.ViewModelScopedServiceViewModel
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:Literal Text="{value: DependencyInstanceID}" class="result" />
+    <dot:Literal Text="{value: DependencyInstanceID}" class="result2" />
+
+    <dot:Button Text="Postback"
+                Click="{command: 0}"
+                data-ui="postback-button" />
+
+    <p> UI test: should increment both IDs on every request and postback
+</body>
+</html>
+
+
