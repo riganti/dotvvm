@@ -23,7 +23,7 @@ namespace DotVVM.Framework.ViewModel.Validation
         /// <summary>
         /// Validates the view model.
         /// </summary>
-        public IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel, string validationTargetPath)
+        public IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel)
         {
             return ValidateViewModel(viewModel, new HashSet<object>());
         }
