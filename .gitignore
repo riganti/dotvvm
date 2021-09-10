@@ -194,12 +194,9 @@ FakesAssemblies/
 .idea/
 
 /src/Samples/DotVVM.Samples.BasicSamples.Api.AspNetCore/temp/returnedFiles
-/src/Tools/DotVVM.Framework.Tools.SeleniumGenerator/Properties/launchSettings.json
-/src/Tools/DotVVM.Compiler/Properties/launchSettings.json
 
 .dotvvm/
 .dotvvm.json
-
 
 *.binlog
 /src/DotVVM.Framework/.vs/VSWorkspaceState.json
@@ -208,3 +205,6 @@ FakesAssemblies/
 artifacts/
 .nuget/
 .npm/
+
+launchSettings.json
+sample.db
