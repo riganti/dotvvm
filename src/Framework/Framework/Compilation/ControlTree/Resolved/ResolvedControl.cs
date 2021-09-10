@@ -77,6 +77,17 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return true;
         }
 
+        public bool RemoveProperty(DotvvmProperty property)
+        {
+            if (Properties.TryGetValue(property, out _))
+            {
+                Properties.Remove(property);
+                return true;
+            }
+
+            return false;
+        }
+
         public override void Accept(IResolvedControlTreeVisitor visitor)
         {
             visitor.VisitControl(this);
