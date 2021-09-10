@@ -9,6 +9,7 @@ using DotVVM.Framework.Tools.SeleniumGenerator.Helpers;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using DotVVM.Framework.Tools.SeleniumGenerator.Modifications;
+
 namespace DotVVM.Framework.Tools.SeleniumGenerator
 {
     public abstract class SeleniumGenerator<TControl> : ISeleniumGenerator where TControl : DotvvmBindableObject

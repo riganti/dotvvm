@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Buildalyzer;
 using Buildalyzer.Workspaces;
-using DotVVM.CommandLine;
 using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -22,7 +21,6 @@ namespace DotVVM.Testing.SeleniumGenerator.Tests.Helpers
         private readonly string testProjectName;
         private readonly string testProjectCsproj;
         private readonly string dotvvmJsonPath;
-        private ProjectMetadataOld metadata;
 
         public string TestProjectDirectory { get; private set; }
 
@@ -53,10 +51,6 @@ namespace DotVVM.Testing.SeleniumGenerator.Tests.Helpers
 
             // copy application in the working directory
             Process.Start("xcopy", $"/E \"{webApplicationTemplatePath}\" \"{webAppDirectory}\"")?.WaitForExit();
-
-            // set test project path in .dotvvm.json
-            metadata = DotvvmProject.GetProjectMetadata(new FileInfo(dotvvmJsonPath)).GetAwaiter().GetResult();
-            metadata = metadata.WithUITestProject($"../{testProjectName}", testProjectName);
 
             // change current directory
             Environment.CurrentDirectory = webAppDirectory;

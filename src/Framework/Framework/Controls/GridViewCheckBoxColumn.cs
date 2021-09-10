@@ -43,12 +43,7 @@ namespace DotVVM.Framework.Controls
         private void CreateControlsCore(DotvvmControl container, bool enabled)
         {
             var checkBox = new CheckBox { Enabled = enabled };
-
-            // TODO: rewrite this
-            if (Properties.TryGetValue(Properties.First(p => p.Key.ToString() == "UITests.Name").Key, out var property))
-            {
-                checkBox.Properties.Add(Properties.First(p => p.Key.ToString() == "UITests.Name").Key, property);
-            }
+            CopyProperty(UITests.NameProperty, checkBox, UITests.NameProperty);
 
             var valueBinding = GetValueBinding(ValueBindingProperty);
             checkBox.SetBinding(CheckBox.CheckedProperty, valueBinding);

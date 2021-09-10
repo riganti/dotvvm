@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Framework\Testing\DotVVM.Framework.Testing.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Testing.SeleniumHelpers\DotVVM.Framework.Testing.SeleniumHelpers.csproj" />
     <ProjectReference Include="..\..\SeleniumGenerator\DotVVM.Framework.Tools.SeleniumGenerator.csproj" />
   </ItemGroup>
 

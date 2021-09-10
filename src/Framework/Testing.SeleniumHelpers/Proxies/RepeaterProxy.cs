@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using OpenQA.Selenium;
 
 namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
