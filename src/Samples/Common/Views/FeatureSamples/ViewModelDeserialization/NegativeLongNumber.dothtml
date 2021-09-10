@@ -1,0 +1,14 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ViewModelDeserialization.NegativeLongNumberViewModel, DotVVM.Samples.Common
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container">
+        <dot:TextBox Text="{value: Id}" data-ui="long-number"/>
+        <dot:Button Click="{command: Postback()}" Text="Decrement Id" data-ui="decrement-postback"/>
+    </div>
+</body>
+</html>

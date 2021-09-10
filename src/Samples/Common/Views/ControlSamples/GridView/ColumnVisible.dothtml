@@ -1,0 +1,39 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView.ColumnVisibleViewModel, DotVVM.Samples.Common
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style type="text/css">
+        .alternate {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <%-- TODO: UI Test
+         When you uncheck the checkbox, last column of moth tables should disappear --%>
+    <div class="container">
+        <h1>GridView with IGridViewDataSet and server rendering.</h1>
+        <dot:CheckBox Checked="{value: IsBirthDateVisible}" Text="Birth date visible" />
+        <dot:GridView DataSource="{value: CustomersDataSet}" class="table table-bordered">
+            <Columns>
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" CssClass="{value: CustomerId % 2 == 0 ? 'alternate' : ''}" AllowSorting="True" IsEditable="false" />
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" Visible="{value: IsBirthDateVisible}" />
+            </Columns>
+        </dot:GridView>
+
+        <h2>Normal html table</h2>
+        <table>
+            <tr>
+                <th>Col1</th>
+                <th TableUtils.ColumnVisible="{value: IsBirthDateVisible}">Hidable Col</th>
+            </tr>
+            <tr>
+                <td>Cell1</td>
+                <td>Hidable Cell</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

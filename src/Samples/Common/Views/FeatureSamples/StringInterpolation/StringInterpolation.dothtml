@@ -1,0 +1,53 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StringInterpolation.StringInterpolationViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:RequiredResource Name="globalize" />
+    <h2>Basic Strings</h2>
+    <p data-ui="names">{{value: $'Hello, {Name} and {Name2}'}}</p>
+
+    <p data-ui="date">{{value: $'Today is {Date:dd/MM/yyyy}!'}}</p>
+
+    <dot:Literal Text="{value: $'Today is {Date:dd/MM/yyyy}!'}" data-ui="date-literal" />
+
+    <h2>Standard Numeric Format Strings</h2>
+    <p data-ui="standard-numeric-format1">{{value: $"No format: {IntNumber}"}}</p>
+    <p data-ui="standard-numeric-format2">{{value: $"C2 format: {DoubleNumber:C2}"}}</p>
+    <p data-ui="standard-numeric-format3">{{value: $"G1 format: {DoubleNumber:g1}"}}</p>
+    <p data-ui="standard-numeric-format4">{{value: $"N format: {IntNumber:N}"}}</p>
+    <p data-ui="standard-numeric-format5">{{value: $"D8 format: {IntNumber:D8}"}}</p>
+    <p data-ui="standard-numeric-format6">{{value: $"P format: {DoubleNumber:P,}"}}</p>
+
+    <h2>Custom Numeric Format Strings</h2>
+    <p data-ui="custom-numeric-format1">{{value: $"{DoubleNumber} (#####.#) -> {DoubleNumber:#####.#}"}}</p>
+    <p data-ui="custom-numeric-format2">{{value: $"{DoubleNumber} (00000.0) -> {DoubleNumber:00000.0}"}}</p>
+    <p data-ui="custom-numeric-format3">{{value: $"{DoubleNumber} (#####) -> {DoubleNumber:#####}"}}</p>
+
+    <h2>Standard Date and Time Format Strings</h2>
+    <p data-ui="date-format1">{{value: $"No format: {Date}"}}</p>
+    <p data-ui="date-format2">{{value: $"D format: {Date:D} |X| d format: {Date:d}"}}</p>
+    <p data-ui="date-format3">{{value: $"F format: {Date:F} |X| f format: {Date:f}"}}</p>
+    <p data-ui="date-format4">{{value: $"G format: {Date:G} |X| g format: {Date:g}"}}</p>
+    <p data-ui="date-format5">{{value: $"M format: {Date:M}"}}</p>
+    <p data-ui="date-format6">{{value: $"T format: {Date:T} |X| t format: {Date:t}"}}</p>
+    <p data-ui="date-format7">{{value: $"Y format: {Date:Y}"}}</p>
+    <%--<p data-ui="date-format6">{{value: $"s format: {Date:s}"}}</p>--%>
+
+    <h2>Custom Date And Time Format Strings</h2>
+    <p data-ui="custom-date-format1">{{value: $"dd MMM yyyy hh:mm tt PST format: {Date:dd MMM yyyy hh:mm tt PST}"}}</p>
+    <p data-ui="custom-date-format2">{{value: $"ddd dd MM yyyy  format: {Date:ddd dd MM yyyy}"}}</p>
+    <p data-ui="custom-date-format3">{{value: $"dddd dd MMMM yyyy  format: {Date:dddd dd MMMM yyyy}"}}</p>
+
+    <h2>Special characters</h2>
+    <p data-ui="special-char1">{{value: $"He asked, \"Is your name {Name}?\", but didn't wait for a reply :-{{" }}</p>
+    <p data-ui="special-char2">{{value: $"{Name} is {Age} year{(Age == 1 ? "" : "s")} old."}}</p>
+
+</body>
+</html>
+

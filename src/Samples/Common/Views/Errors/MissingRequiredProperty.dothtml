@@ -1,0 +1,11 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.TasksViewModel, DotVVM.Samples.Common
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+	<!--  Do not change property value - used in test as identifier -->
+	<dot:CheckBox   />
+</body>
+</html>

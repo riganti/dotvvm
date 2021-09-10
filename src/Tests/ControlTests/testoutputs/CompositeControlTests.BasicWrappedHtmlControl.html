@@ -1,0 +1,31 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- no params -->
+		<div></div>
+		
+		<!-- static values -->
+		<div class="x" data-anotherattr="123" data-testattr=""></div>
+		
+		<!-- value bindings -->
+		<div data-bind="css: { &quot;x&quot;: int() < 0 }, style: { &quot;width&quot;: float() * 100 + &quot;px&quot; }, attr: { &quot;data-attr&quot;: int }" style="width:11.111px"></div>
+		
+		<!-- class value binding (compile-time attribute merging should work) -->
+		<div class="big even"></div>
+		
+		<!-- extended Visible -->
+		<div data-bind="css: { &quot;hidden-class&quot;: !(int() > 10) }, visible: int() > 10"></div>
+		
+		<!-- Text Property -->
+		<div>Static Text</div>
+		<div data-bind="text: Label"></div>
+		
+		<!-- Content -->
+		<div></div>
+		<div>
+			Something here
+		</div>
+		<article></article>
+	</body>
+</html>

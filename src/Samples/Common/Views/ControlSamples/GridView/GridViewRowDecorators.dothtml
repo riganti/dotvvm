@@ -1,0 +1,64 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView.GridViewRowDecoratorsViewModel, DotVVM.Samples.Common
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style type="text/css">
+        table tr {
+            cursor: hand;
+        }
+
+            table tr.selected {
+                background-color: yellow;
+            }
+
+        .normal {
+            background-color: #aaffaa;
+        }
+
+        .edit {
+            background-color: #aaaaff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GridView with Decorators</h1>
+        <dot:GridView DataSource="{value: CustomersDataSet}" class="table table-bordered">
+            <HeaderRowDecorators>
+                <dot:Decorator class="header-row" />
+            </HeaderRowDecorators>
+            <RowDecorators>
+                <dot:Decorator Events.Click="{command: _root.SelectCustomer(CustomerId)}"
+                               class="{value: _root.SelectedRowId == CustomerId ? 'selected' : ''}" />
+            </RowDecorators>
+            <Columns>
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+                <dot:GridViewTemplateColumn>
+                    <dot:Button Text="Test Click Propagation" Click="{command: ChangeName()}" />
+                    <dot:LinkButton Text="Test Click Propagation" Click="{command: ChangeName()}" />
+                    <dot:RouteLink Text="Test Click Propagation" RouteName="Default" data-ui="route-link"/>
+                </dot:GridViewTemplateColumn>
+            </Columns>
+        </dot:GridView>
+
+        <dot:GridView DataSource="{value: CustomersDataSet2}" class="table table-bordered" InlineEditing="true">
+            <RowDecorators>
+                <dot:Decorator class="normal" />
+            </RowDecorators>
+            <EditRowDecorators>
+                <dot:Decorator class="edit" />
+            </EditRowDecorators>
+            <Columns>
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+            </Columns>
+        </dot:GridView>
+    </div>
+</body>
+</html>

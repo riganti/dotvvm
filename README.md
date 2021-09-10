@@ -1,4 +1,4 @@
-![DotVVM](https://www.dotvvm.com/Content/img/logos/logo-full.png) 
+<img src="./logo.svg" width="250px" />
 
 Component-based MVVM framework for ASP.NET
 ==================
@@ -6,19 +6,19 @@ Component-based MVVM framework for ASP.NET
 [![license](https://img.shields.io/github/license/riganti/dotvvm.svg?maxAge=2592000?style=plastic)]()
 [![Join the chat at https://gitter.im/riganti/dotvvm](https://badges.gitter.im/riganti/dotvvm.svg)](https://gitter.im/riganti/dotvvm)
 
-| ASP.NET Core 2.2          | ASP.NET Core 3.0          | OWIN                |
+| ASP.NET Core 2.1          | .NET 5.0                  | OWIN                |
 |---------------------------|---------------------------|---------------------|
-| [![Build status: ASP.NET Core 2.2](https://dev.azure.com/rigantitfs/DotVVM/_apis/build/status/CI/%5B2.1.0%5D%20DotVVM%20Framework%20-%20AspNet%20Core)](https://dev.azure.com/rigantitfs/DotVVM/_build/latest?definitionId=122) | [![Build status: ASP.NET Core 3.0](https://dev.azure.com/rigantitfs/DotVVM/_apis/build/status/CI/%5B2.1.0%5D%20DotVVM%20Framework%20-%20AspNet%20Core%20Latest)](https://dev.azure.com/rigantitfs/DotVVM/_build/latest?definitionId=208) | [![Build status: OWIN](https://dev.azure.com/rigantitfs/DotVVM/_apis/build/status/CI/%5B2.1.0%5D%20DotVVM%20Framework%20-%20Owin)](https://dev.azure.com/rigantitfs/DotVVM/_build/latest?definitionId=181) | 
+| [![Build status: ASP.NET Core 2.1](https://dev.azure.com/rigantitfs/DotVVM/_apis/build/status/CI/%5B2.1.0%5D%20DotVVM%20Framework%20-%20AspNet%20Core)](https://dev.azure.com/rigantitfs/DotVVM/_build/latest?definitionId=122) | [![Build status: .NET 5.0](https://dev.azure.com/rigantitfs/DotVVM/_apis/build/status/CI/%5B2.1.0%5D%20DotVVM%20Framework%20-%20AspNet%20Core%20Latest)](https://dev.azure.com/rigantitfs/DotVVM/_build/latest?definitionId=208) | [![Build status: OWIN](https://dev.azure.com/rigantitfs/DotVVM/_apis/build/status/CI/%5B2.1.0%5D%20DotVVM%20Framework%20-%20Owin)](https://dev.azure.com/rigantitfs/DotVVM/_build/latest?definitionId=181) |
 
-[DotVVM](https://www.dotvvm.com) lets you build interactive web UIs with **just C# and HTML** using the **MVVM** approach. 
+[DotVVM](https://www.dotvvm.com) lets you build interactive web UIs with **just C# and HTML** using the **MVVM** approach.
 
-It simplifies building of **line of business web apps** and ships with many built-in controls like [GridView](https://www.dotvvm.com/docs/controls/builtin/GridView/latest), [FileUpload](https://www.dotvvm.com/docs/controls/builtin/FileUpload/latest), [Validator](https://www.dotvvm.com/docs/controls/builtin/Validator/latest) and more. 
+It simplifies building of **line of business web apps** and ships with many built-in controls like [GridView](https://www.dotvvm.com/docs/controls/builtin/GridView/latest), [FileUpload](https://www.dotvvm.com/docs/controls/builtin/FileUpload/latest), [Validator](https://www.dotvvm.com/docs/controls/builtin/Validator/latest) and more.
 
 ## How does DotVVM work?
 
 The **Views** in DotVVM use HTML syntax with __controls__ and __data-bindings__.
 
-The **ViewModels** are plain C# objects with properties and methods. 
+The **ViewModels** are plain C# objects with properties and methods.
 
 You can access the ViewModel properties using `{value: Name}` and call ViewModel methods using `{command: Submit()}`.
 
@@ -90,13 +90,11 @@ There is also [dotnet new template](https://www.dotvvm.com/docs/tutorials/how-to
 
 |                         | ASP.NET Core                | OWIN                  |
 |-------------------------|-----------------------------|-----------------------|
-| Current stable version  | `DotVVM.AspNetCore 2.5.1`   | `DotVVM.Owin 2.5.1`   |
-| Minimum runtime version | `.NET Core 2.1`             | `.NET 4.5.1`          | 
-| Minimum ASP.NET version | `ASP.NET Core 2.1`          | `OWIN 3.0.1`          |
+| Current stable version  | `DotVVM.AspNetCore 3.2.0`   | `DotVVM.Owin 3.2.0`   |
+| Minimum runtime version | `.NET Core 3.1`             | `.NET 4.7.2`          |
+| Minimum ASP.NET version | `ASP.NET Core 3.1`          | `OWIN 3.0.1`          |
 
 You can find the plans for next releases in the [roadmap](roadmap.md).
-
-We have already started development of **DotVVM 3.0** - everything is happenning in the [v3-master](https://github.com/riganti/dotvvm/tree/v3-master) branch.
 
 ## Commercial components & tools
 
@@ -104,7 +102,7 @@ We have already started development of **DotVVM 3.0** - everything is happenning
 
 There are also **free extensions** for Visual Studio and VS Code available. They are not open source, but they will also be free to use.
 
-You can get more productive with DotVVM and **support development of the framework** by purchasing commercial components and tools developed by the creators of the framework: 
+You can get more productive with DotVVM and **support development of the framework** by purchasing commercial components and tools developed by the creators of the framework:
 
 * [Bootstrap for DotVVM](https://www.dotvvm.com/landing/bootstrap-for-dotvvm) brings more than fifty **Bootstrap 3 and 4** controls that are easy to use and integrate well with DotVVM validation and data-bindings.
 * [DotVVM Business Pack](https://www.dotvvm.com/landing/business-pack) contains more than 30 enterprise-ready controls for large line of business web apps.
@@ -112,9 +110,9 @@ You can get more productive with DotVVM and **support development of the framewo
 
 ## Get involved
 
-We'll be glad to accept any contribution. It doesn't need to be a pull-request - you can help us by spreading the word about the project in a blog or a user group, fix a typo in a documentnation or send us your feedback and thoughts.
+We'll be glad to accept any contribution. It doesn't need to be a pull-request - you can help us by spreading the word about the project in a blog or a user group, fix a typo in a documentation or send us your feedback and thoughts.
 
-You can find more info in [Contribution Guidelines](contributing.md). We kindly ask you to respect the [Code of Conduct](code-of-conduct.md). 
+You can find more info in [Contribution Guidelines](contributing.md). We kindly ask you to respect the [Code of Conduct](code-of-conduct.md).
 
 ## Feedback
 

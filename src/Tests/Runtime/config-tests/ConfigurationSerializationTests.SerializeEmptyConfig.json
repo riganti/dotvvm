@@ -1,0 +1,24 @@
+{
+  "markup": {
+    "importedNamespaces": [
+      {
+        "namespace": "DotVVM.Framework.Binding.HelperNamespace"
+      },
+      {
+        "namespace": "System.Linq"
+      }
+    ],
+    "ViewCompilation": {
+      "compileInParallel": true
+    }
+  },
+  "resources": {},
+  "security": {},
+  "runtime": {},
+  "defaultCulture": "en-US",
+  "experimentalFeatures": {},
+  "debug": false,
+  "diagnostics": {
+    "compilationPage": {}
+  }
+}

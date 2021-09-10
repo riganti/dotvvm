@@ -1,0 +1,23 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules.ModuleInPageViewModel, DotVVM.Samples.Common
+@js FeatureSamples_Resources_TestViewModule
+@import DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModules
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <sample:OuterModuleControl></sample:OuterModuleControl>
+    <h2>Event log</h2>
+    <div ID="log"></div>
+
+    <dot:RequiredResource Name="globalize" />
+
+</body>
+</html>
+
+

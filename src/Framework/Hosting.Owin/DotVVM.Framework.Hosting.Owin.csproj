@@ -1,0 +1,59 @@
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <VersionPrefix>4.0.0-preview01-116912</VersionPrefix>
+    <TargetFramework>net472</TargetFramework>
+    <RuntimeIdentifiers>win7-x64;win7-x86</RuntimeIdentifiers>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <AssemblyName>DotVVM.Framework.Hosting.Owin</AssemblyName>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <PackageId>DotVVM.Owin</PackageId>
+    <PackageVersion>4.0.0-preview01-116912</PackageVersion>
+    <Authors>RIGANTI</Authors>
+    <Description>
+      This package contains OWIN middleware and hosting infrastructure for DotVVM apps.
+      DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.
+    </Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore;dnx</PackageTags>
+    <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="compiler\resources\**\*" />
+    <EmbeddedResource Include="**\*.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="dotvvmwizard.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Framework/DotVVM.Framework.csproj" />
+    <ProjectReference Include="../Core/DotVVM.Core.csproj">
+      <FromP2P>true</FromP2P>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Owin.Security" Version="3.0.1" />
+    <PackageReference Include="Microsoft.Owin" Version="3.0.1" />
+    <PackageReference Include="Owin" Version="1.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Web" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
+  </PropertyGroup>
+</Project>

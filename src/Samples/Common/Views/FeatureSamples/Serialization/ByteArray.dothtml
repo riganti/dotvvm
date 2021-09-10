@@ -1,0 +1,24 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Serialization.ByteArrayViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>Byte array serialization sample</h1>
+
+    <span>Size: {{value: Bytes.Length}}</span>
+    <dot:Repeater DataSource="{value: Bytes}">
+        <p>
+            <span>{{value: _this}}</span>
+        </p>
+    </dot:Repeater>
+
+</body>
+</html>
+
+

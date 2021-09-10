@@ -1,0 +1,27 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand.CustomAwaitableViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:Button data-ui="test" Click="{staticCommand: Test()}" Text="Test"/>
+    <dot:Button data-ui="clear" onclick="javascript: clearTexts()" Text="Clear"/>
+    <span data-ui="result"></span>
+    <dot:InlineScript Dependencies="dotvvm">
+        function clearTexts() {
+            var customProperties = document.querySelector('[data-ui="result"]');
+            customProperties.innerText = "";
+        }
+        dotvvm.events.staticCommandMethodInvoked.subscribe(function(e) {
+            var customPropertiesInput = document.querySelector('[data-ui="result"]');
+            customPropertiesInput.innerText = e.serverResponseObject.customProperties.test;
+        });
+    </dot:InlineScript>
+</body>
+</html>
+
+

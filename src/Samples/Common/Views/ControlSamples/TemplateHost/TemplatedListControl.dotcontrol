@@ -1,0 +1,21 @@
+﻿@viewModel System.Object, mscorlib
+@baseType DotVVM.Samples.Common.Views.ControlSamples.TemplateHost.TemplatedListControl, DotVVM.Samples.Common
+
+<dot:Repeater DataSource="{value: _control.DataSource}" class="templated-list">
+    <ItemTemplate>
+        <div>
+            <dot:TemplateHost Template="{resource: _control.ItemTemplate}" />
+
+            <p>
+                <dot:LinkButton Text="Remove" Click="{command: _control.RemoveItem(_this)}" />
+            </p>
+        </div>
+    </ItemTemplate>
+    <SeparatorTemplate>
+        <hr />
+    </SeparatorTemplate>
+</dot:Repeater>
+
+<p>
+    <dot:Button Text="Add item" Click="{command: _control.AddItem()}" />
+</p>
