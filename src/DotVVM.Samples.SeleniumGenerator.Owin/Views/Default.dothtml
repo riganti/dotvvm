@@ -1,6 +1,0 @@
-﻿@viewModel DotVVM.Samples.SeleniumGenerator.Owin.ViewModels.DefaultViewModel, DotVVM.Samples.SeleniumGenerator.Owin
-@masterPage Views/MasterPage.dotmaster
-<dot:Content ContentPlaceHolderID="MainContent">
-
-	<h1>{{value: Title}}</h1>
-</dot:Content>
