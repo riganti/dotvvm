@@ -19,7 +19,6 @@ using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Runtime.Tracing;
-using DotVVM.Framework.Testing;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
@@ -76,7 +75,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<JavascriptTranslator, JavascriptTranslator>();
             services.TryAddSingleton<IHttpRedirectService, DefaultHttpRedirectService>();
             services.TryAddSingleton<IExpressionToDelegateCompiler, DefaultExpressionToDelegateCompiler>();
-            services.TryAddSingleton<IDotvvmCacheAdapter, SimpleDictionaryCacheAdapter>();
 
             services.TryAddScoped<RuntimeWarningCollector>();
             services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
