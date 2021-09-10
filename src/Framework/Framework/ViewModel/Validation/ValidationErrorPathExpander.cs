@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,6 +53,13 @@ namespace DotVVM.Framework.ViewModel.Validation
             // Check that model state does not contain validation target paths in the old format
             EnsurePropertyPathsAreCorrect(modelState.Errors);
 
+            if (modelState.Errors.All(e => IsPropertyPathRooted(e)))
+            {
+                // All validation target paths are already in the correct form
+                // i.e. there is nothing to expand
+                return;
+            }
+
             // Add information about absolute paths to errors
             var modelStateDecoratorContext = new ValidationErrorPathExpanderContext(modelState.ValidationTarget, modelState.Errors);
             Expand(viewModel, string.Empty, modelStateDecoratorContext);
@@ -61,6 +67,9 @@ namespace DotVVM.Framework.ViewModel.Validation
             // Remove not found errors
             modelState.Errors.RemoveAll(error => !modelStateDecoratorContext.AlreadyProcessedNodes.Contains(error.TargetObject));
         }
+
+        private bool IsPropertyPathRooted(ViewModelValidationError error)
+            => error.PropertyPath.StartsWith("/");
 
         private void Expand(object? viewModel, string pathPrefix, ValidationErrorPathExpanderContext context)
         {
