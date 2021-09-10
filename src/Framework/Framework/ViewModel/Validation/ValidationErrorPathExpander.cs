@@ -15,15 +15,17 @@ namespace DotVVM.Framework.ViewModel.Validation
         internal readonly IDictionary<object, List<ViewModelValidationError>> ValidationErrorsLookup;
         internal readonly object? ValidationTarget;
         internal readonly ISet<object> AlreadyProcessedNodes;
+        internal readonly IDictionary<object, int> FoundErrors;
 
         internal string? ValidationTargetPath { get; set; }
 
         public ValidationErrorPathExpanderContext(object? validationTarget, List<ViewModelValidationError> errors)
         {
-            errors.ForEach(item => item.TargetObject = item.TargetObject ?? validationTarget);
+            errors.ForEach(item => item.TargetObject ??= validationTarget);
             this.ValidationErrorsLookup = errors.GroupBy(e => e.TargetObject ?? validationTarget).ToDictionary(e => e.Key, e => e.ToList());
             this.ValidationTarget = validationTarget;
             this.AlreadyProcessedNodes = new HashSet<object>();
+            this.FoundErrors = new Dictionary<object, int>();
         }
     }
 
@@ -69,12 +71,16 @@ namespace DotVVM.Framework.ViewModel.Validation
         }
 
         private bool IsPropertyPathRooted(ViewModelValidationError error)
-            => error.PropertyPath.StartsWith("/");
+            => error.PropertyPath != null && error.PropertyPath.StartsWith("/");
 
-        private void Expand(object? viewModel, string pathPrefix, ValidationErrorPathExpanderContext context)
+        private int Expand(object? viewModel, string pathPrefix, ValidationErrorPathExpanderContext context)
         {
-            if (viewModel == null || context.AlreadyProcessedNodes.Contains(viewModel))
-                return;
+            var errorsCount = 0;
+            if (viewModel == null)
+                return errorsCount;
+
+            if (context.AlreadyProcessedNodes.Contains(viewModel))
+                EnsureNoErrorsAttachedOnViewModel(viewModel, context);
 
             if (viewModel == context.ValidationTarget)
                 context.ValidationTargetPath = (pathPrefix != string.Empty) ? pathPrefix : "/";
@@ -87,9 +93,14 @@ namespace DotVVM.Framework.ViewModel.Validation
                 // Traverse each element of a collection
                 var index = 0;
                 foreach (var item in (IEnumerable)viewModel)
-                    Expand(item, $"{pathPrefix}/{index++}", context);
+                {
+                    var innerErrorsCount = Expand(item, $"{pathPrefix}/{index++}", context);
+                    context.FoundErrors[item] = innerErrorsCount;
+                    errorsCount += innerErrorsCount;
+                }
 
-                return;
+                context.FoundErrors[viewModel] = errorsCount;
+                return errorsCount;
             }
             else
             {
@@ -102,7 +113,13 @@ namespace DotVVM.Framework.ViewModel.Validation
                         continue;
 
                     if (ReflectionUtils.IsComplexType(property.Type))
-                        Expand(value, $"{pathPrefix}/{property.Name}", context);
+                    {
+                        var innerErrorsCount = Expand(value, $"{pathPrefix}/{property.Name}", context);
+                        context.FoundErrors[value] = innerErrorsCount;
+                        errorsCount += innerErrorsCount;
+                    }
+
+                    context.FoundErrors[viewModel] = errorsCount;
                 }
             }
 
@@ -117,7 +134,19 @@ namespace DotVVM.Framework.ViewModel.Validation
 
                     var absolutePath = $"{pathPrefix}/{propertyName}".TrimEnd('/');
                     validationError.PropertyPath = (absolutePath != string.Empty) ? absolutePath : "/";
+                    errorsCount++;
                 }
+            }
+
+            return errorsCount;
+        }
+
+        private void EnsureNoErrorsAttachedOnViewModel(object viewModel, ValidationErrorPathExpanderContext context)
+        {
+            if (context.FoundErrors.ContainsKey(viewModel) && context.FoundErrors[viewModel] > 0)
+            {
+                throw new InvalidOperationException($"Could not generate path for a validation error. " +
+                    $"An object with one or more errors is referenced multiple times in a viewmodel.");
             }
         }
     }

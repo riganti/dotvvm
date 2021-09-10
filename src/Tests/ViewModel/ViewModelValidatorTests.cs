@@ -317,6 +317,39 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual("/Children/2", results[4].PropertyPath);
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ViewModelValidator_ObjectWithAttachedErrorReferencedMultipleTimes()
+        {
+            var innerViewModel = new TestViewModel2() { Code = "123" };
+            var testViewModel = new TestViewModel()
+            {
+                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null),
+                Child = new TestViewModel2()
+                {
+                    Id = 11,
+                    Code = "Code",
+                },
+                Children = new List<TestViewModel2>()
+                {
+                    innerViewModel,
+                    new TestViewModel2() { Code = "6" },
+                    innerViewModel,
+                }
+            };
+            var validator = CreateValidator();
+            var expander = CreateErrorPathExpander();
+            var modelState = testViewModel.Context.ModelState;
+            var validationTarget = testViewModel;
+            modelState.ValidationTarget = validationTarget;
+
+            ValidationErrorFactory.AddModelError(testViewModel, vm => vm.Children[0], "An error on object that is found multiple times in viewmodel.");
+
+            var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
+            modelState.Errors.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+        }
+
 
         public class TestViewModel : DotvvmViewModelBase
         {
