@@ -1,0 +1,27 @@
+﻿@viewModel DotVVM.Samples.MiniProfiler.AspNetCore.ViewModels.DefaultViewModel, DotVVM.Samples.MiniProfiler.AspNetCore
+@import DotVVM.Samples.MiniProfiler.AspNetCore.ViewModels
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>{{value: Title}}</h1>
+
+    <a href="/profiler/results-index">MiniProfiler dataset</a>
+    <dot:MiniProfilerWidget Position="Right" />
+
+    <ul>
+        <li><dot:RouteLink RouteName="Page1" Text="Page1" /></li>
+        <li><dot:RouteLink RouteName="Page2" Text="Page2" /></li>
+    </ul>
+
+    <dot:Button Text="Command" Click="{command:  Command()}" />
+    <dot:Button Text="Static Command" Click="{staticCommand: DefaultViewModel.StaticCommand()}" />
+    <dot:SpaContentPlaceHolder ID="ContentPlaceHolder" />
+
+</body>
+</html>
