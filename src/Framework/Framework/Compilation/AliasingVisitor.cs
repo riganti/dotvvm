@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Compilation
             {
                 if (pair.Key is DotvvmPropertyAlias alias)
                 {
-                    if (control.TryGetProperty(alias.Aliased, out _))
+                    if (pair.Value.DothtmlNode is not null && control.TryGetProperty(alias.Aliased, out _))
                     {
                         pair.Value.DothtmlNode.AddError($"'{pair.Key.FullName}' is an alias for "
                             + $"'{alias.Aliased.FullName}'. Both cannot be set at once.");
