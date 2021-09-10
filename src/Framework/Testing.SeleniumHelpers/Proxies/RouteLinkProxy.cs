@@ -1,4 +1,4 @@
-﻿namespace DotVVM.Framework.Testing.Proxies
+﻿namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
 {
     public class RouteLinkProxy : ButtonProxy
     {

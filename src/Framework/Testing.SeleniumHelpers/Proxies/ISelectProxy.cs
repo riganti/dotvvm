@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenQA.Selenium;
 
-namespace DotVVM.Framework.Testing.Proxies.Interfaces
+namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
 {
     public interface ISelectProxy
     {

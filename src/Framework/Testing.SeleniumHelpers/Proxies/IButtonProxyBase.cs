@@ -1,4 +1,4 @@
-﻿namespace DotVVM.Framework.Testing.Proxies.Interfaces
+﻿namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
 {
     public interface IButtonProxyBase
     {

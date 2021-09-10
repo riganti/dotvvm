@@ -1,6 +1,4 @@
-﻿using DotVVM.Framework.Testing.Proxies.Base;
-
-namespace DotVVM.Framework.Testing.Proxies
+﻿namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
 {
     public class ListBoxProxy : SelectBaseProxy
     {

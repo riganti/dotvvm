@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenQA.Selenium;
 
-namespace DotVVM.Framework.Testing.Proxies
+namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
 {
     public class DataPagerProxy : WebElementProxyBase
     {

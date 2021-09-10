@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DotVVM.Framework.Testing.Proxies.GridViewColumns
+namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
 {
     public class GridViewCheckBoxColumnProxy : WebElementProxyBase
     {

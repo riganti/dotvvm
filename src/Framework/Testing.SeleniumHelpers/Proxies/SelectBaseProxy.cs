@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using DotVVM.Framework.Testing.Proxies.Interfaces;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 
-namespace DotVVM.Framework.Testing.Proxies.Base
+namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
 {
     public class SelectBaseProxy : WebElementProxyBase, ISelectProxy
     {
@@ -59,7 +58,7 @@ namespace DotVVM.Framework.Testing.Proxies.Base
             return new SelectElement(element);
         }
 
-        public virtual IEnumerable<IWebElement> GetOptions(IWebElement element) 
+        public virtual IEnumerable<IWebElement> GetOptions(IWebElement element)
             => element.FindElements(By.XPath(".//*"));
 
         public virtual IEnumerable<IWebElement> GetOptions()

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using OpenQA.Selenium;
 
-namespace DotVVM.Framework.Testing.Proxies
+namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
 {
     public class GridViewProxy<TItemHelper> : WebElementProxyBase where TItemHelper : SeleniumHelperBase
     {

@@ -3,7 +3,7 @@
     public class CheckBoxProxy : WebElementProxyBase
     {
 
-        public CheckBoxProxy(SeleniumHelperBase helper, string selector) : base(helper, selector)
+        public CheckBoxProxy(SeleniumHelperBase helper, PathSelector selector) : base(helper, selector)
         {
         }
 
@@ -12,9 +12,17 @@
             return !string.IsNullOrEmpty(FindElement().GetAttribute("checked"));
         }
 
-        public void Check(bool isChecked)
+        public void Check()
         {
-            if (IsChecked() != isChecked)
+            if (!IsChecked())
+            {
+                FindElement().Click();
+            }
+        }
+
+        public void Uncheck()
+        {
+            if (IsChecked())
             {
                 FindElement().Click();
             }

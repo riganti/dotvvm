@@ -1,4 +1,4 @@
-﻿namespace DotVVM.Framework.Testing
+﻿namespace DotVVM.Framework.Testing.SeleniumHelpers
 {
     public class PathSelector
     {

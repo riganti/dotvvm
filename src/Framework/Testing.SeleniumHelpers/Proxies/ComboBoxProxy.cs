@@ -1,8 +1,7 @@
 ﻿using System;
-using DotVVM.Framework.Testing.Proxies.Base;
 using OpenQA.Selenium;
 
-namespace DotVVM.Framework.Testing.Proxies
+namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
 {
     public class ComboBoxProxy : SelectBaseProxy
     {
@@ -29,4 +28,4 @@ namespace DotVVM.Framework.Testing.Proxies
             }
         }
     }
-}   
+}
