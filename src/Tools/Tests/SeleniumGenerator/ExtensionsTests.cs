@@ -1,4 +1,4 @@
-﻿using DotVVM.Framework.Testing.Generator.Extensions;
+﻿using DotVVM.Framework.Tools.SeleniumGenerator.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 
@@ -20,7 +20,7 @@ namespace DotVVM.Testing.SeleniumGenerator.Tests
             var secondDict = new Dictionary<int, string>{
                 { 3, "c" },
                 { 4, "d" }
-            }; 
+            };
 
             // do
             var union = firstDict.AddRange(secondDict);
