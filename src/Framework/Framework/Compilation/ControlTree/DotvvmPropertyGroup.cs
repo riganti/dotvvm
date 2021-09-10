@@ -12,30 +12,31 @@ using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
-public class DotvvmPropertyGroup : IPropertyGroupDescriptor
-{
-    public FieldInfo DescriptorField { get; }
+    public class DotvvmPropertyGroup : IPropertyGroupDescriptor
+    {
+        public FieldInfo DescriptorField { get; }
 
-    public ICustomAttributeProvider AttributeProvider { get; }
+        public ICustomAttributeProvider AttributeProvider { get; }
 
-    public string[] Prefixes { get; }
+        public string[] Prefixes { get; }
 
-    public string Name { get; }
+        public string Name { get; }
 
-    public MarkupOptionsAttribute MarkupOptions { get; }
+        public MarkupOptionsAttribute MarkupOptions { get; }
 
-    public DataContextChangeAttribute[] DataContextChangeAttributes { get; }
+        public DataContextChangeAttribute[] DataContextChangeAttributes { get; }
 
-    public DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; }
+        public DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; }
 
-    public object? DefaultValue { get; }
+        public object? DefaultValue { get; }
 
-    public Type DeclaringType { get; }
-    ITypeDescriptor IControlAttributeDescriptor.DeclaringType => new ResolvedTypeDescriptor(DeclaringType);
+        public Type DeclaringType { get; }
+        ITypeDescriptor IControlAttributeDescriptor.DeclaringType => new ResolvedTypeDescriptor(DeclaringType);
 
-    public Type PropertyType { get; }
-    ITypeDescriptor IControlAttributeDescriptor.PropertyType => new ResolvedTypeDescriptor(PropertyType);
-    public IAttributeValueMerger? ValueMerger { get; }
+        public ObsoleteAttribute? ObsoleteAttribute { get; }
+        public Type PropertyType { get; }
+        ITypeDescriptor IControlAttributeDescriptor.PropertyType => new ResolvedTypeDescriptor(PropertyType);
+        public IAttributeValueMerger? ValueMerger { get; }
 
         private ConcurrentDictionary<string, GroupedDotvvmProperty> generatedProperties = new();
 
@@ -43,7 +44,6 @@ public class DotvvmPropertyGroup : IPropertyGroupDescriptor
         public DotvvmCapabilityProperty? OwningCapability { get; internal set; }
         /// <summary> The capabilities which use this property. </summary>
         public ImmutableArray<DotvvmCapabilityProperty> UsedInCapabilities { get; internal set; } = ImmutableArray<DotvvmCapabilityProperty>.Empty;
-
 
         internal DotvvmPropertyGroup(PrefixArray prefixes, Type valueType, Type declaringType, FieldInfo descriptorField, ICustomAttributeProvider attributeProvider, string name, object? defaultValue)
         {
@@ -53,21 +53,23 @@ public class DotvvmPropertyGroup : IPropertyGroupDescriptor
             this.Name = name;
             this.PropertyType = valueType;
             this.Prefixes = prefixes.Values;
-            (this.MarkupOptions, this.DataContextChangeAttributes, this.DataContextManipulationAttribute) = InitFromAttributes(attributeProvider, name);
+            (this.MarkupOptions, this.DataContextChangeAttributes, this.DataContextManipulationAttribute, this.ObsoleteAttribute) = InitFromAttributes(attributeProvider, name);
             if (MarkupOptions.AllowValueMerging)
             {
                 ValueMerger = (IAttributeValueMerger)Activator.CreateInstance(MarkupOptions.AttributeValueMerger);
             }
         }
 
-        private static (MarkupOptionsAttribute, DataContextChangeAttribute[], DataContextStackManipulationAttribute?) InitFromAttributes(ICustomAttributeProvider attributeProvider, string name)
+        private static (MarkupOptionsAttribute, DataContextChangeAttribute[], DataContextStackManipulationAttribute?, ObsoleteAttribute?)
+            InitFromAttributes(ICustomAttributeProvider attributeProvider, string name)
         {
             var markupOptions = attributeProvider.GetCustomAttribute<MarkupOptionsAttribute>(true) ?? new MarkupOptionsAttribute();
             var dataContextChange = attributeProvider.GetCustomAttributes<DataContextChangeAttribute>(true);
             var dataContextManipulation = attributeProvider.GetCustomAttribute<DataContextStackManipulationAttribute>(true);
             if (dataContextManipulation != null && dataContextChange.Any()) throw new ArgumentException(
                 $"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set both at property group '{name}'.");
-            return (markupOptions, dataContextChange.ToArray(), dataContextManipulation);
+            var obsoleteAttribute = attributeProvider.GetCustomAttribute<ObsoleteAttribute>();
+            return (markupOptions, dataContextChange.ToArray(), dataContextManipulation, obsoleteAttribute);
         }
 
         IPropertyDescriptor IPropertyGroupDescriptor.GetDotvvmProperty(string name) => GetDotvvmProperty(name);
@@ -81,7 +83,7 @@ public class DotvvmPropertyGroup : IPropertyGroupDescriptor
         public static DotvvmPropertyGroup Register<TValue, TDeclaring>(PrefixArray prefixes, string name, TValue? defaultValue = default(TValue)) =>
             Register(typeof(TDeclaring), prefixes, name, typeof(TValue), defaultValue);
 
-        public static DotvvmPropertyGroup  Register(Type declaringType, PrefixArray prefixes, string name, Type valueType, object? defaultValue)
+        public static DotvvmPropertyGroup Register(Type declaringType, PrefixArray prefixes, string name, Type valueType, object? defaultValue)
         {
             return descriptorDictionary.GetOrAdd((declaringType, name), fullName => {
                 var field = declaringType.GetField(name + "GroupDescriptor", BindingFlags.Public | BindingFlags.Static);

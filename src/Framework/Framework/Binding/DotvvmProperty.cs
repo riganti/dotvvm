@@ -74,7 +74,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Determines if property type inherits from IBinding
         /// </summary>
-        public bool IsBindingProperty { get; private set; }
+        public bool IsBindingProperty { get; protected set; }
 
         /// <summary>
         /// Gets the full name of the descriptor.
@@ -93,10 +93,12 @@ namespace DotVVM.Framework.Binding
         }
 
         [JsonIgnore]
-        public DataContextChangeAttribute[] DataContextChangeAttributes { get; private set; }
+        public DataContextChangeAttribute[] DataContextChangeAttributes { get; protected set; }
 
         [JsonIgnore]
-        public DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; private set; }
+        public DataContextStackManipulationAttribute? DataContextManipulationAttribute { get; protected set; }
+
+        public ObsoleteAttribute? ObsoleteAttribute { get; protected set; }
 
         /// <summary> The capability which declared this property. When the property is declared by an capability, it can only be used by this capability. </summary>
         public DotvvmCapabilityProperty? OwningCapability { get; internal set; }
@@ -258,6 +260,98 @@ namespace DotVVM.Framework.Binding
             return property;
         }
 
+        /// <summary>
+        /// Registers an alias with a property accessor for another DotvvmProperty given by the PropertyAlias attribute.
+        /// </summary>
+        public static DotvvmPropertyAlias RegisterAlias<TDeclaringType>(
+            Expression<Func<TDeclaringType, object?>> propertyAccessor)
+        {
+            var property = ReflectionUtils.GetMemberFromExpression(propertyAccessor.Body) as PropertyInfo;
+            if (property == null)
+            {
+                throw new ArgumentException("The expression should be simple property access",
+                    nameof(propertyAccessor));
+            }
+            return RegisterAlias<TDeclaringType>(property.Name);
+        }
+
+        /// <summary>
+        /// Registers an alias for another DotvvmProperty given by the PropertyAlias attribute.
+        /// </summary>
+        public static DotvvmPropertyAlias RegisterAlias<TDeclaringType>(
+            Expression<Func<DotvvmProperty?>> fieldAccessor)
+        {
+            var field = ReflectionUtils.GetMemberFromExpression(fieldAccessor) as FieldInfo;
+            if (field == null || !field.IsStatic)
+            {
+                throw new ArgumentException("The expression should be simple static field access",
+                    nameof(fieldAccessor));
+            }
+            if (!field.Name.EndsWith("Property", StringComparison.Ordinal))
+            {
+                throw new ArgumentException($"DotVVM property backing field's '{field.Name}' "
+                    + "name should end with 'Property'");
+            }
+            return RegisterAlias<TDeclaringType>(field.Name.Remove(field.Name.Length - "Property".Length));
+        }
+
+        /// <summary>
+        /// Registers an alias for another DotvvmProperty given by the PropertyAlias attribute.
+        /// </summary>
+        public static DotvvmPropertyAlias RegisterAlias<TDeclaringType>(string aliasName)
+        {
+            var field = typeof(TDeclaringType).GetField(
+                aliasName + "Property",
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            if (field == null)
+            {
+                throw new ArgumentException($"'{typeof(TDeclaringType).Name}' does not contain static field '{aliasName}Property'.");
+            }
+            return RegisterAlias(aliasName, typeof(TDeclaringType), field);
+        }
+
+        /// <summary>
+        /// Registers an alias for a DotvvmProperty.
+        /// </summary>
+        public static DotvvmPropertyAlias RegisterAlias(
+            string aliasName,
+            Type declaringType,
+            ICustomAttributeProvider attributeProvider,
+            bool throwOnDuplicitRegistration = true)
+        {
+            var propertyInfo = declaringType.GetProperty(aliasName);
+            attributeProvider = propertyInfo ?? attributeProvider;
+            var aliasAttribute = attributeProvider.GetCustomAttribute<PropertyAliasAttribute>();
+            if (aliasAttribute is null)
+            {
+                throw new ArgumentException($"A property alias must have a {nameof(PropertyAliasAttribute)}.");
+            }
+
+            var propertyAlias = new DotvvmPropertyAlias(
+                aliasName,
+                declaringType,
+                aliasAttribute.AliasedPropertyName,
+                aliasAttribute.AliasedPropertyDeclaringType ?? declaringType);
+            propertyAlias.AttributeProvider = attributeProvider;
+            propertyAlias.ObsoleteAttribute = attributeProvider.GetCustomAttribute<ObsoleteAttribute>();
+            var key = (propertyAlias.DeclaringType, propertyAlias.Name);
+
+            if (!registeredProperties.TryAdd(key, propertyAlias))
+            {
+                if (throwOnDuplicitRegistration)
+                    throw new ArgumentException($"Property is already registered: {propertyAlias.FullName}");
+            }
+
+            if (!registeredAliases.TryAdd(key, propertyAlias))
+            {
+                if (throwOnDuplicitRegistration)
+                    throw new ArgumentException($"Property alias is already registered: {propertyAlias.FullName}");
+                else
+                    return registeredAliases[key];
+            }
+            return propertyAlias;
+        }
+
         public static void InitializeProperty(DotvvmProperty property, ICustomAttributeProvider? attributeProvider = null)
         {
             if (string.IsNullOrWhiteSpace(property.Name))
@@ -284,6 +378,7 @@ namespace DotVVM.Framework.Binding
             if (property.DataContextManipulationAttribute != null && property.DataContextChangeAttributes.Any())
                 throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set both at property '{property.FullName}'.");
             property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
+            property.ObsoleteAttribute = property.AttributeProvider.GetCustomAttribute<ObsoleteAttribute>();
         }
 
         public static void CheckAllPropertiesAreRegistered(Type controlType)
@@ -307,6 +402,7 @@ namespace DotVVM.Framework.Binding
         }
 
         private static ConcurrentDictionary<(Type, string), DotvvmProperty> registeredProperties = new();
+        private static ConcurrentDictionary<(Type, string), DotvvmPropertyAlias> registeredAliases = new();
 
         /// <summary>
         /// Resolves the <see cref="DotvvmProperty"/> by the declaring type and name.
@@ -343,6 +439,16 @@ namespace DotVVM.Framework.Binding
             }
 
             return registeredProperties.Values.Where(p => types.Contains(p.DeclaringType)).ToArray();
+        }
+
+        public static IEnumerable<DotvvmProperty> GetRegisteredProperties()
+        {
+            return registeredProperties.Values;
+        }
+
+        public static IEnumerable<DotvvmPropertyAlias> GetRegisteredAliases()
+        {
+            return registeredAliases.Values;
         }
 
         public override string ToString()
