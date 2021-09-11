@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Controls
             if (binding == null)
             {
                 if (nullBindingAction != null) nullBindingAction();
-                else Add(name, JsonConvert.SerializeObject(control.GetValue(property), DefaultSerializerSettingsProvider.Instance.Settings));
+                else AddValue(name, control.GetValue(property));
             }
             else
             {
@@ -30,14 +30,30 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        public virtual void Add(string name, string expression, bool surroundWithDoubleQuotes = false)
+        public virtual void Add(string name, string expression)
+        {
+            entries.Add(new KnockoutBindingInfo(name, expression));
+        }
+
+        public void Add(string name, KnockoutBindingGroup nestedGroup)
+        {
+            if (!nestedGroup.IsEmpty)
+                Add(name, nestedGroup.ToString());
+        }
+
+        [Obsolete("Use Add or AddValue instead")]
+        public virtual void Add(string name, string expression, bool surroundWithDoubleQuotes)
         {
             if (surroundWithDoubleQuotes)
-            {
-                expression = JsonConvert.SerializeObject(expression, DefaultSerializerSettingsProvider.Instance.Settings);
-            }
+                AddValue(name, expression);
+            else
+                Add(name, expression);
+        }
 
-            entries.Add(new KnockoutBindingInfo(name, expression));
+        public virtual void AddValue(string name, object? value)
+        {
+            var expression = JsonConvert.SerializeObject(value, DefaultSerializerSettingsProvider.Instance.Settings);
+            Add(name, expression);
         }
 
         public virtual void AddFrom(KnockoutBindingGroup other)

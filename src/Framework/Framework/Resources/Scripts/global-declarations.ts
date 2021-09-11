@@ -298,3 +298,17 @@ type DotvvmFileSize = {
     Bytes: KnockoutObservable<number>;
     FormattedText: KnockoutObservable<string>;
 }
+
+type DotvvmJsComponent = {
+    updateProps(p: { [key: string]: any }): void
+    dispose(): void
+}
+type DotvvmJsComponentFactory = {
+    create(
+        element: HTMLElement,
+        props: { [key: string]: any },
+        commands: { [key: string]: (args: any[]) => Promise<any> },
+        templates: { [key: string]: string }, // TODO
+        setProps: (p: { [key: string]: any }) => void
+    ): DotvvmJsComponent
+}

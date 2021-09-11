@@ -100,7 +100,7 @@ namespace DotVVM.Framework.Tests.Runtime
                 { "test", new TextBox(){ Type = TextBoxType.Date }, TextBox.TypeProperty }
             });
             html.RenderSelfClosingTag("span");
-            Assert.AreEqual("<spandata-bind='tt:{\"test\":\"Date\"}'/>", writer.ToString().Replace(" ", ""));
+            Assert.AreEqual("<spandata-bind='tt:{test:\"Date\"}'/>", writer.ToString().Replace(" ", ""));
         }
 
         [TestMethod]

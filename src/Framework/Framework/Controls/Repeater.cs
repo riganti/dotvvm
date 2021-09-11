@@ -183,14 +183,14 @@ namespace DotVVM.Framework.Controls
             {
                 var itemTemplateId = context.ResourceManager.AddTemplateResource(context, clientSideTemplate!);
 
-                value.Add("name", itemTemplateId, true);
+                value.AddValue("name", itemTemplateId);
             }
 
             if (clientSeparator != null)
             {
                 // separator has to be always rendered as a named template
                 var separatorTemplateId = context.ResourceManager.AddTemplateResource(context, clientSeparator);
-                value.Add("separatorTemplate", separatorTemplateId, true);
+                value.AddValue("separatorTemplate", separatorTemplateId);
             }
 
             return (

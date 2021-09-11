@@ -10,6 +10,7 @@ import gridviewdataset from './gridviewdataset'
 import withViewModules from './with-view-modules'
 import namedCommand from './named-command'
 import fileUpload from './file-upload'
+import jsComponents from './js-component'
 
 type KnockoutHandlerDictionary = {
     [name: string]: KnockoutBindingHandler
@@ -26,7 +27,8 @@ const allHandlers: KnockoutHandlerDictionary = {
     ...gridviewdataset,
     ...withViewModules,
     ...namedCommand,
-    ...fileUpload
+    ...fileUpload,
+    ...jsComponents
 }
 
 export default allHandlers

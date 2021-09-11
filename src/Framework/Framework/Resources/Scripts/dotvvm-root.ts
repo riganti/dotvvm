@@ -78,6 +78,7 @@ const dotvvmExports = {
     validation: validation.globalValidationObject,
     postBack,
     init,
+    registerGlobalComponent: viewModuleManager.registerGlobalComponent,
     isPostbackRunning,
     events: (compileConstants.isSpa ?
              { ...events, ...spaEvents } :

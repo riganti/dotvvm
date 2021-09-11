@@ -230,6 +230,25 @@ namespace DotVVM.Framework.Tests.ControlTests
             Assert.IsTrue(exception.Message.Contains("Changing the DataContext property on the GridViewColumn is not supported!"));
         }
 
+        [TestMethod]
+        public async Task JsComponent()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <dot:JsComponent Name=Bazmek
+                                 troll={resource: 1}
+                                 scmd={staticCommand: (int s) => _js.Invoke<System.Threading.Tasks.Task<int>>('myCmd', s)}>
+
+                    <template-MyTemplate>
+                        <h1> Ahoj lidi </h1>
+                    </template-MyTemplate>
+                </dot:JsComponent>
+
+                <dot:JsComponent Name=Bazmek troll={resource: 1} />
+                <dot:JsComponent Name=Bazmek lol={value: Integer} />
+            ", directives: "@js dotvvm.internal");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]

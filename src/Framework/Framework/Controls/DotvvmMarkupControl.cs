@@ -118,20 +118,14 @@ namespace DotVVM.Framework.Controls
             }
             else if (GetBinding(property) is ICommandBinding command)
             {
-                // just few commands have arguments so it's worth checking if we need to clutter the output with argument propagation
-                var hasArguments = command.CommandJavascript.EnumerateAllParameters().Any(p => p == CommandBindingExpression.CommandArgumentsParameter);
-                var call = KnockoutHelper.GenerateClientPostBackExpression(
-                    property.Name,
-                    command,
-                    this,
-                    new PostbackScriptOptions(
-                        elementAccessor: "$element",
-                        commandArgs: hasArguments ? new CodeParameterAssignment(new ParametrizedCode("commandArguments", OperatorPrecedence.Max)) : default
-                    ));
 
                 return new PropertySerializeInfo(
                     property,
-                    hasArguments ? $"(...commandArguments)=>({call})" : $"()=>({call})"
+                    KnockoutHelper.GenerateClientPostbackLambda(
+                        property.Name,
+                        command,
+                        this
+                    )
                 );
             }          
             else

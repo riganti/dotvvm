@@ -88,6 +88,25 @@ namespace DotVVM.Framework.Controls
             writer.AddKnockoutDataBind("foreach", expression);
         }
 
+        /// <summary> Generates a function expression that invokes the command with specified commandArguments. Creates code like `(...commandArguments) => dotvvm.postBack(...)` </summary>
+        public static string GenerateClientPostbackLambda(string propertyName, ICommandBinding command, DotvvmBindableObject control, PostbackScriptOptions? options = null)
+        {
+            options ??= new PostbackScriptOptions(
+                elementAccessor: "$element",
+                koContext: CodeParameterAssignment.FromIdentifier("$context", true)
+            );
+
+            var hasArguments = command.CommandJavascript.EnumerateAllParameters().Any(p => p == CommandBindingExpression.CommandArgumentsParameter);
+            options.CommandArgs = hasArguments ? new CodeParameterAssignment(new ParametrizedCode("commandArguments", OperatorPrecedence.Max)) : default;
+            // just few commands have arguments so it's worth checking if we need to clutter the output with argument propagation
+            var call = KnockoutHelper.GenerateClientPostBackExpression(
+                propertyName,
+                command,
+                control,
+                options);
+            return hasArguments ? $"(...commandArguments)=>({call})" : $"()=>({call})";
+        }
+
         public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmBindableObject control, bool useWindowSetTimeout = false,
             bool? returnValue = false, bool isOnChange = false, string elementAccessor = "this")
         {
