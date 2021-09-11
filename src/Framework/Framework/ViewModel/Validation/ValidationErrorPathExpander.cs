@@ -22,7 +22,7 @@ namespace DotVVM.Framework.ViewModel.Validation
         public ValidationErrorPathExpanderContext(object? validationTarget, List<ViewModelValidationError> errors)
         {
             errors.ForEach(item => item.TargetObject ??= validationTarget);
-            this.ValidationErrorsLookup = errors.GroupBy(e => e.TargetObject ?? validationTarget).ToDictionary(e => e.Key, e => e.ToList());
+            this.ValidationErrorsLookup = errors.GroupBy(e => e.TargetObject ?? validationTarget!).ToDictionary(e => e.Key, e => e.ToList());
             this.ValidationTarget = validationTarget;
             this.AlreadyProcessedNodes = new HashSet<object>();
             this.FoundErrors = new Dictionary<object, int>();
@@ -67,7 +67,7 @@ namespace DotVVM.Framework.ViewModel.Validation
             Expand(viewModel, string.Empty, modelStateDecoratorContext);
 
             // Remove not found errors
-            modelState.Errors.RemoveAll(error => !modelStateDecoratorContext.AlreadyProcessedNodes.Contains(error.TargetObject));
+            modelState.Errors.RemoveAll(error => error.TargetObject != null && !modelStateDecoratorContext.AlreadyProcessedNodes.Contains(error.TargetObject));
         }
 
         private bool IsPropertyPathRooted(ViewModelValidationError error)
