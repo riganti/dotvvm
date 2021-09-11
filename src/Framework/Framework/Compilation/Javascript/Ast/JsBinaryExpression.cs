@@ -95,6 +95,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                     return "=";
                 case BinaryOperatorType.Sequence:
                     return ",";
+                case BinaryOperatorType.NullishCoalescing:
+                    return "??";
                 default:
                     throw new NotSupportedException($"Operator {op} not supported.");
             }
@@ -152,6 +154,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         [EnumMember(Value = "=")]
         Assignment,
         [EnumMember(Value = ",")]
-        Sequence
+        Sequence,
+        [EnumMember(Value = "??")]
+        NullishCoalescing,
     }
 }
