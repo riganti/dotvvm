@@ -29,7 +29,8 @@ namespace DotVVM.Framework.Binding
                 DeclaringType = group.DeclaringType,
                 DefaultValue = group.DefaultValue,
                 IsValueInherited = false,
-                Name = propname
+                Name = propname,
+                ObsoleteAttribute = group.ObsoleteAttribute
             };
 
             DotvvmProperty.InitializeProperty(prop, group.AttributeProvider);

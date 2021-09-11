@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2018"
+  },
+  "include": [
+    "**/*.js",
+    "../../Framework/Framework/obj/typescript-types/dotvvm.d.ts",
+    "../../Framework/Framework/Resources/Scripts/**/*.d.ts"
+  ],
+  "exclude": [
+    "../../Framework/Framework/Resources/Scripts/tests"
+  ]
+}
