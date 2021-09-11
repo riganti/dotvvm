@@ -50,7 +50,7 @@ namespace DotVVM.Framework.ViewModel.Validation
             }
         }
 
-        public void Expand(ModelState modelState, object viewModel)
+        public void Expand(ModelState modelState, object? viewModel)
         {
             // Check that model state does not contain validation target paths in the old format
             EnsurePropertyPathsAreCorrect(modelState.Errors);

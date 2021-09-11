@@ -9,6 +9,6 @@ namespace DotVVM.Framework.ViewModel.Validation
 {
     public interface IValidationErrorPathExpander
     {
-        void Expand(ModelState modelState, object viewModel);
+        void Expand(ModelState modelState, object? viewModel);
     }
 }

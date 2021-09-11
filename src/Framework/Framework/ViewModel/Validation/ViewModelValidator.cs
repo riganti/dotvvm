@@ -77,11 +77,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                         var propertyResult = rule.SourceValidationAttribute?.GetValidationResult(value, context);
                         if (propertyResult != ValidationResult.Success)
                         {
-                            yield return new ViewModelValidationError() {
-                                TargetObject = viewModel,
-                                PropertyPath = property.Name,
-                                ErrorMessage = rule.ErrorMessage                            
-                            };
+                            yield return new ViewModelValidationError(rule.ErrorMessage, property.Name, viewModel);
                         }
                     }
                 }
@@ -120,11 +116,7 @@ namespace DotVVM.Framework.ViewModel.Validation
 
                     foreach (var memberPath in paths)
                     {
-                        yield return new ViewModelValidationError() {
-                            TargetObject = viewModel,
-                            PropertyPath = memberPath,
-                            ErrorMessage = error.ErrorMessage
-                        };
+                        yield return new ViewModelValidationError(error.ErrorMessage, memberPath, viewModel);
                     }
                 }
             }

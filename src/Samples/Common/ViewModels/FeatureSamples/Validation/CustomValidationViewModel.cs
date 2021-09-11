@@ -25,17 +25,11 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Validation
             {
                 if (UseKnockoutNotation)
                 {
-                    Context.ModelState.Errors.Add(
-                        new ViewModelValidationError
-                        {
-                            ErrorMessage = "This error uses the Knockout JS notation.",
-                            PropertyPath = "Detail/Name",
-                            TargetObject = this
-                        });
+                    this.UnsafeAddModelError("Detail/Name", "This error uses an unsafe hand-written property path.");
                 }
                 else
                 {
-                    this.AddModelError(t => t.Detail.Name, "This error uses C# extension method AddModelError");
+                    this.AddModelError(t => t.Detail.Name, "This error uses C# extension method AddModelError that generates property path based on provided lambda.");
                 }
             }
             Context.FailOnInvalidModelState();

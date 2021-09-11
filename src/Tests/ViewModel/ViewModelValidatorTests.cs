@@ -264,13 +264,8 @@ namespace DotVVM.Framework.Tests.ViewModel
             var modelState = testViewModel.Context.ModelState;
             var validationTarget = testViewModel;
             modelState.ValidationTarget = validationTarget;
-            modelState.Errors.Add(new ViewModelValidationError()
-            {
-                PropertyPath = "Child()",
-                ErrorMessage = "Validation target path as a knockout expression",
-                TargetObject = this
-            });
 
+            testViewModel.UnsafeAddModelError("Child()", "Validation target path as a knockout expression");
             var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
             modelState.Errors.AddRange(errors);
             expander.Expand(modelState, testViewModel);
@@ -300,9 +295,9 @@ namespace DotVVM.Framework.Tests.ViewModel
             var validationTarget = testViewModel.Children[0];
             modelState.ValidationTarget = validationTarget;
 
-            ValidationErrorFactory.AddModelError(testViewModel, vm => vm, "Custom root error. Outside of validation target.");
-            ValidationErrorFactory.AddModelError(testViewModel, vm => vm.Child, "Custom Child error. Outside of validation target.");
-            ValidationErrorFactory.AddModelError(testViewModel, vm => vm.Children[2], "Custom Children[2] error. Outside of validation target.");
+            testViewModel.AddModelError(vm => vm, "Custom root error. Outside of validation target.");
+            testViewModel.AddModelError(vm => vm.Child, "Custom Child error. Outside of validation target.");
+            testViewModel.AddModelError(vm => vm.Children[2], "Custom Children[2] error. Outside of validation target.");
 
             var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
             modelState.Errors.AddRange(errors);
@@ -343,7 +338,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var validationTarget = testViewModel;
             modelState.ValidationTarget = validationTarget;
 
-            ValidationErrorFactory.AddModelError(testViewModel, vm => vm.Children[0], "An error on object that is found multiple times in viewmodel.");
+            testViewModel.AddModelError(vm => vm.Children[0], "An error on object that is found multiple times in viewmodel.");
 
             var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
             modelState.Errors.AddRange(errors);
