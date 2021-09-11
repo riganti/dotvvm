@@ -75,7 +75,30 @@ namespace DotVVM.Framework.Controls
 
             public override string ToString()
             {
-                return "\"" + Name + "\": " + Expression;
+                if (MayBeUnquoted(Name))
+                    return Name + ": " + Expression;
+                else
+                    return "\"" + Name + "\": " + Expression;
+            }
+
+            private static bool MayBeUnquoted(string s)
+            {
+                // keywords are not a problem in JS, ({ if: A }) is perfectly valid, for example
+                if (s.Length == 0) return false;
+                if (char.IsDigit(s[0])) return false;
+                foreach (var c in s)
+                {
+                    if ('a' <= c && c <= 'z')
+                        continue;
+                    if ('A' <= c && c <= 'Z')
+                        continue;
+                    if ('0' <= c && c <= '9')
+                        continue;
+                    if ('_' == c)
+                        continue;
+                    return false;
+                }
+                return true;
             }
         }
     }
