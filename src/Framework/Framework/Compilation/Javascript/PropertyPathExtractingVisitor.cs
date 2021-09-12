@@ -1,32 +1,37 @@
-﻿#nullable disable
+﻿using System.Collections.Generic;
+using System.Text;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
-    public class PropertyPathExtractingVisitor : JsNodeVisitor
+    internal class PropertyPathExtractingVisitor : JsNodeVisitor
     {
-        private string fullPropertyPath;
-        private string koUnwrapPathSegment;
-
-        public string ExtractedPropertyPath { get; set; }
+        private Stack<string> stack = new Stack<string>();
 
         public override void VisitMemberAccessExpression(JsMemberAccessExpression memberAccessExpression)
         {
-            if (fullPropertyPath == null)
-            {
-                fullPropertyPath = memberAccessExpression.ToString();
-            }
-            else if (memberAccessExpression.ToString() == "ko.unwrap")
-            {
-                koUnwrapPathSegment = memberAccessExpression.Parent.ToString();
-                ExtractPropertyPath();
-            }
+            stack.Push(memberAccessExpression.MemberName);
             base.VisitMemberAccessExpression(memberAccessExpression);
         }
 
-        private void ExtractPropertyPath()
+        public override void VisitIndexerExpression(JsIndexerExpression jsIndexerExpression)
         {
-            ExtractedPropertyPath = fullPropertyPath.Substring(koUnwrapPathSegment.Length + 1);
+            stack.Push(jsIndexerExpression.Argument.ToString());
+            base.VisitIndexerExpression(jsIndexerExpression);
+        }
+
+        public string GetPropertyPath()
+        {
+            var sb = new StringBuilder();
+            while (stack.Count > 0)
+            {
+                if (sb.Length > 0)
+                    sb.Append($"/{stack.Pop()}");
+                else
+                    sb.Append(stack.Pop());
+            }
+
+            return (sb.Length > 0) ? sb.ToString() : "/";
         }
     }
 }

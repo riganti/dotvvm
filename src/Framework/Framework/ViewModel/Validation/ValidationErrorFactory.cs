@@ -9,6 +9,7 @@ using System.Text;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
@@ -110,19 +111,12 @@ namespace DotVVM.Framework.ViewModel.Validation
                 var dataContext = DataContextStack.Create(e.expression.Parameters.Single().Type);
                 var expression = ExpressionUtils.Replace(e.expression, BindingExpressionBuilder.GetParameters(dataContext).First(p => p.Name == "_this"));
                 var jsast = translator.CompileToJavascript(expression, dataContext);
-                var pcode = BindingPropertyResolvers.FormatJavascript(jsast, niceMode: isDebug, nullChecks: false);
-                var script = JavascriptTranslator.FormatKnockoutScript(pcode, allowDataGlobal: true);
+                //var pcode = BindingPropertyResolvers.FormatJavascript(jsast, niceMode: isDebug, nullChecks: false);
+                //var script = JavascriptTranslator.FormatKnockoutScript(pcode, allowDataGlobal: true);
 
-                // Remove parentheses '(', ')' and right brackets ']'
-                script = System.Text.RegularExpressions.Regex.Replace(script, @"\(|\)|\]", "");
-                // Replace dots '.' and left brackets '[' with slash '/'
-                script = System.Text.RegularExpressions.Regex.Replace(script, @"\.|\[", "/");
-
-                // $rawData represents root of viewModel
-                if (script == "$rawData")
-                    script = "/";
-
-                return script;
+                var visitor = new PropertyPathExtractingVisitor();
+                jsast.AcceptVisitor(visitor);
+                return visitor.GetPropertyPath();
             });
         }
 
