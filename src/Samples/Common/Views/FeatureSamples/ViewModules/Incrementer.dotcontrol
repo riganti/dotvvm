@@ -20,7 +20,7 @@ Value: <span class="value"></span>
     </template-MyTemplate>
 </dot:JsComponent>
 
-<dot:InlineScript>
+<!-- <dot:InlineScript>
         let someId1234 = 0;
         dotvvm.registerGlobalComponent("Bazmek", {
             create() {
@@ -38,5 +38,5 @@ Value: <span class="value"></span>
                 }
             }
         })
-</dot:InlineScript>
+</dot:InlineScript> -->
 

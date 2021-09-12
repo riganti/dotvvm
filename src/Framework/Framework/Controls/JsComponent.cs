@@ -2,6 +2,8 @@ using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Utils;
@@ -107,6 +109,16 @@ namespace DotVVM.Framework.Controls
 
             writer.RenderBeginTag(WrapperTagName);
             writer.RenderEndTag();
+        }
+
+        [ApplyControlStyle]
+        public static void AddReferencedViewModuleInfoProperty(ResolvedControl control)
+        {
+            if (control.TreeRoot.TryGetProperty(Internal.ReferencedViewModuleInfoProperty, out var x))
+            {
+                var value = ((ResolvedPropertyValue)x).Value;
+                control.SetProperty(new ResolvedPropertyValue(Internal.ReferencedViewModuleInfoProperty, value));
+            }
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿export default context => new Page(context);
 
+let someId1234 = 0
+
 class Page {
 
     constructor(context) {
@@ -17,6 +19,23 @@ class Page {
                 this.rootElement.querySelector(".id").innerText = this.rootElement.id;
             }, 0);
         });
+    }
+
+    $controls = {
+        Bazmek: {
+            create() {
+                const id = someId1234++
+                console.log("Create: ", id, [...arguments])
+                return {
+                    updateProps(props) {
+                        console.log("UpdateProps: ", id, props)
+                    },
+                    dispose() {
+                        console.log("Dispose: ", id, [...arguments])
+                    }
+                }
+            }
+        }
     }
 
     increment() {
