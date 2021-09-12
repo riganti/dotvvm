@@ -111,8 +111,6 @@ namespace DotVVM.Framework.ViewModel.Validation
                 var dataContext = DataContextStack.Create(e.expression.Parameters.Single().Type);
                 var expression = ExpressionUtils.Replace(e.expression, BindingExpressionBuilder.GetParameters(dataContext).First(p => p.Name == "_this"));
                 var jsast = translator.CompileToJavascript(expression, dataContext);
-                //var pcode = BindingPropertyResolvers.FormatJavascript(jsast, niceMode: isDebug, nullChecks: false);
-                //var script = JavascriptTranslator.FormatKnockoutScript(pcode, allowDataGlobal: true);
 
                 var visitor = new PropertyPathExtractingVisitor();
                 jsast.AcceptVisitor(visitor);
