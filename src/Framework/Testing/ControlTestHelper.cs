@@ -114,7 +114,7 @@ namespace DotVVM.Framework.Testing
         {
             if (!markup.Contains("<body"))
             {
-                markup = $"<body>\n{markup}\n{(renderResources ? "" : "<tc:FakeBodyResourceLink />")}\n</body>";
+                markup = $"<body Validation.Enabled=false >\n{markup}\n{(renderResources ? "" : "<tc:FakeBodyResourceLink />")}\n</body>";
             }
             else if (!renderResources)
             {

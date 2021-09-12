@@ -12,6 +12,20 @@ namespace DotVVM.Framework.Controls
         public ValueOrBinding<string>? Text { get; set; }
         public List<DotvvmControl>? Content { get; set; }
 
+        public TextOrContentCapability() { }
+        public TextOrContentCapability(ValueOrBinding<string> text)
+        {
+            this.Text = text;
+        }
+        public TextOrContentCapability(IEnumerable<DotvvmControl> content)
+        {
+            this.Content = content.ToList();
+        }
+        public TextOrContentCapability(params DotvvmControl[] content)
+        {
+            this.Content = content.ToList();
+        }
+
         public static TextOrContentCapability FromChildren(DotvvmControl control, DotvvmProperty textProperty)
         {
             var text = control.GetValueRaw(textProperty);
