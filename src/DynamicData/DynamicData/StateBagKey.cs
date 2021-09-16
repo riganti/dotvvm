@@ -23,7 +23,8 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         public bool Equals(StateBagKey other)
         {
-            return EqualityComparer<object>.Default.Equals(Provider, other.Provider) && EqualityComparer<PropertyInfo>.Default.Equals(Property, other.Property);
+            return EqualityComparer<object>.Default.Equals(Provider, other.Provider)
+                && EqualityComparer<PropertyInfo>.Default.Equals(Property, other.Property);
         }
 
         public override int GetHashCode()
