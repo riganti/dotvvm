@@ -1,5 +1,6 @@
 using System.Reflection;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns
 {
@@ -7,7 +8,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns
     {
         public override bool CanHandleProperty(PropertyInfo propertyInfo, DynamicDataContext context)
         {
-            return UnwrapNullableType(propertyInfo.PropertyType) == typeof(bool);
+            return ReflectionUtils.UnwrapNullableType(propertyInfo.PropertyType) == typeof(bool);
         }
 
         protected override GridViewColumn CreateColumnCore(GridView gridView, PropertyDisplayMetadata property, DynamicDataContext context)

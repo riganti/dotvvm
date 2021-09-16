@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers
 {
@@ -15,13 +16,13 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers
 
         public static bool CanHandleProperty(PropertyInfo propertyInfo, DynamicDataContext context)
         {
-            var type = DynamicDataPropertyHandlerBase.UnwrapNullableType(propertyInfo.PropertyType);
+            var type = ReflectionUtils.UnwrapNullableType(propertyInfo.PropertyType);
             return stringTypes.Contains(type) || numericTypes.Contains(type) || dateTypes.Contains(type);
         }
 
         public static FormatValueType? GetValueType(PropertyInfo propertyInfo)
         {
-            var type = DynamicDataPropertyHandlerBase.UnwrapNullableType(propertyInfo.PropertyType);
+            var type = ReflectionUtils.UnwrapNullableType(propertyInfo.PropertyType);
             if (numericTypes.Contains(type))
             {
                 return FormatValueType.Number;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
 {
@@ -11,7 +12,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
     {
         public override bool CanHandleProperty(PropertyInfo propertyInfo, DynamicDataContext context)
         {
-            return UnwrapNullableType(propertyInfo.PropertyType) == typeof(bool);
+            return ReflectionUtils.UnwrapNullableType(propertyInfo.PropertyType) == typeof(bool);
         }
         
         public override bool CanValidate => true;
