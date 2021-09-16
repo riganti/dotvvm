@@ -122,6 +122,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void CantFindDataContextSpace()
         {
+            _ = HtmlGenericControl.VisibleProperty; // runtime hack for static construction
             var binding = ValueBindingExpression.CreateBinding(bindingService, a => false, DataContextStack.Create(typeof(string)));
             var control = new HtmlGenericControl("div");
             control.SetValue(Internal.DataContextTypeProperty, DataContextStack.Create(typeof(string), DataContextStack.Create(typeof(int))));
