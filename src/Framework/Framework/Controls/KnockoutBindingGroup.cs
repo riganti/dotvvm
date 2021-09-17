@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Controls
 
             public override string ToString()
             {
-                return "\"" + Name + "\": " + Expression;
+                return JsonConvert.ToString(Name, '"', StringEscapeHandling.EscapeHtml) + ": " + Expression;
             }
         }
     }

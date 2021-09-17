@@ -1090,9 +1090,20 @@
         "required": true
       }
     },
+    "DotVVM.Framework.Tests.ControlTests.CreatingMarkupControl": {
+      "TestCase": {
+        "type": "System.String",
+        "required": true
+      }
+    },
     "DotVVM.Framework.Tests.ControlTests.CustomControlWithCommand": {
       "Click": {
         "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
+      }
+    },
+    "DotVVM.Framework.Tests.ControlTests.CustomControlWithSomeProperty": {
+      "SomeProperty": {
+        "type": "System.String"
       }
     },
     "DotVVM.Framework.Tests.ControlTests.RepeatedButton": {

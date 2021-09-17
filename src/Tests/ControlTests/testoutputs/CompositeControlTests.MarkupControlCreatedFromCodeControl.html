@@ -3,25 +3,17 @@
 	<body>
 		
 		<!-- ko with: int -->                     Markup control referenced as tag                     
-		<!-- ko dotvvm-with-control-properties: {  } -->                         
-		<!-- ko text: $rawData -->
-		<!-- /ko -->
+		<!-- ko text: "\n                        " + dotvvm.globalize.bindingNumberToString($rawData)() -->
 		<!-- /ko -->                     Markup control referenced as filename                     
-		<!-- ko dotvvm-with-control-properties: {  } -->                         
-		<!-- ko text: $data + 1 -->
-		<!-- /ko -->
+		<!-- ko text: "\n                        " + dotvvm.globalize.bindingNumberToString($data + 1)() -->
 		<!-- /ko -->                     Markup control with property
-		<div>
-			<!-- ko dotvvm-with-control-properties: { "SomeProperty": "ahoj" } -->                                                 
-			<!-- ko text: $data + $control.SomeProperty()?.length -->
-			<!-- /ko -->
+		<div data-bind="dotvvm-with-control-properties: { &quot;SomeProperty&quot;: &quot;ahoj&quot; }">
+			<!-- ko text: "\n                                                " + dotvvm.globalize.bindingNumberToString($data + $control.SomeProperty()?.length)() -->
 			<!-- /ko -->
 		</div>
 		Markup control with property, but different
-		<div>
-			<!-- ko dotvvm-with-control-properties: { "SomeProperty": "test" } -->                                                 
-			<!-- ko text: $data + $control.SomeProperty()?.length -->
-			<!-- /ko -->
+		<div data-bind="dotvvm-with-control-properties: { &quot;SomeProperty&quot;: &quot;test&quot; }">
+			<!-- ko text: "\n                                                " + dotvvm.globalize.bindingNumberToString($data + $control.SomeProperty()?.length)() -->
 			<!-- /ko -->
 		</div>
 		
