@@ -102,6 +102,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 o.TreeVisitors.Add(() => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl));
                 var requiredGlobalizeControl = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(GlobalizeResource)));
                 o.TreeVisitors.Add(() => new GlobalizeResourceVisitor((ControlResolverMetadata)requiredGlobalizeControl));
+                o.TreeVisitors.Add(() => new LiteralOptimizationVisitor());
                 o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<DataContextPropertyAssigningVisitor>(s));
                 o.TreeVisitors.Add(() => new LifecycleRequirementsAssigningVisitor());
             });
