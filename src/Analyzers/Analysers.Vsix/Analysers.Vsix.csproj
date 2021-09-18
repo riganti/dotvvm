@@ -4,7 +4,6 @@
 
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
-    <RootNamespace>DotVVM.Analysers.Vsix</RootNamespace>
     <AssemblyName>DotVVM.Analysers.Vsix</AssemblyName>
   </PropertyGroup>
 
@@ -33,8 +32,8 @@
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="Exists('$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets')" />
 
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Analysers.CodeFixes\DotVVM.Analysers.CodeFixes.csproj" />
-    <ProjectReference Include="..\DotVVM.Analysers\DotVVM.Analysers.csproj" />
+    <ProjectReference Include="..\Analysers.CodeFixes\Analysers.CodeFixes.csproj" />
+    <ProjectReference Include="..\Analysers\Analysers.csproj" />
   </ItemGroup>
 
   <ItemGroup>
