@@ -129,6 +129,37 @@ namespace DotVVM.Analysers.Test.Serializability
         }
 
         [Fact]
+        public async void Test_NullablePrimitives_AreSerializableAndSupported_ViewModel()
+        {
+            var test = @"
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.Collections.Generic;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public bool? Bool { get; set; }
+            public byte? Byte { get; set; }
+            public sbyte? Sbyte { get; set; }
+            public short? Short { get; set; }
+            public ushort? Ushort { get; set; }
+            public int? Int { get; set; }
+            public uint? Uint { get; set; }
+            public long? Long { get; set; }
+            public ulong? Ulong { get; set; }
+            public float? Float { get; set; }
+            public double? Double { get; set; }
+            public decimal? Decimal { get; set; }
+            public char? Char { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [Fact]
         public async void Test_CommonTypesAreSerializableAndSupported_ViewModel()
         {
             var test = @"

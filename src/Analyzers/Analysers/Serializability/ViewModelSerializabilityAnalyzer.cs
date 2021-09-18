@@ -86,6 +86,20 @@ namespace DotVVM.Analysers.Serializability
                     if (semanticModel.GetSymbolInfo(property.Type).Symbol is not ITypeSymbol propertyInfo)
                         continue;
 
+                    if (property.Type.Kind() == SyntaxKind.NullableType)
+                    {
+                        // Serialization of nullable type
+                        var nullable = property.Type as NullableTypeSyntax;
+                        if (semanticModel.GetSymbolInfo(nullable!.ElementType).Symbol is not ITypeSymbol elementInfo)
+                            continue;
+
+                        if (elementInfo.IsPrimitive())
+                            continue;
+
+                        // Serialization of nullables is only supported for primitive types
+                        var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), propertyInfo.ToDisplayString());
+                        context.ReportDiagnostic(diagnostic);
+                    }
                     if (propertyInfo.IsAbstract)
                     {
                         // Serialization of abstract classes can fail
