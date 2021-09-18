@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace DotVVM.Analysers {
+namespace Analysers {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace DotVVM.Analysers {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("DotVVM.Analysers.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Analysers.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,7 @@ namespace DotVVM.Analysers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Fields are not supported.
+        ///   Looks up a localized string similar to Fields are not supported in viewmodels. Use properties to save state of viewmodels instead..
         /// </summary>
         internal static string Serializability_DoNotUseFields_Description {
             get {
@@ -70,7 +70,7 @@ namespace DotVVM.Analysers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Fields are not supported in viewModels.
+        ///   Looks up a localized string similar to Fields are not supported in viewmodels.
         /// </summary>
         internal static string Serializability_DoNotUseFields_Message {
             get {
@@ -79,7 +79,7 @@ namespace DotVVM.Analysers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The state must be represented using public properties..
+        ///   Looks up a localized string similar to The state must be represented using public properties.
         /// </summary>
         internal static string Serializability_DoNotUseFields_Title {
             get {
@@ -88,7 +88,7 @@ namespace DotVVM.Analysers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unsupported property type.
+        ///   Looks up a localized string similar to Unsupported property type in viewmodel..
         /// </summary>
         internal static string Serializability_NonSerializableType_Description {
             get {
@@ -106,20 +106,11 @@ namespace DotVVM.Analysers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Properties must be serializable..
+        ///   Looks up a localized string similar to Properties must be serializable.
         /// </summary>
         internal static string Serializability_NonSerializableType_Title {
             get {
                 return ResourceManager.GetString("Serializability_NonSerializableType_Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Property of type &apos;{0}&apos; is not supported by DotVVM.
-        /// </summary>
-        internal static string Serializability_NonSupportedType_Message {
-            get {
-                return ResourceManager.GetString("Serializability_NonSupportedType_Message", resourceCulture);
             }
         }
     }

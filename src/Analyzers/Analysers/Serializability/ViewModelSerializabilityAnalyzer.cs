@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using Analysers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -15,7 +16,6 @@ namespace DotVVM.Analysers.Serializability
     {
         private static readonly LocalizableResourceString nonSerializableTypeTitle = new LocalizableResourceString(nameof(Resources.Serializability_NonSerializableType_Title), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableResourceString nonSerializableTypeMessage = new LocalizableResourceString(nameof(Resources.Serializability_NonSerializableType_Message), Resources.ResourceManager, typeof(Resources));
-        private static readonly LocalizableResourceString nonSupportedTypeMessage = new LocalizableResourceString(nameof(Resources.Serializability_NonSupportedType_Message), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableResourceString nonSerializableTypeDescription = new LocalizableResourceString(nameof(Resources.Serializability_NonSerializableType_Description), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableResourceString doNotUseFieldsTitle = new LocalizableResourceString(nameof(Resources.Serializability_DoNotUseFields_Title), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableResourceString doNotUseFieldsMessage = new LocalizableResourceString(nameof(Resources.Serializability_DoNotUseFields_Message), Resources.ResourceManager, typeof(Resources));
@@ -23,7 +23,7 @@ namespace DotVVM.Analysers.Serializability
         private const string dotvvmViewModelInterfaceMetadataName =  "DotVVM.Framework.ViewModel.IDotvvmViewModel";
 
         public static DiagnosticDescriptor UseSerializablePropertiesRule = new DiagnosticDescriptor(
-            DotvvmDiagnosticIds.UseSerializablePropertiesRuleId,
+            DotvvmDiagnosticIds.UseSerializablePropertiesInViewModelRuleId,
             nonSerializableTypeTitle,
             nonSerializableTypeMessage,
             DiagnosticCategory.Serializability,
@@ -31,17 +31,8 @@ namespace DotVVM.Analysers.Serializability
             isEnabledByDefault: true,
             nonSerializableTypeDescription);
 
-        public static DiagnosticDescriptor UseSupportedPropertiesRule = new DiagnosticDescriptor(
-            DotvvmDiagnosticIds.UseSerializablePropertiesRuleId,
-            nonSerializableTypeTitle,
-            nonSupportedTypeMessage,
-            DiagnosticCategory.Serializability,
-            DiagnosticSeverity.Warning,
-            isEnabledByDefault: true,
-            nonSerializableTypeDescription);
-
         public static DiagnosticDescriptor DoNotUseFieldsRule = new DiagnosticDescriptor(
-            DotvvmDiagnosticIds.DoNotUseFieldsRuleId,
+            DotvvmDiagnosticIds.DoNotUseFieldsInViewModelRuleId,
             doNotUseFieldsTitle,
             doNotUseFieldsMessage,
             DiagnosticCategory.Serializability,
@@ -79,17 +70,15 @@ namespace DotVVM.Analysers.Serializability
                 foreach (var property in classDeclaration.DescendantNodes().OfType<PropertyDeclarationSyntax>())
                 {
                     // Check that symbol is available
-                    var propertyInfo = semanticModel.GetSymbolInfo(property.Type).Symbol as INamedTypeSymbol;
-                    if (propertyInfo == null)
+                    if (semanticModel.GetSymbolInfo(property.Type).Symbol is not ITypeSymbol propertyInfo)
                         continue;
 
-                    // Filter out serializable properties
-                    if (propertyInfo.IsSerializable())
-                        continue;
-
-                    // For all such symbols, produce a diagnostic.
-                    var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), propertyInfo.Name);
-                    context.ReportDiagnostic(diagnostic);
+                    if (!propertyInfo.IsSerializationSupported(semanticModel))
+                    {
+                        // Serialization of this specific type is not supported by DotVVM
+                        var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), propertyInfo.ToDisplayString());
+                        context.ReportDiagnostic(diagnostic);
+                    }
                 }
 
                 // Check if any fields are specified

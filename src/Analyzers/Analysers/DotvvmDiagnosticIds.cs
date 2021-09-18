@@ -6,8 +6,11 @@ namespace DotVVM.Analysers
 {
     public static class DotvvmDiagnosticIds
     {
-        public const string UseSerializablePropertiesRuleId = "DotVVM02";
-        public const string UseSupportedPropertiesRuleId = "DotVVM3";
-        public const string DoNotUseFieldsRuleId = "DotVVM04";
+        // Reserved for future use:
+        public const string InternalDotvvmAnalyserError = "DotVVM01";
+
+        public const string UseSerializablePropertiesInViewModelRuleId = "DotVVM02";
+        public const string DoNotUseFieldsInViewModelRuleId = "DotVVM03";
+        public const string DoNotUseUninstantiablePropertiesInViewModelRuleId = "DotVVM04";
     }
 }
