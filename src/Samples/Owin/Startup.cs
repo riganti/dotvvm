@@ -59,7 +59,7 @@ namespace DotVVM.Samples.BasicSamples
                 }
             );
 
-            var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(), modifyConfiguration: c  => {
+            var config = app.UseDotVVM<DotvvmStartup, DotvvmServiceConfigurator>(GetApplicationPath(), modifyConfiguration: c  => {
                 c.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", provider => new AuthorizedPresenter());
 
                 if (c.ExperimentalFeatures.ExplicitAssemblyLoading.Enabled)
@@ -67,6 +67,8 @@ namespace DotVVM.Samples.BasicSamples
                     c.Markup.AddAssembly(typeof(Startup).Assembly.FullName);
                 }
             });
+
+            app.UseDotvvmViewHotReload();
 
 #if AssertConfiguration
             // this compilation symbol is set by CI server

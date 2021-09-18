@@ -70,6 +70,7 @@ namespace DotVVM.Samples.BasicSamples
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseRouting();
             app.UseAuthentication();
 
             var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(env), modifyConfiguration: c => {
@@ -84,6 +85,10 @@ namespace DotVVM.Samples.BasicSamples
 
 
             app.UseStaticFiles();
+
+            app.UseEndpoints(endpoints => {
+                endpoints.MapDotvvmViewHotReload();
+            });
         }
 
         private string GetApplicationPath(IHostingEnvironment env)

@@ -98,6 +98,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DotvvmServiceConfigurator.cs" />
     <Compile Include="SwitchMiddleware.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -138,6 +139,10 @@
     <ProjectReference Include="../../Framework/Framework/DotVVM.Framework.csproj">
       <Project>{8bb2217d-0f2d-49d1-97bc-3654ed321f3b}</Project>
       <Name>DotVVM.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tools\HotReload\Owin\DotVVM.Diagnostics.ViewHotReload.Owin.csproj">
+      <Project>{9f9340b7-c481-4d27-9624-b3d43fe12af0}</Project>
+      <Name>DotVVM.Diagnostics.ViewHotReload.Owin</Name>
     </ProjectReference>
     <ProjectReference Include="..\Common\DotVVM.Samples.Common.csproj">
       <Project>{60cccc83-ba9f-4df0-a759-5e46c3d4dab0}</Project>
