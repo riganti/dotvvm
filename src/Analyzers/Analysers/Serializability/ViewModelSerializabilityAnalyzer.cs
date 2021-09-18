@@ -20,6 +20,9 @@ namespace DotVVM.Analysers.Serializability
         private static readonly LocalizableResourceString doNotUseFieldsTitle = new LocalizableResourceString(nameof(Resources.Serializability_DoNotUseFields_Title), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableResourceString doNotUseFieldsMessage = new LocalizableResourceString(nameof(Resources.Serializability_DoNotUseFields_Message), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableResourceString doNotUseFieldsDescription = new LocalizableResourceString(nameof(Resources.Serializability_DoNotUseFields_Description), Resources.ResourceManager, typeof(Resources));
+        private static readonly LocalizableResourceString uninstantiableTypeTitle = new LocalizableResourceString(nameof(Resources.Serializability_UninstantiableType_Title), Resources.ResourceManager, typeof(Resources));
+        private static readonly LocalizableResourceString uninstantiableTypeMessage = new LocalizableResourceString(nameof(Resources.Serializability_UninstantiableType_Message), Resources.ResourceManager, typeof(Resources));
+        private static readonly LocalizableResourceString uninstantiableTypeDescription = new LocalizableResourceString(nameof(Resources.Serializability_UninstantiableType_Description), Resources.ResourceManager, typeof(Resources));
         private const string dotvvmViewModelInterfaceMetadataName =  "DotVVM.Framework.ViewModel.IDotvvmViewModel";
 
         public static DiagnosticDescriptor UseSerializablePropertiesRule = new DiagnosticDescriptor(
@@ -40,10 +43,20 @@ namespace DotVVM.Analysers.Serializability
             isEnabledByDefault: true,
             doNotUseFieldsDescription);
 
+        public static DiagnosticDescriptor DoNotUseUninstantiablePropertiesRule = new DiagnosticDescriptor(
+            DotvvmDiagnosticIds.DoNotUseUninstantiablePropertiesInViewModelRuleId,
+            uninstantiableTypeTitle,
+            uninstantiableTypeMessage,
+            DiagnosticCategory.Serializability,
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            uninstantiableTypeDescription);
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
             => ImmutableArray.Create(
                 UseSerializablePropertiesRule,
-                DoNotUseFieldsRule);
+                DoNotUseFieldsRule,
+                DoNotUseUninstantiablePropertiesRule);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -73,7 +86,14 @@ namespace DotVVM.Analysers.Serializability
                     if (semanticModel.GetSymbolInfo(property.Type).Symbol is not ITypeSymbol propertyInfo)
                         continue;
 
-                    if (!propertyInfo.IsSerializationSupported(semanticModel))
+                    if (propertyInfo.IsAbstract)
+                    {
+                        // Serialization of abstract classes can fail
+                        var diagnostic = Diagnostic.Create(DoNotUseUninstantiablePropertiesRule, property.GetLocation(), propertyInfo.ToDisplayString());
+                        context.ReportDiagnostic(diagnostic);
+                        continue;
+                    }
+                    else if (!propertyInfo.IsSerializationSupported(semanticModel))
                     {
                         // Serialization of this specific type is not supported by DotVVM
                         var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), propertyInfo.ToDisplayString());

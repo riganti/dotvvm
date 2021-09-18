@@ -45,12 +45,12 @@ namespace DotVVM.Analysers.Test.Serializability
         public class DefaultViewModel : DotvvmViewModelBase
         {
             public int SerializableProperty { get; set; }
-            {|#0:public Stream NonSerializableProperty { get; set; }|}
+            {|#0:public FileInfo NonSerializableProperty { get; set; }|}
         }
     }",
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule)
-                .WithLocation(0).WithArguments("System.IO.Stream"));
+                .WithLocation(0).WithArguments("System.IO.FileInfo"));
         }
 
         [Fact]
@@ -73,6 +73,28 @@ namespace DotVVM.Analysers.Test.Serializability
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule)
                 .WithLocation(0).WithArguments("System.Collections.Generic.List<System.IO.Stream>"));
+        }
+
+        [Fact]
+        public async void Test_WarnAboutInterface_ViewModel()
+        {
+            await VerifyCS.VerifyAnalyzerAsync(@"
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public int SerializableProperty { get; set; }
+            {|#0:public IList<Stream> NonSerializableList { get; set; }|}
+        }
+    }",
+
+            VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.DoNotUseUninstantiablePropertiesRule)
+                .WithLocation(0).WithArguments("System.Collections.Generic.IList<System.IO.Stream>"));
         }
 
         [Fact]

@@ -113,5 +113,32 @@ namespace Analysers {
                 return ResourceManager.GetString("Serializability_NonSerializableType_Title", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use concrete implementation in viewmodels to ensure that all properties are correctly serialized..
+        /// </summary>
+        internal static string Serializability_UninstantiableType_Description {
+            get {
+                return ResourceManager.GetString("Serializability_UninstantiableType_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Property of type &apos;{0}&apos; might not be correctly serialized.
+        /// </summary>
+        internal static string Serializability_UninstantiableType_Message {
+            get {
+                return ResourceManager.GetString("Serializability_UninstantiableType_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Interfaces and abstract classes might not be correctly serialized.
+        /// </summary>
+        internal static string Serializability_UninstantiableType_Title {
+            get {
+                return ResourceManager.GetString("Serializability_UninstantiableType_Title", resourceCulture);
+            }
+        }
     }
 }
