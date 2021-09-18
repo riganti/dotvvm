@@ -198,6 +198,10 @@ namespace DotVVM.Framework.Compilation.Javascript
         public Type ResultType { get; }
         public MemberInfo? MemberInfo { get; }
         public ViewModelPropertyMap? SerializationMap { get; set; }
+
+        public static VMPropertyInfoAnnotation FromDotvvmProperty(DotvvmProperty p) =>
+            p.PropertyInfo is null ? new VMPropertyInfoAnnotation(p.PropertyType)
+                                   : new VMPropertyInfoAnnotation(p.PropertyInfo, p.PropertyType);
     }
 
     public class JavascriptTranslatorConfiguration: IJavascriptMethodTranslator

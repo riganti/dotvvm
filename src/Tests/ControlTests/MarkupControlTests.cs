@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Testing;
 using DotVVM.Framework.Compilation.Styles;
+using AngleSharp;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -57,10 +58,10 @@ namespace DotVVM.Framework.Tests.ControlTests
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
 
                 <cc:CustomControlWithProperty P={value: Integer} />
-                <dot:Repeater DataSource={value: Collection}>
+                <dot:Repeater DataSource={value: Collection} class=r1>
                     <cc:CustomControlWithProperty P={value: _root.Collection[_index]} />
                 </dot:Repeater>
-                <dot:Repeater DataSource={value: IntArray}>
+                <dot:Repeater DataSource={value: IntArray} class=r2>
                     <cc:CustomControlWithProperty P={value: _root.IntArray[_index]} />
                 </dot:Repeater>
                 ",
@@ -72,6 +73,7 @@ namespace DotVVM.Framework.Tests.ControlTests
 
                         <dot:Button Click={command: _control.IncrementProperty()} />
                         <dot:Button Click={controlCommand: P = P - 10} />
+                        <dot:Button class=static-command-button Click={staticCommand: _control.P = _control.P + 20} />
                         "
                 }
             );
@@ -97,6 +99,10 @@ namespace DotVVM.Framework.Tests.ControlTests
             Assert.AreEqual(-20, (int)r.ViewModel.Collection[1]);
             await r.RunCommand("_control.IncrementProperty()", (-20).Equals);
             Assert.AreEqual(-19, (int)r.ViewModel.Collection[1]);
+
+            // check only the generated static command expressions
+            check.CheckString(r.Html.QuerySelector(".static-command-button").ToHtml(), fileExtension: "html");
+            check.CheckString(r.Html.QuerySelector(".r1 .static-command-button").ToHtml(), fileExtension: "html");
         }
 
         public class BasicTestViewModel : DotvvmViewModelBase

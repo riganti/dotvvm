@@ -148,8 +148,16 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             AddMethodTranslator(typeof(DotvvmBindableObject).GetMethods(BindingFlags.Instance | BindingFlags.Public).Single(m => m.Name == "GetValue" && !m.ContainsGenericParameters), new GenericMethodCompiler(
                 args => {
-                    var dotvvmproperty = ((DotvvmProperty)((JsLiteral)args[1]).Value!);
-                    return JavascriptTranslationVisitor.TranslateViewModelProperty(args[0], (MemberInfo?)dotvvmproperty.PropertyInfo ?? dotvvmproperty.PropertyType, name: dotvvmproperty.Name);
+                    var dotvvmProperty = ((DotvvmProperty)((JsLiteral)args[1]).Value!);
+                    return JavascriptTranslationVisitor.TranslateViewModelProperty(args[0], VMPropertyInfoAnnotation.FromDotvvmProperty(dotvvmProperty), name: dotvvmProperty.Name);
+                }
+            ));
+
+            AddMethodTranslator(typeof(DotvvmBindableObject).GetMethods(BindingFlags.Instance | BindingFlags.Public).Single(m => m.Name == "SetValueToSource" && !m.ContainsGenericParameters), new GenericMethodCompiler(
+                args => {
+                    var dotvvmProperty = ((DotvvmProperty)((JsLiteral)args[1]).Value!);
+                    var p = JavascriptTranslationVisitor.TranslateViewModelProperty(args[0], VMPropertyInfoAnnotation.FromDotvvmProperty(dotvvmProperty), name: dotvvmProperty.Name);
+                    return new JsAssignmentExpression(p, args[2]);
                 }
             ));
 

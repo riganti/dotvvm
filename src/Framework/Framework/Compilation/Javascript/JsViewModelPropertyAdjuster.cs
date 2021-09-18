@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 }
             }
 
-            if (node.Annotation<VMPropertyInfoAnnotation>() is { MemberInfo: {} member } propAnnotation)
+            if (node.Annotation<VMPropertyInfoAnnotation>() is { MemberInfo: var member } propAnnotation)
             {
                 var target = node.GetChildByRole(JsTreeRoles.TargetExpression)!;
                 if (target.HasAnnotation<ObservableUnwrapInvocationAnnotation>())
@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 }
                 if (propAnnotation.SerializationMap is ViewModelPropertyMap propertyMap)
                 {
-                    if (propertyMap.ViewModelProtection == ViewModel.ProtectMode.EncryptData) throw new Exception($"Property {member.Name} is encrypted and cannot be used in JS.");
+                    if (propertyMap.ViewModelProtection == ViewModel.ProtectMode.EncryptData) throw new Exception($"Property {member?.Name} is encrypted and cannot be used in JS.");
                     if (node is JsMemberAccessExpression memberAccess && propertyMap.Name != memberAccess.MemberName)
                     {
                         memberAccess.MemberName = propertyMap.Name;
