@@ -1,9 +1,10 @@
-﻿using Microsoft.CodeAnalysis.CodeFixes;
+﻿#nullable disable
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Testing.Verifiers;
 
-namespace DotVVM.Analysers.Test
+namespace DotVVM.Analysers.Tests
 {
     public static partial class CSharpCodeFixVerifier<TAnalyzer, TCodeFix>
         where TAnalyzer : DiagnosticAnalyzer, new()

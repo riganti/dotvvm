@@ -1,8 +1,9 @@
-﻿using Microsoft.CodeAnalysis.CodeRefactorings;
+﻿#nullable disable
+using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing.Verifiers;
 
-namespace DotVVM.Analysers.Test
+namespace DotVVM.Analysers.Tests
 {
     public static partial class CSharpCodeRefactoringVerifier<TCodeRefactoring>
         where TCodeRefactoring : CodeRefactoringProvider, new()

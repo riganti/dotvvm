@@ -6,10 +6,10 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 
-using VerifyCS = DotVVM.Analysers.Test.CSharpAnalyzerVerifier<
+using VerifyCS = DotVVM.Analysers.Tests.CSharpAnalyzerVerifier<
     DotVVM.Analysers.Serializability.ViewModelSerializabilityAnalyzer>;
 
-namespace DotVVM.Analysers.Test.Serializability
+namespace DotVVM.Analysers.Tests.Serializability
 {
     public class ViewModelSerializabilityTest
     {
