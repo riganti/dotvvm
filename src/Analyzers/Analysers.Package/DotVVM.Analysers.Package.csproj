@@ -28,8 +28,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Analysers.CodeFixes\Analysers.CodeFixes.csproj" />
-    <ProjectReference Include="..\Analysers\Analysers.csproj" />
+    <ProjectReference Include="..\Analysers.CodeFixes\DotVVM.Analysers.CodeFixes.csproj" />
+    <ProjectReference Include="..\Analysers\DotVVM.Analysers.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,8 +38,8 @@
 
   <Target Name="_AddAnalyzersToOutput">
     <ItemGroup>
-      <TfmSpecificPackageFile Include="$(OutputPath)\Analysers.dll" PackagePath="analyzers/dotnet/cs" />
-      <TfmSpecificPackageFile Include="$(OutputPath)\Analysers.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="$(OutputPath)\DotVVM.Analysers.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="$(OutputPath)\DotVVM.Analysers.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" />
     </ItemGroup>
   </Target>
 

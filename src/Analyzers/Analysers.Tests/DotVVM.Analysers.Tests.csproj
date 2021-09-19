@@ -27,8 +27,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Framework\Framework\DotVVM.Framework.csproj" />
-    <ProjectReference Include="..\Analysers.CodeFixes\Analysers.CodeFixes.csproj" />
-    <ProjectReference Include="..\Analysers\Analysers.csproj" />
+    <ProjectReference Include="..\Analysers.CodeFixes\DotVVM.Analysers.CodeFixes.csproj" />
+    <ProjectReference Include="..\Analysers\DotVVM.Analysers.csproj" />
   </ItemGroup>
 
 </Project>
