@@ -124,7 +124,7 @@ namespace Analysers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Property of type &apos;{0}&apos; might not be correctly serialized.
+        ///   Looks up a localized string similar to Property of abstract type &apos;{0}&apos; might not be correctly serialized.
         /// </summary>
         internal static string Serializability_UninstantiableType_Message {
             get {

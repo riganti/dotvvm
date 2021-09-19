@@ -139,7 +139,7 @@
     <value>Use concrete implementation in viewmodels to ensure that all properties are correctly serialized.</value>
   </data>
   <data name="Serializability_UninstantiableType_Message" xml:space="preserve">
-    <value>Property of type '{0}' might not be correctly serialized</value>
+    <value>Property of abstract type '{0}' might not be correctly serialized</value>
   </data>
   <data name="Serializability_UninstantiableType_Title" xml:space="preserve">
     <value>Interfaces and abstract classes might not be correctly serialized</value>
