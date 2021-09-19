@@ -75,7 +75,7 @@ namespace DotVVM.Analysers.Serializability
             {
                 // Filter out non-ViewModels
                 var classInfo = semanticModel.GetDeclaredSymbol(classDeclaration);
-                if (!classInfo.AllInterfaces.Any(symbol => SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, viewModelInterface)))
+                if (!classInfo.AllInterfaces.Any(symbol => symbol.OriginalDefinition.Equals(viewModelInterface)))
                     continue;
 
                 // Check all properties
