@@ -62,7 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Core/DotVVM.Core.csproj" />
-    <ProjectReference Include="../../Analyzers/Analysers.Package/DotVVM.Analysers.Package.csproj" />
+    <ProjectReference Include="../../Analyzers/Analyzers.Package/DotVVM.Analyzers.Package.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.1.0" />
