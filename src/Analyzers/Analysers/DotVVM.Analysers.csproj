@@ -1,9 +1,24 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <VersionPrefix>4.0.0-preview01-116912</VersionPrefix>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     <IsPackable>false</IsPackable>
-
+    <AssemblyName>DotVVM.Analysers</AssemblyName>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <PackageVersion>4.0.0-preview01-116912</PackageVersion>
+    <Authors>RIGANTI</Authors>
+    <Description>This package contains collection of Roslyn Analyzers for DotVVM.</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore;dnx;code-analysis</PackageTags>
+    <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <!-- Avoid ID conflicts with the package project. -->
     <PackageId>*$(MSBuildProjectFullPath)*</PackageId>
     <LangVersion>9.0</LangVersion>
@@ -15,11 +30,18 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.6.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.8.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Resources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="Resources.resx" />
+    <Compile Update="Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Update="Resources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="Resources.Designer.cs" />
   </ItemGroup>
 
