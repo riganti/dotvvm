@@ -115,7 +115,7 @@ namespace DotVVM.Analysers.Serializability
                 }
 
                 // Check if any fields are specified
-                foreach (var field in classDeclaration.DescendantNodes().OfType<FieldDeclarationSyntax>())
+                foreach (var field in classDeclaration.DescendantNodes().OfType<FieldDeclarationSyntax>().Where(f => f.Modifiers.Any(m => m.Kind() == SyntaxKind.PublicKeyword)))
                 {
                     var diagnostic = Diagnostic.Create(DoNotUseFieldsRule, field.GetLocation());
                     context.ReportDiagnostic(diagnostic);

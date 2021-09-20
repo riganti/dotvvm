@@ -249,7 +249,7 @@ namespace DotVVM.Analysers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_FieldsInViewModel()
+        public async void Test_PublicFieldsInViewModel()
         {
             await VerifyCS.VerifyAnalyzerAsync(@"
     using DotVVM.Framework.ViewModel;
@@ -266,6 +266,26 @@ namespace DotVVM.Analysers.Tests.Serializability
     }",
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.DoNotUseFieldsRule).WithLocation(0));
+        }
+
+        [Fact]
+        public async void Test_NonPublicFieldsInViewModel()
+        {
+            var text = @"
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.IO;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public int SerializableProperty { get; set; }
+            private int field;
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(text);
         }
     }
 }
