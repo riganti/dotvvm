@@ -21,8 +21,11 @@ namespace DotVVM.Analysers.Tests
                     solution = solution.WithProjectCompilationOptions(projectId, compilationOptions);
 
                     // Add DotVVM.Framework as a project reference
-                    var location = System.Reflection.Assembly.GetAssembly(typeof(Framework.Controls.GridView)).Location;
-                    solution =  solution.AddMetadataReference(projectId, MetadataReference.CreateFromFile(location));
+                    var locationFramework = System.Reflection.Assembly.GetAssembly(typeof(Framework.Controls.GridView)).Location;
+                    solution = solution.AddMetadataReference(projectId, MetadataReference.CreateFromFile(locationFramework));
+                    // Add DotVVM.Core as a project reference
+                    var locationCore = System.Reflection.Assembly.GetAssembly(typeof(Framework.ViewModel.BindAttribute)).Location;
+                    solution = solution.AddMetadataReference(projectId, MetadataReference.CreateFromFile(locationCore));
 
                     return solution;
                 });

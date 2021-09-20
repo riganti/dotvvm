@@ -23,6 +23,7 @@ namespace DotVVM.Analysers.Serializability
         private static readonly LocalizableResourceString uninstantiableTypeMessage = new LocalizableResourceString(nameof(Resources.Serializability_UninstantiableType_Message), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableResourceString uninstantiableTypeDescription = new LocalizableResourceString(nameof(Resources.Serializability_UninstantiableType_Description), Resources.ResourceManager, typeof(Resources));
         private const string dotvvmViewModelInterfaceMetadataName =  "DotVVM.Framework.ViewModel.IDotvvmViewModel";
+        private const string dotvvmBindAttributeMetadataName = "DotVVM.Framework.ViewModel.BindAttribute";
 
         public static DiagnosticDescriptor UseSerializablePropertiesRule = new DiagnosticDescriptor(
             DotvvmDiagnosticIds.UseSerializablePropertiesInViewModelRuleId,
@@ -61,14 +62,15 @@ namespace DotVVM.Analysers.Serializability
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
             context.EnableConcurrentExecution();
-            context.RegisterSemanticModelAction(AnalyzeViewModelProperties);
+            context.RegisterSemanticModelAction(AnalyzeSyntaxTree);
         }
 
-        private static void AnalyzeViewModelProperties(SemanticModelAnalysisContext context)
+        private static void AnalyzeSyntaxTree(SemanticModelAnalysisContext context)
         {
             var semanticModel = context.SemanticModel;
             var syntaxTree = context.SemanticModel.SyntaxTree;
             var viewModelInterface = semanticModel.Compilation.GetTypeByMetadataName(dotvvmViewModelInterfaceMetadataName);
+            var bindAttribute = semanticModel.Compilation.GetTypeByMetadataName(dotvvmBindAttributeMetadataName);
 
             // Check all classes
             foreach (var classDeclaration in syntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
@@ -78,49 +80,85 @@ namespace DotVVM.Analysers.Serializability
                 if (!classInfo.AllInterfaces.Any(symbol => symbol.OriginalDefinition.Equals(viewModelInterface)))
                     continue;
 
-                // Check all properties
-                foreach (var property in classDeclaration.DescendantNodes().OfType<PropertyDeclarationSyntax>())
+                AnalyzeViewModelProperties(classDeclaration, bindAttribute, context);
+                AnalyzeViewModelFields(classDeclaration, context);
+            }
+        }
+
+        /// <summary>
+        /// Notify user about unserializable properties and unsupported properties
+        /// </summary>
+        /// <param name="viewModel">ViewModel class declaration</param>
+        /// <param name="context">Semantic context</param>
+        private static void AnalyzeViewModelProperties(ClassDeclarationSyntax viewModel, INamedTypeSymbol bindAttribute, SemanticModelAnalysisContext context)
+        {
+            var semanticModel = context.SemanticModel;
+            foreach (var property in viewModel.DescendantNodes().OfType<PropertyDeclarationSyntax>())
+            {
+                if (semanticModel.GetDeclaredSymbol(property) is not IPropertySymbol propertySymbol)
+                    continue;
+                if (semanticModel.GetSymbolInfo(property.Type).Symbol is not ITypeSymbol propertyTypeSymbol)
+                    continue;
+
+                if (IsSerializationIgnored(propertySymbol, bindAttribute))
+                    continue;
+
+                if (property.Type.Kind() == SyntaxKind.NullableType)
                 {
-                    // Check that symbol is available
-                    if (semanticModel.GetSymbolInfo(property.Type).Symbol is not ITypeSymbol propertyInfo)
+                    // Serialization of nullable type
+                    var nullable = property.Type as NullableTypeSyntax;
+                    if (semanticModel.GetSymbolInfo(nullable!.ElementType).Symbol is not ITypeSymbol elementInfo)
                         continue;
 
-                    if (property.Type.Kind() == SyntaxKind.NullableType)
-                    {
-                        // Serialization of nullable type
-                        var nullable = property.Type as NullableTypeSyntax;
-                        if (semanticModel.GetSymbolInfo(nullable!.ElementType).Symbol is not ITypeSymbol elementInfo)
-                            continue;
-
-                        if (elementInfo.IsPrimitive())
-                            continue;
-
-                        // Serialization of nullables is only supported for primitive types
-                        var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), propertyInfo.ToDisplayString());
-                        context.ReportDiagnostic(diagnostic);
-                    }
-                    if (propertyInfo.IsAbstract)
-                    {
-                        // Serialization of abstract classes can fail
-                        var diagnostic = Diagnostic.Create(DoNotUseUninstantiablePropertiesRule, property.GetLocation(), propertyInfo.ToDisplayString());
-                        context.ReportDiagnostic(diagnostic);
+                    if (elementInfo.IsPrimitive())
                         continue;
-                    }
-                    else if (!propertyInfo.IsSerializationSupported(semanticModel))
-                    {
-                        // Serialization of this specific type is not supported by DotVVM
-                        var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), propertyInfo.ToDisplayString());
-                        context.ReportDiagnostic(diagnostic);
-                    }
+
+                    // Serialization of nullables is only supported for primitive types
+                    var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), propertyTypeSymbol.ToDisplayString());
+                    context.ReportDiagnostic(diagnostic);
                 }
-
-                // Check if any fields are specified
-                foreach (var field in classDeclaration.DescendantNodes().OfType<FieldDeclarationSyntax>().Where(f => f.Modifiers.Any(m => m.Kind() == SyntaxKind.PublicKeyword)))
+                if (propertyTypeSymbol.IsAbstract)
                 {
-                    var diagnostic = Diagnostic.Create(DoNotUseFieldsRule, field.GetLocation());
+                    // Serialization of abstract classes can fail
+                    var diagnostic = Diagnostic.Create(DoNotUseUninstantiablePropertiesRule, property.GetLocation(), propertyTypeSymbol.ToDisplayString());
+                    context.ReportDiagnostic(diagnostic);
+                    continue;
+                }
+                else if (!propertyTypeSymbol.IsSerializationSupported(semanticModel))
+                {
+                    // Serialization of this specific type is not supported by DotVVM
+                    var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), propertyTypeSymbol.ToDisplayString());
                     context.ReportDiagnostic(diagnostic);
                 }
             }
+        }
+
+        /// <summary>
+        /// Notify user that public fields should not be used to store state of viewModels
+        /// </summary>
+        /// <param name="viewModel">ViewModel class declaration</param>
+        /// <param name="context">Semantic context</param>
+        private static void AnalyzeViewModelFields(ClassDeclarationSyntax viewModel, SemanticModelAnalysisContext context)
+        {
+            foreach (var field in viewModel.DescendantNodes().OfType<FieldDeclarationSyntax>()
+                .Where(f => f.Modifiers.Any(m => m.Kind() == SyntaxKind.PublicKeyword)))
+            {
+                var diagnostic = Diagnostic.Create(DoNotUseFieldsRule, field.GetLocation());
+                context.ReportDiagnostic(diagnostic);
+            }
+        }
+
+        private static bool IsSerializationIgnored(IPropertySymbol property, INamedTypeSymbol attribute)
+        {
+            var bindAttribute = property.GetAttributes().SingleOrDefault(a => a.AttributeClass.MetadataName == attribute.MetadataName);
+            if (bindAttribute == null || bindAttribute.ConstructorArguments.Length == 0)
+                return false;
+
+            if (bindAttribute.ConstructorArguments.First().Value is not int direction)
+                return false;
+
+            // Direction.None has value 0 (zero)
+            return direction == 0;
         }
     }
 }
