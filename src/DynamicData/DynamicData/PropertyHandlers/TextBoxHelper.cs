@@ -19,29 +19,5 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers
             var type = ReflectionUtils.UnwrapNullableType(propertyInfo.PropertyType);
             return stringTypes.Contains(type) || numericTypes.Contains(type) || dateTypes.Contains(type);
         }
-
-        public static FormatValueType? GetValueType(PropertyInfo propertyInfo)
-        {
-            var type = ReflectionUtils.UnwrapNullableType(propertyInfo.PropertyType);
-            if (numericTypes.Contains(type))
-            {
-                return FormatValueType.Number;
-            }
-            else if (dateTypes.Contains(type))
-            {
-                return FormatValueType.DateTime;
-            }
-            if (stringTypes.Contains(type))
-            {
-                return FormatValueType.Text;
-            }
-
-            return null;
-        }
-
-        public static FormatValueType GetValueTypeOrDefault(PropertyInfo propertyPropertyInfo)
-        {
-            return GetValueType(propertyPropertyInfo) ?? FormatValueType.Text;
-        }
     }
 }
