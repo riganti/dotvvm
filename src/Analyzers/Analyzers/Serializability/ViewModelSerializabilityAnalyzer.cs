@@ -94,7 +94,8 @@ namespace DotVVM.Analyzers.Serializability
         private static void AnalyzeViewModelProperties(ClassDeclarationSyntax viewModel, INamedTypeSymbol bindAttribute, SemanticModelAnalysisContext context)
         {
             var semanticModel = context.SemanticModel;
-            foreach (var property in viewModel.DescendantNodes().OfType<PropertyDeclarationSyntax>())
+            foreach (var property in viewModel.DescendantNodes().OfType<PropertyDeclarationSyntax>()
+                .Where(f => f.Modifiers.Any(m => m.Kind() == SyntaxKind.PublicKeyword)))
             {
                 if (semanticModel.GetDeclaredSymbol(property) is not IPropertySymbol propertySymbol)
                     continue;

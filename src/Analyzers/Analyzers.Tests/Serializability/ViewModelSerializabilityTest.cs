@@ -129,6 +129,29 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
+        public async void Test_DotVVMFriendlyObjects_AreSerializableAndSupported_ViewModel()
+        {
+            var test = @"
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.Collections.Generic;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public object Object { get; set; }
+            public string String { get; set; }
+            public DateTime DateTime { get; set; }
+            public TimeSpan TimeSpan { get; set; }
+            public Guid Guid { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [Fact]
         public async void Test_NullablePrimitives_AreSerializableAndSupported_ViewModel()
         {
             var test = @"
@@ -282,6 +305,26 @@ namespace DotVVM.Analyzers.Tests.Serializability
         {
             public int SerializableProperty { get; set; }
             private int field;
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(text);
+        }
+
+        [Fact]
+        public async void Test_NonPublicPropertiesInViewModel()
+        {
+            var text = @"
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.IO;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public int SerializableProperty { get; set; }
+            private Stream NonSerializableProperty { get; set; }
         }
     }";
 
