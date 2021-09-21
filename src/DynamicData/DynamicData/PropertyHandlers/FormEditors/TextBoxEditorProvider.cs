@@ -38,7 +38,6 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
                 textBox.Attributes.Set("class", cssClass);
             }
 
-            textBox.ValueType = TextBoxHelper.GetValueTypeOrDefault(property.PropertyInfo);
             textBox.FormatString = property.FormatString;
             textBox.SetBinding(TextBox.TextProperty, context.CreateValueBinding(property.PropertyInfo.Name));
 

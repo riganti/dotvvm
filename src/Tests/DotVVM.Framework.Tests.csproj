@@ -10,7 +10,6 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net5.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <PublicSign>True</PublicSign>

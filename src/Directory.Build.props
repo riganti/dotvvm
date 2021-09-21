@@ -3,7 +3,11 @@
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
     <AutomaticallyUseReferenceAssemblyPackages>false</AutomaticallyUseReferenceAssemblyPackages>
     <!-- Disable warning for missing XML doc comments. -->
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
+    <LangVersion>9.0</LangVersion>
+    <DefaultTargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.1;net472</DefaultTargetFrameworks>
+    <DefaultTargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.1</DefaultTargetFrameworks>
+
   </PropertyGroup>
 
   <PropertyGroup Condition="$(DOTVVM_ROOT) != ''">
