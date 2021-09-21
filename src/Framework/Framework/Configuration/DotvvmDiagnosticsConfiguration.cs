@@ -21,6 +21,17 @@ namespace DotVVM.Framework.Configuration
         }
         private DotvvmCompilationPageConfiguration _compilationPage = new();
 
+        /// <summary>
+        /// Gets or sets the options of the configuration status page.
+        /// </summary>
+        [JsonProperty("configurationPage")]
+        public DotvvmConfigurationPageConfiguration ConfigurationPage
+        {
+            get { return _configurationPage; }
+            set { ThrowIfFrozen(); _configurationPage = value; }
+        }
+        private DotvvmConfigurationPageConfiguration _configurationPage = new();
+
         private bool isFrozen = false;
 
         private void ThrowIfFrozen()
@@ -33,11 +44,13 @@ namespace DotVVM.Framework.Configuration
         {
             isFrozen = true;
             CompilationPage.Freeze();
+            ConfigurationPage.Freeze();
         }
 
         public void Apply(DotvvmConfiguration config)
         {
             CompilationPage.Apply(config);
+            ConfigurationPage.Apply(config);
         }
     }
 }

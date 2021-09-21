@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Diagnostics\CompilationPage.dothtml" />
+    <EmbeddedResource Include="Diagnostics\ConfigurationPage.dothtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Core/DotVVM.Core.csproj" />
@@ -119,6 +120,10 @@
   <ItemGroup>
     <!-- the wildcard would not work in Target.Inputs, it only works in Include -->
     <TypescriptFile Include="Resources/Scripts/**/*.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Diagnostics\ConfigurationPage.dothtml" />
   </ItemGroup>
 
   <!-- BeforeBuild is ran for every target framework. However, unless its input files change, this target is skipped. -->
