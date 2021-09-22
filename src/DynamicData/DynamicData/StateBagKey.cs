@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Provider, Property);
+            return (Provider, Property).GetHashCode();
         }
 
         public static bool operator ==(StateBagKey left, StateBagKey right)
