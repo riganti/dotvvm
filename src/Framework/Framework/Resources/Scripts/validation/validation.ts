@@ -46,11 +46,7 @@ const createValidationHandler = (path: string) => ({
             const context = ko.contextFor(options.sender);
             const validationTarget = evaluator.traverseContext(context, path);
 
-            watchAndTriggerValidationErrorChanged(options,
-                () => {
-                    detachAllErrors();
-                    validateViewModel(validationTarget);
-                });
+            runClientSideValidation(validationTarget, options);
 
             if (allErrors.length > 0) {
                 logError("validation", "Validation failed: postback aborted; errors: ", allErrors);
@@ -61,9 +57,36 @@ const createValidationHandler = (path: string) => ({
     }
 })
 
+const runClientSideValidation = (validationTarget:any,options:PostbackOptions) => {
+
+    watchAndTriggerValidationErrorChanged(options,
+        () => {
+            detachAllErrors();
+            validateViewModel(validationTarget);
+        });
+}
+
+const createRootValidationHandler = () => ({
+    name: "validate",
+    execute: (callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) => {
+        options.validationTargetPath = "/";
+        // resolve target
+        const context = dotvvm.viewModels.root.viewModel;
+        const validationTarget = evaluator.traverseContext(context, options.validationTargetPath);
+
+        runClientSideValidation(validationTarget, options);
+
+        if (allErrors.length > 0) {
+            logError("validation", "Validation failed: postback aborted; errors: ", allErrors);
+            return Promise.reject(new DotvvmPostbackError({ type: "handler", handlerName: "validation", message: "Validation failed" }))
+        }
+        return callback();
+    }
+})
+
 export function init() {
     postbackHandlers["validate"] = (opt) => createValidationHandler(opt.path);
-    postbackHandlers["validate-root"] = () => createValidationHandler("/");
+    postbackHandlers["validate-root"] = () => createRootValidationHandler();
     postbackHandlers["validate-this"] = () => createValidationHandler("$data"); //TODO
 
     if (compileConstants.isSpa) {
