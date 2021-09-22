@@ -350,13 +350,6 @@ namespace DotVVM.Framework.Configuration
 
         private static void RegisterResources(DotvvmConfiguration configuration)
         {
-            configuration.Resources.Register(ResourceConstants.PolyfillBundleResourceName,
-                new ScriptModuleResource(location: null!,
-                    nomoduleLocation: new EmbeddedResourceLocation(
-                        typeof(DotvvmConfiguration).Assembly,
-                            "DotVVM.Framework.obj.javascript.polyfill.bundle.js")
-                    ));
-
             configuration.Resources.Register(ResourceConstants.KnockoutJSResourceName,
                 new ScriptResource(location: new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).Assembly,
@@ -368,26 +361,16 @@ namespace DotVVM.Framework.Configuration
                     location: new EmbeddedResourceLocation(
                         typeof(DotvvmConfiguration).Assembly,
                         "DotVVM.Framework.obj.javascript.root_only.dotvvm-root.js",
-                        debugName: "DotVVM.Framework.obj.javascript.root_only_debug.dotvvm-root.js"),
-                    nomoduleLocation: new EmbeddedResourceLocation(
-                        typeof(DotvvmConfiguration).Assembly,
-                        "DotVVM.Framework.obj.javascript.root_only_system.dotvvm-root.js",
-                        debugName: "DotVVM.Framework.obj.javascript.root_only_system_debug.dotvvm-root.js")
-                    ) {
-                    Dependencies = new[] { ResourceConstants.KnockoutJSResourceName, ResourceConstants.PolyfillBundleResourceName }
+                        debugName: "DotVVM.Framework.obj.javascript.root_only_debug.dotvvm-root.js")) {
+                    Dependencies = new[] { ResourceConstants.KnockoutJSResourceName }
                 });
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName + ".internal-spa",
                 new ScriptModuleResource(
                     location: new EmbeddedResourceLocation(
                         typeof(DotvvmConfiguration).Assembly,
                         "DotVVM.Framework.obj.javascript.root_spa.dotvvm-root.js",
-                        debugName: "DotVVM.Framework.obj.javascript.root_spa_debug.dotvvm-root.js"),
-                    nomoduleLocation: new EmbeddedResourceLocation(
-                        typeof(DotvvmConfiguration).Assembly,
-                        "DotVVM.Framework.obj.javascript.root_spa_system.dotvvm-root.js",
-                        debugName: "DotVVM.Framework.obj.javascript.root_spa_system_debug.dotvvm-root.js")
-                    ) {
-                    Dependencies = new[] { ResourceConstants.KnockoutJSResourceName, ResourceConstants.PolyfillBundleResourceName }
+                        debugName: "DotVVM.Framework.obj.javascript.root_spa_debug.dotvvm-root.js")) {
+                    Dependencies = new[] { ResourceConstants.KnockoutJSResourceName }
                 });
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName,
                 new InlineScriptResource(@"", ResourceRenderPosition.Anywhere, defer: true) {
