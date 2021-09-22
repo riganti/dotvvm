@@ -351,19 +351,6 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        public static IEnumerable<string> GetContextPath(DotvvmBindableObject? control)
-        {
-            while (control != null)
-            {
-                var pathFragment = control.GetDataContextPathFragment();
-                if (pathFragment != null)
-                {
-                    yield return pathFragment;
-                }
-                control = control.Parent;
-            }
-        }
-
         private const string RootValidationTargetExpression = "/";
 
         /// <summary>
