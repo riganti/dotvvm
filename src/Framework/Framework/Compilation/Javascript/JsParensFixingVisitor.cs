@@ -40,9 +40,9 @@ namespace DotVVM.Framework.Compilation.Javascript
                 7 => "|",
                 6 => "&&",
                 5 => "||",
-                4 => "? :",
-                3 => "=",
-                2 => "arrow function",
+                4 => "??",
+                3 => "? :",
+                2 => "=",
                 1 => "method argument",
                 0 => ",",
                 _ => "?"
@@ -105,6 +105,8 @@ namespace DotVVM.Framework.Compilation.Javascript
                             return 6;
                         case BinaryOperatorType.ConditionalOr:
                             return 5;
+                        case BinaryOperatorType.NullishCoalescing:
+                            return 4;
                         case BinaryOperatorType.Sequence:
                             return 0;
                         default: throw new NotSupportedException();
@@ -113,11 +115,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                     if (!ue.IsPrefix) return 17;
                     else return 16;
                 case JsConditionalExpression ce:
-                    return 4;
-                case JsAssignmentExpression ae:
                     return 3;
-                case JsArrowFunctionExpression arrowFunction:
+                case JsAssignmentExpression ae:
                     return 2;
+                case JsArrowFunctionExpression arrowFunction:
+                    return 1;
                 case null:
                     return 0;
                 default: throw new NotSupportedException();

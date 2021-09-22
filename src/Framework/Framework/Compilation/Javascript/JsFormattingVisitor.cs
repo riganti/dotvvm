@@ -183,7 +183,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             else
             {
                 memberAccessExpression.Target.AcceptVisitor(this);
-                Emit(".");
+                Emit(memberAccessExpression.IsOptional ? "?." : ".");
                 memberAccessExpression.MemberNameToken.AcceptVisitor(this);
             }
         }

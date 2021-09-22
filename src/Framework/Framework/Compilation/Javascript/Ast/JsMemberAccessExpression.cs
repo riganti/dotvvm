@@ -18,6 +18,14 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             set => MemberNameToken = new JsIdentifier(value);
         }
 
+        private bool isOptional;
+        /// <summary> If true, `?.` operator will be used. If false, `.` is used (this is default) </summary>
+        public bool IsOptional
+        {
+            get { return isOptional; }
+            set { ThrowIfFrozen(); isOptional = value; }
+        }
+
         public JsIdentifier MemberNameToken
         {
             get => GetChildByRole(JsTreeRoles.Identifier)!;
