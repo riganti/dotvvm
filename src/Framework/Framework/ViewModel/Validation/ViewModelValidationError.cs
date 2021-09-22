@@ -12,7 +12,7 @@ namespace DotVVM.Framework.ViewModel.Validation
 
         /// <summary>
         /// Contains path that can be evaluated on the client side.
-        /// E.g.: Product/Suppliers/2/Name
+        /// E.g.: /Product/Suppliers/2/Name
         /// </summary>
         [JsonProperty("propertyPath")]
         public string? PropertyPath { get; internal set; }

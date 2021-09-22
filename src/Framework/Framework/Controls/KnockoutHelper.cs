@@ -364,7 +364,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private const string RootValidationTargetExpression = @"/";
+        private const string RootValidationTargetExpression = "/";
 
         /// <summary>
         /// Gets the validation target expression.
