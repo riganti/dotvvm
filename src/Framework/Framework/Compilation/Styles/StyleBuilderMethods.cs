@@ -231,7 +231,7 @@ public static partial class StyleBuilderExtensionMethods
 
     /// <summary> Adds a Class-className binding to the control </summary>
     public static T AddClassBinding<T>(this T sb, string className, string binding, StyleOverrideOptions options = StyleOverrideOptions.Overwrite, BindingParserOptions? bindingOptions = null)
-        where T: IStyleBuilder<IControlWithHtmlAttributes> =>
+        where T: IStyleBuilder =>
 
         sb.SetPropertyGroupMemberBinding("Class-", className, binding, options, bindingOptions);
 
@@ -244,7 +244,7 @@ public static partial class StyleBuilderExtensionMethods
         string attribute,
         string binding,
         BindingParserOptions? bindingOptions = null)
-        where T: IStyleBuilder<IControlWithHtmlAttributes> =>
+        where T: IStyleBuilder =>
 
         sb.SetPropertyGroupMemberBinding("", attribute, binding, StyleOverrideOptions.Append, bindingOptions);
 
@@ -257,7 +257,7 @@ public static partial class StyleBuilderExtensionMethods
         string binding,
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite,
         BindingParserOptions? bindingOptions = null)
-        where T: IStyleBuilder<IControlWithHtmlAttributes> =>
+        where T: IStyleBuilder =>
 
         sb.SetPropertyGroupMemberBinding("", attribute, binding, options, bindingOptions);
 
@@ -271,29 +271,55 @@ public static partial class StyleBuilderExtensionMethods
         string binding,
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite,
         BindingParserOptions? bindingOptions = null)
-        where T: IStyleBuilder
-    {
-        var prop = DotvvmPropertyGroup.GetPropertyGroups(sb.ControlType).Single(p => p.Prefixes.Contains(prefix));
-        return sb.SetDotvvmPropertyBinding(prop.GetDotvvmProperty(memberName), binding, options, bindingOptions);
-    }
+        where T: IStyleBuilder =>
+        sb.SetDotvvmPropertyBinding(sb.GetPropertyGroup(prefix, memberName), binding, options, bindingOptions);
 
     /// <summary> Appends a css class (or multiple of them) to the control. </summary>
     public static T AddClass<T>(this T sb, string className)
-        where T: IStyleBuilder<IControlWithHtmlAttributes> =>
+        where T: IStyleBuilder =>
+
+        sb.AppendAttribute("class", className);
+
+    /// <summary> Appends a css class (or multiple of them) to the control. </summary>
+    public static IStyleBuilder<T> AddClass<T>(this IStyleBuilder<T> sb, Func<IStyleMatchContext<T>, string> className) =>
 
         sb.AppendAttribute("class", className);
 
     /// <summary> Appends value to the specified attribute. </summary>
     public static T AppendAttribute<T>(this T sb, string attribute, string value)
-        where T: IStyleBuilder<IControlWithHtmlAttributes> =>
+        where T: IStyleBuilder =>
+
+        sb.SetPropertyGroupMember("", attribute, value, StyleOverrideOptions.Append);
+
+    /// <summary> Appends value to the specified attribute. </summary>
+    public static IStyleBuilder<T> AppendAttribute<T>(this IStyleBuilder<T> sb, string attribute, Func<IStyleMatchContext<T>, string> value) =>
 
         sb.SetPropertyGroupMember("", attribute, value, StyleOverrideOptions.Append);
 
     /// <summary> Sets HTML attribute of the control. </summary>
     public static T SetAttribute<T>(this T sb, string attribute, object value, StyleOverrideOptions options = StyleOverrideOptions.Ignore)
-        where T: IStyleBuilder<IControlWithHtmlAttributes> =>
+        where T: IStyleBuilder =>
 
         sb.SetPropertyGroupMember("", attribute, value, options);
+
+    /// <summary> Sets HTML attribute of the control. </summary>
+    public static IStyleBuilder<T> SetAttribute<T>(this IStyleBuilder<T> sb, string attribute, Func<IStyleMatchContext<T>, string> value, StyleOverrideOptions options = StyleOverrideOptions.Ignore) =>
+
+        sb.SetPropertyGroupMember("", attribute, value, options);
+
+    public static DotvvmProperty GetPropertyGroup(this IStyleBuilder sb, string prefix, string member)
+    {
+        var group = DotvvmPropertyGroup.GetPropertyGroups(sb.ControlType).Where(p => p.Prefixes.Contains(prefix)).ToArray();
+        if (group.Length == 0)
+        {
+            var attributesHelp = prefix == "" ? " If you want to set html attributes make sure to register the style for control that supports them, for example using Styles.Register<HtmlGenericControl>(...)..." : "";
+            throw new Exception($"Control {sb.ControlType.Name} does not have any property group with prefix '{prefix}'." + attributesHelp);
+        }
+        if (group.Length > 1)
+            throw new Exception($"Control {sb.ControlType.Name} has ambiguous property groups with prefix '{prefix}'");
+
+        return group.Single().GetDotvvmProperty(member);
+    }
 
     /// <summary> Sets property group member of the control. For example SetPropertyGroupMember("Param-", "Abcd", 1) would set the Abcd parameter on RouteLink. </summary>
     public static T SetPropertyGroupMember<T>(
@@ -302,11 +328,17 @@ public static partial class StyleBuilderExtensionMethods
         string memberName,
         object? value,
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
-        where T: IStyleBuilder
-    {
-        var prop = DotvvmPropertyGroup.GetPropertyGroups(sb.ControlType).Single(p => p.Prefixes.Contains(prefix));
-        return sb.SetDotvvmProperty(prop.GetDotvvmProperty(memberName), value, options);
-    }
+        where T: IStyleBuilder =>
+        sb.SetDotvvmProperty(sb.GetPropertyGroup(prefix, memberName), value, options);
+
+    /// <summary> Sets property group member of the control. For example SetPropertyGroupMember("Param-", "Abcd", 1) would set the Abcd parameter on RouteLink. </summary>
+    public static IStyleBuilder<T> SetPropertyGroupMember<T>(
+        this IStyleBuilder<T> sb,
+        string prefix,
+        string memberName,
+        Func<IStyleMatchContext<T>, object?> value,
+        StyleOverrideOptions options = StyleOverrideOptions.Overwrite) =>
+        sb.SetDotvvmProperty(sb.GetPropertyGroup(prefix, memberName), value, options);
 
     /// <summary> Sets the controls children. </summary>
     public static T SetContent<T, TControl>(
