@@ -1,0 +1,17 @@
+<html>
+	<head></head>
+	<body>
+		static value
+		<div class="a class123-x" data-custom-class-attr="x"></div>
+		resource binding
+		<div class="a class123-some-class" data-custom-class-attr="some-class"></div>
+		value binding
+		<div data-bind="class: &quot;a class123-&quot; + SomeClass(), attr: { &quot;data-custom-class-attr&quot;: SomeClass }"></div>
+		checkbox with checkbox-checked class
+		<input data-bind="class: int() > 10 == true ? &quot;checkbox-checked&quot; : &quot;&quot;, dotvvm-CheckState: int() > 10" type="checkbox">
+		<input data-bind="class: Boolean() == true ? &quot;checkbox-checked&quot; : &quot;&quot;, dotvvm-CheckState: Boolean" type="checkbox">
+		a div with visible class
+		<div class="hide" data-bind="css: { &quot;hide&quot;: !Boolean() }"></div>
+		<input data-bind="css: { &quot;hide&quot;: Label() == &quot;hidden&quot; }, dotvvm-textbox-text: Label" type="text">
+	</body>
+</html>

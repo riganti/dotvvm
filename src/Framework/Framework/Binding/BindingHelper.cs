@@ -276,7 +276,10 @@ namespace DotVVM.Framework.Binding
                     b.GetProperty<LocationInfoBindingProperty>(ErrorHandlingMode.ReturnNull)
                 };
             var service = binding.GetProperty<BindingCompilationService>();
-            return (TBinding)service.CreateBinding(binding.GetType(), getContextProperties(binding).Concat(properties).ToArray());
+            var bindingType = binding.GetType();
+            if (bindingType.IsGenericType)
+                bindingType = bindingType.GetGenericTypeDefinition();
+            return (TBinding)service.CreateBinding(bindingType, getContextProperties(binding).Concat(properties).ToArray());
         }
 
         /// <summary>

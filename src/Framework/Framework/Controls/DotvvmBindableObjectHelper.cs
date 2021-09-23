@@ -9,18 +9,15 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
     public static class DotvvmBindableObjectHelper
     {
         public static DotvvmProperty GetDotvvmProperty<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
-            where TControl : DotvvmBindableObject
-        {
-            var property = (prop.Body as MemberExpression)?.Member as PropertyInfo;
-            if (property == null) throw new Exception($"Expression '{prop}' should be property access on the specified control.");
-            return DotvvmProperty.ResolveProperty(property.DeclaringType!, property.Name) ?? throw new Exception($"Property '{property.DeclaringType!.Name}.{property.Name}' is not a registered DotvvmProperty.");
-        }
+            where TControl : DotvvmBindableObject =>
+            ReflectionUtils.GetDotvvmPropertyFromExpression(prop);
         public static DotvvmProperty GetDotvvmProperty<TControl>(this TControl control, string propName)
             where TControl : DotvvmBindableObject
         {
@@ -136,10 +133,7 @@ namespace DotVVM.Framework.Controls
         public static TControl SetAttribute<TControl>(this TControl control, string attribute, object? value)
             where TControl : IControlWithHtmlAttributes
         {
-            if (value is ValueOrBinding vob)
-            {
-                return SetAttribute(control, attribute, vob.BindingOrDefault ?? vob.BoxedValue);
-            }
+            value = ValueOrBindingExtensions.UnwrapToObject(value);
 
             if (value is not null)
             {
@@ -155,13 +149,13 @@ namespace DotVVM.Framework.Controls
         public static TControl SetAttribute<TControl, TValue>(this TControl control, string attribute, ValueOrBinding<TValue> value)
             where TControl : IControlWithHtmlAttributes
         {
-            return SetAttribute(control, attribute, value.BindingOrDefault ?? value.BoxedValue);
+            return SetAttribute(control, attribute, value.UnwrapToObject());
         }
 
         public static TControl SetAttribute<TControl, TValue>(this TControl control, string attribute, ValueOrBinding<TValue>? value)
             where TControl : IControlWithHtmlAttributes
         {
-            return SetAttribute(control, attribute, value?.BindingOrDefault ?? value?.BoxedValue);
+            return SetAttribute(control, attribute, value?.UnwrapToObject());
         }
 
         public static TControl SetCapability<TControl, TCapability>(this TControl control, [AllowNull] TCapability capability, string prefix = "")

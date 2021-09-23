@@ -151,8 +151,7 @@ namespace DotVVM.Framework.Controls
         public virtual void SetValue(DotvvmProperty property, object? value)
         {
             // "unbox" ValueOrBinding instances
-            if (value is ValueOrBinding valueOrBinding)
-                value = valueOrBinding.BindingOrDefault ?? valueOrBinding.BoxedValue;
+            value = ValueOrBindingExtensions.UnwrapToObject(value);
 
             var originalValue = GetValueRaw(property, false);
             // TODO: really do we want to update the value binding only if it's not a binding

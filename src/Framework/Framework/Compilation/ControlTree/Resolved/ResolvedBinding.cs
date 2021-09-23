@@ -54,6 +54,12 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             this.Binding = bindingService.CreateBinding(bindingType, properties.ToArray());
         }
 
+        public ResolvedBinding(IBinding binding)
+        {
+            this.Binding = binding;
+            this.BindingService = binding.GetProperty<BindingCompilationService>();
+        }
+
         public Expression GetExpression() => Binding.GetProperty<ParsedExpressionBindingProperty>().Expression;
 
         public override void Accept(IResolvedControlTreeVisitor visitor)

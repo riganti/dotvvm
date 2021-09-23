@@ -89,4 +89,26 @@ namespace DotVVM.Framework.Utils
             where T : class =>
             target ?? throw new Exception(message);
     }
+
+    sealed class ObjectWithComparer<T> : IEquatable<ObjectWithComparer<T>>, IEquatable<T>
+    {
+        public ObjectWithComparer(T @object, IEqualityComparer<T> comparer)
+        {
+            Object = @object;
+            Comparer = comparer;
+        }
+
+        public IEqualityComparer<T> Comparer { get; }
+        public T Object { get; }
+
+        public bool Equals(ObjectWithComparer<T> other) => Comparer.Equals(Object, other.Object);
+
+        public bool Equals(T other) => Comparer.Equals(Object, other);
+
+        public override bool Equals(object obj) =>
+            obj is ObjectWithComparer<T> objC ? Equals(objC) :
+            obj is T objT ? Equals(objT) :
+            false;
+        public override int GetHashCode() => Comparer.GetHashCode(Object);
+    }
 }

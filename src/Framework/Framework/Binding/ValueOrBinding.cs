@@ -65,6 +65,7 @@ namespace DotVVM.Framework.Binding
         public IBinding? BindingOrDefault => binding;
         public object? BoxedValue => (object?)value;
 
+        [MemberNotNullWhenAttribute(false, "BindingOrDefault", "binding")]
         public bool HasValue => binding is null;
 
         [MemberNotNullWhenAttribute(true, "BindingOrDefault", "binding")]

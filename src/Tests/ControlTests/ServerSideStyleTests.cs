@@ -133,10 +133,10 @@ namespace DotVVM.Framework.Tests.ControlTests
                     );
                 c.Styles.RegisterAnyControl(c => c.HasTag("b"))
                     .AddPostbackHandler(
-                        c => new ConfirmPostBackHandler(c.GetHtmlAttribute("data-msg"))
+                        c => new ConfirmPostBackHandler(c.GetHtmlAttribute("data-msg") ?? "default message")
                     )
                     .AddPostbackHandler(
-                        c => new ConfirmPostBackHandler(c.GetHtmlAttribute("Handler for some other property")) { EventName = "Bazmek" }
+                        c => new ConfirmPostBackHandler("Handler for some other property") { EventName = "Bazmek" }
                     );
                 c.Styles.RegisterAnyControl(c => c.HasTag("c"))
                     .SetDotvvmProperty(
@@ -151,6 +151,12 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <dot:Button Styles.Tag=a Click={command: 0} />
                 Two handlers
                 <dot:Button Styles.Tag=b Click={command: 0} data-msg=ahoj />
+                Two handlers, value binding message
+                <dot:Button Styles.Tag=b Click={command: 0} data-msg={value: Label} />
+                Two handlers, resource binding message
+                <dot:Button Styles.Tag=b Click={command: 0} data-msg={resource: Label} />
+                Two handlers, default message
+                <dot:Button Styles.Tag=b Click={command: 0} />
                 One handler, because override
                 <dot:Button Styles.Tag='a,b,c' Click={command: 0} data-msg=ahoj />
             ");
@@ -200,6 +206,42 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task StyleBindingMapping()
+        {
+            var cth = createHelper(c => {
+                c.Styles.Register<HtmlGenericControl>(c => c.HasHtmlAttribute("data-custom-class-attr"))
+                    .AddClass(c => c.GetHtmlAttribute("data-custom-class-attr").Value.Select(c => "class123-" + c));
+                c.Styles.Register<CheckBox>(c => !c.HasProperty(c => c.Checked) && c.HasDataContext<BasicTestViewModel>())
+                    .SetPropertyBinding(c => c.Checked, "_this.Boolean");
+                c.Styles.Register<CheckBox>()
+                    .AddClass(c => c.Property(c => c.Checked).Select(c => c == true ? "checkbox-checked" : ""));
+                c.Styles.Register<TextBox>()
+                    .SetProperty(c => c.Visible, c => c.Property(c => c.Visible).And(c.Property(c => c.Text).Select(t => t != "hidden")));
+                c.Styles.Register<HtmlGenericControl>(c => c.HasProperty(c => c.Visible))
+                    .SetPropertyGroupMember("Class-", "hide", c => c.Property(c => c.Visible).Negate())
+                    .SetProperty(c => c.Visible, true);
+            });
+
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                static value
+                <div class=a data-custom-class-attr=x></div>
+                resource binding
+                <div class=a data-custom-class-attr={resource: SomeClass}></div>
+                value binding
+                <div class=a data-custom-class-attr={value: SomeClass}></div>
+                checkbox with checkbox-checked class
+                <dot:CheckBox Checked={value: Integer > 10} />
+                <dot:CheckBox />
+                
+                a div with visible class 
+                <div Visible={value: Boolean} />
+
+                <dot:TextBox Text={value: Label} />
+            ");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
@@ -209,6 +251,8 @@ namespace DotVVM.Framework.Tests.ControlTests
             [Bind(Name = "date")]
             public DateTime DateTime { get; set; } = DateTime.Parse("2020-08-11T16:01:44.5141480");
             public string Label { get; } = "My Label";
+            public string SomeClass { get; } = "some-class";
+            public bool Boolean { get; set; }
 
             public List<string> Collection { get; } = new List<string>();
         }
