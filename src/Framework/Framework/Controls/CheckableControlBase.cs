@@ -73,12 +73,9 @@ namespace DotVVM.Framework.Controls
             set => TextOrContentCapabilityProperty.SetValue(this, value);
         }
         public static readonly DotvvmCapabilityProperty TextOrContentCapabilityProperty =
-            DotvvmCapabilityProperty.RegisterCapability("TextOrContentCapability", typeof(CheckableControlBase), typeof(TextOrContentCapability),
-                control => TextOrContentCapability.FromChildren((CheckableControlBase)control, TextProperty),
-                (control, boxedValue) => {
-                    var value = (TextOrContentCapability?)boxedValue ?? new TextOrContentCapability();
-                    value.WriteToChildren((CheckableControlBase)control, TextProperty);
-                }
+            DotvvmCapabilityProperty.RegisterCapability<TextOrContentCapability, CheckableControlBase>(
+                control => TextOrContentCapability.FromChildren(control, TextProperty),
+                (control, value) => value.WriteToChildren(control, TextProperty)
             );
 
         /// <summary>

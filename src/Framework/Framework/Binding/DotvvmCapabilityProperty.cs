@@ -60,17 +60,20 @@ namespace DotVVM.Framework.Binding
                 throw new($"Capability {propertyName} conflicts with existing property. {postContentHelp2}Consider giving the capability a different name.");
         }
 
-        public static DotvvmCapabilityProperty RegisterCapability<TCapabilityType, TDeclaringType>(string name, string globalPrefix = "", ICustomAttributeProvider? capabilityAttributeProvider = null) =>
-            RegisterCapability(name, typeof(TDeclaringType), typeof(TCapabilityType), globalPrefix, capabilityAttributeProvider);
-        public static DotvvmCapabilityProperty RegisterCapability(string name, Type declaringType, Type capabilityType, string globalPrefix = "", ICustomAttributeProvider? capabilityAttributeProvider = null, DotvvmCapabilityProperty? declaringCapability = null)
+        public static DotvvmCapabilityProperty RegisterCapability<TCapabilityType, TDeclaringType>(string globalPrefix = "", string? name = null, ICustomAttributeProvider? capabilityAttributeProvider = null) =>
+            RegisterCapability(typeof(TDeclaringType), typeof(TCapabilityType), globalPrefix, name, capabilityAttributeProvider);
+        public static DotvvmCapabilityProperty RegisterCapability(Type declaringType, Type capabilityType, string globalPrefix = "", string? name = null, ICustomAttributeProvider? capabilityAttributeProvider = null, DotvvmCapabilityProperty? declaringCapability = null)
         {
+            name ??= globalPrefix + capabilityType.Name;
+
             AssertPropertyNotDefined(declaringType, capabilityType, name, globalPrefix, postContent: false);
 
+            var dotnetFieldName = name.Replace("-", "_").Replace(":", "_");
             capabilityAttributeProvider ??=
-                declaringType.GetProperty(name) ??
-                declaringType.GetField(name) ??
-                (ICustomAttributeProvider)declaringType.GetField(name + "Property") ??
-                throw new Exception("Capability backing field could not be found and capabilityAttributeProvider argument was not provided.");
+                declaringType.GetProperty(dotnetFieldName) ??
+                declaringType.GetField(dotnetFieldName) ??
+                (ICustomAttributeProvider)declaringType.GetField(dotnetFieldName + "Property") ??
+                throw new Exception($"Capability backing field could not be found and capabilityAttributeProvider argument was not provided. Property: {declaringType.Name}.{name}. Please declare a field or property named {dotnetFieldName}.");
 
             var prop = new DotvvmCapabilityProperty(globalPrefix) {
                 Name = name,
@@ -89,12 +92,21 @@ namespace DotVVM.Framework.Binding
             return RegisterCapability(prop);
         }
 
-        public static DotvvmCapabilityProperty RegisterCapability(string name, Type declaringType, Type capabilityType, Func<DotvvmBindableObject, object> getter, Action<DotvvmBindableObject, object?> setter, string prefix = "") =>
+        public static DotvvmCapabilityProperty RegisterCapability<TCapabilityType, TDeclaringType>(
+            Func<TDeclaringType, TCapabilityType> getter,
+            Action<TDeclaringType, TCapabilityType> setter,
+            string prefix = "",
+            string? name = null,
+            ICustomAttributeProvider? capabilityAttributeProvider = null)
+            where TCapabilityType : notnull
+            where TDeclaringType : DotvvmBindableObject =>
+            RegisterCapability(typeof(TDeclaringType), typeof(TCapabilityType), (o) => (object)getter((TDeclaringType)o), (o, x) => setter((TDeclaringType)o, (TCapabilityType)x!), prefix, name);
+        public static DotvvmCapabilityProperty RegisterCapability(Type declaringType, Type capabilityType, Func<DotvvmBindableObject, object> getter, Action<DotvvmBindableObject, object?> setter, string prefix = "", string? name = null) =>
             RegisterCapability(
                 new DotvvmCapabilityProperty(prefix) {
                     Getter = getter,
                     Setter = setter,
-                    Name = name,
+                    Name = name ?? prefix + capabilityType.Name,
                     DeclaringType = declaringType,
                     PropertyType = capabilityType
                 }
@@ -248,10 +260,6 @@ namespace DotVVM.Framework.Binding
             // Control Capability
             else if (propertyType.IsDefined(typeof(DotvvmControlCapabilityAttribute)) || attributeProvider.IsDefined(typeof(DotvvmControlCapabilityAttribute), true))
             {
-                // auto append Capability to the end. Tends to prevent conflicts
-                if (!propertyName.EndsWith("capability", StringComparison.OrdinalIgnoreCase))
-                    propertyName += "Capability";
-
                 var prefix = attributeProvider.GetCustomAttribute<DotvvmControlCapabilityAttribute>()?.Prefix ?? "";
 
                 DotvvmCapabilityProperty capability;
@@ -263,7 +271,7 @@ namespace DotVVM.Framework.Binding
                 }
                 else
                 {
-                    capability = DotvvmCapabilityProperty.RegisterCapability(propertyName, declaringType, propertyType, prefix, attributeProvider, declaringCapability);
+                    capability = DotvvmCapabilityProperty.RegisterCapability(declaringType, propertyType, prefix, name: null, attributeProvider, declaringCapability);
                 }
                 return Helpers.CreatePropertyLambdas(propertyType, valueParameter, capability);
             }
