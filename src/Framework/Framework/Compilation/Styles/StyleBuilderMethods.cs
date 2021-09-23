@@ -312,7 +312,7 @@ public static partial class StyleBuilderExtensionMethods
         var group = DotvvmPropertyGroup.GetPropertyGroups(sb.ControlType).Where(p => p.Prefixes.Contains(prefix)).ToArray();
         if (group.Length == 0)
         {
-            var attributesHelp = prefix == "" ? " If want to set html attributes make sure to register the style for control that supports them, for example using Styles.Register<HtmlGenericControl>(...)..." : "";
+            var attributesHelp = prefix == "" ? " If you want to set html attributes make sure to register the style for control that supports them, for example using Styles.Register<HtmlGenericControl>(...)..." : "";
             throw new Exception($"Control {sb.ControlType.Name} does not have any property group with prefix '{prefix}'." + attributesHelp);
         }
         if (group.Length > 1)

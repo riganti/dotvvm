@@ -202,8 +202,10 @@ public static class StyleMatchContextExtensionMethods
         return false;
     }
 
+    /// <summary> Returns type of control this style is being applied to. </summary>
     public static Type ControlType(this IStyleMatchContext c) => c.Control.Metadata.Type;
 
+    /// <summary> Returns tag name, if the current control is HtmlGenericControl. If the type is unknown, returns null. </summary>
     public static string? TagName(this IStyleMatchContext c) =>
         c.ControlType() == typeof(HtmlGenericControl) ? c.Control.ConstructorParameters![0] as string :
         c.IsType<ConfigurableHtmlControl>() ? c.Property<string>(ConfigurableHtmlControl.WrapperTagNameProperty) :
