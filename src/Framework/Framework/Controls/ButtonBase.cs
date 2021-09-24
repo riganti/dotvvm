@@ -55,12 +55,9 @@ namespace DotVVM.Framework.Controls
             set => TextOrContentCapabilityProperty.SetValue(this, value);
         }
         public static readonly DotvvmCapabilityProperty TextOrContentCapabilityProperty =
-            DotvvmCapabilityProperty.RegisterCapability("TextOrContentCapability", typeof(ButtonBase), typeof(TextOrContentCapability),
-                control => TextOrContentCapability.FromChildren((ButtonBase)control, TextProperty),
-                (control, boxedValue) => {
-                    var value = (TextOrContentCapability)boxedValue!;
-                    value.WriteToChildren((DotvvmControl)control, TextProperty);
-                }
+            DotvvmCapabilityProperty.RegisterCapability<TextOrContentCapability, ButtonBase>(
+                control => TextOrContentCapability.FromChildren(control, TextProperty),
+                (control, value) => value.WriteToChildren(control, TextProperty)
             );
 
         /// <summary>

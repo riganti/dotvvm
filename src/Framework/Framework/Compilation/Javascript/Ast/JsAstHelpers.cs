@@ -85,11 +85,9 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                 case JsConditionalExpression condition:
                     return condition.TrueExpression.GetLeafResultNodes()
                         .Concat(condition.FalseExpression.GetLeafResultNodes());
-                case JsBinaryExpression binary:
-                    if (binary.Operator == BinaryOperatorType.ConditionalAnd || binary.Operator == BinaryOperatorType.ConditionalOr)
-                        return binary.Left.GetLeafResultNodes()
+                case JsBinaryExpression { OperatorString: "&&" or "||" or "??" } binary:
+                    return binary.Left.GetLeafResultNodes()
                         .Concat(binary.Right.GetLeafResultNodes());
-                    else goto default;
                 case JsParenthesizedExpression p: return p.Expression.GetLeafResultNodes();
                 default:
                     return new[] { expr };

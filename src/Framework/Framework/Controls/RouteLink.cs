@@ -77,10 +77,9 @@ namespace DotVVM.Framework.Controls
             set => TextOrContentCapabilityProperty.SetValue(this, value);
         }
         public static readonly DotvvmCapabilityProperty TextOrContentCapabilityProperty =
-            DotvvmCapabilityProperty.RegisterCapability("TextOrContentCapability", typeof(RouteLink), typeof(TextOrContentCapability),
-                control => TextOrContentCapability.FromChildren((RouteLink)control, TextProperty),
-                (control, boxedValue) => {
-                    var value = (TextOrContentCapability?)boxedValue ?? new TextOrContentCapability();
+            DotvvmCapabilityProperty.RegisterCapability<TextOrContentCapability, RouteLink>(
+                control => TextOrContentCapability.FromChildren(control, TextProperty),
+                (control, value) => {
                     value.WriteToChildren((DotvvmControl)control, TextProperty);
                 }
             );

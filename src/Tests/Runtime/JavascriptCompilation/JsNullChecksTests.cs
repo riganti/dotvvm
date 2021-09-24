@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                 .Member("c");
             expr = JavascriptNullCheckAdder.AddNullChecks(expr);
             var node = JsTemporaryVariableResolver.ResolveVariables(expr);
-            Assert.AreEqual("a==null?null:a.b.c", node.FormatScript(), node.FormatScript(niceMode: true));
+            Assert.AreEqual("a?.b.c", node.FormatScript(), node.FormatScript(niceMode: true));
         }
 
         [TestMethod]
@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                 .Member("c");
             expr = JavascriptNullCheckAdder.AddNullChecks(expr);
             var node = JsTemporaryVariableResolver.ResolveVariables(expr);
-            Assert.AreEqual("(()=>{let b;return (b=a==null?null:a.b)==null?null:b.c;})()", node.FormatScript(), node.FormatScript(niceMode: true));
+            Assert.AreEqual("a?.b?.c", node.FormatScript(), node.FormatScript(niceMode: true));
         }
 
         [TestMethod]
@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                 .Member("c");
             expr = JavascriptNullCheckAdder.AddNullChecks(expr);
             var node = JsTemporaryVariableResolver.ResolveVariables(expr);
-            Assert.AreEqual("a&&a.b.c", node.FormatScript(), node.FormatScript(niceMode: true));
+            Assert.AreEqual("a?.b.c", node.FormatScript(), node.FormatScript(niceMode: true));
         }
 
         [TestMethod]
@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                 .Member("c");
             expr = JavascriptNullCheckAdder.AddNullChecks(expr);
             var node = JsTemporaryVariableResolver.ResolveVariables(expr);
-            Assert.AreEqual("(a&&a.b()||{}).c", node.FormatScript(), node.FormatScript(niceMode: true));
+            Assert.AreEqual("a?.b()?.c", node.FormatScript(), node.FormatScript(niceMode: true));
         }
 
         [TestMethod]
@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                 .Member("c").Invoke();
             expr = JavascriptNullCheckAdder.AddNullChecks(expr);
             var node = JsTemporaryVariableResolver.ResolveVariables(expr);
-            Assert.AreEqual("(()=>{let b;return (b=a&&a.b())&&b.c();})()", node.FormatScript(), node.FormatScript(niceMode: true));
+            Assert.AreEqual("a?.b()?.c()", node.FormatScript(), node.FormatScript(niceMode: true));
         }
 
         [TestMethod]
@@ -79,7 +79,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                 .Indexer(new JsLiteral(7));
             expr = JavascriptNullCheckAdder.AddNullChecks(expr);
             var node = JsTemporaryVariableResolver.ResolveVariables(expr);
-            Assert.AreEqual("(a&&a[5]||[])[7]", node.FormatScript(), node.FormatScript(niceMode: true));
+            Assert.AreEqual("(a&&a[5]??[])[7]", node.FormatScript(), node.FormatScript(niceMode: true));
         }
 
         [TestMethod]
@@ -91,7 +91,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
                 .Invoke();
             expr = JavascriptNullCheckAdder.AddNullChecks(expr);
             var node = JsTemporaryVariableResolver.ResolveVariables(expr);
-            Assert.AreEqual("(a&&a(G)||eval)()", node.FormatScript(), node.FormatScript(niceMode: true));
+            Assert.AreEqual("(()=>{let b;return (b=a&&a(G))&&b();})()", node.FormatScript(), node.FormatScript(niceMode: true));
         }
 
         [TestMethod]
@@ -110,7 +110,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
 
             expr = JavascriptNullCheckAdder.AddNullChecks(expr);
             var node = JsTemporaryVariableResolver.ResolveVariables(expr);
-            Assert.AreEqual("(()=>{let b;return (b=c?a:c2?a2:a3)==null?null:b.length;})()", node.FormatScript(), node.FormatScript(niceMode: true));
+            Assert.AreEqual("(c?a:c2?a2:a3)?.length", node.FormatScript(), node.FormatScript(niceMode: true));
         }
     }
 }
