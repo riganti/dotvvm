@@ -253,7 +253,7 @@ public static class StyleMatchContextExtensionMethods
             if (value is T or null)
                 return (T?)value;
         }
-        return (T?)property.DefaultValue;
+        return GetDefault<T>(property);
     }
 
     /// <summary> Gets the property value or null if it's not defined. </summary>
@@ -275,7 +275,14 @@ public static class StyleMatchContextExtensionMethods
             if (value is T or null)
                 return new ValueOrBinding<T>((T)value!);
         }
-        return new ValueOrBinding<T>((T)property.DefaultValue!);
+        return new ValueOrBinding<T>(GetDefault<T>(property));
+    }
+
+    private static T GetDefault<T>(DotvvmProperty p)
+    {
+        if (p.DefaultValue is T d) return d;
+        if (p.DefaultValue is null && !typeof(T).IsValueType) return default!;
+        throw new Exception($"Property {p} is probably not of type {typeof(T).Name}, its default value {p.DefaultValue ?? "null"} is not assignable to the requested type.");
     }
 
     /// <summary> Gets the property value or null if it's not defined. </summary>
