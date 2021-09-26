@@ -10,13 +10,19 @@
 </head>
 <body>
 
-    <dot:JsComponent Name="recharts" IncludeInPage="{value: IncludeInPage }" data="{value: Data}">
+    <dot:JsComponent Name="recharts" 
+                     IncludeInPage={value: IncludeInPage}
+                     data={value: Data}
+                     onMouse={staticCommand: (string n) => CurrentThing = n}>
     </dot:JsComponent>
 
 
-    <dot:Button Click="{command:  Regenerate()}" Text="Regenerate chart"></dot:Button>
-    <dot:Button Click="{staticCommand: IncludeInPage = false}" Text="Remove from DOM"></dot:Button>
-    <dot:Button Click="{staticCommand: IncludeInPage = true}" Text="Add to DOM"></dot:Button>
+    <dot:Button Click={command: Regenerate()} Text="Regenerate chart"></dot:Button>
+    <dot:Button Click={staticCommand: IncludeInPage = false} Text="Remove from DOM"></dot:Button>
+    <dot:Button Click={staticCommand: IncludeInPage = true} Text="Add to DOM"></dot:Button>
+
+    <p>
+        CurrentThing: {{value: CurrentThing}}
 
 </body>
 </html>

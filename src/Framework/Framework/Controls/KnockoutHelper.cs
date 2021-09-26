@@ -96,7 +96,7 @@ namespace DotVVM.Framework.Controls
                 koContext: CodeParameterAssignment.FromIdentifier("$context", true)
             );
 
-            var hasArguments = command.CommandJavascript.EnumerateAllParameters().Any(p => p == CommandBindingExpression.CommandArgumentsParameter);
+            var hasArguments = command is IStaticCommandBinding || command.CommandJavascript.EnumerateAllParameters().Any(p => p == CommandBindingExpression.CommandArgumentsParameter);
             options.CommandArgs = hasArguments ? new CodeParameterAssignment(new ParametrizedCode("commandArguments", OperatorPrecedence.Max)) : default;
             // just few commands have arguments so it's worth checking if we need to clutter the output with argument propagation
             var call = KnockoutHelper.GenerateClientPostBackExpression(

@@ -28,6 +28,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.JsComponentIntegration
         }
 
         public bool IncludeInPage { get; set; } = true;
+        public string CurrentThing { get; set; } = "?";
     }
 
     public class LinearRechartDataDTO

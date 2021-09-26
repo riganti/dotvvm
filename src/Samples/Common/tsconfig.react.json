@@ -15,6 +15,6 @@
   "exclude": [
     "node_modules",
     "wwwroot",
-    "scripts/TestWebApiClientOwin.ts"
+    "Scripts/TestWebApiClientOwin.ts"
   ]
 }
