@@ -118,12 +118,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     if (DotvvmCapabilityProperty.GetCapabilities(type).Any(c => c.PropertyType == capabilityType))
                         continue;
 
-                    var name = capabilityType.Name;
-                    // auto append Capability to the end. Tends to prevent conflicts
-                    if (!name.EndsWith("capability", StringComparison.OrdinalIgnoreCase))
-                        name += "Capability";
-
-                    DotvvmCapabilityProperty.RegisterCapability(type.Name, type, capabilityType, capabilityAttributeProvider: new CustomAttributesProvider());
+                    DotvvmCapabilityProperty.RegisterCapability(type, capabilityType, capabilityAttributeProvider: new CustomAttributesProvider());
                 }
             }
         }

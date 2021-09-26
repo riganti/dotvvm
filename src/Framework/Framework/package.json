@@ -1,4 +1,5 @@
 {
+  "license": "Apache-2.0",
   "devDependencies": {
     "@rollup/plugin-replace": "2.3.3",
     "@rollup/plugin-typescript": "6.0.0",
@@ -20,11 +21,10 @@
   },
   "scripts": {
     "build-development": "rollup -c && npm run tsc-types",
-    "build": "npm run build-production && npm run build-development && npm run build-polyfills",
+    "build": "npm run build-production && npm run build-development",
     "build-production": "rollup -c --environment BUILD:production",
     "tsc-check": "tsc -p . --noEmit",
-    "tsc-types": "tsc -d -p . --outFile ./obj/typescript-types/dotvvm.d.ts --emitDeclarationOnly --skipLibCheck",
-    "build-polyfills": "terser -o obj/javascript/polyfill.bundle.js -c -m --ecma 5 -- Resources/Scripts/Polyfills/promise.js Resources/Scripts/Polyfills/eventTarget.js Resources/Scripts/Polyfills/abortController.js Resources/Scripts/Polyfills/fetch.js node_modules/systemjs/dist/system.js node_modules/symbol-es6/symbol-es6.js Resources/Scripts/Polyfills/utils.js"
+    "tsc-types": "tsc -d -p . --outFile ./obj/typescript-types/dotvvm.d.ts --emitDeclarationOnly --skipLibCheck"
   },
   "dependencies": {
     "jest-github-actions-reporter": "^1.0.3",

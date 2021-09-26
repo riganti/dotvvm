@@ -317,7 +317,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
 
             var literal = treeBuilder.BuildControl(rawLiteralMetadata.Value, node, dataContext);
-            literal.ConstructorParameters = new object[] { text, literalNode.Value, whitespace };
+            literal.ConstructorParameters = new object[] { text.Replace("\r\n", "\n"), literalNode.Value, whitespace };
             return literal;
         }
 
@@ -326,7 +326,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var text = commentNode.IsServerSide ? "" : "<!--" + commentNode.Value + "-->";
 
             var literal = treeBuilder.BuildControl(rawLiteralMetadata.Value, node, dataContext);
-            literal.ConstructorParameters = new object[] { text, commentNode.Value, true };
+            literal.ConstructorParameters = new object[] { text.Replace("\r\n", "\n"), "", true };
             return literal;
         }
 

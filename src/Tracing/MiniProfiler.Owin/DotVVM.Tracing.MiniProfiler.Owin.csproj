@@ -4,7 +4,6 @@
   	<AssemblyTitle>DotVVM.Tracing.MiniProfiler.Owin</AssemblyTitle>
     <VersionPrefix>3.2.0</VersionPrefix>
     <TargetFramework>net472</TargetFramework>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>

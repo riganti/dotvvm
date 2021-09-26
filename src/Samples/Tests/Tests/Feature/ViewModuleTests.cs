@@ -20,8 +20,6 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
-        [SkipBrowser("ie:fast", "View modules not supported in IE")]
-        [SkipBrowser("ie:dev", "View modules not supported in IE")]
         public void Feature_ViewModules_ModuleInMarkupControl()
         {
             RunInAllBrowsers(browser => {
@@ -37,8 +35,6 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
-        [SkipBrowser("ie:fast", "View modules not supported in IE")]
-        [SkipBrowser("ie:dev", "View modules not supported in IE")]
         public void Feature_ViewModules_ModuleInMarkupControlTwice()
         {
             RunInAllBrowsers(browser => {
@@ -76,8 +72,6 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
-        [SkipBrowser("ie:fast", "View modules not supported in IE")]
-        [SkipBrowser("ie:dev", "View modules not supported in IE")]
         public void Feature_ViewModules_ModuleInPage()
         {
             RunInAllBrowsers(browser => {
@@ -93,8 +87,6 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
         [Fact]
-        [SkipBrowser("ie:fast", "View modules not supported in IE")]
-        [SkipBrowser("ie:dev", "View modules not supported in IE")]
         public void Feature_ViewModules_ModuleRegistrationPropagation()
         {
             RunInAllBrowsers(browser => {
@@ -107,8 +99,6 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
-        [SkipBrowser("ie:fast", "View modules not supported in IE")]
-        [SkipBrowser("ie:dev", "View modules not supported in IE")]
         public void Feature_ViewModules_ModuleInPageCommandAmbiguous()
         {
             RunInAllBrowsers(browser => {
@@ -125,8 +115,6 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
-        [SkipBrowser("ie:fast", "View modules not supported in IE")]
-        [SkipBrowser("ie:dev", "View modules not supported in IE")]
         public void Feature_ViewModules_ModuleInPageMasterPage()
         {
             RunInAllBrowsers(browser => {
@@ -149,8 +137,6 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
-        [SkipBrowser("ie:fast", "View modules not supported in IE")]
-        [SkipBrowser("ie:dev", "View modules not supported in IE")]
         public void Feature_ViewModules_ModuleInPageSpaMasterPage()
         {
             RunInAllBrowsers(browser => {
@@ -223,8 +209,6 @@ namespace DotVVM.Samples.Tests.Feature
 
 
         [Fact]
-        [SkipBrowser("ie:fast", "View modules not supported in IE")]
-        [SkipBrowser("ie:dev", "View modules not supported in IE")]
         public void Feature_ViewModules_IncrementerInRepeater()
         {
             RunInAllBrowsers(browser => {

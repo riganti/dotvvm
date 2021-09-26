@@ -1,5 +1,4 @@
 import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture, getState, getStateManager } from "./dotvvm-base"
-import addPolyfills from './DotVVM.Polyfills'
 import * as events from './events'
 import * as spa from "./spa/spa"
 import * as validation from './validation/validation'
@@ -28,10 +27,6 @@ import * as metadataHelper from './metadata/metadataHelper'
 import * as array from './collections/arrayHelper'
 import * as dictionary from './collections/dictionaryHelper'
 import * as string from './utils/stringHelper'
-
-if (compileConstants.nomodules) {
-    addPolyfills()
-}
 
 if (window["dotvvm"]) {
     throw new Error('DotVVM is already loaded!')

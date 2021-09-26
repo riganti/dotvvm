@@ -2,9 +2,7 @@
   <PropertyGroup>
     <AssemblyTitle>DotVVM</AssemblyTitle>
     <VersionPrefix>4.0.0-preview01-116912</VersionPrefix>
-    <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' " >netstandard2.1;net472</TargetFrameworks>
-    <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' " >netstandard2.1</TargetFrameworks>
-    <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
@@ -26,7 +24,6 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
@@ -44,11 +41,6 @@
     <EmbeddedResource Include="obj/javascript/root-only-debug/dotvvm-root.js" />
     <EmbeddedResource Include="obj/javascript/root-spa/dotvvm-root.js" />
     <EmbeddedResource Include="obj/javascript/root-spa-debug/dotvvm-root.js" />
-    <EmbeddedResource Include="obj/javascript/root-only-system/dotvvm-root.js" />
-    <EmbeddedResource Include="obj/javascript/root-only-system-debug/dotvvm-root.js" />
-    <EmbeddedResource Include="obj/javascript/root-spa-system/dotvvm-root.js" />
-    <EmbeddedResource Include="obj/javascript/root-spa-system-debug/dotvvm-root.js" />
-    <EmbeddedResource Include="obj/javascript/polyfill.bundle.js" />
     <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.min.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.debug.js" />
@@ -142,11 +134,9 @@
 
     <Exec Command="yarnpkg build-production" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
     <Exec Command="yarnpkg build-development" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
-    <Exec Command="yarnpkg build-polyfills" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
 
     <Exec Command="npm run build-production" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
     <Exec Command="npm run build-development" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
-    <Exec Command="npm run build-polyfills" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
   </Target>
 
 </Project>
