@@ -70,6 +70,33 @@ public static class ValueOrBindingExtensions
         else
             return new ValueOrBinding<string>("" + v.ValueOrDefault);
     }
+    public static ValueOrBinding<bool> NotNull<T>(this ValueOrBinding<T> v) =>
+        v.IsNull().Negate();
+    public static ValueOrBinding<bool> IsNull<T>(this ValueOrBinding<T> v)
+    {
+        if (v.HasBinding)
+            return new(v.BindingOrDefault.GetProperty<IsNullBindingExpression>().Binding);
+        else
+            return new(v.ValueOrDefault is null);
+    }
+    public static ValueOrBinding<bool> NotNullOrEmpty(this ValueOrBinding<string> v) =>
+        v.IsNullOrEmpty().Negate();
+    public static ValueOrBinding<bool> IsNullOrEmpty(this ValueOrBinding<string> v)
+    {
+        if (v.HasBinding)
+            return new(v.BindingOrDefault.GetProperty<IsNullOrEmptyBindingExpression>().Binding);
+        else
+            return new(string.IsNullOrEmpty(v.ValueOrDefault));
+    }
+    public static ValueOrBinding<bool> NotNullOrWhitespace(this ValueOrBinding<string> v) =>
+        v.IsNullOrWhitespace().Negate();
+    public static ValueOrBinding<bool> IsNullOrWhitespace(this ValueOrBinding<string> v)
+    {
+        if (v.HasBinding)
+            return new(v.BindingOrDefault.GetProperty<IsNullOrWhitespaceBindingExpression>().Binding);
+        else
+            return new(string.IsNullOrWhiteSpace(v.ValueOrDefault));
+    }
 
     public static ValueOrBinding<bool> And(this ValueOrBinding<bool> a, ValueOrBinding<bool> b)
     {

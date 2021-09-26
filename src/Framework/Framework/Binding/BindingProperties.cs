@@ -334,6 +334,30 @@ namespace DotVVM.Framework.Binding.Properties
             this.Binding = binding;
         }
     }
+    public sealed class IsNullBindingExpression
+    {
+        public readonly IBinding Binding;
+        public IsNullBindingExpression(IBinding binding)
+        {
+            this.Binding = binding;
+        }
+    }
+    public sealed class IsNullOrWhitespaceBindingExpression
+    {
+        public readonly IBinding Binding;
+        public IsNullOrWhitespaceBindingExpression(IBinding binding)
+        {
+            this.Binding = binding;
+        }
+    }
+    public sealed class IsNullOrEmptyBindingExpression
+    {
+        public readonly IBinding Binding;
+        public IsNullOrEmptyBindingExpression(IBinding binding)
+        {
+            this.Binding = binding;
+        }
+    }
     public sealed class ExpectedAsStringBindingExpression
     {
         public readonly IBinding Binding;

@@ -258,7 +258,39 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             return new ExpectedAsStringBindingExpression(binding.DeriveBinding(new ExpectedTypeBindingProperty(typeof(string)), e));
         }
-
+        public IsNullBindingExpression IsNull(ParsedExpressionBindingProperty eprop, IBinding binding)
+        {
+            var e = eprop.Expression;
+            return new IsNullBindingExpression(binding.DeriveBinding(
+                new ParsedExpressionBindingProperty(
+                    e.Type.IsNullable() ? Expression.Not(Expression.Property(e, "HasValue")) :
+                    e.Type.IsValueType ? Expression.Constant(false) :
+                    Expression.ReferenceEqual(e, Expression.Constant(null, e.Type))
+                )
+            ));
+        }
+        public IsNullOrEmptyBindingExpression IsNullOrEmpty(ParsedExpressionBindingProperty eprop, IBinding binding)
+        {
+            var e = eprop.Expression;
+            if (e.Type != typeof(string))
+                throw new NotSupportedException($"{e} was not of type string, but {e.Type}");
+            return new IsNullOrEmptyBindingExpression(binding.DeriveBinding(
+                new ParsedExpressionBindingProperty(
+                    Expression.Call(typeof(string), "IsNullOrEmpty", Type.EmptyTypes, e)
+                )
+            ));
+        }
+        public IsNullOrWhitespaceBindingExpression IsNullOrWhitespace(ParsedExpressionBindingProperty eprop, IBinding binding)
+        {
+            var e = eprop.Expression;
+            if (e.Type != typeof(string))
+                throw new NotSupportedException($"{e} was not of type string, but {e.Type}");
+            return new IsNullOrWhitespaceBindingExpression(binding.DeriveBinding(
+                new ParsedExpressionBindingProperty(
+                    Expression.Call(typeof(string), "IsNullOrWhitespace", Type.EmptyTypes, e)
+                )
+            ));
+        }
 
         public DataSourceAccessBinding GetDataSourceAccess(ParsedExpressionBindingProperty expression, IBinding binding)
         {
