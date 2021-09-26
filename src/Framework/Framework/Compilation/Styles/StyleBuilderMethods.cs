@@ -351,6 +351,7 @@ public static partial class StyleBuilderExtensionMethods
         where T: IStyleBuilder<DotvvmControl>
         where TControl: DotvvmBindableObject
     {
+        if (prototypeControl is null) throw new ArgumentNullException(nameof(prototypeControl));
         var innerControlStyleBuilder = new StyleBuilder<TControl>(null, false);
         styleBuilder?.Invoke(innerControlStyleBuilder);
 
