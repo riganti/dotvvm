@@ -86,6 +86,7 @@ namespace DotVVM.Samples.Common
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
             });
 
+            resources.Register("FeatureSamples_Resources_ReactAppModule", new ScriptModuleResource(new FileResourceLocation("~/Script/react-app.js")));
             resources.Register("FeatureSamples_Resources_TestViewModule", new ScriptModuleResource(new FileResourceLocation("~/Scripts/testViewModule.js")));
             resources.Register("FeatureSamples_Resources_TestViewModule2", new ScriptModuleResource(new FileResourceLocation("~/Scripts/testViewModule2.js")));
             resources.Register("FeatureSamples_Resources_TestViewModule3", new ScriptModuleResource(new FileResourceLocation("~/Scripts/testViewModule3.js")));

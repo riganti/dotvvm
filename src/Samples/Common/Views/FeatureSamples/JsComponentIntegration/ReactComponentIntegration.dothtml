@@ -1,0 +1,24 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JsComponentIntegration.ReactComponentIntegrationViewModel, DotVVM.Samples.Common
+@js FeatureSamples_Resources_ReactAppModule
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <dot:JsComponent Name="recharts" IncludeInPage="{value: IncludeInPage }" data="{value: Data}">
+    </dot:JsComponent>
+
+
+    <dot:Button Click="{command:  Regenerate()}" Text="Regenerate chart"></dot:Button>
+    <dot:Button Click="{staticCommand: IncludeInPage = false}" Text="Remove from DOM"></dot:Button>
+    <dot:Button Click="{staticCommand: IncludeInPage = true}" Text="Add to DOM"></dot:Button>
+
+</body>
+</html>
+
+

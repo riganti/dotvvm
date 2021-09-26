@@ -14,10 +14,21 @@
     <Content Include="**/*.dotmaster;**/*.dotcontrol;**/*.dothtml" Exclude="obj/**/*.*;bin/**/*.*" CopyToPublishDirectory="Always" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="node_modules\**" />
+    <Compile Remove="script\**" />
+    <Content Remove="node_modules\**" />
+    <Content Remove="script\**" />
+    <EmbeddedResource Remove="node_modules\**" />
+    <EmbeddedResource Remove="script\**" />
+    <None Remove="node_modules\**" />
+    <None Remove="script\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Remove="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="sampleConfig.json" />
+    <None Remove="tsconfig.react.json" />
     <None Remove="Views\ComplexSamples\NestedComboBox\InnerWrapper.dotcontrol" />
     <None Remove="Views\ComplexSamples\NestedComboBox\OuterWrapper.dotcontrol" />
     <None Remove="Views\ComplexSamples\SPAErrorReporting\default.dothtml" />
@@ -74,6 +85,7 @@
     <None Remove="Views\FeatureSamples\JavascriptTranslation\ListMethodTranslations.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\WebUtilityTranslations.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\StringMethodTranslations.dothtml" />
+    <None Remove="Views\FeatureSamples\JsComponentIntegration\ReactComponentIntegration.dothtml" />
     <None Remove="Views\FeatureSamples\JsDirectives\BasicSample.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\ClientSideFiltering.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\LambdaExpressions.dothtml" />
@@ -132,6 +144,7 @@
     <Content Include="Scripts\ClientExtenders.js" />
     <Content Include="Scripts\testResource.js" />
     <Content Include="Scripts\testResource2.js" />
+    <Content Include="tsconfig.react.json" />
     <Content Include="tsconfig.json" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
