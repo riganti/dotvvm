@@ -277,6 +277,16 @@ public static partial class StyleBuilderExtensionMethods
 
         sb.AppendAttribute("class", className);
 
+    /// <summary> Appends a css class (or multiple of them) with the condition. </summary>
+    public static IStyleBuilder<T> AddClass<T>(this IStyleBuilder<T> sb, string className, Func<IStyleMatchContext<T>, ValueOrBinding<bool>> condition) =>
+
+        sb.SetPropertyGroupMember("Class-", className, c => condition(c), StyleOverrideOptions.Append);
+
+    /// <summary> Appends a css class (or multiple of them) with the condition. </summary>
+    public static IStyleBuilder<T> AddClassBinding<T>(this IStyleBuilder<T> sb, string className, string conditionBinding, BindingParserOptions? bindingOptions = null) =>
+
+        sb.SetPropertyGroupMemberBinding("Class-", className, conditionBinding, StyleOverrideOptions.Append);
+
     /// <summary> Appends value to the specified attribute. </summary>
     public static T AppendAttribute<T>(this T sb, string attribute, ValueOrBinding<string> value)
         where T: IStyleBuilder =>

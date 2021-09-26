@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Binding
         {
             this.expressionCompiler = expressionCompiler;
             this.noInitService = 
-                this is NoInitService ? new(this)
+                this is NoInitService ? new(() => this)
                                       : new(() => new NoInitService(options, expressionCompiler, cache));
             foreach (var p in GetDelegates(options.Value.TransformerClasses))
                 resolvers.AddDelegate(p);
