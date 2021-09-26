@@ -266,15 +266,10 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(string), nameof(string.EndsWith), parameters: new[] { typeof(string), typeof(StringComparison) }, translator: new GenericMethodCompiler(
                 a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("endsWith").Invoke(a[0], a[1], a[2])));
             AddMethodTranslator(typeof(string), nameof(string.IsNullOrEmpty), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
-                a => new JsBinaryExpression(
-                    new JsBinaryExpression(a[1], BinaryOperatorType.Equal, new JsLiteral(null)),
-                    BinaryOperatorType.ConditionalOr,
-                    new JsBinaryExpression(a[1].Clone(), BinaryOperatorType.StrictlyEqual, new JsLiteral("")))));
+                a => new JsBinaryExpression(a[1].Member("length", optional: true), BinaryOperatorType.Greater, new JsLiteral(0)).Unary(UnaryOperatorType.LogicalNot)
+            ));
             AddMethodTranslator(typeof(string), nameof(string.IsNullOrWhiteSpace), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
-                a => new JsBinaryExpression(
-                    new JsBinaryExpression(a[1], BinaryOperatorType.Equal, new JsLiteral(null)),
-                    BinaryOperatorType.ConditionalOr,
-                    new JsBinaryExpression(a[1].Clone().Member("trim").Invoke(), BinaryOperatorType.StrictlyEqual, new JsLiteral("")))));
+                a => new JsBinaryExpression(a[1].Member("trim", optional: true).Invoke().Member("length"), BinaryOperatorType.Greater, new JsLiteral(0)).Unary(UnaryOperatorType.LogicalNot)));
 
             var joinStringArrayMethod = typeof(string).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(m => m.Name == nameof(string.Join) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType == typeof(string[]) && m.GetParameters().First().ParameterType == typeof(string)).Single();
