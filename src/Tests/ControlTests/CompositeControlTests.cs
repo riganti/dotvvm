@@ -74,7 +74,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
                 <cc:BindingMappingControl Str={value: Label} IntBinding={value: Integer}/>
-                <cc:BindingMappingControl Str=Bazmek IntBinding={value: 0}/>
+                <cc:BindingMappingControl Str=TtTt IntBinding={value: 0}/>
                 "
             );
 

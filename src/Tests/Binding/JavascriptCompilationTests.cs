@@ -1040,8 +1040,8 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("StringProp.PadRight(2)", "StringProp().padEnd(2)")]
         [DataRow("StringProp.PadLeft(1,'#')", "StringProp().padStart(1,\"#\")")]
         [DataRow("StringProp.PadRight(2,'#')", "StringProp().padEnd(2,\"#\")")]
-        [DataRow("string.IsNullOrEmpty(StringProp)", "StringProp()==null||StringProp()===\"\"")]
-        [DataRow("string.IsNullOrWhiteSpace(StringProp)", "StringProp()==null||StringProp().trim()===\"\"")]
+        [DataRow("string.IsNullOrEmpty(StringProp)", "!(StringProp()?.length>0)")]
+        [DataRow("string.IsNullOrWhiteSpace(StringProp)", "!(StringProp()?.trim().length>0)")]
         public void JavascriptCompilation_StringFunctions(string input, string expected)
         {
             var result = CompileBinding(input, typeof(TestViewModel));
