@@ -15,15 +15,18 @@ namespace DotVVM.Framework.Controls
 {
     public static class DotvvmBindableObjectHelper
     {
+        /// <summary> Gets the DotvvmProperty referenced by the lambda expression. </summary>
         public static DotvvmProperty GetDotvvmProperty<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject =>
             ReflectionUtils.GetDotvvmPropertyFromExpression(prop);
+        /// <summary> Gets the DotvvmProperty with the specified name.  </summary>
         public static DotvvmProperty GetDotvvmProperty<TControl>(this TControl control, string propName)
             where TControl : DotvvmBindableObject
         {
             return DotvvmProperty.ResolveProperty(typeof(TControl), propName) ?? throw new Exception($"Property '{typeof(TControl)}.{propName}' is not a registered DotvvmProperty.");
         }
 
+        /// <summary> Sets binding into the DotvvmProperty referenced in the lambda expression. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetProperty<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop, IBinding? binding)
             where TControl : DotvvmBindableObject
         {
@@ -31,12 +34,14 @@ namespace DotVVM.Framework.Controls
             return control;
         }
 
-        public static TControl SetProperty<TControl, TProperty>(this TControl control, DotvvmProperty prop, IBinding? binding)
+        /// <summary> Sets binding into the DotvvmProperty. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl SetProperty<TControl>(this TControl control, DotvvmProperty prop, IBinding? binding)
             where TControl : DotvvmBindableObject
         {
             control.SetBinding(prop, binding);
             return control;
         }
+        /// <summary> Sets binding into the DotvvmProperty with specified name. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetProperty<TControl>(this TControl control, string propName, IBinding? binding)
             where TControl : DotvvmBindableObject
         {
@@ -44,19 +49,14 @@ namespace DotVVM.Framework.Controls
             return control;
         }
 
-        public static TControl SetProperty<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop, TProperty value)
-            where TControl : DotvvmBindableObject
-        {
-            control.SetValue(control.GetDotvvmProperty(prop), value);
-            return control;
-        }
-
+        /// <summary> Sets value or binding into the DotvvmProperty referenced in the lambda expression. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetProperty<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop, ValueOrBinding<TProperty> value)
             where TControl : DotvvmBindableObject
         {
             control.SetValue(control.GetDotvvmProperty(prop), value);
             return control;
         }
+        /// <summary> Sets value or binding into the DotvvmProperty with specified name. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetProperty<TControl, TProperty>(this TControl control, string propName, ValueOrBinding<TProperty> valueOrBinding)
             where TControl : DotvvmBindableObject
         {
@@ -64,6 +64,7 @@ namespace DotVVM.Framework.Controls
             return control;
         }
 
+        /// <summary> Sets value or binding into the DotvvmProperty. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetProperty<TControl, TProperty>(this TControl control, DotvvmProperty property, ValueOrBinding<TProperty> valueOrBinding)
             where TControl: DotvvmBindableObject
         {
@@ -74,6 +75,7 @@ namespace DotVVM.Framework.Controls
             return control;
         }
 
+        /// <summary> Sets value or binding into the DotvvmProperty. If the <paramref name="valueOrBinding"/> is null, the property is removed. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetProperty<TControl, TProperty>(this TControl control, DotvvmProperty property, ValueOrBinding<TProperty>? valueOrBinding)
             where TControl: DotvvmBindableObject
         {
@@ -81,19 +83,6 @@ namespace DotVVM.Framework.Controls
                 control.SetProperty(property, valueOrBinding.GetValueOrDefault());
             else
                 control.Properties.Remove(property);
-            return control;
-        }
-
-        public static TControl SetProperty<TControl>(this TControl control, DotvvmProperty property, object value)
-            where TControl: DotvvmBindableObject
-        {
-            control.SetValue(property, value);
-            return control;
-        }
-        public static TControl SetProperty<TControl, TProperty>(this TControl control, string propName, object value)
-            where TControl : DotvvmBindableObject
-        {
-            control.SetValue(control.GetDotvvmProperty(propName), value);
             return control;
         }
 
@@ -106,6 +95,7 @@ namespace DotVVM.Framework.Controls
             where TControl : DotvvmBindableObject =>
             control.SetProperty(prop, value);
 
+        /// <summary> Sets a binding into member of the specified property group. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetProperty<TControl, TProperty>(this TControl control, Func<TControl, VirtualPropertyGroupDictionary<TProperty>> prop, string key, IBinding? binding)
             where TControl : DotvvmBindableObject
         {
@@ -114,6 +104,7 @@ namespace DotVVM.Framework.Controls
             return control;
         }
 
+        /// <summary> Sets a value into member of the specified property group. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetProperty<TControl, TProperty>(this TControl control, Func<TControl, VirtualPropertyGroupDictionary<TProperty>> prop, string key, TProperty value)
             where TControl : DotvvmBindableObject
         {
@@ -122,6 +113,7 @@ namespace DotVVM.Framework.Controls
             return control;
         }
 
+        /// <summary> Sets a value or a binding into member of the specified property group. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetProperty<TControl, TProperty>(this TControl control, Func<TControl, VirtualPropertyGroupDictionary<TProperty>> prop, string key, ValueOrBinding<TProperty> value)
             where TControl : DotvvmBindableObject
         {
@@ -130,6 +122,7 @@ namespace DotVVM.Framework.Controls
             return control;
         }
 
+        /// <summary> Sets a value (or a binding) into the specified html attribute. If the value is null, the attribute is removed. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetAttribute<TControl>(this TControl control, string attribute, object? value)
             where TControl : IControlWithHtmlAttributes
         {
@@ -146,18 +139,21 @@ namespace DotVVM.Framework.Controls
             return control;
         }
 
+        /// <summary> Sets a value or a binding into the specified html attribute. If the value is null, the attribute is removed. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetAttribute<TControl, TValue>(this TControl control, string attribute, ValueOrBinding<TValue> value)
             where TControl : IControlWithHtmlAttributes
         {
             return SetAttribute(control, attribute, value.UnwrapToObject());
         }
 
+        /// <summary> Sets a value or a binding into the specified html attribute. If the value is null, the attribute is removed. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetAttribute<TControl, TValue>(this TControl control, string attribute, ValueOrBinding<TValue>? value)
             where TControl : IControlWithHtmlAttributes
         {
             return SetAttribute(control, attribute, value?.UnwrapToObject());
         }
 
+        /// <summary> Sets all properties from the capability into this control. If the control does not support the capability, exception is thrown. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetCapability<TControl, TCapability>(this TControl control, [AllowNull] TCapability capability, string prefix = "")
             where TControl: DotvvmBindableObject
         {
@@ -171,6 +167,7 @@ namespace DotVVM.Framework.Controls
             return control;
         }
 
+        /// <summary> Adds all <paramref name="children"/> into control.Children (nulls are skipped). Returns <paramref name="control"/> for fluent API usage. </summary>
         public static T AppendChildren<T>(this T control, params DotvvmControl?[]? children)
             where T : DotvvmControl
         {
@@ -187,6 +184,7 @@ namespace DotVVM.Framework.Controls
 
         }
 
+        /// <summary> Adds all <paramref name="children"/> into control.Children (nulls are skipped). Returns <paramref name="control"/> for fluent API usage. </summary>
         public static T AppendChildren<T>(this T control, IEnumerable<DotvvmControl?>? children)
             where T : DotvvmControl 
         {
@@ -202,23 +200,32 @@ namespace DotVVM.Framework.Controls
             return control;
         }
 
+        /// <summary>
+        /// Gets the value binding set to the DotvvmProperty referenced in the lambda expression. Returns null if the property is not a binding, throws if the binding some kind of command.
+        /// </summary>
         public static IValueBinding<TProperty>? GetValueBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject
             => (IValueBinding<TProperty>?)control.GetValueBinding(control.GetDotvvmProperty(prop));
 
+        /// <summary>
+        /// Gets the command binding set to the DotvvmProperty referenced in the lambda expression. Returns null if the property is not a binding, throws if the binding is not command, controlCommand or staticCommand.
+        /// </summary>
         public static ICommandBinding<TProperty>? GetCommandBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject
             => (ICommandBinding<TProperty>?)control.GetCommandBinding(control.GetDotvvmProperty(prop));
 
+        /// <summary> Returns the value of the DotvvmProperty referenced in the lambda expression. If the property contains a binding, it is evaluted. </summary>
         [return: MaybeNull]
         public static TProperty GetValue<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject
             => control.GetValue<TProperty>(control.GetDotvvmProperty(prop));
 
+        /// <summary> Gets the value of the DotvvmProperty referenced in the lambda expression. Bindings are always returned, not evaluated. </summary>
         public static ValueOrBinding<TProperty> GetValueOrBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject
             => control.GetValueOrBinding<TProperty>(control.GetDotvvmProperty(prop));
 
+        /// <summary> Gets the specified control capability - reads all the properties in the capability at once. Throws if this control does not support the capability. </summary>
         public static TCapability GetCapability<TCapability>(this DotvvmBindableObject control, string prefix = "")
         {
             var c = DotvvmCapabilityProperty.Find(control.GetType(), typeof(TCapability), prefix);
@@ -239,6 +246,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+        /// <summary> Returns somewhat readable string representing this dotvvm control. </summary>
         public static string DebugString(this DotvvmBindableObject control, DotvvmConfiguration? config = null, bool multiline = true)
         {
             if (control == null) return "null";
