@@ -45,11 +45,12 @@ namespace DotVVM.Framework.Controls
             var controlBuilderFactory = context.Services.GetRequiredService<IControlBuilderFactory>();
             var b = controlBuilderFactory.GetControlBuilder(path);
             var controlType = b.descriptor.ControlType;
-            if (typeof(DotvvmMarkupControl).IsAssignableFrom(controlType))
+            if (!typeof(DotvvmMarkupControl).IsAssignableFrom(controlType))
                 throw new DotvvmControlException(this, $"'{path}' is not a markup control.");
-            if (ExpectedControlType.IsAssignableFrom(controlType))
+            if (!ExpectedControlType.IsAssignableFrom(controlType))
                 throw new DotvvmControlException(this, $"'{path}' is not of expected type {ExpectedControlType.Name}.");
             var control = (DotvvmMarkupControl)b.builder.Value.BuildControl(controlBuilderFactory, context.Services);
+            SetProperties?.Invoke(control);
 
             CreatedControl = control;
             Children.Add(control);

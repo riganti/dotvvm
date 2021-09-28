@@ -19,8 +19,12 @@ namespace DotVVM.Framework.Tests.ControlTests
     public class CompositeControlTests
     {
         ControlTestHelper cth = new ControlTestHelper(config: config => {
+            _ = Repeater.RenderAsNamedTemplateProperty;
             config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);
             config.Markup.AddCodeControls("cc", exampleControl: typeof(WrappedHtmlControl));
+            config.Markup.AddMarkupControl("cc", "CustomControlWithSomeProperty", "x/CustomControlWithSomeProperty.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "CustomBasicControl", "x/CustomBasicControl.dotcontrol");
+
         });
         OutputChecker check = new OutputChecker("testoutputs");
 
@@ -76,6 +80,41 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <cc:BindingMappingControl Str={value: Label} IntBinding={value: Integer}/>
                 <cc:BindingMappingControl Str=TtTt IntBinding={value: 0}/>
                 "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task MarkupControlCreatedFromCodeControl()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <dot:Placeholder DataContext={value: Integer}>
+                    Markup control referenced as tag
+                    <cc:CreatingMarkupControl TestCase=a  />
+                    Markup control referenced as filename
+                    <cc:CreatingMarkupControl TestCase=b />
+                    Markup control with property
+                    <cc:CreatingMarkupControl TestCase=c />
+                    Markup control with property, but different
+                    <cc:CreatingMarkupControl TestCase=d />
+                </dot:Placeholder>
+                ",
+                markupFiles: new Dictionary<string, string> {
+                    ["x/CustomControlWithSomeProperty.dotcontrol"] = @"
+                        @viewModel int
+                        @baseType DotVVM.Framework.Tests.ControlTests.CustomControlWithSomeProperty
+                        @wrapperTag div
+                        {{value: _this + _control.SomeProperty.Length}}",
+                    ["x/CustomBasicControl.dotcontrol"] = @"
+                        @viewModel int
+                        @noWrapperTag
+                        {{value: _this}}",
+                    ["x/CustomBasicControl2.dotcontrol"] = @"
+                        @viewModel int
+                        @noWrapperTag
+                        {{value: _this + 1}}",
+                }
             );
 
             check.CheckString(r.FormattedHtml, fileExtension: "html");
@@ -197,6 +236,22 @@ namespace DotVVM.Framework.Tests.ControlTests
                     new Literal(intBinding.Select(s => s * 2), renderSpan: true)
                         .SetProperty(c => c.Visible, intBinding.Select(s => s > 10)),
                 }
+            };
+        }
+    }
+    public class CreatingMarkupControl: CompositeControl
+    {
+        public static DotvvmControl GetContents(
+            string testCase
+        )
+        {
+            return testCase switch {
+                "a" => new MarkupControlContainer("cc:CustomBasicControl"),
+                "b" => new MarkupControlContainer("x/CustomBasicControl2.dotcontrol"),
+                "c" => new MarkupControlContainer<CustomControlWithSomeProperty>("cc:CustomControlWithSomeProperty", c => c.SomeProperty = "ahoj"),
+                "d" => new MarkupControlContainer("cc:CustomControlWithSomeProperty", c => {
+                        c.SetValue(CustomControlWithSomeProperty.SomePropertyProperty, "test");
+                    })
             };
         }
     }

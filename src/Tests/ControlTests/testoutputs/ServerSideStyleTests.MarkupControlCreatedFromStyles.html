@@ -1,0 +1,40 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- ko with: int -->                     Markup control referenced as tag
+		<div>
+			<!-- ko dotvvm-with-control-properties: {  } -->                         
+			<!-- ko text: $rawData -->
+			<!-- /ko -->
+			<!-- /ko -->
+		</div>
+		Markup control referenced as filename
+		<div>
+			<!-- ko dotvvm-with-control-properties: {  } -->                         
+			<!-- ko text: $data + 1 -->
+			<!-- /ko -->
+			<!-- /ko -->
+		</div>
+		Markup control with property
+		<div>
+			<div>
+				<!-- ko dotvvm-with-control-properties: { "SomeProperty": "ahoj" } -->                                                 
+				<!-- ko text: $data + $control.SomeProperty()?.length -->
+				<!-- /ko -->
+				<!-- /ko -->
+			</div>
+		</div>
+		Markup control with property, but different
+		<div>
+			<div>
+				<!-- ko dotvvm-with-control-properties: { "SomeProperty": "test" } -->                                                 
+				<!-- ko text: $data + $control.SomeProperty()?.length -->
+				<!-- /ko -->
+				<!-- /ko -->
+			</div>
+		</div>
+		
+		<!-- /ko -->
+	</body>
+</html>

@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Compilation.Styles
                 {
                     var templateControl = (DotvvmMarkupControl)Activator.CreateInstance(descriptor.ControlType);
                     markupControl.SetProperties(templateControl);
-                    foreach (var p in obj.properties)
+                    foreach (var p in templateControl.properties)
                     {
                         control.SetProperty(
                             TranslateProperty(p.Key, p.Value, dataContext, config),
