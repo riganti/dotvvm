@@ -197,7 +197,7 @@ namespace DotVVM.Framework.Binding
             {
                 defaultValue = ValueOrBinding<object>.FromBoxedValue(defaultAttribute.Value);
             }
-            var boxedDefaultValue = defaultValue?.BindingOrDefault ?? defaultValue?.BoxedValue;
+            var boxedDefaultValue = defaultValue?.UnwrapToObject();
 
             var valueParameter = Expression.Parameter(propertyType, "value");
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
@@ -156,8 +156,25 @@ public static class StyleMatchContextExtensionMethods
     /// </summary>
     public static bool HasProperty<TControl>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, object>> property)
     {
-        var member = ReflectionUtils.GetMemberFromExpression(property);
-        return c.Control.Properties.Any(p => p.Key.PropertyInfo == member);
+        var prop = ReflectionUtils.GetDotvvmPropertyFromExpression(property);
+        return c.HasProperty(prop);
+    }
+
+    /// <summary>
+    /// Determines whether the control has the given <see cref="DotvvmProperty"/>.
+    /// </summary>
+    public static bool HasBinding(this IStyleMatchContext c, DotvvmProperty property)
+    {
+        return c.Control.Properties.TryGetValue(property, out var r) && r.GetValue() is IBinding;
+    }
+
+    /// <summary>
+    /// Determines whether the control has the given <see cref="DotvvmProperty"/>.
+    /// </summary>
+    public static bool HasBinding<TControl>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, object>> property)
+    {
+        var prop = ReflectionUtils.GetDotvvmPropertyFromExpression(property);
+        return c.HasBinding(prop);
     }
 
     /// <summary>
@@ -165,15 +182,23 @@ public static class StyleMatchContextExtensionMethods
     /// </summary>
     public static bool HasHtmlAttribute(this IStyleMatchContext c, string attributeName)
     {
-        return c.HasPropertyGroupMember("", attributeName);
+        return c.HasPropertyGroupMember("html:", attributeName);
     }
 
     /// <summary>
     /// Determines whether the control has an HTML attribute of the specified name.
     /// </summary>
-    public static string? GetHtmlAttribute(this IStyleMatchContext c, string attributeName)
+    public static ValueOrBinding<string>? GetHtmlAttribute(this IStyleMatchContext c, string attributeName)
     {
-        return c.GetPropertyGroupMember("", attributeName)?.ToString();
+        return c.GetPropertyGroupMember<object>("html:", attributeName)?.UpCast<string>();
+    }
+
+    /// <summary>
+    /// Determines whether the control has an HTML attribute of the specified name.
+    /// </summary>
+    public static string? GetHtmlAttributeValue(this IStyleMatchContext c, string attributeName)
+    {
+        return c.GetPropertyGroupMember<object>("html:", attributeName)?.ValueOrDefault?.ToString();
     }
 
     public static bool HasPropertyGroupMember(this IStyleMatchContext c, string prefix, string memberName)
@@ -182,10 +207,15 @@ public static class StyleMatchContextExtensionMethods
         return prop != null && c.HasProperty((DotvvmProperty)prop.GetDotvvmProperty(memberName));
     }
     
-    public static object? GetPropertyGroupMember(this IStyleMatchContext c, string prefix, string memberName)
+    public static ValueOrBinding<T>? GetPropertyGroupMember<T>(this IStyleMatchContext c, string prefix, string memberName)
     {
-        var prop = c.Control.Metadata.PropertyGroups.FirstOrDefault(p => p.Prefix == prefix).PropertyGroup;
-        return prop is null ? null : c.Property<object>((DotvvmProperty)prop.GetDotvvmProperty(memberName));
+        var propGroup = c.Control.Metadata.PropertyGroups.FirstOrDefault(p => p.Prefix == prefix).PropertyGroup;
+        if (propGroup is null)
+            return null;
+        var prop = (DotvvmProperty)propGroup.GetDotvvmProperty(memberName);
+        if (!c.HasProperty(prop))
+            return null;
+        else return c.Property<T>(prop);
     }
 
     /// <summary>
@@ -194,7 +224,7 @@ public static class StyleMatchContextExtensionMethods
     /// </summary>
     public static bool HasClass(this IStyleMatchContext c, params string[] classes)
     {
-        var attr = c.GetHtmlAttribute("class")?.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        var attr = c.GetHtmlAttributeValue("class")?.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         if (attr is object)
         {
             return classes.All(c => attr.Contains(c));
@@ -208,50 +238,58 @@ public static class StyleMatchContextExtensionMethods
     /// <summary> Returns tag name, if the current control is HtmlGenericControl. If the type is unknown, returns null. </summary>
     public static string? TagName(this IStyleMatchContext c) =>
         c.ControlType() == typeof(HtmlGenericControl) ? c.Control.ConstructorParameters![0] as string :
-        c.IsType<ConfigurableHtmlControl>() ? c.Property<string>(ConfigurableHtmlControl.WrapperTagNameProperty) :
-        c.IsType<Repeater>() ? c.Property<string>(Repeater.WrapperTagNameProperty) :
+        c.IsType<ConfigurableHtmlControl>() ? c.PropertyValue<string>(ConfigurableHtmlControl.WrapperTagNameProperty) :
+        c.IsType<Repeater>() ? c.PropertyValue<string>(Repeater.WrapperTagNameProperty) :
         null;
 
     /// <summary> Gets the property value or null if it's not defined. </summary>
-    public static T? Property<T>(this IStyleMatchContext c, DotvvmProperty property)
-        where T : class
+    [return: MaybeNull]
+    public static T PropertyValue<T>(this IStyleMatchContext c, DotvvmProperty property)
     {
         ResolvedPropertySetter s;
         if (c.Control.Properties.TryGetValue(property, out s))
         {
-            return (s as ResolvedPropertyValue)?.Value as T;
+            var value = s.GetValue();
+            if (value is T or null)
+                return (T?)value;
         }
-        return null;
+        return GetDefault<T>(property);
     }
 
     /// <summary> Gets the property value or null if it's not defined. </summary>
-    public static T? PropertyS<T>(this IStyleMatchContext c, DotvvmProperty property)
-        where T : struct
+    [return: MaybeNull]
+    public static TProp PropertyValue<TControl, TProp>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, TProp>> pp)
     {
-        ResolvedPropertySetter s;
-        if (c.Control.Properties.TryGetValue(property, out s))
+        var property = ReflectionUtils.GetDotvvmPropertyFromExpression(pp);
+        return c.PropertyValue<TProp>(property);
+    }
+
+    /// <summary> Gets the property value or null if it's not defined. </summary>
+    public static ValueOrBinding<T> Property<T>(this IStyleMatchContext c, DotvvmProperty property)
+    {
+        if (c.Control.Properties.TryGetValue(property, out var s))
         {
-            return (s as ResolvedPropertyValue)?.Value as T?;
+            var value = s.GetValue();
+            if (value is IBinding binding)
+                return new ValueOrBinding<T>(binding);
+            if (value is T or null)
+                return new ValueOrBinding<T>((T)value!);
         }
-        return null;
+        return new ValueOrBinding<T>(GetDefault<T>(property));
+    }
+
+    private static T GetDefault<T>(DotvvmProperty p)
+    {
+        if (p.DefaultValue is T d) return d;
+        if (p.DefaultValue is null && !typeof(T).IsValueType) return default!;
+        throw new Exception($"Property {p} is probably not of type {typeof(T).Name}, its default value {p.DefaultValue ?? "null"} is not assignable to the requested type.");
     }
 
     /// <summary> Gets the property value or null if it's not defined. </summary>
-    public static TProp? PropertyS<TControl, TProp>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, TProp>> pp)
-        where TProp : struct
+    public static ValueOrBinding<TProp> Property<TControl, TProp>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, TProp>> pp)
     {
-        var member = ReflectionUtils.GetMemberFromExpression(pp);
-        ResolvedPropertySetter s = c.Control.Properties.FirstOrDefault(p => p.Key.PropertyInfo == member).Value;
-        return (s as ResolvedPropertyValue)?.Value as TProp?;
-    }
-
-    /// <summary> Gets the property value or null if it's not defined. </summary>
-    public static TProp? Property<TControl, TProp>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, TProp>> pp)
-        where TProp : class
-    {
-        var member = ReflectionUtils.GetMemberFromExpression(pp);
-        ResolvedPropertySetter s = c.Control.Properties.FirstOrDefault(p => p.Key.PropertyInfo == member).Value;
-        return (s as ResolvedPropertyValue)?.Value as TProp;
+        var property = ReflectionUtils.GetDotvvmPropertyFromExpression(pp);
+        return c.Property<TProp>(property);
     }
 
     private static IStyleMatchContext ChildContext(this IStyleMatchContext c, ResolvedControl control) =>

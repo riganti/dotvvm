@@ -226,7 +226,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                           null)
             .WithAnnotation(new ViewModelInfoAnnotation(expression.Type, containsObservables: false));
 
-        public JsLiteral TranslateConstant(ConstantExpression expression) =>
+        public static JsLiteral TranslateConstant(ConstantExpression expression) =>
             new JsLiteral(expression.Value).WithAnnotation(new ViewModelInfoAnnotation(expression.Type, containsObservables: false));
 
         public JsExpression TranslateMethodCall(MethodCallExpression expression)

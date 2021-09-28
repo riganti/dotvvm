@@ -251,7 +251,7 @@ namespace DotVVM.Framework.Utils
                 if (lc != null && rc != null)
                 {
                     if (node.Method != null)
-                        return Expression.Constant(node.Method.Invoke(null, new object[] { lc.Value, rc.Value }));
+                        return Expression.Constant(node.Method.Invoke(null, new object[] { lc.Value, rc.Value }), node.Type);
                     else return node;
                 }
                 else return base.VisitBinary(node);
@@ -260,7 +260,7 @@ namespace DotVVM.Framework.Utils
             protected override Expression VisitUnary(UnaryExpression node)
             {
                 var op = Visit(node.Operand);
-                if (op is ConstantExpression constantExpression)
+                if (op is ConstantExpression constantExpression && node.Method != null)
                 {
                     return Expression.Constant(
                         node.Method.Invoke(null, new object[] { constantExpression.Value }), node.Type);

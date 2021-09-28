@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
@@ -213,6 +213,8 @@ namespace DotVVM.Framework.Compilation.Styles
                 .ToArray();
             foreach (var c in innerControls)
             {
+                if (c is null)
+                    continue;
                 c.Parent = control;
                 innerControlsStyle.Applicator.ApplyStyle(c, new StyleMatchContext<DotvvmBindableObject>(context, c, context.Configuration));
             }
