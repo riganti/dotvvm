@@ -1,130 +1,1629 @@
 {
-  "markup": {
-    "controls": [
-      {
-        "tagPrefix": "dot",
-        "namespace": "DotVVM.Framework.Controls",
-        "assembly": "DotVVM.Framework"
+  "config": {
+    "markup": {
+      "controls": [
+        {
+          "tagPrefix": "dot",
+          "namespace": "DotVVM.Framework.Controls",
+          "assembly": "DotVVM.Framework"
+        }
+      ],
+      "importedNamespaces": [
+        {
+          "namespace": "DotVVM.Framework.Binding.HelperNamespace"
+        },
+        {
+          "namespace": "System.Linq"
+        }
+      ],
+      "ViewCompilation": {
+        "compileInParallel": true
       }
-    ],
-    "importedNamespaces": [
-      {
-        "namespace": "DotVVM.Framework.Binding.HelperNamespace"
+    },
+    "resources": {
+      "DotVVM.Framework.ResourceManagement.InlineScriptResource": {
+        "dotvvm": {
+          "Code": "",
+          "Defer": true,
+          "Dependencies": [
+            "dotvvm.internal"
+          ],
+          "RenderPosition": "Anywhere"
+        }
       },
-      {
-        "namespace": "System.Linq"
+      "DotVVM.Framework.ResourceManagement.ScriptModuleResource": {
+        "dotvvm.internal": {
+          "Defer": true,
+          "Location": {
+            "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
+            "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
+            "Name": "DotVVM.Framework.obj.javascript.root_only.dotvvm-root.js",
+            "DebugName": "DotVVM.Framework.obj.javascript.root_only_debug.dotvvm-root.js"
+          },
+          "MimeType": "text/javascript",
+          "Dependencies": [
+            "knockout"
+          ],
+          "RenderPosition": "Anywhere"
+        },
+        "dotvvm.internal-spa": {
+          "Defer": true,
+          "Location": {
+            "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
+            "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
+            "Name": "DotVVM.Framework.obj.javascript.root_spa.dotvvm-root.js",
+            "DebugName": "DotVVM.Framework.obj.javascript.root_spa_debug.dotvvm-root.js"
+          },
+          "MimeType": "text/javascript",
+          "Dependencies": [
+            "knockout"
+          ],
+          "RenderPosition": "Anywhere"
+        }
+      },
+      "scripts": {
+        "dotvvm.debug": {
+          "Defer": true,
+          "Location": {
+            "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
+            "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
+            "Name": "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js",
+            "DebugName": "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js"
+          },
+          "MimeType": "text/javascript",
+          "Dependencies": [
+            "dotvvm"
+          ],
+          "RenderPosition": "Anywhere"
+        },
+        "globalize": {
+          "Defer": true,
+          "Location": {
+            "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
+            "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
+            "Name": "DotVVM.Framework.Resources.Scripts.Globalize.globalize.min.js",
+            "DebugName": "DotVVM.Framework.Resources.Scripts.Globalize.globalize.min.js"
+          },
+          "MimeType": "text/javascript",
+          "RenderPosition": "Anywhere"
+        },
+        "knockout": {
+          "Defer": true,
+          "Location": {
+            "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
+            "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
+            "Name": "DotVVM.Framework.Resources.Scripts.knockout-latest.js",
+            "DebugName": "DotVVM.Framework.Resources.Scripts.knockout-latest.debug.js"
+          },
+          "MimeType": "text/javascript",
+          "RenderPosition": "Anywhere"
+        }
+      },
+      "stylesheets": {
+        "dotvvm.fileUpload-css": {
+          "Location": {
+            "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
+            "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
+            "Name": "DotVVM.Framework.Resources.Styles.DotVVM.FileUpload.css",
+            "DebugName": "DotVVM.Framework.Resources.Styles.DotVVM.FileUpload.css"
+          },
+          "MimeType": "text/css"
+        },
+        "dotvvm.internal-css": {
+          "Location": {
+            "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
+            "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
+            "Name": "DotVVM.Framework.Resources.Styles.DotVVM.Internal.css",
+            "DebugName": "DotVVM.Framework.Resources.Styles.DotVVM.Internal.css"
+          },
+          "MimeType": "text/css"
+        }
       }
-    ],
-    "ViewCompilation": {
-      "compileInParallel": true
+    },
+    "security": {},
+    "runtime": {},
+    "defaultCulture": "en-US",
+    "experimentalFeatures": {},
+    "debug": false,
+    "diagnostics": {
+      "compilationPage": {}
     }
   },
-  "resources": {
-    "DotVVM.Framework.ResourceManagement.InlineScriptResource": {
-      "dotvvm": {
-        "Code": "",
-        "Defer": true,
-        "Dependencies": [
-          "dotvvm.internal"
-        ],
-        "RenderPosition": "Anywhere"
+  "properties": {
+    "DotVVM.Framework.Controls.AuthenticatedView": {
+      "AuthenticatedTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
+      "NotAuthenticatedTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
       }
     },
-    "DotVVM.Framework.ResourceManagement.ScriptModuleResource": {
-      "dotvvm.internal": {
-        "Defer": true,
-        "Location": {
-          "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
-          "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.obj.javascript.root_only.dotvvm-root.js",
-          "DebugName": "DotVVM.Framework.obj.javascript.root_only_debug.dotvvm-root.js"
-        },
-        "MimeType": "text/javascript",
-        "Dependencies": [
-          "knockout"
-        ],
-        "RenderPosition": "Anywhere"
+    "DotVVM.Framework.Controls.Button": {
+      "ButtonTagName": {
+        "type": "DotVVM.Framework.Controls.ButtonTagName, DotVVM.Framework"
       },
-      "dotvvm.internal-spa": {
-        "Defer": true,
-        "Location": {
-          "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
-          "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.obj.javascript.root_spa.dotvvm-root.js",
-          "DebugName": "DotVVM.Framework.obj.javascript.root_spa_debug.dotvvm-root.js"
-        },
-        "MimeType": "text/javascript",
-        "Dependencies": [
-          "knockout"
-        ],
-        "RenderPosition": "Anywhere"
+      "IsSubmitButton": {
+        "type": "System.Boolean"
       }
     },
-    "scripts": {
-      "dotvvm.debug": {
-        "Defer": true,
-        "Location": {
-          "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
-          "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js",
-          "DebugName": "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js"
-        },
-        "MimeType": "text/javascript",
-        "Dependencies": [
-          "dotvvm"
-        ],
-        "RenderPosition": "Anywhere"
+    "DotVVM.Framework.Controls.ButtonBase": {
+      "Click": {
+        "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
       },
-      "globalize": {
-        "Defer": true,
-        "Location": {
-          "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
-          "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.Resources.Scripts.Globalize.globalize.min.js",
-          "DebugName": "DotVVM.Framework.Resources.Scripts.Globalize.globalize.min.js"
-        },
-        "MimeType": "text/javascript",
-        "RenderPosition": "Anywhere"
+      "Enabled": {
+        "type": "System.Boolean"
       },
-      "knockout": {
-        "Defer": true,
-        "Location": {
-          "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
-          "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.Resources.Scripts.knockout-latest.js",
-          "DebugName": "DotVVM.Framework.Resources.Scripts.knockout-latest.debug.js"
-        },
-        "MimeType": "text/javascript",
-        "RenderPosition": "Anywhere"
+      "Text": {
+        "type": "System.String"
       }
     },
-    "stylesheets": {
-      "dotvvm.fileUpload-css": {
-        "Location": {
-          "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
-          "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.Resources.Styles.DotVVM.FileUpload.css",
-          "DebugName": "DotVVM.Framework.Resources.Styles.DotVVM.FileUpload.css"
-        },
-        "MimeType": "text/css"
+    "DotVVM.Framework.Controls.CheckableControlBase": {
+      "Changed": {
+        "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
       },
-      "dotvvm.internal-css": {
-        "Location": {
-          "$type": "DotVVM.Framework.ResourceManagement.EmbeddedResourceLocation, DotVVM.Framework",
-          "Assembly": "DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-          "Name": "DotVVM.Framework.Resources.Styles.DotVVM.Internal.css",
-          "DebugName": "DotVVM.Framework.Resources.Styles.DotVVM.Internal.css"
+      "CheckedValue": {
+        "type": "System.Object"
+      },
+      "Enabled": {
+        "type": "System.Boolean"
+      },
+      "ItemKeyBinding": {
+        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "CheckedValue",
+            "PropertyDependsOn": [
+              "CheckedValue"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ]
+      },
+      "Text": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Controls.CheckBox": {
+      "Checked": {
+        "type": "System.Nullable`1[[System.Boolean, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+      },
+      "CheckedItems": {
+        "type": "System.Collections.IEnumerable"
+      }
+    },
+    "DotVVM.Framework.Controls.ClaimView": {
+      "Claim": {
+        "type": "System.String",
+        "required": true
+      },
+      "HasClaimTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
+      "HasNotClaimTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
+      "HideForAnonymousUsers": {
+        "type": "System.Boolean"
+      },
+      "Values": {
+        "type": "System.String[]"
+      }
+    },
+    "DotVVM.Framework.Controls.ComboBox": {
+      "EmptyItemText": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Controls.ConcurrencyQueueSetting": {
+      "ConcurrencyQueue": {
+        "type": "System.String"
+      },
+      "EventName": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Controls.ConfigurableHtmlControl": {
+      "RenderWrapperTag": {
+        "type": "System.Boolean"
+      },
+      "WrapperTagName": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Controls.ConfirmPostBackHandler": {
+      "Message": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Controls.Content": {
+      "ContentPlaceHolderID": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Controls.DataPager": {
+      "DataSet": {
+        "type": "DotVVM.Framework.Controls.IPageableGridViewDataSet, DotVVM.Core"
+      },
+      "Enabled": {
+        "type": "System.Boolean"
+      },
+      "FirstPageTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
+      "HideWhenOnlyOnePage": {
+        "type": "System.Boolean"
+      },
+      "LastPageTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
+      "NextPageTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
+      "PreviousPageTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
+      "RenderLinkForCurrentPage": {
+        "type": "System.Boolean"
+      }
+    },
+    "DotVVM.Framework.Controls.DotvvmBindableObject": {
+      "DataContext": {
+        "type": "System.Object",
+        "isValueInherited": true
+      }
+    },
+    "DotVVM.Framework.Controls.DotvvmControl": {
+      "ClientID": {
+        "type": "System.String",
+        "mappingMode": "Exclude"
+      },
+      "ClientIDMode": {
+        "type": "DotVVM.Framework.Controls.ClientIDMode, DotVVM.Framework",
+        "isValueInherited": true
+      },
+      "ID": {
+        "type": "System.String"
+      },
+      "IncludeInPage": {
+        "type": "System.Boolean"
+      }
+    },
+    "DotVVM.Framework.Controls.EmptyData": {
+      "RenderWrapperTag": {
+        "type": "System.Boolean"
+      },
+      "WrapperTagName": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Controls.EnvironmentView": {
+      "Environments": {
+        "type": "System.String[]",
+        "required": true
+      },
+      "IsEnvironmentTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
+      "IsNotEnvironmentTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      }
+    },
+    "DotVVM.Framework.Controls.Events": {
+      "Click": {
+        "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
+        "isActive": true
+      },
+      "DoubleClick": {
+        "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
+        "isActive": true
+      }
+    },
+    "DotVVM.Framework.Controls.FileUpload": {
+      "AllowedFileTypes": {
+        "type": "System.String"
+      },
+      "AllowMultipleFiles": {
+        "type": "System.Boolean"
+      },
+      "MaxFileSize": {
+        "type": "System.Nullable`1[[System.Int32, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+      },
+      "NumberOfFilesIndicatorText": {
+        "type": "System.String",
+        "isValueInherited": true
+      },
+      "SuccessMessageText": {
+        "type": "System.String",
+        "isValueInherited": true
+      },
+      "UploadButtonText": {
+        "type": "System.String",
+        "isValueInherited": true
+      },
+      "UploadCompleted": {
+        "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
+      },
+      "UploadedFiles": {
+        "type": "DotVVM.Framework.Controls.UploadedFilesCollection, DotVVM.Framework",
+        "required": true
+      },
+      "UploadErrorMessageText": {
+        "type": "System.String",
+        "isValueInherited": true
+      }
+    },
+    "DotVVM.Framework.Controls.FormControls": {
+      "Enabled": {
+        "type": "System.Boolean",
+        "isValueInherited": true
+      }
+    },
+    "DotVVM.Framework.Controls.GridView": {
+      "Columns": {
+        "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.GridViewColumn, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ],
+        "mappingMode": "InnerElement"
+      },
+      "EditRowDecorators": {
+        "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.Decorator, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ],
+        "mappingMode": "InnerElement"
+      },
+      "EmptyDataTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
+      "FilterPlacement": {
+        "type": "DotVVM.Framework.Controls.GridViewFilterPlacement, DotVVM.Framework"
+      },
+      "HeaderRowDecorators": {
+        "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.Decorator, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
+        "mappingMode": "InnerElement"
+      },
+      "InlineEditing": {
+        "type": "System.Boolean"
+      },
+      "RowDecorators": {
+        "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.Decorator, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ],
+        "mappingMode": "InnerElement"
+      },
+      "ShowHeaderWhenNoData": {
+        "type": "System.Boolean"
+      },
+      "SortChanged": {
+        "type": "System.Action`1[[System.String, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+      }
+    },
+    "DotVVM.Framework.Controls.GridViewCheckBoxColumn": {
+      "ValidatorPlacement": {
+        "type": "DotVVM.Framework.Controls.ValidatorPlacement, DotVVM.Framework"
+      },
+      "ValueBinding": {
+        "type": "System.Boolean",
+        "required": true
+      }
+    },
+    "DotVVM.Framework.Controls.GridViewColumn": {
+      "AllowSorting": {
+        "type": "System.Boolean",
+        "dataContextManipulation": {
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework",
+          "TypeId": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework"
+        }
+      },
+      "CellDecorators": {
+        "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.Decorator, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
+        "mappingMode": "InnerElement"
+      },
+      "CssClass": {
+        "type": "System.String"
+      },
+      "EditCellDecorators": {
+        "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.Decorator, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
+        "mappingMode": "InnerElement"
+      },
+      "FilterTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "dataContextManipulation": {
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework",
+          "TypeId": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework"
         },
-        "MimeType": "text/css"
+        "mappingMode": "InnerElement"
+      },
+      "HeaderCellDecorators": {
+        "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.Decorator, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
+        "dataContextManipulation": {
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework",
+          "TypeId": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework"
+        },
+        "mappingMode": "InnerElement"
+      },
+      "HeaderCssClass": {
+        "type": "System.String",
+        "dataContextManipulation": {
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework",
+          "TypeId": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework"
+        }
+      },
+      "HeaderTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "dataContextManipulation": {
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework",
+          "TypeId": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework"
+        },
+        "mappingMode": "InnerElement"
+      },
+      "HeaderText": {
+        "type": "System.String",
+        "dataContextManipulation": {
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework",
+          "TypeId": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework"
+        }
+      },
+      "IsEditable": {
+        "type": "System.Boolean",
+        "dataContextManipulation": {
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework",
+          "TypeId": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework"
+        }
+      },
+      "SortAscendingHeaderCssClass": {
+        "type": "System.String",
+        "dataContextManipulation": {
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework",
+          "TypeId": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework"
+        }
+      },
+      "SortDescendingHeaderCssClass": {
+        "type": "System.String",
+        "dataContextManipulation": {
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework",
+          "TypeId": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework"
+        }
+      },
+      "SortExpression": {
+        "type": "System.String",
+        "dataContextManipulation": {
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework",
+          "TypeId": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework"
+        }
+      },
+      "Visible": {
+        "type": "System.Boolean",
+        "dataContextManipulation": {
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework",
+          "TypeId": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework"
+        }
+      },
+      "Width": {
+        "type": "System.String",
+        "dataContextManipulation": {
+          "$type": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework",
+          "TypeId": "DotVVM.Framework.Compilation.ControlTree.PopDataContextManipulationAttribute, DotVVM.Framework"
+        }
+      }
+    },
+    "DotVVM.Framework.Controls.GridViewTemplateColumn": {
+      "ContentTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement",
+        "required": true
+      },
+      "EditTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      }
+    },
+    "DotVVM.Framework.Controls.GridViewTextColumn": {
+      "ChangedBinding": {
+        "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework"
+      },
+      "FormatString": {
+        "type": "System.String"
+      },
+      "ValidatorPlacement": {
+        "type": "DotVVM.Framework.Controls.ValidatorPlacement, DotVVM.Framework"
+      },
+      "ValueBinding": {
+        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
+        "required": true
+      },
+      "ValueType": {
+        "type": "DotVVM.Framework.Controls.FormatValueType, DotVVM.Framework"
+      }
+    },
+    "DotVVM.Framework.Controls.HtmlGenericControl": {
+      "InnerText": {
+        "type": "System.String"
+      },
+      "Visible": {
+        "type": "System.Boolean"
+      }
+    },
+    "DotVVM.Framework.Controls.HtmlLiteral": {
+      "Html": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Controls.Infrastructure.DotvvmView": {
+      "Directives": {
+        "type": "System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "isValueInherited": true
+      }
+    },
+    "DotVVM.Framework.Controls.InlineScript": {
+      "Dependencies": {
+        "type": "System.String[]"
+      },
+      "Script": {
+        "type": "System.String",
+        "mappingMode": "InnerElement"
+      }
+    },
+    "DotVVM.Framework.Controls.Internal": {
+      "ClientIDFragment": {
+        "type": "System.String"
+      },
+      "CurrentIndexBinding": {
+        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework"
+      },
+      "DataContextType": {
+        "type": "DotVVM.Framework.Compilation.ControlTree.DataContextStack, DotVVM.Framework",
+        "isValueInherited": true
+      },
+      "IsControlBindingTarget": {
+        "type": "System.Boolean"
+      },
+      "IsMasterPageCompositionFinished": {
+        "type": "System.Boolean"
+      },
+      "IsNamingContainer": {
+        "type": "System.Boolean"
+      },
+      "IsSpaPage": {
+        "type": "System.Boolean",
+        "isValueInherited": true
+      },
+      "MarkupFileName": {
+        "type": "System.String",
+        "isValueInherited": true
+      },
+      "MarkupLineNumber": {
+        "type": "System.Int32"
+      },
+      "PathFragment": {
+        "type": "System.String"
+      },
+      "ReferencedViewModuleInfo": {
+        "type": "DotVVM.Framework.Binding.ViewModuleReferenceInfo, DotVVM.Framework"
+      },
+      "RequestContext": {
+        "type": "DotVVM.Framework.Hosting.IDotvvmRequestContext, DotVVM.Framework",
+        "isValueInherited": true
+      },
+      "UniqueID": {
+        "type": "System.String"
+      },
+      "UseHistoryApiSpaNavigation": {
+        "type": "System.Boolean",
+        "isValueInherited": true
+      }
+    },
+    "DotVVM.Framework.Controls.ItemsControl": {
+      "DataSource": {
+        "type": "System.Object"
+      }
+    },
+    "DotVVM.Framework.Controls.ListBox": {
+      "Size": {
+        "type": "System.Int32"
+      }
+    },
+    "DotVVM.Framework.Controls.Literal": {
+      "FormatString": {
+        "type": "System.String"
+      },
+      "RenderSpanElement": {
+        "type": "System.Boolean"
+      },
+      "Text": {
+        "type": "System.Object"
+      },
+      "ValueType": {
+        "type": "DotVVM.Framework.Controls.FormatValueType, DotVVM.Framework"
+      }
+    },
+    "DotVVM.Framework.Controls.MultiSelector": {
+      "SelectedValues": {
+        "type": "System.Object",
+        "required": true
+      }
+    },
+    "DotVVM.Framework.Controls.NamedCommand": {
+      "Command": {
+        "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
+        "required": true
+      },
+      "Name": {
+        "type": "System.String",
+        "required": true
+      }
+    },
+    "DotVVM.Framework.Controls.PostBack": {
+      "Concurrency": {
+        "type": "DotVVM.Framework.Controls.PostbackConcurrencyMode, DotVVM.Framework",
+        "isValueInherited": true
+      },
+      "ConcurrencyQueue": {
+        "type": "System.String",
+        "isValueInherited": true
+      },
+      "ConcurrencyQueueSettings": {
+        "type": "DotVVM.Framework.Controls.ConcurrencyQueueSettingsCollection, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
+      "Handlers": {
+        "type": "DotVVM.Framework.Controls.PostBackHandlerCollection, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
+      "Update": {
+        "type": "System.Boolean"
+      }
+    },
+    "DotVVM.Framework.Controls.PostBackHandler": {
+      "Enabled": {
+        "type": "System.Boolean"
+      },
+      "EventName": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Controls.RadioButton": {
+      "Checked": {
+        "type": "System.Boolean"
+      },
+      "CheckedItem": {
+        "type": "System.Object"
+      },
+      "GroupName": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Controls.RenderSettings": {
+      "Mode": {
+        "type": "DotVVM.Framework.Controls.RenderMode, DotVVM.Framework",
+        "isValueInherited": true
+      }
+    },
+    "DotVVM.Framework.Controls.Repeater": {
+      "EmptyDataTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
+      "ItemTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ],
+        "mappingMode": "InnerElement",
+        "required": true
+      },
+      "RenderAsNamedTemplate": {
+        "type": "System.Boolean"
+      },
+      "RenderWrapperTag": {
+        "type": "System.Boolean"
+      },
+      "SeparatorTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
+      "WrapperTagName": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Controls.RequiredResource": {
+      "Name": {
+        "type": "System.String",
+        "required": true
+      }
+    },
+    "DotVVM.Framework.Controls.RoleView": {
+      "HideForAnonymousUsers": {
+        "type": "System.Boolean"
+      },
+      "IsMemberTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
+      "IsNotMemberTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
+      "Roles": {
+        "type": "System.String[]",
+        "required": true
+      }
+    },
+    "DotVVM.Framework.Controls.RouteLink": {
+      "Enabled": {
+        "type": "System.Boolean"
+      },
+      "RouteName": {
+        "type": "System.String",
+        "required": true
+      },
+      "Text": {
+        "type": "System.String"
+      },
+      "UrlSuffix": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Controls.Selector": {
+      "SelectedValue": {
+        "type": "System.Object",
+        "required": true
+      }
+    },
+    "DotVVM.Framework.Controls.SelectorBase": {
+      "DisplayMember": {
+        "type": "System.String"
+      },
+      "Enabled": {
+        "type": "System.Boolean"
+      },
+      "ItemTextBinding": {
+        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ]
+      },
+      "ItemTitleBinding": {
+        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ]
+      },
+      "ItemValueBinding": {
+        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ]
+      },
+      "SelectionChanged": {
+        "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
+      },
+      "ValueMember": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Controls.SelectorItem": {
+      "Text": {
+        "type": "System.String"
+      },
+      "Value": {
+        "type": "System.Object"
+      }
+    },
+    "DotVVM.Framework.Controls.SpaContentPlaceHolder": {
+      "DefaultRouteName": {
+        "type": "System.String"
+      },
+      "PrefixRouteName": {
+        "type": "System.String"
+      },
+      "UseHistoryApi": {
+        "type": "System.Nullable`1[[System.Boolean, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+      }
+    },
+    "DotVVM.Framework.Controls.Styles": {
+      "Append": {
+        "type": "System.Collections.Generic.IEnumerable`1[[DotVVM.Framework.Controls.DotvvmBindableObject, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
+        "mappingMode": "InnerElement",
+        "isCompileTimeOnly": true
+      },
+      "Exclude": {
+        "type": "System.Boolean",
+        "isCompileTimeOnly": true
+      },
+      "Prepend": {
+        "type": "System.Collections.Generic.IEnumerable`1[[DotVVM.Framework.Controls.DotvvmBindableObject, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
+        "mappingMode": "InnerElement",
+        "isCompileTimeOnly": true
+      },
+      "ReplaceWith": {
+        "type": "DotVVM.Framework.Controls.DotvvmBindableObject, DotVVM.Framework",
+        "mappingMode": "InnerElement",
+        "isCompileTimeOnly": true
+      },
+      "RequiredResources": {
+        "type": "System.String[]",
+        "mappingMode": "Exclude",
+        "isCompileTimeOnly": true
+      },
+      "Tag": {
+        "type": "System.String[]",
+        "isCompileTimeOnly": true
+      },
+      "Wrappers": {
+        "type": "System.Collections.Generic.IEnumerable`1[[DotVVM.Framework.Controls.DotvvmBindableObject, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
+        "mappingMode": "InnerElement",
+        "isCompileTimeOnly": true
+      }
+    },
+    "DotVVM.Framework.Controls.SuppressPostBackHandler": {
+      "Suppress": {
+        "type": "System.Boolean"
+      }
+    },
+    "DotVVM.Framework.Controls.TableUtils": {
+      "ColumnVisible": {
+        "type": "System.Boolean",
+        "isActive": true
+      }
+    },
+    "DotVVM.Framework.Controls.TemplateHost": {
+      "Template": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "required": true
+      }
+    },
+    "DotVVM.Framework.Controls.TextBox": {
+      "Changed": {
+        "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
+      },
+      "Enabled": {
+        "type": "System.Boolean"
+      },
+      "FormatString": {
+        "type": "System.String"
+      },
+      "SelectAllOnFocus": {
+        "type": "System.Boolean"
+      },
+      "Text": {
+        "type": "System.Object",
+        "required": true
+      },
+      "TextInput": {
+        "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
+      },
+      "Type": {
+        "type": "DotVVM.Framework.Controls.TextBoxType, DotVVM.Framework"
+      },
+      "UpdateTextAfterKeydown": {
+        "type": "System.Boolean"
+      },
+      "UpdateTextOnInput": {
+        "type": "System.Boolean",
+        "isValueInherited": true
+      },
+      "ValueType": {
+        "type": "DotVVM.Framework.Controls.FormatValueType, DotVVM.Framework"
+      }
+    },
+    "DotVVM.Framework.Controls.UITests": {
+      "GenerateStub": {
+        "type": "System.Boolean",
+        "isValueInherited": true
+      },
+      "Name": {
+        "type": "System.String",
+        "isActive": true
+      }
+    },
+    "DotVVM.Framework.Controls.UpdateProgress": {
+      "Delay": {
+        "type": "System.Int32"
+      },
+      "ExcludedQueues": {
+        "type": "System.String[]"
+      },
+      "IncludedQueues": {
+        "type": "System.String[]"
+      }
+    },
+    "DotVVM.Framework.Controls.Validation": {
+      "Enabled": {
+        "type": "System.Boolean",
+        "isValueInherited": true
+      },
+      "Target": {
+        "type": "System.Object",
+        "isValueInherited": true
+      }
+    },
+    "DotVVM.Framework.Controls.ValidationSummary": {
+      "HideWhenValid": {
+        "type": "System.Boolean"
+      },
+      "IncludeErrorsFromChildren": {
+        "type": "System.Boolean"
+      },
+      "IncludeErrorsFromTarget": {
+        "type": "System.Boolean"
+      }
+    },
+    "DotVVM.Framework.Controls.Validator": {
+      "HideWhenValid": {
+        "type": "System.Boolean",
+        "isValueInherited": true
+      },
+      "InvalidCssClass": {
+        "type": "System.String",
+        "isValueInherited": true
+      },
+      "SetToolTipText": {
+        "type": "System.Boolean",
+        "isValueInherited": true
+      },
+      "ShowErrorMessageText": {
+        "type": "System.Boolean",
+        "isValueInherited": true
+      },
+      "Value": {
+        "type": "System.Object",
+        "isActive": true
+      }
+    },
+    "DotVVM.Framework.Tests.Binding.TestMarkupControl": {
+      "Change": {
+        "type": "System.Func`2[[System.String, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+      },
+      "Load": {
+        "type": "System.Func`1[[System.String, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+      },
+      "Save": {
+        "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
+      }
+    },
+    "DotVVM.Framework.Tests.ControlTests.CustomControlWithCommand": {
+      "Click": {
+        "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
+      }
+    },
+    "DotVVM.Framework.Tests.ControlTests.RepeatedButton": {
+      "Button:Visible": {
+        "type": "System.Boolean",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ],
+        "fromCapability": "button:HtmlCapability"
+      },
+      "Content": {
+        "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ],
+        "mappingMode": "Both",
+        "fromCapability": "TextOrContentCapability"
+      },
+      "DataSource": {
+        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding`1[[System.Collections.Generic.IEnumerable`1[[System.String, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], DotVVM.Framework",
+        "required": true
+      },
+      "ItemClick": {
+        "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ]
+      },
+      "Text": {
+        "type": "System.String",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ],
+        "fromCapability": "TextOrContentCapability"
+      },
+      "Visible": {
+        "type": "System.Boolean",
+        "fromCapability": "HtmlCapability"
+      },
+      "WrapperTagName": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Tests.ControlTests.WithPrivateGetContents": {
+      "TagName": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Tests.ControlTests.WrappedHtmlControl": {
+      "Content": {
+        "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
+        "mappingMode": "Both",
+        "fromCapability": "TextOrContentCapability"
+      },
+      "TagName": {
+        "type": "System.String",
+        "required": true
+      },
+      "Text": {
+        "type": "System.String",
+        "fromCapability": "TextOrContentCapability"
+      },
+      "Visible": {
+        "type": "System.Boolean",
+        "fromCapability": "HtmlCapability"
+      }
+    },
+    "DotVVM.Framework.Tests.ControlTests.WrappedHtmlControl2": {
+      "Content": {
+        "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
+        "mappingMode": "Both",
+        "fromCapability": "TextOrContentCapability"
+      },
+      "TagName": {
+        "type": "System.String"
+      },
+      "Text": {
+        "type": "System.String",
+        "fromCapability": "TextOrContentCapability"
+      },
+      "Visible": {
+        "type": "System.Boolean",
+        "fromCapability": "HtmlCapability"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestControl1": {
+      "Something": {
+        "type": "System.String"
+      },
+      "SomethingElse": {
+        "type": "System.String",
+        "fromCapability": "TestCapability"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestControl2": {
+      "AnotherHtml:Visible": {
+        "type": "System.Boolean",
+        "fromCapability": "AnotherHtml:HtmlCapability"
+      },
+      "Something": {
+        "type": "System.String"
+      },
+      "SomethingElse": {
+        "type": "System.String",
+        "fromCapability": "TestCapability"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestControl3": {
+      "Something": {
+        "type": "System.String",
+        "fromCapability": "TestNestedCapability"
+      },
+      "SomethingElse": {
+        "type": "System.String",
+        "fromCapability": "TestCapability"
+      },
+      "Visible": {
+        "type": "System.Boolean",
+        "fromCapability": "HtmlCapability"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestControl4": {
+      "Something": {
+        "type": "System.String",
+        "fromCapability": "TestNestedCapability"
+      },
+      "SomethingElse": {
+        "type": "System.String",
+        "fromCapability": "TestCapability"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.ControlTree.ClassWithDefaultDotvvmControlContent": {
+      "Property": {
+        "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.DotvvmControl, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
+        "mappingMode": "InnerElement"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.ControlTree.ClassWithInnerElementProperty": {
+      "Property": {
+        "type": "System.String",
+        "mappingMode": "InnerElement"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.ControlTree.ClassWithoutInnerElementProperty": {
+      "Property": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.ControlWithCompileDependentProperties": {
+      "DataSource": {
+        "type": "System.Collections.Generic.IEnumerable`1[[System.Object, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+      },
+      "OtherProperty": {
+        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ]
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.ControlWithCustomBindingProperties": {
+      "SomeProperty": {
+        "type": "System.Object"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.DotvvmPropertyTests+AttachedOne": {
+      "One": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.DotvvmPropertyTests+AttachedTwo": {
+      "Two": {
+        "type": "System.String",
+        "mappingName": "One"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.DotvvmPropertyTests+MoqComponent": {
+      "Property": {
+        "type": "System.Object"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.DotvvmPropertyTests+TestObject": {
+      "Alias": {
+        "type": "System.Int32",
+        "mappingName": "Aliased",
+        "required": true
+      },
+      "Aliased": {
+        "type": "System.Int32",
+        "required": true
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.PublicControl": {
+      "MyInternalDotvvmProperty": {
+        "type": "System.Int32"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.TestCodeControl": {
+      "Flags": {
+        "type": "DotVVM.Framework.Tests.Runtime.FlaggyEnum, DotVVM.Framework.Tests"
       }
     }
   },
-  "security": {},
-  "runtime": {},
-  "defaultCulture": "en-US",
-  "experimentalFeatures": {},
-  "debug": false,
-  "diagnostics": {
-    "compilationPage": {}
+  "capabilities": {
+    "DotVVM.Framework.Controls.ButtonBase": {
+      "TextOrContentCapability": {
+        "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework"
+      }
+    },
+    "DotVVM.Framework.Controls.CheckableControlBase": {
+      "TextOrContentCapability": {
+        "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework"
+      }
+    },
+    "DotVVM.Framework.Controls.HtmlGenericControl": {
+      "HtmlCapability": {
+        "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework"
+      }
+    },
+    "DotVVM.Framework.Controls.RouteLink": {
+      "TextOrContentCapability": {
+        "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework"
+      }
+    },
+    "DotVVM.Framework.Tests.ControlTests.RepeatedButton": {
+      "button:HtmlCapability": {
+        "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework",
+        "capabilityPrefix": "button:"
+      },
+      "HtmlCapability": {
+        "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework"
+      },
+      "TextOrContentCapability": {
+        "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework"
+      }
+    },
+    "DotVVM.Framework.Tests.ControlTests.WrappedHtmlControl": {
+      "HtmlCapability": {
+        "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework"
+      },
+      "TextOrContentCapability": {
+        "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework"
+      }
+    },
+    "DotVVM.Framework.Tests.ControlTests.WrappedHtmlControl2": {
+      "HtmlCapability": {
+        "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework"
+      },
+      "TextOrContentCapability": {
+        "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestControl1": {
+      "TestCapability": {
+        "type": "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestCapability, DotVVM.Framework.Tests"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestControl2": {
+      "AnotherHtml:HtmlCapability": {
+        "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework",
+        "capabilityPrefix": "AnotherHtml:"
+      },
+      "TestCapability": {
+        "type": "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestCapability, DotVVM.Framework.Tests"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestControl3": {
+      "HtmlCapability": {
+        "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework",
+        "fromCapability": "TestNestedCapability"
+      },
+      "TestCapability": {
+        "type": "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestCapability, DotVVM.Framework.Tests",
+        "fromCapability": "TestNestedCapability"
+      },
+      "TestNestedCapability": {
+        "type": "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestNestedCapability, DotVVM.Framework.Tests"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestControl4": {
+      "TestCapability": {
+        "type": "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestCapability, DotVVM.Framework.Tests",
+        "fromCapability": "TestNestedCapability"
+      },
+      "TestNestedCapability": {
+        "type": "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestNestedCapability, DotVVM.Framework.Tests"
+      }
+    }
+  },
+  "propertyGroups": {
+    "DotVVM.Framework.Controls.HtmlGenericControl": {
+      "Attributes": {
+        "prefixes": [
+          "",
+          "html:"
+        ],
+        "type": "System.Object",
+        "fromCapability": "HtmlCapability"
+      },
+      "CssClasses": {
+        "prefix": "Class-",
+        "type": "System.Boolean",
+        "fromCapability": "HtmlCapability"
+      },
+      "CssStyles": {
+        "prefix": "Style-",
+        "type": "System.Object",
+        "fromCapability": "HtmlCapability"
+      }
+    },
+    "DotVVM.Framework.Controls.RouteLink": {
+      "Params": {
+        "prefix": "Param-",
+        "type": "System.Object"
+      },
+      "QueryParameters": {
+        "prefix": "Query-",
+        "type": "System.Object"
+      }
+    },
+    "DotVVM.Framework.Tests.ControlTests.RepeatedButton": {
+      "Attributes": {
+        "prefixes": [
+          "",
+          "html:"
+        ],
+        "type": "System.Object",
+        "fromCapability": "HtmlCapability"
+      },
+      "Button:Attributes": {
+        "prefixes": [
+          "",
+          "html:"
+        ],
+        "type": "System.Object",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ],
+        "fromCapability": "button:HtmlCapability"
+      },
+      "Button:CssClasses": {
+        "prefix": "Class-",
+        "type": "System.Boolean",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ],
+        "fromCapability": "button:HtmlCapability"
+      },
+      "Button:CssStyles": {
+        "prefix": "Style-",
+        "type": "System.Object",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ],
+        "fromCapability": "button:HtmlCapability"
+      },
+      "CssClasses": {
+        "prefix": "Class-",
+        "type": "System.Boolean",
+        "fromCapability": "HtmlCapability"
+      },
+      "CssStyles": {
+        "prefix": "Style-",
+        "type": "System.Object",
+        "fromCapability": "HtmlCapability"
+      }
+    },
+    "DotVVM.Framework.Tests.ControlTests.WrappedHtmlControl": {
+      "Attributes": {
+        "prefixes": [
+          "",
+          "html:"
+        ],
+        "type": "System.Object",
+        "fromCapability": "HtmlCapability"
+      },
+      "CssClasses": {
+        "prefix": "Class-",
+        "type": "System.Boolean",
+        "fromCapability": "HtmlCapability"
+      },
+      "CssStyles": {
+        "prefix": "Style-",
+        "type": "System.Object",
+        "fromCapability": "HtmlCapability"
+      }
+    },
+    "DotVVM.Framework.Tests.ControlTests.WrappedHtmlControl2": {
+      "Attributes": {
+        "prefixes": [
+          "",
+          "html:"
+        ],
+        "type": "System.Object",
+        "fromCapability": "HtmlCapability"
+      },
+      "CssClasses": {
+        "prefix": "Class-",
+        "type": "System.Boolean",
+        "fromCapability": "HtmlCapability"
+      },
+      "CssStyles": {
+        "prefix": "Style-",
+        "type": "System.Object",
+        "fromCapability": "HtmlCapability"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestControl2": {
+      "AnotherHtml:Attributes": {
+        "prefixes": [
+          "",
+          "html:"
+        ],
+        "type": "System.Object",
+        "fromCapability": "AnotherHtml:HtmlCapability"
+      },
+      "AnotherHtml:CssClasses": {
+        "prefix": "Class-",
+        "type": "System.Boolean",
+        "fromCapability": "AnotherHtml:HtmlCapability"
+      },
+      "AnotherHtml:CssStyles": {
+        "prefix": "Style-",
+        "type": "System.Object",
+        "fromCapability": "AnotherHtml:HtmlCapability"
+      }
+    },
+    "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestControl3": {
+      "Attributes": {
+        "prefixes": [
+          "",
+          "html:"
+        ],
+        "type": "System.Object",
+        "fromCapability": "HtmlCapability"
+      },
+      "CssClasses": {
+        "prefix": "Class-",
+        "type": "System.Boolean",
+        "fromCapability": "HtmlCapability"
+      },
+      "CssStyles": {
+        "prefix": "Style-",
+        "type": "System.Object",
+        "fromCapability": "HtmlCapability"
+      }
+    }
   }
 }
