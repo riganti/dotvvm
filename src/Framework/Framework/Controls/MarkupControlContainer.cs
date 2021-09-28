@@ -1,19 +1,24 @@
 using System;
 using System.Linq;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Controls
 {
+    /// <summary> Allows using markup controls from code controls or from server-side styles. Use like this <code>new MarkupControlContainer("cc:MyControl", c => c.SetValue(MyControl.NameProperty, "X"))</code> </summary>
+    /// <seealso cref="MarkupControlContainer{TMarkupControl}"/>
     public class MarkupControlContainer: DotvvmControl
     {
         public string? MarkupVirtualPath { get; set; }
         public string? TagPrefix { get; set; }
         public string? TagName { get; set; }
+        /// <summary> After OnInit is invoked, this property contains the initialized markup control. </summary>
         public DotvvmMarkupControl? CreatedControl { get; private set; }
         public Type ExpectedControlType { get; }
+        /// <summary> Action which is called on newly created markup control to assign it its dotvvm properties. </summary>
         public Action<DotvvmMarkupControl>? SetProperties { get; set; }
 
         public MarkupControlContainer(string pathOrTagName, Action<DotvvmMarkupControl>? setProperties = null): this(pathOrTagName, setProperties, typeof(DotvvmMarkupControl)) { }
@@ -36,7 +41,7 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnInit(IDotvvmRequestContext context)
         {
-            var path = GetMarkupPath(context);
+            var path = GetMarkupPath(context.Configuration);
             var controlBuilderFactory = context.Services.GetRequiredService<IControlBuilderFactory>();
             var b = controlBuilderFactory.GetControlBuilder(path);
             var controlType = b.descriptor.ControlType;
@@ -50,13 +55,13 @@ namespace DotVVM.Framework.Controls
             Children.Add(control);
         }
 
-        internal string GetMarkupPath(IDotvvmRequestContext context)
+        internal string GetMarkupPath(DotvvmConfiguration config)
         {
             if (MarkupVirtualPath is null)
             {
                 if (TagPrefix is null || TagName is null)
                     throw new DotvvmControlException(this, "TagPrefix and TagName must not be null when no MarkupVirtualPath is specified");
-                var c = context.Configuration.Markup.Controls.FirstOrDefault(c => c.TagPrefix == TagPrefix && c.TagName == TagName);
+                var c = config.Markup.Controls.FirstOrDefault(c => c.TagPrefix == TagPrefix && c.TagName == TagName);
                 return (c?.Src).NotNull($"Markup control <{TagPrefix}:{TagName}> is not registered.");
             }
             else
@@ -68,9 +73,11 @@ namespace DotVVM.Framework.Controls
         }
     }
 
+    /// <summary> Allows using markup controls from code controls or from server-side styles. Use like this <code>new <see cref="MarkupControlContainer{TMarkupControl}"/>("cc:MyControl", c => c.Name = "X")</code> </summary>
     public class MarkupControlContainer<TMarkupControl>: MarkupControlContainer
         where TMarkupControl: DotvvmMarkupControl
     {
+        /// <summary> After OnInit is invoked, this property contains the initialized markup control. </summary>
         public new TMarkupControl? CreatedControl => (TMarkupControl?)base.CreatedControl;
         public MarkupControlContainer(string pathOrTagName, Action<TMarkupControl>? setProperties = null): base(pathOrTagName, setProperties is null ? null : c => setProperties((TMarkupControl)c), typeof(TMarkupControl)) { }
 
