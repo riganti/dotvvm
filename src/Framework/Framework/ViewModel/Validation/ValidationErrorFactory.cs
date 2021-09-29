@@ -29,7 +29,7 @@ namespace DotVVM.Framework.ViewModel.Validation
             where T: class
         {
             var error = CreateModelError(context.Configuration, vm, expr, message);
-            context.ModelState.Errors.Add(error);
+            context.ModelState.ErrorsInternal.Add(error);
             return error;
         }
 
@@ -41,7 +41,7 @@ namespace DotVVM.Framework.ViewModel.Validation
             where T : class
         {
             var error = new ViewModelValidationError(message);
-            context.ModelState.Errors.Add(error);
+            context.ModelState.ErrorsInternal.Add(error);
             return error;
         }
 
@@ -53,7 +53,7 @@ namespace DotVVM.Framework.ViewModel.Validation
             where T : class
         {
             var error = new ViewModelValidationError(message, propertyPath);
-            context.ModelState.Errors.Add(error);
+            context.ModelState.ErrorsInternal.Add(error);
             return error;
         }
 

@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var modelState = new ModelState() { ValidationTarget = testViewModel };
 
             var errors = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath);
-            modelState.Errors.AddRange(errors);
+            modelState.ErrorsInternal.AddRange(errors);
             expander.Expand(modelState, testViewModel);
             var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
@@ -56,7 +56,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var modelState = new ModelState() { ValidationTarget = testViewModel };
 
             var errors = validator.ValidateViewModel(testViewModel);
-            modelState.Errors.AddRange(errors);
+            modelState.ErrorsInternal.AddRange(errors);
             expander.Expand(modelState, testViewModel);
             var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
@@ -76,7 +76,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var modelState = new ModelState() { ValidationTarget = testViewModel };
 
             var errors = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath);
-            modelState.Errors.AddRange(errors);
+            modelState.ErrorsInternal.AddRange(errors);
             expander.Expand(modelState, testViewModel);
             var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var modelState = new ModelState() { ValidationTarget = testViewModel.Child };
 
             var errors = validator.ValidateViewModel(testViewModel.Child).OrderBy(n => n.PropertyPath);
-            modelState.Errors.AddRange(errors);
+            modelState.ErrorsInternal.AddRange(errors);
             expander.Expand(modelState, testViewModel);
             var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var modelState = new ModelState() { ValidationTarget = testViewModel.Children[1] };
 
             var errors = validator.ValidateViewModel(testViewModel.Children[1]).OrderBy(n => n.PropertyPath);
-            modelState.Errors.AddRange(errors);
+            modelState.ErrorsInternal.AddRange(errors);
             expander.Expand(modelState, testViewModel);
             var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
@@ -137,7 +137,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var modelState = new ModelState() { ValidationTarget = testViewModel };
 
             var errors = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath);
-            modelState.Errors.AddRange(errors);
+            modelState.ErrorsInternal.AddRange(errors);
             expander.Expand(modelState, testViewModel);
             var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
@@ -156,7 +156,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var modelState = new ModelState() { ValidationTarget = testViewModel };
 
             var errors = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath);
-            modelState.Errors.AddRange(errors);
+            modelState.ErrorsInternal.AddRange(errors);
             expander.Expand(modelState, testViewModel);
             var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
@@ -173,7 +173,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var modelState = new ModelState() { ValidationTarget = testViewModel };
 
             var errors = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath);
-            modelState.Errors.AddRange(errors);
+            modelState.ErrorsInternal.AddRange(errors);
             expander.Expand(modelState, testViewModel);
             var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
@@ -193,7 +193,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var modelState = new ModelState() { ValidationTarget = testViewModel };
 
             var errors = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath);
-            modelState.Errors.AddRange(errors);
+            modelState.ErrorsInternal.AddRange(errors);
             expander.Expand(modelState, testViewModel);
             var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
@@ -210,7 +210,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var modelState = new ModelState() { ValidationTarget = testViewModel };
 
             var errors = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath);
-            modelState.Errors.AddRange(errors);
+            modelState.ErrorsInternal.AddRange(errors);
             expander.Expand(modelState, testViewModel);
             var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
@@ -238,7 +238,7 @@ namespace DotVVM.Framework.Tests.ViewModel
 
             ValidationErrorFactory.AddModelError(testViewModel, vm => vm, "Custom root error.");
             var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
-            modelState.Errors.AddRange(errors);
+            modelState.ErrorsInternal.AddRange(errors);
             expander.Expand(modelState, testViewModel);
             var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
@@ -267,7 +267,7 @@ namespace DotVVM.Framework.Tests.ViewModel
 
             testViewModel.AddModelError("Child()", "Validation target path as a knockout expression");
             var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
-            modelState.Errors.AddRange(errors);
+            modelState.ErrorsInternal.AddRange(errors);
             expander.Expand(modelState, testViewModel);
         }
 
@@ -300,7 +300,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             testViewModel.AddModelError(vm => vm.Children[2], "Custom Children[2] error. Outside of validation target.");
 
             var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
-            modelState.Errors.AddRange(errors);
+            modelState.ErrorsInternal.AddRange(errors);
             expander.Expand(modelState, testViewModel);
             var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
@@ -341,7 +341,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             testViewModel.AddModelError(vm => vm.Children[0], "An error on object that is found multiple times in viewmodel.");
 
             var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
-            modelState.Errors.AddRange(errors);
+            modelState.ErrorsInternal.AddRange(errors);
             expander.Expand(modelState, testViewModel);
         }
 

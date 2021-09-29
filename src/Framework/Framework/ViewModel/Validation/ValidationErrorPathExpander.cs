@@ -63,11 +63,11 @@ namespace DotVVM.Framework.ViewModel.Validation
             }
 
             // Add information about absolute paths to errors
-            var modelStateDecoratorContext = new ValidationErrorPathExpanderContext(modelState.ValidationTarget, modelState.Errors);
+            var modelStateDecoratorContext = new ValidationErrorPathExpanderContext(modelState.ValidationTarget, modelState.ErrorsInternal);
             Expand(viewModel, string.Empty, modelStateDecoratorContext);
 
             // Remove not found errors
-            modelState.Errors.RemoveAll(error => error.TargetObject != null && !modelStateDecoratorContext.AlreadyProcessedNodes.Contains(error.TargetObject));
+            modelState.ErrorsInternal.RemoveAll(error => error.TargetObject != null && !modelStateDecoratorContext.AlreadyProcessedNodes.Contains(error.TargetObject));
         }
 
         private bool IsPropertyPathRooted(ViewModelValidationError error)

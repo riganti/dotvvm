@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Runtime.Filters
             {
                 var validator = context.Services.GetRequiredService<IViewModelValidator>();
                 var errors = validator.ValidateViewModel(context.ModelState.ValidationTarget);
-                context.ModelState.Errors.AddRange(errors);
+                context.ModelState.ErrorsInternal.AddRange(errors);
 
                 context.FailOnInvalidModelState();
             }
