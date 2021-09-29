@@ -1101,6 +1101,11 @@
         "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
       }
     },
+    "DotVVM.Framework.Tests.ControlTests.CustomControlWithProperty": {
+      "P": {
+        "type": "System.Int32"
+      }
+    },
     "DotVVM.Framework.Tests.ControlTests.CustomControlWithSomeProperty": {
       "SomeProperty": {
         "type": "System.String"
