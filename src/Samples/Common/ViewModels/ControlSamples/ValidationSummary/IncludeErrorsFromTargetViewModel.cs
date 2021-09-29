@@ -18,7 +18,7 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.ValidationSummary
             }
             else
             {
-                this.UnsafeAddModelError(PropertyPath, "Wrong Nick or Password.");
+                this.AddModelError(PropertyPath, "Wrong Nick or Password.");
                 Context.FailOnInvalidModelState();
             }
         }

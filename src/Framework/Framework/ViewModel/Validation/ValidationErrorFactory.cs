@@ -45,11 +45,11 @@ namespace DotVVM.Framework.ViewModel.Validation
             return error;
         }
 
-        public static ViewModelValidationError UnsafeAddModelError<T>(this T vm, string propertyPath, string message)
+        public static ViewModelValidationError AddModelError<T>(this T vm, string propertyPath, string message)
             where T : class, IDotvvmViewModel
-            => UnsafeAddModelError(vm, propertyPath, message, vm.Context);
+            => AddModelError(vm, propertyPath, message, vm.Context);
 
-        public static ViewModelValidationError UnsafeAddModelError<T>(this T vm, string propertyPath, string message, IDotvvmRequestContext context)
+        public static ViewModelValidationError AddModelError<T>(this T vm, string propertyPath, string message, IDotvvmRequestContext context)
             where T : class
         {
             var error = new ViewModelValidationError(message, propertyPath);
