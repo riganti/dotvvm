@@ -22,40 +22,16 @@ namespace DotVVM.Framework.ViewModel.Validation
     public static class ValidationErrorFactory
     {
         public static ViewModelValidationError AddModelError<T, TProp>(this T vm, Expression<Func<T, TProp>> expr, string message)
-            where T : class, IDotvvmViewModel =>
-            AddModelError(vm, expr, message, vm.Context);
-
-        public static ViewModelValidationError AddModelError<T, TProp>(this T vm, Expression<Func<T, TProp>> expr, string message, IDotvvmRequestContext context)
-            where T: class
-        {
-            var error = CreateModelError(context.Configuration, vm, expr, message);
-            context.ModelState.ErrorsInternal.Add(error);
-            return error;
-        }
+            where T : class, IDotvvmViewModel
+            => vm.Context.AddModelError(vm, expr, message);
 
         public static ViewModelValidationError AddModelError<T>(this T vm, string message)
             where T : class, IDotvvmViewModel
-            => AddModelError(vm, message, vm.Context);
-
-        public static ViewModelValidationError AddModelError<T>(this T vm, string message, IDotvvmRequestContext context)
-            where T : class
-        {
-            var error = new ViewModelValidationError(message);
-            context.ModelState.ErrorsInternal.Add(error);
-            return error;
-        }
+            => vm.Context.AddModelError(message);
 
         public static ViewModelValidationError AddModelError<T>(this T vm, string propertyPath, string message)
             where T : class, IDotvvmViewModel
-            => AddModelError(vm, propertyPath, message, vm.Context);
-
-        public static ViewModelValidationError AddModelError<T>(this T vm, string propertyPath, string message, IDotvvmRequestContext context)
-            where T : class
-        {
-            var error = new ViewModelValidationError(message, propertyPath);
-            context.ModelState.ErrorsInternal.Add(error);
-            return error;
-        }
+            => vm.Context.AddModelError(propertyPath, message);
 
         public static ViewModelValidationError CreateModelError<T, TProp>(this T vm, Expression<Func<T, TProp>> expr, string error)
             where T : IDotvvmViewModel =>
