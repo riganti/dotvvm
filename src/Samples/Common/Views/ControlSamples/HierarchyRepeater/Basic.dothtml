@@ -1,0 +1,13 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.HierarchyRepeater.BasicViewModel, DotVVM.Samples.Common
+@masterPage Views/Samples.dotmaster
+
+<dot:Content ContentPlaceHolderID="Main">
+    <dot:HierarchyRepeater DataSource="{value: Roots}"
+                           ItemChildrenBinding="{value: Children}"
+                           LevelTagName="ul"
+                           ItemTagName="li"
+                           RenderSettings.Mode="Server">
+        <span RenderSettings.Mode="Client">{{value: Name}}</span>
+    </dot:HierarchyRepeater>
+</dot:Content>
+
