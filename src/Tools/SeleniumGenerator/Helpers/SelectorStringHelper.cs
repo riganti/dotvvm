@@ -15,7 +15,8 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Helpers
         {
             var sb = new StringBuilder();
 
-            // TODO: Implement a more complete heuristic (see https://github.com/riganti/dotvvm/pull/775#discussion_r334275076)
+            // TODO: Implement a more complete heuristic (see https://github.com/riganti/dotvvm/pull/775#discussion_r334275076).
+            //       DO NOT release a stable version of SeleniumGenerator until this is addressed.
             foreach (var control in controls)
             {
                 if (control.Metadata.Type == typeof(Literal))
