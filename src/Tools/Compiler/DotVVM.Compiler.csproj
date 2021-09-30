@@ -14,7 +14,6 @@ for some reason. What fun. -->
     <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' " >netcoreapp3.1;net472</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <OutputType>Exe</OutputType>
-    <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
     <RuntimeIdentifiers>win7-x86;win7-x64;win10-x64;ubuntu.16.10-x64</RuntimeIdentifiers>
     <TargetLatestDotNetRuntime>false</TargetLatestDotNetRuntime>

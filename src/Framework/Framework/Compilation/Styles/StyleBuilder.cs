@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
             public override bool Matches(IStyleMatchContext context)
             {
-                if (context.PropertyS<bool>(Controls.Styles.ExcludeProperty) == true)
+                if (context.PropertyValue<bool>(Controls.Styles.ExcludeProperty))
                     return false;
 
                 return Matcher != null ? Matcher(new StyleMatchContext<T>(context.Parent, context.Control, context.Configuration)) : true;

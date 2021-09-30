@@ -125,13 +125,13 @@ namespace DotVVM.Samples.Common
             });
 
             // dev files
-            resources.SetEmbeddedResourceDebugFile("knockout", "../DotVVM.Framework/Resources/Scripts/knockout-latest.debug.js");
-            resources.SetEmbeddedResourceDebugFile("dotvvm.internal", "../DotVVM.Framework/obj/javascript/root-only-debug/dotvvm-root.js");
-            resources.SetEmbeddedResourceDebugFile("dotvvm.internal-spa", "../DotVVM.Framework/obj/javascript/root-spa-debug/dotvvm-root.js");
-            resources.SetEmbeddedResourceDebugFile("dotvvm.debug", "../DotVVM.Framework/Resources/Scripts/DotVVM.Debug.js");
-            resources.SetEmbeddedResourceDebugFile("dotvvm.fileupload-css", "../DotVVM.Framework/Resources/Styles/DotVVM.FileUpload.css");
-            resources.SetEmbeddedResourceDebugFile("dotvvm.internal-css", "../DotVVM.Framework/Resources/Styles/DotVVM.Internal.css");
-            resources.SetEmbeddedResourceDebugFile("dotvvm.polyfill.bundle", "../DotVVM.Framework/obj/javascript/polyfill.bundle.js");
+            resources.SetEmbeddedResourceDebugFile("knockout", "../../Framework/Framework/Resources/Scripts/knockout-latest.debug.js");
+            resources.SetEmbeddedResourceDebugFile("dotvvm.internal", "../../Framework/Framework/obj/javascript/root-only-debug/dotvvm-root.js");
+            resources.SetEmbeddedResourceDebugFile("dotvvm.internal-spa", "../../Framework/Framework/obj/javascript/root-spa-debug/dotvvm-root.js");
+            resources.SetEmbeddedResourceDebugFile("dotvvm.debug", "../../Framework/Framework/Resources/Scripts/DotVVM.Debug.js");
+            resources.SetEmbeddedResourceDebugFile("dotvvm.fileupload-css", "../../Framework/Framework/Resources/Styles/DotVVM.FileUpload.css");
+            resources.SetEmbeddedResourceDebugFile("dotvvm.internal-css", "../../Framework/Framework/Resources/Styles/DotVVM.Internal.css");
+            resources.SetEmbeddedResourceDebugFile("dotvvm.polyfill.bundle", "../../Framework/Framework/obj/javascript/polyfill.bundle.js");
         }
     }
 }

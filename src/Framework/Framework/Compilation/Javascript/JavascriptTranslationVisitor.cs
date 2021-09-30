@@ -226,7 +226,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                           null)
             .WithAnnotation(new ViewModelInfoAnnotation(expression.Type, containsObservables: false));
 
-        public JsLiteral TranslateConstant(ConstantExpression expression) =>
+        public static JsLiteral TranslateConstant(ConstantExpression expression) =>
             new JsLiteral(expression.Value).WithAnnotation(new ViewModelInfoAnnotation(expression.Type, containsObservables: false));
 
         public JsExpression TranslateMethodCall(MethodCallExpression expression)
@@ -274,7 +274,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 case ExpressionType.And: op = BinaryOperatorType.BitwiseAnd; break;
                 case ExpressionType.Or: op = BinaryOperatorType.BitwiseOr; break;
                 case ExpressionType.ExclusiveOr: op = BinaryOperatorType.BitwiseXOr; break;
-                case ExpressionType.Coalesce: op = BinaryOperatorType.ConditionalOr; break;
+                case ExpressionType.Coalesce: op = BinaryOperatorType.NullishCoalescing; break;
                 case ExpressionType.ArrayIndex: return new JsIndexerExpression(left, right).WithAnnotation(new VMPropertyInfoAnnotation(null, expression.Type));
                 default:
                     throw new NotSupportedException($"Unary operator of type { expression.NodeType } is not supported");

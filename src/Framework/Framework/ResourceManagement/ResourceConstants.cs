@@ -13,6 +13,7 @@ namespace DotVVM.Framework.ResourceManagement
         public const string DotvvmDebugResourceName = "dotvvm.debug";
         public const string GlobalizeResourceName = "globalize";
         public const string GlobalizeCultureResourceName = "globalize:{0}";
+        [Obsolete("IE is not supported anymore", error: true)]
         public const string PolyfillBundleResourceName = "dotvvm.polyfill.bundle";
 
         public const string DotvvmFileUploadCssResourceName = "dotvvm.fileUpload-css";

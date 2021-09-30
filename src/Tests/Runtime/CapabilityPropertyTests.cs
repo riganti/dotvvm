@@ -86,16 +86,16 @@ namespace DotVVM.Framework.Tests.Runtime
             public static readonly DotvvmProperty SomethingProperty =
                 DotvvmProperty.Register<string, TestControl2>(nameof(Something), "blbost2");            
 
-            public static readonly DotvvmProperty AnotherHtmlCapabilityProperty =
-                DotvvmCapabilityProperty.RegisterCapability<HtmlCapability, TestControl2>(nameof(AnotherHtmlCapabilityProperty), "AnotherHtml:");
+            public static readonly DotvvmProperty AnotherHtml_HtmlCapabilityProperty =
+                DotvvmCapabilityProperty.RegisterCapability<HtmlCapability, TestControl2>("AnotherHtml:");
         }
 
         public class TestControl3:
             DotvvmControl,
             IObjectWithCapability<TestNestedCapability>
         {       
-            public static readonly DotvvmProperty TestCapabilityProperty =
-                DotvvmCapabilityProperty.RegisterCapability<TestNestedCapability, TestControl3>(nameof(TestCapabilityProperty));
+            public static readonly DotvvmProperty TestNestedCapabilityProperty =
+                DotvvmCapabilityProperty.RegisterCapability<TestNestedCapability, TestControl3>();
         }
         public class TestControl4:
             HtmlGenericControl,

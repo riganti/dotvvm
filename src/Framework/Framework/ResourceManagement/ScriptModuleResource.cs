@@ -12,39 +12,25 @@ namespace DotVVM.Framework.ResourceManagement
     /// </summary>
     public class ScriptModuleResource : LinkResourceBase, IPreloadResource, IDeferrableResource
     {
-        /// <summary> Location of a fallback script for the case that the browser does not support ES6 modules. May be null, if the fallback is not needed. There is no way to put a CDN fallback nor integrity hash, so it should simply point to a local resource </summary>
+        [Obsolete("We don't support IE anymore", error: true)]
         public IResourceLocation? NomoduleLocation { get; }
         /// <summary> If `defer` attribute should be used. </summary>
         public bool Defer { get; }
 
-        public ScriptModuleResource(IResourceLocation location, IResourceLocation? nomoduleLocation = null, bool defer = true)
-            : base(defer ? ResourceRenderPosition.Anywhere : ResourceRenderPosition.Body, "text/javascript", location ?? nomoduleLocation!)
+        public ScriptModuleResource(IResourceLocation location, bool defer = true)
+            : base(defer ? ResourceRenderPosition.Anywhere : ResourceRenderPosition.Body, "text/javascript", location)
         {
-            this.NomoduleLocation = nomoduleLocation;
             this.Defer = defer;
         }
 
         public override void RenderLink(IResourceLocation location, IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
         {
-            if (Location != NomoduleLocation)
-            {
-                AddSrcAndIntegrity(writer, context, location.GetUrl(context, resourceName), "src");
-                writer.AddAttribute("type", "module");
-                if (Defer)
-                    writer.AddAttribute("defer", null);
-                writer.RenderBeginTag("script");
-                writer.RenderEndTag();
-            }
-
-            if (NomoduleLocation is object)
-            {
-                writer.AddAttribute("nomodule", null);
-                writer.AddAttribute("src", NomoduleLocation.GetUrl(context, resourceName) + "?type=nomodule");
-                if (Defer)
-                    writer.AddAttribute("defer", null);
-                writer.RenderBeginTag("script");
-                writer.RenderEndTag();
-            }
+            AddSrcAndIntegrity(writer, context, location.GetUrl(context, resourceName), "src");
+            writer.AddAttribute("type", "module");
+            if (Defer)
+                writer.AddAttribute("defer", null);
+            writer.RenderBeginTag("script");
+            writer.RenderEndTag();
         }
 
         public void RenderPreloadLink(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
@@ -56,12 +42,5 @@ namespace DotVVM.Framework.ResourceManagement
             writer.RenderBeginTag("link");
             writer.RenderEndTag();
         }
-
-        public override IEnumerable<IResourceLocation> GetLocations(string? type = null)
-        {
-            if (type == "nomodule") return new IResourceLocation[] { NomoduleLocation.NotNull() };
-            else return base.GetLocations(type);
-        }
-
     }
 }
