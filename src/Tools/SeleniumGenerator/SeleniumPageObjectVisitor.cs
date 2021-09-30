@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
                 .Select(t => (ISeleniumGenerator)Activator.CreateInstance(t))
                 .ToDictionary(t => t.ControlType, t => t);
 
-            return customGenerators.AddRange(discoveredGenerators);
+            return customGenerators.Union(discoveredGenerators);
         }
 
         public void PushScope(PageObjectDefinition definition)

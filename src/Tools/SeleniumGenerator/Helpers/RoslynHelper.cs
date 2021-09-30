@@ -9,6 +9,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Helpers
     {
         public static ObjectCreationExpressionSyntax GetPathSelectorObjectInitialization(string propertyName)
         {
+            // TODO: Maybe use string concatenation instead of Roslyn AST?
             return SyntaxFactory.ObjectCreationExpression(
                     SyntaxFactory.IdentifierName("PathSelector"))
                 .WithInitializer(

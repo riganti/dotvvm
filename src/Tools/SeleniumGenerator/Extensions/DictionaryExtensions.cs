@@ -7,24 +7,10 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Extensions
 {
     public static class DictionaryExtensions
     {
-        public static Dictionary<TKey, TValue> AddRange<TKey, TValue>(this Dictionary<TKey, TValue> first,
+        public static Dictionary<TKey, TValue> Union<TKey, TValue>(this Dictionary<TKey, TValue> first,
             Dictionary<TKey, TValue> second)
         {
-            return first.Union(second).ToDictionary(t => t.Key, t => t.Value);
-        }
-    }
-    public static class ServiceProviderExtensions
-    {
-        public static T TryGetService<T>(this IServiceProvider serviceProvider)
-        {
-            try
-            {
-                return serviceProvider.GetService<T>();
-            }
-            catch
-            {
-                return default;
-            }
+            return Enumerable.Union(first, second).ToDictionary(t => t.Key, t => t.Value);
         }
     }
 }

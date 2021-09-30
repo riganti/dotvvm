@@ -23,7 +23,7 @@ namespace DotVVM.Testing.SeleniumGenerator.Tests
             };
 
             // do
-            var union = firstDict.AddRange(secondDict);
+            var union = firstDict.Union(secondDict);
 
             // assert
             Assert.AreEqual(union.Count, 4);

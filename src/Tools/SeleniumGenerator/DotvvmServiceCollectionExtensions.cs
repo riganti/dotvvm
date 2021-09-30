@@ -9,13 +9,7 @@ namespace DotVVM.Framework.Configuration
         public static void AddSeleniumGenerator(this IDotvvmServiceCollection services,
             Action<SeleniumGeneratorOptions> optionsBuilder = null)
         {
-            services.Services.AddSingleton<SeleniumGeneratorOptions>(provider =>
-            {
-                var options = new SeleniumGeneratorOptions();
-                optionsBuilder?.Invoke(options);
-
-                return options;
-            });
+            services.Services.Configure(optionsBuilder);
         }
     }
 }
