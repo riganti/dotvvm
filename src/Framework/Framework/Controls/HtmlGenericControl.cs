@@ -133,21 +133,7 @@ namespace DotVVM.Framework.Controls
             set => this.SetValue(HtmlCapabilityProperty, value);
         }
         public static readonly DotvvmCapabilityProperty HtmlCapabilityProperty =
-            DotvvmCapabilityProperty.RegisterCapability("HtmlCapability", typeof(HtmlGenericControl), typeof(HtmlCapability),
-                control => new HtmlCapability {
-                    Visible = control.GetValueOrBinding<bool>(VisibleProperty),
-                    Attributes = VirtualPropertyGroupDictionary<object?>.CreatePropertyDictionary(control, AttributesGroupDescriptor),
-                    CssClasses = VirtualPropertyGroupDictionary<bool>.CreatePropertyDictionary(control, CssClassesGroupDescriptor),
-                    CssStyles = VirtualPropertyGroupDictionary<object>.CreatePropertyDictionary(control, CssStylesGroupDescriptor)
-                },
-                (control, boxedValue) => {
-                    var value = (HtmlCapability?)boxedValue ?? new HtmlCapability();
-                    control.SetValue(VisibleProperty, value.Visible);
-                    ((HtmlGenericControl)control).Attributes.CopyFrom(value.Attributes, clear: true);
-                    ((HtmlGenericControl)control).CssClasses.CopyFrom(value.CssClasses, clear: true);
-                    ((HtmlGenericControl)control).CssStyles.CopyFrom(value.CssStyles, clear: true);
-                }
-            );
+            DotvvmCapabilityProperty.RegisterCapability<HtmlCapability, HtmlGenericControl>();
 
         /// <summary>
         /// Gets a value whether this control renders a HTML tag.

@@ -33,7 +33,9 @@ namespace DotVVM.Framework.Binding
         public BindingCompilationService(IOptions<BindingCompilationOptions> options, IExpressionToDelegateCompiler expressionCompiler, IDotvvmCacheAdapter cache)
         {
             this.expressionCompiler = expressionCompiler;
-            this.noInitService = new Lazy<BindingCompilationService>(() => new NoInitService(options, expressionCompiler, cache));
+            this.noInitService = 
+                this is NoInitService ? new(() => this)
+                                      : new(() => new NoInitService(options, expressionCompiler, cache));
             foreach (var p in GetDelegates(options.Value.TransformerClasses))
                 resolvers.AddDelegate(p);
             this.Cache = new DotvvmBindingCacheHelper(cache, this);

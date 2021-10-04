@@ -7,6 +7,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Testing;
 using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.ViewModel;
@@ -62,6 +63,18 @@ namespace DotVVM.Framework.Tests.ControlTests
                                    Text={value: _parent.Label + _this}
                                    ItemClick={command: _parent.Integer = _index}
                                    />
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task BindingMapping()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <cc:BindingMappingControl Str={value: Label} IntBinding={value: Integer}/>
+                <cc:BindingMappingControl Str=TtTt IntBinding={value: 0}/>
                 "
             );
 
@@ -165,6 +178,26 @@ namespace DotVVM.Framework.Tests.ControlTests
         {
             return new HtmlGenericControl(TagName);
         }
+    }
 
+    public class BindingMappingControl: CompositeControl
+    {
+        public static DotvvmControl GetContents(
+            ValueOrBinding<string> str,
+            IValueBinding<int> intBinding
+        )
+        {
+            return new HtmlGenericControl("div") {
+                Children = {
+                    RawLiteral.Create("\ntext length: "),
+                    new Literal(str.Select(s => s.Length), renderSpan: true),
+                    RawLiteral.Create("\ntext to lower"),
+                    new Literal(str.Select(s => s.ToLowerInvariant()), renderSpan: true),
+                    RawLiteral.Create("\nint times 2"),
+                    new Literal(intBinding.Select(s => s * 2), renderSpan: true)
+                        .SetProperty(c => c.Visible, intBinding.Select(s => s > 10)),
+                }
+            };
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -266,15 +266,10 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(string), nameof(string.EndsWith), parameters: new[] { typeof(string), typeof(StringComparison) }, translator: new GenericMethodCompiler(
                 a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("endsWith").Invoke(a[0], a[1], a[2])));
             AddMethodTranslator(typeof(string), nameof(string.IsNullOrEmpty), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
-                a => new JsBinaryExpression(
-                    new JsBinaryExpression(a[1], BinaryOperatorType.Equal, new JsLiteral(null)),
-                    BinaryOperatorType.ConditionalOr,
-                    new JsBinaryExpression(a[1].Clone(), BinaryOperatorType.StrictlyEqual, new JsLiteral("")))));
+                a => new JsBinaryExpression(a[1].Member("length", optional: true), BinaryOperatorType.Greater, new JsLiteral(0)).Unary(UnaryOperatorType.LogicalNot)
+            ));
             AddMethodTranslator(typeof(string), nameof(string.IsNullOrWhiteSpace), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
-                a => new JsBinaryExpression(
-                    new JsBinaryExpression(a[1], BinaryOperatorType.Equal, new JsLiteral(null)),
-                    BinaryOperatorType.ConditionalOr,
-                    new JsBinaryExpression(a[1].Clone().Member("trim").Invoke(), BinaryOperatorType.StrictlyEqual, new JsLiteral("")))));
+                a => new JsBinaryExpression(a[1].Member("trim", optional: true).Invoke().Member("length"), BinaryOperatorType.Greater, new JsLiteral(0)).Unary(UnaryOperatorType.LogicalNot)));
 
             var joinStringArrayMethod = typeof(string).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(m => m.Name == nameof(string.Join) && m.GetParameters().Length == 2 && m.GetParameters().Last().ParameterType == typeof(string[]) && m.GetParameters().First().ParameterType == typeof(string)).Single();
@@ -343,11 +338,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                     a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimEnd").Invoke(
                         new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimStart").Invoke(a[0], TakeFirstElement(a[1])), TakeFirstElement(a[1].Clone()))));
                 AddMethodTranslator(typeof(NetFrameworkExtensions), nameof(NetFrameworkExtensions.TrimStart), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
-                    a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimStart").Invoke(a[1])));
+                    a => a[1].Member("trimStart").Invoke()));
                 AddMethodTranslator(typeof(string), nameof(string.TrimStart), parameters: new[] { typeof(char[]) }, translator: new GenericMethodCompiler(
                     a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimStart").Invoke(a[0], TakeFirstElement(a[1]))));
                 AddMethodTranslator(typeof(NetFrameworkExtensions), nameof(NetFrameworkExtensions.TrimEnd), parameters: new[] { typeof(string) }, translator: new GenericMethodCompiler(
-                    a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimEnd").Invoke(a[1])));
+                    a => a[1].Member("trimEnd").Invoke()));
                 AddMethodTranslator(typeof(string), nameof(string.TrimEnd), parameters: new[] { typeof(char[]) }, translator: new GenericMethodCompiler(
                     a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimEnd").Invoke(a[0], TakeFirstElement(a[1]))));
             }
@@ -357,11 +352,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                     a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimEnd").Invoke(
                         new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimStart").Invoke(a[0], a[1]), a[1].Clone())));
                 AddMethodTranslator(typeof(string), nameof(string.TrimStart), parameterCount: 0, translator: new GenericMethodCompiler(
-                    a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimStart").Invoke(a[0])));
+                    a => a[0].Member("trimStart").Invoke()));
                 AddMethodTranslator(typeof(string), nameof(string.TrimStart), parameters: new[] { typeof(char) }, translator: new GenericMethodCompiler(
                     a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimStart").Invoke(a[0], a[1])));
                 AddMethodTranslator(typeof(string), nameof(string.TrimEnd), parameterCount: 0, translator: new GenericMethodCompiler(
-                    a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimEnd").Invoke(a[0])));
+                    a => a[0].Member("trimEnd").Invoke()));
                 AddMethodTranslator(typeof(string), nameof(string.TrimEnd), parameters: new[] { typeof(char) }, translator: new GenericMethodCompiler(
                     a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("trimEnd").Invoke(a[0], a[1])));
             }
@@ -369,13 +364,13 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(string), nameof(string.Trim), parameterCount: 0, translator: new GenericMethodCompiler(
                 a => a[0].Member("trim").Invoke()));
             AddMethodTranslator(typeof(string), nameof(string.PadLeft), parameterCount: 1, translator: new GenericMethodCompiler(
-                a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("padStart").Invoke(a[0], a[1])));
+                a => a[0].Member("padStart").Invoke(a[1])));
             AddMethodTranslator(typeof(string), nameof(string.PadLeft), parameterCount: 2, translator: new GenericMethodCompiler(
-                a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("padStart").Invoke(a[0], a[1], a[2])));
+                a => a[0].Member("padStart").Invoke(a[1], a[2])));
             AddMethodTranslator(typeof(string), nameof(string.PadRight), parameterCount: 1, translator: new GenericMethodCompiler(
-                a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("padEnd").Invoke(a[0], a[1])));
+                a => a[0].Member("padEnd").Invoke(a[1])));
             AddMethodTranslator(typeof(string), nameof(string.PadRight), parameterCount: 2, translator: new GenericMethodCompiler(
-                a => new JsIdentifierExpression("dotvvm").Member("translations").Member("string").Member("padEnd").Invoke(a[0], a[1], a[2])));
+                a => a[0].Member("padEnd").Invoke(a[1], a[2])));
         }
 
         private void AddDefaultMathTranslations()

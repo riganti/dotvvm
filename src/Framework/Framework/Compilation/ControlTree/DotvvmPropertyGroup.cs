@@ -123,6 +123,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return descriptorDictionary.Values
                 .Where(pg => pg.DeclaringType.Name == typeName);
         }
+        
+        public static IEnumerable<DotvvmPropertyGroup> AllGroups => descriptorDictionary.Values;
 
         public static IPropertyDescriptor? ResolvePropertyGroup(string name, bool caseSensitive)
         {

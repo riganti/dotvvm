@@ -57,6 +57,7 @@ namespace DotVVM.Framework.Compilation.Styles
         }
 
         public static bool IsAllowedPropertyValue([NotNullWhen(false)] object? value) =>
+            value is ValueOrBinding vob && IsAllowedPropertyValue(vob.UnwrapToObject()) ||
             value is null ||
             ReflectionUtils.IsPrimitiveType(value.GetType()) ||
             RoslynValueEmitter.IsImmutableObject(value.GetType()) ||
@@ -68,6 +69,8 @@ namespace DotVVM.Framework.Compilation.Styles
             {
                 value = resolvedSetter.GetValue();
             }
+
+            value = ValueOrBindingExtensions.UnwrapToObject(value);
 
             if (value is DotvvmBindableObject valueControl)
             {
@@ -103,9 +106,9 @@ namespace DotVVM.Framework.Compilation.Styles
                 else
                     return new ResolvedPropertyControlCollection(property, cs.ToList());
             }
-            else if (value is IBinding)
+            else if (value is IBinding binding)
             {
-                return new ResolvedPropertyValue(property, value);
+                return new ResolvedPropertyBinding(property, new ResolvedBinding(binding));
             }
             else if (IsAllowedPropertyValue(value))
             {

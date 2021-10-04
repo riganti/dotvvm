@@ -29,8 +29,7 @@ namespace DotVVM.Framework.Binding
                 if (val.HasValue)
                 {
                     var v = val.GetValueOrDefault();
-                    var boxedVal = v.BindingOrDefault ?? v.BoxedValue;
-                    c.properties.Set(p, boxedVal);
+                    c.properties.Set(p, v.UnwrapToObject());
                 }
                 else
                 {
@@ -40,7 +39,7 @@ namespace DotVVM.Framework.Binding
             public static void SetValueOrBinding<T>(DotvvmBindableObject c, DotvvmProperty p, ValueOrBinding<T> val)
             {
                 // TODO: remove the property in case of default value?
-                var boxedVal = val.BindingOrDefault ?? val.BoxedValue;
+                var boxedVal = val.UnwrapToObject();
                 c.properties.Set(p, boxedVal);
             }
 

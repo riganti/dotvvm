@@ -23,8 +23,6 @@ namespace DotVVM.Samples.Tests.Complex
         [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_SPAErrorReporting_test))]
         [SkipBrowser("firefox:dev", "Cannot simulate offline mode.")]
         [SkipBrowser("firefox:fast", "Cannot simulate offline mode.")]
-        [SkipBrowser("ie:dev", "Cannot simulate offline mode.")]
-        [SkipBrowser("ie:fast", "Cannot simulate offline mode.")]
         [SkipBrowser("firefox:fast", "Cannot simulate offline mode.")]
         public void Complex_SPAErrorReporting_NavigationAndPostbacks()
         {
