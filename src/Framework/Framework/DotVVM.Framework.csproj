@@ -59,10 +59,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Core/DotVVM.Core.csproj" />
-    <ProjectReference Include="..\..\Analyzers\Analyzers.Package\DotVVM.Analyzers.Package.csproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <OutputItemType>Analyzer</OutputItemType>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.1.0" />
@@ -119,6 +115,12 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Pack analyzers together with the main DotVVM package -->
+    <None Include="../../Analyzers/Analyzers.Package/bin/$(Configuration)/netstandard2.0/DotVVM.Analyzers.dll" PackagePath="analyzers/dotnet/cs" Pack="true" />
+    <None Include="../../Analyzers/Analyzers.Package/bin/$(Configuration)/netstandard2.0/DotVVM.Analyzers.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" Pack="true" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- the wildcard would not work in Target.Inputs, it only works in Include -->
