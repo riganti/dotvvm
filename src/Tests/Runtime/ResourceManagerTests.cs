@@ -59,9 +59,9 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             //define
             var config1 = DotvvmTestHelper.CreateConfiguration();
-            config1.Resources.Register("rs1", new ScriptResource(new FileResourceLocation("file.js")));
-            config1.Resources.Register("rs2", new StylesheetResource(new UrlResourceLocation("http://c.c/")));
-            config1.Resources.Register("rs3", new StylesheetResource(new EmbeddedResourceLocation(typeof(DotvvmConfiguration).Assembly, "DotVVM.Framework.Resources.Scripts.knockout-latest.js", "../file.js")));
+            config1.Resources.RegisterScriptFile("rs1", "file.js");
+            config1.Resources.RegisterStylesheetUrl("rs2", "http://c.c/", integrityHash: null);
+            config1.Resources.RegisterStylesheet("rs3", new EmbeddedResourceLocation(typeof(DotvvmConfiguration).Assembly, "DotVVM.Framework.Resources.Scripts.knockout-latest.js", "../file.js"));
             config1.Resources.Register("rs4", new InlineScriptResource("CODE", ResourceRenderPosition.Head));
             config1.Resources.Register("rs5", new NullResource());
             config1.Resources.Register("rs6", new ScriptResource(
@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Tests.Runtime
             {
                 LocationFallback = new ResourceLocationFallback("condition", new FileResourceLocation("file1.js"))
             });
-            config1.Resources.Register("rs8", new ScriptResource(new JQueryGlobalizeResourceLocation(CultureInfo.GetCultureInfo("en-US"))));
+            config1.Resources.RegisterScript("rs8", new JQueryGlobalizeResourceLocation(CultureInfo.GetCultureInfo("en-US")));
 
             var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
             settings.TypeNameHandling = TypeNameHandling.Auto;

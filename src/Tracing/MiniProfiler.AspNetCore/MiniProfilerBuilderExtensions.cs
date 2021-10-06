@@ -28,13 +28,11 @@ namespace DotVVM.Framework.Configuration
             services.Services.Configure((DotvvmConfiguration conf) => {
                 conf.Markup.AddCodeControls(DotvvmConfiguration.DotvvmControlTagPrefix, typeof(MiniProfilerWidget));
                 conf.Runtime.GlobalFilters.Add(new MiniProfilerActionFilter());
-                conf.Resources.Register(MiniProfilerWidget.IntegrationJSResourceName,
-                    new ScriptResource(location: new EmbeddedResourceLocation(
+                conf.Resources.RegisterScript(MiniProfilerWidget.IntegrationJSResourceName,
+                    new EmbeddedResourceLocation(
                         typeof(MiniProfilerWidget).Assembly,
-                        MiniProfilerWidget.IntegrationJSEmbeddedResourceName)) {
-                        Dependencies = new[] { ResourceConstants.DotvvmResourceName },
-                        RenderPosition = ResourceRenderPosition.Head
-                    });
+                        MiniProfilerWidget.IntegrationJSEmbeddedResourceName),
+                    dependencies: new[] { ResourceConstants.DotvvmResourceName });
             });
 
             return services;
