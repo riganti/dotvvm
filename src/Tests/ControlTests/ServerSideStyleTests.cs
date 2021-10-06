@@ -12,6 +12,7 @@ using DotVVM.Framework.Controls.Infrastructure;
 using System.Collections.Generic;
 using DotVVM.Framework.Compilation.Styles;
 using System.Linq;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -23,6 +24,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         ControlTestHelper createHelper(Action<DotvvmConfiguration> c)
         {
             return new ControlTestHelper(config: config => {
+                _ = Repeater.RenderAsNamedTemplateProperty;
                 config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);
                 c(config);
             });
@@ -242,6 +244,58 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task MarkupControlCreatedFromStyles()
+        {
+            var cth = createHelper(c => {
+                c.Markup.AddMarkupControl("cc", "CustomControlWithSomeProperty", "CustomControlWithSomeProperty.dotcontrol");
+                c.Markup.AddMarkupControl("cc", "CustomBasicControl", "CustomBasicControl.dotcontrol");
+
+
+                c.Styles.Register<HtmlGenericControl>(c => c.HasTag("a"))
+                    .AppendContent(new MarkupControlContainer("cc:CustomBasicControl"));
+                c.Styles.Register<HtmlGenericControl>(c => c.HasTag("b"))
+                    .AppendContent(new MarkupControlContainer("CustomBasicControl2.dotcontrol"));
+                c.Styles.Register<HtmlGenericControl>(c => c.HasTag("c"))
+                    .AppendContent(new MarkupControlContainer<CustomControlWithSomeProperty>("cc:CustomControlWithSomeProperty", c => c.SomeProperty = "ahoj"));
+                c.Styles.Register<HtmlGenericControl>(c => c.HasTag("d"))
+                    .AppendContent(new MarkupControlContainer("cc:CustomControlWithSomeProperty"), c => {
+                        c.SetDotvvmProperty(CustomControlWithSomeProperty.SomePropertyProperty, "test");
+                    });
+            });
+
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <dot:Placeholder DataContext={value: Integer}>
+                    Markup control referenced as tag
+                    <div Styles.tag=a />
+                    Markup control referenced as filename
+                    <div Styles.tag=b />
+                    Markup control with property
+                    <div Styles.tag=c />
+                    Markup control with property, but different
+                    <div Styles.tag=d />
+                </dot:Placeholder>
+                ",
+                markupFiles: new Dictionary<string, string> {
+                    ["CustomControlWithSomeProperty.dotcontrol"] = @"
+                        @viewModel int
+                        @baseType DotVVM.Framework.Tests.ControlTests.CustomControlWithSomeProperty
+                        @wrapperTag div
+                        {{value: _this + _control.SomeProperty.Length}}",
+                    ["CustomBasicControl.dotcontrol"] = @"
+                        @viewModel int
+                        @noWrapperTag
+                        {{value: _this}}",
+                    ["CustomBasicControl2.dotcontrol"] = @"
+                        @viewModel int
+                        @noWrapperTag
+                        {{value: _this + 1}}",
+                }
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
@@ -256,5 +310,16 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             public List<string> Collection { get; } = new List<string>();
         }
+    }
+
+    public class CustomControlWithSomeProperty : DotvvmMarkupControl
+    {
+        public string SomeProperty
+        {
+            get { return (string)GetValue(SomePropertyProperty); }
+            set { SetValue(SomePropertyProperty, value); }
+        }
+        public static readonly DotvvmProperty SomePropertyProperty =
+            DotvvmProperty.Register<string, CustomControlWithSomeProperty>("SomeProperty");
     }
 }

@@ -1080,6 +1080,16 @@
         "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
       }
     },
+    "DotVVM.Framework.Tests.ControlTests.BindingMappingControl": {
+      "IntBinding": {
+        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding`1[[System.Int32, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], DotVVM.Framework",
+        "required": true
+      },
+      "Str": {
+        "type": "System.String",
+        "required": true
+      }
+    },
     "DotVVM.Framework.Tests.ControlTests.CustomControlWithCommand": {
       "Click": {
         "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
