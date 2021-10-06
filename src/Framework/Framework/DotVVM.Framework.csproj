@@ -113,8 +113,10 @@
 
   <ItemGroup>
     <!-- Pack analyzers together with the main DotVVM package -->
-    <None Include="../../Analyzers/Analyzers.Package/bin/$(Configuration)/netstandard2.0/DotVVM.Analyzers.dll" PackagePath="analyzers/dotnet/cs" Pack="true" />
-    <None Include="../../Analyzers/Analyzers.Package/bin/$(Configuration)/netstandard2.0/DotVVM.Analyzers.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" Pack="true" />
+    <None Include="../../Analyzers/Analyzers.Package/bin/$(Configuration)/netstandard2.0/DotVVM.Analyzers.dll" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
+    <None Include="../../Analyzers/Analyzers.Package/bin/$(Configuration)/netstandard2.0/DotVVM.Analyzers.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
+    <!-- Add install / uninstall scripts for .NET Framework -->
+    <None Include="../../Analyzers/Analyzers.Package/tools/*.ps1" PackagePath="tools" Pack="true" />
   </ItemGroup>
 
   <ItemGroup>
