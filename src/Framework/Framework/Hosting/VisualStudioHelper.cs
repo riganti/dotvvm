@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -11,6 +13,12 @@ namespace DotVVM.Framework.Hosting
     {
         internal static string SerializeConfig(DotvvmConfiguration config, bool includeProperties = true)
         {
+            if (includeProperties)
+            {
+                // NB: Forces all properties to be registered
+                config.ServiceProvider.GetRequiredService<IControlResolver>();
+            }
+
             var obj = new {
                 config,
                 properties = includeProperties ? DotvvmPropertySerializableList.Properties : null,
