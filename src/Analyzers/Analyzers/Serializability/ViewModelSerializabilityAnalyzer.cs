@@ -105,26 +105,24 @@ namespace DotVVM.Analyzers.Serializability
                 if (IsSerializationIgnored(propertySymbol, bindAttribute))
                     continue;
 
-                if (property.Type.Kind() == SyntaxKind.NullableType)
-                {
-                    // Serialization of nullable type
-                    var nullable = property.Type as NullableTypeSyntax;
-                    if (semanticModel.GetSymbolInfo(nullable!.ElementType).Symbol is not ITypeSymbol elementInfo)
-                        continue;
-
-                    if (elementInfo.IsPrimitive())
-                        continue;
-
-                    // Serialization of nullables is only supported for primitive types
-                    var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), propertyTypeSymbol.ToDisplayString());
-                    context.ReportDiagnostic(diagnostic);
-                }
                 if (propertyTypeSymbol.IsAbstract)
                 {
                     // Serialization of abstract classes can fail
                     var diagnostic = Diagnostic.Create(DoNotUseUninstantiablePropertiesRule, property.GetLocation(), propertyTypeSymbol.ToDisplayString());
                     context.ReportDiagnostic(diagnostic);
                     continue;
+                }
+                else if (property.Type is NullableTypeSyntax nullableTypeSyntax)
+                {
+                    if (semanticModel.GetSymbolInfo(nullableTypeSyntax.ElementType).Symbol is not ITypeSymbol elementInfo)
+                        continue;
+
+                    else if (!elementInfo.IsReferenceTypeSerializationSupported(semanticModel.Compilation) && !elementInfo.IsValueTypeSerializationSupported(semanticModel.Compilation))
+                    {
+                        // Serialization of this specific type is not supported by DotVVM
+                        var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), propertyTypeSymbol.ToDisplayString());
+                        context.ReportDiagnostic(diagnostic);
+                    }
                 }
                 else if (!propertyTypeSymbol.IsSerializationSupported(semanticModel))
                 {

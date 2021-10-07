@@ -3,45 +3,41 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DotVVM.Analyzers.Serializability
 {
     internal static class TypeSymbolExtensions
     {
-        private static ImmutableList<ITypeSymbol> supportedTypesForSerialization = ImmutableList.Create<ITypeSymbol>();
-
-        public static bool IsPrimitive(this ITypeSymbol typeSymbol)
-        {
-            switch (typeSymbol.SpecialType)
-            {
-                case SpecialType.System_Boolean:
-                case SpecialType.System_Byte:
-                case SpecialType.System_SByte:
-                case SpecialType.System_Int16:
-                case SpecialType.System_UInt16:
-                case SpecialType.System_Int32:
-                case SpecialType.System_UInt32:
-                case SpecialType.System_Int64:
-                case SpecialType.System_UInt64:
-                case SpecialType.System_Single:
-                case SpecialType.System_Double:
-                case SpecialType.System_Decimal:
-                case SpecialType.System_Char:
-                    return true;
-                default:
-                    return false;
-            }
-        }
+        private static ImmutableHashSet<ITypeSymbol> supportedReferenceTypesForSerialization = ImmutableHashSet.Create<ITypeSymbol>();
+        private static ImmutableHashSet<ITypeSymbol> supportedValueTypesForSerilization = ImmutableHashSet.Create<ITypeSymbol>();
+        private static volatile bool cachesConstructed = false;
 
         public static bool IsSerializationSupported(this ITypeSymbol typeSymbol, SemanticModel semantics)
         {
-            if (supportedTypesForSerialization.Count == 0)
-                CreateTypesCache(semantics.Compilation);
-
-            return typeSymbol.IsSerializationSupportedImpl();
+            EnsureCachesAreConstructed(semantics.Compilation);
+            return IsSerializationSupportedImpl(typeSymbol);
         }
 
-        public static bool IsSerializationSupportedImpl(this ITypeSymbol typeSymbol)
+        public static bool IsReferenceTypeSerializationSupported(this ITypeSymbol referenceTypeSymbol, Compilation compilation)
+        {
+            EnsureCachesAreConstructed(compilation);
+            return supportedReferenceTypesForSerialization.Contains(referenceTypeSymbol);
+        }
+
+        public static bool IsValueTypeSerializationSupported(this ITypeSymbol valueTypeSymbol, Compilation compilation)
+        {
+            EnsureCachesAreConstructed(compilation);
+            return supportedValueTypesForSerilization.Contains(valueTypeSymbol);
+        }
+
+        private static void EnsureCachesAreConstructed(Compilation compilation)
+        {
+            if (!cachesConstructed)
+                CreateTypesCache(compilation);
+        }
+
+        private static bool IsSerializationSupportedImpl(this ITypeSymbol typeSymbol)
         {
             switch (typeSymbol.TypeKind)
             {
@@ -57,7 +53,7 @@ namespace DotVVM.Analyzers.Serializability
                     var args = namedTypeSymbol?.TypeArguments ?? ImmutableArray.Create<ITypeSymbol>();
                     var symbol = (arity.HasValue && arity.Value > 0) ? typeSymbol.OriginalDefinition : typeSymbol;
 
-                    if (symbol.IsPrimitive() || supportedTypesForSerialization.Contains(symbol))
+                    if (supportedValueTypesForSerilization.Contains(symbol) || supportedReferenceTypesForSerialization.Contains(symbol))
                     {
                         // Type is either primitive and/or directly supported by DotVVM
                         foreach (var arg in args)
@@ -88,17 +84,38 @@ namespace DotVVM.Analyzers.Serializability
 
         private static void CreateTypesCache(Compilation compilation)
         {
-            var builder = ImmutableArray.CreateBuilder<ITypeSymbol>();
+            var valueTypeBuilder = ImmutableHashSet.CreateBuilder<ITypeSymbol>();
+            var referenceTypeBuilder = ImmutableHashSet.CreateBuilder<ITypeSymbol>();
 
-            builder.Add(compilation.GetSpecialType(SpecialType.System_Object));
-            builder.Add(compilation.GetSpecialType(SpecialType.System_String));
-            builder.Add(compilation.GetSpecialType(SpecialType.System_DateTime));
-            builder.Add(compilation.GetTypeByMetadataName("System.Guid"));
-            builder.Add(compilation.GetTypeByMetadataName("System.TimeSpan"));
-            builder.Add(compilation.GetTypeByMetadataName("System.Collections.Generic.List`1"));
-            builder.Add(compilation.GetTypeByMetadataName("System.Collections.Generic.Dictionary`2"));
+            // Supported reference types (excluding user-defined types)
+            referenceTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_Object));
+            referenceTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_String));
+            referenceTypeBuilder.Add(compilation.GetTypeByMetadataName("System.Collections.Generic.List`1"));
+            referenceTypeBuilder.Add(compilation.GetTypeByMetadataName("System.Collections.Generic.Dictionary`2"));
 
-            supportedTypesForSerialization = builder.ToImmutableList();
+            // Common value types: (primitives)
+            valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_Boolean));
+            valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_Byte));
+            valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_SByte));
+            valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_Int16));
+            valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_UInt16));
+            valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_Int32));
+            valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_UInt32));
+            valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_Int64));
+            valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_UInt64));
+            valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_Single));
+            valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_Double));
+            valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_Decimal));
+            valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_Char));
+
+            // Special (whitelisted) value types
+            valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_DateTime));
+            valueTypeBuilder.Add(compilation.GetTypeByMetadataName("System.Guid"));
+            valueTypeBuilder.Add(compilation.GetTypeByMetadataName("System.TimeSpan"));
+
+            supportedValueTypesForSerilization = valueTypeBuilder.ToImmutableHashSet();
+            supportedReferenceTypesForSerialization = referenceTypeBuilder.ToImmutableHashSet();
+            cachesConstructed = true;
         }
     }
 }
