@@ -183,6 +183,48 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
+        public async void Test_NullableStructs_AreSerializableAndSupported_ViewModel()
+        {
+            var test = @"
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.Collections.Generic;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public DateTime? DateTime { get; set; }
+            public TimeSpan? TimeSpan { get; set; }
+            public Guid? Guid { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [Fact]
+        public async void Test_NullableReferenceTypes_AreSerializableAndSupported_ViewModel()
+        {
+            var test = @"
+    #nullable enable
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.Collections.Generic;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public object? Object { get; set; }
+            public string? String { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [Fact]
         public async void Test_CommonTypesAreSerializableAndSupported_ViewModel()
         {
             var test = @"
