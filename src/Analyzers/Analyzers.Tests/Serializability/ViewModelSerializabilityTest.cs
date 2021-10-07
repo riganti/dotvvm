@@ -129,6 +129,31 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
+        public async void Test_Enums_AreSerializableAndSupported_ViewModel()
+        {
+            var test = @"
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.Collections.Generic;
+
+    namespace ConsoleApplication1
+    {
+        public enum MyEnum { A = 1, B = 2, C = 3 }
+
+        [Flags]
+        public enum MyFlagsEnum { A, B, C }
+
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            MyEnum Enum1 { get; set; }
+            MyFlagsEnum Enum2 { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [Fact]
         public async void Test_DotVVMFriendlyObjects_AreSerializableAndSupported_ViewModel()
         {
             var test = @"
@@ -394,20 +419,18 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_IgnoreNonSerializedMembers_JsonIgnore_ViewModel()
+        public async void Test_SelfReferencingTypes_JsonIgnore_ViewModel()
         {
             var text = @"
     using DotVVM.Framework.ViewModel;
-    using Newtonsoft.Json;
     using System;
-    using System.IO;
+    using System.Collections.Generic;
 
     namespace ConsoleApplication1
     {
         public class DefaultViewModel : DotvvmViewModelBase
         {
-            [JsonIgnore]
-            public Stream Property { get; set; }
+            public List<List<List<int>>> Property { get; set; }
         }
     }";
 
