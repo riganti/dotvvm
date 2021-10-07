@@ -9,8 +9,8 @@ namespace DotVVM.Analyzers.Serializability
 {
     internal static class TypeSymbolExtensions
     {
-        private static ImmutableHashSet<ITypeSymbol> supportedReferenceTypesForSerialization = ImmutableHashSet.Create<ITypeSymbol>();
-        private static ImmutableHashSet<ITypeSymbol> supportedValueTypesForSerilization = ImmutableHashSet.Create<ITypeSymbol>();
+        private static ImmutableHashSet<ISymbol> supportedReferenceTypesForSerialization = ImmutableHashSet.Create<ISymbol>(SymbolEqualityComparer.Default);
+        private static ImmutableHashSet<ISymbol> supportedValueTypesForSerilization = ImmutableHashSet.Create<ISymbol>(SymbolEqualityComparer.Default);
         private static volatile bool cachesConstructed = false;
 
         public static bool IsSerializationSupported(this ITypeSymbol typeSymbol, SemanticModel semantics)
@@ -84,14 +84,14 @@ namespace DotVVM.Analyzers.Serializability
 
         private static void CreateTypesCache(Compilation compilation)
         {
-            var valueTypeBuilder = ImmutableHashSet.CreateBuilder<ITypeSymbol>();
-            var referenceTypeBuilder = ImmutableHashSet.CreateBuilder<ITypeSymbol>();
+            var valueTypeBuilder = ImmutableHashSet.CreateBuilder<ISymbol>(SymbolEqualityComparer.Default);
+            var referenceTypeBuilder = ImmutableHashSet.CreateBuilder<ISymbol>(SymbolEqualityComparer.Default);
 
             // Supported reference types (excluding user-defined types)
             referenceTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_Object));
             referenceTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_String));
-            referenceTypeBuilder.Add(compilation.GetTypeByMetadataName("System.Collections.Generic.List`1"));
-            referenceTypeBuilder.Add(compilation.GetTypeByMetadataName("System.Collections.Generic.Dictionary`2"));
+            referenceTypeBuilder.Add(compilation.GetTypeByMetadataName("System.Collections.Generic.List`1")!);
+            referenceTypeBuilder.Add(compilation.GetTypeByMetadataName("System.Collections.Generic.Dictionary`2")!);
 
             // Common value types: (primitives)
             valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_Boolean));
@@ -110,11 +110,11 @@ namespace DotVVM.Analyzers.Serializability
 
             // Special (whitelisted) value types
             valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_DateTime));
-            valueTypeBuilder.Add(compilation.GetTypeByMetadataName("System.Guid"));
-            valueTypeBuilder.Add(compilation.GetTypeByMetadataName("System.TimeSpan"));
+            valueTypeBuilder.Add(compilation.GetTypeByMetadataName("System.Guid")!);
+            valueTypeBuilder.Add(compilation.GetTypeByMetadataName("System.TimeSpan")!);
 
-            supportedValueTypesForSerilization = valueTypeBuilder.ToImmutableHashSet();
-            supportedReferenceTypesForSerialization = referenceTypeBuilder.ToImmutableHashSet();
+            supportedValueTypesForSerilization = valueTypeBuilder.ToImmutableHashSet(SymbolEqualityComparer.Default);
+            supportedReferenceTypesForSerialization = referenceTypeBuilder.ToImmutableHashSet(SymbolEqualityComparer.Default);
             cachesConstructed = true;
         }
     }

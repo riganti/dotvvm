@@ -83,7 +83,7 @@ namespace DotVVM.Analyzers.Serializability
                 if (classInfo == null)
                     continue;
 
-                if (!classInfo.AllInterfaces.Any(symbol => symbol.OriginalDefinition.Equals(viewModelInterface)))
+                if (!classInfo.AllInterfaces.Any(symbol => SymbolEqualityComparer.Default.Equals(symbol, viewModelInterface)))
                     continue;
 
                 AnalyzeViewModelProperties(classDeclaration, bindAttribute, jsonIgnoreAttribute, context);
