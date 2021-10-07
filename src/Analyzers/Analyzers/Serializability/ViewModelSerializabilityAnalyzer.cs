@@ -25,6 +25,7 @@ namespace DotVVM.Analyzers.Serializability
         private static readonly LocalizableResourceString uninstantiableTypeDescription = new LocalizableResourceString(nameof(Resources.Serializability_UninstantiableType_Description), Resources.ResourceManager, typeof(Resources));
         private const string dotvvmViewModelInterfaceMetadataName =  "DotVVM.Framework.ViewModel.IDotvvmViewModel";
         private const string dotvvmBindAttributeMetadataName = "DotVVM.Framework.ViewModel.BindAttribute";
+        private const string newtonsoftJsonIgnoreAttributeMetadataName = "Newtonsoft.Json.JsonIgnoreAttribute";
 
         public static DiagnosticDescriptor UseSerializablePropertiesRule = new DiagnosticDescriptor(
             DotvvmDiagnosticIds.UseSerializablePropertiesInViewModelRuleId,
@@ -72,16 +73,20 @@ namespace DotVVM.Analyzers.Serializability
             var syntaxTree = context.SemanticModel.SyntaxTree;
             var viewModelInterface = semanticModel.Compilation.GetTypeByMetadataName(dotvvmViewModelInterfaceMetadataName);
             var bindAttribute = semanticModel.Compilation.GetTypeByMetadataName(dotvvmBindAttributeMetadataName);
+            var jsonIgnoreAttribute = semanticModel.Compilation.GetTypeByMetadataName(newtonsoftJsonIgnoreAttributeMetadataName);
 
             // Check all classes
             foreach (var classDeclaration in syntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
             {
                 // Filter out non-ViewModels
                 var classInfo = semanticModel.GetDeclaredSymbol(classDeclaration);
+                if (classInfo == null)
+                    continue;
+
                 if (!classInfo.AllInterfaces.Any(symbol => symbol.OriginalDefinition.Equals(viewModelInterface)))
                     continue;
 
-                AnalyzeViewModelProperties(classDeclaration, bindAttribute, context);
+                AnalyzeViewModelProperties(classDeclaration, bindAttribute, jsonIgnoreAttribute, context);
                 AnalyzeViewModelFields(classDeclaration, context);
             }
         }
@@ -91,7 +96,7 @@ namespace DotVVM.Analyzers.Serializability
         /// </summary>
         /// <param name="viewModel">ViewModel class declaration</param>
         /// <param name="context">Semantic context</param>
-        private static void AnalyzeViewModelProperties(ClassDeclarationSyntax viewModel, INamedTypeSymbol bindAttribute, SemanticModelAnalysisContext context)
+        private static void AnalyzeViewModelProperties(ClassDeclarationSyntax viewModel, INamedTypeSymbol? bindAttribute, INamedTypeSymbol? jsonIgnoreAttribute, SemanticModelAnalysisContext context)
         {
             var semanticModel = context.SemanticModel;
             foreach (var property in viewModel.DescendantNodes().OfType<PropertyDeclarationSyntax>()
@@ -102,7 +107,7 @@ namespace DotVVM.Analyzers.Serializability
                 if (semanticModel.GetSymbolInfo(property.Type).Symbol is not ITypeSymbol propertyTypeSymbol)
                     continue;
 
-                if (IsSerializationIgnored(propertySymbol, bindAttribute))
+                if (IsSerializationIgnored(propertySymbol, bindAttribute, jsonIgnoreAttribute))
                     continue;
 
                 if (propertyTypeSymbol.IsAbstract)
@@ -148,17 +153,39 @@ namespace DotVVM.Analyzers.Serializability
             }
         }
 
-        private static bool IsSerializationIgnored(IPropertySymbol property, INamedTypeSymbol attribute)
+        private static bool IsSerializationIgnored(IPropertySymbol property, INamedTypeSymbol? bindAttribute = null, INamedTypeSymbol? jsonIgnoreAttribute = null)
         {
-            var bindAttribute = property.GetAttributes().SingleOrDefault(a => a.AttributeClass.MetadataName == attribute.MetadataName);
-            if (bindAttribute == null || bindAttribute.ConstructorArguments.Length == 0)
+            return IsSerializationIgnoredUsingBindAttribute(property, bindAttribute) || IsSerializationIgnoredUsingJsonIgnoreAttribute(property, jsonIgnoreAttribute);
+        }
+
+        private static bool IsSerializationIgnoredUsingBindAttribute(IPropertySymbol property, INamedTypeSymbol? bindAttribute)
+        {
+            if (bindAttribute == null)
                 return false;
 
-            if (bindAttribute.ConstructorArguments.First().Value is not int direction)
+            // Try find attached attribute
+            var attribute = property.GetAttributes().SingleOrDefault(a => a.AttributeClass != null && a.AttributeClass.MetadataName == bindAttribute.MetadataName);
+            if (attribute == null || attribute.ConstructorArguments.Length == 0)
+                return false;
+
+            // Get value provided to ctor
+            if (attribute.ConstructorArguments.First().Value is not int direction)
                 return false;
 
             // Direction.None has value 0 (zero)
             return direction == 0;
+        }
+
+        private static bool IsSerializationIgnoredUsingJsonIgnoreAttribute(IPropertySymbol property, INamedTypeSymbol? jsonIgnoreAttribute)
+        {
+            if (jsonIgnoreAttribute == null)
+                return false;
+
+            // Try find attached attribute
+            if (property.GetAttributes().SingleOrDefault(a => a.AttributeClass != null && a.AttributeClass.MetadataName == jsonIgnoreAttribute.MetadataName) == null)
+                return false;
+
+            return true;
         }
     }
 }

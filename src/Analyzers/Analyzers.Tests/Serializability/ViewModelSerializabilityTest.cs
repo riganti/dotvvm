@@ -374,7 +374,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
-        public async void Test_IgnoreNonSerializedMembersInViewModel()
+        public async void Test_IgnoreNonSerializedMembers_BindDirectionNone_ViewModel()
         {
             var text = @"
     using DotVVM.Framework.ViewModel;
@@ -386,6 +386,27 @@ namespace DotVVM.Analyzers.Tests.Serializability
         public class DefaultViewModel : DotvvmViewModelBase
         {
             [Bind(Direction.None)]
+            public Stream Property { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(text);
+        }
+
+        [Fact]
+        public async void Test_IgnoreNonSerializedMembers_JsonIgnore_ViewModel()
+        {
+            var text = @"
+    using DotVVM.Framework.ViewModel;
+    using Newtonsoft.Json;
+    using System;
+    using System.IO;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            [JsonIgnore]
             public Stream Property { get; set; }
         }
     }";

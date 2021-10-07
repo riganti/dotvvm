@@ -26,6 +26,9 @@ namespace DotVVM.Analyzers.Tests
                     // Add DotVVM.Core as a project reference
                     var locationCore = System.Reflection.Assembly.GetAssembly(typeof(Framework.ViewModel.BindAttribute)).Location;
                     solution = solution.AddMetadataReference(projectId, MetadataReference.CreateFromFile(locationCore));
+                    // Add Newtonsoft.Json as a reference
+                    var locationNewtonsoft = System.Reflection.Assembly.GetAssembly(typeof(Newtonsoft.Json.JsonConvert)).Location;
+                    solution = solution.AddMetadataReference(projectId, MetadataReference.CreateFromFile(locationNewtonsoft));
 
                     return solution;
                 });
