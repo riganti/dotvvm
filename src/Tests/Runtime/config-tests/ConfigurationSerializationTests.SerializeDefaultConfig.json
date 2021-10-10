@@ -668,6 +668,18 @@
         "type": "System.Object"
       }
     },
+    "DotVVM.Framework.Controls.JsComponent": {
+      "Global": {
+        "type": "System.Boolean"
+      },
+      "Name": {
+        "type": "System.String",
+        "required": true
+      },
+      "WrapperTagName": {
+        "type": "System.String"
+      }
+    },
     "DotVVM.Framework.Controls.ListBox": {
       "Size": {
         "type": "System.Int32"
@@ -1090,9 +1102,20 @@
         "required": true
       }
     },
+    "DotVVM.Framework.Tests.ControlTests.CreatingMarkupControl": {
+      "TestCase": {
+        "type": "System.String",
+        "required": true
+      }
+    },
     "DotVVM.Framework.Tests.ControlTests.CustomControlWithCommand": {
       "Click": {
         "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
+      }
+    },
+    "DotVVM.Framework.Tests.ControlTests.CustomControlWithSomeProperty": {
+      "SomeProperty": {
+        "type": "System.String"
       }
     },
     "DotVVM.Framework.Tests.ControlTests.RepeatedButton": {
@@ -1460,6 +1483,20 @@
         "prefix": "Style-",
         "type": "System.Object",
         "fromCapability": "HtmlCapability"
+      }
+    },
+    "DotVVM.Framework.Controls.JsComponent": {
+      "Props": {
+        "prefixes": [
+          "",
+          "prop:"
+        ],
+        "type": "System.Object"
+      },
+      "Templates": {
+        "prefix": "template-",
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
       }
     },
     "DotVVM.Framework.Controls.RouteLink": {
