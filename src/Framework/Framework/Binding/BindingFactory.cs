@@ -23,13 +23,18 @@ namespace DotVVM.Framework.Binding
         {
             if (binding.ContainsGenericParameters)
             {
-                var nonGenericBase = binding.BaseType;
-                Debug.Assert(nonGenericBase != null && !nonGenericBase.ContainsGenericParameters && nonGenericBase.Name  + "`1" == binding.Name);
-                var tmpBinding = CreateBinding(service, nonGenericBase!, properties);
-                var type = tmpBinding.GetProperty<ExpectedTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type ??
-                           tmpBinding.GetProperty<ResultTypeBindingProperty>().Type;
+                var type = properties.OfType<ExpectedTypeBindingProperty>().FirstOrDefault()?.Type;
+                if (type is null)
+                {
+                    var nonGenericBase = binding.BaseType;
+                    Debug.Assert(nonGenericBase != null && !nonGenericBase.ContainsGenericParameters && nonGenericBase.Name  + "`1" == binding.Name);
+                    var tmpBinding = CreateBinding(service, nonGenericBase!, properties);
+                    type = tmpBinding.GetProperty<ExpectedTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type ??
+                            tmpBinding.GetProperty<ResultTypeBindingProperty>().Type;
+                    if (tmpBinding is ICloneableBinding cloneable)
+                        properties = cloneable.GetAllComputedProperties().ToArray();
+                }
                 binding = binding.MakeGenericType(new [] { type });
-                properties = tmpBinding is ICloneableBinding cloneable ? cloneable.GetAllComputedProperties().ToArray() : properties;
             }
 
             return bindingCtorCache.GetOrAdd(binding, type => {

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31613.86
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31612.314
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Api", "Api", "{0AE0961C-5838-4868-B84C-B73D23A997A3}"
 EndProject
@@ -98,6 +98,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.ApplicationInsights.Owin", "Samples\ApplicationInsights.Owin\DotVVM.Samples.ApplicationInsights.Owin.csproj", "{85617AC0-D0A5-40B8-8C81-4B13877E7837}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.MiniProfiler.Owin", "Samples\MiniProfiler.Owin\DotVVM.Samples.MiniProfiler.Owin.csproj", "{24B04C26-27FB-423A-813D-662B5176F836}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{DB0AB0C3-DA5E-4B5A-9CD4-036D37B50AED}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Testing.SeleniumGenerator.Tests", "Tools\Tests\SeleniumGenerator\DotVVM.Testing.SeleniumGenerator.Tests.csproj", "{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -582,6 +586,18 @@ Global
 		{24B04C26-27FB-423A-813D-662B5176F836}.Release|x64.Build.0 = Release|Any CPU
 		{24B04C26-27FB-423A-813D-662B5176F836}.Release|x86.ActiveCfg = Release|Any CPU
 		{24B04C26-27FB-423A-813D-662B5176F836}.Release|x86.Build.0 = Release|Any CPU
+		{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF}.Debug|x64.Build.0 = Debug|Any CPU
+		{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF}.Debug|x86.Build.0 = Debug|Any CPU
+		{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF}.Release|x64.ActiveCfg = Release|Any CPU
+		{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF}.Release|x64.Build.0 = Release|Any CPU
+		{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF}.Release|x86.ActiveCfg = Release|Any CPU
+		{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -628,6 +644,8 @@ Global
 		{2ACC89F1-F7CA-4406-ACD7-3B62DE20686F} = {DC6E006E-EE9D-481D-B94C-8A53331BCBC1}
 		{85617AC0-D0A5-40B8-8C81-4B13877E7837} = {DC6E006E-EE9D-481D-B94C-8A53331BCBC1}
 		{24B04C26-27FB-423A-813D-662B5176F836} = {DC6E006E-EE9D-481D-B94C-8A53331BCBC1}
+		{DB0AB0C3-DA5E-4B5A-9CD4-036D37B50AED} = {E57EE0B8-30FC-4702-B310-FB82C19D7473}
+		{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF} = {DB0AB0C3-DA5E-4B5A-9CD4-036D37B50AED}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {61F8A195-365E-47B1-A6F2-CD3534E918F8}

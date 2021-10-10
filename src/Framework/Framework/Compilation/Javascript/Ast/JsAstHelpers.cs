@@ -6,10 +6,10 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
     public static class JsAstHelpers
     {
-        public static JsExpression Member(this JsExpression target, string memberName)
+        public static JsExpression Member(this JsExpression target, string memberName, bool optional = false)
         {
             if (target == null) return new JsIdentifierExpression(memberName);
-            else return new JsMemberAccessExpression(target, memberName);
+            else return new JsMemberAccessExpression(target, memberName) { IsOptional = optional };
         }
 
         public static JsExpression Invoke(this JsExpression target, IEnumerable<JsExpression> arguments) =>

@@ -102,6 +102,16 @@ namespace DotVVM.Framework.Compilation.Styles
         public StyleBuilder<DotvvmBindableObject> RegisterAnyObject(Func<StyleMatchContext<DotvvmBindableObject>, bool>? matcher = null) =>
             Register<DotvvmBindableObject>(matcher);
 
+        /// <summary>
+        /// Registers a server-side style for any component that have specified Styles.Tag (including special objects like GridViewColumn)
+        /// </summary>
+        /// <returns>A <see cref="StyleBuilder{T}"/> that can be used to style the control.</returns>
+        public StyleBuilder<DotvvmBindableObject> RegisterForTag(string tag, Func<StyleMatchContext<DotvvmBindableObject>, bool>? matcher = null) =>
+            Register<DotvvmBindableObject>(m => m.HasTag(tag) && matcher?.Invoke(m) != false);
+
+        
+        
+
         private bool isFrozen = false;
         private void ThrowIfFrozen()
         {
