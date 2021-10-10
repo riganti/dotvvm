@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JsComponentIntegration.ReactComponentIntegrationViewModel, DotVVM.Samples.Common
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JsComponentIntegration.ReactComponentIntegrationViewModel, DotVVM.Samples.Common
 @js FeatureSamples_Resources_ReactAppModule
 
 <!DOCTYPE html>
@@ -23,6 +23,19 @@
 
     <p>
         CurrentThing: {{value: CurrentThing}}
+    </p>
+
+
+    <dot:CheckBox Checked="{value: Condition}" Text="Condition for template selector" />
+
+    <dot:JsComponent Name="TemplateSelector" condition={value: Condition}>
+        <template-template1>
+            Condition == true (and IncludeInPage = {{value: IncludeInPage}})
+        </template-template1>
+        <template-template2>
+            Condition == false
+        </template-template2>
+    </dot:JsComponent>
 
 </body>
 </html>

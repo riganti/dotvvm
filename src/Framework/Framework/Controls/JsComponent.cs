@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the attributes.
         /// </summary>
-        [PropertyGroup(new[] { "", "template:" })]
+        [PropertyGroup(new[] { "template-" })]
         public VirtualPropertyGroupDictionary<ITemplate> Templates => new(this, TemplatesGroupDescriptor);
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
         public static DotvvmPropertyGroup TemplatesGroupDescriptor =
