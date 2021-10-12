@@ -202,7 +202,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return new ControlResolverMetadata((ControlType)type);
         }
 
-        protected override IPropertyDescriptor? FindGlobalPropertyOrGroup(string name)
+        protected override IPropertyDescriptor? FindGlobalPropertyOrGroup(string name, MappingMode requiredMode)
         {
             // try to find property
             var property = DotvvmProperty.ResolveProperty(name, caseSensitive: false);
@@ -212,7 +212,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
 
             // try to find property group
-            return DotvvmPropertyGroup.ResolvePropertyGroup(name, caseSensitive: false);
+            return DotvvmPropertyGroup.ResolvePropertyGroup(name, caseSensitive: false, requiredMode);
         }
     }
 }

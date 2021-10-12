@@ -126,14 +126,16 @@ namespace DotVVM.Framework.Compilation.ControlTree
         
         public static IEnumerable<DotvvmPropertyGroup> AllGroups => descriptorDictionary.Values;
 
-        public static IPropertyDescriptor? ResolvePropertyGroup(string name, bool caseSensitive)
+        public static IPropertyDescriptor? ResolvePropertyGroup(string name, bool caseSensitive, MappingMode requiredMode = default)
         {
             var nameParts = name.Split('.');
             var groups = FindAttachedPropertyCandidates(nameParts[0])
                 .SelectMany(g => g.Prefixes.Select(p => new { Group = g, Prefix = p }));
 
             var group = groups
-                .FirstOrDefault(g => nameParts[1].StartsWith(g.Prefix, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(g =>
+                    nameParts[1].StartsWith(g.Prefix, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase) &&
+                    g.Group.MarkupOptions.MappingMode.HasFlag(requiredMode));
             if (group != null)
             {
                 var concreteName = nameParts[1].Substring(group.Prefix.Length);

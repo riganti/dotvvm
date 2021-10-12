@@ -139,21 +139,21 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Finds the property in the control metadata.
         /// </summary>
-        public IPropertyDescriptor? FindProperty(IControlResolverMetadata controlMetadata, string name)
+        public IPropertyDescriptor? FindProperty(IControlResolverMetadata controlMetadata, string name, MappingMode requiredMode)
         {
             if (name.Contains("."))
             {
                 // try to find an attached property
-                return FindGlobalPropertyOrGroup(name);
+                return FindGlobalPropertyOrGroup(name, requiredMode);
             }
             else
             {
                 // find normal property
-                return FindControlPropertyOrGroup(controlMetadata, name);
+                return FindControlPropertyOrGroup(controlMetadata, name, requiredMode);
             }
         }
 
-        private IPropertyDescriptor? FindControlPropertyOrGroup(IControlResolverMetadata controlMetadata, string name)
+        private IPropertyDescriptor? FindControlPropertyOrGroup(IControlResolverMetadata controlMetadata, string name, MappingMode requiredMode)
         {
             // try to find the property in metadata
             if (controlMetadata.TryGetProperty(name, out var property))
@@ -164,7 +164,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
             // try property group
             foreach (var group in controlMetadata.PropertyGroups)
             {
-                if (name.StartsWith(group.Prefix, StringComparison.OrdinalIgnoreCase))
+                if (name.StartsWith(group.Prefix, StringComparison.OrdinalIgnoreCase) &&
+					group.PropertyGroup.MarkupOptions.MappingMode.HasFlag(requiredMode))
                 {
                     var concreteName = name.Substring(group.Prefix.Length);
                     return group.PropertyGroup.GetDotvvmProperty(concreteName);
@@ -178,7 +179,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Finds the DotVVM property in the global property store.
         /// </summary>
-        protected abstract IPropertyDescriptor? FindGlobalPropertyOrGroup(string name);
+        protected abstract IPropertyDescriptor? FindGlobalPropertyOrGroup(string name, MappingMode requiredMode);
 
         /// <summary>
         /// Finds the compiled control.

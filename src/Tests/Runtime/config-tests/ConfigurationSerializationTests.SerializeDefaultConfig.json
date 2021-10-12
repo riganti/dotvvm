@@ -1494,7 +1494,10 @@
         "type": "System.Object"
       },
       "Templates": {
-        "prefix": "template-",
+        "prefixes": [
+          "",
+          "template-"
+        ],
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
         "mappingMode": "InnerElement"
       }

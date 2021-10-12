@@ -265,9 +265,9 @@ namespace DotVVM.Framework.Tests.ControlTests
                                  troll={resource: 1}
                                  scmd={staticCommand: (int s) => _js.Invoke<System.Threading.Tasks.Task<int>>('myCmd', s)}>
 
-                    <template-MyTemplate>
+                    <MyTemplate>
                         <h1> Ahoj lidi </h1>
-                    </template-MyTemplate>
+                    </MyTemplate>
                 </dot:JsComponent>
 
                 <dot:JsComponent Name=Bazmek troll={resource: 1} />
