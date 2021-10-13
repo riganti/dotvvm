@@ -217,6 +217,8 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
+                TryUseLiteralAsInnerText(ref r);
+
                 if (r.HasClass)
                     AddCssClassesToRender(writer);
                 if (r.HasStyle)
@@ -423,6 +425,23 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+        /// Tries to get Literal element from Children and set its value binding into r.InnerText
+        /// This leads to less knockout comments being produced
+        void TryUseLiteralAsInnerText(ref RenderState r)
+        {
+            if (r.InnerText != null || Children.Count != 1)
+                return;
+            if (Children[0] is not Literal { RendersHtmlTag: false, FormatString: null or "" } literal)
+                return;
+
+            var textBinding = literal.GetValueRaw(Literal.TextProperty) as IValueBinding;
+            if (textBinding is null || Literal.NeedsFormatting(textBinding))
+                return;
+            
+            Children.Clear();
+            r.InnerText = textBinding;
+        }
+
         private void AddTextPropertyToRender(ref RenderState r, IHtmlWriter writer)
         {
             if (r.InnerText == null) return;
@@ -432,13 +451,14 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutDataBind("text", expression.GetKnockoutBindingExpression(this));
             }
 
-            var value = (string?)this.EvalPropertyValue(InnerTextProperty, r.InnerText);
-            if ((expression == null && !string.IsNullOrWhiteSpace(value))
-                || r.RenderOnServer(this))
+            if (expression == null || r.RenderOnServer(this))
             {
-                Children.Clear();
-                if (value is object)
+                var value = this.EvalPropertyValue(InnerTextProperty, r.InnerText)?.ToString();
+                if (!string.IsNullOrEmpty(value))
+                {
+                    Children.Clear();
                     Children.Add(new Literal(value));
+                }
             }
         }
 
