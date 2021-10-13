@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
@@ -39,47 +40,77 @@ namespace DotVVM.Analyzers.Serializability
 
         private static bool IsSerializationSupportedImpl(this ITypeSymbol typeSymbol)
         {
-            switch (typeSymbol.TypeKind)
+            var stack = new Stack<ITypeSymbol>();
+#pragma warning disable RS1024 // Compare symbols correctly
+            // This is a false positive: https://github.com/dotnet/roslyn-analyzers/issues/4568
+            var visited = new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default) { typeSymbol };
+#pragma warning restore RS1024 // Compare symbols correctly
+            stack.Push(typeSymbol);
+
+            while (stack.Count != 0)
             {
-                case TypeKind.Array:
-                    return ((IArrayTypeSymbol)typeSymbol).ElementType.IsSerializationSupportedImpl();
-                case TypeKind.Enum:
-                    return ((INamedTypeSymbol)typeSymbol).EnumUnderlyingType.IsSerializationSupportedImpl();
-                case TypeKind.Class:
-                case TypeKind.Struct:
-
-                    var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
-                    var arity = namedTypeSymbol?.Arity;
-                    var args = namedTypeSymbol?.TypeArguments ?? ImmutableArray.Create<ITypeSymbol>();
-                    var symbol = (arity.HasValue && arity.Value > 0) ? typeSymbol.OriginalDefinition : typeSymbol;
-
-                    if (supportedValueTypesForSerilization.Contains(symbol) || supportedReferenceTypesForSerialization.Contains(symbol))
-                    {
-                        // Type is either primitive and/or directly supported by DotVVM
-                        foreach (var arg in args)
+                var currentSymbol = stack.Pop();
+                switch (currentSymbol.TypeKind)
+                {
+                    case TypeKind.Array:
+                        var elementTypeSymbol = ((IArrayTypeSymbol)currentSymbol).ElementType;
+                        if (!visited.Contains(elementTypeSymbol))
                         {
-                            if (!arg.IsSerializationSupportedImpl())
-                                return false;
+                            stack.Push(elementTypeSymbol);
+                            visited.Add(elementTypeSymbol);
                         }
-
-                        return true;
-                    }
-                    else if (!typeSymbol.ContainingNamespace.ToDisplayString().StartsWith("System"))
-                    {
-                        // User types are supported if all their properties are supported
-                        foreach (var property in symbol.GetMembers().Where(m => m.Kind == SymbolKind.Property).Cast<IPropertySymbol>())
+                        continue;
+                    case TypeKind.Enum:
+                        var underlyingTypeSymbol = ((INamedTypeSymbol)currentSymbol).EnumUnderlyingType;
+                        if (underlyingTypeSymbol != null && !visited.Contains(underlyingTypeSymbol))
                         {
-                            if (!property.Type.IsSerializationSupportedImpl())
-                                return false;
+                            stack.Push(underlyingTypeSymbol);
+                            visited.Add(underlyingTypeSymbol);
                         }
+                        continue;
+                    case TypeKind.Class:
+                    case TypeKind.Struct:
+                        var namedTypeSymbol = currentSymbol as INamedTypeSymbol;
+                        var arity = namedTypeSymbol?.Arity;
+                        var args = namedTypeSymbol?.TypeArguments ?? ImmutableArray.Create<ITypeSymbol>();
+                        var symbol = (arity.HasValue && arity.Value > 0) ? currentSymbol.OriginalDefinition : currentSymbol;
 
-                        return true;
-                    }
-
-                    break;
+                        if (supportedValueTypesForSerilization.Contains(symbol) || supportedReferenceTypesForSerialization.Contains(symbol))
+                        {
+                            // Type is either primitive and/or directly supported by DotVVM
+                            foreach (var arg in args)
+                            {
+                                if (!visited.Contains(arg))
+                                {
+                                    stack.Push(arg);
+                                    visited.Add(arg);
+                                }
+                            }
+                        }
+                        else if (!currentSymbol.ContainingNamespace.ToDisplayString().StartsWith("System"))
+                        {
+                            // User types are supported if all their properties are supported
+                            foreach (var property in symbol.GetMembers().Where(m => m.Kind == SymbolKind.Property).Cast<IPropertySymbol>())
+                            {
+                                if (!visited.Contains(property.Type))
+                                {
+                                    stack.Push(property.Type);
+                                    visited.Add(property.Type);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Something unsupported from BCL detected
+                            return false;
+                        }
+                        continue;
+                    default:
+                        return false;
+                }
             }
 
-            return false;
+            return true;
         }
 
         private static void CreateTypesCache(Compilation compilation)
