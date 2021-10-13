@@ -317,7 +317,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
 
             var literal = treeBuilder.BuildControl(rawLiteralMetadata.Value, node, dataContext);
-            literal.ConstructorParameters = new object[] { text.Replace("\r\n", "\n"), literalNode.Value, whitespace };
+            literal.ConstructorParameters = new object[] { text.Replace("\r\n", "\n"), literalNode.Value.Replace("\r\n", "\n"), whitespace };
             return literal;
         }
 
