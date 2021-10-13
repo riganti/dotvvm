@@ -9,6 +9,7 @@ using DotVVM.Framework.Binding;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Utils;
+using System.Net;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -117,7 +118,22 @@ namespace DotVVM.Framework.Compilation
                 {
                     if (c.Metadata.Type == typeof(RawLiteral))
                     {
-                        text = Expression.Add(text, Expression.Constant(c.ConstructorParameters![1]), concatMethod);
+                        var unencoded = (string)c.ConstructorParameters![0];
+                        var encoded = (string)c.ConstructorParameters![1];
+                        var isWhitespace = (bool)c.ConstructorParameters![2];
+                        if (WebUtility.HtmlEncode(unencoded) != encoded)
+                        {
+                            // weird literal => don't do anything with it
+                            return null;
+                        }
+                        // whitespace from start and end is trimmed
+                        if (isWhitespace && (c == controls.Last() || text is ConstantExpression { Value: "" }))
+                            continue;
+
+                        if (!string.IsNullOrEmpty(encoded))
+                        {
+                            text = Expression.Add(text, Expression.Constant(encoded), concatMethod);
+                        }
                     }
                     else
                     {
