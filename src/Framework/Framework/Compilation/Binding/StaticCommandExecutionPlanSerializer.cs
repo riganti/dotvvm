@@ -16,8 +16,9 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             var array = new JArray(
                 new JValue(GetTypeFullName(plan.Method.DeclaringType)),
-                new JValue(plan.Method.MetadataToken),
+                new JValue(plan.Method.Name),
                 new JArray(plan.Method.GetGenericArguments().Select(GetTypeFullName)),
+                new JArray(plan.Method.GetParameters().Select(p => GetTypeFullName(p.ParameterType))),
                 JToken.FromObject(plan.Arguments.Select(a => (byte)a.Type).ToArray())
             );
             var parameters = (new ParameterInfo[plan.Method.IsStatic ? 0 : 1]).Concat(plan.Method.GetParameters()).ToArray();
@@ -77,23 +78,25 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             var jarray = (JArray)planInJson;
             var typeName = jarray[0].Value<string>();
-            var methodToken = jarray[1].Value<int>();
-            var genericArgumentTypes = jarray[2].Value<JArray>();
-            var argTypes = jarray[3].ToObject<byte[]>().Select(a => (StaticCommandParameterType)a).ToArray();
+            var methodName = jarray[1].Value<string>();
+            var genericTypeNames = jarray[2].Value<JArray>();
+            var parameterTypeNames = jarray[3].Value<JArray>();
+            var argTypes = jarray[4].ToObject<byte[]>().Select(a => (StaticCommandParameterType)a).ToArray();
 
-            var method = Type.GetType(typeName).Module.ResolveMethod(methodToken) as MethodInfo;
+            var parameters = parameterTypeNames.Select(n => Type.GetType(n.Value<string>())).ToArray();
+            var method = Type.GetType(typeName).GetMethod(methodName, parameters);
             if (method == null || !method.IsDefined(typeof(AllowStaticCommandAttribute)))
                 throw new NotSupportedException("The specified method was not found or is not allowed to be used within a static command.");
 
             if (method.IsGenericMethod)
             {
-                method = method.MakeGenericMethod(
-                    genericArgumentTypes.Select(nameToken => Type.GetType(nameToken.Value<string>())).ToArray());
+                var generics = genericTypeNames.Select(n => Type.GetType(n.Value<string>())).ToArray();
+                method = method.MakeGenericMethod(generics);
             }
 
             var methodParameters = method.GetParameters();
             var args = argTypes
-                .Select((a, i) => (type: a, arg: jarray.Count <= i + 4 ? JValue.CreateNull() : jarray[i + 4], parameter: (method.IsStatic ? methodParameters[i] : (i == 0 ? null : methodParameters[i - 1]))))
+                .Select((a, i) => (type: a, arg: jarray.Count <= i + 5 ? JValue.CreateNull() : jarray[i + 5], parameter: (method.IsStatic ? methodParameters[i] : (i == 0 ? null : methodParameters[i - 1]))))
                 .Select((a) => {
                     switch (a.type)
                     {
