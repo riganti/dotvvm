@@ -154,7 +154,7 @@ export async function applyPostbackHandlers(
 
     try {
         const commit = await applyPostbackHandlersCore(saneNext, options, handlers);
-        const result = await commit(...args);
+        const result = await commit();
         return result;
     } catch (err) {
         if (abortSignal && abortSignal.aborted) {
@@ -228,19 +228,17 @@ function applyPostbackHandlersCore(next: (options: PostbackOptions) => Promise<P
     return recursiveCore(0);
 }
 
-function wrapCommitFunction(value: MaybePromise<PostbackCommitFunction | any>, options: PostbackOptions): Promise<PostbackCommitFunction> {
-
-    return Promise.resolve(value).then(v => {
-        if (typeof v == "function") {
-            return <PostbackCommitFunction>value;
-        } else {
-            return () => Promise.resolve<DotvvmAfterPostBackEventArgs>({
-                ...options,
-                commandResult: v,
-                wasInterrupted: false
-            });
-        }
-    });
+async function wrapCommitFunction(value: MaybePromise<PostbackCommitFunction | any>, options: PostbackOptions): Promise<PostbackCommitFunction> {
+    const v = await value;
+    if (typeof v == "function") {
+        return <PostbackCommitFunction>value;
+    } else {
+        return async () => ({
+            ...options,
+            commandResult: v,
+            wasInterrupted: false
+        }) as DotvvmAfterPostBackEventArgs;
+    }
 }
 
 export function isPostbackHandler(obj: any): obj is DotvvmPostbackHandler {

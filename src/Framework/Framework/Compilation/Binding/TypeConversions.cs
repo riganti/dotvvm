@@ -383,7 +383,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     // return dummy completed task
                     if (expectedType == typeof(Task))
                     {
-                        return Expression.Block(expr, Expression.Call(typeof(TaskUtils), "GetCompletedTask", Type.EmptyTypes));
+                        return Expression.Block(expr, ExpressionUtils.Replace(() => Task.CompletedTask));
                     }
                     else if (expectedType.GetGenericTypeDefinition() == typeof(Task<>))
                     {
