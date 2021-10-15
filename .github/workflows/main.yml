@@ -90,4 +90,27 @@ jobs:
       run: yarn --cwd src/Framework/Framework/ tsc-check
     - name: yarn jest
       run: yarn --cwd src/Framework/Framework/ jest --ci --reporters=default --reporters=jest-github-actions-reporter
+
+  ui-tests:
+    name: UI tests (backup for Azure DevOooops)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: run.sh
+      run: bash ./ci/linux/run.sh
+
+    - name: Parse Trx files
+      uses: NasAmin/trx-parser@v0.2.0
+      id: trx-parser
+      with:
+        TRX_PATH: ${{ github.workspace }}/artifacts/test
+        REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}          
      

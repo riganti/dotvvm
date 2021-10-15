@@ -11,7 +11,7 @@
     <dot:Button id="Click1" Text="Click test" Click="{command: ChangeResult()}" onclick="getElementById('result').innerHTML+='Changed from onclick'" />
 
     
-    <span id="result" class="result1">{{value: Result}}</span>
+    <span id="result" class="result1"></span>
     <span class="result2">{{value: Result}}</span>
 
 </body>

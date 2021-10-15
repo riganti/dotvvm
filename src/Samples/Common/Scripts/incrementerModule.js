@@ -6,7 +6,7 @@ class Page {
         this.context = context;
         this.state = 0;
 
-        this.rootElement = context.elements[0].parentElement;
+        this.rootElement = context.elements[0];
         window.setTimeout(() => {
             this.rootElement.querySelector(".id").innerText = this.rootElement.id;
             this.rootElement.querySelector(".value").innerText = this.state;

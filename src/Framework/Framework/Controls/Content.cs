@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Controls
                 settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
 
                 writer.WriteKnockoutDataBindComment("dotvvm-with-view-modules",
-                    $"{{ viewIdOrElement: {KnockoutHelper.MakeStringLiteral(viewModule.ViewId)}, modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}"
+                    $"{{ viewId: {KnockoutHelper.MakeStringLiteral(viewModule.ViewId)}, modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}"
                 );
             }
         }

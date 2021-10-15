@@ -9,7 +9,7 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox
 {
     public class ComboxItemBindingViewModel : DotvvmViewModelBase
     {
-        public object SelectedValue { get; set; }
+        public int? SelectedValue { get; set; }
         public int? SelectedNullableInt { get; set; }
         public int SelectedInt { get; set; }
         public EnumType SelectedEnum2 { get; set; }

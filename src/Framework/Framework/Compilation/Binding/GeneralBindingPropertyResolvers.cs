@@ -375,9 +375,13 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public LocationInfoBindingProperty GetLocationInfo(ResolvedBinding resolvedBinding, AssignedPropertyBindingProperty? assignedProperty = null)
         {
+            var fileName = resolvedBinding.TreeRoot?.FileName?.Apply(p => System.IO.Path.Combine(
+                configuration.ApplicationPhysicalPath,
+                p
+            ));
             return new LocationInfoBindingProperty(
-                resolvedBinding.TreeRoot?.FileName,
-                resolvedBinding.DothtmlNode?.Tokens?.Select(t => (t.StartPosition, t.EndPosition)).ToArray(),
+                fileName,
+                resolvedBinding.DothtmlNode?.Tokens?.Select(t => (t.ColumnNumber, t.ColumnNumber + t.Length)).ToArray(),
                 resolvedBinding.DothtmlNode?.Tokens?.FirstOrDefault()?.LineNumber ?? -1,
                 resolvedBinding.GetAncestors().OfType<ResolvedControl>().FirstOrDefault()?.Metadata?.Type,
                 assignedProperty?.DotvvmProperty

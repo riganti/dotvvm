@@ -198,7 +198,7 @@ namespace DotVVM.Framework.Binding.Properties
     public sealed class LocationInfoBindingProperty
     {
         public readonly string? FileName;
-        public readonly (int, int)[]? Ranges;
+        public readonly (int start, int end)[]? Ranges;
         public readonly int LineNumber;
         public readonly Type? ControlType;
         public readonly DotvvmProperty? RelatedProperty;

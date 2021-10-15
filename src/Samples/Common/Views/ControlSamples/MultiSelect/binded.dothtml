@@ -21,7 +21,7 @@
                          ItemTextBinding="{value: _this}" />
 
         <dot:Repeater DataSource="{value: SelectedValues}" data-ui="selected-values">
-            {{value: _this}}
+            {{value: " " + _this}}
         </dot:Repeater>
     </div>
     <dot:Literal Text="{value: ChangedCount}" data-ui="changed-count"></dot:Literal>

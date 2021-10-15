@@ -3,7 +3,7 @@
 <dot:Content ContentPlaceHolderID="MainContent">
 
     <h1>{{value: Title}}</h1>
-    <dot:RouteLink RouteName="_CompilationPage">Show Compilation Status Page</dot:RouteLink>
+    <dot:RouteLink RouteName=_dotvvm_diagnostics_compilation>Show Compilation Status Page</dot:RouteLink>
 
     <h1>
         Controls test
