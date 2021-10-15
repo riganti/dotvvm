@@ -158,17 +158,21 @@ namespace DotVVM.Framework.Controls
             // "unbox" ValueOrBinding instances
             value = ValueOrBindingExtensions.UnwrapToObject(value);
 
-            var originalValue = GetValueRaw(property, false);
-            // TODO: really do we want to update the value binding only if it's not a binding
-            if (originalValue is IUpdatableValueBinding && !(value is BindingExpression))
-            {
-                // if the property contains a binding and we are not passing another binding, update the value
-                ((IUpdatableValueBinding)originalValue).UpdateSource(value, this);
-            }
-            else
-            {
-                SetValueRaw(property, value);
-            }
+            SetValueRaw(property, value);
+        }
+
+        /// <summary> Sets the value of specified property by updating the view model this property is bound to. Throws if the property does not contain binding </summary>
+        public void SetValueToSource(DotvvmProperty property, object? value)
+        {
+            if (value is IBinding)
+                throw new DotvvmControlException(this, $"Can not set binding {value} to source.");
+            var binding = GetBinding(property);
+            if (binding is null)
+                throw new DotvvmControlException(this, $"Property {property} does not contain binding, so it's source can not be updated.");
+            if (binding is not IUpdatableValueBinding updatableValueBinding)
+                throw new DotvvmControlException(this, $"Can not set source of binding {value}, it does not implement IUpdatableValueBinding.");
+            
+            updatableValueBinding.UpdateSource(value, this);
         }
 
         /// <summary>

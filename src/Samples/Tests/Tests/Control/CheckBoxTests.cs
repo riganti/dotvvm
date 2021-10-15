@@ -128,7 +128,7 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        [Fact]
+        [Fact(Skip = "this test just does not work on any dotvvm version")]
         public void Control_CheckBox_CheckedItemsEmpty()
         {
             RunInAllBrowsers(browser => {

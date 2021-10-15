@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Tests.ViewModel
 
             var error = viewModel.AddModelError(vm => vm.Users[0].Post.PostText, "Testing validation error.");
 
-            Assert.AreEqual("Users()[0].Post().PostText", error.PropertyPath);
+            Assert.AreEqual("Users()[0]().Post().PostText", error.PropertyPath);
         }
 
         public class SampleViewModel : DotvvmViewModelBase

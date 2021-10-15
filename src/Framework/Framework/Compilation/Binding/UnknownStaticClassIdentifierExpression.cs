@@ -33,5 +33,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public Exception Error()
             => new Exception($"Could not resolve identifier '{Name}'.");
+
+        public override string ToString() => $"[unknown identifier {Name}]";
     }
 }
