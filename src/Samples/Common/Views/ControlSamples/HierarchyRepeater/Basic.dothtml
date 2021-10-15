@@ -6,8 +6,13 @@
                            ItemChildrenBinding="{value: Children}"
                            LevelTagName="ul"
                            ItemTagName="li"
-                           RenderSettings.Mode="Server">
+                           RenderSettings.Mode="Server"
+                           data-test="hello">
         <span RenderSettings.Mode="Client">{{value: Name}}</span>
     </dot:HierarchyRepeater>
+    <dot:Repeater DataSource="{value: Roots}"
+                  RenderSettings.Mode="Server">
+        <span RenderSettings.Mode="Client">{{value: Name}}</span>
+    </dot:Repeater>
 </dot:Content>
 

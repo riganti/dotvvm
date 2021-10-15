@@ -99,6 +99,32 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ItemTagNameProperty
             = DotvvmProperty.Register<string, HierarchyRepeater>(c => c.ItemTagName);
 
+        /// <summary>
+        /// Gets or sets whether the control should render a wrapper element.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public bool RenderWrapperTag
+        {
+            get { return (bool)GetValue(RenderWrapperTagProperty)!; }
+            set { SetValue(RenderWrapperTagProperty, value); }
+        }
+
+        public static readonly DotvvmProperty RenderWrapperTagProperty =
+            DotvvmProperty.Register<bool, HierarchyRepeater>(t => t.RenderWrapperTag, true);
+
+        /// <summary>
+        /// Gets or sets the name of the tag that wraps the <see cref="HierarchyRepeaterLevel"/>.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public string WrapperTagName
+        {
+            get { return (string)GetValue(WrapperTagNameProperty)!; }
+            set { SetValue(WrapperTagNameProperty, value); }
+        }
+
+        public static readonly DotvvmProperty WrapperTagNameProperty =
+            DotvvmProperty.Register<string, HierarchyRepeater>(t => t.WrapperTagName, "div");
+
         /// <inheritdoc />
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
@@ -112,41 +138,38 @@ namespace DotVVM.Framework.Controls
         /// <inheritdoc />
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            if (LevelTagName != null)
-            {
-                TagName = LevelTagName;
-            }
-
             SetChildren(context, renderClientTemplate: !RenderOnServer);
             base.OnPreRender(context);
         }
 
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (!RenderOnServer)
-            {
-                clientItemTemplateId = context.ResourceManager.AddTemplateResource(context, clientItemTemplate!);
-                clientLevelTemplateId = context.ResourceManager.AddTemplateResource(context, clientLevelTemplate!);
-            }
+            TagName = RenderWrapperTag ? WrapperTagName : null;
+            base.RenderBeginTag(writer, context);
+            //if (!RenderOnServer)
+            //{
+            //    clientItemTemplateId = context.ResourceManager.AddTemplateResource(context, clientItemTemplate!);
+            //    clientLevelTemplateId = context.ResourceManager.AddTemplateResource(context, clientLevelTemplate!);
+            //}
 
-            var (bindingName, bindingValue) = RenderOnServer
-                ? ("dotvvm-SSR-foreach", new KnockoutBindingGroup {
-                    { "data", GetForeachDataBindExpression().GetKnockoutBindingExpression(this) }
-                })
-                : ("template", new KnockoutBindingGroup {
-                    { "foreach", GetForeachDataBindExpression().GetKnockoutBindingExpression(this) },
-                    { "name", clientLevelTemplateId!, true }
-                });
+            //var (bindingName, bindingValue) = RenderOnServer
+            //    ? ("dotvvm-SSR-foreach", new KnockoutBindingGroup {
+            //        { "data", GetForeachDataBindExpression().GetKnockoutBindingExpression(this) }
+            //    })
+            //    : ("template", new KnockoutBindingGroup {
+            //        { "foreach", GetForeachDataBindExpression().GetKnockoutBindingExpression(this) },
+            //        { "name", clientLevelTemplateId!, true }
+            //    });
 
-            if (!string.IsNullOrEmpty(LevelTagName))
-            {
-                writer.AddKnockoutDataBind(bindingName, bindingValue);
-                base.RenderBeginTag(writer, context);
-            }
-            else
-            {
-                writer.WriteKnockoutDataBindComment(bindingName, bindingValue.ToString());
-            }
+            //if (!string.IsNullOrEmpty(LevelTagName))
+            //{
+            //    writer.AddKnockoutDataBind(bindingName, bindingValue);
+            //    base.RenderBeginTag(writer, context);
+            //}
+            //else
+            //{
+            //    writer.WriteKnockoutDataBindComment(bindingName, bindingValue.ToString());
+            //}
         }
 
         /// <summary>
@@ -161,7 +184,7 @@ namespace DotVVM.Framework.Controls
 
             if (DataSource is not null)
             {
-                AddServerLevel(context, this, GetIEnumerableFromDataSource()!);
+                Children.Add(GetServerLevel(context, GetIEnumerableFromDataSource()!));
             }
 
             if (renderClientTemplate)
@@ -175,9 +198,8 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void AddServerLevel(
+        private HierarchyRepeaterLevel GetServerLevel(
             IDotvvmRequestContext context,
-            DotvvmControl parent,
             IEnumerable items,
             ImmutableArray<int> parentPath = default)
         {
@@ -186,18 +208,28 @@ namespace DotVVM.Framework.Controls
                 parentPath = ImmutableArray<int>.Empty;
             }
 
-            DotvvmControl levelWrapper = string.IsNullOrEmpty(LevelTagName)
-                        ? new PlaceHolder()
-                        : new HtmlGenericControl(LevelTagName);
-            parent.Children.Add(levelWrapper);
+            var level = new HierarchyRepeaterLevel {
+                ForeachExpression = parentPath.IsEmpty
+                    ? GetForeachDataBindExpression()
+                    : (IValueBinding)ItemChildrenBinding!.GetProperty<DataSourceAccessBinding>().Binding
+            };
             {
-                var index = 0;
-                foreach (var item in items)
+
+                DotvvmControl levelWrapper = string.IsNullOrEmpty(LevelTagName)
+                            ? new PlaceHolder()
+                            : new HtmlGenericControl(LevelTagName);
+                level.Children.Add(levelWrapper);
                 {
-                    AddServerItem(context, levelWrapper, item, parentPath, index);
-                    index++;
+                    var index = 0;
+                    foreach (var item in items)
+                    {
+                        levelWrapper.Children.Add(GetServerItem(context, item, parentPath, index));
+                        index++;
+                    }
                 }
             }
+
+            return level;
         }
 
         private IValueBinding CreateItemBinding(
@@ -242,40 +274,35 @@ namespace DotVVM.Framework.Controls
         //    });
         //}
 
-        private void AddServerItem(
+        private DataItemContainer GetServerItem(
             IDotvvmRequestContext context,
-            DotvvmControl parent,
             object item,
             ImmutableArray<int> parentPath,
             int index)
         {
-            // first, create a wrapper for the item
-            DotvvmControl itemWrapper = string.IsNullOrEmpty(ItemTagName)
-                ? new PlaceHolder()
-                : new HtmlGenericControl(ItemTagName);
-            parent.Children.Add(itemWrapper);
+            // create a data item container and the actual item
+            var dataItem = new DataItemContainer { DataItemIndex = index, DataContext = item };
             {
-                // second, create a data item container and the actual item
-                var dataItem = new DataItemContainer { DataItemIndex = index, DataContext = item };
-                {
-                    dataItem.SetValue(
-                        Internal.PathFragmentProperty,
-                        $"{GetPathFragmentExpression()}/[{string.Join("]/[", parentPath)}]/[{index}]");
-                    dataItem.SetDataContextTypeFromDataSource(GetDataSourceBinding());
-                    var innerItemWrapper = new PlaceHolder();
-                    innerItemWrapper.SetBinding(DataContextProperty, GetItemBinding());
-                    dataItem.Children.Add(innerItemWrapper);
-                    ItemTemplate.BuildContent(context, innerItemWrapper);
-                }
-                itemWrapper.Children.Add(dataItem);
+                dataItem.SetValue(
+                    Internal.PathFragmentProperty,
+                    $"{GetPathFragmentExpression()}/[{string.Join("]/[", parentPath)}]/[{index}]");
+                dataItem.SetDataContextTypeFromDataSource(GetDataSourceBinding());
+                DotvvmControl itemWrapper = string.IsNullOrEmpty(ItemTagName)
+                    ? new PlaceHolder()
+                    : new HtmlGenericControl(ItemTagName);
+                ItemTemplate.BuildContent(context, itemWrapper);
+                dataItem.Children.Add(itemWrapper);
 
-                // third, if the item has children then recurse down
+                // if the item has children then recurse down
                 var itemChildren = GetItemChildren(dataItem);
                 if (itemChildren.Any())
                 {
-                    AddServerLevel(context, dataItem, itemChildren, parentPath.Add(index));
+                    itemWrapper.Children.Add(GetServerLevel(context, itemChildren, parentPath.Add(index)));
                 }
             }
+
+
+            return dataItem;
         }
 
         /// <summary>
