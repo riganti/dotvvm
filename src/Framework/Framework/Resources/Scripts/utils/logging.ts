@@ -5,7 +5,7 @@ type LogLevel = "normal" | "verbose";
 export const level = getLogLevel();
 
 export function logInfoVerbose(area: string, ...args: any[]) {
-    if (level === "verbose") {
+    if (compileConstants.debug && level === "verbose") {
         console.log(`%c${area}`, "background-color: #7fdbff", ...args);
     }
 }
@@ -30,10 +30,12 @@ export function logPostBackScriptError(err: any) {
 }
 
 function getLogLevel() : LogLevel {
-    var logLevel = window.localStorage.getItem("dotvvm-loglevel");
-    if (!logLevel) return "normal";
-    if (logLevel === "normal" || logLevel === "verbose") return logLevel;
-    
-    logWarning("log", "Invalid value of 'dotvvm-loglevel' config value! Supported values: 'normal', 'verbose'");
+    if (compileConstants.debug) {
+        var logLevel = window.localStorage.getItem("dotvvm-loglevel");
+        if (!logLevel) return "normal";
+        if (logLevel === "normal" || logLevel === "verbose") return logLevel;
+        
+        logWarning("log", "Invalid value of 'dotvvm-loglevel' config value! Supported values: 'normal', 'verbose'");
+    }
     return "normal";
 }

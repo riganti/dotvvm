@@ -29,7 +29,8 @@ const config = ({ minify, input, output, spa }) => ({
         resolve({ browser: true }),
         commonjs(),
         replace({
-            "compileConstants.isSpa": spa
+            "compileConstants.isSpa": spa,
+            "compileConstants.debug": !minify,
         }),
 
         minify && terser({

@@ -46,8 +46,8 @@ export default {
             }
 
             const collection = (bindingContext as any)[foreachCollectionSymbol]
-            if (!collection) {
-                throw new Error();
+            if (compileConstants.debug && !collection) {
+                throw new Error(`dotvvm-SSR-item is used in a context without $foreachCollectionSymbol. This is most likely a bug in DotVVM, please report it.`);
             }
 
             const innerBindingContext = bindingContext.createChildContext(() => {

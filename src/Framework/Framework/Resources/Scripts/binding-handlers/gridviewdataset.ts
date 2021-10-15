@@ -42,6 +42,9 @@ export default {
                     isInEditMode: function ($context: any) {
                         let columnName = this.dataSet.RowEditOptions().PrimaryKeyPropertyName();
                         columnName = this.mapping[columnName] || columnName;
+                        if (compileConstants.debug && !ko.isObservable($context.$data[columnName])) {
+                            throw new Error(`data set RowEditOptions.PrimaryKeyPropertyName is invalid. The column ${columnName} does not exist.`);
+                        }
                         return this.dataSet.RowEditOptions().EditRowId() === $context.$data[columnName]();
                     }
                 }
