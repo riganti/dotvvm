@@ -21,10 +21,6 @@ namespace DotVVM.Framework.ViewModel.Validation
 {
     public static class ValidationErrorFactory
     {
-        //public static ViewModelValidationError AddModelError<T, TProp>(this T vm, Expression<Func<T, TProp>> expr, string message)
-        //    where T : class, IDotvvmViewModel
-        //    => vm.Context.AddModelError(vm, expr, message);
-
         public static ViewModelValidationError AddModelError<T>(this T vm, string message)
             where T : class, IDotvvmViewModel
             => vm.Context.AddModelError(message);

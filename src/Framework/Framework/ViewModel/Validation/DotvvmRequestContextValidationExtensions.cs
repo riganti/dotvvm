@@ -36,15 +36,5 @@ namespace DotVVM.Framework.ViewModel.Validation
             if (propertyPath != null && !propertyPath.StartsWith("/"))
                 throw new ArgumentException("Hand-written paths need to be specified from the root of viewModel! Consider passing an expression (lambda) instead.");
         }
-
-        // TODO: we might add this API in future:
-
-        //public static ViewModelValidationError AddModelError<T, TProp>(this IDotvvmRequestContext context, T vm, Expression<Func<T, TProp>> expr, string message)
-        //    where T : class
-        //{
-        //    var error = ValidationErrorFactory.CreateModelError(context.Configuration, vm, expr, message);
-        //    context.ModelState.ErrorsInternal.Add(error);
-        //    return error;
-        //}
     }
 }
