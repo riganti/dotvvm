@@ -3,17 +3,17 @@
 	<body>
 		
 		<!-- ko with: int -->                     Markup control referenced as tag                     
-		<!-- ko text: "" + dotvvm.globalize.bindingNumberToString($rawData)() -->
+		<!-- ko text: dotvvm.globalize.bindingNumberToString($rawData)() -->
 		<!-- /ko -->                     Markup control referenced as filename                     
-		<!-- ko text: "" + dotvvm.globalize.bindingNumberToString($data + 1)() -->
+		<!-- ko text: dotvvm.globalize.bindingNumberToString($data + 1)() -->
 		<!-- /ko -->                     Markup control with property
 		<div data-bind="dotvvm-with-control-properties: { &quot;SomeProperty&quot;: &quot;ahoj&quot; }">
-			<!-- ko text: "" + dotvvm.globalize.bindingNumberToString($data + $control.SomeProperty()?.length)() -->
+			<!-- ko text: dotvvm.globalize.bindingNumberToString($data + $control.SomeProperty()?.length)() -->
 			<!-- /ko -->
 		</div>
 		Markup control with property, but different
 		<div data-bind="dotvvm-with-control-properties: { &quot;SomeProperty&quot;: &quot;test&quot; }">
-			<!-- ko text: "" + dotvvm.globalize.bindingNumberToString($data + $control.SomeProperty()?.length)() -->
+			<!-- ko text: dotvvm.globalize.bindingNumberToString($data + $control.SomeProperty()?.length)() -->
 			<!-- /ko -->
 		</div>
 		

@@ -149,7 +149,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             var iex =
                 exs.OfType<DotvvmCompilationException>().FirstOrDefault() ??
                 exs.OfType<BindingPropertyException>()
-                   .Where(bpe => bpe.Binding.GetProperty<LocationInfoBindingProperty>(ErrorHandlingMode.ReturnNull) is not null)
+                   .Where(bpe => bpe.Binding.GetProperty<LocationInfoBindingProperty>(ErrorHandlingMode.ReturnNull)?.FileName is not null)
                    .FirstOrDefault() ??
                 exs.OfType<DotvvmControlException>().FirstOrDefault() as Exception;
 

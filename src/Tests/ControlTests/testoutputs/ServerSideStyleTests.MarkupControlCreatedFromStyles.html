@@ -4,25 +4,25 @@
 		
 		<!-- ko with: int -->                     Markup control referenced as tag
 		<div>
-			<!-- ko text: "" + dotvvm.globalize.bindingNumberToString($rawData)() -->
+			<!-- ko text: dotvvm.globalize.bindingNumberToString($rawData)() -->
 			<!-- /ko -->
 		</div>
 		Markup control referenced as filename
 		<div>
-			<!-- ko text: "" + dotvvm.globalize.bindingNumberToString($data + 1)() -->
+			<!-- ko text: dotvvm.globalize.bindingNumberToString($data + 1)() -->
 			<!-- /ko -->
 		</div>
 		Markup control with property
 		<div>
 			<div data-bind="dotvvm-with-control-properties: { &quot;SomeProperty&quot;: &quot;ahoj&quot; }">
-				<!-- ko text: "" + dotvvm.globalize.bindingNumberToString($data + $control.SomeProperty()?.length)() -->
+				<!-- ko text: dotvvm.globalize.bindingNumberToString($data + $control.SomeProperty()?.length)() -->
 				<!-- /ko -->
 			</div>
 		</div>
 		Markup control with property, but different
 		<div>
 			<div data-bind="dotvvm-with-control-properties: { &quot;SomeProperty&quot;: &quot;test&quot; }">
-				<!-- ko text: "" + dotvvm.globalize.bindingNumberToString($data + $control.SomeProperty()?.length)() -->
+				<!-- ko text: dotvvm.globalize.bindingNumberToString($data + $control.SomeProperty()?.length)() -->
 				<!-- /ko -->
 			</div>
 		</div>
