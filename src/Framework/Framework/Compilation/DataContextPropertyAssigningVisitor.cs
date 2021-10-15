@@ -17,8 +17,9 @@ namespace DotVVM.Framework.Compilation
         {
             if (control.DataContextTypeStack != control.Parent?.As<ResolvedControl>()?.DataContextTypeStack || control.Parent is ResolvedTreeRoot)
             {
-                // RawLiteral don't need datacontext type, it only slows down compilation
-                if (control.Metadata.Type != typeof(RawLiteral))
+                var c = control.Metadata.Type;
+                // RawLiteral (and similar) don't need datacontext type, it only slows down compilation
+                if (c != typeof(RawLiteral) && c != typeof(GlobalizeResource) && c != typeof(RequiredResource))
                 {
                     control.SetProperty(new ResolvedPropertyValue(Internal.DataContextTypeProperty, control.DataContextTypeStack));
                 }
