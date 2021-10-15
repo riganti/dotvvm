@@ -10,25 +10,31 @@ namespace DotVVM.Framework.ViewModel.Validation
     {
         public static ViewModelValidationError AddModelError(this IDotvvmRequestContext context, string message)
         {
-            var error = new ViewModelValidationError(message);
+            var error = new ViewModelValidationError(message)
+            {
+                IsResolved = true,
+                PropertyPath = "/"
+            };
             context.ModelState.ErrorsInternal.Add(error);
-            error.IsResolved = true;
             return error;
         }
 
         public static ViewModelValidationError AddModelError(this IDotvvmRequestContext context, string propertyPath, string message)
         {
             EnsurePathIsRooted(propertyPath);
-            var error = new ViewModelValidationError(message, propertyPath);
+            var error = new ViewModelValidationError(message)
+            {
+                IsResolved = true,
+                PropertyPath = propertyPath ?? "/"
+            };
             context.ModelState.ErrorsInternal.Add(error);
-            error.IsResolved = true;
             return error;
         }
 
         private static void EnsurePathIsRooted(string propertyPath)
         {
-            if (propertyPath.Length == 0 || !propertyPath.StartsWith("/"))
-                throw new ArgumentException("Hand-written paths need to be specified from the root of viewModel!");
+            if (propertyPath != null && !propertyPath.StartsWith("/"))
+                throw new ArgumentException("Hand-written paths need to be specified from the root of viewModel! Consider passing an expression (lambda) instead.");
         }
 
         // TODO: we might add this API in future:
