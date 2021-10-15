@@ -23,6 +23,12 @@ namespace DotVVM.Framework.ViewModel.Validation
         [JsonIgnore]
         internal object? TargetObject { get; set; }
 
+        /// <summary>
+        /// Determines whether this error is fully processed
+        /// </summary>
+        [JsonIgnore]
+        internal bool IsResolved { get; set; }
+
         [JsonConstructor]
         internal ViewModelValidationError(string errorMessage, string? propertyPath = null, object? targetObject = null)
         {

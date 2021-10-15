@@ -40,7 +40,7 @@ namespace DotVVM.Framework.ViewModel.Validation
 
         private void EnsurePropertyPathsAreCorrect(IEnumerable<ViewModelValidationError> errors)
         {
-            if (errors.Any(error => error.PropertyPath != null && error.PropertyPath.Contains("()")))
+            if (errors.Any(error => error.PropertyPath != null && (error.PropertyPath.Contains("()") || error.PropertyPath.Contains("$"))))
             {
                 var sb = new StringBuilder();
                 sb.AppendLine("Knockout expressions are no longer supported in validation target paths.");
@@ -55,7 +55,7 @@ namespace DotVVM.Framework.ViewModel.Validation
             // Check that model state does not contain validation target paths in the old format
             EnsurePropertyPathsAreCorrect(modelState.Errors);
 
-            if (modelState.Errors.All(e => IsPropertyPathRooted(e)))
+            if (modelState.Errors.All(e => e.IsResolved))
             {
                 // All validation target paths are already in the correct form
                 // i.e. there is nothing to expand
@@ -67,11 +67,8 @@ namespace DotVVM.Framework.ViewModel.Validation
             Expand(viewModel, string.Empty, modelStateDecoratorContext);
 
             // Remove not found errors
-            modelState.ErrorsInternal.RemoveAll(error => error.TargetObject != null && !modelStateDecoratorContext.AlreadyProcessedNodes.Contains(error.TargetObject));
+            modelState.ErrorsInternal.RemoveAll(error => !error.IsResolved);
         }
-
-        private bool IsPropertyPathRooted(ViewModelValidationError error)
-            => error.PropertyPath != null && error.PropertyPath.StartsWith("/");
 
         private int Expand(object? viewModel, string pathPrefix, ValidationErrorPathExpanderContext context)
         {
@@ -129,11 +126,9 @@ namespace DotVVM.Framework.ViewModel.Validation
                 foreach (var validationError in validationErrors)
                 {
                     var propertyName = validationError.PropertyPath ?? string.Empty;
-                    if (propertyName.Length > 0 && propertyName[0] == '/')
-                        continue;
-
                     var absolutePath = $"{pathPrefix}/{propertyName}".TrimEnd('/');
                     validationError.PropertyPath = (absolutePath != string.Empty) ? absolutePath : "/";
+                    validationError.IsResolved = true;
                     errorsCount++;
                 }
             }
