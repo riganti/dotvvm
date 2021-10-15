@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -35,7 +34,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
     }
 
-    public class JavascriptTranslatableMethodCollection : IJavascriptMethodTranslator
+    public partial class JavascriptTranslatableMethodCollection : IJavascriptMethodTranslator
     {
         public readonly Dictionary<MethodInfo, IJavascriptMethodTranslator> MethodTranslators = new Dictionary<MethodInfo, IJavascriptMethodTranslator>();
         public readonly HashSet<Type> Interfaces = new HashSet<Type>();
@@ -100,12 +99,6 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             var property = declaringType.GetProperty(methodName);
             AddMethodTranslator(property.GetMethod, translator);
-        }
-
-        static bool ToStringCheck(Expression expr)
-        {
-            while (expr.NodeType == ExpressionType.Convert) expr = ((UnaryExpression)expr).Operand;
-            return expr.Type.IsPrimitive;
         }
 
         public static JsExpression BuildIndexer(JsExpression target, JsExpression index, MemberInfo member) =>
@@ -176,17 +169,9 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         private void AddDefaultToStringTranslations()
         {
-            AddMethodTranslator(typeof(object), "ToString", new GenericMethodCompiler(
-                a => new JsIdentifierExpression("String").Invoke(a[0]), (m, c, a) => ToStringCheck(c!)), 0);
-            AddMethodTranslator(typeof(Convert), "ToString", new GenericMethodCompiler(
-                a => new JsIdentifierExpression("String").Invoke(a[1]), (m, c, a) => ToStringCheck(a[0])), 1, true);
+            AddMethodTranslator(typeof(object), "ToString", new PrimitiveToStringTranslator(), 0);
+            AddMethodTranslator(typeof(Convert), "ToString", new PrimitiveToStringTranslator(), 1, true);
 
-            AddMethodTranslator(typeof(TimeSpan).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
-                args => args[0]
-            ));
-            AddMethodTranslator(typeof(Nullable<TimeSpan>).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
-                args => args[0]
-            ));
             AddMethodTranslator(typeof(DateTime).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString")
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
@@ -202,7 +187,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
             ));
-            AddMethodTranslator(typeof(Guid).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(args => args[0]));
 
             foreach (var num in ReflectionUtils.NumericTypes.Except(new[] { typeof(char) }))
             {

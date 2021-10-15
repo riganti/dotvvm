@@ -51,10 +51,10 @@
                                             CssClass="explosive" />
                     <dot:GridViewTemplateColumn HeaderText="Url">
                         <ContentTemplate>
-                            <span data-bind="if: !HasParameters()">
+                            <span IncludeInPage={value: !HasParameters}>
                                 <a href="{value: "/" +  Url}">{{value: Url}}</a>
                             </span>
-                            <span data-bind="if: HasParameters()">
+                            <span IncludeInPage={value: HasParameters}>
                                 {{value: Url}}
                             </span>
                         </ContentTemplate>
