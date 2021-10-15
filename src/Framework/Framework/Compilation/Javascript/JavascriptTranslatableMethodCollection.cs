@@ -181,6 +181,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(Convert), "ToString", new GenericMethodCompiler(
                 a => new JsIdentifierExpression("String").Invoke(a[1]), (m, c, a) => ToStringCheck(a[0])), 1, true);
 
+            AddMethodTranslator(typeof(TimeSpan).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
+                args => args[0]
+            ));
+            AddMethodTranslator(typeof(Nullable<TimeSpan>).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
+                args => args[0]
+            ));
             AddMethodTranslator(typeof(DateTime).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString")
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
