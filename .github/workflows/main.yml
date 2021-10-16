@@ -13,6 +13,7 @@ jobs:
   build-WarnAsError:
     name: build without warnings
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
     - uses: actions/cache@v2
       with:
@@ -49,7 +50,9 @@ jobs:
   unit-tests:
     name: dotnet unit tests
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
     strategy:
+      fail-fast: false # don't kill tests when one environment fails
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
     steps:
@@ -82,6 +85,7 @@ jobs:
   js-tests:
     runs-on: ubuntu-latest
     name: JS unit tests
+    timeout-minutes: 10
     steps:
     - uses: actions/checkout@v2
     - name: yarn install
@@ -93,10 +97,12 @@ jobs:
 
   ui-tests:
     name: UI tests (backup for Azure DevOooops)
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
     strategy:
+      fail-fast: false # don't kill tests when one environment fails
       matrix:
-        os: [ubuntu-latest]
+        browser: [firefox, chrome]
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
@@ -105,7 +111,7 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: run.sh
-      run: bash ./ci/linux/run.sh
+      run: bash ./ci/linux/run.sh --samples-profile seleniumconfig.aspnetcorelatest.${{ matrix.browser }}.json
 
     - name: Parse Trx files
       uses: NasAmin/trx-parser@v0.2.0
@@ -113,4 +119,3 @@ jobs:
       with:
         TRX_PATH: ${{ github.workspace }}/artifacts/test
         REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}          
-     
