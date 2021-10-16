@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AssemblyTitle>DotVVM.Tracing.ApplicationInsights.Owin</AssemblyTitle>
-    <Version>$(DotvvmVersion</Version>
+    <Version>$(DotvvmVersion)</Version>
     <TargetFrameworks>net472</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
