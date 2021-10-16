@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AssemblyTitle>DotVVM.Tracing.MiniProfiler.Owin</AssemblyTitle>
-    <Version>$(DotvvmVersion)</Version>
+    
     <TargetFramework>net472</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>

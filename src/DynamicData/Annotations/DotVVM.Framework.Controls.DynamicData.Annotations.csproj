@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <PackageId>DotVVM.DynamicData.Annotations</PackageId>
-    <Version>$(DotvvmVersion)</Version>
+    
     <Authors>RIGANTI</Authors>
     <Description>
       Annotation attributes for DotVVM Dynamic Data that provide additional features.

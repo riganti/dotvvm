@@ -12,7 +12,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <PackageId>DotVVM.Testing</PackageId>
-    <Version>$(DotvvmVersion)</Version>
+    
     <Authors>RIGANTI</Authors>
     <Description>
       This package contains helpers for testing DotVVM controls and other components.

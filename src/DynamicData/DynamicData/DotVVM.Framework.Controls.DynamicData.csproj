@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <PackageId>DotVVM.DynamicData</PackageId>
-    <Version>$(DotvvmVersion)</Version>
+    
     <Authors>RIGANTI</Authors>
     <Description>Dynamic Data implementation for DotVVM.
     DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.</Description>

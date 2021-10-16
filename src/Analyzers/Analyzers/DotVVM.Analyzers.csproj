@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>$(DotvvmVersion)</Version>
+    
     <TargetFramework>netstandard2.0</TargetFramework>
     <OutputItemType>Analyzer</OutputItemType>
     <IsPackable>false</IsPackable>
