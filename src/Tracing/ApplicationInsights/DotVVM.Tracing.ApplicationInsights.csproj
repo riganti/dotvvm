@@ -1,14 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyTitle>DotVVM.Tracing.ApplicationInsights</AssemblyTitle>
-    <VersionPrefix>3.2.0</VersionPrefix>
+    <Version>$(DotvvmVersion)</Version>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.Tracing.ApplicationInsights</PackageId>
-    <PackageVersion>3.2.0</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>Application Insights Tracing module for DotVVM</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

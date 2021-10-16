@@ -4,7 +4,7 @@ $currentDirectory = $PWD
 ### Helper Functions
 
 function Invoke-Git {
-<#
+    <#
 .Synopsis
 Wrapper function that deals with Powershell's peculiar error output when Git uses the error stream.
 .Example
@@ -13,14 +13,14 @@ $LASTEXITCODE
 #>
     [CmdletBinding()]
     param(
-        [parameter(ValueFromRemainingArguments=$true)]
+        [parameter(ValueFromRemainingArguments = $true)]
         [string[]]$Arguments
     )
 
     & {
         [CmdletBinding()]
         param(
-            [parameter(ValueFromRemainingArguments=$true)]
+            [parameter(ValueFromRemainingArguments = $true)]
             [string[]]$InnerArgs
         )
         git.exe $InnerArgs 2>&1
@@ -45,22 +45,22 @@ function RestoreSignClient() {
 
 function SetVersion() {
     Write-Host "Setting version: $version ..."
+    
+    
+    $filePath = Join-Path $currentDirectory ".\Directory.Build.props" -Resolve
+    Write-Host "Updating $filePath" 
+
+    $file = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+    $file = [System.Text.RegularExpressions.Regex]::Replace($file, "\<DotvvmVersion\>([^<]+)\</DotvvmVersion\>", "<DotvvmVersion>" + $version + "</DotvvmVersion>")
+    [System.IO.File]::WriteAllText($filePath, $file, [System.Text.Encoding]::UTF8)
+    
     Write-Host "Current directory: $currentDirectory"  
     foreach ($package in $packages) {
 
         Write-Host --------------------------------
 
-        $filePath = Join-Path $currentDirectory ".\$($package.Directory)\$($package.Directory).csproj" -Resolve
-            Write-Host "Updating $filePath" 
-    
-    
-        $file = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
-        $file = [System.Text.RegularExpressions.Regex]::Replace($file, "\<VersionPrefix\>([^<]+)\</VersionPrefix\>", "<VersionPrefix>" + $version + "</VersionPrefix>")
-        $file = [System.Text.RegularExpressions.Regex]::Replace($file, "\<PackageVersion\>([^<]+)\</PackageVersion\>", "<PackageVersion>" + $version + "</PackageVersion>")
-        [System.IO.File]::WriteAllText($filePath, $file, [System.Text.Encoding]::UTF8)
-                
         $filePath = Join-Path $currentDirectory ".\$($package.Directory)\Properties\AssemblyInfo.cs" 
-        if(Test-Path $filePath) {
+        if (Test-Path $filePath) {
             Write-Host "Updating $filePath" 
             $file = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
             $file = [System.Text.RegularExpressions.Regex]::Replace($file, "\[assembly: AssemblyVersion\(""([^""]+)""\)\]", "[assembly: AssemblyVersion(""" + $versionWithoutPre + """)]")
@@ -143,7 +143,7 @@ function GitPush() {
     invoke-git config --global user.email "rigantiteamcity"
     invoke-git config --global user.name "Riganti Team City"
     if ($pushTag) {
-            invoke-git tag "v$($version)" HEAD
+        invoke-git tag "v$($version)" HEAD
     }
     invoke-git commit -am "NuGet package version $version"
     invoke-git rebase HEAD $branchName
@@ -155,14 +155,14 @@ function GitPush() {
 ### Configuration
 
 $packages = @(
-    [pscustomobject]@{ Package = "DotVVM.Core"; Directory = "DotVVM.Core" },
-    [pscustomobject]@{ Package = "DotVVM"; Directory = "DotVVM.Framework" },
-    [pscustomobject]@{ Package = "DotVVM.Owin"; Directory = "DotVVM.Framework.Hosting.Owin" },
-    [pscustomobject]@{ Package = "DotVVM.AspNetCore"; Directory = "DotVVM.Framework.Hosting.AspNetCore" },
-    [pscustomobject]@{ Package = "DotVVM.CommandLine"; Directory = "DotVVM.CommandLine" },
-    [pscustomobject]@{ Package = "DotVVM.Tools.StartupPerf"; Directory = "DotVVM.Tools.StartupPerfTester" },
-    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.AspNetCore"; Directory = "DotVVM.Framework.Api.Swashbuckle.AspNetCore" },
-    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.Owin"; Directory = "DotVVM.Framework.Api.Swashbuckle.Owin" }
+    [pscustomobject]@{ Package = "DotVVM.Core"; Directory = "Framework/Core" },
+    [pscustomobject]@{ Package = "DotVVM"; Directory = "Framework/Framework" },
+    [pscustomobject]@{ Package = "DotVVM.Owin"; Directory = "Framework/Hosting.Owin" },
+    [pscustomobject]@{ Package = "DotVVM.AspNetCore"; Directory = "Framework/Hosting.AspNetCore" },
+    [pscustomobject]@{ Package = "DotVVM.CommandLine"; Directory = "Tools/.CommandLine" },
+    [pscustomobject]@{ Package = "DotVVM.Tools.StartupPerf"; Directory = "Tools/StartupPerfTester" },
+    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.AspNetCore"; Directory = "Api/Swashbuckle.AspNetCore" },
+    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.Owin"; Directory = "Api/Swashbuckle.Owin" }
 )
 
 
@@ -174,7 +174,7 @@ if ($versionWithoutPre.Contains("-")) {
 }
 
 if ($branchName.StartsWith("refs/heads/") -eq $true) {
-	$branchName = $branchName.Substring("refs/heads/".Length)
+    $branchName = $branchName.Substring("refs/heads/".Length)
 }
 
 CleanOldGeneratedPackages;

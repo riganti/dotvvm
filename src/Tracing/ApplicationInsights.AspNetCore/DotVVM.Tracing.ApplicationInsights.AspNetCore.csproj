@@ -2,14 +2,13 @@
 
   <PropertyGroup>
     <AssemblyTitle>DotVVM.Tracing.ApplicationInsights.AspNetCore</AssemblyTitle>
-    <VersionPrefix>3.2.0</VersionPrefix>
+    <Version>$(DotvvmVersion</Version>
     <TargetFrameworks>netstandard2.1</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.Tracing.ApplicationInsights.AspNetCore</PackageId>
-    <PackageVersion>3.2.0</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>Application Insights Tracing module for ASP.NET Core DotVVM</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

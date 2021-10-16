@@ -1,15 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-  	<AssemblyTitle>DotVVM.Tracing.MiniProfiler.Owin</AssemblyTitle>
-    <VersionPrefix>3.2.0</VersionPrefix>
+    <AssemblyTitle>DotVVM.Tracing.MiniProfiler.Owin</AssemblyTitle>
+    <Version>$(DotvvmVersion</Version>
     <TargetFramework>net472</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.Tracing.MiniProfiler.Owin</PackageId>
-    <PackageVersion>3.2.0</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>MiniProfiler Tracing module for OWIN and DotVVM</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

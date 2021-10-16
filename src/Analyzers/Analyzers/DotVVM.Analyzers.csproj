@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>4.0.0-preview01-116912</VersionPrefix>
+    <Version>$(DotvvmVersion)</Version>
     <TargetFramework>netstandard2.0</TargetFramework>
     <OutputItemType>Analyzer</OutputItemType>
     <IsPackable>false</IsPackable>
@@ -15,14 +15,12 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <PackageVersion>4.0.0-preview01-116912</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>This package contains collection of Roslyn Analyzers for DotVVM.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore;dnx;code-analysis</PackageTags>
     <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageVersion>4.0.0-preview01-116912</PackageVersion>
     <PackageId>DotVVM.Analyzers.Implementation</PackageId>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
