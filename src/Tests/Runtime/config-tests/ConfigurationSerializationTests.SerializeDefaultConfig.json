@@ -673,8 +673,7 @@
         "type": "System.Boolean"
       },
       "Name": {
-        "type": "System.String",
-        "required": true
+        "type": "System.String"
       },
       "WrapperTagName": {
         "type": "System.String"

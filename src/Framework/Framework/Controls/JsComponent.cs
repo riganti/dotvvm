@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty GlobalProperty =
             DotvvmProperty.Register<bool, JsComponent>(nameof(Global));
 
-        [MarkupOptions(Required = true)]
+        // [MarkupOptions(Required = true)]
         public string Name
         {
             get { return (string)GetValue(NameProperty)!; }
@@ -36,7 +36,6 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty WrapperTagNameProperty =
             DotvvmProperty.Register<string, JsComponent>(nameof(WrapperTagName), "div");
-
 
         /// <summary>
         /// Gets the attributes.
@@ -54,6 +53,15 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
         public static DotvvmPropertyGroup TemplatesGroupDescriptor =
             DotvvmPropertyGroup.Register<ITemplate, JsComponent>(new [] { "", "template-" }, nameof(Templates));
+
+        public JsComponent()
+        {
+        }
+
+        public JsComponent(string name)
+        {
+            this.Name = name;
+        }
 
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {

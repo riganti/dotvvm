@@ -24,6 +24,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 		private readonly ConcurrentDictionary<IControlType, IControlResolverMetadata> cachedMetadata = new();
 
 		private readonly Lazy<IControlResolverMetadata> htmlGenericControlMetadata;
+		private readonly Lazy<IControlResolverMetadata> jsComponentMetadata;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ControlResolverBase"/> class.
@@ -38,6 +39,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
 
 			htmlGenericControlMetadata = new(() => ResolveControl(new ResolvedTypeDescriptor(typeof(HtmlGenericControl))));
+			jsComponentMetadata = new(() => ResolveControl(new ResolvedTypeDescriptor(typeof(JsComponent))));
 		}
 
 		/// <summary>
@@ -56,8 +58,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
 			var searchKey = GetSearchKey(tagPrefix, tagName);
 			activationParameters = null;
 			var controlType = cachedTagMappings.GetOrAdd(searchKey, _ => FindControlType(tagPrefix, tagName));
-			if (controlType == null) return null;
-			return ResolveControl(controlType);
+			if (controlType is object) return ResolveControl(controlType);
+
+			if (tagPrefix == "js")
+			{
+				activationParameters = new object[] { tagName };
+				return jsComponentMetadata.Value;
+			}
+
+			return null;
 		}
 
 		private static string GetSearchKey(string tagPrefix, string tagName)

@@ -261,16 +261,16 @@ namespace DotVVM.Framework.Tests.ControlTests
         public async Task JsComponent()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
-                <dot:JsComponent Name=Bazmek
+                <js:Bazmek
                                  troll={resource: 1}
                                  scmd={staticCommand: (int s) => _js.Invoke<System.Threading.Tasks.Task<int>>('myCmd', s)}>
 
                     <MyTemplate>
                         <h1> Ahoj lidi </h1>
                     </MyTemplate>
-                </dot:JsComponent>
+                </js:Bazmek>
 
-                <dot:JsComponent Name=Bazmek troll={resource: 1} />
+                <js:Bazmek troll={resource: 1} />
                 <dot:JsComponent Name=Bazmek lol={value: Integer} />
                 <dot:JsComponent Name=Bazmek cmd={command: (string x) => x + '0'} />
                 <dot:JsComponent Name=Bazmek scmd={staticCommand: (int x) => Integer = x} />
