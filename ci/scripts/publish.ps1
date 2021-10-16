@@ -30,7 +30,6 @@ $LASTEXITCODE
         $fail.Exception
     }
 }
-
 function CleanOldGeneratedPackages() {
     Write-Host "Cleaning old versions of nupkg ..."
     foreach ($package in $packages) {
@@ -104,12 +103,14 @@ function SignPackages() {
 function PushPackages() {
     Write-Host "Pushing packages ..."
     foreach ($package in $packages) {
-        & .\Tools\nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Package).$version.nupkg -source $server -apiKey $apiKey | Out-Host
-        & .\Tools\nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Package).$version.snupkg -source $server -apiKey $apiKey | Out-Host
+        & ../ci/scripts/nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Package).$version.nupkg -source $server -apiKey $apiKey | Out-Host
+        & ../ci/scripts/nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Package).$version.snupkg -source $server -apiKey $apiKey | Out-Host
     }
 }
 
 function BuildTemplates() {
+    cd $currentDirectory
+
     Write-Host "Building templates ..."
     del .\Templates\*.nupkg  -ErrorAction SilentlyContinue
     
@@ -118,7 +119,7 @@ function BuildTemplates() {
     $file = [System.Text.RegularExpressions.Regex]::Replace($file, "\<version\>([^<]+)\</version\>", "<version>" + $version + "</version>")
     [System.IO.File]::WriteAllText($filePath, $file, [System.Text.Encoding]::UTF8)
     
-    & .\Tools\nuget.exe pack .\Templates\DotVVM.Templates.nuspec -outputdirectory .\Templates | Out-Host
+    & ../ci/scripts/nuget.exe pack .\Templates\DotVVM.Templates.nuspec -outputdirectory .\Templates | Out-Host
 }
 
 function SignTemplates() {
@@ -131,7 +132,7 @@ function SignTemplates() {
 
 function PublishTemplates() {
     Write-Host "Publishing templates ..."
-    & .\Tools\nuget.exe push .\Templates\DotVVM.Templates.$version.nupkg -source $server -apiKey $apiKey | Out-Host 
+    & ../ci/scripts/nuget.exe push .\Templates\DotVVM.Templates.$version.nupkg -source $server -apiKey $apiKey | Out-Host 
 }
 
 function GitCheckout() {
