@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Runtime.Filters
 
         private async Task Authorize(IDotvvmRequestContext context, object appliedOn)
         {
-            if (!CanBeAuthorized(appliedOn ?? context.ViewModel))
+            if (!AuthorizeActionFilter.CanBeAuthorized(appliedOn ?? context.ViewModel))
             {
                 return;
             }
@@ -74,20 +74,8 @@ namespace DotVVM.Framework.Runtime.Filters
                 roles: this.Roles?.Split(",").Select(r => r.Trim()).Where(r => !string.IsNullOrEmpty(r)).ToArray(),
                 policyName: this.Policy,
                 authenticationSchemes: this.AuthenticationSchemes?.Split(",").Select(r => r.Trim()).Where(r => !string.IsNullOrEmpty(r)).ToArray(),
-                allowAnonymous: IsAnonymousAllowed(appliedOn)
+                allowAnonymous: AuthorizeActionFilter.IsAnonymousAllowed(appliedOn)
             );
         }
-
-        private static readonly ConcurrentDictionary<Type, bool> canBeAuthorizedCache = new ConcurrentDictionary<Type, bool>();
-        /// <summary>
-        /// Returns whether the view model does require authorization.
-        /// </summary>
-        /// <param name="viewModel">The view model.</param>
-        internal static bool CanBeAuthorized(object viewModel)
-            => viewModel == null || canBeAuthorizedCache.GetOrAdd(viewModel.GetType(), t => !t.GetTypeInfo().IsDefined(typeof(NotAuthorizedAttribute)));
-
-        internal static bool IsAnonymousAllowed(object viewModel)
-            => viewModel != null && isAnonymousAllowedCache.GetOrAdd(viewModel.GetType(), t => t.GetTypeInfo().GetCustomAttributes().OfType<IAllowAnonymous>().Any());
-
     }
 }

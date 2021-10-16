@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
@@ -13,44 +14,52 @@ using Microsoft.Extensions.DependencyInjection;
 namespace DotVVM.Framework.Runtime.Filters
 {
     /// <summary>
-    /// Specifies that the class or method requires the specified authorization.
+    /// Ensures that user is authenticated.
     /// </summary>
-    [Obsolete("Please use context.Authorize(...). You can place it into ViewModel.Init or into your command method, for example. If you are using GlobalFilters, use AuthorizeActionFilter.")]
     public class AuthorizeActionFilter: IPageActionFilter, ICommandActionFilter, IViewModelActionFilter, IPresenterActionFilter
     {
         private static readonly ConcurrentDictionary<Type, bool> isAnonymousAllowedCache = new ConcurrentDictionary<Type, bool>();
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Microsoft.AspNetCore.Authorization.AuthorizeAttribute" /> class.
-        /// </summary>
-        public AuthorizeActionFilter()
-        {
-        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Microsoft.AspNetCore.Authorization.AuthorizeAttribute" /> class with the
         /// specified policy.
         /// </summary>
         /// <param name="policy">The name of the policy to require for authorization.</param>
-        public AuthorizeActionFilter(string policy)
+        /// <param name="roles">list of roles that are allowed to access the resource</param>
+        /// <param name="authenticationSchemes">list of schemes from which user information is constructed</param>
+        /// <param name="allowAnonymous">If set to true, anonymous users are allowed</param>
+        public AuthorizeActionFilter(
+            string[]? roles = null,
+            string? policy = null,
+            string[]? authenticationSchemes = null,
+            bool allowAnonymous = false
+        )
         {
             Policy = policy;
+            Roles = roles ?? Array.Empty<string>();
+            AuthenticationSchemes = authenticationSchemes ?? Array.Empty<string>();
+            AllowsAnonymous = allowAnonymous;
         }
 
         /// <summary>
-        /// Gets or sets the policy name that determines access to the resource.
+        /// Gets the policy name that determines access to the resource.
         /// </summary>
-        public string Policy { get; set; }
+        public string? Policy { get; }
 
         /// <summary>
-        /// Gets or sets a comma delimited list of roles that are allowed to access the resource.
+        /// Gets a list of roles that are allowed to access the resource.
         /// </summary>
-        public string Roles { get; set; }
+        public string[] Roles { get; }
 
         /// <summary>
-        /// Gets or sets a comma delimited list of schemes from which user information is constructed.
+        /// Gets a list of schemes from which user information is constructed.
         /// </summary>
-        public string AuthenticationSchemes { get; set; }
+        public string[] AuthenticationSchemes { get; }
+
+        /// <summary>
+        /// If set to true, anonymous users are allowed.
+        /// </summary>
+        public bool AllowsAnonymous { get; }
 
         /// <inheritdoc />
         protected  Task OnViewModelCreatedAsync(IDotvvmRequestContext context)
@@ -63,62 +72,31 @@ namespace DotVVM.Framework.Runtime.Filters
         protected Task OnPresenterExecutingAsync(IDotvvmRequestContext context)
             => Authorize(context, context.Presenter);
 
-        private async Task Authorize(IDotvvmRequestContext context, object appliedOn)
+        public Task OnPageExceptionAsync(IDotvvmRequestContext context, Exception exception) => Task.CompletedTask;
+        public Task OnPageInitializedAsync(IDotvvmRequestContext context) => Task.CompletedTask;
+        public Task OnPageRenderedAsync(IDotvvmRequestContext context) => Task.CompletedTask;
+        Task ICommandActionFilter.OnCommandExecutingAsync(IDotvvmRequestContext context, ActionInfo actionInfo) => Task.CompletedTask;
+        public Task OnCommandExecutedAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception? exception) => Task.CompletedTask;
+        Task IViewModelActionFilter.OnViewModelCreatedAsync(IDotvvmRequestContext context) => Task.CompletedTask;
+        public Task OnViewModelDeserializedAsync(IDotvvmRequestContext context) => Task.CompletedTask;
+        public Task OnViewModelSerializingAsync(IDotvvmRequestContext context) => Task.CompletedTask;
+        Task IPresenterActionFilter.OnPresenterExecutingAsync(IDotvvmRequestContext context) => Task.CompletedTask;
+        public Task OnPresenterExecutedAsync(IDotvvmRequestContext context) => Task.CompletedTask;
+        public Task OnPresenterExceptionAsync(IDotvvmRequestContext context, Exception exception) => Task.CompletedTask;
+
+        private async Task Authorize(IDotvvmRequestContext context, object? appliedOn)
         {
             if (!CanBeAuthorized(appliedOn ?? context.ViewModel))
             {
                 return;
             }
 
-            var policy = await GetAuthorizationPolicy(context);
-
-            if (policy == null)
-            {
-                return;
-            }
-
-            var coreContext = context.GetAspNetCoreContext();
-
-            if (policy.AuthenticationSchemes != null && policy.AuthenticationSchemes.Count > 0)
-            {
-                ClaimsPrincipal principal = null;
-
-                foreach (var scheme in policy.AuthenticationSchemes)
-                {
-                    var result = await coreContext.AuthenticateAsync(scheme);
-
-                    if (result.Succeeded && result.Principal != null)
-                    {
-                        principal = MergeUserPrincipal(principal, result.Principal);
-                    }
-                }
-
-                if (principal == null)
-                {
-                    principal = new ClaimsPrincipal(new ClaimsIdentity());
-                }
-
-                coreContext.User = principal;
-            }
-
-            if (IsAnonymousAllowed(appliedOn))
-            {
-                return;
-            }
-
-            var authService = coreContext.RequestServices.GetRequiredService<IAuthorizationService>();
-
-            if (!(await authService.AuthorizeAsync(coreContext.User, context, policy)).Succeeded)
-            {
-                if (coreContext.User.Identity.IsAuthenticated)
-                {
-                    await HandleUnauthorizedRequest(coreContext, policy);
-                }
-                else
-                {
-                    await HandleUnauthenticatedRequest(coreContext, policy);
-                }
-            }
+            await context.Authorize(
+                roles: this.Roles,
+                policyName: this.Policy,
+                authenticationSchemes: this.AuthenticationSchemes,
+                allowAnonymous: AllowsAnonymous || IsAnonymousAllowed(appliedOn)
+            );
         }
 
         private static readonly ConcurrentDictionary<Type, bool> canBeAuthorizedCache = new ConcurrentDictionary<Type, bool>();
@@ -126,118 +104,11 @@ namespace DotVVM.Framework.Runtime.Filters
         /// Returns whether the view model does require authorization.
         /// </summary>
         /// <param name="viewModel">The view model.</param>
-        protected bool CanBeAuthorized(object viewModel)
+        internal static bool CanBeAuthorized(object? viewModel)
             => viewModel == null || canBeAuthorizedCache.GetOrAdd(viewModel.GetType(), t => !t.GetTypeInfo().IsDefined(typeof(NotAuthorizedAttribute)));
 
-        private async Task<AuthorizationPolicy> GetAuthorizationPolicy(IDotvvmRequestContext context)
-        {
-            var policyProvider = GetPolicyProvider(context);
-
-            var policyBuilder = new AuthorizationPolicyBuilder();
-            var useDefaultPolicy = true;
-
-            if (!string.IsNullOrWhiteSpace(Policy))
-            {
-                var policy = await policyProvider.GetPolicyAsync(Policy);
-                if (policy == null)
-                {
-                    throw new InvalidOperationException($"The policy '{Policy}' could not be found!");
-                }
-                policyBuilder.Combine(policy);
-                useDefaultPolicy = false;
-            }
-            var rolesSplit = Roles?.Split(',');
-            if (rolesSplit != null && rolesSplit.Any())
-            {
-                var trimmedRolesSplit = rolesSplit.Where(r => !string.IsNullOrWhiteSpace(r)).Select(r => r.Trim());
-                policyBuilder.RequireRole(trimmedRolesSplit);
-                useDefaultPolicy = false;
-            }
-            var authTypesSplit = AuthenticationSchemes?.Split(',');
-            if (authTypesSplit != null && authTypesSplit.Any())
-            {
-                foreach (var authType in authTypesSplit)
-                {
-                    if (!string.IsNullOrWhiteSpace(authType))
-                    {
-                        policyBuilder.AuthenticationSchemes.Add(authType.Trim());
-                    }
-                }
-            }
-            if (useDefaultPolicy)
-            {
-                policyBuilder.Combine(await policyProvider.GetDefaultPolicyAsync());
-            }
-
-            return policyBuilder.Build();
-        }
-
-        private IAuthorizationPolicyProvider GetPolicyProvider(IDotvvmRequestContext context)
-            => context.GetAspNetCoreContext().RequestServices.GetRequiredService<IAuthorizationPolicyProvider>();
-
-        private bool IsAnonymousAllowed(object viewModel)
+        internal static bool IsAnonymousAllowed(object? viewModel)
             => viewModel != null && isAnonymousAllowedCache.GetOrAdd(viewModel.GetType(), t => t.GetTypeInfo().GetCustomAttributes().OfType<IAllowAnonymous>().Any());
 
-        private async Task HandleUnauthenticatedRequest(HttpContext context, AuthorizationPolicy policy)
-        {
-            if (policy.AuthenticationSchemes != null && policy.AuthenticationSchemes.Count > 0)
-            {
-                foreach (var scheme in policy.AuthenticationSchemes)
-                {
-                    await context.ChallengeAsync(scheme);
-                }
-            }
-            else
-            {
-                await context.ChallengeAsync();
-            }
-
-            throw new DotvvmInterruptRequestExecutionException("User unauthenticated");
-        }
-
-        private async Task HandleUnauthorizedRequest(HttpContext context, AuthorizationPolicy policy)
-        {
-            if (policy.AuthenticationSchemes != null && policy.AuthenticationSchemes.Count > 0)
-            {
-                foreach (var scheme in policy.AuthenticationSchemes)
-                {
-                    await context.ForbidAsync(scheme);
-                }
-            }
-            else
-            {
-                await context.ForbidAsync();
-            }
-
-            throw new DotvvmInterruptRequestExecutionException("User unauthorized");
-        }
-
-        private ClaimsPrincipal MergeUserPrincipal(ClaimsPrincipal existingPrincipal, ClaimsPrincipal additionalPrincipal)
-        {
-            var result = new ClaimsPrincipal();
-
-            if (additionalPrincipal != null)
-            {
-                result.AddIdentities(additionalPrincipal.Identities);
-            }
-
-            if (existingPrincipal != null)
-            {
-                result.AddIdentities(existingPrincipal.Identities.Where(i => i.IsAuthenticated || i.Claims.Any()));
-            }
-
-            return result;
-        }
-
-        private IAuthorizeData WrapInAuthorizeAttribute(IAuthorizeData authorizeDatum)
-        {
-            // TODO: remove when fixed (see https://github.com/aspnet/Security/commit/651815c282bfc594762346f4445afd9e6b48bb1e)
-
-            return new Microsoft.AspNetCore.Authorization.AuthorizeAttribute {
-                Policy = authorizeDatum.Policy,
-                Roles = authorizeDatum.Roles,
-                AuthenticationSchemes = authorizeDatum.AuthenticationSchemes
-            };
-        }
     }
 }
