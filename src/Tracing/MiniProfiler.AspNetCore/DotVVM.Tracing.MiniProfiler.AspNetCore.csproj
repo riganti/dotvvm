@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <AssemblyTitle>DotVVM.Tracing.MiniProfiler.AspNetCore</AssemblyTitle>
-    
     <TargetFrameworks>netstandard2.1</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
@@ -18,12 +16,8 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <DefineConstants>TRACE;AspNetCore</DefineConstants>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="../../Framework/Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="MiniProfiler.AspNetCore" Version="4.2.22" />
   </ItemGroup>
   <Import Project="..\MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.projitems" Label="Shared" />

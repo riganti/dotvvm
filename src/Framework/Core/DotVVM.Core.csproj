@@ -1,6 +1,5 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>DotVVM.Core</AssemblyName>

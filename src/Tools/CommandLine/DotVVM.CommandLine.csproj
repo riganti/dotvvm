@@ -3,7 +3,6 @@
   <PropertyGroup>
     <AssemblyTitle>DotVVM.CommandLine</AssemblyTitle>
     <AssemblyName>dotnet-dotvvm</AssemblyName>
-    
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>

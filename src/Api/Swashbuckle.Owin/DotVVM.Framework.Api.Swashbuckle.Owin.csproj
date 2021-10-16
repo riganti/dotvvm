@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <PackageId>DotVVM.Api.Swashbuckle.Owin</PackageId>
-    
     <Authors>RIGANTI</Authors>
     <Description>Swashbuckle.Owin extensions for DotVVM.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
