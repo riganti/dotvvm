@@ -1,0 +1,28 @@
+{
+  "config": {
+    "applicationPhysicalPath": "/opt/myApp",
+    "markup": {
+      "importedNamespaces": [
+        {
+          "namespace": "DotVVM.Framework.Binding.HelperNamespace"
+        },
+        {
+          "namespace": "System.Linq"
+        }
+      ],
+      "ViewCompilation": {
+        "compileInParallel": true
+      }
+    },
+    "resources": {},
+    "security": {},
+    "runtime": {},
+    "defaultCulture": "cs-CZ",
+    "clientSideValidation": false,
+    "experimentalFeatures": {},
+    "debug": true,
+    "diagnostics": {
+      "compilationPage": {}
+    }
+  }
+}

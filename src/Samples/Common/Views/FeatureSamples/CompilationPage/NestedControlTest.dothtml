@@ -1,0 +1,15 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CompilationPage.DefaultViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/CompilationPage/MasterPage.dotmaster
+<dot:Content ContentPlaceHolderID="MainContent">
+
+    <h1>{{value: Title}}</h1>
+    <dot:RouteLink RouteName=_dotvvm_diagnostics_compilation>Show Compilation Status Page</dot:RouteLink>
+
+    <h1>
+        Controls test
+    </h1>
+    <span>
+        {{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /{{value:  "asd"}} /
+    </span>
+    <sample:nestedControlParent />
+</dot:Content>

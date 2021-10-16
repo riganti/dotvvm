@@ -9,7 +9,6 @@ param(
     [switch] $NoSlnRestore = $false,
     [switch] $NoSlnBuild = $false,
     [switch] $NoUnitTests = $false,
-    [switch] $NoJSTests = $false,
     [switch] $NoUITests = $false)
 
 # ==================
@@ -30,7 +29,7 @@ if ([string]::IsNullOrEmpty($Config)) {
 $sln = "$Root\ci\windows\Windows.sln"
 $packagesDir = "$Root\src\packages\"
 $testResultsDir = "$Root\artifacts\test\"
-$samplesDir = "$Root\src\DotVVM.Samples.Tests\"
+$samplesDir = "$Root\src\Samples\Tests\Tests\"
 $ciDir = "$Root\ci\windows\"
 
 Write-Host "ROOT=$Root"
@@ -96,7 +95,7 @@ if ($Clean -eq $true) {
 
 if ($NoNpmBuild -ne $true) {
     Ensure-Command "npm build" {
-        Set-Location $Root\src\DotVVM.Framework
+        Set-Location $Root\src\framework\Framework
         npm ci --cache $Root\.npm --prefer-offline
         npm run build
     }
@@ -133,21 +132,12 @@ if ($NoSlnBuild -ne $true) {
 
 if ($NoUnitTests -ne $true) {
     Run-Command "unit tests" {
-        dotnet test src/DotVVM.Framework.Tests `
+        dotnet test "$Root\src\Tests" `
             --no-build `
             --configuration "$Config" `
             --logger "trx;LogFileName=unit-test-results.trx" `
             --results-directory "$testResultsDir" `
             --collect "Code Coverage"
-    }
-}
-
-if ($NoJSTests -ne $true) {
-    Run-Command "JS tests" {
-        Set-Location "$Root\src\DotVVM.Framework"
-        npx jest --ci --reporters="jest-junit"
-        Copy-Item junit.xml "$testResultsDir\js-test-results.xml"
-        Set-Location "$Root"
     }
 }
 
@@ -167,7 +157,7 @@ if ($NoUITests -ne $true) {
             -BindingInformation "*:${SamplesPortApi}:"
 
         Copy-Item -Force -Recurse `
-            "$Root\src\DotVVM.Samples.Common" `
+            "$Root\src\Samples\Common" `
             "$Root\artifacts"
 
         $uiTestProcess = Start-Process -PassThru -NoNewWindow -FilePath "dotnet.exe" `

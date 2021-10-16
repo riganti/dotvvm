@@ -1,0 +1,82 @@
+{
+  "config": {
+    "markup": {
+      "controls": [
+        {
+          "tagPrefix": "myControls",
+          "namespace": "DotVVM.Framework.Tests.Runtime",
+          "assembly": "DotVVM.Framework.Tests, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
+        },
+        {
+          "tagPrefix": "myControls",
+          "tagName": "C1",
+          "src": "./Controls/C1.dotcontrol"
+        }
+      ],
+      "assemblies": [
+        "DotVVM.Framework.Tests, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
+      ],
+      "defaultDirectives": {
+        "dir1": "MyDirective"
+      },
+      "importedNamespaces": [
+        {
+          "namespace": "DotVVM.Framework.Binding.HelperNamespace"
+        },
+        {
+          "namespace": "System.Linq"
+        },
+        {
+          "namespace": "System"
+        },
+        {
+          "namespace": "System.Collections.Generic"
+        },
+        {
+          "namespace": "System.Collections",
+          "alias": "Collections"
+        }
+      ],
+      "defaultExtensionParameters": [
+        {
+          "$type": "DotVVM.Framework.Compilation.ControlTree.InjectedServiceExtensionParameter, DotVVM.Framework",
+          "Identifier": "myService",
+          "ParameterType": {
+            "$type": "DotVVM.Framework.Compilation.ControlTree.Resolved.ResolvedTypeDescriptor, DotVVM.Framework",
+            "Type": "DotVVM.Framework.Tests.Runtime.ConfigurationSerializationTests, DotVVM.Framework.Tests",
+            "Name": "ConfigurationSerializationTests",
+            "Namespace": "DotVVM.Framework.Tests.Runtime",
+            "Assembly": "DotVVM.Framework.Tests.Runtime.ConfigurationSerializationTests, DotVVM.Framework.Tests, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
+            "FullName": "DotVVM.Framework.Tests.Runtime.ConfigurationSerializationTests"
+          },
+          "Inherit": true
+        },
+        {
+          "$type": "DotVVM.Framework.Compilation.ControlTree.InjectedServiceExtensionParameter, DotVVM.Framework",
+          "Identifier": "secondService",
+          "ParameterType": {
+            "$type": "DotVVM.Framework.Compilation.ControlTree.Resolved.ResolvedTypeDescriptor, DotVVM.Framework",
+            "Type": "System.Func`1[[System.Collections.Generic.IEnumerable`1[[System.Lazy`1[[System.IServiceProvider, System.ComponentModel, Version=***, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a]], System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+            "Name": "Func`1",
+            "Namespace": "System",
+            "Assembly": "System.Func`1[[System.Collections.Generic.IEnumerable`1[[System.Lazy`1[[System.IServiceProvider, System.ComponentModel, Version=***, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a]], System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e",
+            "FullName": "System.Func`1"
+          },
+          "Inherit": true
+        }
+      ],
+      "ViewCompilation": {
+        "compileInParallel": true
+      }
+    },
+    "resources": {},
+    "security": {},
+    "runtime": {},
+    "defaultCulture": "en-US",
+    "experimentalFeatures": {},
+    "debug": false,
+    "diagnostics": {
+      "compilationPage": {}
+    }
+  }
+}

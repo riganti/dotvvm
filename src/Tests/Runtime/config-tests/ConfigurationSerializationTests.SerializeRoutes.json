@@ -1,0 +1,57 @@
+{
+  "config": {
+    "markup": {
+      "importedNamespaces": [
+        {
+          "namespace": "DotVVM.Framework.Binding.HelperNamespace"
+        },
+        {
+          "namespace": "System.Linq"
+        }
+      ],
+      "ViewCompilation": {
+        "compileInParallel": true
+      }
+    },
+    "routes": {
+      "route1": {
+        "url": "url1",
+        "virtualPath": "file1.dothtml",
+        "defaultValues": {
+          "a": "ccc"
+        }
+      },
+      "route2": {
+        "url": "url2/{int}",
+        "virtualPath": "file1.dothtml",
+        "defaultValues": {
+          "a": "ccc"
+        }
+      },
+      "custom presenter": {
+        "url": "url3",
+        "virtualPath": "",
+        "defaultValues": {}
+      },
+      "group1_r1": {
+        "url": "group-{lang}//r1",
+        "virtualPath": "g-r1.dothtml",
+        "defaultValues": {}
+      },
+      "group1_g_r2": {
+        "url": "group-{lang}//g//r2",
+        "virtualPath": "g-g-r2.dothtml",
+        "defaultValues": {}
+      }
+    },
+    "resources": {},
+    "security": {},
+    "runtime": {},
+    "defaultCulture": "en-US",
+    "experimentalFeatures": {},
+    "debug": false,
+    "diagnostics": {
+      "compilationPage": {}
+    }
+  }
+}

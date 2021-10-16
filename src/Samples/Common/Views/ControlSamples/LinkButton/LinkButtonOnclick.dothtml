@@ -1,0 +1,21 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.Button.ButtonOnclickViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:LinkButton id="LinkButton" Text="Click test" Click="{command: ChangeResult()}" onclick="getElementById('result').innerHTML+='Changed from onclick'" />
+
+
+    <span id="result" class="result1"></span>
+    <span class="result2">{{value: Result}}</span>
+
+
+</body>
+</html>
+
+

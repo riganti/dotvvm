@@ -1,0 +1,47 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- client rendering, no params -->
+		<a href="/Simple" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
+		
+		<!-- client rendering, no params, query and suffix -->
+		<a data-bind="attr: { &quot;href&quot;: '/' + &quot;Simple&quot; + dotvvm.buildUrlSuffix(&quot;#mySuffix&quot;, {&quot;Binding&quot;: int,&quot;Constant&quot;: &quot;c/y&quot;}) }" href="/Simple?Binding=10000000&amp;Constant=c%2Fy#mySuffix" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
+		
+		<!-- client rendering, no params, text binding -->
+		<a data-bind="text: Label" href="/Simple" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">My Label</a>
+		
+		<!-- server rendering, no params -->
+		<a href="/Simple" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
+		
+		<!-- server rendering, no params, query and suffix -->
+		<a data-bind="attr: { &quot;href&quot;: '/' + &quot;Simple&quot; + dotvvm.buildUrlSuffix(&quot;#mySuffix&quot;, {&quot;Binding&quot;: int,&quot;Constant&quot;: &quot;c/y&quot;}) }" href="/Simple?Binding=10000000&amp;Constant=c%2Fy#mySuffix" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
+		
+		<!-- server rendering, no params, text binding -->
+		<a data-bind="text: Label" href="/Simple" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">My Label</a>
+		
+		<!-- client rendering, static params -->
+		<a href="/WithParams/A-1" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
+		
+		<!-- client rendering, static params, query and suffix -->
+		<a data-bind="attr: { &quot;href&quot;: '/' + dotvvm.buildRouteUrl(&quot;WithParams/{a}-{b}/{c}&quot;, {&quot;b&quot;: &quot;1&quot;,&quot;a&quot;: &quot;A&quot;}) + dotvvm.buildUrlSuffix(&quot;#mySuffix&quot;, {&quot;Binding&quot;: int,&quot;Constant&quot;: &quot;c/y&quot;}) }" href="/WithParams/A-1?Binding=10000000&amp;Constant=c%2Fy#mySuffix" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
+		
+		<!-- client rendering, dynamic params, query and suffix -->
+		<a data-bind="attr: { &quot;href&quot;: '/' + dotvvm.buildRouteUrl(&quot;WithParams/{a}-{b}/{c}&quot;, {&quot;b&quot;: int,&quot;a&quot;: Label}) + dotvvm.buildUrlSuffix(&quot;#mySuffix&quot;, {&quot;Binding&quot;: int,&quot;Constant&quot;: &quot;c/y&quot;}) }" href="/WithParams/My%20Label-10000000?Binding=10000000&amp;Constant=c%2Fy#mySuffix" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
+		
+		<!-- client rendering, static params, text binding -->
+		<a data-bind="text: Label" href="/WithParams/A-1" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">My Label</a>
+		
+		<!-- server rendering, static params -->
+		<a href="/WithParams/A-1" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
+		
+		<!-- server rendering, static params, query and suffix -->
+		<a data-bind="attr: { &quot;href&quot;: '/' + dotvvm.buildRouteUrl(&quot;WithParams/{a}-{b}/{c}&quot;, {&quot;b&quot;: &quot;1&quot;,&quot;a&quot;: &quot;A&quot;}) + dotvvm.buildUrlSuffix(&quot;#mySuffix&quot;, {&quot;Binding&quot;: int,&quot;Constant&quot;: &quot;c/y&quot;}) }" href="/WithParams/A-1?Binding=10000000&amp;Constant=c%2Fy#mySuffix" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
+		
+		<!-- server rendering, dynamic params, query and suffix -->
+		<a data-bind="attr: { &quot;href&quot;: '/' + dotvvm.buildRouteUrl(&quot;WithParams/{a}-{b}/{c}&quot;, {&quot;b&quot;: int,&quot;a&quot;: Label}) + dotvvm.buildUrlSuffix(&quot;#mySuffix&quot;, {&quot;Binding&quot;: int,&quot;Constant&quot;: &quot;c/y&quot;}) }" href="/WithParams/My%20Label-10000000?Binding=10000000&amp;Constant=c%2Fy#mySuffix" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
+		
+		<!-- server rendering, static params, text binding -->
+		<a data-bind="text: Label" href="/WithParams/A-1" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">My Label</a>
+	</body>
+</html>

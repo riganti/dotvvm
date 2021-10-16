@@ -1,0 +1,17 @@
+<html>
+	<head></head>
+	<body>
+		One handler
+		<input onclick="dotvvm.postBack(this,[],&quot;8UxwOb8axY9NSuJp&quot;,&quot;&quot;,null,[[&quot;confirm&quot;,{message:&quot;a&quot;}],&quot;validate-root&quot;],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
+		Two handlers
+		<input data-msg="ahoj" onclick="dotvvm.postBack(this,[],&quot;2suRIvLX7+StPC7x&quot;,&quot;&quot;,null,[[&quot;confirm&quot;,{message:&quot;a&quot;}],[&quot;confirm&quot;,{message:&quot;ahoj&quot;}],&quot;validate-root&quot;],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
+		Two handlers, value binding message
+		<input data-bind="attr: { &quot;data-msg&quot;: Label }" onclick="dotvvm.postBack(this,[],&quot;b80b5Lh9K50jj3q2&quot;,&quot;&quot;,null,[[&quot;confirm&quot;,{message:&quot;a&quot;}],[&quot;confirm&quot;,(c,d)=>({message:(d).Label()})],&quot;validate-root&quot;],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
+		Two handlers, resource binding message
+		<input data-msg="My Label" onclick="dotvvm.postBack(this,[],&quot;mH2HraWjqc1sx3p+&quot;,&quot;&quot;,null,[[&quot;confirm&quot;,{message:&quot;a&quot;}],[&quot;confirm&quot;,{message:&quot;My Label&quot;}],&quot;validate-root&quot;],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
+		Two handlers, default message
+		<input onclick="dotvvm.postBack(this,[],&quot;iA7NdAd65P3O/VQ7&quot;,&quot;&quot;,null,[[&quot;confirm&quot;,{message:&quot;a&quot;}],[&quot;confirm&quot;,{message:&quot;default message&quot;}],&quot;validate-root&quot;],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
+		One handler, because override
+		<input data-msg="ahoj" onclick="dotvvm.postBack(this,[],&quot;RjBjjkYMn14QVrRJ&quot;,&quot;&quot;,null,[[&quot;confirm&quot;,{message:&quot;C&quot;}],&quot;validate-root&quot;],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
+	</body>
+</html>

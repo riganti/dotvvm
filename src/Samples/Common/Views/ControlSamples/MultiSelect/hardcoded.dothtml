@@ -1,0 +1,30 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.MultiSelect.MultiSelectViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .invalid {
+            color: red;
+        }
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container">
+        <h1>Hardcoded items in MultiSelect</h1>
+
+        <dot:MultiSelect SelectedValues="{value: SelectedValues}" SelectionChanged="{command: OnSelectionChanged()}" data-ui="hardcoded-multiselect">
+            <dot:SelectorItem Text="Praha" Value="1" />
+            <dot:SelectorItem Text="Brno" Value="2" />
+            <dot:SelectorItem Text="Napajedla" Value="3" />
+        </dot:MultiSelect>
+
+        <dot:Repeater DataSource="{value: SelectedValues}" data-ui="selected-values">
+            {{value: " " + _this}}
+        </dot:Repeater>
+    </div>
+    <dot:Literal Text="{value: ChangedCount}" data-ui="changed-count"></dot:Literal>
+</body>
+</html>

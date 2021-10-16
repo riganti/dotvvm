@@ -184,34 +184,27 @@ UpgradeLog*.htm
 FakesAssemblies/
 *.bak
 /src/DotVVM.sln.GhostDoc.xml
-/src/DotVVM.Framework/Resources/Scripts/DotVVM.js.map
-/src/DotVVM.Framework.Tests.Javascript/tests/*.js
-/src/DotVVM.Framework.Tests.Javascript/tests/*.js.map
-/src/DotVVM.Framework.Tests.Javascript/*.js
-/src/DotVVM.Samples.Common/Temp/Upload
+/src/Samples/DotVVM.Samples.Common/Temp/Upload
+/src/Samples/DotVVM.Samples.Common/Temp/returnedFiles
 
 *project.lock.json
-/src/Tools/DotVVM.Framework.Hosting.Owin.nuspec
-/src/DotVVM.Samples.Common/Temp/returnedFiles
 
 .vs/
 .vscode/
 .idea/
 
-/src/DotVVM.Samples.BasicSamples.Api.AspNetCore/temp/returnedFiles
-/src/DotVVM.Framework.Tools.SeleniumGenerator/Properties/launchSettings.json
-/src/DotVVM.Compiler/Properties/launchSettings.json
-/src/DotVVM.Framework.Tests.Javascript/package-lock.json
-/src/DotVVM.Framework/package-lock.json
+/src/Samples/DotVVM.Samples.BasicSamples.Api.AspNetCore/temp/returnedFiles
 
 .dotvvm/
 .dotvvm.json
 
-
 *.binlog
 /src/DotVVM.Framework/.vs/VSWorkspaceState.json
-/src/Tools/npm/dotvvm-types/*.d.ts
-/src/DotVVM.Framework/junit.xml
+/src/ci/scripts/npm/dotvvm-types/*.d.ts
+/src/Framework/DotVVM.Framework/junit.xml
 artifacts/
 .nuget/
 .npm/
+
+launchSettings.json
+sample.db
