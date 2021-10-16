@@ -6,7 +6,7 @@ import { notifySymbol, unmapKnockoutObservables } from '../state-manager';
 
 export function deserialize(viewModel: any, target?: any, deserializeAll: boolean = false): any {
     if (ko.isObservable(viewModel)) {
-        throw new Error(compileConstants.debug ? "Parameter viewModel should not be an observable. Maybe you forget to invoke the observable you are passing as a viewModel parameter." : "");
+        throw new Error("Parameter viewModel should not be an observable. Maybe you forget to invoke the observable you are passing as a viewModel parameter.");
     }
 
     if (ko.isObservable(target) && "setState" in target) {

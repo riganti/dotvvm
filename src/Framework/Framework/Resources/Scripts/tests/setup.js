@@ -3,7 +3,7 @@
 // this PR should solve this in the future: https://github.com/facebook/jest/pull/6876
 // global.Promise = require('promise');
 
-global.compileConstants = { isSpa: true, nomodules: false }
+global.compileConstants = { isSpa: true, debug: true }
 global.ko = require("../knockout-latest.debug")
 global.dotvvm_Globalize = require("../Globalize/globalize")
 
