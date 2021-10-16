@@ -72,6 +72,7 @@ function SetVersion() {
 
 function BuildPackages() {
     Write-Host "Build started"
+    $originDirecotry = $PWD
     foreach ($package in $packages) {
         cd .\$($package.Directory)
         Write-Host "Building in directory $PWD"
@@ -85,7 +86,7 @@ function BuildPackages() {
         Write-Host "Packing project in directory $PWD"
         
         & dotnet pack -p:SymbolPackageFormat=snupkg -c $configuration --include-symbols --include-source | Out-Host
-        cd ..
+        cd $originDirecotry
     }
 }
 
