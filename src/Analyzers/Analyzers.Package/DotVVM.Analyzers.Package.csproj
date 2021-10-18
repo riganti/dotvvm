@@ -18,7 +18,6 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <PackageVersion>4.0.0-preview01-116912</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>This package contains collection of Roslyn Analyzers for DotVVM.</Description>
     <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore;dnx;code-analysis</PackageTags>

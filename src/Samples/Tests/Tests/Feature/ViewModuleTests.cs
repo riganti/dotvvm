@@ -177,7 +177,7 @@ namespace DotVVM.Samples.Tests.Feature
             moduleButtons[1].Click();
             AssertLastLogEntry(log, prefix + ": commands.oneArg(10)");
             moduleButtons[2].Click();
-            AssertLastLogEntry(log, prefix + @": commands.twoArgs(10, {""Test"":""Hello"",""$type"":""4wHojaMvtyXNR6aMRsZ4cWanOvA=""})");
+            AssertLastLogEntry(log, prefix + @": commands.twoArgs(10, {""Test"":""Hello"",""$type"":""PRTO2olUzUGguKpY""})");
 
             AssertUI.InnerTextEquals(incrementValue, "0");
             moduleButtons[3].Click();
