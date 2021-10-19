@@ -1,0 +1,22 @@
+<html>
+	<head></head>
+	<body class="magic-class contains-bazmek">
+		magic-class and contains-bazmek should be propagated through the hierarchy                 beware-textbox does not propagate through the Repeater
+		<div class="magic-class contains-bazmek">
+			<div class="magic-class contains-bazmek" data-bind="foreach: { &quot;data&quot;: Collection }">
+				<div class="magic-class beware-textbox contains-bazmek">
+					<span class="beware-textbox contains-bazmek">
+						bazmek
+						<input data-bind="dotvvm-textbox-text: $rawData" type="text">
+					</span>
+				</div>
+			</div>
+		</div>
+		magic-class should be propagated, but contains-bazmek shouldn't
+		<div class="magic-class">
+			<div class="magic-class" data-bind="foreach: { &quot;data&quot;: Collection, &quot;separatorTemplate&quot;: &quot;gC64SHe4hRph/QhsVNKj4zUTHIm1GI1zo+Hn7WLuMeY=&quot; }">
+				something
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Linq;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 
@@ -70,7 +71,9 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public override void VisitBinaryExpression(JsBinaryExpression binaryExpression)
         {
+            Debug.Assert(binaryExpression is { Parent: {}, Right: {}, Left: {} });
             base.VisitBinaryExpression(binaryExpression);
+            Debug.Assert(binaryExpression is { Parent: {}, Right: {}, Left: {} });
             // when merging attributes or ids, lots of unnecessary pluses are usually there
             if (binaryExpression is { Operator: BinaryOperatorType.Plus, Left: JsLiteral { Value: string leftStr }, Right: JsLiteral { Value: string rightStr } })
             {
@@ -78,7 +81,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 Changes++;
             }
             // (X + "a") + "b" -> X + "ab"
-            if (binaryExpression is {
+            else if (binaryExpression is {
                 Operator: BinaryOperatorType.Plus,
                 Left: JsBinaryExpression {
                     Operator: BinaryOperatorType.Plus,
@@ -97,7 +100,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
 
             // "a" + ("b" + X) -> "ab" + X
-            if (binaryExpression is {
+            else if (binaryExpression is {
                 Operator: BinaryOperatorType.Plus,
                 Left: JsLiteral { Value: string leftStr3 },
                 Right: JsBinaryExpression {
@@ -115,7 +118,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
 
             // (X + "a") + ("b" + Y) -> X + "ab" + Y
-            if (binaryExpression is {
+            else if (binaryExpression is {
                 Operator: BinaryOperatorType.Plus,
                 Left: JsBinaryExpression {
                     Operator: BinaryOperatorType.Plus,
@@ -137,6 +140,25 @@ namespace DotVVM.Framework.Compilation.Javascript
                     BinaryOperatorType.Plus,
                     rightExpr2.Detach()
                 ));
+                Changes++;
+            }
+            // "" + X or X + ""
+            else if (binaryExpression is {
+                Operator: BinaryOperatorType.Plus,
+                Left: var leftExpr3,
+                Right: JsLiteral { Value: "" }
+            })
+            {
+                binaryExpression.ReplaceWith(_ => leftExpr3.Detach());
+                Changes++;
+            }
+            else if (binaryExpression is {
+                Operator: BinaryOperatorType.Plus,
+                Left: JsLiteral { Value: "" },
+                Right: var rightExpr3,
+            })
+            {
+                binaryExpression.ReplaceWith(_ => rightExpr3.Detach());
                 Changes++;
             }
         }

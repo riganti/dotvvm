@@ -2793,7 +2793,7 @@ ko.expressionRewriting = (function () {
     // Matches something that can be assigned to--either an isolated identifier or something ending with a property accessor
     // This is designed to be simple and avoid false negatives, but could produce false positives (e.g., a+b.c).
     // This also will not properly handle nested brackets (e.g., obj1[obj2['prop']]; see #911).
-    var javaScriptAssignmentTarget = /^(?:[$_a-z][$\w]*|(.+)(\.\s*[$_a-z][$\w]*|\[.+\]))$/i;
+    var javaScriptAssignmentTarget = /^(?:[$_a-z][$\w]*|(.+?)\??(\.\s*[$_a-z][$\w]*|\[[^\]]+\]))$/i;
 
     function getWriteableValue(expression) {
         if (ko.utils.arrayIndexOf(javaScriptReservedWords, expression) >= 0)

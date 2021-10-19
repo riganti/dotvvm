@@ -12,6 +12,8 @@ using DotVVM.Framework.Controls.Infrastructure;
 using System.Net;
 using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
@@ -19,19 +21,42 @@ namespace DotVVM.Framework.Compilation.Styles
     {
         public static ResolvedControl FromRuntimeControl(
             DotvvmBindableObject obj,
-            DataContextStack dataContext)
+            DataContextStack dataContext,
+            DotvvmConfiguration? config)
         {
             var type = obj.GetType();
 
             dataContext = obj.GetDataContextType() ?? dataContext;
 
-            // TODO markup controls, RawLiteral, HtmlGenericControl
             if (obj is DotvvmMarkupControl)
             {
-                throw new NotSupportedException($"Markup controls are currently not supported.");
+                throw new NotSupportedException($"Markup controls are not supported, you can use MarkupControlContainer instead.");
             }
 
-            var content = (obj as DotvvmControl)?.Children.Select(c => FromRuntimeControl(c, dataContext)).ToList();
+            if (obj is MarkupControlContainer markupControl)
+            {
+                if (config is null)
+                    throw new NotSupportedException("Can't translate MarkupControlContainer without access to DotvvmConfiguration.");
+                var path = markupControl.GetMarkupPath(config);
+                var controlBuilderFactory = config.ServiceProvider.GetRequiredService<IControlBuilderFactory>();
+                var (descriptor, controlBuilder) = controlBuilderFactory.GetControlBuilder(path);
+                var control = new ResolvedControl(new ControlResolverMetadata(new ControlType(descriptor.ControlType, path, descriptor.DataContextType)), null, new(), dataContext);
+                if (markupControl.SetProperties is object)
+                {
+                    var templateControl = (DotvvmMarkupControl)Activator.CreateInstance(descriptor.ControlType);
+                    markupControl.SetProperties(templateControl);
+                    foreach (var p in templateControl.properties)
+                    {
+                        control.SetProperty(
+                            TranslateProperty(p.Key, p.Value, dataContext, config),
+                            replace: true
+                        );
+                    }
+                }
+                return control;
+            }
+
+            var content = (obj as DotvvmControl)?.Children.Select(c => FromRuntimeControl(c, dataContext, config)).ToList();
             var rc = new ResolvedControl(new ControlResolverMetadata(type), null, content, dataContext);
 
             if (obj is RawLiteral literal)
@@ -46,7 +71,7 @@ namespace DotVVM.Framework.Compilation.Styles
             foreach (var p in obj.properties)
             {
                 rc.SetProperty(
-                    TranslateProperty(p.Key, p.Value, dataContext),
+                    TranslateProperty(p.Key, p.Value, dataContext, config),
                     replace: true
                 );
             }
@@ -57,25 +82,28 @@ namespace DotVVM.Framework.Compilation.Styles
         }
 
         public static bool IsAllowedPropertyValue([NotNullWhen(false)] object? value) =>
+            value is ValueOrBinding vob && IsAllowedPropertyValue(vob.UnwrapToObject()) ||
             value is null ||
             ReflectionUtils.IsPrimitiveType(value.GetType()) ||
             RoslynValueEmitter.IsImmutableObject(value.GetType()) ||
             value is Array && ReflectionUtils.IsPrimitiveType(value.GetType().GetElementType());
 
-        public static ResolvedPropertySetter TranslateProperty(DotvvmProperty property, object? value, DataContextStack dataContext)
+        public static ResolvedPropertySetter TranslateProperty(DotvvmProperty property, object? value, DataContextStack dataContext, DotvvmConfiguration? config)
         {
             if (value is ResolvedPropertySetter resolvedSetter)
             {
                 value = resolvedSetter.GetValue();
             }
 
+            value = ValueOrBindingExtensions.UnwrapToObject(value);
+
             if (value is DotvvmBindableObject valueControl)
             {
-                value = FromRuntimeControl(valueControl, dataContext);
+                value = FromRuntimeControl(valueControl, dataContext, config);
             }
             else if (value is IEnumerable<DotvvmBindableObject> valueControls)
             {
-                value = valueControls.Select(c => FromRuntimeControl(c, dataContext)).ToList();
+                value = valueControls.Select(c => FromRuntimeControl(c, dataContext, config)).ToList();
             }
 
             if (value is IEnumerable<ResolvedControl> controlCollection && controlCollection.Count() == 1)
@@ -103,9 +131,9 @@ namespace DotVVM.Framework.Compilation.Styles
                 else
                     return new ResolvedPropertyControlCollection(property, cs.ToList());
             }
-            else if (value is IBinding)
+            else if (value is IBinding binding)
             {
-                return new ResolvedPropertyValue(property, value);
+                return new ResolvedPropertyBinding(property, new ResolvedBinding(binding));
             }
             else if (IsAllowedPropertyValue(value))
             {
@@ -122,7 +150,7 @@ namespace DotVVM.Framework.Compilation.Styles
         {
             if (control.Metadata.DefaultContentProperty is DotvvmProperty defaultProp)
             {
-                var setter = ResolvedControlHelper.TranslateProperty(defaultProp, innerControls, control.DataContextTypeStack);
+                var setter = ResolvedControlHelper.TranslateProperty(defaultProp, innerControls, control.DataContextTypeStack, null);
 
                 if (!control.SetProperty(setter, options, out var err))
                     throw new DotvvmCompilationException(err);

@@ -1,0 +1,17 @@
+<html>
+	<head></head>
+	<body>
+		<div>
+			text length:
+			<span data-bind="text: Label()?.length"></span>
+			text to lower<span data-bind="text: Label()?.toLowerCase()"></span>
+			int times 2<span data-bind="visible: int() > 10, text: int() * 2"></span>
+		</div>
+		<div>
+			text length:
+			<span>4</span>
+			text to lower<span>tttt</span>
+			int times 2<span data-bind="visible: 0 > 10, text: 0 * 2" style="display:none"></span>
+		</div>
+	</body>
+</html>

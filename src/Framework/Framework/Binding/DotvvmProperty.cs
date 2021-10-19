@@ -441,15 +441,8 @@ namespace DotVVM.Framework.Binding
             return registeredProperties.Values.Where(p => types.Contains(p.DeclaringType)).ToArray();
         }
 
-        public static IEnumerable<DotvvmProperty> GetRegisteredProperties()
-        {
-            return registeredProperties.Values;
-        }
-
-        public static IEnumerable<DotvvmPropertyAlias> GetRegisteredAliases()
-        {
-            return registeredAliases.Values;
-        }
+        public static IEnumerable<DotvvmProperty> AllProperties => registeredProperties.Values;
+        public static IEnumerable<DotvvmPropertyAlias> AllAliases => registeredAliases.Values;
 
         public override string ToString()
         {

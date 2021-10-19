@@ -4,12 +4,8 @@
 		<!-- Resource knockout of type ScriptResource. Pointing to EmbeddedResourceLocation. -->
 		<script defer="" src="/dotvvmResource/knockout/knockout"></script>
 		
-		<!-- Resource dotvvm.polyfill.bundle of type ScriptModuleResource. Pointing to EmbeddedResourceLocation. -->
-		<script defer="" nomodule="" src="/dotvvmResource/dotvvm--polyfill--bundle/dotvvm--polyfill--bundle?type=nomodule"></script>
-		
 		<!-- Resource dotvvm.internal of type ScriptModuleResource. Pointing to EmbeddedResourceLocation. -->
 		<script defer="" src="/dotvvmResource/dotvvm--internal/dotvvm--internal" type="module"></script>
-		<script defer="" nomodule="" src="/dotvvmResource/dotvvm--internal/dotvvm--internal?type=nomodule"></script>
 		
 		<!-- Resource dotvvm of type InlineScriptResource. -->          
 		<!-- Resource viewModule.import.lIquTPFe3a42GboPePTmYZ4Xc1S4ok-JXmZud9HUybE of type ViewModuleImportResource. -->
@@ -25,28 +21,18 @@
 		<script type="module">dotvvm.viewModules.init("viewModule", "p0", document.body);</script>
 	</head>
 	<body>
-		<div>
-			<!-- ko dotvvm-with-control-properties: {  } -->
-			<!-- ko dotvvm-with-view-modules: { viewIdOrElement: $element, modules: ["controlModule"] } -->
+		<div data-bind="dotvvm-with-view-modules: { modules: [&quot;controlModule&quot;] }">
 			<input onclick="dotvvm.applyPostbackHandlers((options) => dotvvm.viewModules.call(this, &quot;name&quot;, [1]),this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
-			<!-- /ko -->
-			<!-- /ko -->
 		</div>
 		<div data-bind="foreach: { &quot;data&quot;: Collection }">
-			<div>
-				<!-- ko dotvvm-with-control-properties: {  } -->
-				<!-- ko dotvvm-with-view-modules: { viewIdOrElement: $element, modules: ["controlModule"] } -->
+			<div data-bind="dotvvm-with-view-modules: { modules: [&quot;controlModule&quot;] }">
 				<input onclick="dotvvm.applyPostbackHandlers((options) => dotvvm.viewModules.call(this, &quot;name&quot;, [1]),this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
-				<!-- /ko -->
-				<!-- /ko -->
 			</div>
-			
-			<!-- ko dotvvm-with-control-properties: {  } -->                         This control should not have any module, it's just a text
-			<!-- /ko -->
+			This control should not have any module, it's just a text
 		</div>
 		<input id="__dot_viewmodel_root" type="hidden" value="{
   &quot;viewModel&quot;: {
-    &quot;$type&quot;: &quot;pdNkUAJOJLvXJV5/R35miJ1si64=&quot;,
+    &quot;$type&quot;: &quot;RPyCWRg9lOhkRJyH&quot;,
     &quot;Collection&quot;: [
       &quot;A&quot;,
       &quot;B&quot;
@@ -57,7 +43,6 @@
   &quot;virtualDirectory&quot;: &quot;&quot;,
   &quot;renderedResources&quot;: [
     &quot;knockout&quot;,
-    &quot;dotvvm.polyfill.bundle&quot;,
     &quot;dotvvm.internal&quot;,
     &quot;dotvvm&quot;,
     &quot;viewModule.import.lIquTPFe3a42GboPePTmYZ4Xc1S4ok-JXmZud9HUybE&quot;,
@@ -66,7 +51,7 @@
     &quot;viewModule.init.HIj399FcjVwbyaIvDKFctn7Ghr0UMajY-haUgZypcHs&quot;
   ],
   &quot;typeMetadata&quot;: {
-    &quot;pdNkUAJOJLvXJV5/R35miJ1si64=&quot;: {
+    &quot;RPyCWRg9lOhkRJyH&quot;: {
       &quot;type&quot;: &quot;object&quot;,
       &quot;properties&quot;: {
         &quot;Collection&quot;: {

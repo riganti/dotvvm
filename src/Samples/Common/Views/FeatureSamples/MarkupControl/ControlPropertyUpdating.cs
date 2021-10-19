@@ -17,7 +17,7 @@ namespace DotVVM.Samples.BasicSamples.Views.FeatureSamples.MarkupControl
 
         public void UpdateProperty()
         {
-            ControlProperty = "ABC FFF";
+            SetValueToSource(ControlPropertyProperty, "ABC FFF");
         }
     }
 }

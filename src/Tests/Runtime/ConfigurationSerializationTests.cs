@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -10,6 +11,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -23,11 +25,15 @@ namespace DotVVM.Framework.Tests.Runtime
             DotvvmTestHelper.EnsureCompiledAssemblyCache();
         }
 
-        void checkConfig(DotvvmConfiguration config, string checkName = null, string fileExtension = "json", [CallerMemberName] string memberName = null, [CallerFilePath] string sourceFilePath = null)
+        void checkConfig(DotvvmConfiguration config, bool includeProperties = false, string checkName = null, string fileExtension = "json", [CallerMemberName] string memberName = null, [CallerFilePath] string sourceFilePath = null)
         {
-            var serialized = DotVVM.Framework.Hosting.VisualStudioHelper.SerializeConfig(config);
+            var serialized = DotVVM.Framework.Hosting.VisualStudioHelper.SerializeConfig(config, includeProperties);
             serialized = Regex.Replace(serialized, "Version=[0-9.]+", "Version=***");
-            check.CheckString(serialized, checkName, fileExtension, memberName, sourceFilePath);
+            var jobject = JObject.Parse(serialized);
+            if (jobject["properties"] is object)
+                foreach (var testControl in ((JObject)jobject["properties"]).Properties().Where(p => p.Name.Contains(".Tests.")).ToArray())
+                    testControl.Remove();
+            check.CheckString(jobject.ToString(), checkName, fileExtension, memberName, sourceFilePath);
         }
 
         [TestMethod]
@@ -35,7 +41,7 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             var c = DotvvmConfiguration.CreateDefault();
             c.DefaultCulture = "en-US";
-            checkConfig(c);
+            checkConfig(c, includeProperties: true);
         }
 
         private static DotvvmConfiguration CreateTestConfiguration()

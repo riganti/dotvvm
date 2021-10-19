@@ -132,10 +132,9 @@ namespace DotVVM.Framework.Tests.Runtime
                 }
             }, CreateContext(viewModel));
 
-            Assert.IsTrue(clientHtml.Contains("<elem1"));
-            Assert.IsTrue(clientHtml.Contains("<elem2"));
-            Assert.IsTrue(!clientHtml.Contains("<div"));
-            Assert.IsTrue(clientHtml.Contains("<!-- ko "));
+            StringAssert.Contains(clientHtml, "<elem1");
+            StringAssert.Contains(clientHtml, "<elem2");
+            Assert.IsFalse(clientHtml.Contains("<div"), clientHtml);
         }
 
         [TestMethod]

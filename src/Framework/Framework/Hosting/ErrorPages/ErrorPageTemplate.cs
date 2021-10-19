@@ -125,6 +125,7 @@ $@"
             var settings = new JsonSerializerSettings() {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                 Converters = {
+                new ReflectionTypeJsonConverter(),
                 new ReflectionAssemblyJsonConverter()
             },
                 // suppress any errors that occur during serialization (getters may throw exception, ...)

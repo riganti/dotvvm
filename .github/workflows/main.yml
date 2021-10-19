@@ -13,7 +13,12 @@ jobs:
   build-WarnAsError:
     name: build without warnings
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
+    - uses: actions/cache@v2
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget
     - uses: actions/checkout@v2
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
@@ -21,22 +26,40 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: Install dependencies
-      run: dotnet restore src/Framework/Framework/DotVVM.Framework.csproj
+      run: dotnet restore ci/linux/Linux.sln
       
     - name: Build (without warnings)
-      run: dotnet build src/Framework/Framework/DotVVM.Framework.csproj --configuration Release --no-restore --no-incremental /property:WarningLevel=0
+      run: dotnet build src/Framework/Framework --configuration Release --no-restore --no-incremental /property:WarningLevel=0
     - name: Build
-      run: dotnet build src/Framework/Framework/DotVVM.Framework.csproj --configuration Release --no-restore --no-incremental --framework netstandard2.1 /WarnAsError
+      run: dotnet build src/Framework/Framework --configuration Release --no-restore --no-incremental /WarnAsError
     - name: Build (Debug)
-      run: dotnet build src/Framework/Framework/DotVVM.Framework.csproj --configuration Debug --no-restore --no-incremental --framework netstandard2.1 /WarnAsError
+      run: dotnet build src/Framework/Framework --configuration Debug --no-restore --no-incremental /WarnAsError
+    - name: Build Hosting.AspNetCore
+      run: dotnet build src/Framework/Hosting.AspNetCore --no-incremental /WarnAsError
+    - name: Build Testing
+      run: dotnet build src/Framework/Testing --no-incremental /WarnAsError
+    - name: Build Tracing.MiniProfiler
+      run: dotnet build src/Tracing/MiniProfiler.AspNetCore --no-incremental /WarnAsError
+    - name: Build Tracing.ApplicationInsights
+      run: dotnet build src/Tracing/ApplicationInsights.AspNetCore --no-incremental /WarnAsError
+    - name: Build Dynamic Data
+      run: dotnet build src/DynamicData/DynamicData --no-incremental /WarnAsError
+    - name: Build Compiler
+      run: dotnet build src/Tools/Compiler --no-incremental /WarnAsError
 
   unit-tests:
     name: dotnet unit tests
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
     strategy:
+      fail-fast: false # don't kill tests when one environment fails
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
     steps:
+    - uses: actions/cache@v2
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget
     - uses: actions/checkout@v2
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
@@ -49,9 +72,9 @@ jobs:
     - name: Build framework
       run: dotnet build src/Framework/Framework/DotVVM.Framework.csproj --no-restore --no-incremental /property:WarningLevel=0
     - name: Build Tests (Release)
-      run: dotnet build src/Tests --configuration Release --no-restore
+      run: dotnet build src/Tests --configuration Release --no-restore /property:WarningLevel=0
     - name: Build Tests (Debug)
-      run: dotnet build src/Tests --configuration Debug --no-restore
+      run: dotnet build src/Tests --configuration Debug --no-restore /property:WarningLevel=0
     - name: Unit tests (Release)
       run: |
           dotnet test src/Tests --no-build --logger "GitHubActions;report-warnings=true" --configuration Release
@@ -62,6 +85,7 @@ jobs:
   js-tests:
     runs-on: ubuntu-latest
     name: JS unit tests
+    timeout-minutes: 10
     steps:
     - uses: actions/checkout@v2
     - name: yarn install
@@ -70,4 +94,28 @@ jobs:
       run: yarn --cwd src/Framework/Framework/ tsc-check
     - name: yarn jest
       run: yarn --cwd src/Framework/Framework/ jest --ci --reporters=default --reporters=jest-github-actions-reporter
-     
+
+  ui-tests:
+    name: UI tests (backup for Azure DevOooops)
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false # don't kill tests when one environment fails
+      matrix:
+        browser: [firefox, chrome]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: run.sh
+      run: bash ./ci/linux/run.sh --samples-profile seleniumconfig.aspnetcorelatest.${{ matrix.browser }}.json
+
+    - name: Parse Trx files
+      uses: NasAmin/trx-parser@v0.2.0
+      id: trx-parser
+      with:
+        TRX_PATH: ${{ github.workspace }}/artifacts/test
+        REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}          

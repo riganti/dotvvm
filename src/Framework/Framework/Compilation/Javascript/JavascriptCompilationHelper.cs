@@ -31,6 +31,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 {
                     case BinaryOperatorType.ConditionalAnd:
                     case BinaryOperatorType.ConditionalOr:
+                    case BinaryOperatorType.NullishCoalescing:
                         return combine2(
                             GetResultType(binary.Left),
                             GetResultType(binary.Right));

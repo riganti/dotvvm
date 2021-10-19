@@ -1,16 +1,16 @@
-﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
-    <RuntimeIdentifiers>win7-x64;win7-x86</RuntimeIdentifiers>
+    <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
+    <PackageReference Include="Selenium.Support" Version="4.0.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.0.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Net" />
-  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="../Framework/DotVVM.Framework.csproj" />
   </ItemGroup>
+
 </Project>

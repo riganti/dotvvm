@@ -22,6 +22,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public DothtmlBindingNode? BindingNode => (DothtmlBindingNode?)DothtmlNode;
 
         public Type BindingType => Binding.GetType();
+        public BindingParserOptions ParserOptions => Binding.GetProperty<BindingParserOptions>();
 
         public string Value => Binding.GetProperty<OriginalStringBindingProperty>().Code;
 
@@ -52,6 +53,23 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             if (property != null) properties.Add(new AssignedPropertyBindingProperty(property));
             this.BindingService = bindingService;
             this.Binding = bindingService.CreateBinding(bindingType, properties.ToArray());
+        }
+
+        public ResolvedBinding(IBinding binding)
+        {
+            this.Binding = binding;
+            this.BindingService = binding.GetProperty<BindingCompilationService>();
+        }
+
+        public ResolvedBinding WithDifferentExpression(Expression expression, DotvvmProperty? property = null)
+        {
+            return new ResolvedBinding(
+                BindingService,
+                ParserOptions,
+                DataContextTypeStack,
+                code: null,
+                expression,
+                property ?? Binding.GetProperty<AssignedPropertyBindingProperty>(ErrorHandlingMode.ReturnNull)?.DotvvmProperty) { DothtmlNode = DothtmlNode };
         }
 
         public Expression GetExpression() => Binding.GetProperty<ParsedExpressionBindingProperty>().Expression;

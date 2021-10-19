@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Runtime.CompilerServices;
+using System.Text;
 using OpenQA.Selenium;
 using Riganti.Selenium.AssertApi;
 using Riganti.Selenium.Core;
@@ -13,6 +14,7 @@ namespace DotVVM.Samples.Tests.Base
     {
         static AppSeleniumTest()
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
         }
 

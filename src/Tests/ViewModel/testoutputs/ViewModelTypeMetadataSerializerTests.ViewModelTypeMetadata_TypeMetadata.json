@@ -1,9 +1,9 @@
 {
-	"zsj6/e1A3dccN3yvHl19BQ4qaKI=": {
+	"zwwfdylYHjdj7S5w": {
 		"type": "object",
 		"properties": {
 			"ChildFirstRequest": {
-				"type": "IJIM/EKXZpkOhfVgPSJMSwRI3qM=",
+				"type": "5PrhilQGdc+tT1tU",
 				"post": "no",
 				"update": "firstRequest"
 			},
@@ -13,7 +13,7 @@
 			},
 			"NestedList": {
 				"type": [
-					"IJIM/EKXZpkOhfVgPSJMSwRI3qM="
+					"5PrhilQGdc+tT1tU"
 				]
 			},
 			"ObjectProperty": {
@@ -28,7 +28,7 @@
 				"type": [
 					{
 						"type": "nullable",
-						"inner": "Naz5KfxmZJ+FNKch08f+TL+36i4="
+						"inner": "3X0sQPLUhQryBTP0"
 					}
 				]
 			},
@@ -45,7 +45,7 @@
 			}
 		}
 	},
-	"IJIM/EKXZpkOhfVgPSJMSwRI3qM=": {
+	"5PrhilQGdc+tT1tU": {
 		"type": "object",
 		"properties": {
 			"InPathOnly": {
@@ -69,7 +69,7 @@
 			}
 		}
 	},
-	"Naz5KfxmZJ+FNKch08f+TL+36i4=": {
+	"3X0sQPLUhQryBTP0": {
 		"type": "enum",
 		"isFlags": true,
 		"values": {

@@ -10,8 +10,8 @@
     <h1>
     </h1>
     <dot:ComboBox data-ui="complex-crash"
-                  SelectedValue="{value: SelectedValue}"
-                  ItemTextBinding="{value:Text}"
+                  SelectedValue="{value: SelectedString}"
+                  ItemTextBinding="{value: Text}"
                   DataSource="{value:  ComplexData}"
                   ItemValueBinding="{value: Text}" />
 

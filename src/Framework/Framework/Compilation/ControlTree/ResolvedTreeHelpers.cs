@@ -29,6 +29,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public static object? GetValue(this ResolvedPropertySetter setter) =>
             setter switch {
                 ResolvedPropertyValue value => value.Value,
+                ResolvedPropertyBinding binding => binding.Binding.Binding,
                 ResolvedPropertyTemplate value => value.Content,
                 ResolvedPropertyControl value => value.Control,
                 ResolvedPropertyControlCollection value => value.Controls,

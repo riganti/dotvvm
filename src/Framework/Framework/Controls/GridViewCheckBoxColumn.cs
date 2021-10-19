@@ -43,6 +43,8 @@ namespace DotVVM.Framework.Controls
         private void CreateControlsCore(DotvvmControl container, bool enabled)
         {
             var checkBox = new CheckBox { Enabled = enabled };
+            CopyProperty(UITests.NameProperty, checkBox, UITests.NameProperty);
+
             var valueBinding = GetValueBinding(ValueBindingProperty);
             checkBox.SetBinding(CheckBox.CheckedProperty, valueBinding);
             Validator.Place(checkBox, container.Children, valueBinding, ValidatorPlacement);

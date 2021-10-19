@@ -236,18 +236,18 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_WrappedNestedPropertyAccessExpression()
         {
             var result = bindingHelper.ValueBinding<object>("TestViewModel2.SomeString", new[] { typeof(TestViewModel) });
-            Assert.AreEqual("TestViewModel2()&&TestViewModel2().SomeString()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
-            Assert.AreEqual("(TestViewModel2()||{}).SomeString", FormatKnockoutScript(result.KnockoutExpression));
-            Assert.AreEqual("dotvvm.evaluator.wrapObservable(()=>TestViewModel2()&&TestViewModel2().SomeString)", FormatKnockoutScript(result.WrappedKnockoutExpression));
+            Assert.AreEqual("TestViewModel2()?.SomeString()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
+            Assert.AreEqual("TestViewModel2()?.SomeString", FormatKnockoutScript(result.KnockoutExpression));
+            Assert.AreEqual("dotvvm.evaluator.wrapObservable(()=>TestViewModel2()?.SomeString)", FormatKnockoutScript(result.WrappedKnockoutExpression));
         }
 
         [TestMethod]
         public void JavascriptCompilation_WrappedNestedListAccessExpression()
         {
             var result = bindingHelper.ValueBinding<object>("TestViewModel2.Collection", new[] { typeof(TestViewModel) });
-            Assert.AreEqual("TestViewModel2()&&TestViewModel2().Collection()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
-            Assert.AreEqual("(TestViewModel2()||{}).Collection", FormatKnockoutScript(result.KnockoutExpression));
-            Assert.AreEqual("dotvvm.evaluator.wrapObservable(()=>TestViewModel2()&&TestViewModel2().Collection,true)", FormatKnockoutScript(result.WrappedKnockoutExpression));
+            Assert.AreEqual("TestViewModel2()?.Collection()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
+            Assert.AreEqual("TestViewModel2()?.Collection", FormatKnockoutScript(result.KnockoutExpression));
+            Assert.AreEqual("dotvvm.evaluator.wrapObservable(()=>TestViewModel2()?.Collection,true)", FormatKnockoutScript(result.WrappedKnockoutExpression));
         }
 
         [TestMethod]
@@ -263,9 +263,9 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_WrappedExpression()
         {
             var result = bindingHelper.ValueBinding<object>("StringProp.Length + 43", new [] {typeof(TestViewModel) });
-            Assert.AreEqual("(StringProp()==null?null:StringProp().length)+43", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
-            Assert.AreEqual("(StringProp()==null?null:StringProp().length)+43", FormatKnockoutScript(result.KnockoutExpression));
-            Assert.AreEqual("ko.pureComputed(()=>(StringProp()==null?null:StringProp().length)+43)", FormatKnockoutScript(result.WrappedKnockoutExpression));
+            Assert.AreEqual("StringProp()?.length+43", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
+            Assert.AreEqual("StringProp()?.length+43", FormatKnockoutScript(result.KnockoutExpression));
+            Assert.AreEqual("ko.pureComputed(()=>StringProp()?.length+43)", FormatKnockoutScript(result.WrappedKnockoutExpression));
         }
 
         [TestMethod]
@@ -343,7 +343,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_ArrayIndexer()
         {
             var result = CompileBinding("LongArray[1] == 3 && VmArray[0].MyProperty == 1 && VmArray.Length > 1", new [] { typeof(TestViewModel)});
-            Assert.AreEqual("LongArray()[1]==3&&(VmArray()[0].MyProperty()==1&&VmArray().length>1)", result);
+            Assert.AreEqual("LongArray()[1]()==3&&(VmArray()[0]().MyProperty()==1&&VmArray().length>1)", result);
         }
 
         [TestMethod]
@@ -980,7 +980,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_AssignAndUseObject()
         {
             var result = CompileBinding("StringProp2 = (_this.TestViewModel2B = _this.TestViewModel2 = _this.VmArray[3]).SomeString", typeof(TestViewModel));
-            Assert.AreEqual("StringProp2(dotvvm.serialization.deserialize(dotvvm.serialization.deserialize(VmArray()[3],TestViewModel2,true)(),TestViewModel2B,true)().SomeString()).StringProp2", result);
+            Assert.AreEqual("StringProp2(dotvvm.serialization.deserialize(dotvvm.serialization.deserialize(VmArray()[3](),TestViewModel2,true)(),TestViewModel2B,true)().SomeString()).StringProp2", result);
         }
 
         [TestMethod, Ignore] // ignored because https://github.com/dotnet/corefx/issues/33074
@@ -1032,16 +1032,16 @@ namespace DotVVM.Framework.Tests.Binding
             "dotvvm.translations.string.endsWith(StringProp(),\"test\",\"InvariantCultureIgnoreCase\")")]
         [DataRow("StringProp.Trim()", "StringProp().trim()")]
         [DataRow("StringProp.Trim('0')", "dotvvm.translations.string.trimEnd(dotvvm.translations.string.trimStart(StringProp(),\"0\"),\"0\")")]
-        [DataRow("StringProp.TrimStart()", "dotvvm.translations.string.trimStart(StringProp())")]
+        [DataRow("StringProp.TrimStart()", "StringProp().trimStart()")]
         [DataRow("StringProp.TrimStart('0')", "dotvvm.translations.string.trimStart(StringProp(),\"0\")")]
-        [DataRow("StringProp.TrimEnd()", "dotvvm.translations.string.trimEnd(StringProp())")]
+        [DataRow("StringProp.TrimEnd()", "StringProp().trimEnd()")]
         [DataRow("StringProp.TrimEnd('0')", "dotvvm.translations.string.trimEnd(StringProp(),\"0\")")]
-        [DataRow("StringProp.PadLeft(1)", "dotvvm.translations.string.padStart(StringProp(),1)")]
-        [DataRow("StringProp.PadRight(2)", "dotvvm.translations.string.padEnd(StringProp(),2)")]
-        [DataRow("StringProp.PadLeft(1,'#')", "dotvvm.translations.string.padStart(StringProp(),1,\"#\")")]
-        [DataRow("StringProp.PadRight(2,'#')", "dotvvm.translations.string.padEnd(StringProp(),2,\"#\")")]
-        [DataRow("string.IsNullOrEmpty(StringProp)", "StringProp()==null||StringProp()===\"\"")]
-        [DataRow("string.IsNullOrWhiteSpace(StringProp)", "StringProp()==null||StringProp().trim()===\"\"")]
+        [DataRow("StringProp.PadLeft(1)", "StringProp().padStart(1)")]
+        [DataRow("StringProp.PadRight(2)", "StringProp().padEnd(2)")]
+        [DataRow("StringProp.PadLeft(1,'#')", "StringProp().padStart(1,\"#\")")]
+        [DataRow("StringProp.PadRight(2,'#')", "StringProp().padEnd(2,\"#\")")]
+        [DataRow("string.IsNullOrEmpty(StringProp)", "!(StringProp()?.length>0)")]
+        [DataRow("string.IsNullOrWhiteSpace(StringProp)", "!(StringProp()?.trim().length>0)")]
         public void JavascriptCompilation_StringFunctions(string input, string expected)
         {
             var result = CompileBinding(input, typeof(TestViewModel));

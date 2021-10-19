@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
@@ -198,7 +198,7 @@ namespace DotVVM.Framework.Binding.Properties
     public sealed class LocationInfoBindingProperty
     {
         public readonly string? FileName;
-        public readonly (int, int)[]? Ranges;
+        public readonly (int start, int end)[]? Ranges;
         public readonly int LineNumber;
         public readonly Type? ControlType;
         public readonly DotvvmProperty? RelatedProperty;
@@ -330,6 +330,30 @@ namespace DotVVM.Framework.Binding.Properties
     {
         public readonly IBinding Binding;
         public NegatedBindingExpression(IBinding binding)
+        {
+            this.Binding = binding;
+        }
+    }
+    public sealed class IsNullBindingExpression
+    {
+        public readonly IBinding Binding;
+        public IsNullBindingExpression(IBinding binding)
+        {
+            this.Binding = binding;
+        }
+    }
+    public sealed class IsNullOrWhitespaceBindingExpression
+    {
+        public readonly IBinding Binding;
+        public IsNullOrWhitespaceBindingExpression(IBinding binding)
+        {
+            this.Binding = binding;
+        }
+    }
+    public sealed class IsNullOrEmptyBindingExpression
+    {
+        public readonly IBinding Binding;
+        public IsNullOrEmptyBindingExpression(IBinding binding)
         {
             this.Binding = binding;
         }

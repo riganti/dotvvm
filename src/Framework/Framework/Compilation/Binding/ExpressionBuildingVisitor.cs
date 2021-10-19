@@ -213,7 +213,6 @@ namespace DotVVM.Framework.Compilation.Binding
                     eop = ExpressionType.OrElse;
                     break;
                 case BindingTokenType.AssignOperator:
-                    node.FirstExpression.Annotations.Add(WriteAccessAnnotation.Instance);
                     eop = ExpressionType.Assign;
                     break;
                 default:
@@ -224,24 +223,6 @@ namespace DotVVM.Framework.Compilation.Binding
             var right = HandleErrors(node.SecondExpression, Visit);
             ThrowOnErrors();
 
-            if (eop == ExpressionType.Assign)
-            {
-                if (left is IndexExpression indexExpression)
-                {
-                    // Convert to explicit method call `set_{Indexer}(index, value)`
-                    var setMethod = indexExpression.Indexer.SetMethod;
-                    return Expression.Call(indexExpression.Object, setMethod, indexExpression.Arguments.Concat(new[] { right }));
-                }
-                else if (left is BinaryExpression arrayIndexExpression && left.NodeType == ExpressionType.ArrayIndex)
-                {
-                    // Convert to explicit method call `Array.SetValue(value, index)`
-                    var setMethod = typeof(Array).GetMethod(nameof(Array.SetValue), BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(object), typeof(int) }, null);
-                    // If we are working with array of value types then box the value
-                    var value = (right != null && right.Type.IsValueType) ? Expression.TypeAs(right, typeof(object)) : right;
-                    return Expression.Call(arrayIndexExpression.Left, setMethod, new[] { value /* value */, arrayIndexExpression.Right /* index */ });
-                }
-            }
-
             return memberExpressionFactory.GetBinaryOperator(left!, right!, eop);
         }
 
@@ -251,15 +232,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var index = HandleErrors(node.ArrayIndexExpression, Visit);
             ThrowOnErrors();
 
-            var expression = ExpressionHelper.GetIndexer(target!, index!);
-            if (expression is IndexExpression indexExpression && !node.Annotations.Contains(WriteAccessAnnotation.Instance))
-            {
-                // Convert to get_{Indexer}(index, value) call
-                var getMethod = indexExpression.Indexer.GetMethod;
-                return Expression.Call(indexExpression.Object, getMethod, indexExpression.Arguments);
-            }
-
-            return expression;
+            return ExpressionHelper.GetIndexer(target!, index!);
         }
 
         protected override Expression VisitFunctionCall(FunctionCallBindingParserNode node)

@@ -62,9 +62,9 @@ namespace DotVVM.Samples.Common
 
         private static void RegisterResources(DotvvmResourceRepository resources)
         {
-            resources.Register("ControlSamples_SpaContentPlaceHolder_testCss", new StylesheetResource(new FileResourceLocation("Content/testResource.css")));
-            resources.Register("ControlSamples_SpaContentPlaceHolder_testJs", new ScriptResource(new FileResourceLocation("Scripts/testResource.js")));
-            resources.Register("ControlSamples_SpaContentPlaceHolder_MasterPageResource", new ScriptResource(new FileResourceLocation("Scripts/testResource2.js")));
+            resources.RegisterStylesheetFile("ControlSamples_SpaContentPlaceHolder_testCss", "Content/testResource.css");
+            resources.RegisterScriptFile("ControlSamples_SpaContentPlaceHolder_testJs", "Scripts/testResource.js");
+            resources.RegisterScriptFile("ControlSamples_SpaContentPlaceHolder_MasterPageResource", "Scripts/testResource2.js");
 
             resources.Register("FeatureSamples_Resources_CdnUnavailableResourceLoad", new ScriptResource() {
                 Location = new UrlResourceLocation("~/nonexistentResource.js"),
@@ -86,13 +86,13 @@ namespace DotVVM.Samples.Common
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
             });
 
-            resources.Register("FeatureSamples_Resources_TestViewModule", new ScriptModuleResource(new FileResourceLocation("~/Scripts/testViewModule.js")));
-            resources.Register("FeatureSamples_Resources_TestViewModule2", new ScriptModuleResource(new FileResourceLocation("~/Scripts/testViewModule2.js")));
-            resources.Register("FeatureSamples_Resources_TestViewModule3", new ScriptModuleResource(new FileResourceLocation("~/Scripts/testViewModule3.js")));
+            resources.RegisterScriptModuleFile("FeatureSamples_Resources_TestViewModule", "Scripts/testViewModule.js");
+            resources.RegisterScriptModuleFile("FeatureSamples_Resources_TestViewModule2", "Scripts/testViewModule2.js");
+            resources.RegisterScriptModuleFile("FeatureSamples_Resources_TestViewModule3", "Scripts/testViewModule3.js");
             
             resources.Register("FeatureSamples_Resources_Incrementer", new ScriptModuleResource(new FileResourceLocation("~/Scripts/incrementerModule.js")));
 
-            resources.Register("testJsModule", new ScriptModuleResource(new InlineResourceLocation("export const commands = { myCommand() { console.info(\"Hello from page module\") } }")));
+            resources.RegisterScript("testJsModule", new InlineResourceLocation("export const commands = { myCommand() { console.info(\"Hello from page module\") } }"), module: true);
 
 
             // resource that triggers the circular dependency check in the render phase
@@ -110,28 +110,19 @@ namespace DotVVM.Samples.Common
                 location: new FileResourceLocation("Scripts/ClientExtenders.js")
             ));
 
-            resources.Register(nameof(StopwatchPostbackHandler), new ScriptResource(
-                location: new FileResourceLocation($"~/Scripts/{nameof(StopwatchPostbackHandler)}.js")) {
-                Dependencies = new[] { "dotvvm" }
-            });
-            resources.Register(nameof(ErrorCountPostbackHandler), new ScriptResource(
-                location: new FileResourceLocation($"~/Scripts/{nameof(ErrorCountPostbackHandler)}.js")) {
-                Dependencies = new[] { "dotvvm" }
-            });
+            resources.RegisterScriptFile(nameof(StopwatchPostbackHandler), $"~/Scripts/{nameof(StopwatchPostbackHandler)}.js", dependencies: new[] { "dotvvm" });
+            resources.RegisterScriptFile(nameof(ErrorCountPostbackHandler), $"~/Scripts/{nameof(ErrorCountPostbackHandler)}.js", dependencies:  new[] { "dotvvm" });
 
-            resources.Register(nameof(PostBackHandlerCommandTypes), new ScriptResource(
-                location: new FileResourceLocation($"~/Scripts/{nameof(PostBackHandlerCommandTypes)}.js")) {
-                    Dependencies = new [] { "dotvvm"}
-            });
+            resources.RegisterScriptFile(nameof(PostBackHandlerCommandTypes), $"~/Scripts/{nameof(PostBackHandlerCommandTypes)}.js", dependencies: new [] { "dotvvm"});
 
             // dev files
-            resources.SetEmbeddedResourceDebugFile("knockout", "../DotVVM.Framework/Resources/Scripts/knockout-latest.debug.js");
-            resources.SetEmbeddedResourceDebugFile("dotvvm.internal", "../DotVVM.Framework/obj/javascript/root-only-debug/dotvvm-root.js");
-            resources.SetEmbeddedResourceDebugFile("dotvvm.internal-spa", "../DotVVM.Framework/obj/javascript/root-spa-debug/dotvvm-root.js");
-            resources.SetEmbeddedResourceDebugFile("dotvvm.debug", "../DotVVM.Framework/Resources/Scripts/DotVVM.Debug.js");
-            resources.SetEmbeddedResourceDebugFile("dotvvm.fileupload-css", "../DotVVM.Framework/Resources/Styles/DotVVM.FileUpload.css");
-            resources.SetEmbeddedResourceDebugFile("dotvvm.internal-css", "../DotVVM.Framework/Resources/Styles/DotVVM.Internal.css");
-            resources.SetEmbeddedResourceDebugFile("dotvvm.polyfill.bundle", "../DotVVM.Framework/obj/javascript/polyfill.bundle.js");
+            resources.SetEmbeddedResourceDebugFile("knockout", "../../Framework/Framework/Resources/Scripts/knockout-latest.debug.js");
+            resources.SetEmbeddedResourceDebugFile("dotvvm.internal", "../../Framework/Framework/obj/javascript/root-only-debug/dotvvm-root.js");
+            resources.SetEmbeddedResourceDebugFile("dotvvm.internal-spa", "../../Framework/Framework/obj/javascript/root-spa-debug/dotvvm-root.js");
+            resources.SetEmbeddedResourceDebugFile("dotvvm.debug", "../../Framework/Framework/Resources/Scripts/DotVVM.Debug.js");
+            resources.SetEmbeddedResourceDebugFile("dotvvm.fileupload-css", "../../Framework/Framework/Resources/Styles/DotVVM.FileUpload.css");
+            resources.SetEmbeddedResourceDebugFile("dotvvm.internal-css", "../../Framework/Framework/Resources/Styles/DotVVM.Internal.css");
+            resources.SetEmbeddedResourceDebugFile("dotvvm.polyfill.bundle", "../../Framework/Framework/obj/javascript/polyfill.bundle.js");
         }
     }
 }

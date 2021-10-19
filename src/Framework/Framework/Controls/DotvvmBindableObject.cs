@@ -78,12 +78,14 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty DataContextProperty =
             DotvvmProperty.Register<object, DotvvmBindableObject>(c => c.DataContext, isValueInherited: true);
 
+        /// <summary> Returns the value of the specified property. If the property contains a binding, it is evaluted. </summary>
         [return: MaybeNull]
         public T GetValue<T>(DotvvmProperty property, bool inherit = true)
         {
             return (T)GetValue(property, inherit)!;
         }
 
+        /// <summary> If the object is IBinding and the property is not of type IBinding, it is evaluated. </summary>
         internal object? EvalPropertyValue(DotvvmProperty property, object? value)
         {
             if (property.IsBindingProperty) return value;
@@ -111,7 +113,7 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Gets the value of a specified property.
+        /// Gets the value of a specified property. If the property contains a binding, it is evaluted.
         /// </summary>
         public virtual object? GetValue(DotvvmProperty property, bool inherit = true) =>
             EvalPropertyValue(property, GetValueRaw(property, inherit));
@@ -124,11 +126,13 @@ namespace DotVVM.Framework.Controls
             return property.GetValue(this, inherit);
         }
 
+        /// <summary> For internal use, public because it's used from our generated code. If want to use it, create the arguments using <see cref="PropertyImmutableHashtable.CreateTableWithValues{T}(DotvvmProperty[], T[])" /> </summary>
         public void MagicSetValue(DotvvmProperty[] keys, object[] values, int hashSeed)
         {
             this.properties.AssignBulk(keys, values, hashSeed);
         }
 
+        /// <summary> Sets the value of a specified property. </summary>
         public void SetValue<T>(DotvvmProperty property, ValueOrBinding<T> valueOrBinding)
         {
             if (valueOrBinding.BindingOrDefault == null)
@@ -137,6 +141,7 @@ namespace DotVVM.Framework.Controls
                 this.SetBinding(property, valueOrBinding.BindingOrDefault);
         }
 
+        /// <summary> Gets the value of a specified property. Bindings are always returned, not evaluated. </summary>
         public ValueOrBinding<T> GetValueOrBinding<T>(DotvvmProperty property, bool inherit = true)
         {
             var value = this.GetValueRaw(property, inherit);
@@ -151,20 +156,23 @@ namespace DotVVM.Framework.Controls
         public virtual void SetValue(DotvvmProperty property, object? value)
         {
             // "unbox" ValueOrBinding instances
-            if (value is ValueOrBinding valueOrBinding)
-                value = valueOrBinding.BindingOrDefault ?? valueOrBinding.BoxedValue;
+            value = ValueOrBindingExtensions.UnwrapToObject(value);
 
-            var originalValue = GetValueRaw(property, false);
-            // TODO: really do we want to update the value binding only if it's not a binding
-            if (originalValue is IUpdatableValueBinding && !(value is BindingExpression))
-            {
-                // if the property contains a binding and we are not passing another binding, update the value
-                ((IUpdatableValueBinding)originalValue).UpdateSource(value, this);
-            }
-            else
-            {
-                SetValueRaw(property, value);
-            }
+            SetValueRaw(property, value);
+        }
+
+        /// <summary> Sets the value of specified property by updating the view model this property is bound to. Throws if the property does not contain binding </summary>
+        public void SetValueToSource(DotvvmProperty property, object? value)
+        {
+            if (value is IBinding)
+                throw new DotvvmControlException(this, $"Can not set binding {value} to source.");
+            var binding = GetBinding(property);
+            if (binding is null)
+                throw new DotvvmControlException(this, $"Property {property} does not contain binding, so it's source can not be updated.");
+            if (binding is not IUpdatableValueBinding updatableValueBinding)
+                throw new DotvvmControlException(this, $"Can not set source of binding {value}, it does not implement IUpdatableValueBinding.");
+            
+            updatableValueBinding.UpdateSource(value, this);
         }
 
         /// <summary>
@@ -182,7 +190,7 @@ namespace DotVVM.Framework.Controls
             => GetValueRaw(property, inherit) as IBinding;
 
         /// <summary>
-        /// Gets the value binding set to a specified property. Returns null if the property is not a binding.
+        /// Gets the value binding set to a specified property. Returns null if the property is not a binding, throws if the binding some kind of command.
         /// </summary>
         public IValueBinding? GetValueBinding(DotvvmProperty property, bool inherit = true)
         {
@@ -194,12 +202,12 @@ namespace DotVVM.Framework.Controls
             return binding as IValueBinding;
         }
 
+        /// <summary> Returns a Javascript (knockout) expression representing value or binding of this property. </summary>
         public ParametrizedCode GetJavascriptValue(DotvvmProperty property, bool inherit = true) =>
-            GetValueBinding(property, inherit)?.KnockoutExpression ??
-            new ParametrizedCode(JavascriptCompilationHelper.CompileConstant(GetValue(property)), OperatorPrecedence.Max);
+            GetValueOrBinding<object>(property, inherit).GetParametrizedJsExpression(this);
 
         /// <summary>
-        /// Gets the command binding set to a specified property. Returns null if the property is not a binding.
+        /// Gets the command binding set to a specified property. Returns null if the property is not a binding, throws if the binding is not command, controlCommand or staticCommand.
         /// </summary>
         public ICommandBinding? GetCommandBinding(DotvvmProperty property, bool inherit = true)
         {
@@ -294,15 +302,18 @@ namespace DotVVM.Framework.Controls
             return current;
         }
 
+        /// <summary> if this property contains any kind of binding. Note that the property value is not inherited. </summary>
         public bool HasBinding(DotvvmProperty property)
         {
             return properties.TryGet(property, out var value) && value is IBinding;
         }
+        /// <summary> if this property contains value binding. Note that the property value is not inherited. </summary>
         public bool HasValueBinding(DotvvmProperty property)
         {
             return properties.TryGet(property, out var value) && value is IValueBinding;
         }
 
+        /// <summary> if this property contains binding of the specified type. Note that the property value is not inherited. </summary>
         public bool HasBinding<TBinding>(DotvvmProperty property)
             where TBinding : IBinding
         {
@@ -339,7 +350,7 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Gets the root of the control tree.
+        /// Gets the root of the control tree. The the control is properly rooted, the result value will be of type <see cref="Infrastructure.DotvvmView" />
         /// </summary>
         public DotvvmBindableObject GetRoot()
         {
