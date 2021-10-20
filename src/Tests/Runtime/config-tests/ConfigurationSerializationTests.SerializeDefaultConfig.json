@@ -1094,13 +1094,43 @@
     "DotVVM.Framework.Tests.ControlTests.RepeatedButton": {
       "button:HtmlCapability": {
         "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ],
         "capabilityPrefix": "button:"
       },
       "HtmlCapability": {
         "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework"
       },
       "TextOrContentCapability": {
-        "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework"
+        "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ]
       }
     },
     "DotVVM.Framework.Tests.ControlTests.WrappedHtmlControl": {

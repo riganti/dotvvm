@@ -7,10 +7,10 @@ using System.Linq;
 namespace DotVVM.Framework.Controls
 {
     [DotvvmControlCapability]
-    public sealed class TextOrContentCapability
+    public sealed record TextOrContentCapability
     {
-        public ValueOrBinding<string>? Text { get; set; }
-        public List<DotvvmControl>? Content { get; set; }
+        public ValueOrBinding<string>? Text { get; init; }
+        public List<DotvvmControl>? Content { get; init; }
 
         public static TextOrContentCapability FromChildren(DotvvmControl control, DotvvmProperty textProperty)
         {
