@@ -321,6 +321,8 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             if (expectedType.IsDelegate())
             {
+                if (expr.Type.IsDelegate())
+                    return expr;
                 var resultType = expectedType.GetMethod("Invoke").ReturnType;
                 var delegateArgs = expectedType
                                       .GetMethod("Invoke")
