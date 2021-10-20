@@ -197,6 +197,14 @@ class ModuleHandler {
     }
 }
 
+function mapCommandResult(result: any) {
+    if (typeof result.then == 'function')
+        return result.then(mapCommandResult)
+    if ("commandResult" in result && typeof result.postbackId == 'number')
+        return result.commandResult
+    return result
+}
+
 export class ModuleContext {
     private readonly namedCommands: { [name: string]: (...args: any[]) => Promise<any> } = {};
     public module: any;
@@ -212,7 +220,7 @@ export class ModuleContext {
             throw new Error(`A named command is already registered under the name: ${name}. The conflict occurred in: ${this.moduleName}.`);
         }
 
-        this.namedCommands[name] = (...innerArgs) => command.apply(this, innerArgs.map(unmapKnockoutObservables));
+        this.namedCommands[name] = (...innerArgs) => mapCommandResult(command.apply(this, innerArgs.map(unmapKnockoutObservables)))
     }
 
     public unregisterNamedCommand = (name: string) => {

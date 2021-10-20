@@ -49,6 +49,10 @@ namespace DotVVM.Framework.Utils
 
         #region Replace overloads
 
+        public static Expression Replace<TRes>(Expression<Func<TRes>> ex)
+        {
+            return Replace(ex as LambdaExpression);
+        }
         public static Expression Replace<T1, TRes>(Expression<Func<T1, TRes>> ex, Expression p1)
         {
             return Replace(ex as LambdaExpression, p1);
