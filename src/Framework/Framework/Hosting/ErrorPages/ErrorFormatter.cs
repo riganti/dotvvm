@@ -304,7 +304,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             var template = new ErrorPageTemplate(
                 formatters: Formatters
                     .Select(f => f(exception, context))
-                    .Concat(context.GetEnvironmentTabs().Select(o => DictionarySection.Create(o.Item1, "env_" + o.Item1.GetHashCode(), o.Item2)))
+                    .Concat(context.GetEnvironmentTabs().Select(o => new DictionarySection<string, object>(o.Item1, "env_" + o.Item1.GetHashCode(), o.Item2)))
                     .Where(t => t != null)
                     .ToArray()!,
                 errorCode: context.Response.StatusCode,
@@ -330,12 +330,10 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             var f = new ErrorFormatter();
             f.Formatters.Add((e, o) => DotvvmMarkupErrorSection.Create(e));
             f.Formatters.Add((e, o) => new ExceptionSectionFormatter(f.LoadException(e), "Raw Stack Trace", "raw_stack_trace"));
-            f.Formatters.Add((e, o) => DictionarySection.Create("Cookies", "cookies", o.Request.Cookies));
-            f.Formatters.Add((e, o) => DictionarySection.Create("Request Headers", "reqHeaders", o.Request.Headers));
             f.Formatters.Add((e, o) => {
                 var b = e.AllInnerExceptions().OfType<BindingPropertyException>().Select(a => a.Binding).OfType<ICloneableBinding>().FirstOrDefault();
                 if (b == null) return null;
-                return DictionarySection.Create("Binding", "binding",
+                return new DictionarySection<object, object>("Binding", "binding",
                     new []{ new KeyValuePair<object, object>("Type", b.GetType().FullName) }
                     .Concat(
                         b.GetAllComputedProperties()
@@ -343,6 +341,15 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                         .Select(a => new KeyValuePair<object, object>(a.name, a.value))
                     ).ToArray());
             });
+            f.Formatters.Add((e, o) => new CookiesSection(o.Request.Cookies));
+            f.Formatters.Add((e, o) => new DictionarySection<string, string[]>(
+                "Request Headers",
+                "reqHeaders",
+                o.Request.Headers.Select(h =>
+                    h.Key.Equals("Cookie", StringComparison.OrdinalIgnoreCase) ?
+                        new ("Cookie", new [] {"<redacted, see Cookies tab or devtools>"}) :
+                        h)
+            ));
             f.AddInfoLoader<ReflectionTypeLoadException>(e => new ExceptionAdditionalInfo(
                 "Loader Exceptions",
                 e.LoaderExceptions.Select(lde => lde.GetType().Name + ": " + lde.Message).ToArray(),

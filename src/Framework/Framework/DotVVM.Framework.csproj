@@ -35,6 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.ErrorPage.js" />
     <EmbeddedResource Include="obj/javascript/root-only/dotvvm-root.js" />
     <EmbeddedResource Include="obj/javascript/root-only-debug/dotvvm-root.js" />
     <EmbeddedResource Include="obj/javascript/root-spa/dotvvm-root.js" />
