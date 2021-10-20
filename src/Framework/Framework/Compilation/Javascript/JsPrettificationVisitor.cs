@@ -72,7 +72,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     c.Remove();
             }
 
-            // remote return undefined as the last statement in the function
+            // remove return undefined as the last statement in the function
             if (block.Parent is JsArrowFunctionExpression or JsFunctionExpression &&
                 block.Body.LastOrDefault() is JsReturnStatement { Expression: JsIdentifierExpression { Identifier: "undefined" } } returnUndefined)
             {

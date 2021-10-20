@@ -362,7 +362,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         public void AreEqual(string expected, string actual)
-        => Assert.AreEqual(RemoveWhitespaces(expected).Replace(";", ""), RemoveWhitespaces(actual).Replace(";", ""));
+        => Assert.AreEqual(RemoveWhitespaces(expected), RemoveWhitespaces(actual));
 
         public string RemoveWhitespaces(string source) => string.Concat(source.Where(c => !char.IsWhiteSpace(c)));
     }
