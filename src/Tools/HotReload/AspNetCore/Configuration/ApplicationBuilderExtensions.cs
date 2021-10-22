@@ -1,4 +1,4 @@
-﻿using DotVVM.Diagnostics.ViewHotReload.AspNetCore.Hubs;
+﻿using DotVVM.HotReload.AspNetCore.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using System;
@@ -8,17 +8,17 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class ApplicationBuilderExtensions
     {
 
-        public static void UseDotvvmViewHotReload(this IApplicationBuilder app)
+        public static void UseDotvvmHotReload(this IApplicationBuilder app)
         {
             app.UseSignalR(builder =>
             {
-                builder.MapHub<DotvvmViewHotReloadHub>("/_diagnostics/dotvvmViewHotReloadHub");
+                builder.MapHub<DotvvmHotReloadHub>("/_diagnostics/dotvvmHotReloadHub");
             });
         }
 
-        public static void MapDotvvmViewHotReload(this IEndpointRouteBuilder app)
+        public static void MapDotvvmHotReload(this IEndpointRouteBuilder app)
         {
-            app.MapHub<DotvvmViewHotReloadHub>("/_diagnostics/dotvvmViewHotReloadHub");
+            app.MapHub<DotvvmHotReloadHub>("/_diagnostics/dotvvmHotReloadHub");
         }
 
     }

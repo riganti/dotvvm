@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31612.314
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31729.503
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Api", "Api", "{0AE0961C-5838-4868-B84C-B73D23A997A3}"
 EndProject
@@ -101,11 +101,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.MiniProfiler
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HotReload", "HotReload", "{C7EDA97F-E024-4CEB-A712-F20B94937F96}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Diagnostics.ViewHotReload", "Tools\HotReload\Common\DotVVM.Diagnostics.ViewHotReload.csproj", "{E43B5815-60EC-4CFE-BF14-FDA00AB867BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.HotReload", "Tools\HotReload\Common\DotVVM.HotReload.csproj", "{E43B5815-60EC-4CFE-BF14-FDA00AB867BC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Diagnostics.ViewHotReload.AspNetCore", "Tools\HotReload\AspNetCore\DotVVM.Diagnostics.ViewHotReload.AspNetCore.csproj", "{CFB0133F-8D66-4507-90A7-2EFEB1D8BAB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.HotReload.AspNetCore", "Tools\HotReload\AspNetCore\DotVVM.HotReload.AspNetCore.csproj", "{CFB0133F-8D66-4507-90A7-2EFEB1D8BAB2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Diagnostics.ViewHotReload.Owin", "Tools\HotReload\Owin\DotVVM.Diagnostics.ViewHotReload.Owin.csproj", "{9F9340B7-C481-4D27-9624-B3D43FE12AF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.HotReload.Owin", "Tools\HotReload\Owin\DotVVM.HotReload.Owin.csproj", "{9F9340B7-C481-4D27-9624-B3D43FE12AF0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Analyzers", "Analyzers", "{D10C02E0-DB0B-49F2-8D2E-BA3B5ED4654C}"
 EndProject

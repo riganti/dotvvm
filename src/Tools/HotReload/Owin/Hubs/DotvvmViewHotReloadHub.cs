@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace DotVVM.Diagnostics.ViewHotReload.Owin.Hubs
+namespace DotVVM.HotReload.Owin.Hubs
 {
-    public class DotvvmViewHotReloadHub : Hub
+    public class DotvvmHotReloadHub : Hub
     {
         internal static void NotifyFileChanged(IHubContext context, IEnumerable<string> virtualPaths)
         {

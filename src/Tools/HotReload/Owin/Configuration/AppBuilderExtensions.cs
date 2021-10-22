@@ -8,7 +8,7 @@ namespace Microsoft.Owin
     public static class AppBuilderExtensions
     {
 
-        public static void UseDotvvmViewHotReload(this IAppBuilder app)
+        public static void UseDotvvmHotReload(this IAppBuilder app)
         {
             app.MapSignalR();
         }

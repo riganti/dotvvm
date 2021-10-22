@@ -12,8 +12,9 @@ namespace DotVVM.Framework.Hosting
 
         public AggregateMarkupFileLoader()
         {
-            Loaders.Add(new DefaultMarkupFileLoader());
+            // the EmbeddedMarkupFileLoader must be registered before DefaultMarkupFileLoader (which gets wrapped by HotReloadMarkupFileLoader)
             Loaders.Add(new EmbeddedMarkupFileLoader());
+            Loaders.Add(new DefaultMarkupFileLoader());
         }
 
         /// <summary>

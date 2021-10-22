@@ -1,6 +1,6 @@
-﻿namespace DotVVM.Diagnostics.ViewHotReload.Owin.Configuration
+﻿namespace DotVVM.HotReload.Owin.Configuration
 {
-    public class DotvvmViewHotReloadOptions
+    public class DotvvmHotReloadOptions
     {
 
         public bool RegisterSignalrHubs { get; set; } = true;

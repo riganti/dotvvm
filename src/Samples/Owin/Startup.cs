@@ -68,7 +68,7 @@ namespace DotVVM.Samples.BasicSamples
                 }
             });
 
-            app.UseDotvvmViewHotReload();
+            app.UseDotvvmHotReload();
 
 #if AssertConfiguration
             // this compilation symbol is set by CI server

@@ -1,21 +1,21 @@
 ﻿using System.Collections.Generic;
-using DotVVM.Diagnostics.ViewHotReload.AspNetCore.Hubs;
+using DotVVM.HotReload.AspNetCore.Hubs;
 using Microsoft.AspNetCore.SignalR;
 
-namespace DotVVM.Diagnostics.ViewHotReload.AspNetCore.Services
+namespace DotVVM.HotReload.AspNetCore.Services
 {
     public class AspNetCoreMarkupFileChangeNotifier : IMarkupFileChangeNotifier
     {
-        private readonly IHubContext<DotvvmViewHotReloadHub> hubContext;
+        private readonly IHubContext<DotvvmHotReloadHub> hubContext;
 
-        public AspNetCoreMarkupFileChangeNotifier(IHubContext<DotvvmViewHotReloadHub> hubContext)
+        public AspNetCoreMarkupFileChangeNotifier(IHubContext<DotvvmHotReloadHub> hubContext)
         {
             this.hubContext = hubContext;
         }
 
         public void NotifyFileChanged(IEnumerable<string> virtualPaths)
         {
-            DotvvmViewHotReloadHub.NotifyFileChanged(hubContext, virtualPaths);
+            DotvvmHotReloadHub.NotifyFileChanged(hubContext, virtualPaths);
         }
     }
 }

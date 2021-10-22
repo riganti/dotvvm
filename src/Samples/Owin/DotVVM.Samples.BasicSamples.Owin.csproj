@@ -140,9 +140,9 @@
       <Project>{8bb2217d-0f2d-49d1-97bc-3654ed321f3b}</Project>
       <Name>DotVVM.Framework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Tools\HotReload\Owin\DotVVM.Diagnostics.ViewHotReload.Owin.csproj">
+    <ProjectReference Include="..\..\Tools\HotReload\Owin\DotVVM.HotReload.Owin.csproj">
       <Project>{9f9340b7-c481-4d27-9624-b3d43fe12af0}</Project>
-      <Name>DotVVM.Diagnostics.ViewHotReload.Owin</Name>
+      <Name>DotVVM.HotReload.Owin</Name>
     </ProjectReference>
     <ProjectReference Include="..\Common\DotVVM.Samples.Common.csproj">
       <Project>{60cccc83-ba9f-4df0-a759-5e46c3d4dab0}</Project>

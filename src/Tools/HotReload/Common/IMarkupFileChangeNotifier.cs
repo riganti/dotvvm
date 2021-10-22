@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DotVVM.Diagnostics.ViewHotReload
+namespace DotVVM.HotReload
 {
     public interface IMarkupFileChangeNotifier
     {

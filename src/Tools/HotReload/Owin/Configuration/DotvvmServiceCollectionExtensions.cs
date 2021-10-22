@@ -1,6 +1,6 @@
-﻿using DotVVM.Diagnostics.ViewHotReload;
-using DotVVM.Diagnostics.ViewHotReload.Owin.Configuration;
-using DotVVM.Diagnostics.ViewHotReload.Owin.Services;
+﻿using DotVVM.HotReload;
+using DotVVM.HotReload.Owin.Configuration;
+using DotVVM.HotReload.Owin.Services;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,21 +15,21 @@ namespace DotVVM.Framework.Configuration
     public static class DotvvmServiceCollectionExtensions
     {
 
-        public static void AddViewHotReload(this IDotvvmServiceCollection services, DotvvmViewHotReloadOptions options = null)
+        public static void AddHotReload(this IDotvvmServiceCollection services, DotvvmHotReloadOptions? options = null)
         {
             services.Services.AddSingleton<IMarkupFileChangeNotifier, OwinMarkupFileChangeNotifier>();
             services.Services.AddSingleton<IMarkupFileLoader, HotReloadAggregateMarkupFileLoader>();
 
-            services.Services.Configure<DotvvmConfiguration>(config => RegisterResources(config, options ?? new DotvvmViewHotReloadOptions()));
+            services.Services.Configure<DotvvmConfiguration>(config => RegisterResources(config, options ?? new DotvvmHotReloadOptions()));
             services.Services.AddTransient<ResourceManager>(provider =>
             {
                 var manager = new ResourceManager(provider.GetRequiredService<DotvvmResourceRepository>());
-                manager.AddRequiredResource("dotvvm-viewhotreload");
+                manager.AddRequiredResource("dotvvm-hotreload");
                 return manager;
             });
         }
 
-        private static void RegisterResources(DotvvmConfiguration config, DotvvmViewHotReloadOptions options)
+        private static void RegisterResources(DotvvmConfiguration config, DotvvmHotReloadOptions options)
         {
             if (config.Resources.FindResource("jquery") == null)
             {
@@ -52,7 +52,7 @@ namespace DotVVM.Framework.Configuration
                 });
             }
 
-            config.Resources.Register("dotvvm-viewhotreload", new ScriptResource(new EmbeddedResourceLocation(typeof(DotvvmServiceCollectionExtensions).Assembly, "DotVVM.Diagnostics.ViewHotReload.Owin.Scripts.dotvvm.viewhotreload.js"))
+            config.Resources.Register("dotvvm-hotreload", new ScriptResource(new EmbeddedResourceLocation(typeof(DotvvmServiceCollectionExtensions).Assembly, "DotVVM.HotReload.Owin.Scripts.dotvvm.hotreload.js"))
             {
                 Dependencies = new[] { "signalr-hubs", "dotvvm" }
             });

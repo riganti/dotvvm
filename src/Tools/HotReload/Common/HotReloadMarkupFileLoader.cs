@@ -10,7 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DotVVM.Diagnostics.ViewHotReload
+namespace DotVVM.HotReload
 {
     public class HotReloadMarkupFileLoader : IMarkupFileLoader, IDisposable
     {

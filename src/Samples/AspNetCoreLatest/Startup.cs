@@ -86,7 +86,7 @@ namespace DotVVM.Samples.BasicSamples
             app.UseStaticFiles();
 
             app.UseEndpoints(endpoints => {
-                endpoints.MapDotvvmViewHotReload();
+                endpoints.MapDotvvmHotReload();
             });
         }
 

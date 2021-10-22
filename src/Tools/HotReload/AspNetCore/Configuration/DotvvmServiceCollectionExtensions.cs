@@ -1,4 +1,4 @@
-﻿using DotVVM.Diagnostics.ViewHotReload;
+﻿using DotVVM.HotReload;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,14 +7,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DotVVM.Diagnostics.ViewHotReload.AspNetCore.Services;
+using DotVVM.HotReload.AspNetCore.Services;
 
 namespace DotVVM.Framework.Configuration
 {
     public static class DotvvmServiceCollectionExtensions
     {
 
-        public static void AddViewHotReload(this IDotvvmServiceCollection services)
+        public static void AddHotReload(this IDotvvmServiceCollection services)
         {
             services.Services.AddSignalR();
 
@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Configuration
             services.Services.AddTransient<ResourceManager>(provider =>
             {
                 var manager = new ResourceManager(provider.GetRequiredService<DotvvmResourceRepository>());
-                manager.AddRequiredResource("dotvvm-viewhotreload");
+                manager.AddRequiredResource("dotvvm-hotreload");
                 return manager;
             });
         }
@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Configuration
                 config.Resources.Register("signalr", new ScriptResource(new UrlResourceLocation("https://www.unpkg.com/@microsoft/signalr@5.0.4/dist/browser/signalr.min.js")));
             }
 
-            config.Resources.Register("dotvvm-viewhotreload", new ScriptResource(new EmbeddedResourceLocation(typeof(DotvvmServiceCollectionExtensions).Assembly, "DotVVM.Diagnostics.ViewHotReload.AspNetCore.Scripts.dotvvm.viewhotreload.js"))
+            config.Resources.Register("dotvvm-hotreload", new ScriptResource(new EmbeddedResourceLocation(typeof(DotvvmServiceCollectionExtensions).Assembly, "DotVVM.HotReload.AspNetCore.Scripts.dotvvm.hotreload.js"))
             {
                 Dependencies = new[] { "signalr", "dotvvm" }
             });
