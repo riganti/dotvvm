@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Parser;
 
 namespace DotVVM.Framework.Hosting
@@ -39,7 +42,25 @@ namespace DotVVM.Framework.Hosting
             FileName = fileName;
             FullPath = fullPath;
             LastWriteDateTimeUtc = File.GetLastWriteTimeUtc(fullPath);
-            ContentsReaderFactory = () => File.ReadAllText(fullPath);
+            ContentsReaderFactory = () =>
+            {
+                // retry logic because of Hot reload
+                Exception lastException = null;
+                for (var i = 0; i < 3; i++)
+                {
+                    try
+                    {
+                        return File.ReadAllText(fullPath);     // TODO: change to async
+                    }
+                    catch (IOException ex)
+                    {
+                        lastException = ex;
+                        Thread.Sleep(20);       // TODO: change to async
+                    }
+                }
+
+                throw new DotvvmCompilationException($"Cannot load the markup file '{fileName}'.", lastException);
+            };
         }
 
         internal MarkupFile(string fileName, string fullPath, string contents)

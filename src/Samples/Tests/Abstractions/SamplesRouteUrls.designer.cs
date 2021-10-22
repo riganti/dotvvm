@@ -223,6 +223,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_GenericTypes_InCommandBinding = "FeatureSamples/GenericTypes/InCommandBinding";
         public const string FeatureSamples_GenericTypes_InResourceBinding = "FeatureSamples/GenericTypes/InResourceBinding";
         public const string FeatureSamples_GenericTypes_InStaticCommandBinding = "FeatureSamples/GenericTypes/InStaticCommandBinding";
+        public const string FeatureSamples_HotReload_ViewChanges = "FeatureSamples/HotReload/ViewChanges";
         public const string FeatureSamples_HtmlTag_NonPairHtmlTag = "FeatureSamples/HtmlTag/NonPairHtmlTag";
         public const string FeatureSamples_IdGeneration_IdGeneration = "FeatureSamples/IdGeneration/IdGeneration";
         public const string FeatureSamples_JavascriptEvents_JavascriptEvents = "FeatureSamples/JavascriptEvents/JavascriptEvents";
