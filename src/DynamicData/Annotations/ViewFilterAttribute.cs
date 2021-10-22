@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Annotations
         /// </summary>
         public VisibilityMode? CanShow(IViewContext viewContext)
         {
-            if (ViewNames.Contains(viewContext.ViewName, StringComparer.CurrentCultureIgnoreCase))
+            if (ViewNames.Contains(viewContext.ViewName, StringComparer.OrdinalIgnoreCase))
             {
                 return Mode;
             }
