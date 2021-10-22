@@ -40,7 +40,10 @@ namespace DotVVM.Framework.ViewModel.Validation
 
         private void EnsurePropertyPathsAreCorrect(IEnumerable<ViewModelValidationError> errors)
         {
-            if (errors.Any(error => error.PropertyPath != null && (error.PropertyPath.Contains("()") || error.PropertyPath.Contains("$"))))
+            if (errors.Any(error => error.PropertyPath != null &&
+                (error.PropertyPath.Contains("()") ||
+                error.PropertyPath.Contains("$") ||
+                error.PropertyPath.Contains("dotvvm.viewModels['root']"))))
             {
                 var sb = new StringBuilder();
                 sb.AppendLine("Knockout expressions are no longer supported in validation target paths.");

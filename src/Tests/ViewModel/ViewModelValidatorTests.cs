@@ -384,6 +384,31 @@ namespace DotVVM.Framework.Tests.ViewModel
             expander.Expand(modelState, testViewModel);
         }
 
+        [TestMethod]
+        [DataRow("Child().Code()")]
+        [DataRow("$rawData")]
+        [DataRow("dotvvm.viewModels['root']")]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ViewModelValidator_AttemptToPassOldPaths(string path)
+        {
+            var testViewModel = new TestViewModel()
+            {
+                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null)
+            };
+            var validator = CreateValidator();
+            var expander = CreateErrorPathExpander();
+            var context = testViewModel.Context;
+            var modelState = context.ModelState;
+            var validationTarget = testViewModel;
+            modelState.ValidationTarget = validationTarget;
+
+            context.AddModelError(path, "Invalid error path");
+
+            var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+        }
+
 
         public class TestViewModel : DotvvmViewModelBase
         {
