@@ -2,17 +2,25 @@
 @masterPage Views/Samples.dotmaster
 
 <dot:Content ContentPlaceHolderID="Main">
+
+
     <dot:HierarchyRepeater DataSource="{value: Roots}"
                            ItemChildrenBinding="{value: Children}"
                            LevelTagName="ul"
                            ItemTagName="li"
-                           RenderSettings.Mode="Server"
-                           data-test="hello">
+                           RenderSettings.Mode="Server">
         <span RenderSettings.Mode="Client">{{value: Name}}</span>
     </dot:HierarchyRepeater>
-    <dot:Repeater DataSource="{value: Roots}"
+    <dot:HierarchyRepeater DataSource="{value: Roots}"
+                           ItemChildrenBinding="{value: Children}"
+                           LevelTagName="ul"
+                           ItemTagName="li"
+                           RenderSettings.Mode="Client">
+        <span>{{value: Name}}</span>
+    </dot:HierarchyRepeater>
+    <%--<dot:Repeater DataSource="{value: Roots}"
                   RenderSettings.Mode="Server">
         <span RenderSettings.Mode="Client">{{value: Name}}</span>
-    </dot:Repeater>
+    </dot:Repeater>--%>
 </dot:Content>
 

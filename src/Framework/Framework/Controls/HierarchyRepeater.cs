@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
@@ -22,15 +23,14 @@ namespace DotVVM.Framework.Controls
         private readonly BindingCompilationService bindingService;
 
         private EmptyData? emptyDataContainer;
-        private DotvvmControl? clientLevelTemplate;
         private DotvvmControl? clientItemTemplate;
-        private string? clientLevelTemplateId;
-        private string? clientItemTemplateId;
+        private string clientItemTemplateId;
 
         public HierarchyRepeater(BindingCompilationService bindingService) : base("div")
         {
             SetValue(Internal.IsNamingContainerProperty, true);
             this.bindingService = bindingService;
+            clientItemTemplateId = "TODO_item";
         }
 
         /// <summary>
@@ -145,6 +145,7 @@ namespace DotVVM.Framework.Controls
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             TagName = RenderWrapperTag ? WrapperTagName : null;
+
             base.RenderBeginTag(writer, context);
             //if (!RenderOnServer)
             //{
@@ -172,6 +173,29 @@ namespace DotVVM.Framework.Controls
             //}
         }
 
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            if (RenderOnServer)
+            {
+                base.RenderContents(writer, context);
+            }
+            else
+            {
+                AddTemplateResource(context, clientItemTemplate!, clientItemTemplateId);
+                var group = new KnockoutBindingGroup {
+                    { "foreach", GetForeachDataBindExpression().GetKnockoutBindingExpression(this) },
+                    { "name", clientItemTemplateId, true }
+                };
+                writer.AddKnockoutDataBind("template", group);
+                DotvvmControl rootLevelWrapper = LevelTagName is null
+                    ? new PlaceHolder()
+                    : new HtmlGenericControl(LevelTagName);
+                if (LevelTagName is not null && BuildLevelWrapper is not null)
+                    BuildLevelWrapper((HtmlGenericControl)rootLevelWrapper);
+                rootLevelWrapper.Render(writer, context);
+            }
+        }
+
         /// <summary>
         /// Performs the data-binding and builds controls inside the <see cref="HierarchyRepeater" />.
         /// </summary>
@@ -179,7 +203,6 @@ namespace DotVVM.Framework.Controls
         {
             Children.Clear();
             emptyDataContainer = null;
-            clientLevelTemplate = null;
             clientItemTemplate = null;
 
             if (DataSource is not null)
@@ -189,7 +212,7 @@ namespace DotVVM.Framework.Controls
 
             if (renderClientTemplate)
             {
-                Children.Add(clientLevelTemplate = CreateClientLevelTemplate());
+                Children.Add(clientItemTemplate = GetClientItemTemplate(context));
             }
 
             if (EmptyDataTemplate is not null)
@@ -301,15 +324,15 @@ namespace DotVVM.Framework.Controls
                 }
             }
 
-
             return dataItem;
         }
 
         /// <summary>
         /// Returns the template used to render hierarchy on client-side.
         /// </summary>
-        private DotvvmControl CreateClientLevelTemplate()
+        private DotvvmControl GetClientLevelTemplate()
         {
+
             //var levelTemplate = new HtmlKoTemplate("LevelTemplate");
             //{
             //    levelTemplate.Children.Add(CreateClientItem());
@@ -317,6 +340,37 @@ namespace DotVVM.Framework.Controls
 
             //return levelTemplate;
             throw new NotImplementedException();
+        }
+
+        private DotvvmControl GetClientItemTemplate(IDotvvmRequestContext context)
+        {
+            var dataItem = new DataItemContainer();
+            {
+                dataItem.DataContext = null;
+                dataItem.SetValue(Internal.PathFragmentProperty, $"{GetPathFragmentExpression()}/[$indexPath]");
+                dataItem.SetValue(Internal.ClientIDFragmentProperty, "$indexPath.map(function(i){return i();}).join(\"_\")");
+                dataItem.SetDataContextTypeFromDataSource(GetDataSourceBinding());
+                DotvvmControl itemWrapper = string.IsNullOrEmpty(ItemTagName)
+                    ? new PlaceHolder()
+                    : new HtmlGenericControl(ItemTagName);
+                dataItem.Children.Add(itemWrapper);
+                ItemTemplate.BuildContent(context, itemWrapper);
+
+                var level = new HierarchyRepeaterLevel {
+                    ItemTemplateId = clientItemTemplateId,
+                    ForeachExpression = (IValueBinding)ItemChildrenBinding!.GetProperty<DataSourceAccessBinding>().Binding
+                };
+                level.SetProperty(RenderSettings.ModeProperty, RenderMode.Client);
+                level.SetProperty(IncludeInPageProperty, (IValueBinding)ItemChildrenBinding!.GetProperty<DataSourceLengthBinding>().Binding);
+                itemWrapper.Children.Add(level);
+
+                DotvvmControl levelWrapper = string.IsNullOrEmpty(LevelTagName)
+                    ? new PlaceHolder()
+                    : new HtmlGenericControl(LevelTagName);
+                level.Children.Add(levelWrapper);
+            }
+
+            return dataItem;
         }
 
         /// <summary>
@@ -393,6 +447,18 @@ namespace DotVVM.Framework.Controls
                 EmptyDataTemplate!.BuildContent(context, emptyDataContainer);
             }
             return emptyDataContainer;
+        }
+
+        private void AddTemplateResource(IDotvvmRequestContext context, DotvvmControl template, string id)
+        {
+            if (context.ResourceManager.RequiredResources.Contains(id))
+            {
+                return;
+            }
+
+            using var text = new StringWriter();
+            template.Render(new HtmlWriter(text, context), context);
+            context.ResourceManager.AddRequiredResource(id, new TemplateResource(text.ToString()));
         }
     }
 }
