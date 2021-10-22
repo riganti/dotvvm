@@ -7,7 +7,6 @@ using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
-using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
@@ -125,7 +124,6 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty WrapperTagNameProperty =
             DotvvmProperty.Register<string, HierarchyRepeater>(t => t.WrapperTagName, "div");
 
-        /// <inheritdoc />
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
             if (context.IsPostBack)
@@ -135,7 +133,6 @@ namespace DotVVM.Framework.Controls
             base.OnLoad(context);
         }
 
-        /// <inheritdoc />
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             SetChildren(context, renderClientTemplate: !RenderOnServer);
@@ -147,30 +144,6 @@ namespace DotVVM.Framework.Controls
             TagName = RenderWrapperTag ? WrapperTagName : null;
 
             base.RenderBeginTag(writer, context);
-            //if (!RenderOnServer)
-            //{
-            //    clientItemTemplateId = context.ResourceManager.AddTemplateResource(context, clientItemTemplate!);
-            //    clientLevelTemplateId = context.ResourceManager.AddTemplateResource(context, clientLevelTemplate!);
-            //}
-
-            //var (bindingName, bindingValue) = RenderOnServer
-            //    ? ("dotvvm-SSR-foreach", new KnockoutBindingGroup {
-            //        { "data", GetForeachDataBindExpression().GetKnockoutBindingExpression(this) }
-            //    })
-            //    : ("template", new KnockoutBindingGroup {
-            //        { "foreach", GetForeachDataBindExpression().GetKnockoutBindingExpression(this) },
-            //        { "name", clientLevelTemplateId!, true }
-            //    });
-
-            //if (!string.IsNullOrEmpty(LevelTagName))
-            //{
-            //    writer.AddKnockoutDataBind(bindingName, bindingValue);
-            //    base.RenderBeginTag(writer, context);
-            //}
-            //else
-            //{
-            //    writer.WriteKnockoutDataBindComment(bindingName, bindingValue.ToString());
-            //}
         }
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -255,48 +228,6 @@ namespace DotVVM.Framework.Controls
             return level;
         }
 
-        private IValueBinding CreateItemBinding(
-            object item,
-            IValueBinding itemAccessBinding,
-            bool isChildItem,
-            int itemIndex)
-        {
-            CodeParameterAssignment AssignParameters(object p)
-                =>
-                    isChildItem && p == JavascriptTranslator.KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("$item()") :
-                    default;
-
-            return new ValueBindingExpression(bindingService.WithoutInitialization(),
-                new object[] {
-                    new BindingDelegate((o, c) => item),
-                    new ResultTypeBindingProperty(item.GetType()),
-                    new KnockoutExpressionBindingProperty(
-                        itemAccessBinding.KnockoutExpression.AssignParameters(AssignParameters),
-                        itemAccessBinding.UnwrappedKnockoutExpression.AssignParameters(AssignParameters),
-                        itemAccessBinding.WrappedKnockoutExpression.AssignParameters(AssignParameters)
-                )
-            });
-        }
-
-        //private IValueBinding GetItemBinding(ImmutableArray<int> indexPath)
-        //{
-        //    if (indexPath.IsDefaultOrEmpty)
-        //        throw new ArgumentException(nameof(indexPath));
-
-        //    if (indexPath.Length == 1)
-        //        GetItemBinding();
-
-        //    var collection = 
-        //    foreach(var index in indexPath)
-        //    {
-        //        collection[index]
-        //    }
-
-        //    return bindingService.CreateBinding(typeof(ValueBindingExpression), new[] {
-        //        new BindingDelegate()
-        //    });
-        //}
-
         private DataItemContainer GetServerItem(
             IDotvvmRequestContext context,
             object item,
@@ -325,21 +256,6 @@ namespace DotVVM.Framework.Controls
             }
 
             return dataItem;
-        }
-
-        /// <summary>
-        /// Returns the template used to render hierarchy on client-side.
-        /// </summary>
-        private DotvvmControl GetClientLevelTemplate()
-        {
-
-            //var levelTemplate = new HtmlKoTemplate("LevelTemplate");
-            //{
-            //    levelTemplate.Children.Add(CreateClientItem());
-            //}
-
-            //return levelTemplate;
-            throw new NotImplementedException();
         }
 
         private DotvvmControl GetClientItemTemplate(IDotvvmRequestContext context)
@@ -371,67 +287,6 @@ namespace DotVVM.Framework.Controls
             }
 
             return dataItem;
-        }
-
-        /// <summary>
-        /// Returns a <see cref="DataItemContainer" /> representing a hierarchy item rendered on client-side.
-        /// </summary>
-        private DotvvmControl CreateClientItem()
-        {
-            //var itemContainer = CreateClientItemContainer();
-            //var areChildrenNotEmptyExpression = JavascriptTranslator.FormatKnockoutScript(AssignParentItemParameter(GetAreChildrenNotEmptyBinding().KnockoutExpression));
-
-            //var itemWrapper = GetItemWrapper(itemContainer);
-            //{
-            //    itemWrapper.Children.Add(itemContainer);
-            //    itemWrapper.Children.Add(CreateChildClientLevel().WrapWithKoComment("if", areChildrenNotEmptyExpression));
-            //}
-
-            //return itemWrapper;
-            throw new NotImplementedException();
-
-        }
-
-        /// <summary>
-        /// Returns a <see cref="DataItemContainer"/> containing contents a hierarchy item rendered on client-side.
-        /// </summary>
-        private DataItemContainer CreateClientItemContainer()
-        {
-            //var dataItem = new DataItemContainer();
-            //{
-            //    dataItem.SetValue(Internal.PathFragmentProperty, $"{GetPathFragmentExpression()}/[$indexPath]");
-            //    dataItem.SetValue(Internal.ClientIDFragmentProperty, "$indexPath.map(function(i){return i();}).join(\"_\")");
-            //    dataItem.SetDataContextTypeFromDataSource(GetDataSourceBinding());
-            //    dataItem.SetJsValueBinding(c => c.DataContext, "$item");
-
-            //    dataItem.Children.Add(ItemTemplate);
-            //}
-
-            //return dataItem;
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Returns an <see cref="DotvvmControl" /> representing a child hierarchy level rendered on client-side.
-        /// </summary>
-        private DotvvmControl CreateChildClientLevel()
-        {
-            //var level = CreateLevelWrapper();
-            //{
-            //    level.Children.Add(CreateChildTemplateComment());
-            //}
-
-            //return level;
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Assigns a parent item to the <see cref="JavascriptTranslator.KnockoutViewModelParameter"/> of the given binding expression.
-        /// </summary>
-        /// <param name="expression">The binding expression to modify.</param>
-        private ParametrizedCode AssignParentItemParameter(ParametrizedCode expression)
-        {
-            return expression.AssignParameters(p => p == JavascriptTranslator.KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("$item()") : null);
         }
 
         private DotvvmControl GetEmptyItem(IDotvvmRequestContext context)
