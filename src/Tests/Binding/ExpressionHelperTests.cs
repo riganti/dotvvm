@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Tests.Binding
             var newValueP = Expression.Parameter(typeof(object), "newValue");
             var updateExpr = memberExpressionFactory.UpdateMember(ExpressionUtils.Replace((DotvvmControl c) => c.GetValue(DotvvmBindableObject.DataContextProperty, true), cP), newValueP);
             Assert.IsNotNull(updateExpr);
-            Assert.AreEqual("c.SetValue(DotvvmBindableObject.DataContextProperty, newValue)", updateExpr.ToString());
+            Assert.AreEqual("c.SetValueToSource(DotvvmBindableObject.DataContextProperty, Convert(newValue, Object))", updateExpr.ToString());
         }
 
         [TestMethod]

@@ -154,7 +154,7 @@ export async function applyPostbackHandlers(
 
     try {
         const commit = await applyPostbackHandlersCore(saneNext, options, handlers);
-        const result = await commit(...args);
+        const result = await commit();
         return result;
     } catch (err) {
         if (abortSignal && abortSignal.aborted) {
@@ -228,19 +228,17 @@ function applyPostbackHandlersCore(next: (options: PostbackOptions) => Promise<P
     return recursiveCore(0);
 }
 
-function wrapCommitFunction(value: MaybePromise<PostbackCommitFunction | any>, options: PostbackOptions): Promise<PostbackCommitFunction> {
-
-    return Promise.resolve(value).then(v => {
-        if (typeof v == "function") {
-            return <PostbackCommitFunction>value;
-        } else {
-            return () => Promise.resolve<DotvvmAfterPostBackEventArgs>({
-                ...options,
-                commandResult: v,
-                wasInterrupted: false
-            });
-        }
-    });
+async function wrapCommitFunction(value: MaybePromise<PostbackCommitFunction | any>, options: PostbackOptions): Promise<PostbackCommitFunction> {
+    const v = await value;
+    if (typeof v == "function") {
+        return <PostbackCommitFunction>value;
+    } else {
+        return async () => ({
+            ...options,
+            commandResult: v,
+            wasInterrupted: false
+        }) as DotvvmAfterPostBackEventArgs;
+    }
 }
 
 export function isPostbackHandler(obj: any): obj is DotvvmPostbackHandler {
@@ -248,22 +246,23 @@ export function isPostbackHandler(obj: any): obj is DotvvmPostbackHandler {
 }
 
 export function sortHandlers(handlers: DotvvmPostbackHandler[]): DotvvmPostbackHandler[] {
-    const getHandler = (() => {
-        const handlerMap: { [name: string]: DotvvmPostbackHandler } = {};
-        for (const h of handlers) {
-            if (h.name != null) {
-                handlerMap[h.name] = h;
-            }
+    const handlerMap: { [name: string]: DotvvmPostbackHandler } = {};
+    for (const h of handlers) {
+        if (h.name != null) {
+            handlerMap[h.name] = h;
         }
-        return (s: string | DotvvmPostbackHandler) => typeof s == "string" ? handlerMap[s] : s;
-    })();
-    const dependencies = handlers.map((handler, i) => ((<any>handler)["@sort_index"] = i, ({ handler, deps: (handler.after || []).map(getHandler) })));
+    }
+    const getHandler = (s: string | DotvvmPostbackHandler) => typeof s == "string" ? handlerMap[s] : s;
+    const indexMap = new Map<DotvvmPostbackHandler, number>()
+    const dependencies = handlers.map((handler, i) => {
+        indexMap.set(handler, i)
+        return { handler, deps: (handler.after || []).map(getHandler) }
+    })
     for (const h of handlers) {
         if (h.before) {
             for (const before of h.before.map(getHandler)) {
                 if (before) {
-                    const index = (<any>before)["@sort_index"] as number;
-                    dependencies[index].deps.push(h);
+                    dependencies[indexMap.get(before)!].deps.push(h);
                 }
             }
         }
@@ -285,7 +284,7 @@ export function sortHandlers(handlers: DotvvmPostbackHandler[]): DotvvmPostbackH
 
         const { handler, deps } = dependencies[index];
         for (const d of deps) {
-            addToResult((<any>d)["@sort_index"]);
+            addToResult(indexMap.get(d)!);
         }
 
         doneBitmap[index] = 2;

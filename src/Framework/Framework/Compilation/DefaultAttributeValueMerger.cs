@@ -92,7 +92,7 @@ namespace DotVVM.Framework.Compilation
         {
             if (originalBinding == null) { error = $"Could not merge constant values to binding '{expression}'."; return null; }
             return new ResolvedPropertyBinding(property,
-                new ResolvedBinding(originalBinding.BindingService, originalBinding.Binding.GetProperty<BindingParserOptions>(), originalBinding.DataContextTypeStack, null, expression, property)) { DothtmlNode = originalBinding.DothtmlNode };
+                originalBinding.WithDifferentExpression(expression, property));
         }
 
         protected virtual Expression? GetExpression(ResolvedPropertySetter a, out ResolvedBinding? binding)

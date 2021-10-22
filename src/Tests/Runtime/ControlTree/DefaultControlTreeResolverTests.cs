@@ -664,6 +664,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var root = ParseSource(@"@viewModel System.String
 <cc:ControlWithContentDataContext>
     {{value: _this}}
+    <span />
     {{value: _parent}}
 </cc:ControlWithContentDataContext>");
             var types = GetLiteralBindings(root)
@@ -682,6 +683,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var root = ParseSource(@"@viewModel System.String
 <cc:ControlWithSpecialBindingsInside>
     {{value: 'abc'}}
+    <span />
     {{value: 'll'}}
 </cc:ControlWithSpecialBindingsInside>
 

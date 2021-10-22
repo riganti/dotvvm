@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Utils
             var originalExpression = expression;
             if (expression is LambdaExpression lambda)
                 expression = lambda.Body;
-            if (expression is UnaryExpression unary)
+            while (expression is UnaryExpression unary)
                 expression = unary.Operand;
 
             var body = expression as MemberExpression;
@@ -39,6 +39,14 @@ namespace DotVVM.Framework.Utils
                 throw new NotSupportedException($"Can not get member from {originalExpression}");
 
             return body.Member;
+        }
+
+        public static DotvvmProperty GetDotvvmPropertyFromExpression(Expression expression)
+        {
+            var prop = GetMemberFromExpression(expression);
+            return DotvvmProperty.ResolveProperty(prop.DeclaringType!, prop.Name) ??
+                throw new Exception($"Property '{prop.DeclaringType!.Name}.{prop.Name}' is not a registered DotvvmProperty.");
+
         }
 
         // http://haacked.com/archive/2012/07/23/get-all-types-in-an-assembly.aspx/
@@ -407,9 +415,10 @@ namespace DotVVM.Framework.Utils
             return cache_GetTypeHash.GetOrAdd(type, t => {
                 using (var sha1 = SHA1.Create())
                 {
-                    var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(t.AssemblyQualifiedName!));
+                    var typeName = t.FullName + ", " + t.Assembly.GetName().Name;
+                    var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(typeName));
 
-                    return Convert.ToBase64String(hashBytes);
+                    return Convert.ToBase64String(hashBytes, 0, 12);
                 }
             });
         }

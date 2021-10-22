@@ -17,3 +17,4 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("92e24afc-550c-47f5-ada6-ac78bc5e15c2")]
+[assembly: InternalsVisibleTo("DotVVM.Testing.SeleniumGenerator.Tests")]

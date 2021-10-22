@@ -94,6 +94,9 @@ namespace DotVVM.Framework.Controls
             #pragma warning disable
             literal.ValueType = ValueType;
             #pragma warning restore
+
+            CopyProperty(UITests.NameProperty, literal, UITests.NameProperty);
+
             literal.SetBinding(Literal.TextProperty, ValueBinding);
             Validator.Place(literal, container.Children, ValueBinding, ValidatorPlacement);
             container.Children.Add(literal);

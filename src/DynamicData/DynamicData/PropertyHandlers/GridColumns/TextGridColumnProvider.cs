@@ -13,7 +13,6 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns
         protected override GridViewColumn CreateColumnCore(GridView gridView, PropertyDisplayMetadata property, DynamicDataContext context)
         {
             var column = new GridViewTextColumn();
-            column.ValueType = TextBoxHelper.GetValueTypeOrDefault(property.PropertyInfo);
             column.FormatString = property.FormatString;
             column.SetBinding(GridViewTextColumn.ValueBindingProperty, context.CreateValueBinding(property.PropertyInfo.Name));
             column.IsEditable = property.IsEditAllowed;

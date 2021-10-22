@@ -6,10 +6,10 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
     public static class JsAstHelpers
     {
-        public static JsExpression Member(this JsExpression target, string memberName)
+        public static JsExpression Member(this JsExpression target, string memberName, bool optional = false)
         {
             if (target == null) return new JsIdentifierExpression(memberName);
-            else return new JsMemberAccessExpression(target, memberName);
+            else return new JsMemberAccessExpression(target, memberName) { IsOptional = optional };
         }
 
         public static JsExpression Invoke(this JsExpression target, IEnumerable<JsExpression> arguments) =>
@@ -85,11 +85,9 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                 case JsConditionalExpression condition:
                     return condition.TrueExpression.GetLeafResultNodes()
                         .Concat(condition.FalseExpression.GetLeafResultNodes());
-                case JsBinaryExpression binary:
-                    if (binary.Operator == BinaryOperatorType.ConditionalAnd || binary.Operator == BinaryOperatorType.ConditionalOr)
-                        return binary.Left.GetLeafResultNodes()
+                case JsBinaryExpression { OperatorString: "&&" or "||" or "??" } binary:
+                    return binary.Left.GetLeafResultNodes()
                         .Concat(binary.Right.GetLeafResultNodes());
-                    else goto default;
                 case JsParenthesizedExpression p: return p.Expression.GetLeafResultNodes();
                 default:
                     return new[] { expr };
@@ -215,6 +213,47 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                     .WithAnnotation(ResultIsObservableAnnotation.Instance)
                     .WithAnnotation(ShouldBeObservableAnnotation.Instance);
             }
+        }
+
+        public static JsExpression SubstituteArguments(this JsArrowFunctionExpression fnExpr, JsExpression[] arguments)
+        {
+            if (fnExpr.Parameters.Count != arguments.Length)
+                throw new ArgumentException("parameter count and arguments count must match.", nameof(arguments));
+
+            var body = fnExpr.Block;
+
+            foreach (var (p, arg) in fnExpr.Parameters.Zip(arguments, (a, b) => (a, b)))
+            {
+                body.ReplaceIdentifier(p.Name, arg);
+            }
+
+            if (fnExpr.ExpressionBody is object)
+                return fnExpr.ExpressionBody;
+            else
+                return JsArrowFunctionExpression.CreateIIFE(fnExpr.Block, isAsync: fnExpr.IsAsync);
+        }
+
+        public static JsNode ReplaceIdentifier(this JsNode expression, string identifier, JsNode replacement)
+        {
+            if (expression is JsIdentifierExpression { Identifier: var id } && id == identifier)
+            {
+                if (expression.Parent != null)
+                    expression.ReplaceWith(replacement);
+                return replacement;
+            }
+
+            foreach (var identifierExpr in expression.DescendantNodes(descendIntoChildren: n => n switch {
+                JsArrowFunctionExpression fnExpr => !fnExpr.Parameters.Select(p => p.Name).Contains(identifier),
+                JsFunctionExpression fnExpr => !fnExpr.Parameters.Select(p => p.Name).Contains(identifier),
+                JsBlockStatement block => !block.Body.OfType<JsVariableDefStatement>().Select(p => p.Name).Contains(identifier),
+                _ => true
+            }).OfType<JsIdentifierExpression>()
+                .Where(id => id.Identifier == identifier))
+            {
+                identifierExpr.ReplaceWith(replacement);
+            }
+
+            return expression;
         }
     }
 }

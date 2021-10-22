@@ -152,7 +152,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var target = Translate(property.Expression);
                 var value = Translate(expression.Right);
                 return TryTranslateMethodCall((property.Member as PropertyInfo)?.SetMethod, property.Expression, new[] { expression.Right }) ??
-                    SetProperty(target, property.Member, value);
+                    SetProperty(target, new VMPropertyInfoAnnotation(property.Member), value);
             }
             else if (expression.Left.GetParameterAnnotation() is BindingParameterAnnotation annotation)
             {
@@ -165,7 +165,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             throw new NotSupportedException($"Can not assign expression of type {expression.Left.NodeType}!");
         }
 
-        private JsExpression SetProperty(JsExpression target, MemberInfo property, JsExpression value) =>
+        private JsExpression SetProperty(JsExpression target, VMPropertyInfoAnnotation property, JsExpression value) =>
             new JsAssignmentExpression(TranslateViewModelProperty(target, property), value);
 
         public JsExpression TranslateConditional(ConditionalExpression expression) =>
@@ -226,7 +226,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                           null)
             .WithAnnotation(new ViewModelInfoAnnotation(expression.Type, containsObservables: false));
 
-        public JsLiteral TranslateConstant(ConstantExpression expression) =>
+        public static JsLiteral TranslateConstant(ConstantExpression expression) =>
             new JsLiteral(expression.Value).WithAnnotation(new ViewModelInfoAnnotation(expression.Type, containsObservables: false));
 
         public JsExpression TranslateMethodCall(MethodCallExpression expression)
@@ -274,7 +274,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 case ExpressionType.And: op = BinaryOperatorType.BitwiseAnd; break;
                 case ExpressionType.Or: op = BinaryOperatorType.BitwiseOr; break;
                 case ExpressionType.ExclusiveOr: op = BinaryOperatorType.BitwiseXOr; break;
-                case ExpressionType.Coalesce: op = BinaryOperatorType.ConditionalOr; break;
+                case ExpressionType.Coalesce: op = BinaryOperatorType.NullishCoalescing; break;
                 case ExpressionType.ArrayIndex: return new JsIndexerExpression(left, right).WithAnnotation(new VMPropertyInfoAnnotation(null, expression.Type));
                 default:
                     throw new NotSupportedException($"Unary operator of type { expression.NodeType } is not supported");
@@ -349,14 +349,14 @@ namespace DotVVM.Framework.Compilation.Javascript
             else
             {
                 return TryTranslateMethodCall(getter, expression.Expression, new Expression[0]) ??
-                    TranslateViewModelProperty(Translate(expression.Expression), expression.Member);
+                    TranslateViewModelProperty(Translate(expression.Expression), new VMPropertyInfoAnnotation(expression.Member));
             }
         }
 
-        public static JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string? name = null) =>
-            new JsMemberAccessExpression(context, name ?? propInfo.Name)
-                .WithAnnotation(new VMPropertyInfoAnnotation(propInfo))
-                .WithAnnotation(new ViewModelInfoAnnotation(propInfo.GetResultType()));
+        public static JsExpression TranslateViewModelProperty(JsExpression context, VMPropertyInfoAnnotation propInfo, string? name = null) =>
+            new JsMemberAccessExpression(context, name ?? propInfo.MemberInfo.NotNull().Name)
+                .WithAnnotation(propInfo)
+                .WithAnnotation(new ViewModelInfoAnnotation(propInfo.ResultType));
 
         public JsExpression? TryTranslateMethodCall(MethodInfo? methodInfo, Expression? target, IEnumerable<Expression> arguments) =>
             methodInfo is null ? null :

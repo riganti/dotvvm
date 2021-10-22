@@ -127,36 +127,52 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         /// <summary>
-        /// Creates an expression that updates the member inside <paramref name="node"/> with a
+        /// Creates an expression that updates the member inside <paramref name="leftWrapped"/> with a
         /// new <paramref name="value"/>.
         /// </summary>
         /// <remarks>
-        /// Should <paramref name="node"/> contain a call to the
+        /// Should <paramref name="leftWrapped"/> contain a call to the
         /// <see cref="DotvvmBindableObject.GetValue(DotvvmProperty, bool)"/> method, it will be
         /// replaced with a <see cref="DotvvmBindableObject.SetValue(DotvvmProperty, object)"/>
         /// call.
         /// </remarks>
-        public Expression? UpdateMember(Expression node, Expression value)
+        public Expression? UpdateMember(Expression leftWrapped, Expression value)
         {
-            if ((node.NodeType == ExpressionType.MemberAccess
-                && node is MemberExpression member
+            var left = leftWrapped;
+            while (left.NodeType == ExpressionType.Convert
+                && left is UnaryExpression unary)
+            {
+                left = unary.Operand;
+            }
+
+            if (left is IndexExpression indexExpression)
+            {
+                // Convert to explicit method call `set_{Indexer}(index, value)`
+                var setMethod = indexExpression.Indexer.SetMethod;
+                return Expression.Call(indexExpression.Object, setMethod, indexExpression.Arguments.Concat(new[] { value }));
+            }
+            else if (left.NodeType == ExpressionType.ArrayIndex && left is BinaryExpression arrayIndexExpression)
+            {
+                // Convert to explicit method call `Array.SetValue(value, index)`
+                var setMethod = typeof(Array).GetMethod(nameof(Array.SetValue), BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(object), typeof(int) }, null);
+                // If we are working with array of value types then box the value
+                var valueAsObj = (value != null && value.Type.IsValueType) ? Expression.TypeAs(value, typeof(object)) : value;
+                return Expression.Call(arrayIndexExpression.Left, setMethod, new[] { valueAsObj, arrayIndexExpression.Right /* index */ });
+            }
+
+
+            if ((left.NodeType == ExpressionType.MemberAccess
+                && left is MemberExpression member
                 && member.Member is PropertyInfo property
                 && property.CanWrite)
-                || node.NodeType == ExpressionType.Parameter
-                || node.NodeType == ExpressionType.Index)
+                || left.NodeType == ExpressionType.Parameter)
             {
-                return Expression.Assign(node, Expression.Convert(value, node.Type));
+                return Expression.Assign(leftWrapped, Expression.Convert(value, leftWrapped.Type));
             }
 
-            var current = node;
-            while (current.NodeType == ExpressionType.Convert
-                && current is UnaryExpression unary)
-            {
-                current = unary.Operand;
-            }
 
-            if (current.NodeType == ExpressionType.Call
-                && current is MethodCallExpression call
+            if (left.NodeType == ExpressionType.Call
+                && left is MethodCallExpression call
                 && call.Method.DeclaringType == typeof(DotvvmBindableObject)
                 && call.Method.Name == nameof(DotvvmBindableObject.GetValue)
                 && call.Arguments.Count == 2
@@ -165,9 +181,9 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 var propertyArgument = call.Arguments[0];
                 var setValue = typeof(DotvvmBindableObject)
-                    .GetMethod(nameof(DotvvmBindableObject.SetValue),
+                    .GetMethod(nameof(DotvvmBindableObject.SetValueToSource),
                         new[] { typeof(DotvvmProperty), typeof(object) });
-                return Expression.Call(call.Object, setValue, propertyArgument, value);
+                return Expression.Call(call.Object, setValue, propertyArgument, Expression.Convert(value, typeof(object)));
             }
 
             return null;
@@ -589,7 +605,8 @@ namespace DotVVM.Framework.Compilation.Binding
             if (operation == ExpressionType.Coalesce) return Expression.Coalesce(left, right);
             if (operation == ExpressionType.Assign)
             {
-                return Expression.Assign(left, TypeConversion.ImplicitConversion(right, left.Type, true, true));
+                return UpdateMember(left, TypeConversion.ImplicitConversion(right, left.Type, true, true)!)
+                    .NotNull($"Expression '{right}' cannot be assigned into '{left}'.");
             }
 
             // TODO: type conversions

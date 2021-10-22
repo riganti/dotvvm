@@ -12,6 +12,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         {
             Binding = binding;
             binding.Parent = this;
+            DothtmlNode = binding.DothtmlNode;
         }
 
         public override void Accept(IResolvedControlTreeVisitor visitor)

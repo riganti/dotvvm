@@ -213,6 +213,7 @@ namespace DotVVM.Framework.Compilation.Parser
 		protected TToken CreateToken(TTokenType type, int charsFromEndToSkip = 0, Func<TToken, TokenError>? errorProvider = null)
 		{
 			var text = CurrentTokenChars.ToString().Substring(0, DistanceSinceLastToken - charsFromEndToSkip);
+
 			var t = NewToken(text,
 							 type,
 							 lineNumber: CurrentLine,

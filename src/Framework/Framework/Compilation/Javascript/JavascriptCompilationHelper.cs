@@ -31,6 +31,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 {
                     case BinaryOperatorType.ConditionalAnd:
                     case BinaryOperatorType.ConditionalOr:
+                    case BinaryOperatorType.NullishCoalescing:
                         return combine2(
                             GetResultType(binary.Left),
                             GetResultType(binary.Right));
@@ -75,7 +76,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             predicate(node) ||
             (node.Parent is JsParenthesizedExpression ||
                 node.Role == JsConditionalExpression.FalseRole ||
-                node.Role == JsConditionalExpression.TrueRole
+                node.Role == JsConditionalExpression.TrueRole ||
+                node.Role == JsBinaryExpression.RightRole && node.Parent is JsBinaryExpression { OperatorString: "," or "&&" or "||" or "??" }
             ) && node.Parent!.SatisfyResultCondition(predicate);
 
     }
