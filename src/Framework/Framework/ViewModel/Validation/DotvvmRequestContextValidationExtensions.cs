@@ -31,6 +31,21 @@ namespace DotVVM.Framework.ViewModel.Validation
             return error;
         }
 
+        public static ViewModelValidationError AddModelError<T, TProp>(this IDotvvmRequestContext context, T vm, Expression<Func<T, TProp>> expression, string message)
+        {
+            var lambdaExpression = (LambdaExpression)expression;
+            var propertyPath = ValidationErrorFactory.GetPathFromExpression(context.Configuration, lambdaExpression);
+
+            var error = new ViewModelValidationError(message)
+            {
+                IsResolved = false,
+                TargetObject = vm,
+                PropertyPath = propertyPath
+            };
+            context.ModelState.ErrorsInternal.Add(error);
+            return error;
+        }
+
         private static void EnsurePathIsRooted(string propertyPath)
         {
             if (propertyPath != null && !propertyPath.StartsWith("/"))

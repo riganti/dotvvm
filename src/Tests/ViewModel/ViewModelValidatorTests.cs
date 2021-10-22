@@ -313,6 +313,45 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
+        public void ViewModelValidator_CustomModelStateErrors_ArbitraryTargetObjectAndLambda()
+        {
+            var testViewModel = new TestViewModel() {
+                Context = new DotvvmRequestContext(null, DotvvmTestHelper.CreateConfiguration(), null),
+                Child = new TestViewModel2() {
+                    Id = 11,
+                    Code = "Code",
+                },
+                Children = new List<TestViewModel2>()
+                {
+                    new TestViewModel2() { Code = "5" },
+                    new TestViewModel2() { Code = "6" },
+                    new TestViewModel2() { Code = "7" },
+                }
+            };
+            var context = testViewModel.Context;
+            var validator = CreateValidator();
+            var expander = CreateErrorPathExpander();
+            var modelState = context.ModelState;
+            var validationTarget = testViewModel.Children[1];
+            modelState.ValidationTarget = validationTarget;
+
+            context.AddModelError(testViewModel.Children[1], o => o.Code, "Custom /Children/1/Code error.");
+
+            // Add error that is unreachable from root viewmodel
+            context.AddModelError(new TestViewModel2(), o => o.Id, "Unreachable error - won't be resolved.");
+
+            var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
+            modelState.ErrorsInternal.AddRange(errors);
+            expander.Expand(modelState, testViewModel);
+            var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
+
+            Assert.AreEqual(3, results.Count);
+            Assert.AreEqual("/Children/1/Code", results[0].PropertyPath);
+            Assert.AreEqual("/Children/1/Code", results[1].PropertyPath);
+            Assert.AreEqual("/Children/1/Id", results[2].PropertyPath);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         public void ViewModelValidator_ObjectWithAttachedErrorReferencedMultipleTimes()
         {
