@@ -100,7 +100,6 @@ namespace DotVVM.Framework.ViewModel.Validation
                 }
 
                 context.FoundErrors[viewModel] = errorsCount;
-                return errorsCount;
             }
             else
             {

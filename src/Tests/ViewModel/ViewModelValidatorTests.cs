@@ -336,6 +336,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             modelState.ValidationTarget = validationTarget;
 
             context.AddModelError(testViewModel.Children[1], o => o.Code, "Custom /Children/1/Code error.");
+            context.AddModelError(testViewModel.Children, o => o[1].Code, "Custom /Children/1/Code error.");
 
             // Add error that is unreachable from root viewmodel
             context.AddModelError(new TestViewModel2(), o => o.Id, "Unreachable error - won't be resolved.");
@@ -345,10 +346,11 @@ namespace DotVVM.Framework.Tests.ViewModel
             expander.Expand(modelState, testViewModel);
             var results = modelState.Errors.OrderBy(n => n.PropertyPath).ToList();
 
-            Assert.AreEqual(3, results.Count);
+            Assert.AreEqual(4, results.Count);
             Assert.AreEqual("/Children/1/Code", results[0].PropertyPath);
             Assert.AreEqual("/Children/1/Code", results[1].PropertyPath);
-            Assert.AreEqual("/Children/1/Id", results[2].PropertyPath);
+            Assert.AreEqual("/Children/1/Code", results[2].PropertyPath);
+            Assert.AreEqual("/Children/1/Id", results[3].PropertyPath);
         }
 
         [TestMethod]
