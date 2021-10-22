@@ -17,7 +17,10 @@ $packages = @(
     [pscustomobject]@{ Package = "DotVVM.CommandLine"; Directory = "DotVVM.CommandLine"; Type = "tool" },
     [pscustomobject]@{ Package = "DotVVM.Templates"; Directory = "Templates" ; Type = "template" },
     [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.AspNetCore"; Directory = "DotVVM.Framework.Api.Swashbuckle.AspNetCore"; Type = "standard" },
-    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.Owin"; Directory = "DotVVM.Framework.Api.Swashbuckle.Owin"; Type = "standard" }
+    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.Owin"; Directory = "DotVVM.Framework.Api.Swashbuckle.Owin"; Type = "standard" },
+	[pscustomobject]@{ Package = "DotVVM.HotReload"; Directory = "Tools/HotReload/Common"; Type = "standard" },
+	[pscustomobject]@{ Package = "DotVVM.HotReload.AspNetCore"; Directory = "Tools/HotReload/AspNetCore"; Type = "standard" },
+	[pscustomobject]@{ Package = "DotVVM.HotReload.Owin"; Directory = "Tools/HotReload/Owin"; Type = "standard" }
 )
 
 $webClient = New-Object System.Net.WebClient
