@@ -6,6 +6,12 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
+
+    <script src="https://cdn.jsdelivr.net/npm/timeshift-js@1.1.1/timeshift.min.js"></script>
+    <script>
+        // force UTC+02:00 for the test
+        TimeShift.setTimezoneOffset(120);
+    </script>
 </head>
 <body>
 
@@ -39,6 +45,11 @@
     <p>
         <span>Millisecond: </span>
         <span data-ui="millisecond">{{value: DateTimeProp.Millisecond}}</span>
+    </p>
+
+    <p>
+        <span>ToBrowserLocalTime</span>
+        <dot:TextBox data-ui="toBrowserLocalTime" Text="{value: DateTimeProp.ToBrowserLocalTime()}" />
     </p>
 
 </body>
