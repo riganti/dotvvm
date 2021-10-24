@@ -8,10 +8,10 @@
     }
 
     // listen for markup file changes
-    var connection = new signalR.HubConnectionBuilder().
-        withUrl("/_diagnostics/dotvvmHotReloadHub").
-        withAutomaticReconnect().
-        build();
+    var connection = new signalR.HubConnectionBuilder()
+        .withUrl("/_diagnostics/dotvvmHotReloadHub")
+        .withAutomaticReconnect()
+        .build();
     connection.on("fileChanged", function (paths) {
 
         // store it in session storage
@@ -20,8 +20,8 @@
         // reload
         window.location.reload();
     });
-    connection.start().
-        then(function (e) { dotvvm.log.logInfo('DotVVM view hot reload active.', e); }).
-        catch(function (e) { dotvvm.log.logWarning('DotVVM view hot reload error!', e); });
+    connection.start()
+        .then(function (e) { dotvvm.log.logInfo('DotVVM view hot reload active.', e); })
+        .catch(function (e) { dotvvm.log.logWarning('DotVVM view hot reload error!', e); });
 
 });

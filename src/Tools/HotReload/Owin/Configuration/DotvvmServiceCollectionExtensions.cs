@@ -33,12 +33,12 @@ namespace DotVVM.Framework.Configuration
         {
             if (config.Resources.FindResource("jquery") == null)
             {
-                config.Resources.Register("jquery", new ScriptResource(new UrlResourceLocation("https://unpkg.com/jquery@3.6.0/dist/jquery.min.js")));
+                config.Resources.Register("jquery", new ScriptResource(new EmbeddedResourceLocation(typeof(DotvvmServiceCollectionExtensions).Assembly, "DotVVM.HotReload.Owin.Scripts.jquery.min.js")));
             }
 
             if (config.Resources.FindResource("signalr") == null)
             {
-                config.Resources.Register("signalr", new ScriptResource(new UrlResourceLocation("https://unpkg.com/signalr@2.4.0/jquery.signalR.min.js"))
+                config.Resources.Register("signalr", new ScriptResource(new EmbeddedResourceLocation(typeof(DotvvmServiceCollectionExtensions).Assembly, "DotVVM.HotReload.Owin.Scripts.jquery.sianglR.min.js"))
                 {
                     Dependencies = new[] { "jquery" }
                 });
