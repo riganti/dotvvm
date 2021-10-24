@@ -76,18 +76,5 @@ namespace DotVVM.Framework.Hosting
             context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             throw new DotvvmInterruptRequestExecutionException();
         }
-
-        private static ClaimsPrincipal MergeUserPrincipal(ClaimsPrincipal? existingPrincipal, ClaimsPrincipal? additionalPrincipal)
-        {
-            if (existingPrincipal is null)
-                return additionalPrincipal!;
-            if (additionalPrincipal is null)
-                return existingPrincipal;
-
-            var result = new ClaimsPrincipal();
-            result.AddIdentities(additionalPrincipal.Identities);
-            result.AddIdentities(existingPrincipal.Identities.Where(i => i.IsAuthenticated || i.Claims.Any()));
-            return result;
-        }
     }
 }

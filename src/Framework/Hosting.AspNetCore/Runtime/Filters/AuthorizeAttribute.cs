@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Runtime.Filters
     /// <summary>
     /// Specifies that the class or method requires the specified authorization.
     /// </summary>
-    [Obsolete("Please use context.Authorize(...). You can place it into ViewModel.Init or into your command method, for example. If you are using GlobalFilters, use AuthorizeActionFilter.")]
+    [Obsolete("Please use the Context.Authorize method instead. You can call it, for example, from Init or from any of your commands. If you are using GlobalFilters, use AuthorizeActionFilter.")]
     public class AuthorizeAttribute : ActionFilterAttribute
     {
         private static readonly ConcurrentDictionary<Type, bool> isAnonymousAllowedCache = new ConcurrentDictionary<Type, bool>();

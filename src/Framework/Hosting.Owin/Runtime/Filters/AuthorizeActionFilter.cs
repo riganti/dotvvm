@@ -17,7 +17,6 @@ namespace DotVVM.Framework.Runtime.Filters
     {
         private static readonly ConcurrentDictionary<Type, bool> isAnonymousAllowedCache = new ConcurrentDictionary<Type, bool>();
 
-        /// <param name="policy">The name of the policy to require for authorization.</param>
         /// <param name="roles">list of roles that are allowed to access the resource</param>
         public AuthorizeActionFilter(string[]? roles = null)
         {
