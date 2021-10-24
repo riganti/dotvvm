@@ -89,15 +89,23 @@ namespace DotVVM.Framework.Compilation.Javascript
                 Interfaces.Add(method.DeclaringType);
         }
 
-        public void AddPropertySetterTranslator(Type declaringType, string methodName, IJavascriptMethodTranslator translator)
+        public void AddPropertySetterTranslator(Type declaringType, string propName, IJavascriptMethodTranslator translator)
         {
-            var property = declaringType.GetProperty(methodName);
+            var property = declaringType.GetProperty(propName);
+            if (property is null)
+                throw new Exception($"Property {declaringType}.{propName} does not exist.");
+            if (property.SetMethod is null)
+                throw new Exception($"Property {declaringType}.{propName} does not have a setter.");
             AddMethodTranslator(property.SetMethod, translator);
         }
 
-        public void AddPropertyGetterTranslator(Type declaringType, string methodName, IJavascriptMethodTranslator translator)
+        public void AddPropertyGetterTranslator(Type declaringType, string propName, IJavascriptMethodTranslator translator)
         {
-            var property = declaringType.GetProperty(methodName);
+            var property = declaringType.GetProperty(propName);
+            if (property is null)
+                throw new Exception($"Property {declaringType}.{propName} does not exist.");
+            if (property.GetMethod is null)
+                throw new Exception($"Property {declaringType}.{propName} does not have a getter.");
             AddMethodTranslator(property.GetMethod, translator);
         }
 
@@ -145,6 +153,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             BindingCollectionInfo.RegisterJavascriptTranslations(this);
 
             AddPropertyGetterTranslator(typeof(Task<>), "Result", new GenericMethodCompiler(args => FunctionalExtensions.ApplyAction(args[0], a => a.RemoveAnnotations(typeof(ViewModelInfoAnnotation)))));
+            AddPropertyGetterTranslator(typeof(Task), "CompletedTask", new GenericMethodCompiler(_ => new JsIdentifierExpression("undefined")));
+            AddMethodTranslator(typeof(Task), "FromResult", new GenericMethodCompiler(args => args[1]));
 
             AddMethodTranslator(typeof(DotvvmBindableObject).GetMethods(BindingFlags.Instance | BindingFlags.Public).Single(m => m.Name == "GetValue" && !m.ContainsGenericParameters), new GenericMethodCompiler(
                 args => {

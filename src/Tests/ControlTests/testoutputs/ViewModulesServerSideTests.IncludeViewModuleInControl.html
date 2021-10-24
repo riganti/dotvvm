@@ -22,17 +22,21 @@
 	</head>
 	<body>
 		<div data-bind="dotvvm-with-view-modules: { modules: [&quot;controlModule&quot;] }">
-			<input onclick="dotvvm.applyPostbackHandlers((options) => dotvvm.viewModules.call(this, &quot;name&quot;, [1]),this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
+			<input onclick="dotvvm.applyPostbackHandlers((options) => {
+	dotvvm.viewModules.call(this, &quot;name&quot;, [1]);
+},this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
 		</div>
 		<div data-bind="foreach: { &quot;data&quot;: Collection }">
 			<div data-bind="dotvvm-with-view-modules: { modules: [&quot;controlModule&quot;] }">
-				<input onclick="dotvvm.applyPostbackHandlers((options) => dotvvm.viewModules.call(this, &quot;name&quot;, [1]),this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
+				<input onclick="dotvvm.applyPostbackHandlers((options) => {
+	dotvvm.viewModules.call(this, &quot;name&quot;, [1]);
+},this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
 			</div>
 			This control should not have any module, it's just a text
 		</div>
 		<input id="__dot_viewmodel_root" type="hidden" value="{
   &quot;viewModel&quot;: {
-    &quot;$type&quot;: &quot;pdNkUAJOJLvXJV5/R35miJ1si64=&quot;,
+    &quot;$type&quot;: &quot;RPyCWRg9lOhkRJyH&quot;,
     &quot;Collection&quot;: [
       &quot;A&quot;,
       &quot;B&quot;
@@ -51,7 +55,7 @@
     &quot;viewModule.init.HIj399FcjVwbyaIvDKFctn7Ghr0UMajY-haUgZypcHs&quot;
   ],
   &quot;typeMetadata&quot;: {
-    &quot;pdNkUAJOJLvXJV5/R35miJ1si64=&quot;: {
+    &quot;RPyCWRg9lOhkRJyH&quot;: {
       &quot;type&quot;: &quot;object&quot;,
       &quot;properties&quot;: {
         &quot;Collection&quot;: {

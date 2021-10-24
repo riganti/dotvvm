@@ -959,14 +959,14 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_Variable_Property()
         {
             var result = CompileBinding("var a = _this.StringProp; var b = _this.StringProp2; StringProp2 = a + b", typeof(TestViewModel));
-            Assert.AreEqual("(()=>{let a=StringProp();let b=StringProp2();return StringProp2(a+b).StringProp2();})()", result);
+            Assert.AreEqual("(()=>{let a=StringProp();let b=StringProp2();return StringProp2(a+b).StringProp2;})()", result);
         }
 
         [TestMethod]
         public void JavascriptCompilation_Variable_VM()
         {
             var result = CompileBinding("var a = _parent; var b = _this.StringProp2; StringProp2 = a + b", new [] { typeof(string), typeof(TestViewModel) });
-            Assert.AreEqual("(()=>{let a=$parent;let b=StringProp2();return StringProp2(a+b).StringProp2();})()", result);
+            Assert.AreEqual("(()=>{let a=$parent;let b=StringProp2();return StringProp2(a+b).StringProp2;})()", result);
         }
 
         [TestMethod]
