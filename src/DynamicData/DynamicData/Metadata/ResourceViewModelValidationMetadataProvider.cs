@@ -94,7 +94,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         public virtual string GetErrorMessage(ValidationAttribute attribute, string propertyDisplayName)
         {
             var attributeName = attribute.GetType().Name;
-            if (attributeName.EndsWith("Attribute", StringComparison.CurrentCultureIgnoreCase))
+            if (attributeName.EndsWith("Attribute", StringComparison.OrdinalIgnoreCase))
             {
                 attributeName = attributeName.Substring(0, attributeName.Length - "Attribute".Length);
             }

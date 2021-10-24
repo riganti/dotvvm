@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Routing
                     invalidRoutes.Add(new DotvvmConfigurationAssertResult<RouteBase>(route, DotvvmConfigurationAssertReason.MissingFile));
                 }
             }
-            var validControls = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+            var validControls = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var control in config.Markup.Controls)
             {
 

@@ -184,7 +184,7 @@ namespace DotVVM.Framework.Controls
                 from parameterReference in parameterReferences
                 let parameterGroupName = parameterReference.Value.Property.CastTo<GroupedDotvvmProperty>()?.GroupMemberName
                 let parameterNode = parameterReference.Value.DothtmlNode
-                where parameterGroupName is string && !parameterDefinitions.Contains(parameterGroupName, StringComparer.InvariantCultureIgnoreCase)
+                where parameterGroupName is string && !parameterDefinitions.Contains(parameterGroupName, StringComparer.OrdinalIgnoreCase)
                 select (parameterGroupName, parameterNode);
 
             if (undefinedReferences.Any())

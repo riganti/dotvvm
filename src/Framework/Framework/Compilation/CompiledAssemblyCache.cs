@@ -156,7 +156,7 @@ namespace DotVVM.Framework.Compilation
                 .SelectMany(a => a.GetLoadableTypes()
                     .Select(t => t.Namespace!)
                     .Where(ns => ns is object))
-                .Distinct(), StringComparer.Ordinal);
+                .Distinct());
 
 
         /// <summary>
