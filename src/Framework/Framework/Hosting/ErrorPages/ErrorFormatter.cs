@@ -317,11 +317,11 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         static (string name, object value) StripBindingProperty(string name, object value)
         {
             var t = value.GetType();
-            var fields = t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            if (fields.Length != 1 || !fields[0].IsInitOnly)
+            var props = t.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (props.Length != 1)
                 return (name, value);
 
-            return (name + "." + fields[0].Name, fields[0].GetValue(value));
+            return (name + "." + props[0].Name, props[0].GetValue(value));
         }
 
 
