@@ -167,12 +167,12 @@ namespace DotVVM.Framework.Binding.Properties
     }
 
     /// <summary>
-    /// Contains a binding that unwraps <see cref="Controls.IBaseGridViewDataSet.Items"/>
+    /// Contains a binding that unwraps <see cref="DotVVM.Framework.Controls.IBaseGridViewDataSet.Items"/>
     /// </summary>
     public sealed record DataSourceAccessBinding(IBinding Binding);
 
     /// <summary>
-    /// Contains a binding that accesses $index-th element in the collection. Uses the <see cref="CurrentCollectionIndexExtensionParameter"/>.
+    /// Contains a binding that accesses $index-th element in the collection. Uses the <see cref="DotVVM.Framework.Compilation.ControlTree.CurrentCollectionIndexExtensionParameter"/>.
     /// </summary>
     public sealed record DataSourceCurrentElementBinding(IBinding Binding);
 
@@ -197,7 +197,7 @@ namespace DotVVM.Framework.Binding.Properties
     /// <summary> Contains binding {value: _this} as the current data context. </summary>
     public sealed record ThisBindingProperty(IBinding binding);
 
-    /// <summary> Contains <see cref="DataContextStack">data context</see> which would be expected in a Repeater bound to this binding. </summary>
+    /// <summary> Contains <see cref="DotVVM.Framework.Compilation.ControlTree.DataContextStack">data context</see> which would be expected in a Repeater bound to this binding. </summary>
     public sealed record CollectionElementDataContextBindingProperty(
         DataContextStack DataContext
     );
