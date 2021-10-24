@@ -3,7 +3,7 @@ import { getCulture } from './dotvvm-base';
 
 function getGlobalize(): GlobalizeStatic {
     const g = (window as any)["dotvvm_Globalize"]
-    if (!g) {
+    if (compileConstants.debug && !g) {
         throw new Error("Resource 'globalize' is not included (symbol 'dotvvm_Globalize' could not be found).\nIt is usually included automatically when needed, but sometime it's not possible, so you will have to include it in your page using '<dot:RequiredResource Name=\"globalize\" />'")
     }
     return g;
