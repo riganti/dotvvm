@@ -1131,6 +1131,8 @@ namespace DotVVM.Framework.Tests.Binding
             { 3, 33 }
         });
 
+        public ReadOnlyCollection<int> ReadOnlyArray { get; set; } = new ReadOnlyCollection<int>(new[] { 1, 2, 3 });
+
         public List<int> List { get; set; } = new List<int>() { 1, 2, 3 };
         public int[] Array { get; set; } = new int[] { 1, 2, 3 };
     }

@@ -354,6 +354,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_ReadOnlyArrayElement_Get()
+        {
+            var result = CompileBinding("ReadOnlyArray[1]", typeof(TestViewModel5));
+            Assert.AreEqual("ReadOnlyArray()[1]", result);
+        }
+
+        [TestMethod]
         public void JsTranslator_ArrayElement_Set()
         {
             var result = CompileBinding("Array[1] = 123", new[] { typeof(TestViewModel5) }, typeof(void));
