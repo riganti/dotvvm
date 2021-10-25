@@ -15,7 +15,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 namespace DotVVM.Framework.Binding.Properties
 {
     /// <summary>
-    /// Contains evaluatable Javascript in knockout binding, knockout context parameters are represented as symbolic parameters in the ParametrizedCode
+    /// Contains Javascript evaluable in knockout binding, knockout context parameters are represented as symbolic parameters in the ParametrizedCode
     /// </summary>
     /// <param name="Code">Knockout binding expression. May return observable.</param>
     /// <param name="UnwrappedCode">Knockout binding expression. Always unwraps the observable.</param>
@@ -181,7 +181,7 @@ namespace DotVVM.Framework.Binding.Properties
     /// </summary>
     public sealed record DataSourceLengthBinding(IBinding Binding);
 
-    /// <summary> Contains lambda function which gets the collection element for a given index.</summary>
+    /// <summary> Contains a lambda function that gets the collection element for a given index.</summary>
     public sealed record SelectorItemBindingProperty(IValueBinding Expression);
 
     /// <summary> Which resources are requested by this binding.</summary>
@@ -212,6 +212,6 @@ namespace DotVVM.Framework.Binding.Properties
     public sealed record IsNullOrWhitespaceBindingExpression(IBinding Binding);
     /// <summary> Contains a binding with the expression string.IsNullOrEmpty({thisBinding}) </summary>
     public sealed record IsNullOrEmptyBindingExpression(IBinding Binding);
-    /// <summary> Contains the same binding as this binding, but converted to string. </summary>
+    /// <summary> Contains the same binding as this binding but converted to a string. </summary>
     public sealed record ExpectedAsStringBindingExpression(IBinding Binding);
 }
