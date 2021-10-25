@@ -57,6 +57,37 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void StaticCommandPlanSerialization_NotOverloadedMethod_DoNotTransferParameterTypeNames()
+        {
+            var plan = MakeInvocationPlan(() => StaticCommandMethodCollection.NotOverloadedMethod(123),
+                new StaticCommandParameterPlan(StaticCommandParameterType.Constant, 123));
+            var json = StaticCommandExecutionPlanSerializer.SerializePlan(plan);
+
+            var jarray = (JArray)json;
+            // Parameters count
+            Assert.AreEqual(1, jarray[3].Value<int>());
+            // No parameters info is sent because method name and arguments are enough to match correct method
+            Assert.AreEqual(JValue.CreateNull(), jarray[4]);
+        }
+
+        [TestMethod]
+        public void StaticCommandPlanSerialization_OverloadedMethod_TransferParameterTypeNames()
+        {
+            var plan = MakeInvocationPlan(() => StaticCommandMethodCollection.Method(123),
+                new StaticCommandParameterPlan(StaticCommandParameterType.Constant, 123));
+            var json = StaticCommandExecutionPlanSerializer.SerializePlan(plan);
+
+            var jarray = (JArray)json;
+            // Parameters count
+            Assert.AreEqual(1, jarray[3].Value<int>());
+            // Parameters info is sent because method has multiple overloads
+            Assert.AreNotEqual(JValue.CreateNull(), jarray[4]);
+            Assert.IsInstanceOfType(jarray[4], typeof(JArray));
+            var parameterTypeName = jarray[4][0].Value<string>();
+            Assert.AreEqual(typeof(int), Type.GetType(parameterTypeName));
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(NotSupportedException))]
         public void StaticCommandPlanSerialization_NotUsableInStaticCommand_Throws()
         {
@@ -73,6 +104,8 @@ namespace DotVVM.Framework.Tests.Binding
             [AllowStaticCommand]
             public static void Method(float arg) { }
 
+            [AllowStaticCommand]
+            public static void NotOverloadedMethod(int arg) { }
 
             public static void MethodNotUsableInStaticCommand() { }
         }
