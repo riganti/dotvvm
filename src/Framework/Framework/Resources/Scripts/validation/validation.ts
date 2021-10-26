@@ -86,8 +86,6 @@ const createRootValidationHandler = () => ({
 
 export function init() {
     postbackHandlers["validate"] = (opt) => createValidationHandler(opt.path);
-    postbackHandlers["validate-root"] = () => createRootValidationHandler();
-    postbackHandlers["validate-this"] = () => createValidationHandler("$data"); 
 
     if (compileConstants.isSpa) {
         spaEvents.spaNavigating.subscribe(args => {
