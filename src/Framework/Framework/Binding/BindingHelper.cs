@@ -254,9 +254,28 @@ namespace DotVVM.Framework.Binding
             where TBinding : IBinding
         {
             return binding.DeriveBinding(
-                properties.Concat(new object[]{
+                properties.Concat(new object[] {
                     newDataContext,
-                    new ParsedExpressionBindingProperty(expression)
+                    new ParsedExpressionBindingProperty(expression),
+                    new CastedExpressionBindingProperty(expression),
+                    new ExpectedTypeBindingProperty(expression.Type),
+                    new ResultTypeBindingProperty(expression.Type)
+                }).ToArray()
+            );
+        }
+
+        /// <summary>
+        /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService. 
+        /// </summary>
+        public static TBinding DeriveBinding<TBinding>(this TBinding binding, Expression expression, params object?[] properties)
+            where TBinding : IBinding
+        {
+            return binding.DeriveBinding(
+                properties.Concat(new object[] {
+                    new ParsedExpressionBindingProperty(expression),
+                    new CastedExpressionBindingProperty(expression),
+                    new ExpectedTypeBindingProperty(expression.Type),
+                    new ResultTypeBindingProperty(expression.Type)
                 }).ToArray()
             );
         }

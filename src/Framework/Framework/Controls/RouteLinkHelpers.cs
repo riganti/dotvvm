@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Controls
             var parameterDefinitions = context.Configuration.RouteTable[control.RouteName].ParameterNames;           
 
             var invalidReferences = parameterReferences.Where(param =>
-                !parameterDefinitions.Contains(param.Key, StringComparer.InvariantCultureIgnoreCase));
+                !parameterDefinitions.Contains(param.Key, StringComparer.OrdinalIgnoreCase));
 
             if (invalidReferences.Any())
             {

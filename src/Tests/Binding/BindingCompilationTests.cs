@@ -18,6 +18,7 @@ using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Testing;
+using System.Collections.ObjectModel;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -1122,6 +1123,15 @@ namespace DotVVM.Framework.Tests.Binding
             { 2, 22 },
             { 3, 33 }
         };
+
+        public ReadOnlyDictionary<int, int> ReadOnlyDictionary { get; set; } = new ReadOnlyDictionary<int, int>(new Dictionary<int, int>()
+        {
+            { 1, 11 },
+            { 2, 22 },
+            { 3, 33 }
+        });
+
+        public ReadOnlyCollection<int> ReadOnlyArray { get; set; } = new ReadOnlyCollection<int>(new[] { 1, 2, 3 });
 
         public List<int> List { get; set; } = new List<int>() { 1, 2, 3 };
         public int[] Array { get; set; } = new int[] { 1, 2, 3 };

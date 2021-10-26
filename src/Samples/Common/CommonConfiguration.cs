@@ -58,6 +58,8 @@ namespace DotVVM.Samples.Common
 
             services.AddSingleton<IDiagnosticsInformationSender, TextFileDiagnosticsInformationSender>();
             services.AddTransient<VariablesStaticCommand>();
+
+            services.AddSingleton<ViewModels.ControlSamples.NamedCommand.TestService>();
         }
 
         private static void RegisterResources(DotvvmResourceRepository resources)
@@ -94,6 +96,7 @@ namespace DotVVM.Samples.Common
 
             resources.RegisterScript("testJsModule", new InlineResourceLocation("export const commands = { myCommand() { console.info(\"Hello from page module\") } }"), module: true);
 
+            resources.Register("ControlSamples_NamedCommand_ParameterStaticCommand", new ScriptModuleResource(new FileResourceLocation("~/Scripts/ControlSamples_NamedCommand_ParameterStaticCommand.js")));
 
             // resource that triggers the circular dependency check in the render phase
             var circular = new ScriptResource { Location = new FileResourceLocation("~/Scripts/testResource.js") };

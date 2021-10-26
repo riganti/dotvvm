@@ -243,30 +243,29 @@ namespace DotVVM.Framework.Compilation.Binding
         public NegatedBindingExpression NegateBinding(ParsedExpressionBindingProperty e, IBinding binding)
         {
             return new NegatedBindingExpression(binding.DeriveBinding(
-                new ParsedExpressionBindingProperty(
-                    // Not, Equals and NotEquals are safe to optimize for both .NET and Javascript (if that the negated value was already a boolean)
-                    // but comparison operators are not safe to optimize as `null > 0` and `null <= 0` are both true on .NET (not JS, so it's possible to optimize this in the JsAST)
-                    // On the other hand it would not be possible to optimize Not(Not(...)) in the JsAST, because you can't be so sure about the type of the expression
-                    e.Expression.NodeType == ExpressionType.Not ? e.Expression.CastTo<UnaryExpression>().Operand :
-                    e.Expression.NodeType == ExpressionType.Equal ? e.Expression.CastTo<BinaryExpression>().UpdateType(ExpressionType.NotEqual) :
-                    e.Expression.NodeType == ExpressionType.NotEqual ? e.Expression.CastTo<BinaryExpression>().UpdateType(ExpressionType.Equal) :
-                    (Expression)Expression.Not(e.Expression)
-                )
+                // Not, Equals and NotEquals are safe to optimize for both .NET and Javascript (if that the negated value was already a boolean)
+                // but comparison operators are not safe to optimize as `null > 0` and `null <= 0` are both true on .NET (not JS, so it's possible to optimize this in the JsAST)
+                // On the other hand it would not be possible to optimize Not(Not(...)) in the JsAST, because you can't be so sure about the type of the expression
+                e.Expression.NodeType == ExpressionType.Not ? e.Expression.CastTo<UnaryExpression>().Operand :
+                e.Expression.NodeType == ExpressionType.Equal ? e.Expression.CastTo<BinaryExpression>().UpdateType(ExpressionType.NotEqual) :
+                e.Expression.NodeType == ExpressionType.NotEqual ? e.Expression.CastTo<BinaryExpression>().UpdateType(ExpressionType.Equal) :
+                (Expression)Expression.Not(e.Expression)
             ));
         }
-        public ExpectedAsStringBindingExpression ExpectAsStringBinding(ParsedExpressionBindingProperty e, IBinding binding)
+        public ExpectedAsStringBindingExpression ExpectAsStringBinding(ParsedExpressionBindingProperty e, ExpectedTypeBindingProperty expectedType, IBinding binding)
         {
-            return new ExpectedAsStringBindingExpression(binding.DeriveBinding(new ExpectedTypeBindingProperty(typeof(string)), e));
+            if (expectedType.Type == typeof(string))
+                return new(binding);
+
+            return new(binding.DeriveBinding(new ExpectedTypeBindingProperty(typeof(string)), e));
         }
         public IsNullBindingExpression IsNull(ParsedExpressionBindingProperty eprop, IBinding binding)
         {
             var e = eprop.Expression;
             return new IsNullBindingExpression(binding.DeriveBinding(
-                new ParsedExpressionBindingProperty(
-                    e.Type.IsNullable() ? Expression.Not(Expression.Property(e, "HasValue")) :
-                    e.Type.IsValueType ? Expression.Constant(false) :
-                    Expression.ReferenceEqual(e, Expression.Constant(null, e.Type))
-                )
+                e.Type.IsNullable() ? Expression.Not(Expression.Property(e, "HasValue")) :
+                e.Type.IsValueType ? Expression.Constant(false) :
+                Expression.ReferenceEqual(e, Expression.Constant(null, e.Type))
             ));
         }
         public IsNullOrEmptyBindingExpression IsNullOrEmpty(ParsedExpressionBindingProperty eprop, IBinding binding)
@@ -275,9 +274,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (e.Type != typeof(string))
                 throw new NotSupportedException($"{e} was not of type string, but {e.Type}");
             return new IsNullOrEmptyBindingExpression(binding.DeriveBinding(
-                new ParsedExpressionBindingProperty(
-                    Expression.Call(typeof(string), "IsNullOrEmpty", Type.EmptyTypes, e)
-                )
+                Expression.Call(typeof(string), "IsNullOrEmpty", Type.EmptyTypes, e)
             ));
         }
         public IsNullOrWhitespaceBindingExpression IsNullOrWhitespace(ParsedExpressionBindingProperty eprop, IBinding binding)
@@ -286,9 +283,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (e.Type != typeof(string))
                 throw new NotSupportedException($"{e} was not of type string, but {e.Type}");
             return new IsNullOrWhitespaceBindingExpression(binding.DeriveBinding(
-                new ParsedExpressionBindingProperty(
-                    Expression.Call(typeof(string), "IsNullOrWhitespace", Type.EmptyTypes, e)
-                )
+                Expression.Call(typeof(string), "IsNullOrWhitespace", Type.EmptyTypes, e)
             ));
         }
 
@@ -307,24 +302,20 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             if (expression.Expression.Type.Implements(typeof(ICollection), out var ifc) || expression.Expression.Type.Implements(typeof(ICollection<>), out ifc))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
-                    new ParsedExpressionBindingProperty(
-                        Expression.Property(expression.Expression, ifc.GetProperty(nameof(ICollection.Count)))
-                    )));
+                    Expression.Property(expression.Expression, ifc.GetProperty(nameof(ICollection.Count)))
+                ));
             else if (expression.Expression.Type.Implements(typeof(IBaseGridViewDataSet), out var igridviewdataset))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
-                    new ParsedExpressionBindingProperty(
-                        Expression.Property(Expression.Property(expression.Expression, igridviewdataset.GetProperty(nameof(IBaseGridViewDataSet.Items))), typeof(ICollection).GetProperty(nameof(ICollection.Count)))
-                    )));
+                    Expression.Property(Expression.Property(expression.Expression, igridviewdataset.GetProperty(nameof(IBaseGridViewDataSet.Items))), typeof(ICollection).GetProperty(nameof(ICollection.Count)))
+                ));
             else if (expression.Expression.Type == typeof(string))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
-                    new ParsedExpressionBindingProperty(
-                        Expression.Property(expression.Expression, nameof(String.Length))
-                    )));
+                    Expression.Property(expression.Expression, nameof(String.Length))
+                ));
             else if (expression.Expression.Type.Implements(typeof(IEnumerable<>)))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
-                    new ParsedExpressionBindingProperty(
-                        Expression.Call(typeof(Enumerable), "Count", new[] { ReflectionUtils.GetEnumerableType(expression.Expression.Type) }, expression.Expression)
-                    )));
+                    Expression.Call(typeof(Enumerable), "Count", new[] { ReflectionUtils.GetEnumerableType(expression.Expression.Type) }, expression.Expression)
+                ));
             else throw new NotSupportedException($"Can not find collection length from binding '{expression.Expression}'.");
         }
 
@@ -342,16 +333,16 @@ namespace DotVVM.Framework.Compilation.Binding
                 null;
 
             if (makeIndexer(expression.Expression) is Expression r)
-                return new DataSourceCurrentElementBinding(binding.DeriveBinding(new ParsedExpressionBindingProperty(r)));
+                return new DataSourceCurrentElementBinding(binding.DeriveBinding(r));
 
             else if (typeof(IBaseGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
                 return new DataSourceCurrentElementBinding(binding.DeriveBinding(
-                    new ParsedExpressionBindingProperty(makeIndexer(Expression.Property(expression.Expression, nameof(IBaseGridViewDataSet.Items))).NotNull())));
+                    makeIndexer(Expression.Property(expression.Expression, nameof(IBaseGridViewDataSet.Items))).NotNull()));
             else throw new NotSupportedException($"Can not access current element on binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
         }
 
 
-        public StaticCommandJsAstProperty CompileStaticCommand(DataContextStack dataContext, ParsedExpressionBindingProperty expression) =>
+        public StaticCommandJsAstProperty CompileStaticCommand(DataContextStack dataContext, CastedExpressionBindingProperty expression) =>
             new StaticCommandJsAstProperty(this.staticCommandBindingCompiler.CompileToJavascript(dataContext, expression.Expression));
 
         public StaticCommandJavascriptProperty FormatStaticCommand(StaticCommandJsAstProperty code) =>
@@ -405,7 +396,8 @@ namespace DotVVM.Framework.Compilation.Binding
         public ThisBindingProperty GetThisBinding(IBinding binding, DataContextStack stack)
         {
             var thisBinding = binding.DeriveBinding(
-                new ParsedExpressionBindingProperty(Expression.Parameter(stack.DataContextType, "_this").AddParameterAnnotation(new BindingParameterAnnotation(stack)))
+                Expression.Parameter(stack.DataContextType, "_this")
+                    .AddParameterAnnotation(new BindingParameterAnnotation(stack))
             );
 
             return new ThisBindingProperty(thisBinding);
@@ -423,7 +415,7 @@ namespace DotVVM.Framework.Compilation.Binding
         public IsMoreThanZeroBindingProperty IsMoreThanZero(ParsedExpressionBindingProperty expr, IBinding binding)
         {
             return new IsMoreThanZeroBindingProperty(binding.DeriveBinding(
-                new ParsedExpressionBindingProperty(Expression.GreaterThan(expr.Expression, Expression.Constant(0)))
+                Expression.GreaterThan(expr.Expression, Expression.Constant(0))
             ));
         }
     }

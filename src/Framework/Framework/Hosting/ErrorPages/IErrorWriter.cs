@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         void WriteUnencoded(string str);
         void WriteText(string str);
         void ObjectBrowser(object? obj);
-        void WriteKVTable(IEnumerable keys, IEnumerable values);
+        void WriteKVTable<K, V>(IEnumerable<KeyValuePair<K, V>> table, string className = "");
         void WriteSourceCode(SourceModel source, bool collapse = true);
     }
 }

@@ -4,11 +4,11 @@ using DotVVM.Framework.Runtime.Filters;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
 {
-    [Authorize(AuthenticationSchemes = "Scheme1")]
     public class AuthorizedPresenter : IDotvvmPresenter
     {
         public async Task ProcessRequest(IDotvvmRequestContext context)
         {
+            await context.Authorize(authenticationSchemes: new [] { "Scheme1" });
             await context.HttpContext.Response.WriteAsync("Secret Text");
         }
     }

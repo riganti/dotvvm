@@ -23,24 +23,7 @@ namespace DotVVM.Framework.Compilation.Binding
         public static Expression RewriteTaskSequence(Expression left, Expression right)
         {
             // if the left side is a task, make the right side also a task and join them
-            Expression rightTask;
-            if (right.Type == typeof(void))
-            {
-                // return Task.CompletedTask
-                rightTask = Expression.Call(typeof(CommandTaskSequenceHelper), nameof(CommandTaskSequenceHelper.WrapAsTask),
-                    Type.EmptyTypes, Expression.Lambda(right));
-            }
-            else if (!typeof(Task).IsAssignableFrom(right.Type))
-            {
-                // wrap the right expression into Task.FromResult
-                rightTask = Expression.Call(typeof(CommandTaskSequenceHelper), nameof(CommandTaskSequenceHelper.WrapAsTask),
-                    new[] { right.Type }, Expression.Lambda(right));
-            }
-            else
-            {
-                // right side is also a task
-                rightTask = right;
-            }
+            Expression rightTask = WrapAsTask(right);
 
             // join the tasks using CommandTaskSequenceHelper
             if (rightTask.Type.IsGenericType)
@@ -51,6 +34,20 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 return Expression.Call(typeof(CommandTaskSequenceHelper), nameof(CommandTaskSequenceHelper.JoinTasks), Type.EmptyTypes, left, Expression.Lambda(rightTask));
             }
+        }
+
+        public static Expression WrapAsTask(Expression expr)
+        {
+            if (typeof(Task).IsAssignableFrom(expr.Type))
+                return expr;
+            if (expr.Type != typeof(void))
+                return Expression.Call(typeof(Task), "FromResult", new [] { expr.Type }, expr);
+            else
+                return Expression.Block(
+                    expr,
+                    ExpressionUtils.Replace(() => Task.CompletedTask)
+                );
+
         }
 
         public static Expression UnwrapNullable(this Expression expression) =>

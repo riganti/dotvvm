@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="sampleConfig.json" />
+    <None Remove="Scripts\ControlSamples_NamedCommand_ParameterStaticCommand.js" />
     <None Remove="Views\ComplexSamples\NestedComboBox\InnerWrapper.dotcontrol" />
     <None Remove="Views\ComplexSamples\NestedComboBox\OuterWrapper.dotcontrol" />
     <None Remove="Views\ComplexSamples\SPAErrorReporting\default.dothtml" />
@@ -38,6 +39,7 @@
     <None Remove="Views\ControlSamples\Literal\Literal_NumberBinding.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\binded.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
+    <None Remove="Views\ControlSamples\NamedCommand\ParameterStaticCommandService.dothtml" />
     <None Remove="Views\ControlSamples\RadioButton\Nullable.dothtml" />
     <None Remove="Views\ControlSamples\RadioButton\RadioButton_Objects.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\IndexInNestedRepeater.dothtml" />
@@ -131,6 +133,7 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
     <Content Include="Scripts\ClientExtenders.js" />
+    <Content Include="Scripts\ControlSamples_NamedCommand_ParameterStaticCommand.js" />
     <Content Include="Scripts\testResource.js" />
     <Content Include="Scripts\testResource2.js" />
     <Content Include="tsconfig.json" />

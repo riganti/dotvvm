@@ -120,6 +120,8 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModules_ModuleInPageMasterPage);
 
+                Assert.Equal("Test title", browser.GetTitle());
+
                 var log = browser.Single("#log");
                 AssertLogEntry(log, "testViewModule: init");
                 AssertLogEntry(log, "testViewModule2: init");

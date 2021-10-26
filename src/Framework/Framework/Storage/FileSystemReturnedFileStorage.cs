@@ -79,15 +79,20 @@ namespace DotVVM.Framework.Storage
                 await stream.CopyToAsync(fs).ConfigureAwait(false);
             }
 
-            StoreMetadata(id, metadata);
+            await StoreMetadata(id, metadata);
             return id;
         }
 
-        private void StoreMetadata(Guid id, ReturnedFileMetadata metadata)
+        private async Task StoreMetadata(Guid id, ReturnedFileMetadata metadata)
         {
             var metadataFilePath = GetMetadataFilePath(id);
             var settings = DefaultSerializerSettingsProvider.Instance.Settings;
-            File.WriteAllText(metadataFilePath, JsonConvert.SerializeObject(metadata, settings), Encoding.UTF8);
+#if DotNetCore 
+            await File.WriteAllTextAsync(
+#else
+            File.WriteAllText(
+#endif
+                metadataFilePath, JsonConvert.SerializeObject(metadata, settings), Encoding.UTF8);
         }
 
         private string GetDataFilePath(Guid id)

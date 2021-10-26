@@ -41,7 +41,7 @@ namespace DotVVM.CommandLine
             var sb = new StringBuilder(viewName);
             sb[0] = char.ToUpperInvariant(sb[0]);
 
-            if (!viewName.EndsWith(ViewModelClassSuffix, StringComparison.CurrentCultureIgnoreCase))
+            if (!viewName.EndsWith(ViewModelClassSuffix, StringComparison.OrdinalIgnoreCase))
             {
                 sb.Append(ViewModelClassSuffix);
             }
@@ -54,7 +54,7 @@ namespace DotVVM.CommandLine
             var parts = viewLocation.Split('/', '\\');
             for (int i = 0; i < parts.Length; i++)
             {
-                if (string.Equals(parts[i], ViewsDirectory, StringComparison.CurrentCultureIgnoreCase))
+                if (string.Equals(parts[i], ViewsDirectory, StringComparison.OrdinalIgnoreCase))
                 {
                     parts[i] = ViewModelsDirectory;
                 }
