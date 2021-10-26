@@ -140,7 +140,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             };
         }
 
-        public void WriteHead(IErrorWriter w)
+        public void WriteStyle(IErrorWriter w)
         { }
 
         public static DotvvmMarkupErrorSection? Create(Exception ex)
