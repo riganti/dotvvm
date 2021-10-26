@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -118,6 +119,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddPropertyGetterTranslator(typeof(Array), nameof(Array.Length), lengthMethod);
             AddPropertyGetterTranslator(typeof(ICollection), nameof(ICollection.Count), lengthMethod);
             AddPropertyGetterTranslator(typeof(ICollection<>), nameof(ICollection.Count), lengthMethod);
+            AddPropertyGetterTranslator(typeof(IReadOnlyCollection<>), nameof(ICollection.Count), lengthMethod);
             AddPropertyGetterTranslator(typeof(string), nameof(string.Length), lengthMethod);
             AddMethodTranslator(typeof(Enums), "GetNames", new EnumGetNamesMethodTranslator(), 0);
 
@@ -138,10 +140,14 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(IList), "set_Item", new GenericMethodCompiler(listSetIndexer));
             AddMethodTranslator(typeof(IList<>), "set_Item", new GenericMethodCompiler(listSetIndexer));
             AddMethodTranslator(typeof(List<>), "set_Item", new GenericMethodCompiler(listSetIndexer));
+            AddMethodTranslator(typeof(IReadOnlyList<>), "get_Item", new GenericMethodCompiler(listGetIndexer));
             AddMethodTranslator(typeof(Dictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
             AddMethodTranslator(typeof(IDictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
             AddMethodTranslator(typeof(Dictionary<,>), "set_Item", new GenericMethodCompiler(dictionarySetIndexer));
             AddMethodTranslator(typeof(IDictionary<,>), "set_Item", new GenericMethodCompiler(dictionarySetIndexer));
+            AddMethodTranslator(typeof(IReadOnlyDictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
+            AddMethodTranslator(typeof(ReadOnlyDictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
+            AddMethodTranslator(typeof(ReadOnlyCollection<>), "get_Item", new GenericMethodCompiler(listGetIndexer));
             AddMethodTranslator(typeof(Array).GetMethod(nameof(Array.SetValue), new[] { typeof(object), typeof(int) }), new GenericMethodCompiler(arrayElementSetter));
             AddPropertyGetterTranslator(typeof(Nullable<>), "Value", new GenericMethodCompiler((JsExpression[] args, MethodInfo method) => args[0]));
             AddPropertyGetterTranslator(typeof(Nullable<>), "HasValue",
@@ -557,6 +563,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("removeRange").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1], args[2])));
             AddMethodTranslator(typeof(List<>), "Reverse", parameterCount: 0, translator: new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("reverse").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
+            AddMethodTranslator(typeof(List<>), "AsReadOnly", parameterCount: 0, translator: new GenericMethodCompiler(args => args[0]));
 
             // DotVVM list extensions:
             AddMethodTranslator(typeof(ListExtensions), "AddOrUpdate", parameterCount: 4, translator: new GenericMethodCompiler(args =>

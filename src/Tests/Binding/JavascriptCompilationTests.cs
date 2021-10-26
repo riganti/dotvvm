@@ -354,6 +354,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_ReadOnlyArrayElement_Get()
+        {
+            var result = CompileBinding("ReadOnlyArray[1]", typeof(TestViewModel5));
+            Assert.AreEqual("ReadOnlyArray()[1]", result);
+        }
+
+        [TestMethod]
         public void JsTranslator_ArrayElement_Set()
         {
             var result = CompileBinding("Array[1] = 123", new[] { typeof(TestViewModel5) }, typeof(void));
@@ -364,6 +371,13 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_ListIndexer_Get()
         {
             var result = CompileBinding("List[1]", typeof(TestViewModel5));
+            Assert.AreEqual("List()[1]", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ReadOnlyListIndexer_Get()
+        {
+            var result = CompileBinding("List.AsReadOnly()[1]", typeof(TestViewModel5));
             Assert.AreEqual("List()[1]", result);
         }
 
@@ -379,6 +393,13 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("Dictionary[1]", typeof(TestViewModel5));
             Assert.AreEqual("dotvvm.translations.dictionary.getItem(Dictionary(),1)", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ReadOnlyDictionaryIndexer_Get()
+        {
+            var result = CompileBinding("ReadOnlyDictionary[1]", typeof(TestViewModel5));
+            Assert.AreEqual("dotvvm.translations.dictionary.getItem(ReadOnlyDictionary(),1)", result);
         }
 
         [TestMethod]
