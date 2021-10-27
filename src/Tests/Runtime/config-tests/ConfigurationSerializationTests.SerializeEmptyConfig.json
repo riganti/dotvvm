@@ -1,5 +1,11 @@
 {
   "config": {
+    "debug": false,
+    "defaultCulture": "en-US",
+    "diagnostics": {
+      "compilationPage": {}
+    },
+    "experimentalFeatures": {},
     "markup": {
       "importedNamespaces": [
         {
@@ -14,13 +20,7 @@
       }
     },
     "resources": {},
-    "security": {},
     "runtime": {},
-    "defaultCulture": "en-US",
-    "experimentalFeatures": {},
-    "debug": false,
-    "diagnostics": {
-      "compilationPage": {}
-    }
+    "security": {}
   }
 }

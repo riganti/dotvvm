@@ -1,22 +1,10 @@
 {
   "config": {
-    "markup": {
-      "importedNamespaces": [
-        {
-          "namespace": "DotVVM.Framework.Binding.HelperNamespace"
-        },
-        {
-          "namespace": "System.Linq"
-        }
-      ],
-      "ViewCompilation": {
-        "compileInParallel": true
-      }
-    },
-    "resources": {},
-    "security": {},
-    "runtime": {},
+    "debug": false,
     "defaultCulture": "en-US",
+    "diagnostics": {
+      "compilationPage": {}
+    },
     "experimentalFeatures": {
       "lazyCsrfToken": {
         "enabled": true,
@@ -32,9 +20,21 @@
         ]
       }
     },
-    "debug": false,
-    "diagnostics": {
-      "compilationPage": {}
-    }
+    "markup": {
+      "importedNamespaces": [
+        {
+          "namespace": "DotVVM.Framework.Binding.HelperNamespace"
+        },
+        {
+          "namespace": "System.Linq"
+        }
+      ],
+      "ViewCompilation": {
+        "compileInParallel": true
+      }
+    },
+    "resources": {},
+    "runtime": {},
+    "security": {}
   }
 }

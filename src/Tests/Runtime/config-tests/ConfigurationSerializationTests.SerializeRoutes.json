@@ -1,5 +1,11 @@
 {
   "config": {
+    "debug": false,
+    "defaultCulture": "en-US",
+    "diagnostics": {
+      "compilationPage": {}
+    },
+    "experimentalFeatures": {},
     "markup": {
       "importedNamespaces": [
         {
@@ -13,6 +19,7 @@
         "compileInParallel": true
       }
     },
+    "resources": {},
     "routes": {
       "route1": {
         "url": "url1",
@@ -44,14 +51,7 @@
         "defaultValues": {}
       }
     },
-    "resources": {},
-    "security": {},
     "runtime": {},
-    "defaultCulture": "en-US",
-    "experimentalFeatures": {},
-    "debug": false,
-    "diagnostics": {
-      "compilationPage": {}
-    }
+    "security": {}
   }
 }

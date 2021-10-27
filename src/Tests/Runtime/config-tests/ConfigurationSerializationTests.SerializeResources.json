@@ -1,5 +1,11 @@
 {
   "config": {
+    "debug": false,
+    "defaultCulture": "en-US",
+    "diagnostics": {
+      "compilationPage": {}
+    },
+    "experimentalFeatures": {},
     "markup": {
       "importedNamespaces": [
         {
@@ -43,67 +49,61 @@
       "scripts": {
         "r1": {
           "Defer": true,
+          "IntegrityHash": "hash, maybe",
           "Location": {
             "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
-            "Url": "x",
-            "DebugUrl": "x"
+            "DebugUrl": "x",
+            "Url": "x"
           },
-          "MimeType": "text/javascript",
-          "IntegrityHash": "hash, maybe"
+          "MimeType": "text/javascript"
         },
         "r2": {
           "Defer": true,
-          "Location": {
-            "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
-            "Url": "x",
-            "DebugUrl": "x"
-          },
-          "LocationFallback": {
-            "JavascriptCondition": "window.x",
-            "AlternativeLocations": [
-              {
-                "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
-                "Url": "y",
-                "DebugUrl": "y"
-              },
-              {
-                "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
-                "Url": "z",
-                "DebugUrl": "z"
-              },
-              {
-                "$type": "DotVVM.Framework.ResourceManagement.FileResourceLocation, DotVVM.Framework",
-                "FilePath": "some-script.js",
-                "DebugFilePath": "some-script.js"
-              }
-            ]
-          },
-          "MimeType": "text/javascript",
           "Dependencies": [
             "r1"
           ],
+          "Location": {
+            "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
+            "DebugUrl": "x",
+            "Url": "x"
+          },
+          "LocationFallback": {
+            "AlternativeLocations": [
+              {
+                "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
+                "DebugUrl": "y",
+                "Url": "y"
+              },
+              {
+                "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
+                "DebugUrl": "z",
+                "Url": "z"
+              },
+              {
+                "$type": "DotVVM.Framework.ResourceManagement.FileResourceLocation, DotVVM.Framework",
+                "DebugFilePath": "some-script.js",
+                "FilePath": "some-script.js"
+              }
+            ],
+            "JavascriptCondition": "window.x"
+          },
+          "MimeType": "text/javascript",
           "RenderPosition": "Anywhere"
         }
       },
       "stylesheets": {
         "r3": {
+          "IntegrityHash": "hash, maybe",
           "Location": {
             "$type": "DotVVM.Framework.ResourceManagement.UrlResourceLocation, DotVVM.Framework",
-            "Url": "s",
-            "DebugUrl": "s"
+            "DebugUrl": "s",
+            "Url": "s"
           },
-          "MimeType": "text/css",
-          "IntegrityHash": "hash, maybe"
+          "MimeType": "text/css"
         }
       }
     },
-    "security": {},
     "runtime": {},
-    "defaultCulture": "en-US",
-    "experimentalFeatures": {},
-    "debug": false,
-    "diagnostics": {
-      "compilationPage": {}
-    }
+    "security": {}
   }
 }

@@ -1,6 +1,13 @@
 {
   "config": {
     "applicationPhysicalPath": "/opt/myApp",
+    "clientSideValidation": false,
+    "debug": true,
+    "defaultCulture": "cs-CZ",
+    "diagnostics": {
+      "compilationPage": {}
+    },
+    "experimentalFeatures": {},
     "markup": {
       "importedNamespaces": [
         {
@@ -15,14 +22,7 @@
       }
     },
     "resources": {},
-    "security": {},
     "runtime": {},
-    "defaultCulture": "cs-CZ",
-    "clientSideValidation": false,
-    "experimentalFeatures": {},
-    "debug": true,
-    "diagnostics": {
-      "compilationPage": {}
-    }
+    "security": {}
   }
 }

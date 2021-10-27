@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,11 @@ namespace DotVVM.Framework.Configuration
         public DotvvmConfigurationSerializationResolver()
         {
         }
+
+        protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) =>
+            base.CreateProperties(type, memberSerialization)
+                .OrderBy(t => t.PropertyName, StringComparer.InvariantCulture)
+                .ToList();
 
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {
