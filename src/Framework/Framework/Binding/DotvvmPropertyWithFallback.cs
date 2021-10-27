@@ -62,7 +62,9 @@ namespace DotVVM.Framework.Binding
         public static DotvvmPropertyWithFallback Register<TPropertyType, TDeclaringType>(string propertyName, DotvvmProperty fallbackProperty, bool isValueInherited = false)
         {
             var property = new DotvvmPropertyWithFallback(fallbackProperty);
-            return (DotvvmPropertyWithFallback)Register<TPropertyType, TDeclaringType>(propertyName, isValueInherited: isValueInherited, property: property);
+            Register<TPropertyType, TDeclaringType>(propertyName, isValueInherited: isValueInherited, property: property);
+            property.DefaultValue = fallbackProperty.DefaultValue;
+            return property;
         }
 
         private bool TryGetValue(DotvvmBindableObject control, out object? value, bool inherit = true)

@@ -1,0 +1,52 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- basic textbox, no formatting -->
+		<span>
+			<input data-bind="dotvvm-textbox-text: Label" type="text">
+			<input data-bind="dotvvm-textbox-text: int" data-dotvvm-format="G" data-dotvvm-value-type="number" type="text">
+			<input data-bind="dotvvm-textbox-text: float" data-dotvvm-format="G" data-dotvvm-value-type="number" type="text">
+			<input data-bind="dotvvm-textbox-text: date" data-dotvvm-format="G" data-dotvvm-value-type="datetime" type="text">
+		</span>
+		
+		<!-- disabled in different ways -->
+		<span>
+			<input data-bind="dotvvm-textbox-text: Label" disabled="disabled" type="text">
+			<input data-bind="enable: false, dotvvm-textbox-text: Label" type="text">
+			<input data-bind="enable: false, dotvvm-textbox-text: Label" type="text">
+			<input data-bind="dotvvm-textbox-text: Label" disabled="disabled" type="text">
+		</span>
+		
+		<!-- select all on focus -->
+		<span>
+			<input data-bind="dotvvm-textbox-select-all-on-focus: true, dotvvm-textbox-text: Label" type="text">
+			<input data-bind="dotvvm-textbox-select-all-on-focus: true, dotvvm-textbox-text: Label" type="text">
+			<input data-bind="dotvvm-textbox-select-all-on-focus: int() > 20, dotvvm-textbox-text: Label" type="text">
+			
+			<!-- this should not be set -->
+			<input data-bind="dotvvm-textbox-text: Label" type="text">
+		</span>
+		
+		<!-- textbox types -->
+		<span>
+			<input data-bind="dotvvm-textbox-text: date" data-dotvvm-format="yyyy-MM-dd" data-dotvvm-value-type="datetime" type="date">
+			<input data-bind="dotvvm-textbox-text: date" data-dotvvm-format="yyyy-MM-ddTHH:mm" data-dotvvm-value-type="datetime" type="datetime-local">
+			<input data-bind="dotvvm-textbox-text: date" data-dotvvm-format="yyyy-MM" data-dotvvm-value-type="datetime" type="month">
+			<input data-bind="dotvvm-textbox-text: date" data-dotvvm-format="HH:mm" data-dotvvm-value-type="datetime" type="time">
+			<input data-bind="dotvvm-textbox-text: int" type="number">
+			<input data-bind="dotvvm-textbox-text: float" step="0.1" type="number">
+			<input data-bind="dotvvm-textbox-text: Label" type="password">
+			<input data-bind="dotvvm-textbox-text: Label" type="email">
+		</span>
+		
+		<!-- multiline - textarea -->
+		<textarea data-bind="dotvvm-textbox-text: Label"></textarea>
+		
+		<!-- multiline - textarea with static text -->
+		<textarea>My Label</textarea>
+		
+		<!-- UpdateTextOnInput -->
+		<input data-bind="dotvvm-textbox-text: Label, valueUpdate: 'input'" type="text">
+	</body>
+</html>
