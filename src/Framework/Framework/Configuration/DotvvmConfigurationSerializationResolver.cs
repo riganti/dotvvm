@@ -15,10 +15,12 @@ namespace DotVVM.Framework.Configuration
         {
         }
 
-        protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) =>
-            base.CreateProperties(type, memberSerialization)
+        protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
+        {
+            return base.CreateProperties(type, memberSerialization)
                 .OrderBy(t => t.PropertyName, StringComparer.InvariantCulture)
                 .ToList();
+        }
 
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {
