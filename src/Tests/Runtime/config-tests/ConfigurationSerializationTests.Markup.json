@@ -7,6 +7,9 @@
     },
     "experimentalFeatures": {},
     "markup": {
+      "ViewCompilation": {
+        "compileInParallel": true
+      },
       "assemblies": [
         "DotVVM.Framework.Tests, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da"
       ],
@@ -70,10 +73,7 @@
           "alias": "Collections",
           "namespace": "System.Collections"
         }
-      ],
-      "ViewCompilation": {
-        "compileInParallel": true
-      }
+      ]
     },
     "resources": {},
     "runtime": {},

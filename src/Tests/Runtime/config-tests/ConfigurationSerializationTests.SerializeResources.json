@@ -7,6 +7,9 @@
     },
     "experimentalFeatures": {},
     "markup": {
+      "ViewCompilation": {
+        "compileInParallel": true
+      },
       "importedNamespaces": [
         {
           "namespace": "DotVVM.Framework.Binding.HelperNamespace"
@@ -14,10 +17,7 @@
         {
           "namespace": "System.Linq"
         }
-      ],
-      "ViewCompilation": {
-        "compileInParallel": true
-      }
+      ]
     },
     "resources": {
       "DotVVM.Framework.ResourceManagement.InlineScriptResource": {

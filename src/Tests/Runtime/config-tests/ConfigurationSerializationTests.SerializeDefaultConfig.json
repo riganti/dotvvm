@@ -21,15 +21,15 @@
       }
     },
     "DotVVM.Framework.Tests.ControlTests.RepeatedButton": {
-      "button:HtmlCapability": {
-        "capabilityPrefix": "button:",
-        "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework"
-      },
       "HtmlCapability": {
         "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework"
       },
       "TextOrContentCapability": {
         "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework"
+      },
+      "button:HtmlCapability": {
+        "capabilityPrefix": "button:",
+        "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework"
       }
     },
     "DotVVM.Framework.Tests.ControlTests.WrappedHtmlControl": {
@@ -93,6 +93,9 @@
     },
     "experimentalFeatures": {},
     "markup": {
+      "ViewCompilation": {
+        "compileInParallel": true
+      },
       "controls": [
         {
           "assembly": "DotVVM.Framework",
@@ -107,10 +110,7 @@
         {
           "namespace": "System.Linq"
         }
-      ],
-      "ViewCompilation": {
-        "compileInParallel": true
-      }
+      ]
     },
     "resources": {
       "DotVVM.Framework.ResourceManagement.InlineScriptResource": {
@@ -381,11 +381,11 @@
       }
     },
     "DotVVM.Framework.Controls.FileUpload": {
-      "AllowedFileTypes": {
-        "type": "System.String"
-      },
       "AllowMultipleFiles": {
         "type": "System.Boolean"
+      },
+      "AllowedFileTypes": {
+        "type": "System.String"
       },
       "MaxFileSize": {
         "type": "System.Nullable`1[[System.Int32, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
@@ -405,13 +405,13 @@
       "UploadCompleted": {
         "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
       },
-      "UploadedFiles": {
-        "required": true,
-        "type": "DotVVM.Framework.Controls.UploadedFilesCollection, DotVVM.Framework"
-      },
       "UploadErrorMessageText": {
         "isValueInherited": true,
         "type": "System.String"
+      },
+      "UploadedFiles": {
+        "required": true,
+        "type": "DotVVM.Framework.Controls.UploadedFilesCollection, DotVVM.Framework"
       }
     },
     "DotVVM.Framework.Controls.FormControls": {
@@ -620,11 +620,11 @@
       }
     },
     "DotVVM.Framework.Controls.GridViewTextColumn": {
-      "FormatString": {
-        "type": "System.String"
-      },
       "ChangedBinding": {
         "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework"
+      },
+      "FormatString": {
+        "type": "System.String"
       },
       "ValidatorPlacement": {
         "type": "DotVVM.Framework.Controls.ValidatorPlacement, DotVVM.Framework"
@@ -651,14 +651,14 @@
       }
     },
     "DotVVM.Framework.Controls.CheckableControlBase": {
-      "Enabled": {
-        "type": "System.Boolean"
-      },
       "Changed": {
         "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
       },
       "CheckedValue": {
         "type": "System.Object"
+      },
+      "Enabled": {
+        "type": "System.Boolean"
       },
       "ItemKeyBinding": {
         "dataContextChange": [
@@ -819,14 +819,14 @@
       }
     },
     "DotVVM.Framework.Controls.RadioButton": {
-      "GroupName": {
-        "type": "System.String"
-      },
       "Checked": {
         "type": "System.Boolean"
       },
       "CheckedItem": {
         "type": "System.Object"
+      },
+      "GroupName": {
+        "type": "System.String"
       }
     },
     "DotVVM.Framework.Controls.RenderSettings": {
@@ -1058,14 +1058,14 @@
       }
     },
     "DotVVM.Framework.Controls.TextBox": {
+      "Changed": {
+        "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
+      },
       "Enabled": {
         "type": "System.Boolean"
       },
       "FormatString": {
         "type": "System.String"
-      },
-      "Changed": {
-        "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
       },
       "SelectAllOnFocus": {
         "type": "System.Boolean"
