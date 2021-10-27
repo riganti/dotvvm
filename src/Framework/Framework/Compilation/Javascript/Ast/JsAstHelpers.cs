@@ -214,5 +214,46 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                     .WithAnnotation(ShouldBeObservableAnnotation.Instance);
             }
         }
+
+        public static JsExpression SubstituteArguments(this JsArrowFunctionExpression fnExpr, JsExpression[] arguments)
+        {
+            if (fnExpr.Parameters.Count != arguments.Length)
+                throw new ArgumentException("parameter count and arguments count must match.", nameof(arguments));
+
+            var body = fnExpr.Block;
+
+            foreach (var (p, arg) in fnExpr.Parameters.Zip(arguments, (a, b) => (a, b)))
+            {
+                body.ReplaceIdentifier(p.Name, arg);
+            }
+
+            if (fnExpr.ExpressionBody is object)
+                return fnExpr.ExpressionBody;
+            else
+                return JsArrowFunctionExpression.CreateIIFE(fnExpr.Block, isAsync: fnExpr.IsAsync);
+        }
+
+        public static JsNode ReplaceIdentifier(this JsNode expression, string identifier, JsNode replacement)
+        {
+            if (expression is JsIdentifierExpression { Identifier: var id } && id == identifier)
+            {
+                if (expression.Parent != null)
+                    expression.ReplaceWith(replacement);
+                return replacement;
+            }
+
+            foreach (var identifierExpr in expression.DescendantNodes(descendIntoChildren: n => n switch {
+                JsArrowFunctionExpression fnExpr => !fnExpr.Parameters.Select(p => p.Name).Contains(identifier),
+                JsFunctionExpression fnExpr => !fnExpr.Parameters.Select(p => p.Name).Contains(identifier),
+                JsBlockStatement block => !block.Body.OfType<JsVariableDefStatement>().Select(p => p.Name).Contains(identifier),
+                _ => true
+            }).OfType<JsIdentifierExpression>()
+                .Where(id => id.Identifier == identifier))
+            {
+                identifierExpr.ReplaceWith(replacement);
+            }
+
+            return expression;
+        }
     }
 }

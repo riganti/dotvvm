@@ -80,6 +80,10 @@ h3 {
     margin: 1.5rem 0;
 }
 
+.hint-text {
+    color: var(--hint-color)
+}
+
 
 /* Tables */
 table {
@@ -237,7 +241,7 @@ nav {
 }
 
 /* Interaction */
-input.execute {
+input.execute, button.execute {
     background-color: var(--hint-color);
     padding: 0.4rem 2rem;
     color: white;
@@ -245,7 +249,7 @@ input.execute {
     border: none;
 }
 
-    input.execute:hover {
+    input.execute:hover, button.execute:hover {
         background-color: var(--activate-color);
     }
 
@@ -258,6 +262,10 @@ a.execute {
     a.execute:hover {
         color: var(--activate-color);
     }
+
+.header-toolbox {
+    float: right;
+}
 
 /* Decoration */
 hr {

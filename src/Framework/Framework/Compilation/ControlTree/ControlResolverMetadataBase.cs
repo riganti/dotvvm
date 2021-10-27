@@ -92,7 +92,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             this.attribute = controlType?.Type?.GetControlMarkupOptionsAttribute();
 
             this.properties = new Lazy<Dictionary<string, IPropertyDescriptor>>(() => {
-                var result = new Dictionary<string, IPropertyDescriptor>(StringComparer.CurrentCultureIgnoreCase);
+                var result = new Dictionary<string, IPropertyDescriptor>(StringComparer.OrdinalIgnoreCase);
                 LoadProperties(result);
                 return result;
             });

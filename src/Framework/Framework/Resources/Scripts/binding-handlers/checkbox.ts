@@ -19,15 +19,10 @@ export default {
         }
     },
     'dotvvm-checked-pointer': {
-        init() {
-            // empty
-        }
     },
 
     "dotvvm-CheckState": {
-        init(element: HTMLElement, valueAccessor: () => any, allBindingsAccessor?: KnockoutAllBindingsAccessor, viewModel?: any, bindingContext?: KnockoutBindingContext) {
-            ko.getBindingHandler("checked").init!(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
-        },
+        init: ko.getBindingHandler("checked").init,
         update(element: any, valueAccessor: () => any) {
             const value = ko.unwrap(valueAccessor());
             element.indeterminate = value == null;

@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 {
     public interface IErrorSectionFormatter
     {
-        void WriteHead(IErrorWriter writer);
+        void WriteStyle(IErrorWriter writer);
         void WriteBody(IErrorWriter writer);
         string DisplayName { get; }
         string Id { get; }

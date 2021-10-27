@@ -76,7 +76,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             predicate(node) ||
             (node.Parent is JsParenthesizedExpression ||
                 node.Role == JsConditionalExpression.FalseRole ||
-                node.Role == JsConditionalExpression.TrueRole
+                node.Role == JsConditionalExpression.TrueRole ||
+                node.Role == JsBinaryExpression.RightRole && node.Parent is JsBinaryExpression { OperatorString: "," or "&&" or "||" or "??" }
             ) && node.Parent!.SatisfyResultCondition(predicate);
 
     }

@@ -103,7 +103,7 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
     }
 
     public setState(newState: DeepReadonly<TViewModel>): DeepReadonly<TViewModel> {
-        if (newState == null) throw new Error("State can't be null or undefined.")
+        if (compileConstants.debug && newState == null) throw new Error("State can't be null or undefined.")
         if (newState === this._state) return newState
 
         const type = newState.$type || this._state.$type
@@ -325,7 +325,7 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
                     if (newContents[index] && newContents[index][notifySymbol as any]) {
                         continue
                     }
-                    if (newContents[index]) {
+                    if (compileConstants.debug && newContents[index]) {
                         logWarning("state-manager", `Replacing old knockout observable with a new one, just because it is not created by DotVVM. Please do not assign objects into the knockout tree directly. The object is `, unmapKnockoutObservables(newContents[index]))
                     }
                     const indexForClosure = index

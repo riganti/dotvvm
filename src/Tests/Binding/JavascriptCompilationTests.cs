@@ -354,6 +354,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JsTranslator_ReadOnlyArrayElement_Get()
+        {
+            var result = CompileBinding("ReadOnlyArray[1]", typeof(TestViewModel5));
+            Assert.AreEqual("ReadOnlyArray()[1]", result);
+        }
+
+        [TestMethod]
         public void JsTranslator_ArrayElement_Set()
         {
             var result = CompileBinding("Array[1] = 123", new[] { typeof(TestViewModel5) }, typeof(void));
@@ -364,6 +371,13 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_ListIndexer_Get()
         {
             var result = CompileBinding("List[1]", typeof(TestViewModel5));
+            Assert.AreEqual("List()[1]", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ReadOnlyListIndexer_Get()
+        {
+            var result = CompileBinding("List.AsReadOnly()[1]", typeof(TestViewModel5));
             Assert.AreEqual("List()[1]", result);
         }
 
@@ -379,6 +393,13 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("Dictionary[1]", typeof(TestViewModel5));
             Assert.AreEqual("dotvvm.translations.dictionary.getItem(Dictionary(),1)", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_ReadOnlyDictionaryIndexer_Get()
+        {
+            var result = CompileBinding("ReadOnlyDictionary[1]", typeof(TestViewModel5));
+            Assert.AreEqual("dotvvm.translations.dictionary.getItem(ReadOnlyDictionary(),1)", result);
         }
 
         [TestMethod]
@@ -959,14 +980,14 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_Variable_Property()
         {
             var result = CompileBinding("var a = _this.StringProp; var b = _this.StringProp2; StringProp2 = a + b", typeof(TestViewModel));
-            Assert.AreEqual("(()=>{let a=StringProp();let b=StringProp2();return StringProp2(a+b).StringProp2();})()", result);
+            Assert.AreEqual("(()=>{let a=StringProp();let b=StringProp2();return StringProp2(a+b).StringProp2;})()", result);
         }
 
         [TestMethod]
         public void JavascriptCompilation_Variable_VM()
         {
             var result = CompileBinding("var a = _parent; var b = _this.StringProp2; StringProp2 = a + b", new [] { typeof(string), typeof(TestViewModel) });
-            Assert.AreEqual("(()=>{let a=$parent;let b=StringProp2();return StringProp2(a+b).StringProp2();})()", result);
+            Assert.AreEqual("(()=>{let a=$parent;let b=StringProp2();return StringProp2(a+b).StringProp2;})()", result);
         }
 
         [TestMethod]
