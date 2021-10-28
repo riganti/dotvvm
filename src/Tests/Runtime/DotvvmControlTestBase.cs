@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Tests.Runtime
             return () => InvokeLifecycleAndRender(builder.BuildView(context), context);
         }
 
-        private DefaultDotvvmViewBuilder CreateDotvvmViewBuilder(string view)
+        protected DefaultDotvvmViewBuilder CreateDotvvmViewBuilder(string view)
         {
             var markupLoader = new StaticContentMarkupLoader(view);
 

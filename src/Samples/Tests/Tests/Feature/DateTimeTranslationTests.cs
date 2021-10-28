@@ -19,7 +19,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptTranslation_DateTimeTranslations);
-                
+
                 var stringDateTime = "6/28/2021 3:28:31 PM";
                 var localDateTime = "6/28/2021 5:28:31 PM";    // the offset is hard-coded to 120 minutes in the test
                 var localDateTime2 = "5/10/2020 12:12:34 AM";
@@ -43,12 +43,28 @@ namespace DotVVM.Samples.Tests.Feature
                 var spanMillisecond = browser.Single("span[data-ui=millisecond]");
                 AssertUI.TextEquals(spanMillisecond, "0");
 
+                // try the conversion
                 var localTextBox = browser.Single("input[data-ui=toBrowserLocalTime]");
                 AssertUI.TextEquals(localTextBox, localDateTime);
 
                 localTextBox.Clear().SendKeys(localDateTime2).SendEnterKey();
                 AssertUI.TextEquals(textbox, stringDateTime2);
 
+                // try the conversion on nullable
+                var localTextBoxNullable = browser.Single("input[data-ui=toBrowserLocalTimeOnNullable]");
+                var spanNullable = browser.Single("span[data-ui=toBrowserLocalTimeOnNullable]");
+                AssertUI.TextEquals(localTextBoxNullable, "");
+
+                localTextBoxNullable.Clear().SendKeys(localDateTime2).SendEnterKey();
+                AssertUI.TextEquals(spanNullable, stringDateTime2);
+
+                // try the null propagation
+                var localTextBoxNullPropagation = browser.Single("input[data-ui=toBrowserLocalTimeNullPropagation]");
+                var spanNullPropagation = browser.Single("span[data-ui=toBrowserLocalTimeNullPropagation]");
+                AssertUI.TextEquals(localTextBoxNullPropagation, "");
+
+                localTextBoxNullable.Clear().SendKeys(localDateTime2).SendEnterKey();
+                AssertUI.TextEquals(spanNullPropagation, "");
             });
         }
 

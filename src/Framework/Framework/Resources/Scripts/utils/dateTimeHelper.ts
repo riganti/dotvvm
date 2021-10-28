@@ -1,8 +1,6 @@
 ﻿import { parseDate, serializeDate } from "../serialization/date";
 
-export function toBrowserLocalTime(value: KnockoutObservable<string | null> | null) : KnockoutComputed<string | null> | null {
-    if (value == null) return null;
-
+export function toBrowserLocalTime(value: KnockoutObservable<string | null>) : KnockoutComputed<string | null> {
     const convert = () => {
         const unwrappedValue = ko.unwrap(value);
         return serializeDate(parseDate(unwrappedValue, true), false);

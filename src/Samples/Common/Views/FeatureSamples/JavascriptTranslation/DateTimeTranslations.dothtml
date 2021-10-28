@@ -52,6 +52,18 @@
         <dot:TextBox data-ui="toBrowserLocalTime" Text="{value: DateTimeProp.ToBrowserLocalTime()}" />
     </p>
 
+    <p>
+        <span>ToBrowserLocalTime on nullable date</span>
+        <dot:TextBox data-ui="toBrowserLocalTimeOnNullable" Text="{value: NullableDateTimeProp.ToBrowserLocalTime()}" />
+        <span data-ui="toBrowserLocalTimeOnNullable" InnerText="{value: NullableDateTimeProp}"></span>
+    </p>
+
+    <p>
+        <span>ToBrowserLocalTime null propagation</span>
+        <dot:TextBox data-ui="toBrowserLocalTimeNullPropagation" Text="{value: NullChild.DateTimeProp.ToBrowserLocalTime()}" />
+        <span data-ui="toBrowserLocalTimeNullPropagation" InnerText="{value: NullChild.DateTimeProp}"></span>
+    </p>
+
 </body>
 </html>
 
