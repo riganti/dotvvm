@@ -596,7 +596,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 new JsNewExpression(new JsIdentifierExpression("Date"), args[0]).Member("getMilliseconds").Invoke()));
 
             AddMethodTranslator(typeof(DateTimeExtensions), nameof(DateTimeExtensions.ToBrowserLocalTime), parameters: new [] { typeof(DateTime?) }, translator: new GenericMethodCompiler(args =>
-                new JsIdentifierExpression("dotvvm").Member("translations").Member("dateTime").Member("toBrowserLocalTime").Invoke(args[1]).WithAnnotation(ResultIsObservableAnnotation.Instance)));
+                new JsIdentifierExpression("dotvvm").Member("translations").Member("dateTime").Member("toBrowserLocalTime").Invoke(args[1].WithAnnotation<ShouldBeObservableAnnotation>()).WithAnnotation(ResultIsObservableAnnotation.Instance)));
         }
 
         private void AddDefaultConvertTranslations()
