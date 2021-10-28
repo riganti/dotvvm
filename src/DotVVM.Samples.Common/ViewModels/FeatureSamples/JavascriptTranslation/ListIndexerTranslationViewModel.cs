@@ -13,6 +13,13 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.JavascriptTranslation
 
         public int Index { get; set; }
         public string Value { get; set; }
+
+
+        public void NAME()
+        {
+            var a = List.Take(5);
+
+        }
     }
 }
 

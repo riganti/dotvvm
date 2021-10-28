@@ -77,6 +77,7 @@ namespace DotVVM.Framework.Compilation
                     Assembly.Load(new AssemblyName("System.Private.CoreLib")),
                     Assembly.Load(new AssemblyName("System.Collections.Concurrent")),
                     Assembly.Load(new AssemblyName("System.Collections")),
+                    Assembly.Load(new AssemblyName("System.Linq")),
 #else
                     typeof(List<>).Assembly,
                     typeof(System.Net.WebUtility).Assembly
