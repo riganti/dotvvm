@@ -50,12 +50,16 @@ namespace DotVVM.Framework.Hosting
                 {
                     try
                     {
-                        return File.ReadAllText(fullPath);     // TODO: change to async
+                        return File.ReadAllText(fullPath);
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        break;
                     }
                     catch (IOException ex)
                     {
                         lastException = ex;
-                        Thread.Sleep(20);       // TODO: change to async
+                        Thread.Sleep(20);
                     }
                 }
 
