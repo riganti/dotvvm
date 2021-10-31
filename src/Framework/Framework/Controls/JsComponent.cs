@@ -10,8 +10,10 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
+    /// <summary> Control which initializes a client-side component. </summary>
     public class JsComponent : DotvvmControl
     {
+        /// <summary> If set to true, only globally registered JsComponents will be considered for rendering client-side. </summary>
         public bool Global
         {
             get { return (bool)GetValue(GlobalProperty)!; }
@@ -20,7 +22,8 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty GlobalProperty =
             DotvvmProperty.Register<bool, JsComponent>(nameof(Global));
 
-        // [MarkupOptions(Required = true)]
+        /// <summary> Name by which the client-side component was registered. The name is case sensitive. </summary>
+        [MarkupOptions(Required = true)]
         public string Name
         {
             get { return (string)GetValue(NameProperty)!; }
@@ -29,6 +32,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty NameProperty =
             DotvvmProperty.Register<string, JsComponent>(nameof(Name));
 
+        /// <summary> The JsComponent must have a wrapper HTML tag, this property configures which tag is used. By default, `div` is used. </summary>
         public string WrapperTagName
         {
             get { return (string)GetValue(WrapperTagNameProperty)!; }
@@ -38,7 +42,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, JsComponent>(nameof(WrapperTagName), "div");
 
         /// <summary>
-        /// Gets the attributes.
+        /// The properties passed into the JsComponent. The properties may contain any object from the viewModel, command or a staticCommand binding.
         /// </summary>
         [PropertyGroup(new[] { "", "prop:" })]
         public VirtualPropertyGroupDictionary<object?> Props => new(this, PropsGroupDescriptor);
@@ -46,7 +50,7 @@ namespace DotVVM.Framework.Controls
             DotvvmPropertyGroup.Register<object, JsComponent>(new [] { "", "prop:" }, nameof(Props));
 
         /// <summary>
-        /// Gets the attributes.
+        /// Templates to pass into the JsComponent. The templates will be rendered as knockout templates and the client-side component will get their ids. In React, the KnockoutTemplateReactComponent can be used to add it to the virtual DOM.
         /// </summary>
         [PropertyGroup(new[] { "", "template-" })]
         public VirtualPropertyGroupDictionary<ITemplate> Templates => new(this, TemplatesGroupDescriptor);
@@ -126,6 +130,11 @@ namespace DotVVM.Framework.Controls
             {
                 var value = ((ResolvedPropertyValue)x).Value;
                 control.SetProperty(new ResolvedPropertyValue(Internal.ReferencedViewModuleInfoProperty, value));
+            }
+            if (control.ConstructorParameters != null)
+            {
+                control.SetProperty(new ResolvedPropertyValue(NameProperty, control.ConstructorParameters.Single()));
+                control.ConstructorParameters = null;
             }
         }
     }
