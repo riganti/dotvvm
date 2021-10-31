@@ -149,7 +149,7 @@ namespace DotVVM.Framework.Binding
             if (merger is null)
                 throw new ArgumentException($"Can not Add({property.Name}, {value}) since the value is already set and merging is not enabled on this property group.");
             var mergedValue = merger.MergePlainValues(property, control.properties.GetOrThrow(property), value);
-            control.properties.Set(property, value);
+            control.properties.Set(property, mergedValue);
         }
 
         public void Add(string key, ValueOrBinding<TValue> value)

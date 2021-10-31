@@ -207,9 +207,10 @@ namespace DotVVM.Framework.Binding
                 var elementType = Helpers.GetDictionaryElement(propertyType);
                 var unwrappedType = elementType.UnwrapValueOrBinding();
 
+                var globalPrefix = declaringCapability?.Prefix ?? "";
                 var propertyGroup = DotvvmPropertyGroup.Register(
                     declaringType,
-                    groupAttribute.Prefixes,
+                    groupAttribute.Prefixes.Select(p => globalPrefix + p).ToArray(),
                     propertyName,
                     unwrappedType,
                     attributeProvider,
