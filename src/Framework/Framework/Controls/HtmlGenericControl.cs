@@ -140,8 +140,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected virtual bool RendersHtmlTag => TagName is object;
 
-        IDictionary<string, object?> IControlWithHtmlAttributes.Attributes => this.Attributes;
-
         protected new struct RenderState
         {
             public object? Visible;

@@ -192,7 +192,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             string additionalCssClass = "my-repeated-button"
         )
         {
-            var r = new Repeater() {
+            return new Repeater() {
                 RenderAsNamedTemplate = false,
                 WrapperTagName = wrapperTagName,
                 ItemTemplate = new DelegateTemplate(_ =>
@@ -203,10 +203,8 @@ namespace DotVVM.Framework.Tests.ControlTests
                 )
             }
             .SetProperty(Repeater.DataSourceProperty, dataSource)
-            .SetCapability(html);
-
-            r.Attributes.Add("class", additionalCssClass);
-            return r;
+            .SetCapability(html)
+            .AddCssClass(additionalCssClass);
         }
     }
 

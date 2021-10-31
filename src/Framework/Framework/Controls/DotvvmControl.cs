@@ -206,7 +206,7 @@ namespace DotVVM.Framework.Controls
             {
                 throw new DotvvmControlException(this, "Postback.Update can not be set on property which don't render html attributes.");
             }
-            htmlAttributes.Attributes["data-dotvvm-id"] = GetDotvvmUniqueId();
+            htmlAttributes.Attributes.Set("data-dotvvm-id", GetDotvvmUniqueId());
         }
 
         protected struct RenderState
