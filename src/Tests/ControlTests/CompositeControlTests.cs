@@ -66,6 +66,8 @@ namespace DotVVM.Framework.Tests.ControlTests
                                    WrapperTagName=p
                                    Text={value: _parent.Label + _this}
                                    ItemClick={command: _parent.Integer = _index}
+                                   class=css-class-from-markup
+                                   button:class=the-only-class-for-button-element
                                    />
                 "
             );
@@ -186,10 +188,11 @@ namespace DotVVM.Framework.Tests.ControlTests
             [ControlPropertyBindingDataContextChange("DataSource")]
             [CollectionElementDataContextChange(1)]
             ICommandBinding itemClick = null,
-            string wrapperTagName = "div"
+            string wrapperTagName = "div",
+            string additionalCssClass = "my-repeated-button"
         )
         {
-            return new Repeater() {
+            var r = new Repeater() {
                 RenderAsNamedTemplate = false,
                 WrapperTagName = wrapperTagName,
                 ItemTemplate = new DelegateTemplate(_ =>
@@ -201,6 +204,9 @@ namespace DotVVM.Framework.Tests.ControlTests
             }
             .SetProperty(Repeater.DataSourceProperty, dataSource)
             .SetCapability(html);
+
+            r.Attributes.Add("class", additionalCssClass);
+            return r;
         }
     }
 

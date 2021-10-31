@@ -137,6 +137,55 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public async Task TextBox()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- basic textbox, no formatting -->
+                <span>
+                    <dot:TextBox Text={value: Label} />
+                    <dot:TextBox Text={value: Integer} />
+                    <dot:TextBox Text={value: Float} />
+                    <dot:TextBox Text={value: DateTime} />
+                </span>
+                <!-- disabled in different ways -->
+                <span>
+                    <dot:TextBox Text={value: Label} Enabled=false />
+                    <dot:TextBox Text={value: Label} Enabled={value: false} />
+                    <dot:TextBox Text={value: Label} Enabled={value: _page.EvaluatingOnServer} />
+                    <dot:TextBox Text={value: Label} Enabled={resource: false} />
+                </span>
+                <!-- select all on focus -->
+                <span>
+                    <dot:TextBox Text={value: Label} SelectAllOnFocus />
+                    <dot:TextBox Text={value: Label} SelectAllOnFocus=tRUE />
+                    <dot:TextBox Text={value: Label} SelectAllOnFocus={value: Integer > 20} />
+                    <!-- this should not be set -->
+                    <dot:TextBox Text={value: Label} SelectAllOnFocus={resource: false} />
+                </span>
+                <!-- textbox types -->
+                <span>
+                    <dot:TextBox Text={value: DateTime} type=date />
+                    <dot:TextBox Text={value: DateTime} type=DateTimeLocal />
+                    <dot:TextBox Text={value: DateTime} type=month />
+                    <dot:TextBox Text={value: DateTime} type=Time />
+                    <dot:TextBox Text={value: Integer} type=number />
+                    <dot:TextBox Text={value: Float} type=number step=0.1 />
+                    <dot:TextBox Text={value: Label} type=password />
+                    <dot:TextBox Text={value: Label} type=email />
+                </span>
+                <!-- multiline - textarea -->
+                <dot:TextBox type=MultiLine Text={value: Label} />
+                <!-- multiline - textarea with static text -->
+                <dot:TextBox type=MultiLine Text={resource: Label} />
+                <!-- UpdateTextOnInput -->
+                <dot:TextBox Text={value: Label} UpdateTextOnInput />
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
         public async Task CommandBinding()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
