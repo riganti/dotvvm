@@ -81,20 +81,22 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
         this.rerender(performance.now());
     }
 
-    private startTime: number | null = null
     private rerender(time: number) {
-        if (this.startTime === null) this.startTime = time
-        const realStart = performance.now()
         this._isDirty = false
 
-        this.stateUpdateEvent.trigger(this._state)
-        isViewModelUpdating = true
-        ko.delaySync.pause()
         try {
+            isViewModelUpdating = true
+            ko.delaySync.pause()
+
+            this.stateUpdateEvent.trigger(this._state)
+
             this.stateObservable[notifySymbol as any](this._state)
         } finally {
-            isViewModelUpdating = false
-            ko.delaySync.resume()
+            try {
+                ko.delaySync.resume()
+            } finally {
+                isViewModelUpdating = false
+            }
         }
         //logInfoVerbose("New state dispatched, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart);
     }
