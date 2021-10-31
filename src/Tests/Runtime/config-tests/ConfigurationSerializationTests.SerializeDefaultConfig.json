@@ -1198,8 +1198,8 @@
       },
       "Button:Attributes": {
         "prefixes": [
-          "",
-          "html:"
+          "button:",
+          "button:html:"
         ],
         "type": "System.Object",
         "dataContextChange": [
@@ -1220,7 +1220,7 @@
         "fromCapability": "button:HtmlCapability"
       },
       "Button:CssClasses": {
-        "prefix": "Class-",
+        "prefix": "button:Class-",
         "type": "System.Boolean",
         "dataContextChange": [
           {
@@ -1240,7 +1240,7 @@
         "fromCapability": "button:HtmlCapability"
       },
       "Button:CssStyles": {
-        "prefix": "Style-",
+        "prefix": "button:Style-",
         "type": "System.Object",
         "dataContextChange": [
           {
@@ -1313,19 +1313,19 @@
     "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestControl2": {
       "AnotherHtml:Attributes": {
         "prefixes": [
-          "",
-          "html:"
+          "AnotherHtml:",
+          "AnotherHtml:html:"
         ],
         "type": "System.Object",
         "fromCapability": "AnotherHtml:HtmlCapability"
       },
       "AnotherHtml:CssClasses": {
-        "prefix": "Class-",
+        "prefix": "AnotherHtml:Class-",
         "type": "System.Boolean",
         "fromCapability": "AnotherHtml:HtmlCapability"
       },
       "AnotherHtml:CssStyles": {
-        "prefix": "Style-",
+        "prefix": "AnotherHtml:Style-",
         "type": "System.Object",
         "fromCapability": "AnotherHtml:HtmlCapability"
       }
