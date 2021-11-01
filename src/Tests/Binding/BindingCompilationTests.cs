@@ -1008,6 +1008,7 @@ namespace DotVVM.Framework.Tests.Binding
         public Dictionary<int?, TestViewModel2> NullableIntVmDictionary = new() { { 0, new TestViewModel2() }, { 1, new TestViewModel2() } };
         public TestViewModel2[] VmArray => new TestViewModel2[] { new TestViewModel2() };
         public int[] IntArray { get; set; }
+        public decimal DecimalProp { get; set; }
 
         public string SetStringProp(string a, int b)
         {
