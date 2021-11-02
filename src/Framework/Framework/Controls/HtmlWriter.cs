@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.CompilerServices;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Resources;
@@ -167,6 +168,27 @@ namespace DotVVM.Framework.Controls
             {
                 dataBindAttributes[name] = bindingGroup;
             }
+        }
+
+        public void WriteKnockoutDataBindComment(string name, string expression)
+        {
+            if (name.Contains("-->") || expression.Contains("-->"))
+                throw new Exception("Knockout data bind comment can't contain substring '-->'. If you have discovered this exception in your log, you probably have a XSS vulnerability in you website.");
+
+            EnsureTagFullyOpen();
+
+            writer.Write("<!-- ko ");
+            writer.Write(name);
+            writer.Write(": ");
+            writer.Write(expression);
+            writer.Write(" -->");
+        }
+
+        public void WriteKnockoutDataBindEndComment()
+        {
+            EnsureTagFullyOpen();
+
+            writer.Write("<!-- /ko -->");
         }
 
         /// <summary>
@@ -517,6 +539,17 @@ namespace DotVVM.Framework.Controls
             return -1;
         }
 
+        private void ThrowIfAttributesArePresent([CallerMemberName] string operation = "Write")
+        {
+            if (attributes.Count != 0 || dataBindAttributes.Count != 0)
+            {
+                var attrs =
+                    attributes.Select(a => a.name)
+                    .Concat(dataBindAttributes.Keys.OfType<string>().Select(a => "data-bind:" + a));
+                throw new InvalidOperationException($"Cannot call HtmlWriter.{operation}, since attributes were added into the writer. Attributes: {string.Join(", ", attrs)}");
+            }
+        }
+
         // from Char.cs
         internal static bool IsInRange(char c, char min, char max) => (uint)(c - min) <= (uint)(max - min);
 
@@ -525,6 +558,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public void RenderEndTag()
         {
+            ThrowIfAttributesArePresent();
             if (openTags.Count == 0)
             {
                 throw new InvalidOperationException("The HtmlWriter cannot close the tag because no tag is open!");
@@ -553,6 +587,7 @@ namespace DotVVM.Framework.Controls
         public void WriteText(string? text)
         {
             if (text == null || text.Length == 0) return;
+            ThrowIfAttributesArePresent();
             EnsureTagFullyOpen();
             WriteEncodedText(text, escapeApos: false, escapeQuotes: false);
         }
@@ -562,6 +597,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public void WriteUnencodedText(string? text)
         {
+            ThrowIfAttributesArePresent();
             EnsureTagFullyOpen();
             writer.Write(text ?? "");
         }
