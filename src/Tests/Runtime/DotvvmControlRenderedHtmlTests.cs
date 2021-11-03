@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
@@ -204,15 +205,18 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void Literal_DateTimeToBrowserLocalTime_RenderOnServer()
         {
-            var vm = new LiteralDateTimeViewModel();
-            var control = $@"@viewModel {vm.GetType().FullName}
+            DotvvmTestHelper.RunInCulture(new CultureInfo("en-US"), () =>
+            {
+                var vm = new LiteralDateTimeViewModel();
+                var control = $@"@viewModel {vm.GetType().FullName}
 <dot:Literal Text={{value: DateTime.ToBrowserLocalTime()}} RenderSettings.Mode=Server /><dot:Literal Text={{value: NullableDateTime.ToBrowserLocalTime()}} RenderSettings.Mode=Server />";
 
-            var dotvvmBuilder = CreateDotvvmViewBuilder(control);
-            var context = CreateContext(vm);
-            var html = InvokeLifecycleAndRender(dotvvmBuilder.BuildView(context), context);
+                var dotvvmBuilder = CreateDotvvmViewBuilder(control);
+                var context = CreateContext(vm);
+                var html = InvokeLifecycleAndRender(dotvvmBuilder.BuildView(context), context);
 
-            Assert.AreEqual(@"<span>1/2/2021 3:04:05 AM</span><span>1/2/2021 3:04:05 AM</span>", html);
+                Assert.AreEqual(@"<span>1/2/2021 3:04:05 AM</span><span>1/2/2021 3:04:05 AM</span>", html);
+            });
         }
 
 
