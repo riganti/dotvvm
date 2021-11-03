@@ -89,7 +89,8 @@ namespace DotVVM.Framework.Utils
             where T : class =>
             target ?? throw new Exception(message);
 
-        public static SortedDictionary<K, V> ToSorted<K, V>(this IDictionary<K, V> d) => new(d);
+        public static SortedDictionary<K, V> ToSorted<K, V>(this IDictionary<K, V> d, IComparer<K>? c = null) =>
+            new(d, c ?? Comparer<K>.Default);
     }
 
     sealed class ObjectWithComparer<T> : IEquatable<ObjectWithComparer<T>>, IEquatable<T>
