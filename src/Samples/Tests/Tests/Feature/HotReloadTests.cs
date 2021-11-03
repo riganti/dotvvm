@@ -41,6 +41,31 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_HotReload_ErrorPage()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_HotReload_ViewChanges);
+
+                BackupDothtmlFileAndRun(browser, a => {
+
+                    AssertUI.TextEquals(browser.First("h1"), "Hot Reload test");
+
+                    var updated = a.original.Replace("###", "<dot:TextBox Text='{value: NonExistentValue}' />");
+                    a.writeContents(updated);
+
+                    browser.Wait(500);
+                    AssertUI.TextEquals(browser.First("h1"), "Server Error, HTTP 500: Unhandled exception occurred");
+
+                    updated = a.original.Replace("<dot:TextBox Text='{value: NonExistentValue}' />", "<dot:TextBox Text='{value: Value}' />");
+                    a.writeContents(updated);
+
+                    browser.Wait(500);
+                    AssertUI.TextEquals(browser.First("h1"), "Hot Reload test");
+                });
+            });
+        }
+
         private void BackupDothtmlFileAndRun(IBrowserWrapper browser, Action<(string original, Action<string> writeContents)> action)
         {
             // backup dothtml file contents

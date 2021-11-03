@@ -6,13 +6,20 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
     public class DotvvmErrorPageRenderer
     {
+        private readonly IServiceProvider serviceProvider;
 
         public ErrorFormatter? Formatter { get; set; }
+
+        public DotvvmErrorPageRenderer(IServiceProvider serviceProvider)
+        {
+            this.serviceProvider = serviceProvider;
+        }
 
         /// <summary>
         /// Renders the error response.
@@ -53,7 +60,8 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         private ErrorFormatter CreateDefaultWithDemystifier()
         {
-            var errorFormatter = ErrorFormatter.CreateDefault();
+            var errorPageExtensions = serviceProvider.GetServices<IErrorPageExtension>();
+            var errorFormatter = ErrorFormatter.CreateDefault(errorPageExtensions);
 
             var insertPosition = errorFormatter.Formatters.Count > 0 ? 1 : 0;
             errorFormatter.Formatters.Insert(insertPosition, (e, o) =>

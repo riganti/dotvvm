@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Hosting.ErrorPages;
 using DotVVM.HotReload.AspNetCore.Services;
 
 namespace DotVVM.Framework.Configuration
@@ -28,6 +29,8 @@ namespace DotVVM.Framework.Configuration
                 manager.AddRequiredResource("dotvvm-hotreload");
                 return manager;
             });
+
+            services.Services.AddSingleton<IErrorPageExtension, HotReloadErrorPageExtension>();
         }
 
         private static void RegisterResources(DotvvmConfiguration config)

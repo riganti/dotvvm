@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Hosting.ErrorPages;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -27,6 +28,8 @@ namespace DotVVM.Framework.Configuration
                 manager.AddRequiredResource("dotvvm-hotreload");
                 return manager;
             });
+
+            services.Services.AddSingleton<IErrorPageExtension, HotReloadErrorPageExtension>();
         }
 
         private static void RegisterResources(DotvvmConfiguration config, DotvvmHotReloadOptions options)
@@ -38,7 +41,7 @@ namespace DotVVM.Framework.Configuration
 
             if (config.Resources.FindResource("signalr") == null)
             {
-                config.Resources.Register("signalr", new ScriptResource(new EmbeddedResourceLocation(typeof(DotvvmServiceCollectionExtensions).Assembly, "DotVVM.HotReload.Owin.Scripts.jquery.sianglR.min.js"))
+                config.Resources.Register("signalr", new ScriptResource(new EmbeddedResourceLocation(typeof(DotvvmServiceCollectionExtensions).Assembly, "DotVVM.HotReload.Owin.Scripts.jquery.signalR.min.js"))
                 {
                     Dependencies = new[] { "jquery" }
                 });

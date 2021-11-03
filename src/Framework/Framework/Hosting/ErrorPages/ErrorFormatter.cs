@@ -18,6 +18,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 {
     public class ErrorFormatter
     {
+        
         public ExceptionModel LoadException(Exception exception, StackFrameModel[]? existingTrace = null, Func<Exception, StackFrame[]?>? stackFrameGetter = null,
             Func<StackFrame, string?>? methodFormatter = null)
         {
@@ -297,6 +298,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return result;
         }
 
+
         public List<Func<Exception, IHttpContext, IErrorSectionFormatter?>> Formatters = new();
 
         public string ErrorHtml(Exception exception, IHttpContext context)
@@ -309,7 +311,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     .ToArray()!,
                 errorCode: context.Response.StatusCode,
                 errorDescription: "Unhandled exception occurred",
-                summary: exception.GetType().FullName + ": " + exception.Message.LimitLength(600));
+                summary: exception.GetType().FullName + ": " + exception.Message.LimitLength(600),
+                context: DotvvmRequestContext.TryGetCurrent(context),
+                exception: exception);
 
             return template.TransformText();
         }
@@ -325,7 +329,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         }
 
 
-        public static ErrorFormatter CreateDefault()
+        public static ErrorFormatter CreateDefault(IEnumerable<IErrorPageExtension> extensions = null)
         {
             var f = new ErrorFormatter();
             f.Formatters.Add((e, o) => DotvvmMarkupErrorSection.Create(e));
