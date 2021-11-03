@@ -183,7 +183,7 @@ namespace DotVVM.Framework.Controls
             var abortSignal = options.AbortSignal ?? CodeParameterAssignment.FromIdentifier("undefined");
 
             var optionalKnockoutContext =
-                options.KoContext is object && adjustedExpression != jsExpression ?
+                options.KoContext is object ?
                 knockoutContext :
                 default;
 
