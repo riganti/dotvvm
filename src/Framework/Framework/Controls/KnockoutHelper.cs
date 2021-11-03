@@ -97,14 +97,14 @@ namespace DotVVM.Framework.Controls
             );
 
             var hasArguments = command is IStaticCommandBinding || command.CommandJavascript.EnumerateAllParameters().Any(p => p == CommandBindingExpression.CommandArgumentsParameter);
-            options.CommandArgs = hasArguments ? new CodeParameterAssignment(new ParametrizedCode("commandArguments", OperatorPrecedence.Max)) : default;
+            options.CommandArgs = hasArguments ? new CodeParameterAssignment(new ParametrizedCode("args", OperatorPrecedence.Max)) : default;
             // just few commands have arguments so it's worth checking if we need to clutter the output with argument propagation
             var call = KnockoutHelper.GenerateClientPostBackExpression(
                 propertyName,
                 command,
                 control,
                 options);
-            return hasArguments ? $"(...commandArguments)=>({call})" : $"()=>({call})";
+            return hasArguments ? $"(...args)=>({call})" : $"()=>({call})";
         }
 
         public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmBindableObject control, bool useWindowSetTimeout = false,
