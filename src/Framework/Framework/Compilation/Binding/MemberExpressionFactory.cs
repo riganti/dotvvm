@@ -254,7 +254,8 @@ namespace DotVVM.Framework.Compilation.Binding
             if (method.AutomaticTypeArgCount == method2.AutomaticTypeArgCount && method.CastCount == method2.CastCount && method.HasParamsAttribute == method2.HasParamsAttribute)
             {
                 // TODO: this behavior is not completed. Implement the same behavior as in roslyn.
-                throw new InvalidOperationException($"Found ambiguous overloads of method '{name}'.");
+                var foundOverloads = $"{method.Method}, {method2.Method}";
+                throw new InvalidOperationException($"Found ambiguous overloads of method '{name}'. The following overloads were found: {foundOverloads}.");
             }
             return method;
         }

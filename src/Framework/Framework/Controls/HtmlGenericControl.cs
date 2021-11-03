@@ -474,15 +474,15 @@ namespace DotVVM.Framework.Controls
 
 
     [DotvvmControlCapability]
-    public sealed class HtmlCapability
+    public sealed record HtmlCapability
     {
         [PropertyGroup("", "html:")]
         [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger), AllowAttributeWithoutValue = true)]
-        public IDictionary<string, ValueOrBinding<object?>> Attributes { get; set; } = new Dictionary<string, ValueOrBinding<object?>>();
+        public IDictionary<string, ValueOrBinding<object?>> Attributes { get; init; } = new Dictionary<string, ValueOrBinding<object?>>();
         [PropertyGroup("Class-")]
-        public IDictionary<string, ValueOrBinding<bool>> CssClasses { get; set; } = new Dictionary<string, ValueOrBinding<bool>>();
+        public IDictionary<string, ValueOrBinding<bool>> CssClasses { get; init; } = new Dictionary<string, ValueOrBinding<bool>>();
         [PropertyGroup("Style-")]
-        public IDictionary<string, ValueOrBinding<object>> CssStyles { get; set; } = new Dictionary<string, ValueOrBinding<object>>();
-        public ValueOrBinding<bool> Visible { get; set; } = true;
+        public IDictionary<string, ValueOrBinding<object>> CssStyles { get; init; } = new Dictionary<string, ValueOrBinding<object>>();
+        public ValueOrBinding<bool> Visible { get; init; } = true;
     }
 }
