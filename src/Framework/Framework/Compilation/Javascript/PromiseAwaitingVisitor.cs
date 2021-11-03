@@ -23,13 +23,13 @@ namespace DotVVM.Framework.Compilation.Javascript
             {
                 if (onlyCheck)
                     return false;
-                throw new Exception($"Can not use async expression in synchronous context. The expression: {expression.FormatScript(isDebugString: true)}");
+                throw new Exception($"Cannot use async expression in synchronous context. The expression: {expression.FormatScript(isDebugString: true)}");
             }
             if (parentFunction is { IsAsync: false })
             {
                 if (onlyCheck)
                     return false;
-                throw new Exception($"Can not use async expression in non-async function. The expression: {expression.FormatScript(isDebugString: true)}; The function: {parentFunction.FormatScript(isDebugString: true)}");
+                throw new Exception($"Cannot use async expression in non-async function. The expression: {expression.FormatScript(isDebugString: true)}; The function: {parentFunction.FormatScript(isDebugString: true)}");
             }
             return true;
         }

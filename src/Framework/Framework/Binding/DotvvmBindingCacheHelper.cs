@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Binding
             var eqMethod = t.GetMethod("Equals", BindingFlags.Public | BindingFlags.Instance, null, new [] { typeof(object) }, null);
             if (eqMethod?.GetBaseDefinition().DeclaringType != typeof(object) || eqMethod.DeclaringType == typeof(object))
             {
-                throw new Exception($"Instance of type {t} can not be used as a cache key, because it does not have Object.Equals method overridden. If you really want to use referential equality (you are using a singleton as a cache key or something like that), you can wrap in Tuple<T>.");
+                throw new Exception($"Instance of type {t} cannot be used as a cache key, because it does not have Object.Equals method overridden. If you really want to use referential equality (you are using a singleton as a cache key or something like that), you can wrap in Tuple<T>.");
             }
         }
 

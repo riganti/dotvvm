@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Compilation.Styles
             {
                 rc.ConstructorParameters = new object[] { htmlControl.TagName! };
             }
-            
+
             foreach (var p in obj.properties)
             {
                 rc.SetProperty(
@@ -122,7 +122,7 @@ namespace DotVVM.Framework.Compilation.Styles
                             propType.IsAssignableFrom(controlType))
                     return new ResolvedPropertyControl(property, c);
                 else
-                    throw new Exception($"Can not set a control of type {controlType} to a property {property} of type {propType}.");
+                    throw new Exception($"Cannot set a control of type {controlType} to a property {property} of type {propType}.");
             }
             else if (value is IEnumerable<ResolvedControl> cs)
             {
@@ -142,7 +142,7 @@ namespace DotVVM.Framework.Compilation.Styles
             }
             else
             {
-                throw new NotSupportedException($"Value '{value}' of type {value.GetType()} in {property} can not be compiled into a property.");
+                throw new NotSupportedException($"Value '{value}' of type {value.GetType()} in {property} cannot be compiled into a property.");
             }
         }
 
@@ -159,7 +159,7 @@ namespace DotVVM.Framework.Compilation.Styles
             {
                 foreach (var c in innerControls)
                     if (!typeof(DotvvmControl).IsAssignableFrom(c.Metadata.Type))
-                        throw new DotvvmCompilationException($"Control {c.Metadata.Name} can not be inserted into {control.Metadata.Name} since it does not inherit from DotvvmControl.");
+                        throw new DotvvmCompilationException($"Control {c.Metadata.Name} cannot be inserted into {control.Metadata.Name} since it does not inherit from DotvvmControl.");
 
                 foreach (var ic in innerControls)
                     ic.Parent = control;

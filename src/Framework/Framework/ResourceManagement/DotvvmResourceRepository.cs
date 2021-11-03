@@ -37,7 +37,7 @@ namespace DotVVM.Framework.ResourceManagement
 
         [JsonIgnore]
         public IList<IResourceProcessor> DefaultResourceProcessors => _defaultResourceProcessors;
-        // The resource processors can not be changed after init
+        // The resource processors cannot be changed after init
         private readonly FreezableList<IResourceProcessor> _defaultResourceProcessors = new FreezableList<IResourceProcessor>();
 
         /// <summary>

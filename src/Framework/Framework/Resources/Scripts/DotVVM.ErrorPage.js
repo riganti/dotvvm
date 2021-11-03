@@ -5,7 +5,7 @@ fillCookieTable()
 document.getElementById("save-and-share-button").addEventListener("click", saveAndShare)
 
 function fillCookieTable() {
-	// fill in cookie values, since we can not place them from the server for security reasons
+	// fill in cookie values, since we cannot place them from the server for security reasons
 	var cookies = {}
 	document.cookie.split(';').forEach(function(c) {
 		let split = c.split('=', 2);

@@ -96,7 +96,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     out _
                 );
             }
-            
+
             ValidateMasterPage(view, masterPage, masterPageDirective?.First());
 
             ResolveRootContent(root, view, viewMetadata);
@@ -162,7 +162,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     foreach (var d in directiveGroup)
                     {
                         ProcessDirective(d);
-                        d.AddError($"Directive '{d.Name}' can not be present multiple times.");
+                        d.AddError($"Directive '{d.Name}' cannot be present multiple times.");
                     }
                     directives[directiveGroup.Key] = ImmutableList.Create(ProcessDirective(directiveGroup.First()));
                 }

@@ -355,7 +355,7 @@ namespace DotVVM.Framework.Compilation
         public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
         {
             if (!controlProperties.TryGetValue(controlName, out var propertyList))
-                throw new Exception($"Can not set property, control {controlName} is not registered");
+                throw new Exception($"Cannot set property, control {controlName} is not registered");
 
             UseType(property.DeclaringType);
             UseType(property.PropertyType);

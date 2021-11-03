@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             // only do for ResultIsObservable, not ResultMayBeObservable
             if (assignmentExpression.Left.HasAnnotation<ResultIsObservableAnnotation>())
             {
-                var resultType = assignmentExpression.GetResultType().NotNull("Can not process assignment operator with unknown type.");
+                var resultType = assignmentExpression.GetResultType().NotNull("Cannot process assignment operator with unknown type.");
                 var value = assignmentExpression.Right.Detach();
                 var assignee = assignmentExpression.Left.Detach();
                 assignee.RemoveAnnotations<ResultIsObservableAnnotation>();

@@ -130,9 +130,9 @@ namespace DotVVM.Framework.Binding
                 {
                     // could hamper some optimizations, we can fix it later if needed
                     if (property.GetType() != typeof(DotvvmProperty))
-                        throw new NotSupportedException($"Can not create getter/setter for ValueOrBinding and {property.GetType()}");
+                        throw new NotSupportedException($"Cannot create getter/setter for ValueOrBinding and {property.GetType()}");
                     if (property.IsValueInherited)
-                        throw new NotSupportedException($"Can not create getter/setter for ValueOrBinding and inherited property");
+                        throw new NotSupportedException($"Cannot create getter/setter for ValueOrBinding and inherited property");
 
                     var isNullable = type.IsNullable();
                     var innerType = unwrappedType.GetGenericArguments().Single();
