@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Hosting
                 }
             )
             .GroupBy(p => p.declaringType)
-            .ToDictionary(p => p.Key.FullName, p => p.ToDictionary(p => p.name, p => p.p).ToSorted()).ToSorted();
+            .ToDictionary(p => p.Key.FullName, p => p.ToDictionary(p => p.name, p => p.p).ToSorted(StringComparer.OrdinalIgnoreCase)).ToSorted(StringComparer.OrdinalIgnoreCase);
 
         public static SortedDictionary<string, SortedDictionary<string, DotvvmPropertyInfo>> Capabilities =>
             DotvvmProperty.AllProperties
@@ -53,7 +53,7 @@ namespace DotVVM.Framework.Hosting
                 }
             )
             .GroupBy(p => p.declaringType)
-            .ToDictionary(p => p.Key.FullName, p => p.ToDictionary(p => p.name, p => p.p).ToSorted()).ToSorted();
+            .ToDictionary(p => p.Key.FullName, p => p.ToDictionary(p => p.name, p => p.p).ToSorted(StringComparer.OrdinalIgnoreCase)).ToSorted(StringComparer.OrdinalIgnoreCase);
 
         public static SortedDictionary<string, SortedDictionary<string, DotvvmPropertyGroupInfo>> PropertyGroups =>
             DotvvmPropertyGroup.AllGroups
@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Hosting
                 }
             )
             .GroupBy(p => p.declaringType)
-            .ToDictionary(p => p.Key.FullName, p => p.ToDictionary(p => p.name, p => p.p).ToSorted()).ToSorted();
+            .ToDictionary(p => p.Key.FullName, p => p.ToDictionary(p => p.name, p => p.p).ToSorted(StringComparer.OrdinalIgnoreCase)).ToSorted(StringComparer.OrdinalIgnoreCase);
 
 
 
