@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Hosting
             ContentsReaderFactory = () =>
             {
                 // retry logic because of Hot reload
-                Exception lastException = null;
+                Exception? lastException = null;
                 for (var i = 0; i < 3; i++)
                 {
                     try
