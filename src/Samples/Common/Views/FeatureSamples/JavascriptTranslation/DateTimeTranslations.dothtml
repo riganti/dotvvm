@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/timeshift-js@1.1.1/timeshift.min.js"></script>
     <script>
         // force UTC+02:00 for the test
+        Date = TimeShift.Date;
         TimeShift.setTimezoneOffset(120);
     </script>
 </head>
