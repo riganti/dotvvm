@@ -2,26 +2,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Runtime;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Binding
 {
-    public class BindingPropertyException: Exception
+    public record BindingPropertyException: DotvvmExceptionBase
     {
         [JsonIgnore]
-        public IBinding Binding { get; }
+        public IBinding Binding => RelatedBinding!;
         public Type[] PropertyPath { get; }
         [JsonIgnore]
         public Type Property => PropertyPath[0];
         public string? CoreMessage { get; }
         public bool IsRequiredProperty { get; }
 
-        private Lazy<string> msg;
         public Exception[] AdditionalInnerExceptions { get; }
         [JsonIgnore]
         public IEnumerable<Exception> AllInnerExceptions =>
             InnerException is null ? Enumerable.Empty<Exception>() : new [] { InnerException }.Concat(AdditionalInnerExceptions);
-        public override string Message => msg.Value;
+        public override string Message => GetMessage(Binding, PropertyPath, CoreMessage, InnerException, IsRequiredProperty);
 
         static string GetMessage(IBinding binding, Type[] properties, string? message, Exception? innerException, bool isRequiredProperty)
         {
@@ -54,18 +55,16 @@ namespace DotVVM.Framework.Binding
 
         public BindingPropertyException(IBinding binding, Type property, string message) : this(binding, new [] { property }, message, new Exception[0]) { }
         public BindingPropertyException(IBinding binding, Type property, Exception? innerException) : this(binding, new [] { property }, null, new [] { innerException }) { }
-        public BindingPropertyException(IBinding binding, Type[] propertyPath, string? message, Exception?[]? innerExceptions = null, bool isRequiredProperty = false) : base((string?)null, innerExceptions?.FirstOrDefault(e => e is object))
+        public BindingPropertyException(IBinding binding, Type[] propertyPath, string? message, Exception?[]? innerExceptions = null, bool isRequiredProperty = false) : base((string?)null, RelatedBinding: binding, InnerException: innerExceptions?.FirstOrDefault(e => e is object))
         {
-            this.Binding = binding;
             this.PropertyPath = propertyPath;
             this.CoreMessage = message;
             this.IsRequiredProperty = isRequiredProperty;
             this.AdditionalInnerExceptions =
                 (innerExceptions?.Except(new [] { null, InnerException }).ToArray() ?? new Exception[0])!;
-            this.msg = new Lazy<string>(() => GetMessage(Binding, PropertyPath, CoreMessage, InnerException, isRequiredProperty));
         }
 
-        public BindingPropertyException Clone(IEnumerable<Exception>? additionalExceptions = null, bool? isRequiredProperty = null)
+        public BindingPropertyException CloneImpl(IEnumerable<Exception>? additionalExceptions = null, bool? isRequiredProperty = null)
         {
             additionalExceptions ??= Enumerable.Empty<Exception>();
             var n = new BindingPropertyException(Binding, PropertyPath, CoreMessage, AllInnerExceptions.Concat(additionalExceptions).ToArray(), isRequiredProperty ?? this.IsRequiredProperty);
@@ -76,7 +75,7 @@ namespace DotVVM.Framework.Binding
         {
             additionalExceptions ??= Enumerable.Empty<Exception>();
             if (property == this.Property)
-                return Clone(additionalExceptions, isRequiredProperty);
+                return CloneImpl(additionalExceptions, isRequiredProperty);
             return new BindingPropertyException(Binding, new [] { property }.Concat(PropertyPath).ToArray(), CoreMessage, AllInnerExceptions.Concat(additionalExceptions).ToArray(), isRequiredProperty ?? false);
         }
 

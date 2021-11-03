@@ -115,18 +115,7 @@ namespace DotVVM.Framework.Binding.Properties
     public sealed record ExpectedTypeBindingProperty(
         Type Type
     );
-
-    /// <summary>
-    /// Contains debug information about original binding location.
-    /// </summary>
-    public sealed record LocationInfoBindingProperty(
-        string? FileName,
-        (int start, int end)[]? Ranges,
-        int LineNumber,
-        Type? ControlType,
-        DotvvmProperty? RelatedProperty
-    );
-
+ 
     /// <summary>
     /// Contains the property where the binding is assigned.
     /// </summary>

@@ -19,7 +19,9 @@ namespace DotVVM.Framework.Binding
         {
             return DelegateActionProperty<ICommandBinding>.Register<TDeclaringType>(name, (writer, context, property, control) =>
             {
-                var binding = control.GetCommandBinding(property) ?? throw new Exception($"Command binding expression was expected in {property}.");
+                var binding = control.GetCommandBinding(property) ?? throw new DotvvmControlException(control, $"Command binding expression was expected in {property}.") {
+                    RelatedProperty = property
+                };
                 var script = KnockoutHelper.GenerateClientPostBackScript(name, binding, control);
                 writer.AddAttribute(attributeName, script);
             });

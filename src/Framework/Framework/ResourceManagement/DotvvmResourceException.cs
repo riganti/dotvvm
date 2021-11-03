@@ -1,26 +1,19 @@
 ﻿using System;
+using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.ResourceManagement
 {
-    internal class DotvvmResourceException : Exception
+    public record DotvvmCyclicResourceDependencyException(
+        string ResourceName,
+        IResource Resource,
+        string[] DependencyChain
+    ) : DotvvmExceptionBase(RelatedResource: Resource)
     {
-        public DotvvmResourceException()
-        {
-        }
-
-        public DotvvmResourceException(string message) : base(message)
-        {
-        }
-
-        public DotvvmResourceException(string message, Exception? innerException) : base(message, innerException)
-        {
-        }
+        public override string Message =>
+            $"Resource \"{ResourceName}\" has a cyclic dependency: {DependencyChain.StringJoin(" --> ")}";
     }
 
-    internal class DotvvmLinkResourceException : DotvvmResourceException
-    {
-        public DotvvmLinkResourceException(string message) : base(message)
-        {
-        }
-    }
+    internal record DotvvmLinkResourceException(string Message, IResource Resource)
+        : DotvvmExceptionBase(Message, RelatedResource: Resource);
 }

@@ -137,9 +137,11 @@ $@"
         {
             var settings = new JsonSerializerSettings() {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Ignore,
                 Converters = {
                 new ReflectionTypeJsonConverter(),
-                new ReflectionAssemblyJsonConverter()
+                new ReflectionAssemblyJsonConverter(),
+                new Controls.DotvvmControlDebugJsonConverter()
             },
                 // suppress any errors that occur during serialization (getters may throw exception, ...)
                 Error = (sender, args) => {

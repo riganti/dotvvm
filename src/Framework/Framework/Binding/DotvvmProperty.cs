@@ -14,6 +14,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using Newtonsoft.Json;
 using System.Diagnostics.CodeAnalysis;
 using System.Collections.Immutable;
+using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Binding
 {
@@ -244,6 +245,22 @@ namespace DotVVM.Framework.Binding
             return Register(property, throwOnDuplicateRegistration);
         }
 
+        public record PropertyAlreadyExistsException(
+            DotvvmProperty OldProperty,
+            DotvvmProperty NewProperty
+        )
+            : DotvvmExceptionBase(RelatedProperty: OldProperty)
+        {
+            public override string Message { get {
+                var capabilityHelp = OldProperty.OwningCapability is {} ownerOld ? $" The existing property is declared by capability {ownerOld.Name}." : "";
+                var capabilityHelpNew = NewProperty.OwningCapability is {} ownerNew ? $" The new property is declared by capability {ownerNew.Name}." : "";
+                var message = NewProperty is DotvvmCapabilityProperty ?
+                              $"Capability {NewProperty.Name} conflicts with existing property. Consider giving the capability a different name." :
+                              $"DotVVM property is already registered: {NewProperty.FullName}";
+                return message + capabilityHelp + capabilityHelpNew;
+            } }
+        }
+
         internal static DotvvmProperty Register(DotvvmProperty property, bool throwOnDuplicateRegistration = true)
         {
             InitializeProperty(property);
@@ -252,7 +269,7 @@ namespace DotVVM.Framework.Binding
             if (!registeredProperties.TryAdd(key, property))
             {
                 if (throwOnDuplicateRegistration)
-                    throw new ArgumentException($"Property is already registered: {property.FullName}");
+                    throw new PropertyAlreadyExistsException(registeredProperties[key], property);
                 else
                     property = registeredProperties[key];
             }
@@ -339,7 +356,7 @@ namespace DotVVM.Framework.Binding
             if (!registeredProperties.TryAdd(key, propertyAlias))
             {
                 if (throwOnDuplicitRegistration)
-                    throw new ArgumentException($"Property is already registered: {propertyAlias.FullName}");
+                    throw new PropertyAlreadyExistsException(registeredProperties[key], propertyAlias);
             }
 
             if (!registeredAliases.TryAdd(key, propertyAlias))
@@ -401,8 +418,8 @@ namespace DotVVM.Framework.Binding
             }
         }
 
-        private static ConcurrentDictionary<(Type, string), DotvvmProperty> registeredProperties = new();
-        private static ConcurrentDictionary<(Type, string), DotvvmPropertyAlias> registeredAliases = new();
+        private static readonly ConcurrentDictionary<(Type, string), DotvvmProperty> registeredProperties = new();
+        private static readonly ConcurrentDictionary<(Type, string), DotvvmPropertyAlias> registeredAliases = new();
 
         /// <summary>
         /// Resolves the <see cref="DotvvmProperty"/> by the declaring type and name.

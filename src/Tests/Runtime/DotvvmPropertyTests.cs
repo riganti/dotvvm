@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void DotvvmProperty_PropertyRegisteredTwiceThrowException()
         {
-            Assert.ThrowsException<ArgumentException>(() => {
+            Assert.ThrowsException<DotvvmProperty.PropertyAlreadyExistsException>(() => {
                 _ = MoqComponent.PropertyProperty; // calls the static ctor
                 DotvvmProperty.Register<bool, MoqComponent>(t => t.Property);
             });

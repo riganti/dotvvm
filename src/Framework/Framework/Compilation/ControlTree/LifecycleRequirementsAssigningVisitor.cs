@@ -13,7 +13,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
     [ContainsDotvvmProperties]
     public class LifecycleRequirementsAssigningVisitor : ResolvedControlTreeVisitor
     {
-        public static readonly DotvvmProperty CompileTimeLifecycleRequirementsProperty = DotvvmProperty.Register<ControlLifecycleRequirements, LifecycleRequirementsAssigningVisitor>("CompileTimeLifecycleRequirements");
+        public static readonly DotvvmProperty CompileTimeLifecycleRequirementsProperty =
+            CompileTimeOnlyDotvvmProperty.Register<ControlLifecycleRequirements, LifecycleRequirementsAssigningVisitor>("CompileTimeLifecycleRequirements");
         private static readonly ConcurrentDictionary<Type, ControlLifecycleRequirements> requirementsCache = new ConcurrentDictionary<Type, ControlLifecycleRequirements>();
         public static ControlLifecycleRequirements GetRequirements(Type controlType) =>
             requirementsCache.GetOrAdd(controlType, c =>
