@@ -329,7 +329,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         }
 
 
-        public static ErrorFormatter CreateDefault(IEnumerable<IErrorPageExtension> extensions = null)
+        public static ErrorFormatter CreateDefault()
         {
             var f = new ErrorFormatter();
             f.Formatters.Add((e, o) => DotvvmMarkupErrorSection.Create(e));

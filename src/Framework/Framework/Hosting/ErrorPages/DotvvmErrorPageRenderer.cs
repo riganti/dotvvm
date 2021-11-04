@@ -12,14 +12,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 {
     public class DotvvmErrorPageRenderer
     {
-        private readonly IServiceProvider serviceProvider;
-
         public ErrorFormatter? Formatter { get; set; }
-
-        public DotvvmErrorPageRenderer(IServiceProvider serviceProvider)
-        {
-            this.serviceProvider = serviceProvider;
-        }
 
         /// <summary>
         /// Renders the error response.
@@ -60,8 +53,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         private ErrorFormatter CreateDefaultWithDemystifier()
         {
-            var errorPageExtensions = serviceProvider.GetServices<IErrorPageExtension>();
-            var errorFormatter = ErrorFormatter.CreateDefault(errorPageExtensions);
+            var errorFormatter = ErrorFormatter.CreateDefault();
 
             var insertPosition = errorFormatter.Formatters.Count > 0 ? 1 : 0;
             errorFormatter.Formatters.Insert(insertPosition, (e, o) =>
