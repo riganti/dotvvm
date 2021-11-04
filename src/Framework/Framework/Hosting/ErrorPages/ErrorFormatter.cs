@@ -18,7 +18,6 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 {
     public class ErrorFormatter
     {
-        
         public ExceptionModel LoadException(Exception exception, StackFrameModel[]? existingTrace = null, Func<Exception, StackFrame[]?>? stackFrameGetter = null,
             Func<StackFrame, string?>? methodFormatter = null)
         {
@@ -297,7 +296,6 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             }
             return result;
         }
-
 
         public List<Func<Exception, IHttpContext, IErrorSectionFormatter?>> Formatters = new();
 

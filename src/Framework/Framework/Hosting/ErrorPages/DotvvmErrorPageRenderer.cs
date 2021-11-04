@@ -6,12 +6,12 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
     public class DotvvmErrorPageRenderer
     {
+
         public ErrorFormatter? Formatter { get; set; }
 
         /// <summary>
