@@ -10,6 +10,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
+    [ContainsDotvvmProperties]
     public class LifecycleRequirementsAssigningVisitor : ResolvedControlTreeVisitor
     {
         public static readonly DotvvmProperty CompileTimeLifecycleRequirementsProperty = DotvvmProperty.Register<ControlLifecycleRequirements, LifecycleRequirementsAssigningVisitor>("CompileTimeLifecycleRequirements");
