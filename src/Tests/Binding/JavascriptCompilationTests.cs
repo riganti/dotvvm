@@ -883,7 +883,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_DateTime_Property_Getters(string binding, string jsFunction, bool increment = false)
         {
             var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
-            Assert.AreEqual($"new Date(DateTime()).{jsFunction}(){(increment ? "+1" : string.Empty)}", result);
+            Assert.AreEqual($"dotvvm.serialization.parseDate(DateTime()).{jsFunction}(){(increment ? "+1" : string.Empty)}", result);
         }
 
         [TestMethod]
