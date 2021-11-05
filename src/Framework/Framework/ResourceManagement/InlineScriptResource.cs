@@ -38,7 +38,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public string Code
         {
-            get => code?.Value ?? throw new Exception("`ILocalResourceLocation` can not be read using property `Code`.");
+            get => code?.Value ?? throw new Exception("`ILocalResourceLocation` cannot be read using property `Code`.");
             set
             {
                 InlineScriptContentGuard(value);

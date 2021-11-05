@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Compilation.Binding
     {
         public override Type Type { get; }
         public override ExpressionType NodeType => ExpressionType.Extension;
-        public override Expression Reduce() => throw new Exception($"Can not use type name {this.Type.FullName} as an expression");
+        public override Expression Reduce() => throw new Exception($"Cannot use type name {this.Type.FullName} as an expression");
 
         public StaticClassIdentifierExpression(Type type)
             :base()

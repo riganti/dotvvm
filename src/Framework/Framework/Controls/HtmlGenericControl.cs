@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Controls
         public HtmlGenericControl(string? tagName, TextOrContentCapability? content, bool allowImplicitLifecycleRequirements = true)
         {
             if (GetType() != typeof(HtmlGenericControl))
-                throw new("HtmlGenericControl can only use InnerText (and thus TextOrContentCapability) property when used directly, it can not be inherited.");
+                throw new("HtmlGenericControl can only use InnerText (and thus TextOrContentCapability) property when used directly, it cannot be inherited.");
             if (tagName?.Trim() == "")
             {
                 throw new DotvvmControlException("The tagName must not be empty!");
@@ -384,7 +384,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (prop is not GroupedDotvvmProperty gprop || gprop.PropertyGroup != AttributesGroupDescriptor)
                     continue;
-                
+
                 if (valueRaw is IValueBinding binding)
                 {
                     if (gprop.GroupMemberName == "class")
@@ -435,7 +435,7 @@ namespace DotVVM.Framework.Controls
             var textBinding = literal.GetValueRaw(Literal.TextProperty) as IValueBinding;
             if (textBinding is null || Literal.NeedsFormatting(textBinding))
                 return;
-            
+
             Children.Clear();
             r.InnerText = textBinding;
         }

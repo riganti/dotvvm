@@ -295,7 +295,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 )));
             else if (typeof(IEnumerable).IsAssignableFrom(expression.Expression.Type))
                 return new DataSourceAccessBinding(binding);
-            else throw new NotSupportedException($"Can not make datasource from binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
+            else throw new NotSupportedException($"Cannot make datasource from binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
         }
 
         public DataSourceLengthBinding GetDataSourceLength(ParsedExpressionBindingProperty expression, IBinding binding)
@@ -316,7 +316,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 return new DataSourceLengthBinding(binding.DeriveBinding(
                     Expression.Call(typeof(Enumerable), "Count", new[] { ReflectionUtils.GetEnumerableType(expression.Expression.Type) }, expression.Expression)
                 ));
-            else throw new NotSupportedException($"Can not find collection length from binding '{expression.Expression}'.");
+            else throw new NotSupportedException($"Cannot find collection length from binding '{expression.Expression}'.");
         }
 
         public DataSourceCurrentElementBinding? GetDataSourceCurrentElement(ParsedExpressionBindingProperty expression, IBinding binding)
@@ -338,7 +338,7 @@ namespace DotVVM.Framework.Compilation.Binding
             else if (typeof(IBaseGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
                 return new DataSourceCurrentElementBinding(binding.DeriveBinding(
                     makeIndexer(Expression.Property(expression.Expression, nameof(IBaseGridViewDataSet.Items))).NotNull()));
-            else throw new NotSupportedException($"Can not access current element on binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
+            else throw new NotSupportedException($"Cannot access current element on binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
         }
 
 

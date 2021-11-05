@@ -117,7 +117,7 @@ namespace DotVVM.Framework.Tests.Binding
             while (unusedFragments.Any())
             {
                 var possibleOnes = unusedFragments.Where(f => f.Parameters.All(p => typeSources.ContainsKey(p.Type))).ToArray();
-                Assert.IsFalse(possibleOnes.Length == 0, $"Can not continue from {string.Join(", ", typeSources.Select(t => t.Key.Name))} to {string.Join(", ", unusedFragments.AsEnumerable())}");
+                Assert.IsFalse(possibleOnes.Length == 0, $"Cannot continue from {string.Join(", ", typeSources.Select(t => t.Key.Name))} to {string.Join(", ", unusedFragments.AsEnumerable())}");
                 foreach (var fragment in possibleOnes)
                 {
                     AddFragment(fragment, 4);

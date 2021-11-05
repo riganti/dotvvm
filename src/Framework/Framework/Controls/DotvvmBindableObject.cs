@@ -94,7 +94,7 @@ namespace DotVVM.Framework.Controls
                 DotvvmBindableObject control = this;
                 // DataContext is always bound to it's parent, setting it right here is a bit faster
                 if (property == DataContextProperty)
-                    control = control.Parent ?? throw new DotvvmControlException(this, "Can not set DataContext binding on the root control");
+                    control = control.Parent ?? throw new DotvvmControlException(this, "Cannot set DataContext binding on the root control");
                 // handle binding
                 if (value is IStaticValueBinding binding)
                 {
@@ -165,13 +165,13 @@ namespace DotVVM.Framework.Controls
         public void SetValueToSource(DotvvmProperty property, object? value)
         {
             if (value is IBinding)
-                throw new DotvvmControlException(this, $"Can not set binding {value} to source.");
+                throw new DotvvmControlException(this, $"Cannot set binding {value} to source.");
             var binding = GetBinding(property);
             if (binding is null)
-                throw new DotvvmControlException(this, $"Property {property} does not contain binding, so it's source can not be updated.");
+                throw new DotvvmControlException(this, $"Property {property} does not contain binding, so it's source cannot be updated.");
             if (binding is not IUpdatableValueBinding updatableValueBinding)
-                throw new DotvvmControlException(this, $"Can not set source of binding {value}, it does not implement IUpdatableValueBinding.");
-            
+                throw new DotvvmControlException(this, $"Cannot set source of binding {value}, it does not implement IUpdatableValueBinding.");
+
             updatableValueBinding.UpdateSource(value, this);
         }
 

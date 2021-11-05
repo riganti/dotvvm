@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Compilation.Styles
             var dataContext = property.GetDataContextType(control);
             var setter = ResolvedControlHelper.TranslateProperty(property, value, dataContext, context.Configuration);
             if (!control.SetProperty(setter, options, out var error))
-                throw new DotvvmCompilationException("Can not apply style property: " + error, control.DothtmlNode?.Tokens);
+                throw new DotvvmCompilationException("Cannot apply style property: " + error, control.DothtmlNode?.Tokens);
         }
 
         public override string ToString() => $"{value} (on conflict {options})";
@@ -94,7 +94,7 @@ namespace DotVVM.Framework.Compilation.Styles
                 var v = value(c);
                 var setter = ResolvedControlHelper.TranslateProperty(property, v, dataContext, context.Configuration);
                 if (!control.SetProperty(setter, options, out var error))
-                    throw new DotvvmCompilationException("Can not apply style property: " + error, control.DothtmlNode?.Tokens);
+                    throw new DotvvmCompilationException("Cannot apply style property: " + error, control.DothtmlNode?.Tokens);
             }
         }
         public override string ToString() => $"GenericPropertyStyleApplicator {property} (on conflict {options})";
@@ -111,7 +111,7 @@ namespace DotVVM.Framework.Compilation.Styles
         public PropertyStyleBindingApplicator(DotvvmProperty property, string binding, StyleOverrideOptions options, BindingParserOptions bindingOptions, bool allowChangingBindingType = false)
         {
             if (property == DotvvmBindableObject.DataContextProperty)
-                throw new NotSupportedException("Can not set the DataContext property using styles. This property affects the compilation itself, and styles are applied after that.");
+                throw new NotSupportedException("Cannot set the DataContext property using styles. This property affects the compilation itself, and styles are applied after that.");
             if (!property.MarkupOptions.AllowBinding && bindingOptions.BindingType != typeof(ResourceBindingExpression))
                 throw new Exception($"Property {property} does not allow bindings to be set. You could maybe use a resource binding (set bindingOptions to BindingParserOptions.Resource).");
 
@@ -140,7 +140,7 @@ namespace DotVVM.Framework.Compilation.Styles
                 property: property
             );
             if (!control.SetProperty(new ResolvedPropertyBinding(property, b), options, out var error))
-                throw new DotvvmCompilationException("Can not apply style property binding: " + error, control.DothtmlNode?.Tokens);
+                throw new DotvvmCompilationException("Cannot apply style property binding: " + error, control.DothtmlNode?.Tokens);
         }
 
         public override string ToString() => $"{property}={{{bindingOptions.BindingType.Name}: {binding}}} (on conflict {options})";
@@ -176,7 +176,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
             var value = ResolvedControlHelper.TranslateProperty(property, innerControl, dataContext, context.Configuration);
             if (!control.SetProperty(value, options, out var error))
-                throw new DotvvmCompilationException("Can not apply style property: " + error, control.DothtmlNode?.Tokens);
+                throw new DotvvmCompilationException("Cannot apply style property: " + error, control.DothtmlNode?.Tokens);
         }
         public override string ToString()
         {

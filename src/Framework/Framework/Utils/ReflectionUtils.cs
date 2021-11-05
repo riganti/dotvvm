@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Utils
             var body = expression as MemberExpression;
 
             if (body == null)
-                throw new NotSupportedException($"Can not get member from {originalExpression}");
+                throw new NotSupportedException($"Cannot get member from {originalExpression}");
 
             return body.Member;
         }

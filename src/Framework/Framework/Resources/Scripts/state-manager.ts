@@ -156,7 +156,7 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
 
         for (const p of keys(typeInfo?.properties || {}).concat(additionalProperties)) {
             this[internalPropCache][p] = null
-        
+
             Object.defineProperty(this, p, {
                 enumerable: true,
                 configurable: false,
@@ -228,7 +228,7 @@ function createObservableObject<T extends object>(initialObject: T, typeHint: Ty
     let typeInfo;
     if (typeId && !(typeId.hasOwnProperty("type") && typeId["type"] === "dynamic")) {
         typeInfo = getObjectTypeInfo(typeId)
-    } 
+    }
 
     const pSet = new Set();         // IE11 doesn't support constructor with arguments
     if (typeInfo) {
@@ -267,7 +267,7 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
         } catch (err) {
             (this as any)[lastSetErrorSymbol] = err;
             triggerLastSetErrorUpdate(this);
-            logWarning("state-manager", `Can not update observable to ${newValue}:`, err)
+            logWarning("state-manager", `Cannot update observable to ${newValue}:`, err)
             throw err
         }
     }
@@ -278,9 +278,9 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
     function notify(newVal: any) {
         const currentValue = obs[currentStateSymbol]
 
-        if (newVal === currentValue) { 
-            return 
-        } 
+        if (newVal === currentValue) {
+            return
+        }
 
         const observableWasSetFromOutside = updatedObservable
         updatedObservable = false

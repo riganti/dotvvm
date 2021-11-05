@@ -363,8 +363,8 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [DataRow("(int arg, float arg) => ;", DisplayName = "Can not use same identifier for multiple parameters")]
-        [DataRow("(object _this) => ;", DisplayName = "Can not use already used identifiers for parameters")]
+        [DataRow("(int arg, float arg) => ;", DisplayName = "Cannot use same identifier for multiple parameters")]
+        [DataRow("(object _this) => ;", DisplayName = "Cannot use already used identifiers for parameters")]
         public void BindingCompiler_Invalid_LambdaParameters(string expr)
         {
             var viewModel = new TestViewModel();

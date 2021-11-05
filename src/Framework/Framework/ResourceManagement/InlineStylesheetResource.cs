@@ -18,7 +18,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Gets the CSS code that will be embedded in the page.
         /// </summary>
-        public string Code => code?.Value ?? throw new Exception("`ILocalResourceLocation` can not be read using property `Code`.");
+        public string Code => code?.Value ?? throw new Exception("`ILocalResourceLocation` cannot be read using property `Code`.");
 
         [JsonConstructor]
         public InlineStylesheetResource(ILocalResourceLocation resourceLocation) : base(ResourceRenderPosition.Head)

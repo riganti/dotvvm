@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Binding.Expressions
     [Options]
     public class ValueBindingExpression : BindingExpression, IUpdatableValueBinding, IValueBinding
     {
-        public ValueBindingExpression(BindingCompilationService service, IEnumerable<object?> properties) 
+        public ValueBindingExpression(BindingCompilationService service, IEnumerable<object?> properties)
             : base(service, properties)
         {
             AddNullResolvers();
@@ -137,7 +137,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 for (int i = 0; i < VmTypes.Count; i++, dataContext = dataContext.Parent)
                 {
                     var t = VmTypes[i];
-                    if (dataContext == null) throw new Exception($"Can not access _parent{i}, it does not exist in the data context.");
+                    if (dataContext == null) throw new Exception($"Cannot access _parent{i}, it does not exist in the data context.");
                     if (t != null && !t.IsAssignableFrom(dataContext.DataContextType))
                         throw new Exception($"_parent{i} does not have type '{t}' but '{dataContext.DataContextType}'.");
                 }

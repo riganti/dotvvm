@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Binding
                 capabilityType,
                 declaringType,
                 capabilityAttributeProvider!
-            ) { 
+            ) {
                 OwningCapability = declaringCapability
             };
             prop.AddUsedInCapability(declaringCapability);
@@ -327,7 +327,7 @@ namespace DotVVM.Framework.Binding
             var compositeHelp =
                 capabilityType is null && typeof(CompositeControl).IsAssignableFrom(declaringType) ?
                 $"The property is being defined because parameter of it's name is defined in the {declaringType}.GetContents method. " : "";
-            throw new Exception($"Can not define property {declaringType}.{existingProperty.Name} as it already exists.{error} {capabilityHelp}");
+            throw new Exception($"Cannot define property {declaringType}.{existingProperty.Name} as it already exists.{error} {capabilityHelp}");
         }
     }
 

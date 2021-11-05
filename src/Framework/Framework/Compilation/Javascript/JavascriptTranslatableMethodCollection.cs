@@ -302,7 +302,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddFrameworkDependentSplitMehtodTranslations();
             AddFrameworkDependentContainsMehtodTranslations();
 
-      
+
         }
 
         private void AddFrameworkDependentContainsMehtodTranslations()
@@ -466,7 +466,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             bool EnsureIsComparableInJavascript(MethodInfo method, Type type)
             {
                 if (!ReflectionUtils.IsPrimitiveType(type))
-                    throw new DotvvmCompilationException($"Can not translate invocation of method \"{method.Name}\" to JavaScript. Comparison of non-primitive types is not supported.");
+                    throw new DotvvmCompilationException($"Cannot translate invocation of method \"{method.Name}\" to JavaScript. Comparison of non-primitive types is not supported.");
 
                 return true;
             }

@@ -17,13 +17,13 @@ namespace DotVVM.Framework.Binding
 
         public override object? GetValue(DotvvmBindableObject control, bool inherit = true)
         {
-            throw new NotSupportedException($"Property {FullName} can not be accessed, it shall only be used at compile time.");
+            throw new NotSupportedException($"Property {FullName} cannot be accessed, it shall only be used at compile time.");
         }
 
         public override void SetValue(DotvvmBindableObject control, object? value)
         {
 
-            throw new NotSupportedException($"Property {FullName} can not be assigned, it shall only be used at compile time.");
+            throw new NotSupportedException($"Property {FullName} cannot be assigned, it shall only be used at compile time.");
         }
 
 

@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Controls
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
             if (!this.HasOnlyWhiteSpaceContent())
-                throw new DotvvmControlException(this, $"Can not set children into {GetType().Name} which derives from CompositeControl. To set content of composite control, use a property of type DotvvmControl or ITemplate.");
+                throw new DotvvmControlException(this, $"Cannot set children into {GetType().Name} which derives from CompositeControl. To set content of composite control, use a property of type DotvvmControl or ITemplate.");
 
             this.Children.Clear();
 
