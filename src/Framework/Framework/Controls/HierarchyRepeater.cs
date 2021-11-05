@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Controls
         private EmptyData? emptyDataContainer;
         private DotvvmControl? clientItemTemplate;
         private DotvvmControl? clientRootLevel;
-        private string clientItemTemplateId;
+        private string? clientItemTemplateId;
 
         public HierarchyRepeater() : base("div")
         {
