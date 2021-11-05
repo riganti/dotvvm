@@ -2,25 +2,53 @@
 @masterPage Views/Samples.dotmaster
 
 <dot:Content ContentPlaceHolderID="Main">
+    <h1>Basic usage of <code>HierarchyRepeater</code></h1>
 
-
+    <h2>Server Rendering</h2>
     <dot:HierarchyRepeater DataSource="{value: Roots}"
                            ItemChildrenBinding="{value: Children}"
                            LevelTagName="ul"
                            ItemTagName="li"
-                           RenderSettings.Mode="Server">
+                           RenderSettings.Mode="Server"
+                           PostBack.Update="true">
         <span RenderSettings.Mode="Client">{{value: Name}}</span>
+        <dot:Button Click="{command: _root.ClickNode(_this)}" Text="{value: ClickCount}" />
     </dot:HierarchyRepeater>
+
+    <h2>Client Rendering</h2>
     <dot:HierarchyRepeater DataSource="{value: Roots}"
                            ItemChildrenBinding="{value: Children}"
                            LevelTagName="ul"
                            ItemTagName="li"
                            RenderSettings.Mode="Client">
         <span>{{value: Name}}</span>
+        <dot:Button Click="{command: _root.ClickNode(_this)}" Text="{value: ClickCount}" />
     </dot:HierarchyRepeater>
-    <%--<dot:Repeater DataSource="{value: Roots}"
-                  RenderSettings.Mode="Server">
-        <span RenderSettings.Mode="Client">{{value: Name}}</span>
-    </dot:Repeater>--%>
+
+    <h2>No Item and Level Tags</h2>
+    <dot:HierarchyRepeater DataSource="{value: Roots}"
+                           ItemChildrenBinding="{value: Children}"
+                           RenderSettings.Mode="Client">
+        <p>{{value: Name}}</p>
+    </dot:HierarchyRepeater>
+
+    <h2>Empty</h2>
+    <dot:HierarchyRepeater DataSource="{value: Empty}"
+                           ItemChildrenBinding="{value: Children}"
+                           LevelTagName="ul"
+                           ItemTagName="li">
+        <ItemTemplate>
+            <span>{{value: Name}}</span>
+        </ItemTemplate>
+        <EmptyDataTemplate>
+            <strong>There are no nodes.</strong>
+        </EmptyDataTemplate>
+    </dot:HierarchyRepeater>
+
+    <h2>Repeater</h2>
+    <dot:Repeater DataSource="{value: Roots}">
+        <span>{{value: Name}}</span>
+        <dot:Button Click="{command: _root.ClickNode(_this)}" Text="{value: ClickCount}" />
+    </dot:Repeater>
 </dot:Content>
 

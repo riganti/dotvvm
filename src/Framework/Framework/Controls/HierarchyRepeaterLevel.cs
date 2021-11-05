@@ -14,7 +14,9 @@ namespace DotVVM.Framework.Controls
     {
         public string? ItemTemplateId { get; set; }
 
-        public IValueBinding? ForeachExpression { get; set; }
+        public string? ForeachExpression { get; set; }
+
+        public bool IsRoot { get; set; } = false;
 
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
@@ -25,15 +27,23 @@ namespace DotVVM.Framework.Controls
             }
 
             if (!RenderOnServer)
-                writer.AddKnockoutDataBind("template", new KnockoutBindingGroup {
-                    { "foreach", ForeachExpression.GetKnockoutBindingExpression(this) },
-                    { "name", ItemTemplateId ?? string.Empty, true }
-                });
+            {
+                writer.WriteKnockoutDataBindComment("template", new KnockoutBindingGroup {
+                    { "foreach", ForeachExpression },
+                    { "name", ItemTemplateId ?? string.Empty, true },
+                    { "hierarchyRole", IsRoot ? "Root" : "Child", true }
+                }.ToString());
+            }
             else
-                writer.AddKnockoutDataBind("dotvvm-SSR-foreach", new KnockoutBindingGroup {
-                    { "data", ForeachExpression.GetKnockoutBindingExpression(this)}
-                });
+            {
+                writer.WriteKnockoutDataBindComment("dotvvm-SSR-foreach", new KnockoutBindingGroup {
+                    { "data", ForeachExpression}
+                }.ToString());
+            }
+
             base.RenderControl(writer, context);
+
+            writer.WriteKnockoutDataBindEndComment();
         }
     }
 }

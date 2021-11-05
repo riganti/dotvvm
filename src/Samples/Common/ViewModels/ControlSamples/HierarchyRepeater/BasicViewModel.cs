@@ -12,8 +12,13 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.HierarchyRepeater
     {
         public List<Node> Roots { get; set; }
 
+        public List<Node> Empty { get; set; }
+
         public override Task Load()
         {
+            if (Context.IsPostBack)
+                return base.Load();
+
             Roots = new() {
                 new Node {
                     Name = "Root",
@@ -38,9 +43,16 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.HierarchyRepeater
             return base.Load();
         }
 
+        public void ClickNode(Node node)
+        {
+            node.ClickCount++;
+        }
+
         public class Node
         {
             public string Name { get; set; } = string.Empty;
+
+            public int ClickCount { get; set; } = 0;
 
             public List<Node> Children { get; set; } = new();
         }
