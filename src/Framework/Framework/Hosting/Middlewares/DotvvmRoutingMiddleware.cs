@@ -77,8 +77,10 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
             context.Route = route;
             context.Parameters = parameters;
-
             var presenter = context.Presenter = route.GetPresenter(context.Services);
+
+            WriteSecurityHeaders(context);
+
             var filters =
                 ActionFilterHelper.GetActionFilters<IPresenterActionFilter>(presenter.GetType().GetTypeInfo())
                 .Concat(context.Configuration.Runtime.GlobalFilters.OfType<IPresenterActionFilter>());
@@ -104,6 +106,28 @@ namespace DotVVM.Framework.Hosting.Middlewares
             await requestTracer.EndRequest(context);
 
             return true;
+        }
+
+        public static void WriteSecurityHeaders(IDotvvmRequestContext context)
+        {
+            var config = context.Configuration.Security;
+            var route = context.Route?.RouteName;
+            if (config.ContentTypeOptionsHeader.IsEnabledForRoute(route))
+                context.HttpContext.Response.Headers.Add("X-Content-Type-Options", new [] { "nosniff" });
+
+            if (config.XssProtectionHeader.IsEnabledForRoute(route))
+                context.HttpContext.Response.Headers.Add("X-XSS-Protection", new [] { "1; mode=block" });
+
+            if (config.FrameOptionsCrossOrigin.IsEnabledForRoute(route))
+            {
+                // nothing
+            }
+            else if (config.FrameOptionsSameOrigin.IsEnabledForRoute(route))
+                context.HttpContext.Response.Headers.Add("X-Frame-Options", new [] { "SAMEORIGIN" });
+            else
+                context.HttpContext.Response.Headers.Add("X-Frame-Options", new [] { "DENY" });
+
+
         }
     }
 }

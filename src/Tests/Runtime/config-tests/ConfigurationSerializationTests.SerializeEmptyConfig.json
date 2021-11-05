@@ -14,7 +14,20 @@
       }
     },
     "resources": {},
-    "security": {},
+    "security": {
+      "xssProtectionHeader": {
+        "enabled": true
+      },
+      "contentTypeOptionsHeader": {
+        "enabled": true
+      },
+      "verifySecFetchForPages": {
+        "enabled": true
+      },
+      "verifySecFetchForCommands": {
+        "enabled": true
+      }
+    },
     "runtime": {},
     "defaultCulture": "en-US",
     "experimentalFeatures": {},

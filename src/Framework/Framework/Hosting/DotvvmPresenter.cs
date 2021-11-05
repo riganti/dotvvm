@@ -52,6 +52,7 @@ namespace DotVVM.Framework.Hosting
             StaticCommandServiceLoader = staticCommandServiceLoader;
 #pragma warning restore CS0618
             ApplicationPath = configuration.ApplicationPhysicalPath;
+            SecurityConfiguration = configuration.Security;
         }
 
         public IDotvvmViewBuilder DotvvmViewBuilder { get; }
@@ -65,6 +66,8 @@ namespace DotVVM.Framework.Hosting
         public ICsrfProtector CsrfProtector { get; }
 
         public IViewModelParameterBinder ViewModelParameterBinder { get; }
+
+        public DotvvmSecurityConfiguration SecurityConfiguration { get; }
 
 #pragma warning disable CS0618
         [Obsolete(DefaultStaticCommandServiceLoader.DeprecationNotice)]
@@ -116,6 +119,8 @@ namespace DotVVM.Framework.Hosting
             {
                 await context.InterruptRequestAsMethodNotAllowedAsync();
             }
+
+            await ValidateSecFetchHeaders(context);
 
             var requestTracer = context.Services.GetRequiredService<AggregateRequestTracer>();
             if (context.HttpContext.Request.Headers["X-PostbackType"] == "StaticCommand")
@@ -440,6 +445,72 @@ namespace DotVVM.Framework.Hosting
             }
             
             return null;
+        }
+
+        async Task ValidateSecFetchHeaders(IDotvvmRequestContext context)
+        {
+            var route = context.Route?.RouteName;
+            var isPost = context.HttpContext.Request.Method switch {
+                "POST" => true,
+                "GET" => false,
+                _ => throw new NotSupportedException()
+            };
+            var checksAllowed = (isPost ? SecurityConfiguration.VerifySecFetchForCommands : SecurityConfiguration.VerifySecFetchForPages).IsEnabledForRoute(route);
+            var dest = context.HttpContext.Request.Headers["Sec-Fetch-Dest"];
+            var site = context.HttpContext.Request.Headers["Sec-Fetch-Site"];
+
+            if (SecurityConfiguration.RequireSecFetchHeaders.IsEnabledForRoute(route))
+                if (string.IsNullOrEmpty(dest) || string.IsNullOrEmpty(site))
+                    await context.RejectRequest("Sec-Fetch-Dest header is required. Please, use a web browser with security in mind: https://www.mozilla.org/en-US/firefox/new/");
+
+            // if the request has Dest: iframe, check if we allow iframes. Otherwise, we can throw an error right away, since the iframe will not load anyway due to the X-Frame-Options header
+
+            if (dest is "frame" or "iframe")
+            {
+                if (SecurityConfiguration.FrameOptionsCrossOrigin.IsEnabledForRoute(route))
+                { // fine
+                }
+                else if (SecurityConfiguration.FrameOptionsSameOrigin.IsEnabledForRoute(route) && site != "same-origin")
+                { // samesite allowed - also fine
+                }
+                else
+                {
+                    if (site == "same-origin")
+                        await context.RejectRequest($"Same site iframe are disabled in this application. If you are the developer, you can enable iframes by setting DotvvmConfiguration.Security.FrameOptionsSameOrigin.EnableForRoute(\"{route}\")");
+                    else
+                        await context.RejectRequest($"Cross site iframe are disabled in this application. If you are the developer, you can enable cross-site iframes by setting DotvvmConfiguration.Security.FrameOptionsCrossOrigin.EnableForRoute(\"{route}\"). Note that it's not recommended to enable cross-site iframes for sites / pages where security is important (due to Clickjacking)");
+                }
+            }
+
+            if (!checksAllowed || string.IsNullOrEmpty(dest))
+                return;
+
+            if (isPost)
+            {
+                if (site != "same-origin")
+                    await context.RejectRequest($"Cross site postbacks are disabled.");
+                if (dest != "empty")
+                    await context.RejectRequest($"postbacks must have Sec-Fetch-Dest: empty");
+            }
+            else
+            {
+                if (dest is "document" or "frame" or "iframe")
+                { // fine, this is allowed even cross-site
+                }
+                // if SPA is used, dest will be empty, since it's initiated from JS
+                // we only allow this with the X-DotVVM-SpaContentPlaceHolder header
+                // we "trust" the client - as if he lies about it being a SPA request,
+                // he'll will just get a redirect response, not anything useful
+                else if (dest is "empty")
+                {
+                    if (!DetermineSpaRequest(context.HttpContext))
+                        await context.RejectRequest($"Pages can not be loaded using Javascript for security reasons. If you are the developer, you can disable this check by setting DotvvmConfiguration.Security.VerifySecFetchForPages.DisableForRoute(\"{route}\")");
+                    if (site != "same-origin")
+                        await context.RejectRequest($"Cross site SPA requests are disabled.");
+                }
+                else
+                    await context.RejectRequest("Can not load a DotVVM page with this Sec-Fetch-Dest.");
+            }
         }
 
         public static bool DetermineIsPostBack(IHttpContext context)
