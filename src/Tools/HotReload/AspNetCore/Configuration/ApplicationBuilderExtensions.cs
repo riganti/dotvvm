@@ -12,13 +12,13 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             app.UseSignalR(builder =>
             {
-                builder.MapHub<DotvvmHotReloadHub>("/_dotvvm/dotvvmHotReloadHub");
+                builder.MapHub<DotvvmHotReloadHub>("/_dotvvm/hotReloadHub");
             });
         }
 
         public static void MapDotvvmHotReload(this IEndpointRouteBuilder app)
         {
-            app.MapHub<DotvvmHotReloadHub>("/_dotvvm/dotvvmHotReloadHub");
+            app.MapHub<DotvvmHotReloadHub>("/_dotvvm/hotReloadHub");
         }
 
     }
