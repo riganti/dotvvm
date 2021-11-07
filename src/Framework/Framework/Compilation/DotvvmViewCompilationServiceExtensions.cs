@@ -29,6 +29,8 @@ namespace DotVVM.Framework.Compilation
         {
             if (compilationConfiguration.Mode == ViewCompilationMode.Lazy)
                 return;
+            if (!compilationConfiguration.PrecompileEvenInDebug && config.Debug)
+                return;
 
             var getCompilationTask = compilationConfiguration.Precompile(config, startupTracer);
             if (compilationConfiguration.Mode == ViewCompilationMode.DuringApplicationStart)

@@ -2,18 +2,18 @@
 	<head></head>
 	<body>
 		This repeater will not get the default content.
-		<div data-bind="foreach: { &quot;data&quot;: Collection }">
+		<div data-bind="foreach: { data: Collection }">
 			Content
 		</div>
 		But these two will
-		<div data-bind="foreach: { &quot;data&quot;: Collection, &quot;separatorTemplate&quot;: &quot;cOvMmUhlJiLLj5tqZbMciSiRJeRRjviJeyXbpWBMycU=&quot; }">
+		<div data-bind="foreach: { data: Collection, separatorTemplate: &quot;cOvMmUhlJiLLj5tqZbMciSiRJeRRjviJeyXbpWBMycU=&quot; }">
 			<span data-bind="text: $rawData"></span>
 		</div>
-		<div data-bind="foreach: { &quot;data&quot;: Collection }">
+		<div data-bind="foreach: { data: Collection }">
 			<span data-bind="text: $rawData"></span>
 		</div>
 		This one will automatically get a separator
-		<div data-bind="foreach: { &quot;data&quot;: Collection }">
+		<div data-bind="foreach: { data: Collection }">
 			<!-- ko if: !($index() == 0) -->
 			<span>|</span>
 			<!-- /ko -->

@@ -151,7 +151,7 @@ namespace DotVVM.Framework.Runtime
                 if (placeHolder.ID == null) throw new DotvvmControlException(placeHolder, "PlaceHolder has to have a ID");
                 if (placeHolder.GetAllAncestors().Intersect(placeHolders).Any())
                 {
-                    throw new Exception(string.Format("The ContentPlaceHolder with ID '{0}' cannot be nested in another ContentPlaceHolder!", placeHolder.ID)); // TODO: exception handling
+                    throw new DotvvmControlException(placeHolder, $"The ContentPlaceHolder with ID '{placeHolder.ID}' cannot be nested in another ContentPlaceHolder!");
                 }
             }
             return placeHolders;
@@ -180,9 +180,9 @@ namespace DotVVM.Framework.Runtime
             var contents = childPage.GetAllDescendants().OfType<Content>()
                 .Where(c => !(bool)c.GetValue(Internal.IsMasterPageCompositionFinishedProperty)!)
                 .ToList();
-            if (contents.Any(c => c.Parent != childPage))
+            if (contents.FirstOrDefault(c => c.Parent != childPage) is {} invalidContent)
             {
-                throw new Exception("The control <dot:Content /> cannot be placed inside any control!");    // TODO: exception handling
+                throw new DotvvmControlException(invalidContent, "The control <dot:Content /> cannot be placed inside any control!");
             }
 
             return contents;

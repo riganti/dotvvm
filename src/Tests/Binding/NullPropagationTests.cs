@@ -117,7 +117,7 @@ namespace DotVVM.Framework.Tests.Binding
             while (unusedFragments.Any())
             {
                 var possibleOnes = unusedFragments.Where(f => f.Parameters.All(p => typeSources.ContainsKey(p.Type))).ToArray();
-                Assert.IsFalse(possibleOnes.Length == 0, $"Can not continue from {string.Join(", ", typeSources.Select(t => t.Key.Name))} to {string.Join(", ", unusedFragments.AsEnumerable())}");
+                Assert.IsFalse(possibleOnes.Length == 0, $"Cannot continue from {string.Join(", ", typeSources.Select(t => t.Key.Name))} to {string.Join(", ", unusedFragments.AsEnumerable())}");
                 foreach (var fragment in possibleOnes)
                 {
                     AddFragment(fragment, 4);
@@ -283,6 +283,15 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.IsNull(EvalExpression<TestViewModel>(v => v.IntArray[0] + 1, new TestViewModel { IntArray = null }));
             Assert.IsNull(EvalExpression<TestViewModel>(v => v.TestViewModel2.Collection[0].StringValue.Length + 5, new TestViewModel { IntArray = null }));
             Assert.IsNull(EvalExpression<TestViewModel>(v => v.TestViewModel2.Collection[0].StringValue.Length + 5, new TestViewModel { IntArray = null }));
+        }
+
+        [TestMethod]
+        public void ExtensionMethod()
+        {
+            Assert.IsNull(EvalExpression<int[]>(v => v.Where(v => v % 2 == 0).ToArray(), null));
+            Assert.IsNull(EvalExpression<int[]>(v => v.Where(v => v % 2 == 0), null));
+            Assert.IsNull(EvalExpression<int[]>(v => v.Where(v => v % 2 == 0).Count(), null));
+            Assert.AreEqual(1, EvalExpression<int[]>(v => v.Where(v => v % 2 == 0).Count(), new [] { 1, 2 }));
         }
 
         [TestMethod]

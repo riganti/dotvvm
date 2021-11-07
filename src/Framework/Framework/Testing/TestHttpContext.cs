@@ -28,9 +28,10 @@ namespace DotVVM.Framework.Testing
 
         private Dictionary<string, object?> items = new Dictionary<string, object?>();
 
-        public T GetItem<T>(string key)
+        public T? GetItem<T>(string key)
         {
-            return (T)items[key]!;
+            if (items.TryGetValue(key, out var resultObj) && resultObj is T) return (T)resultObj;
+            return default(T);
         }
 
         public void SetItem<T>(string key, T value)

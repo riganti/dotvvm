@@ -60,7 +60,7 @@ namespace DotVVM.Framework.Hosting
 
             if (!allowAnonymous && !(await authService.AuthorizeAsync(coreContext.User, context, policy)).Succeeded)
             {
-                if (coreContext.User.Identity.IsAuthenticated)
+                if (coreContext.User.Identity?.IsAuthenticated == true)
                 {
                     await HandleUnauthorizedRequest(coreContext, policy);
                 }

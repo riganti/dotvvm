@@ -279,6 +279,54 @@ namespace DotVVM.Framework.Tests.ControlTests
             Assert.IsTrue(exception.Message.Contains("Changing the DataContext property on the GridViewColumn is not supported!"));
         }
 
+        [TestMethod]
+        public async Task NamedCommand()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                async static command with arg
+                <dot:NamedCommand Name=1
+                                  Command={staticCommand: (int s) => _js.Invoke<System.Threading.Tasks.Task<int>>('myCmd', s)} />
+                Command with arg
+                <dot:NamedCommand Name=2
+                                  Command={command: (string x) => x + '0'} />
+                sync static command with argument
+                <dot:NamedCommand Name=3
+                                  Command={staticCommand: (int s) => Integer = s} />
+                Just command
+                <dot:NamedCommand Name=4
+                                  Command={command: 0} />
+                async static command
+                <dot:NamedCommand Name=5
+                                  Command={staticCommand: _js.Invoke<System.Threading.Tasks.Task<int>>('myCmd')} />
+                sync static command
+                <dot:NamedCommand Name=6
+                                  Command={staticCommand: 0} />
+
+            ", directives: "@js dotvvm.internal");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task JsComponent()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <js:Bazmek
+                                 troll={resource: 1}
+                                 scmd={staticCommand: (int s) => _js.Invoke<System.Threading.Tasks.Task<int>>('myCmd', s)}>
+
+                    <MyTemplate>
+                        <h1> Ahoj lidi </h1>
+                    </MyTemplate>
+                </js:Bazmek>
+
+                <js:Bazmek troll={resource: 1} />
+                <js:Bazmek lol={value: Integer} />
+                <js:Bazmek cmd={command: (string x) => x + '0'} />
+                <js:Bazmek scmd={staticCommand: (int x) => Integer = x} />
+            ", directives: "@js dotvvm.internal");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]

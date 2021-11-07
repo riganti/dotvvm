@@ -1,12 +1,15 @@
 ﻿<#@ template debug="true" hostspecific="true" language="C#" #>
 <#@ assembly name="System.Core" #>
-<#@ assembly name="$(SolutionDir)DotVVM.Framework\bin\Debug\net451\DotVVM.Framework.dll" #>
-<#@ assembly name="$(SolutionDir)packages\Microsoft.Extensions.DependencyInjection.Abstractions.1.0.0\lib\netstandard1.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll" #>
+<#@ assembly name="$(SolutionDir)Framework\Framework\bin\Debug\net472\DotVVM.Core.dll" #>
+<#@ assembly name="$(SolutionDir)Framework\Framework\bin\Debug\net472\DotVVM.Framework.dll" #>
+<#@ assembly name="$(SolutionDir)packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.0.0\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll" #>
+<#@ assembly name="$(SolutionDir)packages\Microsoft.Extensions.DependencyInjection.2.0.0\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.dll" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="DotVVM.Framework.Routing" #>
 <#@ import namespace="DotVVM.Framework.Configuration" #>
+<#@ import namespace="Microsoft.Extensions.DependencyInjection" #>
 <#@ import namespace="System.IO" #>
 
 <#@ output extension=".designer.cs" #>
@@ -18,10 +21,10 @@ namespace DotVVM.Testing.Abstractions
     public partial class SamplesRouteUrls
     {
     <# 
-    
-    
+    System.Diagnostics.Debug.WriteLine("$(SolutionDir)");
+
     //define paths
-    var SamplesFolderPath = "DotVVM.Samples.Common";
+    var SamplesFolderPath = "../Common";
     DirectoryInfo dir = new DirectoryInfo(this.Host.ResolveAssemblyReference("$(ProjectDir)"));
     var samplesProjectDir = Path.Combine(dir.Parent.FullName, SamplesFolderPath);
     

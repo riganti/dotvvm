@@ -130,6 +130,12 @@
     }
   },
   "properties": {
+    "DotVVM.Framework.Compilation.ControlTree.LifecycleRequirementsAssigningVisitor": {
+      "CompileTimeLifecycleRequirements": {
+        "type": "DotVVM.Framework.Controls.ControlLifecycleRequirements, DotVVM.Framework",
+        "isCompileTimeOnly": true
+      }
+    },
     "DotVVM.Framework.Controls.AuthenticatedView": {
       "AuthenticatedTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
@@ -666,6 +672,18 @@
     "DotVVM.Framework.Controls.ItemsControl": {
       "DataSource": {
         "type": "System.Object"
+      }
+    },
+    "DotVVM.Framework.Controls.JsComponent": {
+      "Global": {
+        "type": "System.Boolean"
+      },
+      "Name": {
+        "type": "System.String",
+        "required": true
+      },
+      "WrapperTagName": {
+        "type": "System.String"
       }
     },
     "DotVVM.Framework.Controls.ListBox": {
@@ -1205,6 +1223,23 @@
         "prefix": "Style-",
         "type": "System.Object",
         "fromCapability": "HtmlCapability"
+      }
+    },
+    "DotVVM.Framework.Controls.JsComponent": {
+      "Props": {
+        "prefixes": [
+          "",
+          "prop:"
+        ],
+        "type": "System.Object"
+      },
+      "Templates": {
+        "prefixes": [
+          "",
+          "template-"
+        ],
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
       }
     },
     "DotVVM.Framework.Controls.RouteLink": {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -56,13 +56,7 @@ namespace DotVVM.Framework.Controls
                 throw new DotvvmControlException(this, "Internal.ReferencedViewModuleInfoProperty was not set on the NamedCommand.");
             }
 
-            var options = new PostbackScriptOptions(
-                returnValue: true,
-                commandArgs: new CodeParameterAssignment("args", OperatorPrecedence.Max),
-                elementAccessor: "$element"
-            );
-            var command = KnockoutHelper.GenerateClientPostBackExpression(nameof(Command), Command!, this, options);
-            command = $"function(...args) {{ return ({command}); }}";
+            var command = KnockoutHelper.GenerateClientPostbackLambda(nameof(Command), Command!, this);
 
             var viewIdJs = ViewModuleHelpers.GetViewIdJsExpression(viewModule, this);
             writer.WriteKnockoutDataBindComment("dotvvm-named-command", $"{{ viewIdOrElement: {viewIdJs}, name: {KnockoutHelper.MakeStringLiteral(Name!)}, command: {command} }}");

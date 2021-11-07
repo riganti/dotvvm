@@ -87,6 +87,25 @@ namespace DotVVM.Framework.Controls
             writer.AddKnockoutDataBind("foreach", expression);
         }
 
+        /// <summary> Generates a function expression that invokes the command with specified commandArguments. Creates code like `(...commandArguments) => dotvvm.postBack(...)` </summary>
+        public static string GenerateClientPostbackLambda(string propertyName, ICommandBinding command, DotvvmBindableObject control, PostbackScriptOptions? options = null)
+        {
+            options ??= new PostbackScriptOptions(
+                elementAccessor: "$element",
+                koContext: CodeParameterAssignment.FromIdentifier("$context", true)
+            );
+
+            var hasArguments = command is IStaticCommandBinding || command.CommandJavascript.EnumerateAllParameters().Any(p => p == CommandBindingExpression.CommandArgumentsParameter);
+            options.CommandArgs = hasArguments ? new CodeParameterAssignment(new ParametrizedCode("args", OperatorPrecedence.Max)) : default;
+            // just few commands have arguments so it's worth checking if we need to clutter the output with argument propagation
+            var call = KnockoutHelper.GenerateClientPostBackExpression(
+                propertyName,
+                command,
+                control,
+                options);
+            return hasArguments ? $"(...args)=>({call})" : $"()=>({call})";
+        }
+
         /// <summary> Generates Javascript code which executes the specified command binding <paramref name="expression" />. </summary>
         /// <remarks> If you want a Javascript expression which returns a promise, use the <see cref="GenerateClientPostBackExpression(string, ICommandBinding, DotvvmBindableObject, PostbackScriptOptions)" /> method. </remarks>
         /// <param name="propertyName">Name of the property which contains this command binding. It is used for looking up postback handlers.</param>
@@ -177,7 +196,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                knockoutContext = CodeParameterAssignment.FromIdentifier("options.knockoutContext");
+                knockoutContext = options.KoContext ?? CodeParameterAssignment.FromIdentifier("options.knockoutContext");
                 viewModel = CodeParameterAssignment.FromIdentifier("options.viewModel");
             }
             var abortSignal = options.AbortSignal ?? CodeParameterAssignment.FromIdentifier("undefined");

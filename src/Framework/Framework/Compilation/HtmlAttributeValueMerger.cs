@@ -45,8 +45,8 @@ namespace DotVVM.Framework.Compilation
 
             if (a is string aString && b is string bString)
                 return HtmlWriter.JoinAttributeValues(gProp.GroupMemberName, aString, bString);
-            
-            throw new NotSupportedException($"Can not merge html attribute values {a} and {b}, the values must be of type string.");
+
+            throw new NotSupportedException($"Cannot merge html attribute values {a} and {b}, the values must be of type string.");
         }
     }
 }

@@ -16,12 +16,18 @@ using Newtonsoft.Json.Linq;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Binding;
 using System.Collections.Immutable;
+using RecordExceptions;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
     public class DefaultViewModelSerializer : IViewModelSerializer
     {
         private const string GeneralViewModelRecommendations = "Check out general viewModel recommendation at http://www.dotvvm.com/docs/tutorials/basics-viewmodels.";
+
+        public record SerializationException(bool Serialize, Type? ViewModelType, string JsonPath, Exception InnerException): RecordException(InnerException)
+        {
+            public override string Message => $"Could not {(Serialize ? "" : "de")}serialize viewModel of type { ViewModelType?.Name ?? null }. Serialization failed at property { JsonPath }. {GeneralViewModelRecommendations}";
+        }
 
         private CommandResolver commandResolver = new CommandResolver();
 
@@ -96,7 +102,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not serialize viewModel of type { context.ViewModel!.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
+                throw new SerializationException(true, context.ViewModel!.GetType(), writer.Path, ex);
             }
             var viewModelToken = writer.Token;
 
@@ -201,7 +207,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not serialize {description} of type '{ data?.GetType().FullName ?? "null"}'. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
+                throw new SerializationException(true, data?.GetType(), writer.Path, ex);
             }
             return writer.Token;
         }
@@ -334,13 +340,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // populate the ViewModel
             var serializer = CreateJsonSerializer();
             serializer.Converters.Add(viewModelConverter);
+            var reader = viewModelToken.CreateReader();
             try
             {
-                viewModelConverter.Populate(viewModelToken.CreateReader(), serializer, context.ViewModel!);
+                viewModelConverter.Populate(reader, serializer, context.ViewModel!);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not deserialize viewModel of type { context.ViewModel?.GetType().Name ?? "null" }. {GeneralViewModelRecommendations}", ex);
+                throw new SerializationException(false, context.ViewModel?.GetType(), reader.Path, ex);
             }
         }
 
