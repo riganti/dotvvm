@@ -59,7 +59,7 @@ export async function staticCommandPostback(command: string, args: any[], option
 
         return response.result.result;
         
-    } catch (err) {
+    } catch (err: any) {
         events.staticCommandMethodFailed.trigger({ 
             ...options, 
             methodId: command,
