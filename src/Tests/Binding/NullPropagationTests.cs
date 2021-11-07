@@ -286,6 +286,15 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void ExtensionMethod()
+        {
+            Assert.IsNull(EvalExpression<int[]>(v => v.Where(v => v % 2 == 0).ToArray(), null));
+            Assert.IsNull(EvalExpression<int[]>(v => v.Where(v => v % 2 == 0), null));
+            Assert.IsNull(EvalExpression<int[]>(v => v.Where(v => v % 2 == 0).Count(), null));
+            Assert.AreEqual(1, EvalExpression<int[]>(v => v.Where(v => v % 2 == 0).Count(), new [] { 1, 2 }));
+        }
+
+        [TestMethod]
         public void IndexerArgument()
         {
             Assert.IsNull(EvalExpression<TestViewModel>(v => v.IntArray[v.NullableIntProp.Value], new TestViewModel()));
