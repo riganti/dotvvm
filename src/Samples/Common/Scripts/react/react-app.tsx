@@ -1,13 +1,12 @@
 ﻿/// <reference path="../../../../Framework/Framework/obj/typescript-types/dotvvm.d.ts" />
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { KnockoutTemplateReactComponent, registerReactControl} from 'dotvvm.jscomponent.react';
+import { KnockoutTemplateReactComponent, registerReactControl } from 'dotvvm-jscomponent-react';
 import { LineChart, XAxis, Tooltip, CartesianGrid, Line, Dot } from 'recharts';
 import type { StateManager } from 'state-manager';
 
 // react component
 function RechartComponent(props: any) {
-    const onMouse = props.onMouse ?? (() => { })
     return (
         <LineChart
             width={400}
@@ -23,7 +22,7 @@ function RechartComponent(props: any) {
                         dataKey={s}
                         stroke={"#" + (i * 4).toString() + "87908"}
                         yAxisId={i}
-                        onMouseEnter={(_) => onMouse(s)} />)
+                        onMouseEnter={(_) => props.onMouse(s)} />)
             }
         </LineChart>
     );
@@ -40,7 +39,7 @@ function TemplateSelector(props) {
 // DotVVM Context importer 
 export default (context) => ({
     $controls: {
-        recharts: registerReactControl(RechartComponent, { context }),
+        recharts: registerReactControl(RechartComponent, { context, onMouse() { /* default empty method */ } }),
         TemplateSelector: registerReactControl(TemplateSelector)
     }
 })
