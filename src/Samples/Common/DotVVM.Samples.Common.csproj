@@ -190,8 +190,12 @@
     <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
   
+  <ItemGroup>
+    <!-- the wildcard would not work in Target.Inputs, it only works in Include -->
+    <TypescriptFile Include="Resources/Scripts/**/*.tsx" />
+  </ItemGroup>
   <!-- BeforeBuild is ran for every target framework. However, unless its input files change, this target is skipped. -->
-  <Target Name="CompileJS" Inputs="@(TypescriptFile)" Outputs="obj/javascript/root-only/dotvvm-root.js;obj/javascript/root-only-debug/dotvvm-root.js;obj/javascript/root-spa/dotvvm-root.js;obj/javascript/root-spa-debug/dotvvm-root.js" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
+  <Target Name="CompileJS" Inputs="@(TypescriptFile)" Outputs="script/react-app.js" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
 
     <PropertyGroup>
       <EnvOverrides>NO_COLOR=1;FORCE_COLOR=0;TERM=dumb</EnvOverrides>
