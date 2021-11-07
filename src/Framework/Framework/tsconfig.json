@@ -13,8 +13,7 @@
     "moduleResolution": "node",
     "strictNullChecks": true,
     "lib": [ "dom", "es2015.promise", "es5", "es6" ],
-    "module": "ES2015",
-    "noEmit": true
+    "module": "ES2015"
   },
   // "include": ["Resources/Scripts/global-declarations.ts", "Resources/Scripts/**.ts", "Resources/Scripts/typings/knockout/knockout.d.ts"],
   "exclude": ["obj/**", "Resources/Scripts/tests", "node_modules/**"],
