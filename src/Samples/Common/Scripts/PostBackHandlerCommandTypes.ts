@@ -1,5 +1,3 @@
-declare var dotvvm: any;
-
 dotvvm.events.init.subscribe(() => {
     dotvvm.postBackHandlers["PostBackHandlerCommandTypes"] = handlerOptions => ({
         execute(callback, postbackOptions) {

@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "jsx": "react",
+    "target": "ES6",
+    "moduleResolution": "node",
+    "lib": [
+      "dom",
+      "ES6"
+    ]
+  },
+  
+  "exclude": [
+    "node_modules",
+    "wwwroot",
+    "Scripts/TestWebApiClientOwin.ts"
+  ]
+}

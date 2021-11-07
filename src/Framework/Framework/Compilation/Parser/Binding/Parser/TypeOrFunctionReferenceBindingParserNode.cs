@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 return memberAccess;
             }
 
-            throw new InvalidOperationException($"Can not convert {TypeOrFunction} to function!");
+            throw new InvalidOperationException($"Cannot convert {TypeOrFunction} to function!");
         }
     }
 }

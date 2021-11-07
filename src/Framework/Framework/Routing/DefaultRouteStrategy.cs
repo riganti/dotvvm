@@ -1,5 +1,6 @@
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
+using RecordExceptions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +13,10 @@ namespace DotVVM.Framework.Routing
     /// </summary>
     public class DefaultRouteStrategy : IRoutingStrategy
     {
+        public record DirectoryNotFoundException(string Directory): RecordException
+        {
+            public override string Message => $"Cannot auto-discover DotVVM routes. The directory '{Directory}' was not found!";
+        }
 
         protected readonly DotvvmConfiguration configuration;
 
@@ -48,7 +53,7 @@ namespace DotVVM.Framework.Routing
         {
             if (!viewsFolderDirectoryInfo.Exists)
             {
-                throw new DotvvmRouteStrategyException($"Cannot auto-discover DotVVM routes. The directory '{viewsFolderDirectoryInfo.FullName}' was not found!");
+                throw new DirectoryNotFoundException(viewsFolderDirectoryInfo.FullName);
             }
 
             return viewsFolderDirectoryInfo

@@ -127,7 +127,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return sb.ToString();
         }
 
-        public void WriteHead(IErrorWriter w)
+        public void WriteStyle(IErrorWriter w)
         {
             w.WriteUnencoded(@"
 .exception .exceptionType:after { content: ': '; }

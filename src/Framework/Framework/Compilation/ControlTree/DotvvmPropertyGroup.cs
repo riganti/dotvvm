@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var dataContextChange = attributeProvider.GetCustomAttributes<DataContextChangeAttribute>(true);
             var dataContextManipulation = attributeProvider.GetCustomAttribute<DataContextStackManipulationAttribute>(true);
             if (dataContextManipulation != null && dataContextChange.Any()) throw new ArgumentException(
-                $"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set both at property group '{name}'.");
+                $"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} cannot be set both at property group '{name}'.");
             var obsoleteAttribute = attributeProvider.GetCustomAttribute<ObsoleteAttribute>();
             return (markupOptions, dataContextChange.ToArray(), dataContextManipulation, obsoleteAttribute);
         }
@@ -123,17 +123,19 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return descriptorDictionary.Values
                 .Where(pg => pg.DeclaringType.Name == typeName);
         }
-        
+
         public static IEnumerable<DotvvmPropertyGroup> AllGroups => descriptorDictionary.Values;
 
-        public static IPropertyDescriptor? ResolvePropertyGroup(string name, bool caseSensitive)
+        public static IPropertyDescriptor? ResolvePropertyGroup(string name, bool caseSensitive, MappingMode requiredMode = default)
         {
             var nameParts = name.Split('.');
             var groups = FindAttachedPropertyCandidates(nameParts[0])
                 .SelectMany(g => g.Prefixes.Select(p => new { Group = g, Prefix = p }));
 
             var group = groups
-                .FirstOrDefault(g => nameParts[1].StartsWith(g.Prefix, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(g =>
+                    nameParts[1].StartsWith(g.Prefix, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase) &&
+                    g.Group.MarkupOptions.MappingMode.HasFlag(requiredMode));
             if (group != null)
             {
                 var concreteName = nameParts[1].Substring(group.Prefix.Length);

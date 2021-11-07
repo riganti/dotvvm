@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Compilation.Binding
         public Expression? GetMember(Expression target, string name, Type[]? typeArguments = null, bool throwExceptions = true, bool onlyMemberTypes = false)
         {
             if (target is MethodGroupExpression)
-                throw new Exception("Can not access member on method group.");
+                throw new Exception("Cannot access member on method group.");
 
             var type = target.Type;
             if (type == typeof(UnknownTypeSentinel)) if (throwExceptions) throw new Exception($"Type of '{target}' could not be resolved."); else return null;
@@ -254,7 +254,8 @@ namespace DotVVM.Framework.Compilation.Binding
             if (method.AutomaticTypeArgCount == method2.AutomaticTypeArgCount && method.CastCount == method2.CastCount && method.HasParamsAttribute == method2.HasParamsAttribute)
             {
                 // TODO: this behavior is not completed. Implement the same behavior as in roslyn.
-                throw new InvalidOperationException($"Found ambiguous overloads of method '{name}'.");
+                var foundOverloads = $"{method.Method}, {method2.Method}";
+                throw new InvalidOperationException($"Found ambiguous overloads of method '{name}'. The following overloads were found: {foundOverloads}.");
             }
             return method;
         }
@@ -302,7 +303,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
             if (!TryPrepareArguments(parameters, positionalArguments, namedArguments, out var args, out var castCount))
                 return null;
-          
+
             int automaticTypeArgs = 0;
             // resolve generic parameters
             if (method.ContainsGenericParameters)

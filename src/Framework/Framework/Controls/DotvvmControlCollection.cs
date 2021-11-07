@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
 {
@@ -293,7 +294,15 @@ namespace DotVVM.Framework.Controls
             }
             catch (Exception ex)
             {
-                throw new DotvvmControlException(lastProcessedControl, "Unhandled exception occurred while executing page lifecycle event.", ex);
+                if (ex is IDotvvmException { RelatedControl: not null })
+                    throw;
+                if (ex is DotvvmExceptionBase dotvvmException)
+                {
+                    dotvvmException.RelatedControl = lastProcessedControl;
+                    throw;
+                }
+                else
+                    throw new DotvvmControlException(lastProcessedControl, "Unhandled exception occurred while executing page lifecycle event.", ex);
             }
         }
 

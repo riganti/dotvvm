@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Controls
         public HtmlGenericControl(string? tagName, TextOrContentCapability? content, bool allowImplicitLifecycleRequirements = true)
         {
             if (GetType() != typeof(HtmlGenericControl))
-                throw new("HtmlGenericControl can only use InnerText (and thus TextOrContentCapability) property when used directly, it can not be inherited.");
+                throw new("HtmlGenericControl can only use InnerText (and thus TextOrContentCapability) property when used directly, it cannot be inherited.");
             if (tagName?.Trim() == "")
             {
                 throw new DotvvmControlException("The tagName must not be empty!");
@@ -139,8 +139,6 @@ namespace DotVVM.Framework.Controls
         /// Gets a value whether this control renders a HTML tag.
         /// </summary>
         protected virtual bool RendersHtmlTag => TagName is object;
-
-        IDictionary<string, object?> IControlWithHtmlAttributes.Attributes => this.Attributes;
 
         protected new struct RenderState
         {
@@ -386,7 +384,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (prop is not GroupedDotvvmProperty gprop || gprop.PropertyGroup != AttributesGroupDescriptor)
                     continue;
-                
+
                 if (valueRaw is IValueBinding binding)
                 {
                     if (gprop.GroupMemberName == "class")
@@ -437,7 +435,7 @@ namespace DotVVM.Framework.Controls
             var textBinding = literal.GetValueRaw(Literal.TextProperty) as IValueBinding;
             if (textBinding is null || Literal.NeedsFormatting(textBinding))
                 return;
-            
+
             Children.Clear();
             r.InnerText = textBinding;
         }
@@ -476,15 +474,15 @@ namespace DotVVM.Framework.Controls
 
 
     [DotvvmControlCapability]
-    public sealed class HtmlCapability
+    public sealed record HtmlCapability
     {
         [PropertyGroup("", "html:")]
         [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger), AllowAttributeWithoutValue = true)]
-        public IDictionary<string, ValueOrBinding<object?>> Attributes { get; set; } = new Dictionary<string, ValueOrBinding<object?>>();
+        public IDictionary<string, ValueOrBinding<object?>> Attributes { get; init; } = new Dictionary<string, ValueOrBinding<object?>>();
         [PropertyGroup("Class-")]
-        public IDictionary<string, ValueOrBinding<bool>> CssClasses { get; set; } = new Dictionary<string, ValueOrBinding<bool>>();
+        public IDictionary<string, ValueOrBinding<bool>> CssClasses { get; init; } = new Dictionary<string, ValueOrBinding<bool>>();
         [PropertyGroup("Style-")]
-        public IDictionary<string, ValueOrBinding<object>> CssStyles { get; set; } = new Dictionary<string, ValueOrBinding<object>>();
-        public ValueOrBinding<bool> Visible { get; set; } = true;
+        public IDictionary<string, ValueOrBinding<object>> CssStyles { get; init; } = new Dictionary<string, ValueOrBinding<object>>();
+        public ValueOrBinding<bool> Visible { get; init; } = true;
     }
 }

@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public bool IsContentAllowed =>
             (attribute?.AllowContent ?? true) &&
             Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IDotvvmControl))) &&
-            // composite controls can not contain children, only content properties
+            // composite controls cannot contain children, only content properties
             !Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(CompositeControl)));
 
         [JsonIgnore]
@@ -92,7 +92,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             this.attribute = controlType?.Type?.GetControlMarkupOptionsAttribute();
 
             this.properties = new Lazy<Dictionary<string, IPropertyDescriptor>>(() => {
-                var result = new Dictionary<string, IPropertyDescriptor>(StringComparer.CurrentCultureIgnoreCase);
+                var result = new Dictionary<string, IPropertyDescriptor>(StringComparer.OrdinalIgnoreCase);
                 LoadProperties(result);
                 return result;
             });

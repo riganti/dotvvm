@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Hosting
     {
         protected bool Equals(MarkupFile? other)
         {
-            return other != null && string.Equals(FullPath, other.FullPath, StringComparison.CurrentCultureIgnoreCase) && LastWriteDateTimeUtc.Equals(other.LastWriteDateTimeUtc);
+            return other != null && string.Equals(FullPath, other.FullPath, StringComparison.OrdinalIgnoreCase) && LastWriteDateTimeUtc.Equals(other.LastWriteDateTimeUtc);
         }
 
         public override int GetHashCode()

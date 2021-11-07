@@ -3,19 +3,19 @@
 	<body>
 		
 		<!-- ko with: int -->
-		<div data-bind="dotvvm-with-control-properties: { &quot;Click&quot;: ()=>(dotvvm.applyPostbackHandlers(async (options) => {
-	await dotvvm.staticCommandPostback(&quot;WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSxbIlN5c3RlbS5JbnQzMiwgU3lzdGVtLlByaXZhdGUuQ29yZUxpYiJdLCJBUUE9Il0=&quot;, [options.knockoutContext.$parent.int.state], options);
-},$element)) }">
+		<div data-bind="dotvvm-with-control-properties: { Click: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => {
+	await dotvvm.staticCommandPostback(&quot;WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSwxLG51bGwsIkFRQT0iXQ==&quot;, [$context.$parent.int.state], options);
+},$element,[],args,$context)) }">
 			<input onclick="dotvvm.applyPostbackHandlers(async (options) => {
 	let a;
 	return await((a = options.knockoutContext.$control.Click.state) &amp;&amp; a());
 },this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
 		</div>
 		<!-- /ko -->
-		<div data-bind="foreach: { &quot;data&quot;: Collection }">
-			<div data-bind="dotvvm-with-control-properties: { &quot;Click&quot;: ()=>(dotvvm.applyPostbackHandlers(async (options) => {
-	await dotvvm.staticCommandPostback(&quot;WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSxbIlN5c3RlbS5JbnQzMiwgU3lzdGVtLlByaXZhdGUuQ29yZUxpYiJdLCJBUUE9Il0=&quot;, [options.knockoutContext.$rawData.state], options);
-},$element)) }">
+		<div data-bind="foreach: { data: Collection }">
+			<div data-bind="dotvvm-with-control-properties: { Click: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => {
+	await dotvvm.staticCommandPostback(&quot;WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMiLCJTYXZlIixbXSwxLG51bGwsIkFRQT0iXQ==&quot;, [$rawData.state], options);
+},$element,[],args,$context)) }">
 				<input onclick="dotvvm.applyPostbackHandlers(async (options) => {
 	let a;
 	return await((a = options.knockoutContext.$control.Click.state) &amp;&amp; a());

@@ -136,11 +136,11 @@ namespace DotVVM.Framework.Controls
                 }
                 if (property.GetCustomAttribute<BindAttribute>() is BindAttribute bind && bind.Direction == Direction.None)
                 {
-                    throw new Exception($"Can not sort by an property '{prop}' that has [Bind(Direction.None)].");
+                    throw new Exception($"Cannot sort by an property '{prop}' that has [Bind(Direction.None)].");
                 }
                 if (property.GetCustomAttribute<ProtectAttribute>() is ProtectAttribute protect && protect.Settings == ProtectMode.EncryptData)
                 {
-                    throw new Exception($"Can not sort by an property '{prop}' that is encrypted.");
+                    throw new Exception($"Cannot sort by an property '{prop}' that is encrypted.");
                 }
 
                 sortByExpression = Expression.Property(sortByExpression, property);

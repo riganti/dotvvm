@@ -71,10 +71,9 @@ namespace DotVVM.Framework.ResourceManagement
                     var dependencyChain = stack
                         .Reverse()
                         .Concat(new[] { nextDependencyIdentifier })
-                        .StringJoin(" --> ");
+                        .ToArray();
 
-                    // dependency cycle detected
-                    throw new DotvvmResourceException($"Resource \"{name}\" has a cyclic dependency: {dependencyChain}");
+                    throw new DotvvmCyclicResourceDependencyException(name, currentResource, dependencyChain);
                 }
 
                 stack.Push(nextDependencyIdentifier);

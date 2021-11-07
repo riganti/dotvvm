@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -118,6 +119,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddPropertyGetterTranslator(typeof(Array), nameof(Array.Length), lengthMethod);
             AddPropertyGetterTranslator(typeof(ICollection), nameof(ICollection.Count), lengthMethod);
             AddPropertyGetterTranslator(typeof(ICollection<>), nameof(ICollection.Count), lengthMethod);
+            AddPropertyGetterTranslator(typeof(IReadOnlyCollection<>), nameof(ICollection.Count), lengthMethod);
             AddPropertyGetterTranslator(typeof(string), nameof(string.Length), lengthMethod);
             AddMethodTranslator(typeof(Enums), "GetNames", new EnumGetNamesMethodTranslator(), 0);
 
@@ -138,10 +140,14 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(IList), "set_Item", new GenericMethodCompiler(listSetIndexer));
             AddMethodTranslator(typeof(IList<>), "set_Item", new GenericMethodCompiler(listSetIndexer));
             AddMethodTranslator(typeof(List<>), "set_Item", new GenericMethodCompiler(listSetIndexer));
+            AddMethodTranslator(typeof(IReadOnlyList<>), "get_Item", new GenericMethodCompiler(listGetIndexer));
             AddMethodTranslator(typeof(Dictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
             AddMethodTranslator(typeof(IDictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
             AddMethodTranslator(typeof(Dictionary<,>), "set_Item", new GenericMethodCompiler(dictionarySetIndexer));
             AddMethodTranslator(typeof(IDictionary<,>), "set_Item", new GenericMethodCompiler(dictionarySetIndexer));
+            AddMethodTranslator(typeof(IReadOnlyDictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
+            AddMethodTranslator(typeof(ReadOnlyDictionary<,>), "get_Item", new GenericMethodCompiler(dictionaryGetIndexer));
+            AddMethodTranslator(typeof(ReadOnlyCollection<>), "get_Item", new GenericMethodCompiler(listGetIndexer));
             AddMethodTranslator(typeof(Array).GetMethod(nameof(Array.SetValue), new[] { typeof(object), typeof(int) }), new GenericMethodCompiler(arrayElementSetter));
             AddPropertyGetterTranslator(typeof(Nullable<>), "Value", new GenericMethodCompiler((JsExpression[] args, MethodInfo method) => args[0]));
             AddPropertyGetterTranslator(typeof(Nullable<>), "HasValue",
@@ -183,6 +189,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddDefaultListTranslations();
             AddDefaultMathTranslations();
             AddDefaultDateTimeTranslations();
+            AddDefaultConvertTranslations();
         }
 
         private void AddDefaultToStringTranslations()
@@ -295,7 +302,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddFrameworkDependentSplitMehtodTranslations();
             AddFrameworkDependentContainsMehtodTranslations();
 
-      
+
         }
 
         private void AddFrameworkDependentContainsMehtodTranslations()
@@ -459,7 +466,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             bool EnsureIsComparableInJavascript(MethodInfo method, Type type)
             {
                 if (!ReflectionUtils.IsPrimitiveType(type))
-                    throw new DotvvmCompilationException($"Can not translate invocation of method \"{method.Name}\" to JavaScript. Comparison of non-primitive types is not supported.");
+                    throw new DotvvmCompilationException($"Cannot translate invocation of method \"{method.Name}\" to JavaScript. Comparison of non-primitive types is not supported.");
 
                 return true;
             }
@@ -557,6 +564,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("removeRange").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1], args[2])));
             AddMethodTranslator(typeof(List<>), "Reverse", parameterCount: 0, translator: new GenericMethodCompiler(args =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("reverse").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))));
+            AddMethodTranslator(typeof(List<>), "AsReadOnly", parameterCount: 0, translator: new GenericMethodCompiler(args => args[0]));
 
             // DotVVM list extensions:
             AddMethodTranslator(typeof(ListExtensions), "AddOrUpdate", parameterCount: 4, translator: new GenericMethodCompiler(args =>
@@ -588,6 +596,50 @@ namespace DotVVM.Framework.Compilation.Javascript
                 new JsNewExpression(new JsIdentifierExpression("Date"), args[0]).Member("getMilliseconds").Invoke()));
         }
 
+        private void AddDefaultConvertTranslations()
+        {
+            // Convert.ToDouble, ToSingle, ToDecimal - all of these are represented as double in JS, we only sometimes need them for correct overload resolution
+
+            // for integer types, we do the same, but also call Math.round
+
+            foreach (var m in typeof(Convert)
+                .GetMethods(BindingFlags.Static | BindingFlags.Public)
+                .Where(m => m.Name is "ToDouble" or "ToSingle" or "ToDecimal" or "ToInt32" or "ToUInt32" or "ToInt16" or "ToUInt16" or "ToByte" or "ToSByte" or "ToInt64" or "ToUInt64"))
+            {
+                var p = m.GetParameters();
+                if (p.Length != 1)
+                    continue;
+                var isFloating = m.Name is "ToDouble" or "ToSingle" or "ToDecimal";
+                JsExpression wrapInRound(JsExpression a) =>
+                    isFloating ? a : new JsIdentifierExpression("Math").Member("round").Invoke(a);
+                if (p[0].ParameterType == typeof(char))
+                {
+                    // Convert char to number
+                    AddMethodTranslator(m, translator: new GenericMethodCompiler(args => args[1].Member("charCodeAt").Invoke(new JsLiteral(0))));
+                }
+                else if (p[0].ParameterType.IsNumericType())
+                {
+                    AddMethodTranslator(m, translator: new GenericMethodCompiler(args => wrapInRound(args[1])));
+                }
+                else if (p[0].ParameterType == typeof(string) || p[0].ParameterType == typeof(bool))
+                {
+                    AddMethodTranslator(m, translator: new GenericMethodCompiler(args => wrapInRound(new JsIdentifierExpression("Number").Invoke(args[1]))));
+                }
+            }
+
+            foreach (var m in typeof(Convert)
+                .GetMethods(BindingFlags.Static | BindingFlags.Public)
+                .Where(m => m.Name == "ToBoolean"))
+            {
+                var p = m.GetParameters();
+                if (p.Length != 1)
+                    continue;
+                if (p[0].ParameterType.IsNumericType() && p[0].ParameterType != typeof(char))
+                {
+                    AddMethodTranslator(m, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("Boolean").Invoke(args[1])));
+                }
+            }
+        }
         public JsExpression? TryTranslateCall(LazyTranslatedExpression? context, LazyTranslatedExpression[] args, MethodInfo method)
         {
             {

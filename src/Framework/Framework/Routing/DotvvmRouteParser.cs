@@ -74,7 +74,7 @@ namespace DotVVM.Framework.Routing
 
             return new UrlParserResult
             {
-                RouteRegex = new Regex(regex.ToString(), RegexOptions.Compiled | RegexOptions.IgnoreCase),
+                RouteRegex = new Regex(regex.ToString(), RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant),
                 UrlBuilders = urlBuilders,
                 Parameters = parameters,
                 UrlWithoutTypes = string.Concat(urlBuilders.Skip(1).Select(b => b(fakeParameters))).TrimStart('/')

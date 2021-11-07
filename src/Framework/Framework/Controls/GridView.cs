@@ -105,7 +105,7 @@ namespace DotVVM.Framework.Controls
 
         public static readonly DotvvmProperty HeaderRowDecoratorsProperty =
             DotvvmProperty.Register<List<Decorator>?, GridView>(c => c.HeaderRowDecorators);
-        
+
         /// <summary>
         /// Gets or sets a list of decorators that will be applied on each row in edit mode.
         /// </summary>
@@ -228,10 +228,10 @@ namespace DotVVM.Framework.Controls
         {
             var dataSource = this.DataSource;
             if (dataSource is null)
-                throw new DotvvmControlException(this, "Can not execute sort command, DataSource is null");
+                throw new DotvvmControlException(this, "Cannot execute sort command, DataSource is null");
             var sortOptions = (dataSource as ISortableGridViewDataSet)?.SortingOptions;
             if (sortOptions is null)
-                throw new DotvvmControlException(this, "Can not execute sort command, DataSource does not have sorting options");
+                throw new DotvvmControlException(this, "Cannot execute sort command, DataSource does not have sorting options");
             if (sortOptions.SortExpression == expr)
             {
                 sortOptions.SortDescending ^= true;
@@ -535,7 +535,7 @@ namespace DotVVM.Framework.Controls
             var userColumnMappingService = context.Services.GetRequiredService<UserColumnMappingCache>();
             var mapping = userColumnMappingService.GetMapping(itemType!);
             var mappingJson = JsonConvert.SerializeObject(mapping);
-            
+
             writer.AddKnockoutDataBind("dotvvm-gridviewdataset", $"{{'mapping':{mappingJson},'dataSet':{GetDataSourceBinding().GetKnockoutBindingExpression(this, unwrapped: true)}}}");
             base.AddAttributesToRender(writer, context);
         }

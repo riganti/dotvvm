@@ -15,215 +15,113 @@ using DotVVM.Framework.Compilation.ControlTree;
 namespace DotVVM.Framework.Binding.Properties
 {
     /// <summary>
-    /// Contains evaluable Javascript in knockout binding, knockout context parameters are represented as symbolic parameters in the ParametrizedCode
+    /// Contains Javascript evaluable in knockout binding, knockout context parameters are represented as symbolic parameters in the ParametrizedCode
     /// </summary>
-    public sealed class KnockoutExpressionBindingProperty
-    {
-        /// <summary>
-        /// Knockout binding expression. May return observable.
-        /// </summary>
-        public readonly ParametrizedCode Code;
-        /// <summary>
-        /// Knockout binding expression. Always unwraps the observable.
-        /// </summary>
-        public readonly ParametrizedCode UnwrappedCode;
-        /// Knockout binding expression. Always returns an observable.
-        public readonly ParametrizedCode WrappedCode;
-        public KnockoutExpressionBindingProperty(ParametrizedCode code, ParametrizedCode unwrappedCode, ParametrizedCode wrappedCode)
-        {
-            this.Code = code;
-            this.UnwrappedCode = unwrappedCode;
-            this.WrappedCode = wrappedCode;
-        }
-    }
+    /// <param name="Code">Knockout binding expression. May return observable.</param>
+    /// <param name="UnwrappedCode">Knockout binding expression. Always unwraps the observable.</param>
+    /// <param name="WrappedCode">Knockout binding expression. Always returns an observable.</param>
+    public sealed record KnockoutExpressionBindingProperty (
+        ParametrizedCode Code,
+        ParametrizedCode UnwrappedCode,
+        ParametrizedCode WrappedCode
+    );
 
     /// <summary>
     /// Contains string that identifies the translated binding.
     /// </summary>
-    public sealed class SimplePathExpressionBindingProperty
-    {
-        public readonly ParametrizedCode Code;
-        public SimplePathExpressionBindingProperty(ParametrizedCode code)
-        {
-            this.Code = code;
-        }
-    }
+    public sealed record SimplePathExpressionBindingProperty(
+        ParametrizedCode Code
+    );
 
     /// <summary>
     /// Contains original binding string, as it was typed in dothtml file. (it is trimmed)
     /// </summary>
-    public sealed class OriginalStringBindingProperty
-    {
-        public readonly string Code;
-        public OriginalStringBindingProperty(string code)
-        {
-            this.Code = code;
-        }
-    }
+    public sealed record OriginalStringBindingProperty(
+        string Code
+    );
 
     /// <summary>
     /// Contains binding's result type.
     /// </summary>
-    public sealed class ResultTypeBindingProperty
-    {
-        public readonly Type Type;
-        public ResultTypeBindingProperty(Type type)
-        {
-            this.Type = type;
-        }
-    }
+    public sealed record ResultTypeBindingProperty(
+        Type Type
+    );
 
     /// <summary>
     /// Contains unique id of binding in its DataContext and the page
     /// </summary>
-    public sealed class IdBindingProperty
-    {
-        public readonly string Id;
-        public IdBindingProperty(string id)
-        {
-            this.Id = id;
-        }
-    }
+    public sealed record IdBindingProperty(
+        string Id
+    );
 
     /// <summary>
     /// Contains JS code, that will invoke the command. May contain symbolic parameters from `JavascriptTranslator` and `CommandBindingExpression`
     /// </summary>
-    public sealed class CommandJavascriptBindingProperty
-    {
-        public readonly ParametrizedCode Code;
-        public CommandJavascriptBindingProperty(ParametrizedCode code)
-        {
-            this.Code = code;
-        }
-    }
+    public sealed record CommandJavascriptBindingProperty(
+        ParametrizedCode Code
+    );
 
     /// <summary>
     /// Contains JS code, that will invoke the static command wrapped in (options) => ... lambda. May contain symbolic parameters from `CommandBindingExpression`, knockout context is taken from the options
     /// </summary>
-    public sealed class StaticCommandOptionsLambdaJavascriptProperty
-    {
-        public readonly ParametrizedCode Code;
-        public StaticCommandOptionsLambdaJavascriptProperty(ParametrizedCode code)
-        {
-            this.Code = code;
-        }
-    }
+    public sealed record StaticCommandOptionsLambdaJavascriptProperty(
+        ParametrizedCode Code
+    );
     /// <summary>
     /// Contains JS code, that will invoke the static command. May contain symbolic parameters from `JavascriptTranslator` and `CommandBindingExpression`
     /// </summary>
-    public sealed class StaticCommandJavascriptProperty
-    {
-        public readonly ParametrizedCode Code;
-        public StaticCommandJavascriptProperty(ParametrizedCode code)
-        {
-            this.Code = code;
-        }
-    }
+    public sealed record StaticCommandJavascriptProperty(
+        ParametrizedCode Code
+    );
 
     /// <summary>
     /// Contains JS code, that will invoke the static command. May contain symbolic parameters from `JavascriptTranslator` and `CommandBindingExpression`
     /// </summary>
-    public sealed class StaticCommandJsAstProperty
-    {
-        public readonly JsExpression Expression;
-        public StaticCommandJsAstProperty(JsExpression expression)
-        {
-            this.Expression = expression;
-        }
-    }
+    public sealed record StaticCommandJsAstProperty(
+        JsExpression Expression
+    );
 
     /// <summary>
     /// Contains <see cref="System.Linq.Expressions.Expression"/> instance that represents code as it was written in markup with minimal processing.
     /// </summary>
-    public sealed class ParsedExpressionBindingProperty
-    {
-        public readonly Expression Expression;
-        public ParsedExpressionBindingProperty(Expression expression)
-        {
-            this.Expression = expression;
-        }
-    }
+    public sealed record ParsedExpressionBindingProperty(
+        Expression Expression
+    );
 
     /// <summary>
     /// Contains <see cref="System.Linq.Expressions.Expression"/> instance that represents code converted to be evaluated as binding (type conversions applied, ...). 
     /// </summary>
-    public sealed class CastedExpressionBindingProperty
-    {
-        public readonly Expression Expression;
-        public CastedExpressionBindingProperty(Expression expression)
-        {
-            this.Expression = expression;
-        }
-    }
+    public sealed record CastedExpressionBindingProperty(
+        Expression Expression
+    );
 
     /// <summary>
     /// Contains raw translated JS AST that came from JavascriptTranslator. Specifically it has type annotations on it and does not include observable unwraps and null-checks.
     /// </summary>
-    public sealed class KnockoutJsExpressionBindingProperty
-    {
-        public readonly JsExpression Expression;
-        public KnockoutJsExpressionBindingProperty(JsExpression expression)
-        {
-            this.Expression = expression;
-        }
-    }
+    public sealed record KnockoutJsExpressionBindingProperty(
+        JsExpression Expression
+    );
 
     /// <summary>
     /// Contains action filters that should be invoked before the binding invocation.
     /// </summary>
-    public sealed class ActionFiltersBindingProperty
-    {
-        public readonly ImmutableArray<IActionFilter> Filters;
-        public ActionFiltersBindingProperty(ImmutableArray<IActionFilter> filters)
-        {
-            this.Filters = filters;
-        }
-    }
+    public sealed record ActionFiltersBindingProperty(
+        ImmutableArray<IActionFilter> Filters
+    );
 
     /// <summary>
     /// Contains expected type of the binding - typically type of the bound property.
     /// </summary>
-    public sealed class ExpectedTypeBindingProperty
-    {
-        public readonly Type Type;
-        public ExpectedTypeBindingProperty(Type type)
-        {
-            this.Type = type;
-        }
-    }
-
-    /// <summary>
-    /// Contains debug information about original binding location.
-    /// </summary>
-    public sealed class LocationInfoBindingProperty
-    {
-        public readonly string? FileName;
-        public readonly (int start, int end)[]? Ranges;
-        public readonly int LineNumber;
-        public readonly Type? ControlType;
-        public readonly DotvvmProperty? RelatedProperty;
-
-        public LocationInfoBindingProperty(string? fileName, (int, int)[]? ranges, int lineNumber, Type? controlType, DotvvmProperty? relatedProperty = null)
-        {
-            this.FileName = fileName;
-            this.Ranges = ranges;
-            this.LineNumber = lineNumber;
-            this.ControlType = controlType;
-            this.RelatedProperty = relatedProperty;
-        }
-    }
-
+    public sealed record ExpectedTypeBindingProperty(
+        Type Type
+    );
+ 
     /// <summary>
     /// Contains the property where the binding is assigned.
     /// </summary>
-    public sealed class AssignedPropertyBindingProperty
-    {
-        public readonly DotvvmProperty DotvvmProperty;
-        public AssignedPropertyBindingProperty(DotvvmProperty property)
-        {
-            this.DotvvmProperty = property;
-        }
-    }
+    public sealed record AssignedPropertyBindingProperty(
+        DotvvmProperty DotvvmProperty
+    );
 
     /// <summary>
     /// Contains (mutable) list of error that are produced during the binding lifetime.
@@ -238,132 +136,71 @@ namespace DotVVM.Framework.Binding.Properties
             return $"Could not initialize binding '{binding}', requirement{(badRequirements.Length > 1 ? "s" : "")} {string.Join<Type>(", ", badRequirements)} {(badRequirements.Length > 1 ? "were" : "was")} not met.";
         }
         public IEnumerable<Exception> Exceptions => Errors.Select(e => e.error);
-    }
 
-    /// <summary>
-    /// Contains a binding that unwraps <see cref="Controls.IBaseGridViewDataSet.Items"/>
-    /// </summary>
-    public sealed class DataSourceAccessBinding
-    {
-        public readonly IBinding Binding;
-        public DataSourceAccessBinding(IBinding binding)
+        public override string ToString()
         {
-            this.Binding = binding;
+            var errCount = Errors.Count(e => e.severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error);
+            var warnCount = Errors.Count(e => e.severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Warning);
+            var infoCount = Errors.Count(e => e.severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Info);
+            if (errCount + warnCount + infoCount == 0)
+                return "No errors";
+
+            var msgCount = string.Join(", ", new string?[] {
+                errCount > 0 ? $"{errCount} errors" : null,
+                warnCount > 0 ? $"{warnCount} warnings" : null,
+                infoCount > 0 ? $"{infoCount} warnings" : null,
+                }.OfType<string>());
+            
+            return $"{msgCount}: {string.Join("; ", Errors.Select(e => e.error?.Message))}";
         }
     }
 
     /// <summary>
-    /// Contains a binding that accesses $index-th element in the collection. Uses the <see cref="CurrentCollectionIndexExtensionParameter"/>.
+    /// Contains a binding that unwraps <see cref="DotVVM.Framework.Controls.IBaseGridViewDataSet.Items"/>
     /// </summary>
-    public sealed class DataSourceCurrentElementBinding
-    {
-        public readonly IBinding Binding;
-        public DataSourceCurrentElementBinding(IBinding binding)
-        {
-            this.Binding = binding;
-        }
-    }
+    public sealed record DataSourceAccessBinding(IBinding Binding);
+
+    /// <summary>
+    /// Contains a binding that accesses $index-th element in the collection. Uses the <see cref="DotVVM.Framework.Compilation.ControlTree.CurrentCollectionIndexExtensionParameter"/>.
+    /// </summary>
+    public sealed record DataSourceCurrentElementBinding(IBinding Binding);
 
     /// <summary>
     /// Contains a binding that gets the collection's Length or Count
     /// </summary>
-    public sealed class DataSourceLengthBinding
-    {
-        public readonly IBinding Binding;
-        public DataSourceLengthBinding(IBinding binding)
-        {
-            this.Binding = binding;
-        }
-    }
+    public sealed record DataSourceLengthBinding(IBinding Binding);
 
-    public sealed class SelectorItemBindingProperty
-    {
-        public readonly IValueBinding Expression;
-        public SelectorItemBindingProperty(IValueBinding expression)
-        {
-            this.Expression = expression;
-        }
-    }
+    /// <summary> Contains a lambda function that gets the collection element for a given index.</summary>
+    public sealed record SelectorItemBindingProperty(IValueBinding Expression);
 
-    public sealed class RequiredRuntimeResourcesBindingProperty
-    {
-        public readonly ImmutableArray<string> Resources;
-        public RequiredRuntimeResourcesBindingProperty(ImmutableArray<string> resources)
-        {
-            this.Resources = resources;
-        }
+    /// <summary> Which resources are requested by this binding.</summary>
+    public sealed record RequiredRuntimeResourcesBindingProperty(
+        ImmutableArray<string> Resources
+    ) {
         public static readonly RequiredRuntimeResourcesBindingProperty Empty = new RequiredRuntimeResourcesBindingProperty(ImmutableArray<string>.Empty);
     }
 
-    public sealed class GlobalizeResourceBindingProperty
-    {
-    }
+    /// <summary> Specifies that globalize resource with the current culture is necessary for this binding. </summary>
+    public sealed record GlobalizeResourceBindingProperty();
 
-    public sealed class ThisBindingProperty
-    {
-        public readonly IBinding binding;
-        public ThisBindingProperty(IBinding binding)
-        {
-            this.binding = binding;
-        }
-    }
+    /// <summary> Contains binding {value: _this} as the current data context. </summary>
+    public sealed record ThisBindingProperty(IBinding binding);
 
-    public sealed class CollectionElementDataContextBindingProperty
-    {
-        public readonly DataContextStack DataContext;
-        public CollectionElementDataContextBindingProperty(DataContextStack dataContext)
-        {
-            this.DataContext = dataContext;
-        }
-    }
+    /// <summary> Contains <see cref="DotVVM.Framework.Compilation.ControlTree.DataContextStack">data context</see> which would be expected in a Repeater bound to this binding. </summary>
+    public sealed record CollectionElementDataContextBindingProperty(
+        DataContextStack DataContext
+    );
 
-    public sealed class IsMoreThanZeroBindingProperty
-    {
-        public readonly IBinding Binding;
-        public IsMoreThanZeroBindingProperty(IBinding binding)
-        {
-            this.Binding = binding;
-        }
-    }
-
-    public sealed class NegatedBindingExpression
-    {
-        public readonly IBinding Binding;
-        public NegatedBindingExpression(IBinding binding)
-        {
-            this.Binding = binding;
-        }
-    }
-    public sealed class IsNullBindingExpression
-    {
-        public readonly IBinding Binding;
-        public IsNullBindingExpression(IBinding binding)
-        {
-            this.Binding = binding;
-        }
-    }
-    public sealed class IsNullOrWhitespaceBindingExpression
-    {
-        public readonly IBinding Binding;
-        public IsNullOrWhitespaceBindingExpression(IBinding binding)
-        {
-            this.Binding = binding;
-        }
-    }
-    public sealed class IsNullOrEmptyBindingExpression
-    {
-        public readonly IBinding Binding;
-        public IsNullOrEmptyBindingExpression(IBinding binding)
-        {
-            this.Binding = binding;
-        }
-    }
-    public sealed class ExpectedAsStringBindingExpression
-    {
-        public readonly IBinding Binding;
-        public ExpectedAsStringBindingExpression(IBinding binding)
-        {
-            this.Binding = binding;
-        }
-    }
+    /// <summary> Contains a binding with the expression {thisBinding} > 0 </summary>
+    public sealed record IsMoreThanZeroBindingProperty(IBinding Binding);
+    /// <summary> Contains a binding with the expression !{thisBinding} </summary>
+    public sealed record NegatedBindingExpression(IBinding Binding);
+    /// <summary> Contains a binding with the expression {thisBinding} is null </summary>
+    public sealed record IsNullBindingExpression(IBinding Binding);
+    /// <summary> Contains a binding with the expression string.IsNullOrWhiteSpace({thisBinding}) </summary>
+    public sealed record IsNullOrWhitespaceBindingExpression(IBinding Binding);
+    /// <summary> Contains a binding with the expression string.IsNullOrEmpty({thisBinding}) </summary>
+    public sealed record IsNullOrEmptyBindingExpression(IBinding Binding);
+    /// <summary> Contains the same binding as this binding but converted to a string. </summary>
+    public sealed record ExpectedAsStringBindingExpression(IBinding Binding);
 }

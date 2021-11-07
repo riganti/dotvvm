@@ -7,12 +7,12 @@
 		<!-- /ko -->                     Markup control referenced as filename                     
 		<!-- ko text: dotvvm.globalize.bindingNumberToString($data + 1)() -->
 		<!-- /ko -->                     Markup control with property
-		<div data-bind="dotvvm-with-control-properties: { &quot;SomeProperty&quot;: &quot;ahoj&quot; }">
+		<div data-bind="dotvvm-with-control-properties: { SomeProperty: &quot;ahoj&quot; }">
 			<!-- ko text: dotvvm.globalize.bindingNumberToString($data + $control.SomeProperty()?.length)() -->
 			<!-- /ko -->
 		</div>
 		Markup control with property, but different
-		<div data-bind="dotvvm-with-control-properties: { &quot;SomeProperty&quot;: &quot;test&quot; }">
+		<div data-bind="dotvvm-with-control-properties: { SomeProperty: &quot;test&quot; }">
 			<!-- ko text: dotvvm.globalize.bindingNumberToString($data + $control.SomeProperty()?.length)() -->
 			<!-- /ko -->
 		</div>

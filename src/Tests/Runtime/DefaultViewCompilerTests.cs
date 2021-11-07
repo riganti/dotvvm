@@ -433,7 +433,7 @@ test <dot:Literal><a /></dot:Literal>";
                 CompileMarkup(markup);
             });
             Assert.IsTrue(ex.ToString().Contains("DotVVM.Framework.Binding.Properties.DataSourceLengthBinding"));
-            Assert.IsTrue(ex.ToString().Contains("Can not find collection length from binding '_this'"));
+            Assert.IsTrue(ex.ToString().Contains("Cannot find collection length from binding '_this'"));
         }
 
         [TestMethod]
@@ -450,7 +450,7 @@ test <dot:Literal><a /></dot:Literal>";
             Assert.IsFalse(ex.ToString().Contains("This is most probably bug in the DotVVM framework."));
         }
 
-        // Well, DotvvmProperties work even when they are internal. So I can not add the check in order to remain backwards compatible :/
+        // Well, DotvvmProperties work even when they are internal. So I cannot add the check in order to remain backwards compatible :/
 
 //         [TestMethod]
 //         public void DefaultViewCompiler_InternalDotvvmProperty_Error()

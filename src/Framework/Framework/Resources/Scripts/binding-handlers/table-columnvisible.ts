@@ -20,7 +20,7 @@ export default {
             const table: any = getParentTable(element);
             const firstRow = table.rows.item(0);
 
-            if (!firstRow) {
+            if (compileConstants.debug && !firstRow) {
                 throw Error("Table with dotvvm-table-columnvisible binding must not be empty.");
             }
             const colIndex = createArray(firstRow.cells).indexOf(element);

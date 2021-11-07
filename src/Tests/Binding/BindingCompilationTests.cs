@@ -18,6 +18,7 @@ using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Testing;
+using System.Collections.ObjectModel;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -362,8 +363,8 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [DataRow("(int arg, float arg) => ;", DisplayName = "Can not use same identifier for multiple parameters")]
-        [DataRow("(object _this) => ;", DisplayName = "Can not use already used identifiers for parameters")]
+        [DataRow("(int arg, float arg) => ;", DisplayName = "Cannot use same identifier for multiple parameters")]
+        [DataRow("(object _this) => ;", DisplayName = "Cannot use already used identifiers for parameters")]
         public void BindingCompiler_Invalid_LambdaParameters(string expr)
         {
             var viewModel = new TestViewModel();
@@ -1007,6 +1008,7 @@ namespace DotVVM.Framework.Tests.Binding
         public Dictionary<int?, TestViewModel2> NullableIntVmDictionary = new() { { 0, new TestViewModel2() }, { 1, new TestViewModel2() } };
         public TestViewModel2[] VmArray => new TestViewModel2[] { new TestViewModel2() };
         public int[] IntArray { get; set; }
+        public decimal DecimalProp { get; set; }
 
         public string SetStringProp(string a, int b)
         {
@@ -1122,6 +1124,15 @@ namespace DotVVM.Framework.Tests.Binding
             { 2, 22 },
             { 3, 33 }
         };
+
+        public ReadOnlyDictionary<int, int> ReadOnlyDictionary { get; set; } = new ReadOnlyDictionary<int, int>(new Dictionary<int, int>()
+        {
+            { 1, 11 },
+            { 2, 22 },
+            { 3, 33 }
+        });
+
+        public ReadOnlyCollection<int> ReadOnlyArray { get; set; } = new ReadOnlyCollection<int>(new[] { 1, 2, 3 });
 
         public List<int> List { get; set; } = new List<int>() { 1, 2, 3 };
         public int[] Array { get; set; } = new int[] { 1, 2, 3 };

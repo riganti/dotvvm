@@ -10,8 +10,8 @@ type ModuleCommand = (...args: any) => Promise<unknown>;
 export const viewModulesSymbol = Symbol("viewModules");
 
 export function registerViewModule(name: string, moduleObject: any) {
-    if (name == null) { throw new Error("Parameter name has to have a value"); }
-    if (moduleObject == null) { throw new Error("Parameter moduleObject has to have a value"); }
+    if (compileConstants.debug && name == null) { throw new Error("Parameter name has to have a value"); }
+    if (compileConstants.debug && moduleObject == null) { throw new Error("Parameter moduleObject has to have a value"); }
 
     //If multiple views on the same page use the module, we only want to register it the first time,
     //the other views then get initialized on their own
@@ -28,7 +28,7 @@ export function registerViewModules(modules: { [name: string]: any }) {
 }
 
 export function initViewModule(name: string, viewIdOrElement: string | HTMLElement, rootElement: HTMLElement): ModuleContext {
-    if (rootElement == null) { throw new Error("rootElement has to have a value"); }
+    if (compileConstants.debug && rootElement == null) { throw new Error("rootElement has to have a value"); }
 
     const handler = ensureModuleHandler(name);
     setupModuleDisposeHandlers(viewIdOrElement, name, rootElement);
@@ -40,7 +40,7 @@ export function initViewModule(name: string, viewIdOrElement: string | HTMLEleme
         return context;
     }
 
-    if (!("default" in handler.module) || typeof handler.module.default !== "function") {
+    if (compileConstants.debug && (!("default" in handler.module) || typeof handler.module.default !== "function")) {
         throw new Error(`The module ${name} referenced in the @js directive must have a default export that is a function.`);
     }
 
@@ -65,33 +65,64 @@ function createModuleInstance(fn: Function, ...args: any) {
     return fn(...args);
 }
 
-export function callViewModuleCommand(viewIdOrElement: string | HTMLElement, commandName: string, args: any[]) {
-    if (commandName == null) { throw new Error("commandName has to have a value"); }
-
-    const foundModules: { moduleName: string; context: ModuleContext }[] = [];
-
+function* getModules(viewIdOrElement: string | HTMLElement) {
     for (let moduleName of keys(registeredModules)) {
         const context = tryFindViewModuleContext(viewIdOrElement, moduleName);
         if (!(context && context.module)) continue;
+        yield context
+    }
+}
+
+export function callViewModuleCommand(viewIdOrElement: string | HTMLElement, commandName: string, args: any[]) {
+    if (compileConstants.debug && commandName == null) { throw new Error("commandName has to have a value"); }
+    if (compileConstants.debug && !(args instanceof Array)) { throw new Error("args must be an array"); }
+
+    const foundModules: ModuleContext[] = [];
+
+    for (let context of getModules(viewIdOrElement)) {
         if (commandName in context.module && typeof context.module[commandName] === "function") {
-            foundModules.push({ moduleName, context });
+            foundModules.push(context);
         }
     }
 
-    if (!foundModules.length) {
+    if (compileConstants.debug && !foundModules.length) {
         throw new Error(`Command ${commandName} could not be found in any of the imported modules in view ${viewIdOrElement}.`);
     }
 
-    if (foundModules.length > 1) {
+    if (compileConstants.debug && foundModules.length > 1) {
         throw new Error(`Conflict: There were multiple commands named ${commandName} the in imported modules in view ${viewIdOrElement}. Check modules: ${foundModules.map(m => m.moduleName).join(', ')}.`);
     }
 
     try {
-        return foundModules[0].context.module[commandName](...args.map(v => serialize(v)));
+        return foundModules[0].module[commandName](...args.map(v => serialize(v)));
     }
     catch (e: unknown) {
         throw new Error(`While executing command ${commandName}(${args.map(v => JSON.stringify(serialize(v)))}), an error occurred. ${e}`);
     }
+}
+
+const globalComponent: { [key: string]: DotvvmJsComponentFactory } = {}
+
+export function findComponent(
+    viewIdOrElement: null | string | HTMLElement,
+    name: string
+): [ModuleContext | null, DotvvmJsComponentFactory] {
+    if (viewIdOrElement != null) {
+        for (const context of getModules(viewIdOrElement)) {
+            if (name in (context.module.$controls ?? {})) {
+                return [context, context.module.$controls[name]]
+            }
+        }
+    }
+    if (name in globalComponent)
+        return [null, globalComponent[name]]
+    throw Error("can not find control " + name)
+}
+
+export function registerGlobalComponent(name: string, c: DotvvmJsComponentFactory) {
+    if (name in globalComponent)
+        throw new Error(`Component ${name} is already registered`)
+    globalComponent[name] = c
 }
 
 function setupModuleDisposeHandlers(viewIdOrElement: string | HTMLElement, name: string, rootElement: HTMLElement) {
@@ -106,7 +137,7 @@ function disposeModule(viewIdOrElement: string | HTMLElement, name: string, root
     const context = ensureViewModuleContext(viewIdOrElement, name);
 
     const index = context.elements.indexOf(rootElement);
-    if (index < 0) {
+    if (compileConstants.debug && index < 0) {
         throw new Error(`Cannot dispose module on a root element ${viewIdOrElement}. It has already been disposed.`);
     }
     context.elements.splice(index, 1);
@@ -149,6 +180,9 @@ export function unregisterNamedCommand(viewIdOrElement: string | HTMLElement, co
 }
 
 function tryFindViewModuleContext(viewIdOrElement: string | HTMLElement, name: string): ModuleContext | undefined {
+    if (compileConstants.debug && viewIdOrElement == null) {
+        throw new Error("viewIdOrElement is required.");
+    }
     if (typeof viewIdOrElement === "string") {
         const handler = ensureModuleHandler(name);
         return handler.contexts[viewIdOrElement];
@@ -168,17 +202,17 @@ function tryFindViewModuleContext(viewIdOrElement: string | HTMLElement, name: s
 
 function ensureViewModuleContext(viewIdOrElement: string | HTMLElement, name: string): ModuleContext {
     const context = tryFindViewModuleContext(viewIdOrElement, name);
-    if (!context) {
+    if (compileConstants.debug && !context) {
         throw new Error('Module ' + name + 'has not been initialized for view ' + viewIdOrElement + ', or the view has been disposed');
     }
-    return context;
+    return context!;
 }
 
 function ensureModuleHandler(name: string): ModuleHandler {
     if (name == null) { throw new Error("name has to have a value"); }
 
     const handler = registeredModules[name];
-    if (!handler) {
+    if (compileConstants.debug && !handler) {
         throw new Error('Could not find module ' + name + '. Module is not registered, or has been disposed.');
     }
     return handler;
@@ -216,8 +250,17 @@ export class ModuleContext {
     }
     
     public registerNamedCommand = (name: string, command: (...args: any[]) => Promise<any>) => {
+        if (compileConstants.debug && (name == null || name == '' || typeof name != 'string')) {
+            throw new Error(`Command name=${name} is empty or invalid.`)
+        }
+        if (compileConstants.debug && typeof command != 'function') {
+            throw new Error(`Command name=${name} is not a function: ${command}.`)
+        }
         if (this.namedCommands[name]) {
-            throw new Error(`A named command is already registered under the name: ${name}. The conflict occurred in: ${this.moduleName}.`);
+            if (compileConstants.debug)
+                throw new Error(`A named command is already registered under the name: ${name}. The conflict occurred in: ${this.moduleName}.`);
+            else
+                throw new Error('command already exists');
         }
 
         this.namedCommands[name] = (...innerArgs) => mapCommandResult(command.apply(this, innerArgs.map(unmapKnockoutObservables)))

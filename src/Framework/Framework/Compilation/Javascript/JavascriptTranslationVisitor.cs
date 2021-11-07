@@ -83,7 +83,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 return TranslateUnary((UnaryExpression)expression);
             }
 
-            throw new NotSupportedException($"The expression type {expression.NodeType} can not be translated to Javascript!");
+            throw new NotSupportedException($"The expression type {expression.NodeType} cannot be translated to Javascript!");
         }
 
         private JsExpression TranslateNewArrayInit(NewArrayExpression expression)
@@ -156,13 +156,13 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
             else if (expression.Left.GetParameterAnnotation() is BindingParameterAnnotation annotation)
             {
-                if (annotation.ExtensionParameter == null) throw new NotSupportedException($"Can not assign to data context parameter {expression.Left}");
+                if (annotation.ExtensionParameter == null) throw new NotSupportedException($"Cannot assign to data context parameter {expression.Left}");
                 return new JsAssignmentExpression(
                     TranslateParameter(expression.Left, annotation),
                     Translate(expression.Right)
                 );
             }
-            throw new NotSupportedException($"Can not assign expression of type {expression.Left.NodeType}!");
+            throw new NotSupportedException($"Cannot assign expression of type {expression.Left.NodeType}!");
         }
 
         private JsExpression SetProperty(JsExpression target, VMPropertyInfoAnnotation property, JsExpression value) =>
@@ -233,7 +233,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             var result = TryTranslateMethodCall(expression.Method, expression.Object, expression.Arguments.ToArray());
             if (result == null)
-                throw new NotSupportedException($"Method { expression.Method.DeclaringType.Name }.{ expression.Method.Name } can not be translated to Javascript");
+                throw new NotSupportedException($"Method { expression.Method.DeclaringType.Name }.{ expression.Method.Name } cannot be translated to Javascript");
             return result;
         }
 

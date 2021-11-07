@@ -288,13 +288,13 @@ namespace DotVVM.Framework.Controls
             const string KoBindingName = "dotvvm-textbox-select-all-on-focus";
             switch (this.GetValueRaw(SelectAllOnFocusProperty))
             {
-                case bool value when !value:
+                case false:
                     break;
                 case IValueBinding valueBinding:
                     writer.AddKnockoutDataBind(KoBindingName, valueBinding.GetKnockoutBindingExpression(this));
                     break;
-                default:
-                    writer.AddKnockoutDataBind(KoBindingName, JsonConvert.ToString(SelectAllOnFocus));
+                case object _ when SelectAllOnFocus:
+                    writer.AddKnockoutDataBind(KoBindingName, "true");
                     break;
             }
         }

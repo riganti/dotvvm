@@ -130,7 +130,7 @@ namespace DotVVM.Framework.Routing
 
                         return strVal == null ? null : Uri.EscapeDataString(strVal);
                     },
-                    StringComparer.InvariantCultureIgnoreCase
+                    StringComparer.OrdinalIgnoreCase
                 );
             try
             {
@@ -143,7 +143,7 @@ namespace DotVVM.Framework.Routing
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not build URL for route '{ this.Url }' with values {{{ string.Join(", ", values.Select(kvp => kvp.Key + ": " + kvp.Value)) }}}", ex);
+                throw new DotvvmRouteException($"Could not build URL for route '{ this.Url }' with values {{{ string.Join(", ", values.Select(kvp => kvp.Key + ": " + kvp.Value)) }}}", this, ex);
             }
         }
 
