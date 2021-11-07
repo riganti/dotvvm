@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Text;
 using System.Diagnostics;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -67,7 +68,7 @@ namespace DotVVM.Framework.ResourceManagement
             var resource = repository.FindResource(name);
             if (resource == null)
             {
-                ThrowResourceNotFound(name);
+                throw new ResourceNotFoundException(name);
             }
 
             AddRequiredResource(name, resource!);
@@ -103,13 +104,13 @@ namespace DotVVM.Framework.ResourceManagement
             {
                 if (originalResource != resource)
                 {
-                    ThrowNonUniqueName(name);
+                    throw new DotvvmResourceRepository.ResourceRegistrationConflictException(name, originalResource, resource);
                 }
             }
             else
             {
                 if (this.IsAlreadyRendered(resource.RenderPosition))
-                    throw new Exception($"Can't add {resource.GetType().Name} '{name}' to {resource.RenderPosition}, it is already rendered.");
+                    throw new ResourcePositionUnavailableException(name, resource);
                 ResourceUtils.AssertAcyclicDependencies(resource, name, FindResource);
                 foreach (var dep in resource.Dependencies)
                 {
@@ -258,20 +259,21 @@ namespace DotVVM.Framework.ResourceManagement
             resource = repository.FindResource(name);
             if (resource == null)
             {
-                ThrowResourceNotFound(name);
+                throw new ResourceNotFoundException(name);
             }
 
             return resource!;
         }
 
-        private static void ThrowNonUniqueName(string name)
+        public record ResourcePositionUnavailableException(string Name, IResource Resource)
+            : DotvvmExceptionBase(RelatedResource: Resource)
         {
-            throw new ArgumentException($"Different resource with the same name '{name}' is already registered!");
+            public override string Message => $"Can't add {Resource.GetType().Name} '{Name}' to {Resource.RenderPosition}, it is already rendered.";
         }
 
-        private static void ThrowResourceNotFound(string name)
+        public record ResourceNotFoundException(string Name): DotvvmExceptionBase
         {
-            throw new ArgumentException($"The resource '{name}' could not be found. Make sure it is registered in the startup class.");
+            public override string Message => $"The resource '{Name}' could not be found. Make sure it is registered in the startup class.";
         }
     }
 }

@@ -9,8 +9,10 @@ using DotVVM.Framework.Compilation.Javascript;
 
 namespace DotVVM.Framework.Controls
 {
+
     [ContainsDotvvmProperties]
     [ControlMarkupOptions(AllowContent = true)]
+    [Newtonsoft.Json.JsonConverter(typeof(DotvvmControlDebugJsonConverter))]
     public abstract class DotvvmBindableObject: IDotvvmObjectLike
     {
 
@@ -164,14 +166,14 @@ namespace DotVVM.Framework.Controls
         /// <summary> Sets the value of specified property by updating the view model this property is bound to. Throws if the property does not contain binding </summary>
         public void SetValueToSource(DotvvmProperty property, object? value)
         {
-            if (value is IBinding)
-                throw new DotvvmControlException(this, $"Cannot set binding {value} to source.");
+            if (value is IBinding newBinding)
+                throw new DotvvmControlException(this, $"Cannot set binding {value} to source.") { RelatedBinding = newBinding, RelatedProperty = property };
             var binding = GetBinding(property);
             if (binding is null)
-                throw new DotvvmControlException(this, $"Property {property} does not contain binding, so it's source cannot be updated.");
+                throw new DotvvmControlException(this, $"Property {property} does not contain binding, so it's source cannot be updated.") { RelatedProperty = property };
             if (binding is not IUpdatableValueBinding updatableValueBinding)
-                throw new DotvvmControlException(this, $"Cannot set source of binding {value}, it does not implement IUpdatableValueBinding.");
-
+                throw new DotvvmControlException(this, $"Cannot set source of binding {value}, it does not implement IUpdatableValueBinding.") { RelatedBinding = binding, RelatedProperty = property };
+            
             updatableValueBinding.UpdateSource(value, this);
         }
 
@@ -197,7 +199,7 @@ namespace DotVVM.Framework.Controls
             var binding = GetBinding(property, inherit);
             if (binding != null && !(binding is IStaticValueBinding)) // throw exception on incompatible binding types
             {
-                throw new DotvvmControlException(this, "ValueBindingExpression was expected!");
+                throw new BindingHelper.BindingNotSupportedException(binding) { RelatedControl = this };
             }
             return binding as IValueBinding;
         }
@@ -214,7 +216,7 @@ namespace DotVVM.Framework.Controls
             var binding = GetBinding(property, inherit);
             if (binding != null && !(binding is ICommandBinding))
             {
-                throw new DotvvmControlException(this, "CommandBindingExpression was expected!");
+                throw new BindingHelper.BindingNotSupportedException(binding) { RelatedControl = this };
             }
             return binding as ICommandBinding;
         }

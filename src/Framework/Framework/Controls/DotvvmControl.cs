@@ -189,9 +189,15 @@ namespace DotVVM.Framework.Controls
             {
                 RenderControl(writer, context);
             }
-            catch (DotvvmControlException) { throw; }
             catch (Exception e)
             {
+                if (e is IDotvvmException { RelatedControl: not null })
+                    throw;
+                if (e is DotvvmExceptionBase dotvvmException)
+                {
+                    dotvvmException.RelatedControl = this;
+                    throw;
+                }
                 throw new DotvvmControlException(this, "Error occurred in Render method", e);
             }
         }

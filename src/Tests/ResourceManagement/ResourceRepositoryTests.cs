@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Tests.ResourceManagement
         [TestMethod]
         public void ResourceRepository_CyclicDependency_Throws()
         {
-            var ex = Assert.ThrowsException<DotvvmResourceException>(() => {
+            var ex = Assert.ThrowsException<DotvvmCyclicResourceDependencyException>(() => {
 
                 var configuration = DotvvmConfiguration.CreateDefault();
                 configuration.Resources.Register("one", new NullResource { Dependencies = new[] { "two" } });
@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Tests.ResourceManagement
         [TestMethod]
         public void ResourceRepository_CyclicDependency2_Throws()
         {
-            var ex = Assert.ThrowsException<DotvvmResourceException>(() => {
+            var ex = Assert.ThrowsException<DotvvmCyclicResourceDependencyException>(() => {
                 var configuration = DotvvmConfiguration.CreateDefault();
  
                 configuration.Resources.Register("one", new ScriptResource {
@@ -91,7 +91,7 @@ namespace DotVVM.Framework.Tests.ResourceManagement
         [TestMethod]
         public void ResourceRepository_SelfReference_Throws()
         {
-            var ex = Assert.ThrowsException<DotvvmResourceException>(() => {
+            var ex = Assert.ThrowsException<DotvvmCyclicResourceDependencyException>(() => {
                 var configuration = DotvvmConfiguration.CreateDefault();
          
                 configuration.Resources.Register("one", new NullResource {
@@ -108,7 +108,7 @@ namespace DotVVM.Framework.Tests.ResourceManagement
         [TestMethod]
         public void ResourceRepository_SmallGraphCycle_Throws()
         {
-            var ex = Assert.ThrowsException<DotvvmResourceException>(() => {
+            var ex = Assert.ThrowsException<DotvvmCyclicResourceDependencyException>(() => {
                 var configuration = DotvvmConfiguration.CreateDefault();
 
                 configuration.Resources.Register("six", new NullResource {

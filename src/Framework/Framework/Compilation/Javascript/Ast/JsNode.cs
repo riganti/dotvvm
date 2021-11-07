@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using DotVVM.Framework.Configuration;
 
 // Tree architecture is inspired by NRefactory, large pieces of code are copy-pasted, see https://github.com/icsharpcode/NRefactory for source
 namespace DotVVM.Framework.Compilation.Javascript.Ast
@@ -15,7 +16,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public bool IsFrozen => isFrozen;
         protected void ThrowIfFrozen()
         {
-            if (isFrozen) throw new InvalidOperationException("Cannot mutate frozen " + this.GetType().Name);
+            if (isFrozen) throw FreezableUtils.Error(this.GetType().Name);
         }
 
         public void Freeze()

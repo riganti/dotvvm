@@ -85,23 +85,6 @@ namespace DotVVM.Framework.Utils
         }
 
         /// <summary>
-        /// Gets the specified property of a given object.
-        /// </summary>
-        public static object? GetObjectPropertyValue(object? item, string propertyName, out PropertyInfo? prop)
-        {
-            prop = null;
-            if (item == null) return null;
-
-            var type = item.GetType();
-            prop = type.GetProperty(propertyName);
-            if (prop == null)
-            {
-                throw new Exception(String.Format("The object of type {0} does not have a property named {1}!", type, propertyName));     // TODO: exception handling
-            }
-            return prop.GetValue(item);
-        }
-
-        /// <summary>
         /// Checks whether given instantiated type is compatible with the open generic type
         /// </summary>
         public static bool IsAssignableToGenericType(this Type givenType, Type genericType, [NotNullWhen(returnValue: true)] out Type? commonType)
@@ -191,7 +174,7 @@ namespace DotVVM.Framework.Utils
                     }
                     catch (Exception ex)
                     {
-                        throw new Exception($"The enum {type} does not allow a value '{val}'!", ex); // TODO: exception handling
+                        throw new Exception($"The enum {type} does not allow a value '{val}'!", ex);
                     }
                 }
                 return result;
