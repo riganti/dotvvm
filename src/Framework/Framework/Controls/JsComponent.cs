@@ -75,10 +75,15 @@ namespace DotVVM.Framework.Controls
                 var placeholder = new PlaceHolder();
                 this.Children.Add(placeholder);
                 placeholder.ID = name;
-                template.BuildContent(context, placeholder);
+                InitializeTemplate(template, placeholder, context);
             }
 
             base.OnLoad(context);
+        }
+
+        protected virtual void InitializeTemplate(ITemplate template, PlaceHolder placeholder, IDotvvmRequestContext context)
+        {
+            template.BuildContent(context, placeholder);
         }
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
