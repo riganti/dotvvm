@@ -30,19 +30,24 @@ namespace DotVVM.Samples.Tests.Feature
 
                 browser.First("command-regenerate").Click();
 
-                rechart = browser.First("rechart-control");
-                Assert.NotEqual(rechartOuterHtml, rechart.GetJsInnerHtml());
+                browser.WaitFor(() => {
+                    rechart = browser.First("rechart-control");
+                    Assert.NotEqual(rechartOuterHtml, rechart.GetJsInnerHtml());
+                }, 8000);
                 rechartOuterHtml = rechart.GetJsInnerHtml();
                 browser.First("command-removeDOM").Click();
 
-                rechart = browser.First("rechart-control");
-                Assert.True(rechart.GetJsInnerHtml().Trim().Length < "< !--ko if: IncludeInPage-- >< !-- / ko-- >".Length + 10); //+ buffer
-                browser.First("command-addDOM").Click();
+                browser.WaitFor(() => {
+                    rechart = browser.First("rechart-control");
+                    Assert.True(rechart.GetJsInnerHtml().Trim().Length < "< !--ko if: IncludeInPage-- >< !-- / ko-- >".Length + 10); //+ buffer
+                    browser.First("command-addDOM").Click();
+                }, 8000);
 
-                rechart = browser.First("rechart-control");
-                Assert.NotEqual(rechartOuterHtml, rechart.GetJsInnerHtml());
-                rechart.FindElements("line", By.TagName).ThrowIfSequenceEmpty();
-
+                browser.WaitFor(() => {
+                    rechart = browser.First("rechart-control");
+                    Assert.NotEqual(rechartOuterHtml, rechart.GetJsInnerHtml());
+                    rechart.FindElements("line", By.TagName).ThrowIfSequenceEmpty();
+                }, 8000);
 
 
             });
@@ -71,7 +76,9 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // T1 - OK, T2 - NOK 
                 browser.First("template-condition").Click();
-                template1 = browser.WaitFor(s => s.First("template1", SelectByDataUi));
+                browser.WaitFor(() => {
+                    template1 = browser.First("template1", SelectByDataUi);
+                }, 8000);
                 browser.FindElements("template2").ThrowIfDifferentCountThan(0);
                 AssertUI.IsDisplayed(template1);
 
@@ -83,15 +90,18 @@ namespace DotVVM.Samples.Tests.Feature
 
 
                 browser.WaitFor(s => s.First("template2-command")).Click();
-                var result = browser.WaitFor(s => getResult());
-                AssertUI.TextEquals(result, "TemplateCommandInvoked");
+                IElementWrapper result = null;
+                browser.WaitFor(() => result = getResult(), 8000);
+                AssertUI.TextEquals(result, "CommandInvoked");
 
                 browser.WaitFor(s => s.First("template2-clientStaticCommand")).Click();
-                result = browser.WaitFor(s => getResult());
+                result = null;
+                browser.WaitFor(() => result = getResult(), 8000);
                 AssertUI.TextEquals(result, "StaticCommandInvoked");
 
                 browser.WaitFor(s => s.First("template2-serverStaticCommand")).Click();
-                result = browser.WaitFor(s => getResult());
+                result = null;
+                browser.WaitFor(() => result = getResult(), 8000);
                 AssertUI.TextEquals(result, "ServerStaticCommandInvoked");
 
             });
