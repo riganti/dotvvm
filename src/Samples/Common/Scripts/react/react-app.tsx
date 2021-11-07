@@ -31,6 +31,7 @@ function RechartComponent(props: any) {
 function TemplateSelector(props) {
     return <div>
         <KnockoutTemplateReactComponent
+            wrapperTag="p"
             templateName={props.condition ? props.template1 : props.template2}
             getChildContext={c => c.extend({ $kokos: 1 })} />
     </div>

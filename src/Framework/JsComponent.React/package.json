@@ -1,9 +1,10 @@
 {
   "name": "dotvvm-jscomponent-react",
-  "version": "4.0.0-experimental-0002",
+  "version": "4.0.0-experimental-0004",
   "description": "This package adds helper methods for the registration of react controls into DotVVM.",
-  "main": "dist/dotvvm-react.js",
-  "dependencies": {
+  "module": "dist/dotvvm-react.js",
+  "types": "dist/declarations/dotvvm-react.d.ts",
+  "peerDependencies": {
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
@@ -20,8 +21,8 @@
     "typescript": "^4.4.3"
   },
   "scripts": {},
-  "author": "",
-  "license": "ISC",
+  "author": "RIGANTI s.r.o.",
+  "license": "Apache-2.0",
   "files": [
     "dist/**"
   ]

@@ -26,15 +26,15 @@
     </p>
 
 
-    <dot:CheckBox Checked="{value: Condition}" Text="Condition for template selector" />
+    <dot:CheckBox Checked="{value: Condition}" data-ui="template-condition" Text="Condition for template selector" />
 
     <js:TemplateSelector condition={value: Condition}>
-        <template-template1>
+        <template1>
             Condition == true (and IncludeInPage = {{value: IncludeInPage}})
-        </template-template1>
-        <template-template2>
+        </template1>
+        <template2>
             Condition == false
-        </template-template2>
+        </template2>
     </js:TemplateSelector>
 
 </body>
