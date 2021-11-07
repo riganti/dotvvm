@@ -11,6 +11,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Text;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Utils;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
@@ -141,7 +143,9 @@ $@"
                 Converters = {
                 new ReflectionTypeJsonConverter(),
                 new ReflectionAssemblyJsonConverter(),
-                new Controls.DotvvmControlDebugJsonConverter()
+                new Controls.DotvvmControlDebugJsonConverter(),
+                new IgnoreStuffJsonConverter(),
+                new BindingDebugJsonConverter()
             },
                 // suppress any errors that occur during serialization (getters may throw exception, ...)
                 Error = (sender, args) => {
@@ -332,6 +336,18 @@ $@"
         {
             Write(textToAppend);
             builder.AppendLine();
+        }
+
+        class IgnoreStuffJsonConverter : JsonConverter
+        {
+            public override bool CanConvert(Type objectType) =>
+                objectType.IsDelegate();
+            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) =>
+                throw new NotImplementedException();
+            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            {
+                writer.WriteValue("<delegate>");
+            }
         }
     }
 }

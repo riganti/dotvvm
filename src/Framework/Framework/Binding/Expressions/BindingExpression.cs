@@ -11,6 +11,7 @@ using DotVVM.Framework.Runtime.Filters;
 namespace DotVVM.Framework.Binding.Expressions
 {
     [BindingCompilationRequirements(optional: new[] { typeof(BindingResolverCollection) })]
+    [Newtonsoft.Json.JsonConverter(typeof(BindingDebugJsonConverter))]
     public abstract class BindingExpression : IBinding, ICloneableBinding
     {
         struct PropValue
