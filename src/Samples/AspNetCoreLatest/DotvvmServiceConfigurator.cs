@@ -10,6 +10,7 @@ namespace DotVVM.Samples.BasicSamples
         {
             CommonConfiguration.ConfigureServices(services);
             services.AddDefaultTempStorages("Temp");
+            services.AddHotReload();
         }
     }
 }

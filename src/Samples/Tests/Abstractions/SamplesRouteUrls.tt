@@ -2,8 +2,8 @@
 <#@ assembly name="System.Core" #>
 <#@ assembly name="$(SolutionDir)Framework\Framework\bin\Debug\net472\DotVVM.Core.dll" #>
 <#@ assembly name="$(SolutionDir)Framework\Framework\bin\Debug\net472\DotVVM.Framework.dll" #>
-<#@ assembly name="$(SolutionDir)packages\Microsoft.Extensions.DependencyInjection.Abstractions.5.0.0\lib\net461\Microsoft.Extensions.DependencyInjection.Abstractions.dll" #>
-<#@ assembly name="$(SolutionDir)packages\Microsoft.Extensions.DependencyInjection.5.0.2\lib\net461\Microsoft.Extensions.DependencyInjection.dll" #>
+<#@ assembly name="$(SolutionDir)packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.0.0\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll" #>
+<#@ assembly name="$(SolutionDir)packages\Microsoft.Extensions.DependencyInjection.2.0.0\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.dll" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
@@ -22,9 +22,9 @@ namespace DotVVM.Testing.Abstractions
     {
     <# 
     System.Diagnostics.Debug.WriteLine("$(SolutionDir)");
-var a =     new DotVVM.Framework.Controls.Button();
+
     //define paths
-    var SamplesFolderPath = "DotVVM.Samples.Common";
+    var SamplesFolderPath = "../Common";
     DirectoryInfo dir = new DirectoryInfo(this.Host.ResolveAssemblyReference("$(ProjectDir)"));
     var samplesProjectDir = Path.Combine(dir.Parent.FullName, SamplesFolderPath);
     

@@ -131,12 +131,17 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the current DotVVM context.
         /// </summary>
-        public static DotvvmRequestContext GetCurrent(IHttpContext httpContext)
+        public static DotvvmRequestContext GetCurrent(IHttpContext httpContext) => TryGetCurrent(httpContext).NotNull();
+
+        /// <summary>
+        /// Gets the current DotVVM context or null.
+        /// </summary>
+        public static DotvvmRequestContext? TryGetCurrent(IHttpContext httpContext)
         {
-            return httpContext.GetItem<DotvvmRequestContext>(HostingConstants.DotvvmRequestContextOwinKey)
-                   .NotNull();
+            return httpContext.GetItem<DotvvmRequestContext>(HostingConstants.DotvvmRequestContextOwinKey);
         }
 
         public CustomResponsePropertiesManager CustomResponseProperties { get; } = new CustomResponsePropertiesManager();
+
     }
 }

@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Text;
 using DotVVM.Framework.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Binding.Expressions;
 
@@ -23,22 +24,27 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         public const string InternalCssResourceName = "DotVVM.Framework.Resources.Styles.DotVVM.Internal.css";
         public const string ErrorPageJsResourceName = "DotVVM.Framework.Resources.Scripts.DotVVM.ErrorPage.js";
 
-        public ErrorPageTemplate(
-            int errorCode,
+        public ErrorPageTemplate(int errorCode,
             string errorDescription,
             string summary,
-            IErrorSectionFormatter[] formatters)
+            IErrorSectionFormatter[] formatters,
+            Exception exception,
+            IDotvvmRequestContext? context)
         {
             ErrorCode = errorCode;
             ErrorDescription = errorDescription;
             Summary = summary;
             Formatters = formatters;
+            Exception = exception;
+            Context = context;
         }
 
         public int ErrorCode { get; }
         public string ErrorDescription { get; }
         public string Summary { get; }
         public IErrorSectionFormatter[] Formatters { get; }
+        public IDotvvmRequestContext? Context { get; }
+        public Exception Exception { get; }
 
         public void WriteText(string? str)
         {
@@ -77,9 +83,20 @@ $@"<!DOCTYPE html>
                 WriteLine($"#menu_radio_{f.Id}:checked ~ label[for='menu_radio_{f.Id}'] {{ background-color: #2980b9; }}");
                 f.WriteStyle(this);
             }
-            Write(
-@"
+
+            Write(@"
         </style>
+");
+            
+            if (Context != null)
+            {
+                foreach (var extension in Context.Services.GetServices<IErrorPageExtension>())
+                {
+                    WriteLine(extension.GetHeadContents(Context, Exception));
+                }
+            }
+
+            Write(@"
     </head>
 ");
 

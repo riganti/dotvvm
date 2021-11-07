@@ -310,7 +310,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     .ToArray()!,
                 errorCode: context.Response.StatusCode,
                 errorDescription: "Unhandled exception occurred",
-                summary: exception.GetType().FullName + ": " + exception.Message.LimitLength(600));
+                summary: exception.GetType().FullName + ": " + exception.Message.LimitLength(600),
+                context: DotvvmRequestContext.TryGetCurrent(context),
+                exception: exception);
 
             return template.TransformText();
         }

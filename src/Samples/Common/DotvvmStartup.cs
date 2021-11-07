@@ -32,7 +32,7 @@ using DotVVM.Samples.Common.Views.ControlSamples.TemplateHost;
 
 namespace DotVVM.Samples.BasicSamples
 {
-    public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
+    public class DotvvmStartup : IDotvvmStartup
     {
         public const string GitHubTokenEnvName = "GITHUB_TOKEN";
         public const string GitHubTokenConfigName = "githubApiToken";
@@ -206,9 +206,5 @@ namespace DotVVM.Samples.BasicSamples
 
         }
 
-        public void ConfigureServices(IDotvvmServiceCollection options)
-        {
-            CommonConfiguration.ConfigureServices(options);
-        }
     }
 }
