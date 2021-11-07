@@ -44,21 +44,6 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, Literal>(c => c.FormatString, "");
 
         /// <summary>
-        /// Gets or sets the type of value being formatted - Number or DateTime.
-        /// </summary>
-        [MarkupOptions(AllowBinding = false)]
-        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
-        public FormatValueType ValueType
-        {
-            get { return (FormatValueType)GetValue(ValueTypeProperty)!; }
-            set { SetValue(ValueTypeProperty, value); }
-        }
-
-        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
-        public static readonly DotvvmProperty ValueTypeProperty =
-            DotvvmProperty.Register<FormatValueType, Literal>(t => t.ValueType);
-
-        /// <summary>
         /// Gets or sets whether the literal should render the wrapper span HTML element.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
@@ -115,9 +100,6 @@ namespace DotVVM.Framework.Controls
 
         public bool IsFormattingRequired =>
             !string.IsNullOrEmpty(FormatString) ||
-#pragma warning disable
-            ValueType != FormatValueType.Text ||
-#pragma warning restore
             NeedsFormatting(GetValueBinding(TextProperty));
 
         private new struct RenderState
@@ -136,9 +118,7 @@ namespace DotVVM.Framework.Controls
                 r.Text = value;
             else if (prop == RenderSpanElementProperty)
                 r.RenderSpanElement = (bool)EvalPropertyValue(RenderSpanElementProperty, value)!;
-#pragma warning disable CS0618
-            else if (prop == FormatStringProperty || prop == ValueTypeProperty)
-#pragma warning restore CS0618
+            else if (prop == FormatStringProperty)
                 r.HasFormattingStuff = true;
             else if (base.TouchProperty(prop, value, ref r.HtmlState)) { }
             else if (DotvvmControl.TouchProperty(prop, value, ref r.BaseState)) { }

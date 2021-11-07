@@ -32,32 +32,6 @@ namespace DotVVM.Framework.Controls
             DotvvmPropertyWithFallback.Register<bool, SelectorBase>(nameof(Enabled), FormControls.EnabledProperty);
 
         /// <summary>
-        /// Gets or sets the name of property in the DataSource collection that will be displayed in the control.
-        /// </summary>
-        [Obsolete("Use ItemTextBinding property instead", true)]
-        public string? DisplayMember
-        {
-            get { return (string?)GetValue(DisplayMemberProperty); }
-            set { SetValue(DisplayMemberProperty, value); }
-        }
-        [Obsolete("Use ItemTextBinding property instead", true)]
-        public static readonly DotvvmProperty DisplayMemberProperty =
-            DotvvmProperty.Register<string?, SelectorBase>(t => t.DisplayMember, "");
-
-        /// <summary>
-        /// Gets or sets the name of property in the DataSource collection that will be passed to the SelectedValue property when the item is selected.
-        /// </summary>
-        [Obsolete("Use ItemValueBinding property instead", true)]
-        public string? ValueMember
-        {
-            get { return (string?)GetValue(ValueMemberProperty); }
-            set { SetValue(ValueMemberProperty, value); }
-        }
-        [Obsolete("Use ItemValueBinding property instead", true)]
-        public static readonly DotvvmProperty ValueMemberProperty =
-            DotvvmProperty.Register<string?, SelectorBase>(t => t.ValueMember, "");
-
-        /// <summary>
         /// The expression of DataSource item that will be displayed in the control.
         /// </summary>
         [ControlPropertyBindingDataContextChange(nameof(DataSource))]
@@ -121,21 +95,6 @@ namespace DotVVM.Framework.Controls
                 {
                     yield return new ControlUsageError("Return type of ItemValueBinding has to be a primitive type!", valueBinding.DothtmlNode);
                 }
-            }
-        }
-
-        [ControlUsageValidator]
-        [Obsolete("This must be obsolete to compile...")]
-        public static IEnumerable<ControlUsageError> ValidateObsoleteProperties(ResolvedControl control)
-        {
-            // validate usage of obsolete properties
-            if (control.Properties.GetValueOrDefault(DisplayMemberProperty) is ResolvedPropertySetter displayMember)
-            {
-                yield return new ControlUsageError("Property DisplayMemberProperty is obsolete. Please use ItemTextBinding instead.", displayMember.DothtmlNode);
-            }
-            if (control.Properties.GetValueOrDefault(ValueMemberProperty) is ResolvedPropertySetter valueMember)
-            {
-                yield return new ControlUsageError("Property DisplayMemberProperty is obsolete. Please use ItemValueBinding instead.", valueMember.DothtmlNode);
             }
         }
     }

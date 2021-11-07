@@ -587,9 +587,6 @@
       "ValueBinding": {
         "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
         "required": true
-      },
-      "ValueType": {
-        "type": "DotVVM.Framework.Controls.FormatValueType, DotVVM.Framework"
       }
     },
     "DotVVM.Framework.Controls.HtmlGenericControl": {
@@ -700,9 +697,6 @@
       },
       "Text": {
         "type": "System.Object"
-      },
-      "ValueType": {
-        "type": "DotVVM.Framework.Controls.FormatValueType, DotVVM.Framework"
       }
     },
     "DotVVM.Framework.Controls.MultiSelector": {
@@ -851,9 +845,6 @@
       }
     },
     "DotVVM.Framework.Controls.SelectorBase": {
-      "DisplayMember": {
-        "type": "System.String"
-      },
       "Enabled": {
         "type": "System.Boolean"
       },
@@ -913,9 +904,6 @@
       },
       "SelectionChanged": {
         "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
-      },
-      "ValueMember": {
-        "type": "System.String"
       }
     },
     "DotVVM.Framework.Controls.SelectorItem": {
@@ -1012,15 +1000,9 @@
       "Type": {
         "type": "DotVVM.Framework.Controls.TextBoxType, DotVVM.Framework"
       },
-      "UpdateTextAfterKeydown": {
-        "type": "System.Boolean"
-      },
       "UpdateTextOnInput": {
         "type": "System.Boolean",
         "isValueInherited": true
-      },
-      "ValueType": {
-        "type": "DotVVM.Framework.Controls.FormatValueType, DotVVM.Framework"
       }
     },
     "DotVVM.Framework.Controls.UITests": {
