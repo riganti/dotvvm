@@ -1,5 +1,7 @@
 // not a module, available to everyone
 
+import { ModuleContext } from "./viewModules/viewModuleManager"
+
 type PostbackCommitFunction = () => Promise<DotvvmAfterPostBackEventArgs>
 
 type DotvvmPostbackHandler = {
@@ -311,4 +313,14 @@ type DotvvmJsComponentFactory = {
         templates: { [key: string]: string }, // TODO
         setProps: (p: { [key: string]: any }) => void
     ): DotvvmJsComponent
+}
+
+
+type DotvvmViewModuleCommandName = `${'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z'}${string}`
+
+type DotvvmViewModule = {
+    $controls?: { [name:string]: DotvvmJsComponentFactory }
+    $dispose?: (context: ModuleContext) => void
+
+    [commandName: DotvvmViewModuleCommandName]: (...args: any[]) => Promise<any> | any
 }
