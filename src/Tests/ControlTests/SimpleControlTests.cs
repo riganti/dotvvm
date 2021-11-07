@@ -320,9 +320,9 @@ namespace DotVVM.Framework.Tests.ControlTests
                 </js:Bazmek>
 
                 <js:Bazmek troll={resource: 1} />
-                <dot:JsComponent Name=Bazmek lol={value: Integer} />
-                <dot:JsComponent Name=Bazmek cmd={command: (string x) => x + '0'} />
-                <dot:JsComponent Name=Bazmek scmd={staticCommand: (int x) => Integer = x} />
+                <js:Bazmek lol={value: Integer} />
+                <js:Bazmek cmd={command: (string x) => x + '0'} />
+                <js:Bazmek scmd={staticCommand: (int x) => Integer = x} />
             ", directives: "@js dotvvm.internal");
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }

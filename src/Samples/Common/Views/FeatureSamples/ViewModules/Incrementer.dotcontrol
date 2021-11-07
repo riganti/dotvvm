@@ -13,12 +13,12 @@ Value: <span class="value"></span>
     <dot:NamedCommand Name="ReportState" Command="{staticCommand: (int s) => ReportedState = s}" />
 </div>
 
-<dot:JsComponent Name=Bazmek ahoj=123 troll={resource: 1} lol={value: ReportedState} scmd={staticCommand: (int s) => _js.Invoke("reportState", s)} cmd={command: 0}>
+<js:Bazmek ahoj=123 troll={resource: 1} lol={value: ReportedState} scmd={staticCommand: (int s) => _js.Invoke("reportState", s)} cmd={command: 0}>
 
     <template-MyTemplate>
         <h1> Ahoj lidi </h1>
     </template-MyTemplate>
-</dot:JsComponent>
+</js:Bazmek>
 
 <!-- <dot:InlineScript>
         let someId1234 = 0;

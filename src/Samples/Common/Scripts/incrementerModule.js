@@ -1,5 +1,4 @@
 ﻿export default context => new Page(context);
-
 let someId1234 = 0
 
 class Page {

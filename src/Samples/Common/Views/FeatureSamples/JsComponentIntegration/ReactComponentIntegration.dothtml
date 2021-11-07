@@ -10,11 +10,11 @@
 </head>
 <body>
 
-    <dot:JsComponent Name="recharts" 
+    <js:recharts
                      IncludeInPage={value: IncludeInPage}
                      data={value: Data}
                      onMouse={staticCommand: (string n) => CurrentThing = n}>
-    </dot:JsComponent>
+    </js:recharts>
 
 
     <dot:Button Click={command: Regenerate()} Text="Regenerate chart"></dot:Button>
@@ -28,14 +28,14 @@
 
     <dot:CheckBox Checked="{value: Condition}" Text="Condition for template selector" />
 
-    <dot:JsComponent Name="TemplateSelector" condition={value: Condition}>
+    <js:TemplateSelector condition={value: Condition}>
         <template-template1>
             Condition == true (and IncludeInPage = {{value: IncludeInPage}})
         </template-template1>
         <template-template2>
             Condition == false
         </template-template2>
-    </dot:JsComponent>
+    </js:TemplateSelector>
 
 </body>
 </html>
