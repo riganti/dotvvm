@@ -24,7 +24,17 @@ public static partial class StyleBuilderExtensionMethods
         ValueOrBinding<TProperty> value,
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
     {
-        var dotprop = ReflectionUtils.GetDotvvmPropertyFromExpression(property);
+        var dotprop = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(property);
+        return sb.SetDotvvmProperty(dotprop, value, options);
+    }
+    /// <summary> Sets a specified property on the matching controls. The referenced property must be a wrapper around a DotvvmProperty. </summary>
+    public static IStyleBuilder<TControl> SetProperty<TControl, TProperty>(
+        this IStyleBuilder<TControl> sb,
+        Expression<Func<TControl, ValueOrBinding<TProperty>>> property,
+        ValueOrBinding<TProperty> value,
+        StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
+    {
+        var dotprop = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(property);
         return sb.SetDotvvmProperty(dotprop, value, options);
     }
 
@@ -57,7 +67,7 @@ public static partial class StyleBuilderExtensionMethods
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
         where TInnerControl: DotvvmBindableObject
     {
-        var dotprop = ReflectionUtils.GetDotvvmPropertyFromExpression(property);
+        var dotprop = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(property);
         return sb.SetControlProperty<IStyleBuilder<TControl>, TInnerControl>(
             dotprop, prototypeControl, styleBuilder, options);
     }
@@ -150,7 +160,7 @@ public static partial class StyleBuilderExtensionMethods
         Func<IStyleMatchContext<TControl>, TProperty> value,
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
     {
-        var dotprop = ReflectionUtils.GetDotvvmPropertyFromExpression(property);
+        var dotprop = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(property);
         return sb.SetDotvvmProperty(dotprop, c => (object?)value(c), options);
     }
 
@@ -165,7 +175,7 @@ public static partial class StyleBuilderExtensionMethods
         BindingParserOptions? bindingOptions = null)
         where T: IStyleBuilder
     {
-        var dotprop = ReflectionUtils.GetDotvvmPropertyFromExpression(property);
+        var dotprop = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(property);
         return sb.AddApplicator(new PropertyStyleBindingApplicator(
             dotprop,
             binding,
@@ -217,7 +227,7 @@ public static partial class StyleBuilderExtensionMethods
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite,
         BindingParserOptions? bindingOptions = null)
     {
-        var dotprop = ReflectionUtils.GetDotvvmPropertyFromExpression(property);
+        var dotprop = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(property);
         return sb.SetDotvvmPropertyBinding(dotprop, binding, options, bindingOptions);
     }
 

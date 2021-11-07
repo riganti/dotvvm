@@ -29,6 +29,7 @@ namespace DotVVM.Framework.Binding
         public string Prefix { get; }
 
         private static ConcurrentDictionary<(Type declaringType, Type capabilityType, string prefix), DotvvmCapabilityProperty> capabilityRegistry = new();
+        private static ConcurrentDictionary<(Type declaringType, Type capabilityType), ImmutableArray<DotvvmCapabilityProperty>> capabilityListRegistry = new();
 
         private DotvvmCapabilityProperty(
             string prefix,
@@ -68,10 +69,21 @@ namespace DotVVM.Framework.Binding
         public override object GetValue(DotvvmBindableObject control, bool inherit = true) => Getter(control);
 
         public override void SetValue(DotvvmBindableObject control, object? value) => Setter(control, value);
+        
+        /// <summary> Looks up a capability on the specified control (<paramref name="declaringType"/>).
+        /// If multiple capabilities of this type are registered, <see cref="Find(Type, Type, string)" /> method must be used to retrieve the one with specified prefix. </summary>
+        public static DotvvmCapabilityProperty? Find(Type declaringType, Type capabilityType)
+        {
+            var c = GetCapabilities(declaringType, capabilityType);
+            if (c.Length == 1) return c[0];
+            else return null;
+        }
 
         /// <summary> Looks up a capability on the specified control (<paramref name="declaringType"/>). </summary>
-        public static DotvvmCapabilityProperty? Find(Type declaringType, Type capabilityType, string globalPrefix = "")
+        public static DotvvmCapabilityProperty? Find(Type declaringType, Type capabilityType, string? globalPrefix)
         {
+            if (globalPrefix is null)
+                return Find(declaringType, capabilityType);
             while (declaringType != typeof(DotvvmBindableObject) && declaringType is not null)
             {
                 if (capabilityRegistry.TryGetValue((declaringType, capabilityType, globalPrefix), out var result))
@@ -84,6 +96,21 @@ namespace DotVVM.Framework.Binding
         /// <summary> Lists capabilities on the specified control (<paramref name="declaringType"/>). </summary>
         public static IEnumerable<DotvvmCapabilityProperty> GetCapabilities(Type declaringType) =>
             capabilityRegistry.Values.Where(c => c.DeclaringType.IsAssignableFrom(declaringType));
+
+        /// <summary> Lists capabilities of the selected type on the specified control (<paramref name="declaringType"/>). </summary>
+        public static ImmutableArray<DotvvmCapabilityProperty> GetCapabilities(Type declaringType, Type capabilityType)
+        {
+            var r = ImmutableArray<DotvvmCapabilityProperty>.Empty;
+            while (declaringType != typeof(DotvvmBindableObject) && declaringType is not null)
+            {
+                if (capabilityListRegistry.TryGetValue((declaringType, capabilityType), out var rr))
+                {
+                    r = r.AddRange(rr);
+                }
+                declaringType = declaringType.BaseType;
+            }
+            return r;
+        }
 
         /// <summary> Returns an iterator of the <see cref="DotvvmProperty.OwningCapability" /> chain. The first element is this capability. </summary>
         public IEnumerable<DotvvmCapabilityProperty> ThisAndOwners()
@@ -163,6 +190,10 @@ namespace DotVVM.Framework.Binding
             DotvvmProperty.Register(name, capabilityType, declaringType, DBNull.Value, false, property, attributes);
             if (!capabilityRegistry.TryAdd((declaringType, capabilityType, property.Prefix), property))
                 throw new($"unhandled naming conflict when registering capability {capabilityType}.");
+            capabilityListRegistry.AddOrUpdate(
+                (declaringType, capabilityType),
+                ImmutableArray.Create(property),
+                (_, old) => old.Add(property));
             return property;
         }
 
