@@ -29,7 +29,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                     browser.FindElements("input[type=text]").ThrowIfDifferentCountThan(1);
                     browser.ElementAt("input[type=text]", 0).SendKeys("hello").SendKeys(Keys.Tab);
-                    browser.Wait(500);
+                    browser.Wait(1000);
 
                     var updated = a.original.Replace("###", "<dot:TextBox Text='{value: Value}' />");
                     a.writeContents(updated);
@@ -54,13 +54,13 @@ namespace DotVVM.Samples.Tests.Feature
                     var updated = a.original.Replace("###", "<dot:TextBox Text='{value: NonExistentValue}' />");
                     a.writeContents(updated);
 
-                    browser.Wait(500);
+                    browser.Wait(1000);
                     AssertUI.TextEquals(browser.First("h1"), "Server Error, HTTP 500: Unhandled exception occurred");
 
                     updated = a.original.Replace("<dot:TextBox Text='{value: NonExistentValue}' />", "<dot:TextBox Text='{value: Value}' />");
                     a.writeContents(updated);
 
-                    browser.Wait(500);
+                    browser.Wait(1000);
                     AssertUI.TextEquals(browser.First("h1"), "Hot Reload test");
                 });
             });

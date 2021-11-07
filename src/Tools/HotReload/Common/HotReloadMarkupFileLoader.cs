@@ -15,63 +15,56 @@ namespace DotVVM.HotReload
     public class HotReloadMarkupFileLoader : IMarkupFileLoader, IDisposable
     {
         private readonly DefaultMarkupFileLoader defaultMarkupFileLoader;
-        
-        private readonly ConcurrentDictionary<string, FileSystemWatcher> watchers = new ConcurrentDictionary<string, FileSystemWatcher>();
-        
         private readonly IMarkupFileChangeNotifier notifier;
+        private readonly DotvvmConfiguration configuration;
+
         private Task notifierTask = TaskUtils.GetCompletedTask();
         private object notifierTaskLocker = new object();
         private HashSet<string> notifierTaskDirtyFiles = new HashSet<string>();
 
-        public HotReloadMarkupFileLoader(DefaultMarkupFileLoader defaultMarkupFileLoader, IMarkupFileChangeNotifier notifier)
+        private readonly FileSystemWatcher[] watchers;
+
+        public HotReloadMarkupFileLoader(DefaultMarkupFileLoader defaultMarkupFileLoader, IMarkupFileChangeNotifier notifier, DotvvmConfiguration configuration)
         {
             this.defaultMarkupFileLoader = defaultMarkupFileLoader;
             this.notifier = notifier;
+            this.configuration = configuration;
+
+            watchers = new[] { "*.dothtml", "*.dotmaster", "*.dotcontrol" }
+                .Select(ext => {
+                    var watcher = new FileSystemWatcher();
+                    watcher.IncludeSubdirectories = true;
+                    watcher.Path = configuration.ApplicationPhysicalPath;
+                    watcher.Filter = ext;
+                    watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
+                    watcher.Changed += (s, a) => OnFileChanged(configuration, a.FullPath);
+                    watcher.Renamed += (s, a) => {
+                        // VS doesn't update the actual file, it writes in the temp file, moves the old file away, and then renames the temp file to the original file
+                        if (string.Equals(a.Name, watcher.Filter, Environment.OSVersion.Platform == PlatformID.Win32NT ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+                        {
+                            OnFileChanged(configuration, a.FullPath);
+                        }
+                    };
+                    watcher.EnableRaisingEvents = true;
+                    return watcher;
+                })
+                .ToArray();
         }
 
-        public MarkupFile GetMarkup(DotvvmConfiguration configuration, string virtualPath)
-        {
-            var markupFile = defaultMarkupFileLoader.GetMarkup(configuration, virtualPath);
-
-            watchers.GetOrAdd(virtualPath, path =>
-            {
-                var fullPath = Path.Combine(configuration.ApplicationPhysicalPath, path);
-
-                var watcher = new FileSystemWatcher();
-                watcher.Path = Path.GetDirectoryName(fullPath);
-                watcher.Filter = Path.GetFileName(fullPath);
-                watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
-                watcher.Changed += (s, a) => OnFileChanged(configuration, path);
-                watcher.Renamed += (s, a) =>
-                {
-                    // VS doesn't update the actual file, it writes in the temp file, moves the old file away, and then renames the temp file to the original file
-                    if (string.Equals(a.Name, watcher.Filter, Environment.OSVersion.Platform == PlatformID.Win32NT ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
-                    {
-                        OnFileChanged(configuration, path);
-                    }
-                };
-                watcher.EnableRaisingEvents = true;
-
-                return watcher;
-            });
-
-            return markupFile;
-        }
-
-        private void OnFileChanged(DotvvmConfiguration configuration, string virtualPath)
+        private void OnFileChanged(DotvvmConfiguration configuration, string fullPath)
         {
             // recompile view on the background so the refresh is faster
             Task.Factory.StartNew(() =>
             {
                 // cannot use DI - there is cyclic dependency
                 var controlBuilderFactory = configuration.ServiceProvider.GetRequiredService<IControlBuilderFactory>();
-                controlBuilderFactory.GetControlBuilder(virtualPath);
+                controlBuilderFactory.GetControlBuilder(fullPath);
             });
 
             // notify about the changes
             lock (notifierTaskLocker)
             {
-                notifierTaskDirtyFiles.Add(virtualPath);
+                notifierTaskDirtyFiles.Add(fullPath);
 
                 if (notifierTask.IsCompleted)
                 {
@@ -88,16 +81,15 @@ namespace DotVVM.HotReload
             }
         }
 
-        public string GetMarkupFileVirtualPath(IDotvvmRequestContext context)
-        {
-            return defaultMarkupFileLoader.GetMarkupFileVirtualPath(context);
-        }
+        public MarkupFile? GetMarkup(DotvvmConfiguration configuration, string virtualPath) => defaultMarkupFileLoader.GetMarkup(configuration, virtualPath);
+
+        public string GetMarkupFileVirtualPath(IDotvvmRequestContext context) => defaultMarkupFileLoader.GetMarkupFileVirtualPath(context);
 
         public void Dispose()
         {
             foreach (var entry in watchers)
             {
-                entry.Value.Dispose();
+                entry.Dispose();
             }
         }
     }

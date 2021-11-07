@@ -1,4 +1,5 @@
 ﻿using System;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 
 namespace DotVVM.HotReload
@@ -6,7 +7,7 @@ namespace DotVVM.HotReload
     public class HotReloadAggregateMarkupFileLoader : AggregateMarkupFileLoader
     {
 
-        public HotReloadAggregateMarkupFileLoader(IMarkupFileChangeNotifier notifier)
+        public HotReloadAggregateMarkupFileLoader(IMarkupFileChangeNotifier notifier, DotvvmConfiguration configuration)
         {
             var index = Loaders.FindIndex(l => l is DefaultMarkupFileLoader);
             if (index < 0)
@@ -14,7 +15,7 @@ namespace DotVVM.HotReload
                 throw new InvalidOperationException("DotVVM Hot reload could not be initialized - the DefaultMarkupLoader was not found in the AggregateMarkupFileLoader Loaders collection.");
             }
             var defaultLoader = (DefaultMarkupFileLoader)Loaders[index];
-            Loaders[index] = new HotReloadMarkupFileLoader(defaultLoader, notifier);
+            Loaders[index] = new HotReloadMarkupFileLoader(defaultLoader, notifier, configuration);
         }
 
     }
