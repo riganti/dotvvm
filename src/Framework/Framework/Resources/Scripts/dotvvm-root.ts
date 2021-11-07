@@ -27,6 +27,8 @@ import * as metadataHelper from './metadata/metadataHelper'
 import * as array from './collections/arrayHelper'
 import * as dictionary from './collections/dictionaryHelper'
 import * as string from './utils/stringHelper'
+import { StateManager } from "./state-manager"
+import { DotvvmEvent } from "./events"
 
 if (window["dotvvm"]) {
     throw new Error('DotVVM is already loaded!')
@@ -73,6 +75,7 @@ const dotvvmExports = {
     validation: validation.globalValidationObject,
     postBack,
     init,
+    registerGlobalComponent: viewModuleManager.registerGlobalComponent,
     isPostbackRunning,
     events: (compileConstants.isSpa ?
              { ...events, ...spaEvents } :
@@ -122,7 +125,9 @@ const dotvvmExports = {
         array,
         dictionary,
         string
-    } as any
+    } as any,
+    StateManager,
+    DotvvmEvent,
 }
 
 if (compileConstants.isSpa) {

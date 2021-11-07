@@ -115,6 +115,27 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{DB0AB0C3
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Testing.SeleniumGenerator.Tests", "Tools\Tests\SeleniumGenerator\DotVVM.Testing.SeleniumGenerator.Tests.csproj", "{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF}"
 EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "JsComponent.React", "Framework\JsComponent.React\", "{03500B30-474E-4BDC-91F9-8C3DFE0D1E8D}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_55279"
+		Debug.AspNetCompiler.PhysicalPath = "Framework\JsComponent.React\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_55279\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_55279"
+		Release.AspNetCompiler.PhysicalPath = "Framework\JsComponent.React\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_55279\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "55279"
+		SlnRelativePath = "Framework\JsComponent.React\"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Tracing\MiniProfiler.Shared\DotVVM.Tracing.MiniProfiler.Shared.projitems*{35f3d396-e702-4acb-be7e-301e52561559}*SharedItemsImports = 5
@@ -670,6 +691,18 @@ Global
 		{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF}.Release|x64.Build.0 = Release|Any CPU
 		{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF}.Release|x86.ActiveCfg = Release|Any CPU
 		{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF}.Release|x86.Build.0 = Release|Any CPU
+		{03500B30-474E-4BDC-91F9-8C3DFE0D1E8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03500B30-474E-4BDC-91F9-8C3DFE0D1E8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03500B30-474E-4BDC-91F9-8C3DFE0D1E8D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{03500B30-474E-4BDC-91F9-8C3DFE0D1E8D}.Debug|x64.Build.0 = Debug|Any CPU
+		{03500B30-474E-4BDC-91F9-8C3DFE0D1E8D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{03500B30-474E-4BDC-91F9-8C3DFE0D1E8D}.Debug|x86.Build.0 = Debug|Any CPU
+		{03500B30-474E-4BDC-91F9-8C3DFE0D1E8D}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{03500B30-474E-4BDC-91F9-8C3DFE0D1E8D}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{03500B30-474E-4BDC-91F9-8C3DFE0D1E8D}.Release|x64.ActiveCfg = Debug|Any CPU
+		{03500B30-474E-4BDC-91F9-8C3DFE0D1E8D}.Release|x64.Build.0 = Debug|Any CPU
+		{03500B30-474E-4BDC-91F9-8C3DFE0D1E8D}.Release|x86.ActiveCfg = Debug|Any CPU
+		{03500B30-474E-4BDC-91F9-8C3DFE0D1E8D}.Release|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -723,6 +756,7 @@ Global
 		{EB51ADB0-A0B8-4252-978D-9EEB9E9C9344} = {39D9C693-FDAF-4EAD-AFC6-D5F311AAF27F}
 		{DB0AB0C3-DA5E-4B5A-9CD4-036D37B50AED} = {E57EE0B8-30FC-4702-B310-FB82C19D7473}
 		{DB45C6E5-7AD7-4C9B-8CB0-90F9C92375BF} = {DB0AB0C3-DA5E-4B5A-9CD4-036D37B50AED}
+		{03500B30-474E-4BDC-91F9-8C3DFE0D1E8D} = {F211156C-FEE6-464C-A7A7-317D16DD3D8B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {61F8A195-365E-47B1-A6F2-CD3534E918F8}

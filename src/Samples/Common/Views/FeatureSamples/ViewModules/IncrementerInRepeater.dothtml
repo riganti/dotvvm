@@ -12,7 +12,7 @@
     <h1>Incrementers in Repeater</h1>
 
     <p>
-        <input type="button" value="Add incrementer" onclick="dotvvm.viewModels.root.viewModel.Incrementers.splice(0, 0, 0);" />
+        <input type="button" value="Add incrementer" onclick="dotvvm.viewModels.root.viewModel.Incrementers.push(dotvvm.viewModels.root.viewModel.Incrementers.length);" />
         <input type="button" value="Remove incrementer" onclick="dotvvm.viewModels.root.viewModel.Incrementers.splice(0, 1);" />
     </p>
 

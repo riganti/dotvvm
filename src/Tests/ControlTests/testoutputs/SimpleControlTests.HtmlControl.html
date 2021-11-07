@@ -4,7 +4,7 @@
 		just some attributes
 		<span class="x" id="a" onclick="alert(1)"></span>
 		just some attributes with binding
-		<span data-bind="class: &quot;xx-&quot; + int() + &quot; another-class&quot;, attr: { &quot;id&quot;: &quot;xx&quot; + int() }"></span>
+		<span data-bind="class: &quot;xx-&quot; + int() + &quot; another-class&quot;, attr: { id: &quot;xx&quot; + int() }"></span>
 		visible after loaded
 		<div data-bind="visible: true" style="display:none">
 			X
@@ -12,7 +12,7 @@
 		control with just Id
 		<div id="xxxx"></div>
 		class and style
-		<div class="xxx" data-bind="css: { &quot;xxx&quot;: int() > 100 }, style: { &quot;height&quot;: int() + &quot;em&quot; }" style="height:10000000em"></div>
+		<div class="xxx" data-bind="css: { xxx: int() > 100 }, style: { height: int() + &quot;em&quot; }" style="height:10000000em"></div>
 		<div class="another-class" style="color:blue">
 			X
 		</div>

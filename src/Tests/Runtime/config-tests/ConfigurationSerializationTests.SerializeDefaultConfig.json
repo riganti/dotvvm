@@ -673,6 +673,18 @@
         "type": "System.Object"
       }
     },
+    "DotVVM.Framework.Controls.JsComponent": {
+      "Global": {
+        "type": "System.Boolean"
+      },
+      "Name": {
+        "type": "System.String",
+        "required": true
+      },
+      "WrapperTagName": {
+        "type": "System.String"
+      }
+    },
     "DotVVM.Framework.Controls.ListBox": {
       "Size": {
         "type": "System.Int32"
@@ -1210,6 +1222,23 @@
         "prefix": "Style-",
         "type": "System.Object",
         "fromCapability": "HtmlCapability"
+      }
+    },
+    "DotVVM.Framework.Controls.JsComponent": {
+      "Props": {
+        "prefixes": [
+          "",
+          "prop:"
+        ],
+        "type": "System.Object"
+      },
+      "Templates": {
+        "prefixes": [
+          "",
+          "template-"
+        ],
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
       }
     },
     "DotVVM.Framework.Controls.RouteLink": {
