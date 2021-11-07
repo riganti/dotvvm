@@ -196,7 +196,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                knockoutContext = CodeParameterAssignment.FromIdentifier("options.knockoutContext");
+                knockoutContext = options.KoContext ?? CodeParameterAssignment.FromIdentifier("options.knockoutContext");
                 viewModel = CodeParameterAssignment.FromIdentifier("options.viewModel");
             }
             var abortSignal = options.AbortSignal ?? CodeParameterAssignment.FromIdentifier("undefined");
