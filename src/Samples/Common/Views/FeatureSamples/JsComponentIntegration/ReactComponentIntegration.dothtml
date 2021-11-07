@@ -1,6 +1,6 @@
 @viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JsComponentIntegration.ReactComponentIntegrationViewModel, DotVVM.Samples.Common
 @js FeatureSamples_Resources_ReactAppModule
-
+@import viewModelType =DotVVM.Samples.Common.ViewModels.FeatureSamples.JsComponentIntegration.ReactComponentIntegrationViewModel
 <!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -10,19 +10,20 @@
 </head>
 <body>
 
-    <js:recharts
-                     IncludeInPage={value: IncludeInPage}
+    <div data-ui="rechart-control">
+        <js:recharts IncludeInPage={value: IncludeInPage}
                      data={value: Data}
                      onMouse={staticCommand: (string n) => CurrentThing = n}>
-    </js:recharts>
+        </js:recharts>
+    </div>
 
 
-    <dot:Button Click={command: Regenerate()} Text="Regenerate chart"></dot:Button>
-    <dot:Button Click={staticCommand: IncludeInPage = false} Text="Remove from DOM"></dot:Button>
-    <dot:Button Click={staticCommand: IncludeInPage = true} Text="Add to DOM"></dot:Button>
+    <dot:Button data-ui="command-regenerate" Click={command: Regenerate()} Text="Regenerate chart"></dot:Button>
+    <dot:Button data-ui="command-removeDOM" Click={staticCommand: IncludeInPage = false} Text="Remove from DOM"></dot:Button>
+    <dot:Button data-ui="command-addDOM" Click={staticCommand: IncludeInPage = true} Text="Add to DOM"></dot:Button>
 
     <p>
-        CurrentThing: {{value: CurrentThing}}
+        CurrentThing:<span data-ui="result">{{value: CurrentThing}}</span>
     </p>
 
 
@@ -30,10 +31,25 @@
 
     <js:TemplateSelector condition={value: Condition}>
         <template1>
-            Condition == true (and IncludeInPage = {{value: IncludeInPage}})
+            <span data-ui="template1">
+                Condition == true (and IncludeInPage = {{value: IncludeInPage}})
+            </span>
         </template1>
         <template2>
-            Condition == false
+            <span data-ui="template2">
+                Condition == false
+            </span>
+            <ul data-ui="template2-commandSection">
+                <li>
+                    <dot:Button Text="Test command" data-ui="template2-command" Click="{command: ChangeCurrentThing()}" />
+                </li>
+                <li>
+                    <dot:Button Text="Test static command" data-ui="template2-clientStaticCommand" Click="{staticCommand:  CurrentThing = "StaticCommandInvoked"}" />
+                </li>
+                <li>
+                    <dot:Button Text="Test server static command" data-ui="template2-serverStaticCommand" Click="{staticCommand: CurrentThing = viewModelType.GetCurrentThing() }" />
+                </li>
+            </ul>
         </template2>
     </js:TemplateSelector>
 

@@ -26,7 +26,15 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.JsComponentIntegration
                      Line3 = 1000 * random.Next()
                  }).ToList();
         }
-
+        public void ChangeCurrentThing()
+        {
+            CurrentThing = "CommandInvoked";
+        }
+        [AllowStaticCommand]
+        public static string GetCurrentThing()
+        {
+            return "ServerStaticCommandInvoked";
+        }
         public bool IncludeInPage { get; set; } = true;
         public bool Condition { get; set; } = true;
         public string CurrentThing { get; set; } = "?";
