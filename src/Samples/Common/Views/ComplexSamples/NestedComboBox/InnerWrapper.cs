@@ -13,7 +13,7 @@ namespace DotVVM.Samples.BasicSamples.Views.ComplexSamples.NestedComboBox
         public int? SelectedValue
         {
             get { return (int?)GetValue(SelectedValueProperty); }
-            set { SetValue(SelectedValueProperty, value); }
+            set { SetValueToSource(SelectedValueProperty, value); }
         }
         public static readonly DotvvmProperty SelectedValueProperty
             = DotvvmProperty.Register<int?, InnerWrapper>(c => c.SelectedValue, null);

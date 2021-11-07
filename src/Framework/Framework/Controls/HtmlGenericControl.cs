@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Controls
         public HtmlGenericControl(string? tagName, TextOrContentCapability? content, bool allowImplicitLifecycleRequirements = true)
         {
             if (GetType() != typeof(HtmlGenericControl))
-                throw new("HtmlGenericControl can only use InnerText (and thus TextOrContentCapability) property when used directly, it can not be inherited.");
+                throw new("HtmlGenericControl can only use InnerText (and thus TextOrContentCapability) property when used directly, it cannot be inherited.");
             if (tagName?.Trim() == "")
             {
                 throw new DotvvmControlException("The tagName must not be empty!");
@@ -140,8 +140,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected virtual bool RendersHtmlTag => TagName is object;
 
-        IDictionary<string, object?> IControlWithHtmlAttributes.Attributes => this.Attributes;
-
         protected new struct RenderState
         {
             public object? Visible;
@@ -217,6 +215,8 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
+                TryUseLiteralAsInnerText(ref r);
+
                 if (r.HasClass)
                     AddCssClassesToRender(writer);
                 if (r.HasStyle)
@@ -384,7 +384,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (prop is not GroupedDotvvmProperty gprop || gprop.PropertyGroup != AttributesGroupDescriptor)
                     continue;
-                
+
                 if (valueRaw is IValueBinding binding)
                 {
                     if (gprop.GroupMemberName == "class")
@@ -423,6 +423,23 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+        /// Tries to get Literal element from Children and set its value binding into r.InnerText
+        /// This leads to less knockout comments being produced
+        void TryUseLiteralAsInnerText(ref RenderState r)
+        {
+            if (r.InnerText != null || Children.Count != 1)
+                return;
+            if (Children[0] is not Literal { RendersHtmlTag: false, FormatString: null or "" } literal)
+                return;
+
+            var textBinding = literal.GetValueRaw(Literal.TextProperty) as IValueBinding;
+            if (textBinding is null || Literal.NeedsFormatting(textBinding))
+                return;
+
+            Children.Clear();
+            r.InnerText = textBinding;
+        }
+
         private void AddTextPropertyToRender(ref RenderState r, IHtmlWriter writer)
         {
             if (r.InnerText == null) return;
@@ -432,13 +449,14 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutDataBind("text", expression.GetKnockoutBindingExpression(this));
             }
 
-            var value = (string?)this.EvalPropertyValue(InnerTextProperty, r.InnerText);
-            if ((expression == null && !string.IsNullOrWhiteSpace(value))
-                || r.RenderOnServer(this))
+            if (expression == null || r.RenderOnServer(this))
             {
-                Children.Clear();
-                if (value is object)
+                var value = this.EvalPropertyValue(InnerTextProperty, r.InnerText)?.ToString();
+                if (!string.IsNullOrEmpty(value))
+                {
+                    Children.Clear();
                     Children.Add(new Literal(value));
+                }
             }
         }
 
@@ -456,15 +474,15 @@ namespace DotVVM.Framework.Controls
 
 
     [DotvvmControlCapability]
-    public sealed class HtmlCapability
+    public sealed record HtmlCapability
     {
         [PropertyGroup("", "html:")]
         [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger), AllowAttributeWithoutValue = true)]
-        public IDictionary<string, ValueOrBinding<object?>> Attributes { get; set; } = new Dictionary<string, ValueOrBinding<object?>>();
+        public IDictionary<string, ValueOrBinding<object?>> Attributes { get; init; } = new Dictionary<string, ValueOrBinding<object?>>();
         [PropertyGroup("Class-")]
-        public IDictionary<string, ValueOrBinding<bool>> CssClasses { get; set; } = new Dictionary<string, ValueOrBinding<bool>>();
+        public IDictionary<string, ValueOrBinding<bool>> CssClasses { get; init; } = new Dictionary<string, ValueOrBinding<bool>>();
         [PropertyGroup("Style-")]
-        public IDictionary<string, ValueOrBinding<object>> CssStyles { get; set; } = new Dictionary<string, ValueOrBinding<object>>();
-        public ValueOrBinding<bool> Visible { get; set; } = true;
+        public IDictionary<string, ValueOrBinding<object>> CssStyles { get; init; } = new Dictionary<string, ValueOrBinding<object>>();
+        public ValueOrBinding<bool> Visible { get; init; } = true;
     }
 }

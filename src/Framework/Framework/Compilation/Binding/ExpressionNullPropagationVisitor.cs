@@ -5,6 +5,7 @@ using System.Reflection;
 using DotVVM.Framework.Utils;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -137,6 +138,13 @@ namespace DotVVM.Framework.Compilation.Binding
                     return expr;
             }
 
+            // If the method is an extension method, we need to check the first argument for null.
+            if (node.Method.IsDefined(typeof(ExtensionAttribute)) && node.Object == null && node.Arguments.Any())
+                return CheckForNull(Visit(node.Arguments.First()), target =>
+                    Expression.Call(node.Method, UnwrapNullableTypes(node.Arguments.Skip(1)).Prepend(target)),
+                    suppress: node.Arguments.First().Type.IsNullable()
+                );
+
             return CheckForNull(Visit(node.Object), target =>
                 Expression.Call(target, node.Method, UnwrapNullableTypes(node.Arguments)),
                 suppress: node.Object?.Type?.IsNullable() ?? true
@@ -203,7 +211,7 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         private int tmpCounter;
-        protected Expression CheckForNull(Expression parameter, Func<Expression, Expression> callback, bool checkReferenceTypes = true, bool suppress = false)
+        protected Expression CheckForNull(Expression? parameter, Func<Expression, Expression> callback, bool checkReferenceTypes = true, bool suppress = false)
         {
             if (suppress || parameter == null || (parameter.Type.IsValueType && !parameter.Type.IsNullable()) || !checkReferenceTypes && !parameter.Type.IsValueType)
                 return callback(parameter!);

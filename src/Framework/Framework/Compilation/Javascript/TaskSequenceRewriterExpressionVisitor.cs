@@ -1,5 +1,7 @@
 ﻿using System.Linq.Expressions;
+using System.Threading.Tasks;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
@@ -15,14 +17,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                 {
                     var first = expression.Arguments[0];
                     var second = ((LambdaExpression)expression.Arguments[1]).Body;
-                    if (second is MethodCallExpression secondMethod)
-                    {
-                        if (secondMethod.Method.DeclaringType == typeof(CommandTaskSequenceHelper)
-                            && secondMethod.Method.Name == nameof(CommandTaskSequenceHelper.WrapAsTask))
-                        {
-                            second = ((LambdaExpression)secondMethod.Arguments[0]).Body;
-                        }
-                    }
                     return VisitBlock(Expression.Block(first, second));
                 }
             }

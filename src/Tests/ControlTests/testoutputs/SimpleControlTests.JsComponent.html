@@ -1,10 +1,10 @@
 <html>
 	<head></head>
 	<body>
-		<div data-bind="dotvvm-js-component: { name: &quot;Bazmek&quot;, commands: { scmd: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => (s) => await dotvvm.viewModules.call(&quot;p0&quot;, &quot;myCmd&quot;, [ko.unwrap(s)]),$element,[],args)) }, props: { troll: 1 }, templates: { MyTemplate: &quot;nd32PDzj7nMLlQAzyEgX84ylX61EVYZpjwVI25SuM74=&quot; }, view: &quot;p0&quot; }"></div>
+		<div data-bind="dotvvm-js-component: { name: &quot;Bazmek&quot;, commands: { scmd: (...args)=>(dotvvm.applyPostbackHandlers(async (options) => await dotvvm.viewModules.call(&quot;p0&quot;, &quot;myCmd&quot;, [args[0]]),$element,[],args,options.knockoutContext)) }, props: { troll: 1 }, templates: { MyTemplate: &quot;nd32PDzj7nMLlQAzyEgX84ylX61EVYZpjwVI25SuM74=&quot; }, view: &quot;p0&quot; }"></div>
 		<div data-bind="dotvvm-js-component: { name: &quot;Bazmek&quot;, props: { troll: 1 }, view: &quot;p0&quot; }"></div>
 		<div data-bind="dotvvm-js-component: { name: &quot;Bazmek&quot;, props: { lol: int }, view: &quot;p0&quot; }"></div>
-		<div data-bind="dotvvm-js-component: { name: &quot;Bazmek&quot;, commands: { cmd: (...args)=>(dotvvm.postBack($element,[],&quot;Rrba2KXEPUp2v+qm&quot;,&quot;&quot;,null,[&quot;validate-root&quot;],args,undefined)) }, view: &quot;p0&quot; }"></div>
-		<div data-bind="dotvvm-js-component: { name: &quot;Bazmek&quot;, commands: { scmd: (...args)=>(dotvvm.applyPostbackHandlers((options) => (x) => options.viewModel.int(ko.unwrap(x)).int(),$element,[],args)) }, view: &quot;p0&quot; }"></div>
+		<div data-bind="dotvvm-js-component: { name: &quot;Bazmek&quot;, commands: { cmd: (...args)=>(dotvvm.postBack($element,[],&quot;Rrba2KXEPUp2v+qm&quot;,&quot;&quot;,$context,[],args,undefined)) }, view: &quot;p0&quot; }"></div>
+		<div data-bind="dotvvm-js-component: { name: &quot;Bazmek&quot;, commands: { scmd: (...args)=>(dotvvm.applyPostbackHandlers((options) => options.viewModel.int(args[0]).int(),$element,[],args,options.knockoutContext)) }, view: &quot;p0&quot; }"></div>
 	</body>
 </html>

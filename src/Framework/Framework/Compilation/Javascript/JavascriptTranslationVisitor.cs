@@ -83,7 +83,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 return TranslateUnary((UnaryExpression)expression);
             }
 
-            throw new NotSupportedException($"The expression type {expression.NodeType} can not be translated to Javascript!");
+            throw new NotSupportedException($"The expression type {expression.NodeType} cannot be translated to Javascript!");
         }
 
         private JsExpression TranslateNewArrayInit(NewArrayExpression expression)
@@ -152,20 +152,20 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var target = Translate(property.Expression);
                 var value = Translate(expression.Right);
                 return TryTranslateMethodCall((property.Member as PropertyInfo)?.SetMethod, property.Expression, new[] { expression.Right }) ??
-                    SetProperty(target, property.Member, value);
+                    SetProperty(target, new VMPropertyInfoAnnotation(property.Member), value);
             }
             else if (expression.Left.GetParameterAnnotation() is BindingParameterAnnotation annotation)
             {
-                if (annotation.ExtensionParameter == null) throw new NotSupportedException($"Can not assign to data context parameter {expression.Left}");
+                if (annotation.ExtensionParameter == null) throw new NotSupportedException($"Cannot assign to data context parameter {expression.Left}");
                 return new JsAssignmentExpression(
                     TranslateParameter(expression.Left, annotation),
                     Translate(expression.Right)
                 );
             }
-            throw new NotSupportedException($"Can not assign expression of type {expression.Left.NodeType}!");
+            throw new NotSupportedException($"Cannot assign expression of type {expression.Left.NodeType}!");
         }
 
-        private JsExpression SetProperty(JsExpression target, MemberInfo property, JsExpression value) =>
+        private JsExpression SetProperty(JsExpression target, VMPropertyInfoAnnotation property, JsExpression value) =>
             new JsAssignmentExpression(TranslateViewModelProperty(target, property), value);
 
         public JsExpression TranslateConditional(ConditionalExpression expression) =>
@@ -233,7 +233,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             var result = TryTranslateMethodCall(expression.Method, expression.Object, expression.Arguments.ToArray());
             if (result == null)
-                throw new NotSupportedException($"Method { expression.Method.DeclaringType.Name }.{ expression.Method.Name } can not be translated to Javascript");
+                throw new NotSupportedException($"Method { expression.Method.DeclaringType.Name }.{ expression.Method.Name } cannot be translated to Javascript");
             return result;
         }
 
@@ -349,14 +349,14 @@ namespace DotVVM.Framework.Compilation.Javascript
             else
             {
                 return TryTranslateMethodCall(getter, expression.Expression, new Expression[0]) ??
-                    TranslateViewModelProperty(Translate(expression.Expression), expression.Member);
+                    TranslateViewModelProperty(Translate(expression.Expression), new VMPropertyInfoAnnotation(expression.Member));
             }
         }
 
-        public static JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string? name = null) =>
-            new JsMemberAccessExpression(context, name ?? propInfo.Name)
-                .WithAnnotation(new VMPropertyInfoAnnotation(propInfo))
-                .WithAnnotation(new ViewModelInfoAnnotation(propInfo.GetResultType()));
+        public static JsExpression TranslateViewModelProperty(JsExpression context, VMPropertyInfoAnnotation propInfo, string? name = null) =>
+            new JsMemberAccessExpression(context, name ?? propInfo.MemberInfo.NotNull().Name)
+                .WithAnnotation(propInfo)
+                .WithAnnotation(new ViewModelInfoAnnotation(propInfo.ResultType));
 
         public JsExpression? TryTranslateMethodCall(MethodInfo? methodInfo, Expression? target, IEnumerable<Expression> arguments) =>
             methodInfo is null ? null :

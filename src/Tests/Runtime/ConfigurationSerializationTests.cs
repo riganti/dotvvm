@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -10,6 +11,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -27,7 +29,11 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             var serialized = DotVVM.Framework.Hosting.VisualStudioHelper.SerializeConfig(config, includeProperties);
             serialized = Regex.Replace(serialized, "Version=[0-9.]+", "Version=***");
-            check.CheckString(serialized, checkName, fileExtension, memberName, sourceFilePath);
+            var jobject = JObject.Parse(serialized);
+            if (jobject["properties"] is object)
+                foreach (var testControl in ((JObject)jobject["properties"]).Properties().Where(p => p.Name.Contains(".Tests.")).ToArray())
+                    testControl.Remove();
+            check.CheckString(jobject.ToString(), checkName, fileExtension, memberName, sourceFilePath);
         }
 
         [TestMethod]

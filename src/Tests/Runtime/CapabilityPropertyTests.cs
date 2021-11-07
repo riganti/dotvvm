@@ -104,7 +104,7 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [DotvvmControlCapability]
-        public sealed class TestCapability
+        public sealed record TestCapability
         {
             public string Something { get; set; } = "kokosovina";
             public string SomethingElse { get; set; } = "baf";

@@ -1,9 +1,10 @@
+using System.Threading.Tasks;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
 {
-    [Authorize(AuthenticationSchemes = "Scheme1")]
     public class SecuredPageViewModel : DotvvmViewModelBase
     {
         private static string Message = "server: Hello!";
@@ -13,13 +14,16 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
             LastMessage = Message;
         }
 
+        public override Task Init() =>
+            Context.Authorize(authenticationSchemes: new [] { "Scheme1" });
+
         public string MessageEditor { get; set; }
 
         public string LastMessage { get; set; }
 
-        [Authorize(Roles = "admin", AuthenticationSchemes = "Scheme1")]
-        public void ReplaceMessage()
+        public async Task ReplaceMessage()
         {
+            await Context.Authorize(roles: new [] { "admin" }, authenticationSchemes: new [] { "Scheme1" });
             Message = LastMessage = string.Format("{0}: {1}",
                 Context.HttpContext.User.Identity.Name,
                 MessageEditor);

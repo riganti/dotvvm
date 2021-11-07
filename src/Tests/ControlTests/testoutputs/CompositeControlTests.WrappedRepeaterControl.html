@@ -3,11 +3,8 @@
 	<body>
 		
 		<!-- simple list -->
-		<p data-bind="foreach: { data: List }">
-			<button onclick="dotvvm.postBack(this,[&quot;List/[$index]&quot;],&quot;WHRHt9Mi4BuLdRIz&quot;,&quot;&quot;,null,[&quot;validate-root&quot;],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button">
-				<!-- ko text: $parent.Label() + $data -->
-				<!-- /ko -->
-			</button>
+		<p class="css-class-from-markup my-repeated-button" data-bind="foreach: { data: List }">
+			<button class="the-only-class-for-button-element" data-bind="text: $parent.Label() + $data" onclick="dotvvm.postBack(this,[&quot;List/[$index]&quot;],&quot;WHRHt9Mi4BuLdRIz&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button"></button>
 		</p>
 	</body>
 </html>

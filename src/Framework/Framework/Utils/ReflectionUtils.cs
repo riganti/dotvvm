@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Utils
             var body = expression as MemberExpression;
 
             if (body == null)
-                throw new NotSupportedException($"Can not get member from {originalExpression}");
+                throw new NotSupportedException($"Cannot get member from {originalExpression}");
 
             return body.Member;
         }
@@ -415,9 +415,10 @@ namespace DotVVM.Framework.Utils
             return cache_GetTypeHash.GetOrAdd(type, t => {
                 using (var sha1 = SHA1.Create())
                 {
-                    var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(t.AssemblyQualifiedName!));
+                    var typeName = t.FullName + ", " + t.Assembly.GetName().Name;
+                    var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(typeName));
 
-                    return Convert.ToBase64String(hashBytes);
+                    return Convert.ToBase64String(hashBytes, 0, 12);
                 }
             });
         }

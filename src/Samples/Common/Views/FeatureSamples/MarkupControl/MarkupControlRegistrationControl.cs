@@ -24,7 +24,7 @@ namespace DotVVM.Samples.BasicSamples.Views.FeatureSamples.MarkupControl
         public int Value
         {
             get { return (int)GetValue(ValueProperty); }
-            set { SetValue(ValueProperty, value); }
+            set { SetValueToSource(ValueProperty, value); }
         }
 
         public static readonly DotvvmProperty ValueProperty =

@@ -62,7 +62,7 @@ namespace DotVVM.Samples.Tests.Feature
             browser.First("input").SendKeys(Keys.Enter);
             browser.WaitForPostback();
             var downloadURL = (string)jsexec.ExecuteScript("return window.downloadURL;");
-            Assert.False(string.IsNullOrEmpty(downloadURL));
+            Assert.NotEmpty(downloadURL);
 
             string returnedFile;
             using (var client = new WebClient())

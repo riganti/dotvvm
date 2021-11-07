@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public static (int stepsUp, DotvvmBindableObject target) FindDataContextTarget(this IBinding binding, DotvvmBindableObject control)
         {
-            if (control == null) throw new InvalidOperationException($"Can not evaluate binding without any dataContext.");
+            if (control == null) throw new InvalidOperationException($"Cannot evaluate binding without any dataContext.");
             var bindingContext = binding.GetProperty<DataContextStack>(ErrorHandlingMode.ReturnNull);
             return FindDataContextTarget(control, bindingContext, binding);
         }
@@ -248,21 +248,40 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary>
-        /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService. 
+        /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService.
         /// </summary>
         public static TBinding DeriveBinding<TBinding>(this TBinding binding, DataContextStack newDataContext, Expression expression, params object?[] properties)
             where TBinding : IBinding
         {
             return binding.DeriveBinding(
-                properties.Concat(new object[]{
+                properties.Concat(new object[] {
                     newDataContext,
-                    new ParsedExpressionBindingProperty(expression)
+                    new ParsedExpressionBindingProperty(expression),
+                    new CastedExpressionBindingProperty(expression),
+                    new ExpectedTypeBindingProperty(expression.Type),
+                    new ResultTypeBindingProperty(expression.Type)
                 }).ToArray()
             );
         }
 
         /// <summary>
-        /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService. 
+        /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService.
+        /// </summary>
+        public static TBinding DeriveBinding<TBinding>(this TBinding binding, Expression expression, params object?[] properties)
+            where TBinding : IBinding
+        {
+            return binding.DeriveBinding(
+                properties.Concat(new object[] {
+                    new ParsedExpressionBindingProperty(expression),
+                    new CastedExpressionBindingProperty(expression),
+                    new ExpectedTypeBindingProperty(expression.Type),
+                    new ResultTypeBindingProperty(expression.Type)
+                }).ToArray()
+            );
+        }
+
+        /// <summary>
+        /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService.
         /// </summary>
         public static TBinding DeriveBinding<TBinding>(this TBinding binding, params object?[] properties)
             where TBinding : IBinding
@@ -362,7 +381,7 @@ namespace DotVVM.Framework.Binding
 
             if (childType is null)
                 childType = typeof(UnknownTypeSentinel);
-            
+
             return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
         }
 

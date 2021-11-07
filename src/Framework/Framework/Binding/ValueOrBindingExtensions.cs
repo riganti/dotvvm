@@ -178,19 +178,13 @@ public static class ValueOrBindingExtensions
                     new Tuple<IBinding>(binding),
                     new ObjectWithComparer<Expression>(optimizedExpr, ExpressionComparer.Instance)
                 },
-                () => binding.DeriveBinding(new object?[] {
-                    new ExpectedTypeBindingProperty(mapping.ReturnType),
-                    new ResultTypeBindingProperty(mapping.ReturnType),
-                    new ParsedExpressionBindingProperty(
+                () => binding.DeriveBinding(
                         ExpressionUtils.Replace(
                             optimizedExpr,
                             Expression.Convert(
                                 binding.GetProperty<ParsedExpressionBindingProperty>().Expression,
                                 optimizedExpr.Parameters[0].Type
-                            )
-                        )
-                    )
-                })
+                            )))
             );
     }
 

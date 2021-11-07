@@ -7,10 +7,24 @@ using System.Linq;
 namespace DotVVM.Framework.Controls
 {
     [DotvvmControlCapability]
-    public sealed class TextOrContentCapability
+    public sealed record TextOrContentCapability
     {
-        public ValueOrBinding<string>? Text { get; set; }
-        public List<DotvvmControl>? Content { get; set; }
+        public ValueOrBinding<string>? Text { get; init; }
+        public List<DotvvmControl>? Content { get; init; }
+
+        public TextOrContentCapability() { }
+        public TextOrContentCapability(ValueOrBinding<string> text)
+        {
+            this.Text = text;
+        }
+        public TextOrContentCapability(IEnumerable<DotvvmControl> content)
+        {
+            this.Content = content.ToList();
+        }
+        public TextOrContentCapability(params DotvvmControl[] content)
+        {
+            this.Content = content.ToList();
+        }
 
         public static TextOrContentCapability FromChildren(DotvvmControl control, DotvvmProperty textProperty)
         {
@@ -24,7 +38,7 @@ namespace DotVVM.Framework.Controls
         public void WriteToChildren(DotvvmControl control, DotvvmProperty textProperty)
         {
             if (!control.HasOnlyWhiteSpaceContent())
-                throw new DotvvmControlException(control, "Can not set TextOrContentCapability into the control since it already has some content.");
+                throw new DotvvmControlException(control, "Cannot set TextOrContentCapability into the control since it already has some content.");
             control.SetProperty(textProperty, Text);
             control.Children.Clear();
             if (Content is not null)

@@ -13,7 +13,7 @@ namespace DotVVM.Samples.Tests
 {
     public class ErrorsTests : AppSeleniumTest
     {
-        
+
         [Fact]
         public void Error_MissingViewModel()
         {
@@ -217,7 +217,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_FieldInValueBinding);
-                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("Can not translate field"));
+                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("Cannot translate field"));
                 AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("{{value: SomeField}}"));
             });
         }

@@ -68,32 +68,61 @@ namespace DotVVM.Framework.Controls
             base.OnPreInit(context);
         }
 
-        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
+        int knockoutCommentsToEnd = 0;
+
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            var properties =
-                GetDeclaredProperties()
-                .Where(p => !p.DeclaringType.IsAssignableFrom(typeof(DotvvmMarkupControl)))
-                .Select(GetPropertySerializationInfo)
-                .Where(p => p.Js is object)
-                .Select(p => JsonConvert.ToString(p.Property.Name, '"', StringEscapeHandling.EscapeHtml) + ": " + p.Js);
+            var properties = new KnockoutBindingGroup();
+            foreach (var p in GetDeclaredProperties())
+            {
+                if (p.DeclaringType.IsAssignableFrom(typeof(DotvvmMarkupControl)))
+                    continue;
+
+                var pinfo = GetPropertySerializationInfo(p); // migrate to use the KnockoutBindingGroup helpers
+                if (pinfo.Js is object)
+                {
+                    properties.Add(p.Name, pinfo.Js);
+                }
+            }
+
+            if (!properties.IsEmpty)
+            {
+                if (RendersHtmlTag)
+                    writer.AddKnockoutDataBind("dotvvm-with-control-properties", properties);
+                else
+                {
+                    writer.WriteKnockoutDataBindComment("dotvvm-with-control-properties", properties.ToString());
+                    knockoutCommentsToEnd++;
+                }
+            }
 
             var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
-
-            writer.WriteKnockoutDataBindComment("dotvvm-with-control-properties", "{ " + string.Join(", ", properties) + " }");
             if (viewModule is object)
             {
-                var viewIdJs = ViewModuleHelpers.GetViewIdJsExpression(viewModule, this);
                 var settings = DefaultSerializerSettingsProvider.Instance.GetSettingsCopy();
                 settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
-                writer.WriteKnockoutDataBindComment("dotvvm-with-view-modules",
-                    $"{{ viewIdOrElement: {viewIdJs}, modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}"
-                );
+                var binding = $"{{ modules: {JsonConvert.SerializeObject(viewModule.ReferencedModules, settings)} }}";
+                if (RendersHtmlTag)
+                    writer.AddKnockoutDataBind("dotvvm-with-view-modules", binding);
+                else
+                {
+                    writer.WriteKnockoutDataBindComment("dotvvm-with-view-modules", binding);
+                    knockoutCommentsToEnd++;
+                }
             }
-            base.RenderContents(writer, context);
-            writer.WriteKnockoutDataBindEndComment();
-            if (viewModule is object)
+
+
+            base.AddAttributesToRender(writer, context);
+        }
+
+        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            base.RenderEndTag(writer, context);
+
+            while (knockoutCommentsToEnd > 0)
             {
                 writer.WriteKnockoutDataBindEndComment();
+                knockoutCommentsToEnd--;
             }
         }
 

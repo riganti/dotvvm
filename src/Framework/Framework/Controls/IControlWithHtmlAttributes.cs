@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Controls
 {
@@ -9,8 +10,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public interface IControlWithHtmlAttributes
     {
-
-        IDictionary<string, object?> Attributes { get; } 
-
+        VirtualPropertyGroupDictionary<object?> Attributes { get; } 
     }
 }

@@ -1,6 +1,6 @@
 // not a module, available to everyone
 
-type PostbackCommitFunction = (...args: any) => Promise<DotvvmAfterPostBackEventArgs>
+type PostbackCommitFunction = () => Promise<DotvvmAfterPostBackEventArgs>
 
 type DotvvmPostbackHandler = {
     execute(next: () => Promise<PostbackCommitFunction>, options: PostbackOptions): Promise<PostbackCommitFunction>

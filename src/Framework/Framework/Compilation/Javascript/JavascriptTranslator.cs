@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.HelperNamespace;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
@@ -116,6 +117,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             return expression.AssignParameters(o =>
                 o is ViewModelSymbolicParameter vm ? GetKnockoutViewModelParameter(vm.ParentIndex + dataContextLevel).ToParametrizedCode() :
                 o is ContextSymbolicParameter context ? GetKnockoutContextParameter(context.ParentIndex + dataContextLevel).ToParametrizedCode() :
+                o == CommandBindingExpression.OptionalKnockoutContextParameter ? GetKnockoutContextParameter(dataContextLevel).ToParametrizedCode() :
                 default
             );
         }
@@ -198,6 +200,10 @@ namespace DotVVM.Framework.Compilation.Javascript
         public Type ResultType { get; }
         public MemberInfo? MemberInfo { get; }
         public ViewModelPropertyMap? SerializationMap { get; set; }
+
+        public static VMPropertyInfoAnnotation FromDotvvmProperty(DotvvmProperty p) =>
+            p.PropertyInfo is null ? new VMPropertyInfoAnnotation(p.PropertyType)
+                                   : new VMPropertyInfoAnnotation(p.PropertyInfo, p.PropertyType);
     }
 
     public class JavascriptTranslatorConfiguration: IJavascriptMethodTranslator
@@ -208,7 +214,6 @@ namespace DotVVM.Framework.Compilation.Javascript
         public JavascriptTranslatorConfiguration()
         {
             Translators.Add(MethodCollection = new JavascriptTranslatableMethodCollection());
-            Translators.Add(new EnumToStringMethodTranslator());
             Translators.Add(new DelegateInvokeMethodTranslator());
         }
 

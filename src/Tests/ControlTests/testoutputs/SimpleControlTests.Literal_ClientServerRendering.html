@@ -3,20 +3,10 @@
 	<body>
 		
 		<!-- literal syntax, client rendering -->
-		<span>
-			
-			<!-- ko text: int -->
-			<!-- /ko -->                     
-			<!-- ko text: dotvvm.globalize.formatString("", float) -->
-			<!-- /ko -->                     
-			<!-- ko text: dotvvm.globalize.formatString("", date) -->
-			<!-- /ko -->
-		</span>
+		<span data-bind="text: dotvvm.globalize.bindingNumberToString(int)() + &quot;\n                    &quot; + dotvvm.globalize.bindingNumberToString(float)() + &quot;\n                    &quot; + dotvvm.globalize.bindingDateToString(date)"></span>
 		
 		<!-- literal syntax, server rendering -->
-		<span>
-			10000000                     0.11111                     8/11/2020 4:01:44 PM
-		</span>
+		<span data-bind="text: dotvvm.globalize.bindingNumberToString(int)() + &quot;\n                    &quot; + dotvvm.globalize.bindingNumberToString(float)() + &quot;\n                    &quot; + dotvvm.globalize.bindingDateToString(date)">10000000                     0.11111                     8/11/2020 4:01:44 PM</span>
 		
 		<!-- control syntax, client rendering -->
 		<span>

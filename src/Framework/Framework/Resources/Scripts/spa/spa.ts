@@ -81,7 +81,7 @@ export async function handleSpaNavigation(element: HTMLElement): Promise<DotvvmN
 export async function handleSpaNavigationCore(url: string | null, sender?: HTMLElement, handlePageNavigating?: (url: string) => void): Promise<DotvvmNavigationEventArgs> {
 
     if (!url || url.indexOf("/") !== 0) {
-        throw new Error("Invalid url for SPAN navigation!");
+        throw new Error("Invalid url for SPA navigation!");
     }
 
     const currentPostBackCounter = counter.backUpPostBackCounter();

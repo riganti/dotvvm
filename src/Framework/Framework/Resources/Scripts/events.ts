@@ -10,6 +10,9 @@ export class DotvvmEvent<T> {
     }
 
     public subscribe(handler: (data: T) => void) {
+        if (compileConstants.debug && typeof handler != 'function') {
+            throw new Error(`handler ${handler} is not a function`);
+        }
         this.handlers.push(new DotvvmEventHandler<T>(handler, false));
 
         if (this.triggerMissedEventsOnSubscribe) {
@@ -20,6 +23,9 @@ export class DotvvmEvent<T> {
     }
 
     public subscribeOnce(handler: (data: T) => void) {
+        if (compileConstants.debug && typeof handler != 'function') {
+            throw new Error(`handler ${handler} is not a function`);
+        }
         this.handlers.push(new DotvvmEventHandler<T>(handler, true));
     }
 

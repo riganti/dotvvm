@@ -87,7 +87,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         protected static IFrameMoreInfo? CreateDotvvmDocsLink(StackFrameModel frame)
         {
-            const string DotvvmThumb = "https://dotvvm.com/Content/assets/ico/favicon.png";
+            const string DotvvmThumb = "https://www.dotvvm.com/wwwroot/Images/favicons/favicon-16x16.png";
             var type = frame.Method?.DeclaringType;
             if (type == null) return null;
             while (type.DeclaringType != null) type = type.DeclaringType;
@@ -102,18 +102,18 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         protected static IFrameMoreInfo? CreateGithubLink(StackFrameModel frame)
         {
-            const string GithubUrl = @"https://github.com/riganti/dotvvm/blob/master/src/";
-            const string Octocat = @"https://assets-cdn.github.com/favicon.ico";
+            const string GithubUrl = @"https://github.com/riganti/dotvvm/blob/main/";
+            const string Octocat = @"https://github.githubassets.com/favicons/favicon.png";
             if (frame.Method?.DeclaringType?.Assembly == typeof(ErrorFormatter).Assembly)
             {
-                var fileName = frame.At?.FileName;
+                var fileName = frame.At?.FileName?.Replace('\\', '/').TrimStart('/');
                 // dotvvm github
                 if (!string.IsNullOrEmpty(fileName))
                 {
                     var urlFileName =
                         fileName.Substring(
-                            fileName.LastIndexOf("DotVVM.Framework", StringComparison.Ordinal));
-                    var url = GithubUrl + fileName.Replace('\\', '/').TrimStart('/') + "#L" + frame.At!.LineNumber;
+                            fileName.LastIndexOf("src/Framework", StringComparison.Ordinal));
+                    var url = GithubUrl + urlFileName + "#L" + frame.At!.LineNumber;
                     return FrameMoreInfo.CreateThumbLink(url, Octocat);
                 }
                 else
@@ -123,7 +123,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                         .Replace('.', '/');
                     if (urlFileName.Contains("+"))
                         urlFileName = urlFileName.Remove(urlFileName.IndexOf('+')); // remove nested class
-                    var url = GithubUrl + "DotVVM.Framework" + urlFileName + ".cs";
+                    var url = GithubUrl + "src/Framework/Framework" + urlFileName + ".cs";
                     return FrameMoreInfo.CreateThumbLink(url, Octocat);
                 }
             }
@@ -304,7 +304,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             var template = new ErrorPageTemplate(
                 formatters: Formatters
                     .Select(f => f(exception, context))
-                    .Concat(context.GetEnvironmentTabs().Select(o => DictionarySection.Create(o.Item1, "env_" + o.Item1.GetHashCode(), o.Item2)))
+                    .Concat(context.GetEnvironmentTabs().Select(o => new DictionarySection<string, object>(o.Item1, "env_" + o.Item1.GetHashCode(), o.Item2)))
                     .Where(t => t != null)
                     .ToArray()!,
                 errorCode: context.Response.StatusCode,
@@ -317,11 +317,11 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         static (string name, object value) StripBindingProperty(string name, object value)
         {
             var t = value.GetType();
-            var fields = t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            if (fields.Length != 1 || !fields[0].IsInitOnly)
+            var props = t.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (props.Length != 1)
                 return (name, value);
 
-            return (name + "." + fields[0].Name, fields[0].GetValue(value));
+            return (name + "." + props[0].Name, props[0].GetValue(value));
         }
 
 
@@ -330,12 +330,10 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             var f = new ErrorFormatter();
             f.Formatters.Add((e, o) => DotvvmMarkupErrorSection.Create(e));
             f.Formatters.Add((e, o) => new ExceptionSectionFormatter(f.LoadException(e), "Raw Stack Trace", "raw_stack_trace"));
-            f.Formatters.Add((e, o) => DictionarySection.Create("Cookies", "cookies", o.Request.Cookies));
-            f.Formatters.Add((e, o) => DictionarySection.Create("Request Headers", "reqHeaders", o.Request.Headers));
             f.Formatters.Add((e, o) => {
                 var b = e.AllInnerExceptions().OfType<BindingPropertyException>().Select(a => a.Binding).OfType<ICloneableBinding>().FirstOrDefault();
                 if (b == null) return null;
-                return DictionarySection.Create("Binding", "binding",
+                return new DictionarySection<object, object>("Binding", "binding",
                     new []{ new KeyValuePair<object, object>("Type", b.GetType().FullName) }
                     .Concat(
                         b.GetAllComputedProperties()
@@ -343,6 +341,15 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                         .Select(a => new KeyValuePair<object, object>(a.name, a.value))
                     ).ToArray());
             });
+            f.Formatters.Add((e, o) => new CookiesSection(o.Request.Cookies));
+            f.Formatters.Add((e, o) => new DictionarySection<string, string[]>(
+                "Request Headers",
+                "reqHeaders",
+                o.Request.Headers.Select(h =>
+                    h.Key.Equals("Cookie", StringComparison.OrdinalIgnoreCase) ?
+                        new ("Cookie", new [] {"<redacted, see Cookies tab or devtools>"}) :
+                        h)
+            ));
             f.AddInfoLoader<ReflectionTypeLoadException>(e => new ExceptionAdditionalInfo(
                 "Loader Exceptions",
                 e.LoaderExceptions.Select(lde => lde.GetType().Name + ": " + lde.Message).ToArray(),

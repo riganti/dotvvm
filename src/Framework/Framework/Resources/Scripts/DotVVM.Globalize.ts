@@ -4,7 +4,7 @@ import { getCulture } from './dotvvm-base';
 
 function getGlobalize(): GlobalizeStatic {
     const g = (window as any)["dotvvm_Globalize"]
-    if (!g) {
+    if (compileConstants.debug && !g) {
         throw new Error("Resource 'globalize' is not included (symbol 'dotvvm_Globalize' could not be found).\nIt is usually included automatically when needed, but sometime it's not possible, so you will have to include it in your page using '<dot:RequiredResource Name=\"globalize\" />'")
     }
     return g;
@@ -55,11 +55,7 @@ export function parseDate(value: string, format: string, previousValue?: Date) {
 
 export const parseDotvvmDate = serializationParseDate;
 
-export function bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format: string = "G") {
-    if (!value) {
-        return "";
-    }
-
+export function bindingDateToString(value: KnockoutObservable<string | Date> | string | Date | null | undefined, format: string = "G") {
     const unwrapDate = () => {
         const unwrappedVal = ko.unwrap(value);
         return typeof unwrappedVal == "string" ? serializationParseDate(unwrappedVal) : unwrappedVal;
@@ -82,11 +78,7 @@ export function bindingDateToString(value: KnockoutObservable<string | Date> | s
     }
 }
 
-export function bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format: string = "G") {
-    if (value == null) {
-        return "";
-    }
-
+export function bindingNumberToString(value: KnockoutObservable<string | number> | string | number | null | undefined, format: string = "G") {
     const formatNumber = () => formatString(format, value);
 
     if (ko.isWriteableObservable(value)) {

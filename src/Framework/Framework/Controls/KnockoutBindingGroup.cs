@@ -94,7 +94,7 @@ namespace DotVVM.Framework.Controls
                 if (MayBeUnquoted(Name))
                     return Name + ": " + Expression;
                 else
-                    return "\"" + Name + "\": " + Expression;
+                    return JsonConvert.ToString(Name, '"', StringEscapeHandling.EscapeHtml) + ": " + Expression;
             }
 
             private static bool MayBeUnquoted(string s)

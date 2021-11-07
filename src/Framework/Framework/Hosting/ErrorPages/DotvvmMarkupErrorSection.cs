@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
@@ -57,6 +61,10 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 var bce = (BindingCompilationException)exc;
                 return ExtractSourceFromBindingCompilationException(bce);
             }
+            else if (exc is BindingPropertyException bpe)
+            {
+                return ExtractSourceFromBindingPropertyException(bpe);
+            }
             else if (exc is DotvvmControlException)
             {
                 var controlException = (DotvvmControlException)exc;
@@ -107,6 +115,17 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return ErrorFormatter.LoadSourcePiece(controlException.FileName, controlException.LineNumber ?? 0);
         }
 
+        private SourceModel? ExtractSourceFromBindingPropertyException(BindingPropertyException exception)
+        {
+            var location = exception.Binding.GetProperty<LocationInfoBindingProperty>(ErrorHandlingMode.ReturnNull);
+            if (location == null)
+                return null;
+            var colStart = location.Ranges?.FirstOrDefault().start;
+            var colEnd = location.Ranges?.LastOrDefault().end;
+
+            return ErrorFormatter.LoadSourcePiece(location.FileName, location.LineNumber, errorColumn: colStart ?? 0, errorLength: colEnd - colStart ?? 0);
+        }
+
         private SourceModel CreateAnonymousLine(string line, int column = 0, int length = -1, int lineNumber = 0)
         {
             if (length < 0) length = line.Length - column + length;
@@ -121,17 +140,19 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             };
         }
 
-        public void WriteHead(IErrorWriter w)
+        public void WriteStyle(IErrorWriter w)
         { }
 
         public static DotvvmMarkupErrorSection? Create(Exception ex)
         {
-            var iex = ex;
-            while (iex != null)
-            {
-                if (iex is DotvvmCompilationException || iex is DotvvmControlException) break;
-                iex = iex.InnerException;
-            }
+            var exs = ex.AllInnerExceptions();
+            var iex =
+                exs.OfType<DotvvmCompilationException>().FirstOrDefault() ??
+                exs.OfType<BindingPropertyException>()
+                   .Where(bpe => bpe.Binding.GetProperty<LocationInfoBindingProperty>(ErrorHandlingMode.ReturnNull)?.FileName is not null)
+                   .FirstOrDefault() ??
+                exs.OfType<DotvvmControlException>().FirstOrDefault() as Exception;
+
             if (iex != null) return new DotvvmMarkupErrorSection(ex);
             else return null;
         }

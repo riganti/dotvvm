@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Compilation
 {
     /// <summary>
     /// Merges provided values based on implemented static 'MergeValues' or 'MergeExpression' method:
-    /// 
+    ///
     /// implement public static object MergeValues([DotvvmProperty], ValueA, ValueB) and this will decide which will should be used
     /// or implement public static Expression MergeExpressions(DotvvmProperty, Expression a, Expression b)
     /// </summary>
@@ -53,11 +53,11 @@ namespace DotVVM.Framework.Compilation
             if (valB == null) { error = $"Could not merge with property type '{b.GetType().Name}"; return null; }
 
             if (bindingA != null && !typeof(IStaticValueBinding).IsAssignableFrom(bindingA.BindingType) ||
-                bindingB != null && !typeof(IStaticValueBinding).IsAssignableFrom(bindingB.BindingType)) { error = $"Can not merge values of non-value bindings."; return null; }
+                bindingB != null && !typeof(IStaticValueBinding).IsAssignableFrom(bindingB.BindingType)) { error = $"Cannot merge values of non-value bindings."; return null; }
 
             if (bindingA != null && bindingB != null)
             {
-                if (bindingA.BindingType != bindingB.BindingType) { error = $"Can not merge values of different binding types"; return null; }
+                if (bindingA.BindingType != bindingB.BindingType) { error = $"Cannot merge values of different binding types"; return null; }
             }
 
             var resultExpression = TryOptimizeMethodCall(TryFindMethod(GetType(), MergeExpressionsMethodName, Expression.Constant(property), Expression.Constant(valA), Expression.Constant(valB))) as Expression;
@@ -92,7 +92,7 @@ namespace DotVVM.Framework.Compilation
         {
             if (originalBinding == null) { error = $"Could not merge constant values to binding '{expression}'."; return null; }
             return new ResolvedPropertyBinding(property,
-                new ResolvedBinding(originalBinding.BindingService, originalBinding.Binding.GetProperty<BindingParserOptions>(), originalBinding.DataContextTypeStack, null, expression, property)) { DothtmlNode = originalBinding.DothtmlNode };
+                originalBinding.WithDifferentExpression(expression, property));
         }
 
         protected virtual Expression? GetExpression(ResolvedPropertySetter a, out ResolvedBinding? binding)

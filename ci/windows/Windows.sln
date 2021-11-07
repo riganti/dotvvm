@@ -19,11 +19,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmbeddedResourceControls", "..\..\src\Samples\EmbeddedResourceControls\EmbeddedResourceControls.csproj", "{5E5BD33D-024A-4D20-A0CB-9551818ACF91}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Tests", "..\..\src\Tests\DotVVM.Framework.Tests.csproj", "{3CFCFABD-72F9-4E8F-8F36-886815FCA76E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Tests", "..\..\src\Tests\DotVVM.Framework.Tests.csproj", "{3CFCFABD-72F9-4E8F-8F36-886815FCA76E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Testing.Abstractions", "..\..\src\Samples\Tests\Abstractions\DotVVM.Testing.Abstractions.csproj", "{7442ED9B-BFF3-4CCB-A304-3196678A2A7E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Testing.Abstractions", "..\..\src\Samples\Tests\Abstractions\DotVVM.Testing.Abstractions.csproj", "{7442ED9B-BFF3-4CCB-A304-3196678A2A7E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.Tests", "..\..\src\Samples\Tests\Tests\DotVVM.Samples.Tests.csproj", "{667A7061-9EED-4C4F-A716-BF1B6D62357E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.Tests", "..\..\src\Samples\Tests\Tests\DotVVM.Samples.Tests.csproj", "{667A7061-9EED-4C4F-A716-BF1B6D62357E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Analyzers", "..\..\src\Analyzers\Analyzers\DotVVM.Analyzers.csproj", "{3839948D-4AB7-4056-BB7F-B0172855CE8E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Analyzers.CodeFixes", "..\..\src\Analyzers\Analyzers.CodeFixes\DotVVM.Analyzers.CodeFixes.csproj", "{3571B903-5DB8-4727-9509-3438790EE345}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Analyzers.Tests", "..\..\src\Analyzers\Analyzers.Tests\DotVVM.Analyzers.Tests.csproj", "{C740B163-CE76-4A8C-AD53-F9063B4386A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -167,6 +173,42 @@ Global
 		{667A7061-9EED-4C4F-A716-BF1B6D62357E}.Release|x64.Build.0 = Release|Any CPU
 		{667A7061-9EED-4C4F-A716-BF1B6D62357E}.Release|x86.ActiveCfg = Release|Any CPU
 		{667A7061-9EED-4C4F-A716-BF1B6D62357E}.Release|x86.Build.0 = Release|Any CPU
+		{3839948D-4AB7-4056-BB7F-B0172855CE8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3839948D-4AB7-4056-BB7F-B0172855CE8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3839948D-4AB7-4056-BB7F-B0172855CE8E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3839948D-4AB7-4056-BB7F-B0172855CE8E}.Debug|x64.Build.0 = Debug|Any CPU
+		{3839948D-4AB7-4056-BB7F-B0172855CE8E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3839948D-4AB7-4056-BB7F-B0172855CE8E}.Debug|x86.Build.0 = Debug|Any CPU
+		{3839948D-4AB7-4056-BB7F-B0172855CE8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3839948D-4AB7-4056-BB7F-B0172855CE8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3839948D-4AB7-4056-BB7F-B0172855CE8E}.Release|x64.ActiveCfg = Release|Any CPU
+		{3839948D-4AB7-4056-BB7F-B0172855CE8E}.Release|x64.Build.0 = Release|Any CPU
+		{3839948D-4AB7-4056-BB7F-B0172855CE8E}.Release|x86.ActiveCfg = Release|Any CPU
+		{3839948D-4AB7-4056-BB7F-B0172855CE8E}.Release|x86.Build.0 = Release|Any CPU
+		{3571B903-5DB8-4727-9509-3438790EE345}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3571B903-5DB8-4727-9509-3438790EE345}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3571B903-5DB8-4727-9509-3438790EE345}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3571B903-5DB8-4727-9509-3438790EE345}.Debug|x64.Build.0 = Debug|Any CPU
+		{3571B903-5DB8-4727-9509-3438790EE345}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3571B903-5DB8-4727-9509-3438790EE345}.Debug|x86.Build.0 = Debug|Any CPU
+		{3571B903-5DB8-4727-9509-3438790EE345}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3571B903-5DB8-4727-9509-3438790EE345}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3571B903-5DB8-4727-9509-3438790EE345}.Release|x64.ActiveCfg = Release|Any CPU
+		{3571B903-5DB8-4727-9509-3438790EE345}.Release|x64.Build.0 = Release|Any CPU
+		{3571B903-5DB8-4727-9509-3438790EE345}.Release|x86.ActiveCfg = Release|Any CPU
+		{3571B903-5DB8-4727-9509-3438790EE345}.Release|x86.Build.0 = Release|Any CPU
+		{C740B163-CE76-4A8C-AD53-F9063B4386A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C740B163-CE76-4A8C-AD53-F9063B4386A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C740B163-CE76-4A8C-AD53-F9063B4386A8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C740B163-CE76-4A8C-AD53-F9063B4386A8}.Debug|x64.Build.0 = Debug|Any CPU
+		{C740B163-CE76-4A8C-AD53-F9063B4386A8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C740B163-CE76-4A8C-AD53-F9063B4386A8}.Debug|x86.Build.0 = Debug|Any CPU
+		{C740B163-CE76-4A8C-AD53-F9063B4386A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C740B163-CE76-4A8C-AD53-F9063B4386A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C740B163-CE76-4A8C-AD53-F9063B4386A8}.Release|x64.ActiveCfg = Release|Any CPU
+		{C740B163-CE76-4A8C-AD53-F9063B4386A8}.Release|x64.Build.0 = Release|Any CPU
+		{C740B163-CE76-4A8C-AD53-F9063B4386A8}.Release|x86.ActiveCfg = Release|Any CPU
+		{C740B163-CE76-4A8C-AD53-F9063B4386A8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -175,4 +217,3 @@ Global
 		SolutionGuid = {87AE426E-11ED-4CD9-975E-828F5346058F}
 	EndGlobalSection
 EndGlobal
-
