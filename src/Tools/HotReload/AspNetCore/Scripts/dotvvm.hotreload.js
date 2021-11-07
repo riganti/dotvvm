@@ -2,7 +2,7 @@
     function connect() {
         // listen for markup file changes
         var connection = new signalR.HubConnectionBuilder()
-            .withUrl("/_diagnostics/dotvvmHotReloadHub")
+            .withUrl("/_dotvvm/dotvvmHotReloadHub")
             .withAutomaticReconnect()
             .build();
         connection.on("fileChanged", function (paths) {
