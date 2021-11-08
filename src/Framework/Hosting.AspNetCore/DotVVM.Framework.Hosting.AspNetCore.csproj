@@ -16,6 +16,7 @@
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <PackageId>DotVVM.AspNetCore</PackageId>
     <Authors>RIGANTI</Authors>
+    <IsPackable>true</IsPackable>
     <Description>
       This package contains ASP.NET Core middleware and hosting infrastructure for DotVVM apps. It supports both .NET Framework and .NET Core.
       DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.
