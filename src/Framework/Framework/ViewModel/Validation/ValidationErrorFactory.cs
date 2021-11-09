@@ -23,7 +23,7 @@ namespace DotVVM.Framework.ViewModel.Validation
     {
         public static ViewModelValidationError AddModelError<T>(this T vm, string message)
             where T : class, IDotvvmViewModel
-            => vm.Context.AddModelError(message);
+            => vm.Context.AddModelError(vm, a => a, message);
 
         public static ViewModelValidationError AddModelError<T>(this T vm, string propertyPath, string message)
             where T : class, IDotvvmViewModel
