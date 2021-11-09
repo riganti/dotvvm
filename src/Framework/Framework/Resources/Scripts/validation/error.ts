@@ -11,7 +11,7 @@ export function detachAllErrors() {
 }
 
 export function getErrors<T>(o: KnockoutObservable<T> | null): ValidationError[] {
-    let unwrapped = unwrapComputedProperty(o);
+    const unwrapped = unwrapComputedProperty(o);
     if (!ko.isObservable(o)) {
         return []
     }
@@ -31,7 +31,7 @@ export class ValidationError {
             throw new Error(`ValidationError cannot be attached to "${observable}".`);
         }
 
-        let unwrapped = unwrapComputedProperty(observable);
+        const unwrapped = unwrapComputedProperty(observable);
         if (!observable.hasOwnProperty(ErrorsPropertySymbol)) {
             unwrapped[ErrorsPropertySymbol] = [];
         }
