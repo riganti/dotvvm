@@ -159,7 +159,9 @@ namespace DotVVM.Framework.Controls
                 var validationPath = expression is IStaticCommandBinding ? null : GetValidationTargetExpression(control);
                 return GetPostBackHandlersScript(control, propertyName,
                     // validation handler
-                    validationPath == null ? null : $"[\"validate\", {{path:{JsonConvert.ToString(validationPath)}}}]",
+                    validationPath == null ? null :
+                    validationPath == "/" ? "\"validate-root\"" :
+                    $"[\"validate\", {{path:{JsonConvert.ToString(validationPath)}}}]",
 
                     // use window.setTimeout
                     options.UseWindowSetTimeout ? "\"timeout\"" : null,
