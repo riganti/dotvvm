@@ -374,8 +374,6 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private const string RootValidationTargetExpression = "/";
-
         /// <summary>
         /// Gets the validation target expression.
         /// </summary>
@@ -386,8 +384,7 @@ namespace DotVVM.Framework.Controls
                 return null;
             }
 
-            return control.GetValueBinding(Validation.TargetProperty)?.GetKnockoutBindingExpression(control) ??
-                   RootValidationTargetExpression;
+            return control.GetValueBinding(Validation.TargetProperty)?.GetKnockoutBindingExpression(control) ?? "/";
         }
 
         /// <summary>
