@@ -130,6 +130,11 @@
     }
   },
   "properties": {
+    "DotVVM.Framework.Compilation.ControlTree.LifecycleRequirementsAssigningVisitor": {
+      "CompileTimeLifecycleRequirements": {
+        "type": "DotVVM.Framework.Controls.ControlLifecycleRequirements, DotVVM.Framework"
+      }
+    },
     "DotVVM.Framework.Controls.AuthenticatedView": {
       "AuthenticatedTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
@@ -157,41 +162,6 @@
       },
       "Text": {
         "type": "System.String"
-      }
-    },
-    "DotVVM.Framework.Controls.CheckableControlBase": {
-      "Changed": {
-        "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
-      },
-      "CheckedValue": {
-        "type": "System.Object"
-      },
-      "Enabled": {
-        "type": "System.Boolean"
-      },
-      "ItemKeyBinding": {
-        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
-        "dataContextChange": [
-          {
-            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
-            "PropertyName": "CheckedValue",
-            "PropertyDependsOn": [
-              "CheckedValue"
-            ],
-            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
-          }
-        ]
-      },
-      "Text": {
-        "type": "System.String"
-      }
-    },
-    "DotVVM.Framework.Controls.CheckBox": {
-      "Checked": {
-        "type": "System.Nullable`1[[System.Boolean, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
-      },
-      "CheckedItems": {
-        "type": "System.Collections.IEnumerable"
       }
     },
     "DotVVM.Framework.Controls.ClaimView": {
@@ -448,15 +418,6 @@
         "type": "System.Action`1[[System.String, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
       }
     },
-    "DotVVM.Framework.Controls.GridViewCheckBoxColumn": {
-      "ValidatorPlacement": {
-        "type": "DotVVM.Framework.Controls.ValidatorPlacement, DotVVM.Framework"
-      },
-      "ValueBinding": {
-        "type": "System.Boolean",
-        "required": true
-      }
-    },
     "DotVVM.Framework.Controls.GridViewColumn": {
       "AllowSorting": {
         "type": "System.Boolean",
@@ -557,6 +518,15 @@
         }
       }
     },
+    "DotVVM.Framework.Controls.GridViewCheckBoxColumn": {
+      "ValidatorPlacement": {
+        "type": "DotVVM.Framework.Controls.ValidatorPlacement, DotVVM.Framework"
+      },
+      "ValueBinding": {
+        "type": "System.Boolean",
+        "required": true
+      }
+    },
     "DotVVM.Framework.Controls.GridViewTemplateColumn": {
       "ContentTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
@@ -569,11 +539,11 @@
       }
     },
     "DotVVM.Framework.Controls.GridViewTextColumn": {
-      "ChangedBinding": {
-        "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework"
-      },
       "FormatString": {
         "type": "System.String"
+      },
+      "ChangedBinding": {
+        "type": "DotVVM.Framework.Binding.Expressions.ICommandBinding, DotVVM.Framework"
       },
       "ValidatorPlacement": {
         "type": "DotVVM.Framework.Controls.ValidatorPlacement, DotVVM.Framework"
@@ -597,6 +567,41 @@
     "DotVVM.Framework.Controls.HtmlLiteral": {
       "Html": {
         "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Controls.CheckableControlBase": {
+      "Enabled": {
+        "type": "System.Boolean"
+      },
+      "Changed": {
+        "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
+      },
+      "CheckedValue": {
+        "type": "System.Object"
+      },
+      "ItemKeyBinding": {
+        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "CheckedValue",
+            "PropertyDependsOn": [
+              "CheckedValue"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ]
+      },
+      "Text": {
+        "type": "System.String"
+      }
+    },
+    "DotVVM.Framework.Controls.CheckBox": {
+      "Checked": {
+        "type": "System.Nullable`1[[System.Boolean, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+      },
+      "CheckedItems": {
+        "type": "System.Collections.IEnumerable"
       }
     },
     "DotVVM.Framework.Controls.Infrastructure.DotvvmView": {
@@ -733,14 +738,14 @@
       }
     },
     "DotVVM.Framework.Controls.RadioButton": {
+      "GroupName": {
+        "type": "System.String"
+      },
       "Checked": {
         "type": "System.Boolean"
       },
       "CheckedItem": {
         "type": "System.Object"
-      },
-      "GroupName": {
-        "type": "System.String"
       }
     },
     "DotVVM.Framework.Controls.RenderSettings": {
@@ -972,14 +977,14 @@
       }
     },
     "DotVVM.Framework.Controls.TextBox": {
-      "Changed": {
-        "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
-      },
       "Enabled": {
         "type": "System.Boolean"
       },
       "FormatString": {
         "type": "System.String"
+      },
+      "Changed": {
+        "type": "DotVVM.Framework.Binding.Expressions.Command, DotVVM.Framework"
       },
       "SelectAllOnFocus": {
         "type": "System.Boolean"
@@ -1076,14 +1081,14 @@
         "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework"
       }
     },
-    "DotVVM.Framework.Controls.CheckableControlBase": {
-      "TextOrContentCapability": {
-        "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework"
-      }
-    },
     "DotVVM.Framework.Controls.HtmlGenericControl": {
       "HtmlCapability": {
         "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework"
+      }
+    },
+    "DotVVM.Framework.Controls.CheckableControlBase": {
+      "TextOrContentCapability": {
+        "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework"
       }
     },
     "DotVVM.Framework.Controls.RouteLink": {
