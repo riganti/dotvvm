@@ -43,7 +43,7 @@ export function traverseContext(context: any, path: string): any
         currentLevel = nextNode;
     }
 
-    return currentLevel;
+    return currentLevel
 }
 
 export function getDataSourceItems(viewModel: any): Array<KnockoutObservable<any>> {
