@@ -66,6 +66,8 @@ namespace DotVVM.Framework.Tests.ControlTests
                                    WrapperTagName=p
                                    Text={value: _parent.Label + _this}
                                    ItemClick={command: _parent.Integer = _index}
+                                   class=css-class-from-markup
+                                   button:class=the-only-class-for-button-element
                                    />
                 "
             );
@@ -85,13 +87,33 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        public async Task CommandDataContextChange()
+        {
+            // RepeatedButton2 creates button in repeater, but also 
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- command -->
+                <cc:RepeatedButton2 DataSource={value: List}
+                                    ItemClick={command: Integer = 15} />
+                <!-- staticCommand -->
+                <cc:RepeatedButton2 DataSource={value: List}
+                                    ItemClick={staticCommand: Integer = 12} />
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+
+            Assert.AreEqual(10000000, (int)r.ViewModel.@int);
+            await r.RunCommand("Integer = 15", "list-item2".Equals);
+            Assert.AreEqual(15, (int)r.ViewModel.@int);
+        }
+
         [TestMethod]
         public async Task MarkupControlCreatedFromCodeControl()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
                 <dot:Placeholder DataContext={value: Integer}>
                     Markup control referenced as tag
-                    <cc:CreatingMarkupControl TestCase=a  />
+                    <cc:CreatingMarkupControl TestCase=a />
                     Markup control referenced as filename
                     <cc:CreatingMarkupControl TestCase=b />
                     Markup control with property
@@ -131,7 +153,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             public string Label { get; } = "My Label";
             public bool AfterPreRender { get; set; } = false;
 
-            public List<string> List { get; set; } = new List<string>();
+            public List<string> List { get; set; } = new List<string> { "list-item1", "list-item2" };
 
             public override Task PreRender()
             {
@@ -186,23 +208,49 @@ namespace DotVVM.Framework.Tests.ControlTests
             [ControlPropertyBindingDataContextChange("DataSource")]
             [CollectionElementDataContextChange(1)]
             ICommandBinding itemClick = null,
-            string wrapperTagName = "div"
+            string wrapperTagName = "div",
+            string additionalCssClass = "my-repeated-button"
         )
         {
             return new Repeater() {
                 RenderAsNamedTemplate = false,
                 WrapperTagName = wrapperTagName,
                 ItemTemplate = new DelegateTemplate(_ =>
-                    new Button { ButtonTagName = ButtonTagName.button }
-                        .SetProperty("Click", itemClick)
+                    new Button(buttonContent, itemClick)
                         .SetCapability(buttonHtml)
-                        .SetCapability(buttonContent)
                 )
             }
             .SetProperty(Repeater.DataSourceProperty, dataSource)
-            .SetCapability(html);
+            .SetCapability(html)
+            .AddCssClass(additionalCssClass);
         }
     }
+
+    public class RepeatedButton2: CompositeControl
+    {
+        public static DotvvmControl GetContents(
+            IValueBinding<IEnumerable<string>> dataSource,
+
+            ICommandBinding itemClick = null
+        )
+        {
+            // Places itemClick in two different data contexts
+            var repeater = new Repeater() {
+                RenderAsNamedTemplate = false,
+                WrapperTagName = "div",
+                ItemTemplate = new DelegateTemplate(_ =>
+                    new Button("Item", itemClick)
+                )
+            }
+            .SetProperty(Repeater.DataSourceProperty, dataSource);
+            return new HtmlGenericControl("div")
+                .AppendChildren(
+                    repeater,
+                    new Button("Last Item", itemClick)
+                );
+        }
+    }
+
 
     public class WithPrivateGetContents: CompositeControl
     {

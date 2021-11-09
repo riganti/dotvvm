@@ -137,6 +137,55 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public async Task TextBox()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- basic textbox, no formatting -->
+                <span>
+                    <dot:TextBox Text={value: Label} />
+                    <dot:TextBox Text={value: Integer} />
+                    <dot:TextBox Text={value: Float} />
+                    <dot:TextBox Text={value: DateTime} />
+                </span>
+                <!-- disabled in different ways -->
+                <span>
+                    <dot:TextBox Text={value: Label} Enabled=false />
+                    <dot:TextBox Text={value: Label} Enabled={value: false} />
+                    <dot:TextBox Text={value: Label} Enabled={value: _page.EvaluatingOnServer} />
+                    <dot:TextBox Text={value: Label} Enabled={resource: false} />
+                </span>
+                <!-- select all on focus -->
+                <span>
+                    <dot:TextBox Text={value: Label} SelectAllOnFocus />
+                    <dot:TextBox Text={value: Label} SelectAllOnFocus=tRUE />
+                    <dot:TextBox Text={value: Label} SelectAllOnFocus={value: Integer > 20} />
+                    <!-- this should not be set -->
+                    <dot:TextBox Text={value: Label} SelectAllOnFocus={resource: false} />
+                </span>
+                <!-- textbox types -->
+                <span>
+                    <dot:TextBox Text={value: DateTime} type=date />
+                    <dot:TextBox Text={value: DateTime} type=DateTimeLocal />
+                    <dot:TextBox Text={value: DateTime} type=month />
+                    <dot:TextBox Text={value: DateTime} type=Time />
+                    <dot:TextBox Text={value: Integer} type=number />
+                    <dot:TextBox Text={value: Float} type=number step=0.1 />
+                    <dot:TextBox Text={value: Label} type=password />
+                    <dot:TextBox Text={value: Label} type=email />
+                </span>
+                <!-- multiline - textarea -->
+                <dot:TextBox type=MultiLine Text={value: Label} />
+                <!-- multiline - textarea with static text -->
+                <dot:TextBox type=MultiLine Text={resource: Label} />
+                <!-- UpdateTextOnInput -->
+                <dot:TextBox Text={value: Label} UpdateTextOnInput />
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
         public async Task CommandBinding()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
@@ -228,6 +277,54 @@ namespace DotVVM.Framework.Tests.ControlTests
                 </dot:GridView>"));
 
             Assert.IsTrue(exception.Message.Contains("Changing the DataContext property on the GridViewColumn is not supported!"));
+        }
+
+        [TestMethod]
+        public async Task NamedCommand()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                async static command with arg
+                <dot:NamedCommand Name=1
+                                  Command={staticCommand: (int s) => _js.Invoke<System.Threading.Tasks.Task<int>>('myCmd', s)} />
+                Command with arg
+                <dot:NamedCommand Name=2
+                                  Command={command: (string x) => x + '0'} />
+                sync static command with argument
+                <dot:NamedCommand Name=3
+                                  Command={staticCommand: (int s) => Integer = s} />
+                Just command
+                <dot:NamedCommand Name=4
+                                  Command={command: 0} />
+                async static command
+                <dot:NamedCommand Name=5
+                                  Command={staticCommand: _js.Invoke<System.Threading.Tasks.Task<int>>('myCmd')} />
+                sync static command
+                <dot:NamedCommand Name=6
+                                  Command={staticCommand: 0} />
+
+            ", directives: "@js dotvvm.internal");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task JsComponent()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <js:Bazmek
+                                 troll={resource: 1}
+                                 scmd={staticCommand: (int s) => _js.Invoke<System.Threading.Tasks.Task<int>>('myCmd', s)}>
+
+                    <MyTemplate>
+                        <h1> Ahoj lidi </h1>
+                    </MyTemplate>
+                </js:Bazmek>
+
+                <js:Bazmek troll={resource: 1} />
+                <js:Bazmek lol={value: Integer} />
+                <js:Bazmek cmd={command: (string x) => x + '0'} />
+                <js:Bazmek scmd={staticCommand: (int x) => Integer = x} />
+            ", directives: "@js dotvvm.internal");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
         public class BasicTestViewModel: DotvvmViewModelBase

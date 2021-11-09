@@ -130,6 +130,12 @@
     }
   },
   "properties": {
+    "DotVVM.Framework.Compilation.ControlTree.LifecycleRequirementsAssigningVisitor": {
+      "CompileTimeLifecycleRequirements": {
+        "type": "DotVVM.Framework.Controls.ControlLifecycleRequirements, DotVVM.Framework",
+        "isCompileTimeOnly": true
+      }
+    },
     "DotVVM.Framework.Controls.AuthenticatedView": {
       "AuthenticatedTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
@@ -668,6 +674,18 @@
         "type": "System.Object"
       }
     },
+    "DotVVM.Framework.Controls.JsComponent": {
+      "Global": {
+        "type": "System.Boolean"
+      },
+      "Name": {
+        "type": "System.String",
+        "required": true
+      },
+      "WrapperTagName": {
+        "type": "System.String"
+      }
+    },
     "DotVVM.Framework.Controls.ListBox": {
       "Size": {
         "type": "System.Int32"
@@ -1094,13 +1112,43 @@
     "DotVVM.Framework.Tests.ControlTests.RepeatedButton": {
       "button:HtmlCapability": {
         "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ],
         "capabilityPrefix": "button:"
       },
       "HtmlCapability": {
         "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework"
       },
       "TextOrContentCapability": {
-        "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework"
+        "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ]
       }
     },
     "DotVVM.Framework.Tests.ControlTests.WrappedHtmlControl": {
@@ -1177,6 +1225,23 @@
         "fromCapability": "HtmlCapability"
       }
     },
+    "DotVVM.Framework.Controls.JsComponent": {
+      "Props": {
+        "prefixes": [
+          "",
+          "prop:"
+        ],
+        "type": "System.Object"
+      },
+      "Templates": {
+        "prefixes": [
+          "",
+          "template-"
+        ],
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      }
+    },
     "DotVVM.Framework.Controls.RouteLink": {
       "Params": {
         "prefix": "Param-",
@@ -1198,8 +1263,8 @@
       },
       "Button:Attributes": {
         "prefixes": [
-          "",
-          "html:"
+          "button:",
+          "button:html:"
         ],
         "type": "System.Object",
         "dataContextChange": [
@@ -1220,7 +1285,7 @@
         "fromCapability": "button:HtmlCapability"
       },
       "Button:CssClasses": {
-        "prefix": "Class-",
+        "prefix": "button:Class-",
         "type": "System.Boolean",
         "dataContextChange": [
           {
@@ -1240,7 +1305,7 @@
         "fromCapability": "button:HtmlCapability"
       },
       "Button:CssStyles": {
-        "prefix": "Style-",
+        "prefix": "button:Style-",
         "type": "System.Object",
         "dataContextChange": [
           {
@@ -1313,19 +1378,19 @@
     "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestControl2": {
       "AnotherHtml:Attributes": {
         "prefixes": [
-          "",
-          "html:"
+          "AnotherHtml:",
+          "AnotherHtml:html:"
         ],
         "type": "System.Object",
         "fromCapability": "AnotherHtml:HtmlCapability"
       },
       "AnotherHtml:CssClasses": {
-        "prefix": "Class-",
+        "prefix": "AnotherHtml:Class-",
         "type": "System.Boolean",
         "fromCapability": "AnotherHtml:HtmlCapability"
       },
       "AnotherHtml:CssStyles": {
-        "prefix": "Style-",
+        "prefix": "AnotherHtml:Style-",
         "type": "System.Object",
         "fromCapability": "AnotherHtml:HtmlCapability"
       }

@@ -14,10 +14,21 @@
     <Content Include="**/*.dotmaster;**/*.dotcontrol;**/*.dothtml" Exclude="obj/**/*.*;bin/**/*.*" CopyToPublishDirectory="Always" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="node_modules\**" />
+    <Compile Remove="script\**" />
+    <Content Remove="node_modules\**" />
+    <Content Remove="script\**" />
+    <EmbeddedResource Remove="node_modules\**" />
+    <EmbeddedResource Remove="script\**" />
+    <None Remove="node_modules\**" />
+    <None Remove="script\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Remove="Views\FeatureSamples\ViewModules\ModuleControl.dotcontrol" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="sampleConfig.json" />
+    <None Remove="tsconfig.react.json" />
     <None Remove="Scripts\ControlSamples_NamedCommand_ParameterStaticCommand.js" />
     <None Remove="Views\ComplexSamples\NestedComboBox\InnerWrapper.dotcontrol" />
     <None Remove="Views\ComplexSamples\NestedComboBox\OuterWrapper.dotcontrol" />
@@ -68,6 +79,7 @@
     <None Remove="Views\FeatureSamples\Caching\CachedValues.dothtml" />
     <None Remove="Views\FeatureSamples\CompositeControls\ControlPropertyNamingConflict.dothtml" />
     <None Remove="Views\FeatureSamples\CommandActionFilter\CommandActionFilter.dothtml" />
+    <None Remove="Views\FeatureSamples\HotReload\ViewChanges.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\ArrayTranslation.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\DateTimeTranslations.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\DictionaryIndexerTranslation.dothtml" />
@@ -76,6 +88,7 @@
     <None Remove="Views\FeatureSamples\JavascriptTranslation\ListMethodTranslations.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\WebUtilityTranslations.dothtml" />
     <None Remove="Views\FeatureSamples\JavascriptTranslation\StringMethodTranslations.dothtml" />
+    <None Remove="Views\FeatureSamples\JsComponentIntegration\ReactComponentIntegration.dothtml" />
     <None Remove="Views\FeatureSamples\JsDirectives\BasicSample.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\ClientSideFiltering.dothtml" />
     <None Remove="Views\FeatureSamples\LambdaExpressions\LambdaExpressions.dothtml" />
@@ -136,6 +149,7 @@
     <Content Include="Scripts\ControlSamples_NamedCommand_ParameterStaticCommand.js" />
     <Content Include="Scripts\testResource.js" />
     <Content Include="Scripts\testResource2.js" />
+    <Content Include="tsconfig.react.json" />
     <Content Include="tsconfig.json" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
@@ -177,4 +191,32 @@
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <!-- the wildcard would not work in Target.Inputs, it only works in Include -->
+    <TypescriptFile Include="Resources/Scripts/**/*.tsx" />
+  </ItemGroup>
+  <!-- BeforeBuild is ran for every target framework. However, unless its input files change, this target is skipped. -->
+  <Target Name="CompileJS" Inputs="@(TypescriptFile)" Outputs="script/react-app.js" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
+
+    <PropertyGroup>
+      <EnvOverrides>NO_COLOR=1;FORCE_COLOR=0;TERM=dumb</EnvOverrides>
+    </PropertyGroup>
+
+    <!-- Check if yarn exists, so we can fallback to npm otherwise -->
+    <!-- Some Linux distros use yarnpkg as name for  -->
+    <Exec Command="yarnpkg --version" IgnoreExitCode="True" ConsoleToMsBuild="True" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)">
+      <Output TaskParameter="ExitCode" PropertyName="YarnVersionExitCode" />
+    </Exec>
+
+    <Exec Command="yarnpkg install --frozen-lockfile" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="npm ci" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)" />
+
+    <Exec Command="yarnpkg build-production" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="yarnpkg build-development" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />
+
+    <Exec Command="npm run build-production" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="npm run build-development" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" YieldDuringToolExecution="True" EnvironmentVariables="$(EnvOverrides)" />
+  </Target>
+
 </Project>

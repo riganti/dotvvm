@@ -1,2 +1,2 @@
-NotSupportedException occurred: Could not find DataContext space of '{value: False}'. The DataContextType property of the binding does not correspond to DataContextType of the HtmlGenericControl not any of its ancestor. Control's context is (type=System.String, par=[Int32]), binding's context is (type=System.String).
+InvalidDataContextTypeException occurred: Could not find DataContext space of '{value: False}'. The DataContextType property of the binding does not correspond to DataContextType of the HtmlGenericControl nor any of its ancestors. Control's context is (type=System.String, par=[Int32]), binding's context is (type=System.String).
     at object DotVVM.Framework.Controls.DotvvmBindableObject.EvalPropertyValue(DotvvmProperty property, object value)

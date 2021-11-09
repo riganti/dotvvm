@@ -26,7 +26,7 @@ export function restoreUpdatedControls(resultObject: any, updatedControls: any) 
             const wrapper = document.createElement(updatedControls[id].parent.tagName || "div");
             wrapper.innerHTML = resultObject.updatedControls[id];
             if (compileConstants.debug && wrapper.childElementCount > 1) {
-                throw new Error("Postback.Update control can not render more than one element");
+                throw new Error("Postback.Update control cannot render more than one element");
             }
             const element = wrapper.firstElementChild;
             if (compileConstants.debug && element.id == null) {

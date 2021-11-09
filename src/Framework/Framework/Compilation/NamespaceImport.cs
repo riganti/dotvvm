@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Compilation
 		public NamespaceImport(string @namespace, string? alias = null)
 		{
 			if (@namespace == null) throw new ArgumentNullException(nameof(@namespace));
-			if (alias == "") throw new ArgumentException("Alias can not be empty string, use null instead.");
+			if (alias == "") throw new ArgumentException("Alias cannot be empty string, use null instead.");
 			this.Namespace = @namespace;
 			this.Alias = alias;
 		}

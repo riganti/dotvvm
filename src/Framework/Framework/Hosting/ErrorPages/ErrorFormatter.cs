@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Controls;
+using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Commands;
 using DotVVM.Framework.Utils;
 
@@ -239,11 +241,10 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         public List<Func<Exception, ExceptionAdditionalInfo?>> InfoLoaders = new();
 
-        public void AddInfoLoader<T>(Func<T, ExceptionAdditionalInfo> func)
-            where T : Exception
+        public void AddInfoLoader<T>(Func<T, ExceptionAdditionalInfo?> func)
         {
             InfoLoaders.Add(e => {
-                if (e is T) return func((T)e);
+                if (e is T t) return func(t);
                 else return null;
             });
         }
@@ -309,7 +310,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     .ToArray()!,
                 errorCode: context.Response.StatusCode,
                 errorDescription: "Unhandled exception occurred",
-                summary: exception.GetType().FullName + ": " + exception.Message.LimitLength(600));
+                summary: exception.GetType().FullName + ": " + exception.Message.LimitLength(600),
+                context: DotvvmRequestContext.TryGetCurrent(context),
+                exception: exception);
 
             return template.TransformText();
         }
@@ -331,7 +334,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             f.Formatters.Add((e, o) => DotvvmMarkupErrorSection.Create(e));
             f.Formatters.Add((e, o) => new ExceptionSectionFormatter(f.LoadException(e), "Raw Stack Trace", "raw_stack_trace"));
             f.Formatters.Add((e, o) => {
-                var b = e.AllInnerExceptions().OfType<BindingPropertyException>().Select(a => a.Binding).OfType<ICloneableBinding>().FirstOrDefault();
+                var b = e.AllInnerExceptions().OfType<IDotvvmException>().Select(a => a.RelatedBinding).OfType<ICloneableBinding>().FirstOrDefault();
                 if (b == null) return null;
                 return new DictionarySection<object, object>("Binding", "binding",
                     new []{ new KeyValuePair<object, object>("Type", b.GetType().FullName) }
@@ -356,19 +359,29 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 ExceptionAdditionalInfo.DisplayMode.ToString
             ));
             f.AddInfoLoader<DotvvmCompilationException>(e => {
-                var info = new ExceptionAdditionalInfo(
-                    "DotVVM Compiler",
-                    null,
-                    ExceptionAdditionalInfo.DisplayMode.ToString
-                );
+                object[]? objects = null;
                 if (e.Tokens != null && e.Tokens.Any())
                 {
-                    info.Objects = new object[]
+                    objects = new object[]
                     {
                         $"Error in '{string.Concat(e.Tokens.Select(t => t.Text))}' at line {e.Tokens.First().LineNumber} in {e.SystemFileName}"
                     };
                 }
-                return info;
+                return new ExceptionAdditionalInfo(
+                    "DotVVM Compiler",
+                    objects,
+                    ExceptionAdditionalInfo.DisplayMode.ToString
+                );
+            });
+            f.AddInfoLoader<IDotvvmException>(e => {
+                var control = e.RelatedControl;
+                if (control is null)
+                    return null;
+                return new ExceptionAdditionalInfo(
+                    "DotVVM Control",
+                    new [] { control.DebugString() },
+                    ExceptionAdditionalInfo.DisplayMode.ToString
+                );
             });
 
             f.AddInfoCollectionLoader<InvalidCommandInvocationException>(e => {

@@ -11,6 +11,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Configuration;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Controls
 {
@@ -46,15 +47,18 @@ namespace DotVVM.Framework.Controls
         private static void EnsureUsesOnlyDefinedParameters(RouteLink control, IDotvvmRequestContext context)
         {
             var parameterReferences = control.Params;
-            var parameterDefinitions = context.Configuration.RouteTable[control.RouteName].ParameterNames;           
+            var route = context.Configuration.RouteTable[control.RouteName];
+            var parameterDefinitions = route.ParameterNames;
 
             var invalidReferences = parameterReferences.Where(param =>
                 !parameterDefinitions.Contains(param.Key, StringComparer.OrdinalIgnoreCase));
 
             if (invalidReferences.Any())
             {
-                var parameters = string.Join(", ", invalidReferences.Select(kv => kv.Key));
-                throw new DotvvmRouteException($"The following parameters are not present in route {control.RouteName}: {parameters}");
+                var parameters = invalidReferences.Select(kv => kv.Key).ToImmutableArray();
+                throw new RouteMissingParametersException(route, parameters) {
+                    RelatedControl = control
+                };
             }
         }
 

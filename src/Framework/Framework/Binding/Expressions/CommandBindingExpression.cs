@@ -49,10 +49,10 @@ namespace DotVVM.Framework.Binding.Expressions
 
             public class Methods
             {
-                public CommandJavascriptBindingProperty CreateJs(IdBindingProperty id, ExpectedTypeBindingProperty? expectedType = null) =>
+                public CommandJavascriptBindingProperty CreateJs(IdBindingProperty id, CastedExpressionBindingProperty? expression = null) =>
                     new CommandJavascriptBindingProperty(CreateJsPostbackInvocation(
                         id.Id,
-                        needsCommandArgs: expectedType?.Type?.GetDelegateArguments()?.Length.Apply(len => len != 0)
+                        needsCommandArgs: expression?.Expression.Type?.GetDelegateArguments()?.Length.Apply(len => len != 0)
                     ));
 
                 public ExpectedTypeBindingProperty GetExpectedType(AssignedPropertyBindingProperty? property = null)

@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Compilation.Styles
                 view.Properties.ContainsKey(PrependProperty) ||
                 view.Properties.ContainsKey(ReplaceWithProperty))
                 view.DothtmlNode.AddError(
-                    "Styles.Wrappers, Styles.Append, Styles.Prepend and Styles.ReplaceWith properties can not be applied to the root control.");
+                    "Styles.Wrappers, Styles.Append, Styles.Prepend and Styles.ReplaceWith properties cannot be applied to the root control.");
 
             ProcessControlList(view.Content, view);
             base.VisitControl(view);
@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Compilation.Styles
             if (control.Properties.ContainsKey(AppendProperty) ||
                 control.Properties.ContainsKey(PrependProperty))
                 throw new Exception(
-                    $"Styles.Append and Styles.Prepend properties can not be applied to a control in property {propertyControl.Property}.");
+                    $"Styles.Append and Styles.Prepend properties cannot be applied to a control in property {propertyControl.Property}.");
             propertyControl.Control = ProcessWrapping(ProcessReplacement(control));
             propertyControl.Control.Parent = propertyControl;
             base.VisitPropertyControl(propertyControl);
@@ -149,7 +149,7 @@ namespace DotVVM.Framework.Compilation.Styles
                     newControl.SetProperty(p);
                     continue;
                 }
-                
+
                 if (p.Property is GroupedDotvvmProperty gProp)
                 {
                     var group2 =

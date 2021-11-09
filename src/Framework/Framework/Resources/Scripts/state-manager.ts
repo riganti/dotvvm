@@ -84,20 +84,22 @@ export class StateManager<TViewModel extends { $type?: TypeDefinition }> {
         this.rerender(performance.now());
     }
 
-    private startTime: number | null = null
     private rerender(time: number) {
-        if (this.startTime === null) this.startTime = time
-        const realStart = performance.now()
         this._isDirty = false
 
-        this.stateUpdateEvent.trigger(this._state)
-        isViewModelUpdating = true
-        ko.delaySync.pause()
         try {
+            isViewModelUpdating = true
+            ko.delaySync.pause()
+
+            this.stateUpdateEvent.trigger(this._state)
+
             this.stateObservable[notifySymbol as any](this._state)
         } finally {
-            isViewModelUpdating = false
-            ko.delaySync.resume()
+            try {
+                ko.delaySync.resume()
+            } finally {
+                isViewModelUpdating = false
+            }
         }
         //logInfoVerbose("New state dispatched, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart);
     }
@@ -157,7 +159,7 @@ class FakeObservableObject<T extends object> implements UpdatableObjectExtension
         this[ErrorsPropertySymbol] = []
         for (const p of keys(typeInfo?.properties || {}).concat(additionalProperties)) {
             this[internalPropCache][p] = null
-        
+
             Object.defineProperty(this, p, {
                 enumerable: true,
                 configurable: false,
@@ -229,7 +231,7 @@ function createObservableObject<T extends object>(initialObject: T, typeHint: Ty
     let typeInfo;
     if (typeId && !(typeId.hasOwnProperty("type") && typeId["type"] === "dynamic")) {
         typeInfo = getObjectTypeInfo(typeId)
-    } 
+    }
 
     const pSet = new Set();         // IE11 doesn't support constructor with arguments
     if (typeInfo) {
@@ -268,7 +270,7 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
         } catch (err) {
             (this as any)[lastSetErrorSymbol] = err;
             triggerLastSetErrorUpdate(this);
-            logWarning("state-manager", `Can not update observable to ${newValue}:`, err)
+            logWarning("state-manager", `Cannot update observable to ${newValue}:`, err)
             throw err
         }
     }
@@ -279,9 +281,9 @@ function createWrappedObservable<T>(initialValue: DeepReadonly<T>, typeHint: Typ
     function notify(newVal: any) {
         const currentValue = obs[currentStateSymbol]
 
-        if (newVal === currentValue) { 
-            return 
-        } 
+        if (newVal === currentValue) {
+            return
+        }
 
         const observableWasSetFromOutside = updatedObservable
         updatedObservable = false

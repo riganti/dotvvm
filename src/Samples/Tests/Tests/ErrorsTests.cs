@@ -13,7 +13,7 @@ namespace DotVVM.Samples.Tests
 {
     public class ErrorsTests : AppSeleniumTest
     {
-        
+
         [Fact]
         public void Error_MissingViewModel()
         {
@@ -217,7 +217,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_FieldInValueBinding);
-                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("Can not translate field"));
+                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("Cannot translate field"));
                 AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("{{value: SomeField}}"));
             });
         }
@@ -407,7 +407,7 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_ResourceCircularDependency);
 
                 AssertUI.TextEquals(browser.First("exceptionType", By.ClassName),
-                    "DotVVM.Framework.ResourceManagement.DotvvmResourceException");
+                    "DotVVM.Framework.ResourceManagement.DotvvmCyclicResourceDependencyException");
                 AssertUI.TextEquals(browser.First("exceptionMessage", By.ClassName),
                     "Resource \"Errors_ResourceCircularDependency\" has a cyclic dependency: Errors_ResourceCircularDependency --> Errors_ResourceCircularDependency");
             });

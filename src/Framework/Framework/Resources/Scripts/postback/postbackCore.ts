@@ -97,7 +97,7 @@ export async function postbackCore(
         return async () => {
             try {
                 return await processPostbackResponse(options, context, postedViewModel, initialState, response.result, response.response!);
-            } catch (err) {
+            } catch (err: any) {
                 if (err instanceof DotvvmPostbackError) {
                     throw err;
                 }

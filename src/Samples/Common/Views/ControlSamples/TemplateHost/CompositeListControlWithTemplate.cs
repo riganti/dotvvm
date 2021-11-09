@@ -49,9 +49,8 @@ namespace DotVVM.Samples.Common.Views.ControlSamples.TemplateHost
                 .SetProperty(ItemsControl.DataSourceProperty, dataSource);
 
             yield return new HtmlGenericControl("p")
-                .AppendChildren(new Button() { Text = "Add item" }
-                    .SetProperty(
-                        ButtonBase.ClickProperty,
+                .AppendChildren(new Button(
+                    "Add item",
                     new CommandBindingExpression(bindingCompilationService, contexts => {
                                 var item = onCreateItem.BindingDelegate(this.GetDataContexts().ToArray(), this);
                                 ((dynamic)dataSource.GetBindingValue(this)).Add(((dynamic)item)());

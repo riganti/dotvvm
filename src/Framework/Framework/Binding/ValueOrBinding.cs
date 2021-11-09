@@ -34,9 +34,7 @@ namespace DotVVM.Framework.Binding
         public ValueOrBinding(IBinding binding)
         {
             if (binding == null) throw new ArgumentNullException(nameof(binding));
-            if (binding.GetProperty<ResultTypeBindingProperty>(ErrorHandlingMode.ReturnNull) is ResultTypeBindingProperty resultType &&
-                    !typeof(T).IsAssignableFrom(resultType.Type))
-                throw new ArgumentException($"The binding result type {resultType.Type.FullName} is not assignable to {typeof(T).FullName}");
+            BindingHelper.InvalidBindingTypeException.CheckType(binding, typeof(T));
             this.binding = binding;
             this.value = default;
         }

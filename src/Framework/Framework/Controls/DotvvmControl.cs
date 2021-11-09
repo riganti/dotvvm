@@ -189,9 +189,15 @@ namespace DotVVM.Framework.Controls
             {
                 RenderControl(writer, context);
             }
-            catch (DotvvmControlException) { throw; }
             catch (Exception e)
             {
+                if (e is IDotvvmException { RelatedControl: not null })
+                    throw;
+                if (e is DotvvmExceptionBase dotvvmException)
+                {
+                    dotvvmException.RelatedControl = this;
+                    throw;
+                }
                 throw new DotvvmControlException(this, "Error occurred in Render method", e);
             }
         }
@@ -204,9 +210,9 @@ namespace DotVVM.Framework.Controls
             var htmlAttributes = this as IControlWithHtmlAttributes;
             if (htmlAttributes == null)
             {
-                throw new DotvvmControlException(this, "Postback.Update can not be set on property which don't render html attributes.");
+                throw new DotvvmControlException(this, "Postback.Update cannot be set on property which don't render html attributes.");
             }
-            htmlAttributes.Attributes["data-dotvvm-id"] = GetDotvvmUniqueId();
+            htmlAttributes.Attributes.Set("data-dotvvm-id", GetDotvvmUniqueId());
         }
 
         protected struct RenderState
@@ -239,7 +245,7 @@ namespace DotVVM.Framework.Controls
 
             if (r.DataContext != null)
             {
-                var parent = Parent ?? throw new DotvvmControlException(this, "Can not set DataContext binding on the root control");
+                var parent = Parent ?? throw new DotvvmControlException(this, "Cannot set DataContext binding on the root control");
                 writer.WriteKnockoutWithComment(r.DataContext.GetKnockoutBindingExpression(parent));
             }
 

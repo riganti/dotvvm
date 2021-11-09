@@ -16,6 +16,8 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Compilation.Binding;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Binding
 {
@@ -70,7 +72,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public static (int stepsUp, DotvvmBindableObject target) FindDataContextTarget(this IBinding binding, DotvvmBindableObject control)
         {
-            if (control == null) throw new InvalidOperationException($"Can not evaluate binding without any dataContext.");
+            if (control == null) throw new ArgumentNullException(nameof(control), $"Cannot evaluate binding without any dataContext.");
             var bindingContext = binding.GetProperty<DataContextStack>(ErrorHandlingMode.ReturnNull);
             return FindDataContextTarget(control, bindingContext, binding);
         }
@@ -89,7 +91,7 @@ namespace DotVVM.Framework.Binding
                 if (a.properties.Contains(DotvvmBindableObject.DataContextProperty)) changes++;
             }
 
-            throw new NotSupportedException($"Could not find DataContext space of '{contextObject}'. The DataContextType property of the binding does not correspond to DataContextType of the {control.GetType().Name} not any of its ancestor. Control's context is {controlContext}, binding's context is {bindingContext}.");
+            throw new InvalidDataContextTypeException(control, contextObject, controlContext, bindingContext);
         }
 
         /// <summary>
@@ -244,11 +246,11 @@ namespace DotVVM.Framework.Binding
             {
                 return command.GetCommandDelegate(control);
             }
-            else throw new NotSupportedException();
+            else throw new BindingNotSupportedException(binding);
         }
 
         /// <summary>
-        /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService. 
+        /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService.
         /// </summary>
         public static TBinding DeriveBinding<TBinding>(this TBinding binding, DataContextStack newDataContext, Expression expression, params object?[] properties)
             where TBinding : IBinding
@@ -265,7 +267,7 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary>
-        /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService. 
+        /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService.
         /// </summary>
         public static TBinding DeriveBinding<TBinding>(this TBinding binding, Expression expression, params object?[] properties)
             where TBinding : IBinding
@@ -281,7 +283,7 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary>
-        /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService. 
+        /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService.
         /// </summary>
         public static TBinding DeriveBinding<TBinding>(this TBinding binding, params object?[] properties)
             where TBinding : IBinding
@@ -292,7 +294,7 @@ namespace DotVVM.Framework.Binding
                     b.GetProperty<BindingResolverCollection>(ErrorHandlingMode.ReturnNull),
                     b.GetProperty<BindingCompilationRequirementsAttribute>(ErrorHandlingMode.ReturnNull)?.ClearRequirements(),
                     b.GetProperty<BindingErrorReporterProperty>(ErrorHandlingMode.ReturnNull),
-                    b.GetProperty<LocationInfoBindingProperty>(ErrorHandlingMode.ReturnNull)
+                    b.GetProperty<DotvvmLocationInfo>(ErrorHandlingMode.ReturnNull)
                 };
             var service = binding.GetProperty<BindingCompilationService>();
             var bindingType = binding.GetType();
@@ -381,7 +383,7 @@ namespace DotVVM.Framework.Binding
 
             if (childType is null)
                 childType = typeof(UnknownTypeSentinel);
-            
+
             return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
         }
 
@@ -442,6 +444,40 @@ namespace DotVVM.Framework.Binding
 
         public static BindingDelegate<T> ToGeneric<T>(this BindingDelegate d) => (a, b) => (T)d(a, b)!;
         public static BindingUpdateDelegate<T> ToGeneric<T>(this BindingUpdateDelegate d) => (a, b, c) => d(a, b, c);
+
+        public record InvalidDataContextTypeException(
+            DotvvmBindableObject Control,
+            object? ContextObject,
+            DataContextStack ControlContext,
+            DataContextStack BindingContext
+        )
+            : DotvvmExceptionBase(
+                RelatedBinding: ContextObject as IBinding,
+                RelatedControl: Control
+            )
+        {
+            public override string Message =>
+                $"Could not find DataContext space of '{ContextObject}'. The DataContextType property of the binding does not correspond to DataContextType of the {Control.GetType().Name} nor any of its ancestors. Control's context is {ControlContext}, binding's context is {BindingContext}.";
+        }
+
+        public record BindingNotSupportedException(IBinding Binding, [CallerMemberName] string Caller = "")
+            : DotvvmExceptionBase(RelatedBinding: Binding)
+        {
+            public override string Message => $"Binding {Binding} is not supported in {Caller} method";
+        }
+
+        public record InvalidBindingTypeException(IBinding Binding, Type ExpectedType)
+            : DotvvmExceptionBase(RelatedBinding: Binding)
+        {
+            public override string Message => $"The binding result type {Binding.GetProperty<ResultTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type.FullName} is not assignable to {ExpectedType.FullName}";
+
+            public static void CheckType(IBinding binding, Type expectedType)
+            {
+                if (binding.GetProperty<ResultTypeBindingProperty>(ErrorHandlingMode.ReturnNull) is ResultTypeBindingProperty resultType &&
+                        !expectedType.IsAssignableFrom(resultType.Type))
+                    throw new InvalidBindingTypeException(binding, expectedType);
+            }
+        }
     }
 
 

@@ -76,7 +76,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     }
                 }
                 else if (member is FieldInfo)
-                    throw new NotSupportedException($"Can not translate field '{member}' to Javascript");
+                    throw new NotSupportedException($"Cannot translate field '{member}' to Javascript");
 
                 annotation.ContainsObservables ??= !this.preferUsingState; // we don't know -> guess what is the current preference
 

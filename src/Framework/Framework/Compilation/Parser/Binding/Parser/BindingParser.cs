@@ -582,7 +582,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     }
                     else
                     {
-                        expression = CreateNode(expression, startIndex, $"Expression '{expression.ToDisplayString()}' can not be followed by an identifier. Did you intent to declare a variable using the var keyword?");
+                        expression = CreateNode(expression, startIndex, $"Expression '{expression.ToDisplayString()}' cannot be followed by an identifier. Did you intent to declare a variable using the var keyword?");
                     }
                 }
                 else
@@ -599,7 +599,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var variableName = ReadIdentifierNameExpression();
             if (!(variableName is SimpleNameBindingParserNode))
             {
-                variableName = CreateNode(variableName, variableName.StartPosition, $"Variable name can not be generic, please use the `var {variableName.Name} = X` syntax.");
+                variableName = CreateNode(variableName, variableName.StartPosition, $"Variable name cannot be generic, please use the `var {variableName.Name} = X` syntax.");
             }
 
             var incorrectEquals = IsCurrentTokenIncorrect(BindingTokenType.AssignOperator);

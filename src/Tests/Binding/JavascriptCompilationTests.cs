@@ -813,6 +813,20 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [DataRow("Convert.ToBoolean(IntProp)", "Boolean(IntProp())")]
+        [DataRow("Convert.ToBoolean(DoubleProp)", "Boolean(DoubleProp())")]
+        [DataRow("Convert.ToDecimal(DoubleProp)", "DoubleProp")]
+        [DataRow("Convert.ToInt32(DoubleProp)", "Math.round(DoubleProp())")]
+        [DataRow("Convert.ToByte(DoubleProp)", "Math.round(DoubleProp())")]
+        [DataRow("Convert.ToDouble(IntProp)", "IntProp")]
+        [DataRow("Convert.ToDouble(DecimalProp)", "DecimalProp")]
+        public void JsTranslator_ConvertNumeric(string binding, string expected)
+        {
+            var result = CompileBinding(binding, new[] { typeof(TestViewModel) });
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
         [DataRow("StringProp.Split('c')", "c", "None")]
         [DataRow("StringProp.Split(\"str\")", "str", "None")]
         [DataRow("StringProp.Split('c', StringSplitOptions.None)", "c", "None")]
