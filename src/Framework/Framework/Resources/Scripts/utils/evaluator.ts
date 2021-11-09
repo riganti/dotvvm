@@ -35,9 +35,7 @@ export function traverseContext(context: any, path: string): any
         if (expressionPart === "")
             continue;
 
-        var currentLevelExpanded = currentLevel instanceof Function ? ko.unwrap(currentLevel) : currentLevel;
-
-        var nextNode = currentLevelExpanded[expressionPart];
+        var nextNode = ko.unwrap(currentLevel)[expressionPart];
         if (nextNode==undefined) {
             throw `Validation error could not been applied to property specified by propertyPath ${path}. Property with name ${expressionPart} does not exist on ${currentPath}.`;
         }
