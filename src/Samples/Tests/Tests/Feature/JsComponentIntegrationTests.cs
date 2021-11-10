@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
@@ -26,29 +28,33 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.WaitUntilDotvvmInited();
 
                 var rechart = browser.First("rechart-control");
-                var rechartOuterHtml = rechart.GetJsInnerHtml();
+                List<string> pathsList = null;
+                WaitForExecutor.WaitFor(() => {
+                    var paths = browser.FindElements(".recharts-line > path", By.CssSelector);
+                    paths.ThrowIfSequenceEmpty();
+                    pathsList = paths.Select(s => s.GetAttribute("d")).Where(s => !string.IsNullOrWhiteSpace(s)).OrderBy(s=> s).ToList();
+                });
+
+                browser.First("command-removeDOM").Click();
+                browser.FindElements(".recharts-line > path", By.CssSelector).ThrowIfDifferentCountThan(0);
+
+                browser.First("command-addDOM").Click();
+                browser.FindElements(".recharts-line > path", By.CssSelector).ThrowIfSequenceEmpty();
+
+                List<string> pathsList2 = null;
+                WaitForExecutor.WaitFor(() => {
+                    var paths = browser.FindElements("path", By.CssSelector);
+                    paths.ThrowIfSequenceEmpty(WaitForOptions.Disabled);
+                });
 
                 browser.First("command-regenerate").Click();
 
-                browser.WaitFor(() => {
-                    rechart = browser.First("rechart-control");
-                    Assert.NotEqual(rechartOuterHtml, rechart.GetJsInnerHtml());
-                }, 8000);
-                rechartOuterHtml = rechart.GetJsInnerHtml();
-                browser.First("command-removeDOM").Click();
-
-                browser.WaitFor(() => {
-                    rechart = browser.First("rechart-control");
-                    Assert.True(rechart.GetJsInnerHtml().Trim().Length < "< !--ko if: IncludeInPage-- >< !-- / ko-- >".Length + 10); //+ buffer
-                    browser.First("command-addDOM").Click();
-                }, 8000);
-
-                browser.WaitFor(() => {
-                    rechart = browser.First("rechart-control");
-                    Assert.NotEqual(rechartOuterHtml, rechart.GetJsInnerHtml());
-                    rechart.FindElements("line", By.TagName).ThrowIfSequenceEmpty();
-                }, 8000);
-
+                WaitForExecutor.WaitFor(() => {
+                    var paths = browser.FindElements(".recharts-line > path", By.CssSelector);
+                    paths.ThrowIfSequenceEmpty(WaitForOptions.Disabled);
+                    var pathsList3 = paths.Select(s => s.GetAttribute("d")).Where(s=> !string.IsNullOrWhiteSpace(s)).OrderBy(s => s).ToList();
+                    Assert.NotEqual(pathsList, pathsList2);
+                });
 
             });
         }
