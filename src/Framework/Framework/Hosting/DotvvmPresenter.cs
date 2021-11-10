@@ -95,11 +95,11 @@ namespace DotVVM.Framework.Hosting
                 var settings = DefaultSerializerSettingsProvider.Instance.Settings;
                 await context.HttpContext.Response.WriteAsync(JsonConvert.SerializeObject(new { action = "invalidCsrfToken", message = ex.Message }, settings));
             }
-            catch (DotvvmControlException ex)
+            catch (DotvvmExceptionBase ex)
             {
-                if (ex.FileName != null)
+                if (ex.GetLocation() is { FileName: not null } location)
                 {
-                    ex.FileName = Path.Combine(ApplicationPath, ex.FileName);
+                    ex.Location = location with { FileName = Path.Combine(ApplicationPath, location.FileName) };
                 }
                 throw;
             }

@@ -20,6 +20,7 @@ using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Utils
 {
+
     public static class ReflectionUtils
     {
         /// <summary>
@@ -28,25 +29,18 @@ namespace DotVVM.Framework.Utils
         public static MemberInfo GetMemberFromExpression(Expression expression)
         {
             var originalExpression = expression;
-            if (expression is LambdaExpression lambda)
-                expression = lambda.Body;
+            if (expression.NodeType == ExpressionType.Lambda)
+                expression = ((LambdaExpression)expression).Body;
+
             while (expression is UnaryExpression unary)
                 expression = unary.Operand;
 
             var body = expression as MemberExpression;
 
             if (body == null)
-                throw new NotSupportedException($"Can not get member from {originalExpression}");
+                throw new NotSupportedException($"Cannot get member from {originalExpression}");
 
             return body.Member;
-        }
-
-        public static DotvvmProperty GetDotvvmPropertyFromExpression(Expression expression)
-        {
-            var prop = GetMemberFromExpression(expression);
-            return DotvvmProperty.ResolveProperty(prop.DeclaringType!, prop.Name) ??
-                throw new Exception($"Property '{prop.DeclaringType!.Name}.{prop.Name}' is not a registered DotvvmProperty.");
-
         }
 
         // http://haacked.com/archive/2012/07/23/get-all-types-in-an-assembly.aspx/
@@ -82,23 +76,6 @@ namespace DotVVM.Framework.Utils
             if (codeBase == null) return null;
             UriBuilder uri = new UriBuilder(codeBase);
             return Uri.UnescapeDataString(uri.Path);
-        }
-
-        /// <summary>
-        /// Gets the specified property of a given object.
-        /// </summary>
-        public static object? GetObjectPropertyValue(object? item, string propertyName, out PropertyInfo? prop)
-        {
-            prop = null;
-            if (item == null) return null;
-
-            var type = item.GetType();
-            prop = type.GetProperty(propertyName);
-            if (prop == null)
-            {
-                throw new Exception(String.Format("The object of type {0} does not have a property named {1}!", type, propertyName));     // TODO: exception handling
-            }
-            return prop.GetValue(item);
         }
 
         /// <summary>
@@ -191,7 +168,7 @@ namespace DotVVM.Framework.Utils
                     }
                     catch (Exception ex)
                     {
-                        throw new Exception($"The enum {type} does not allow a value '{val}'!", ex); // TODO: exception handling
+                        throw new Exception($"The enum {type} does not allow a value '{val}'!", ex);
                     }
                 }
                 return result;

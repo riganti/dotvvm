@@ -17,9 +17,9 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
             var left = tree.Left.CastTo<JsMemberAccessExpression>();
             left.MemberName = "lol";
             tree.Freeze();
-            Assert.ThrowsException<InvalidOperationException>(() => left.MemberName = "omg");
+            Assert.ThrowsException<Configuration.FreezableUtils.ObjectIsFrozenException>(() => left.MemberName = "omg");
             Assert.AreEqual(left.MemberName, "lol");
-            Assert.ThrowsException<InvalidOperationException>(() => tree.Right.CastTo<JsLiteral>().Value = 8);
+            Assert.ThrowsException<Configuration.FreezableUtils.ObjectIsFrozenException>(() => tree.Right.CastTo<JsLiteral>().Value = 8);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             DataContextChangeAttributes = Type.GetCustomAttributes<DataContextChangeAttribute>(true).ToArray();
             DataContextManipulationAttribute = Type.GetCustomAttribute<DataContextStackManipulationAttribute>(true);
             if (DataContextManipulationAttribute != null && DataContextChangeAttributes.Any())
-                throw new Exception($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set at the same time at control '{controlType.Type.FullName}'.");
+                throw new Exception($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} cannot be set at the same time at control '{controlType.Type.FullName}'.");
         }
 
         public ControlResolverMetadata(Type type) : this(new ControlType(type))
@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 result.Add(property.Name, property);
             }
         }
-        
+
         /// <summary>
         /// Finds the property.
         /// </summary>

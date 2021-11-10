@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "jsx": "react",
+    "target": "ES6",
+    "lib": [
+      "dom",
+      "ES6"
+    ],
+    "declaration": true,
+    "declarationDir": "dist/declarations"
+  },
+
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

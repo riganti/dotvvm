@@ -1,4 +1,5 @@
-﻿import { parseDate as serializationParseDate, serializeDate } from './serialization/date'
+﻿/// <reference path="typings/globalize/globalize.d.ts" />
+import { parseDate as serializationParseDate, serializeDate } from './serialization/date'
 import { getCulture } from './dotvvm-base';
 
 function getGlobalize(): GlobalizeStatic {

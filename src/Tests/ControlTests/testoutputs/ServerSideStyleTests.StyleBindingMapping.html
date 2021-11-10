@@ -11,7 +11,7 @@
 		<input data-bind="class: int() > 10 == true ? &quot;checkbox-checked&quot; : &quot;&quot;, dotvvm-CheckState: int() > 10" type="checkbox">
 		<input data-bind="class: Boolean() == true ? &quot;checkbox-checked&quot; : &quot;&quot;, dotvvm-CheckState: Boolean" type="checkbox">
 		a div with visible class
-		<div class="hide" data-bind="css: { &quot;hide&quot;: !Boolean() }"></div>
-		<input data-bind="css: { &quot;hide&quot;: Label() == &quot;hidden&quot; }, dotvvm-textbox-text: Label" type="text">
+		<div class="hide" data-bind="css: { hide: !Boolean() }"></div>
+		<input data-bind="css: { hide: Label() == &quot;hidden&quot; }, dotvvm-textbox-text: Label" type="text">
 	</body>
 </html>

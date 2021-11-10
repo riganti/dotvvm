@@ -189,7 +189,7 @@ namespace DotVVM.Framework.Compilation.Binding
             ParsedExpressionBindingProperty? expression = null,
             DataContextStack? dataContext = null,
             ResolvedBinding? resolvedBinding = null,
-            LocationInfoBindingProperty? locationInfo = null)
+            DotvvmLocationInfo? locationInfo = null)
         {
             var sb = new StringBuilder();
 
@@ -295,7 +295,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 )));
             else if (typeof(IEnumerable).IsAssignableFrom(expression.Expression.Type))
                 return new DataSourceAccessBinding(binding);
-            else throw new NotSupportedException($"Can not make datasource from binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
+            else throw new NotSupportedException($"Cannot make datasource from binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
         }
 
         public DataSourceLengthBinding GetDataSourceLength(ParsedExpressionBindingProperty expression, IBinding binding)
@@ -316,7 +316,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 return new DataSourceLengthBinding(binding.DeriveBinding(
                     Expression.Call(typeof(Enumerable), "Count", new[] { ReflectionUtils.GetEnumerableType(expression.Expression.Type) }, expression.Expression)
                 ));
-            else throw new NotSupportedException($"Can not find collection length from binding '{expression.Expression}'.");
+            else throw new NotSupportedException($"Cannot find collection length from binding '{expression.Expression}'.");
         }
 
         public DataSourceCurrentElementBinding? GetDataSourceCurrentElement(ParsedExpressionBindingProperty expression, IBinding binding)
@@ -338,7 +338,7 @@ namespace DotVVM.Framework.Compilation.Binding
             else if (typeof(IBaseGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
                 return new DataSourceCurrentElementBinding(binding.DeriveBinding(
                     makeIndexer(Expression.Property(expression.Expression, nameof(IBaseGridViewDataSet.Items))).NotNull()));
-            else throw new NotSupportedException($"Can not access current element on binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
+            else throw new NotSupportedException($"Cannot access current element on binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
         }
 
 
@@ -364,13 +364,13 @@ namespace DotVVM.Framework.Compilation.Binding
             return new StaticCommandOptionsLambdaJavascriptProperty(FormatJavascript(lambda, allowObservableResult: false, configuration.Debug, AddNullChecks));
         }
 
-        public LocationInfoBindingProperty GetLocationInfo(ResolvedBinding resolvedBinding, AssignedPropertyBindingProperty? assignedProperty = null)
+        public DotvvmLocationInfo GetLocationInfo(ResolvedBinding resolvedBinding, AssignedPropertyBindingProperty? assignedProperty = null)
         {
             var fileName = resolvedBinding.TreeRoot?.FileName?.Apply(p => System.IO.Path.Combine(
                 configuration.ApplicationPhysicalPath,
                 p
             ));
-            return new LocationInfoBindingProperty(
+            return new DotvvmLocationInfo(
                 fileName,
                 resolvedBinding.DothtmlNode?.Tokens?.Select(t => (t.ColumnNumber, t.ColumnNumber + t.Length)).ToArray(),
                 resolvedBinding.DothtmlNode?.Tokens?.FirstOrDefault()?.LineNumber ?? -1,

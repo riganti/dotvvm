@@ -9,6 +9,7 @@ using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
@@ -61,14 +62,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 var bce = (BindingCompilationException)exc;
                 return ExtractSourceFromBindingCompilationException(bce);
             }
-            else if (exc is BindingPropertyException bpe)
+            else if (exc is IDotvvmException dex)
             {
-                return ExtractSourceFromBindingPropertyException(bpe);
-            }
-            else if (exc is DotvvmControlException)
-            {
-                var controlException = (DotvvmControlException)exc;
-                return ExtractSourceFromDotvvmControlException(controlException);
+                return ExtractSourceFromDotvvmException(dex);
             }
             return null;
         }
@@ -110,20 +106,15 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return null;
         }
 
-        private SourceModel ExtractSourceFromDotvvmControlException(DotvvmControlException controlException)
+        private SourceModel? ExtractSourceFromDotvvmException(IDotvvmException exception)
         {
-            return ErrorFormatter.LoadSourcePiece(controlException.FileName, controlException.LineNumber ?? 0);
-        }
-
-        private SourceModel? ExtractSourceFromBindingPropertyException(BindingPropertyException exception)
-        {
-            var location = exception.Binding.GetProperty<LocationInfoBindingProperty>(ErrorHandlingMode.ReturnNull);
+            var location = exception.GetLocation();
             if (location == null)
                 return null;
             var colStart = location.Ranges?.FirstOrDefault().start;
             var colEnd = location.Ranges?.LastOrDefault().end;
 
-            return ErrorFormatter.LoadSourcePiece(location.FileName, location.LineNumber, errorColumn: colStart ?? 0, errorLength: colEnd - colStart ?? 0);
+            return ErrorFormatter.LoadSourcePiece(location.FileName, location.LineNumber ?? -1, errorColumn: colStart ?? 0, errorLength: colEnd - colStart ?? 0);
         }
 
         private SourceModel CreateAnonymousLine(string line, int column = 0, int length = -1, int lineNumber = 0)
@@ -148,10 +139,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             var exs = ex.AllInnerExceptions();
             var iex =
                 exs.OfType<DotvvmCompilationException>().FirstOrDefault() ??
-                exs.OfType<BindingPropertyException>()
-                   .Where(bpe => bpe.Binding.GetProperty<LocationInfoBindingProperty>(ErrorHandlingMode.ReturnNull)?.FileName is not null)
-                   .FirstOrDefault() ??
-                exs.OfType<DotvvmControlException>().FirstOrDefault() as Exception;
+                exs.OfType<IDotvvmException>()
+                   .Where(dex => dex.GetLocation() != null)
+                   .FirstOrDefault()?.TheException;
 
             if (iex != null) return new DotvvmMarkupErrorSection(ex);
             else return null;

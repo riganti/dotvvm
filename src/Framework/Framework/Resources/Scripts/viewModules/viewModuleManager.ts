@@ -65,17 +65,23 @@ function createModuleInstance(fn: Function, ...args: any) {
     return fn(...args);
 }
 
+function* getModules(viewIdOrElement: string | HTMLElement) {
+    for (let moduleName of keys(registeredModules)) {
+        const context = tryFindViewModuleContext(viewIdOrElement, moduleName);
+        if (!(context && context.module)) continue;
+        yield context
+    }
+}
+
 export function callViewModuleCommand(viewIdOrElement: string | HTMLElement, commandName: string, args: any[]) {
     if (compileConstants.debug && commandName == null) { throw new Error("commandName has to have a value"); }
     if (compileConstants.debug && !(args instanceof Array)) { throw new Error("args must be an array"); }
 
-    const foundModules: { moduleName: string; context: ModuleContext }[] = [];
+    const foundModules: ModuleContext[] = [];
 
-    for (let moduleName of keys(registeredModules)) {
-        const context = tryFindViewModuleContext(viewIdOrElement, moduleName);
-        if (!(context && context.module)) continue;
+    for (let context of getModules(viewIdOrElement)) {
         if (commandName in context.module && typeof context.module[commandName] === "function") {
-            foundModules.push({ moduleName, context });
+            foundModules.push(context);
         }
     }
 
@@ -88,11 +94,35 @@ export function callViewModuleCommand(viewIdOrElement: string | HTMLElement, com
     }
 
     try {
-        return foundModules[0].context.module[commandName](...args.map(v => serialize(v)));
+        return foundModules[0].module[commandName](...args.map(v => serialize(v)));
     }
     catch (e: unknown) {
         throw new Error(`While executing command ${commandName}(${args.map(v => JSON.stringify(serialize(v)))}), an error occurred. ${e}`);
     }
+}
+
+const globalComponent: { [key: string]: DotvvmJsComponentFactory } = {}
+
+export function findComponent(
+    viewIdOrElement: null | string | HTMLElement,
+    name: string
+): [ModuleContext | null, DotvvmJsComponentFactory] {
+    if (viewIdOrElement != null) {
+        for (const context of getModules(viewIdOrElement)) {
+            if (name in (context.module.$controls ?? {})) {
+                return [context, context.module.$controls[name]]
+            }
+        }
+    }
+    if (name in globalComponent)
+        return [null, globalComponent[name]]
+    throw Error("can not find control " + name)
+}
+
+export function registerGlobalComponent(name: string, c: DotvvmJsComponentFactory) {
+    if (name in globalComponent)
+        throw new Error(`Component ${name} is already registered`)
+    globalComponent[name] = c
 }
 
 function setupModuleDisposeHandlers(viewIdOrElement: string | HTMLElement, name: string, rootElement: HTMLElement) {

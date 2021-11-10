@@ -35,7 +35,8 @@ namespace DotVVM.Framework.Utils
         public static BinaryExpression UpdateType(this BinaryExpression expr, ExpressionType type) =>
             Expression.MakeBinary(type, expr.Left, expr.Right);
 
-        public static Expression Replace(LambdaExpression ex, params Expression[] parameters)
+        /// <summary> Substitutes arguments in the LambdaExpression with the specified expressions. </summary>
+        public static Expression Replace(this LambdaExpression ex, params Expression[] parameters)
         {
             var visitor = new ReplaceVisitor();
             for (int i = 0; i < parameters.Length; i++)

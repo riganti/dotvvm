@@ -3628,10 +3628,10 @@ typedarray-to-buffer@^3.1.5:
   dependencies:
     is-typedarray "^1.0.0"
 
-typescript@4.0.3:
-  version "4.0.3"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.0.3.tgz#153bbd468ef07725c1df9c77e8b453f8d36abba5"
-  integrity sha512-tEu6DGxGgRJPb/mVPIZ48e69xCn2yRmCgYmDugAVwmJ6o+0u1RI18eO7E7WBTLYLaEVVOhwQmcdhQHweux/WPg==
+typescript@4.5.1-rc:
+  version "4.5.1-rc"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.1-rc.tgz#02155eaa0579d11babb2a55dcbd796948a994bb3"
+  integrity sha512-tQBWW1DCFqweyhSzsAUSFgssJ3uuRBh0zyOkRV4CaFF2rMBkGU0I+MqPMch0qhGCUGXjOW7FgMrbQLS6PE3Z6Q==
 
 union-value@^1.0.0:
   version "1.0.1"

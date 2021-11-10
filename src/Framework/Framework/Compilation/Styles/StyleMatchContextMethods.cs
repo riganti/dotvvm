@@ -156,7 +156,7 @@ public static class StyleMatchContextExtensionMethods
     /// </summary>
     public static bool HasProperty<TControl>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, object>> property)
     {
-        var prop = ReflectionUtils.GetDotvvmPropertyFromExpression(property);
+        var prop = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(property);
         return c.HasProperty(prop);
     }
 
@@ -173,7 +173,7 @@ public static class StyleMatchContextExtensionMethods
     /// </summary>
     public static bool HasBinding<TControl>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, object>> property)
     {
-        var prop = ReflectionUtils.GetDotvvmPropertyFromExpression(property);
+        var prop = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(property);
         return c.HasBinding(prop);
     }
 
@@ -260,7 +260,15 @@ public static class StyleMatchContextExtensionMethods
     [return: MaybeNull]
     public static TProp PropertyValue<TControl, TProp>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, TProp>> pp)
     {
-        var property = ReflectionUtils.GetDotvvmPropertyFromExpression(pp);
+        var property = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(pp);
+        return c.PropertyValue<TProp>(property);
+    }
+
+    /// <summary> Gets the property value or null if it's not defined. </summary>
+    [return: MaybeNull]
+    public static TProp PropertyValue<TControl, TProp>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, ValueOrBinding<TProp>>> pp)
+    {
+        var property = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(pp);
         return c.PropertyValue<TProp>(property);
     }
 
@@ -288,7 +296,14 @@ public static class StyleMatchContextExtensionMethods
     /// <summary> Gets the property value or null if it's not defined. </summary>
     public static ValueOrBinding<TProp> Property<TControl, TProp>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, TProp>> pp)
     {
-        var property = ReflectionUtils.GetDotvvmPropertyFromExpression(pp);
+        var property = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(pp);
+        return c.Property<TProp>(property);
+    }
+
+    /// <summary> Gets the property value or null if it's not defined. </summary>
+    public static ValueOrBinding<TProp> Property<TControl, TProp>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, ValueOrBinding<TProp>>> pp)
+    {
+        var property = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(pp);
         return c.Property<TProp>(property);
     }
 

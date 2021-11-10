@@ -348,7 +348,7 @@ namespace DotVVM.Framework.Tests.Routing
         {
             var route = new DotvvmRoute("myPage/{Id}/edit", null, null, null, configuration);
 
-            var ex = Assert.ThrowsException<Exception>(() => {
+            var ex = Assert.ThrowsException<DotvvmRouteException>(() => {
                 route.BuildUrl(new Dictionary<string, object> { ["Id"] = null });
             });
             Assert.IsInstanceOfType(ex.InnerException, typeof(ArgumentNullException));

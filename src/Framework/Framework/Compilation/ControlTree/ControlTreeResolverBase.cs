@@ -96,7 +96,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     out _
                 );
             }
-            
+
             ValidateMasterPage(view, masterPage, masterPageDirective?.First());
 
             ResolveRootContent(root, view, viewMetadata);
@@ -162,7 +162,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     foreach (var d in directiveGroup)
                     {
                         ProcessDirective(d);
-                        d.AddError($"Directive '{d.Name}' can not be present multiple times.");
+                        d.AddError($"Directive '{d.Name}' cannot be present multiple times.");
                     }
                     directives[directiveGroup.Key] = ImmutableList.Create(ProcessDirective(directiveGroup.First()));
                 }
@@ -541,7 +541,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 var name = getName(attribute);
                 if (!doneAttributes.Add(attribute)) return;
 
-                var property = controlResolver.FindProperty(control.Metadata, name);
+                var property = controlResolver.FindProperty(control.Metadata, name, MappingMode.Attribute);
                 if (property == null)
                 {
                     attribute.AddError($"The control '{control.Metadata.Type}' does not have a property '{attribute.AttributeName}' and does not allow HTML attributes!");
@@ -628,7 +628,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 var element = node as DothtmlElementNode;
                 if (element != null && properties)
                 {
-                    var property = controlResolver.FindProperty(control.Metadata, element.TagName);
+                    var property = controlResolver.FindProperty(control.Metadata, element.TagName, MappingMode.InnerElement);
                     if (property != null && string.IsNullOrEmpty(element.TagPrefix) && property.MarkupOptions.MappingMode.HasFlag(MappingMode.InnerElement))
                     {
                         content.Clear();

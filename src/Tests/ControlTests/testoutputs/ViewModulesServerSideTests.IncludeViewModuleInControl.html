@@ -26,7 +26,7 @@
 	dotvvm.viewModules.call(this, &quot;name&quot;, [1]);
 },this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
 		</div>
-		<div data-bind="foreach: { &quot;data&quot;: Collection }">
+		<div data-bind="foreach: { data: Collection }">
 			<div data-bind="dotvvm-with-view-modules: { modules: [&quot;controlModule&quot;] }">
 				<input onclick="dotvvm.applyPostbackHandlers((options) => {
 	dotvvm.viewModules.call(this, &quot;name&quot;, [1]);

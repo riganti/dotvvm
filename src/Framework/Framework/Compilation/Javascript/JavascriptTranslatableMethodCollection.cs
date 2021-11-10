@@ -189,6 +189,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddDefaultListTranslations();
             AddDefaultMathTranslations();
             AddDefaultDateTimeTranslations();
+            AddDefaultConvertTranslations();
         }
 
         private void AddDefaultToStringTranslations()
@@ -301,7 +302,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddFrameworkDependentSplitMehtodTranslations();
             AddFrameworkDependentContainsMehtodTranslations();
 
-      
+
         }
 
         private void AddFrameworkDependentContainsMehtodTranslations()
@@ -465,7 +466,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             bool EnsureIsComparableInJavascript(MethodInfo method, Type type)
             {
                 if (!ReflectionUtils.IsPrimitiveType(type))
-                    throw new DotvvmCompilationException($"Can not translate invocation of method \"{method.Name}\" to JavaScript. Comparison of non-primitive types is not supported.");
+                    throw new DotvvmCompilationException($"Cannot translate invocation of method \"{method.Name}\" to JavaScript. Comparison of non-primitive types is not supported.");
 
                 return true;
             }
@@ -595,6 +596,50 @@ namespace DotVVM.Framework.Compilation.Javascript
                 new JsNewExpression(new JsIdentifierExpression("Date"), args[0]).Member("getMilliseconds").Invoke()));
         }
 
+        private void AddDefaultConvertTranslations()
+        {
+            // Convert.ToDouble, ToSingle, ToDecimal - all of these are represented as double in JS, we only sometimes need them for correct overload resolution
+
+            // for integer types, we do the same, but also call Math.round
+
+            foreach (var m in typeof(Convert)
+                .GetMethods(BindingFlags.Static | BindingFlags.Public)
+                .Where(m => m.Name is "ToDouble" or "ToSingle" or "ToDecimal" or "ToInt32" or "ToUInt32" or "ToInt16" or "ToUInt16" or "ToByte" or "ToSByte" or "ToInt64" or "ToUInt64"))
+            {
+                var p = m.GetParameters();
+                if (p.Length != 1)
+                    continue;
+                var isFloating = m.Name is "ToDouble" or "ToSingle" or "ToDecimal";
+                JsExpression wrapInRound(JsExpression a) =>
+                    isFloating ? a : new JsIdentifierExpression("Math").Member("round").Invoke(a);
+                if (p[0].ParameterType == typeof(char))
+                {
+                    // Convert char to number
+                    AddMethodTranslator(m, translator: new GenericMethodCompiler(args => args[1].Member("charCodeAt").Invoke(new JsLiteral(0))));
+                }
+                else if (p[0].ParameterType.IsNumericType())
+                {
+                    AddMethodTranslator(m, translator: new GenericMethodCompiler(args => wrapInRound(args[1])));
+                }
+                else if (p[0].ParameterType == typeof(string) || p[0].ParameterType == typeof(bool))
+                {
+                    AddMethodTranslator(m, translator: new GenericMethodCompiler(args => wrapInRound(new JsIdentifierExpression("Number").Invoke(args[1]))));
+                }
+            }
+
+            foreach (var m in typeof(Convert)
+                .GetMethods(BindingFlags.Static | BindingFlags.Public)
+                .Where(m => m.Name == "ToBoolean"))
+            {
+                var p = m.GetParameters();
+                if (p.Length != 1)
+                    continue;
+                if (p[0].ParameterType.IsNumericType() && p[0].ParameterType != typeof(char))
+                {
+                    AddMethodTranslator(m, translator: new GenericMethodCompiler(args => new JsIdentifierExpression("Boolean").Invoke(args[1])));
+                }
+            }
+        }
         public JsExpression? TryTranslateCall(LazyTranslatedExpression? context, LazyTranslatedExpression[] args, MethodInfo method)
         {
             {

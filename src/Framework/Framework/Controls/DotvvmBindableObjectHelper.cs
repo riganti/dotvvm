@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Controls
         /// <summary> Gets the DotvvmProperty referenced by the lambda expression. </summary>
         public static DotvvmProperty GetDotvvmProperty<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject =>
-            ReflectionUtils.GetDotvvmPropertyFromExpression(prop);
+            DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(prop);
         /// <summary> Gets the DotvvmProperty with the specified name.  </summary>
         public static DotvvmProperty GetDotvvmProperty<TControl>(this TControl control, string propName)
             where TControl : DotvvmBindableObject
@@ -130,7 +130,7 @@ namespace DotVVM.Framework.Controls
 
             if (value is not null)
             {
-                control.Attributes[attribute] = value;
+                control.Attributes.Set(attribute, value);
             }
             else
             {
@@ -151,6 +151,62 @@ namespace DotVVM.Framework.Controls
             where TControl : IControlWithHtmlAttributes
         {
             return SetAttribute(control, attribute, value?.UnwrapToObject());
+        }
+
+        /// <summary> Appends a value into the specified html attribute. If the attribute already exists, the old and new values are merged. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl AddAttribute<TControl>(this TControl control, string attribute, object? value)
+            where TControl : IControlWithHtmlAttributes
+        {
+            if (value is not null)
+                control.Attributes.Add(attribute, value);
+            return control;
+        }
+        /// <summary> Appends a value into the specified html attribute. If the attribute already exists, the old and new values are merged. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl AddAttribute<TControl, TValue>(this TControl control, string attribute, ValueOrBinding<TValue>? value)
+            where TControl : IControlWithHtmlAttributes
+        {
+            return AddAttribute(control, attribute, value?.UnwrapToObject());
+        }
+
+        /// <summary> Appends a list of css attributes to the control. If the attributes already exist, the old and new values are merged. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl AddAttributes<TControl, TValue>(this TControl control, IEnumerable<KeyValuePair<string, TValue>> attributes)
+            where TControl : IControlWithHtmlAttributes
+        {
+            foreach (var a in attributes)
+                AddAttribute(control, a.Key, a.Value);
+            return control;
+        }
+        
+        /// <summary> Appends a list of css attributes to the control. If the attributes already exist, the old and new values are merged. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl AddAttributes<TControl, TValue>(this TControl control, VirtualPropertyGroupDictionary<TValue> attributes)
+            where TControl : IControlWithHtmlAttributes
+        {
+            foreach (var a in attributes.RawValues)
+                AddAttribute(control, a.Key, a.Value);
+            return control;
+        }
+
+        /// <summary> Appends a css class to this control. Note that it is currently not supported if multiple bindings would have to be joined together. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl AddCssClass<TControl>(this TControl control, ValueOrBinding<string> className)
+            where TControl : IControlWithHtmlAttributes
+        {
+            return AddAttribute(control, "class", className.UnwrapToObject());
+        }
+
+        /// <summary> Appends a list of css classes to this control. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl AddCssClasses<TControl>(this TControl control, params string[] classes)
+            where TControl : IControlWithHtmlAttributes
+        {
+            if (classes is null || classes.Length == 0)
+                return control;
+            return AddCssClass(control, string.Join(" ", classes));
+        }
+
+        /// <summary> Adds a css inline style - the `style` attribute. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl AddCssStyle<TControl>(this TControl control, string name, string styleValue)
+            where TControl : IControlWithHtmlAttributes
+        {
+            return AddAttribute(control, "style", name + ":" + styleValue);
         }
 
         /// <summary> Sets all properties from the capability into this control. If the control does not support the capability, exception is thrown. Returns <paramref name="control"/> for fluent API usage. </summary>
@@ -226,7 +282,16 @@ namespace DotVVM.Framework.Controls
             => control.GetValueOrBinding<TProperty>(control.GetDotvvmProperty(prop));
 
         /// <summary> Gets the specified control capability - reads all the properties in the capability at once. Throws if this control does not support the capability. </summary>
-        public static TCapability GetCapability<TCapability>(this DotvvmBindableObject control, string prefix = "")
+        public static TCapability GetCapability<TCapability>(this DotvvmBindableObject control)
+        {
+            var c = DotvvmCapabilityProperty.Find(control.GetType(), typeof(TCapability));
+            if (c is null)
+                throw new Exception($"Capability {typeof(TCapability)} is not defined on {control.GetType()}, or it's not uniquely determined");
+            return (TCapability)c.GetValue(control)!;
+        }
+
+        /// <summary> Gets the specified control capability - reads all the properties in the capability at once. Throws if this control does not support the capability. </summary>
+        public static TCapability GetCapability<TCapability>(this DotvvmBindableObject control, string prefix)
         {
             var c = DotvvmCapabilityProperty.Find(control.GetType(), typeof(TCapability), prefix);
             if (c is null)
