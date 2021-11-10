@@ -173,7 +173,7 @@ test("Postback: sanity check", async () => {
         } as any
     }
 
-    await postBack(window.document.body, [], "c", "", undefined, [ "validate-this" ])
+    await postBack(window.document.body, [], "c", "", undefined, [ "validate-root" ])
 
     expect(window["resource3_script_loaded" as any]).toBe(true)
     expect(state().Property1).toBe(1)
@@ -375,7 +375,7 @@ test("Postback: AbortSignal", async () => {
     }
 
     const abortController = new AbortController()
-    let postbackPromise = postBack(window.document.body, [], "c", "", undefined, [ "validate-this" ], [], abortController.signal)
+    let postbackPromise = postBack(window.document.body, [], "c", "", undefined, [ "validate-root" ], [], abortController.signal)
     await delay(50)
     abortController.abort()
 
