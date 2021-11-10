@@ -241,9 +241,12 @@ fi
 if [ $UI_TESTS -eq 1 ]; then
     clean_uitest
 
+    ensure_named_command "npm install rollup (global)" \
+        "cd \"$ROOT/src/Samples/Common\" \
+             npm install -g rollup"
+
     ensure_named_command "npm build" \
         "cd \"$ROOT/src/Samples/Common\" \
-            && npm install rollup \
             && npm ci --cache \"$ROOT/.npm\" --prefer-offline \
             && rollup -c"
 
