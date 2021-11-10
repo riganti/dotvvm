@@ -209,6 +209,31 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public async Task CapabilitySetting()
+        {
+            var cth = createHelper(c => {
+                var dataAttributeName = "data-test2";
+                c.Styles.Register<HtmlGenericControl>(c =>
+                    c.PropertyValue(x => x.GetCapability<HtmlCapability>().Attributes["class"]) as string == "test")
+                    .SetProperty(x => x.Attributes["data-test1"], "true")
+                    .SetProperty(x => x.HtmlCapability.Attributes[dataAttributeName], "also true");
+                // test conversion to/from ValueOrBinding
+                // this is not needed in this case, but might be useful for workarounding some type-parameter magic rough edges
+                c.Styles.Register<HtmlGenericControl>(c =>
+                    c.PropertyValue(x => new ValueOrBinding<object>(x.Attributes["class"])) as string == "test2")
+                    .SetProperty(x => (ValueOrBinding<object>)x.Attributes["data-test1"], "true")
+                    .SetProperty(x => x.HtmlCapability.Attributes[dataAttributeName].ValueOrDefault, "also true");
+            });
+
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <div class=test />
+                <div class=test2 />
+            ");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+
+        [TestMethod]
         public async Task StyleBindingMapping()
         {
             var cth = createHelper(c => {

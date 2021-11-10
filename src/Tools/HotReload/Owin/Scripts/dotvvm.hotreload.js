@@ -13,7 +13,7 @@
             window.location.reload();
         };
         $.connection.hub.start()
-            .done(function(e) { dotvvm.log.logInfo('DotVVM view hot reload active.', e); })
+            .done(function() { dotvvm.log.logInfo('DotVVM view hot reload active.'); })
             .fail(function(e) { dotvvm.log.logWarning('DotVVM view hot reload error!', e); });
     }
 

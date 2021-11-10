@@ -16,7 +16,7 @@
             window.location.reload();
         });
         connection.start()
-            .then(function (e) { dotvvm.log.logInfo('DotVVM view hot reload active.', e); })
+            .then(function () { dotvvm.log.logInfo('DotVVM view hot reload active.'); })
             .catch(function (e) { dotvvm.log.logWarning('DotVVM view hot reload error!', e); });
     }
 
