@@ -11,7 +11,7 @@
     <sample:HierarchyControl DataContext="{value: Item}" NewTitle="{value: _root.NewTitle}" data-ui="hierarchy-control"/>
 
     <p>
-        Prefix: <dot:TextBox Text="{value: PrefixText}" data-ui="prefix-text-textbox" UpdateTextAfterKeydown="true" />
+        Prefix: <dot:TextBox Text="{value: PrefixText}" data-ui="prefix-text-textbox" UpdateTextOnInput="true" />
     </p>
     <p>
         New Title: <dot:TextBox Text="{value: NewTitle}" data-ui="new-title-text-textbox"  />
