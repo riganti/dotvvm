@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         [DataRow(typeof(IList<KeyValuePair<string, string>>), "[\"PVyTyqvI4Id5nYo+\"]")]
         [DataRow(typeof(IList<KeyValuePair<int, int>>), "[\"COeXIi+/gCnEgi6U\"]")]
         [DataRow(typeof(IList<KeyValuePair<object, object>>), "[\"y6hj7iGE5x+eLypR\"]")]
-        // these hashes are dependent on the target framework - the latest update of hashes is updated to net50
+        // these hashes are dependent on the target framework - the latest update of hashes is updated to net60
         public void ViewModelTypeMetadata_TypeName(Type type, string expected)
         {
             var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
