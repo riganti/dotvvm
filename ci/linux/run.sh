@@ -241,6 +241,11 @@ fi
 if [ $UI_TESTS -eq 1 ]; then
     clean_uitest
 
+    ensure_named_command "npm build" \
+        "cd \"$ROOT/src/Samples/Common\" \
+            && npm ci --cache \"$ROOT/.npm\" --prefer-offline \
+            && rollup -c"
+
     Xvfb $DISPLAY -screen 0 1920x1080x16 &
     XVFB_PID=$!
     if [ $? -ne 0 ]; then
