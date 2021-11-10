@@ -19,7 +19,6 @@ namespace DotVVM.Samples.Tests.Feature
 
                 var textBox = browser.Single("[data-ui='password-textBox']");
                 textBox.SendKeys("password");
-
                 AssertUI.TextEquals(message, "Good");
             });
         }
