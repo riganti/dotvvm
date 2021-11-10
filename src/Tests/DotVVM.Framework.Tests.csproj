@@ -9,7 +9,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <PropertyGroup>
     <PublicSign>True</PublicSign>
