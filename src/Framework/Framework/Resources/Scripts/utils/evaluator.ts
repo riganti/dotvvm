@@ -1,16 +1,6 @@
 import { isObservableArray } from "./knockout";
 import { logError } from "./logging";
 
-const shouldBeConvertedFromDataContext = (currentLevel: any, remainingParts: string[]): boolean => {
-    if (currentLevel["$data"] == undefined) {
-        return false;
-    }
-
-    return remainingParts.filter(i => i.startsWith("$")).length === 0;
-};
-
-
-
 /**
  * Traverses provided context according to given path.
  * @example / - returns context
@@ -28,9 +18,6 @@ export function traverseContext(context: any, path: string): any
     var currentLevel = context;
     var currentPath = "";
     for (var i = 0; i < parts.length; i++) {
-        if (shouldBeConvertedFromDataContext(currentLevel, parts.slice(i))) {
-            currentLevel = context["$data"];
-        }
         let expressionPart = parts[i];
         if (expressionPart === "")
             continue;
