@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Controls
 
             var group = new KnockoutBindingGroup();
             {
-                group.Add("target", expression);
+                group.AddValue("target", expression);
                 group.Add("includeErrorsFromChildren", IncludeErrorsFromChildren.ToString().ToLowerInvariant());
                 group.Add("includeErrorsFromTarget", IncludeErrorsFromTarget.ToString().ToLowerInvariant());
                 group.Add("hideWhenValid", HideWhenValid.ToString().ToLowerInvariant());
