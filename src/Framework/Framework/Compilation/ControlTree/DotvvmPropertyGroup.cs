@@ -126,6 +126,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public static IEnumerable<DotvvmPropertyGroup> AllGroups => descriptorDictionary.Values;
 
+        public static DotvvmPropertyGroup? ResolvePropertyGroup(Type declaringType, string name)
+        {
+            return descriptorDictionary.TryGetValue((declaringType, name), out var group) ? group : null;
+        }
+
         public static IPropertyDescriptor? ResolvePropertyGroup(string name, bool caseSensitive, MappingMode requiredMode = default)
         {
             var nameParts = name.Split('.');

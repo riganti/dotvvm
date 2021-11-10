@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Controls
         /// <summary> Gets the DotvvmProperty referenced by the lambda expression. </summary>
         public static DotvvmProperty GetDotvvmProperty<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject =>
-            ReflectionUtils.GetDotvvmPropertyFromExpression(prop);
+            DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(prop);
         /// <summary> Gets the DotvvmProperty with the specified name.  </summary>
         public static DotvvmProperty GetDotvvmProperty<TControl>(this TControl control, string propName)
             where TControl : DotvvmBindableObject
@@ -282,7 +282,16 @@ namespace DotVVM.Framework.Controls
             => control.GetValueOrBinding<TProperty>(control.GetDotvvmProperty(prop));
 
         /// <summary> Gets the specified control capability - reads all the properties in the capability at once. Throws if this control does not support the capability. </summary>
-        public static TCapability GetCapability<TCapability>(this DotvvmBindableObject control, string prefix = "")
+        public static TCapability GetCapability<TCapability>(this DotvvmBindableObject control)
+        {
+            var c = DotvvmCapabilityProperty.Find(control.GetType(), typeof(TCapability));
+            if (c is null)
+                throw new Exception($"Capability {typeof(TCapability)} is not defined on {control.GetType()}, or it's not uniquely determined");
+            return (TCapability)c.GetValue(control)!;
+        }
+
+        /// <summary> Gets the specified control capability - reads all the properties in the capability at once. Throws if this control does not support the capability. </summary>
+        public static TCapability GetCapability<TCapability>(this DotvvmBindableObject control, string prefix)
         {
             var c = DotvvmCapabilityProperty.Find(control.GetType(), typeof(TCapability), prefix);
             if (c is null)
