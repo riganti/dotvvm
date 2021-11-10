@@ -8,7 +8,7 @@
     "http://localhost:5407/"
   ],
   "testRunOptions": {
-    "runInParallel": true,
+    "runInParallel": false,
     "testAttemptsCount": 2
   },
   "logging": {

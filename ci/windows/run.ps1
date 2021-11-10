@@ -143,6 +143,10 @@ if ($NoUnitTests -ne $true) {
 
 if ($NoUITests -ne $true) {
     Run-Command "UI tests" {
+        Set-Location $root\src\Samples\Common
+        npm install && rollup -c 
+        Pop-Location
+
         Import-Module IISAdministration
         Clean-UITest
 
