@@ -14,16 +14,23 @@ namespace DotVVM.HotReload
 
         public string GetHeadContents(IDotvvmRequestContext context, Exception ex)
         {
-            using var textWriter = new StringWriter();
-            var writer = new HtmlWriter(textWriter, context);
-            var renderedResources = new HashSet<string>();
+            if (context.Configuration.Debug)
+            {
+                using var textWriter = new StringWriter();
+                var writer = new HtmlWriter(textWriter, context);
+                var renderedResources = new HashSet<string>();
 
-            RenderResource(context, "dotvvm-hotreload", writer, renderedResources);
+                RenderResource(context, "dotvvm-hotreload", writer, renderedResources);
 
-            return textWriter.ToString();
+                return textWriter.ToString();
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
 
-        private void RenderResource(IDotvvmRequestContext context, string resourceName, HtmlWriter? writer, HashSet<string> renderedResources)
+        private void RenderResource(IDotvvmRequestContext context, string resourceName, HtmlWriter writer, HashSet<string> renderedResources)
         {
             if (renderedResources.Contains(resourceName) || resourceName == "dotvvm") return;
             renderedResources.Add(resourceName);

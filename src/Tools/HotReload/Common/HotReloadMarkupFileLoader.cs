@@ -40,10 +40,7 @@ namespace DotVVM.HotReload
                     watcher.Changed += (s, a) => OnFileChanged(configuration, a.FullPath);
                     watcher.Renamed += (s, a) => {
                         // VS doesn't update the actual file, it writes in the temp file, moves the old file away, and then renames the temp file to the original file
-                        if (string.Equals(a.Name, watcher.Filter, Environment.OSVersion.Platform == PlatformID.Win32NT ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
-                        {
-                            OnFileChanged(configuration, a.FullPath);
-                        }
+                        OnFileChanged(configuration, a.FullPath);
                     };
                     watcher.EnableRaisingEvents = true;
                     return watcher;
