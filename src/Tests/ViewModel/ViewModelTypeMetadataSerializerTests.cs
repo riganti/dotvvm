@@ -33,20 +33,20 @@ namespace DotVVM.Framework.Tests.ViewModel
         [DataRow(typeof(long[][]), "[['Int64']]")]
         [DataRow(typeof(Type), "'Av/XciKNYBmL6ZsV'")]   // unknown types should produce SHA1 hash
         [DataRow(typeof(object), "{'type':'dynamic'}")]
-        [DataRow(typeof(Dictionary<string, string>), "[\"Lnzd1OXNaUGz1blH\"]")]
-        [DataRow(typeof(IDictionary<string, string>), "[\"Lnzd1OXNaUGz1blH\"]")]
-        [DataRow(typeof(Dictionary<int, int>), "[\"K6iWIxt5nIU/mBb0\"]")]
-        [DataRow(typeof(Dictionary<char, object>), "[\"UY9mV7BdlubB6Mnm\"]")]
-        [DataRow(typeof(IDictionary<int, int>), "[\"K6iWIxt5nIU/mBb0\"]")]
-        [DataRow(typeof(Dictionary<object, object>), "[\"gNem+Vh9ukP7Ep80\"]")]
-        [DataRow(typeof(IDictionary<object, object>), "[\"gNem+Vh9ukP7Ep80\"]")]
-        [DataRow(typeof(List<KeyValuePair<string, string>>), "[\"Lnzd1OXNaUGz1blH\"]")]
-        [DataRow(typeof(List<KeyValuePair<int, int>>), "[\"K6iWIxt5nIU/mBb0\"]")]
-        [DataRow(typeof(List<KeyValuePair<object, object>>), "[\"gNem+Vh9ukP7Ep80\"]")]
-        [DataRow(typeof(IList<KeyValuePair<string, string>>), "[\"Lnzd1OXNaUGz1blH\"]")]
-        [DataRow(typeof(IList<KeyValuePair<int, int>>), "[\"K6iWIxt5nIU/mBb0\"]")]
-        [DataRow(typeof(IList<KeyValuePair<object, object>>), "[\"gNem+Vh9ukP7Ep80\"]")]
-        // these hashes are dependent on the target framework - the latest update of hashes is updated to net50
+        [DataRow(typeof(Dictionary<string, string>), "[\"PVyTyqvI4Id5nYo+\"]")]
+        [DataRow(typeof(IDictionary<string, string>), "[\"PVyTyqvI4Id5nYo+\"]")]
+        [DataRow(typeof(Dictionary<int, int>), "[\"COeXIi+/gCnEgi6U\"]")]
+        [DataRow(typeof(Dictionary<char, object>), "[\"0AQHqpcFiaoYjUd+\"]")]
+        [DataRow(typeof(IDictionary<int, int>), "[\"COeXIi+/gCnEgi6U\"]")]
+        [DataRow(typeof(Dictionary<object, object>), "[\"y6hj7iGE5x+eLypR\"]")]
+        [DataRow(typeof(IDictionary<object, object>), "[\"y6hj7iGE5x+eLypR\"]")]
+        [DataRow(typeof(List<KeyValuePair<string, string>>), "[\"PVyTyqvI4Id5nYo+\"]")]
+        [DataRow(typeof(List<KeyValuePair<int, int>>), "[\"COeXIi+/gCnEgi6U\"]")]
+        [DataRow(typeof(List<KeyValuePair<object, object>>), "[\"y6hj7iGE5x+eLypR\"]")]
+        [DataRow(typeof(IList<KeyValuePair<string, string>>), "[\"PVyTyqvI4Id5nYo+\"]")]
+        [DataRow(typeof(IList<KeyValuePair<int, int>>), "[\"COeXIi+/gCnEgi6U\"]")]
+        [DataRow(typeof(IList<KeyValuePair<object, object>>), "[\"y6hj7iGE5x+eLypR\"]")]
+        // these hashes are dependent on the target framework - the latest update of hashes is updated to net60
         public void ViewModelTypeMetadata_TypeName(Type type, string expected)
         {
             var typeMetadataSerializer = new ViewModelTypeMetadataSerializer(mapper);
