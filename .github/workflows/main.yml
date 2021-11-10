@@ -35,7 +35,7 @@ jobs:
     - name: Build (Debug)
       run: dotnet build src/Framework/Framework --configuration Debug --no-restore --no-incremental /WarnAsError
     - name: Build Hosting.AspNetCore
-      run: dotnet build src/Framework/Hosting.AspNetCore --no-incremental /WarnAsError --framework net6.0
+      run: dotnet build src/Framework/Hosting.AspNetCore --no-incremental /WarnAsError --framework net5.0
     - name: Build Testing
       run: dotnet build src/Framework/Testing --no-incremental /WarnAsError
     - name: Build Tracing.MiniProfiler
