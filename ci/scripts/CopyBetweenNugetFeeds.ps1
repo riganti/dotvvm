@@ -23,6 +23,8 @@ $packages = @(
     [pscustomobject]@{ Package = "DotVVM.HotReload.Owin"; Directory = "Tools/HotReload/Owin"; Type = "standard" }
 )
 
+Write-Host "Current directory: $PWD"
+
 $webClient = New-Object System.Net.WebClient
 ## Standard packages
 foreach ($package in $packages) {
@@ -33,7 +35,7 @@ foreach ($package in $packages) {
 
     # standard package
     if ($package.Type -eq "standard") {
-        & ./ci/scripts/nuget.exe install $packageId -OutputDirectory .\tools\packages -version $version -DirectDownload -NoCache -DependencyVersion Ignore -source $internalServer | Out-Host
+        & ../ci/scripts/nuget.exe install $packageId -OutputDirectory .\tools\packages -version $version -DirectDownload -NoCache -DependencyVersion Ignore -source $internalServer | Out-Host
         $nupkgFile = dir -s ./tools/packages/$packageId.$version.nupkg | Select -First 1
         Write-Host "Downloaded package located on '$nupkgFile'"
     }
@@ -54,7 +56,7 @@ foreach ($package in $packages) {
     if ($nupkgFile) {
         # upload 
         Write-Host "Uploading package..."
-        & ./ci/scripts/nuget.exe push $nupkgFile -source $server -apiKey $apiKey | Out-Host
+        & ../ci/scripts/nuget.exe push $nupkgFile -source $server -apiKey $apiKey | Out-Host
         Write-Host "Package uploaded to $server."
     }
     if (Test-Path -Path ./tools/packages) {
@@ -76,7 +78,7 @@ foreach ($package in $packages) {
     
     if ($snupkgDownloaded -eq $true){
         Write-Host "Uploading snupkg package..."        
-        & ./ci/scripts/nuget.exe push $snupkgFile -source $server -apiKey $apiKey | Out-Host
+        & ../ci/scripts/nuget.exe push $snupkgFile -source $server -apiKey $apiKey | Out-Host
 		Write-Host "Uploaded snupkg package." 
         try {
 			Remove-Item $snupkgFile
