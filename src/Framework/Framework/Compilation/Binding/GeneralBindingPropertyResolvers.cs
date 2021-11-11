@@ -329,7 +329,13 @@ namespace DotVVM.Framework.Compilation.Binding
                 expr.Type.IsArray ?
                     Expression.ArrayIndex(expr, indexParameter()) :
                 expression.Expression.Type.Implements(typeof(IEnumerable<>), out var ienumerable) ?
-                    (Expression)Expression.Call(typeof(Enumerable).GetMethod("ElementAt", BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(ienumerable.GetGenericArguments()), expression.Expression, indexParameter()) :
+                    (Expression)Expression.Call(
+                        typeof(Enumerable), 
+                        "ElementAt",
+                        ienumerable.GetGenericArguments(),
+                        expression.Expression,
+                        indexParameter()
+                    ) :
                 null;
 
             if (makeIndexer(expression.Expression) is Expression r)

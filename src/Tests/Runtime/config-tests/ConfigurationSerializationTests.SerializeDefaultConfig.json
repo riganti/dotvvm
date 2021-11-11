@@ -661,6 +661,9 @@
       "UniqueID": {
         "type": "System.String"
       },
+      "UsedPropertiesInfo": {
+        "type": "DotVVM.Framework.Compilation.ControlUsedPropertiesInfo, DotVVM.Framework"
+      },
       "UseHistoryApiSpaNavigation": {
         "type": "System.Boolean",
         "isValueInherited": true

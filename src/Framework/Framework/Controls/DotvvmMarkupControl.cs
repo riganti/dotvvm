@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
@@ -73,7 +74,10 @@ namespace DotVVM.Framework.Controls
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             var properties = new KnockoutBindingGroup();
-            foreach (var p in GetDeclaredProperties())
+            var usedProperties =
+                GetValue<ControlUsedPropertiesInfo>(Internal.UsedPropertiesInfoProperty)?.ClientSideUsedProperties
+                    ?? GetDeclaredProperties();
+            foreach (var p in usedProperties)
             {
                 if (p.DeclaringType.IsAssignableFrom(typeof(DotvvmMarkupControl)))
                     continue;
