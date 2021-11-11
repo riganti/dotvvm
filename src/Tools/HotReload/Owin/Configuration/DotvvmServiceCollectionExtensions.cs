@@ -25,7 +25,12 @@ namespace DotVVM.Framework.Configuration
             services.Services.AddTransient<ResourceManager>(provider =>
             {
                 var manager = new ResourceManager(provider.GetRequiredService<DotvvmResourceRepository>());
-                manager.AddRequiredResource("dotvvm-hotreload");
+                var config = provider.GetRequiredService<DotvvmConfiguration>();
+                if (config.Debug)
+                {
+                    manager.AddRequiredResource("dotvvm-hotreload");
+                }
+
                 return manager;
             });
 

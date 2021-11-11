@@ -26,7 +26,7 @@
         
         var origFetch = window.fetch;
         window.fetch = function(url, req) { 
-            if (!url.match(/csrf/)) {           
+            if (!url.match(/csrf/) && !url.match(/hotReloadHub/)) {           
                 RequestCount(RequestCount() + 1);
             }
 

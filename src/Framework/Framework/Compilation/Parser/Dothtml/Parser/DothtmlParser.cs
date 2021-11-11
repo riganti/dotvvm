@@ -159,7 +159,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             // check element hierarchy
             if (ElementHierarchy.Count > 1)
             {
-                ElementHierarchy.Peek().AddError($"Unexpected end of file! The tag '<{ElementHierarchy.Peek().CastTo<DothtmlElementNode>().TagName}>' was not closed!");
+                ElementHierarchy.Peek().AddError($"Unexpected end of file! The tag '<{ElementHierarchy.Peek().CastTo<DothtmlElementNode>().FullTagName}>' was not closed!");
             }
 
             ResolveParents(root);

@@ -6,7 +6,7 @@
     "http://localhost:16019/"
   ],
   "testRunOptions": {
-    "runInParallel": true,
+    "runInParallel": false,
     "testAttemptsCount": 2
   },
   "logging": {

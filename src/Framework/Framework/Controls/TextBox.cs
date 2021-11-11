@@ -107,15 +107,6 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<TextBoxType, TextBox>(c => c.Type, TextBoxType.Normal);
 
         /// <summary>
-        /// Gets or sets whether the viewmodel property will be updated after the key is pressed. 
-        /// By default, the viewmodel is updated after the control loses its focus.
-        /// </summary>
-        [MarkupOptions(AllowBinding = false)]
-        [Obsolete("Use `UpdateTextOnInput` instead.")]
-        public static readonly DotvvmProperty UpdateTextAfterKeydownProperty =
-            DotvvmProperty.Register<bool, TextBox>("UpdateTextAfterKeydown", false);
-        
-        /// <summary>
         /// Gets or sets whether the viewmodel property will be updated immediately after change. 
         /// By default, the viewmodel is updated after the control loses its focus.
         /// </summary>
@@ -126,27 +117,9 @@ namespace DotVVM.Framework.Controls
             set { SetValue(UpdateTextOnInputProperty, value); }
         }
         public static readonly DotvvmProperty UpdateTextOnInputProperty =
-            DotvvmPropertyWithFallback.Register<bool, TextBox>(
+            DotvvmProperty.Register<bool, TextBox>(
                 nameof(UpdateTextOnInput),
-#pragma warning disable CS0618
-                UpdateTextAfterKeydownProperty,
-#pragma warning restore CS0618
                 isValueInherited: true);
-
-        /// <summary>
-        /// Gets or sets the type of value being formatted - Number or DateTime.
-        /// </summary>
-        [MarkupOptions(AllowBinding = false)]
-        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
-        public FormatValueType ValueType
-        {
-            get { return (FormatValueType)GetValue(ValueTypeProperty)!; }
-            set { SetValue(ValueTypeProperty, value); }
-        }
-
-        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
-        public static readonly DotvvmProperty ValueTypeProperty =
-            DotvvmProperty.Register<FormatValueType, TextBox>(t => t.ValueType);
 
         public static FormatValueType ResolveValueType(IValueBinding? binding)
         {
@@ -172,16 +145,7 @@ namespace DotVVM.Framework.Controls
 
             if (!isTypeImplicitlyFormatted || implicitFormatString != null)
             {
-#pragma warning disable
-                if (ValueType != FormatValueType.Text)
-                {
-                    resolvedValueType = ValueType;
-                }
-#pragma warning restore
-                else
-                {
-                    resolvedValueType = ResolveValueType(GetValueBinding(TextProperty));
-                }
+                resolvedValueType = ResolveValueType(GetValueBinding(TextProperty));
             }
 
             if (resolvedValueType != FormatValueType.Text)

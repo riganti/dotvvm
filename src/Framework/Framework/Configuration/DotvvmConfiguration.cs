@@ -106,17 +106,11 @@ namespace DotVVM.Framework.Configuration
         private bool _clientSideValidation = true;
 
         /// <summary>
-        /// Gets or sets whether navigation in the SPA pages should use History API. Default value is <c>true</c>.
+        /// Gets or sets whether navigation in the SPA pages should use History API. Always true
         /// </summary>
-        [JsonProperty("useHistoryApiSpaNavigation", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        [DefaultValue(true)]
+        [JsonIgnore]
         [Obsolete("The UseHistoryApiSpaNavigation property is not supported - the classic SPA mode (URLs with #/) was removed from DotVVM, and the History API is the default and only option now. See https://www.dotvvm.com/docs/3.0/pages/concepts/layout/single-page-applications-spa#changes-to-spas-in-dotvvm-30 for more details.")]
-        public bool UseHistoryApiSpaNavigation
-        {
-            get { return _useHistoryApiSpaNavigation; }
-            set { ThrowIfFrozen(); _useHistoryApiSpaNavigation = value; }
-        }
-        private bool _useHistoryApiSpaNavigation = true;
+        public bool UseHistoryApiSpaNavigation => true;
 
         /// <summary>
         /// Gets or sets the configuration for experimental features.

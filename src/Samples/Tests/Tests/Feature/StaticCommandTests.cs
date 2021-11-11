@@ -780,7 +780,10 @@ namespace DotVVM.Samples.Tests.Feature
 
                 var rows = GetSortedRow(browser, "RemoveRange (2,5)");
                 var column = GetColumnContent(rows, 0);
-                browser.WaitFor(() => Assert.Equal(5, column.Count), 500);
+                browser.WaitFor(() => {
+                    column = GetColumnContent(SelectRows(browser), 0);
+                    Assert.Equal(5, column.Count);
+                }, 500);
                 Assert.Equal(new List<string> { "1", "2", "8", "9", "10" }, column);
             });
         }
@@ -802,11 +805,17 @@ namespace DotVVM.Samples.Tests.Feature
         {
             var orderByBtn = browser.First($"//input[@value='{btn}']", By.XPath);
             orderByBtn.Click();
+            return SelectRows(browser);
+        }
+
+        private static IElementWrapperCollection<IElementWrapper, IBrowserWrapper> SelectRows(IBrowserWrapper browser)
+        {
             var filteredGrid = browser.First("[data-ui=grid]");
             var rows = filteredGrid.FindElements("tbody tr", By.CssSelector);
             return rows;
         }
-        protected List<string> RowContent(IElementWrapperCollection<IElementWrapper,IBrowserWrapper> rows, int trIndex, ICollection<int> cols)
+
+        protected List<string> RowContent(IElementWrapperCollection<IElementWrapper, IBrowserWrapper> rows, int trIndex, ICollection<int> cols)
         {
             return RowContent(rows.ElementAt(trIndex), cols);
         }
@@ -823,15 +832,6 @@ namespace DotVVM.Samples.Tests.Feature
             return content;
         }
         public List<string> GetColumnContent(IElementWrapperCollection<IElementWrapper, IBrowserWrapper> rows, int column)
-        {
-            var content = new List<string>();
-
-            foreach (var row in rows)
-            {
-                content.Add(row.FindElements("td").ElementAt(column).GetInnerText());
-            }
-
-            return content;
-        }
+            => rows.Select(row => row.FindElements("td").ElementAt(column).GetInnerText()).ToList();
     }
 }
