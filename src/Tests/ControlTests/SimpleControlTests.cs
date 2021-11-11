@@ -327,6 +327,25 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task Decorator()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <dot:Decorator class=c1>
+                    <div /> 
+                </dot:Decorator>
+                <dot:Decorator class=c2>
+                    <%-- comment --%>
+                    <div /> 
+                </dot:Decorator>
+                <dot:Decorator class=c3>
+                    <!-- comment -->
+                    <div /> 
+                </dot:Decorator>
+            ", directives: "@js dotvvm.internal");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]

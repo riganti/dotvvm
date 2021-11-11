@@ -74,6 +74,10 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown if some attributes were already written in the HtmlWriter.</exception>
         void WriteUnencodedText(string text);
+        /// <summary>
+        /// Writes the unencoded text which is treated as whitespace. Does not throw an exception if there are attributes written in the writer.
+        /// </summary>
+        void WriteUnencodedWhitespace(string text);
 
         /// <summary>
         /// Writes the specified HTML attribute and value (e.g. href="myUrl"). 
