@@ -9,15 +9,15 @@ Param(
 
 ### Configuration
 $packages = @(
-    [pscustomobject]@{ Package = "DotVVM.Core"; Directory = "DotVVM.Core"; Type = "standard" },
-    [pscustomobject]@{ Package = "DotVVM"; Directory = "DotVVM.Framework" ; Type = "standard" },
-    [pscustomobject]@{ Package = "DotVVM.Owin"; Directory = "DotVVM.Framework.Hosting.Owin"; Type = "standard" },
-    [pscustomobject]@{ Package = "DotVVM.AspNetCore"; Directory = "DotVVM.Framework.Hosting.AspNetCore" ; Type = "standard" },
-    [pscustomobject]@{ Package = "DotVVM.Testing"; Directory = "DotVVM.Framework.Testing" ; Type = "standard" },
-    [pscustomobject]@{ Package = "DotVVM.CommandLine"; Directory = "DotVVM.CommandLine"; Type = "tool" },
+    [pscustomobject]@{ Package = "DotVVM.Core"; Directory = "Framework/Core"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM"; Directory = "Framework/Framework" ; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.Owin"; Directory = "Framework/Hosting.Owin"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.AspNetCore"; Directory = "Framework/Hosting.AspNetCore" ; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.Testing"; Directory = "Framework/Testing" ; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.CommandLine"; Directory = "Tools/CommandLine"; Type = "tool" },
     [pscustomobject]@{ Package = "DotVVM.Templates"; Directory = "Templates" ; Type = "template" },
-    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.AspNetCore"; Directory = "DotVVM.Framework.Api.Swashbuckle.AspNetCore"; Type = "standard" },
-    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.Owin"; Directory = "DotVVM.Framework.Api.Swashbuckle.Owin"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.AspNetCore"; Directory = "Api/Swashbuckle.AspNetCore"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.Owin"; Directory = "Api/Swashbuckle.Owin"; Type = "standard" },
     [pscustomobject]@{ Package = "DotVVM.HotReload"; Directory = "Tools/HotReload/Common"; Type = "standard" },
     [pscustomobject]@{ Package = "DotVVM.HotReload.AspNetCore"; Directory = "Tools/HotReload/AspNetCore"; Type = "standard" },
     [pscustomobject]@{ Package = "DotVVM.HotReload.Owin"; Directory = "Tools/HotReload/Owin"; Type = "standard" }
