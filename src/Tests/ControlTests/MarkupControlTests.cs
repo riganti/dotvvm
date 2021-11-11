@@ -34,9 +34,9 @@ namespace DotVVM.Framework.Tests.ControlTests
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
 
-                <cc:CustomControlWithCommand DataContext={value: Integer} Click={staticCommand: s.Save(_parent.Integer)} />
+                <cc:CustomControlWithCommand DataContext={value: Integer} Click={staticCommand: s.Save(_parent.Integer)} Another={value: _this} />
                 <dot:Repeater DataSource={value: Collection}>
-                    <cc:CustomControlWithCommand Click={staticCommand: s.Save(_this)} />
+                    <cc:CustomControlWithCommand Click={staticCommand: s.Save(_this)} Another={value: _root.Integer} />
                 </dot:Repeater>
                 ",
                 directives: $"@service s = {typeof(TestService)}",
@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Tests.ControlTests
                         @viewModel int
                         @baseType DotVVM.Framework.Tests.ControlTests.CustomControlWithCommand
                         @wrapperTag div
-                        <dot:Button Click={staticCommand: _control.Click()} />"
+                        <dot:Button Click={staticCommand: _control.Click()} Text={resource: $'Button with number = {_control.Another}'} />"
                 }
             );
 
@@ -119,6 +119,9 @@ namespace DotVVM.Framework.Tests.ControlTests
     {
         public static readonly DotvvmProperty ClickProperty =
             DotvvmProperty.Register<Command, CustomControlWithCommand>("Click");
+
+        public static readonly DotvvmProperty AnotherProperty =
+            DotvvmProperty.Register<int, CustomControlWithCommand>("Another");
     }
 
     public class CustomControlWithProperty : DotvvmMarkupControl
