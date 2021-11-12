@@ -30,8 +30,8 @@ namespace DotVVM.Framework.Controls
             {
                 writer.WriteKnockoutDataBindComment("template", new KnockoutBindingGroup {
                     { "foreach", ForeachExpression },
-                    { "name", ItemTemplateId ?? string.Empty, true },
-                    { "hierarchyRole", IsRoot ? "Root" : "Child", true }
+                    { "name", ItemTemplateId ?? string.Empty },
+                    { "hierarchyRole", IsRoot ? "Root" : "Child" }
                 }.ToString());
             }
             else
