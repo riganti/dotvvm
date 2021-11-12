@@ -335,7 +335,7 @@ namespace DotVVM.Framework.Controls
                     ForeachExpression = foreachExpression
                 };
                 levelWrapper.Children.Add(level);
-                level.SetProperty(RenderSettings.ModeProperty, RenderMode.Client);
+                level.SetProperty(RenderSettings.ModeProperty, new ValueOrBinding<RenderMode>(RenderMode.Client));
                 level.SetProperty(IncludeInPageProperty,
                     (IValueBinding)ItemChildrenBinding!.GetProperty<DataSourceLengthBinding>().Binding);
 
