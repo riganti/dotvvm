@@ -20,26 +20,23 @@ jobs:
         path: ~/.nuget/packages
         key: ${{ runner.os }}-nuget
     - uses: actions/checkout@v2
-    - name: Setup .NET Core  5.0.300
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 5.0.300
-    - name: Build Hosting.AspNetCore
-      run: dotnet build src/Framework/Hosting.AspNetCore --no-incremental /WarnAsError --framework net5.0
     - name: Setup .NET Core  ${{ env.DOTNET_VERSION }}
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+
     - name: Install dependencies
       run: dotnet restore ci/linux/Linux.sln
     - name: Build (without warnings)
       run: dotnet build src/Framework/Framework --configuration Release --no-restore --no-incremental /property:WarningLevel=0
     - name: Build
-      run: dotnet build src/Framework/Framework --configuration Release --no-restore --no-incremental /WarnAsError
+      run: dotnet build src/Framework/Framework --configuration Release --no-restore --no-incremental --framework netstandard2.1 /WarnAsError
     - name: Build (Debug)
-      run: dotnet build src/Framework/Framework --configuration Debug --no-restore --no-incremental /WarnAsError
+      run: dotnet build src/Framework/Framework --configuration Debug --no-restore --no-incremental --framework netstandard2.1 /WarnAsError
     - name: Build Testing
-      run: dotnet build src/Framework/Testing --no-incremental /WarnAsError
+      run: dotnet build src/Framework/Testing --no-incremental --framework netstandard2.1 /WarnAsError
+    - name: Build Hosting.AspNetCore
+      run: dotnet build src/Framework/Hosting.AspNetCore --no-incremental /WarnAsError --framework net5.0
     - name: Build Tracing.MiniProfiler
       run: dotnet build src/Tracing/MiniProfiler.AspNetCore --no-incremental /WarnAsError
     - name: Build Tracing.ApplicationInsights

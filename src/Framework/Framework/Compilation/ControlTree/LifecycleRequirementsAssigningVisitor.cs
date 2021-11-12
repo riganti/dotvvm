@@ -47,5 +47,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     control.SetProperty(new ResolvedPropertyValue(CompileTimeLifecycleRequirementsProperty, value));
             }
         }
+
+        /// <summary> Clear cache when hot reload happens </summary>
+        internal static void ClearCaches(Type[] types)
+        {
+            foreach (var t in types)
+                requirementsCache.TryRemove(t, out _);
+        }
     }
 }
