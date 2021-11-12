@@ -47,6 +47,11 @@ namespace DotVVM.Framework.Tests.Runtime
                     return $"{msg}\n\n{inner}";
             }
         }
+        public static void CheckException(this OutputChecker check, Exception exception, string checkName = null, string fileExtension = "txt", [CallerMemberName] string memberName = null, [CallerFilePath] string sourceFilePath = null)
+        {
+            var error = FormatException(exception);
+            check.CheckString(error, checkName, fileExtension, memberName, sourceFilePath);
+        }
 
         public static void CheckException(this OutputChecker check, Action action, string checkName = null, string fileExtension = "txt", [CallerMemberName] string memberName = null, [CallerFilePath] string sourceFilePath = null)
         {
@@ -56,8 +61,7 @@ namespace DotVVM.Framework.Tests.Runtime
             }
             catch (Exception exception)
             {
-                var error = FormatException(exception);
-                check.CheckString(error, checkName, fileExtension, memberName, sourceFilePath);
+                check.CheckException(exception, checkName, fileExtension, memberName, sourceFilePath);
                 return;
             }
             throw new Exception("Expected test to fail.");

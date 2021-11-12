@@ -8,6 +8,9 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Compilation.Validation;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Controls
 {
@@ -37,12 +40,17 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            // do nothing
+            // render nothing
+
+            // we must do this validation runtime, not compile time, since Decorators are often used as
+            // parameters to other controls which assign the children later.
+            if (Children.Count == 0)
+                throw new DotvvmControlException(this, $"{GetType().Name} must have a child control");
         }
 
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            // do nothing
+            // render nothing
         }
 
         public static DotvvmControl ApplyDecorators(DotvvmControl control, IEnumerable<Decorator>? decorators)
@@ -64,5 +72,18 @@ namespace DotVVM.Framework.Controls
             decoratorInstance.Children.Add(control);
             return decoratorInstance;
         }
+
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        {
+            // check that decorator only has one non-whitespace child
+            var children = control.Content.Where(c => !c.IsOnlyWhitespace()).ToArray();
+            foreach (var child in children.Skip(1))
+            {
+                yield return new ControlUsageError(
+                    $"{control.Metadata.Type.Name} must have only one child control.", child.DothtmlNode);
+            }
+        }
+        
     }
 }
