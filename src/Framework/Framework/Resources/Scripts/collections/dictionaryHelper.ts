@@ -14,7 +14,7 @@ export function getItem<Key, Value>(dictionary: Dictionary<Key, Value>, identifi
         throw Error("Provided key \"" + identifier + "\" is not present in the dictionary!");
     }
 
-    return ko.unwrap(dictionary[index]).Value;
+    return ko.unwrap(ko.unwrap(dictionary[index]).Value);
 }
 
 export function remove<Key, Value>(observable: any, identifier: Key): boolean {
