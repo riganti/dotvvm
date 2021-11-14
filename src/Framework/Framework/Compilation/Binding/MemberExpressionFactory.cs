@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Compilation.Binding
             this.importedNamespaces = importedNamespaces ?? ImmutableList<NamespaceImport>.Empty;
         }
 
-        public Expression? GetMember(Expression target, string name, Type[]? typeArguments = null, bool throwExceptions = true, bool onlyMemberTypes = false)
+        public Expression? GetMember(Expression target, string name, Type[]? typeArguments = null, bool throwExceptions = true, bool onlyMemberTypes = false, bool disableExtensionMethods = false)
         {
             if (target is MethodGroupExpression)
                 throw new Exception("Cannot access member on method group.");
@@ -44,41 +44,53 @@ namespace DotVVM.Framework.Compilation.Binding
             if (!isGeneric && !onlyMemberTypes && typeof(DotvvmBindableObject).IsAssignableFrom(target.Type) &&
                 GetDotvvmPropertyMember(target, name) is Expression result) return result;
 
-            var members = type.GetAllMembers(BindingFlags.Public | (isStatic ? BindingFlags.Static : BindingFlags.Instance))
-                .Where(m => ((isGeneric && m is TypeInfo) ? genericName : name) == m.Name)
-                .ToArray();
+            var bindingFlags = BindingFlags.Public | (isStatic ? BindingFlags.Static : BindingFlags.Instance);
+            // vast majority of member accesses are property access, so we'll just try type.GetProperty as it's
+            // somewhat faster than getting all members. However, it may throw an exception if it's ambiguous, so we'll
+            // swallow that and handle the error ourselves
+            try
+            {
+                var p = type.GetProperty(name, bindingFlags);
+                if (p is {})
+                    return Expression.Property(isStatic ? null : target, p);
+            }
+            catch { }
+
+            var members = new List<MemberInfo>();
+            foreach (var m in type.GetAllMembers())
+                if (((isGeneric && m is TypeInfo) ? genericName : name) == m.Name)
+                    members.Add(m);
 
             var isExtension = false;
-            if (members.Length == 0)
+            if (members.Count == 0)
             {
-                // We did not find any match in regular methods => try extension methods
-                var extensions = GetAllExtensionMethods().Where(m => m.Name == name && ExtensionMethodsFilter(target, m)).ToArray();
-                members = extensions;
-                isExtension = true;
+                if (!disableExtensionMethods)
+                {
+                    // We did not find any match in regular methods => try extension methods
+                    members = GetAllExtensionMethods().Where(m => m.Name == name && ExtensionMethodsFilter(target, m)).ToList<MemberInfo>();
+                    isExtension = true;
+                }
 
-                if (members.Length == 0 && throwExceptions)
+                if (members.Count == 0 && throwExceptions)
                     throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }.");
-                else if (members.Length == 0 && !throwExceptions)
+                else if (members.Count == 0 && !throwExceptions)
                     return null;
             }
-            if (members.Length == 1)
+            if (members.Count == 1)
             {
-                if (!(members[0] is TypeInfo) && onlyMemberTypes) { throw new Exception("Only type names are supported."); }
+                if (members[0] is not Type && onlyMemberTypes) { throw new Exception("Only type names are supported."); }
 
                 var instance = isStatic ? null : target;
-                if (members[0] is PropertyInfo)
+                if (members[0] is PropertyInfo property)
                 {
-                    var property = members[0] as PropertyInfo;
                     return Expression.Property(instance, property);
                 }
-                else if (members[0] is FieldInfo)
+                else if (members[0] is FieldInfo field)
                 {
-                    var field = members[0] as FieldInfo;
                     return Expression.Field(instance, field);
                 }
-                else if (members[0] is TypeInfo)
+                else if (members[0] is Type nonGenericType)
                 {
-                    var nonGenericType = (TypeInfo)members[0];
                     return isGeneric
                         ? new StaticClassIdentifierExpression(nonGenericType.MakeGenericType(typeArguments))
                         : new StaticClassIdentifierExpression(nonGenericType.UnderlyingSystemType);
@@ -221,9 +233,9 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private MethodRecognitionResult FindValidMethodOverloads(Expression? target, Type type, string name, BindingFlags flags, Type[]? typeArguments, Expression[] arguments, IDictionary<string, Expression>? namedArgs)
         {
-            var methods = FindValidMethodOverloads(type.GetAllMembers(flags).OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, arguments, namedArgs).ToList();
+            var methods = FindValidMethodOverloads(type.GetAllMethods(flags), name, false, typeArguments, arguments, namedArgs);
 
-            if (methods.Count == 1) return methods.FirstOrDefault();
+            if (methods.Count == 1) return methods[0];
             if (methods.Count == 0)
             {
                 // We did not find any match in regular methods => try extension methods
@@ -231,12 +243,11 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     // Change to a static call
                     var newArguments = new[] { target }.Concat(arguments).ToArray();
-                    var extensions = FindValidMethodOverloads(GetAllExtensionMethods().OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, newArguments, namedArgs)
-                        .Select(method => { method.IsExtension = true; return method; }).ToList();
+                    var extensions = FindValidMethodOverloads(GetAllExtensionMethods(), name, true, typeArguments, newArguments, namedArgs);
 
                     // We found an extension method
                     if (extensions.Count == 1)
-                        return extensions.FirstOrDefault();
+                        return extensions[0];
 
                     target = null;
                     methods = extensions;
@@ -262,19 +273,27 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private IEnumerable<MethodInfo> GetAllExtensionMethods()
         {
-            foreach (var ns in importedNamespaces.Select(ns => ns.Namespace).Distinct())
-                foreach (var method in extensionMethodsCache.GetExtensionsForNamespace(ns))
-                    yield return method;
+            return extensionMethodsCache.GetExtensionsForNamespaces(importedNamespaces.Select(ns => ns.Namespace).Distinct().ToArray());
         }
 
-        private IEnumerable<MethodRecognitionResult> FindValidMethodOverloads(IEnumerable<MethodInfo> methods, Type[]? typeArguments, Expression[] arguments, IDictionary<string, Expression>? namedArgs)
-            => from m in methods
-               let r = TryCallMethod(m, typeArguments, arguments, namedArgs)
-               where r != null
-               orderby r.CastCount descending, r.AutomaticTypeArgCount
-               select r;
+        private List<MethodRecognitionResult> FindValidMethodOverloads(IEnumerable<MethodInfo> methods, string name, bool isExtension, Type[]? typeArguments, Expression[] arguments, IDictionary<string, Expression>? namedArgs)
+        {
+            var result = new List<MethodRecognitionResult>();
+            foreach (var m in methods)
+            {
+                if (m is null || m.Name != name)
+                    continue;
+                var r = TryCallMethod(m, typeArguments, arguments, namedArgs);
+                if (r is {})
+                {
+                    r.IsExtension = isExtension;
+                    result.Add(r);
+                }
+            }
+            return result;
+        }
 
-        class MethodRecognitionResult
+        sealed class MethodRecognitionResult
         {
             public MethodRecognitionResult(int automaticTypeArgCount, int castCount, Expression[] arguments, MethodInfo method, int paramsArrayCount, bool isExtension, bool hasParamsAttribute)
             {
@@ -299,11 +318,11 @@ namespace DotVVM.Framework.Compilation.Binding
         private MethodRecognitionResult? TryCallMethod(MethodInfo method, Type[]? typeArguments, Expression[] positionalArguments, IDictionary<string, Expression>? namedArguments)
         {
             var parameters = method.GetParameters();
-            var hasParamsArrayAttributes = parameters.LastOrDefault()?.GetCustomAttribute(ParamArrayAttributeType) is object;
 
             if (!TryPrepareArguments(parameters, positionalArguments, namedArguments, out var args, out var castCount))
                 return null;
 
+            var hasParamsArrayAttributes = parameters.LastOrDefault()?.IsDefined(ParamArrayAttributeType) == true;
             int automaticTypeArgs = 0;
             // resolve generic parameters
             if (method.ContainsGenericParameters)
@@ -386,7 +405,7 @@ namespace DotVVM.Framework.Compilation.Binding
             castCount = 0;
             arguments = null;
             var addedArguments = 0;
-            var hasParamsArrayAttribute = parameters.LastOrDefault()?.GetCustomAttribute(ParamArrayAttributeType) is object;
+            var hasParamsArrayAttribute = parameters.LastOrDefault()?.IsDefined(ParamArrayAttributeType) == true;
 
             // For methods without `params` arguments count must be at least equal to parameters count
             if (!hasParamsArrayAttribute && parameters.Length < positionalArguments.Length)
@@ -433,7 +452,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     castCount++;
                     arguments[i] = Expression.Constant(parameters[i].DefaultValue, parameters[i].ParameterType);
                 }
-                else if (parameters[i].GetCustomAttribute(ParamArrayAttributeType) is object)
+                else if (parameters[i].IsDefined(ParamArrayAttributeType))
                 {
                     break;
                 }

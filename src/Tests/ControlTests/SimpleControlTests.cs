@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Tests.ControlTests
     [TestClass]
     public class SimpleControlTests
     {
-        ControlTestHelper cth = new ControlTestHelper(config: config => {
+        static readonly ControlTestHelper cth = new ControlTestHelper(config: config => {
             config.RouteTable.Add("WithParams", "WithParams/{A}-{B:int}/{C?}", "WithParams.dothtml", new { B = 1 });
             config.RouteTable.Add("Simple", "Simple", "Simple.dothtml");
         });

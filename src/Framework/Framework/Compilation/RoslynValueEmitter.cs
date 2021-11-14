@@ -236,7 +236,7 @@ namespace DotVVM.Framework.Compilation
         };
         internal static bool IsImmutableObject(Type t) =>
             typeof(IBinding).IsAssignableFrom(t)
-              || t.GetCustomAttribute<HandleAsImmutableObjectInDotvvmPropertyAttribute>() is object
+              || t.IsDefined(typeof(HandleAsImmutableObjectInDotvvmPropertyAttribute), true)
               || t.IsGenericType && ImmutableContainers.Contains(t.GetGenericTypeDefinition()) && t.GenericTypeArguments.All(IsImmutableObject);
         private static int _viewObjectsCount = 0;
         private static int _viewObjectsCount_PropArray = 0;

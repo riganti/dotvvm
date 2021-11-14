@@ -17,6 +17,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Utils
 {
@@ -64,6 +65,15 @@ namespace DotVVM.Framework.Utils
                 return type.GetMembers(flags).Concat(type.GetInterfaces().SelectMany(t => t.GetMembers(flags)));
             else
                 return type.GetMembers(flags);
+        }
+
+        ///<summary> Gets all methods from the type, including inherited classes, implemented interfaces and interfaces inherited by the interface </summary>
+        public static IEnumerable<MethodInfo> GetAllMethods(this Type type, BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
+        {
+            if (type.IsInterface)
+                return type.GetMethods(flags).Concat(type.GetInterfaces().SelectMany(t => t.GetMethods(flags)));
+            else
+                return type.GetMethods(flags);
         }
 
         /// <summary>
@@ -382,8 +392,16 @@ namespace DotVVM.Framework.Utils
         public static T GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
             (T)attributeProvider.GetCustomAttributes(typeof(T), inherit).FirstOrDefault();
 
-        public static IEnumerable<T> GetCustomAttributes<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
-            attributeProvider.GetCustomAttributes(typeof(T), inherit).Cast<T>();
+        public static T[] GetCustomAttributes<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true)
+        {
+            var resultObj = attributeProvider.GetCustomAttributes(typeof(T), inherit);
+            var resultT = new T[resultObj.Length];
+            for (int i = 0; i < resultObj.Length; i++)
+            {
+                resultT[i] = (T)resultObj[i];
+            }
+            return resultT;
+        }
 
 
         private static ConcurrentDictionary<Type, string> cache_GetTypeHash = new ConcurrentDictionary<Type, string>();
@@ -409,7 +427,7 @@ namespace DotVVM.Framework.Utils
                     Expression.Invoke(Expression.Convert(delegateParameter, type), d.Method.GetParameters().Select((p, i) =>
                         Expression.Convert(Expression.ArrayIndex(argsParameter, Expression.Constant(i)), p.ParameterType))).ConvertToObject(),
                 delegateParameter, argsParameter)
-                .Compile())
+                .CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression))
             .Invoke(d, args);
 
         public static Type GetResultType(this MemberInfo member) =>

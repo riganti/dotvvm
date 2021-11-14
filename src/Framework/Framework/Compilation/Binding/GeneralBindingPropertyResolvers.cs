@@ -158,18 +158,6 @@ namespace DotVVM.Framework.Compilation.Binding
             return new ExpectedTypeBindingProperty(prop.IsBindingProperty ? (prop.PropertyType.GenericTypeArguments.SingleOrDefault() ?? typeof(object)) : prop.PropertyType);
         }
 
-        public BindingResolverCollection GetAdditionalResolversFromProperty(AssignedPropertyBindingProperty? property = null, DataContextStack? stack = null)
-        {
-            var prop = property?.DotvvmProperty;
-            if (prop == null) return new BindingResolverCollection(Enumerable.Empty<Delegate>());
-
-            return new BindingResolverCollection(
-                prop.GetAttributes<BindingCompilationOptionsAttribute>()
-                .SelectMany(o => o.GetResolvers())
-                .Concat(stack?.EnumerableItems().Reverse().SelectMany(s => s.BindingPropertyResolvers) ?? Enumerable.Empty<Delegate>())
-                .ToImmutableArray());
-        }
-
         public BindingCompilationRequirementsAttribute GetAdditionalResolversFromProperty(AssignedPropertyBindingProperty property)
         {
             var prop = property?.DotvvmProperty;

@@ -46,9 +46,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         protected virtual IEnumerable<ViewModelPropertyMap> GetProperties(Type type)
         {
-            foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance).OrderBy(p => p.Name, StringComparer.Ordinal))
+            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            Array.Sort(properties, (a, b) => StringComparer.Ordinal.Compare(a.Name, b.Name));
+            foreach (var property in properties)
             {
-                if (property.GetCustomAttribute<JsonIgnoreAttribute>() != null) continue;
+                if (property.IsDefined(typeof(JsonIgnoreAttribute))) continue;
 
                 var propertyMap = new ViewModelPropertyMap(
                     property,

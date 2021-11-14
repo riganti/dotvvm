@@ -28,13 +28,13 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
     [TestClass]
     public class DefaultControlTreeResolverTests
     {
-        private DotvvmConfiguration configuration;
+        private static readonly DotvvmConfiguration configuration;
 
-        [TestInitialize()]
-        public void TestInit()
+        static DefaultControlTreeResolverTests()
         {
             configuration = DotvvmTestHelper.CreateConfiguration();
             configuration.Markup.AddCodeControls("cc", typeof(ClassWithInnerElementProperty));
+            configuration.Freeze();
         }
 
         [TestMethod]
@@ -737,7 +737,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         }
 
         private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml", bool checkErrors = false) =>
-            DotvvmTestHelper.ParseResolvedTree(markup, fileName, this.configuration, checkErrors);
+            DotvvmTestHelper.ParseResolvedTree(markup, fileName, configuration, checkErrors);
 
     }
 

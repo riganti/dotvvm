@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
@@ -541,7 +541,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 if (Variables.TryGetValue(name, out var variable))
                     return variable;
-                if (Scope is object && memberExpressionFactory.GetMember(Scope, node.Name, typeParameters, throwExceptions: false, onlyMemberTypes: ResolveOnlyTypeName) is Expression scopeMember)
+                if (Scope is object && memberExpressionFactory.GetMember(Scope, node.Name, typeParameters, throwExceptions: false, onlyMemberTypes: ResolveOnlyTypeName, disableExtensionMethods: true) is Expression scopeMember)
                     return scopeMember;
                 return Registry.Resolve(node.Name, throwOnNotFound: false);
             }
