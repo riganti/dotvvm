@@ -18,8 +18,6 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Compiles the view to a syntax tree and adds it to the compilation
         /// </summary>
-        (ControlBuilderDescriptor, Func<CSharpCompilation>) CompileView(string sourceCode, string fileName, CSharpCompilation compilation, string namespaceName, string className);
-
-        CSharpCompilation CreateCompilation(string assemblyName);
+        (ControlBuilderDescriptor, Func<Delegate>) CompileView(string sourceCode, string fileName, string namespaceName, string className);
     }
 }

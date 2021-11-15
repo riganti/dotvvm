@@ -19,36 +19,42 @@ using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Controls;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Compilation
 {
+    public class BlockInfo
+    {
+        public string Name { get; }
+        public Type ReturnType { get; }
+        public ParameterExpression[] Parameters { get; }
+        public Dictionary<string, ParameterExpression> Variables { get; set; } = new();
+        public List<Expression> Expressions { get; set; } = new();
+
+        public BlockInfo(string name, Type returnType, ParameterExpression[] parameters)
+        {
+            ReturnType = returnType;
+            Parameters = parameters;
+            Name = name;
+        }
+    }
+
     public class DefaultViewCompilerCodeEmitter
     {
-
-        public DefaultViewCompilerCodeEmitter()
-        {
-            this.valueEmitter = new RoslynValueEmitter(ParseTypeName);
-        }
+        private static Type[] emptyTypeArguments = new Type[] { };
 
         private int CurrentControlIndex;
-
-        private List<StatementSyntax> CurrentStatements
-        {
-            get { return methods.Peek().Statements; }
-        }
 
         public const string ControlBuilderFactoryParameterName = "controlBuilderFactory";
         public const string ServiceProviderParameterName = "services";
         public const string BuildTemplateFunctionName = "BuildTemplate";
-        protected readonly RoslynValueEmitter valueEmitter;
         private Dictionary<GroupedDotvvmProperty, string> cachedGroupedDotvvmProperties = new Dictionary<GroupedDotvvmProperty, string>();
         private ConcurrentDictionary<(Type obj, string argTypes), string> injectionFactoryCache = new ConcurrentDictionary<(Type obj, string argTypes), string>();
-        private Stack<EmitterMethodInfo> methods = new Stack<EmitterMethodInfo>();
-        private List<EmitterMethodInfo> outputMethods = new List<EmitterMethodInfo>();
-        public SyntaxTree? SyntaxTree { get; private set; }
-        public ControlBuilderDescriptor? Descriptor { get; set; }
-        public TypeSyntax? ResultControlTypeSyntax { get; set; }
+        private Stack<BlockInfo> BlockStack = new();
+        private ParameterExpression servicesParameter;
+        private List<BlockInfo> outputBlocks = new();
+        public SyntaxTree SyntaxTree { get; private set; }
+        public ControlBuilderDescriptor Descriptor { get; set; }
+        public Type? ResultControlType { get; set; }
 
         private ConcurrentDictionary<Assembly, string> usedAssemblies = new ConcurrentDictionary<Assembly, string>();
         private static int assemblyIdCtr = 0;
@@ -57,308 +63,132 @@ namespace DotVVM.Framework.Compilation
             get { return usedAssemblies; }
         }
 
-        [return: NotNullIfNotNull("type")]
-        public string? UseType(Type? type)
-        {
-            if (type == null) return null;
-            UseType(type.BaseType);
-            return usedAssemblies.GetOrAdd(type.Assembly, _ => "Asm_" + Interlocked.Increment(ref assemblyIdCtr));
-        }
-
         private List<MemberDeclarationSyntax> otherDeclarations = new List<MemberDeclarationSyntax>();
 
-        public string EmitCreateVariable(ExpressionSyntax expression)
+        public ParameterExpression EmitCreateVariable(Expression expression)
         {
             var name = "c" + CurrentControlIndex;
             CurrentControlIndex++;
 
-            CurrentStatements.Add(
-                SyntaxFactory.LocalDeclarationStatement(
-                    SyntaxFactory.VariableDeclaration(SyntaxFactory.IdentifierName("var")).WithVariables(
-                        SyntaxFactory.VariableDeclarator(name).WithInitializer(
-                            SyntaxFactory.EqualsValueClause(expression)
-                        )
-                    )
-                )
-            );
-            return name;
+            var variable = Expression.Variable(expression.Type, name);
+            BlockStack.Peek().Variables.Add(name, variable);
+
+            BlockStack.Peek().Expressions.Add(Expression.Assign(variable, expression));
+
+            return variable;
         }
 
-        public ExpressionSyntax EmitValue(object? value) => valueEmitter.EmitValue(value);
+        public Expression EmitValue(object value) => Expression.Constant(value);
 
         /// <summary>
         /// Emits the create object expression.
         /// </summary>
-        public string EmitCreateObject(Type type, object[]? constructorArguments = null)
+        public ParameterExpression EmitCreateObject(Type type, object[] constructorArguments = null)
         {
             if (constructorArguments == null)
             {
                 constructorArguments = new object[] { };
             }
 
-            UseType(type);
-            return EmitCreateObject(ParseTypeName(type), constructorArguments.Select(EmitValue));
+            return EmitCreateObject(type, constructorArguments.Select(EmitValue));
         }
 
-        public ExpressionSyntax InvokeDefaultInjectionFactory(Type objectType, Type[] parameterTypes) =>
-            ParseTypeName(typeof(ActivatorUtilities))
-            .Apply(a => SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, a, SyntaxFactory.IdentifierName(nameof(ActivatorUtilities.CreateFactory))))
-            .Apply(SyntaxFactory.InvocationExpression)
-                .WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>(new[]
-                {
-                    EmitValue(objectType).Apply(SyntaxFactory.Argument),
-                    EmitValue(parameterTypes).Apply(SyntaxFactory.Argument),
-                })));
-
-        public string EmitCustomInjectionFactoryInvocation(Type factoryType, Type controlType) =>
-                SyntaxFactory.IdentifierName(ServiceProviderParameterName)
-                .Apply(i => SyntaxFactory.MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    i,
-                    SyntaxFactory.IdentifierName(nameof(IServiceProvider.GetService))))
-                .Apply(SyntaxFactory.InvocationExpression)
-                    .WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument
-                (EmitValue(factoryType)))))
-                .Apply(n => SyntaxFactory.CastExpression(ParseTypeName(factoryType), n))
-                .Apply(SyntaxFactory.InvocationExpression)
-                    .WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>(new[] {
-                        SyntaxFactory.Argument(SyntaxFactory.IdentifierName(ServiceProviderParameterName)),
-                        SyntaxFactory.Argument(EmitValue(controlType))
-                    })))
-                .Apply(a => SyntaxFactory.CastExpression(ParseTypeName(controlType), a))
-                .Apply(EmitCreateVariable);
-
-        public string EmitInjectionFactoryInvocation(
-            Type type,
-            (Type type, ExpressionSyntax expression)[] arguments,
-            Func<Type, Type[], ExpressionSyntax> factoryInvocation) =>
-                this.injectionFactoryCache.GetOrAdd((type, string.Join(";", arguments.Select(i => i.type))), _ => {
-                    var fieldName = "Obj_" + type.Name + "_Factory_" + otherDeclarations.Count;
-                    otherDeclarations.Add(SyntaxFactory.FieldDeclaration(SyntaxFactory.VariableDeclaration(
-                            this.ParseTypeName(typeof(ObjectFactory)))
-                        .WithVariables(
-                            SyntaxFactory.VariableDeclarator(SyntaxFactory.Identifier(fieldName))
-                                .WithInitializer(SyntaxFactory.EqualsValueClause(
-                                    factoryInvocation(type, arguments.Select(a => a.type).ToArray())
-                                ))
-                        )));
-                    return fieldName;
-                })
-                .Apply(SyntaxFactory.IdentifierName)
-                .Apply(SyntaxFactory.InvocationExpression)
-                    .WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>(new[] {
-                        SyntaxFactory.Argument(SyntaxFactory.IdentifierName(ServiceProviderParameterName)),
-                        SyntaxFactory.Argument(SyntaxFactory.ArrayCreationExpression(
-                            SyntaxFactory.ArrayType(ParseTypeName(typeof(object)))
-                                .WithRankSpecifiers(SyntaxFactory.SingletonList<ArrayRankSpecifierSyntax>(SyntaxFactory.ArrayRankSpecifier(  SyntaxFactory.SingletonSeparatedList<ExpressionSyntax>(SyntaxFactory.OmittedArraySizeExpression())))),
-                            SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression,
-                                SyntaxFactory.SeparatedList(arguments.Select(a => a.expression)))))
-                    })))
-                .Apply(a => SyntaxFactory.CastExpression(ParseTypeName(type), a))
-                .Apply(EmitCreateVariable);
-
-        /// <summary>
-        /// Emits the create object expression.
-        /// </summary>
-        public string EmitCreateObject(TypeSyntax typeSyntax, object[]? constructorArguments = null)
+        public ParameterExpression EmitCustomInjectionFactoryInvocation(Type factoryType, Type controlType)
         {
-            if (constructorArguments == null)
-            {
-                constructorArguments = new object[] { };
-            }
+            //[controlType] c = ([controlType])(([factoryType])services.GetService(factoryType)(services,controlType))
 
-            return EmitCreateObject(typeSyntax, constructorArguments.Select(EmitValue));
+            var getServiceCall = Expression.Call(servicesParameter, nameof(IServiceProvider.GetService), emptyTypeArguments, Expression.Constant(factoryType));
+            var factoryInstance = Expression.Convert(getServiceCall, factoryType);
+
+            var factoryInvoke = Expression.Invoke(factoryInstance, servicesParameter, Expression.Constant(controlType));
+
+            return EmitCreateVariable(Expression.Convert(factoryInvoke, controlType));
         }
 
-
-        private string EmitCreateObject(TypeSyntax type, IEnumerable<ExpressionSyntax> arguments)
+        public ParameterExpression EmitInjectionFactoryInvocation(Type type, (Type type, Expression expression)[] arguments)
         {
-            return EmitCreateVariable(
-                EmitCreateObjectExpression(type, arguments)
-            );
+            //[type] v = ([type])factory(services, object[] { ...arguments.Expression } )
+
+            var objectFactory = ActivatorUtilities.CreateFactory(type, arguments.Select(a => a.type).ToArray());
+
+            var factoryInvoke = Expression.Invoke(Expression.Constant(objectFactory), arguments.Select(a => a.expression));
+
+            return EmitCreateVariable(Expression.Convert(factoryInvoke, type));
         }
 
-        private ExpressionSyntax EmitCreateObjectExpression(TypeSyntax type, IEnumerable<ExpressionSyntax> arguments)
+        private ParameterExpression EmitCreateObject(Type type, IEnumerable<Expression> arguments)
         {
-            return SyntaxFactory.ObjectCreationExpression(type).WithArgumentList(
-                SyntaxFactory.ArgumentList(
-                    SyntaxFactory.SeparatedList(
-                        arguments.Select(SyntaxFactory.Argument)
-                    )
-                )
-            );
+            return EmitCreateVariable(EmitCreateObjectExpression(type, arguments));
         }
 
-        public static ExpressionSyntax EmitCreateArray(TypeSyntax elementType, IEnumerable<ExpressionSyntax> values)
+        private Expression EmitCreateObjectExpression(Type type, IEnumerable<Expression> arguments)
         {
-            return
-                SyntaxFactory.ArrayCreationExpression(
-                    SyntaxFactory.ArrayType(
-                        elementType,
-                        SyntaxFactory.SingletonList(
-                            SyntaxFactory.ArrayRankSpecifier(
-                                SyntaxFactory.SingletonSeparatedList<ExpressionSyntax>(
-                                    SyntaxFactory.OmittedArraySizeExpression())))),
-                    SyntaxFactory.InitializerExpression(
-                        SyntaxKind.ArrayInitializerExpression,
-                        SyntaxFactory.SeparatedList(
-                            values)));
+            var argumentTypes = arguments.Select(a => a.Type).ToArray();
+            var constructor = type.GetConstructor(argumentTypes);
+
+            return Expression.New(constructor, arguments.ToArray());
+        }
+
+        public static Expression EmitCreateArray(Type elementType, IEnumerable<Expression> values)
+        {
+            return Expression.NewArrayInit(elementType, values);
         }
 
         /// <summary>
         /// Emits the control builder invocation.
         /// </summary>
-        public string EmitInvokeControlBuilder(Type controlType, string virtualPath)
+        public ParameterExpression EmitInvokeControlBuilder(Type controlType, string virtualPath)
         {
-            UseType(controlType);
-
             var builderName = "c" + CurrentControlIndex + "_builder";
             var untypedName = "c" + CurrentControlIndex + "_untyped";
             var name = "c" + CurrentControlIndex;
             CurrentControlIndex++;
 
-            CurrentStatements.Add(
-                SyntaxFactory.LocalDeclarationStatement(
-                    SyntaxFactory.VariableDeclaration(SyntaxFactory.IdentifierName("var")).WithVariables(
-                        SyntaxFactory.VariableDeclarator(builderName).WithInitializer(
-                            SyntaxFactory.EqualsValueClause(
-                                SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                                    SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                                        SyntaxFactory.InvocationExpression(
-                                            SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                                                SyntaxFactory.IdentifierName(ControlBuilderFactoryParameterName),
-                                                SyntaxFactory.IdentifierName(nameof(IControlBuilderFactory.GetControlBuilder))
-                                            ),
-                                            SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[] {
-                                                SyntaxFactory.Argument(EmitValue(virtualPath))
-                                            }))
-                                        ),
-                                    SyntaxFactory.IdentifierName("Item2")),
-                                SyntaxFactory.IdentifierName("Value"))
-                            )
-                        )
-                    )
-                )
-            );
-            CurrentStatements.Add(
-                SyntaxFactory.LocalDeclarationStatement(
-                    SyntaxFactory.VariableDeclaration(SyntaxFactory.IdentifierName("var")).WithVariables(
-                        SyntaxFactory.VariableDeclarator(untypedName).WithInitializer(
-                            SyntaxFactory.EqualsValueClause(
-                                SyntaxFactory.InvocationExpression(
-                                    SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                                        SyntaxFactory.IdentifierName(builderName),
-                                        SyntaxFactory.IdentifierName(nameof(IControlBuilder.BuildControl))
-                                    ),
-                                    SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[] {
-                                        SyntaxFactory.Argument(SyntaxFactory.IdentifierName(ControlBuilderFactoryParameterName)),
-                                        SyntaxFactory.Argument(SyntaxFactory.IdentifierName(ServiceProviderParameterName))
-                                    }))
-                                )
-                            )
-                        )
-                    )
-                )
-            );
-            CurrentStatements.Add(
-                SyntaxFactory.LocalDeclarationStatement(
-                    SyntaxFactory.VariableDeclaration(SyntaxFactory.IdentifierName("var")).WithVariables(
-                        SyntaxFactory.VariableDeclarator(name).WithInitializer(
-                            SyntaxFactory.EqualsValueClause(
-                                SyntaxFactory.CastExpression(ParseTypeName(controlType),
-                                    SyntaxFactory.IdentifierName(untypedName)
-                                )
-                            )
-                        )
-                    )
-                )
-            );
+            //var [builderName] = controlBuilderFactory.GetControlBuilder(virtualPath).Item2.Value
 
-            return name;
+            var controlBuilderFactoryParameter = GetParameter(ControlBuilderFactoryParameterName);
+
+            var getBuilderCall = Expression.Call(controlBuilderFactoryParameter, nameof(IControlBuilderFactory.GetControlBuilder), emptyTypeArguments, EmitValue(virtualPath));
+
+            var builderValueExpression = Expression.PropertyOrField(
+                Expression.PropertyOrField(getBuilderCall, "Item2"),
+                "Value");
+
+            var builderParameter = EmitCreateVariable(builderValueExpression);
+
+            //var [untypedName] = [builderName].BuildControl(controlBuilderFactory, services)
+
+            var buildControlCall = Expression.Call(builderParameter, nameof(IControlBuilder.BuildControl), emptyTypeArguments, controlBuilderFactoryParameter, servicesParameter);
+
+            return EmitCreateVariable(Expression.Convert(buildControlCall, controlType));
         }
-
-
 
         /// <summary>
         /// Emits the set property statement.
         /// </summary>
-        public void EmitSetProperty(string controlName, string propertyName, ExpressionSyntax valueSyntax)
+        public void EmitSetProperty(string controlName, string propertyName, Expression valueExpression)
         {
-            CurrentStatements.Add(
-                SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.AssignmentExpression(
-                        SyntaxKind.SimpleAssignmentExpression,
-                        SyntaxFactory.MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            SyntaxFactory.IdentifierName(controlName),
-                            SyntaxFactory.IdentifierName(propertyName)
-                        ),
-                    valueSyntax
-                    )
-                )
-            );
+            //[controlName].[propertyName] = [value] 
+            var controlParameter = GetParameter(controlName);
+            var assigment = Expression.Assign(Expression.PropertyOrField(controlParameter, propertyName), valueExpression);
+
+            BlockStack.Peek().Expressions.Add(assigment);
         }
 
-        public ExpressionSyntax CreateDotvvmPropertyIdentifier(DotvvmProperty property)
+        public Expression CreateDotvvmPropertyIdentifier(DotvvmProperty property)
         {
-            if (property is GroupedDotvvmProperty gprop && gprop.PropertyGroup.DescriptorField != null)
-            {
-                string fieldName;
-                if (!cachedGroupedDotvvmProperties.TryGetValue(gprop, out fieldName))
-                {
-                    fieldName = $"_staticCachedGroupProperty_{cachedGroupedDotvvmProperties.Count}";
-                    cachedGroupedDotvvmProperties.Add(gprop, fieldName);
-                    otherDeclarations.Add(SyntaxFactory.FieldDeclaration(
-                        SyntaxFactory.VariableDeclaration(ParseTypeName(typeof(DotvvmProperty)),
-                            SyntaxFactory.SingletonSeparatedList(
-                                SyntaxFactory.VariableDeclarator(fieldName)
-                                .WithInitializer(SyntaxFactory.EqualsValueClause(
-                                    SyntaxFactory.InvocationExpression(
-                                        SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleAssignmentExpression,
-                                            SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleAssignmentExpression,
-                                                ParseTypeName(gprop.PropertyGroup.DeclaringType),
-                                                SyntaxFactory.IdentifierName(gprop.PropertyGroup.DescriptorField.Name)
-                                            ),
-                                            SyntaxFactory.IdentifierName(nameof(DotvvmPropertyGroup.GetDotvvmProperty))
-                                        ),
-                                        SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(
-                                            SyntaxFactory.Argument(this.EmitValue(gprop.GroupMemberName))
-                                        ))
-                                    )
-                                ))
-                            )
-                        )
-                    ));
-                }
-                return SyntaxFactory.ParseName(fieldName);
-            }
-            else if (property.DeclaringType.GetField(property.Name + "Property", BindingFlags.Static | BindingFlags.Public) != null)
-            {
-                return SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                    ParseTypeName(property.DeclaringType),
-                    SyntaxFactory.IdentifierName(property.Name + "Property"));
-            }
-            else
-            {
-                //throw new NotImplementedException();
-                return SyntaxFactory.CastExpression(
-                    this.ParseTypeName(typeof(DotvvmProperty)),
-                    this.valueEmitter.EmitValueReference(property));
-            }
+            return Expression.Constant(property);
         }
 
-        private Dictionary<string, List<(DotvvmProperty prop, ExpressionSyntax value)>> controlProperties = new Dictionary<string, List<(DotvvmProperty, ExpressionSyntax)>>();
+        private Dictionary<string, List<(DotvvmProperty prop, Expression value)>> controlProperties = new Dictionary<string, List<(DotvvmProperty, Expression)>>();
 
-        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, object? value) =>
+        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, object value) =>
             EmitSetDotvvmProperty(controlName, property, EmitValue(value));
 
-        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
+        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, Expression value)
         {
             if (!controlProperties.TryGetValue(controlName, out var propertyList))
-                throw new Exception($"Cannot set property, control {controlName} is not registered");
-
-            UseType(property.DeclaringType);
-            UseType(property.PropertyType);
+                throw new Exception($"Can not set property, control {controlName} is not registered");
 
             propertyList.Add((property, value));
         }
@@ -366,7 +196,7 @@ namespace DotVVM.Framework.Compilation
         /// Instructs the emitter that this object can receive DotvvmProperties
         /// Note that the properties have to be committed using <see cref="CommitDotvvmProperties(string)" />
         public void RegisterDotvvmProperties(string controlName) =>
-            controlProperties.Add(controlName, new List<(DotvvmProperty prop, ExpressionSyntax value)>());
+            controlProperties.Add(controlName, new List<(DotvvmProperty prop, Expression value)>());
 
         public void CommitDotvvmProperties(string name)
         {
@@ -378,99 +208,92 @@ namespace DotVVM.Framework.Compilation
 
             var (hashSeed, keys, values) = PropertyImmutableHashtable.CreateTableWithValues(properties.Select(p => p.prop).ToArray(), properties.Select(p => p.value).ToArray());
 
-            var invertedValues = new object?[values.Length];
-            var successfulInversion = true;
-            for (int i = 0; i < values.Length; i++)
-            {
-                if (values[i] != null)
-                {
-                    successfulInversion = successfulInversion && this.valueEmitter.TryInvertExpression(values[i], out invertedValues[i]);
-                }
-            }
 
-            ExpressionSyntax valueExpr;
-            if (successfulInversion)
+            Expression valueExpr;
+            if (TryCreateArrayOfConstants(values, out var invertedValues))
             {
-                valueExpr = valueEmitter.EmitValueReference(invertedValues);
+                valueExpr = EmitValue(invertedValues);
             }
             else
             {
                 valueExpr = EmitCreateArray(
-                    this.ParseTypeName(typeof(object)),
-                    values.Select(v => v ?? this.EmitValue(null))
+                    typeof(object),
+                    values.Select(v => v ?? EmitValue(null))
                 );
             }
 
-            var keyExpr = valueEmitter.EmitValueReference(keys);
+            var keyExpr = EmitValue(keys);
 
             // control.MagicSetValue(keys, values, hashSeed)
-            CurrentStatements.Add(
-                SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.InvocationExpression(
-                        SyntaxFactory.MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                                SyntaxFactory.IdentifierName(name),
-                                SyntaxFactory.IdentifierName(nameof(DotvvmBindableObject.MagicSetValue))
-                        ),
-                        SyntaxFactory.ArgumentList(
-                            SyntaxFactory.SeparatedList(new[] {
-                                keyExpr,
-                                valueExpr,
-                                EmitValue(hashSeed)
-                            }.Select(SyntaxFactory.Argument))
-                        )
-                    )
-                )
-            );
+            var controlParameter = BlockStack.Peek().Variables[name];
+
+            var magicSetValueCall = Expression.Call(controlParameter, nameof(DotvvmBindableObject.MagicSetValue), emptyTypeArguments, keyExpr, valueExpr, EmitValue(hashSeed));
+
+            BlockStack.Peek().Expressions.Add(magicSetValueCall);
+        }
+
+        private bool TryCreateArrayOfConstants(Expression?[] values, out object[] invertedValues)
+        {
+            invertedValues = new object[values.Length];
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (values[i] == null) { continue; }
+
+                if (values[i] is ConstantExpression constant)
+                {
+                    invertedValues[i] = constant.Value;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         /// <summary>
         /// Emits the code that adds the specified value as a child item in the collection.
         /// </summary>
-        public void EmitAddCollectionItem(string controlName, string variableName, string? collectionPropertyName = "Children")
+        public void EmitAddCollectionItem(string controlName, string variableName, string collectionPropertyName = "Children")
         {
-            ExpressionSyntax collectionExpression;
+            var controlParameter = GetParameter(controlName);
+
+            //control/control.[collectionPropertyName]
+            Expression collectionExpression;
             if (string.IsNullOrEmpty(collectionPropertyName))
             {
-                collectionExpression = SyntaxFactory.IdentifierName(controlName);
+                collectionExpression = controlParameter;
             }
             else
             {
-                collectionExpression = SyntaxFactory.MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    SyntaxFactory.IdentifierName(controlName),
-                    SyntaxFactory.IdentifierName(collectionPropertyName)
-                );
+                collectionExpression = Expression.PropertyOrField(controlParameter, collectionPropertyName);
             }
 
-            CurrentStatements.Add(
-                SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.InvocationExpression(
-                        SyntaxFactory.MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            collectionExpression,
-                            SyntaxFactory.IdentifierName("Add")
-                        )
-                    ).WithArgumentList(
-                        SyntaxFactory.ArgumentList(
-                            SyntaxFactory.SeparatedList(
-                                new[]
-                                {
-                                    SyntaxFactory.Argument(SyntaxFactory.IdentifierName(variableName))
-                                }
-                            )
-                        )
-                    )
-                )
-            );
+            var variablePartameter = GetParameter(variableName);
+
+            //[collectionExpression].Add([variablePartameter])
+
+            var collectionAddCall = Expression.Call(collectionExpression, "Add", emptyTypeArguments, variablePartameter);
+
+            BlockStack.Peek().Expressions.Add(collectionAddCall);
         }
 
         /// <summary>
-        /// Emits the identifier.
+        /// Emits the add HTML attribute.
         /// </summary>
-        public NameSyntax EmitIdentifier(string identifier)
+        public void EmitAddToDictionary(string controlName, string propertyName, string key, Expression valueExpression)
         {
-            return SyntaxFactory.IdentifierName(identifier);
+            //[controlName].[propertyName][key]= value;
+            var controlParameter = BlockStack.Peek().Variables[controlName];
+
+            var dictionaryKeyExpression = Expression.Property(
+                Expression.PropertyOrField(controlParameter, propertyName),
+                "Item",
+                EmitValue(key));
+
+            var assigment = Expression.Assign(dictionaryKeyExpression, valueExpression);
+
+            BlockStack.Peek().Expressions.Add(assigment);
         }
 
         /// <summary>
@@ -478,132 +301,29 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public void EmitAddDirective(string controlName, string name, string value)
         {
-            CurrentStatements.Add(
-                SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.AssignmentExpression(
-                        SyntaxKind.SimpleAssignmentExpression,
-                        SyntaxFactory.ElementAccessExpression(
-                            SyntaxFactory.MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                SyntaxFactory.IdentifierName(controlName),
-                                SyntaxFactory.IdentifierName("Directives")
-                            ),
-                            SyntaxFactory.BracketedArgumentList(
-                                SyntaxFactory.SeparatedList(
-                                    new[]
-                                    {
-                                        SyntaxFactory.Argument(EmitValue(name))
-                                    }
-                                )
-                            )
-                        ),
-                        EmitValue(value)
-                    )
-                )
-            );
+            EmitAddToDictionary(controlName, "Directives", name, EmitValue(value));
         }
 
-        public string EmitEnsureCollectionInitialized(string parentName, DotvvmProperty property)
+        public ParameterExpression EmitEnsureCollectionInitialized(string parentName, DotvvmProperty property)
         {
-            UseType(property.PropertyType);
+            //if([parentName].GetValue(property) == null)
+            //{
+            //  [parentName].SetValue(property, new [property.PropertyType]());
+            //}
 
-            CurrentStatements.Add(
-                SyntaxFactory.IfStatement(
-                    SyntaxFactory.BinaryExpression(
-                        SyntaxKind.EqualsExpression,
-                        SyntaxFactory.InvocationExpression(
-                            SyntaxFactory.MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                SyntaxFactory.IdentifierName(parentName),
-                                SyntaxFactory.IdentifierName("GetValue")
-                            ),
-                            SyntaxFactory.ArgumentList(
-                                SyntaxFactory.SeparatedList(new[] {
-                                    SyntaxFactory.Argument(this.CreateDotvvmPropertyIdentifier(property))
-                                })
-                            )
-                        ),
-                        SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
-                    ),
-                    SyntaxFactory.ExpressionStatement(
-                        SyntaxFactory.InvocationExpression(
-                            SyntaxFactory.MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                SyntaxFactory.IdentifierName(parentName),
-                                SyntaxFactory.IdentifierName("SetValue")
-                            ),
-                            SyntaxFactory.ArgumentList(
-                                SyntaxFactory.SeparatedList(new[] {
-                                    SyntaxFactory.Argument(this.CreateDotvvmPropertyIdentifier(property)),
-                                    SyntaxFactory.Argument(
-                                        SyntaxFactory.ObjectCreationExpression(ParseTypeName(property.PropertyType))
-                                            .WithArgumentList(
-                                                SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new ArgumentSyntax[] { }))
-                                            )
-                                    )
-                                })
-                            )
-                        )
-                    )
-                )
-            );
-            return EmitCreateVariable(
-                SyntaxFactory.CastExpression(
-                    ParseTypeName(property.PropertyType),
-                    SyntaxFactory.InvocationExpression(
-                        SyntaxFactory.MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            SyntaxFactory.IdentifierName(parentName),
-                            SyntaxFactory.IdentifierName("GetValue")
-                        ),
-                        SyntaxFactory.ArgumentList(
-                            SyntaxFactory.SeparatedList(new[] {
-                                SyntaxFactory.Argument(this.CreateDotvvmPropertyIdentifier(property))
-                            })
-                        )
-                    )
-                )
-            );
-        }
+            var parentParameter = GetParameter(parentName);
 
-        public TypeSyntax ParseTypeName(Type type)
-        {
-            var asmName = UseType(type);
-            if (type == typeof(void))
-            {
-                return SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
-            }
-            else if (!type.IsGenericType)
-            {
-                return SyntaxFactory.ParseTypeName($"{asmName}::{type.FullName.Replace('+', '.')}");
-            }
-            else
-            {
-                var fullName = type.GetGenericTypeDefinition().FullName;
-                if (fullName.Contains("`"))
-                {
-                    fullName = fullName.Substring(0, fullName.IndexOf("`", StringComparison.Ordinal));
-                }
+            var getPropertyValue = Expression.Call(parentParameter, "GetValue", emptyTypeArguments, CreateDotvvmPropertyIdentifier(property));
 
-                var parts = fullName.Split('.');
-                NameSyntax identifier = SyntaxFactory.AliasQualifiedName(
-                    SyntaxFactory.IdentifierName(asmName),
-                    SyntaxFactory.IdentifierName(parts[0]));
-                for (var i = 1; i < parts.Length - 1; i++)
-                {
-                    identifier = SyntaxFactory.QualifiedName(identifier, SyntaxFactory.IdentifierName(parts[i]));
-                }
+            var ifCondition = Expression.Equal(getPropertyValue, Expression.Constant(null));
+            var statement = Expression.Call(parentParameter, "SetValue", emptyTypeArguments, CreateDotvvmPropertyIdentifier(property), EmitCreateObjectExpression(property.PropertyType, new Expression[] { }));
+            var ifStatement = Expression.IfThen(ifCondition, statement);
 
-                var typeArguments = type.GetGenericArguments().Select(ParseTypeName);
-                return SyntaxFactory.QualifiedName(identifier,
-                    SyntaxFactory.GenericName(
-                        SyntaxFactory.Identifier(parts[parts.Length - 1]),
-                        SyntaxFactory.TypeArgumentList(
-                            SyntaxFactory.SeparatedList(typeArguments.ToArray())
-                        )
-                    )
-                );
-            }
+            BlockStack.Peek().Expressions.Add(ifStatement);
+
+            //var c = ([property.PropertyType])[parentName].GetValue(property);
+
+            return EmitCreateVariable(Expression.Convert(getPropertyValue, property.PropertyType));
         }
 
         /// <summary>
@@ -611,107 +331,15 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public void EmitReturnClause(string variableName)
         {
-            CurrentStatements.Add(SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName(variableName)));
+            var parameter = GetParameter(variableName);
+            BlockStack.Peek().Expressions.Add(parameter);
         }
 
-        Regex allowedCachedExpressions =
-            new Regex(@"Asm_\d+::DotVVM.Framework.Compilation\.RoslynValueEmitter\.(_ViewImmutableObjects_ObjArray|_ViewImmutableObjects|_ViewImmutableObjects_PropArray)");
+        public ParameterExpression GetParameter(string variableName) => BlockStack.Peek().Variables[variableName];
 
-        // private IEnumerable<StatementSyntax> OptimizeMethodBody(List<StatementSyntax> statements)
-        // {
-        //     var nodes =
-        //         statements.SelectMany((s, i) =>
-        //             s.DescendantNodes()
-        //             .Where(n => (n.IsKind(SyntaxKind.SimpleMemberAccessExpression)) &&
-        //                         allowedCachedExpressions.IsMatch(n.ToString()))
-        //             .Select(n => (i, n))
-        //         )
-        //         .GroupBy(n => n.n.ToString())
-        //         .Where(g => g.Count() > 2);
-        //     foreach (var ng in nodes)
-        //     {
+        public ParameterExpression EmitParameter(string name, Type type) => Expression.Parameter(type, name);
 
-        //     }
-        // }
-
-        /// <summary>
-        /// Gets the result syntax tree.
-        /// </summary>
-        public IEnumerable<SyntaxTree> BuildTree(string namespaceName, string className, string fileName)
-        {
-            if (controlProperties.FirstOrDefault(c => c.Value.Any()) is var uncommittedControl && uncommittedControl.Value != null)
-                throw new Exception($"Control {uncommittedControl.Key} has unresolved properties {String.Join(", ", uncommittedControl.Value.Select(p => p.prop.FullName + " " + p.value))}");
-
-            var root = SyntaxFactory.CompilationUnit()
-                .WithExterns(SyntaxFactory.List(
-                    UsedAssemblies.Select(k => SyntaxFactory.ExternAliasDirective(SyntaxFactory.Identifier(k.Value)))
-                ))
-                .WithMembers(
-                SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName)).WithMembers(
-                    SyntaxFactory.List<MemberDeclarationSyntax>(
-                        new[]
-                        {
-                            SyntaxFactory.ClassDeclaration(className)
-                                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                                .WithBaseList(SyntaxFactory.BaseList(
-                                    SyntaxFactory.SeparatedList(new BaseTypeSyntax[]
-                                    {
-                                        SyntaxFactory.SimpleBaseType(
-                                            ParseTypeName(typeof(IControlBuilder))
-                                        )
-                                    })
-                                ))
-                                .AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SeparatedList(new [] {
-                                        SyntaxFactory.Attribute(
-                                            (QualifiedNameSyntax)ParseTypeName(typeof(LoadControlBuilderAttribute)),
-                                            SyntaxFactory.AttributeArgumentList(SyntaxFactory.SeparatedList(new [] {
-                                                SyntaxFactory.AttributeArgument(EmitValue(fileName))
-                                            }))
-                                        )
-                                    })))
-                                .WithMembers(
-                                SyntaxFactory.List<MemberDeclarationSyntax>(
-                                    outputMethods.Select<EmitterMethodInfo, MemberDeclarationSyntax>(m =>
-                                        SyntaxFactory.MethodDeclaration(
-                                            m.ReturnType,
-                                            m.Name)
-                                            .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                                            .WithParameterList(m.Parameters)
-                                            .WithBody(SyntaxFactory.Block(m.Statements))
-                                        ).Concat(new [] {
-                                            SyntaxFactory.PropertyDeclaration(ParseTypeName(typeof(ControlBuilderDescriptor)), nameof(IControlBuilder.Descriptor))
-                                                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                                                .WithExpressionBody(
-                                                    SyntaxFactory.ArrowExpressionClause(SyntaxFactory.CastExpression(
-                                                        this.ParseTypeName(typeof(ControlBuilderDescriptor)),
-                                                        this.EmitValue(Descriptor)
-                                                    ))
-                                                )
-                                                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
-                                        }).Concat(otherDeclarations)
-                                    )
-                                )
-                        }
-                    )
-                )
-            );
-
-            // WORKAROUND: serializing and parsing the tree is necessary here because Roslyn throws compilation errors when pass the original tree which uses markup controls (they reference in-memory assemblies)
-            // the trees are the same (root2.GetChanges(root) returns empty collection) but without serialization and parsing it does not work
-            //SyntaxTree = CSharpSyntaxTree.ParseText(root.ToString());
-            //SyntaxTree = root.SyntaxTree;
-            return new[] { root.SyntaxTree };
-        }
-
-
-        public ParameterSyntax EmitParameter(string name, Type type)
-        =>
-            SyntaxFactory.Parameter(
-                SyntaxFactory.Identifier(name)
-            )
-            .WithType(ParseTypeName(type));
-
-        public ParameterSyntax[] EmitControlBuilderParameters()
+        public ParameterExpression[] EmitControlBuilderParameters()
             => new[]
             {
                 EmitParameter(ControlBuilderFactoryParameterName, typeof(IControlBuilderFactory)),
@@ -721,36 +349,21 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Pushes the new method.
         /// </summary>
-        public void PushNewMethod(string name, Type returnType, params ParameterSyntax[] parameters)
+        public void PushNewMethod(string name, Type returnType, params ParameterExpression[] parameters)
         {
-            var emitterMethodInfo = new EmitterMethodInfo(ParseTypeName(returnType), name, parameters);
-            methods.Push(emitterMethodInfo);
+            BlockStack.Push(new BlockInfo(name, returnType, parameters));
         }
 
         /// <summary>
         /// Pops the method.
         /// </summary>
-        public void PopMethod()
+        public Delegate PopMethod()
         {
-            outputMethods.Add(methods.Pop());
-        }
+            var blockInfo = BlockStack.Pop();
+            var block = Expression.Block(blockInfo.Variables.Values, blockInfo.Expressions);
 
-
-        /// <summary>
-        /// Emits the control class.
-        /// </summary>
-        public void EmitControlClass(Type baseType, string className)
-        {
-            otherDeclarations.Add(
-                SyntaxFactory.ClassDeclaration(className)
-                    .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                    .WithBaseList(SyntaxFactory.BaseList(SyntaxFactory.SeparatedList<BaseTypeSyntax>(new[]
-                        {
-                            SyntaxFactory.SimpleBaseType(ParseTypeName(baseType))
-                        })
-                    )
-                )
-            );
+            var lambda = Expression.Lambda(block,blockInfo.Parameters);
+            return lambda.Compile();
         }
     }
 }

@@ -131,7 +131,7 @@ namespace DotVVM.Framework.Compilation
                     .Where(p => p != null).ToArray()!;
         }
 
-        public virtual ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding)
+        public virtual Expression EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding)
         {
             var newbinding = CreateMinimalClone(binding);
             return emitter.EmitValue(newbinding);

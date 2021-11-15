@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -43,10 +44,11 @@ namespace DotVVM.Framework.Compilation
         private readonly IBindingCompiler bindingCompiler;
         private readonly ViewCompilerConfiguration config;
         private readonly Func<Validation.ControlUsageValidationVisitor> controlValidatorFactory;
+
         /// <summary>
         /// Compiles the view and returns a function that can be invoked repeatedly. The function builds full control tree and activates the page.
         /// </summary>
-        public virtual (ControlBuilderDescriptor, Func<CSharpCompilation>) CompileView(string sourceCode, string fileName, CSharpCompilation compilation, string namespaceName, string className)
+        public virtual (ControlBuilderDescriptor, Func<Delegate>) CompileView(string sourceCode, string fileName, string namespaceName, string className)
         {
             // parse the document
             var tokenizer = new DothtmlTokenizer();
@@ -57,7 +59,7 @@ namespace DotVVM.Framework.Compilation
             var resolvedView = (ResolvedTreeRoot)controlTreeResolver.ResolveTree(node, fileName);
 
             var descriptor = resolvedView.ControlBuilderDescriptor;
-            
+
             return (descriptor, () => {
 
                 var errorCheckingVisitor = new ErrorCheckingVisitor();
@@ -91,28 +93,9 @@ namespace DotVVM.Framework.Compilation
 
                 resolvedView.Accept(compilingVisitor);
 
-                return AddToCompilation(compilation, emitter, fileName, namespaceName, className);
-            });
-        }
-
-        protected virtual CSharpCompilation AddToCompilation(CSharpCompilation compilation, DefaultViewCompilerCodeEmitter emitter, string fileName, string namespaceName, string className)
-        {
-            var tree = emitter.BuildTree(namespaceName, className, fileName);
-            return compilation
-                .AddSyntaxTrees(tree)
-                .AddReferences(emitter.UsedAssemblies
-                    .Select(a => assemblyCache.GetAssemblyMetadata(a.Key).WithAliases(ImmutableArray.Create(a.Value, "global"))));
-        }
-        
-        public virtual CSharpCompilation CreateCompilation(string assemblyName)
-        {
-            return CSharpCompilation.Create(assemblyName, options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-                .AddReferences(assemblyCache.GetReferencedAssemblies().Select(a => assemblyCache.GetAssemblyMetadata(a)));
-        }
-
-        protected virtual IControlBuilder GetControlBuilder(Assembly assembly, string namespaceName, string className)
-        {
-            return (IControlBuilder)assembly.CreateInstance(namespaceName + "." + className);
+                return compilingVisitor.CompiledViewDelegate;
+            }
+            );
         }
 
         /// <summary>
@@ -141,13 +124,26 @@ namespace DotVVM.Framework.Compilation
 
         public virtual (ControlBuilderDescriptor, Func<IControlBuilder>) CompileView(string sourceCode, string fileName, string assemblyName, string namespaceName, string className)
         {
-            var compilation = CreateCompilation(assemblyName);
-            var (descriptor, compilationGetter) = CompileView(sourceCode, fileName, compilation, namespaceName, className);
-            return (descriptor, () => {
-                var assembly = BuildAssembly(compilationGetter());
-                return GetControlBuilder(assembly, namespaceName, className);
-            }
-            );
+            var (descriptor, viewBuildingDelegateGetter) = CompileView(sourceCode, fileName, namespaceName, className);
+            return (descriptor, () => new DelegateControlBuilder(descriptor, (Func<IControlBuilderFactory, IServiceProvider, DotvvmControl>)viewBuildingDelegateGetter()));
+        }
+    }
+
+    public record DelegateControlBuilder : IControlBuilder
+    {
+        private readonly Func<IControlBuilderFactory, IServiceProvider, DotvvmControl> controlBuilderDelegate;
+
+        public DelegateControlBuilder(ControlBuilderDescriptor controlBuilderDescriptor, Func<IControlBuilderFactory, IServiceProvider, DotvvmControl> controlBuilderDelegate)
+        {
+            Descriptor = controlBuilderDescriptor;
+            this.controlBuilderDelegate = controlBuilderDelegate;
+        }
+
+        public ControlBuilderDescriptor Descriptor { get; }
+
+        public DotvvmControl BuildControl(IControlBuilderFactory controlBuilderFactory, IServiceProvider services)
+        {
+            return controlBuilderDelegate(controlBuilderFactory, services);
         }
     }
 }
