@@ -22,6 +22,8 @@ namespace DotVVM.HotReload
         private object notifierTaskLocker = new object();
         private HashSet<string> notifierTaskDirtyFiles = new HashSet<string>();
 
+        private ConcurrentDictionary<string, string> fullPathToVirtualPathMap = new ConcurrentDictionary<string, string>();
+
         private readonly FileSystemWatcher[] watchers;
 
         public HotReloadMarkupFileLoader(DefaultMarkupFileLoader defaultMarkupFileLoader, IMarkupFileChangeNotifier notifier, DotvvmConfiguration configuration)
@@ -50,18 +52,23 @@ namespace DotVVM.HotReload
 
         private void OnFileChanged(DotvvmConfiguration configuration, string fullPath)
         {
+            if (!fullPathToVirtualPathMap.TryGetValue(fullPath, out var virtualPath))
+            {
+                return;
+            }
+            
             // recompile view on the background so the refresh is faster
             Task.Factory.StartNew(() =>
             {
                 // cannot use DI - there is cyclic dependency
                 var controlBuilderFactory = configuration.ServiceProvider.GetRequiredService<IControlBuilderFactory>();
-                controlBuilderFactory.GetControlBuilder(fullPath);
+                controlBuilderFactory.GetControlBuilder(virtualPath);
             });
 
             // notify about the changes
             lock (notifierTaskLocker)
             {
-                notifierTaskDirtyFiles.Add(fullPath);
+                notifierTaskDirtyFiles.Add(virtualPath);
 
                 if (notifierTask.IsCompleted)
                 {
@@ -78,7 +85,15 @@ namespace DotVVM.HotReload
             }
         }
 
-        public MarkupFile? GetMarkup(DotvvmConfiguration configuration, string virtualPath) => defaultMarkupFileLoader.GetMarkup(configuration, virtualPath);
+        public MarkupFile? GetMarkup(DotvvmConfiguration configuration, string virtualPath)
+        {
+            var result = defaultMarkupFileLoader.GetMarkup(configuration, virtualPath);
+            if (result != null)
+            {
+                fullPathToVirtualPathMap[result.FullPath] = virtualPath;
+            }
+            return result;
+        }
 
         public string GetMarkupFileVirtualPath(IDotvvmRequestContext context) => defaultMarkupFileLoader.GetMarkupFileVirtualPath(context);
 
