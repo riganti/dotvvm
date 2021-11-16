@@ -22,7 +22,6 @@ namespace DotVVM.Framework.Compilation
         private Dictionary<GroupedDotvvmProperty, string> cachedGroupedDotvvmProperties = new Dictionary<GroupedDotvvmProperty, string>();
         private ConcurrentDictionary<(Type obj, string argTypes), string> injectionFactoryCache = new ConcurrentDictionary<(Type obj, string argTypes), string>();
         private readonly Stack<BlockInfo> blockStack = new();
-        private ParameterExpression servicesParameter;
         public Type? ResultControlType { get; set; }
 
         public ParameterExpression EmitCreateVariable(Expression expression)
@@ -56,6 +55,8 @@ namespace DotVVM.Framework.Compilation
         public ParameterExpression EmitCustomInjectionFactoryInvocation(Type factoryType, Type controlType)
         {
             //[controlType] c = ([controlType])(([factoryType])services.GetService(factoryType)(services,controlType))
+
+            var servicesParameter = GetParameterOrVariable(ServiceProviderParameterName);
 
             var getServiceCall = Expression.Call(servicesParameter, nameof(IServiceProvider.GetService), emptyTypeArguments, Expression.Constant(factoryType));
             var factoryInstance = Expression.Convert(getServiceCall, factoryType);
@@ -121,6 +122,8 @@ namespace DotVVM.Framework.Compilation
             var builderParameter = EmitCreateVariable(builderValueExpression);
 
             //var [untypedName] = [builderName].BuildControl(controlBuilderFactory, services)
+
+            var servicesParameter = GetParameterOrVariable(ServiceProviderParameterName);
 
             var buildControlCall = Expression.Call(builderParameter, nameof(IControlBuilder.BuildControl), emptyTypeArguments, controlBuilderFactoryParameter, servicesParameter);
 
