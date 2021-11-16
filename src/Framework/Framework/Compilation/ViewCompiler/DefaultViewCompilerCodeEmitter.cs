@@ -280,7 +280,12 @@ namespace DotVVM.Framework.Compilation
 
             var parentParameter = GetParameterOrVariable(parentName);
 
-            var getPropertyValue = Expression.Call(parentParameter, "GetValue", emptyTypeArguments, CreateDotvvmPropertyIdentifier(property));
+            var getPropertyValue = Expression.Call(
+                parentParameter,
+                "GetValue",
+                emptyTypeArguments,
+                /*property:*/ CreateDotvvmPropertyIdentifier(property),
+                /*inherit:*/ EmitValue(true /*default*/ ));
 
             var ifCondition = Expression.Equal(getPropertyValue, Expression.Constant(null));
             var statement = Expression.Call(parentParameter, "SetValue", emptyTypeArguments, CreateDotvvmPropertyIdentifier(property), EmitCreateObjectExpression(property.PropertyType, new Expression[] { }));
