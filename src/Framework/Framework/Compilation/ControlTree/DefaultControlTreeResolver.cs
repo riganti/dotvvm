@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             this.controlBuilderFactory = controlBuilderFactory;
         }
 
-        protected override void ResolveRootContent(DothtmlRootNode root, IAbstractContentNode view, IControlResolverMetadata viewMetadata)
+        protected override void ResolveRootContent(DothtmlRootNode root, IAbstractControl view, IControlResolverMetadata viewMetadata)
         {
             ((ResolvedTreeRoot)view).ResolveContentAction = () => base.ResolveRootContent(root, view, viewMetadata);
         }

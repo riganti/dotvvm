@@ -37,18 +37,14 @@ namespace DotVVM.Framework.Compilation
             return variable;
         }
 
-        public Expression EmitValue(object value) => Expression.Constant(value);
+        public Expression EmitValue(object? value) => Expression.Constant(value);
 
         /// <summary>
         /// Emits the create object expression.
         /// </summary>
-        public ParameterExpression EmitCreateObject(Type type, object[] constructorArguments = null)
+        public ParameterExpression EmitCreateObject(Type type, object[]? constructorArguments = null)
         {
-            if (constructorArguments == null)
-            {
-                constructorArguments = new object[] { };
-            }
-
+            constructorArguments ??= new object[0];
             return EmitCreateObject(type, constructorArguments.Select(EmitValue));
         }
 
@@ -66,13 +62,13 @@ namespace DotVVM.Framework.Compilation
             return EmitCreateVariable(Expression.Convert(factoryInvoke, controlType));
         }
 
-        public ParameterExpression EmitInjectionFactoryInvocation(Type type, (Type type, Expression expression)[] arguments)
+        public ParameterExpression EmitInjectionFactoryInvocation(Type type, object[] arguments)
         {
             //[type] v = ([type])factory(services, object[] { ...arguments.Expression } )
 
-            var objectFactory = ActivatorUtilities.CreateFactory(type, arguments.Select(a => a.type).ToArray());
+            var objectFactory = ActivatorUtilities.CreateFactory(type, arguments.Select(a => a.GetType()).ToArray());
 
-            var factoryInvoke = Expression.Invoke(Expression.Constant(objectFactory), arguments.Select(a => a.expression));
+            var factoryInvoke = Expression.Invoke(Expression.Constant(objectFactory), GetParameterOrVariable(ServiceProviderParameterName), Expression.Constant(arguments, typeof(object[])));
 
             return EmitCreateVariable(Expression.Convert(factoryInvoke, type));
         }
@@ -149,7 +145,7 @@ namespace DotVVM.Framework.Compilation
 
         private Dictionary<string, List<(DotvvmProperty prop, Expression value)>> controlProperties = new Dictionary<string, List<(DotvvmProperty, Expression)>>();
 
-        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, object value) =>
+        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, object? value) =>
             EmitSetDotvvmProperty(controlName, property, EmitValue(value));
 
         public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, Expression value)
@@ -221,7 +217,7 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Emits the code that adds the specified value as a child item in the collection.
         /// </summary>
-        public void EmitAddCollectionItem(string controlName, string variableName, string collectionPropertyName = "Children")
+        public void EmitAddCollectionItem(string controlName, string variableName, string? collectionPropertyName = "Children")
         {
             var controlParameter = GetParameterOrVariable(controlName);
 

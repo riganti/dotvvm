@@ -418,12 +418,17 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         public void ResolvedTree_DefaultContentProperty_BindingInside()
         {
             var root = ParseSource(@"
-@viewModel System.Object
+@viewModel System.Object[]
+<dot:GridView DataSource={value: _this}>
 <dot:GridViewTemplateColumn HeaderText='Amount'>
     <dot:Literal Text='Text123' FormatString = 'n0' /> {{value: _this}}
 </dot:GridViewTemplateColumn>
+</dot:GridView
  ");
-            var column = root.Content.First(t => t.Metadata.Name == nameof(GridViewTemplateColumn));
+            var column = root.Content.First(t => t.Metadata.Name == nameof(GridView))
+                .Properties[GridView.ColumnsProperty]
+                .CastTo<ResolvedPropertyControlCollection>()
+                .Controls.First(t => t.Metadata.Name == nameof(GridViewTemplateColumn));
             Assert.IsFalse(column.DothtmlNode.HasNodeErrors, column.DothtmlNode.NodeErrors.FirstOrDefault());
             var template = (column.Properties.FirstOrDefault(p => p.Key.Name == nameof(GridViewTemplateColumn.ContentTemplate)).Value as ResolvedPropertyTemplate)?.Content;
             Assert.IsTrue(template.Any(n => n.DothtmlNode is DothtmlBindingNode));

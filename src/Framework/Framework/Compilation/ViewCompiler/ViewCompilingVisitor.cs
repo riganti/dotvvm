@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Compilation
             // otherwise invoke DI factory
             else
             {
-                return emitter.EmitInjectionFactoryInvocation(type, (arguments ?? Enumerable.Empty<object>()).Select(a => (a.GetType(), emitter.EmitValue(a))).ToArray());
+                return emitter.EmitInjectionFactoryInvocation(type, arguments ?? new object[0]);
             }
         }
 
