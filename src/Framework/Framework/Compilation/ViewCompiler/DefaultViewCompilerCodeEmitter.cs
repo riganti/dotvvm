@@ -1,48 +1,14 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Runtime;
-using DotVVM.Framework.Utils;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using DotVVM.Framework.Compilation.ControlTree;
-using System.Threading;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
-using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Compilation.Binding;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Controls;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 
 namespace DotVVM.Framework.Compilation
 {
-    public class BlockInfo
-    {
-        public string Name { get; }
-        public Type ReturnType { get; }
-        public IReadOnlyDictionary<string, ParameterExpression> Parameters { get; }
-        public Dictionary<string, ParameterExpression> Variables { get; set; } = new();
-        public List<Expression> Expressions { get; set; } = new();
-
-        public BlockInfo(string name, Type returnType, ParameterExpression[] parameters)
-        {
-            ReturnType = returnType;
-            Parameters = parameters.ToDictionary(k=> k.Name, v => v);
-            Name = name;
-        }
-
-        public ParameterExpression GetParameterOrVariable(string identifierName)
-           => Variables.ContainsKey(identifierName) ? Variables[identifierName]
-           :  Parameters.ContainsKey(identifierName) ? Parameters[identifierName]
-           :  throw new ArgumentException($"Parameter or variable '{identifierName}' was not found in the block {Name}.");
-    }
-
     public class DefaultViewCompilerCodeEmitter
     {
         private static Type[] emptyTypeArguments = new Type[] { };
@@ -52,11 +18,11 @@ namespace DotVVM.Framework.Compilation
         public const string ControlBuilderFactoryParameterName = "controlBuilderFactory";
         public const string ServiceProviderParameterName = "services";
         public const string BuildTemplateFunctionName = "BuildTemplate";
+
         private Dictionary<GroupedDotvvmProperty, string> cachedGroupedDotvvmProperties = new Dictionary<GroupedDotvvmProperty, string>();
         private ConcurrentDictionary<(Type obj, string argTypes), string> injectionFactoryCache = new ConcurrentDictionary<(Type obj, string argTypes), string>();
-        private Stack<BlockInfo> BlockStack = new();
+        private readonly Stack<BlockInfo> blockStack = new();
         private ParameterExpression servicesParameter;
-        public ControlBuilderDescriptor Descriptor { get; set; }
         public Type? ResultControlType { get; set; }
 
         public ParameterExpression EmitCreateVariable(Expression expression)
@@ -65,9 +31,9 @@ namespace DotVVM.Framework.Compilation
             CurrentControlIndex++;
 
             var variable = Expression.Variable(expression.Type, name);
-            BlockStack.Peek().Variables.Add(name, variable);
+            blockStack.Peek().Variables.Add(name, variable);
 
-            BlockStack.Peek().Expressions.Add(Expression.Assign(variable, expression));
+            blockStack.Peek().Expressions.Add(Expression.Assign(variable, expression));
 
             return variable;
         }
@@ -170,7 +136,7 @@ namespace DotVVM.Framework.Compilation
             var controlParameter = GetParameterOrVariable(controlName);
             var assigment = Expression.Assign(Expression.PropertyOrField(controlParameter, propertyName), valueExpression);
 
-            BlockStack.Peek().Expressions.Add(assigment);
+            blockStack.Peek().Expressions.Add(assigment);
         }
 
         public Expression CreateDotvvmPropertyIdentifier(DotvvmProperty property)
@@ -227,7 +193,7 @@ namespace DotVVM.Framework.Compilation
 
             var magicSetValueCall = Expression.Call(controlParameter, nameof(DotvvmBindableObject.MagicSetValue), emptyTypeArguments, keyExpr, valueExpr, EmitValue(hashSeed));
 
-            BlockStack.Peek().Expressions.Add(magicSetValueCall);
+            blockStack.Peek().Expressions.Add(magicSetValueCall);
         }
 
         private bool TryCreateArrayOfConstants(Expression?[] values, out object[] invertedValues)
@@ -273,7 +239,7 @@ namespace DotVVM.Framework.Compilation
 
             var collectionAddCall = Expression.Call(collectionExpression, "Add", emptyTypeArguments, variablePartameter);
 
-            BlockStack.Peek().Expressions.Add(collectionAddCall);
+            blockStack.Peek().Expressions.Add(collectionAddCall);
         }
 
         /// <summary>
@@ -291,7 +257,7 @@ namespace DotVVM.Framework.Compilation
 
             var assigment = Expression.Assign(dictionaryKeyExpression, valueExpression);
 
-            BlockStack.Peek().Expressions.Add(assigment);
+            blockStack.Peek().Expressions.Add(assigment);
         }
 
         /// <summary>
@@ -317,7 +283,7 @@ namespace DotVVM.Framework.Compilation
             var statement = Expression.Call(parentParameter, "SetValue", emptyTypeArguments, CreateDotvvmPropertyIdentifier(property), EmitCreateObjectExpression(property.PropertyType, new Expression[] { }));
             var ifStatement = Expression.IfThen(ifCondition, statement);
 
-            BlockStack.Peek().Expressions.Add(ifStatement);
+            blockStack.Peek().Expressions.Add(ifStatement);
 
             //var c = ([property.PropertyType])[parentName].GetValue(property);
 
@@ -330,13 +296,13 @@ namespace DotVVM.Framework.Compilation
         public void EmitReturnClause(string variableName)
         {
             var parameter = GetParameterOrVariable(variableName);
-            BlockStack.Peek().Expressions.Add(parameter);
+            blockStack.Peek().Expressions.Add(parameter);
         }
 
         public ParameterExpression GetParameterOrVariable(string identifierName)
             => GetCurrentBlock().GetParameterOrVariable(identifierName);
 
-        private BlockInfo GetCurrentBlock() => BlockStack.Peek();
+        private BlockInfo GetCurrentBlock() => blockStack.Peek();
         public ParameterExpression EmitParameter(string name, Type type) => Expression.Parameter(type, name);
 
         public ParameterExpression[] EmitControlBuilderParameters()
@@ -351,7 +317,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public void PushNewMethod(string name, Type returnType, params ParameterExpression[] parameters)
         {
-            BlockStack.Push(new BlockInfo(name, returnType, parameters));
+            blockStack.Push(new BlockInfo(name, returnType, parameters));
         }
 
         /// <summary>
@@ -359,11 +325,32 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public Delegate PopMethod()
         {
-            var blockInfo = BlockStack.Pop();
+            var blockInfo = blockStack.Pop();
             var block = Expression.Block(blockInfo.Variables.Values, blockInfo.Expressions);
 
             var lambda = Expression.Lambda(block, blockInfo.Parameters.Values);
             return lambda.Compile();
+        }
+
+        private record BlockInfo
+        {
+            public string Name { get; }
+            public Type ReturnType { get; }
+            public IReadOnlyDictionary<string, ParameterExpression> Parameters { get; }
+            public Dictionary<string, ParameterExpression> Variables { get; set; } = new();
+            public List<Expression> Expressions { get; set; } = new();
+
+            public BlockInfo(string name, Type returnType, ParameterExpression[] parameters)
+            {
+                ReturnType = returnType;
+                Parameters = parameters.ToDictionary(k => k.Name, v => v);
+                Name = name;
+            }
+
+            public ParameterExpression GetParameterOrVariable(string identifierName)
+               => Variables.ContainsKey(identifierName) ? Variables[identifierName]
+               : Parameters.ContainsKey(identifierName) ? Parameters[identifierName]
+               : throw new ArgumentException($"Parameter or variable '{identifierName}' was not found in the block {Name}.");
         }
     }
 }

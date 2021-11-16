@@ -1,7 +1,4 @@
 using System;
-using DotVVM.Framework.Compilation.Parser;
-using DotVVM.Framework.Runtime;
-using Microsoft.CodeAnalysis.CSharp;
 
 namespace DotVVM.Framework.Compilation
 {

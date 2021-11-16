@@ -1,28 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Immutable;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using DotVVM.Framework.Controls;
-using DotVVM.Framework.ResourceManagement;
 
 namespace DotVVM.Framework.Compilation
 {
-    public interface IControlBuilder
-    {
-        ControlBuilderDescriptor Descriptor { get; }
-        DotvvmControl BuildControl(IControlBuilderFactory controlBuilderFactory, IServiceProvider services);
-    }
-
-    public interface IAbstractControlBuilderDescriptor
-    {
-        ITypeDescriptor DataContextType { get; }
-        ITypeDescriptor ControlType { get; }
-        string? FileName { get; }
-        IAbstractControlBuilderDescriptor? MasterPage { get; }
-        ImmutableArray<(string name, string value)> Directives { get; }
-    }
-
     [HandleAsImmutableObjectInDotvvmProperty]
     public class ControlBuilderDescriptor: IAbstractControlBuilderDescriptor
     {

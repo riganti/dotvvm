@@ -16,25 +16,20 @@ namespace DotVVM.Framework.Compilation
     public class ViewCompilingVisitor : ResolvedControlTreeVisitor
     {
         protected readonly DefaultViewCompilerCodeEmitter emitter;
-        private readonly CompiledAssemblyCache compiledAssemblyCache;
         protected readonly IBindingCompiler bindingCompiler;
 
         protected int currentTemplateIndex;
-        protected string className;
         protected ControlResolverMetadata? lastMetadata;
         protected string? controlName;
 
         public Delegate CompiledViewDelegate { get; set; }
 
-        public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, CompiledAssemblyCache compiledAssemblyCache, IBindingCompiler bindingCompiler,
-            string className)
+        public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, IBindingCompiler bindingCompiler)
         {
             this.emitter = emitter;
-            this.compiledAssemblyCache = compiledAssemblyCache;
-            this.className = className;
             this.bindingCompiler = bindingCompiler;
 
-            CompiledViewDelegate = new Action(() => new InvalidOperationException("View is not compiled."));
+            CompiledViewDelegate = new Action(() => new InvalidOperationException("View is not yet compiled."));
         }
 
         public override void VisitView(ResolvedTreeRoot view)
@@ -53,7 +48,6 @@ namespace DotVVM.Framework.Compilation
                 emitter.ResultControlType = view.Metadata.Type;
             }
 
-            emitter.Descriptor = view.ControlBuilderDescriptor;
             // build the statements
             emitter.PushNewMethod(nameof(IControlBuilder.BuildControl), typeof(DotvvmControl), emitter.EmitControlBuilderParameters());
 
