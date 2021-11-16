@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
@@ -21,7 +22,11 @@ namespace DotVVM.Framework.Binding
     public partial class DotvvmCapabilityProperty : DotvvmProperty
     {
         internal Func<DotvvmBindableObject, object> Getter { get; private set; } = null!;
-        internal Action<DotvvmBindableObject, object?> Setter { get; private set; } = null!;
+        internal Action<DotvvmBindableObject, object> Setter { get; private set; } = null!;
+        internal Func<ResolvedControl, ResolvedPropertyCapability>? ResolvedControlGetter { get; private set; } = null;
+        internal Action<ResolvedControl, ResolvedPropertyCapability>? ResolvedControlSetter { get; private set; } = null;
+
+
         /// <summary> List of properties that this capability contains. Note that this may contain nested capabilities. </summary>
         public ImmutableArray<(PropertyInfo prop, DotvvmProperty dotvvmProperty)>? PropertyMapping { get; private set; }
         /// <summary> List of property groups that this capability contains. Note that other property groups may be in nested capabilities (see the <see cref="PropertyMapping" /> array). </summary>
@@ -69,7 +74,11 @@ namespace DotVVM.Framework.Binding
 
         public override object GetValue(DotvvmBindableObject control, bool inherit = true) => Getter(control);
 
-        public override void SetValue(DotvvmBindableObject control, object? value) => Setter(control, value);
+        public override void SetValue(DotvvmBindableObject control, object? value)
+        {
+            _ = value ?? throw new DotvvmControlException($"Capability can not be set to null") { RelatedProperty = this };
+            Setter(control, value);
+        }
         
         /// <summary> Looks up a capability on the specified control (<paramref name="declaringType"/>).
         /// If multiple capabilities of this type are registered, <see cref="Find(Type, Type, string)" /> method must be used to retrieve the one with specified prefix. </summary>

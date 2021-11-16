@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Styles;
@@ -86,6 +87,40 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             }
 
             return false;
+        }
+
+        public ResolvedPropertySetter? GetProperty(DotvvmProperty property)
+        {
+            if (property is DotvvmCapabilityProperty capability)
+                return GetCapabilityProperty(capability);
+            return Properties.GetValueOrDefault(property);
+        }
+
+        public ResolvedPropertyCapability? GetCapabilityProperty(DotvvmCapabilityProperty capability)
+        {
+            if (capability.ResolvedControlGetter is {} getter)
+                return getter(this);
+            if (capability.PropertyMapping is not {} mapping & capability.PropertyGroupMapping is {} groupMapping)
+                throw new NotSupportedException($"Can not get capability {capability} on ResolvedControl as it does not have a property mapping.");
+            var properties = new Dictionary<DotvvmProperty, ResolvedPropertySetter>();
+            foreach (var (_, p) in mapping)
+            {
+                if (GetProperty(p) is {} propValue)
+                    properties.Add(p, propValue);
+            }
+            if (!groupMapping.IsEmpty)
+            {
+                var groups = groupMapping.Select(g => g.dotvvmPropertyGroup).ToHashSet();
+                foreach (var (p, propValue) in Properties)
+                {
+                    if (p is GroupedDotvvmProperty pg && groups.Contains(pg.PropertyGroup))
+                        properties.Add(p, propValue);
+                }
+            }
+
+            if (properties.Count == 0)
+                return null;
+            return new ResolvedPropertyCapability(capability, properties);
         }
 
         public override void Accept(IResolvedControlTreeVisitor visitor)

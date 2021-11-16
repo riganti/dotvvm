@@ -232,6 +232,26 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task CapabilityReads()
+        {
+            var cth = createHelper(c => {
+                c.Styles.Register<HtmlGenericControl>(c =>
+                    c.PropertyValue(x => x.HtmlCapability).CssClasses.ContainsKey("z"))
+                    .SetAttribute("data-test1", c => c.PropertyValue(c => c.HtmlCapability).CssClasses["z"].Select(z => z ? "has-z-class" : "no-z-class"));
+                c.Styles.Register<HtmlGenericControl>(c => c.HasTag("t"))
+                    .SetAttribute("data-visible-copy", c => c.PropertyValue(c => c.HtmlCapability).Visible.Select(z => z ? "yes" : "no"));
+            });
+
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <div class-z />
+                <div class-z={value: Integer > 1} />
+                <div class-z={resource: Integer > 1} />
+                <div Styles.Tag=t Visible={value: Integer > 1} />
+                <div Styles.Tag=t Visible={resource: Integer > 1} />
+            ");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
 
         [TestMethod]
         public async Task StyleBindingMapping()

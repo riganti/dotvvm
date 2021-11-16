@@ -378,16 +378,28 @@ namespace DotVVM.Framework.Utils
                 return type;
         }
 
-        public static Type UnwrapValueOrBinding(this Type type)
+        public static bool IsValueOrBinding(this Type type, [NotNullWhen(true)] out Type? elementType)
         {
             type = type.UnwrapNullableType();
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ValueOrBinding<>))
-                return type.GenericTypeArguments.Single();
+            {
+                elementType = type.GenericTypeArguments.Single();
+                return true;
+            }
             else if (typeof(ValueOrBinding).IsAssignableFrom(type))
-                return typeof(object);
+            {
+                elementType = typeof(object);
+                return true;
+            }
             else
-                return type;
+            {
+                elementType = null;
+                return false;
+            }
         }
+
+        public static Type UnwrapValueOrBinding(this Type type) =>
+            type.IsValueOrBinding(out var x) ? x : type;
 
         public static T GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
             (T)attributeProvider.GetCustomAttributes(typeof(T), inherit).FirstOrDefault();
