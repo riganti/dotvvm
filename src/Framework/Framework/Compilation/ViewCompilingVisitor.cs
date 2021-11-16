@@ -174,9 +174,9 @@ namespace DotVVM.Framework.Compilation
             // compile control content
             base.VisitControl(control);
             emitter.CommitDotvvmProperties(controlName);
-            emitter.EmitSetProperty(controlName, nameof(DotvvmControl.Parent), emitter.GetParameter(parentName));
+            emitter.EmitSetProperty(controlName, nameof(DotvvmControl.Parent), emitter.GetParameterOrVariable(parentName));
             // set the property
-            SetProperty(parentName, propertyControl.Property, emitter.GetParameter(controlName));
+            SetProperty(parentName, propertyControl.Property, emitter.GetParameterOrVariable(controlName));
             controlName = parentName;
         }
 
@@ -198,7 +198,7 @@ namespace DotVVM.Framework.Compilation
                 emitter.CommitDotvvmProperties(controlName);
 
                 // add to collection in property
-                emitter.EmitSetProperty(controlName, nameof(DotvvmControl.Parent), emitter.GetParameter(parentName));
+                emitter.EmitSetProperty(controlName, nameof(DotvvmControl.Parent), emitter.GetParameterOrVariable(parentName));
                 emitter.EmitAddCollectionItem(collectionName, controlName, null);
             }
             controlName = parentName;
@@ -221,7 +221,7 @@ namespace DotVVM.Framework.Compilation
             controlName = parentName;
 
             var templateName = CreateTemplate(methodName, compiledDelegate);
-            SetProperty(controlName, propertyTemplate.Property, emitter.GetParameter(templateName));
+            SetProperty(controlName, propertyTemplate.Property, emitter.GetParameterOrVariable(templateName));
         }
 
         /// <summary>

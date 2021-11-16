@@ -26,16 +26,21 @@ namespace DotVVM.Framework.Compilation
     {
         public string Name { get; }
         public Type ReturnType { get; }
-        public ParameterExpression[] Parameters { get; }
+        public IReadOnlyDictionary<string, ParameterExpression> Parameters { get; }
         public Dictionary<string, ParameterExpression> Variables { get; set; } = new();
         public List<Expression> Expressions { get; set; } = new();
 
         public BlockInfo(string name, Type returnType, ParameterExpression[] parameters)
         {
             ReturnType = returnType;
-            Parameters = parameters;
+            Parameters = parameters.ToDictionary(k=> k.Name, v => v);
             Name = name;
         }
+
+        public ParameterExpression GetParameterOrVariable(string identifierName)
+           => Variables.ContainsKey(identifierName) ? Variables[identifierName]
+           :  Parameters.ContainsKey(identifierName) ? Parameters[identifierName]
+           :  throw new ArgumentException($"Parameter or variable '{identifierName}' was not found in the block {Name}.");
     }
 
     public class DefaultViewCompilerCodeEmitter
@@ -51,19 +56,8 @@ namespace DotVVM.Framework.Compilation
         private ConcurrentDictionary<(Type obj, string argTypes), string> injectionFactoryCache = new ConcurrentDictionary<(Type obj, string argTypes), string>();
         private Stack<BlockInfo> BlockStack = new();
         private ParameterExpression servicesParameter;
-        private List<BlockInfo> outputBlocks = new();
-        public SyntaxTree SyntaxTree { get; private set; }
         public ControlBuilderDescriptor Descriptor { get; set; }
         public Type? ResultControlType { get; set; }
-
-        private ConcurrentDictionary<Assembly, string> usedAssemblies = new ConcurrentDictionary<Assembly, string>();
-        private static int assemblyIdCtr = 0;
-        public IEnumerable<KeyValuePair<Assembly, string>> UsedAssemblies
-        {
-            get { return usedAssemblies; }
-        }
-
-        private List<MemberDeclarationSyntax> otherDeclarations = new List<MemberDeclarationSyntax>();
 
         public ParameterExpression EmitCreateVariable(Expression expression)
         {
@@ -131,7 +125,11 @@ namespace DotVVM.Framework.Compilation
 
         public static Expression EmitCreateArray(Type elementType, IEnumerable<Expression> values)
         {
-            return Expression.NewArrayInit(elementType, values);
+            //new [elementType] [] = { ([elementType])v1, ([elementType])v2, ([elementType])v3, ... }
+            //note: [elementType] is name of the type provided in 'elementType' parameter.
+
+            var convertedValues = values.Select(v => Expression.Convert(v, elementType));
+            return Expression.NewArrayInit(elementType, convertedValues);
         }
 
         /// <summary>
@@ -146,7 +144,7 @@ namespace DotVVM.Framework.Compilation
 
             //var [builderName] = controlBuilderFactory.GetControlBuilder(virtualPath).Item2.Value
 
-            var controlBuilderFactoryParameter = GetParameter(ControlBuilderFactoryParameterName);
+            var controlBuilderFactoryParameter = GetParameterOrVariable(ControlBuilderFactoryParameterName);
 
             var getBuilderCall = Expression.Call(controlBuilderFactoryParameter, nameof(IControlBuilderFactory.GetControlBuilder), emptyTypeArguments, EmitValue(virtualPath));
 
@@ -169,7 +167,7 @@ namespace DotVVM.Framework.Compilation
         public void EmitSetProperty(string controlName, string propertyName, Expression valueExpression)
         {
             //[controlName].[propertyName] = [value] 
-            var controlParameter = GetParameter(controlName);
+            var controlParameter = GetParameterOrVariable(controlName);
             var assigment = Expression.Assign(Expression.PropertyOrField(controlParameter, propertyName), valueExpression);
 
             BlockStack.Peek().Expressions.Add(assigment);
@@ -225,7 +223,7 @@ namespace DotVVM.Framework.Compilation
             var keyExpr = EmitValue(keys);
 
             // control.MagicSetValue(keys, values, hashSeed)
-            var controlParameter = BlockStack.Peek().Variables[name];
+            var controlParameter = GetParameterOrVariable(name);
 
             var magicSetValueCall = Expression.Call(controlParameter, nameof(DotvvmBindableObject.MagicSetValue), emptyTypeArguments, keyExpr, valueExpr, EmitValue(hashSeed));
 
@@ -256,7 +254,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public void EmitAddCollectionItem(string controlName, string variableName, string collectionPropertyName = "Children")
         {
-            var controlParameter = GetParameter(controlName);
+            var controlParameter = GetParameterOrVariable(controlName);
 
             //control/control.[collectionPropertyName]
             Expression collectionExpression;
@@ -269,7 +267,7 @@ namespace DotVVM.Framework.Compilation
                 collectionExpression = Expression.PropertyOrField(controlParameter, collectionPropertyName);
             }
 
-            var variablePartameter = GetParameter(variableName);
+            var variablePartameter = GetParameterOrVariable(variableName);
 
             //[collectionExpression].Add([variablePartameter])
 
@@ -284,7 +282,7 @@ namespace DotVVM.Framework.Compilation
         public void EmitAddToDictionary(string controlName, string propertyName, string key, Expression valueExpression)
         {
             //[controlName].[propertyName][key]= value;
-            var controlParameter = BlockStack.Peek().Variables[controlName];
+            var controlParameter = GetParameterOrVariable(controlName);
 
             var dictionaryKeyExpression = Expression.Property(
                 Expression.PropertyOrField(controlParameter, propertyName),
@@ -311,7 +309,7 @@ namespace DotVVM.Framework.Compilation
             //  [parentName].SetValue(property, new [property.PropertyType]());
             //}
 
-            var parentParameter = GetParameter(parentName);
+            var parentParameter = GetParameterOrVariable(parentName);
 
             var getPropertyValue = Expression.Call(parentParameter, "GetValue", emptyTypeArguments, CreateDotvvmPropertyIdentifier(property));
 
@@ -331,12 +329,14 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public void EmitReturnClause(string variableName)
         {
-            var parameter = GetParameter(variableName);
+            var parameter = GetParameterOrVariable(variableName);
             BlockStack.Peek().Expressions.Add(parameter);
         }
 
-        public ParameterExpression GetParameter(string variableName) => BlockStack.Peek().Variables[variableName];
+        public ParameterExpression GetParameterOrVariable(string identifierName)
+            => GetCurrentBlock().GetParameterOrVariable(identifierName);
 
+        private BlockInfo GetCurrentBlock() => BlockStack.Peek();
         public ParameterExpression EmitParameter(string name, Type type) => Expression.Parameter(type, name);
 
         public ParameterExpression[] EmitControlBuilderParameters()
@@ -362,7 +362,7 @@ namespace DotVVM.Framework.Compilation
             var blockInfo = BlockStack.Pop();
             var block = Expression.Block(blockInfo.Variables.Values, blockInfo.Expressions);
 
-            var lambda = Expression.Lambda(block,blockInfo.Parameters);
+            var lambda = Expression.Lambda(block, blockInfo.Parameters.Values);
             return lambda.Compile();
         }
     }
