@@ -142,10 +142,18 @@ namespace DotVVM.Framework.Binding
             InitializeProperty(this);
         }
 
-        public IEnumerable<T> GetAttributes<T>() =>
-            AttributeProvider.GetCustomAttributes<T>().Concat(
-                PropertyInfo?.GetCustomAttributes<T>() ?? Enumerable.Empty<T>()
-            );
+        public T[] GetAttributes<T>()
+        {
+            if (PropertyInfo == null)
+                return AttributeProvider.GetCustomAttributes<T>();
+            if (object.ReferenceEquals(AttributeProvider, PropertyInfo))
+                return PropertyInfo.GetCustomAttributes<T>();
+            var attrA = AttributeProvider.GetCustomAttributes<T>();
+            var attrB = PropertyInfo.GetCustomAttributes<T>();
+            if (attrA.Length == 0) return attrB;
+            if (attrB.Length == 0) return attrA;
+            return attrA.Concat(attrB).ToArray();
+        }
 
         public bool IsOwnedByCapability(Type capability) =>
             (this is DotvvmCapabilityProperty && this.PropertyType == capability) ||

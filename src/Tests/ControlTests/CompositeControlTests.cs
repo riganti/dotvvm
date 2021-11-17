@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Tests.ControlTests
     [TestClass]
     public class CompositeControlTests
     {
-        ControlTestHelper cth = new ControlTestHelper(config: config => {
+        static readonly ControlTestHelper cth = new ControlTestHelper(config: config => {
             _ = Repeater.RenderAsNamedTemplateProperty;
             config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);
             config.Markup.AddCodeControls("cc", exampleControl: typeof(WrappedHtmlControl));

@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Tests.ControlTests
     [TestClass]
     public class SimpleControlTests
     {
-        ControlTestHelper cth = new ControlTestHelper(config: config => {
+        static readonly ControlTestHelper cth = new ControlTestHelper(config: config => {
             config.RouteTable.Add("WithParams", "WithParams/{A}-{B:int}/{C?}", "WithParams.dothtml", new { B = 1 });
             config.RouteTable.Add("Simple", "Simple", "Simple.dothtml");
         });
@@ -323,6 +323,25 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <js:Bazmek lol={value: Integer} />
                 <js:Bazmek cmd={command: (string x) => x + '0'} />
                 <js:Bazmek scmd={staticCommand: (int x) => Integer = x} />
+            ", directives: "@js dotvvm.internal");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task Decorator()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <dot:Decorator class=c1>
+                    <div /> 
+                </dot:Decorator>
+                <dot:Decorator class=c2>
+                    <%-- comment --%>
+                    <div /> 
+                </dot:Decorator>
+                <dot:Decorator class=c3>
+                    <!-- comment -->
+                    <div /> 
+                </dot:Decorator>
             ", directives: "@js dotvvm.internal");
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }

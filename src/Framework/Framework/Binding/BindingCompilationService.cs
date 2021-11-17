@@ -42,29 +42,13 @@ namespace DotVVM.Framework.Binding
         }
 
         BindingResolverCollection resolvers = new BindingResolverCollection(Enumerable.Empty<Delegate>());
-        [ThreadStatic]
-        private static bool LookingForResolvers = false;
-
-        private BindingResolverCollection? GetAdditionalResolvers(IBinding binding)
-        {
-            if (LookingForResolvers) return null;
-            try
-            {
-                LookingForResolvers = true;
-                return binding.GetProperty<BindingResolverCollection>(ErrorHandlingMode.ReturnNull);
-            }
-            finally
-            {
-                LookingForResolvers = false;
-            }
-        }
 
         public virtual object ComputeProperty(Type type, IBinding binding)
         {
             if (type == typeof(BindingCompilationService)) return this;
             if (type.IsAssignableFrom(binding.GetType())) return binding;
 
-            var additionalResolvers = GetAdditionalResolvers(binding);
+            var additionalResolvers = binding.GetAdditionalResolvers();
             var bindingResolvers = GetResolversForBinding(binding.GetType());
 
             var resolver = additionalResolvers?.FindResolver(type) ??

@@ -23,15 +23,14 @@ namespace DotVVM.Framework.Tests.Binding
     [TestClass]
     public class JavascriptCompilationTests
     {
-        private DotvvmConfiguration configuration;
-        private BindingTestHelper bindingHelper;
+        private static readonly DotvvmConfiguration configuration;
+        private static readonly BindingTestHelper bindingHelper;
 
-        [TestInitialize]
-        public void Init()
+        static JavascriptCompilationTests()
         {
-            this.configuration = DotvvmTestHelper.CreateConfiguration();
+            configuration = DotvvmTestHelper.CreateConfiguration();
             configuration.RegisterApiClient(typeof(TestApiClient), "http://server/api", "./apiscript.js", "_testApi");
-            this.bindingHelper = new BindingTestHelper(configuration);
+            bindingHelper = new BindingTestHelper(configuration);
         }
         public string CompileBinding(string expression, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object));
         public string CompileBinding(string expression, NamespaceImport[] imports, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object), imports);

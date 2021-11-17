@@ -6,6 +6,7 @@ using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
 using System.Reflection;
 using DotVVM.Framework.Configuration;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -67,7 +68,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public Func<IServiceProvider, object> CreateConstructorFactory()
         {
             var ex = Expression.Lambda<Func<IServiceProvider, object>>(Expression.New(Type), new [] { Expression.Parameter(typeof(IServiceProvider)) });
-            return ex.Compile();
+            return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
         }
 
         /// <summary>
@@ -250,7 +251,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     Expression.Block(Type, new[] { value, currentProperty, readerTmp }, block),
                     typeof(object)).OptimizeConstants(),
                 reader, serializer, valueParam, encryptedValuesReader);
-            return ex.Compile();
+            return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
             //return null;
         }
 
@@ -471,7 +472,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // compile the expression
             var ex = Expression.Lambda<WriterDelegate>(
                 Expression.Block(new[] { value }, block).OptimizeConstants(), writer, valueParam, serializer, encryptedValuesWriter, isPostback);
-            return ex.Compile();
+            return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
         }
 
         /// <summary>

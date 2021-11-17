@@ -9,6 +9,7 @@ using DotVVM.Framework.Configuration;
 using System.Linq.Expressions;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
@@ -91,7 +92,7 @@ namespace DotVVM.Framework.Compilation.Styles
                             new[] { p.ParameterType },
                             services)))
                     let expression = Expression.Lambda<Action<ResolvedControl, DotvvmConfiguration>>(invocationExpression, controlParameter, configurationParameter)
-                    select (IStyle)new GenericStyle(controlType, expression.Compile())
+                    select (IStyle)new GenericStyle(controlType, expression.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression))
                     ).ToImmutableArray();
             });
 

@@ -171,7 +171,7 @@ namespace DotVVM.Framework.Tests.Binding
         private object EvalExpression<T>(Expression<Func<T, object>> a, T val)
         {
             var nullChecked = ExpressionNullPropagationVisitor.PropagateNulls(a.Body, _ => true);
-            var d = a.Update(body: nullChecked, a.Parameters).Compile();
+            var d = a.Update(body: nullChecked, a.Parameters).Compile(preferInterpretation: true);
             return d(val);
         }
 

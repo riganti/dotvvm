@@ -602,6 +602,12 @@ namespace DotVVM.Framework.Controls
             writer.Write(text ?? "");
         }
 
+        public void WriteUnencodedWhitespace(string? text)
+        {
+            EnsureTagFullyOpen();
+            writer.Write(text ?? "");
+        }
+
         public void SetErrorContext(DotvvmBindableObject obj) => this.errorContext = obj;
     }
 }
