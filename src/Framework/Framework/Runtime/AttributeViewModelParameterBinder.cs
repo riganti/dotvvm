@@ -7,6 +7,7 @@ using System.Reflection;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Runtime
 {
@@ -50,7 +51,7 @@ namespace DotVVM.Framework.Runtime
 
 
             var lambda = Expression.Lambda<Action<IDotvvmRequestContext, object>>(Expression.Block(statements), contextParameter, viewModelParameter);
-            return lambda.Compile();
+            return lambda.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
         }
 
         /// <summary>

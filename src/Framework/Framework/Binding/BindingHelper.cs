@@ -223,6 +223,7 @@ namespace DotVVM.Framework.Binding
             var action = binding.GetCommandDelegate(control);
             if (action is Command command) return command();
             if (action is Action actionDelegate) { actionDelegate(); return null; }
+            if (action is Func<Task> command2) return command2();
 
             var parameters = action.GetType().GetMethod("Invoke")!.GetParameters();
             var evaluatedArgs = args.Zip(parameters, (a, p) => a(p.ParameterType)).ToArray();

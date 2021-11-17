@@ -129,6 +129,8 @@ namespace DotVVM.Framework.Compilation
             return cachedAssemblies.Values.ToArray();
         }
 
+        private static readonly WeakReference<Assembly[]?> allAssembliesCache = new(null);
+
         public Assembly[] GetAllAssemblies()
         {
             if (configuration.ExperimentalFeatures.ExplicitAssemblyLoading.Enabled)
@@ -137,13 +139,26 @@ namespace DotVVM.Framework.Compilation
             }
             else
             {
+                if (allAssembliesCache.TryGetTarget(out var a) && a != null)
+                    return a;
+
+                // parallelism is useless in this context
+                lock (this)
+                {
+                    if (allAssembliesCache.TryGetTarget(out var a2) && a2 != null)
+                        return a2;
+                
 #if DotNetCore
-                // auto-loads all referenced assemblies recursively
-                return DependencyContext.Default.GetDefaultAssemblyNames().Select(Assembly.Load).ToArray();
+                    // auto-loads all referenced assemblies recursively
+                    var newA = DependencyContext.Default.GetDefaultAssemblyNames().Select(Assembly.Load).ToArray();
 #else
-                // this doesn't load new assemblies, but it is done in InvokeStaticConstructorsOnAllControls
-                return AppDomain.CurrentDomain.GetAssemblies();
+                    // this doesn't load new assemblies, but it is done in InvokeStaticConstructorsOnAllControls
+                    var newA = AppDomain.CurrentDomain.GetAssemblies();
 #endif
+                    allAssembliesCache.SetTarget(newA);
+                    return newA;
+                }
+
             }
         }
 
@@ -152,11 +167,21 @@ namespace DotVVM.Framework.Compilation
         public bool IsAssemblyNamespace(string fullName) => cache_AllNamespaces.Value.Contains(fullName);
 
         private HashSet<string> GetAllNamespaces()
-            => new HashSet<string>(GetAllAssemblies()
-                .SelectMany(a => a.GetLoadableTypes()
-                    .Select(t => t.Namespace!)
-                    .Where(ns => ns is object))
-                .Distinct());
+        {
+            var result = new HashSet<string>();
+            foreach (var a in GetAllAssemblies())
+            {
+                string? lastNs = null; // namespaces come in batches, usually, so no need to hash it everytime when a quick compare says it's the same as last time
+                foreach (var type in a.ExportedTypes)
+                {
+                    var ns = type.Namespace;
+                    if (ns is null || lastNs == ns)
+                        continue;
+                    result.Add(ns);                   
+                }
+            }
+            return result;
+        }
 
         private ConcurrentDictionary<string, Type?> cache_FindTypeHash = new ConcurrentDictionary<string, Type?>(StringComparer.Ordinal);
         private ConcurrentDictionary<string, Type?> cache_FindTypeHashIgnoreCase = new ConcurrentDictionary<string, Type?>(StringComparer.OrdinalIgnoreCase);

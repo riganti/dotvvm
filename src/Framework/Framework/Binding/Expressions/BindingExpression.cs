@@ -4,9 +4,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime.Filters;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
@@ -123,6 +126,7 @@ namespace DotVVM.Framework.Binding.Expressions
         }
 
 
+
         Lazy<string> toStringValue;
         public override string ToString() => toStringValue.Value;
 
@@ -131,6 +135,32 @@ namespace DotVVM.Framework.Binding.Expressions
             return properties.Values
                 .Where(p => p.Error == null)
                 .Select(p => p.Value ?? throw null!);
+        }
+
+        BindingResolverCollection? cachedAdditionalResolvers;
+
+        public BindingResolverCollection? GetAdditionalResolvers()
+        {
+            if (cachedAdditionalResolvers is {})
+                return cachedAdditionalResolvers;
+
+            var prop = ((AssignedPropertyBindingProperty?)properties.GetValueOrDefault(typeof(AssignedPropertyBindingProperty)).Value)?.DotvvmProperty;
+            var stack = (DataContextStack?)properties.GetValueOrDefault(typeof(DataContextStack)).Value;
+
+            var attributes = prop?.GetAttributes<BindingCompilationOptionsAttribute>();
+            var fromDataContext = stack?.GetAllBindingPropertyResolvers() ?? ImmutableArray<Delegate>.Empty;
+
+            var resolvers = 
+                fromDataContext.IsEmpty && attributes is null or { Length: 0 } ?
+                    new BindingResolverCollection(Enumerable.Empty<Delegate>()) :
+                    new BindingResolverCollection(
+                        attributes
+                        .SelectMany(o => o.GetResolvers())
+                        .Concat(fromDataContext)
+                        .ToArray());
+
+            Interlocked.CompareExchange(ref cachedAdditionalResolvers, resolvers, null);
+            return cachedAdditionalResolvers;
         }
     }
 }

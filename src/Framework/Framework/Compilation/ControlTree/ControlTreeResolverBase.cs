@@ -409,7 +409,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 bindingOptions = controlResolver.ResolveBinding("value").NotNull(); // just try it as with value binding
             }
 
-            if (context?.NamespaceImports.Count > 0)
+            if (context?.NamespaceImports.Length > 0)
                 bindingOptions = bindingOptions.AddImports(context.NamespaceImports);
 
             return CompileBinding(node, bindingOptions, context!, property);
