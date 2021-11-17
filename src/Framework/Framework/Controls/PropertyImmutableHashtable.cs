@@ -78,7 +78,7 @@ namespace DotVVM.Framework.Controls
 
         public static (int hashSeed, DotvvmProperty?[] keys) BuildTable(DotvvmProperty[] a)
         {
-            Debug.Assert(a.OrderBy(x => x.FullName).SequenceEqual(a));
+            Debug.Assert(a.OrderBy(x => x.FullName, StringComparer.Ordinal).SequenceEqual(a));
 
             // make sure that all tables have the same keys so that they don't take much RAM (and remain in cache and make things go faster)
             return tableCache.GetOrAdd(a, keys => {

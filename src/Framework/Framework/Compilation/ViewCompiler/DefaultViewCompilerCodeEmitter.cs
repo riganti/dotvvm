@@ -349,7 +349,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             public ParameterExpression GetParameterOrVariable(string identifierName)
                => Variables.ContainsKey(identifierName) ? Variables[identifierName]
                : Parameters.ContainsKey(identifierName) ? Parameters[identifierName]
-               : throw new ArgumentException($"Parameter or variable '{identifierName}' was not found in the block {Name}.");
+               : throw new ArgumentException($"Parameter or variable '{identifierName}' was not found.");
         }
     }
 }
