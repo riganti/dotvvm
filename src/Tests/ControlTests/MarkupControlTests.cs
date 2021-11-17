@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Tests.ControlTests
     [TestClass]
     public class MarkupControlTests
     {
-        ControlTestHelper cth = new ControlTestHelper(config: config => {
+        static readonly ControlTestHelper cth = new ControlTestHelper(config: config => {
             config.Markup.AddMarkupControl("cc", "CustomControlWithCommand", "CustomControlWithCommand.dotcontrol");
             config.Markup.AddMarkupControl("cc", "CustomControlWithProperty", "CustomControlWithProperty.dotcontrol");
             config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);

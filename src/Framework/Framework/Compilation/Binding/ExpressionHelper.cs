@@ -95,7 +95,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 if (throwException)
                 {
                     // throw the exception
-                    Expression.Lambda(result.Expression).Compile().DynamicInvoke();
+                    Expression.Lambda(result.Expression).Compile(preferInterpretation: true).DynamicInvoke();
                 }
                 else return null;
             }

@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Tests.ControlTests
     [TestClass]
     public class IdGeneration
     {
-        ControlTestHelper cth = new ControlTestHelper();
+        static readonly ControlTestHelper cth = new ControlTestHelper();
         // ControlTestHelper cth = new ControlTestHelper(config: config => {
         //     config.Markup.AddMarkupControl("cc", "CustomControl", "custom.dotcontrol");
         // });

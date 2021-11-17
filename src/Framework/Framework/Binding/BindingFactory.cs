@@ -9,6 +9,7 @@ using System.Text;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Binding;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Binding
 {
@@ -37,14 +38,14 @@ namespace DotVVM.Framework.Binding
                 binding = binding.MakeGenericType(new [] { type });
             }
 
-            return bindingCtorCache.GetOrAdd(binding, type => {
+            return bindingCtorCache.GetOrAdd(binding, static type => {
                 var ctor = type.GetConstructor(new[] { typeof(BindingCompilationService), typeof(object[]) }) ??
                            type.GetConstructor(new[] { typeof(BindingCompilationService), typeof(IEnumerable<object>) });
-                if (ctor == null) throw new NotSupportedException($"Could not find .ctor(BindingCompilationService service, object[] properties) on binding '{binding.FullName}'.");
+                if (ctor == null) throw new NotSupportedException($"Could not find .ctor(BindingCompilationService service, object[] properties) on binding '{type.FullName}'.");
                 var bindingServiceParam = Expression.Parameter(typeof(BindingCompilationService));
                 var propertiesParam = Expression.Parameter(typeof(object?[]));
                 var expression = Expression.New(ctor, bindingServiceParam, TypeConversion.ImplicitConversion(propertiesParam, ctor.GetParameters()[1].ParameterType));
-                return Expression.Lambda<Func<BindingCompilationService, object?[], IBinding>>(expression, bindingServiceParam, propertiesParam).Compile();
+                return Expression.Lambda<Func<BindingCompilationService, object?[], IBinding>>(expression, bindingServiceParam, propertiesParam).CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
             })(service, properties);
         }
     }

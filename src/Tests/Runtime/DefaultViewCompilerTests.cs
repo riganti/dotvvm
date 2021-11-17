@@ -482,35 +482,35 @@ test <dot:Literal><a /></dot:Literal>";
             Assert.IsFalse(ex.ToString().Contains("This is most probably bug in the DotVVM framework."));
         }
 
-        private DotvvmControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false, [CallerMemberName]string fileName = null)
-        {
-            if (markupFiles == null)
-            {
-                markupFiles = new Dictionary<string, string>();
-            }
-            markupFiles[fileName + ".dothtml"] = markup;
 
-            var config = DotvvmTestHelper.CreateConfiguration(services =>
-            {
-                services.AddSingleton<IMarkupFileLoader>(new FakeMarkupFileLoader(markupFiles));
+        static ControlTestHelper controlHelper = new ControlTestHelper(true,
+            config => {
+                config.ApplicationPhysicalPath = Path.GetTempPath();
+                config.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.dothtml" });
+                config.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test2", Src = "test2.dothtml" });
+                config.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test3", Src = "test3.dothtml" });
+                config.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test4", Src = "test4.dothtml" });
+                config.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test5", Src = "test5.dothtml" });
+                config.Markup.AddCodeControls("ff", typeof(TestControl));
+                config.Markup.AddAssembly(typeof(DefaultViewCompilerTests).Assembly.GetName().Name);
+
+            },
+            services => {
                 services.AddSingleton<CustomControlFactory>((s, t) =>
                     t == typeof(TestCustomDependencyInjectionControl) ? new TestCustomDependencyInjectionControl("") { IsCorrectlyCreated = true } :
                     throw new Exception());
-            });
-            context = DotvvmTestHelper.CreateContext(config);
-            context.Configuration.ApplicationPhysicalPath = Path.GetTempPath();
 
-            context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.dothtml" });
-            context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test2", Src = "test2.dothtml" });
-            context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test3", Src = "test3.dothtml" });
-            context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test4", Src = "test4.dothtml" });
-            context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test5", Src = "test5.dothtml" });
-            context.Configuration.Markup.AddCodeControls("ff", typeof(TestControl));
-            context.Configuration.Markup.AddAssembly(typeof(DefaultViewCompilerTests).Assembly.GetName().Name);
+            }
+        );
+
+        private DotvvmControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false, [CallerMemberName]string fileName = null)
+        {
+            var config = controlHelper.Configuration;
+            context = DotvvmTestHelper.CreateContext(config);
+
+            var (_, controlBuilder) = controlHelper.CompilePage(markup, fileName, markupFiles);
 
             var controlBuilderFactory = context.Services.GetRequiredService<IControlBuilderFactory>();
-            var (_, controlBuilder) = controlBuilderFactory.GetControlBuilder(fileName + ".dothtml");
-
             var result = controlBuilder.Value.BuildControl(controlBuilderFactory, context.Services);
             if (compileTwice)
             {

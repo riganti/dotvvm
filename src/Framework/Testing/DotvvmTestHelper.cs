@@ -87,7 +87,14 @@ namespace DotVVM.Framework.Testing
             services.TryAddSingleton<IViewModelProtector, FakeProtector>();
             services.TryAddSingleton<ICsrfProtector, FakeCsrfProtector>();
             services.TryAddSingleton<IDotvvmCacheAdapter, SimpleDictionaryCacheAdapter>();
+            services.AddSingleton<CompiledAssemblyCache>(s => sharedAssemblyCache.Value);
+            services.AddSingleton<ExtensionMethodsCache>(s => sharedExtensionMethodCache.Value);
         }
+
+        private static Lazy<CompiledAssemblyCache> sharedAssemblyCache =
+            new (() => new CompiledAssemblyCache(DefaultConfig));
+        private static Lazy<ExtensionMethodsCache> sharedExtensionMethodCache =
+            new (() => new ExtensionMethodsCache(sharedAssemblyCache.Value));
 
         private static Lazy<DotvvmConfiguration> _defaultConfig = new Lazy<DotvvmConfiguration>(() => {
             var config = CreateConfiguration();
