@@ -167,7 +167,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             controlProperties.Remove(name);
             if (properties.Count == 0) return;
 
-            properties.Sort((a, b) => String.Compare(a.prop.FullName, b.prop.FullName, StringComparison.Ordinal));
+            properties.Sort((a, b) => string.Compare(a.prop.FullName, b.prop.FullName, StringComparison.Ordinal));
 
             var (hashSeed, keys, values) = PropertyImmutableHashtable.CreateTableWithValues(properties.Select(p => p.prop).ToArray(), properties.Select(p => p.value).ToArray());
 
@@ -327,12 +327,13 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
         /// <summary>
         /// Pops the method.
         /// </summary>
-        public T PopMethod<T>() where T: Delegate
+        public TDelegate PopMethod<TDelegate>()
+            where TDelegate : Delegate
         {
             var blockInfo = blockStack.Pop();
             var block = Expression.Block(blockInfo.Variables.Values, blockInfo.Expressions);
 
-            var lambda = Expression.Lambda<T>(block, blockInfo.Parameters.Values);
+            var lambda = Expression.Lambda<TDelegate>(block, blockInfo.Parameters.Values);
             return lambda.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
         }
 
@@ -350,7 +351,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             public ParameterExpression GetParameterOrVariable(string identifierName)
                => Variables.ContainsKey(identifierName) ? Variables[identifierName]
                : Parameters.ContainsKey(identifierName) ? Parameters[identifierName]
-               : throw new ArgumentException($"Parameter or variable '{identifierName}' was not found.");
+               : throw new ArgumentException($"Parameter or variable '{identifierName}' was not found in the current block.");
         }
     }
 }

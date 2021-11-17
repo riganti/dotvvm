@@ -21,14 +21,14 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
         protected int currentTemplateIndex;
         protected string? controlName;
 
-        public Func<IControlBuilderFactory, IServiceProvider, DotvvmControl> CompiledViewDelegate { get; set; }
+        public Func<IControlBuilderFactory, IServiceProvider, DotvvmControl> BuildCompiledView { get; set; }
 
         public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, IBindingCompiler bindingCompiler)
         {
             this.emitter = emitter;
             this.bindingCompiler = bindingCompiler;
 
-            CompiledViewDelegate = (_, _) => throw new InvalidOperationException("View is not yet compiled.");
+            BuildCompiledView = (_,__) => throw new InvalidOperationException("The view cannot be built, bacause it hasn't been compiled yet.");
         }
 
         public override void VisitView(ResolvedTreeRoot view)
@@ -37,7 +37,6 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
 
             if (isPageView)
             {
-                //TODO: Possibly emit custom generated type here
                 emitter.ResultControlType = typeof(DotvvmView);
             }
             else
@@ -77,7 +76,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             emitter.CommitDotvvmProperties(pageName);
 
             emitter.EmitReturnClause(pageName);
-            CompiledViewDelegate = emitter.PopMethod<Func<IControlBuilderFactory, IServiceProvider, DotvvmControl>>();
+            BuildCompiledView = emitter.PopMethod<Func<IControlBuilderFactory, IServiceProvider, DotvvmControl>>();
         }
 
         protected ParameterExpression EmitCreateControl(Type type, object[]? arguments)
@@ -197,12 +196,16 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
 
         public override void VisitPropertyTemplate(ResolvedPropertyTemplate propertyTemplate)
         {
-            if (propertyTemplate.Property is CompileTimeOnlyDotvvmProperty)
-                return;
+            if (propertyTemplate.Property is CompileTimeOnlyDotvvmProperty) { return; }
 
             var parentName = controlName.NotNull();
-            emitter.PushNewMethod(emitter.EmitControlBuilderParameters().Concat(new [] { emitter.EmitParameter("templateContainer", typeof(DotvvmControl))}).ToArray());
-            // build the statements
+
+            //compiledDelegate = (controlBuilderFactory, sercices, templateContainer) => {
+            //   ...the template control building statements go here
+            //}
+
+            emitter.PushNewMethod(emitter.EmitControlBuilderParameters().Concat(new[] { emitter.EmitParameter("templateContainer", typeof(DotvvmControl)) }).ToArray());
+
             controlName = "templateContainer";
 
             base.VisitPropertyTemplate(propertyTemplate);
@@ -210,8 +213,11 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             var compiledDelegate = emitter.PopMethod<Action<IControlBuilderFactory, IServiceProvider, DotvvmControl>>();
             controlName = parentName;
 
-            var templateName = CreateTemplate(compiledDelegate);
-            SetProperty(controlName, propertyTemplate.Property, templateName);
+            //[parent].[propertyTemplate.Property] = new DelegateTemplate { BuildContentBody = compiledDelegate }
+
+            var delegateTemplateValue = emitter.EmitValue(new DelegateTemplate { BuildContentBody = compiledDelegate });
+
+            SetProperty(controlName, propertyTemplate.Property, delegateTemplateValue);
         }
 
         /// <summary>
@@ -255,14 +261,6 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
         protected Expression ProcessBinding(ResolvedBinding binding)
         {
             return bindingCompiler.EmitCreateBinding(emitter, binding);
-        }
-
-        /// <summary>
-        /// Processes the template.
-        /// </summary>
-        protected Expression CreateTemplate(Action<IControlBuilderFactory, IServiceProvider, DotvvmControl> compiledDelegate)
-        {
-            return Expression.Constant(new DelegateTemplate(compiledDelegate));
         }
     }
 }

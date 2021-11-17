@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
 
                 resolvedView.Accept(compilingVisitor);
 
-                return compilingVisitor.CompiledViewDelegate;
+                return compilingVisitor.BuildCompiledView;
             }
             );
         }
