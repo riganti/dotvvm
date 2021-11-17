@@ -104,23 +104,6 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
-        protected static string GetValidIdentifier(string identifier)
-        {
-            if (string.IsNullOrEmpty(identifier)) return "_";
-            var arr = identifier.ToCharArray();
-            for (int i = 0; i < arr.Length; i++)
-            {
-                if (!char.IsLetterOrDigit(arr[i]))
-                {
-                    arr[i] = '_';
-                }
-            }
-            identifier = new string(arr);
-            if (char.IsDigit(arr[0])) identifier = "C" + identifier;
-            if (csharpKeywords.Contains(identifier)) identifier += "0";
-            return identifier;
-        }
-
         public void LoadCompiledViewsAssembly(string filePath)
         {
             var assembly = TryFindAssembly(filePath);
