@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Compiles the view and returns a function that can be invoked repeatedly. The function builds full control tree and activates the page.
         /// </summary>
-        public virtual (ControlBuilderDescriptor, Func<Delegate>) CompileView(string sourceCode, string fileName, string namespaceName, string className)
+        protected virtual (ControlBuilderDescriptor, Func<Delegate>) CompileViewCore(string sourceCode, string fileName)
         {
             // parse the document
             var tokenizer = new DothtmlTokenizer();
@@ -82,9 +82,9 @@ namespace DotVVM.Framework.Compilation
             );
         }
 
-        public virtual (ControlBuilderDescriptor, Func<IControlBuilder>) CompileView(string sourceCode, string fileName, string assemblyName, string namespaceName, string className)
+        public virtual (ControlBuilderDescriptor, Func<IControlBuilder>) CompileView(string sourceCode, string fileName)
         {
-            var (descriptor, viewBuildingDelegateGetter) = CompileView(sourceCode, fileName, namespaceName, className);
+            var (descriptor, viewBuildingDelegateGetter) = CompileViewCore(sourceCode, fileName);
             return (descriptor, () => new DelegateControlBuilder(descriptor, (Func<IControlBuilderFactory, IServiceProvider, DotvvmControl>)viewBuildingDelegateGetter()));
         }
     }

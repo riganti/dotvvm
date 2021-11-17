@@ -95,16 +95,27 @@ namespace DotVVM.Framework.Compilation
             return Expression.NewArrayInit(elementType, convertedValues);
         }
 
-        /// <summary>
-        /// Emits the control builder invocation.
-        /// </summary>
         public ParameterExpression EmitInvokeControlBuilder(Type controlType, string virtualPath)
         {
-            var builderName = "c" + CurrentControlIndex + "_builder";
-            var untypedName = "c" + CurrentControlIndex + "_untyped";
-            var name = "c" + CurrentControlIndex;
-            CurrentControlIndex++;
+            var builderValueExpression = GetControlBuilderCreatingExpression(virtualPath);
 
+            return EmitInvokeBuildControl(controlType, builderValueExpression);
+        }
+
+        private ParameterExpression EmitInvokeBuildControl(Type controlType, Expression builderValueExpression)
+        {
+            //var [untypedName] = [builderName].BuildControl(controlBuilderFactory, services)
+            var controlBuilderFactoryParameter = GetParameterOrVariable(ControlBuilderFactoryParameterName);
+
+            var servicesParameter = GetParameterOrVariable(ServiceProviderParameterName);
+
+            var buildControlCall = Expression.Call(builderValueExpression, nameof(IControlBuilder.BuildControl), emptyTypeArguments, controlBuilderFactoryParameter, servicesParameter);
+
+            return EmitCreateVariable(Expression.Convert(buildControlCall, controlType));
+        }
+
+        private Expression GetControlBuilderCreatingExpression(string virtualPath)
+        {
             //var [builderName] = controlBuilderFactory.GetControlBuilder(virtualPath).Item2.Value
 
             var controlBuilderFactoryParameter = GetParameterOrVariable(ControlBuilderFactoryParameterName);
@@ -114,21 +125,9 @@ namespace DotVVM.Framework.Compilation
             var builderValueExpression = Expression.PropertyOrField(
                 Expression.PropertyOrField(getBuilderCall, "Item2"),
                 "Value");
-
-            var builderParameter = EmitCreateVariable(builderValueExpression);
-
-            //var [untypedName] = [builderName].BuildControl(controlBuilderFactory, services)
-
-            var servicesParameter = GetParameterOrVariable(ServiceProviderParameterName);
-
-            var buildControlCall = Expression.Call(builderParameter, nameof(IControlBuilder.BuildControl), emptyTypeArguments, controlBuilderFactoryParameter, servicesParameter);
-
-            return EmitCreateVariable(Expression.Convert(buildControlCall, controlType));
+            return builderValueExpression;
         }
 
-        /// <summary>
-        /// Emits the set property statement.
-        /// </summary>
         public void EmitSetProperty(string controlName, string propertyName, Expression valueExpression)
         {
             //[controlName].[propertyName] = [value] 
