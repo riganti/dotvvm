@@ -482,7 +482,7 @@ namespace DotVVM.Framework.Hosting
                 }
             }
 
-            if (!checksAllowed || string.IsNullOrEmpty(dest))
+            if (!checksAllowed || string.IsNullOrEmpty(dest) || string.IsNullOrEmpty(site))
                 return;
 
             if (isPost)

@@ -112,20 +112,21 @@ namespace DotVVM.Framework.Hosting.Middlewares
         {
             var config = context.Configuration.Security;
             var route = context.Route?.RouteName;
-            if (config.ContentTypeOptionsHeader.IsEnabledForRoute(route))
-                context.HttpContext.Response.Headers.Add("X-Content-Type-Options", new [] { "nosniff" });
+            var headers = context.HttpContext.Response.Headers;
+            if (config.ContentTypeOptionsHeader.IsEnabledForRoute(route) && !headers.ContainsKey("X-Content-Type-Options"))
+                headers.Add("X-Content-Type-Options", new [] { "nosniff" });
 
-            if (config.XssProtectionHeader.IsEnabledForRoute(route))
-                context.HttpContext.Response.Headers.Add("X-XSS-Protection", new [] { "1; mode=block" });
+            if (config.XssProtectionHeader.IsEnabledForRoute(route) && !headers.ContainsKey("X-XSS-Protection"))
+                headers.Add("X-XSS-Protection", new [] { "1; mode=block" });
 
-            if (config.FrameOptionsCrossOrigin.IsEnabledForRoute(route))
+            if (config.FrameOptionsCrossOrigin.IsEnabledForRoute(route) || headers.ContainsKey("X-Frame-Options"))
             {
                 // nothing
             }
             else if (config.FrameOptionsSameOrigin.IsEnabledForRoute(route))
-                context.HttpContext.Response.Headers.Add("X-Frame-Options", new [] { "SAMEORIGIN" });
+                headers.Add("X-Frame-Options", new [] { "SAMEORIGIN" });
             else
-                context.HttpContext.Response.Headers.Add("X-Frame-Options", new [] { "DENY" });
+                headers.Add("X-Frame-Options", new [] { "DENY" });
 
 
         }
