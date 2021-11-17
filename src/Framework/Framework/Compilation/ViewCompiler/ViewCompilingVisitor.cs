@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             this.emitter = emitter;
             this.bindingCompiler = bindingCompiler;
 
-            BuildCompiledView = (_,__) => throw new InvalidOperationException("The view cannot be built, bacause it hasn't been compiled yet.");
+            BuildCompiledView = (_, _) => throw new InvalidOperationException("The view cannot be built, bacause it hasn't been compiled yet.");
         }
 
         public override void VisitView(ResolvedTreeRoot view)
