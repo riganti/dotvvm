@@ -1,6 +1,6 @@
 using System;
 
-namespace DotVVM.Framework.Compilation
+namespace DotVVM.Framework.Compilation.ViewCompiler
 {
     /// <summary>
     /// Gets the Dothtml view and compiles it into a function.

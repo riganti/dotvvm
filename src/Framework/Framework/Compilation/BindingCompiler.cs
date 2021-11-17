@@ -18,6 +18,7 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Controls;
 using System.Diagnostics;
+using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation

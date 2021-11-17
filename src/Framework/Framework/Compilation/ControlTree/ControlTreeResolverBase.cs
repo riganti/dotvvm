@@ -17,6 +17,7 @@ using DotVVM.Framework.Utils;
 using System.Collections.ObjectModel;
 using DotVVM.Framework.Binding;
 using System.Diagnostics.CodeAnalysis;
+using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.ResourceManagement;
 
 namespace DotVVM.Framework.Compilation.ControlTree

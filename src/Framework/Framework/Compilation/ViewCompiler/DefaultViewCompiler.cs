@@ -1,18 +1,14 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
-using DotVVM.Framework.Utils;
-using System.Collections.Generic;
-using Microsoft.Extensions.Options;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
+using Microsoft.Extensions.Options;
 
-namespace DotVVM.Framework.Compilation
+namespace DotVVM.Framework.Compilation.ViewCompiler
 {
     public class DefaultViewCompiler : IViewCompiler
     {

@@ -4,7 +4,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
-namespace DotVVM.Framework.Compilation
+namespace DotVVM.Framework.Compilation.ViewCompiler
 {
     [HandleAsImmutableObjectInDotvvmProperty]
     public class ControlBuilderDescriptor: IAbstractControlBuilderDescriptor

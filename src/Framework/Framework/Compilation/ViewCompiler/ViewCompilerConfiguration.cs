@@ -1,8 +1,8 @@
 ﻿using System;
-using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using System.Collections.Generic;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
-namespace DotVVM.Framework.Compilation
+namespace DotVVM.Framework.Compilation.ViewCompiler
 {
     public class ViewCompilerConfiguration
     {

@@ -20,6 +20,7 @@ using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.ResourceManagement;
 using Microsoft.Extensions.Options;

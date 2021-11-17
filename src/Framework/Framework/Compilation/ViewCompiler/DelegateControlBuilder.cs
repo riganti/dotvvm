@@ -1,4 +1,5 @@
 ﻿using System;
+using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Compilation

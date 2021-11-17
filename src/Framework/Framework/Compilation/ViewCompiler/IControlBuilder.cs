@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
 
-namespace DotVVM.Framework.Compilation
+namespace DotVVM.Framework.Compilation.ViewCompiler
 {
     public interface IControlBuilder
     {

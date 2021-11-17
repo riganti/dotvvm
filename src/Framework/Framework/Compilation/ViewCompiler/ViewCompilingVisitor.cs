@@ -1,17 +1,17 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using DotVVM.Framework.Compilation.Binding;
-using System.Diagnostics;
 using DotVVM.Framework.Utils;
 
-namespace DotVVM.Framework.Compilation
+namespace DotVVM.Framework.Compilation.ViewCompiler
 {
     public class ViewCompilingVisitor : ResolvedControlTreeVisitor
     {
@@ -19,7 +19,6 @@ namespace DotVVM.Framework.Compilation
         protected readonly IBindingCompiler bindingCompiler;
 
         protected int currentTemplateIndex;
-        protected ControlResolverMetadata? lastMetadata;
         protected string? controlName;
 
         public Delegate CompiledViewDelegate { get; set; }
@@ -34,8 +33,6 @@ namespace DotVVM.Framework.Compilation
 
         public override void VisitView(ResolvedTreeRoot view)
         {
-            lastMetadata = view.Metadata;
-
             var isPageView = view.Metadata.Type == typeof(DotvvmView);
 
             if (isPageView)
@@ -49,7 +46,7 @@ namespace DotVVM.Framework.Compilation
             }
 
             // build the statements
-            emitter.PushNewMethod(nameof(IControlBuilder.BuildControl), typeof(DotvvmControl), emitter.EmitControlBuilderParameters());
+            emitter.PushNewMethod(emitter.EmitControlBuilderParameters());
 
             var pageName =
                 isPageView ? emitter.EmitCreateObject(emitter.ResultControlType).Name :
@@ -205,7 +202,7 @@ namespace DotVVM.Framework.Compilation
 
             var parentName = controlName.NotNull();
             var methodName = DefaultViewCompilerCodeEmitter.BuildTemplateFunctionName + $"_{propertyTemplate.Property.DeclaringType.Name}_{propertyTemplate.Property.Name}_{currentTemplateIndex++}";
-            emitter.PushNewMethod(methodName, typeof(void), emitter.EmitControlBuilderParameters().Concat(new [] { emitter.EmitParameter("templateContainer", typeof(DotvvmControl))}).ToArray());
+            emitter.PushNewMethod(emitter.EmitControlBuilderParameters().Concat(new [] { emitter.EmitParameter("templateContainer", typeof(DotvvmControl))}).ToArray());
             // build the statements
             controlName = "templateContainer";
 

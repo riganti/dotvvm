@@ -1,13 +1,13 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using DotVVM.Framework.Binding;
-using System.Collections.Concurrent;
 using System.Linq.Expressions;
-using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace DotVVM.Framework.Compilation
+namespace DotVVM.Framework.Compilation.ViewCompiler
 {
     public class DefaultViewCompilerCodeEmitter
     {
@@ -130,7 +130,7 @@ namespace DotVVM.Framework.Compilation
 
         public void EmitSetProperty(string controlName, string propertyName, Expression valueExpression)
         {
-            //[controlName].[propertyName] = [value] 
+            //[controlName].[propertyName] = [value]
             var controlParameter = GetParameterOrVariable(controlName);
             var assigment = Expression.Assign(Expression.PropertyOrField(controlParameter, propertyName), valueExpression);
 
@@ -142,7 +142,7 @@ namespace DotVVM.Framework.Compilation
             return Expression.Constant(property);
         }
 
-        private Dictionary<string, List<(DotvvmProperty prop, Expression value)>> controlProperties = new Dictionary<string, List<(DotvvmProperty, Expression)>>();
+        private readonly Dictionary<string, List<(DotvvmProperty prop, Expression value)>> controlProperties = new Dictionary<string, List<(DotvvmProperty, Expression)>>();
 
         public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, object? value) =>
             EmitSetDotvvmProperty(controlName, property, EmitValue(value));
@@ -166,7 +166,7 @@ namespace DotVVM.Framework.Compilation
             controlProperties.Remove(name);
             if (properties.Count == 0) return;
 
-            properties.Sort((a, b) => a.prop.FullName.CompareTo(b.prop.FullName));
+            properties.Sort((a, b) => String.Compare(a.prop.FullName, b.prop.FullName, StringComparison.Ordinal));
 
             var (hashSeed, keys, values) = PropertyImmutableHashtable.CreateTableWithValues(properties.Select(p => p.prop).ToArray(), properties.Select(p => p.value).ToArray());
 
@@ -318,9 +318,9 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Pushes the new method.
         /// </summary>
-        public void PushNewMethod(string name, Type returnType, params ParameterExpression[] parameters)
+        public void PushNewMethod(params ParameterExpression[] parameters)
         {
-            blockStack.Push(new BlockInfo(name, returnType, parameters));
+            blockStack.Push(new BlockInfo(parameters));
         }
 
         /// <summary>
@@ -337,17 +337,13 @@ namespace DotVVM.Framework.Compilation
 
         private record BlockInfo
         {
-            public string Name { get; }
-            public Type ReturnType { get; }
             public IReadOnlyDictionary<string, ParameterExpression> Parameters { get; }
             public Dictionary<string, ParameterExpression> Variables { get; set; } = new();
             public List<Expression> Expressions { get; set; } = new();
 
-            public BlockInfo(string name, Type returnType, ParameterExpression[] parameters)
+            public BlockInfo(ParameterExpression[] parameters)
             {
-                ReturnType = returnType;
                 Parameters = parameters.ToDictionary(k => k.Name, v => v);
-                Name = name;
             }
 
             public ParameterExpression GetParameterOrVariable(string identifierName)
