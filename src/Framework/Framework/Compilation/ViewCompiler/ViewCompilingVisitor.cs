@@ -21,14 +21,14 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
         protected int currentTemplateIndex;
         protected string? controlName;
 
-        public Delegate CompiledViewDelegate { get; set; }
+        public Func<IControlBuilderFactory, IServiceProvider, DotvvmControl> CompiledViewDelegate { get; set; }
 
         public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, IBindingCompiler bindingCompiler)
         {
             this.emitter = emitter;
             this.bindingCompiler = bindingCompiler;
 
-            CompiledViewDelegate = new Action(() => new InvalidOperationException("View is not yet compiled."));
+            CompiledViewDelegate = (_, _) => throw new InvalidOperationException("View is not yet compiled.");
         }
 
         public override void VisitView(ResolvedTreeRoot view)
@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             emitter.CommitDotvvmProperties(pageName);
 
             emitter.EmitReturnClause(pageName);
-            CompiledViewDelegate = emitter.PopMethod();
+            CompiledViewDelegate = emitter.PopMethod<Func<IControlBuilderFactory, IServiceProvider, DotvvmControl>>();
         }
 
         protected ParameterExpression EmitCreateControl(Type type, object[]? arguments)
@@ -201,18 +201,17 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
                 return;
 
             var parentName = controlName.NotNull();
-            var methodName = DefaultViewCompilerCodeEmitter.BuildTemplateFunctionName + $"_{propertyTemplate.Property.DeclaringType.Name}_{propertyTemplate.Property.Name}_{currentTemplateIndex++}";
             emitter.PushNewMethod(emitter.EmitControlBuilderParameters().Concat(new [] { emitter.EmitParameter("templateContainer", typeof(DotvvmControl))}).ToArray());
             // build the statements
             controlName = "templateContainer";
 
             base.VisitPropertyTemplate(propertyTemplate);
 
-            var compiledDelegate = emitter.PopMethod();
+            var compiledDelegate = emitter.PopMethod<Action<IControlBuilderFactory, IServiceProvider, DotvvmControl>>();
             controlName = parentName;
 
-            var templateName = CreateTemplate(methodName, compiledDelegate);
-            SetProperty(controlName, propertyTemplate.Property, emitter.GetParameterOrVariable(templateName));
+            var templateName = CreateTemplate(compiledDelegate);
+            SetProperty(controlName, propertyTemplate.Property, templateName);
         }
 
         /// <summary>
@@ -261,12 +260,9 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
         /// <summary>
         /// Processes the template.
         /// </summary>
-        protected string CreateTemplate(string builderMethodName, Delegate compiledDelegate)
+        protected Expression CreateTemplate(Action<IControlBuilderFactory, IServiceProvider, DotvvmControl> compiledDelegate)
         {
-            var templateName = emitter.EmitCreateObject(typeof(DelegateTemplate)).Name;
-
-            emitter.EmitSetProperty(templateName, nameof(DelegateTemplate.BuildContentBody), emitter.EmitValue(compiledDelegate));
-            return templateName;
+            return Expression.Constant(new DelegateTemplate(compiledDelegate));
         }
     }
 }

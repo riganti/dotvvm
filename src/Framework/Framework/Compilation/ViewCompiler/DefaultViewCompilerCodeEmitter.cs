@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
+using FastExpressionCompiler;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Compilation.ViewCompiler
@@ -326,13 +327,13 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
         /// <summary>
         /// Pops the method.
         /// </summary>
-        public Delegate PopMethod()
+        public T PopMethod<T>() where T: Delegate
         {
             var blockInfo = blockStack.Pop();
             var block = Expression.Block(blockInfo.Variables.Values, blockInfo.Expressions);
 
-            var lambda = Expression.Lambda(block, blockInfo.Parameters.Values);
-            return lambda.Compile();
+            var lambda = Expression.Lambda<T>(block, blockInfo.Parameters.Values);
+            return lambda.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
         }
 
         private record BlockInfo
