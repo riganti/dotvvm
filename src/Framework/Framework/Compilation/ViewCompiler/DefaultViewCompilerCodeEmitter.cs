@@ -138,11 +138,6 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             blockStack.Peek().Expressions.Add(assigment);
         }
 
-        public Expression CreateDotvvmPropertyIdentifier(DotvvmProperty property)
-        {
-            return Expression.Constant(property);
-        }
-
         private readonly Dictionary<string, List<(DotvvmProperty prop, Expression value)>> controlProperties = new Dictionary<string, List<(DotvvmProperty, Expression)>>();
 
         public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, object? value) =>
@@ -280,11 +275,18 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
                 parentParameter,
                 "GetValue",
                 emptyTypeArguments,
-                /*property:*/ CreateDotvvmPropertyIdentifier(property),
+                /*property:*/ EmitValue(property),
                 /*inherit:*/ EmitValue(true /*default*/ ));
 
             var ifCondition = Expression.Equal(getPropertyValue, Expression.Constant(null));
-            var statement = Expression.Call(parentParameter, "SetValue", emptyTypeArguments, CreateDotvvmPropertyIdentifier(property), EmitCreateObjectExpression(property.PropertyType, new Expression[] { }));
+
+            var statement = Expression.Call(
+                parentParameter,
+                "SetValue",
+                emptyTypeArguments,
+                /*property*/ EmitValue(property),
+                /*value*/ EmitCreateObjectExpression(property.PropertyType, new Expression[] { }));
+
             var ifStatement = Expression.IfThen(ifCondition, statement);
 
             blockStack.Peek().Expressions.Add(ifStatement);
