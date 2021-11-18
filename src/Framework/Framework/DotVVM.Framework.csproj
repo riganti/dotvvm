@@ -55,7 +55,7 @@
     <ProjectReference Include="../Core/DotVVM.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Ben.Demystifier" Version="0.1.0" />
+    <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
     <PackageReference Include="FastExpressionCompiler" Version="3.2.1" />
    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.1" />

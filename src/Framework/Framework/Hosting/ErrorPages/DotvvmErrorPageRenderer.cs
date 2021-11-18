@@ -56,29 +56,8 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             var errorFormatter = ErrorFormatter.CreateDefault();
 
             var insertPosition = errorFormatter.Formatters.Count > 0 ? 1 : 0;
-            errorFormatter.Formatters.Insert(insertPosition, (e, o) =>
-                new ExceptionSectionFormatter(LoadDemystifiedException(errorFormatter, e)));
 
             return errorFormatter;
         }
-
-        private ExceptionModel LoadDemystifiedException(ErrorFormatter formatter, Exception exception)
-        {
-            return formatter.LoadException(exception,
-                stackFrameGetter: ex => {
-                    var rawStackTrace = new StackTrace(ex, true).GetFrames();
-                    if (rawStackTrace == null) return null; // demystifier throws in these cases
-                    try
-                    {
-                        return new EnhancedStackTrace(ex).GetFrames();
-                    }
-                    catch
-                    {
-                        return rawStackTrace;
-                    }
-                },
-                methodFormatter: f => (f as EnhancedStackFrame)?.MethodInfo?.ToString());
-        }
-
     }
 }
