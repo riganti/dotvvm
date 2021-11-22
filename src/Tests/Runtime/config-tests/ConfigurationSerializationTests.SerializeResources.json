@@ -109,6 +109,9 @@
       },
       "verifySecFetchForCommands": {
         "enabled": true
+      },
+      "referrerPolicy": {
+        "enabled": true
       }
     },
     "runtime": {},
