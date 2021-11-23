@@ -19,17 +19,17 @@ namespace DotVVM.Framework.Configuration
             var prop = member as PropertyInfo;
             var property = base.CreateProperty(member, memberSerialization);
 
-            if (property.PropertyType == typeof(DotvvmExperimentalFeatureFlag) && prop is object)
+            if (property.PropertyType == typeof(DotvvmFeatureFlag) && prop is object)
             {
                 // ignore defaults for brevity
                 property.ShouldSerialize = o =>
-                    !(prop.GetValue(o) is DotvvmExperimentalFeatureFlag flag) || flag.IsEnabledForAnyRoute();
+                    !(prop.GetValue(o) is DotvvmFeatureFlag flag) || flag.IsEnabledForAnyRoute();
             }
-            if (property.PropertyType == typeof(DotvvmGlobalExperimentalFeatureFlag) && prop is object)
+            if (property.PropertyType == typeof(DotvvmGlobalFeatureFlag) && prop is object)
             {
                 // ignore defaults for brevity
                 property.ShouldSerialize = o =>
-                    !(prop.GetValue(o) is DotvvmGlobalExperimentalFeatureFlag flag) || flag.Enabled;
+                    !(prop.GetValue(o) is DotvvmGlobalFeatureFlag flag) || flag.Enabled;
             }
 
             if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType) && property.PropertyType != typeof(string) && prop is object)

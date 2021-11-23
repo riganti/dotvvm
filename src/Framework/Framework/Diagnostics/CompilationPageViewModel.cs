@@ -26,8 +26,7 @@ namespace DotVVM.Framework.Diagnostics
             var isAuthorized = await Context.Configuration.Diagnostics.CompilationPage.AuthorizationPredicate(Context);
             if (!isAuthorized)
             {
-                Context.HttpContext.Response.StatusCode = 403;
-                Context.InterruptRequest();
+                await Context.RejectRequest("Unauthorized access to compilation page");
                 return;
             }
 

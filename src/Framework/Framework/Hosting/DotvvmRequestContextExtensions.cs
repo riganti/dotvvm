@@ -251,6 +251,19 @@ public static class DotvvmRequestContextExtensions
         throw new DotvvmInterruptRequestExecutionException(InterruptReason.ReturnFile, fileName);
     }
 
+    internal static async Task RejectRequest(this IDotvvmRequestContext context, string message, int statusCode = 403)
+    {
+        // push it as a warning to ILogger
+        var msg = "request rejected: " + message;
+        context.Services
+            .GetRequiredService<RuntimeWarningCollector>()
+            .Warn(new DotvvmRuntimeWarning(msg));
+        context.HttpContext.Response.StatusCode = statusCode;
+        context.HttpContext.Response.ContentType = "text/plain";
+        await context.HttpContext.Response.WriteAsync(msg);
+        throw new DotvvmInterruptRequestExecutionException(InterruptReason.RequestRejected, msg);
+    }
+
     public static void DebugWarning(this IDotvvmRequestContext context, string message, Exception? relatedException = null, DotvvmBindableObject? relatedControl = null)
     {
         if (context.Configuration.Debug)
