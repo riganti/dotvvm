@@ -15,8 +15,8 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Formatting_Formatting);
 
                 // verify items rendered on client and on the server are the same
-                var items1 = browser.FindElements(".list1 li");
-                var items2 = browser.FindElements(".list2 li");
+                var items1 = browser.FindElements(".list1 li").ThrowIfDifferentCountThan(14);
+                var items2 = browser.FindElements(".list2 li").ThrowIfDifferentCountThan(14);
                 AssertUI.InnerTextEquals(items1.ElementAt(0), items2.ElementAt(0).GetText());
                 AssertUI.InnerTextEquals(items1.ElementAt(1), items2.ElementAt(1).GetText());
                 AssertUI.InnerTextEquals(items1.ElementAt(2), items2.ElementAt(2).GetText());
@@ -36,8 +36,8 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Click("input[type=button]");
 
                 // verify items rendered on client and on the server are the same
-                items1 = browser.FindElements(".list1 li");
-                items2 = browser.FindElements(".list2 li");
+                items1 = browser.FindElements(".list1 li").ThrowIfDifferentCountThan(14);
+                items2 = browser.FindElements(".list2 li").ThrowIfDifferentCountThan(14);
                 AssertUI.InnerTextEquals(items1.ElementAt(0), items2.ElementAt(0).GetText());
                 AssertUI.InnerTextEquals(items1.ElementAt(1), items2.ElementAt(1).GetText());
                 AssertUI.InnerTextEquals(items1.ElementAt(2), items2.ElementAt(2).GetText());
