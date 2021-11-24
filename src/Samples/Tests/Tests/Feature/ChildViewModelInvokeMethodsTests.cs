@@ -28,7 +28,7 @@ namespace DotVVM.Samples.Tests.Feature
 
         private static void CheckIfInnerTextEqualsToOne(IBrowserWrapper browser, string dataUi)
         {
-            AssertUI.InnerTextEquals(browser.FindElements($"[data-ui='{dataUi}']").First(), 1.ToString());
+            AssertUI.InnerTextEquals(browser.First($"[data-ui='{dataUi}']"), 1.ToString());
         }
 
         public ChildViewModelInvokeMethodsTests(ITestOutputHelper output) : base(output)
