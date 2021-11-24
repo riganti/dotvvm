@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         {
             if (property is DotvvmCapabilityProperty capability)
                 return GetCapabilityProperty(capability);
-            return Properties.GetValueOrDefault(property);
+            return Properties.TryGetValue(property, out var result) ? result : default;
         }
 
         public ResolvedPropertyCapability? GetCapabilityProperty(DotvvmCapabilityProperty capability)
@@ -111,10 +111,10 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             if (!groupMapping.IsEmpty)
             {
                 var groups = groupMapping.Select(g => g.dotvvmPropertyGroup).ToHashSet();
-                foreach (var (p, propValue) in Properties)
+                foreach (var item in Properties)
                 {
-                    if (p is GroupedDotvvmProperty pg && groups.Contains(pg.PropertyGroup))
-                        properties.Add(p, propValue);
+                    if (item.Key is GroupedDotvvmProperty pg && groups.Contains(pg.PropertyGroup))
+                        properties.Add(item.Key, item.Value);
                 }
             }
 
