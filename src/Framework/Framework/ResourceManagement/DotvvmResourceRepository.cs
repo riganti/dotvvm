@@ -120,7 +120,7 @@ namespace DotVVM.Framework.ResourceManagement
         {
             ValidateResourceName(name);
             // rewrite is allowed only if it's not frozen
-            if (this.isFrozen)
+            if (!this.isFrozen)
                 _parents[name] = parent;
             else
             {
