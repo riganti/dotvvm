@@ -187,13 +187,6 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_DynamicValidation);
 
-                // click the validate button
-                browser.Last("input[type=button]").Click();
-
-                // ensure validators are hidden
-                AssertUI.InnerTextEquals(browser.Last("span"), "true");
-                browser.FindElements("li").ThrowIfDifferentCountThan(0);
-
                 // load the customer
                 browser.Click("input[type=button]");
 
@@ -410,17 +403,13 @@ namespace DotVVM.Samples.Tests.Feature
 
                 //get buttons
                 var targetRootBtn = browser.ElementAt("input[type=button]", 0);
-                var targetNullBtn = browser.ElementAt("input[type=button]", 1);
-                var targetSomeBtn = browser.ElementAt("input[type=button]", 2);
+                var targetSomeBtn = browser.ElementAt("input[type=button]", 1);
 
                 //test both fields empty
                 targetRootBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(2);
                 AssertUI.InnerTextEquals(browser.ElementAt("li", 0), "The NullObject field is required.");
                 AssertUI.InnerTextEquals(browser.ElementAt("li", 1), "The Required field is required.");
-
-                targetNullBtn.Click();
-                browser.FindElements("li").ThrowIfDifferentCountThan(0);
 
                 targetSomeBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
@@ -433,9 +422,6 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.FindElements("li").ThrowIfDifferentCountThan(2);
                 AssertUI.InnerTextEquals(browser.ElementAt("li", 0), "The NullObject field is required.");
                 AssertUI.InnerTextEquals(browser.ElementAt("li", 1), "The Required field is required.");
-
-                targetNullBtn.Click();
-                browser.FindElements("li").ThrowIfDifferentCountThan(0);
 
                 // The invalid Email won't be reported because emails are checked only on the server
                 targetSomeBtn.Click();
@@ -451,9 +437,6 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(browser.ElementAt("li", 0), "The NullObject field is required.");
                 AssertUI.InnerTextEquals(browser.ElementAt("li", 1), "The Required field is required.");
 
-                targetNullBtn.Click();
-                browser.FindElements("li").ThrowIfDifferentCountThan(0);
-
                 targetSomeBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 AssertUI.InnerTextEquals(browser.First("li"), "The Required field is required.");
@@ -467,9 +450,6 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 AssertUI.InnerTextEquals(browser.ElementAt("li", 0), "The NullObject field is required.");
 
-                targetNullBtn.Click();
-                browser.FindElements("li").ThrowIfDifferentCountThan(0);
-
                 // The invalid email will be reported this time because now the check makes it to the server
                 targetSomeBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
@@ -482,9 +462,6 @@ namespace DotVVM.Samples.Tests.Feature
                 targetRootBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 AssertUI.InnerTextEquals(browser.ElementAt("li", 0), "The NullObject field is required.");
-
-                targetNullBtn.Click();
-                browser.FindElements("li").ThrowIfDifferentCountThan(0);
 
                 targetSomeBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
@@ -583,12 +560,6 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidationRulesLoadOnPostback);
 
-                // click the validate button
-                browser.Last("input[type=button]").Click();
-
-                // ensure validators are hidden
-                AssertUI.InnerTextEquals(browser.Last("span"), "true");
-                browser.FindElements("li").ThrowIfDifferentCountThan(0);
                 // load the customer
                 browser.Click("input[type=button]");
 

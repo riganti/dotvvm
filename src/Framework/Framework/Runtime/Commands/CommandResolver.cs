@@ -25,9 +25,19 @@ namespace DotVVM.Framework.Runtime.Commands
                 eventValidator.ValidateCommand(path, commandId, viewRootControl, validationTargetPath) :
                 eventValidator.ValidateControlCommand(path, commandId, viewRootControl, targetControl, validationTargetPath);
 
-            context.ModelState.ValidationTarget = findResult.Control!.GetValue(Validation.TargetProperty) ?? context.ViewModel;
-            if (context.ModelState.ValidationTargetPath == "/" && context.ModelState.ValidationTarget == null)
+            context.ModelState.ValidationTarget = findResult.Control!.GetValue(Validation.TargetProperty);
+            var validationEnabled = findResult.Control!.GetValue<bool>(Validation.EnabledProperty);
+
+            if (context.ModelState.ValidationTarget == null && validationEnabled)
+            {
+                if (context.ModelState.ValidationTargetPath != KnockoutHelper.RootValidationTargetExpression)
+                {
+                    var property = context.ModelState.ValidationTargetPath;
+                    throw new ArgumentException($"Validation target points to a property ({property}) that was evaluated to null");
+                }
+
                 context.ModelState.ValidationTarget = context.ViewModel;
+            }
 
             return new ActionInfo(
                 findResult.Binding,
