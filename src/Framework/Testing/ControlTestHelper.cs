@@ -27,27 +27,27 @@ namespace DotVVM.Framework.Testing
 {
     public class ControlTestHelper
     {
-        private readonly DotvvmConfiguration configuration;
+        public readonly DotvvmConfiguration Configuration;
         private readonly FakeMarkupFileLoader fileLoader;
         private readonly DotvvmPresenter presenter;
 
-        IControlBuilderFactory controlBuilderFactory => configuration.ServiceProvider.GetRequiredService<IControlBuilderFactory>();
+        IControlBuilderFactory controlBuilderFactory => Configuration.ServiceProvider.GetRequiredService<IControlBuilderFactory>();
 
         public ControlTestHelper(bool debug = true, Action<DotvvmConfiguration>? config = null, Action<IServiceCollection>? services = null)
         {
             fileLoader = new FakeMarkupFileLoader(null);
-            this.configuration = DotvvmTestHelper.CreateConfiguration(s => {
+            this.Configuration = DotvvmTestHelper.CreateConfiguration(s => {
                 s.AddSingleton<IMarkupFileLoader>(fileLoader);
                 services?.Invoke(s);
             });
-            this.configuration.Markup.AddCodeControls("tc", exampleControl: typeof(FakeHeadResourceLink));
-            this.configuration.ApplicationPhysicalPath = Path.GetTempPath();
-            this.configuration.Debug = debug;
-            config?.Invoke(this.configuration);
-            presenter = (DotvvmPresenter)this.configuration.ServiceProvider.GetRequiredService<IDotvvmPresenter>();
+            this.Configuration.Markup.AddCodeControls("tc", exampleControl: typeof(FakeHeadResourceLink));
+            this.Configuration.ApplicationPhysicalPath = Path.GetTempPath();
+            this.Configuration.Debug = debug;
+            config?.Invoke(this.Configuration);
+            presenter = (DotvvmPresenter)this.Configuration.ServiceProvider.GetRequiredService<IDotvvmPresenter>();
         }
 
-        private (ControlBuilderDescriptor descriptor, Lazy<IControlBuilder> builder) CompilePage(
+        public (ControlBuilderDescriptor descriptor, Lazy<IControlBuilder> builder) CompilePage(
             string markup,
             string fileName,
             Dictionary<string, string>? markupFiles = null)
@@ -70,8 +70,8 @@ namespace DotVVM.Framework.Testing
         )
         {
             var context = DotvvmTestHelper.CreateContext(
-                configuration,
-                route: new Framework.Routing.DotvvmRoute("testpage", fileName, null, _ => throw new Exception(), configuration));
+                Configuration,
+                route: new Framework.Routing.DotvvmRoute("testpage", fileName, null, _ => throw new Exception(), Configuration));
             context.CsrfToken = null;
             var httpContext = (TestHttpContext)context.HttpContext;
 
@@ -98,7 +98,7 @@ namespace DotVVM.Framework.Testing
             CultureInfo.CurrentCulture = new CultureInfo("en-US");
             CultureInfo.CurrentUICulture = new CultureInfo("en-US");
 
-            configuration.Freeze();
+            Configuration.Freeze();
             fileName = (fileName ?? "testpage") + ".dothtml";
             var (_, controlBuilder) = CompilePage(markup, fileName, markupFiles);
             return PrepareRequest(fileName);

@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Tests.ControlTests
     [TestClass]
     public class DotvvmErrorTests
     {
-        ControlTestHelper cth = new ControlTestHelper(config: config => {
+        static readonly ControlTestHelper cth = new ControlTestHelper(config: config => {
         }, services: s => {
             s.AddSingleton<TestService>();
         });

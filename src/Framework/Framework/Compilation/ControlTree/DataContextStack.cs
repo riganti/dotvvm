@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -16,9 +17,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
     {
         public DataContextStack? Parent { get; }
         public Type DataContextType { get; }
-        public IReadOnlyList<NamespaceImport> NamespaceImports { get; }
-        public IReadOnlyList<BindingExtensionParameter> ExtensionParameters { get; }
-        public IReadOnlyList<Delegate> BindingPropertyResolvers { get; }
+        public ImmutableArray<NamespaceImport> NamespaceImports { get; }
+        public ImmutableArray<BindingExtensionParameter> ExtensionParameters { get; }
+        public ImmutableArray<Delegate> BindingPropertyResolvers { get; }
 
         private readonly int hashCode;
 
@@ -30,9 +31,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             Parent = parent;
             DataContextType = type;
-            NamespaceImports = imports ?? parent?.NamespaceImports ?? new NamespaceImport[0];
-            ExtensionParameters = extensionParameters ?? new BindingExtensionParameter[0];
-            BindingPropertyResolvers = bindingPropertyResolvers ?? new Delegate[0];
+            NamespaceImports = imports?.ToImmutableArray() ?? parent?.NamespaceImports ?? ImmutableArray<NamespaceImport>.Empty;
+            ExtensionParameters = extensionParameters?.ToImmutableArray() ?? ImmutableArray<BindingExtensionParameter>.Empty;
+            BindingPropertyResolvers = bindingPropertyResolvers?.ToImmutableArray() ?? ImmutableArray<Delegate>.Empty;
 
             hashCode = ComputeHashCode();
         }
@@ -53,6 +54,23 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 level++;
             }
         }
+
+        public ImmutableArray<Delegate> GetAllBindingPropertyResolvers()
+        {
+            // most likely, there aren't any so just quickly scan the link list
+            var c = this;
+            while (c is {})
+            {
+                if (!c.BindingPropertyResolvers.IsEmpty)
+                    break;
+                c = c.Parent;
+            }
+            if (c is null)
+                return ImmutableArray<Delegate>.Empty;
+
+            return c.EnumerableItems().Reverse().SelectMany(s => s.BindingPropertyResolvers).ToImmutableArray();
+        }
+
 
         public IEnumerable<DataContextStack> EnumerableItems()
         {

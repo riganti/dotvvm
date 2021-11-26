@@ -168,6 +168,7 @@ $packages = @(
     [pscustomobject]@{ Package = "DotVVM.HotReload"; Directory = "Tools/HotReload/Common" },
     [pscustomobject]@{ Package = "DotVVM.HotReload.AspNetCore"; Directory = "Tools/HotReload/AspNetCore" },
     [pscustomobject]@{ Package = "DotVVM.HotReload.Owin"; Directory = "Tools/HotReload/Owin" }
+    [pscustomobject]@{ Package = "DotVVM.Testing"; Directory = "Framework/Testing" }
 )
 
 

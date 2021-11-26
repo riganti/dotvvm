@@ -124,6 +124,8 @@ namespace DotVVM.Framework.Configuration
                     routeName: RouteName,
                     url: Url,
                     virtualPath: "embedded://DotVVM.Framework/Diagnostics/CompilationPage.dothtml");
+
+                config.Security.RequireSecFetchHeaders.EnableForRoutes(RouteName);
             }
 
             if (IsApiEnabled)

@@ -12,6 +12,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Binding
 {
@@ -235,8 +236,8 @@ namespace DotVVM.Framework.Binding
             }
 
             var accessors = CodeGeneration.CreateCapabilityAccessors(resultProperty);
-            resultProperty.Getter = accessors.getter.Compile();
-            resultProperty.Setter = accessors.setter.Compile();
+            resultProperty.Getter = accessors.getter.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
+            resultProperty.Setter = accessors.setter.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
         }
 
         private static readonly ParameterExpression currentControlParameter = Expression.Parameter(typeof(DotvvmBindableObject), "control");

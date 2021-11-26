@@ -24,10 +24,7 @@ namespace DotVVM.Framework.Tests.Binding
     [TestClass]
     public class StaticCommandCompilationTests
     {
-        /// Gets translation of the specified binding expression if it would be passed in static command
-        /// For better readability, the returned code does not include null checks
-        public string CompileBinding(string expression, bool niceMode, params Type[] contexts) => CompileBinding(expression, niceMode, contexts, expectedType: typeof(Command));
-        public string CompileBinding(string expression, bool niceMode, Type[] contexts, Type expectedType, Type currentMarkupControl = null)
+        static DotvvmConfiguration MakeConfiguration()
         {
             var configuration = DotvvmTestHelper.CreateConfiguration(s => {
                 s.AddSingleton<IViewModelProtector, DotvvmTestHelper.NopProtector>();
@@ -50,7 +47,27 @@ namespace DotVVM.Framework.Tests.Binding
                                                             a[2].WithAnnotation(ShouldBeObservableAnnotation.Instance))
                                                              .WithAnnotation(new ResultIsPromiseAnnotation(e => e))
                                                        ), 2, allowMultipleMethods: true);
-            configuration.Debug = niceMode;
+            return configuration;
+        }
+
+        static readonly DotvvmConfiguration debugConfiguration;
+        static readonly DotvvmConfiguration releaseConfiguration;
+
+        static StaticCommandCompilationTests()
+        {
+            debugConfiguration = MakeConfiguration();
+            debugConfiguration.Debug = true;
+            debugConfiguration.Freeze();
+            releaseConfiguration = MakeConfiguration();
+            releaseConfiguration.Debug = false;
+            releaseConfiguration.Freeze();
+        }
+        /// Gets translation of the specified binding expression if it would be passed in static command
+        /// For better readability, the returned code does not include null checks
+        public string CompileBinding(string expression, bool niceMode, params Type[] contexts) => CompileBinding(expression, niceMode, contexts, expectedType: typeof(Command));
+        public string CompileBinding(string expression, bool niceMode, Type[] contexts, Type expectedType, Type currentMarkupControl = null)
+        {
+            var configuration = niceMode ? debugConfiguration : releaseConfiguration;
             var bindingService = configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
 
             var parameters =

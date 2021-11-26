@@ -30,7 +30,10 @@ namespace DotVVM.Framework.Controls.Infrastructure
 
         public override void Render(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.WriteUnencodedText(EncodedText);
+            if (IsWhitespace)
+                writer.WriteUnencodedWhitespace(EncodedText);
+            else
+                writer.WriteUnencodedText(EncodedText);
         }
     }
 }
