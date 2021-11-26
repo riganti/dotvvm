@@ -56,7 +56,7 @@ namespace DotVVM.Framework.Controls
             set { SetValue(IncludeErrorsFromTargetProperty, value); }
         }
         public static readonly DotvvmProperty IncludeErrorsFromTargetProperty
-            = DotvvmProperty.Register<bool, ValidationSummary>(c => c.IncludeErrorsFromTarget, false);
+            = DotvvmProperty.Register<bool, ValidationSummary>(c => c.IncludeErrorsFromTarget, true);
 
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Controls
 
             var group = new KnockoutBindingGroup();
             {
-                group.AddValue("target", expression);
+                group.Add("target", expression);
                 group.Add("includeErrorsFromChildren", IncludeErrorsFromChildren.ToString().ToLowerInvariant());
                 group.Add("includeErrorsFromTarget", IncludeErrorsFromTarget.ToString().ToLowerInvariant());
                 group.Add("hideWhenValid", HideWhenValid.ToString().ToLowerInvariant());

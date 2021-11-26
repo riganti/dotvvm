@@ -160,7 +160,8 @@ namespace DotVVM.Framework.Controls
                 return GetPostBackHandlersScript(control, propertyName,
                     // validation handler
                     validationPath == null ? null :
-                    validationPath == "/" ? "\"validate-root\"" :
+                    validationPath == RootValidationTargetExpression ? "\"validate-root\"" :
+                    validationPath == "$data" ? "\"validate-this\"" :
                     $"[\"validate\", {{path:{JsonConvert.ToString(validationPath)}}}]",
 
                     // use window.setTimeout
@@ -376,6 +377,8 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+        private const string RootValidationTargetExpression = "dotvvm.viewModelObservables['root']";
+
         /// <summary>
         /// Gets the validation target expression.
         /// </summary>
@@ -386,7 +389,8 @@ namespace DotVVM.Framework.Controls
                 return null;
             }
 
-            return control.GetValueBinding(Validation.TargetProperty)?.GetKnockoutBindingExpression(control) ?? "/";
+            return control.GetValueBinding(Validation.TargetProperty)?.GetKnockoutBindingExpression(control) ??
+                RootValidationTargetExpression;
         }
 
         /// <summary>

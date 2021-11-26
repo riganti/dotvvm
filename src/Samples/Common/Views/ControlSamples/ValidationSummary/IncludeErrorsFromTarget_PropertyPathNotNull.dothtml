@@ -35,7 +35,7 @@
         <div>
             <dot:Button Text="PropertyPath = 'Login'"
                         data-ui="setup-button"
-                        Click="{command: PropertyPath = "Login"}"
+                        Click="{command: PropertyPath = "/Login"}"
                         PostBack.Update="true"
                         Validation.Enabled="false"></dot:Button>
         </div>

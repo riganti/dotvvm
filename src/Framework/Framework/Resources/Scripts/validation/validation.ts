@@ -4,7 +4,7 @@ import { allErrors, detachAllErrors, ValidationError, getErrors } from "./error"
 import { DotvvmEvent } from '../events'
 import * as spaEvents from '../spa/events'
 import { postbackHandlers } from "../postback/handlers"
-import { DotvvmValidationContext, ErrorsPropertySymbol } from "./common"
+import { DotvvmValidationContext, errorsSymbol } from "./common"
 import { isPrimitive, keys } from "../utils/objects"
 import { elementActions } from "./actions"
 import { DotvvmPostbackError } from "../shared-classes"
@@ -44,7 +44,7 @@ const createValidationHandler = (path: string) => ({
             options.validationTargetPath = path;
             // resolve target
             const context = ko.contextFor(options.sender);
-            const validationTarget = evaluator.traverseContext(context, path);
+            const validationTarget = evaluator.evaluateOnViewModel(context, path);
 
             runClientSideValidation(validationTarget, options);
 
@@ -66,27 +66,10 @@ const runClientSideValidation = (validationTarget:any,options:PostbackOptions) =
         });
 }
 
-const createRootValidationHandler = () => ({
-    name: "validate",
-    execute: (callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) => {
-        options.validationTargetPath = "/";
-        // resolve target
-        const context = dotvvm.viewModels.root.viewModel;
-        const validationTarget = evaluator.traverseContext(context, options.validationTargetPath);
-
-        runClientSideValidation(validationTarget, options);
-
-        if (allErrors.length > 0) {
-            logError("validation", "Validation failed: postback aborted; errors: ", allErrors);
-            return Promise.reject(new DotvvmPostbackError({ type: "handler", handlerName: "validation", message: "Validation failed" }))
-        }
-        return callback();
-    }
-})
-
 export function init() {
     postbackHandlers["validate"] = (opt) => createValidationHandler(opt.path);
-    postbackHandlers["validate-root"] = () => createRootValidationHandler();
+    postbackHandlers["validate-root"] = () => createValidationHandler("dotvvm.viewModelObservables['root']");
+    postbackHandlers["validate-this"] = () => createValidationHandler("$data");
 
     if (compileConstants.isSpa) {
         spaEvents.spaNavigating.subscribe(args => {
@@ -112,12 +95,11 @@ export function init() {
     ko.bindingHandlers["dotvvm-validationSummary"] = {
         init: (element: HTMLElement, valueAccessor: () => ValidationSummaryBinding) => {
             const binding = valueAccessor();
-            const validationTarget = evaluator.traverseContext(ko.contextFor(element), ko.unwrap(binding.target));
 
             validationErrorsChanged.subscribe(_ => {
                 element.innerHTML = "";
                 const errors = getValidationErrors(
-                    validationTarget,
+                    binding.target,
                     binding.includeErrorsFromChildren,
                     binding.includeErrorsFromTarget
                 );
@@ -258,10 +240,10 @@ function getValidationErrors<T>(
 
     let errors: ValidationError[] = [];
 
-    if (includeErrorsFromTarget && ErrorsPropertySymbol in targetObservable) {
-        errors = errors.concat((targetObservable as any)[ErrorsPropertySymbol]);
+    if (includeErrorsFromTarget && ko.isObservable(targetObservable) && (targetObservable as any)[errorsSymbol] != null) {
+        errors = errors.concat((targetObservable as any)[errorsSymbol]);
     }
-
+     
     if (!includeErrorsFromChildren) {
         return errors;
     }
@@ -311,11 +293,11 @@ export function showValidationErrorsFromServer(serverResponseObject: any, option
         // add validation errors
         for (const prop of serverResponseObject.modelState) {
             
-            let rootVM = dotvvm.viewModels.root.viewModel;
+            let observableRootVM = dotvvm.viewModelObservables.root;
 
             // find the property
             const propertyPath = prop.propertyPath;
-            const property = evaluator.traverseContext(rootVM, propertyPath);
+            const property = evaluator.traverseContext(observableRootVM, propertyPath);
 
             ValidationError.attach(prop.errorMessage, property);
         }

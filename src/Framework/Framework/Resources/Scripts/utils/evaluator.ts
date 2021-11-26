@@ -9,12 +9,12 @@ import { logError } from "./logging";
  * @example /exampleProp/B/1 - returns second item from collection B located within property exampleProp located at provided context
  * @returns found property as unwrapped object
  */
-export function traverseContext(context: any, path: string): any 
-{
+export function traverseContext(context: any, path: string): any {
     if (path == null)
         path = "";
 
-    var parts = path.split(/[/[\.\]]+/);
+    var parts = path.split("/");
+
     var currentLevel = context;
     var currentPath = "";
     for (var i = 0; i < parts.length; i++) {
@@ -23,7 +23,7 @@ export function traverseContext(context: any, path: string): any
             continue;
 
         var nextNode = ko.unwrap(currentLevel)[expressionPart];
-        if (nextNode==undefined) {
+        if (nextNode == undefined) {
             throw `Validation error could not been applied to property specified by propertyPath ${path}. Property with name ${expressionPart} does not exist on ${currentPath}.`;
         }
         currentPath += `/${expressionPart}`;
@@ -31,6 +31,20 @@ export function traverseContext(context: any, path: string): any
     }
 
     return currentLevel
+}
+
+export function evaluateOnViewModel(context: any, expression: string): any {
+    // todo: reimplement
+    let result;
+    if (context && context.$data) {
+        result = new Function("$context", "with($context) { with ($data) { return " + expression + "; } }")(context);
+    } else {
+        result = new Function("$context", "var $data=$context; with($context) { return " + expression + "; }")(context);
+    }
+    if (result && result.$data) {
+        result = result.$data;
+    }
+    return result;
 }
 
 export function getDataSourceItems(viewModel: any): Array<KnockoutObservable<any>> {
