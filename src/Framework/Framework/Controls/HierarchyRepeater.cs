@@ -193,7 +193,10 @@ namespace DotVVM.Framework.Controls
 
             if (renderClientTemplate)
             {
-                clientItemTemplateId = $"{GetDotvvmUniqueId()}-item";
+                // whenever possible, we use the dotvvm deterministic ids, but if we are in a client-side template,
+                // we'd get a binding... so we just generate a random Guid, not ideal but it will work.
+                var uniqueId = GetDotvvmUniqueId() is string id ? id : Guid.NewGuid().ToString();
+                clientItemTemplateId = $"{uniqueId}-item";
                 clientItemTemplate = GetClientItemTemplate(context);
                 AddTemplateResource(context, clientItemTemplate, clientItemTemplateId);
                 clientRootLevel = string.IsNullOrEmpty(LevelTagName)
@@ -201,14 +204,11 @@ namespace DotVVM.Framework.Controls
                     : new HtmlGenericControl(LevelTagName);
                 
                 Children.Add(clientRootLevel);
-                {
-                    var rootLevel = new HierarchyRepeaterLevel {
-                        IsRoot = true,
-                        ForeachExpression = GetForeachDataBindExpression().GetKnockoutBindingExpression(this),
-                        ItemTemplateId = clientItemTemplateId,
-                    };
-                    clientRootLevel.Children.Add(rootLevel);
-                }
+                clientRootLevel.AppendChildren(new HierarchyRepeaterLevel {
+                    IsRoot = true,
+                    ForeachExpression = GetForeachDataBindExpression().GetKnockoutBindingExpression(this),
+                    ItemTemplateId = clientItemTemplateId,
+                });
             }
 
             if (EmptyDataTemplate is not null)
