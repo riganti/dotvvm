@@ -7,6 +7,7 @@ using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
@@ -306,24 +307,33 @@ namespace DotVVM.Framework.Controls
                 dataItem.SetValue(Internal.ClientIDFragmentProperty, "$indexPath.map(function(i){return i();}).join(\"_\")");
                 dataItem.SetDataContextTypeFromDataSource(GetDataSourceBinding());
 
-                // TODO: this is horrible, find a better way to render the begin and end tags
-                var withBegin = new HtmlLiteral {
-                    RenderWrapperTag = false,
-                    Html = "<!-- ko with: $item -->"
-                };
-                dataItem.Children.Add(withBegin);
-
-
                 DotvvmControl itemWrapper = string.IsNullOrEmpty(ItemTagName)
                     ? new PlaceHolder()
                     : new HtmlGenericControl(ItemTagName);
                 dataItem.Children.Add(itemWrapper);
+                // TODO: this is horrible, find a better way to render the begin and end tags
+                itemWrapper.AppendChildren(new HtmlLiteral {
+                    RenderWrapperTag = false,
+                    Html = "<!-- ko with: $item -->"
+                });
+
                 ItemTemplate.BuildContent(context, itemWrapper);
+
+                itemWrapper.AppendChildren(new HtmlLiteral {
+                    RenderWrapperTag = false,
+                    Html = "<!-- /ko -->"
+                });
 
                 var foreachExpression = ((IValueBinding)ItemChildrenBinding!
                         .GetProperty<DataSourceAccessBinding>()
                         .Binding)
-                        .GetKnockoutBindingExpression(dataItem);
+                        .GetParametrizedKnockoutExpression(dataItem)
+                        .ToString(p =>
+                            p == JavascriptTranslator.KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("$item") :
+                            p is JavascriptTranslator.ViewModelSymbolicParameter vm ?
+                                JavascriptTranslator.GetKnockoutViewModelParameter(vm.ParentIndex - 1).DefaultAssignment :
+                            default
+                        );
 
                 DotvvmControl levelWrapper = string.IsNullOrEmpty(LevelTagName)
                     ? new PlaceHolder()
@@ -338,12 +348,6 @@ namespace DotVVM.Framework.Controls
                 level.SetProperty(RenderSettings.ModeProperty, new ValueOrBinding<RenderMode>(RenderMode.Client));
                 level.SetProperty(IncludeInPageProperty,
                     (IValueBinding)ItemChildrenBinding!.GetProperty<DataSourceLengthBinding>().Binding);
-
-                var withEnd = new HtmlLiteral {
-                    RenderWrapperTag = false,
-                    Html = "<!-- /ko -->"
-                };
-                dataItem.Children.Add(withEnd);
             }
 
             return dataItem;
