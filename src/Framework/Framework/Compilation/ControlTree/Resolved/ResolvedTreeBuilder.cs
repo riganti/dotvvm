@@ -9,6 +9,7 @@ using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Utils;
 using System.Diagnostics.CodeAnalysis;
+using DotVVM.Framework.Compilation.ViewCompiler;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {

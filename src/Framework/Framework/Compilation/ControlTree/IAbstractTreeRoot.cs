@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Generic;
+using DotVVM.Framework.Compilation.ViewCompiler;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
@@ -24,7 +25,6 @@ namespace DotVVM.Framework.Compilation
 
         private ConcurrentDictionary<MarkupFile, Lazy<(ControlBuilderDescriptor, Lazy<IControlBuilder>)>> controlBuilders = new ConcurrentDictionary<MarkupFile, Lazy<(ControlBuilderDescriptor, Lazy<IControlBuilder>)>>();
 
-
         public DefaultControlBuilderFactory(DotvvmConfiguration configuration, IMarkupFileLoader markupFileLoader, CompiledAssemblyCache compiledAssemblyCache)
         {
             this.configuration = configuration;
@@ -41,7 +41,6 @@ namespace DotVVM.Framework.Compilation
                 }
         }
 
-
         /// <summary>
         /// Gets the control builder.
         /// </summary>
@@ -55,27 +54,27 @@ namespace DotVVM.Framework.Compilation
             ).Value;
         }
 
-
         /// <summary>
         /// Creates the control builder.
         /// </summary>
         private (ControlBuilderDescriptor, Lazy<IControlBuilder>) CreateControlBuilder(MarkupFile file)
         {
-            var namespaceName = GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc);
-            var assemblyName = namespaceName;
-            var className = GetClassFromFileName(file.FileName) + "ControlBuilder";
             void editCompilationException(DotvvmCompilationException ex)
             {
                 if (ex.FileName == null)
+                {
                     ex.FileName = file.FullPath;
+                }
                 else if (!Path.IsPathRooted(ex.FileName))
+                {
                     ex.FileName = Path.Combine(
                         file.FullPath.Remove(file.FullPath.Length - file.FileName.Length),
                         ex.FileName);
+                }
             }
             try
             {
-                var (descriptor, factory) = ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
+                var (descriptor, factory) = ViewCompilerFactory().CompileView(file.ReadContent(), file.FileName);
 
                 return (descriptor, new Lazy<IControlBuilder>(() => {
                     try {
@@ -103,46 +102,6 @@ namespace DotVVM.Framework.Compilation
                 editCompilationException(ex);
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Gets the name of the class from the file name.
-        /// </summary>
-        public static string GetClassFromFileName(string fileName)
-        {
-            return GetValidIdentifier(Path.GetFileNameWithoutExtension(fileName));
-        }
-
-        protected static string GetValidIdentifier(string identifier)
-        {
-            if (string.IsNullOrEmpty(identifier)) return "_";
-            var arr = identifier.ToCharArray();
-            for (int i = 0; i < arr.Length; i++)
-            {
-                if (!char.IsLetterOrDigit(arr[i]))
-                {
-                    arr[i] = '_';
-                }
-            }
-            identifier = new string(arr);
-            if (char.IsDigit(arr[0])) identifier = "C" + identifier;
-            if (csharpKeywords.Contains(identifier)) identifier += "0";
-            return identifier;
-        }
-
-        /// <summary>
-        /// Gets the name of the namespace from the file name.
-        /// </summary>
-        public static string GetNamespaceFromFileName(string fileName, DateTime lastWriteDateTimeUtc)
-        {
-            // TODO: make sure crazy directory names are ok, it should also work on linux :)
-
-            // replace \ and / for .
-            var parts = fileName.Split(new[] { '/', '\\' });
-            parts[parts.Length - 1] = Path.GetFileNameWithoutExtension(parts[parts.Length - 1]);
-
-            fileName = string.Join(".", parts.Select(GetValidIdentifier));
-            return "DotvvmGeneratedViews" + fileName + "_" + lastWriteDateTimeUtc.Ticks;
         }
 
         public void LoadCompiledViewsAssembly(string filePath)

@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Hosting
 
 
 
-        public Func<string> ContentsReaderFactory { get; private set; }
+        public Func<string> ReadContent { get; private set; }
 
         public string FileName { get; private set; }
 
@@ -42,7 +42,7 @@ namespace DotVVM.Framework.Hosting
             FileName = fileName;
             FullPath = fullPath;
             LastWriteDateTimeUtc = File.GetLastWriteTimeUtc(fullPath);
-            ContentsReaderFactory = () =>
+            ReadContent = () =>
             {
                 // retry logic because of Hot reload
                 Exception? lastException = null;
@@ -71,7 +71,7 @@ namespace DotVVM.Framework.Hosting
         {
             FileName = fileName;
             FullPath = fullPath;
-            ContentsReaderFactory = () => contents;
+            ReadContent = () => contents;
         }
 
         public override bool Equals(object? obj)

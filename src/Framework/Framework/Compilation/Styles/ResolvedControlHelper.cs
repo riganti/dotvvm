@@ -14,6 +14,7 @@ using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
@@ -81,11 +82,19 @@ namespace DotVVM.Framework.Compilation.Styles
             return rc;
         }
 
+        private static Type[] ImmutableContainers = new[] {
+            typeof(ImmutableArray<>), typeof(ImmutableList<>), typeof(ImmutableDictionary<,>), typeof(ImmutableHashSet<>), typeof(ImmutableQueue<>), typeof(ImmutableSortedDictionary<,>), typeof(ImmutableSortedSet<>), typeof(ImmutableStack<>)
+        };
+        internal static bool IsImmutableObject(Type type) =>
+            typeof(IBinding).IsAssignableFrom(type ?? throw new ArgumentNullException(nameof(type)))
+              || type.GetCustomAttribute<HandleAsImmutableObjectInDotvvmPropertyAttribute>() is object
+              || type.IsGenericType && ImmutableContainers.Contains(type.GetGenericTypeDefinition()) && type.GenericTypeArguments.All(IsImmutableObject);
+
         public static bool IsAllowedPropertyValue([NotNullWhen(false)] object? value) =>
             value is ValueOrBinding vob && IsAllowedPropertyValue(vob.UnwrapToObject()) ||
             value is null ||
             ReflectionUtils.IsPrimitiveType(value.GetType()) ||
-            RoslynValueEmitter.IsImmutableObject(value.GetType()) ||
+            IsImmutableObject(value.GetType()) ||
             value is Array && ReflectionUtils.IsPrimitiveType(value.GetType().GetElementType());
 
         public static ResolvedPropertySetter TranslateProperty(DotvvmProperty property, object? value, DataContextStack dataContext, DotvvmConfiguration? config)

@@ -1,66 +1,55 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using DotVVM.Framework.Compilation.Binding;
-using System.Diagnostics;
 using DotVVM.Framework.Utils;
 
-namespace DotVVM.Framework.Compilation
+namespace DotVVM.Framework.Compilation.ViewCompiler
 {
     public class ViewCompilingVisitor : ResolvedControlTreeVisitor
     {
         protected readonly DefaultViewCompilerCodeEmitter emitter;
-        private readonly CompiledAssemblyCache compiledAssemblyCache;
         protected readonly IBindingCompiler bindingCompiler;
 
         protected int currentTemplateIndex;
-        protected string className;
-        protected ControlResolverMetadata? lastMetadata;
         protected string? controlName;
 
-        public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, CompiledAssemblyCache compiledAssemblyCache, IBindingCompiler bindingCompiler,
-            string className)
+        public Func<IControlBuilderFactory, IServiceProvider, DotvvmControl> BuildCompiledView { get; set; }
+
+        public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, IBindingCompiler bindingCompiler)
         {
             this.emitter = emitter;
-            this.compiledAssemblyCache = compiledAssemblyCache;
-            this.className = className;
             this.bindingCompiler = bindingCompiler;
+
+            BuildCompiledView = (_, _) => throw new InvalidOperationException("The view cannot be built, bacause it hasn't been compiled yet.");
         }
 
         public override void VisitView(ResolvedTreeRoot view)
         {
-            lastMetadata = view.Metadata;
+            var isPageView = view.Metadata.Type == typeof(DotvvmView);
 
-            var createsCustomDerivedType = view.Metadata.Type == typeof(DotvvmView);
-
-            if (createsCustomDerivedType)
+            if (isPageView)
             {
-                var resultControlType = className + "Control";
-                emitter.ResultControlTypeSyntax = SyntaxFactory.ParseTypeName(resultControlType);
-                emitter.EmitControlClass(view.Metadata.Type, resultControlType);
+                emitter.ResultControlType = typeof(DotvvmView);
             }
             else
             {
-                emitter.ResultControlTypeSyntax = emitter.ParseTypeName(view.Metadata.Type);
+                emitter.ResultControlType = view.Metadata.Type;
             }
 
-            emitter.UseType(view.Metadata.Type);
-            emitter.Descriptor = view.ControlBuilderDescriptor;
             // build the statements
-            emitter.PushNewMethod(nameof(IControlBuilder.BuildControl), typeof(DotvvmControl), emitter.EmitControlBuilderParameters());
+            emitter.PushNewMethod(emitter.EmitControlBuilderParameters());
 
             var pageName =
-                createsCustomDerivedType ? emitter.EmitCreateObject(emitter.ResultControlTypeSyntax) :
-                                           this.EmitCreateControl(view.Metadata.Type, new object[0]);
+                isPageView ? emitter.EmitCreateObject(emitter.ResultControlType).Name :
+                                           EmitCreateControl(view.Metadata.Type, new object[0]).Name;
             emitter.RegisterDotvvmProperties(pageName);
 
             emitter.EmitSetDotvvmProperty(pageName, Internal.UniqueIDProperty, pageName);
@@ -87,10 +76,10 @@ namespace DotVVM.Framework.Compilation
             emitter.CommitDotvvmProperties(pageName);
 
             emitter.EmitReturnClause(pageName);
-            emitter.PopMethod();
+            BuildCompiledView = emitter.PopMethod<Func<IControlBuilderFactory, IServiceProvider, DotvvmControl>>();
         }
 
-        protected string EmitCreateControl(Type type, object[]? arguments)
+        protected ParameterExpression EmitCreateControl(Type type, object[]? arguments)
         {
             // if marked with [RequireDependencyInjection] attribute, invoke injected factory
             if (type.GetCustomAttribute(typeof(DependencyInjection.RequireDependencyInjectionAttribute)) is DependencyInjection.RequireDependencyInjectionAttribute requireDiAttr)
@@ -113,11 +102,9 @@ namespace DotVVM.Framework.Compilation
             }
             // otherwise invoke DI factory
             else
-                return emitter.EmitInjectionFactoryInvocation(
-                    type,
-                    (arguments ?? Enumerable.Empty<object>()).Select(a => (a.GetType(), emitter.EmitValue(a))).ToArray(),
-                    emitter.InvokeDefaultInjectionFactory
-                );
+            {
+                return emitter.EmitInjectionFactoryInvocation(type, arguments ?? new object[0]);
+            }
         }
 
 
@@ -139,7 +126,7 @@ namespace DotVVM.Framework.Compilation
             controlName = parentName;
         }
 
-        private void SetProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
+        private void SetProperty(string controlName, DotvvmProperty property, Expression value)
         {
             // set special properties as fields
             if (property == LifecycleRequirementsAssigningVisitor.CompileTimeLifecycleRequirementsProperty)
@@ -177,9 +164,9 @@ namespace DotVVM.Framework.Compilation
             // compile control content
             base.VisitControl(control);
             emitter.CommitDotvvmProperties(controlName);
-            emitter.EmitSetProperty(controlName, nameof(DotvvmControl.Parent), SyntaxFactory.IdentifierName(parentName));
+            emitter.EmitSetProperty(controlName, nameof(DotvvmControl.Parent), emitter.GetParameterOrVariable(parentName));
             // set the property
-            SetProperty(parentName, propertyControl.Property, SyntaxFactory.IdentifierName(controlName));
+            SetProperty(parentName, propertyControl.Property, emitter.GetParameterOrVariable(controlName));
             controlName = parentName;
         }
 
@@ -189,7 +176,7 @@ namespace DotVVM.Framework.Compilation
                 return;
 
             var parentName = controlName.NotNull();
-            var collectionName = emitter.EmitEnsureCollectionInitialized(parentName, propertyControlCollection.Property);
+            var collectionName = emitter.EmitEnsureCollectionInitialized(parentName, propertyControlCollection.Property).Name;
 
             foreach (var control in propertyControlCollection.Controls)
             {
@@ -201,7 +188,7 @@ namespace DotVVM.Framework.Compilation
                 emitter.CommitDotvvmProperties(controlName);
 
                 // add to collection in property
-                emitter.EmitSetProperty(controlName, nameof(DotvvmControl.Parent), SyntaxFactory.IdentifierName(parentName));
+                emitter.EmitSetProperty(controlName, nameof(DotvvmControl.Parent), emitter.GetParameterOrVariable(parentName));
                 emitter.EmitAddCollectionItem(collectionName, controlName, null);
             }
             controlName = parentName;
@@ -209,22 +196,28 @@ namespace DotVVM.Framework.Compilation
 
         public override void VisitPropertyTemplate(ResolvedPropertyTemplate propertyTemplate)
         {
-            if (propertyTemplate.Property is CompileTimeOnlyDotvvmProperty)
-                return;
+            if (propertyTemplate.Property is CompileTimeOnlyDotvvmProperty) { return; }
 
             var parentName = controlName.NotNull();
-            var methodName = DefaultViewCompilerCodeEmitter.BuildTemplateFunctionName + $"_{propertyTemplate.Property.DeclaringType.Name}_{propertyTemplate.Property.Name}_{currentTemplateIndex++}";
-            emitter.PushNewMethod(methodName, typeof(void), emitter.EmitControlBuilderParameters().Concat(new [] { emitter.EmitParameter("templateContainer", typeof(DotvvmControl))}).ToArray());
-            // build the statements
+
+            //compiledDelegate = (controlBuilderFactory, sercices, templateContainer) => {
+            //   ...the template control building statements go here
+            //}
+
+            emitter.PushNewMethod(emitter.EmitControlBuilderParameters().Concat(new[] { emitter.EmitParameter("templateContainer", typeof(DotvvmControl)) }).ToArray());
+
             controlName = "templateContainer";
 
             base.VisitPropertyTemplate(propertyTemplate);
 
-            emitter.PopMethod();
+            var compiledDelegate = emitter.PopMethod<Action<IControlBuilderFactory, IServiceProvider, DotvvmControl>>();
             controlName = parentName;
 
-            var templateName = CreateTemplate(methodName);
-            SetProperty(controlName, propertyTemplate.Property, SyntaxFactory.IdentifierName(templateName));
+            //[parent].[propertyTemplate.Property] = new DelegateTemplate { BuildContentBody = compiledDelegate }
+
+            var delegateTemplateValue = emitter.EmitValue(new DelegateTemplate { BuildContentBody = compiledDelegate });
+
+            SetProperty(controlName, propertyTemplate.Property, delegateTemplateValue);
         }
 
         /// <summary>
@@ -237,13 +230,14 @@ namespace DotVVM.Framework.Compilation
             if (control.Metadata.VirtualPath == null)
             {
                 // compiled control
-                name = EmitCreateControl(control.Metadata.Type, control.ConstructorParameters);
+                name = EmitCreateControl(control.Metadata.Type, control.ConstructorParameters).Name;
             }
             else
             {
                 // markup control
-                name = emitter.EmitInvokeControlBuilder(control.Metadata.Type, control.Metadata.VirtualPath);
+                name = emitter.EmitInvokeControlBuilder(control.Metadata.Type, control.Metadata.VirtualPath).Name;
             }
+
             emitter.RegisterDotvvmProperties(name);
             // RawLiterals don't need these helper properties unless in root
             if (control.Metadata.Type != typeof(RawLiteral) || control.Parent is ResolvedTreeRoot)
@@ -264,21 +258,9 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Emits binding constructor and returns variable name
         /// </summary>
-        protected ExpressionSyntax ProcessBinding(ResolvedBinding binding)
+        protected Expression ProcessBinding(ResolvedBinding binding)
         {
             return bindingCompiler.EmitCreateBinding(emitter, binding);
-        }
-
-        /// <summary>
-        /// Processes the template.
-        /// </summary>
-        protected string CreateTemplate(string builderMethodName)
-        {
-            var templateName = emitter.EmitCreateObject(typeof(DelegateTemplate));
-            emitter.EmitSetProperty(templateName,
-                nameof(DelegateTemplate.BuildContentBody),
-                emitter.EmitIdentifier(builderMethodName));
-            return templateName;
         }
     }
 }
