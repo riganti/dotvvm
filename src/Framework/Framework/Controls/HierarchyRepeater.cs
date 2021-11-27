@@ -188,7 +188,7 @@ namespace DotVVM.Framework.Controls
 
             if (DataSource is not null)
             {
-                AddServerLevel(this, context, GetIEnumerableFromDataSource()!);
+                this.AppendChildren(CreateServerLevel(context, GetIEnumerableFromDataSource()!));
             }
 
             if (renderClientTemplate)
@@ -217,8 +217,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void AddServerLevel(
-            DotvvmControl parent,
+        private DotvvmControl CreateServerLevel(
             IDotvvmRequestContext context,
             IEnumerable items,
             ImmutableArray<int> parentPath = default,
@@ -237,7 +236,6 @@ namespace DotVVM.Framework.Controls
             var level = new HierarchyRepeaterLevel {
                 ForeachExpression = foreachExpression
             };
-            parent.Children.Add(level);
             {
                 DotvvmControl levelWrapper = string.IsNullOrEmpty(LevelTagName)
                             ? new PlaceHolder()
@@ -247,15 +245,15 @@ namespace DotVVM.Framework.Controls
                     var index = 0;
                     foreach (var item in items)
                     {
-                        AddServerItem(levelWrapper, context, item, parentPath, index);
+                        levelWrapper.AppendChildren(CreateServerItem(context, item, parentPath, index));
                         index++;
                     }
                 }
             }
+            return level;
         }
 
-        private void AddServerItem(
-            DotvvmControl parent,
+        private DotvvmControl CreateServerItem(
             IDotvvmRequestContext context,
             object item,
             ImmutableArray<int> parentPath,
@@ -264,38 +262,42 @@ namespace DotVVM.Framework.Controls
             DotvvmControl itemWrapper = string.IsNullOrEmpty(ItemTagName)
                 ? new PlaceHolder()
                 : new HtmlGenericControl(ItemTagName);
-            parent.Children.Add(itemWrapper);
+            var dataItem = new DataItemContainer { DataItemIndex = index };
+            itemWrapper.Children.Add(dataItem);
+            dataItem.SetDataContextTypeFromDataSource(GetDataSourceBinding());
             {
-                var dataItem = new DataItemContainer { DataItemIndex = index };
-                itemWrapper.Children.Add(dataItem);
-                dataItem.SetDataContextTypeFromDataSource(GetDataSourceBinding());
+                var placeholder = new PlaceHolder { DataContext = item };
                 {
-                    var placeholder = new PlaceHolder { DataContext = item };
-                    {
-                        var parentSegment = parentPath.IsDefaultOrEmpty
-                            ? string.Empty
-                            : $"/[{string.Join("]/[", parentPath)}]";
-                        placeholder.SetValue(
-                            Internal.PathFragmentProperty,
-                            $"{GetPathFragmentExpression()}{parentSegment}/[{index}]");
-                        ItemTemplate.BuildContent(context, placeholder);
-                    }
-                    dataItem.Children.Add(placeholder);
-
-                    var foreachExpression = ((IValueBinding)ItemChildrenBinding!
-                        .GetProperty<DataSourceAccessBinding>()
-                        .Binding)
-                        .GetKnockoutBindingExpression(dataItem);
-
-                    // if the item has children then recurse down
-                    parentPath = parentPath.Add(index);
-                    var itemChildren = GetItemChildren(item);
-                    if (itemChildren.Any())
-                    {
-                        AddServerLevel(dataItem, context, itemChildren, parentPath, foreachExpression);
-                    }
+                    var parentSegment = parentPath.IsDefaultOrEmpty
+                        ? string.Empty
+                        : $"/[{string.Join("]/[", parentPath)}]";
+                    placeholder.SetValue(
+                        Internal.PathFragmentProperty,
+                        $"{GetPathFragmentExpression()}{parentSegment}/[{index}]");
+                    ItemTemplate.BuildContent(context, placeholder);
                 }
+                dataItem.Children.Add(placeholder);
             }
+            // if the item has children then recurse down
+            var itemChildren = GetItemChildren(item);
+            if (itemChildren.Any())
+            {
+                var foreachExpression = ((IValueBinding)ItemChildrenBinding!
+                    .GetProperty<DataSourceAccessBinding>()
+                    .Binding)
+                    .GetParametrizedKnockoutExpression(dataItem)
+                    .ToString(p =>
+                        p == JavascriptTranslator.KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier($"ko.unwrap($foreachCollectionSymbol)[{index}]()") :
+                        p is JavascriptTranslator.ViewModelSymbolicParameter vm ?
+                            JavascriptTranslator.GetKnockoutViewModelParameter(vm.ParentIndex - 1).DefaultAssignment :
+                        default
+                    );
+
+                itemWrapper.AppendChildren(
+                    CreateServerLevel(context, itemChildren, parentPath.Add(index), foreachExpression)
+                );
+            }
+            return itemWrapper;
         }
 
         private DotvvmControl GetClientItemTemplate(IDotvvmRequestContext context)
@@ -304,6 +306,7 @@ namespace DotVVM.Framework.Controls
             {
                 dataItem.DataContext = null;
                 dataItem.SetValue(Internal.PathFragmentProperty, $"{GetPathFragmentExpression()}/[$indexPath]");
+                // TODO: this does not work, we need to set a data binding into the Internal.ClientIDFragmentProperty
                 dataItem.SetValue(Internal.ClientIDFragmentProperty, "$indexPath.map(function(i){return i();}).join(\"_\")");
                 dataItem.SetDataContextTypeFromDataSource(GetDataSourceBinding());
 
@@ -329,7 +332,7 @@ namespace DotVVM.Framework.Controls
                         .Binding)
                         .GetParametrizedKnockoutExpression(dataItem)
                         .ToString(p =>
-                            p == JavascriptTranslator.KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("$item") :
+                            p == JavascriptTranslator.KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("$item()") :
                             p is JavascriptTranslator.ViewModelSymbolicParameter vm ?
                                 JavascriptTranslator.GetKnockoutViewModelParameter(vm.ParentIndex - 1).DefaultAssignment :
                             default

@@ -11,8 +11,8 @@
                            ItemTagName="li"
                            RenderSettings.Mode="Server"
                            PostBack.Update="true">
-        <span RenderSettings.Mode="Client">{{value: Name}}</span>
-        <dot:Button Click="{command: _root.ClickNode(_this)}" Text="{value: ClickCount}" />
+        <span RenderSettings.Mode="Client" title={value: _root.GlobalLabel}>{{value: Name}}</span>
+        <dot:Button Click="{command: _root.ClickNode(_this)}" Text="{value: ClickCount}" title={value: $"{_root.GlobalLabel}: {Name}"} />
     </dot:HierarchyRepeater>
 
     <h2>Client Rendering</h2>
@@ -21,7 +21,7 @@
                            LevelTagName="ul"
                            ItemTagName="li"
                            RenderSettings.Mode="Client">
-        <span>{{value: Name}}</span>
+        <span title={value: _root.GlobalLabel}>{{value: Name}}</span>
         <dot:Button Click="{command: _root.ClickNode(_this)}" Text="{value: ClickCount}" />
     </dot:HierarchyRepeater>
 
@@ -29,7 +29,7 @@
     <dot:HierarchyRepeater DataSource="{value: Roots}"
                            ItemChildrenBinding="{value: Children}"
                            RenderSettings.Mode="Client">
-        <p>{{value: Name}}</p>
+        <p title={value: _root.GlobalLabel}>{{value: Name}}</p>
     </dot:HierarchyRepeater>
 
     <h2>Empty</h2>
@@ -38,7 +38,7 @@
                            LevelTagName="ul"
                            ItemTagName="li">
         <ItemTemplate>
-            <span>{{value: Name}}</span>
+            <span title={value: _root.GlobalLabel}>{{value: Name}}</span>
         </ItemTemplate>
         <EmptyDataTemplate>
             <strong>There are no nodes.</strong>
@@ -50,5 +50,8 @@
         <span>{{value: Name}}</span>
         <dot:Button Click="{command: _root.ClickNode(_this)}" Text="{value: ClickCount}" />
     </dot:Repeater>
+
+
+    <p> This should be propagated to all nodes <dot:TextBox Text={value: GlobalLabel} />
 </dot:Content>
 

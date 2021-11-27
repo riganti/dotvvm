@@ -43,6 +43,8 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.HierarchyRepeater
             return base.Load();
         }
 
+        public string GlobalLabel { get; set; } = "Test";
+
         public void ClickNode(Node node)
         {
             node.ClickCount++;
