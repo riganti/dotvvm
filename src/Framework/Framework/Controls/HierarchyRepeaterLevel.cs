@@ -4,6 +4,7 @@ using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -28,11 +29,12 @@ namespace DotVVM.Framework.Controls
 
             if (!RenderOnServer)
             {
-                writer.WriteKnockoutDataBindComment("template", new KnockoutBindingGroup {
-                    { "foreach", ForeachExpression },
-                    { "name", ItemTemplateId ?? string.Empty },
-                    { "hierarchyRole", IsRoot ? "Root" : "Child" }
-                }.ToString());
+                var koGroup = new KnockoutBindingGroup {
+                    { "foreach", ForeachExpression }
+                };
+                koGroup.AddValue("name", ItemTemplateId.NotNull());
+                koGroup.AddValue("hierarchyRole", IsRoot ? "Root" : "Child");
+                writer.WriteKnockoutDataBindComment("template", koGroup.ToString());
             }
             else
             {
