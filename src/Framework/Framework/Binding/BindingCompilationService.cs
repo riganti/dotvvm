@@ -2,10 +2,12 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
@@ -172,10 +174,27 @@ namespace DotVVM.Framework.Binding
 
     public sealed class BindingResolverCollection
     {
-        private readonly ConcurrentDictionary<Type, Delegate> resolvers = new ConcurrentDictionary<Type, Delegate>();
-        private readonly ConcurrentDictionary<Type, ConcurrentStack<Delegate>> postProcs = new ConcurrentDictionary<Type, ConcurrentStack<Delegate>>();
+        private ConcurrentDictionary<Type, Delegate>? resolvers = null;
+        private ConcurrentDictionary<Type, ConcurrentStack<Delegate>>? postProcs = null;
+        
+        [MemberNotNull("resolvers")]
+        void InitResolvers()
+        {
+            if (resolvers is null)
+                // concurrencyLevel: 1, we don't need super high parallel performance, it better to save memory on all those locks
+                Interlocked.CompareExchange(ref resolvers,  new ConcurrentDictionary<Type, Delegate>(concurrencyLevel: 1, capacity: 1), null);
+        }
+        [MemberNotNull("postProcs")]
+        void InitPostProcs()
+        {
+            if (postProcs is null)
+                Interlocked.CompareExchange(ref postProcs, new ConcurrentDictionary<Type, ConcurrentStack<Delegate>>(1, 1), null);
+        }
 
-        public IEnumerable<Delegate> Delegates => resolvers.Values.Concat(postProcs.Values.SelectMany(_ => _));
+        public IEnumerable<Delegate> Delegates =>
+            resolvers is null && postProcs is null ? Enumerable.Empty<Delegate>() :
+            (resolvers?.Values ?? Enumerable.Empty<Delegate>())
+                .Concat(postProcs?.Values.SelectMany(_ => _) ?? Enumerable.Empty<Delegate>());
 
         public BindingResolverCollection(IEnumerable<Delegate> delegates)
         {
@@ -184,6 +203,7 @@ namespace DotVVM.Framework.Binding
 
         public void AddResolver(Delegate resolver, bool replace = false)
         {
+            InitResolvers();
             if (replace) resolvers[resolver.Method.ReturnType] = resolver;
             else if (!resolvers.TryAdd(resolver.Method.ReturnType, resolver))
                 throw new NotSupportedException($"Can't insert more resolvers for property of type '{resolver.Method.ReturnType}'.");
@@ -195,6 +215,7 @@ namespace DotVVM.Framework.Binding
             var type = method.GetParameters().First().ParameterType;
             if (method.ReturnType != typeof(void) && method.ReturnType != type)
                 throw new Exception("Binding property post-processing function must return void or first parameter's type.");
+            InitPostProcs();
             var list = postProcs.GetOrAdd(type, _ => new ConcurrentStack<Delegate>());
             list.Push(processor);
         }
@@ -209,9 +230,9 @@ namespace DotVVM.Framework.Binding
         }
 
         public IEnumerable<Delegate> GetPostProcessors(Type type) =>
-            postProcs.TryGetValue(type, out var result) ? result : Enumerable.Empty<Delegate>();
+            postProcs?.TryGetValue(type, out var result) == true ? result : Enumerable.Empty<Delegate>();
 
         public Delegate? FindResolver(Type type) =>
-            resolvers.TryGetValue(type, out var result) ? result : null;
+            resolvers?.TryGetValue(type, out var result) == true ? result : null;
     }
 }
