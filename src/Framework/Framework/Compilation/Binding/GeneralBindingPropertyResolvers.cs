@@ -91,6 +91,19 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public BindingParserOptions GetDefaultBindingParserOptions(IBinding binding)
         {
+            if (binding is ResourceBindingExpression)
+                return BindingParserOptions.Resource;
+            if (binding is StaticCommandBindingExpression)
+                return BindingParserOptions.StaticCommand;
+            if (binding is ControlPropertyBindingExpression)
+                return BindingParserOptions.ControlProperty;
+            if (binding is ValueBindingExpression)
+                return BindingParserOptions.Value;
+            if (binding is ControlCommandBindingExpression)
+                return BindingParserOptions.ControlCommand;
+            if (binding is CommandBindingExpression)
+                return BindingParserOptions.Command;
+
             return new BindingParserOptions(binding.GetType());
         }
 
@@ -161,10 +174,10 @@ namespace DotVVM.Framework.Compilation.Binding
         public BindingCompilationRequirementsAttribute GetAdditionalResolversFromProperty(AssignedPropertyBindingProperty property)
         {
             var prop = property?.DotvvmProperty;
-            if (prop == null) return new BindingCompilationRequirementsAttribute();
+            if (prop == null) return BindingCompilationRequirementsAttribute.Empty;
 
             return
-                new[] { new BindingCompilationRequirementsAttribute() }
+                new[] { BindingCompilationRequirementsAttribute.Empty }
                 .Concat(prop.GetAttributes<BindingCompilationRequirementsAttribute>())
                 .Aggregate((a, b) => a.ApplySecond(b));
         }
@@ -365,7 +378,8 @@ namespace DotVVM.Framework.Compilation.Binding
                 p
             ));
             // does not matter that this is slow, there is quite a lot of bindings and all the filenames take space
-            fileName = string.Intern(fileName);
+            if (fileName is {})
+                fileName = string.Intern(fileName);
             return new DotvvmLocationInfo(
                 fileName,
                 resolvedBinding.DothtmlNode?.Tokens?.Select(t => (t.ColumnNumber, t.ColumnNumber + t.Length)).ToArray(),

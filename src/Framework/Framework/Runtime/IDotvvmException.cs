@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Runtime
     }
 
     public abstract record DotvvmExceptionBase(
-        string? msg = null,
+        string? Msg = null,
         DotvvmProperty? RelatedProperty = null,
         DotvvmBindableObject? RelatedControl = null,
         IBinding? RelatedBinding = null,
@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Runtime
         IResource? RelatedResource = null,
         DotvvmLocationInfo? Location = null,
         Exception? InnerException = null
-    ) : RecordExceptions.RecordException(msg, InnerException), IDotvvmException
+    ) : RecordExceptions.RecordException(Msg, InnerException), IDotvvmException
     {
         // small hack so that we can automatically set this property in InvokePageLifeCycleEvent
         public DotvvmBindableObject? RelatedControl { get; set; } = RelatedControl;

@@ -45,11 +45,8 @@ namespace DotVVM.Framework.Binding
 
         BindingResolverCollection resolvers = new BindingResolverCollection(Enumerable.Empty<Delegate>());
 
-        public virtual object ComputeProperty(Type type, IBinding binding)
+        public virtual object? ComputeProperty(Type type, IBinding binding)
         {
-            if (type == typeof(BindingCompilationService)) return this;
-            if (type.IsAssignableFrom(binding.GetType())) return binding;
-
             var additionalResolvers = binding.GetAdditionalResolvers();
             var bindingResolvers = GetResolversForBinding(binding.GetType());
 
@@ -88,7 +85,10 @@ namespace DotVVM.Framework.Binding
                     return expressionCompiler.Compile(lambda);
                 else return result;
             }
-            else return new BindingPropertyException(binding, type, "resolver not found"); // don't throw the exception, since it creates noise for debugger
+            // instead of returning exception we return null since this is the most common exception
+            // and whatever we return will probably stay in RAM forever.
+            else return null;
+            //; // don't throw the exception, since it creates noise for debugger
         }
 
         protected Exception GetException(IBinding binding, string message) =>

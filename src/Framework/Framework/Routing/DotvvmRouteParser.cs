@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Routing
 {
@@ -44,7 +45,7 @@ namespace DotVVM.Framework.Routing
                 if (url[i] == '/')
                 {
                     // standard URL component
-                    var str = url.Substring(startIndex, i - startIndex);
+                    var str = url.AsSpan(startIndex, i - startIndex).DotvvmInternString();
                     regex.Append(Regex.Escape(str));
                     urlBuilders.Add(_ => str);
                     startIndex = i;
@@ -52,7 +53,7 @@ namespace DotVVM.Framework.Routing
                 else if (url[i] == '{')
                 {
                     // route parameter
-                    var str = url.Substring(startIndex, i - startIndex);
+                    var str = url.AsSpan(startIndex, i - startIndex).DotvvmInternString();
                     i++;
                     AppendParameterParserResult(ParseParameter(url, str, ref i, defaultValues));
                     startIndex = i + 1;
@@ -90,15 +91,16 @@ namespace DotVVM.Framework.Routing
             {
                 throw new ArgumentException($"The route URL '{url}' is not valid! It contains an unclosed parameter.");
             }
-            var name = url.Substring(startIndex, index - startIndex).Trim();
+            var nameSpan = url.AsSpan(startIndex, index - startIndex).Trim();
 
             // determine whether the parameter is optional - it must end with ?, or must be present in the DefaultValues collection
-            var isOptional = name.EndsWith("?", StringComparison.Ordinal);
+            var isOptional = nameSpan.EndsWith("?", StringComparison.Ordinal);
             if (isOptional)
             {
-                name = name.Substring(0, name.Length - 1);
+                nameSpan = nameSpan.Slice(0, nameSpan.Length - 1);
             }
-            else
+            var name = nameSpan.DotvvmInternString(trySystemIntern: true);
+            if (!isOptional)
             {
                 isOptional = defaultValues.ContainsKey(name);
             }

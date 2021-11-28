@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public ImmutableArray<IActionFilter> ActionFilters => this.GetProperty<ActionFiltersBindingProperty>(ErrorHandlingMode.ReturnNull)?.Filters ?? ImmutableArray<IActionFilter>.Empty;
 
-        public BindingDelegate BindingDelegate => this.GetProperty<BindingDelegate>();
+        public BindingDelegate BindingDelegate => this.bindingDelegate.GetValueOrThrow(this);
 
         public ParametrizedCode CommandJavascript => this.GetProperty<StaticCommandJavascriptProperty>().Code;
 

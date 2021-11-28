@@ -34,15 +34,17 @@ namespace DotVVM.Framework.Binding.Expressions
             AddNullResolvers();
         }
 
-        public BindingDelegate BindingDelegate => this.GetProperty<BindingDelegate>();
+        public BindingDelegate BindingDelegate => this.bindingDelegate.GetValueOrThrow(this);
 
-        public BindingUpdateDelegate UpdateDelegate => this.GetProperty<BindingUpdateDelegate>();
+        public BindingUpdateDelegate UpdateDelegate => this.updateDelegate.GetValueOrThrow(this);
 
-        public ParametrizedCode KnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().Code;
-        public ParametrizedCode UnwrappedKnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().UnwrappedCode;
-        public ParametrizedCode WrappedKnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().WrappedCode;
+        public KnockoutExpressionBindingProperty KnockoutExpressionBindingProperty => this.knockoutExpressions.GetValueOrThrow(this);
 
-        public Type ResultType => this.GetProperty<ResultTypeBindingProperty>().Type;
+        public ParametrizedCode KnockoutExpression => KnockoutExpressionBindingProperty.Code;
+        public ParametrizedCode UnwrappedKnockoutExpression => KnockoutExpressionBindingProperty.UnwrappedCode;
+        public ParametrizedCode WrappedKnockoutExpression => KnockoutExpressionBindingProperty.WrappedCode;
+
+        public Type ResultType => this.resultType.GetValueOrThrow(this).Type;
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
