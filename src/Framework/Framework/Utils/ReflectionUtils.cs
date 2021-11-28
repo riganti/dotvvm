@@ -322,12 +322,6 @@ namespace DotVVM.Framework.Utils
             return !IsPrimitiveType(type);
         }
 
-        public static bool IsDynamicOrObject(this Type type)
-        {
-            return type.GetInterfaces().Contains(typeof(IDynamicMetaObjectProvider)) ||
-                   type == typeof(object);
-        }
-
         public static bool IsDelegate(this Type type)
         {
             return typeof(Delegate).IsAssignableFrom(type);

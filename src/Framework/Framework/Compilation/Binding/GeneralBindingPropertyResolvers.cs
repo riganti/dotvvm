@@ -364,6 +364,8 @@ namespace DotVVM.Framework.Compilation.Binding
                 configuration.ApplicationPhysicalPath,
                 p
             ));
+            // does not matter that this is slow, there is quite a lot of bindings and all the filenames take space
+            fileName = string.Intern(fileName);
             return new DotvvmLocationInfo(
                 fileName,
                 resolvedBinding.DothtmlNode?.Tokens?.Select(t => (t.ColumnNumber, t.ColumnNumber + t.Length)).ToArray(),

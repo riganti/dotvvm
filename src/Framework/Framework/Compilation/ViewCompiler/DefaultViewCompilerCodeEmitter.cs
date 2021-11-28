@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 using FastExpressionCompiler;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -27,7 +28,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
 
         public ParameterExpression EmitCreateVariable(Expression expression)
         {
-            var name = "c" + CurrentControlIndex;
+            var name = ("c" + CurrentControlIndex).DotvvmInternString();
             CurrentControlIndex++;
 
             var variable = Expression.Variable(expression.Type, name);
