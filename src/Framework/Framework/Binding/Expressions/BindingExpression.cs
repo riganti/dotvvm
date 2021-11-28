@@ -36,7 +36,8 @@ namespace DotVVM.Framework.Binding.Expressions
             }
         }
 
-        private readonly ConcurrentDictionary<Type, PropValue> properties = new ConcurrentDictionary<Type, PropValue>();
+        // concurrencyLevel: 1, we don't need super high parallel performance, it better to save memory on all those locks
+        private readonly ConcurrentDictionary<Type, PropValue> properties = new ConcurrentDictionary<Type, PropValue>(concurrencyLevel: 1, capacity: 8);
         protected readonly BindingCompilationService bindingService;
 
 
