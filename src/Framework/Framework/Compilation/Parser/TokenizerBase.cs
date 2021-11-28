@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Parser
 {
@@ -212,13 +213,26 @@ namespace DotVVM.Framework.Compilation.Parser
 		/// </summary>
 		protected TToken CreateToken(TTokenType type, int charsFromEndToSkip = 0, Func<TToken, TokenError>? errorProvider = null)
 		{
-			var text = CurrentTokenChars.ToString().Substring(0, DistanceSinceLastToken - charsFromEndToSkip);
+			var length = CurrentTokenChars.Length - charsFromEndToSkip;
+			string text;
+
+			
+			if (length < 200)
+			{
+				Span<char> data = stackalloc char[length];
+				CurrentTokenChars.CopyTo(0, data, length);
+				text = ((ReadOnlySpan<char>)data).DotvvmInternString(trySystemIntern: length < 10);
+			}
+			else
+			{
+				text = CurrentTokenChars.ToString().Substring(0, length);
+			}
 
 			var t = NewToken(text,
 							 type,
 							 lineNumber: CurrentLine,
 							 columnNumber: Math.Max(0, PositionOnLine - DistanceSinceLastToken - 1),
-							 length: DistanceSinceLastToken - charsFromEndToSkip,
+							 length: length,
 							 startPosition: LastTokenPosition
 					);
 			Tokens.Add(t);
