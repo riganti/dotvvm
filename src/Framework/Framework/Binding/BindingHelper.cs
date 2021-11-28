@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Binding
         public static (int stepsUp, DotvvmBindableObject target) FindDataContextTarget(this IBinding binding, DotvvmBindableObject control)
         {
             if (control == null) throw new ArgumentNullException(nameof(control), $"Cannot evaluate binding without any dataContext.");
-            var bindingContext = binding.GetProperty<DataContextStack>(ErrorHandlingMode.ReturnNull);
+            var bindingContext = binding.DataContext;
             return FindDataContextTarget(control, bindingContext, binding);
         }
 
@@ -291,7 +291,7 @@ namespace DotVVM.Framework.Binding
         {
             object?[] getContextProperties(IBinding b) =>
                 new object?[] {
-                    b.GetProperty<DataContextStack>(ErrorHandlingMode.ReturnNull),
+                    b.DataContext,
                     b.GetProperty<BindingResolverCollection>(ErrorHandlingMode.ReturnNull),
                     b.GetProperty<BindingCompilationRequirementsAttribute>(ErrorHandlingMode.ReturnNull)?.ClearRequirements(),
                     b.GetProperty<BindingErrorReporterProperty>(ErrorHandlingMode.ReturnNull),

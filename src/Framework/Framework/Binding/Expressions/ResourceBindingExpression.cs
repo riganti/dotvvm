@@ -20,9 +20,9 @@ namespace DotVVM.Framework.Binding.Expressions
     {
         public ResourceBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
 
-        public BindingDelegate BindingDelegate => this.GetProperty<BindingDelegate>();
+        public BindingDelegate BindingDelegate => this.bindingDelegate.GetValueOrThrow(this);
 
-        public Type ResultType => this.GetProperty<ResultTypeBindingProperty>().Type;
+        public Type ResultType => this.resultType.GetValueOrThrow(this).Type;
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {

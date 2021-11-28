@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public string BindingId => this.GetProperty<IdBindingProperty>().Id;
 
-        public BindingDelegate BindingDelegate => this.GetProperty<BindingDelegate>();
+        public BindingDelegate BindingDelegate => this.bindingDelegate.GetValueOrThrow(this);
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {

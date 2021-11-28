@@ -29,10 +29,12 @@ namespace DotVVM.Framework.Compilation
         public static readonly ParameterExpression ViewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
 
         protected readonly DotvvmConfiguration configuration;
+        protected readonly BindingCompilationService bindingService;
 
-        public BindingCompiler(DotvvmConfiguration configuration)
+        public BindingCompiler(DotvvmConfiguration configuration, BindingCompilationService bindingService)
         {
             this.configuration = configuration;
+            this.bindingService = bindingService;
         }
 
         public static Expression ReplaceParameters(Expression expression, DataContextStack dataContext, bool assertAllReplaced = true) =>
@@ -112,18 +114,40 @@ namespace DotVVM.Framework.Compilation
             return new KeyValuePair<string, Expression>(name, Expression.Convert(Expression.ArrayIndex(vmArray, Expression.Constant(index)), parents[index]));
         }
 
-        public virtual IBinding CreateMinimalClone(ResolvedBinding binding)
+        public virtual IBinding CreateMinimalClone(IBinding binding)
         {
-            var properties = GetMinimalCloneProperties(binding.Binding);
-            return (IBinding)Activator.CreateInstance(binding.BindingType, new object[] {
-                binding.BindingService,
+            object?[] properties = GetMinimalCloneProperties(binding).ToArray();
+
+            for (int i = 0; i < properties.Length; i++)
+            {
+                var p = properties[i];
+                if (p is null) continue;
+
+                if (p is DataSourceAccessBinding dataSource)
+                    properties[i] = cloneNestedBinding(dataSource.Binding)?.Apply(b => new DataSourceAccessBinding(b));
+                if (p is DataSourceLengthBinding dataLength)
+                    properties[i] = cloneNestedBinding(dataLength.Binding)?.Apply(b => new DataSourceLengthBinding(b));
+                if (p is DataSourceCurrentElementBinding collectionElement)
+                    properties[i] = cloneNestedBinding(collectionElement.Binding)?.Apply(b => new DataSourceCurrentElementBinding(b));
+                if (p is SelectorItemBindingProperty selectorItem)
+                    properties[i] = cloneNestedBinding(selectorItem.Expression)?.Apply(b => new SelectorItemBindingProperty((IValueBinding)b));
+                if (p is ThisBindingProperty thisBinding)
+                    properties[i] = cloneNestedBinding(thisBinding.binding)?.Apply(b => new ThisBindingProperty((IValueBinding)b));
+            }
+
+            return (IBinding)Activator.CreateInstance(binding.GetType(), new object[] {
+                bindingService,
                 properties
             });
+
+            IBinding? cloneNestedBinding(IBinding b) =>
+                b == binding ? null : // it it's self, then we can just recreate it at runtime
+                CreateMinimalClone(b);
         }
 
-        public static IEnumerable<object> GetMinimalCloneProperties(IBinding binding)
+        public IEnumerable<object> GetMinimalCloneProperties(IBinding binding)
         {
-            var requirements = binding.GetProperty<BindingCompilationService>().GetRequirements(binding);
+            var requirements = bindingService.GetRequirements(binding);
             return requirements.Required.Concat(requirements.Optional)
                     .Concat(new[] { typeof(ParsedExpressionBindingProperty), typeof(OriginalStringBindingProperty), typeof(DataContextStack), typeof(DotvvmLocationInfo), typeof(BindingParserOptions), typeof(BindingCompilationRequirementsAttribute), typeof(ExpectedTypeBindingProperty), typeof(AssignedPropertyBindingProperty) })
                     .Select(p => binding.GetProperty(p, ErrorHandlingMode.ReturnNull))
@@ -132,7 +156,7 @@ namespace DotVVM.Framework.Compilation
 
         public virtual Expression EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding)
         {
-            var newbinding = CreateMinimalClone(binding);
+            var newbinding = CreateMinimalClone(binding.Binding);
             return emitter.EmitValue(newbinding);
         }
 
