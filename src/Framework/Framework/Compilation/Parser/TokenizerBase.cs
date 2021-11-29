@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -11,17 +12,16 @@ namespace DotVVM.Framework.Compilation.Parser
 	{
 		public const char NullChar = '\0';
 		private string sourceText = "";
-		private int sourcePosition;
 
 		/// <summary>
 		/// Gets the type of the text token.
 		/// </summary>
-		protected abstract TTokenType TextTokenType { get; }
+		protected TTokenType TextTokenType { get; }
 
 		/// <summary>
 		/// Gets the type of the white space token.
 		/// </summary>
-		protected abstract TTokenType WhiteSpaceTokenType { get; }
+		protected TTokenType WhiteSpaceTokenType { get; }
 
 		/// <summary>
 		/// Gets or sets the current line number.
@@ -55,11 +55,6 @@ namespace DotVVM.Framework.Compilation.Parser
 		}
 
 		/// <summary>
-		/// Gets or sets the current token chars.
-		/// </summary>
-		protected StringBuilder CurrentTokenChars { get; private set; }
-
-		/// <summary>
 		/// Occurs when a token is found.
 		/// </summary>
 		public event Action<TToken>? TokenFound;
@@ -69,19 +64,20 @@ namespace DotVVM.Framework.Compilation.Parser
 		/// </summary>
 		public List<TToken> Tokens { get; private set; }
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="TokenizerBase{TToken, TTokenType}"/> class.
-		/// </summary>
-		public TokenizerBase()
-		{
-			CurrentTokenChars = new StringBuilder();
-			Tokens = new List<TToken>();
-		}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TokenizerBase{TToken, TTokenType}"/> class.
+        /// </summary>
+        public TokenizerBase(TTokenType textTokenType, TTokenType whiteSpaceTokenType)
+        {
+            Tokens = new List<TToken>();
+            TextTokenType = textTokenType;
+            WhiteSpaceTokenType = whiteSpaceTokenType;
+        }
 
-		/// <summary>
-		/// Performs default tokenizer action
-		/// </summary>
-		public abstract void Tokenize(string sourceText);
+        /// <summary>
+        /// Performs default tokenizer action
+        /// </summary>
+        public abstract void Tokenize(string sourceText);
 
 		/// <summary>
 		/// Tokenizes the input.
@@ -98,7 +94,6 @@ namespace DotVVM.Framework.Compilation.Parser
 				LastToken = null;
 				LastTokenPosition = 0;
 				Tokens.Clear();
-				CurrentTokenChars.Clear();
 
 				return readFunction();
 			}
@@ -113,12 +108,14 @@ namespace DotVVM.Framework.Compilation.Parser
 		/// </summary>
 		protected void SkipWhitespace(bool allowEndLine = true)
 		{
-			while (char.IsWhiteSpace(Peek()) && (allowEndLine || (Peek() != '\r' && Peek() != '\n')))
+			var ch = Peek();
+			while (char.IsWhiteSpace(ch) & (allowEndLine || (ch != '\r' && ch != '\n')))
 			{
 				if (Read() == NullChar)
 				{
 					break;
 				}
+				ch = Peek();
 			}
 			if (DistanceSinceLastToken > 0)
 			{
@@ -148,19 +145,25 @@ namespace DotVVM.Framework.Compilation.Parser
 				CreateToken(tokenType, lastNonwhitespaceDistance);
 			}
 
-			if (Peek() == '\r')
+
+			var hasR = Peek() == '\r';
+			if (hasR)
 			{
 				// \r can be followed by \n which is still one new line
 				Read();
 			}
-			if (Peek() == '\n')
+			var hasN = Peek() == '\n';
+			if (hasN)
 			{
 				Read();
 			}
 
 			if (DistanceSinceLastToken > 0)
 			{
-				CreateToken(WhiteSpaceTokenType);
+				if (lastNonwhitespaceDistance > 0)
+					CreateToken(WhiteSpaceTokenType);
+				else
+					CreateToken(WhiteSpaceTokenType, hasR & hasN ? "\r\n" : hasR ? "\r" : "\n");
 			}
 		}
 
@@ -185,7 +188,8 @@ namespace DotVVM.Framework.Compilation.Parser
 		protected bool PeekIsString(string? str)
 		{
 			if (str is null) return false;
-			for (int i = 0; i < str.Length; i++)
+			if (Peek() != str[0]) return false;
+			for (int i = 1; i < str.Length; i++)
 			{
 				if (Peek(i) != str[i]) return false;
 			}
@@ -208,31 +212,37 @@ namespace DotVVM.Framework.Compilation.Parser
 
 		protected abstract TToken NewToken(string text, TTokenType type, int lineNumber, int columnNumber, int length, int startPosition);
 
+		char[] tokenCharBuffer = new char[20];
+
+		protected string GetCurrentTokenText(int charsFromEndToSkip = 0)
+		{
+			var start = LastTokenPosition;
+			var end = position - charsFromEndToSkip;
+			var length = end - start;
+			Debug.Assert(end <= sourceText.Length, "Tokenizer read out of source string.");
+
+			if (length == 1)
+			{
+				return sourceText[start].DotvvmInternString();
+			}
+			else if (length < 20)
+				return sourceText.AsSpan().Slice(start, length).DotvvmInternString();
+			else
+				return sourceText.Substring(start, length);
+		}
+
 		/// <summary>
 		/// Creates the token.
 		/// </summary>
 		protected TToken CreateToken(TTokenType type, int charsFromEndToSkip = 0, Func<TToken, TokenError>? errorProvider = null)
 		{
-			var length = CurrentTokenChars.Length - charsFromEndToSkip;
-			string text;
-
-			
-			if (length < 200)
-			{
-				Span<char> data = stackalloc char[length];
-				CurrentTokenChars.CopyTo(0, data, length);
-				text = ((ReadOnlySpan<char>)data).DotvvmInternString(trySystemIntern: length < 10);
-			}
-			else
-			{
-				text = CurrentTokenChars.ToString().Substring(0, length);
-			}
+			var text = GetCurrentTokenText(charsFromEndToSkip);
 
 			var t = NewToken(text,
 							 type,
 							 lineNumber: CurrentLine,
 							 columnNumber: Math.Max(0, PositionOnLine - DistanceSinceLastToken - 1),
-							 length: length,
+							 length: text.Length,
 							 startPosition: LastTokenPosition
 					);
 			Tokens.Add(t);
@@ -241,8 +251,27 @@ namespace DotVVM.Framework.Compilation.Parser
 				t.Error = errorProvider(t);
 			}
 
-			CurrentTokenChars.Remove(0, t.Length);
 			LastTokenPosition = position - charsFromEndToSkip;
+
+			OnTokenFound(t);
+
+			return LastToken = t;
+		}
+
+		/// <summary> Slightly optimized version of CreateToken when exact string representation of the token is known at compile-time. </summary>
+		protected TToken CreateToken(TTokenType type, string text)
+		{
+			Debug.Assert(GetCurrentTokenText() == text);
+			var t = NewToken(text,
+							 type,
+							 lineNumber: CurrentLine,
+							 columnNumber: Math.Max(0, PositionOnLine - DistanceSinceLastToken - 1),
+							 length: text.Length,
+							 startPosition: LastTokenPosition
+					);
+			Tokens.Add(t);
+
+			LastTokenPosition = position;
 
 			OnTokenFound(t);
 
@@ -268,7 +297,7 @@ namespace DotVVM.Framework.Compilation.Parser
 		/// Called when a token is found.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		protected virtual void OnTokenFound(TToken token)
+		protected void OnTokenFound(TToken token)
 		{
 			TokenFound?.Invoke(token);
 		}
@@ -277,9 +306,9 @@ namespace DotVVM.Framework.Compilation.Parser
 		/// Peeks the current char.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		protected char Peek() => sourcePosition < sourceText.Length ? sourceText[sourcePosition] : NullChar;
+		protected char Peek() => position < sourceText.Length ? sourceText[position] : NullChar;
 
-		protected char Peek(int delta) => sourcePosition + delta < sourceText.Length ? sourceText[sourcePosition + delta] : NullChar;
+		protected char Peek(int delta) => position + delta < sourceText.Length ? sourceText[position + delta] : NullChar;
 
 		/// <summary>
 		/// Returns the current char and advances to the next one.
@@ -287,17 +316,9 @@ namespace DotVVM.Framework.Compilation.Parser
 		protected char Read()
 		{
 			var ch = Peek();
-			sourcePosition++;
 			if (ch != NullChar)
 			{
-				CurrentTokenChars.Append(ch);
-
-				if (ch == '\r' && Peek() != '\n')
-				{
-					CurrentLine++;
-					PositionOnLine = 0;
-				}
-				else if (ch == '\n')
+				if (ch == '\n' || (ch == '\r' && Peek() != '\n'))
 				{
 					CurrentLine++;
 					PositionOnLine = 0;

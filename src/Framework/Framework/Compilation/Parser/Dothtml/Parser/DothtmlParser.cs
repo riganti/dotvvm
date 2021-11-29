@@ -18,6 +18,10 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             "html", "head", "body", "p", "dt", "dd", "li", "option", "thead", "th", "tbody", "tr", "td", "tfoot", "colgroup"
         };
 
+        public DothtmlParser() : base(DothtmlTokenType.WhiteSpace)
+        {
+        }
+
         private Stack<DothtmlNodeWithContent> ElementHierarchy { get; } = new Stack<DothtmlNodeWithContent>();
 
         private List<DothtmlNode> CurrentElementContent
@@ -338,7 +342,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             DothtmlToken? prefixToken = null;
             DothtmlNameNode? prefixNode = null;
 
-            if (Peek()?.Type == DothtmlTokenType.Colon)
+            if (PeekType() == DothtmlTokenType.Colon)
             {
                 prefixToken = Read();
 
@@ -352,7 +356,8 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             }
 
             // spaces before separator belong to name
-            nameNode.WhitespacesAfter = SkipWhiteSpace();
+            if (SkipWhiteSpace() is { Any: true } wAfter)
+                nameNode.WhitespacesAfter = wAfter;
 
             var attribute = new DothtmlAttributeNode(nameNode) {
                 PrefixSeparatorToken = prefixToken,
@@ -360,7 +365,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             };
 
 
-            if (Peek()?.Type == DothtmlTokenType.Equals)
+            if (PeekType() == DothtmlTokenType.Equals)
             {
                 attribute.ValueSeparatorToken = Read();
 
@@ -376,7 +381,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
                     var startingWhitespaces = SkipWhiteSpace();
 
-                    if (Peek()?.Type == DothtmlTokenType.OpenBinding)
+                    if (PeekType() == DothtmlTokenType.OpenBinding)
                     {
                         attribute.ValueNode = ReadBindingValue(false, true);
                     }
@@ -385,7 +390,8 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                         attribute.ValueNode = ReadTextValue(false, true, DothtmlTokenType.Text);
                     }
                     //we had to jump forward to decide
-                    attribute.ValueNode.WhitespacesBefore = startingWhitespaces;
+                    if (startingWhitespaces.Any)
+                        attribute.ValueNode.WhitespacesBefore = startingWhitespaces;
 
                     Assert(quote);
                     valueEndTokens.Add(PeekPart());
@@ -404,9 +410,11 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                     //these are not part of any attribute or value
                     SkipWhiteSpace();
                 }
-                attribute.ValueStartTokens = valueStartTokens;
+                if (valueStartTokens.Any)
+                    attribute.ValueStartTokens = valueStartTokens;
                 valueEndTokens.Add(SkipWhiteSpace());
-                attribute.ValueEndTokens = valueEndTokens;
+                if (valueEndTokens.Any())
+                    attribute.ValueEndTokens = valueEndTokens;
             }
 
             attribute.Tokens.Add(GetTokensFrom(startIndex));
@@ -476,11 +484,14 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                          SkipWhiteSpace() :
                          default;
 
-            return new DothtmlNameNode(nameToken) {
-                Tokens = { GetTokensFrom(startIndex) },
-                WhitespacesBefore = wBefore,
-                WhitespacesAfter = wAfter
+            var token = new DothtmlNameNode(nameToken) {
+                Tokens = { GetTokensFrom(startIndex) }
             };
+            if (wBefore.Any)
+                token.WhitespacesBefore = wBefore;
+            if (wAfter.Any)
+                token.WhitespacesAfter = wAfter;
+            return token;
         }
 
         private DothtmlValueTextNode ReadTextValue(bool whitespacesBefore, bool whiteSpacesAfter, DothtmlTokenType valueTokenType)
@@ -498,11 +509,14 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                          SkipWhiteSpace() :
                          default;
 
-            return new DothtmlValueTextNode(valueToken) {
-                Tokens = { GetTokensFrom(startIndex) },
-                WhitespacesBefore = wBefore,
-                WhitespacesAfter = wAfter
+            var token = new DothtmlValueTextNode(valueToken) {
+                Tokens = { GetTokensFrom(startIndex) }
             };
+            if (wBefore.Any)
+                token.WhitespacesBefore = wBefore;
+            if (wAfter.Any)
+                token.WhitespacesAfter = wAfter;
+            return token;
         }
 
         private DothtmlValueBindingNode ReadBindingValue(bool whitespacesBefore, bool whiteSpacesAfter)
@@ -521,11 +535,14 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                          SkipWhiteSpace() :
                          default;
 
-            return new DothtmlValueBindingNode(bindingNode, valueTokens) {
-                Tokens = { GetTokensFrom(startIndex) },
-                WhitespacesBefore = wBefore,
-                WhitespacesAfter = wAfter
+            var token = new DothtmlValueBindingNode(bindingNode, valueTokens) {
+                Tokens = { GetTokensFrom(startIndex) }
             };
+            if (wBefore.Any)
+                token.WhitespacesBefore = wBefore;
+            if (wAfter.Any)
+                token.WhitespacesAfter = wAfter;
+            return token;
         }
 
         private void ReadWhiteSpaceOrComment(DothtmlElementNode node)
@@ -553,7 +570,5 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                 }
             }
         }
-
-        protected override bool IsWhiteSpace(DothtmlToken token) => token.Type == DothtmlTokenType.WhiteSpace;
     }
 }

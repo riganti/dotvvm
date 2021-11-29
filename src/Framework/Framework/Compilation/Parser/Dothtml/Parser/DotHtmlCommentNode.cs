@@ -23,21 +23,16 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         {
             if (ValueNode != null)
             {
-                yield return ValueNode;
+                return new DothtmlNode[] { ValueNode };
             }
+            return Enumerable.Empty<DothtmlNode>();
         }
 
         public override void Accept(IDothtmlSyntaxTreeVisitor visitor)
         {
             visitor.Visit(this);
 
-            foreach (var node in EnumerateChildNodes())
-            {
-                if (visitor.Condition(node))
-                {
-                    node.Accept(visitor);
-                }
-            }
+            ValueNode?.AcceptIfCondition(visitor);
         }
 
         public override IEnumerable<DothtmlNode> EnumerateNodes()

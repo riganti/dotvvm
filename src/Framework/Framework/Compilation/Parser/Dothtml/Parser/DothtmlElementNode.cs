@@ -6,7 +6,7 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
     [DebuggerDisplay("{debuggerDisplay,nq}")]
-    public class DothtmlElementNode : DothtmlNodeWithContent
+    public sealed class DothtmlElementNode : DothtmlNodeWithContent
     {
         #region debugger display
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -41,17 +41,27 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
         public override IEnumerable<DothtmlNode> EnumerateChildNodes()
         {
-            var result = new List<DothtmlNode>();
+            var result = new List<DothtmlNode>(
+                capacity:
+                    (InnerComments?.Count ?? 0) + 
+                    (CorrespondingEndTag is null ? 1 : 0) +
+                    (TagPrefixNode is null ? 1 : 0) +
+                    1 +
+                    Attributes.Count +
+                    Content.Count
+            );
 
             if (TagPrefixNode != null)
-            {
                 result.Add(TagPrefixNode);
-            }
 
             result.Add(TagNameNode);
-            result.AddRange(Attributes);
-            if (InnerComments != null) result.AddRange(InnerComments);
-            result.AddRange(Content);
+            foreach (var a in Attributes)
+                result.Add(a);
+            if (InnerComments != null)
+                foreach (var c in InnerComments)
+                    result.Add(c);
+            foreach (var c in Content)
+                result.Add(c);
             if (CorrespondingEndTag != null) result.Add(CorrespondingEndTag);
 
             return result;
@@ -61,13 +71,22 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         {
             visitor.Visit(this);
 
-            foreach (var node in EnumerateChildNodes())
-            {
-                if (visitor.Condition(node))
-                {
-                    node.Accept(visitor);
-                }
-            }
+            TagPrefixNode?.AcceptIfCondition(visitor);
+
+            TagNameNode.AcceptIfCondition(visitor);
+            foreach (var a in Attributes)
+                a.AcceptIfCondition(visitor);
+            if (InnerComments != null)
+                foreach (var c in InnerComments)
+                    c.AcceptIfCondition(visitor);
+            foreach (var c in Content)
+                c.AcceptIfCondition(visitor);
+            CorrespondingEndTag?.AcceptIfCondition(visitor);
+        }
+        internal new void AcceptIfCondition(IDothtmlSyntaxTreeVisitor visitor)
+        {
+            if (visitor.Condition(this))
+                this.Accept(visitor);
         }
         public override IEnumerable<DothtmlNode> EnumerateNodes()
         {

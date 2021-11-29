@@ -6,7 +6,7 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
     [DebuggerDisplay("{debuggerDisplay,nq}{ValueNode}")]
-    public class DothtmlAttributeNode : DothtmlNode
+    public sealed class DothtmlAttributeNode : DothtmlNode
     {
         #region debugger display
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -56,13 +56,15 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         {
             visitor.Visit(this);
 
-            foreach (var node in EnumerateChildNodes())
-            {
-                if (visitor.Condition(node))
-                {
-                    node.Accept(visitor);
-                }
-            }
+            AttributePrefixNode?.AcceptIfCondition(visitor);
+            AttributeNameNode.AcceptIfCondition(visitor);
+            ValueNode?.AcceptIfCondition(visitor);
+        }
+
+        internal new void AcceptIfCondition(IDothtmlSyntaxTreeVisitor visitor)
+        {
+            if (visitor.Condition(this))
+                this.Accept(visitor);
         }
 
         public override IEnumerable<DothtmlNode> EnumerateNodes()
