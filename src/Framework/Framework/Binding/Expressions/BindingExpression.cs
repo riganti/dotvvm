@@ -2,9 +2,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
@@ -18,6 +20,7 @@ namespace DotVVM.Framework.Binding.Expressions
 {
     [BindingCompilationRequirements(optional: new[] { typeof(BindingResolverCollection) })]
     [Newtonsoft.Json.JsonConverter(typeof(BindingDebugJsonConverter))]
+    // [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public abstract class BindingExpression : IBinding, ICloneableBinding
     {
         private protected struct PropValue<TValue> where TValue : class
@@ -56,6 +59,7 @@ namespace DotVVM.Framework.Binding.Expressions
             }
         }
 
+        // [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 8 + 8 + 1)]
         private protected struct MaybePropValue<TValue> where TValue : class
         {
             public PropValue<TValue> Value;
@@ -83,7 +87,6 @@ namespace DotVVM.Framework.Binding.Expressions
             void ComputeValue(BindingExpression @this)
             {
                 SetValue(@this.ComputeProperty<TValue>(null));
-                Unsafe.Unbox
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -109,11 +112,16 @@ namespace DotVVM.Framework.Binding.Expressions
             [MethodImpl(MethodImplOptions.NoInlining)]
             void ThrowError(Exception? exception, BindingExpression @this) =>
                 PropValue<TValue>.ThrowException(exception ?? new BindingPropertyException(@this, typeof(TValue), "resolver not found"), @this, typeof(TValue));
-
         }
 
         // concurrencyLevel: 1, we don't need super high parallel performance, it better to save memory on all those locks
-        private readonly ConcurrentDictionary<Type, PropValue<object>> properties = new(concurrencyLevel: 1, capacity: 8);
+        private ConcurrentDictionary<Type, PropValue<object>>? properties = null;
+        [MemberNotNull("properties")]
+        private void InitProperties()
+        {
+            if (properties is null)
+                Interlocked.CompareExchange(ref properties, new(concurrencyLevel: 1, capacity: 1), null);
+        }
         protected readonly BindingCompilationService bindingService;
 
         // well, ConcurrentDictionary is pretty slow and takes a ton of memory, so we just do this for the most common properties
@@ -132,6 +140,7 @@ namespace DotVVM.Framework.Binding.Expressions
         private protected MaybePropValue<BindingUpdateDelegate> updateDelegate;
         private protected MaybePropValue<OriginalStringBindingProperty> originalString;
         private protected MaybePropValue<ExpectedTypeBindingProperty> expectedType;
+        private protected MaybePropValue<StaticCommandJavascriptProperty> staticCommandJs;
 
         public BindingExpression(BindingCompilationService service, IEnumerable<object?> properties)
         {
@@ -198,6 +207,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         PropValue<object> StorePropertyInCache(Type propertyType, PropValue<object> r)
         {
+            InitProperties();
             if (r.Error != null)
             {
                 // overwrite previous error, this has a chance of being more descriptive (due to blocked recursion)
@@ -242,6 +252,8 @@ namespace DotVVM.Framework.Binding.Expressions
                 this.originalString.SetValue(new(originalString));
             else if (p is ExpectedTypeBindingProperty expectedType)
                 this.expectedType.SetValue(new(expectedType));
+            else if (p is StaticCommandJavascriptProperty staticCommandJs)
+                this.staticCommandJs.SetValue(new(staticCommandJs));
             
             else
                 StorePropertyInCache(p.GetType(), new(p));
@@ -276,8 +288,9 @@ namespace DotVVM.Framework.Binding.Expressions
                 type == typeof(BindingUpdateDelegate) ? updateDelegate.GetValue(this).AsObject() :
                 type == typeof(OriginalStringBindingProperty) ? originalString.GetValue(this).AsObject() :
                 type == typeof(ExpectedTypeBindingProperty) ? expectedType.GetValue(this).AsObject() :
+                type == typeof(StaticCommandJavascriptProperty) ? staticCommandJs.GetValue(this).AsObject() :
 
-                properties.TryGetValue(type, out var result) ? result : GetPropertyNotInCache(type);
+                properties is {} && properties.TryGetValue(type, out var result) ? result : GetPropertyNotInCache(type);
 
             return propValue.GetValue(errorMode, this, type);
         }
@@ -289,7 +302,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         IEnumerable<object> ICloneableBinding.GetAllComputedProperties()
         {
-            return properties.Values.Select(p => p.Value).Concat(new object?[] {
+            return (properties?.Values.Select(p => p.Value) ?? Enumerable.Empty<object>()).Concat(new object?[] {
                 dataContextStack.GetValueOrNull(this),
                 errorReporter.GetValueOrNull(this),
                 resolverCollection.GetValueOrNull(this),
@@ -305,7 +318,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 updateDelegate.GetValueOrNull(this),
                 originalString.GetValueOrNull(this),
                 expectedType.GetValueOrNull(this),
-
+                staticCommandJs.GetValueOrNull(this),
             }).Where(p => p != null)!;
         }
 
