@@ -99,7 +99,8 @@ namespace DotVVM.Framework.Routing
             {
                 nameSpan = nameSpan.Slice(0, nameSpan.Length - 1);
             }
-            var name = nameSpan.DotvvmInternString(trySystemIntern: true);
+            var name = nameSpan.DotvvmInternString(null, trySystemIntern: true);
+            //                                            ^ route parameters are super likely to be used somewhere in code  
             if (!isOptional)
             {
                 isOptional = defaultValues.ContainsKey(name);

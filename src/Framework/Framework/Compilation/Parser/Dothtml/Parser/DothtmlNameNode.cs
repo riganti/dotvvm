@@ -4,7 +4,7 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 
 namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
-    public class DothtmlNameNode :DothtmlNode
+    public sealed class DothtmlNameNode :DothtmlNode
     {
         public DothtmlNameNode(DothtmlToken nameToken)
         {
@@ -24,6 +24,12 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         public override void Accept(IDothtmlSyntaxTreeVisitor visitor)
         {
             visitor.Visit(this);
+        }
+
+        internal new void AcceptIfCondition(IDothtmlSyntaxTreeVisitor visitor)
+        {
+            if (visitor.Condition(this))
+                visitor.Visit(this);
         }
     }
 }

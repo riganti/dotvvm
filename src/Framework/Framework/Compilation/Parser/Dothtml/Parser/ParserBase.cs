@@ -7,7 +7,15 @@ using DotVVM.Framework.Utils;
 namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
     public abstract class ParserBase<TToken, TTokenType> where TToken : TokenBase<TTokenType>
+                                                         where TTokenType : notnull, IEquatable<TTokenType>
     {
+        public TTokenType WhiteSpaceTokenType { get; }
+
+        protected ParserBase(TTokenType whiteSpaceTokenType)
+        {
+            WhiteSpaceTokenType = whiteSpaceTokenType;
+        }
+
         /// <summary>
         /// Gets the tokens from.
         /// </summary>
@@ -16,7 +24,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             return new AggregateList<TToken>.Part(Tokens, startIndex, CurrentIndex - startIndex); // Enumerable.Skip<TToken>(Tokens, startIndex).Take(CurrentIndex - startIndex);
         }
 
-        protected abstract bool IsWhiteSpace(TToken token);
+        protected bool IsWhiteSpace(TToken token) => this.WhiteSpaceTokenType.Equals(token.Type);
 
         public List<TToken> Tokens { get; set; } = new List<TToken>();
         protected int CurrentIndex { get; set; }
@@ -43,9 +51,18 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         {
             if (CurrentIndex < Tokens.Count)
             {
-                return Tokens[CurrentIndex].NotNull();
+                return Tokens[CurrentIndex];
             }
-            return null!;
+            return null;
+        }
+
+        public TTokenType PeekType()
+        {
+            if (CurrentIndex < Tokens.Count)
+            {
+                return Tokens[CurrentIndex].Type;
+            }
+            return default!;
         }
 
         /// <summary>
@@ -105,9 +122,9 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         {
             if (CurrentIndex < Tokens.Count)
             {
-                return Tokens[CurrentIndex++].NotNull();
+                return Tokens[CurrentIndex++];
             }
-            return null!;
+            return null;
         }
 
         /// <summary>

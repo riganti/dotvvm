@@ -136,7 +136,7 @@ namespace DotVVM.Framework.Utils
                 "Items()?.length", ".Items()?.length", ".$index()", "$index()", "value", "dotvvm.postBack(", "ko.pureComputed(()=>", "viewModel", "dotvvm.evaluator.wrapObservable(()=>", "$type", "$data", ".$data", "(()=>{let vm=", ",[],", "dotvvm.globalize.bindingNumberToString(", ".Name", ".Id", "(i)=>ko.unwrap(i).Id()", "(i)=>ko.unwrap(i).Text()", "(i)=>ko.unwrap(i).Name()", "(async ()=>{let vm=", ".Visible", ".Enabled", "ko.contextFor(", "import", "service",
 
                 // bindings
-                "value", "resource", "command", "controlCommand", "staticCommand", "staticCommand",
+                "value", "resource", "command", "controlCommand", "staticCommand", "staticCommand", "{{", "}}",
 
                 // html attributes
                 "accept", "accept-charset", "accesskey", "action", "align", "allow", "alt", "async", "autocapitalize", "autocomplete", "autofocus", "autoplay", "background", "bgcolor", "border", "buffered", "capture", "challenge", "charset", "checked", "cite", "class", "code", "codebase", "color", "cols", "colspan", "content", "contenteditable", "contextmenu", "controls", "coords", "crossorigin", "csp", "data", "datetime", "decoding", "default", "defer", "dir", "dirname", "disabled", "download", "draggable", "enctype", "enterkeyhint", "for", "form", "formaction", "formenctype", "formmethod", "formnovalidate", "formtarget", "headers", "height", "hidden", "high", "href", "hreflang", "http-equiv", "icon", "id", "importance", "integrity", "intrinsicsize", "inputmode", "ismap", "itemprop", "keytype", "kind", "label", "lang", "language", "loading", "list", "loop", "low", "manifest", "max", "maxlength", "minlength", "media", "method", "min", "multiple", "muted", "name", "novalidate", "open", "optimum", "pattern", "ping", "placeholder", "poster", "preload", "radiogroup", "readonly", "referrerpolicy", "rel", "required", "reversed", "rows", "rowspan", "sandbox", "scope", "scoped", "selected", "shape", "size", "sizes", "slot", "span", "spellcheck", "src", "srcdoc", "srclang", "srcset", "start", "step", "style", "summary", "tabindex", "target", "title", "translate", "type", "usemap", "value", "width", "wrap",
@@ -146,7 +146,7 @@ namespace DotVVM.Framework.Utils
 
                 // random fragments
 
-                "http://www.w3.org/1999/xhtml",
+                "http://www.w3.org/1999/xhtml", "utf-8", "viewport", "description", "name", "url",
 
                 "Load", "Init", "PreRender", "ToString", "Equals", "Context", "DotVVM", "en",
                 "_this", "_parent", "_control", "_root",
@@ -163,38 +163,76 @@ namespace DotVVM.Framework.Utils
 
             var lenGroups = strings.Where(l => l.Length > 1).Distinct().GroupBy(x => x.Length).OrderBy(k => k.Key);
             Console.WriteLine("switch (span.Length)\n{");
+            const int manualSequenceEqualThreshold = 5;
             foreach (var lenGroup in lenGroups)
             {
-                Console.WriteLine($"    case {lenGroup.Key}:");
+                Console.WriteLine($"    case {lenGroup.Key}: {{");
+                if (lenGroup.Key <= manualSequenceEqualThreshold)
+                {
+                    for (int i = 1; i < lenGroup.Key; i++)
+                        Console.WriteLine($"        char ch{i} = span[{i}];");
+                }
                 Console.WriteLine( "        switch (ch)");
                 Console.WriteLine( "        {");
                 var gs = lenGroup.GroupBy(x => x[0]).OrderBy(k => k.Key);
                 foreach (var g in gs)
                 {
-                    var ch = g.Key switch {
-                        '\r' => "\\r",
-                        '\n' => "\\n",
-                        '\t' => "\\t",
-                        '\\' => "\\\\",
-                        '\'' => "\\'",
-                        _ => g.Key.ToString()
-                    };
+                    var ch = formatChar(g.Key);
                     Console.WriteLine($"            case '{ch}':");
-                    foreach (var str in g)
+                    if (lenGroup.Key <= manualSequenceEqualThreshold)
                     {
-                        Console.WriteLine($"                if (span.SequenceEqual({str.ToCode()}.AsSpan()))");
-                        Console.WriteLine($"                    return {str.ToCode()};");
+                        foreach (var str in g)
+                        {
+                            var charCmp = str.Skip(1).Select((c, i) => $"ch{i+1} == '{formatChar(c)}'").StringJoin(" & ");
+                            Console.WriteLine($"                if ({charCmp})");
+                            Console.WriteLine($"                    return {str.ToCode()};");
+
+                        }
+                        Console.WriteLine( "                break;");
                     }
-                    Console.WriteLine($"                break;");
+                    else
+                    {
+                        var expr = g.Select(c => $"SpanEq(span, {c.ToCode()})").StringJoin(" ??\n                    ");
+                        Console.WriteLine($"                return {expr};");
+                    }
+
                 }
                 Console.WriteLine( "        }");
                 Console.WriteLine( "        break;");
+                Console.WriteLine( "    }");
             }
             Console.WriteLine("}");
+
+            string formatChar(char ch) =>
+                ch switch {
+                    '\r' => "\\r",
+                    '\n' => "\\n",
+                    '\t' => "\\t",
+                    '\\' => "\\\\",
+                    '\'' => "\\'",
+                    _ => ch.ToString()
+                };
         }
-        internal static string DotvvmInternString(this Span<char> span, string? str = null, bool trySystemIntern = false) =>
-            ((ReadOnlySpan<char>)span).DotvvmInternString(str, trySystemIntern);
-        internal static string DotvvmInternString(this ReadOnlySpan<char> span, string? str = null, bool trySystemIntern = false)
+        internal static string DotvvmInternString(this ReadOnlySpan<char> span, string? str, bool trySystemIntern = false)
+        {
+            var x = span.DotvvmTryInternString();
+            if (x is {}) return x;
+            x = str ?? new string(span);
+            return trySystemIntern ? string.IsInterned(x) ?? x : x;
+        }
+        internal static string DotvvmInternString(this ReadOnlySpan<char> span, string? str = null)
+        {
+            return DotvvmTryInternString(span) ?? str ?? new string(span);
+        }
+
+        static string? SpanEq(ReadOnlySpan<char> ch, String s)
+        {
+            if (ch.SequenceEqual(s))
+                return s;
+            return null;
+        }
+
+        internal static string? DotvvmTryInternString(this ReadOnlySpan<char> span)
         {
             if (span.Length == 0)
                 return "";
@@ -205,2143 +243,1442 @@ namespace DotVVM.Framework.Utils
                 return ch.DotvvmInternString();
 switch (span.Length)
 {
-    case 2:
+    case 2: {
+        char ch1 = span[1];
         switch (ch)
         {
             case '\n':
-                if (span.SequenceEqual("\n\n".AsSpan()))
+                if (ch1 == '\n')
                     return "\n\n";
                 break;
             case '\r':
-                if (span.SequenceEqual("\r\n".AsSpan()))
+                if (ch1 == '\n')
                     return "\r\n";
                 break;
             case ' ':
-                if (span.SequenceEqual("  ".AsSpan()))
+                if (ch1 == ' ')
                     return "  ";
                 break;
             case 'I':
-                if (span.SequenceEqual("ID".AsSpan()))
+                if (ch1 == 'D')
                     return "ID";
                 break;
             case 'O':
-                if (span.SequenceEqual("Ok".AsSpan()))
+                if (ch1 == 'k')
                     return "Ok";
                 break;
             case 'b':
-                if (span.SequenceEqual("bp".AsSpan()))
+                if (ch1 == 'p')
                     return "bp";
-                if (span.SequenceEqual("bs".AsSpan()))
+                if (ch1 == 's')
                     return "bs";
-                if (span.SequenceEqual("br".AsSpan()))
+                if (ch1 == 'r')
                     return "br";
                 break;
             case 'c':
-                if (span.SequenceEqual("cc".AsSpan()))
+                if (ch1 == 'c')
                     return "cc";
-                if (span.SequenceEqual("c0".AsSpan()))
+                if (ch1 == '0')
                     return "c0";
-                if (span.SequenceEqual("c1".AsSpan()))
+                if (ch1 == '1')
                     return "c1";
-                if (span.SequenceEqual("c2".AsSpan()))
+                if (ch1 == '2')
                     return "c2";
-                if (span.SequenceEqual("c3".AsSpan()))
+                if (ch1 == '3')
                     return "c3";
-                if (span.SequenceEqual("c4".AsSpan()))
+                if (ch1 == '4')
                     return "c4";
-                if (span.SequenceEqual("c5".AsSpan()))
+                if (ch1 == '5')
                     return "c5";
-                if (span.SequenceEqual("c6".AsSpan()))
+                if (ch1 == '6')
                     return "c6";
-                if (span.SequenceEqual("c7".AsSpan()))
+                if (ch1 == '7')
                     return "c7";
-                if (span.SequenceEqual("c8".AsSpan()))
+                if (ch1 == '8')
                     return "c8";
-                if (span.SequenceEqual("c9".AsSpan()))
+                if (ch1 == '9')
                     return "c9";
                 break;
             case 'd':
-                if (span.SequenceEqual("dc".AsSpan()))
+                if (ch1 == 'c')
                     return "dc";
-                if (span.SequenceEqual("dd".AsSpan()))
+                if (ch1 == 'd')
                     return "dd";
-                if (span.SequenceEqual("dl".AsSpan()))
+                if (ch1 == 'l')
                     return "dl";
-                if (span.SequenceEqual("dt".AsSpan()))
+                if (ch1 == 't')
                     return "dt";
                 break;
             case 'e':
-                if (span.SequenceEqual("em".AsSpan()))
+                if (ch1 == 'm')
                     return "em";
-                if (span.SequenceEqual("en".AsSpan()))
+                if (ch1 == 'n')
                     return "en";
                 break;
             case 'h':
-                if (span.SequenceEqual("h1".AsSpan()))
+                if (ch1 == '1')
                     return "h1";
-                if (span.SequenceEqual("h2".AsSpan()))
+                if (ch1 == '2')
                     return "h2";
-                if (span.SequenceEqual("h3".AsSpan()))
+                if (ch1 == '3')
                     return "h3";
-                if (span.SequenceEqual("h4".AsSpan()))
+                if (ch1 == '4')
                     return "h4";
-                if (span.SequenceEqual("h5".AsSpan()))
+                if (ch1 == '5')
                     return "h5";
-                if (span.SequenceEqual("h6".AsSpan()))
+                if (ch1 == '6')
                     return "h6";
-                if (span.SequenceEqual("hr".AsSpan()))
+                if (ch1 == 'r')
                     return "hr";
                 break;
             case 'i':
-                if (span.SequenceEqual("id".AsSpan()))
+                if (ch1 == 'd')
                     return "id";
                 break;
             case 'l':
-                if (span.SequenceEqual("li".AsSpan()))
+                if (ch1 == 'i')
                     return "li";
                 break;
             case 'o':
-                if (span.SequenceEqual("ol".AsSpan()))
+                if (ch1 == 'l')
                     return "ol";
                 break;
             case 'r':
-                if (span.SequenceEqual("rp".AsSpan()))
+                if (ch1 == 'p')
                     return "rp";
-                if (span.SequenceEqual("rt".AsSpan()))
+                if (ch1 == 't')
                     return "rt";
                 break;
             case 't':
-                if (span.SequenceEqual("td".AsSpan()))
+                if (ch1 == 'd')
                     return "td";
-                if (span.SequenceEqual("th".AsSpan()))
+                if (ch1 == 'h')
                     return "th";
-                if (span.SequenceEqual("tr".AsSpan()))
+                if (ch1 == 'r')
                     return "tr";
-                if (span.SequenceEqual("tt".AsSpan()))
+                if (ch1 == 't')
                     return "tt";
                 break;
             case 'u':
-                if (span.SequenceEqual("ul".AsSpan()))
+                if (ch1 == 'l')
                     return "ul";
+                break;
+            case '{':
+                if (ch1 == '{')
+                    return "{{";
+                break;
+            case '}':
+                if (ch1 == '}')
+                    return "}}";
                 break;
         }
         break;
-    case 3:
+    }
+    case 3: {
+        char ch1 = span[1];
+        char ch2 = span[2];
         switch (ch)
         {
             case '.':
-                if (span.SequenceEqual(".Id".AsSpan()))
+                if (ch1 == 'I' & ch2 == 'd')
                     return ".Id";
                 break;
             case 'R':
-                if (span.SequenceEqual("Row".AsSpan()))
+                if (ch1 == 'o' & ch2 == 'w')
                     return "Row";
                 break;
             case 'T':
-                if (span.SequenceEqual("Tag".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'g')
                     return "Tag";
                 break;
             case 'a':
-                if (span.SequenceEqual("alt".AsSpan()))
+                if (ch1 == 'l' & ch2 == 't')
                     return "alt";
                 break;
             case 'b':
-                if (span.SequenceEqual("bdi".AsSpan()))
+                if (ch1 == 'd' & ch2 == 'i')
                     return "bdi";
-                if (span.SequenceEqual("bdo".AsSpan()))
+                if (ch1 == 'd' & ch2 == 'o')
                     return "bdo";
-                if (span.SequenceEqual("big".AsSpan()))
+                if (ch1 == 'i' & ch2 == 'g')
                     return "big";
                 break;
             case 'c':
-                if (span.SequenceEqual("csp".AsSpan()))
+                if (ch1 == 's' & ch2 == 'p')
                     return "csp";
-                if (span.SequenceEqual("col".AsSpan()))
+                if (ch1 == 'o' & ch2 == 'l')
                     return "col";
-                if (span.SequenceEqual("c10".AsSpan()))
+                if (ch1 == '1' & ch2 == '0')
                     return "c10";
-                if (span.SequenceEqual("c11".AsSpan()))
+                if (ch1 == '1' & ch2 == '1')
                     return "c11";
-                if (span.SequenceEqual("c12".AsSpan()))
+                if (ch1 == '1' & ch2 == '2')
                     return "c12";
-                if (span.SequenceEqual("c13".AsSpan()))
+                if (ch1 == '1' & ch2 == '3')
                     return "c13";
-                if (span.SequenceEqual("c14".AsSpan()))
+                if (ch1 == '1' & ch2 == '4')
                     return "c14";
-                if (span.SequenceEqual("c15".AsSpan()))
+                if (ch1 == '1' & ch2 == '5')
                     return "c15";
-                if (span.SequenceEqual("c16".AsSpan()))
+                if (ch1 == '1' & ch2 == '6')
                     return "c16";
-                if (span.SequenceEqual("c17".AsSpan()))
+                if (ch1 == '1' & ch2 == '7')
                     return "c17";
-                if (span.SequenceEqual("c18".AsSpan()))
+                if (ch1 == '1' & ch2 == '8')
                     return "c18";
-                if (span.SequenceEqual("c19".AsSpan()))
+                if (ch1 == '1' & ch2 == '9')
                     return "c19";
                 break;
             case 'd':
-                if (span.SequenceEqual("dot".AsSpan()))
+                if (ch1 == 'o' & ch2 == 't')
                     return "dot";
-                if (span.SequenceEqual("dir".AsSpan()))
+                if (ch1 == 'i' & ch2 == 'r')
                     return "dir";
-                if (span.SequenceEqual("del".AsSpan()))
+                if (ch1 == 'e' & ch2 == 'l')
                     return "del";
-                if (span.SequenceEqual("dfn".AsSpan()))
+                if (ch1 == 'f' & ch2 == 'n')
                     return "dfn";
-                if (span.SequenceEqual("div".AsSpan()))
+                if (ch1 == 'i' & ch2 == 'v')
                     return "div";
                 break;
             case 'f':
-                if (span.SequenceEqual("for".AsSpan()))
+                if (ch1 == 'o' & ch2 == 'r')
                     return "for";
                 break;
             case 'i':
-                if (span.SequenceEqual("img".AsSpan()))
+                if (ch1 == 'm' & ch2 == 'g')
                     return "img";
-                if (span.SequenceEqual("ins".AsSpan()))
+                if (ch1 == 'n' & ch2 == 's')
                     return "ins";
                 break;
             case 'k':
-                if (span.SequenceEqual("kbd".AsSpan()))
+                if (ch1 == 'b' & ch2 == 'd')
                     return "kbd";
                 break;
             case 'l':
-                if (span.SequenceEqual("low".AsSpan()))
+                if (ch1 == 'o' & ch2 == 'w')
                     return "low";
                 break;
             case 'm':
-                if (span.SequenceEqual("max".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'x')
                     return "max";
-                if (span.SequenceEqual("min".AsSpan()))
+                if (ch1 == 'i' & ch2 == 'n')
                     return "min";
-                if (span.SequenceEqual("map".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'p')
                     return "map";
                 break;
             case 'n':
-                if (span.SequenceEqual("nav".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'v')
                     return "nav";
                 break;
             case 'p':
-                if (span.SequenceEqual("pre".AsSpan()))
+                if (ch1 == 'r' & ch2 == 'e')
                     return "pre";
                 break;
             case 'r':
-                if (span.SequenceEqual("rel".AsSpan()))
+                if (ch1 == 'e' & ch2 == 'l')
                     return "rel";
                 break;
             case 's':
-                if (span.SequenceEqual("src".AsSpan()))
+                if (ch1 == 'r' & ch2 == 'c')
                     return "src";
-                if (span.SequenceEqual("sub".AsSpan()))
+                if (ch1 == 'u' & ch2 == 'b')
                     return "sub";
-                if (span.SequenceEqual("sup".AsSpan()))
+                if (ch1 == 'u' & ch2 == 'p')
                     return "sup";
-                if (span.SequenceEqual("svg".AsSpan()))
+                if (ch1 == 'v' & ch2 == 'g')
                     return "svg";
                 break;
+            case 'u':
+                if (ch1 == 'r' & ch2 == 'l')
+                    return "url";
+                break;
             case 'v':
-                if (span.SequenceEqual("var".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'r')
                     return "var";
                 break;
             case 'w':
-                if (span.SequenceEqual("wbr".AsSpan()))
+                if (ch1 == 'b' & ch2 == 'r')
                     return "wbr";
                 break;
         }
         break;
-    case 4:
+    }
+    case 4: {
+        char ch1 = span[1];
+        char ch2 = span[2];
+        char ch3 = span[3];
         switch (ch)
         {
             case '\n':
-                if (span.SequenceEqual("\n   ".AsSpan()))
+                if (ch1 == ' ' & ch2 == ' ' & ch3 == ' ')
                     return "\n   ";
                 break;
             case ',':
-                if (span.SequenceEqual(",[],".AsSpan()))
+                if (ch1 == '[' & ch2 == ']' & ch3 == ',')
                     return ",[],";
                 break;
             case 'D':
-                if (span.SequenceEqual("Date".AsSpan()))
-                    return "Date";
-                if (span.SequenceEqual("Data".AsSpan()))
+                if (ch1 == 'a' & ch2 == 't' & ch3 == 'a')
                     return "Data";
+                if (ch1 == 'a' & ch2 == 't' & ch3 == 'e')
+                    return "Date";
                 break;
             case 'E':
-                if (span.SequenceEqual("Edit".AsSpan()))
+                if (ch1 == 'd' & ch2 == 'i' & ch3 == 't')
                     return "Edit";
                 break;
             case 'H':
-                if (span.SequenceEqual("Html".AsSpan()))
+                if (ch1 == 't' & ch2 == 'm' & ch3 == 'l')
                     return "Html";
                 break;
             case 'I':
-                if (span.SequenceEqual("Init".AsSpan()))
+                if (ch1 == 'n' & ch2 == 'i' & ch3 == 't')
                     return "Init";
-                if (span.SequenceEqual("Item".AsSpan()))
+                if (ch1 == 't' & ch2 == 'e' & ch3 == 'm')
                     return "Item";
                 break;
             case 'L':
-                if (span.SequenceEqual("Load".AsSpan()))
+                if (ch1 == 'o' & ch2 == 'a' & ch3 == 'd')
                     return "Load";
                 break;
             case 'M':
-                if (span.SequenceEqual("Mode".AsSpan()))
+                if (ch1 == 'o' & ch2 == 'd' & ch3 == 'e')
                     return "Mode";
                 break;
             case 'N':
-                if (span.SequenceEqual("Name".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'm' & ch3 == 'e')
                     return "Name";
                 break;
             case 'R':
-                if (span.SequenceEqual("Row2".AsSpan()))
+                if (ch1 == 'o' & ch2 == 'w' & ch3 == '2')
                     return "Row2";
                 break;
             case 'S':
-                if (span.SequenceEqual("Size".AsSpan()))
+                if (ch1 == 'i' & ch2 == 'z' & ch3 == 'e')
                     return "Size";
                 break;
             case 'T':
-                if (span.SequenceEqual("Text".AsSpan()))
+                if (ch1 == 'e' & ch2 == 'x' & ch3 == 't')
                     return "Text";
-                if (span.SequenceEqual("Trap".AsSpan()))
+                if (ch1 == 'r' & ch2 == 'a' & ch3 == 'p')
                     return "Trap";
-                if (span.SequenceEqual("Type".AsSpan()))
+                if (ch1 == 'y' & ch2 == 'p' & ch3 == 'e')
                     return "Type";
                 break;
             case 'a':
-                if (span.SequenceEqual("abbr".AsSpan()))
+                if (ch1 == 'b' & ch2 == 'b' & ch3 == 'r')
                     return "abbr";
-                if (span.SequenceEqual("area".AsSpan()))
+                if (ch1 == 'r' & ch2 == 'e' & ch3 == 'a')
                     return "area";
                 break;
             case 'b':
-                if (span.SequenceEqual("base".AsSpan()))
+                if (ch1 == 'a' & ch2 == 's' & ch3 == 'e')
                     return "base";
-                if (span.SequenceEqual("body".AsSpan()))
+                if (ch1 == 'o' & ch2 == 'd' & ch3 == 'y')
                     return "body";
                 break;
             case 'c':
-                if (span.SequenceEqual("cite".AsSpan()))
+                if (ch1 == 'i' & ch2 == 't' & ch3 == 'e')
                     return "cite";
-                if (span.SequenceEqual("code".AsSpan()))
+                if (ch1 == 'o' & ch2 == 'd' & ch3 == 'e')
                     return "code";
-                if (span.SequenceEqual("cols".AsSpan()))
+                if (ch1 == 'o' & ch2 == 'l' & ch3 == 's')
                     return "cols";
                 break;
             case 'd':
-                if (span.SequenceEqual("data".AsSpan()))
+                if (ch1 == 'a' & ch2 == 't' & ch3 == 'a')
                     return "data";
                 break;
             case 'f':
-                if (span.SequenceEqual("form".AsSpan()))
+                if (ch1 == 'o' & ch2 == 'r' & ch3 == 'm')
                     return "form";
-                if (span.SequenceEqual("font".AsSpan()))
+                if (ch1 == 'o' & ch2 == 'n' & ch3 == 't')
                     return "font";
                 break;
             case 'h':
-                if (span.SequenceEqual("high".AsSpan()))
+                if (ch1 == 'i' & ch2 == 'g' & ch3 == 'h')
                     return "high";
-                if (span.SequenceEqual("href".AsSpan()))
+                if (ch1 == 'r' & ch2 == 'e' & ch3 == 'f')
                     return "href";
-                if (span.SequenceEqual("head".AsSpan()))
+                if (ch1 == 'e' & ch2 == 'a' & ch3 == 'd')
                     return "head";
-                if (span.SequenceEqual("html".AsSpan()))
+                if (ch1 == 't' & ch2 == 'm' & ch3 == 'l')
                     return "html";
                 break;
             case 'i':
-                if (span.SequenceEqual("icon".AsSpan()))
+                if (ch1 == 'c' & ch2 == 'o' & ch3 == 'n')
                     return "icon";
                 break;
             case 'k':
-                if (span.SequenceEqual("kind".AsSpan()))
+                if (ch1 == 'i' & ch2 == 'n' & ch3 == 'd')
                     return "kind";
                 break;
             case 'l':
-                if (span.SequenceEqual("lang".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'n' & ch3 == 'g')
                     return "lang";
-                if (span.SequenceEqual("list".AsSpan()))
+                if (ch1 == 'i' & ch2 == 's' & ch3 == 't')
                     return "list";
-                if (span.SequenceEqual("loop".AsSpan()))
+                if (ch1 == 'o' & ch2 == 'o' & ch3 == 'p')
                     return "loop";
-                if (span.SequenceEqual("link".AsSpan()))
+                if (ch1 == 'i' & ch2 == 'n' & ch3 == 'k')
                     return "link";
                 break;
             case 'm':
-                if (span.SequenceEqual("main".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'i' & ch3 == 'n')
                     return "main";
-                if (span.SequenceEqual("mark".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'r' & ch3 == 'k')
                     return "mark";
-                if (span.SequenceEqual("meta".AsSpan()))
+                if (ch1 == 'e' & ch2 == 't' & ch3 == 'a')
                     return "meta";
                 break;
             case 'n':
-                if (span.SequenceEqual("name".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'm' & ch3 == 'e')
                     return "name";
                 break;
             case 'o':
-                if (span.SequenceEqual("open".AsSpan()))
+                if (ch1 == 'p' & ch2 == 'e' & ch3 == 'n')
                     return "open";
                 break;
             case 'p':
-                if (span.SequenceEqual("ping".AsSpan()))
+                if (ch1 == 'i' & ch2 == 'n' & ch3 == 'g')
                     return "ping";
                 break;
             case 'r':
-                if (span.SequenceEqual("rows".AsSpan()))
+                if (ch1 == 'o' & ch2 == 'w' & ch3 == 's')
                     return "rows";
-                if (span.SequenceEqual("ruby".AsSpan()))
+                if (ch1 == 'u' & ch2 == 'b' & ch3 == 'y')
                     return "ruby";
                 break;
             case 's':
-                if (span.SequenceEqual("size".AsSpan()))
+                if (ch1 == 'i' & ch2 == 'z' & ch3 == 'e')
                     return "size";
-                if (span.SequenceEqual("slot".AsSpan()))
+                if (ch1 == 'l' & ch2 == 'o' & ch3 == 't')
                     return "slot";
-                if (span.SequenceEqual("span".AsSpan()))
+                if (ch1 == 'p' & ch2 == 'a' & ch3 == 'n')
                     return "span";
-                if (span.SequenceEqual("step".AsSpan()))
+                if (ch1 == 't' & ch2 == 'e' & ch3 == 'p')
                     return "step";
-                if (span.SequenceEqual("samp".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'm' & ch3 == 'p')
                     return "samp";
                 break;
             case 't':
-                if (span.SequenceEqual("type".AsSpan()))
+                if (ch1 == 'y' & ch2 == 'p' & ch3 == 'e')
                     return "type";
-                if (span.SequenceEqual("time".AsSpan()))
+                if (ch1 == 'i' & ch2 == 'm' & ch3 == 'e')
                     return "time";
-                if (span.SequenceEqual("true".AsSpan()))
+                if (ch1 == 'r' & ch2 == 'u' & ch3 == 'e')
                     return "true";
                 break;
             case 'w':
-                if (span.SequenceEqual("wrap".AsSpan()))
+                if (ch1 == 'r' & ch2 == 'a' & ch3 == 'p')
                     return "wrap";
                 break;
         }
         break;
-    case 5:
+    }
+    case 5: {
+        char ch1 = span[1];
+        char ch2 = span[2];
+        char ch3 = span[3];
+        char ch4 = span[4];
         switch (ch)
         {
             case '$':
-                if (span.SequenceEqual("$type".AsSpan()))
+                if (ch1 == 't' & ch2 == 'y' & ch3 == 'p' & ch4 == 'e')
                     return "$type";
-                if (span.SequenceEqual("$data".AsSpan()))
+                if (ch1 == 'd' & ch2 == 'a' & ch3 == 't' & ch4 == 'a')
                     return "$data";
                 break;
             case '.':
-                if (span.SequenceEqual(".Name".AsSpan()))
+                if (ch1 == 'N' & ch2 == 'a' & ch3 == 'm' & ch4 == 'e')
                     return ".Name";
                 break;
             case 'A':
-                if (span.SequenceEqual("Added".AsSpan()))
+                if (ch1 == 'd' & ch2 == 'd' & ch3 == 'e' & ch4 == 'd')
                     return "Added";
                 break;
             case 'C':
-                if (span.SequenceEqual("Click".AsSpan()))
-                    return "Click";
-                if (span.SequenceEqual("Claim".AsSpan()))
+                if (ch1 == 'l' & ch2 == 'a' & ch3 == 'i' & ch4 == 'm')
                     return "Claim";
+                if (ch1 == 'l' & ch2 == 'i' & ch3 == 'c' & ch4 == 'k')
+                    return "Click";
                 break;
             case 'D':
-                if (span.SequenceEqual("Delay".AsSpan()))
+                if (ch1 == 'e' & ch2 == 'l' & ch3 == 'a' & ch4 == 'y')
                     return "Delay";
                 break;
             case 'F':
-                if (span.SequenceEqual("Files".AsSpan()))
+                if (ch1 == 'i' & ch2 == 'l' & ch3 == 'e' & ch4 == 's')
                     return "Files";
                 break;
             case 'L':
-                if (span.SequenceEqual("Label".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'b' & ch3 == 'e' & ch4 == 'l')
                     return "Label";
                 break;
             case 'M':
-                if (span.SequenceEqual("Model".AsSpan()))
+                if (ch1 == 'o' & ch2 == 'd' & ch3 == 'e' & ch4 == 'l')
                     return "Model";
                 break;
             case 'R':
-                if (span.SequenceEqual("Roles".AsSpan()))
+                if (ch1 == 'o' & ch2 == 'l' & ch3 == 'e' & ch4 == 's')
                     return "Roles";
                 break;
             case 'V':
-                if (span.SequenceEqual("Value".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'l' & ch3 == 'u' & ch4 == 'e')
                     return "Value";
                 break;
             case 'W':
-                if (span.SequenceEqual("Width".AsSpan()))
+                if (ch1 == 'i' & ch2 == 'd' & ch3 == 't' & ch4 == 'h')
                     return "Width";
                 break;
             case '_':
-                if (span.SequenceEqual("_this".AsSpan()))
+                if (ch1 == 't' & ch2 == 'h' & ch3 == 'i' & ch4 == 's')
                     return "_this";
-                if (span.SequenceEqual("_root".AsSpan()))
+                if (ch1 == 'r' & ch2 == 'o' & ch3 == 'o' & ch4 == 't')
                     return "_root";
                 break;
             case 'a':
-                if (span.SequenceEqual("align".AsSpan()))
+                if (ch1 == 'l' & ch2 == 'i' & ch3 == 'g' & ch4 == 'n')
                     return "align";
-                if (span.SequenceEqual("allow".AsSpan()))
+                if (ch1 == 'l' & ch2 == 'l' & ch3 == 'o' & ch4 == 'w')
                     return "allow";
-                if (span.SequenceEqual("async".AsSpan()))
+                if (ch1 == 's' & ch2 == 'y' & ch3 == 'n' & ch4 == 'c')
                     return "async";
-                if (span.SequenceEqual("aside".AsSpan()))
+                if (ch1 == 's' & ch2 == 'i' & ch3 == 'd' & ch4 == 'e')
                     return "aside";
-                if (span.SequenceEqual("audio".AsSpan()))
+                if (ch1 == 'u' & ch2 == 'd' & ch3 == 'i' & ch4 == 'o')
                     return "audio";
                 break;
             case 'c':
-                if (span.SequenceEqual("class".AsSpan()))
+                if (ch1 == 'l' & ch2 == 'a' & ch3 == 's' & ch4 == 's')
                     return "class";
-                if (span.SequenceEqual("color".AsSpan()))
+                if (ch1 == 'o' & ch2 == 'l' & ch3 == 'o' & ch4 == 'r')
                     return "color";
                 break;
             case 'd':
-                if (span.SequenceEqual("defer".AsSpan()))
+                if (ch1 == 'e' & ch2 == 'f' & ch3 == 'e' & ch4 == 'r')
                     return "defer";
                 break;
             case 'e':
-                if (span.SequenceEqual("embed".AsSpan()))
+                if (ch1 == 'm' & ch2 == 'b' & ch3 == 'e' & ch4 == 'd')
                     return "embed";
                 break;
             case 'f':
-                if (span.SequenceEqual("frame".AsSpan()))
+                if (ch1 == 'r' & ch2 == 'a' & ch3 == 'm' & ch4 == 'e')
                     return "frame";
-                if (span.SequenceEqual("false".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'l' & ch3 == 's' & ch4 == 'e')
                     return "false";
                 break;
             case 'i':
-                if (span.SequenceEqual("ismap".AsSpan()))
+                if (ch1 == 's' & ch2 == 'm' & ch3 == 'a' & ch4 == 'p')
                     return "ismap";
-                if (span.SequenceEqual("input".AsSpan()))
+                if (ch1 == 'n' & ch2 == 'p' & ch3 == 'u' & ch4 == 't')
                     return "input";
                 break;
             case 'l':
-                if (span.SequenceEqual("label".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'b' & ch3 == 'e' & ch4 == 'l')
                     return "label";
                 break;
             case 'm':
-                if (span.SequenceEqual("media".AsSpan()))
+                if (ch1 == 'e' & ch2 == 'd' & ch3 == 'i' & ch4 == 'a')
                     return "media";
-                if (span.SequenceEqual("muted".AsSpan()))
+                if (ch1 == 'u' & ch2 == 't' & ch3 == 'e' & ch4 == 'd')
                     return "muted";
-                if (span.SequenceEqual("meter".AsSpan()))
+                if (ch1 == 'e' & ch2 == 't' & ch3 == 'e' & ch4 == 'r')
                     return "meter";
                 break;
             case 'p':
-                if (span.SequenceEqual("param".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'r' & ch3 == 'a' & ch4 == 'm')
                     return "param";
                 break;
             case 's':
-                if (span.SequenceEqual("scope".AsSpan()))
+                if (ch1 == 'c' & ch2 == 'o' & ch3 == 'p' & ch4 == 'e')
                     return "scope";
-                if (span.SequenceEqual("shape".AsSpan()))
+                if (ch1 == 'h' & ch2 == 'a' & ch3 == 'p' & ch4 == 'e')
                     return "shape";
-                if (span.SequenceEqual("sizes".AsSpan()))
+                if (ch1 == 'i' & ch2 == 'z' & ch3 == 'e' & ch4 == 's')
                     return "sizes";
-                if (span.SequenceEqual("start".AsSpan()))
+                if (ch1 == 't' & ch2 == 'a' & ch3 == 'r' & ch4 == 't')
                     return "start";
-                if (span.SequenceEqual("style".AsSpan()))
+                if (ch1 == 't' & ch2 == 'y' & ch3 == 'l' & ch4 == 'e')
                     return "style";
-                if (span.SequenceEqual("small".AsSpan()))
+                if (ch1 == 'm' & ch2 == 'a' & ch3 == 'l' & ch4 == 'l')
                     return "small";
                 break;
             case 't':
-                if (span.SequenceEqual("title".AsSpan()))
+                if (ch1 == 'i' & ch2 == 't' & ch3 == 'l' & ch4 == 'e')
                     return "title";
-                if (span.SequenceEqual("table".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'b' & ch3 == 'l' & ch4 == 'e')
                     return "table";
-                if (span.SequenceEqual("tbody".AsSpan()))
+                if (ch1 == 'b' & ch2 == 'o' & ch3 == 'd' & ch4 == 'y')
                     return "tbody";
-                if (span.SequenceEqual("tfoot".AsSpan()))
+                if (ch1 == 'f' & ch2 == 'o' & ch3 == 'o' & ch4 == 't')
                     return "tfoot";
-                if (span.SequenceEqual("thead".AsSpan()))
+                if (ch1 == 'h' & ch2 == 'e' & ch3 == 'a' & ch4 == 'd')
                     return "thead";
-                if (span.SequenceEqual("track".AsSpan()))
+                if (ch1 == 'r' & ch2 == 'a' & ch3 == 'c' & ch4 == 'k')
                     return "track";
                 break;
+            case 'u':
+                if (ch1 == 't' & ch2 == 'f' & ch3 == '-' & ch4 == '8')
+                    return "utf-8";
+                break;
             case 'v':
-                if (span.SequenceEqual("value".AsSpan()))
+                if (ch1 == 'a' & ch2 == 'l' & ch3 == 'u' & ch4 == 'e')
                     return "value";
-                if (span.SequenceEqual("video".AsSpan()))
+                if (ch1 == 'i' & ch2 == 'd' & ch3 == 'e' & ch4 == 'o')
                     return "video";
                 break;
             case 'w':
-                if (span.SequenceEqual("width".AsSpan()))
+                if (ch1 == 'i' & ch2 == 'd' & ch3 == 't' & ch4 == 'h')
                     return "width";
                 break;
         }
         break;
-    case 6:
+    }
+    case 6: {
         switch (ch)
         {
             case '\r':
-                if (span.SequenceEqual("\r\n    ".AsSpan()))
-                    return "\r\n    ";
-                break;
+                return SpanEq(span, "\r\n    ");
             case '.':
-                if (span.SequenceEqual(".$data".AsSpan()))
-                    return ".$data";
-                break;
+                return SpanEq(span, ".$data");
             case 'A':
-                if (span.SequenceEqual("Append".AsSpan()))
-                    return "Append";
-                break;
+                return SpanEq(span, "Append");
             case 'B':
-                if (span.SequenceEqual("Button".AsSpan()))
-                    return "Button";
-                break;
+                return SpanEq(span, "Button");
             case 'C':
-                if (span.SequenceEqual("Column".AsSpan()))
-                    return "Column";
-                if (span.SequenceEqual("Custom".AsSpan()))
-                    return "Custom";
-                if (span.SequenceEqual("Cancel".AsSpan()))
-                    return "Cancel";
-                break;
+                return SpanEq(span, "Cancel") ??
+                    SpanEq(span, "Custom") ??
+                    SpanEq(span, "Column");
             case 'D':
-                if (span.SequenceEqual("DotVVM".AsSpan()))
-                    return "DotVVM";
-                if (span.SequenceEqual("Dialog".AsSpan()))
-                    return "Dialog";
-                if (span.SequenceEqual("Device".AsSpan()))
-                    return "Device";
-                break;
+                return SpanEq(span, "DotVVM") ??
+                    SpanEq(span, "Device") ??
+                    SpanEq(span, "Dialog");
             case 'E':
-                if (span.SequenceEqual("Equals".AsSpan()))
-                    return "Equals";
-                if (span.SequenceEqual("Events".AsSpan()))
-                    return "Events";
-                break;
+                return SpanEq(span, "Equals") ??
+                    SpanEq(span, "Events");
             case 'G':
-                if (span.SequenceEqual("Global".AsSpan()))
-                    return "Global";
-                break;
+                return SpanEq(span, "Global");
             case 'L':
-                if (span.SequenceEqual("Loader".AsSpan()))
-                    return "Loader";
-                break;
+                return SpanEq(span, "Loader");
             case 'R':
-                if (span.SequenceEqual("Remove".AsSpan()))
-                    return "Remove";
-                break;
+                return SpanEq(span, "Remove");
             case 'S':
-                if (span.SequenceEqual("Script".AsSpan()))
-                    return "Script";
-                if (span.SequenceEqual("Styles".AsSpan()))
-                    return "Styles";
-                break;
+                return SpanEq(span, "Script") ??
+                    SpanEq(span, "Styles");
             case 'T':
-                if (span.SequenceEqual("Target".AsSpan()))
-                    return "Target";
-                break;
+                return SpanEq(span, "Target");
             case 'U':
-                if (span.SequenceEqual("Update".AsSpan()))
-                    return "Update";
-                break;
+                return SpanEq(span, "Update");
             case 'V':
-                if (span.SequenceEqual("Values".AsSpan()))
-                    return "Values";
-                break;
+                return SpanEq(span, "Values");
             case 'a':
-                if (span.SequenceEqual("accept".AsSpan()))
-                    return "accept";
-                if (span.SequenceEqual("action".AsSpan()))
-                    return "action";
-                if (span.SequenceEqual("applet".AsSpan()))
-                    return "applet";
-                break;
+                return SpanEq(span, "accept") ??
+                    SpanEq(span, "action") ??
+                    SpanEq(span, "applet");
             case 'b':
-                if (span.SequenceEqual("border".AsSpan()))
-                    return "border";
-                if (span.SequenceEqual("button".AsSpan()))
-                    return "button";
-                break;
+                return SpanEq(span, "border") ??
+                    SpanEq(span, "button");
             case 'c':
-                if (span.SequenceEqual("coords".AsSpan()))
-                    return "coords";
-                if (span.SequenceEqual("canvas".AsSpan()))
-                    return "canvas";
-                if (span.SequenceEqual("center".AsSpan()))
-                    return "center";
-                break;
+                return SpanEq(span, "coords") ??
+                    SpanEq(span, "canvas") ??
+                    SpanEq(span, "center");
             case 'd':
-                if (span.SequenceEqual("dialog".AsSpan()))
-                    return "dialog";
-                break;
+                return SpanEq(span, "dialog");
             case 'f':
-                if (span.SequenceEqual("figure".AsSpan()))
-                    return "figure";
-                if (span.SequenceEqual("footer".AsSpan()))
-                    return "footer";
-                break;
+                return SpanEq(span, "figure") ??
+                    SpanEq(span, "footer");
             case 'h':
-                if (span.SequenceEqual("height".AsSpan()))
-                    return "height";
-                if (span.SequenceEqual("hidden".AsSpan()))
-                    return "hidden";
-                if (span.SequenceEqual("header".AsSpan()))
-                    return "header";
-                break;
+                return SpanEq(span, "height") ??
+                    SpanEq(span, "hidden") ??
+                    SpanEq(span, "header");
             case 'i':
-                if (span.SequenceEqual("import".AsSpan()))
-                    return "import";
-                if (span.SequenceEqual("iframe".AsSpan()))
-                    return "iframe";
-                break;
+                return SpanEq(span, "import") ??
+                    SpanEq(span, "iframe");
             case 'l':
-                if (span.SequenceEqual("legend".AsSpan()))
-                    return "legend";
-                break;
+                return SpanEq(span, "legend");
             case 'm':
-                if (span.SequenceEqual("method".AsSpan()))
-                    return "method";
-                break;
+                return SpanEq(span, "method");
             case 'o':
-                if (span.SequenceEqual("object".AsSpan()))
-                    return "object";
-                if (span.SequenceEqual("option".AsSpan()))
-                    return "option";
-                if (span.SequenceEqual("output".AsSpan()))
-                    return "output";
-                break;
+                return SpanEq(span, "object") ??
+                    SpanEq(span, "option") ??
+                    SpanEq(span, "output");
             case 'p':
-                if (span.SequenceEqual("poster".AsSpan()))
-                    return "poster";
-                break;
+                return SpanEq(span, "poster");
             case 's':
-                if (span.SequenceEqual("scoped".AsSpan()))
-                    return "scoped";
-                if (span.SequenceEqual("srcdoc".AsSpan()))
-                    return "srcdoc";
-                if (span.SequenceEqual("srcset".AsSpan()))
-                    return "srcset";
-                if (span.SequenceEqual("script".AsSpan()))
-                    return "script";
-                if (span.SequenceEqual("select".AsSpan()))
-                    return "select";
-                if (span.SequenceEqual("source".AsSpan()))
-                    return "source";
-                if (span.SequenceEqual("strike".AsSpan()))
-                    return "strike";
-                if (span.SequenceEqual("strong".AsSpan()))
-                    return "strong";
-                break;
+                return SpanEq(span, "scoped") ??
+                    SpanEq(span, "srcdoc") ??
+                    SpanEq(span, "srcset") ??
+                    SpanEq(span, "script") ??
+                    SpanEq(span, "select") ??
+                    SpanEq(span, "source") ??
+                    SpanEq(span, "strike") ??
+                    SpanEq(span, "strong");
             case 't':
-                if (span.SequenceEqual("target".AsSpan()))
-                    return "target";
-                break;
+                return SpanEq(span, "target");
             case 'u':
-                if (span.SequenceEqual("usemap".AsSpan()))
-                    return "usemap";
-                break;
+                return SpanEq(span, "usemap");
         }
         break;
-    case 7:
+    }
+    case 7: {
         switch (ch)
         {
             case 'C':
-                if (span.SequenceEqual("Context".AsSpan()))
-                    return "Context";
-                if (span.SequenceEqual("Checked".AsSpan()))
-                    return "Checked";
-                if (span.SequenceEqual("Column2".AsSpan()))
-                    return "Column2";
-                if (span.SequenceEqual("Command".AsSpan()))
-                    return "Command";
-                if (span.SequenceEqual("Columns".AsSpan()))
-                    return "Columns";
-                if (span.SequenceEqual("Changed".AsSpan()))
-                    return "Changed";
-                if (span.SequenceEqual("Content".AsSpan()))
-                    return "Content";
-                break;
+                return SpanEq(span, "Context") ??
+                    SpanEq(span, "Changed") ??
+                    SpanEq(span, "Column2") ??
+                    SpanEq(span, "Checked") ??
+                    SpanEq(span, "Columns") ??
+                    SpanEq(span, "Command") ??
+                    SpanEq(span, "Content");
             case 'D':
-                if (span.SequenceEqual("DataSet".AsSpan()))
-                    return "DataSet";
-                break;
+                return SpanEq(span, "DataSet");
             case 'E':
-                if (span.SequenceEqual("Enabled".AsSpan()))
-                    return "Enabled";
-                if (span.SequenceEqual("Exclude".AsSpan()))
-                    return "Exclude";
-                break;
+                return SpanEq(span, "Enabled") ??
+                    SpanEq(span, "Exclude");
             case 'L':
-                if (span.SequenceEqual("ListBox".AsSpan()))
-                    return "ListBox";
-                if (span.SequenceEqual("Literal".AsSpan()))
-                    return "Literal";
-                break;
+                return SpanEq(span, "Literal") ??
+                    SpanEq(span, "ListBox");
             case 'M':
-                if (span.SequenceEqual("Message".AsSpan()))
-                    return "Message";
-                break;
+                return SpanEq(span, "Message");
             case 'P':
-                if (span.SequenceEqual("Prepend".AsSpan()))
-                    return "Prepend";
-                break;
+                return SpanEq(span, "Prepend");
             case 'T':
-                if (span.SequenceEqual("TextBox".AsSpan()))
-                    return "TextBox";
-                break;
+                return SpanEq(span, "TextBox");
             case 'U':
-                if (span.SequenceEqual("UITests".AsSpan()))
-                    return "UITests";
-                break;
+                return SpanEq(span, "UITests");
             case 'V':
-                if (span.SequenceEqual("Visible".AsSpan()))
-                    return "Visible";
-                break;
+                return SpanEq(span, "Visible");
             case '_':
-                if (span.SequenceEqual("_parent".AsSpan()))
-                    return "_parent";
-                break;
+                return SpanEq(span, "_parent");
             case 'a':
-                if (span.SequenceEqual("acronym".AsSpan()))
-                    return "acronym";
-                if (span.SequenceEqual("address".AsSpan()))
-                    return "address";
-                if (span.SequenceEqual("article".AsSpan()))
-                    return "article";
-                break;
+                return SpanEq(span, "acronym") ??
+                    SpanEq(span, "address") ??
+                    SpanEq(span, "article");
             case 'b':
-                if (span.SequenceEqual("bgcolor".AsSpan()))
-                    return "bgcolor";
-                break;
+                return SpanEq(span, "bgcolor");
             case 'c':
-                if (span.SequenceEqual("command".AsSpan()))
-                    return "command";
-                if (span.SequenceEqual("capture".AsSpan()))
-                    return "capture";
-                if (span.SequenceEqual("charset".AsSpan()))
-                    return "charset";
-                if (span.SequenceEqual("checked".AsSpan()))
-                    return "checked";
-                if (span.SequenceEqual("colspan".AsSpan()))
-                    return "colspan";
-                if (span.SequenceEqual("content".AsSpan()))
-                    return "content";
-                if (span.SequenceEqual("caption".AsSpan()))
-                    return "caption";
-                break;
+                return SpanEq(span, "command") ??
+                    SpanEq(span, "capture") ??
+                    SpanEq(span, "charset") ??
+                    SpanEq(span, "checked") ??
+                    SpanEq(span, "colspan") ??
+                    SpanEq(span, "content") ??
+                    SpanEq(span, "caption");
             case 'd':
-                if (span.SequenceEqual("default".AsSpan()))
-                    return "default";
-                if (span.SequenceEqual("dirname".AsSpan()))
-                    return "dirname";
-                if (span.SequenceEqual("data-ui".AsSpan()))
-                    return "data-ui";
-                if (span.SequenceEqual("details".AsSpan()))
-                    return "details";
-                break;
+                return SpanEq(span, "default") ??
+                    SpanEq(span, "dirname") ??
+                    SpanEq(span, "data-ui") ??
+                    SpanEq(span, "details");
             case 'e':
-                if (span.SequenceEqual("enctype".AsSpan()))
-                    return "enctype";
-                break;
+                return SpanEq(span, "enctype");
             case 'h':
-                if (span.SequenceEqual("headers".AsSpan()))
-                    return "headers";
-                break;
+                return SpanEq(span, "headers");
             case 'k':
-                if (span.SequenceEqual("keytype".AsSpan()))
-                    return "keytype";
-                break;
+                return SpanEq(span, "keytype");
             case 'l':
-                if (span.SequenceEqual("loading".AsSpan()))
-                    return "loading";
-                break;
+                return SpanEq(span, "loading");
             case 'o':
-                if (span.SequenceEqual("optimum".AsSpan()))
-                    return "optimum";
-                break;
+                return SpanEq(span, "optimum");
             case 'p':
-                if (span.SequenceEqual("pattern".AsSpan()))
-                    return "pattern";
-                if (span.SequenceEqual("preload".AsSpan()))
-                    return "preload";
-                if (span.SequenceEqual("picture".AsSpan()))
-                    return "picture";
-                break;
+                return SpanEq(span, "pattern") ??
+                    SpanEq(span, "preload") ??
+                    SpanEq(span, "picture");
             case 'r':
-                if (span.SequenceEqual("rowspan".AsSpan()))
-                    return "rowspan";
-                break;
+                return SpanEq(span, "rowspan");
             case 's':
-                if (span.SequenceEqual("service".AsSpan()))
-                    return "service";
-                if (span.SequenceEqual("sandbox".AsSpan()))
-                    return "sandbox";
-                if (span.SequenceEqual("srclang".AsSpan()))
-                    return "srclang";
-                if (span.SequenceEqual("summary".AsSpan()))
-                    return "summary";
-                if (span.SequenceEqual("section".AsSpan()))
-                    return "section";
-                break;
+                return SpanEq(span, "service") ??
+                    SpanEq(span, "sandbox") ??
+                    SpanEq(span, "srclang") ??
+                    SpanEq(span, "summary") ??
+                    SpanEq(span, "section");
         }
         break;
-    case 8:
+    }
+    case 8: {
         switch (ch)
         {
             case '\n':
-                if (span.SequenceEqual("\n       ".AsSpan()))
-                    return "\n       ";
-                break;
+                return SpanEq(span, "\n       ");
             case '$':
-                if (span.SequenceEqual("$index()".AsSpan()))
-                    return "$index()";
-                break;
+                return SpanEq(span, "$index()");
             case '.':
-                if (span.SequenceEqual(".Visible".AsSpan()))
-                    return ".Visible";
-                if (span.SequenceEqual(".Enabled".AsSpan()))
-                    return ".Enabled";
-                break;
+                return SpanEq(span, ".Visible") ??
+                    SpanEq(span, ".Enabled");
             case 'C':
-                if (span.SequenceEqual("ClientID".AsSpan()))
-                    return "ClientID";
-                if (span.SequenceEqual("CssClass".AsSpan()))
-                    return "CssClass";
-                if (span.SequenceEqual("CheckBox".AsSpan()))
-                    return "CheckBox";
-                if (span.SequenceEqual("ComboBox".AsSpan()))
-                    return "ComboBox";
-                if (span.SequenceEqual("Control1".AsSpan()))
-                    return "Control1";
-                if (span.SequenceEqual("Control2".AsSpan()))
-                    return "Control2";
-                break;
+                return SpanEq(span, "ClientID") ??
+                    SpanEq(span, "CssClass") ??
+                    SpanEq(span, "CheckBox") ??
+                    SpanEq(span, "Control1") ??
+                    SpanEq(span, "Control2") ??
+                    SpanEq(span, "ComboBox");
             case 'D':
-                if (span.SequenceEqual("DoAction".AsSpan()))
-                    return "DoAction";
-                break;
+                return SpanEq(span, "DoAction");
             case 'G':
-                if (span.SequenceEqual("GridView".AsSpan()))
-                    return "GridView";
-                break;
+                return SpanEq(span, "GridView");
             case 'H':
-                if (span.SequenceEqual("Handlers".AsSpan()))
-                    return "Handlers";
-                break;
+                return SpanEq(span, "Handlers");
             case 'I':
-                if (span.SequenceEqual("Internal".AsSpan()))
-                    return "Internal";
-                break;
+                return SpanEq(span, "Internal");
             case 'M':
-                if (span.SequenceEqual("MyButton".AsSpan()))
-                    return "MyButton";
-                break;
+                return SpanEq(span, "MyButton");
             case 'N':
-                if (span.SequenceEqual("NewTitle".AsSpan()))
-                    return "NewTitle";
-                break;
+                return SpanEq(span, "NewTitle");
             case 'P':
-                if (span.SequenceEqual("PostBack".AsSpan()))
-                    return "PostBack";
-                break;
+                return SpanEq(span, "PostBack");
             case 'R':
-                if (span.SequenceEqual("ResultId".AsSpan()))
-                    return "ResultId";
-                if (span.SequenceEqual("RoleView".AsSpan()))
-                    return "RoleView";
-                if (span.SequenceEqual("Repeater".AsSpan()))
-                    return "Repeater";
-                break;
+                return SpanEq(span, "ResultId") ??
+                    SpanEq(span, "Repeater") ??
+                    SpanEq(span, "RoleView");
             case 'S':
-                if (span.SequenceEqual("Suppress".AsSpan()))
-                    return "Suppress";
-                if (span.SequenceEqual("Selector".AsSpan()))
-                    return "Selector";
-                break;
+                return SpanEq(span, "Suppress") ??
+                    SpanEq(span, "Selector");
             case 'T':
-                if (span.SequenceEqual("ToString".AsSpan()))
-                    return "ToString";
-                if (span.SequenceEqual("Template".AsSpan()))
-                    return "Template";
-                break;
+                return SpanEq(span, "ToString") ??
+                    SpanEq(span, "Template");
             case 'U':
-                if (span.SequenceEqual("UniqueID".AsSpan()))
-                    return "UniqueID";
-                break;
+                return SpanEq(span, "UniqueID");
             case 'W':
-                if (span.SequenceEqual("Wrappers".AsSpan()))
-                    return "Wrappers";
-                break;
+                return SpanEq(span, "Wrappers");
             case '_':
-                if (span.SequenceEqual("_control".AsSpan()))
-                    return "_control";
-                break;
+                return SpanEq(span, "_control");
             case 'a':
-                if (span.SequenceEqual("autoplay".AsSpan()))
-                    return "autoplay";
-                break;
+                return SpanEq(span, "autoplay");
             case 'b':
-                if (span.SequenceEqual("buffered".AsSpan()))
-                    return "buffered";
-                if (span.SequenceEqual("basefont".AsSpan()))
-                    return "basefont";
-                break;
+                return SpanEq(span, "buffered") ??
+                    SpanEq(span, "basefont");
             case 'c':
-                if (span.SequenceEqual("codebase".AsSpan()))
-                    return "codebase";
-                if (span.SequenceEqual("controls".AsSpan()))
-                    return "controls";
-                if (span.SequenceEqual("colgroup".AsSpan()))
-                    return "colgroup";
-                break;
+                return SpanEq(span, "codebase") ??
+                    SpanEq(span, "controls") ??
+                    SpanEq(span, "colgroup");
             case 'd':
-                if (span.SequenceEqual("datetime".AsSpan()))
-                    return "datetime";
-                if (span.SequenceEqual("decoding".AsSpan()))
-                    return "decoding";
-                if (span.SequenceEqual("disabled".AsSpan()))
-                    return "disabled";
-                if (span.SequenceEqual("download".AsSpan()))
-                    return "download";
-                if (span.SequenceEqual("datalist".AsSpan()))
-                    return "datalist";
-                break;
+                return SpanEq(span, "datetime") ??
+                    SpanEq(span, "decoding") ??
+                    SpanEq(span, "disabled") ??
+                    SpanEq(span, "download") ??
+                    SpanEq(span, "datalist");
             case 'f':
-                if (span.SequenceEqual("fieldset".AsSpan()))
-                    return "fieldset";
-                if (span.SequenceEqual("frameset".AsSpan()))
-                    return "frameset";
-                break;
+                return SpanEq(span, "fieldset") ??
+                    SpanEq(span, "frameset");
             case 'h':
-                if (span.SequenceEqual("hreflang".AsSpan()))
-                    return "hreflang";
-                break;
+                return SpanEq(span, "hreflang");
             case 'i':
-                if (span.SequenceEqual("itemprop".AsSpan()))
-                    return "itemprop";
-                break;
+                return SpanEq(span, "itemprop");
             case 'l':
-                if (span.SequenceEqual("language".AsSpan()))
-                    return "language";
-                break;
+                return SpanEq(span, "language");
             case 'm':
-                if (span.SequenceEqual("manifest".AsSpan()))
-                    return "manifest";
-                if (span.SequenceEqual("multiple".AsSpan()))
-                    return "multiple";
-                break;
+                return SpanEq(span, "manifest") ??
+                    SpanEq(span, "multiple");
             case 'n':
-                if (span.SequenceEqual("noframes".AsSpan()))
-                    return "noframes";
-                if (span.SequenceEqual("noscript".AsSpan()))
-                    return "noscript";
-                break;
+                return SpanEq(span, "noframes") ??
+                    SpanEq(span, "noscript");
             case 'o':
-                if (span.SequenceEqual("optgroup".AsSpan()))
-                    return "optgroup";
-                break;
+                return SpanEq(span, "optgroup");
             case 'p':
-                if (span.SequenceEqual("progress".AsSpan()))
-                    return "progress";
-                break;
+                return SpanEq(span, "progress");
             case 'r':
-                if (span.SequenceEqual("resource".AsSpan()))
-                    return "resource";
-                if (span.SequenceEqual("readonly".AsSpan()))
-                    return "readonly";
-                if (span.SequenceEqual("required".AsSpan()))
-                    return "required";
-                if (span.SequenceEqual("reversed".AsSpan()))
-                    return "reversed";
-                break;
+                return SpanEq(span, "resource") ??
+                    SpanEq(span, "readonly") ??
+                    SpanEq(span, "required") ??
+                    SpanEq(span, "reversed");
             case 's':
-                if (span.SequenceEqual("selected".AsSpan()))
-                    return "selected";
-                break;
+                return SpanEq(span, "selected");
             case 't':
-                if (span.SequenceEqual("tabindex".AsSpan()))
-                    return "tabindex";
-                if (span.SequenceEqual("template".AsSpan()))
-                    return "template";
-                if (span.SequenceEqual("textarea".AsSpan()))
-                    return "textarea";
-                break;
+                return SpanEq(span, "tabindex") ??
+                    SpanEq(span, "template") ??
+                    SpanEq(span, "textarea");
+            case 'v':
+                return SpanEq(span, "viewport");
         }
         break;
-    case 9:
+    }
+    case 9: {
         switch (ch)
         {
             case '.':
-                if (span.SequenceEqual(".$index()".AsSpan()))
-                    return ".$index()";
-                break;
+                return SpanEq(span, ".$index()");
             case 'C':
-                if (span.SequenceEqual("ClaimView".AsSpan()))
-                    return "ClaimView";
-                break;
+                return SpanEq(span, "ClaimView");
             case 'D':
-                if (span.SequenceEqual("DataPager".AsSpan()))
-                    return "DataPager";
-                break;
+                return SpanEq(span, "DataPager");
             case 'E':
-                if (span.SequenceEqual("EventName".AsSpan()))
-                    return "EventName";
-                if (span.SequenceEqual("EditClick".AsSpan()))
-                    return "EditClick";
-                if (span.SequenceEqual("EmptyData".AsSpan()))
-                    return "EmptyData";
-                break;
+                return SpanEq(span, "EventName") ??
+                    SpanEq(span, "EditClick") ??
+                    SpanEq(span, "EmptyData");
             case 'G':
-                if (span.SequenceEqual("GroupName".AsSpan()))
-                    return "GroupName";
-                break;
+                return SpanEq(span, "GroupName");
             case 'I':
-                if (span.SequenceEqual("InnerText".AsSpan()))
-                    return "InnerText";
-                if (span.SequenceEqual("IsSpaPage".AsSpan()))
-                    return "IsSpaPage";
-                break;
+                return SpanEq(span, "IsSpaPage") ??
+                    SpanEq(span, "InnerText");
             case 'O':
-                if (span.SequenceEqual("OnCommand".AsSpan()))
-                    return "OnCommand";
-                break;
+                return SpanEq(span, "OnCommand");
             case 'P':
-                if (span.SequenceEqual("PreRender".AsSpan()))
-                    return "PreRender";
-                if (span.SequenceEqual("Parameter".AsSpan()))
-                    return "Parameter";
-                break;
+                return SpanEq(span, "PreRender") ??
+                    SpanEq(span, "Parameter");
             case 'R':
-                if (span.SequenceEqual("RouteName".AsSpan()))
-                    return "RouteName";
-                if (span.SequenceEqual("RouteLink".AsSpan()))
-                    return "RouteLink";
-                break;
+                return SpanEq(span, "RouteName") ??
+                    SpanEq(span, "RouteLink");
             case 'T':
-                if (span.SequenceEqual("TextInput".AsSpan()))
-                    return "TextInput";
-                break;
+                return SpanEq(span, "TextInput");
             case 'U':
-                if (span.SequenceEqual("UrlSuffix".AsSpan()))
-                    return "UrlSuffix";
-                break;
+                return SpanEq(span, "UrlSuffix");
             case 'V':
-                if (span.SequenceEqual("Validator".AsSpan()))
-                    return "Validator";
-                break;
+                return SpanEq(span, "Validator");
             case 'a':
-                if (span.SequenceEqual("accesskey".AsSpan()))
-                    return "accesskey";
-                if (span.SequenceEqual("autofocus".AsSpan()))
-                    return "autofocus";
-                break;
+                return SpanEq(span, "accesskey") ??
+                    SpanEq(span, "autofocus");
             case 'c':
-                if (span.SequenceEqual("challenge".AsSpan()))
-                    return "challenge";
-                break;
+                return SpanEq(span, "challenge");
             case 'd':
-                if (span.SequenceEqual("draggable".AsSpan()))
-                    return "draggable";
-                if (span.SequenceEqual("data-bind".AsSpan()))
-                    return "data-bind";
-                break;
+                return SpanEq(span, "draggable") ??
+                    SpanEq(span, "data-bind");
             case 'i':
-                if (span.SequenceEqual("integrity".AsSpan()))
-                    return "integrity";
-                if (span.SequenceEqual("inputmode".AsSpan()))
-                    return "inputmode";
-                break;
+                return SpanEq(span, "integrity") ??
+                    SpanEq(span, "inputmode");
             case 'm':
-                if (span.SequenceEqual("maxlength".AsSpan()))
-                    return "maxlength";
-                if (span.SequenceEqual("minlength".AsSpan()))
-                    return "minlength";
-                break;
+                return SpanEq(span, "maxlength") ??
+                    SpanEq(span, "minlength");
             case 't':
-                if (span.SequenceEqual("translate".AsSpan()))
-                    return "translate";
-                break;
+                return SpanEq(span, "translate");
             case 'v':
-                if (span.SequenceEqual("viewModel".AsSpan()))
-                    return "viewModel";
-                break;
+                return SpanEq(span, "viewModel");
         }
         break;
-    case 10:
+    }
+    case 10: {
         switch (ch)
         {
             case '\r':
-                if (span.SequenceEqual("\r\n        ".AsSpan()))
-                    return "\r\n        ";
-                break;
+                return SpanEq(span, "\r\n        ");
             case 'B':
-                if (span.SequenceEqual("ButtonBase".AsSpan()))
-                    return "ButtonBase";
-                break;
+                return SpanEq(span, "ButtonBase");
             case 'D':
-                if (span.SequenceEqual("DataSource".AsSpan()))
-                    return "DataSource";
-                if (span.SequenceEqual("Directives".AsSpan()))
-                    return "Directives";
-                if (span.SequenceEqual("DotvvmView".AsSpan()))
-                    return "DotvvmView";
-                if (span.SequenceEqual("DeviceList".AsSpan()))
-                    return "DeviceList";
-                break;
+                return SpanEq(span, "DataSource") ??
+                    SpanEq(span, "Directives") ??
+                    SpanEq(span, "DeviceList") ??
+                    SpanEq(span, "DotvvmView");
             case 'F':
-                if (span.SequenceEqual("FilesCount".AsSpan()))
-                    return "FilesCount";
-                if (span.SequenceEqual("FileUpload".AsSpan()))
-                    return "FileUpload";
-                break;
+                return SpanEq(span, "FilesCount") ??
+                    SpanEq(span, "FileUpload");
             case 'H':
-                if (span.SequenceEqual("HeaderText".AsSpan()))
-                    return "HeaderText";
-                break;
+                return SpanEq(span, "HeaderText");
             case 'I':
-                if (span.SequenceEqual("IsEditable".AsSpan()))
-                    return "IsEditable";
-                break;
+                return SpanEq(span, "IsEditable");
             case 'M':
-                if (span.SequenceEqual("MyProperty".AsSpan()))
-                    return "MyProperty";
-                break;
+                return SpanEq(span, "MyProperty");
             case 'O':
-                if (span.SequenceEqual("OffCommand".AsSpan()))
-                    return "OffCommand";
-                break;
+                return SpanEq(span, "OffCommand");
             case 'P':
-                if (span.SequenceEqual("PrefixText".AsSpan()))
-                    return "PrefixText";
-                break;
+                return SpanEq(span, "PrefixText");
             case 'T':
-                if (span.SequenceEqual("TableUtils".AsSpan()))
-                    return "TableUtils";
-                break;
+                return SpanEq(span, "TableUtils");
             case 'V':
-                if (span.SequenceEqual("Validation".AsSpan()))
-                    return "Validation";
-                break;
+                return SpanEq(span, "Validation");
             case 'b':
-                if (span.SequenceEqual("background".AsSpan()))
-                    return "background";
-                if (span.SequenceEqual("blockquote".AsSpan()))
-                    return "blockquote";
-                break;
+                return SpanEq(span, "background") ??
+                    SpanEq(span, "blockquote");
             case 'f':
-                if (span.SequenceEqual("formaction".AsSpan()))
-                    return "formaction";
-                if (span.SequenceEqual("formmethod".AsSpan()))
-                    return "formmethod";
-                if (span.SequenceEqual("formtarget".AsSpan()))
-                    return "formtarget";
-                if (span.SequenceEqual("figcaption".AsSpan()))
-                    return "figcaption";
-                break;
+                return SpanEq(span, "formaction") ??
+                    SpanEq(span, "formmethod") ??
+                    SpanEq(span, "formtarget") ??
+                    SpanEq(span, "figcaption");
             case 'h':
-                if (span.SequenceEqual("http-equiv".AsSpan()))
-                    return "http-equiv";
-                break;
+                return SpanEq(span, "http-equiv");
             case 'i':
-                if (span.SequenceEqual("importance".AsSpan()))
-                    return "importance";
-                break;
+                return SpanEq(span, "importance");
             case 'n':
-                if (span.SequenceEqual("novalidate".AsSpan()))
-                    return "novalidate";
-                break;
+                return SpanEq(span, "novalidate");
             case 'r':
-                if (span.SequenceEqual("radiogroup".AsSpan()))
-                    return "radiogroup";
-                break;
+                return SpanEq(span, "radiogroup");
             case 's':
-                if (span.SequenceEqual("spellcheck".AsSpan()))
-                    return "spellcheck";
-                break;
+                return SpanEq(span, "spellcheck");
         }
         break;
-    case 11:
+    }
+    case 11: {
         switch (ch)
         {
             case 'A':
-                if (span.SequenceEqual("ArticleBase".AsSpan()))
-                    return "ArticleBase";
-                break;
+                return SpanEq(span, "ArticleBase");
             case 'C':
-                if (span.SequenceEqual("CheckedItem".AsSpan()))
-                    return "CheckedItem";
-                if (span.SequenceEqual("Concurrency".AsSpan()))
-                    return "Concurrency";
-                break;
+                return SpanEq(span, "CheckedItem") ??
+                    SpanEq(span, "Concurrency");
             case 'D':
-                if (span.SequenceEqual("DoubleClick".AsSpan()))
-                    return "DoubleClick";
-                if (span.SequenceEqual("DataContext".AsSpan()))
-                    return "DataContext";
-                break;
+                return SpanEq(span, "DataContext") ??
+                    SpanEq(span, "DoubleClick");
             case 'H':
-                if (span.SequenceEqual("HtmlLiteral".AsSpan()))
-                    return "HtmlLiteral";
-                break;
+                return SpanEq(span, "HtmlLiteral");
             case 'J':
-                if (span.SequenceEqual("JsComponent".AsSpan()))
-                    return "JsComponent";
-                break;
+                return SpanEq(span, "JsComponent");
             case 'M':
-                if (span.SequenceEqual("MaxFileSize".AsSpan()))
-                    return "MaxFileSize";
-                break;
+                return SpanEq(span, "MaxFileSize");
             case 'R':
-                if (span.SequenceEqual("ReplaceWith".AsSpan()))
-                    return "ReplaceWith";
-                if (span.SequenceEqual("RadioButton".AsSpan()))
-                    return "RadioButton";
-                break;
+                return SpanEq(span, "ReplaceWith") ??
+                    SpanEq(span, "RadioButton");
             case 'S':
-                if (span.SequenceEqual("SortChanged".AsSpan()))
-                    return "SortChanged";
-                break;
+                return SpanEq(span, "SortChanged");
             case 'c':
-                if (span.SequenceEqual("contextmenu".AsSpan()))
-                    return "contextmenu";
-                if (span.SequenceEqual("crossorigin".AsSpan()))
-                    return "crossorigin";
-                break;
+                return SpanEq(span, "contextmenu") ??
+                    SpanEq(span, "crossorigin");
+            case 'd':
+                return SpanEq(span, "description");
             case 'f':
-                if (span.SequenceEqual("formenctype".AsSpan()))
-                    return "formenctype";
-                break;
+                return SpanEq(span, "formenctype");
             case 'p':
-                if (span.SequenceEqual("placeholder".AsSpan()))
-                    return "placeholder";
-                break;
+                return SpanEq(span, "placeholder");
         }
         break;
-    case 12:
+    }
+    case 12: {
         switch (ch)
         {
             case '\n':
-                if (span.SequenceEqual("\n           ".AsSpan()))
-                    return "\n           ";
-                break;
+                return SpanEq(span, "\n           ");
             case 'A':
-                if (span.SequenceEqual("AllowSorting".AsSpan()))
-                    return "AllowSorting";
-                break;
+                return SpanEq(span, "AllowSorting");
             case 'C':
-                if (span.SequenceEqual("CheckedValue".AsSpan()))
-                    return "CheckedValue";
-                if (span.SequenceEqual("ClientIDMode".AsSpan()))
-                    return "ClientIDMode";
-                if (span.SequenceEqual("CheckedItems".AsSpan()))
-                    return "CheckedItems";
-                break;
+                return SpanEq(span, "ClientIDMode") ??
+                    SpanEq(span, "CheckedItems") ??
+                    SpanEq(span, "CheckedValue");
             case 'D':
-                if (span.SequenceEqual("Dependencies".AsSpan()))
-                    return "Dependencies";
-                break;
+                return SpanEq(span, "Dependencies");
             case 'E':
-                if (span.SequenceEqual("EditTemplate".AsSpan()))
-                    return "EditTemplate";
-                if (span.SequenceEqual("Environments".AsSpan()))
-                    return "Environments";
-                break;
+                return SpanEq(span, "EditTemplate") ??
+                    SpanEq(span, "Environments");
             case 'F':
-                if (span.SequenceEqual("FormatString".AsSpan()))
-                    return "FormatString";
-                if (span.SequenceEqual("FormControls".AsSpan()))
-                    return "FormControls";
-                break;
+                return SpanEq(span, "FormatString") ??
+                    SpanEq(span, "FormControls");
             case 'G':
-                if (span.SequenceEqual("GenerateStub".AsSpan()))
-                    return "GenerateStub";
-                break;
+                return SpanEq(span, "GenerateStub");
             case 'I':
-                if (span.SequenceEqual("ItemTemplate".AsSpan()))
-                    return "ItemTemplate";
-                if (span.SequenceEqual("InlineScript".AsSpan()))
-                    return "InlineScript";
-                if (span.SequenceEqual("ItemsControl".AsSpan()))
-                    return "ItemsControl";
-                if (span.SequenceEqual("InnerWrapper".AsSpan()))
-                    return "InnerWrapper";
-                break;
+                return SpanEq(span, "ItemTemplate") ??
+                    SpanEq(span, "InlineScript") ??
+                    SpanEq(span, "ItemsControl") ??
+                    SpanEq(span, "InnerWrapper");
             case 'N':
-                if (span.SequenceEqual("NamedCommand".AsSpan()))
-                    return "NamedCommand";
-                break;
+                return SpanEq(span, "NamedCommand");
             case 'O':
-                if (span.SequenceEqual("OnCreateItem".AsSpan()))
-                    return "OnCreateItem";
-                if (span.SequenceEqual("OuterWrapper".AsSpan()))
-                    return "OuterWrapper";
-                break;
+                return SpanEq(span, "OnCreateItem") ??
+                    SpanEq(span, "OuterWrapper");
             case 'P':
-                if (span.SequenceEqual("PathFragment".AsSpan()))
-                    return "PathFragment";
-                if (span.SequenceEqual("PromptButton".AsSpan()))
-                    return "PromptButton";
-                break;
+                return SpanEq(span, "PathFragment") ??
+                    SpanEq(span, "PromptButton");
             case 'R':
-                if (span.SequenceEqual("ResourceName".AsSpan()))
-                    return "ResourceName";
-                break;
+                return SpanEq(span, "ResourceName");
             case 'S':
-                if (span.SequenceEqual("SelectorBase".AsSpan()))
-                    return "SelectorBase";
-                if (span.SequenceEqual("SelectorItem".AsSpan()))
-                    return "SelectorItem";
-                break;
+                return SpanEq(span, "SelectorBase") ??
+                    SpanEq(span, "SelectorItem");
             case 'T':
-                if (span.SequenceEqual("TitleBinding".AsSpan()))
-                    return "TitleBinding";
-                if (span.SequenceEqual("TemplateHost".AsSpan()))
-                    return "TemplateHost";
-                if (span.SequenceEqual("TextRepeater".AsSpan()))
-                    return "TextRepeater";
-                break;
+                return SpanEq(span, "TitleBinding") ??
+                    SpanEq(span, "TemplateHost") ??
+                    SpanEq(span, "TextRepeater");
             case 'V':
-                if (span.SequenceEqual("ValueBinding".AsSpan()))
-                    return "ValueBinding";
-                break;
+                return SpanEq(span, "ValueBinding");
             case 'a':
-                if (span.SequenceEqual("autocomplete".AsSpan()))
-                    return "autocomplete";
-                break;
+                return SpanEq(span, "autocomplete");
             case 'e':
-                if (span.SequenceEqual("enterkeyhint".AsSpan()))
-                    return "enterkeyhint";
-                break;
+                return SpanEq(span, "enterkeyhint");
         }
         break;
-    case 13:
+    }
+    case 13: {
         switch (ch)
         {
             case '(':
-                if (span.SequenceEqual("(()=>{let vm=".AsSpan()))
-                    return "(()=>{let vm=";
-                break;
+                return SpanEq(span, "(()=>{let vm=");
             case 'A':
-                if (span.SequenceEqual("ArticleEditor".AsSpan()))
-                    return "ArticleEditor";
-                if (span.SequenceEqual("ArticleDetail".AsSpan()))
-                    return "ArticleDetail";
-                break;
+                return SpanEq(span, "ArticleEditor") ??
+                    SpanEq(span, "ArticleDetail");
             case 'B':
-                if (span.SequenceEqual("ButtonTagName".AsSpan()))
-                    return "ButtonTagName";
-                if (span.SequenceEqual("ButtonWrapper".AsSpan()))
-                    return "ButtonWrapper";
-                break;
+                return SpanEq(span, "ButtonTagName") ??
+                    SpanEq(span, "ButtonWrapper");
             case 'C':
-                if (span.SequenceEqual("ColumnVisible".AsSpan()))
-                    return "ColumnVisible";
-                break;
+                return SpanEq(span, "ColumnVisible");
             case 'D':
-                if (span.SequenceEqual("DotvvmControl".AsSpan()))
-                    return "DotvvmControl";
-                break;
+                return SpanEq(span, "DotvvmControl");
             case 'E':
-                if (span.SequenceEqual("EmptyItemText".AsSpan()))
-                    return "EmptyItemText";
-                break;
+                return SpanEq(span, "EmptyItemText");
             case 'H':
-                if (span.SequenceEqual("HideWhenValid".AsSpan()))
-                    return "HideWhenValid";
-                break;
+                return SpanEq(span, "HideWhenValid");
             case 'I':
-                if (span.SequenceEqual("InlineEditing".AsSpan()))
-                    return "InlineEditing";
-                if (span.SequenceEqual("IncludeInPage".AsSpan()))
-                    return "IncludeInPage";
-                break;
+                return SpanEq(span, "InlineEditing") ??
+                    SpanEq(span, "IncludeInPage");
             case 'M':
-                if (span.SequenceEqual("MultiSelector".AsSpan()))
-                    return "MultiSelector";
-                break;
+                return SpanEq(span, "MultiSelector");
             case 'N':
-                if (span.SequenceEqual("NumberBinding".AsSpan()))
-                    return "NumberBinding";
-                break;
+                return SpanEq(span, "NumberBinding");
             case 'R':
-                if (span.SequenceEqual("RowDecorators".AsSpan()))
-                    return "RowDecorators";
-                break;
+                return SpanEq(span, "RowDecorators");
             case 'S':
-                if (span.SequenceEqual("SelectedValue".AsSpan()))
-                    return "SelectedValue";
-                break;
+                return SpanEq(span, "SelectedValue");
             case 'U':
-                if (span.SequenceEqual("UseHistoryApi".AsSpan()))
-                    return "UseHistoryApi";
-                if (span.SequenceEqual("UploadedFiles".AsSpan()))
-                    return "UploadedFiles";
-                break;
+                return SpanEq(span, "UseHistoryApi") ??
+                    SpanEq(span, "UploadedFiles");
             case 'i':
-                if (span.SequenceEqual("intrinsicsize".AsSpan()))
-                    return "intrinsicsize";
-                break;
+                return SpanEq(span, "intrinsicsize");
             case 's':
-                if (span.SequenceEqual("staticCommand".AsSpan()))
-                    return "staticCommand";
-                break;
+                return SpanEq(span, "staticCommand");
         }
         break;
-    case 14:
+    }
+    case 14: {
         switch (ch)
         {
             case '\r':
-                if (span.SequenceEqual("\r\n            ".AsSpan()))
-                    return "\r\n            ";
-                break;
+                return SpanEq(span, "\r\n            ");
             case 'C':
-                if (span.SequenceEqual("ChangedBinding".AsSpan()))
-                    return "ChangedBinding";
-                if (span.SequenceEqual("CellDecorators".AsSpan()))
-                    return "CellDecorators";
-                break;
+                return SpanEq(span, "CellDecorators") ??
+                    SpanEq(span, "ChangedBinding");
             case 'E':
-                if (span.SequenceEqual("ExcludedQueues".AsSpan()))
-                    return "ExcludedQueues";
-                break;
+                return SpanEq(span, "ExcludedQueues");
             case 'F':
-                if (span.SequenceEqual("FilterTemplate".AsSpan()))
-                    return "FilterTemplate";
-                break;
+                return SpanEq(span, "FilterTemplate");
             case 'G':
-                if (span.SequenceEqual("GridViewColumn".AsSpan()))
-                    return "GridViewColumn";
-                break;
+                return SpanEq(span, "GridViewColumn");
             case 'H':
-                if (span.SequenceEqual("HtmlCapability".AsSpan()))
-                    return "HtmlCapability";
-                if (span.SequenceEqual("HeaderCssClass".AsSpan()))
-                    return "HeaderCssClass";
-                if (span.SequenceEqual("HeaderTemplate".AsSpan()))
-                    return "HeaderTemplate";
-                break;
+                return SpanEq(span, "HeaderTemplate") ??
+                    SpanEq(span, "HtmlCapability") ??
+                    SpanEq(span, "HeaderCssClass");
             case 'I':
-                if (span.SequenceEqual("InnerViewModel".AsSpan()))
-                    return "InnerViewModel";
-                if (span.SequenceEqual("ItemKeyBinding".AsSpan()))
-                    return "ItemKeyBinding";
-                if (span.SequenceEqual("IncludedQueues".AsSpan()))
-                    return "IncludedQueues";
-                if (span.SequenceEqual("IsSubmitButton".AsSpan()))
-                    return "IsSubmitButton";
-                break;
+                return SpanEq(span, "ItemKeyBinding") ??
+                    SpanEq(span, "IncludedQueues") ??
+                    SpanEq(span, "InnerViewModel") ??
+                    SpanEq(span, "IsSubmitButton");
             case 'M':
-                if (span.SequenceEqual("MarkupFileName".AsSpan()))
-                    return "MarkupFileName";
-                break;
+                return SpanEq(span, "MarkupFileName");
             case 'R':
-                if (span.SequenceEqual("RequestContext".AsSpan()))
-                    return "RequestContext";
-                if (span.SequenceEqual("RenderSettings".AsSpan()))
-                    return "RenderSettings";
-                break;
+                return SpanEq(span, "RequestContext") ??
+                    SpanEq(span, "RenderSettings");
             case 'S':
-                if (span.SequenceEqual("SetToolTipText".AsSpan()))
-                    return "SetToolTipText";
-                if (span.SequenceEqual("SelectedValues".AsSpan()))
-                    return "SelectedValues";
-                if (span.SequenceEqual("SortExpression".AsSpan()))
-                    return "SortExpression";
-                break;
+                return SpanEq(span, "SelectedValues") ??
+                    SpanEq(span, "SortExpression") ??
+                    SpanEq(span, "SetToolTipText");
             case 'U':
-                if (span.SequenceEqual("UpdateProgress".AsSpan()))
-                    return "UpdateProgress";
-                break;
+                return SpanEq(span, "UpdateProgress");
             case 'W':
-                if (span.SequenceEqual("WrapperTagName".AsSpan()))
-                    return "WrapperTagName";
-                break;
+                return SpanEq(span, "WrapperTagName");
             case 'a':
-                if (span.SequenceEqual("accept-charset".AsSpan()))
-                    return "accept-charset";
-                if (span.SequenceEqual("autocapitalize".AsSpan()))
-                    return "autocapitalize";
-                break;
+                return SpanEq(span, "accept-charset") ??
+                    SpanEq(span, "autocapitalize");
             case 'c':
-                if (span.SequenceEqual("controlCommand".AsSpan()))
-                    return "controlCommand";
-                break;
+                return SpanEq(span, "controlCommand");
             case 'f':
-                if (span.SequenceEqual("formnovalidate".AsSpan()))
-                    return "formnovalidate";
-                break;
+                return SpanEq(span, "formnovalidate");
             case 'k':
-                if (span.SequenceEqual("ko.contextFor(".AsSpan()))
-                    return "ko.contextFor(";
-                break;
+                return SpanEq(span, "ko.contextFor(");
             case 'r':
-                if (span.SequenceEqual("referrerpolicy".AsSpan()))
-                    return "referrerpolicy";
-                break;
+                return SpanEq(span, "referrerpolicy");
         }
         break;
-    case 15:
+    }
+    case 15: {
         switch (ch)
         {
             case 'C':
-                if (span.SequenceEqual("ContentTemplate".AsSpan()))
-                    return "ContentTemplate";
-                if (span.SequenceEqual("ControlProperty".AsSpan()))
-                    return "ControlProperty";
-                break;
+                return SpanEq(span, "ControlProperty") ??
+                    SpanEq(span, "ContentTemplate");
             case 'D':
-                if (span.SequenceEqual("DataContextType".AsSpan()))
-                    return "DataContextType";
-                break;
+                return SpanEq(span, "DataContextType");
             case 'E':
-                if (span.SequenceEqual("EnvironmentView".AsSpan()))
-                    return "EnvironmentView";
-                break;
+                return SpanEq(span, "EnvironmentView");
             case 'F':
-                if (span.SequenceEqual("FilterPlacement".AsSpan()))
-                    return "FilterPlacement";
-                break;
+                return SpanEq(span, "FilterPlacement");
             case 'I':
-                if (span.SequenceEqual("Items()?.length".AsSpan()))
-                    return "Items()?.length";
-                if (span.SequenceEqual("ItemTextBinding".AsSpan()))
-                    return "ItemTextBinding";
-                if (span.SequenceEqual("InvalidCssClass".AsSpan()))
-                    return "InvalidCssClass";
-                break;
+                return SpanEq(span, "Items()?.length") ??
+                    SpanEq(span, "ItemTextBinding") ??
+                    SpanEq(span, "InvalidCssClass");
             case 'O':
-                if (span.SequenceEqual("OriginalMessage".AsSpan()))
-                    return "OriginalMessage";
-                break;
+                return SpanEq(span, "OriginalMessage");
             case 'P':
-                if (span.SequenceEqual("PrefixRouteName".AsSpan()))
-                    return "PrefixRouteName";
-                if (span.SequenceEqual("PostBackHandler".AsSpan()))
-                    return "PostBackHandler";
-                break;
+                return SpanEq(span, "PrefixRouteName") ??
+                    SpanEq(span, "PostBackHandler");
             case 'U':
-                if (span.SequenceEqual("UploadCompleted".AsSpan()))
-                    return "UploadCompleted";
-                break;
+                return SpanEq(span, "UploadCompleted");
             case 'c':
-                if (span.SequenceEqual("contenteditable".AsSpan()))
-                    return "contenteditable";
-                break;
+                return SpanEq(span, "contenteditable");
         }
         break;
-    case 16:
+    }
+    case 16: {
         switch (ch)
         {
             case '.':
-                if (span.SequenceEqual(".Items()?.length".AsSpan()))
-                    return ".Items()?.length";
-                break;
+                return SpanEq(span, ".Items()?.length");
             case 'A':
-                if (span.SequenceEqual("AllowedFileTypes".AsSpan()))
-                    return "AllowedFileTypes";
-                break;
+                return SpanEq(span, "AllowedFileTypes");
             case 'C':
-                if (span.SequenceEqual("ConcurrencyQueue".AsSpan()))
-                    return "ConcurrencyQueue";
-                if (span.SequenceEqual("ClientIDFragment".AsSpan()))
-                    return "ClientIDFragment";
-                break;
+                return SpanEq(span, "ClientIDFragment") ??
+                    SpanEq(span, "ConcurrencyQueue");
             case 'D':
-                if (span.SequenceEqual("DefaultRouteName".AsSpan()))
-                    return "DefaultRouteName";
-                break;
+                return SpanEq(span, "DefaultRouteName");
             case 'G':
-                if (span.SequenceEqual("GoToDetailAction".AsSpan()))
-                    return "GoToDetailAction";
-                break;
+                return SpanEq(span, "GoToDetailAction");
             case 'H':
-                if (span.SequenceEqual("HasClaimTemplate".AsSpan()))
-                    return "HasClaimTemplate";
-                if (span.SequenceEqual("HierarchyControl".AsSpan()))
-                    return "HierarchyControl";
-                break;
+                return SpanEq(span, "HasClaimTemplate") ??
+                    SpanEq(span, "HierarchyControl");
             case 'I':
-                if (span.SequenceEqual("ItemValueBinding".AsSpan()))
-                    return "ItemValueBinding";
-                if (span.SequenceEqual("Inner-li:Visible".AsSpan()))
-                    return "Inner-li:Visible";
-                if (span.SequenceEqual("IsMemberTemplate".AsSpan()))
-                    return "IsMemberTemplate";
-                if (span.SequenceEqual("ItemTitleBinding".AsSpan()))
-                    return "ItemTitleBinding";
-                break;
+                return SpanEq(span, "ItemTitleBinding") ??
+                    SpanEq(span, "ItemValueBinding") ??
+                    SpanEq(span, "Inner-li:Visible") ??
+                    SpanEq(span, "IsMemberTemplate");
             case 'L':
-                if (span.SequenceEqual("LastPageTemplate".AsSpan()))
-                    return "LastPageTemplate";
-                break;
+                return SpanEq(span, "LastPageTemplate");
             case 'M':
-                if (span.SequenceEqual("MarkupLineNumber".AsSpan()))
-                    return "MarkupLineNumber";
-                break;
+                return SpanEq(span, "MarkupLineNumber");
             case 'N':
-                if (span.SequenceEqual("NextPageTemplate".AsSpan()))
-                    return "NextPageTemplate";
-                break;
+                return SpanEq(span, "NextPageTemplate");
             case 'R':
-                if (span.SequenceEqual("RenderWrapperTag".AsSpan()))
-                    return "RenderWrapperTag";
-                if (span.SequenceEqual("RequiredResource".AsSpan()))
-                    return "RequiredResource";
-                break;
+                return SpanEq(span, "RenderWrapperTag") ??
+                    SpanEq(span, "RequiredResource");
             case 'S':
-                if (span.SequenceEqual("SelectAllOnFocus".AsSpan()))
-                    return "SelectAllOnFocus";
-                if (span.SequenceEqual("SanitizedMessage".AsSpan()))
-                    return "SanitizedMessage";
-                if (span.SequenceEqual("SelectionChanged".AsSpan()))
-                    return "SelectionChanged";
-                break;
+                return SpanEq(span, "SelectAllOnFocus") ??
+                    SpanEq(span, "SelectionChanged") ??
+                    SpanEq(span, "SanitizedMessage");
             case 'U':
-                if (span.SequenceEqual("UploadButtonText".AsSpan()))
-                    return "UploadButtonText";
-                break;
+                return SpanEq(span, "UploadButtonText");
             case 'd':
-                if (span.SequenceEqual("dotvvm.postBack(".AsSpan()))
-                    return "dotvvm.postBack(";
-                break;
+                return SpanEq(span, "dotvvm.postBack(");
         }
         break;
-    case 17:
+    }
+    case 17: {
         switch (ch)
         {
             case 'A':
-                if (span.SequenceEqual("AuthenticatedView".AsSpan()))
-                    return "AuthenticatedView";
-                break;
+                return SpanEq(span, "AuthenticatedView");
             case 'C':
-                if (span.SequenceEqual("ControlWithButton".AsSpan()))
-                    return "ControlWithButton";
-                break;
+                return SpanEq(span, "ControlWithButton");
             case 'E':
-                if (span.SequenceEqual("EditRowDecorators".AsSpan()))
-                    return "EditRowDecorators";
-                if (span.SequenceEqual("EmptyDataTemplate".AsSpan()))
-                    return "EmptyDataTemplate";
-                break;
+                return SpanEq(span, "EmptyDataTemplate") ??
+                    SpanEq(span, "EditRowDecorators");
             case 'F':
-                if (span.SequenceEqual("FirstPageTemplate".AsSpan()))
-                    return "FirstPageTemplate";
-                if (span.SequenceEqual("FileUploadWrapper".AsSpan()))
-                    return "FileUploadWrapper";
-                break;
+                return SpanEq(span, "FirstPageTemplate") ??
+                    SpanEq(span, "FileUploadWrapper");
             case 'I':
-                if (span.SequenceEqual("IsNamingContainer".AsSpan()))
-                    return "IsNamingContainer";
-                break;
+                return SpanEq(span, "IsNamingContainer");
             case 'P':
-                if (span.SequenceEqual("PostBack.Handlers".AsSpan()))
-                    return "PostBack.Handlers";
-                break;
+                return SpanEq(span, "PostBack.Handlers");
             case 'R':
-                if (span.SequenceEqual("RequiredResources".AsSpan()))
-                    return "RequiredResources";
-                if (span.SequenceEqual("RenderSpanElement".AsSpan()))
-                    return "RenderSpanElement";
-                if (span.SequenceEqual("RefreshTextButton".AsSpan()))
-                    return "RefreshTextButton";
-                break;
+                return SpanEq(span, "RenderSpanElement") ??
+                    SpanEq(span, "RequiredResources") ??
+                    SpanEq(span, "RefreshTextButton");
             case 'S':
-                if (span.SequenceEqual("SeparatorTemplate".AsSpan()))
-                    return "SeparatorTemplate";
-                break;
+                return SpanEq(span, "SeparatorTemplate");
             case 'T':
-                if (span.SequenceEqual("TextEditorControl".AsSpan()))
-                    return "TextEditorControl";
-                break;
+                return SpanEq(span, "TextEditorControl");
             case 'U':
-                if (span.SequenceEqual("UpdateTextOnInput".AsSpan()))
-                    return "UpdateTextOnInput";
-                break;
+                return SpanEq(span, "UpdateTextOnInput");
             case 'V':
-                if (span.SequenceEqual("ValidationSummary".AsSpan()))
-                    return "ValidationSummary";
-                break;
+                return SpanEq(span, "ValidationSummary");
         }
         break;
-    case 18:
+    }
+    case 18: {
         switch (ch)
         {
             case 'A':
-                if (span.SequenceEqual("AllowMultipleFiles".AsSpan()))
-                    return "AllowMultipleFiles";
-                break;
+                return SpanEq(span, "AllowMultipleFiles");
             case 'C':
-                if (span.SequenceEqual("ControlWithButton2".AsSpan()))
-                    return "ControlWithButton2";
-                break;
+                return SpanEq(span, "ControlWithButton2");
             case 'E':
-                if (span.SequenceEqual("EditCellDecorators".AsSpan()))
-                    return "EditCellDecorators";
-                break;
+                return SpanEq(span, "EditCellDecorators");
             case 'G':
-                if (span.SequenceEqual("GridViewTextColumn".AsSpan()))
-                    return "GridViewTextColumn";
-                break;
+                return SpanEq(span, "GridViewTextColumn");
             case 'H':
-                if (span.SequenceEqual("HtmlGenericControl".AsSpan()))
-                    return "HtmlGenericControl";
-                break;
+                return SpanEq(span, "HtmlGenericControl");
             case 'P':
-                if (span.SequenceEqual("ParametrizedButton".AsSpan()))
-                    return "ParametrizedButton";
-                break;
+                return SpanEq(span, "ParametrizedButton");
             case 'S':
-                if (span.SequenceEqual("SuccessMessageText".AsSpan()))
-                    return "SuccessMessageText";
-                break;
+                return SpanEq(span, "SuccessMessageText");
             case 'U':
-                if (span.SequenceEqual("UsedPropertiesInfo".AsSpan()))
-                    return "UsedPropertiesInfo";
-                break;
+                return SpanEq(span, "UsedPropertiesInfo");
             case 'V':
-                if (span.SequenceEqual("ValidatorPlacement".AsSpan()))
-                    return "ValidatorPlacement";
-                break;
+                return SpanEq(span, "ValidatorPlacement");
         }
         break;
-    case 19:
+    }
+    case 19: {
         switch (ch)
         {
             case '(':
-                if (span.SequenceEqual("(async ()=>{let vm=".AsSpan()))
-                    return "(async ()=>{let vm=";
-                break;
+                return SpanEq(span, "(async ()=>{let vm=");
             case 'C':
-                if (span.SequenceEqual("CurrentIndexBinding".AsSpan()))
-                    return "CurrentIndexBinding";
-                break;
+                return SpanEq(span, "CurrentIndexBinding");
             case 'H':
-                if (span.SequenceEqual("HideWhenOnlyOnePage".AsSpan()))
-                    return "HideWhenOnlyOnePage";
-                if (span.SequenceEqual("HeaderRowDecorators".AsSpan()))
-                    return "HeaderRowDecorators";
-                if (span.SequenceEqual("HasNotClaimTemplate".AsSpan()))
-                    return "HasNotClaimTemplate";
-                break;
+                return SpanEq(span, "HasNotClaimTemplate") ??
+                    SpanEq(span, "HideWhenOnlyOnePage") ??
+                    SpanEq(span, "HeaderRowDecorators");
             case 'I':
-                if (span.SequenceEqual("IsNotMemberTemplate".AsSpan()))
-                    return "IsNotMemberTemplate";
-                break;
+                return SpanEq(span, "IsNotMemberTemplate");
             case 'S':
-                if (span.SequenceEqual("ServerRenderedLabel".AsSpan()))
-                    return "ServerRenderedLabel";
-                break;
+                return SpanEq(span, "ServerRenderedLabel");
         }
         break;
-    case 20:
+    }
+    case 20: {
         switch (ch)
         {
             case 'C':
-                if (span.SequenceEqual("ContentPlaceHolderID".AsSpan()))
-                    return "ContentPlaceHolderID";
-                if (span.SequenceEqual("CheckableControlBase".AsSpan()))
-                    return "CheckableControlBase";
-                break;
+                return SpanEq(span, "ContentPlaceHolderID") ??
+                    SpanEq(span, "CheckableControlBase");
             case 'D':
-                if (span.SequenceEqual("DotvvmBindableObject".AsSpan()))
-                    return "DotvvmBindableObject";
-                break;
+                return SpanEq(span, "DotvvmBindableObject");
             case 'H':
-                if (span.SequenceEqual("HeaderCellDecorators".AsSpan()))
-                    return "HeaderCellDecorators";
-                break;
+                return SpanEq(span, "HeaderCellDecorators");
             case 'P':
-                if (span.SequenceEqual("PreviousPageTemplate".AsSpan()))
-                    return "PreviousPageTemplate";
-                break;
+                return SpanEq(span, "PreviousPageTemplate");
             case 'S':
-                if (span.SequenceEqual("ShowErrorMessageText".AsSpan()))
-                    return "ShowErrorMessageText";
-                if (span.SequenceEqual("ShowHeaderWhenNoData".AsSpan()))
-                    return "ShowHeaderWhenNoData";
-                break;
+                return SpanEq(span, "ShowHeaderWhenNoData") ??
+                    SpanEq(span, "ShowErrorMessageText");
             case 'T':
-                if (span.SequenceEqual("TemplatedListControl".AsSpan()))
-                    return "TemplatedListControl";
-                break;
+                return SpanEq(span, "TemplatedListControl");
             case 'k':
-                if (span.SequenceEqual("ko.pureComputed(()=>".AsSpan()))
-                    return "ko.pureComputed(()=>";
-                break;
+                return SpanEq(span, "ko.pureComputed(()=>");
         }
         break;
-    case 21:
+    }
+    case 21: {
         switch (ch)
         {
             case 'A':
-                if (span.SequenceEqual("AuthenticatedTemplate".AsSpan()))
-                    return "AuthenticatedTemplate";
-                break;
+                return SpanEq(span, "AuthenticatedTemplate");
             case 'C':
-                if (span.SequenceEqual("ControlCommandBinding".AsSpan()))
-                    return "ControlCommandBinding";
-                break;
+                return SpanEq(span, "ControlCommandBinding");
             case 'H':
-                if (span.SequenceEqual("HideForAnonymousUsers".AsSpan()))
-                    return "HideForAnonymousUsers";
-                break;
+                return SpanEq(span, "HideForAnonymousUsers");
             case 'I':
-                if (span.SequenceEqual("IsEnvironmentTemplate".AsSpan()))
-                    return "IsEnvironmentTemplate";
-                break;
+                return SpanEq(span, "IsEnvironmentTemplate");
             case 'R':
-                if (span.SequenceEqual("RenderAsNamedTemplate".AsSpan()))
-                    return "RenderAsNamedTemplate";
-                if (span.SequenceEqual("RecursiveTextRepeater".AsSpan()))
-                    return "RecursiveTextRepeater";
-                break;
+                return SpanEq(span, "RenderAsNamedTemplate") ??
+                    SpanEq(span, "RecursiveTextRepeater");
             case 'S':
-                if (span.SequenceEqual("SpaContentPlaceHolder".AsSpan()))
-                    return "SpaContentPlaceHolder";
-                break;
+                return SpanEq(span, "SpaContentPlaceHolder");
         }
         break;
-    case 22:
+    }
+    case 22: {
         switch (ch)
         {
             case '(':
-                if (span.SequenceEqual("(i)=>ko.unwrap(i).Id()".AsSpan()))
-                    return "(i)=>ko.unwrap(i).Id()";
-                break;
+                return SpanEq(span, "(i)=>ko.unwrap(i).Id()");
             case 'C':
-                if (span.SequenceEqual("CompositeControlSample".AsSpan()))
-                    return "CompositeControlSample";
-                if (span.SequenceEqual("ConfirmPostBackHandler".AsSpan()))
-                    return "ConfirmPostBackHandler";
-                break;
+                return SpanEq(span, "CompositeControlSample") ??
+                    SpanEq(span, "ConfirmPostBackHandler");
             case 'G':
-                if (span.SequenceEqual("GridViewTemplateColumn".AsSpan()))
-                    return "GridViewTemplateColumn";
-                if (span.SequenceEqual("GridViewCheckBoxColumn".AsSpan()))
-                    return "GridViewCheckBoxColumn";
-                break;
+                return SpanEq(span, "GridViewCheckBoxColumn") ??
+                    SpanEq(span, "GridViewTemplateColumn");
             case 'I':
-                if (span.SequenceEqual("IsControlBindingTarget".AsSpan()))
-                    return "IsControlBindingTarget";
-                break;
+                return SpanEq(span, "IsControlBindingTarget");
             case 'T':
-                if (span.SequenceEqual("TemplatedMarkupControl".AsSpan()))
-                    return "TemplatedMarkupControl";
-                break;
+                return SpanEq(span, "TemplatedMarkupControl");
             case 'U':
-                if (span.SequenceEqual("UploadErrorMessageText".AsSpan()))
-                    return "UploadErrorMessageText";
-                break;
+                return SpanEq(span, "UploadErrorMessageText");
         }
         break;
-    case 23:
+    }
+    case 23: {
         switch (ch)
         {
             case 'C':
-                if (span.SequenceEqual("ConfigurableHtmlControl".AsSpan()))
-                    return "ConfigurableHtmlControl";
-                if (span.SequenceEqual("ConcurrencyQueueSetting".AsSpan()))
-                    return "ConcurrencyQueueSetting";
-                if (span.SequenceEqual("ControlPropertyUpdating".AsSpan()))
-                    return "ControlPropertyUpdating";
-                break;
+                return SpanEq(span, "ControlPropertyUpdating") ??
+                    SpanEq(span, "ConfigurableHtmlControl") ??
+                    SpanEq(span, "ConcurrencyQueueSetting");
             case 'I':
-                if (span.SequenceEqual("IncludeErrorsFromTarget".AsSpan()))
-                    return "IncludeErrorsFromTarget";
-                break;
+                return SpanEq(span, "IncludeErrorsFromTarget");
             case 'R':
-                if (span.SequenceEqual("ResourceRequiringButton".AsSpan()))
-                    return "ResourceRequiringButton";
-                break;
+                return SpanEq(span, "ResourceRequiringButton");
             case 'S':
-                if (span.SequenceEqual("ServerSideStylesControl".AsSpan()))
-                    return "ServerSideStylesControl";
-                if (span.SequenceEqual("SuppressPostBackHandler".AsSpan()))
-                    return "SuppressPostBackHandler";
-                break;
+                return SpanEq(span, "ServerSideStylesControl") ??
+                    SpanEq(span, "SuppressPostBackHandler");
             case 'T':
-                if (span.SequenceEqual("TextOrContentCapability".AsSpan()))
-                    return "TextOrContentCapability";
-                break;
+                return SpanEq(span, "TextOrContentCapability");
             case 'i':
-                if (span.SequenceEqual("inner-li:HtmlCapability".AsSpan()))
-                    return "inner-li:HtmlCapability";
-                break;
+                return SpanEq(span, "inner-li:HtmlCapability");
         }
         break;
-    case 24:
+    }
+    case 24: {
         switch (ch)
         {
             case '(':
-                if (span.SequenceEqual("(i)=>ko.unwrap(i).Text()".AsSpan()))
-                    return "(i)=>ko.unwrap(i).Text()";
-                if (span.SequenceEqual("(i)=>ko.unwrap(i).Name()".AsSpan()))
-                    return "(i)=>ko.unwrap(i).Name()";
-                break;
+                return SpanEq(span, "(i)=>ko.unwrap(i).Text()") ??
+                    SpanEq(span, "(i)=>ko.unwrap(i).Name()");
             case 'C':
-                if (span.SequenceEqual("ConcurrencyQueueSettings".AsSpan()))
-                    return "ConcurrencyQueueSettings";
-                break;
+                return SpanEq(span, "ConcurrencyQueueSettings");
             case 'I':
-                if (span.SequenceEqual("IsNotEnvironmentTemplate".AsSpan()))
-                    return "IsNotEnvironmentTemplate";
-                break;
+                return SpanEq(span, "IsNotEnvironmentTemplate");
             case 'N':
-                if (span.SequenceEqual("NotAuthenticatedTemplate".AsSpan()))
-                    return "NotAuthenticatedTemplate";
-                break;
+                return SpanEq(span, "NotAuthenticatedTemplate");
             case 'R':
-                if (span.SequenceEqual("ReferencedViewModuleInfo".AsSpan()))
-                    return "ReferencedViewModuleInfo";
-                if (span.SequenceEqual("RenderLinkForCurrentPage".AsSpan()))
-                    return "RenderLinkForCurrentPage";
-                break;
+                return SpanEq(span, "RenderLinkForCurrentPage") ??
+                    SpanEq(span, "ReferencedViewModuleInfo");
             case 'S':
-                if (span.SequenceEqual("StopwatchPostbackHandler".AsSpan()))
-                    return "StopwatchPostbackHandler";
-                break;
+                return SpanEq(span, "StopwatchPostbackHandler");
         }
         break;
-    case 25:
+    }
+    case 25: {
         switch (ch)
         {
             case 'C':
-                if (span.SequenceEqual("ControlPropertyValidation".AsSpan()))
-                    return "ControlPropertyValidation";
-                break;
+                return SpanEq(span, "ControlPropertyValidation");
             case 'E':
-                if (span.SequenceEqual("ErrorCountPostbackHandler".AsSpan()))
-                    return "ErrorCountPostbackHandler";
-                break;
+                return SpanEq(span, "ErrorCountPostbackHandler");
             case 'I':
-                if (span.SequenceEqual("IncludeErrorsFromChildren".AsSpan()))
-                    return "IncludeErrorsFromChildren";
-                break;
+                return SpanEq(span, "IncludeErrorsFromChildren");
         }
         break;
-    case 26:
+    }
+    case 26: {
         switch (ch)
         {
             case 'N':
-                if (span.SequenceEqual("NumberOfFilesIndicatorText".AsSpan()))
-                    return "NumberOfFilesIndicatorText";
-                break;
-            case 'U':
-                if (span.SequenceEqual("UseHistoryApiSpaNavigation".AsSpan()))
-                    return "UseHistoryApiSpaNavigation";
-                break;
+                return SpanEq(span, "NumberOfFilesIndicatorText");
         }
         break;
-    case 27:
+    }
+    case 27: {
         switch (ch)
         {
             case 'C':
-                if (span.SequenceEqual("CheckedItemsRepeaterWrapper".AsSpan()))
-                    return "CheckedItemsRepeaterWrapper";
-                break;
+                return SpanEq(span, "CheckedItemsRepeaterWrapper");
             case 'S':
-                if (span.SequenceEqual("SortAscendingHeaderCssClass".AsSpan()))
-                    return "SortAscendingHeaderCssClass";
-                break;
+                return SpanEq(span, "SortAscendingHeaderCssClass");
         }
         break;
-    case 28:
+    }
+    case 28: {
         switch (ch)
         {
-            case 'C':
-                if (span.SequenceEqual("CompositeControlWithTemplate".AsSpan()))
-                    return "CompositeControlWithTemplate";
-                break;
             case 'S':
-                if (span.SequenceEqual("SortDescendingHeaderCssClass".AsSpan()))
-                    return "SortDescendingHeaderCssClass";
-                break;
+                return SpanEq(span, "SortDescendingHeaderCssClass");
             case 'h':
-                if (span.SequenceEqual("http://www.w3.org/1999/xhtml".AsSpan()))
-                    return "http://www.w3.org/1999/xhtml";
-                break;
+                return SpanEq(span, "http://www.w3.org/1999/xhtml");
         }
         break;
-    case 31:
-        switch (ch)
-        {
-            case 'I':
-                if (span.SequenceEqual("IsMasterPageCompositionFinished".AsSpan()))
-                    return "IsMasterPageCompositionFinished";
-                break;
-        }
-        break;
-    case 32:
-        switch (ch)
-        {
-            case 'C':
-                if (span.SequenceEqual("CompileTimeLifecycleRequirements".AsSpan()))
-                    return "CompileTimeLifecycleRequirements";
-                if (span.SequenceEqual("CompositeListControlWithTemplate".AsSpan()))
-                    return "CompositeListControlWithTemplate";
-                break;
-            case 'M':
-                if (span.SequenceEqual("MarkupControlRegistrationControl".AsSpan()))
-                    return "MarkupControlRegistrationControl";
-                break;
-        }
-        break;
-    case 33:
-        switch (ch)
-        {
-            case 'C':
-                if (span.SequenceEqual("ControlControlCommandInvokeAction".AsSpan()))
-                    return "ControlControlCommandInvokeAction";
-                break;
-        }
-        break;
-    case 34:
-        switch (ch)
-        {
-            case 'A':
-                if (span.SequenceEqual("AttributeToStringConversionControl".AsSpan()))
-                    return "AttributeToStringConversionControl";
-                break;
-        }
-        break;
-    case 36:
-        switch (ch)
-        {
-            case 'S':
-                if (span.SequenceEqual("StaticCommand_ValueAssignmentControl".AsSpan()))
-                    return "StaticCommand_ValueAssignmentControl";
-                break;
-            case 'd':
-                if (span.SequenceEqual("dotvvm.evaluator.wrapObservable(()=>".AsSpan()))
-                    return "dotvvm.evaluator.wrapObservable(()=>";
-                break;
-        }
-        break;
-    case 37:
-        switch (ch)
-        {
-            case 'L':
-                if (span.SequenceEqual("LifecycleRequirementsAssigningVisitor".AsSpan()))
-                    return "LifecycleRequirementsAssigningVisitor";
-                break;
-        }
-        break;
-    case 39:
+    }
+    case 36: {
         switch (ch)
         {
             case 'd':
-                if (span.SequenceEqual("dotvvm.globalize.bindingNumberToString(".AsSpan()))
-                    return "dotvvm.globalize.bindingNumberToString(";
-                break;
+                return SpanEq(span, "dotvvm.evaluator.wrapObservable(()=>");
         }
         break;
-    case 41:
+    }
+    case 39: {
         switch (ch)
         {
-            case 'C':
-                if (span.SequenceEqual("ComboBoxDataSourceBoundToStaticCollection".AsSpan()))
-                    return "ComboBoxDataSourceBoundToStaticCollection";
-                break;
+            case 'd':
+                return SpanEq(span, "dotvvm.globalize.bindingNumberToString(");
         }
         break;
+    }
 }
 
-            str ??= new string(span);
-            if (trySystemIntern)
-                return string.IsInterned(str) ?? str;
-            return str;
-       }
+            return null;
+        }
     }
 }
