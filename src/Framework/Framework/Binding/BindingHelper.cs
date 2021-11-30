@@ -301,7 +301,7 @@ namespace DotVVM.Framework.Binding
             var bindingType = binding.GetType();
             if (bindingType.IsGenericType)
                 bindingType = bindingType.GetGenericTypeDefinition();
-            return (TBinding)service.CreateBinding(bindingType, getContextProperties(binding).Concat(properties).ToArray());
+            return (TBinding)service.CreateBinding(bindingType, properties.Concat(getContextProperties(binding)).ToArray());
         }
 
         /// <summary>

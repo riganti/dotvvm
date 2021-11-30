@@ -130,9 +130,9 @@ namespace DotVVM.Framework.Compilation
                 if (p is DataSourceCurrentElementBinding collectionElement)
                     properties[i] = cloneNestedBinding(collectionElement.Binding)?.Apply(b => new DataSourceCurrentElementBinding(b));
                 if (p is SelectorItemBindingProperty selectorItem)
-                    properties[i] = cloneNestedBinding(selectorItem.Expression)?.Apply(b => new SelectorItemBindingProperty((IValueBinding)b));
+                    properties[i] = cloneNestedBinding(selectorItem.Expression)?.Apply(b => new SelectorItemBindingProperty(b));
                 if (p is ThisBindingProperty thisBinding)
-                    properties[i] = cloneNestedBinding(thisBinding.binding)?.Apply(b => new ThisBindingProperty((IValueBinding)b));
+                    properties[i] = cloneNestedBinding(thisBinding.binding)?.Apply(b => new ThisBindingProperty(b));
             }
 
             return (IBinding)Activator.CreateInstance(binding.GetType(), new object[] {
@@ -140,9 +140,10 @@ namespace DotVVM.Framework.Compilation
                 properties
             });
 
-            IBinding? cloneNestedBinding(IBinding b) =>
+            T? cloneNestedBinding<T>(T b)
+                where T: class, IBinding =>
                 b == binding ? null : // it it's self, then we can just recreate it at runtime
-                CreateMinimalClone(b);
+                (T)CreateMinimalClone(b);
         }
 
         public IEnumerable<object> GetMinimalCloneProperties(IBinding binding)

@@ -122,8 +122,16 @@ namespace DotVVM.Framework.Utils
                 _ => string.Intern(str ?? ch.ToString())
             };
 
-        internal static string DotvvmInternString(this string str) =>
-            str.AsSpan().DotvvmInternString(str);
+        internal static string DotvvmInternString(this string str, bool trySystemIntern = false)
+        {
+            var x = str.AsSpan().DotvvmTryInternString();
+            if (x is {})
+                return x;
+            if (trySystemIntern)
+                return string.IsInterned(str) ?? str;
+            else
+                return str;
+        }
 
         public static void GenerateCode()
         {
@@ -217,17 +225,24 @@ namespace DotVVM.Framework.Utils
         {
             var x = span.DotvvmTryInternString();
             if (x is {}) return x;
-            x = str ?? new string(span);
+            x = str ?? SpanToString(span);
             return trySystemIntern ? string.IsInterned(x) ?? x : x;
         }
         internal static string DotvvmInternString(this ReadOnlySpan<char> span, string? str = null)
         {
-            return DotvvmTryInternString(span) ?? str ?? new string(span);
+            return DotvvmTryInternString(span) ?? str ?? SpanToString(span);
         }
+
+        static string SpanToString(ReadOnlySpan<char> span) =>
+#if NoSpan
+            span.ToString();
+#else
+            new string(span);
+#endif
 
         static string? SpanEq(ReadOnlySpan<char> ch, String s)
         {
-            if (ch.SequenceEqual(s))
+            if (ch.SequenceEqual(s.AsSpan()))
                 return s;
             return null;
         }

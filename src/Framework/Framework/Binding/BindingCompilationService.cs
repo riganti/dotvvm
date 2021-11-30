@@ -230,9 +230,9 @@ namespace DotVVM.Framework.Binding
         }
 
         public IEnumerable<Delegate> GetPostProcessors(Type type) =>
-            postProcs?.TryGetValue(type, out var result) == true ? result : Enumerable.Empty<Delegate>();
+            postProcs is {} && postProcs.TryGetValue(type, out var result) ? result : Enumerable.Empty<Delegate>();
 
         public Delegate? FindResolver(Type type) =>
-            resolvers?.TryGetValue(type, out var result) == true ? result : null;
+            resolvers is {} && resolvers.TryGetValue(type, out var result) ? result : null;
     }
 }

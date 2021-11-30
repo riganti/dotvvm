@@ -318,13 +318,13 @@ namespace DotVVM.Framework.Compilation.Parser
 			var ch = Peek();
 			if (ch != NullChar)
 			{
+				position++;
 				if (ch == '\n' || (ch == '\r' && Peek() != '\n'))
 				{
 					CurrentLine++;
 					PositionOnLine = 0;
 				}
 				PositionOnLine++;
-				position++;
 			}
 
 			return ch;
