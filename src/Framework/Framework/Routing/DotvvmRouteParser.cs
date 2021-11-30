@@ -94,7 +94,7 @@ namespace DotVVM.Framework.Routing
             var nameSpan = url.AsSpan(startIndex, index - startIndex).Trim();
 
             // determine whether the parameter is optional - it must end with ?, or must be present in the DefaultValues collection
-            var isOptional = nameSpan.EndsWith("?", StringComparison.Ordinal);
+            var isOptional = nameSpan.EndsWith("?".AsSpan(), StringComparison.Ordinal);
             if (isOptional)
             {
                 nameSpan = nameSpan.Slice(0, nameSpan.Length - 1);
