@@ -128,7 +128,8 @@ namespace DotVVM.Framework.Hosting.Middlewares
             else
                 headers.Add("X-Frame-Options", new [] { "DENY" });
 
-
+            if (config.ReferrerPolicy.IsEnabledForRoute(route) && !headers.ContainsKey("Referrer-Policy"))
+                headers.Add("Referrer-Policy", new [] { config.ReferrerPolicyValue });
         }
     }
 }

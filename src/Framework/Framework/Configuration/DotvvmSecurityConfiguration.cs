@@ -65,6 +65,21 @@ namespace DotVVM.Framework.Configuration
         [JsonProperty("requireSecFetchHeaders", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public DotvvmFeatureFlag RequireSecFetchHeaders { get; } = new();
 
+        /// <summary>
+        /// Include the Referrer-Policy header which disables referrers in the default configuration. Enabled by default.
+        /// </summary>
+        [JsonProperty("referrerPolicy", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public DotvvmFeatureFlag ReferrerPolicy { get; } = new() { Enabled = true };
+
+        /// <summary> Value of the referrer-policy header. By default it's no-referrer, if you want referrers on your domain set this to `same-origin`. See for more info: <see href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy" /> </summary>
+        [DefaultValue("no-referrer")]
+        public string ReferrerPolicyValue
+        {
+            get { return _defaultReferrerPolicy; }
+            set { ThrowIfFrozen(); _defaultReferrerPolicy = value; }
+        }
+        private string _defaultReferrerPolicy = "no-referrer";
+
         private bool isFrozen = false;
         private void ThrowIfFrozen()
         {
@@ -75,6 +90,12 @@ namespace DotVVM.Framework.Configuration
         {
             this.isFrozen = true;
             this.FrameOptionsSameOrigin.Freeze();
+            this.FrameOptionsCrossOrigin.Freeze();
+            this.XssProtectionHeader.Freeze();
+            this.ContentTypeOptionsHeader.Freeze();
+            this.VerifySecFetchForPages.Freeze();
+            this.VerifySecFetchForCommands.Freeze();
+            this.RequireSecFetchHeaders.Freeze();
         }
     }
 }
