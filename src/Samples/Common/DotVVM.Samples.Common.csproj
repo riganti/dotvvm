@@ -137,6 +137,7 @@
     <None Remove="Views\FeatureSamples\UsageValidation\OverrideValidation.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\EnforceClientSideValidationDisabled.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\InvalidCssClassNotDuplicated.dothtml" />
+    <None Remove="Views\FeatureSamples\Validation\ValidationPropertyPathResolving.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModelCache\ViewModelCache_Miss.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\OuterModuleControl.dotcontrol" />
   </ItemGroup>

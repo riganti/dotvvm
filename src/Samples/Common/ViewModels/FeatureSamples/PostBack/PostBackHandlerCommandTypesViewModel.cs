@@ -33,7 +33,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack
         public void ValidationFailAction()
         {
             Thread.Sleep(3000);
-            Context.ModelState.Errors.Add(new ViewModelValidationError() { ErrorMessage = "Validation error" });
+            this.AddModelError("Validation error");
         }
 
         [AllowStaticCommand]

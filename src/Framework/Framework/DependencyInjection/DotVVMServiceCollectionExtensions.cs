@@ -53,6 +53,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IValidationRuleTranslator, ViewModelValidationRuleTranslator>();
             services.TryAddSingleton<IPropertySerialization, DefaultPropertySerialization>();
             services.TryAddSingleton<UserColumnMappingCache>();
+            services.TryAddSingleton<IValidationErrorPathExpander, ValidationErrorPathExpander>();
             services.TryAddSingleton<IViewModelValidator, ViewModelValidator>();
             services.TryAddSingleton<IViewModelSerializationMapper, ViewModelSerializationMapper>();
             services.TryAddSingleton<IViewModelParameterBinder, AttributeViewModelParameterBinder>();

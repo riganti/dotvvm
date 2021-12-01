@@ -1,4 +1,4 @@
-import { ErrorsPropertyName } from "./common";
+import { errorsSymbol } from "./common";
 import { DotvvmEvent } from "../events";
 import { unwrapComputedProperty } from "../utils/evaluator";
 
@@ -11,11 +11,11 @@ export function detachAllErrors() {
 }
 
 export function getErrors<T>(o: KnockoutObservable<T> | null): ValidationError[] {
-    o = unwrapComputedProperty(o);
+    const unwrapped = unwrapComputedProperty(o);
     if (!ko.isObservable(o)) {
         return []
     }
-    return o[ErrorsPropertyName] || [];
+    return unwrapped[errorsSymbol] || [];
 }
 
 export class ValidationError {
@@ -31,18 +31,18 @@ export class ValidationError {
             throw new Error(`ValidationError cannot be attached to "${observable}".`);
         }
 
-        observable = unwrapComputedProperty(observable);
-        if (!observable.hasOwnProperty(ErrorsPropertyName)) {
-            observable[ErrorsPropertyName] = [];
+        let unwrapped = unwrapComputedProperty(observable) as any;
+        if (!unwrapped.hasOwnProperty(errorsSymbol)) {
+            unwrapped[errorsSymbol] = [];
         }
-        const error = new ValidationError(errorMessage, observable);
-        observable[ErrorsPropertyName].push(error);
+        const error = new ValidationError(errorMessage, unwrapped);
+        unwrapped[errorsSymbol].push(error);
         allErrors.push(error);
         return error;
     }
 
     public detach(): void {
-        const errors = this.validatedObservable[ErrorsPropertyName];
+        const errors = (this.validatedObservable as any)[errorsSymbol];
         const observableIndex = errors.indexOf(this);
         errors.splice(observableIndex, 1);
 
