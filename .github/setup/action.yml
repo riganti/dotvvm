@@ -1,9 +1,14 @@
 name: Set up DotVVM build
 
+inputs:
+  sln:
+    default: src/DotVVM.sln
+
 runs:
-  using: "composite"
+  using: composite
   steps:
   # nuget-related
+  - run: echo "::group::Caching"
   - uses: actions/cache@v2
     with:
       path: ~/.nuget/packages
@@ -13,8 +18,10 @@ runs:
     with:
       path: src/packages
       key: nuget-old-style-packages
+  - run: echo "::endgroup::"
 
   # .NET-related
+  - run: echo "::group::.NET"
   - uses: actions/setup-dotnet@v1
     with:
       dotnet-version: |
@@ -22,14 +29,17 @@ runs:
         6.0.100
   - if: ${{ runner.os == 'Windows' }}
     uses: microsoft/setup-msbuild@v1.1
+  - run: echo "::endgroup::"
 
   # restore packages
+  - run: echo "::group::Restore packages"
   - if: ${{ runner.os == 'Windows' }}
     uses: nuget/setup-nuget@v1
   - if: ${{ runner.os == 'Windows' }}
-    run: nuget restore src/DotVVM.sln
+    run: nuget restore ${{ inputs.sln }}
     shell: pwsh
   - if: ${{ runner.os != 'Windows' }}
-    run: dotnet restore src/DotVVM.sln
+    run: dotnet restore ${{ inputs.sln }}
     shell: bash
+  - run: echo "::endgroup::"
 

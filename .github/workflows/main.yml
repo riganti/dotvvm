@@ -12,7 +12,7 @@ jobs:
   build-without-warnings:
     name: Build without warnings
     runs-on: windows-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
     - uses: actions/checkout@v2
     - name: Set up
