@@ -1,0 +1,31 @@
+name: "Set up DotVVM build"
+inputs:
+  dotnet-version:
+    default: "6.0.100"
+runs:
+  using: "composite"
+  steps:
+    # nuget-related
+    - uses: actions/cache@v2
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget
+    - uses: actions/cache@v2
+      if: ${{ runner.os == "Windows" }}
+      with:
+        path: src/packages
+        key: nuget-old-style-packages
+
+    # .NET-related
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ inputs.dotnet-version }}
+    - uses: microsoft/setup-msbuild@v1.1
+
+    # checkout the repo
+    - uses: actions/checkout@v2
+
+    # restore packages
+    - uses: nuget/setup-nuget@v1
+    - run: nuget restore src/DotVVM.sln
+
