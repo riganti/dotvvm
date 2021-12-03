@@ -27,7 +27,7 @@ jobs:
     - name: NuGet restore
       run: nuget restore src/DotVVM.sln
     - name: MSBuild build
-      run: msbuild -v:m src/DotVVM.sln --no-restore --no-incremental /WarnAsError --configuration Release
+      run: msbuild src/DotVVM.sln -v:m -t:Rebuild -p:Configuration=Release -warnAsError
 
   unit-tests:
     name: C# unit tests
