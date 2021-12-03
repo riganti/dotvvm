@@ -9,6 +9,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
+using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
@@ -52,6 +53,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IValidationRuleTranslator, ViewModelValidationRuleTranslator>();
             services.TryAddSingleton<IPropertySerialization, DefaultPropertySerialization>();
             services.TryAddSingleton<UserColumnMappingCache>();
+            services.TryAddSingleton<IValidationErrorPathExpander, ValidationErrorPathExpander>();
             services.TryAddSingleton<IViewModelValidator, ViewModelValidator>();
             services.TryAddSingleton<IViewModelSerializationMapper, ViewModelSerializationMapper>();
             services.TryAddSingleton<IViewModelParameterBinder, AttributeViewModelParameterBinder>();

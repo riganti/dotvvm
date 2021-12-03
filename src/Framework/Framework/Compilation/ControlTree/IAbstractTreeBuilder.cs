@@ -4,6 +4,7 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using System.Diagnostics.CodeAnalysis;
+using DotVVM.Framework.Compilation.ViewCompiler;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {

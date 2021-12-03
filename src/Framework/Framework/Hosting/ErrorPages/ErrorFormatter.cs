@@ -327,11 +327,40 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return (name + "." + props[0].Name, props[0].GetValue(value));
         }
 
+        private static ExceptionModel LoadDemystifiedException(ErrorFormatter formatter, Exception exception)
+        {
+            return formatter.LoadException(exception,
+                stackFrameGetter: ex => {
+                    var rawStackTrace = new StackTrace(ex, true).GetFrames();
+                    if (rawStackTrace == null) return null; // demystifier throws in these cases
+                    try
+                    {
+                        return new EnhancedStackTrace(ex).GetFrames();
+                    }
+                    catch
+                    {
+                        return rawStackTrace;
+                    }
+                },
+                methodFormatter: f => (f as EnhancedStackFrame)?.MethodInfo?.ToString());
+        }
+
 
         public static ErrorFormatter CreateDefault()
         {
             var f = new ErrorFormatter();
             f.Formatters.Add((e, o) => DotvvmMarkupErrorSection.Create(e));
+            f.Formatters.Add((e, o) => {
+                try
+                {
+                    return new ExceptionSectionFormatter(LoadDemystifiedException(f, e));
+                }
+                catch
+                {
+                    return null; // just ignore errors from the demystifier
+                }
+            });
+
             f.Formatters.Add((e, o) => new ExceptionSectionFormatter(f.LoadException(e), "Raw Stack Trace", "raw_stack_trace"));
             f.Formatters.Add((e, o) => {
                 var b = e.AllInnerExceptions().OfType<IDotvvmException>().Select(a => a.RelatedBinding).OfType<ICloneableBinding>().FirstOrDefault();

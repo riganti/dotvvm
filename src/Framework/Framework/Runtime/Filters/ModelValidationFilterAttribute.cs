@@ -17,11 +17,13 @@ namespace DotVVM.Framework.Runtime.Filters
             if (!string.IsNullOrEmpty(context.ModelState.ValidationTargetPath))
             {
                 var validator = context.Services.GetRequiredService<IViewModelValidator>();
-                context.ModelState.Errors.AddRange(validator.ValidateViewModel(context.ModelState.ValidationTarget));
+                var errors = validator.ValidateViewModel(context.ModelState.ValidationTarget);
+                context.ModelState.ErrorsInternal.AddRange(errors);
+
                 context.FailOnInvalidModelState();
             }
 
             return TaskUtils.GetCompletedTask();
         }
-    }
+    } 
 }

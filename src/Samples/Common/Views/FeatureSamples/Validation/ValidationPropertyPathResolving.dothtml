@@ -1,0 +1,81 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Validation.ValidationPropertyPathResolvingViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div data-ui="root">
+        <dot:TextBox Text="{value: Text}" />
+        <dot:Validator Value="{value: Text}">*</dot:Validator>
+    </div>
+
+    <div data-ui="innerProp">
+        <dot:TextBox Text="{value: Data.Text}" />
+        <dot:Validator Value="{value: Data.Text}">*</dot:Validator>
+    </div>
+
+    <div data-ui="dataContext" DataContext="{value: Data2}">
+        <dot:TextBox Text="{value: Text}" />
+        <dot:Validator Value="{value: Text}">*</dot:Validator>
+    </div>
+
+    <dot:Repeater data-ui="repeater" DataSource="{value: Col}">
+        <dot:TextBox Text="{value: Text}" />
+        <dot:Validator Value="{value: Text}">
+            *
+        </dot:Validator>
+    </dot:Repeater>
+
+    <dot:Button data-ui="butNo" Text="No validation target" Click="{command: null}" />
+    <dot:Button data-ui="butVM" Text="Validation target VM" Validation.Target="{value: _this}" Click="{command: null}" />
+    <dot:Button data-ui="butData" Text="Validation target Data" Validation.Target="{value: Data}" Click="{command: null}" />
+    <dot:Button data-ui="butData2" Text="Validation target Data2" Validation.Target="{value: Data2}" Click="{command: null}" />
+    <dot:Button data-ui="butCol" Text="Validation target Col" Validation.Target="{value: Col}" Click="{command: null}" />
+
+
+    <div DataContext="{value: InnerVm}">
+        <h1>Changed datacontext</h1>
+        <div data-ui="changedContext - root">
+            <dot:TextBox Text="{value: InnerVmText}" />
+            <dot:Validator Value="{value: InnerVmText}">
+                *
+            </dot:Validator>
+        </div>
+
+        <div data-ui="changedContext - innerProp">
+            <dot:TextBox Text="{value: InnerVmData.Text}" />
+            <dot:Validator Value="{value: InnerVmData.Text}">
+                *
+            </dot:Validator>
+        </div>
+
+        <dot:Button data-ui="validationTarget-butNo" Text="No validation target" Click="{command: null}" />
+        <dot:Button data-ui="validationTarget-butVM" Text="Validation target this" Validation.Target="{value: _this}" Click="{command: null}" />
+        <dot:Button data-ui="validationTarget-butData" Text="Validation target Data" Validation.Target="{value: InnerVmData}" Click="{command: null}" />
+    </div>
+
+    <dot:InlineScript>        
+        dotvvm.events.afterPostback.subscribe(t => {
+            var list = document.getElementById("ValidationErrors");
+
+            while (list.firstChild) {
+                list.removeChild(list.firstChild);
+            }
+            t.error.reason.responseObject.modelState.forEach(s => {
+                var node = document.createElement("li");
+                var textnode = document.createTextNode(s.propertyPath);
+                node.appendChild(textnode);
+                list.appendChild(node);
+            });
+        });
+    </dot:InlineScript>
+    <ul ID="ValidationErrors">        
+    </ul>
+</body>
+</html>
+
+

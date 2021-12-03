@@ -20,7 +20,6 @@ namespace DotVVM.Framework.Compilation
     public class CompiledAssemblyCache
     {
 
-        private readonly ConcurrentDictionary<Assembly, MetadataReference> cachedAssemblyMetadata = new ConcurrentDictionary<Assembly, MetadataReference>();
         private readonly ConcurrentDictionary<string, Assembly> cachedAssemblies = new ConcurrentDictionary<string, Assembly>();
 
         private readonly DotvvmConfiguration configuration;
@@ -183,25 +182,6 @@ namespace DotVVM.Framework.Compilation
             }
             return result;
         }
-
-
-        /// <summary>
-        /// Gets the <see cref="MetadataReference"/> for the specified assembly.
-        /// </summary>
-        public MetadataReference GetAssemblyMetadata(Assembly assembly)
-        {
-            return cachedAssemblyMetadata.GetOrAdd(assembly, a => MetadataReference.CreateFromFile(a.Location));
-        }
-
-        /// <summary>
-        /// Adds the assembly to the cache.
-        /// </summary>
-        internal void AddAssemblyMetadata(Assembly assembly, CompilationReference compilationReference)
-        {
-            cachedAssemblyMetadata[assembly] = compilationReference;
-        }
-
-
 
         private ConcurrentDictionary<string, Type?> cache_FindTypeHash = new ConcurrentDictionary<string, Type?>(StringComparer.Ordinal);
         private ConcurrentDictionary<string, Type?> cache_FindTypeHashIgnoreCase = new ConcurrentDictionary<string, Type?>(StringComparer.OrdinalIgnoreCase);

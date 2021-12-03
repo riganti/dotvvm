@@ -4,14 +4,11 @@ using System.Linq;
 using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Runtime;
-using Newtonsoft.Json;
-using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
-using DotVVM.Framework.ViewModel.Serialization;
-using DotVVM.Framework.Utils;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Utils;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
@@ -169,9 +166,7 @@ namespace DotVVM.Framework.Controls
 
                     // use window.setTimeout
                     options.UseWindowSetTimeout ? "\"timeout\"" : null,
-
                     options.IsOnChange ? "\"suppressOnUpdating\"" : null,
-
                     GenerateConcurrencyModeHandler(propertyName, control)
                 );
             }
@@ -180,9 +175,9 @@ namespace DotVVM.Framework.Controls
                     IStaticCommandBinding { OptionsLambdaJavascript: var optionsLambdaExpression } => (true, optionsLambdaExpression),
                     _ => (false, expression.CommandJavascript)
                 };
-            var adjustedExpression = 
+            var adjustedExpression =
                 JavascriptTranslator.AdjustKnockoutScriptContext(jsExpression,
-                    dataContextLevel: BindingHelper.FindDataContextTarget(expression, control).stepsUp);
+                    dataContextLevel: expression.FindDataContextTarget(control).stepsUp);
             // when the expression changes the dataContext, we need to override the default knockout context fo the command binding.
             CodeParameterAssignment knockoutContext;
             CodeParameterAssignment viewModel = default;
@@ -382,7 +377,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private const string RootValidationTargetExpression = "dotvvm.viewModelObservables['root']";
+        public const string RootValidationTargetExpression = "dotvvm.viewModelObservables['root']";
 
         /// <summary>
         /// Gets the validation target expression.
@@ -395,7 +390,7 @@ namespace DotVVM.Framework.Controls
             }
 
             return control.GetValueBinding(Validation.TargetProperty)?.GetKnockoutBindingExpression(control) ??
-                   RootValidationTargetExpression;
+                RootValidationTargetExpression;
         }
 
         /// <summary>

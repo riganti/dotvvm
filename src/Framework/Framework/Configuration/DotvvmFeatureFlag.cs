@@ -5,7 +5,8 @@ using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Configuration
 {
-    public class DotvvmExperimentalFeatureFlag
+    /// <summary> Enables certain DotVVM feature for the entire application or only for certain routes. </summary>
+    public class DotvvmFeatureFlag
     {
 
         [JsonProperty("enabled")]
@@ -92,7 +93,7 @@ namespace DotVVM.Framework.Configuration
         private void ThrowIfFrozen()
         {
             if (isFrozen)
-                FreezableUtils.Error(nameof(DotvvmExperimentalFeatureFlag));
+                FreezableUtils.Error(nameof(DotvvmFeatureFlag));
         }
         public void Freeze()
         {

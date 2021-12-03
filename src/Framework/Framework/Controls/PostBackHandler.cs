@@ -1,8 +1,5 @@
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.ViewModel.Serialization;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {

@@ -20,6 +20,7 @@ using System.Globalization;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation.ViewCompiler;
 using Newtonsoft.Json;
 using DotVVM.Framework.ResourceManagement;
 

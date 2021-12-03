@@ -124,24 +124,52 @@ namespace DotVVM.Framework.Binding.Properties
     );
 
     /// <summary>
+    /// Describes how severe a diagnostic is.
+    /// </summary>
+    public enum DiagnosticSeverity
+    {
+        /// <summary>
+        /// Something that is an issue, as determined by some authority,
+        /// but is not surfaced through normal means.
+        /// There may be different mechanisms that act on these issues.
+        /// </summary>
+        Hidden = 0,
+ 
+        /// <summary>
+        /// Information that does not indicate a problem (i.e. not prescriptive).
+        /// </summary>
+        Info = 1,
+ 
+        /// <summary>
+        /// Something suspicious but allowed.
+        /// </summary>
+        Warning = 2,
+ 
+        /// <summary>
+        /// Something not allowed by the rules of the language or other authority.
+        /// </summary>
+        Error = 3,
+    }
+
+    /// <summary>
     /// Contains (mutable) list of error that are produced during the binding lifetime.
     /// </summary>
     public sealed class BindingErrorReporterProperty
     {
         public ConcurrentStack<(Type req, Exception error, DiagnosticSeverity severity)> Errors = new ConcurrentStack<(Type req, Exception error, DiagnosticSeverity)>();
-        public bool HasErrors => Errors.Any(e => e.severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error);
+        public bool HasErrors => Errors.Any(e => e.severity == DiagnosticSeverity.Error);
         public string GetErrorMessage(IBinding binding)
         {
-            var badRequirements = Errors.Where(e => e.severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error).Select(e => e.req).Distinct().ToArray();
+            var badRequirements = Errors.Where(e => e.severity == DiagnosticSeverity.Error).Select(e => e.req).Distinct().ToArray();
             return $"Could not initialize binding '{binding}', requirement{(badRequirements.Length > 1 ? "s" : "")} {string.Join<Type>(", ", badRequirements)} {(badRequirements.Length > 1 ? "were" : "was")} not met.";
         }
         public IEnumerable<Exception> Exceptions => Errors.Select(e => e.error);
 
         public override string ToString()
         {
-            var errCount = Errors.Count(e => e.severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error);
-            var warnCount = Errors.Count(e => e.severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Warning);
-            var infoCount = Errors.Count(e => e.severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Info);
+            var errCount = Errors.Count(e => e.severity == DiagnosticSeverity.Error);
+            var warnCount = Errors.Count(e => e.severity == DiagnosticSeverity.Warning);
+            var infoCount = Errors.Count(e => e.severity == DiagnosticSeverity.Info);
             if (errCount + warnCount + infoCount == 0)
                 return "No errors";
 

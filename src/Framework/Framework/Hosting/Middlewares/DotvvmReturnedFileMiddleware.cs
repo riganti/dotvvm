@@ -21,14 +21,32 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
             if (url.StartsWith("dotvvmReturnedFile", StringComparison.Ordinal))
             {
+                await ValidateSecFetch(request);
                 await RenderReturnedFile(request.HttpContext, request.Services.GetRequiredService<IReturnedFileStorage>());
                 return true;
             }
             else return false;
         }
 
+        private async Task ValidateSecFetch(IDotvvmRequestContext c)
+        {
+            var dest = c.HttpContext.Request.Headers["Sec-Fetch-Dest"];
+            var site = c.HttpContext.Request.Headers["Sec-Fetch-Site"];
+            if (!string.IsNullOrEmpty(site))
+            {
+                // this will be validated always, this is designed to work with the redirect to file that we do
+                // we want to prevent usage of the returned file anywhere where it should not be used, since
+                // the user may have control over contents of the file and it may served from a trusted domain.
+                // if you don't like this behavior, you can return the file from your own middleware,
+                // we'll not add an option to disable this check.
+                if (site != "same-origin" || dest != "document")
+                    await c.RejectRequest("Returned file can only be used from same-site navigation.");
+            }
+        }
+
         private async Task RenderReturnedFile(IHttpContext context, IReturnedFileStorage returnedFileStorage)
         {
+
             var id = Guid.Parse(context.Request.Query["id"]);
 
             var returnedFile = await returnedFileStorage.GetFileAsync(id);

@@ -6,6 +6,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
@@ -29,7 +30,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             this.controlBuilderFactory = controlBuilderFactory;
         }
 
-        protected override void ResolveRootContent(DothtmlRootNode root, IAbstractContentNode view, IControlResolverMetadata viewMetadata)
+        protected override void ResolveRootContent(DothtmlRootNode root, IAbstractControl view, IControlResolverMetadata viewMetadata)
         {
             ((ResolvedTreeRoot)view).ResolveContentAction = () => base.ResolveRootContent(root, view, viewMetadata);
         }

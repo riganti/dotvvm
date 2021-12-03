@@ -2,7 +2,7 @@
 
 namespace DotVVM.Framework.Configuration
 {
-    public class DotvvmGlobalExperimentalFeatureFlag
+    public class DotvvmGlobalFeatureFlag
     {
 
         [JsonProperty("enabled")]
@@ -22,12 +22,17 @@ namespace DotVVM.Framework.Configuration
             ThrowIfFrozen();
             Enabled = true;
         }
+        public void Disable()
+        {
+            ThrowIfFrozen();
+            Enabled = false;
+        }
 
         private bool isFrozen = false;
         private void ThrowIfFrozen()
         {
             if (isFrozen)
-                FreezableUtils.Error(nameof(DotvvmExperimentalFeatureFlag));
+                FreezableUtils.Error(nameof(DotvvmFeatureFlag));
         }
 
         public void Freeze()

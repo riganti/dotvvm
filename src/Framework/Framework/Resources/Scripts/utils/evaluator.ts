@@ -1,6 +1,38 @@
 import { isObservableArray } from "./knockout";
 import { logError } from "./logging";
 
+/**
+ * Traverses provided context according to given path.
+ * @example / - returns context
+ * @example "" or null - returns context
+ * @example /exampleProp/A - returns prop A located withing property exampleProp located at provided context
+ * @example /exampleProp/B/1 - returns second item from collection B located within property exampleProp located at provided context
+ * @returns found property as unwrapped object
+ */
+export function traverseContext(context: any, path: string): any {
+    if (path == null)
+        path = "";
+
+    var parts = path.split("/");
+
+    var currentLevel = context;
+    var currentPath = "";
+    for (var i = 0; i < parts.length; i++) {
+        let expressionPart = parts[i];
+        if (expressionPart === "")
+            continue;
+
+        var nextNode = ko.unwrap(currentLevel)[expressionPart];
+        if (nextNode == undefined) {
+            throw `Validation error could not been applied to property specified by propertyPath ${path}. Property with name ${expressionPart} does not exist on ${currentPath}.`;
+        }
+        currentPath += `/${expressionPart}`;
+        currentLevel = nextNode;
+    }
+
+    return currentLevel
+}
+
 export function evaluateOnViewModel(context: any, expression: string): any {
     // todo: reimplement
     let result;

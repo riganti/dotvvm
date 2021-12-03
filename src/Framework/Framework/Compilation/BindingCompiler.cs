@@ -11,8 +11,6 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Runtime.CompilerServices;
 using System.Reflection.Emit;
 using DotVVM.Framework.Configuration;
@@ -20,6 +18,7 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Controls;
 using System.Diagnostics;
+using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation
@@ -131,7 +130,7 @@ namespace DotVVM.Framework.Compilation
                     .Where(p => p != null).ToArray()!;
         }
 
-        public virtual ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding)
+        public virtual Expression EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding)
         {
             var newbinding = CreateMinimalClone(binding);
             return emitter.EmitValue(newbinding);
