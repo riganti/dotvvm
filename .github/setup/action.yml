@@ -1,7 +1,4 @@
-name: "Set up DotVVM build"
-inputs:
-  dotnet-version:
-    default: "6.0.100"
+name: Set up DotVVM build
 
 runs:
   using: "composite"
@@ -20,7 +17,9 @@ runs:
   # .NET-related
   - uses: actions/setup-dotnet@v1
     with:
-      dotnet-version: ${{ inputs.dotnet-version }}
+      dotnet-version: |
+        5.0.403
+        6.0.100
   - if: ${{ runner.os == 'Windows' }}
     uses: microsoft/setup-msbuild@v1.1
 
