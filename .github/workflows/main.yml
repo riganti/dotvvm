@@ -15,7 +15,8 @@ jobs:
     timeout-minutes: 10
     steps:
     - uses: actions/checkout@v2
-    - uses: ./.github/setup
+    - name: Set up
+      uses: ./.github/setup
     - name: MSBuild build
       run: msbuild src/DotVVM.sln -v:m -t:Rebuild -p:Configuration=Release -warnAsError
 
@@ -29,7 +30,8 @@ jobs:
         os: [ubuntu-latest, windows-latest, macOS-latest]
     steps:
     - uses: actions/checkout@v2
-    - uses: ./.github/setup
+    - name: Set up
+      uses: ./.github/setup
     - name: Build framework
       run: dotnet build src/Framework/Framework/DotVVM.Framework.csproj --no-restore --no-incremental /property:WarningLevel=0
     - name: Build Tests (Release)
