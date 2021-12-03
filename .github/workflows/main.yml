@@ -10,9 +10,9 @@ env:
   DOTNET_VERSION: '6.0.100'
 
 jobs:
-  build-WarnAsError:
-    name: build without warnings
-    runs-on: ubuntu-latest
+  build-without-warnings:
+    name: Build without warnings
+    runs-on: windows-latest
     timeout-minutes: 10
     steps:
     - uses: actions/cache@v2
@@ -20,37 +20,16 @@ jobs:
         path: ~/.nuget/packages
         key: ${{ runner.os }}-nuget
     - uses: actions/checkout@v2
-    - name: Setup .NET Core  5.0.300
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 5.0.300
-    - name: Build Hosting.AspNetCore
-      run: dotnet build src/Framework/Hosting.AspNetCore --no-incremental /WarnAsError --framework net5.0
-    - name: Setup .NET Core  ${{ env.DOTNET_VERSION }}
-      uses: actions/setup-dotnet@v1
+    - uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Install dependencies
-      run: dotnet restore ci/linux/Linux.sln
-    - name: Build (without warnings)
-      run: dotnet build src/Framework/Framework --configuration Release --no-restore --no-incremental /property:WarningLevel=0
-    - name: Build
-      run: dotnet build src/Framework/Framework --configuration Release --no-restore --no-incremental /WarnAsError
-    - name: Build (Debug)
-      run: dotnet build src/Framework/Framework --configuration Debug --no-restore --no-incremental /WarnAsError
-    - name: Build Testing
-      run: dotnet build src/Framework/Testing --no-incremental /WarnAsError
-    - name: Build Tracing.MiniProfiler
-      run: dotnet build src/Tracing/MiniProfiler.AspNetCore --no-incremental /WarnAsError
-    - name: Build Tracing.ApplicationInsights
-      run: dotnet build src/Tracing/ApplicationInsights.AspNetCore --no-incremental /WarnAsError
-    - name: Build Dynamic Data
-      run: dotnet build src/DynamicData/DynamicData --no-incremental /WarnAsError
-    - name: Build Compiler
-      run: dotnet build src/Tools/Compiler --no-incremental /WarnAsError
+    - name: NuGet restore
+      run: nuget restore src/DotVVM.sln
+    - name: MSBuild build
+      run: msbuild -v:m src/DotVVM.sln --no-restore --no-incremental /WarnAsError --configuration Release
 
   unit-tests:
-    name: dotnet unit tests
+    name: C# unit tests
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     strategy:
@@ -98,7 +77,7 @@ jobs:
       run: yarn --cwd src/Framework/Framework/ jest --ci --reporters=default --reporters=jest-github-actions-reporter
 
   ui-tests:
-    name: UI tests (backup for Azure DevOooops)
+    name: UI tests
     runs-on: ubuntu-latest
     timeout-minutes: 50
     strategy:
@@ -120,4 +99,4 @@ jobs:
       id: trx-parser
       with:
         TRX_PATH: ${{ github.workspace }}/artifacts/test
-        REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}          
+        REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
