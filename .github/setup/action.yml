@@ -8,8 +8,6 @@ runs:
   using: composite
   steps:
   # nuget-related
-  - run: echo "::group::Caching"
-    shell: bash
   - uses: actions/cache@v2
     with:
       path: ~/.nuget/packages
@@ -19,12 +17,8 @@ runs:
     with:
       path: src/packages
       key: nuget-old-style-packages
-  - run: echo "::endgroup::"
-    shell: bash
 
   # .NET-related
-  - run: echo "::group::.NET"
-    shell: bash
   - uses: actions/setup-dotnet@v1
     with:
       dotnet-version: |
@@ -32,12 +26,8 @@ runs:
         6.0.100
   - if: ${{ runner.os == 'Windows' }}
     uses: microsoft/setup-msbuild@v1.1
-  - run: echo "::endgroup::"
-    shell: bash
 
   # restore packages
-  - run: echo "::group::Restore packages"
-    shell: bash
   - if: ${{ runner.os == 'Windows' }}
     uses: nuget/setup-nuget@v1
   - if: ${{ runner.os == 'Windows' }}
@@ -46,6 +36,3 @@ runs:
   - if: ${{ runner.os != 'Windows' }}
     run: dotnet restore ${{ inputs.sln }}
     shell: bash
-  - run: echo "::endgroup::"
-    shell: bash
-

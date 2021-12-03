@@ -32,16 +32,16 @@ jobs:
     - uses: actions/checkout@v2
     - name: Set up
       uses: ./.github/setup
-    - name: Build framework
-      run: dotnet build src/Framework/Framework/DotVVM.Framework.csproj --no-restore --no-incremental /property:WarningLevel=0
-    - name: Build Tests (Release)
-      run: dotnet build src/Tests --configuration Release --no-restore /property:WarningLevel=0
-    - name: Build Tests (Debug)
-      run: dotnet build src/Tests --configuration Debug --no-restore /property:WarningLevel=0
-    - name: Unit tests (Release)
+      with:
+        sln: ci/linux/Linux.sln
+    - name: Build tests (Release)
+      run: dotnet msbuild src/Tests -t:Rebuild -p:WarningLevel=0 -p:Configuration=Release
+    - name: Build tests (Debug)
+      run: dotnet msbuild src/Tests -t:Rebuild -p:WarningLevel=0 -p:Configuration=Debug
+    - name: Run tests (Release)
       run: |
           dotnet test src/Tests --no-build --logger "GitHubActions;report-warnings=true" --configuration Release
-    - name: Unit tests (Debug)
+    - name: Run tests (Debug)
       run: |
           dotnet test src/Tests --no-build --logger "GitHubActions;report-warnings=true" --configuration Debug
 
