@@ -33,6 +33,5 @@ runs:
   - if: ${{ runner.os == 'Windows' }}
     run: nuget restore ${{ inputs.sln }}
     shell: pwsh
-  - if: ${{ runner.os != 'Windows' }}
-    run: dotnet restore ${{ inputs.sln }}
+  - run: dotnet restore ${{ inputs.sln }}
     shell: bash
