@@ -36,9 +36,9 @@ jobs:
       with:
         sln: ci/linux/Linux.sln
     - name: Build tests
-      run: dotnet msbuild src/Tests -t:Restore,Rebuild -p:WarningLevel=0 -p:Configuration={{ matrix.configuration }}
+      run: dotnet msbuild src/Tests -t:Restore,Rebuild -p:WarningLevel=0 -p:Configuration=${{ matrix.configuration }}
     - name: Run tests
-      run: dotnet test src/Tests --no-build --logger "GitHubActions;report-warnings=true" --configuration {{ matrix.configuration }}
+      run: dotnet test src/Tests --no-build --logger "GitHubActions;report-warnings=true" --configuration ${{ matrix.configuration }}
 
   js-tests:
     runs-on: ubuntu-latest
