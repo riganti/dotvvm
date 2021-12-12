@@ -139,35 +139,6 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public BindingExpression(BindingCompilationService service, IEnumerable<object?> properties)
         {
-            this.toStringValue = new Lazy<string>(() => {
-                // using Lazy improves performance a bit and most importantly handles StackOverflowException that could occur when OriginalStringBindingProperty getter fails
-                string value;
-                try
-                {
-                    value =
-                        originalString.GetValueOrNull(this)?.Code ??
-                        parsedExpression.GetValueOrNull(this)?.Expression?.ToString() ??
-                        this.GetProperty<KnockoutExpressionBindingProperty>()?.Code?.ToString(o => new Compilation.Javascript.CodeParameterAssignment($"${o.GetHashCode()}", Compilation.Javascript.OperatorPrecedence.Max)) ??
-                        this.GetProperty<KnockoutJsExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression?.ToString() ??
-                        "... unrepresentable binding content ...";
-                }
-                catch (Exception ex)
-                {
-                    // Binding.ToString is used in error handling, so it should not fail
-                    value = $"Unable to get binding string due to {ex.GetType().Name}: {ex.Message}";
-                }
-                var typeName = this switch {
-                    ControlPropertyBindingExpression => "controlProperty",
-                    ValueBindingExpression => "value",
-                    ResourceBindingExpression => "resource",
-                    ControlCommandBindingExpression => "controlCommand",
-                    StaticCommandBindingExpression => "staticCommand",
-                    CommandBindingExpression => "command",
-                    _ => this.GetType().Name
-                };
-                return $"{{{typeName}: {value}}}";
-            });
-
             foreach (var prop in properties)
                 if (prop != null) this.StoreProperty(prop);
             this.bindingService = service;
@@ -286,8 +257,52 @@ namespace DotVVM.Framework.Binding.Expressions
 
 
 
-        Lazy<string> toStringValue;
-        public override string ToString() => toStringValue.Value;
+        string? toStringValue;
+        public override string ToString()
+        {
+            if (toStringValue is null)
+            {
+                if (Monitor.IsEntered(this))
+                {
+                    // we are already executing ToString, to prevent stack overflow, return something else temporary
+                    return "{binding ToString is being executed recursively}";
+                }
+                lock (this)
+                {
+                    toStringValue ??= CreateToString();
+                }
+            }
+            return toStringValue;
+        }
+
+        string CreateToString()
+        {
+            string value;
+            try
+            {
+                value =
+                    originalString.GetValueOrNull(this)?.Code ??
+                    parsedExpression.GetValueOrNull(this)?.Expression?.ToString() ??
+                    this.GetProperty<KnockoutExpressionBindingProperty>()?.Code?.ToString(o => new Compilation.Javascript.CodeParameterAssignment($"${o.GetHashCode()}", Compilation.Javascript.OperatorPrecedence.Max)) ??
+                    this.GetProperty<KnockoutJsExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression?.ToString() ??
+                    "... unrepresentable binding content ...";
+            }
+            catch (Exception ex)
+            {
+                // Binding.ToString is used in error handling, so it should not fail
+                value = $"Unable to get binding string due to {ex.GetType().Name}: {ex.Message}";
+            }
+            var typeName = this switch {
+                ControlPropertyBindingExpression => "controlProperty",
+                ValueBindingExpression => "value",
+                ResourceBindingExpression => "resource",
+                ControlCommandBindingExpression => "controlCommand",
+                StaticCommandBindingExpression => "staticCommand",
+                CommandBindingExpression => "command",
+                _ => this.GetType().Name
+            };
+            return $"{{{typeName}: {value}}}";
+        }
 
         IEnumerable<object> ICloneableBinding.GetAllComputedProperties()
         {
