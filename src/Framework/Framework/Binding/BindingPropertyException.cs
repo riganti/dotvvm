@@ -49,7 +49,14 @@ namespace DotVVM.Framework.Binding
                 pathMsg += ".";
             }
 
-            var bindingMsg = binding is null ? "" : $" Binding: {binding}.";
+            var bindingMsg = "";
+            if (binding is {})
+                try
+                {
+                    // IBinding.ToString may fail in weird cases
+                    bindingMsg = $" Binding: {binding.ToString()}.";
+                }
+                catch { }
             return introMsg + coreMsg + bindingMsg + pathMsg;
         }
 
