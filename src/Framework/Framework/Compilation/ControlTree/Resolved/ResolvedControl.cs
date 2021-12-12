@@ -100,7 +100,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         {
             if (capability.ResolvedControlGetter is {} getter)
                 return getter(this);
-            if (capability.PropertyMapping is not {} mapping & capability.PropertyGroupMapping is {} groupMapping)
+            if (capability.PropertyMapping is not {} mapping || capability.PropertyGroupMapping is not {} groupMapping)
                 throw new NotSupportedException($"Can not get capability {capability} on ResolvedControl as it does not have a property mapping.");
             var properties = new Dictionary<DotvvmProperty, ResolvedPropertySetter>();
             foreach (var (_, p) in mapping)
