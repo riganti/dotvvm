@@ -42,7 +42,7 @@ jobs:
     - name: Build Tracing.ApplicationInsights
       run: dotnet build src/Tracing/ApplicationInsights.AspNetCore --no-incremental /WarnAsError
     - name: Build Dynamic Data
-      run: dotnet build src/DynamicData/DynamicData --no-incremental /WarnAsError
+      run: dotnet build src/DynamicData/DynamicData --no-incremental --framework netstandard2.1 /WarnAsError
     - name: Build Compiler
       run: dotnet build src/Tools/Compiler --no-incremental /WarnAsError
 

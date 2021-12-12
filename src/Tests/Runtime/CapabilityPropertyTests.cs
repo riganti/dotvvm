@@ -60,6 +60,34 @@ namespace DotVVM.Framework.Tests.Runtime
             );
         }
 
+
+        [TestMethod]
+        public void CapabilityGetterAndSetter1()
+        {
+            var control = new TestControl1 { Something = "X" };
+            Assert.AreEqual(
+                new TestCapability { Something = "X" },
+                control.GetCapability<TestCapability>()
+            );
+            control.SetCapability(new TestCapability { Something = "Y", SomethingElse = "Z" });
+            Assert.AreEqual(
+                new TestCapability { Something = "Y", SomethingElse = "Z" },
+                control.GetCapability<TestCapability>()
+            );
+            Assert.AreEqual("Y", control.Something);
+            Assert.AreEqual("Z", control.GetValue<string>("SomethingElse"));
+            Assert.AreEqual("Z", control.GetValue(c => c.GetCapability<TestCapability>().SomethingElse));
+
+            control.SetCapability(new HtmlCapability { Attributes = { ["attr"] = "a" } });
+            Assert.AreEqual("a", control.Attributes["attr"]);
+            control.AddAttribute("class", "x");
+            control.AddAttribute("class", "y");
+            var attrs = control.GetValue(c => c.GetCapability<HtmlCapability>()).Attributes;
+            Assert.AreEqual("x y", attrs["class"].GetValue());
+            Assert.AreEqual("a", attrs["attr"].GetValue());
+            Assert.AreEqual("x y", control.GetValue(c => c.GetCapability<HtmlCapability>().Attributes["class"].ValueOrDefault));
+        }
+
         public class TestControl1:
             HtmlGenericControl,
             IObjectWithCapability<HtmlCapability>,
@@ -106,16 +134,16 @@ namespace DotVVM.Framework.Tests.Runtime
         [DotvvmControlCapability]
         public sealed record TestCapability
         {
-            public string Something { get; set; } = "kokosovina";
-            public string SomethingElse { get; set; } = "baf";
+            public string Something { get; init; } = "kokosovina";
+            public string SomethingElse { get; init; } = "baf";
         }
 
         [DotvvmControlCapability]
-        public sealed class TestNestedCapability
+        public sealed record TestNestedCapability
         {
-            public string Something { get; set; } = "abc";
-            public TestCapability Test { get; set; }
-            public HtmlCapability Html { get; set; }
+            public string Something { get; init; } = "abc";
+            public TestCapability Test { get; init; }
+            public HtmlCapability Html { get; init; }
         }
 
     }
