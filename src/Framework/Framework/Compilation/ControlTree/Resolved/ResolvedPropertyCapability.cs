@@ -91,14 +91,14 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 var properties = propertyGroupLookup[pgroup].ToArray();
 
                 var propertyOriginalValue = prop.GetValue(obj);
+                var dictionaryElementType = DotvvmCapabilityProperty.Helpers.GetDictionaryElement(prop.PropertyType);
                 var dictionary = (System.Collections.IDictionary)(
                     propertyOriginalValue ??
-                    Activator.CreateInstance(prop.PropertyType)
+                    Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(typeof(string), dictionaryElementType))
                 );
 
                 if (properties.Length > 0)
                 {
-                    var dictionaryElementType = DotvvmCapabilityProperty.Helpers.GetDictionaryElement(prop.PropertyType);
 
                     foreach (var p in properties)
                         dictionary.Add(p.GroupMemberName, convertValue(this.Values[p].GetValue(), dictionaryElementType));
