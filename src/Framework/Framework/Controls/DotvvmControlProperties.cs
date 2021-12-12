@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DotVVM.Framework.Binding;
 
@@ -258,6 +259,74 @@ namespace DotVVM.Framework.Controls
                 return true;
             }
         }
+
+        private static object? CloneValue(object? value)
+        {
+            if (value is DotvvmBindableObject bindableObject)
+                return bindableObject.CloneControl();
+            return null;
+        }
+
+        public int Count()
+        {
+            if (this.values == null) return 0;
+            if (this.keys == null)
+                return this.valuesAsDictionary.Count;
+            int count = 0;
+            for (int i = 0; i < this.keysAsArray.Length; i++)
+            {
+                // get rid of a branch which would be almost always misspredicted
+                var x = this.keysAsArray[i] is not null;
+                count += Unsafe.As<bool, byte>(ref x);
+            }
+            return count;
+        }
+
+        internal void CloneInto(ref DotvvmControlProperties newDict)
+        {
+            if (this.values == null)
+            {
+                newDict = default;
+                return;
+            }
+            else if (this.keys == null)
+            {
+                var dictionary = this.valuesAsDictionary;
+                if (dictionary.Count > 30)
+                {
+                    newDict = this;
+                    newDict.valuesAsDictionary = new Dictionary<DotvvmProperty, object?>(dictionary);
+                    foreach (var (key, value) in dictionary)
+                        if (CloneValue(value) is {} newValue)
+                            newDict.valuesAsDictionary[key] = newValue;
+                    return;
+                }
+                // move to immutable version if it's reasonably small. It will be probably cloned multiple times again
+                var properties = new DotvvmProperty[dictionary.Count];
+                var values = new object?[properties.Length];
+                int j = 0;
+                foreach (var x in this.valuesAsDictionary)
+                {
+                    (properties[j], values[j]) = x;
+                    j++;
+                }
+                Array.Sort(properties, values, PropertyImmutableHashtable.DotvvmPropertyComparer.Instance);
+                (this.hashSeed, this.keysAsArray, this.valuesAsArray) = PropertyImmutableHashtable.CreateTableWithValues(properties, values);
+            }
+
+            newDict = this;
+            for (int i = 0; i < newDict.valuesAsArray.Length; i++)
+            {
+                if (CloneValue(newDict.valuesAsArray[i]) is {} newValue)
+                {
+                    // clone the array if we didn't do that already
+                    if (newDict.values == this.values)
+                        newDict.values = this.valuesAsArray.Clone();
+
+                    newDict.valuesAsArray[i] = newValue;
+                }
+            }
+        }
     }
 
     public struct DotvvmControlPropertiesEnumerator : IEnumerator<KeyValuePair<DotvvmProperty, object?>>
@@ -322,9 +391,7 @@ namespace DotVVM.Framework.Controls
 
         public ICollection<object?> Values => throw new NotImplementedException();
 
-        public int Count => throw new NotImplementedException("Count cannot be implemented effectively, please use Enumerable.Count method to explicitly express willingness to use O(n) time to get a count.");
-        int ICollection<KeyValuePair<DotvvmProperty, object?>>.Count => control.properties.Count();
-
+        public int Count => control.properties.Count();
         public bool IsReadOnly => false;
 
         public void Add(DotvvmProperty key, object? value)

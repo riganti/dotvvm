@@ -215,7 +215,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             return new Repeater() {
                 RenderAsNamedTemplate = false,
                 WrapperTagName = wrapperTagName,
-                ItemTemplate = new DelegateTemplate(_ =>
+                ItemTemplate = new CloneTemplate(
                     new Button(buttonContent, itemClick)
                         .SetCapability(buttonHtml)
                 )
@@ -238,7 +238,7 @@ namespace DotVVM.Framework.Tests.ControlTests
             var repeater = new Repeater() {
                 RenderAsNamedTemplate = false,
                 WrapperTagName = "div",
-                ItemTemplate = new DelegateTemplate(_ =>
+                ItemTemplate = new CloneTemplate(
                     new Button("Item", itemClick)
                 )
             }
