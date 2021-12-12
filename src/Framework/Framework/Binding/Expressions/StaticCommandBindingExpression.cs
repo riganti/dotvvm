@@ -18,13 +18,48 @@ namespace DotVVM.Framework.Binding.Expressions
     {
         public StaticCommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
 
-        public ImmutableArray<IActionFilter> ActionFilters => this.GetProperty<ActionFiltersBindingProperty>(ErrorHandlingMode.ReturnNull)?.Filters ?? ImmutableArray<IActionFilter>.Empty;
+        private protected MaybePropValue<StaticCommandJavascriptProperty> staticCommandJs;
+        private protected MaybePropValue<StaticCommandOptionsLambdaJavascriptProperty> staticCommandLambdaJs;
+        private protected MaybePropValue<ActionFiltersBindingProperty> actionFilters;
+
+        private protected override void StoreProperty(object p)
+        {
+            if (p is StaticCommandJavascriptProperty staticCommandJs)
+                this.staticCommandJs.SetValue(new(staticCommandJs));
+            if (p is StaticCommandOptionsLambdaJavascriptProperty staticCommandLambdaJs)
+                this.staticCommandLambdaJs.SetValue(new(staticCommandLambdaJs));
+            if (p is ActionFiltersBindingProperty actionFilters)
+                this.actionFilters.SetValue(new(actionFilters));
+            else
+                base.StoreProperty(p);
+        }
+
+        public override object? GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
+        {
+            if (type == typeof(StaticCommandJavascriptProperty))
+                return staticCommandJs.GetValue(this).GetValue(errorMode, this, type);
+            if (type == typeof(StaticCommandOptionsLambdaJavascriptProperty))
+                return staticCommandLambdaJs.GetValue(this).GetValue(errorMode, this, type);
+            if (type == typeof(ActionFiltersBindingProperty))
+                return actionFilters.GetValue(this).GetValue(errorMode, this, type);
+            return base.GetProperty(type, errorMode);
+        }
+
+        private protected override IEnumerable<object?> GetOutOfDictionaryProperties() =>
+            base.GetOutOfDictionaryProperties().Concat(new object?[] {
+                staticCommandJs.Value.Value,
+                staticCommandLambdaJs.Value.Value,
+                actionFilters.Value.Value,
+            });
+
+
+        public ImmutableArray<IActionFilter> ActionFilters => actionFilters.GetValueOrNull(this)?.Filters ?? ImmutableArray<IActionFilter>.Empty;
 
         public BindingDelegate BindingDelegate => this.bindingDelegate.GetValueOrThrow(this);
 
-        public ParametrizedCode CommandJavascript => this.GetProperty<StaticCommandJavascriptProperty>().Code;
+        public ParametrizedCode CommandJavascript => staticCommandJs.GetValueOrThrow(this).Code;
 
-        public ParametrizedCode OptionsLambdaJavascript => this.GetProperty<StaticCommandOptionsLambdaJavascriptProperty>().Code;
+        public ParametrizedCode OptionsLambdaJavascript => staticCommandLambdaJs.GetValueOrThrow(this).Code;
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {

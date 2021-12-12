@@ -34,6 +34,28 @@ namespace DotVVM.Framework.Binding.Expressions
             AddNullResolvers();
         }
 
+        private protected MaybePropValue<KnockoutExpressionBindingProperty> knockoutExpressions;
+
+        private protected override void StoreProperty(object p)
+        {
+            if (p is KnockoutExpressionBindingProperty knockoutExpressions)
+                this.knockoutExpressions.SetValue(new(knockoutExpressions));
+            else
+                base.StoreProperty(p);
+        }
+
+        public override object? GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
+        {
+            if (type == typeof(KnockoutExpressionBindingProperty))
+                return knockoutExpressions.GetValue(this).GetValue(errorMode, this, type);
+            return base.GetProperty(type, errorMode);
+        }
+
+        private protected override IEnumerable<object?> GetOutOfDictionaryProperties() =>
+            base.GetOutOfDictionaryProperties().Concat(new object?[] {
+                knockoutExpressions.Value.Value
+            });
+
         public BindingDelegate BindingDelegate => this.bindingDelegate.GetValueOrThrow(this);
 
         public BindingUpdateDelegate UpdateDelegate => this.updateDelegate.GetValueOrThrow(this);

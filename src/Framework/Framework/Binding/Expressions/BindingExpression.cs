@@ -20,7 +20,6 @@ namespace DotVVM.Framework.Binding.Expressions
 {
     [BindingCompilationRequirements(optional: new[] { typeof(BindingResolverCollection) })]
     [Newtonsoft.Json.JsonConverter(typeof(BindingDebugJsonConverter))]
-    // [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public abstract class BindingExpression : IBinding, ICloneableBinding
     {
         private protected struct PropValue<TValue> where TValue : class
@@ -58,8 +57,6 @@ namespace DotVVM.Framework.Binding.Expressions
                 this.Error = error;
             }
         }
-
-        // [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 8 + 8 + 1)]
         private protected struct MaybePropValue<TValue> where TValue : class
         {
             public PropValue<TValue> Value;
@@ -129,7 +126,6 @@ namespace DotVVM.Framework.Binding.Expressions
         private protected MaybePropValue<BindingErrorReporterProperty> errorReporter;
         private protected MaybePropValue<BindingResolverCollection> resolverCollection;
         private protected MaybePropValue<ResolvedBinding> resolvedBinding;
-        private protected MaybePropValue<KnockoutExpressionBindingProperty> knockoutExpressions;
         private protected MaybePropValue<ParsedExpressionBindingProperty> parsedExpression;
         private protected MaybePropValue<ResultTypeBindingProperty> resultType;
         private protected MaybePropValue<BindingParserOptions> parserOptions;
@@ -140,7 +136,6 @@ namespace DotVVM.Framework.Binding.Expressions
         private protected MaybePropValue<BindingUpdateDelegate> updateDelegate;
         private protected MaybePropValue<OriginalStringBindingProperty> originalString;
         private protected MaybePropValue<ExpectedTypeBindingProperty> expectedType;
-        private protected MaybePropValue<StaticCommandJavascriptProperty> staticCommandJs;
 
         public BindingExpression(BindingCompilationService service, IEnumerable<object?> properties)
         {
@@ -152,7 +147,7 @@ namespace DotVVM.Framework.Binding.Expressions
                     value =
                         originalString.GetValueOrNull(this)?.Code ??
                         parsedExpression.GetValueOrNull(this)?.Expression?.ToString() ??
-                        knockoutExpressions.GetValueOrNull(this)?.Code?.ToString(o => new Compilation.Javascript.CodeParameterAssignment($"${o.GetHashCode()}", Compilation.Javascript.OperatorPrecedence.Max)) ??
+                        this.GetProperty<KnockoutExpressionBindingProperty>()?.Code?.ToString(o => new Compilation.Javascript.CodeParameterAssignment($"${o.GetHashCode()}", Compilation.Javascript.OperatorPrecedence.Max)) ??
                         this.GetProperty<KnockoutJsExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression?.ToString() ??
                         "... unrepresentable binding content ...";
                 }
@@ -220,7 +215,7 @@ namespace DotVVM.Framework.Binding.Expressions
             }
         }
 
-        void StoreProperty(object p)
+        private protected virtual void StoreProperty(object p)
         {
             if (p is DataContextStack dataContextStack)
                 this.dataContextStack.SetValue(new(dataContextStack));
@@ -230,8 +225,6 @@ namespace DotVVM.Framework.Binding.Expressions
                 this.resolverCollection.SetValue(new(resolverCollection));
             else if (p is ResolvedBinding resolvedBinding)
                 this.resolvedBinding.SetValue(new(resolvedBinding));
-            else if (p is KnockoutExpressionBindingProperty knockoutExpressions)
-                this.knockoutExpressions.SetValue(new(knockoutExpressions));
             else if (p is ParsedExpressionBindingProperty parsedExpression)
                 this.parsedExpression.SetValue(new(parsedExpression));
             else if (p is ResultTypeBindingProperty resultType)
@@ -252,9 +245,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 this.originalString.SetValue(new(originalString));
             else if (p is ExpectedTypeBindingProperty expectedType)
                 this.expectedType.SetValue(new(expectedType));
-            else if (p is StaticCommandJavascriptProperty staticCommandJs)
-                this.staticCommandJs.SetValue(new(staticCommandJs));
-            
+
             else
                 StorePropertyInCache(p.GetType(), new(p));
         }
@@ -270,14 +261,13 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public DataContextStack? DataContext => this.dataContextStack.GetValueOrNull(this);
 
-        public object? GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
+        public virtual object? GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
         {
             var propValue =
                 type == typeof(DataContextStack) ? dataContextStack.GetValue(this).AsObject() :
                 type == typeof(BindingErrorReporterProperty) ? errorReporter.GetValue(this).AsObject() :
                 type == typeof(BindingResolverCollection) ? resolverCollection.GetValue(this).AsObject() :
                 type == typeof(ResolvedBinding) ? resolvedBinding.GetValue(this).AsObject() :
-                type == typeof(KnockoutExpressionBindingProperty) ? knockoutExpressions.GetValue(this).AsObject() :
                 type == typeof(ParsedExpressionBindingProperty) ? parsedExpression.GetValue(this).AsObject() :
                 type == typeof(ResultTypeBindingProperty) ? resultType.GetValue(this).AsObject() :
                 type == typeof(BindingParserOptions) ? parserOptions.GetValue(this).AsObject() :
@@ -288,7 +278,6 @@ namespace DotVVM.Framework.Binding.Expressions
                 type == typeof(BindingUpdateDelegate) ? updateDelegate.GetValue(this).AsObject() :
                 type == typeof(OriginalStringBindingProperty) ? originalString.GetValue(this).AsObject() :
                 type == typeof(ExpectedTypeBindingProperty) ? expectedType.GetValue(this).AsObject() :
-                type == typeof(StaticCommandJavascriptProperty) ? staticCommandJs.GetValue(this).AsObject() :
 
                 properties is {} && properties.TryGetValue(type, out var result) ? result : GetPropertyNotInCache(type);
 
@@ -302,24 +291,27 @@ namespace DotVVM.Framework.Binding.Expressions
 
         IEnumerable<object> ICloneableBinding.GetAllComputedProperties()
         {
-            return (properties?.Values.Select(p => p.Value) ?? Enumerable.Empty<object>()).Concat(new object?[] {
-                dataContextStack.GetValueOrNull(this),
-                errorReporter.GetValueOrNull(this),
-                resolverCollection.GetValueOrNull(this),
-                resolvedBinding.GetValueOrNull(this),
-                knockoutExpressions.GetValueOrNull(this),
-                parsedExpression.GetValueOrNull(this),
-                resultType.GetValueOrNull(this),
-                parserOptions.GetValueOrNull(this),
-                bindingDelegate.GetValueOrNull(this),
-                assignedProperty.GetValueOrNull(this),
-                compilationRequirements.GetValueOrNull(this),
-                locationInfo.GetValueOrNull(this),
-                updateDelegate.GetValueOrNull(this),
-                originalString.GetValueOrNull(this),
-                expectedType.GetValueOrNull(this),
-                staticCommandJs.GetValueOrNull(this),
-            }).Where(p => p != null)!;
+            return (properties?.Values.Select(p => p.Value) ?? Enumerable.Empty<object>()).Concat(GetOutOfDictionaryProperties()).Where(p => p != null)!;
+        }
+
+        private protected virtual IEnumerable<object?> GetOutOfDictionaryProperties()
+        {
+            return new object?[] {
+                dataContextStack.Value.Value,
+                errorReporter.Value.Value,
+                resolverCollection.Value.Value,
+                resolvedBinding.Value.Value,
+                parsedExpression.Value.Value,
+                resultType.Value.Value,
+                parserOptions.Value.Value,
+                bindingDelegate.Value.Value,
+                assignedProperty.Value.Value,
+                compilationRequirements.Value.Value,
+                locationInfo.Value.Value,
+                updateDelegate.Value.Value,
+                originalString.Value.Value,
+                expectedType.Value.Value,
+            };
         }
 
         BindingResolverCollection? cachedAdditionalResolvers;
