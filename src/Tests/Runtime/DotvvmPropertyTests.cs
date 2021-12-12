@@ -239,7 +239,7 @@ namespace DotVVM.Framework.Tests.Runtime
             if (typeof(DotvvmBindableObject).IsAssignableFrom(type))
                 return new object?[] { null, Activator.CreateInstance(type) };
             if (typeof(ITemplate).IsAssignableFrom(type))
-                return new object?[] { null, new DelegateTemplate(_ => new HtmlGenericControl()) };
+                return new object?[] { null, new DelegateTemplate(_ => new HtmlGenericControl()), new CloneTemplate(new HtmlGenericControl()) };
             if (type.IsAssignableFrom(typeof(ValueBindingExpression<bool>)))
                 return new object?[] { null, ValueBindingExpression.CreateBinding(bindingService, _ => true, new JsIdentifierExpression("a")) };
             if (type.IsAssignableFrom(typeof(List<int>)))

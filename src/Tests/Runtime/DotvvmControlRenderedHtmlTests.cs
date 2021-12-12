@@ -44,8 +44,8 @@ namespace DotVVM.Framework.Tests.Runtime
             {
                 var repeater = new Repeater() {
                     RenderAsNamedTemplate = false,
-                    ItemTemplate = new DelegateTemplate((f, s, c) => c.Children.Add(new HtmlGenericControl("ITEM_TAG"))),
-                    EmptyDataTemplate = new DelegateTemplate((f, s, c) => c.Children.Add(new HtmlGenericControl("EMPTY_DATA"))),
+                    ItemTemplate = new CloneTemplate(new HtmlGenericControl("ITEM_TAG")),
+                    EmptyDataTemplate = new CloneTemplate(new HtmlGenericControl("EMPTY_DATA")),
                     DataSource = ValueBindingExpression.CreateThisBinding<string[]>(Configuration.ServiceProvider.GetRequiredService<BindingCompilationService>(), null),
                     RenderWrapperTag = false
                 };
