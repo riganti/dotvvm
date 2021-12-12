@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
@@ -200,6 +202,24 @@ namespace DotVVM.Framework.Tests.Runtime
             }, CreateContext(viewModel));
         }
 
+        [TestMethod]
+        public void Literal_DateTimeToBrowserLocalTime_RenderOnServer()
+        {
+            DotvvmTestHelper.RunInCulture(new CultureInfo("en-US"), () =>
+            {
+                var vm = new LiteralDateTimeViewModel();
+                var control = $@"@viewModel {vm.GetType().FullName}
+<dot:Literal Text={{value: DateTime.ToBrowserLocalTime()}} RenderSettings.Mode=Server /><dot:Literal Text={{value: NullableDateTime.ToBrowserLocalTime()}} RenderSettings.Mode=Server />";
+
+                var dotvvmBuilder = CreateDotvvmViewBuilder(control);
+                var context = CreateContext(vm);
+                var html = InvokeLifecycleAndRender(dotvvmBuilder.BuildView(context), context);
+
+                Assert.AreEqual(@"<span>1/2/2021 3:04:05 AM</span><span>1/2/2021 3:04:05 AM</span>", html);
+            });
+        }
+
+
         public class OrderedDataBindTextBox : TextBox
         {
             protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -207,9 +227,15 @@ namespace DotVVM.Framework.Tests.Runtime
                 writer.AddKnockoutDataBind("first", "true");
 
                 base.AddAttributesToRender(writer, context);
-
+                
                 writer.AddKnockoutDataBind("second", "true");
             }
         }
+    }
+
+    public class LiteralDateTimeViewModel
+    {
+        public DateTime DateTime { get; set; } = new DateTime(2021, 1, 2, 3, 4, 5);
+        public DateTime? NullableDateTime { get; set; } = new DateTime(2021, 1, 2, 3, 4, 5);
     }
 }
