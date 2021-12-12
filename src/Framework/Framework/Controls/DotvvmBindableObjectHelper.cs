@@ -23,7 +23,8 @@ namespace DotVVM.Framework.Controls
         public static DotvvmProperty GetDotvvmProperty<TControl>(this TControl control, string propName)
             where TControl : DotvvmBindableObject
         {
-            return DotvvmProperty.ResolveProperty(typeof(TControl), propName) ?? throw new Exception($"Property '{typeof(TControl)}.{propName}' is not a registered DotvvmProperty.");
+            var type = control.GetType();
+            return DotvvmProperty.ResolveProperty(type, propName) ?? throw new Exception($"Property '{type}.{propName}' is not a registered DotvvmProperty.");
         }
 
         /// <summary> Sets binding into the DotvvmProperty referenced in the lambda expression. Returns <paramref name="control"/> for fluent API usage. </summary>
@@ -280,6 +281,28 @@ namespace DotVVM.Framework.Controls
         public static ValueOrBinding<TProperty> GetValueOrBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject
             => control.GetValueOrBinding<TProperty>(control.GetDotvvmProperty(prop));
+
+        /// <summary> Returns the value of dotvvm with the specified name. If the property contains a binding, it is evaluted. </summary>
+        [return: MaybeNull]
+        public static TProperty GetValue<TProperty>(this DotvvmBindableObject control, string propName)
+            => control.GetValue<TProperty>(control.GetDotvvmProperty(propName));
+
+        /// <summary> Returns the value of dotvvm with the specified name. If the property contains a binding, it is evaluted. </summary>
+        [return: MaybeNull]
+        public static ValueOrBinding<TProperty> GetValueOrBinding<TProperty>(this DotvvmBindableObject control, string propName)
+            => control.GetValueOrBinding<TProperty>(control.GetDotvvmProperty(propName));
+            
+        /// <summary>
+        /// Gets the value binding set to dotvvm property of the specified <paramref name="propName" />. Returns null if the property is not a binding, throws if the binding some kind of command.
+        /// </summary>
+        public static IValueBinding<TProperty>? GetValueBinding<TProperty>(this DotvvmBindableObject control, string propName)
+            => (IValueBinding<TProperty>?)control.GetValueBinding(control.GetDotvvmProperty(propName));
+
+        /// <summary>
+        /// Gets the command binding set to the dotvvm property of the specified <paramref name="propName" />. Returns null if the property is not a binding, throws if the binding is not command, controlCommand or staticCommand.
+        /// </summary>
+        public static ICommandBinding<TProperty>? GetCommandBinding<TProperty>(this DotvvmBindableObject control, string propName)
+            => (ICommandBinding<TProperty>?)control.GetCommandBinding(control.GetDotvvmProperty(propName));
 
         /// <summary> Gets the specified control capability - reads all the properties in the capability at once. Throws if this control does not support the capability. </summary>
         public static TCapability GetCapability<TCapability>(this DotvvmBindableObject control)

@@ -82,6 +82,14 @@ namespace DotVVM.Framework.Binding
         [MemberNotNullWhenAttribute(true, "BindingOrDefault", "binding")]
         public bool HasBinding => binding is object;
 
+        /// <summary> Gets a binding or throws an exception if the ValueOrBinding contains a value. </summary>
+        public IBinding GetBinding() =>
+            HasBinding ? binding : throw new DotvvmControlException($"Binding was expected but ValueOrBinding<{typeof(T).Name}> contains a value: {value}.");
+
+        /// <summary> Gets a value from ValueOrBinding or throws an exception if the it contains a binding. To evaluate the binding use the <see cref="Evaluate(DotvvmBindableObject)" /> method. </summary>
+        public T GetValue() =>
+            HasValue ? value : throw new DotvvmControlException($"Value was expected but ValueOrBinding<{typeof(T).Name}> contains a binding: {binding}.") { RelatedBinding = binding };
+
         /// <summary> Returns a ValueOrBinding with new type T which is a base type of the old T2 </summary>
         public static ValueOrBinding<T> DownCast<T2>(ValueOrBinding<T2> createFrom)
             where T2 : T => new ValueOrBinding<T>(createFrom.binding, createFrom.value!);
@@ -147,7 +155,7 @@ namespace DotVVM.Framework.Binding
 
         public static implicit operator ValueOrBinding<T>(T val) => new ValueOrBinding<T>(val);
 
-        public const string EqualsDisabledReason = "Equals is disabled on ValueOrBinding<T> as it may lead to unexpected behavior. Please use object.ReferenceEquals for reference comparison or evalate the ValueOrBinding<T> and compare the value. Or use IsNull/NotNull for nullchecks on bindings.";
+        public const string EqualsDisabledReason = "Equals is disabled on ValueOrBinding<T> as it may lead to unexpected behavior. Please use object.ReferenceEquals for reference comparison or evaluate the ValueOrBinding<T> and compare the value. Or use IsNull/NotNull for nullchecks on bindings.";
         [Obsolete(EqualsDisabledReason, error: true)]
         public static bool operator ==(ValueOrBinding<T> a, ValueOrBinding<T> b) =>
             throw new NotSupportedException(EqualsDisabledReason);

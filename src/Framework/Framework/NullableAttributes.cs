@@ -144,7 +144,8 @@ namespace System.Diagnostics.CodeAnalysis
     }
 
 #endif
- 
+
+#if !NET5_0_OR_GREATER
     /// <summary>Specifies that the method or property will ensure that the listed field and property members have not-null values when returning with the specified return value condition.</summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, Inherited = false, AllowMultiple = true)]
     internal sealed class MemberNotNullWhenAttribute : Attribute
@@ -181,9 +182,12 @@ namespace System.Diagnostics.CodeAnalysis
         /// <summary>Gets field or property member names.</summary>
         public string[] Members { get; }
     }
+#endif
 }
 
+#if !NET5_0_OR_GREATER
 namespace System.Runtime.CompilerServices
 {
     internal class IsExternalInit: Attribute { }
 }
+#endif
