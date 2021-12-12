@@ -43,15 +43,19 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public override void AcceptChildren(IResolvedControlTreeVisitor visitor) { }
 
-        public object ToCapabilityObject(bool throwExceptions = false)
+        public object? ToCapabilityObject(bool throwExceptions = false)
         {
-            var c = this.Property;
-            var obj = Activator.CreateInstance(c.PropertyType);
+            var capability = this.Property;
 
-            if ((this.Mapping ?? c.PropertyMapping) is not {} mapping)
+            if ((this.Mapping ?? capability.PropertyMapping) is not {} mapping)
+            {
                 if (throwExceptions)
-                    throw new NotSupportedException($"Capability {c} does not have property mapping.");
+                    throw new NotSupportedException($"Capability {capability} does not have property mapping.");
+                else
+                    return null;
+            }
 
+            var obj = Activator.CreateInstance(capability.PropertyType);
             object? convertValue(object? value, Type t)
             {
                 t = t.UnwrapNullableType();
@@ -78,7 +82,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                     p.SetValue(obj, convertValue(value.GetValue(), p.PropertyType));
             }
 
-            if (c.PropertyGroupMapping is not { Length: > 0 } groupMappingList)
+            if (capability.PropertyGroupMapping is not { Length: > 0 } groupMappingList)
                 return obj;
 
             var propertyGroupLookup =
