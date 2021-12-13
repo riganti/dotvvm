@@ -28,6 +28,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public IEnumerable<ViewModelPropertyMap> Properties { get; private set; }
 
 
+        /// <summary> Rough structure of Properties when the object was initialized. This is used for hot reload to judge if it can be flushed from the cache. </summary>
+        internal (string name, Type t, Direction direction, ProtectMode protection)[] OriginalProperties { get; private set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewModelSerializationMap"/> class.
         /// </summary>
@@ -36,6 +39,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             this.configuration = configuration;
             Type = type;
             Properties = properties.ToList();
+            OriginalProperties = Properties.Select(p => (p.Name, p.Type, p.BindDirection, p.ViewModelProtection)).ToArray();
         }
 
         public void ResetFunctions()

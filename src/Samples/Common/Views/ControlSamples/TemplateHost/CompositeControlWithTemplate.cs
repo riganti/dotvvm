@@ -15,7 +15,7 @@ namespace DotVVM.Samples.Common.Views.ControlSamples.TemplateHost
         {
             return new HtmlGenericControl("fieldset")
                 .AppendChildren(
-                    new HtmlGenericControl("legend", new TextOrContentCapability() { Text = headerText }),
+                    new HtmlGenericControl("legend", new TextOrContentCapability(headerText)),
                     new Framework.Controls.TemplateHost() { Template = contentTemplate }
                 );
         }

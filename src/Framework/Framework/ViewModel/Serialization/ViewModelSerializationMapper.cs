@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -27,9 +28,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
             this.validationMetadataProvider = validationMetadataProvider;
             this.propertySerialization = propertySerialization;
             this.configuration = configuration;
+
+            HotReloadMetadataUpdateHandler.SerializationMappers.Add(new(this));
         }
 
-        private readonly ConcurrentDictionary<string, ViewModelSerializationMap> serializationMapCache = new ConcurrentDictionary<string, ViewModelSerializationMap>();
+        private readonly ConcurrentDictionary<string, ViewModelSerializationMap> serializationMapCache = new();
         public ViewModelSerializationMap GetMap(Type type) => serializationMapCache.GetOrAdd(type.GetTypeHash(), t => CreateMap(type));
         public ViewModelSerializationMap GetMapByTypeId(string typeId) => serializationMapCache[typeId];
 
@@ -121,6 +124,31 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 throw new JsonException($"Cannot create an instance of {converterType} converter! Please check that this class have a public parameterless constructor.", ex);
             }
+        }
+
+        /// <summary> Remove this type from cache, unless it has been significantly changed. Used only for hot-reload, nothing should rely on this working properly. </summary>
+        /// <returns>true if the cached was cleared successfully, false if the cached could not be cleared for some reason. </returns>
+        internal bool ClearCache(Type t)
+        {
+            var hash = t.GetTypeHash();
+            if (!this.serializationMapCache.TryGetValue(hash, out var cachedItem))
+                return true;
+            
+            // we want to check if the cached metadata was changed manually
+            // it there are changes, we don't clear the cache as that would cause more trouble than leaving outdated metadata there
+            var freshProperties = GetProperties(t).Select(p => (p.Name, p.Type, p.BindDirection, p.ViewModelProtection)).ToHashSet();
+
+            // if freshly mapping the type produces the same result, no need to clear the cache
+            if (freshProperties.SetEquals(cachedItem.OriginalProperties))
+                return true;
+
+            var currentProperties = cachedItem.Properties.Select(p => (p.Name, p.Type, p.BindDirection, p.ViewModelProtection)).ToHashSet();
+            if (currentProperties.SetEquals(cachedItem.OriginalProperties))
+            {
+                this.serializationMapCache.TryRemove(hash, out _);
+                return true;
+            }
+            return false;
         }
     }
 }

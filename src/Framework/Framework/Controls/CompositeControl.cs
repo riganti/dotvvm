@@ -35,6 +35,8 @@ namespace DotVVM.Framework.Controls
                 Properties = properties;
             }
         }
+
+        // TODO: clear on hot reload
         private static ConcurrentDictionary<Type, ControlInfo> controlInfoCache = new ConcurrentDictionary<Type, ControlInfo>();
 
         private static object registrationLock = new object();

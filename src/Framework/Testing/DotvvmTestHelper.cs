@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security;
 using System.Text;
+using System.Threading;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
@@ -178,6 +180,24 @@ namespace DotVVM.Framework.Testing
             if (CompiledAssemblyCache.Instance == null)
             {
                 new CompiledAssemblyCache(DefaultConfig);
+            }
+        }
+
+        public static void RunInCulture(CultureInfo cultureInfo, Action action)
+        {
+            var originalCulture = Thread.CurrentThread.CurrentCulture;
+            var originalUICulture = Thread.CurrentThread.CurrentUICulture;
+
+            Thread.CurrentThread.CurrentCulture = cultureInfo;
+            Thread.CurrentThread.CurrentUICulture = cultureInfo;
+            try
+            {
+                action();
+            }
+            finally
+            {
+                Thread.CurrentThread.CurrentCulture = originalCulture;
+                Thread.CurrentThread.CurrentUICulture = originalUICulture;
             }
         }
     }

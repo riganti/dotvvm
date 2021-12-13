@@ -426,6 +426,7 @@ namespace DotVVM.Framework.Binding
             }
         }
 
+        // TODO: figure out how to refresh on hot reload
         private static readonly ConcurrentDictionary<(Type, string), DotvvmProperty> registeredProperties = new();
         private static readonly ConcurrentDictionary<(Type, string), DotvvmPropertyAlias> registeredAliases = new();
 

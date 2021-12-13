@@ -40,5 +40,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             (instance as IDisposable)?.Dispose();
         }
+
+        /// <summary> Clear cache when hot reload happens </summary>
+        internal static void ClearCaches(Type[] types)
+        {
+            foreach (var t in types)
+                factoryCache.TryRemove(t, out _);
+        }
     }
 }
