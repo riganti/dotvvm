@@ -77,11 +77,11 @@ namespace DotVVM.Framework.Controls
 
         public static string GetSeparatorForAttribute(string attributeName)
         {
-            switch(attributeName)
-            {
-                case "class": return " ";
-                default: return ";";
-            }
+            return attributeName switch {
+                "class" => " ",
+                "data-bind" => ",",
+                _ => ";"
+            };
         }
 
         public static string? JoinAttributeValues(string attributeName, string? valueA, string? valueB, string? separator = null)
