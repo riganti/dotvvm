@@ -296,9 +296,9 @@ namespace DotVVM.Framework.Controls
                 {
                     newDict = this;
                     newDict.valuesAsDictionary = new Dictionary<DotvvmProperty, object?>(dictionary);
-                    foreach (var (key, value) in dictionary)
-                        if (CloneValue(value) is {} newValue)
-                            newDict.valuesAsDictionary[key] = newValue;
+                    foreach (var pair in dictionary)
+                        if (CloneValue(pair.Value) is {} newValue)
+                            newDict.valuesAsDictionary[pair.Key] = newValue;
                     return;
                 }
                 // move to immutable version if it's reasonably small. It will be probably cloned multiple times again
@@ -307,7 +307,8 @@ namespace DotVVM.Framework.Controls
                 int j = 0;
                 foreach (var x in this.valuesAsDictionary)
                 {
-                    (properties[j], values[j]) = x;
+                    properties[j] = x.Key;
+                    values[j] = x.Value;
                     j++;
                 }
                 Array.Sort(properties, values, PropertyImmutableHashtable.DotvvmPropertyComparer.Instance);
