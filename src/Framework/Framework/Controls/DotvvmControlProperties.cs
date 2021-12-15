@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
