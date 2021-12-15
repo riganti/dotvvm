@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Runtime;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 
@@ -18,7 +19,9 @@ namespace DotVVM.Framework.Configuration
         public UserColumnMappingCache(IViewModelSerializationMapper serializationMapper)
         {
             this.serializationMapper = serializationMapper;
-            this.mappingCache = new ConcurrentDictionary<Type, Dictionary<string, string>>();       
+            this.mappingCache = new ConcurrentDictionary<Type, Dictionary<string, string>>();    
+
+            HotReloadMetadataUpdateHandler.UserColumnMappingCaches.Add(new(this));
         }
 
         public IReadOnlyDictionary<string, string> GetMapping(Type type)
@@ -40,6 +43,13 @@ namespace DotVVM.Framework.Configuration
             }
             mappingCache.TryAdd(type, columnsMapping);
             return columnsMapping;
+        }
+
+        /// <summary> Clear cache when hot reload happens </summary>
+        internal void ClearCaches(Type[] types)
+        {
+            foreach (var t in types)
+                mappingCache.TryRemove(t, out _);
         }
     }
 }

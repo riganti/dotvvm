@@ -274,6 +274,15 @@ namespace DotVVM.Framework.ViewModel.Serialization
             public static bool operator ==(ViewModelSerializationMapWithCulture left, ViewModelSerializationMapWithCulture right) => left.Equals(right);
             public static bool operator !=(ViewModelSerializationMapWithCulture left, ViewModelSerializationMapWithCulture right) => !(left == right);
         }
+
+        /// <summary> Clear caches for the specified types </summary>
+        internal static void ClearCaches(Type[] types)
+        {
+            foreach (var t in types)
+                cachedEnumMetadata.TryRemove(t, out _);
+            
+            // metadata does not have to be cleared, since it will get regenerated in the ViewModelSerializationMapper
+        }
     }
 
 }

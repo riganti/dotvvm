@@ -96,6 +96,14 @@ namespace DotVVM.Framework.Compilation.Styles
                     ).ToImmutableArray();
             });
 
+        /// <summary> Clear cache when hot reload happens </summary>
+        internal static void ClearCaches(Type[] types)
+        {
+            foreach (var t in types)
+                implicitStyles.TryRemove(t, out _);
+        }
+
+
         class GenericStyle : IStyle
         {
             public Type ControlType { get; }

@@ -52,5 +52,15 @@ namespace DotVVM.Framework.ViewModel
 
         public static ParametrizedCode GetViewModelClientPath(IDotvvmViewModel viewModel) =>
             viewModelPaths.TryGetValue(viewModel, out var p) ? p : p;
+
+        /// <summary> Clear cache when hot reload happens </summary>
+        internal static void ClearCaches(Type[] types)
+        {
+            foreach (var t in types)
+            {
+                childViewModelsCollectionCache.TryRemove(t, out _);
+                childViewModelsPropertiesCache.TryRemove(t, out _);
+            }
+        }
     }
 }

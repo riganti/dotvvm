@@ -370,7 +370,7 @@ namespace DotVVM.Framework.Utils
                 return type.GetGenericArguments()[0];
             else if (typeof(Task).IsAssignableFrom(type))
                 return typeof(void);
-#if NETSTANDARD2_1
+#if DotNetCore
             else if (type.IsGenericType && typeof(ValueTask<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
                 return type.GetGenericArguments()[0];
 #endif
@@ -378,16 +378,28 @@ namespace DotVVM.Framework.Utils
                 return type;
         }
 
-        public static Type UnwrapValueOrBinding(this Type type)
+        public static bool IsValueOrBinding(this Type type, [NotNullWhen(true)] out Type? elementType)
         {
             type = type.UnwrapNullableType();
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ValueOrBinding<>))
-                return type.GenericTypeArguments.Single();
+            {
+                elementType = type.GenericTypeArguments.Single();
+                return true;
+            }
             else if (typeof(ValueOrBinding).IsAssignableFrom(type))
-                return typeof(object);
+            {
+                elementType = typeof(object);
+                return true;
+            }
             else
-                return type;
+            {
+                elementType = null;
+                return false;
+            }
         }
+
+        public static Type UnwrapValueOrBinding(this Type type) =>
+            type.IsValueOrBinding(out var x) ? x : type;
 
         public static T GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
             (T)attributeProvider.GetCustomAttributes(typeof(T), inherit).FirstOrDefault();
@@ -453,6 +465,16 @@ namespace DotVVM.Framework.Utils
                 }
             }
             return name;
+        }
+
+        /// <summary> Clear cache when hot reload happens </summary>
+        internal static void ClearCaches(Type[] types)
+        {
+            foreach (var t in types)
+            {
+                delegateInvokeCache.TryRemove(t, out _);
+                cache_GetTypeHash.TryRemove(t, out _);
+            }
         }
     }
 }

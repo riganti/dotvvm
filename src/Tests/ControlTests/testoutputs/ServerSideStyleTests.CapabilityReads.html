@@ -1,0 +1,10 @@
+<html>
+	<head></head>
+	<body>
+		<div class="z" data-test1="has-z-class"></div>
+		<div class="z" data-bind="css: { z: int() > 1 }, attr: { &quot;data-test1&quot;: int() > 1 ? &quot;has-z-class&quot; : &quot;no-z-class&quot; }"></div>
+		<div class="z" data-test1="has-z-class"></div>
+		<div data-bind="visible: int() > 1, attr: { &quot;data-visible-copy&quot;: int() > 1 ? &quot;yes&quot; : &quot;no&quot; }"></div>
+		<div data-visible-copy="yes"></div>
+	</body>
+</html>

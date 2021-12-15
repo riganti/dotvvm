@@ -25,5 +25,12 @@ namespace DotVVM.Framework.Runtime.Filters
                 return result.ToArray();
             });
         }
+
+        /// <summary> Clear cache when hot reload happens </summary>
+        internal static void ClearCaches(Type[] types)
+        {
+            // this cache is cheap enough to regenerate, so we won't bother too much
+            cache_GetActionFilters.Clear();
+        }
     }
 }

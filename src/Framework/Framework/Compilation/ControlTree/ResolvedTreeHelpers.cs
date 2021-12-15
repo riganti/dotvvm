@@ -33,6 +33,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 ResolvedPropertyTemplate value => value.Content,
                 ResolvedPropertyControl value => value.Control,
                 ResolvedPropertyControlCollection value => value.Controls,
+                ResolvedPropertyCapability value => value.ToCapabilityObject(throwExceptions: false),
                 _ => throw new NotSupportedException()
             };
 

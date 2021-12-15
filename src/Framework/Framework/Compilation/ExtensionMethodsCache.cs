@@ -22,6 +22,8 @@ namespace DotVVM.Framework.Compilation
         {
             this.assemblyCache = assemblyCache;
             this.methodsCache = new ConcurrentDictionary<string, ImmutableArray<MethodInfo>>();
+
+            HotReloadMetadataUpdateHandler.ExtensionMethodsCaches.Add(new(this));
         }
 
         public IEnumerable<MethodInfo> GetExtensionsForNamespaces(string[] @namespaces)
@@ -81,5 +83,13 @@ namespace DotVVM.Framework.Compilation
 
             return results.Select(x => x.ToImmutableArray()).ToArray();
         }
+
+        /// <summary> Clear cache when hot reload happens </summary>
+        internal void ClearCaches(Type[] types)
+        {
+            foreach (var t in types)
+                methodsCache.TryRemove(t.Namespace, out _);
+        }
+
     }
 }

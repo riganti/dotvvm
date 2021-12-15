@@ -246,8 +246,7 @@ public static class StyleMatchContextExtensionMethods
     [return: MaybeNull]
     public static T PropertyValue<T>(this IStyleMatchContext c, DotvvmProperty property)
     {
-        ResolvedPropertySetter s;
-        if (c.Control.Properties.TryGetValue(property, out s))
+        if (c.Control.GetProperty(property) is {} s)
         {
             var value = s.GetValue();
             if (value is T or null)
@@ -275,7 +274,7 @@ public static class StyleMatchContextExtensionMethods
     /// <summary> Gets the property value or null if it's not defined. </summary>
     public static ValueOrBinding<T> Property<T>(this IStyleMatchContext c, DotvvmProperty property)
     {
-        if (c.Control.Properties.TryGetValue(property, out var s))
+        if (c.Control.GetProperty(property) is {} s)
         {
             var value = s.GetValue();
             if (value is IBinding binding)
@@ -288,9 +287,10 @@ public static class StyleMatchContextExtensionMethods
 
     private static T GetDefault<T>(DotvvmProperty p)
     {
-        if (p.DefaultValue is T d) return d;
-        if (p.DefaultValue is null && !typeof(T).IsValueType) return default!;
-        throw new Exception($"Property {p} is probably not of type {typeof(T).Name}, its default value {p.DefaultValue ?? "null"} is not assignable to the requested type.");
+        var def = p is DotvvmCapabilityProperty ? (T)Activator.CreateInstance(p.PropertyType) : p.DefaultValue;
+        if (def is T d) return d;
+        if (def is null && !typeof(T).IsValueType) return default!;
+        throw new Exception($"Property {p} is probably not of type {typeof(T).Name}, its default value {def ?? "null"} is not assignable to the requested type.");
     }
 
     /// <summary> Gets the property value or null if it's not defined. </summary>
@@ -312,7 +312,7 @@ public static class StyleMatchContextExtensionMethods
 
     public static IStyleMatchContext[] ControlProperty(this IStyleMatchContext c, DotvvmProperty property, bool includeRawLiterals = false)
     {
-        if (!c.Control.Properties.TryGetValue(property, out var setter))
+        if (c.Control.GetProperty(property) is not {} setter)
             return new IStyleMatchContext[0];
 
         var value = setter.GetValue();

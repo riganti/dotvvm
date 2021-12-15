@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Tests.Runtime
             return () => InvokeLifecycleAndRender(builder.BuildView(context), context);
         }
 
-        private DefaultDotvvmViewBuilder CreateDotvvmViewBuilder(string view)
+        protected DefaultDotvvmViewBuilder CreateDotvvmViewBuilder(string view)
         {
             var markupLoader = new StaticContentMarkupLoader(view);
 
@@ -81,14 +81,16 @@ namespace DotVVM.Framework.Tests.Runtime
         public class StaticContentMarkupLoader : IMarkupFileLoader
         {
             private readonly string content;
+            private readonly string uniqueId;
 
             public StaticContentMarkupLoader(string content)
             {
                 this.content = content;
+                this.uniqueId = Guid.NewGuid().ToString().Replace("-", "");
             }
 
             public MarkupFile GetMarkup(DotvvmConfiguration configuration, string virtualPath) =>
-                new MarkupFile("test.dothtml", "test/test.dothtml", content);
+                new MarkupFile($"test{uniqueId}.dothtml", $"test/test{uniqueId}.dothtml", content);
 
             public string GetMarkupFileVirtualPath(IDotvvmRequestContext context) => content;
         }

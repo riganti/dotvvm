@@ -1,6 +1,7 @@
 import { logWarning } from "../utils/logging";
 
-export function parseDate(value: string, convertFromUtc: boolean = false): Date | null {
+export function parseDate(value: string | null, convertFromUtc: boolean = false): Date | null {
+    if (value == null) return null;
     const match = value.match("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]{1,7})$");
     if (match) {
         const date = new Date(parseInt(match[1], 10), parseInt(match[2], 10) - 1, parseInt(match[3], 10),
@@ -13,7 +14,8 @@ export function parseDate(value: string, convertFromUtc: boolean = false): Date 
     return null;
 }
 
-export function parseTimeSpan(value: string): number | null {
+export function parseTimeSpan(value: string | null): number | null {
+    if (value == null) return null;
     const match = value.match("^(-?)([0-9]+\\.)?([0-9]+):([0-9]{2}):([0-9]{2})(\\.[0-9]{3,7})?$");
     if (match) {
         const sign = match[1] ? -1 : 1;
@@ -27,7 +29,8 @@ export function parseTimeSpan(value: string): number | null {
     return null;
 }
 
-export function parseDateTimeOffset(value: string): Date | null {
+export function parseDateTimeOffset(value: string | null): Date | null {
+    if (value == null) return null;
     const match = value.match("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]{1,7})?(Z|[+-]([0-9]{1,2}):([0-9]{2}))$");
     if (match) {
         const offset = match[8] === "Z" ? 0 : ((match[8] === "-" ? -1 : 1) * (parseInt(match[9], 10) * 60 + parseInt(match[10], 10)));
