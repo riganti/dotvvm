@@ -86,9 +86,19 @@ namespace DotVVM.Analyzers.Serializability
                 if (!classInfo.AllInterfaces.Any(symbol => SymbolEqualityComparer.Default.Equals(symbol, viewModelInterface)))
                     continue;
 
+                // TODO: not sure if this is necessary anymore, but keeping it here to not report many false-positives
+                if (!SanityCheck(context.SemanticModel))
+                    return;
+
                 AnalyzeViewModelProperties(classDeclaration, bindAttribute, jsonIgnoreAttribute, context);
                 AnalyzeViewModelFields(classDeclaration, context);
             }
+        }
+
+        private static bool SanityCheck(SemanticModel semanticModel)
+        {
+            var testType = semanticModel.Compilation.GetSpecialType(SpecialType.System_String);
+            return testType.IsSerializationSupported(semanticModel);
         }
 
         /// <summary>
@@ -122,7 +132,7 @@ namespace DotVVM.Analyzers.Serializability
                     if (semanticModel.GetSymbolInfo(nullableTypeSyntax.ElementType).Symbol is not ITypeSymbol elementInfo)
                         continue;
 
-                    else if (!elementInfo.IsReferenceTypeSerializationSupported(semanticModel.Compilation) && !elementInfo.IsValueTypeSerializationSupported(semanticModel.Compilation))
+                    else if (!elementInfo.IsSerializationSupported(semanticModel))
                     {
                         // Serialization of this specific type is not supported by DotVVM
                         var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), propertyTypeSymbol.ToDisplayString());
