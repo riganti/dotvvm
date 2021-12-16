@@ -479,5 +479,34 @@ namespace DotVVM.Analyzers.Tests.Serializability
 
             await VerifyCS.VerifyAnalyzerAsync(text);
         }
+
+        [Fact]
+        public async void Test_GenericReferenceType_Properties_ViewModel()
+        {
+            await VerifyCS.VerifyAnalyzerAsync(@"
+    using DotVVM.Framework.Controls;
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.IO;
+    using System.Collections.Generic;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public WrappedValue<int> Value { get; set; }
+            {|#0:public WrappedValue<Stream> NonSerializable { get; set; }|}
+        }
+
+        public class WrappedValue<T>
+        {
+            public string Name { get; set; }
+            public T Value { get; set; }
+        }
+    }",
+
+            VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule).WithLocation(0)
+                .WithArguments("ConsoleApplication1.WrappedValue<System.IO.Stream>"));
+        }
     }
 }

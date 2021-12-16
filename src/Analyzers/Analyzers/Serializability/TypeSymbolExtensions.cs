@@ -78,9 +78,9 @@ namespace DotVVM.Analyzers.Serializability
                         var namedTypeSymbol = currentSymbol as INamedTypeSymbol;
                         var arity = namedTypeSymbol?.Arity;
                         var args = namedTypeSymbol?.TypeArguments ?? ImmutableArray.Create<ITypeSymbol>();
-                        var symbol = (arity.HasValue && arity.Value > 0) ? currentSymbol.OriginalDefinition : currentSymbol;
+                        var originalDefinitionSymbol = (arity.HasValue && arity.Value > 0) ? currentSymbol.OriginalDefinition : currentSymbol;
 
-                        if (cache.Contains(symbol))
+                        if (cache.Contains(originalDefinitionSymbol))
                         {
                             // Type is either primitive and/or directly supported by DotVVM
                             foreach (var arg in args)
@@ -95,7 +95,7 @@ namespace DotVVM.Analyzers.Serializability
                         else if (!currentSymbol.ContainingNamespace.ToDisplayString().StartsWith("System"))
                         {
                             // User types are supported if all their properties are supported
-                            foreach (var property in symbol.GetMembers().Where(m => m.Kind == SymbolKind.Property).Cast<IPropertySymbol>())
+                            foreach (var property in currentSymbol.GetMembers().Where(m => m.Kind == SymbolKind.Property).Cast<IPropertySymbol>())
                             {
                                 if (!visited.Contains(property.Type))
                                 {
