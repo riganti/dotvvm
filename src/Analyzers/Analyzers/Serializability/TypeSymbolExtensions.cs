@@ -124,6 +124,10 @@ namespace DotVVM.Analyzers.Serializability
             referenceTypeBuilder.Add(compilation.GetTypeByMetadataName("System.Collections.Generic.List`1")!);
             referenceTypeBuilder.Add(compilation.GetTypeByMetadataName("System.Collections.Generic.Dictionary`2")!);
 
+            // Whitelisted DotVVM types commonly found in viewmodels
+            referenceTypeBuilder.Add(compilation.GetTypeByMetadataName("DotVVM.Framework.Controls.GridViewDataSet`1")!);
+            referenceTypeBuilder.Add(compilation.GetTypeByMetadataName("DotVVM.Framework.Controls.UploadedFilesCollection")!);
+
             // Common value types: (primitives)
             valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_Boolean));
             valueTypeBuilder.Add(compilation.GetSpecialType(SpecialType.System_Byte));
