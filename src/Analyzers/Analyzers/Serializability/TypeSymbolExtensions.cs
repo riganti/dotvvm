@@ -131,6 +131,9 @@ namespace DotVVM.Analyzers.Serializability
             // Whitelisted DotVVM types commonly found in viewmodels
             cacheBuilder.Add(compilation.GetTypeByMetadataName("DotVVM.Framework.Controls.GridViewDataSet`1")!);
             cacheBuilder.Add(compilation.GetTypeByMetadataName("DotVVM.Framework.Controls.UploadedFilesCollection")!);
+            var bpGridViewDataSet = compilation.GetTypeByMetadataName("DotVVM.BusinessPack.Controls.BusinessPackDataSet`1");
+            if (bpGridViewDataSet != null)
+                cacheBuilder.Add(bpGridViewDataSet);
 
             // Common value types: (primitives)
             cacheBuilder.Add(compilation.GetSpecialType(SpecialType.System_Boolean));
