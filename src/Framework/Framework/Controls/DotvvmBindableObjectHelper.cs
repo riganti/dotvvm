@@ -348,7 +348,8 @@ namespace DotVVM.Framework.Controls
                               where p.DeclaringType != typeof(Internal)
                               let isAttached = !p.DeclaringType.IsAssignableFrom(type)
                               orderby !isAttached, p.Name
-                              let name = isAttached ? p.DeclaringType.Name + "." + p.Name : p.Name
+                              let coreName = p is GroupedDotvvmProperty gp ? gp.PropertyGroup.Prefixes.First() + gp.GroupMemberName : p.Name
+                              let name = isAttached ? p.DeclaringType.Name + "." + coreName : coreName
                               let value = rawValue == null ? "<null>" :
                                           rawValue is ITemplate ? "<a template>" :
                                           rawValue is DotvvmBindableObject ? $"<control {rawValue.GetType()}>" :
@@ -375,7 +376,7 @@ namespace DotVVM.Framework.Controls
                     dothtmlString += "\n" + new string(' ', prefixLength);
                 dothtmlString += $"{p.name}={p.croppedValue}";
             }
-            dothtmlString += "/>";
+            dothtmlString += " />";
 
             var from = (location.file)
                      + (location.line >= 0 ? ":" + location.line : "");
