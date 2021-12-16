@@ -70,6 +70,10 @@ namespace DotVVM.Analyzers.Serializability
                         continue;
                     case TypeKind.Class:
                     case TypeKind.Struct:
+                        // Unwrap nullables
+                        if (currentSymbol.NullableAnnotation == NullableAnnotation.Annotated)
+                            currentSymbol = (currentSymbol as INamedTypeSymbol)!.TypeArguments.First();
+
                         var namedTypeSymbol = currentSymbol as INamedTypeSymbol;
                         var arity = namedTypeSymbol?.Arity;
                         var args = namedTypeSymbol?.TypeArguments ?? ImmutableArray.Create<ITypeSymbol>();

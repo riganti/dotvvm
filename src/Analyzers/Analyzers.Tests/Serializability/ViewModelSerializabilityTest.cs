@@ -311,6 +311,8 @@ namespace DotVVM.Analyzers.Tests.Serializability
         public class UserType
         {
             public string Property { get; set; }
+            public int? NullableProp { get; set; }
+            public bool FlagProp { get; set; }
         }
     }";
 
@@ -450,6 +452,28 @@ namespace DotVVM.Analyzers.Tests.Serializability
         public class DefaultViewModel : DotvvmViewModelBase
         {
             public DefaultViewModel InnerVM { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(text);
+        }
+
+
+        [Fact]
+        public async void Test_WhiteListedDotvvmTypes_Properties_ViewModel()
+        {
+            var text = @"
+    using DotVVM.Framework.Controls;
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.Collections.Generic;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public GridViewDataSet<int> DataSet { get; set; }
+            public UploadedFilesCollection UploadedFiles { get; set; }
         }
     }";
 
