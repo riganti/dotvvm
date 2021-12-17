@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Controls
     public class FileUpload : HtmlGenericControl
     {
         public FileUpload()
-            : base("div")
+            : base("div", false)
         {
         }
 

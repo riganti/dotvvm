@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Controls
 
         protected override bool RendersHtmlTag => true;
 
-        public Decorator() : base(null)
+        public Decorator() : base(null, false)
         {
         }
 

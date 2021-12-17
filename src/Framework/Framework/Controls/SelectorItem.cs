@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<object?, SelectorItem>(t => t.Value, null);
 
         public SelectorItem()
-            : base("option")
+            : base("option", false)
         {
         }
 

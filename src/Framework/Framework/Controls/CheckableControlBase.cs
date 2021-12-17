@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="CheckableControlBase"/> class.
         /// </summary>
-        public CheckableControlBase() : base("span")
+        public CheckableControlBase() : base("span", false)
         {
 
         }
