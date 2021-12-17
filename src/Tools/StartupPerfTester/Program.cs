@@ -55,6 +55,7 @@ namespace DotVVM.Tools.StartupPerfTester
     public enum TestTarget
     {
         Owin,
-        AspNetCore
+        AspNetCore,
+        RunDotnet
     }
 }

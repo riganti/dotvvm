@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
@@ -55,7 +57,7 @@ namespace DotVVM.Tools.StartupPerfTester
             var tempDir = FileSystemHelper.CreateTempDir();
             TraceOutput($"Temp dir: {tempDir}");
 
-            long measuredTime = 0;
+            var measuredTimes = new List<double>();
             if (type == TestTarget.Owin)
             {
                 // OWIN
@@ -85,8 +87,8 @@ namespace DotVVM.Tools.StartupPerfTester
                 for (var i = 0; i < repeat; i++)
                 {
                     TraceOutput($"Attempt #{i + 1}");
-                    measuredTime += RunProcessAndWaitForHealthCheck(@"C:\Program Files (x86)\IIS Express\iisexpress.exe",
-                        new[] { $"/path:{dir}", $"/port:{port}" }, dir, urlToTest, timeout);
+                    measuredTimes.Add(RunProcessAndWaitForHealthCheck(@"C:\Program Files (x86)\IIS Express\iisexpress.exe",
+                        new[] { $"/path:{dir}", $"/port:{port}" }, dir, urlToTest, timeout));
                 }
             }
             else if (type == TestTarget.AspNetCore)
@@ -101,8 +103,17 @@ namespace DotVVM.Tools.StartupPerfTester
                 for (var i = 0; i < repeat; i++)
                 {
                     TraceOutput($"Attempt #{i + 1}");
-                    measuredTime += RunProcessAndWaitForHealthCheck(@"dotnet",
-                        new[] { $"./{Path.GetFileNameWithoutExtension(projectPath)}.dll", "--urls", urlToTest }, tempDir, urlToTest, timeout);
+                    measuredTimes.Add(RunProcessAndWaitForHealthCheck(@"dotnet",
+                        new[] { $"./{Path.GetFileNameWithoutExtension(projectPath)}.dll", "--urls", urlToTest }, tempDir, urlToTest, timeout));
+                }
+            }
+            else if (type == TestTarget.RunDotnet)
+            {
+                // Just launch a process
+                for (var i = 0; i < repeat; i++)
+                {
+                    TraceOutput($"Attempt #{i + 1}");
+                    measuredTimes.Add(RunProcessAndWaitForHealthCheck(@"dotnet", new[] { projectPath, "--urls", urlToTest }, ".", urlToTest, timeout));
                 }
             }
             else
@@ -110,7 +121,7 @@ namespace DotVVM.Tools.StartupPerfTester
                 throw new NotSupportedException();
             }
 
-            TraceOutput($"Average time: {measuredTime / repeat}");
+            ImportantOutput($"Average time: {measuredTimes.Average()}, Min time: {measuredTimes.Min()}, Max time: {measuredTimes.Max()}");
 
             TraceOutput($"Removing temp dir...");
             FileSystemHelper.RemoveTempDir(tempDir);
@@ -146,7 +157,7 @@ namespace DotVVM.Tools.StartupPerfTester
         }
 
 
-        private long RunProcessAndWaitForHealthCheck(
+        private double RunProcessAndWaitForHealthCheck(
             string path,
             string[] arguments,
             string workingDirectory,
@@ -166,7 +177,7 @@ namespace DotVVM.Tools.StartupPerfTester
             }
             catch (WebException ex) when (ex.InnerException is HttpRequestException hrex && (hrex.InnerException is IOException || hrex.InnerException is SocketException))
             {
-                Thread.Sleep(100);
+                Thread.Sleep(10);
 
                 if (command.Task.IsCompleted)
                 {
@@ -184,7 +195,7 @@ namespace DotVVM.Tools.StartupPerfTester
                 goto retry;
             }
 
-            var time = sw.ElapsedMilliseconds;
+            var time = sw.Elapsed.TotalMilliseconds;
             ImportantOutput(time.ToString());
 
             command.Kill();
