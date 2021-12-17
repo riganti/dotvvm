@@ -33,6 +33,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Compiler", "..\src\T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Owin", "..\src\Samples\Owin\DotVVM.Samples.BasicSamples.Owin.csproj", "{1C7A9914-8CDC-4075-9422-37BD0E51C076}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmbeddedResourceControls", "..\src\Samples\EmbeddedResourceControls\EmbeddedResourceControls.csproj", "{103E6B6D-23AA-4142-A5E6-1365B4652B2B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +101,10 @@ Global
 		{1C7A9914-8CDC-4075-9422-37BD0E51C076}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C7A9914-8CDC-4075-9422-37BD0E51C076}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C7A9914-8CDC-4075-9422-37BD0E51C076}.Release|Any CPU.Build.0 = Release|Any CPU
+		{103E6B6D-23AA-4142-A5E6-1365B4652B2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{103E6B6D-23AA-4142-A5E6-1365B4652B2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{103E6B6D-23AA-4142-A5E6-1365B4652B2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{103E6B6D-23AA-4142-A5E6-1365B4652B2B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
