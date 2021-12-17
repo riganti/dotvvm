@@ -33,7 +33,7 @@
 
   <ItemGroup>
     <None Update="seleniumconfig.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

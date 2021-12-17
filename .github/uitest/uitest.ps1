@@ -80,12 +80,12 @@ if (-Not(Test-Path -PathType Leaf -Path $profilePath)) {
 Copy-Item -Force "$profilePath" "$samplesDir\seleniumconfig.json"
 
 Ensure-Command "Build samples" {
-    msbuild "$Root\Samples\Owin\DotVVM.Samples.BasicSamples.Owin.csproj" -v:m `
+    msbuild "$Root\src\Samples\Owin\DotVVM.Samples.BasicSamples.Owin.csproj" -v:m `
         -p:PublishProfile="$Root\ci\windows\GenericPublish.pubxml" `
         -p:DeployOnBuild=true `
         -p:Configuration="$Config" `
         -p:SourceLinkCreate=true
-    msbuild "$Root\Samples\Api.Owin\DotVVM.Samples.BasicSamples.Api.Owin.csproj" -v:m `
+    msbuild "$Root\src\Samples\Api.Owin\DotVVM.Samples.BasicSamples.Api.Owin.csproj" -v:m `
         -p:PublishProfile="$Root\ci\windows\GenericPublish.pubxml" `
         -p:DeployOnBuild=true `
         -p:Configuration="$Config" `

@@ -86,7 +86,6 @@ SAMPLES_PROFILE="${SAMPLES_PROFILE:-seleniumconfig.aspnetcorelatest.chrome.json}
 SAMPLES_PORT="${SAMPLES_PORT:-16019}"
 SAMPLES_PORT_API="${SAMPLES_PORT_API:-5001}"
 
-tput sgr0
 echo "ROOT=$ROOT"
 echo "SLN=$SLN"
 echo "CONFIGURATION=$CONFIGURATION"
@@ -114,7 +113,7 @@ function run_named_command {
     shift
 
     start_group $NAME
-    tput setaf 4 && echo "running '$@'" && tput sgr0
+    echo "running '$@'"
     eval "$@"
     end_group
 }
