@@ -6,7 +6,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsArrowFunctionExpression: JsBaseFunctionExpression
+    public sealed class JsArrowFunctionExpression: JsBaseFunctionExpression
     {
 
         public JsExpression? ExpressionBody

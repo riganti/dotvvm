@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsLiteral : JsExpression
+    public sealed class JsLiteral : JsExpression
     {
         private object? value;
 

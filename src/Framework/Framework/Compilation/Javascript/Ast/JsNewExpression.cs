@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsNewExpression: JsExpression
+    public sealed class JsNewExpression: JsExpression
     {
 		public JsExpression Target
 		{

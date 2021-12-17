@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsAssignmentExpression: JsExpression
+    public sealed class JsAssignmentExpression: JsExpression
     {
         public readonly static JsTreeRole<JsExpression> LeftRole = JsBinaryExpression.LeftRole;
         public readonly static JsTreeRole<JsExpression> RightRole = JsBinaryExpression.RightRole;
