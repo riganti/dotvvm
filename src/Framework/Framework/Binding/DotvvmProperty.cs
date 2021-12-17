@@ -163,6 +163,16 @@ namespace DotVVM.Framework.Binding
             this == capability ||
             OwningCapability?.IsOwnedByCapability(capability) == true;
 
+        private object? GetInheritedValue(DotvvmBindableObject control)
+        {
+            for (var p = control.Parent; p is not null; p = p.Parent)
+            {
+                if (p.properties.TryGet(this, out var v))
+                    return v;
+            }
+            return DefaultValue;
+        }
+
         /// <summary>
         /// Gets the value of the property.
         /// </summary>
@@ -172,9 +182,9 @@ namespace DotVVM.Framework.Binding
             {
                 return value;
             }
-            if (IsValueInherited && inherit && control.Parent != null)
+            if (IsValueInherited & inherit)
             {
-                return GetValue(control.Parent);
+                return GetInheritedValue(control);
             }
             return DefaultValue;
         }
