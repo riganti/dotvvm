@@ -70,13 +70,8 @@ jobs:
       uses: ./.github/setup
       with:
         sln: ${{ env.ENV }}
-
-    - name: run.sh
-      run: bash ./ci/linux/run.sh --samples-profile seleniumconfig.aspnetcorelatest.${{ matrix.browser }}.json
-
-    - name: Parse Trx files
-      uses: NasAmin/trx-parser@v0.2.0
-      id: trx-parser
+    - name: Run UI tests
+      uses: ./.github/uitest
       with:
-        TRX_PATH: ${{ github.workspace }}/artifacts/test
-        REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        browser: ${{ matrix.browser }}
+        profile: seleniumconfig.aspnetcorelatest
