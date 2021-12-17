@@ -69,7 +69,7 @@ jobs:
     - name: Set up
       uses: ./.github/setup
       with:
-        sln: ${{ env.ENV }}
+        sln: ${{ env.SLN }}
     - name: Run UI tests
       uses: ./.github/uitest
       with:
