@@ -212,26 +212,29 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
         /// <summary>
         /// Emits the code that adds the specified value as a child item in the collection.
         /// </summary>
-        public void EmitAddCollectionItem(string controlName, string variableName, string? collectionPropertyName = "Children")
+        public void EmitAddCollectionItem(string collectionName, string variableName)
+        {
+            var collectionParameter = GetParameterOrVariable(collectionName);
+            var variablePartameter = GetParameterOrVariable(variableName);
+
+            //[collectionParameter].Add([variablePartameter])
+            var collectionAddCall = Expression.Call(collectionParameter, "Add", emptyTypeArguments, variablePartameter);
+
+            blockStack.Peek().Expressions.Add(collectionAddCall);
+        }
+
+        /// <summary>
+        /// Emits the code that adds the specified value as a child of the control
+        /// </summary>
+        public void EmitAddChildControl(string controlName, string variableName)
         {
             var controlParameter = GetParameterOrVariable(controlName);
 
-            //control/control.[collectionPropertyName]
-            Expression collectionExpression;
-            if (string.IsNullOrEmpty(collectionPropertyName))
-            {
-                collectionExpression = controlParameter;
-            }
-            else
-            {
-                collectionExpression = Expression.PropertyOrField(controlParameter, collectionPropertyName);
-            }
-
+            var collectionExpression = Expression.PropertyOrField(controlParameter, "Children");
             var variablePartameter = GetParameterOrVariable(variableName);
 
-            //[collectionExpression].Add([variablePartameter])
-
-            var collectionAddCall = Expression.Call(collectionExpression, "Add", emptyTypeArguments, variablePartameter);
+            //[collectionExpression].Children.AddUnchecked([variablePartameter])
+            var collectionAddCall = Expression.Call(collectionExpression, "AddUnchecked", emptyTypeArguments, variablePartameter);
 
             blockStack.Peek().Expressions.Add(collectionAddCall);
         }
