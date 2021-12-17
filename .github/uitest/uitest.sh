@@ -101,14 +101,22 @@ echo "SAMPLES_PORT_API=$SAMPLES_PORT_API"
 # helper functions
 # ================
 
+function start_group {
+    echo "::group::$1"
+}
+
+function end_group {
+    echo "::endgroup::"
+}
+
 function run_named_command {
     NAME=$1
     shift
 
-    echo "::group::$NAME"
+    start_group $NAME
     tput setaf 4 && echo "running '$@'" && tput sgr0
     eval "$@"
-    echo "::endgroup::"
+    end_group
 }
 
 function ensure_named_command {
@@ -121,8 +129,13 @@ function ensure_named_command {
 }
 
 function clean_uitest {
+    start_group "Kill processes"
+
     killall Xvfb dotnet chromium chromedriver 2>/dev/null
     rm /tmp/.X*-lock 2>/dev/null
+    ps
+
+    end_group
 }
 
 # seleniumconfig.json needs to be copied before the build of the sln
@@ -136,44 +149,55 @@ cp -f "$PROFILE_PATH" "$SAMPLES_DIR/seleniumconfig.json"
 
 clean_uitest
 
+start_group "Start Xvfb"
+{
 
-Xvfb $DISPLAY -screen 0 1920x1080x16 &
-XVFB_PID=$!
-if [ $? -ne 0 ]; then
-    echo >&2 "Xvfb failed to start."
-    exit 1
-fi
+    Xvfb $DISPLAY -screen 0 1920x1080x16 &
+    XVFB_PID=$!
+    if [ $? -ne 0 ]; then
+        echo >&2 "Xvfb failed to start."
+        exit 1
+    fi
+}
+end_group
 
-dotnet run --project "$ROOT/src/Samples/Api.AspNetCoreLatest" \
-    --no-restore \
-    --configuration "$CONFIGURATION" \
-    --urls "http://localhost:${SAMPLES_PORT_API}/" >/dev/null &
+start_group "Start samples"
+{
+    dotnet run --project "$ROOT/src/Samples/Api.AspNetCoreLatest" \
+        --no-restore \
+        --configuration "$CONFIGURATION" \
+        --urls "http://localhost:${SAMPLES_PORT_API}/" >/dev/null &
 
-SAMPLES_API_PID=$!
-ps -p $SAMPLES_API_PID >/dev/null
-if [ $? -ne 0 ]; then
-    echo >&2 "The Samples Api project failed to start."
-    exit 1
-fi
+    SAMPLES_API_PID=$!
+    ps -p $SAMPLES_API_PID >/dev/null
+    if [ $? -ne 0 ]; then
+        echo >&2 "The Samples Api project failed to start."
+        exit 1
+    fi
 
-dotnet run --project "$ROOT/src/Samples/AspNetCoreLatest" \
-    --no-restore \
-    --configuration "$CONFIGURATION" \
-    --urls "http://localhost:${SAMPLES_PORT}/" >/dev/null &
-SAMPLES_PID=$!
-ps -p $SAMPLES_PID >/dev/null
-if [ $? -ne 0 ]; then
-    echo >&2 "The Samples project failed to start."
-    exit 1
-fi
+    dotnet run --project "$ROOT/src/Samples/AspNetCoreLatest" \
+        --no-restore \
+        --configuration "$CONFIGURATION" \
+        --urls "http://localhost:${SAMPLES_PORT}/" >/dev/null &
+    SAMPLES_PID=$!
+    ps -p $SAMPLES_PID >/dev/null
+    if [ $? -ne 0 ]; then
+        echo >&2 "The Samples project failed to start."
+        exit 1
+    fi
+}
+end_group
 
-run_named_command "UI tests" \
-    "dotnet test \"$SAMPLES_DIR\" \
+start_group "Run UI tests"
+{
+    dotnet test "$SAMPLES_DIR" \
         --filter Category!=owin-only \
         --no-restore \
         --configuration $CONFIGURATION \
         --logger 'trx;LogFileName=ui-test-results.trx' \
-        --results-directory \"$TEST_RESULTS_DIR\""
+        --results-directory "$TEST_RESULTS_DIR"
+}
+end_group
 
 kill $XVFB_PID $SAMPLES_PID $SAMPLES_API_PID 2>/dev/null
 clean_uitest
