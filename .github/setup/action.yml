@@ -33,5 +33,9 @@ runs:
   - if: ${{ runner.os == 'Windows' }}
     run: nuget restore ${{ inputs.sln }}
     shell: pwsh
-  - run: dotnet restore ${{ inputs.sln }}
+  - if: ${{ runner.os == 'Windows' }}
+    run: msbuild ${{ inputs.sln }} -t:Restore
+    shell: pwsh
+  - if: ${{ runner.os != 'Windows' }}
+    run: dotnet restore ${{ inputs.sln }}
     shell: bash
