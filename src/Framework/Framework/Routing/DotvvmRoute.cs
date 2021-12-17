@@ -134,7 +134,12 @@ namespace DotVVM.Framework.Routing
                 );
             try
             {
-                var url = string.Concat(urlBuilders.Select(b => b(convertedValues)));
+                var parts = new string[urlBuilders.Count];
+                for (int i = 0; i < urlBuilders.Count; i++)
+                {
+                    parts[i] = urlBuilders[i](convertedValues);
+                }
+                var url = string.Concat(parts);
 
                 if (url == "~")
                     return "~/";
