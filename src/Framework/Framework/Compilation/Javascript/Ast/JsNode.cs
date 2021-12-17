@@ -46,18 +46,58 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public JsNode? LastChild => lastChild;
         public bool HasChildren => firstChild != null;
 
-        public IEnumerable<JsNode> Children
+        public ChildrenCollection Children => new ChildrenCollection(this);
+        // {
+        //     get {
+        //         JsNode? next;
+        //         for (var cur = firstChild; cur != null; cur = next) {
+        //             Debug.Assert(cur.parent == this);
+        //             // Remember next before yielding cur.
+        //             // This allows removing/replacing nodes while iterating through the list.
+        //             next = cur.nextSibling;
+        //             yield return cur;
+        //         }
+        //     }
+        // }
+
+        public struct ChildrenCollection : IEnumerable<JsNode>
         {
-            get {
-                JsNode? next;
-                for (var cur = firstChild; cur != null; cur = next) {
-                    Debug.Assert(cur.parent == this);
-                    // Remember next before yielding cur.
-                    // This allows removing/replacing nodes while iterating through the list.
-                    next = cur.nextSibling;
-                    yield return cur;
-                }
+            JsNode node;
+            public ChildrenCollection(JsNode node)
+            {
+                this.node = node;
             }
+
+            public bool Any() => node.firstChild is not null;
+
+            public ChildrenEnumerator GetEnumerator() => new ChildrenEnumerator(node.firstChild);
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+            IEnumerator<JsNode> IEnumerable<JsNode>.GetEnumerator() => throw new NotImplementedException();
+        }
+
+        public struct ChildrenEnumerator : IEnumerator<JsNode>
+        {
+            private JsNode? next;
+            private JsNode? cur;
+
+            public ChildrenEnumerator(JsNode? firstChild)
+            {
+                this.next = firstChild;
+                this.cur = null;
+            }
+
+            public JsNode Current => cur!;
+            public bool MoveNext()
+            {
+                if (next is null)
+                    return false;
+                cur = next;
+                next = next.nextSibling;
+                return true;
+            }
+            object System.Collections.IEnumerator.Current => cur!;
+            public void Dispose() { }
+            void System.Collections.IEnumerator.Reset() { throw new NotImplementedException(); }
         }
 
         /// <summary>
@@ -114,18 +154,22 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             }
 
             var nextStack = new Stack<JsNode?>();
-            nextStack.Push(null);
             var pos = firstChild;
             while (pos != null) {
                 // Remember next before yielding pos.
                 // This allows removing/replacing nodes while iterating through the list.
-                if (pos.nextSibling != null)
-                    nextStack.Push(pos.nextSibling);
+                var sibling = pos.nextSibling;
                 yield return pos;
                 if (pos.firstChild != null && (descendIntoChildren == null || descendIntoChildren(pos)))
+                {
+                    if (sibling != null)
+                        nextStack.Push(sibling);
                     pos = pos.firstChild;
+                }
+                else if (sibling != null)
+                    pos = sibling;
                 else
-                    pos = nextStack.Pop();
+                    nextStack.TryPop(out pos);
             }
         }
 

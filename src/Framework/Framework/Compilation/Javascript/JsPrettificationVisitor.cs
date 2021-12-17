@@ -12,7 +12,8 @@ namespace DotVVM.Framework.Compilation.Javascript
         public override void VisitBlockStatement(JsBlockStatement block)
         {
             base.VisitBlockStatement(block);
-            foreach (var c in block.Body.ToArray())
+            var bodyArray = block.Body.ToArray();
+            foreach (var c in bodyArray)
             {
                 // break down top-level sequence operators
                 if (c is JsExpressionStatement { Expression: JsBinaryExpression { Operator: BinaryOperatorType.Sequence }  sequence })
@@ -43,7 +44,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     // we found expression variable = X
                     // if there is variable def next to it, we can join these
 
-                    var varDef = block.Body
+                    var varDef = bodyArray
                         .TakeWhile(v => v != c)
                         .OfType<JsVariableDefStatement>()
                         .FirstOrDefault(v => v.Name == variable.Identifier);
@@ -52,7 +53,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     {
                         // there must also be no reference to variable before this expression
                         var expressionsInBetween =
-                            block.Body.SkipWhile(v => v != varDef).Skip(1)
+                            bodyArray.SkipWhile(v => v != varDef).Skip(1)
                                                  .TakeWhile(v => v != c)
                                                  .Concat<JsNode>(new [] { assignment.Right });
                         if (!expressionsInBetween
