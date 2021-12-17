@@ -96,10 +96,6 @@ echo "SAMPLES_PROFILE=$SAMPLES_PROFILE"
 echo "SAMPLES_PORT=$SAMPLES_PORT"
 echo "SAMPLES_PORT_API=$SAMPLES_PORT_API"
 
-# ================
-# helper functions
-# ================
-
 function start_group {
     echo "::group::$1"
 }
@@ -136,6 +132,9 @@ function clean_uitest {
 
     end_group
 }
+
+# print each command before execution
+set -o verbose
 
 # seleniumconfig.json needs to be copied before the build of the sln
 PROFILE_PATH="$SAMPLES_DIR/Profiles/$SAMPLES_PROFILE"
