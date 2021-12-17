@@ -74,8 +74,25 @@ namespace DotVVM.Framework.Controls
     public static class InternalPropertyExtensions
     {
         /// Gets an expected data context type (usually determined by the compiler)
-        public static DataContextStack? GetDataContextType(this DotvvmBindableObject obj) => (DataContextStack?)obj.GetValue(Internal.DataContextTypeProperty);
+        public static DataContextStack? GetDataContextType(this DotvvmBindableObject? obj)
+        {
+            for (; obj != null; obj = obj.Parent)
+            {
+                if (obj.properties.TryGet(Internal.DataContextTypeProperty, out var v))
+                    return (DataContextStack?)v;
+            }
+            return null;
+        }
+        public static DataContextStack? GetDataContextType(this DotvvmBindableObject obj, bool inherit)
+        {
+            if (inherit)
+                return obj.GetDataContextType();
+            else if (obj.properties.TryGet(Internal.DataContextTypeProperty, out var v))
+                return (DataContextStack?)v;
+            else
+                return null;
+        }
         /// Sets an expected data context type
-        public static void SetDataContextType(this DotvvmBindableObject obj, DataContextStack? stack) => obj.SetValue(Internal.DataContextTypeProperty, stack);
+        public static void SetDataContextType(this DotvvmBindableObject obj, DataContextStack? stack) => obj.properties.Set(Internal.DataContextTypeProperty, stack);
     }
 }
