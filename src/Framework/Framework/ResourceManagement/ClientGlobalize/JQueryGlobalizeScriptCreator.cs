@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Compilation.Javascript;
 
 namespace DotVVM.Framework.ResourceManagement.ClientGlobalize
 {
@@ -205,11 +206,25 @@ namespace DotVVM.Framework.ResourceManagement.ClientGlobalize
 
         public static string BuildCultureInfoScript(CultureInfo ci)
         {
-            var template = new JQueryGlobalizeRegisterTemplate();
-            template.Name = ci.Name;
-            template.CultureInfoJson = BuildCultureInfoJson(ci);
+            var cultureJson = BuildCultureInfoJson(ci).ToString();
 
-            return template.TransformText();
+            return $@"
+(function(window, undefined) {{
+
+var Globalize;
+
+if ( typeof require !== 'undefined'
+	&& typeof exports !== 'undefined'
+	&& typeof module !== 'undefined' ) {{
+	// Assume CommonJS
+	Globalize = require('globalize');
+}} else {{
+	// Global variable
+	Globalize = window.dotvvm_Globalize;
+}}
+Globalize.addCultureInfo({JavascriptCompilationHelper.CompileConstant(ci.Name)}, 'default', {cultureJson});
+}}(this));
+";
         }
     }
 }
