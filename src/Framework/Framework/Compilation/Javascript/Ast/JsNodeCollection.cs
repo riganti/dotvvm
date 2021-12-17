@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 	/// <summary>
 	/// Represents the children of an JsNode that have a specific role.
 	/// </summary>
-	public class JsNodeCollection<T> : ICollection<T>
+	public sealed class JsNodeCollection<T> : ICollection<T>
 		#if NET_4_5
 		, IReadOnlyCollection<T>
 		#endif

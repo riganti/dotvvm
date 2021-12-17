@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsFunctionExpression: JsBaseFunctionExpression
+    public sealed class JsFunctionExpression: JsBaseFunctionExpression
     {
         public JsIdentifier? Identifier
         {

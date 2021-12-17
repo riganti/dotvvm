@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             foreach (var c in node.Children)
             {
-                if (c.HasAnnotation<ShouldBeObservableAnnotation>() ||
+                if (c.HasAnnotation(ShouldBeObservableAnnotation.Instance) ||
                     c.Parent is JsAssignmentExpression && c.Role == JsAssignmentExpression.LeftRole)
                 {
                     // This method or assignment expects observable, so we stop prefering state for the subtree
@@ -52,9 +52,9 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (node.Annotation<VMPropertyInfoAnnotation>() is { MemberInfo: var member } propAnnotation)
             {
                 var target = node.GetChildByRole(JsTreeRoles.TargetExpression)!;
-                if (target.HasAnnotation<ObservableUnwrapInvocationAnnotation>())
+                if (target.HasAnnotation(ObservableUnwrapInvocationAnnotation.Instance))
                     target = target.GetChildByRole(JsTreeRoles.TargetExpression);
-                else if (target.HasAnnotation<ObservableSetterInvocationAnnotation>())
+                else if (target.HasAnnotation(ObservableSetterInvocationAnnotation.Instance))
                     throw new NotImplementedException();
 
                 var propertyType = propAnnotation.ResultType;
@@ -111,20 +111,20 @@ namespace DotVVM.Framework.Compilation.Javascript
                     expr.WithAnnotation(ShouldBeObservableAnnotation.Instance)
                         .Member("state")
                         .WithAnnotation(new ViewModelInfoAnnotation(typeAnnotation.Type, typeAnnotation.IsControl, typeAnnotation.ExtensionParameter, containsObservables: false))
-                        .WithAnnotation(expr.Annotation<MayBeNullAnnotation>())
+                        .WithConditionalAnnotation(expr.HasAnnotation(MayBeNullAnnotation.Instance), MayBeNullAnnotation.Instance)
                 );
             }
             DefaultVisit(expr);
 
             // by some luck, we got an observable into the tree -> replace the property with Prop.state to get rid of it
-            if (preferUsingState && expr.HasAnnotation<ResultIsObservableAnnotation>())
+            if (preferUsingState && expr.HasAnnotation(ResultIsObservableAnnotation.Instance))
             {
                 var typeAnnotation = expr.Annotation<ViewModelInfoAnnotation>().NotNull();
                 expr.ReplaceWith(_ =>
                     expr.WithAnnotation(ShouldBeObservableAnnotation.Instance)
                         .Member("state")
                         .WithAnnotation(new ViewModelInfoAnnotation(typeAnnotation.Type, typeAnnotation.IsControl, typeAnnotation.ExtensionParameter, containsObservables: false))
-                        .WithAnnotation(expr.Annotation<MayBeNullAnnotation>())
+                        .WithConditionalAnnotation(expr.HasAnnotation(MayBeNullAnnotation.Instance), MayBeNullAnnotation.Instance)
                 );
             }
         }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsSymbolicParameter : JsExpression
+    public sealed class JsSymbolicParameter : JsExpression
     {
         private CodeParameterAssignment? defaultAssignment;
         public CodeParameterAssignment? DefaultAssignment
