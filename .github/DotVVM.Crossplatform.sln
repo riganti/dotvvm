@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.6.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.CommandLine", "..\src\Tools\CommandLine\DotVVM.CommandLine.csproj", "{F21F41FA-071E-448A-B57F-0A75B8CE1846}"
 EndProject
@@ -32,6 +32,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Analyzers.CodeFixes", "..\src\Analyzers\Analyzers.CodeFixes\DotVVM.Analyzers.CodeFixes.csproj", "{6DE0D170-41EF-45B5-A3C8-EE709A0B1AB6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Analyzers.Tests", "..\src\Analyzers\Analyzers.Tests\DotVVM.Analyzers.Tests.csproj", "{1C170A2D-A2E9-45A7-9317-2D3AD258ABD6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmbeddedResourceControls", "..\src\Samples\EmbeddedResourceControls\EmbeddedResourceControls.csproj", "{1F4275E0-0E20-44F4-A6E6-3AB08547F86C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -223,6 +225,18 @@ Global
 		{1C170A2D-A2E9-45A7-9317-2D3AD258ABD6}.Release|x64.Build.0 = Release|Any CPU
 		{1C170A2D-A2E9-45A7-9317-2D3AD258ABD6}.Release|x86.ActiveCfg = Release|Any CPU
 		{1C170A2D-A2E9-45A7-9317-2D3AD258ABD6}.Release|x86.Build.0 = Release|Any CPU
+		{1F4275E0-0E20-44F4-A6E6-3AB08547F86C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F4275E0-0E20-44F4-A6E6-3AB08547F86C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F4275E0-0E20-44F4-A6E6-3AB08547F86C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1F4275E0-0E20-44F4-A6E6-3AB08547F86C}.Debug|x64.Build.0 = Debug|Any CPU
+		{1F4275E0-0E20-44F4-A6E6-3AB08547F86C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1F4275E0-0E20-44F4-A6E6-3AB08547F86C}.Debug|x86.Build.0 = Debug|Any CPU
+		{1F4275E0-0E20-44F4-A6E6-3AB08547F86C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F4275E0-0E20-44F4-A6E6-3AB08547F86C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F4275E0-0E20-44F4-A6E6-3AB08547F86C}.Release|x64.ActiveCfg = Release|Any CPU
+		{1F4275E0-0E20-44F4-A6E6-3AB08547F86C}.Release|x64.Build.0 = Release|Any CPU
+		{1F4275E0-0E20-44F4-A6E6-3AB08547F86C}.Release|x86.ActiveCfg = Release|Any CPU
+		{1F4275E0-0E20-44F4-A6E6-3AB08547F86C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -34,7 +34,7 @@ jobs:
     - name: Set up
       uses: ./.github/setup
       with:
-        sln: .github/DotVVM.Crossplatform.sln
+        sln: ${{ .github/DotVVM.Crossplatform.sln }}
     - name: Build tests
       run: dotnet msbuild src/Tests -t:Rebuild -p:WarningLevel=0 -p:Configuration=${{ matrix.configuration }}
     - name: Run tests
@@ -63,7 +63,7 @@ jobs:
         browser: [firefox, chrome]
         os: [windows-latest, ubuntu-latest]
     env:
-      SLN: "${{ matrix.os == 'windows-latest' && 'src/DotVVM.sln' || '.github/DotVVM.Crossplatform.sln' }}"
+      SLN: "${{ matrix.os == 'windows-latest' && '.github/DotVVM.Windows.sln' || '.github/DotVVM.Crossplatform.sln' }}"
     steps:
     - uses: actions/checkout@v2
     - name: Set up
