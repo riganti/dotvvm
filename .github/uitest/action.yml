@@ -17,9 +17,9 @@ runs:
     name: uitest.ps1
     run: bash ./.github/uitest/uitest.ps1 --samples-profile ${{ inputs.profile }}.${{ inputs.browser }}.json
     shell: pwsh
-  - name: Parse test results
-    uses: NasAmin/trx-parser@v0.2.0
-    id: trx-parser
-    with:
-      TRX_PATH: ${{ github.workspace }}/artifacts/test
-      REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  # - name: Parse test results
+  #   uses: NasAmin/trx-parser@v0.2.0
+  #   id: trx-parser
+  #   with:
+  #     TRX_PATH: ${{ github.workspace }}/artifacts/test
+  #     REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}

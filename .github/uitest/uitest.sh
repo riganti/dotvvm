@@ -105,14 +105,10 @@ function run_named_command {
     NAME=$1
     shift
 
-    tput sgr0
-    echo "$(tput setaf 3)--------------------------------"
-    echo "$(tput setaf 3 && tput smso)$NAME$(tput rmso)"
-    echo "$(tput setaf 3)--------------------------------"
-    tput sgr0
-
+    echo "::group::$NAME"
     tput setaf 4 && echo "running '$@'" && tput sgr0
     eval "$@"
+    echo "::endgroup::"
 }
 
 function ensure_named_command {
@@ -138,14 +134,6 @@ if [ ! -f "$PROFILE_PATH" ]; then
 fi
 cp -f "$PROFILE_PATH" "$SAMPLES_DIR/seleniumconfig.json"
 
-ensure_named_command "sln build" \
-    "cd \"$ROOT\" \
-        && dotnet build \"$SLN\" \
-            --no-restore \
-            --configuration $CONFIGURATION \
-            -v:m \
-            -p:SourceLinkCreate=true"
-
 clean_uitest
 
 
@@ -157,7 +145,7 @@ if [ $? -ne 0 ]; then
 fi
 
 dotnet run --project "$ROOT/src/Samples/Api.AspNetCoreLatest" \
-    --no-build \
+    --no-restore \
     --configuration "$CONFIGURATION" \
     --urls "http://localhost:${SAMPLES_PORT_API}/" >/dev/null &
 
@@ -169,7 +157,7 @@ if [ $? -ne 0 ]; then
 fi
 
 dotnet run --project "$ROOT/src/Samples/AspNetCoreLatest" \
-    --no-build \
+    --no-restore \
     --configuration "$CONFIGURATION" \
     --urls "http://localhost:${SAMPLES_PORT}/" >/dev/null &
 SAMPLES_PID=$!
@@ -181,8 +169,8 @@ fi
 
 run_named_command "UI tests" \
     "dotnet test \"$SAMPLES_DIR\" \
-        --no-build \
         --filter Category!=owin-only \
+        --no-restore \
         --configuration $CONFIGURATION \
         --logger 'trx;LogFileName=ui-test-results.trx' \
         --results-directory \"$TEST_RESULTS_DIR\""
