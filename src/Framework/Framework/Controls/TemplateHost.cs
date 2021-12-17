@@ -30,6 +30,10 @@ namespace DotVVM.Framework.Controls
             = DotvvmProperty.Register<ITemplate, TemplateHost>(c => c.Template, null);
 
 
+        public TemplateHost(ITemplate template)
+        {
+            Template = template;
+        }
 
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {

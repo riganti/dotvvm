@@ -58,7 +58,7 @@ namespace DotVVM.Framework.Controls
             = DotvvmProperty.Register<string[]?, UpdateProgress>(c => c.ExcludedQueues, null);
 
 
-        public UpdateProgress() : base("div")
+        public UpdateProgress() : base("div", false)
         {
         }
 
