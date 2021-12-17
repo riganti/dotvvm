@@ -21,6 +21,10 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         StringBuilder result = new StringBuilder();
         List<(int index, CodeParameterInfo parameter)>? parameters;
+
+
+        protected int? lastParameterIndex => parameters is null or { Count: 0 } ? null : parameters[parameters.Count - 1].index;
+
         protected void Emit(string str)
         {
             Debug.Assert(!str.Contains("\n"));
@@ -31,7 +35,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             if (NiceMode)
             {
-                while (result.Length > 0 && result[result.Length - 1] == ' ' && parameters?.LastOrDefault().index != result.Length) result.Remove(result.Length - 1, 1);
+                while (result.Length > 0 && result[result.Length - 1] == ' ' && lastParameterIndex != result.Length) result.Remove(result.Length - 1, 1);
 
                 result.Append("\n");
                 for (int i = 0; i < indentLevel; i++)
@@ -46,7 +50,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             var endsWithCharacter =
                 result.Length > 0 && !char.IsWhiteSpace(result[result.Length - 1]);
             var endsWithParameter =
-                parameters != null && parameters.Count > 0 && parameters[parameters.Count - 1].index == result.Length;
+                lastParameterIndex == result.Length;
             if (NiceMode && (endsWithCharacter || endsWithParameter)) Emit(" ");
         }
 
@@ -66,7 +70,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             var needsSpace =
                 NeedSpaceBetween(result, op) &&
-                parameters?.LastOrDefault().index != result.Length;
+                lastParameterIndex != result.Length;
 
             if (needsSpace)
                 Emit(" ");
@@ -252,7 +256,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         public void VisitLiteral(JsLiteral jsLiteral)
         {
             var literalValue = jsLiteral.LiteralValue;
-            if (char.IsLetterOrDigit(literalValue.FirstOrDefault())) SpaceBeforeOp(literalValue, allowCosmeticSpace: false);
+            if (char.IsLetterOrDigit(literalValue[0])) SpaceBeforeOp(literalValue, allowCosmeticSpace: false);
             Emit(literalValue);
         }
 
@@ -265,8 +269,8 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public void VisitSymbolicParameter(JsSymbolicParameter symbolicParameter)
         {
-            if (parameters == null) parameters = new List<(int, CodeParameterInfo)>();
             SpaceBeforeOp("X", allowCosmeticSpace: false);
+            if (parameters == null) parameters = new List<(int, CodeParameterInfo)>();
             parameters.Add((result.Length, CodeParameterInfo.FromExpression(symbolicParameter)));
         }
 

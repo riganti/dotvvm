@@ -18,24 +18,40 @@ namespace DotVVM.Framework.Compilation.Javascript
                     walkNode(path, c);
                 path.Add((n, false));
             }
-            var eulerPath = new List<(JsNode node, bool isFirst)>();
-            walkNode(eulerPath, node);
+            List<(JsNode node, bool isFirst)>? eulerPath = null;
 
             var allVariables = new Dictionary<JsTemporaryVariableParameter, (int from, int to)>();
             var usedNames = new HashSet<string>();
+
+            void visitParameter(JsTemporaryVariableParameter? parameter, JsSymbolicParameter symExpr)
+            {
+                if (parameter is null)
+                    return;
+                if (eulerPath is null)
+                {
+                    eulerPath = new();
+                    walkNode(eulerPath, node);
+                }
+                if (allVariables.TryGetValue(parameter, out var currentInterval))
+                {
+                    allVariables[parameter] = (Math.Min(currentInterval.from, eulerPath.IndexOf((symExpr, true))), Math.Max(currentInterval.to, eulerPath.IndexOf((symExpr, false))));
+                }
+                else
+                {
+                    allVariables.Add(parameter, (parameter.Initializer == null ? eulerPath.IndexOf((symExpr, true)) : 0, eulerPath.IndexOf((symExpr, false))));
+                }
+            }
             foreach (var n in node.DescendantNodesAndSelf())
             {
                 if (n is JsSymbolicParameter symExpr)
                 {
-                    foreach (var parameter in symExpr.EnumerateAllSymbols().OfType<JsTemporaryVariableParameter>())
+                    visitParameter(symExpr.Symbol as JsTemporaryVariableParameter, symExpr);
+
+                    if (symExpr.GetDefaultAssignment() is { Code: { HasParameters: true } innerCode })
                     {
-                        if (allVariables.TryGetValue(parameter, out var currentInterval))
+                        foreach (var parameter in innerCode.EnumerateAllParameters())
                         {
-                            allVariables[parameter] = (Math.Min(currentInterval.from, eulerPath.IndexOf((symExpr, true))), Math.Max(currentInterval.to, eulerPath.IndexOf((symExpr, false))));
-                        }
-                        else
-                        {
-                            allVariables.Add(parameter, (parameter.Initializer == null ? eulerPath.IndexOf((symExpr, true)) : 0, eulerPath.IndexOf((symExpr, false))));
+                            visitParameter(parameter as JsTemporaryVariableParameter, symExpr);
                         }
                     }
                 }
@@ -44,6 +60,8 @@ namespace DotVVM.Framework.Compilation.Javascript
                     usedNames.Add(identifierExpression.Identifier);
                 }
             }
+
+            if (eulerPath is null) return node;
 
             // inline variables which occur just once
             foreach (var v in allVariables.Keys.ToArray())
@@ -103,7 +121,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 throw new Exception();
 
 
-            var firstNode = wrapperBlock.Body.FirstOrNullObject();
+            var firstNode = wrapperBlock.Body.FirstOrDefault();
             foreach (var g in namedGroups)
             {
                 var variableDef = new JsVariableDefStatement(g.name, g.vars.SingleOrDefault(v => v.Initializer != null)?.Initializer?.Clone());

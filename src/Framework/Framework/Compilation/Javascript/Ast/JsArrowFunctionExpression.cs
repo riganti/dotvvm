@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         {
             get {
                 if (Block.Body.Count == 1 &&
-                    Block.Body.Single() is JsReturnStatement { Expression: var exprBody })
+                    Block.Body.FirstOrDefault() is JsReturnStatement { Expression: var exprBody })
                     return exprBody;
                 else
                     return null;
