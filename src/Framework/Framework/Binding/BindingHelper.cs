@@ -79,13 +79,13 @@ namespace DotVVM.Framework.Binding
 
         internal static (int stepsUp, DotvvmBindableObject target) FindDataContextTarget(DotvvmBindableObject control, DataContextStack? bindingContext, object? contextObject)
         {
-            var controlContext = (DataContextStack?)control.GetValue(Internal.DataContextTypeProperty);
+            var controlContext = control.GetDataContextType();
             if (bindingContext == null || controlContext == null || controlContext.Equals(bindingContext)) return (0, control);
 
             var changes = 0;
             foreach (var a in control.GetAllAncestors(includingThis: true))
             {
-                if (bindingContext.Equals(a.GetValue(Internal.DataContextTypeProperty, inherit: false)))
+                if (bindingContext.Equals(a.GetDataContextType(inherit: false)))
                     return (changes, a);
 
                 if (a.properties.Contains(DotvvmBindableObject.DataContextProperty)) changes++;

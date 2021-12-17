@@ -336,7 +336,7 @@ namespace DotVVM.Framework.Controls
                 var editMode = isInEditMode && column.IsEditable;
 
                 var cell = new HtmlGenericControl("td");
-                cell.SetValue(Internal.DataContextTypeProperty, column.GetValueRaw(Internal.DataContextTypeProperty));
+                cell.SetDataContextType(column.GetDataContextType());
                 SetCellAttributes(column, cell, false);
                 var decoratedCell = Decorator.ApplyDecorators(cell, editMode ? column.EditCellDecorators : column.CellDecorators);
                 row.Children.Add(decoratedCell);
@@ -409,7 +409,7 @@ namespace DotVVM.Framework.Controls
                 var editMode = isInEditMode && column.IsEditable;
 
                 var cell = new HtmlGenericControl("td");
-                cell.SetValue(Internal.DataContextTypeProperty, column.GetValueRaw(Internal.DataContextTypeProperty));
+                cell.SetDataContextType(column.GetDataContextType());
                 SetCellAttributes(column, cell, false);
                 var decoratedCell = Decorator.ApplyDecorators(cell, editMode ? column.EditCellDecorators : column.CellDecorators);
                 row.Children.Add(decoratedCell);
