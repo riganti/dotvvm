@@ -55,18 +55,21 @@ jobs:
 
   ui-tests:
     name: UI tests
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 50
     strategy:
       fail-fast: false # don't kill tests when one environment fails
       matrix:
         browser: [firefox, chrome]
+        os: [windows-latest, ubuntu-latest]
+    env:
+      SLN: "${{ matrix.os == 'windows-latest' && 'src/DotVVM.sln' || 'ci/linux/Linux.sln' }}"
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+    - name: Set up
+      uses: ./.github/setup
       with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+        sln: ${{ env.ENV }}
 
     - name: run.sh
       run: bash ./ci/linux/run.sh --samples-profile seleniumconfig.aspnetcorelatest.${{ matrix.browser }}.json

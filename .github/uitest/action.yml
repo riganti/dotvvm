@@ -1,0 +1,39 @@
+name: Run UI tests
+
+inputs:
+  profile:
+    default: seleniumconfig.aspnetcorelatest
+  browser:
+    default: chrome
+
+runs:
+  using: composite
+  steps:
+  # nuget-related
+  - uses: actions/cache@v2
+    with:
+      path: ~/.nuget/packages
+      key: ${{ runner.os }}-nuget
+  - if: ${{ runner.os == 'Windows' }}
+    uses: actions/cache@v2
+    with:
+      path: src/packages
+      key: nuget-old-style-packages
+
+  # .NET-related
+  - uses: actions/setup-dotnet@v1
+    with:
+      dotnet-version: |
+        5.0.403
+        6.0.100
+  - if: ${{ runner.os == 'Windows' }}
+    uses: microsoft/setup-msbuild@v1.1
+
+  # restore packages
+  - if: ${{ runner.os == 'Windows' }}
+    uses: nuget/setup-nuget@v1
+  - if: ${{ runner.os == 'Windows' }}
+    run: nuget restore ${{ inputs.sln }}
+    shell: pwsh
+  - run: dotnet restore ${{ inputs.sln }}
+    shell: bash
