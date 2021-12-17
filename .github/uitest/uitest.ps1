@@ -112,9 +112,16 @@ Ensure-Command "Configure IIS" {
 }
 
 Ensure-Command "Run UI tests" {
-    $uiTestProcess = Start-Process -PassThru -NoNewWindow -FilePath "dotnet.exe" `
-        -ArgumentList "test","$samplesDir","--configuration","$Config","--no-build",`
-            "--logger","trx;LogFileName=ui-test-results.trx","--results-directory","$testResultsDir"
+    $uiTestProcess = Start-Process -PassThru -NoNewWindow -FilePath "dotnet.exe" -ArgumentList `
+        "test", `
+        "$samplesDir", `
+        "--configuration", `
+        "$Config", `
+        "--no-restore",`
+        "--logger", `
+        "trx;LogFileName=ui-test-results.trx", `
+        "--results-directory", `
+        "$testResultsDir"
 
     Wait-Process -Id "$($uiTestProcess.Id)"
 
