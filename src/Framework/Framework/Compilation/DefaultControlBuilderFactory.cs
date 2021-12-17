@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
@@ -76,8 +77,9 @@ namespace DotVVM.Framework.Compilation
             {
                 var (descriptor, factory) = ViewCompilerFactory().CompileView(file.ReadContent(), file.FileName);
 
-                return (descriptor, new Lazy<IControlBuilder>(() => {
-                    try {
+                var lazyBuilder = new Lazy<IControlBuilder>(() => {
+                    try
+                    {
                         var result = factory();
 
                         // register the internal resource after the page is successfully compiled,
@@ -95,7 +97,16 @@ namespace DotVVM.Framework.Compilation
                         editCompilationException(ex);
                         throw;
                     }
-                }));
+                });
+
+                // initialize the Lazy asynchronously to speed up initialization
+                Task.Run(() => {
+                    try {
+                        _ = lazyBuilder.Value;
+                    } catch { }
+                });
+
+                return (descriptor, lazyBuilder);
             }
             catch (DotvvmCompilationException ex)
             {

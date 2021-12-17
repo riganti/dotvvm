@@ -29,6 +29,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty TemplateProperty
             = DotvvmProperty.Register<ITemplate, TemplateHost>(c => c.Template, null);
 
+        public TemplateHost() { }
 
         public TemplateHost(ITemplate template)
         {
