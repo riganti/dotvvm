@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
 {
     public class BindingTokenizer : TokenizerBase<BindingToken, BindingTokenType>
     {
-        private readonly ISet<char> operatorCharacters = new HashSet<char> { '+', '-', '*', '/', '^', '\\', '%', '<', '>', '=', '&', '|', '~', '!', ';' };
+        private static readonly HashSet<char> operatorCharacters = new HashSet<char> { '+', '-', '*', '/', '^', '\\', '%', '<', '>', '=', '&', '|', '~', '!', ';' };
 
         protected override BindingTokenType TextTokenType => BindingTokenType.Identifier;
 

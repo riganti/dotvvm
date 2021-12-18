@@ -1202,7 +1202,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         private T CreateNode<T>(T node, int startIndex, string? error = null) where T : BindingParserNode
         {
             node.Tokens.Clear();
-            node.Tokens.AddRange(GetTokensFrom(startIndex));
+            node.Tokens.Capacity = CurrentIndex - startIndex + 1;
+            for (int i = startIndex; i < CurrentIndex; i++)
+                node.Tokens.Add(Tokens[i]);
 
             if (startIndex < Tokens.Count)
             {
@@ -1212,7 +1214,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 node.StartPosition = Tokens[startIndex - 1].EndPosition;
             }
-            node.Length = node.Tokens.Sum(t => (int?)t.Length) ?? 0;
+            var length = 0;
+            foreach (var t in node.Tokens)
+                length += t.Length;
+            node.Length = length;
 
             if (error != null)
             {

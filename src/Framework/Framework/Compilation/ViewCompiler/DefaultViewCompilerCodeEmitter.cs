@@ -233,7 +233,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             var collectionExpression = Expression.PropertyOrField(controlParameter, "Children");
             var variablePartameter = GetParameterOrVariable(variableName);
 
-            //[collectionExpression].Children.AddUnchecked([variablePartameter])
+            //[collectionExpression].Children.AddUnchecked([variableParameter])
             var collectionAddCall = Expression.Call(collectionExpression, "AddUnchecked", emptyTypeArguments, variablePartameter);
 
             blockStack.Peek().Expressions.Add(collectionAddCall);

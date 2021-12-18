@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 this.currentErrors = null;
                 if (currentErrors.Count == 1)
                 {
-                    if (currentErrors[0].StackTrace == null
+                    if (currentErrors[0].TargetSite == null
                         || (currentErrors[0] is BindingCompilationException compilationException && compilationException.Tokens == null)
                         || (currentErrors[0] is AggregateException aggregateException && aggregateException.Message == null))
                         throw currentErrors[0];
