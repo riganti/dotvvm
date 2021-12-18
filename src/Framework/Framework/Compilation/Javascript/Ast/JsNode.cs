@@ -169,7 +169,13 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                 else if (sibling != null)
                     pos = sibling;
                 else
+                {
+#if DotNetCore
                     nextStack.TryPop(out pos);
+#else
+                    pos = nextStack.Count > 0 ? nextStack.Pop() : null;
+#endif
+                }
             }
         }
 
