@@ -246,7 +246,7 @@ namespace DotVVM.Framework.Binding
             var field = typeof(TDeclaringType).GetField(propertyName + "Property", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
             if (field == null) throw new ArgumentException($"'{typeof(TDeclaringType).Name}' does not contain static field '{propertyName}Property'.");
 
-            return Register(propertyName, typeof(TPropertyType), typeof(TDeclaringType), defaultValue, isValueInherited, property, field);
+            return Register(propertyName, typeof(TPropertyType), typeof(TDeclaringType), BoxingUtils.BoxGeneric(defaultValue), isValueInherited, property, field);
         }
 
         public static DotvvmProperty Register(string propertyName, Type propertyType, Type declaringType, object? defaultValue, bool isValueInherited, DotvvmProperty? property, ICustomAttributeProvider attributeProvider, bool throwOnDuplicateRegistration = true)

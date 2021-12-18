@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
             if (obj is RawLiteral literal)
             {
-                rc.ConstructorParameters = new object[] { literal.EncodedText, literal.UnencodedText, literal.IsWhitespace };
+                rc.ConstructorParameters = new object[] { literal.EncodedText, literal.UnencodedText, BoxingUtils.Box(literal.IsWhitespace) };
             }
             else if (type == typeof(HtmlGenericControl) && obj is HtmlGenericControl htmlControl)
             {

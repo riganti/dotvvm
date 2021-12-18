@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
@@ -123,7 +124,7 @@ namespace DotVVM.Framework.Binding
                             currentControlParameter
                         ),
                         Expression.Lambda(
-                            Call(currentControlParameter, "SetValueRaw", Type.EmptyTypes, Constant(property), Convert(valueParameter, typeof(object))),
+                            Call(currentControlParameter, "SetValueRaw", Type.EmptyTypes, Constant(property), TypeConversion.BoxToObject(valueParameter)),
                             currentControlParameter, valueParameter
                         )
                     );
@@ -175,7 +176,7 @@ namespace DotVVM.Framework.Binding
                             currentControlParameter
                         ),
                         Expression.Lambda(
-                            Expression.Call(currentControlParameter, setValueMethod, Expression.Constant(property), Expression.Convert(valueParameter, typeof(object))),
+                            Expression.Call(currentControlParameter, setValueMethod, Expression.Constant(property), TypeConversion.BoxToObject(valueParameter)),
                             currentControlParameter, valueParameter
                         )
                     );

@@ -6,6 +6,7 @@ using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Binding
@@ -72,7 +73,7 @@ namespace DotVVM.Framework.Binding
         /// <summary> Returns the binding if this <see cref="HasBinding"/>, or null if this <see cref="HasValue"/> or `default(T)`. </summary>
         public IBinding? BindingOrDefault => binding;
         /// <summary> Returns the value as object if this <see cref="HasValue"/> or null if this <see cref="HasBinding"/>. </summary>
-        public object? BoxedValue => HasValue ? (object?)value : null;
+        public object? BoxedValue => HasValue ? BoxingUtils.BoxGeneric(value) : null;
 
         /// <summary> If this ValueOrBinding contains value. </summary>
         [MemberNotNullWhenAttribute(false, "BindingOrDefault", "binding")]
