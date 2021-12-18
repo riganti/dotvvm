@@ -183,7 +183,8 @@ namespace DotVVM.Framework.Compilation.Parser
             public Part WithLen(int newLen) => new Part(list, from, newLen);
             public Part AddLen(int addLen) => new Part(list, from, len + addLen);
 
-            public IEnumerator<T> GetEnumerator() => new AggregateList<T>.Enumerator(this, null);
+            public AggregateList<T>.Enumerator GetEnumerator() => new AggregateList<T>.Enumerator(this, null);
+            IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

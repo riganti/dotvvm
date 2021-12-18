@@ -47,18 +47,6 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public bool HasChildren => firstChild != null;
 
         public ChildrenCollection Children => new ChildrenCollection(this);
-        // {
-        //     get {
-        //         JsNode? next;
-        //         for (var cur = firstChild; cur != null; cur = next) {
-        //             Debug.Assert(cur.parent == this);
-        //             // Remember next before yielding cur.
-        //             // This allows removing/replacing nodes while iterating through the list.
-        //             next = cur.nextSibling;
-        //             yield return cur;
-        //         }
-        //     }
-        // }
 
         public struct ChildrenCollection : IEnumerable<JsNode>
         {
