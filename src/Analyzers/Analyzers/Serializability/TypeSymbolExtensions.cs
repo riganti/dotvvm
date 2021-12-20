@@ -13,9 +13,9 @@ namespace DotVVM.Analyzers.Serializability
     {
         private static readonly ConditionalWeakTable<Compilation, ImmutableHashSet<ISymbol>> symbolsCache = new();
 
-        public static bool IsSerializationSupported(this ITypeSymbol typeSymbol, SemanticModel semantics)
+        public static bool IsSerializationSupported(this ITypeSymbol typeSymbol, SemanticModel semantics, out string? errorPath)
         {
-            return IsSerializationSupportedImpl(typeSymbol, semantics.Compilation);
+            return IsSerializationSupportedImpl(typeSymbol, semantics.Compilation, out errorPath);
         }
 
         private static ISet<ISymbol> GetSymbolsCache(Compilation compilation)
@@ -38,26 +38,26 @@ namespace DotVVM.Analyzers.Serializability
             return hashset;
         }
 
-        private static bool IsSerializationSupportedImpl(this ITypeSymbol typeSymbol, Compilation compilation)
+        private static bool IsSerializationSupportedImpl(this ITypeSymbol typeSymbol, Compilation compilation, out string? errorPath)
         {
             var cache = GetSymbolsCache(compilation);
-            var stack = new Stack<ITypeSymbol>();
+            var stack = new Stack<(ITypeSymbol Symbol, string Path)>();
 #pragma warning disable RS1024 // Compare symbols correctly
             // This is a false positive: https://github.com/dotnet/roslyn-analyzers/issues/4568
             var visited = new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default) { typeSymbol };
 #pragma warning restore RS1024 // Compare symbols correctly
-            stack.Push(typeSymbol);
+            stack.Push((typeSymbol, string.Empty));
 
             while (stack.Count != 0)
             {
-                var currentSymbol = stack.Pop();
+                var (currentSymbol, currentPath) = stack.Pop();
                 switch (currentSymbol.TypeKind)
                 {
                     case TypeKind.Array:
                         var elementTypeSymbol = ((IArrayTypeSymbol)currentSymbol).ElementType;
                         if (!visited.Contains(elementTypeSymbol))
                         {
-                            stack.Push(elementTypeSymbol);
+                            stack.Push((elementTypeSymbol, currentPath));
                             visited.Add(elementTypeSymbol);
                         }
                         continue;
@@ -65,7 +65,7 @@ namespace DotVVM.Analyzers.Serializability
                         var underlyingTypeSymbol = ((INamedTypeSymbol)currentSymbol).EnumUnderlyingType;
                         if (underlyingTypeSymbol != null && !visited.Contains(underlyingTypeSymbol))
                         {
-                            stack.Push(underlyingTypeSymbol);
+                            stack.Push((underlyingTypeSymbol, currentPath));
                             visited.Add(underlyingTypeSymbol);
                         }
                         continue;
@@ -87,7 +87,7 @@ namespace DotVVM.Analyzers.Serializability
                             {
                                 if (!visited.Contains(arg))
                                 {
-                                    stack.Push(arg);
+                                    stack.Push((arg, currentPath));
                                     visited.Add(arg);
                                 }
                             }
@@ -99,7 +99,7 @@ namespace DotVVM.Analyzers.Serializability
                             {
                                 if (!visited.Contains(property.Type))
                                 {
-                                    stack.Push(property.Type);
+                                    stack.Push((property.Type, $"{currentPath}.{property.Name}"));
                                     visited.Add(property.Type);
                                 }
                             }
@@ -107,14 +107,17 @@ namespace DotVVM.Analyzers.Serializability
                         else
                         {
                             // Something unsupported from BCL detected
+                            errorPath = currentPath;
                             return false;
                         }
                         continue;
                     default:
+                        errorPath = currentPath;
                         return false;
                 }
             }
 
+            errorPath = null;
             return true;
         }
 
