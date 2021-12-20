@@ -50,7 +50,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
     }",
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule)
-                .WithLocation(0).WithArguments("NonSerializableProperty"));
+                .WithLocation(0).WithArguments("this.NonSerializableProperty"));
         }
 
         [Fact]
@@ -72,7 +72,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
     }",
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule)
-                .WithLocation(0).WithArguments("NonSerializableList"));
+                .WithLocation(0).WithArguments("this.NonSerializableList"));
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
     }",
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.DoNotUseUninstantiablePropertiesRule)
-                .WithLocation(0).WithArguments("System.Collections.Generic.IList<int>"));
+                .WithLocation(0).WithArguments("this.PotentiallyNonSerializableList"));
         }
 
         [Fact]
@@ -336,7 +336,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
     }",
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule)
-                .WithLocation(0).WithArguments("LinkedList"));
+                .WithLocation(0).WithArguments("this.LinkedList"));
         }
 
         [Fact]
@@ -505,7 +505,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
     }",
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule).WithLocation(0)
-                .WithArguments("NonSerializable/Value"));
+                .WithArguments("this.NonSerializable.Value"));
         }
     }
 }
