@@ -50,7 +50,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
     }",
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule)
-                .WithLocation(0).WithArguments("System.IO.FileInfo"));
+                .WithLocation(0).WithArguments("NonSerializableProperty"));
         }
 
         [Fact]
@@ -72,7 +72,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
     }",
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule)
-                .WithLocation(0).WithArguments("System.Collections.Generic.List<System.IO.Stream>"));
+                .WithLocation(0).WithArguments("NonSerializableList"));
         }
 
         [Fact]
@@ -88,13 +88,12 @@ namespace DotVVM.Analyzers.Tests.Serializability
     {
         public class DefaultViewModel : DotvvmViewModelBase
         {
-            public int SerializableProperty { get; set; }
-            {|#0:public IList<Stream> NonSerializableList { get; set; }|}
+            {|#0:public IList<int> PotentiallyNonSerializableList { get; set; }|}
         }
     }",
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.DoNotUseUninstantiablePropertiesRule)
-                .WithLocation(0).WithArguments("System.Collections.Generic.IList<System.IO.Stream>"));
+                .WithLocation(0).WithArguments("System.Collections.Generic.IList<int>"));
         }
 
         [Fact]
@@ -337,7 +336,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
     }",
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule)
-                .WithLocation(0).WithArguments("System.Collections.Generic.LinkedList<object>"));
+                .WithLocation(0).WithArguments("LinkedList"));
         }
 
         [Fact]
@@ -506,7 +505,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
     }",
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule).WithLocation(0)
-                .WithArguments("ConsoleApplication1.WrappedValue<System.IO.Stream>"));
+                .WithArguments("NonSerializable/Value"));
         }
     }
 }
