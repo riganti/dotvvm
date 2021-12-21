@@ -9,7 +9,13 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
 {
     public class MarkupDefinedPropertiesViewModel : DotvvmViewModelBase
     {
-        public IEnumerable<string> Buildings { get; set; } = new[] { "Barn", "House", "Skyscraper", "Town Hall" };
+        public IList<string> Buildings { get; set; } = new List<string> { "Barn", "House", "Skyscraper", "Town Hall" };
+
+        public string Name { get; set; }
+        public void AddBuilding()
+        {
+            Buildings.Add(Name);
+        }
     }
 }
 

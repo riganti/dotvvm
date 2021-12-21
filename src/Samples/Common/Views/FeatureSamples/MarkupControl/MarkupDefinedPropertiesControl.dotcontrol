@@ -1,6 +1,16 @@
 ﻿@viewModel object
-@property System.Collections.Generic.IEnumerable<string> Items
+@import System.Collections.Generic
+@import System
+@import DotVVM.Framework.Binding.Expressions
+
+@property string Heading
+@property System.Collections.Generic.IList<string> Items
+@property DotVVM.Framework.Binding.Expressions.Command AddCommand
+
+<h2>{{value: _control.Heading}}</h2>
 
 <dot:Repeater WrapperTagName="ol" DataSource="{value: _control.Items }">
     <li>{{value: _this}}</li>
 </dot:Repeater>
+
+<dot:Button Click="{command: _control.AddCommand()}" Text="Add item" />
