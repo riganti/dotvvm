@@ -8,7 +8,11 @@
     <title></title>
 </head>
 <body>
-    <sample:MarkupDefinedPropertiesControl Items="{value: Buildings}"/>
+    <div>
+        <label>New item:</label>
+        <dot:TextBox Text="{value: Name}" />
+    </div>
+    <sample:MarkupDefinedPropertiesControl Heading="Buildings" Items="{value: Buildings}" AddCommand="{command: AddBuilding()}"/>
 
 </body>
 </html>
