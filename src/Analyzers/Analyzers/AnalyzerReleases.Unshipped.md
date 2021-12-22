@@ -6,4 +6,3 @@ Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 DotVVM02 | Serializability | Warning | ViewModelSerializabilityAnalyzer
 DotVVM03 | Serializability | Warning | ViewModelSerializabilityAnalyzer
-DotVVM04 | Serializability | Warning | ViewModelSerializabilityAnalyzer
