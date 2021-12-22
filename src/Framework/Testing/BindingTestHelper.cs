@@ -86,7 +86,7 @@ namespace DotVVM.Framework.Testing
             return new ValueBindingExpression<T>(BindingService, new object[] {
                 CreateDataContext(contexts),
                 new OriginalStringBindingProperty(expression),
-                new BindingParserOptions(typeof(ValueBindingExpression)).AddImports(Configuration.Markup.ImportedNamespaces),
+                BindingParserOptions.Value.AddImports(Configuration.Markup.ImportedNamespaces),
                 new ExpectedTypeBindingProperty(typeof(T))
             });
         }

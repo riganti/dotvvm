@@ -127,7 +127,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 				rule.Validate();
 				if (!string.IsNullOrEmpty(rule.TagName))
 				{
-					return FindMarkupControl(rule.Src.NotNull());
+					return FindMarkupControl(string.Intern(rule.Src.NotNull()));
 				}
 			}
 			// then code only control
