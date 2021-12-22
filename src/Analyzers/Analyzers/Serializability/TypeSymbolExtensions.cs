@@ -13,9 +13,15 @@ namespace DotVVM.Analyzers.Serializability
     {
         private static readonly ConditionalWeakTable<Compilation, ImmutableHashSet<ISymbol>> symbolsCache = new();
 
-        public static bool IsSerializationSupported(this ITypeSymbol typeSymbol, SemanticModel semantics, out string? errorPath)
+        public static bool IsSerializationSupported(this ITypeSymbol typeSymbol, Compilation compilation, out string? errorPath)
         {
-            return IsSerializationSupportedImpl(typeSymbol, semantics.Compilation, out errorPath);
+            return IsSerializationSupportedImpl(typeSymbol, compilation, out errorPath);
+        }
+
+        public static bool IsEnumerable(this ITypeSymbol typeSymbol, Compilation compilation)
+        {
+            var enumerable = compilation.GetSpecialType(SpecialType.System_Collections_IEnumerable);
+            return typeSymbol.AllInterfaces.Contains(enumerable);
         }
 
         private static ISet<ISymbol> GetSymbolsCache(Compilation compilation)
@@ -69,6 +75,21 @@ namespace DotVVM.Analyzers.Serializability
                             visited.Add(underlyingTypeSymbol);
                         }
                         continue;
+                    case TypeKind.Interface:
+                        if (currentSymbol.IsEnumerable(compilation))
+                        {
+                            foreach (var arg in (currentSymbol as INamedTypeSymbol)!.TypeArguments)
+                            {
+                                stack.Push((arg, currentPath));
+                                visited.Add(arg);
+                            }
+                        }
+                        else
+                        {
+                            errorPath = currentPath;
+                            return false;
+                        }
+                        continue;
                     case TypeKind.Class:
                     case TypeKind.Struct:
                         // Unwrap nullables
@@ -80,7 +101,7 @@ namespace DotVVM.Analyzers.Serializability
                         var args = namedTypeSymbol?.TypeArguments ?? ImmutableArray.Create<ITypeSymbol>();
                         var originalDefinitionSymbol = (arity.HasValue && arity.Value > 0) ? currentSymbol.OriginalDefinition : currentSymbol;
 
-                        if (cache.Contains(originalDefinitionSymbol))
+                        if (cache.Contains(originalDefinitionSymbol) || originalDefinitionSymbol.IsEnumerable(compilation))
                         {
                             // Type is either primitive and/or directly supported by DotVVM
                             foreach (var arg in args)

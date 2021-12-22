@@ -88,11 +88,11 @@ namespace DotVVM.Analyzers.Tests.Serializability
     {
         public class DefaultViewModel : DotvvmViewModelBase
         {
-            {|#0:public IList<int> PotentiallyNonSerializableList { get; set; }|}
+            {|#0:public IList<IDisposable> PotentiallyNonSerializableList { get; set; }|}
         }
     }",
 
-            VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.DoNotUseUninstantiablePropertiesRule)
+            VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule)
                 .WithLocation(0).WithArguments("this.PotentiallyNonSerializableList"));
         }
 
@@ -295,6 +295,28 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
+        public async void Test_NoWarningsForEnumerables_ViewModel()
+        {
+            var test = @"
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.Collections.Generic;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public IEnumerable<int> Enumerable { get; set; }
+            public IList<int> List { get; set; }
+            public ICollection<int> Collection { get; set; }
+            public ICollection<IList<IEnumerable<int>>> WowCollection { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [Fact]
         public async void Test_UserTypesAreSerializableAndSupported_ViewModel()
         {
             var test = @"
@@ -313,7 +335,10 @@ namespace DotVVM.Analyzers.Tests.Serializability
         {
             public string Property { get; set; }
             public int? NullableProp { get; set; }
+            public DateTime? NullableDateTime { get; set; }
+            public DateTimeOffset? NullableDateTimeOffset { get; set; }
             public bool FlagProp { get; set; }
+            public IList<int> List { get; set; }
         }
     }";
 
@@ -333,12 +358,12 @@ namespace DotVVM.Analyzers.Tests.Serializability
         public class DefaultViewModel : DotvvmViewModelBase
         {
             public int SerializableProperty { get; set; }
-            {|#0:public LinkedList<object> LinkedList { get; set; }|}
+            {|#0:public Action Action { get; set; }|}
         }
     }",
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule)
-                .WithLocation(0).WithArguments("this.LinkedList"));
+                .WithLocation(0).WithArguments("this.Action"));
         }
 
         [Fact]

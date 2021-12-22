@@ -98,7 +98,7 @@ namespace DotVVM.Analyzers.Serializability
         private static bool SanityCheck(SemanticModel semanticModel)
         {
             var testType = semanticModel.Compilation.GetSpecialType(SpecialType.System_String);
-            return testType.IsSerializationSupported(semanticModel, out _);
+            return testType.IsSerializationSupported(semanticModel.Compilation, out _);
         }
 
         /// <summary>
@@ -117,10 +117,11 @@ namespace DotVVM.Analyzers.Serializability
                 if (semanticModel.GetSymbolInfo(property.Type).Symbol is not ITypeSymbol propertyTypeSymbol)
                     continue;
 
+                // Determine whether this property participates in serialization
                 if (IsSerializationIgnored(propertySymbol, bindAttribute, jsonIgnoreAttribute))
                     continue;
 
-                if (propertyTypeSymbol.IsAbstract)
+                if (propertyTypeSymbol.IsAbstract && !propertyTypeSymbol.IsEnumerable(semanticModel.Compilation))
                 {
                     // Serialization of abstract classes can fail
                     var diagnostic = Diagnostic.Create(DoNotUseUninstantiablePropertiesRule, property.GetLocation(), $"this.{propertySymbol.Name}");
@@ -132,14 +133,14 @@ namespace DotVVM.Analyzers.Serializability
                     if (semanticModel.GetSymbolInfo(nullableTypeSyntax.ElementType).Symbol is not ITypeSymbol elementInfo)
                         continue;
 
-                    else if (!elementInfo.IsSerializationSupported(semanticModel, out var errorPath))
+                    else if (!elementInfo.IsSerializationSupported(semanticModel.Compilation, out var errorPath))
                     {
                         // Serialization of this specific type is not supported by DotVVM
                         var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), $"this.{propertySymbol.Name}{errorPath}");
                         context.ReportDiagnostic(diagnostic);
                     }
                 }
-                else if (!propertyTypeSymbol.IsSerializationSupported(semanticModel, out var errorPath))
+                else if (!propertyTypeSymbol.IsSerializationSupported(semanticModel.Compilation, out var errorPath))
                 {
                     // Serialization of this specific type is not supported by DotVVM
                     var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), $"this.{propertySymbol.Name}{errorPath}");
