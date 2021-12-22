@@ -219,6 +219,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         public class DefaultViewModel : DotvvmViewModelBase
         {
             public DateTime? DateTime { get; set; }
+            public DateTimeOffset? DateTimeOffset { get; set; }
             public TimeSpan? TimeSpan { get; set; }
             public Guid? Guid { get; set; }
         }
@@ -263,6 +264,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
             public object Object { get; set; }
             public string String { get; set; }
             public DateTime DateTime { get; set; }
+            public DateTimeOffset DateTimeOffset { get; set; }
             public TimeSpan TimeSpan { get; set; }
             public Guid Guid { get; set; }
         }
