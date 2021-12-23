@@ -142,7 +142,7 @@ function start_samples {
         --configuration "$CONFIGURATION" \
         --urls "http://localhost:${PORT}/" >/dev/null &
 
-    PID=$1
+    PID=$!
     eval "$PID_VAR=$PID"
     ps -p $PID >/dev/null
     if [ $? -ne 0 ]; then
