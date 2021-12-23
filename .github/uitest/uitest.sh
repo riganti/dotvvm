@@ -133,6 +133,21 @@ function clean_uitest {
     end_group
 }
 
+function wait_sample {
+    PORT=$1
+    while [[ true ]]; do
+        HTTP_CODE=$(curl localhost:$PORT -s -o /dev/null -w "%{http_code}")
+        if [ $HTTP_CODE -eq 200 ]; then
+            return
+        elif [ $HTTP_CODE -eq 000 ]; then
+            continue
+        else
+            echo >&2 "Failed to start the sample project. Got a ${HTTP_CODE}."
+            exit 1
+        fi
+    done
+}
+
 function start_samples {
     PROJECT=$1
     PORT=$2
@@ -150,11 +165,7 @@ function start_samples {
         exit 1
     fi
     echo >&2 "The ${PROJECT} sample project is starting with PID=${SAMPLES_API_PID}."
-    HTTP_CODE=$(curl localhost:5000 -s -o /dev/null -m 60 -w "%{http_code}")
-    if [ $HTTP_CODE -ne 200 ]; then
-        echo >&2 "Failed to start the ${PROJECT} sample project. Got a ${HTTP_CODE}."
-        exit 1
-    fi
+    wait_sample $PORT
 }
 
 # seleniumconfig.json needs to be copied before the build of the sln
