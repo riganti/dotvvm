@@ -19,7 +19,7 @@ namespace DotVVM.Analyzers {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -97,7 +97,7 @@ namespace DotVVM.Analyzers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Property of type &apos;{0}&apos; is not serializable.
+        ///   Looks up a localized string similar to Property on path &apos;{0}&apos; is not serializable.
         /// </summary>
         internal static string Serializability_NonSerializableType_Message {
             get {
@@ -111,33 +111,6 @@ namespace DotVVM.Analyzers {
         internal static string Serializability_NonSerializableType_Title {
             get {
                 return ResourceManager.GetString("Serializability_NonSerializableType_Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Use concrete implementation in viewmodels to ensure that all properties are correctly serialized..
-        /// </summary>
-        internal static string Serializability_UninstantiableType_Description {
-            get {
-                return ResourceManager.GetString("Serializability_UninstantiableType_Description", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Property of abstract type &apos;{0}&apos; might not be correctly serialized.
-        /// </summary>
-        internal static string Serializability_UninstantiableType_Message {
-            get {
-                return ResourceManager.GetString("Serializability_UninstantiableType_Message", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Interfaces and abstract classes might not be correctly serialized.
-        /// </summary>
-        internal static string Serializability_UninstantiableType_Title {
-            get {
-                return ResourceManager.GetString("Serializability_UninstantiableType_Title", resourceCulture);
             }
         }
     }

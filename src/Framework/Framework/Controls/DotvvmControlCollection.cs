@@ -302,7 +302,12 @@ namespace DotVVM.Framework.Controls
                     throw;
                 }
                 else
-                    throw new DotvvmControlException(lastProcessedControl, "Unhandled exception occurred while executing page lifecycle event.", ex);
+                {
+                    var eventType = lastLifeCycleEvent + 1;
+                    var baseException = ex.GetBaseException();
+                    var controlType = lastProcessedControl.GetType().Name;
+                    throw new DotvvmControlException(lastProcessedControl, $"Unhandled {baseException.GetType().Name} occurred in {controlType}.{eventType}: {baseException.Message}", ex);
+                }
             }
         }
 
@@ -319,6 +324,7 @@ namespace DotVVM.Framework.Controls
                 // abort when control does not require that
                 if ((parent.LifecycleRequirements & (ControlLifecycleRequirements)reqflag) == 0)
                 {
+                    lastLifeCycleEvent = eventType;
                     continue;
                 }
 

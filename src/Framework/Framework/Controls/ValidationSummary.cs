@@ -56,7 +56,7 @@ namespace DotVVM.Framework.Controls
             set { SetValue(IncludeErrorsFromTargetProperty, value); }
         }
         public static readonly DotvvmProperty IncludeErrorsFromTargetProperty
-            = DotvvmProperty.Register<bool, ValidationSummary>(c => c.IncludeErrorsFromTarget, false);
+            = DotvvmProperty.Register<bool, ValidationSummary>(c => c.IncludeErrorsFromTarget, true);
 
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.

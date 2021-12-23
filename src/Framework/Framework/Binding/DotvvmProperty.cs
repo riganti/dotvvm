@@ -215,7 +215,7 @@ namespace DotVVM.Framework.Binding
             var field = ReflectionUtils.GetMemberFromExpression(fieldAccessor) as FieldInfo;
             if (field == null || !field.IsStatic) throw new ArgumentException("The expression should be simple static field access", nameof(fieldAccessor));
             if (!field.Name.EndsWith("Property", StringComparison.Ordinal)) throw new ArgumentException($"DotVVM property backing field's '{field.Name}' name should end with 'Property'");
-            return Register<TPropertyType, TDeclaringType>(field.Name.Remove(field.Name.Length - "Property".Length), defaultValue, isValueInherited);
+            return Register<TPropertyType, TDeclaringType>(field.Name.Remove(field.Name.Length - "Property".Length).DotvvmInternString(trySystemIntern: true), defaultValue, isValueInherited);
         }
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace DotVVM.Framework.Binding
         {
             var property = ReflectionUtils.GetMemberFromExpression(propertyAccessor) as PropertyInfo;
             if (property == null) throw new ArgumentException("The expression should be simple property access", nameof(propertyAccessor));
-            return Register<TPropertyType, TDeclaringType>(property.Name, defaultValue, isValueInherited);
+            return Register<TPropertyType, TDeclaringType>(property.Name.DotvvmInternString(trySystemIntern: true), defaultValue, isValueInherited);
         }
 
         /// <summary>

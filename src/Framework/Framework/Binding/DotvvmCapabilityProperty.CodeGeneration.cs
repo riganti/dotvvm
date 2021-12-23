@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using DotNext.Linq.Expressions;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
+using static System.Linq.Expressions.Expression;
 
 namespace DotVVM.Framework.Binding
 {
@@ -23,34 +23,34 @@ namespace DotVVM.Framework.Binding
                 var valueParameter = Expression.Parameter(capabilityType, "value");
                 var valueObjectParameter = Expression.Parameter(typeof(object), "valueOb");
                 var getterBody = new List<Expression> {
-                    valueParameter.Assign(capabilityType.New())
+                    Assign(valueParameter, New(capabilityType))
                 };
                 var setterBody = new List<Expression> {
-                    valueParameter.Assign(valueObjectParameter.Convert(capabilityType))
+                    Assign(valueParameter, Convert(valueObjectParameter, capabilityType))
                 };
 
                 foreach (var (prop, dotvvmProperty) in props)
                 {
                     var (getter, setter) = CreatePropertyAccessors(prop.PropertyType, dotvvmProperty);
-                    getterBody.Add(Expression.Assign(valueParameter.Property(prop), getter.Replace(currentControlParameter)));
+                    getterBody.Add(Assign(Property(valueParameter, prop), getter.Replace(currentControlParameter)));
 
                     setterBody.Add(setter.Replace(
                         currentControlParameter,
-                        valueParameter.Property(prop)
+                        Property(valueParameter, prop)
                     ));
                 }
                 foreach (var (prop, propGroup) in pgroups)
                 {
                     var (getter, setter) = CreatePropertyGroupAccessors(prop.PropertyType, propGroup);
-                    getterBody.Add(Expression.Assign(valueParameter.Property(prop), getter.Replace(currentControlParameter)));
+                    getterBody.Add(Expression.Assign(Property(valueParameter, prop), getter.Replace(currentControlParameter)));
 
                     setterBody.Add(setter.Replace(
                         currentControlParameter,
-                        valueParameter.Property(prop)
+                        Property(valueParameter, prop)
                     ));
                 }
 
-                getterBody.Add(valueParameter.Convert<object>());
+                getterBody.Add(Convert(valueParameter, typeof(object)));
 
 
                 var capabilityGetter =
@@ -89,16 +89,16 @@ namespace DotVVM.Framework.Binding
                     .MakeGenericType(propType)
                     .GetMethod("CopyFrom", new [] { enumerableType, typeof(bool) });
                 return (
-                    Expression.Lambda(
-                        Expression.Call(createMethod, currentControlParameter, Expression.Constant(pgroup))
-                            .Convert(type),
+                    Lambda(
+                        Convert(Call(createMethod, currentControlParameter, Constant(pgroup)), type),
                         currentControlParameter
                     ),
-                    Expression.Lambda(
-                        Expression.New(ctor, currentControlParameter, pgroup.Const()).Call(
+                    Lambda(
+                        Call(
+                            New(ctor, currentControlParameter, Constant(pgroup)),
                             copyFromMethod,
-                            valueParameter.Convert(enumerableType),
-                            true.Const() // clear
+                            Convert(valueParameter, enumerableType),
+                            Constant(true) // clear
                         ),
                         currentControlParameter,
                         valueParameter
@@ -115,13 +115,15 @@ namespace DotVVM.Framework.Binding
                     var getValueRawMethod = typeof(DotvvmBindableObject).GetMethod("GetValueRaw");
                     var setValueRawMethod = typeof(DotvvmBindableObject).GetMethod("SetValueRaw", new[] { typeof(DotvvmProperty), typeof(object) });
                     return (
-                        Expression.Lambda(
-                            currentControlParameter.Call("GetValueRaw", property.Const(), false.Const())
-                                .Convert(type),
+                        Lambda(
+                            Convert(
+                                Call(currentControlParameter, "GetValueRaw", Type.EmptyTypes, Constant(property), Constant(false)),
+                                type
+                            ),
                             currentControlParameter
                         ),
                         Expression.Lambda(
-                            currentControlParameter.Call("SetValueRaw", property.Const(), valueParameter.Convert<object>()),
+                            Call(currentControlParameter, "SetValueRaw", Type.EmptyTypes, Constant(property), Convert(valueParameter, typeof(object))),
                             currentControlParameter, valueParameter
                         )
                     );
@@ -149,7 +151,7 @@ namespace DotVVM.Framework.Binding
                             Expression.Call(
                                 getValueOrBindingMethod,
                                 currentControlParameter,
-                                property.Const()),
+                                Constant(property)),
                             currentControlParameter
                         ),
                         Expression.Lambda(
