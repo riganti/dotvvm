@@ -23,6 +23,7 @@ Options:
     --samples-profile   (default = \$SAMPLES_PROFILE:-seleniumconfig.aspnetcorelatest.chrome.json).
     --samples-port      (default = 16019).
     --samples-port-api  (default = 5001).
+    --trx-name          (default = ui-test-results.trx).
 EOF
             shift
             exit 0
@@ -49,6 +50,11 @@ EOF
         ;;
         '--samples-port-api')
             SAMPLES_PORT_API="$2"
+            shift 2
+            continue
+        ;;
+        '--trx-name')
+            TRX_NAME="$2"
             shift 2
             continue
         ;;
@@ -85,6 +91,7 @@ SAMPLES_DIR="$ROOT/src/Samples/Tests/Tests"
 SAMPLES_PROFILE="${SAMPLES_PROFILE:-seleniumconfig.aspnetcorelatest.chrome.json}"
 SAMPLES_PORT="${SAMPLES_PORT:-16019}"
 SAMPLES_PORT_API="${SAMPLES_PORT_API:-5001}"
+TRX_NAME="${TRX_NAME:-ui-test-results.trx}"
 
 echo "ROOT=$ROOT"
 echo "SLN=$SLN"
@@ -207,7 +214,7 @@ start_group "Run UI tests"
         --filter Category!=owin-only \
         --no-restore \
         --configuration $CONFIGURATION \
-        --logger 'trx;LogFileName=ui-test-results.trx' \
+        --logger "trx;LogFileName=$TRX_NAME" \
         --results-directory "$TEST_RESULTS_DIR"
 }
 end_group

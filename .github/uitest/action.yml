@@ -13,11 +13,15 @@ runs:
   steps:
   - if: ${{ runner.os != 'Windows' }}
     name: uitest.sh
-    run: bash ./.github/uitest/uitest.sh --samples-profile ${{ inputs.profile }}.${{ inputs.browser }}.json
+    run: bash ./.github/uitest/uitest.sh
+      --samples-profile "${{ inputs.profile }}.${{ inputs.browser }}.json"
+      --trx-name "ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx"
     shell: bash
   - if: ${{ runner.os == 'Windows' }}
     name: uitest.ps1
-    run: "& ./.github/uitest/uitest.ps1 --samples-profile ${{ inputs.profile }}.${{ inputs.browser }}.json"
+    run: """& ./.github/uitest/uitest.ps1
+      -SamplesProfile "${{ inputs.profile }}.${{ inputs.browser }}.json"
+      -TrxName "ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx" """
     shell: pwsh
   - name: Parse test results
     uses: NasAmin/trx-parser@v0.2.0

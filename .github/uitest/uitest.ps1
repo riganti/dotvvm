@@ -3,7 +3,8 @@ param(
     [string] $Config,
     [string] $SamplesProfile = "seleniumconfig.owin.chrome.json",
     [string] $SamplesPort = "5407",
-    [string] $SamplesPortApi = "61453")
+    [string] $SamplesPortApi = "61453"
+    [string] $TrxName = "ui-test-results.trx")
 
 # ==================
 # config var setting
@@ -119,7 +120,7 @@ Ensure-Command "Run UI tests" {
         "$Config", `
         "--no-restore",`
         "--logger", `
-        "trx;LogFileName=ui-test-results.trx", `
+        "trx;LogFileName=$TrxName", `
         "--results-directory", `
         "$testResultsDir"
 
