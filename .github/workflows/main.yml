@@ -80,3 +80,4 @@ jobs:
       with:
         browser: ${{ matrix.browser }}
         profile: seleniumconfig.aspnetcorelatest
+        token: ${{ secrets.GITHUB_TOKEN }}
