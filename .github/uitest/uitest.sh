@@ -133,9 +133,6 @@ function clean_uitest {
     end_group
 }
 
-# print each command before execution
-set -o verbose
-
 # seleniumconfig.json needs to be copied before the build of the sln
 PROFILE_PATH="$SAMPLES_DIR/Profiles/$SAMPLES_PROFILE"
 
@@ -156,6 +153,7 @@ start_group "Start Xvfb"
         echo >&2 "Xvfb failed to start."
         exit 1
     fi
+    echo >&2 "Xvfb running with PID=${XVFB_PID}."
 }
 end_group
 
@@ -169,9 +167,10 @@ start_group "Start samples"
     SAMPLES_API_PID=$!
     ps -p $SAMPLES_API_PID >/dev/null
     if [ $? -ne 0 ]; then
-        echo >&2 "The Samples Api project failed to start."
+        echo >&2 "The API Samples project failed to start."
         exit 1
     fi
+    echo >&2 "The API Samples are running with PID=${SAMPLES_API_PID}."
 
     dotnet run --project "$ROOT/src/Samples/AspNetCoreLatest" \
         --no-restore \
@@ -183,8 +182,11 @@ start_group "Start samples"
         echo >&2 "The Samples project failed to start."
         exit 1
     fi
+    echo >&2 "The Samples are running with PID=${SAMPLES_PID}"
 }
 end_group
+
+ps
 
 start_group "Run UI tests"
 {
