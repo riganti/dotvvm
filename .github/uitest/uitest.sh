@@ -2,7 +2,7 @@
 
 PROGRAM='uitest.sh'
 SHORTOPTS="h"
-LONGOPTS="help,root:,config:,samples-profile:,samples-port:,samples-port-api:"
+LONGOPTS="help,root:,config:,samples-profile:,samples-port:,samples-port-api:,trx-name:"
 TEMP=$(getopt -o "$SHORTOPTS" -l "$LONGOPTS" -n "$PROGRAM" -- "$@")
 if [ $? -ne 0 ]; then
         exit 1
