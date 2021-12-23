@@ -133,6 +133,30 @@ function clean_uitest {
     end_group
 }
 
+function start_samples {
+    PROJECT=$1
+    PORT=$2
+    PID_VAR=$3
+    dotnet run --project "$ROOT/${PROJECT}" \
+        --no-restore \
+        --configuration "$CONFIGURATION" \
+        --urls "http://localhost:${PORT}/" >/dev/null &
+
+    PID=$1
+    eval "$PID_VAR=$PID"
+    ps -p $PID >/dev/null
+    if [ $? -ne 0 ]; then
+        echo >&2 "The ${PROJECT} sample project failed to start."
+        exit 1
+    fi
+    echo >&2 "The ${PROJECT} sample project is starting with PID=${SAMPLES_API_PID}."
+    HTTP_CODE=$(curl localhost:5000 -s -o /dev/null -m 60 -w "%{http_code}")
+    if [ $HTTP_CODE -ne 200 ]; then
+        echo >&2 "Failed to start the ${PROJECT} sample project. Got a ${HTTP_CODE}."
+        exit 1
+    fi
+}
+
 # seleniumconfig.json needs to be copied before the build of the sln
 PROFILE_PATH="$SAMPLES_DIR/Profiles/$SAMPLES_PROFILE"
 
@@ -159,30 +183,8 @@ end_group
 
 start_group "Start samples"
 {
-    dotnet run --project "$ROOT/src/Samples/Api.AspNetCoreLatest" \
-        --no-restore \
-        --configuration "$CONFIGURATION" \
-        --urls "http://localhost:${SAMPLES_PORT_API}/" >/dev/null &
-
-    SAMPLES_API_PID=$!
-    ps -p $SAMPLES_API_PID >/dev/null
-    if [ $? -ne 0 ]; then
-        echo >&2 "The API Samples project failed to start."
-        exit 1
-    fi
-    echo >&2 "The API Samples are running with PID=${SAMPLES_API_PID}."
-
-    dotnet run --project "$ROOT/src/Samples/AspNetCoreLatest" \
-        --no-restore \
-        --configuration "$CONFIGURATION" \
-        --urls "http://localhost:${SAMPLES_PORT}/" >/dev/null &
-    SAMPLES_PID=$!
-    ps -p $SAMPLES_PID >/dev/null
-    if [ $? -ne 0 ]; then
-        echo >&2 "The Samples project failed to start."
-        exit 1
-    fi
-    echo >&2 "The Samples are running with PID=${SAMPLES_PID}"
+    start_samples "src/Samples/Api.AspNetCoreLatest" "${SAMPLES_PORT_API}" "SAMPLES_API_PID"
+    start_samples "src/Samples/AspNetCoreLatest" "${SAMPLES_PORT}" "SAMPLES_PID"
 }
 end_group
 
