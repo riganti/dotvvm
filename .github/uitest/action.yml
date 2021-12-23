@@ -19,9 +19,9 @@ runs:
     shell: bash
   - if: ${{ runner.os == 'Windows' }}
     name: uitest.ps1
-    run: """& ./.github/uitest/uitest.ps1
+    run: .\.github\uitest\uitest.ps1
       -SamplesProfile "${{ inputs.profile }}.${{ inputs.browser }}.json"
-      -TrxName "ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx" """
+      -TrxName "ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx"
     shell: pwsh
   - name: Parse test results
     uses: NasAmin/trx-parser@v0.2.0
