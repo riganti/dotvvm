@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             TryReadTypeReference(out var propertyType);
 
             var propertyName = ReadNamespaceOrTypeName();
-            var propertyDeclaration = CreateNode(new PropertyDeclarationBindingParserNode(propertyType, propertyName), startIndex);
+            var propertyDeclaration = new PropertyDeclarationBindingParserNode(propertyType, propertyName);
 
             SkipWhiteSpace();
 
@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 }
             }
 
-            return propertyDeclaration;
+            return CreateNode(propertyDeclaration,startIndex);
         }
 
         public BindingParserNode ReadDirectiveTypeName()

@@ -87,7 +87,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }.Concat(injectedServices)
              .Concat(viewModule is null ? new BindingExtensionParameter[0] : new[] { viewModule.Value.extensionParameter }).ToArray());
 
-
             var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directives, masterPage);
             view.FileName = fileName;
 
@@ -107,7 +106,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             foreach (var propertyDeclarationDirective in resolvedDirectives)
             {
                 propertyDeclarationDirective.DeclaringType = wrapperType;
-                CreateDotvvmPropertyFromDirective(propertyDeclarationDirective);
+                TryCreateDotvvmPropertyFromDirective(propertyDeclarationDirective);
             }
 
             ValidateMasterPage(view, masterPage, masterPageDirective?.First());
@@ -117,14 +116,34 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return view;
         }
 
-        protected virtual void CreateDotvvmPropertyFromDirective(IAbstractPropertyDeclarationDirective propertyDeclarationDirective) => DotvvmProperty.Register(
-                            propertyDeclarationDirective.NameSyntax.Name,
-                            propertyDeclarationDirective.PropertyType.As<ResolvedTypeDescriptor>()?.Type,
-                            propertyDeclarationDirective.DeclaringType.As<ResolvedTypeDescriptor>()?.Type,
-                            propertyDeclarationDirective.InitialValue,
-                            false,
-                            null,
-                            propertyDeclarationDirective, false);
+        protected virtual void TryCreateDotvvmPropertyFromDirective(IAbstractPropertyDeclarationDirective propertyDeclarationDirective)
+        {
+            var propertyType = propertyDeclarationDirective.PropertyType.As<ResolvedTypeDescriptor>();
+            var declaringType = propertyDeclarationDirective.DeclaringType.As<ResolvedTypeDescriptor>();
+
+            if (declaringType is null)
+            {
+                propertyDeclarationDirective.DothtmlNode?.AddError($"Cannot register property {propertyDeclarationDirective.NameSyntax.Name}, parent type for the property type could not be resolved.");
+                return;
+            }
+            if (propertyType is null)
+            {
+                propertyDeclarationDirective.DothtmlNode?.AddError($"Cannot register property {propertyDeclarationDirective.NameSyntax.Name}, property type could not be resolved.");
+                return;
+            }
+
+
+            DotvvmProperty.Register(
+                propertyDeclarationDirective.NameSyntax.Name,
+                propertyType.Type,
+                declaringType.Type,
+                propertyDeclarationDirective.InitialValue,
+                false,
+                null,
+                propertyDeclarationDirective,
+                false);
+        }
+
         /// <summary>
         /// Resolves the content of the root node.
         /// </summary>
@@ -565,7 +584,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
 
             var initializer = declaration?.Initializer as LiteralExpressionBindingParserNode;
-            if (declaration?.Initializer != null && initializer != null)
+            if (declaration?.Initializer != null && initializer == null)
             {
                 initializer = new LiteralExpressionBindingParserNode(null);
                 directiveNode.AddError("Property initializer must be a constant.");

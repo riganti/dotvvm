@@ -159,15 +159,50 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
             if (propertyTypeDescriptor == null)
             {
-                directive.AddError($"Could not resolve type {typeSyntax.ToDisplayString()}");
+                directive.AddError($"Could not resolve type {typeSyntax.ToDisplayString()}.");
             }
 
             //Chack that I am not asigning incompatible types 
-            var initialValue = initializer?.Value ?? CreateDefaultValue(propertyTypeDescriptor);
+            var initialValue = CreateInitializerValue(directive, propertyTypeDescriptor?.Type, initializer) ?? CreateDefaultValue(propertyTypeDescriptor);
 
             var attributeInstances = InstantiateAttributes(resolvedAttributes).ToList();
 
-            return new ResolvedPropertyDeclarationDirective(nameSyntax, typeSyntax, propertyTypeDescriptor, initialValue, resolvedAttributes, attributeInstances) { DothtmlNode = directive };
+            return new ResolvedPropertyDeclarationDirective(nameSyntax, typeSyntax, propertyTypeDescriptor, initialValue, resolvedAttributes, attributeInstances) {
+                DothtmlNode = directive
+            };
+        }
+
+        private object? CreateInitializerValue(DothtmlDirectiveNode directive, Type? propertyType, LiteralExpressionBindingParserNode? initializer)
+        {
+            if (initializer == null || propertyType == null) { return null; }
+            var originalLiteralType = initializer.Value.GetType();
+
+            if (originalLiteralType != typeof(string)) { return initializer.Value; }
+
+            var initializerValueString = initializer.Value.ToString();
+
+            if (propertyType == typeof(char))
+            {
+                if (initializerValueString.Length != 1)
+                {
+                    directive.AddError($"Could not convert \"{initializerValueString}\" to char when initializing property {directive.Name}.");
+                    return default(char);
+                }
+
+                return initializerValueString.Single();
+            }
+
+            if (propertyType == typeof(Guid))
+            {
+                if (Guid.TryParse(initializerValueString, out var guid))
+                {
+                    return guid;
+                }
+                directive.AddError($"Could not convert \"{initializerValueString}\" to Guid when initializing property {directive.Name}.");
+                return default(Guid);
+            }
+
+            return initializerValueString;
         }
 
         private IEnumerable<object> InstantiateAttributes(IList<IAbstractDirectiveAttributeReference> resolvedAttributes)
@@ -231,8 +266,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         private ResolvedTypeDescriptor? ResolveTypeNameDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
         {
-            var expression = ParseDirectiveExpression(directive, nameSyntax) as StaticClassIdentifierExpression;
-            if (expression == null)
+            if (ParseDirectiveExpression(directive, nameSyntax) is not StaticClassIdentifierExpression expression)
             {
                 directive.AddError($"Could not resolve type '{nameSyntax.ToDisplayString()}'.");
                 return null;
