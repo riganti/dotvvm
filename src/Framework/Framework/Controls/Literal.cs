@@ -145,7 +145,7 @@ namespace DotVVM.Framework.Controls
 
             // render Knockout data-bind
             string? expression = null;
-            if (textBinding != null && !r.HtmlState.RenderOnServer(this))
+            if (textBinding != null)
             {
                 expression = textBinding.GetKnockoutBindingExpression(this);
                 if (isFormattingRequired)
@@ -172,7 +172,7 @@ namespace DotVVM.Framework.Controls
                 writer.WriteKnockoutDataBindComment("text", expression);
             }
 
-            if (expression == null)
+            if (expression == null || r.HtmlState.RenderOnServer(this))
             {
                 string textToDisplay;
                 if (isFormattingRequired)

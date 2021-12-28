@@ -209,7 +209,7 @@ namespace DotVVM.Framework.Tests.Runtime
             {
                 var vm = new LiteralDateTimeViewModel();
                 var control = $@"@viewModel {vm.GetType().FullName}
-<dot:Literal Text={{value: DateTime.ToBrowserLocalTime()}} RenderSettings.Mode=Server /><dot:Literal Text={{value: NullableDateTime.ToBrowserLocalTime()}} RenderSettings.Mode=Server />";
+<dot:Literal Text={{resource: DateTime.ToBrowserLocalTime()}} RenderSettings.Mode=Server /><dot:Literal Text={{resource: NullableDateTime.ToBrowserLocalTime()}} RenderSettings.Mode=Server />";
 
                 var dotvvmBuilder = CreateDotvvmViewBuilder(control);
                 var context = CreateContext(vm);
