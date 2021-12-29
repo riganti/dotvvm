@@ -47,6 +47,38 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return first;
         }
 
+        public BindingParserNode ReadArrayInitializerValue()
+        {
+            var startIndex = CurrentIndex;
+            SkipWhiteSpace();
+
+            if (Peek() is BindingToken openBraceToken && openBraceToken.Type == BindingTokenType.OpenArrayBrace)
+            {
+                var initializerExpressions = new List<BindingParserNode>();
+                Read();
+                SkipWhiteSpace();
+                initializerExpressions.Add(ReadArrayInitializerValue());
+                SkipWhiteSpace();
+
+                while (Peek() is BindingToken comma && comma.Type == BindingTokenType.Comma)
+                {
+                    Read();
+                    SkipWhiteSpace();
+                    initializerExpressions.Add(ReadArrayInitializerValue());
+                }
+
+                if(Peek() is BindingToken closeBraceToken && closeBraceToken.Type == BindingTokenType.CloseArrayBrace)
+                {
+                    Read();
+                    SkipWhiteSpace();
+                }
+
+                return CreateNode(new ArrayInitializerExpression(initializerExpressions), startIndex);
+            }
+
+            return CreateNode(ReadOrElseExpression(), startIndex);
+        }
+
         public BindingParserNode ReadPropertyDirectiveValue()
         {
             var startIndex = CurrentIndex;
@@ -64,9 +96,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 Read();
                 SkipWhiteSpace();
 
-                var literal = ReadLiteralExpression();
-
-                propertyDeclaration.Initializer = literal;
+                propertyDeclaration.Initializer = ReadArrayInitializerValue();
             }
             if (Peek()?.Type == BindingTokenType.Comma)
             {
@@ -81,7 +111,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 }
             }
 
-            return CreateNode(propertyDeclaration,startIndex);
+            return CreateNode(propertyDeclaration, startIndex);
         }
 
         public BindingParserNode ReadDirectiveTypeName()
@@ -570,7 +600,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             BindingParserNode expression = onlyTypeName ? ReadIdentifierNameExpression() : ReadAtomicExpression();
-
 
             var next = Peek();
             int previousIndex = -1;

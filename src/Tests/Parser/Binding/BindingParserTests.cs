@@ -1195,6 +1195,39 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual("MarkupOptions.Required = True", att2.ToDisplayString());
         }
 
+        [TestMethod]
+        public void BindingParser_AttributedArrayInitializedPropertyDeclaration()
+        {
+            var parser = bindingParserNodeFactory.SetupParser("Namespace.Enum[] MyProperty = [ Namespace.Enum.Value1, Namespace.Enum.Value2, Namespace.Enum.Value3 ], MarkupOptions.AllowHardCodedValue = false, MarkupOptions.Required = true");
+            var declaration = parser.ReadPropertyDirectiveValue();
+
+            var root = declaration.CastTo<PropertyDeclarationBindingParserNode>();
+            var type = root.PropertyType.CastTo<TypeReferenceBindingParserNode>();
+            var name = root.Name.CastTo<SimpleNameBindingParserNode>();
+            var attributes = root.Attributes;
+
+            Assert.AreEqual(2, attributes.Count);
+            Assert.IsNotNull(root.Initializer);
+
+            var att1 = root.Attributes[0].CastTo<BinaryOperatorBindingParserNode>();
+            var att2 = root.Attributes[1].CastTo<BinaryOperatorBindingParserNode>();
+
+            var element1Initializer = root.Initializer.CastTo<ArrayInitializerExpression>().ElementInitializers[0].CastTo<MemberAccessBindingParserNode>();
+            var element2Initializer = root.Initializer.CastTo<ArrayInitializerExpression>().ElementInitializers[1].CastTo<MemberAccessBindingParserNode>();
+            var element3Initializer = root.Initializer.CastTo<ArrayInitializerExpression>().ElementInitializers[2].CastTo<MemberAccessBindingParserNode>();
+
+            Assert.AreEqual("Namespace.Enum[] MyProperty = [ Namespace.Enum.Value1, Namespace.Enum.Value2, Namespace.Enum.Value3 ], MarkupOptions.AllowHardCodedValue = False, MarkupOptions.Required = True", root.ToDisplayString());
+            Assert.AreEqual("Namespace.Enum[]", type.ToDisplayString());
+            Assert.AreEqual("MyProperty", name.ToDisplayString());
+
+            Assert.AreEqual("Namespace.Enum.Value1", element1Initializer.ToDisplayString());
+            Assert.AreEqual("Namespace.Enum.Value2", element2Initializer.ToDisplayString());
+            Assert.AreEqual("Namespace.Enum.Value3", element3Initializer.ToDisplayString());
+
+            Assert.AreEqual("MarkupOptions.AllowHardCodedValue = False", att1.ToDisplayString());
+            Assert.AreEqual("MarkupOptions.Required = True", att2.ToDisplayString());
+        }
+
         private static string SkipWhitespaces(string str) => string.Join("", str.Where(c => !char.IsWhiteSpace(c)));
 
         private static void CheckTokenTypes(IEnumerable<BindingToken> bindingTokens, IEnumerable<BindingTokenType> expectedTokenTypes)
