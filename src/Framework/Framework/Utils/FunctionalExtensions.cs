@@ -85,15 +85,17 @@ namespace DotVVM.Framework.Utils
         public static IEnumerable<(int, T)> Indexed<T>(this IEnumerable<T> enumerable) =>
             enumerable.Select((a, b) => (b, a));
 
-        public static T NotNull<T>(this T? target, string message = "Unexpected null value.")
+        public static T NotNull<T>([NotNull] this T? target, string message = "Unexpected null value.")
             where T : class =>
             target ?? throw new Exception(message);
 
-        public static SortedDictionary<K, V> ToSorted<K, V>(this IDictionary<K, V> d, IComparer<K>? c = null) =>
+        public static SortedDictionary<K, V> ToSorted<K, V>(this IDictionary<K, V> d, IComparer<K>? c = null)
+            where K: notnull =>
             new(d, c ?? Comparer<K>.Default);
     }
 
     sealed class ObjectWithComparer<T> : IEquatable<ObjectWithComparer<T>>, IEquatable<T>
+        where T: notnull
     {
         public ObjectWithComparer(T @object, IEqualityComparer<T> comparer)
         {
@@ -104,11 +106,11 @@ namespace DotVVM.Framework.Utils
         public IEqualityComparer<T> Comparer { get; }
         public T Object { get; }
 
-        public bool Equals(ObjectWithComparer<T> other) => Comparer.Equals(Object, other.Object);
+        public bool Equals(ObjectWithComparer<T>? other) => other != null && Comparer.Equals(Object, other.Object);
 
-        public bool Equals(T other) => Comparer.Equals(Object, other);
+        public bool Equals(T? other) => other != null && Comparer.Equals(Object, other);
 
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             obj is ObjectWithComparer<T> objC ? Equals(objC) :
             obj is T objT ? Equals(objT) :
             false;

@@ -71,7 +71,7 @@ $@"<!DOCTYPE html>
         <meta charset=UTF-8 />
         <style type=text/css>
 ");
-            using (var cssStream = typeof(DotvvmConfiguration).Assembly.GetManifestResourceStream(InternalCssResourceName))
+            using (var cssStream = typeof(DotvvmConfiguration).Assembly.GetManifestResourceStream(InternalCssResourceName)!)
             using (var cssReader = new StreamReader(cssStream))
             {
                 WriteLine(cssReader.ReadToEnd());
@@ -138,7 +138,7 @@ $@"
         <p>&nbsp;</p>
         <script>
 ");
-        using (var jsStream = typeof(DotvvmConfiguration).Assembly.GetManifestResourceStream(ErrorPageJsResourceName))
+        using (var jsStream = typeof(DotvvmConfiguration).Assembly.GetManifestResourceStream(ErrorPageJsResourceName)!)
         using (var jsReader = new StreamReader(jsStream))
         {
             WriteLine(jsReader.ReadToEnd());

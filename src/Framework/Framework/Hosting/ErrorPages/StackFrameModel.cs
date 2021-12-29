@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 {
     public class StackFrameModel
     {
-        public StackFrameModel(MethodBase method, string? formattedMethod, SourceModel at, IFrameMoreInfo[]? moreInfo)
+        public StackFrameModel(MethodBase? method, string? formattedMethod, SourceModel at, IFrameMoreInfo[]? moreInfo)
         {
             Method = method;
             FormattedMethod = formattedMethod;
@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             MoreInfo = moreInfo ?? new IFrameMoreInfo[0];
         }
 
-        public MethodBase Method { get; set; }
+        public MethodBase? Method { get; set; }
         public string? FormattedMethod { get; set; }
         public SourceModel At { get; set; }
         public IFrameMoreInfo[] MoreInfo { get; set; }

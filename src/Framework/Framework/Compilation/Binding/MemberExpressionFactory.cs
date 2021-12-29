@@ -92,7 +92,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 else if (members[0] is Type nonGenericType)
                 {
                     return isGeneric
-                        ? new StaticClassIdentifierExpression(nonGenericType.MakeGenericType(typeArguments))
+                        ? new StaticClassIdentifierExpression(nonGenericType.MakeGenericType(typeArguments!))
                         : new StaticClassIdentifierExpression(nonGenericType.UnderlyingSystemType);
                 }
             }
@@ -160,16 +160,18 @@ namespace DotVVM.Framework.Compilation.Binding
             if (left is IndexExpression indexExpression)
             {
                 // Convert to explicit method call `set_{Indexer}(index, value)`
-                var setMethod = indexExpression.Indexer.SetMethod;
+                var setMethod = indexExpression.Indexer?.SetMethod;
+                if (setMethod is null)
+                    throw new Exception($"Can not set to {indexExpression}, the indexer does not have a setter.");
                 return Expression.Call(indexExpression.Object, setMethod, indexExpression.Arguments.Concat(new[] { value }));
             }
             else if (left.NodeType == ExpressionType.ArrayIndex && left is BinaryExpression arrayIndexExpression)
             {
                 // Convert to explicit method call `Array.SetValue(value, index)`
-                var setMethod = typeof(Array).GetMethod(nameof(Array.SetValue), BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(object), typeof(int) }, null);
+                var setMethod = typeof(Array).GetMethod(nameof(Array.SetValue), BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(object), typeof(int) }, null)!;
                 // If we are working with array of value types then box the value
-                var valueAsObj = (value != null && value.Type.IsValueType) ? Expression.TypeAs(value, typeof(object)) : value;
-                return Expression.Call(arrayIndexExpression.Left, setMethod, new[] { valueAsObj, arrayIndexExpression.Right /* index */ });
+                var valueAsObj = (value != null && value.Type.IsValueType) ? Expression.TypeAs(value, typeof(object)) : value!;
+                return Expression.Call(arrayIndexExpression.Left, setMethod, new Expression[] { valueAsObj, arrayIndexExpression.Right /* index */ });
             }
 
 
@@ -194,18 +196,18 @@ namespace DotVVM.Framework.Compilation.Binding
                 var propertyArgument = call.Arguments[0];
                 var setValue = typeof(DotvvmBindableObject)
                     .GetMethod(nameof(DotvvmBindableObject.SetValueToSource),
-                        new[] { typeof(DotvvmProperty), typeof(object) });
+                        new[] { typeof(DotvvmProperty), typeof(object) })!;
                 return Expression.Call(call.Object, setValue, propertyArgument, Expression.Convert(value, typeof(object)));
             }
 
             return null;
         }
 
-        public Expression Call(Expression? target, Expression[] arguments)
+        public Expression Call(Expression target, Expression[] arguments)
         {
-            if (target is MethodGroupExpression)
+            if (target is MethodGroupExpression methodGroup)
             {
-                return ((MethodGroupExpression)target).CreateMethodCall(arguments, this);
+                return methodGroup.CreateMethodCall(arguments, this);
             }
             return Expression.Invoke(target, arguments);
         }
@@ -260,8 +262,8 @@ namespace DotVVM.Framework.Compilation.Binding
 
             // There are multiple method candidates
             methods = methods.OrderBy(s => s.CastCount).ThenBy(s => s.AutomaticTypeArgCount).ThenBy(s => s.HasParamsAttribute).ToList();
-            var method = methods.FirstOrDefault();
-            var method2 = methods.Skip(1).FirstOrDefault();
+            var method = methods.First();
+            var method2 = methods.Skip(1).First();
             if (method.AutomaticTypeArgCount == method2.AutomaticTypeArgCount && method.CastCount == method2.CastCount && method.HasParamsAttribute == method2.HasParamsAttribute)
             {
                 // TODO: this behavior is not completed. Implement the same behavior as in roslyn.
@@ -337,7 +339,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 var parameterTypes = parameters.Select(s => s.ParameterType).ToArray();
                 if (hasParamsArrayAttributes && parameterTypes.Length > 0)
                 {
-                    parameterTypes[parameterTypes.Length - 1] = parameterTypes.Last().GetElementType();
+                    parameterTypes[parameterTypes.Length - 1] = parameterTypes.Last().GetElementType().NotNull();
                 }
                 for (int genericArgumentPosition = 0; genericArgumentPosition < typeArgs.Length; genericArgumentPosition++)
                 {
@@ -361,7 +363,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 Type elm;
                 if (args.Length == i + 1 && hasParamsArrayAttributes && !args[i].Type.IsArray)
                 {
-                    elm = parameters[i].ParameterType.GetElementType();
+                    elm = parameters[i].ParameterType.GetElementType().NotNull();
                     if (positionalArguments.Skip(i).Any(s => TypeConversion.ImplicitConversion(s, elm) is null))
                     {
                         return null;
@@ -384,7 +386,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 if (args.Length == i + 1 && hasParamsArrayAttributes && !args[i].Type.IsArray)
                 {
                     var converted = positionalArguments.Skip(i)
-                        .Select(a => TypeConversion.ImplicitConversion(a, elm))
+                        .Select(a => TypeConversion.ImplicitConversion(a, elm, throwException: true)!)
                         .ToArray();
                     args[i] = NewArrayExpression.NewArrayInit(elm, converted);
                 }
@@ -417,7 +419,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (hasParamsArrayAttribute && parameters.Length > positionalArguments.Length)
             {
                 var parameter = parameters.Last();
-                var elementType = parameter.ParameterType.GetElementType();
+                var elementType = parameter.ParameterType.GetElementType().NotNull();
 
                 // User specified no arguments for the `params` array, we need to create an empty array
                 arguments[arguments.Length - 1] = Expression.NewArrayInit(elementType);
@@ -442,9 +444,9 @@ namespace DotVVM.Framework.Compilation.Binding
             var namedArgCount = 0;
             for (var i = positionalArguments.Length; i < arguments.Length; i++)
             {
-                if (namedArguments?.ContainsKey(parameters[i].Name) == true)
+                if (namedArguments?.ContainsKey(parameters[i].Name!) == true)
                 {
-                    arguments[i] = namedArguments[parameters[i].Name];
+                    arguments[i] = namedArguments[parameters[i].Name!];
                     namedArgCount++;
                 }
                 else if (parameters[i].HasDefaultValue)
@@ -493,7 +495,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     if (expression.IsArray)
                     {
                         // Arrays need to be handled in a special way to obtain instantiation
-                        genericArguments = new[] { expression.GetElementType() };
+                        genericArguments = new[] { expression.GetElementType().NotNull() };
                     }
                     else
                     {

@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         public TypeRegistry AddSymbols(IEnumerable<ParameterExpression> symbols) =>
-            AddSymbols(symbols.Select(s => new KeyValuePair<string, Expression>(s.Name, s)));
+            AddSymbols(symbols.Select(s => new KeyValuePair<string, Expression>(s.Name!, s)));
 
         public TypeRegistry AddSymbols(IEnumerable<KeyValuePair<string, Expression>> symbols)
         {

@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Binding
             this.compilationService = compilationService;
         }
 
-        public T CreateCachedBinding<T>(string identifier, object[] keys, Func<T> factory) where T: IBinding
+        public T CreateCachedBinding<T>(string identifier, object?[] keys, Func<T> factory) where T: IBinding
         {
             return this.cache.GetOrAdd(new CacheKey(typeof(T), identifier, keys), _ => {
                 foreach (var k in keys)
@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Binding
             return CreateCachedBinding<T>(identifier, keys, () => (T)BindingFactory.CreateBinding(this.compilationService, typeof(T), properties));
         }
 
-        internal static void CheckEqualsImplementation(object k)
+        internal static void CheckEqualsImplementation(object? k)
         {
             // whitelist for some common singletons
             if (k is null || k is DotvvmProperty) return;
@@ -47,11 +47,11 @@ namespace DotVVM.Framework.Binding
 
         class CacheKey: IEquatable<CacheKey>
         {
-            private readonly object[] keys;
+            private readonly object?[] keys;
             private readonly Type type;
             private readonly string id;
 
-            public CacheKey(Type type, string id, object[] keys)
+            public CacheKey(Type type, string id, object?[] keys)
             {
                 this.type = type ?? throw new ArgumentNullException(nameof(type));
                 this.id = id ?? throw new ArgumentNullException("Cache identifier can't be null", nameof(id));

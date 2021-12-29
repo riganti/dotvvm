@@ -260,7 +260,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 CultureName = cultureName;
             }
 
-            public override bool Equals(object obj) => obj is ViewModelSerializationMapWithCulture culture && Equals(culture);
+            public override bool Equals(object? obj) => obj is ViewModelSerializationMapWithCulture culture && Equals(culture);
             public bool Equals(ViewModelSerializationMapWithCulture other) => EqualityComparer<ViewModelSerializationMap>.Default.Equals(Map, other.Map) && CultureName == other.CultureName;
 
             public override int GetHashCode()

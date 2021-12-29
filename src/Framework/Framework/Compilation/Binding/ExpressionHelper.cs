@@ -79,9 +79,11 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public static Expression? ApplyBinder(DynamicMetaObjectBinder binder, bool throwException, params Expression[] expressions)
         {
-            var result = binder.Bind(DynamicMetaObject.Create(null, expressions[0]),
+            // This null just works and C# compiler seems to produce too, I think they have bug in the type annotations
+            //                                                vvvv
+            var result = binder.Bind(DynamicMetaObject.Create(null!, expressions[0]),
                 expressions.Skip(1).Select(e =>
-                    DynamicMetaObject.Create(null, e)).ToArray()
+                    DynamicMetaObject.Create(null!, e)).ToArray()
             );
 
             if (result.Expression.NodeType == ExpressionType.Convert)

@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Compilation.Styles
                 var control = new ResolvedControl(new ControlResolverMetadata(new ControlType(descriptor.ControlType, path, descriptor.DataContextType)), null, new(), dataContext);
                 if (markupControl.SetProperties is object)
                 {
-                    var templateControl = (DotvvmMarkupControl)Activator.CreateInstance(descriptor.ControlType);
+                    var templateControl = (DotvvmMarkupControl)Activator.CreateInstance(descriptor.ControlType)!;
                     markupControl.SetProperties(templateControl);
                     foreach (var p in templateControl.properties)
                     {
@@ -95,7 +95,7 @@ namespace DotVVM.Framework.Compilation.Styles
             value is null ||
             ReflectionUtils.IsPrimitiveType(value.GetType()) ||
             IsImmutableObject(value.GetType()) ||
-            value is Array && ReflectionUtils.IsPrimitiveType(value.GetType().GetElementType());
+            value is Array && ReflectionUtils.IsPrimitiveType(value.GetType().GetElementType()!);
 
         public static ResolvedPropertySetter TranslateProperty(DotvvmProperty property, object? value, DataContextStack dataContext, DotvvmConfiguration? config)
         {

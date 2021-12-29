@@ -71,7 +71,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public TypeRegistry InitSymbols(DataContextStack dataContext)
         {
-            return AddTypeSymbols(TypeRegistry.Default(compiledAssemblyCache).AddSymbols(GetParameters(dataContext).Select(d => new KeyValuePair<string, Expression>(d.Name, d))), dataContext);
+            return AddTypeSymbols(TypeRegistry.Default(compiledAssemblyCache).AddSymbols(GetParameters(dataContext).Select(d => new KeyValuePair<string, Expression>(d.Name!, d))), dataContext);
         }
 
         public TypeRegistry AddTypeSymbols(TypeRegistry reg, DataContextStack dataContext)
@@ -132,14 +132,13 @@ namespace DotVVM.Framework.Compilation.Binding
     {
         public static Expression ParseWithLambdaConversion(this IBindingExpressionBuilder builder, string expression, DataContextStack dataContexts, BindingParserOptions options, Type expectedType, params KeyValuePair<string, Expression>[] additionalSymbols)
         {
-            if (expectedType.IsDelegate())
+            if (expectedType.IsDelegate(out var invokeMethod))
             {
-                var resultType = expectedType.GetMethod("Invoke").ReturnType;
-                var delegateSymbols = expectedType
-                                      .GetMethod("Invoke")
+                var resultType = invokeMethod.ReturnType;
+                var delegateSymbols = invokeMethod
                                       .GetParameters()
                                       .Select((p, index) => new KeyValuePair<string, Expression>(
-                                          p.Name,
+                                          p.Name.NotNull(),
                                           Expression.Parameter(p.ParameterType, p.Name)
                                               .AddParameterAnnotation(new BindingParameterAnnotation(
                                                   extensionParameter: new TypeConversion.MagicLambdaConversionExtensionParameter(index, p.Name, p.ParameterType)))

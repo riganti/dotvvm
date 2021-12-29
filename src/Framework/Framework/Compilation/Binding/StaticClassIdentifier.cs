@@ -15,6 +15,6 @@ namespace DotVVM.Framework.Compilation.Binding
             this.Type = type;
         }
 
-        public override string ToString() => Type.FullName;
+        public override string ToString() => Type.FullName ?? "";
     }
 }

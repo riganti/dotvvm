@@ -163,13 +163,15 @@ namespace DotVVM.Framework.Compilation.Javascript
         public ViewModelSerializationMap? SerializationMap { get; set; }
         public bool? ContainsObservables { get; set; }
 
-        public bool Equals(ViewModelInfoAnnotation other) =>
+        public bool Equals(ViewModelInfoAnnotation? other) =>
+            object.ReferenceEquals(this, other) ||
+            other is not null &&
             Type == other.Type &&
             IsControl == other.IsControl &&
             ExtensionParameter == other.ExtensionParameter &&
             ContainsObservables == other.ContainsObservables;
 
-        public override bool Equals(object obj) => obj is ViewModelInfoAnnotation obj2 && this.Equals(obj2);
+        public override bool Equals(object? obj) => obj is ViewModelInfoAnnotation obj2 && this.Equals(obj2);
 
         public override int GetHashCode() => (Type, ExtensionParameter, IsControl, ContainsObservables).GetHashCode();
 

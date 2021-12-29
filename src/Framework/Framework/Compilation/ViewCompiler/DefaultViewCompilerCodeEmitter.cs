@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
         /// <summary>
         /// Emits the create object expression.
         /// </summary>
-        public ParameterExpression EmitCreateObject(Type type, object[]? constructorArguments = null)
+        public ParameterExpression EmitCreateObject(Type type, object?[]? constructorArguments = null)
         {
             constructorArguments ??= new object[0];
             return EmitCreateObject(type, constructorArguments.Select(EmitValue));
@@ -83,7 +83,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
         private Expression EmitCreateObjectExpression(Type type, IEnumerable<Expression> arguments)
         {
             var argumentTypes = arguments.Select(a => a.Type).ToArray();
-            var constructor = type.GetConstructor(argumentTypes);
+            var constructor = type.GetConstructor(argumentTypes).NotNull($"Could not find constructor of {type}");
 
             return Expression.New(constructor, arguments.ToArray());
         }
@@ -191,9 +191,9 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             blockStack.Peek().Expressions.Add(magicSetValueCall);
         }
 
-        private bool TryCreateArrayOfConstants(Expression?[] values, out object[] invertedValues)
+        private bool TryCreateArrayOfConstants(Expression?[] values, out object?[] invertedValues)
         {
-            invertedValues = new object[values.Length];
+            invertedValues = new object?[values.Length];
             for (int i = 0; i < values.Length; i++)
             {
                 if (values[i] == null) { continue; }
@@ -351,7 +351,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
 
             public BlockInfo(ParameterExpression[] parameters)
             {
-                Parameters = parameters.ToDictionary(k => k.Name, v => v);
+                Parameters = parameters.ToDictionary(k => k.Name.NotNull(), v => v);
             }
 
             public ParameterExpression GetParameterOrVariable(string identifierName)

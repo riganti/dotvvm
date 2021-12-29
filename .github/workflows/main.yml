@@ -30,21 +30,21 @@ jobs:
     - name: Build (without warnings)
       run: dotnet build src/Framework/Framework --configuration Release --no-restore --no-incremental /property:WarningLevel=0
     - name: Build
-      run: dotnet build src/Framework/Framework --configuration Release --no-restore --no-incremental --framework netstandard2.1 /WarnAsError
+      run: dotnet build src/Framework/Framework --configuration Release --no-restore --no-incremental --framework net6.0 /WarnAsError
     - name: Build (Debug)
-      run: dotnet build src/Framework/Framework --configuration Debug --no-restore --no-incremental --framework netstandard2.1 /WarnAsError
+      run: dotnet build src/Framework/Framework --configuration Debug --no-restore --no-incremental --framework net6.0 /WarnAsError
     - name: Build Testing
-      run: dotnet build src/Framework/Testing --no-incremental --framework netstandard2.1 /WarnAsError
+      run: dotnet build src/Framework/Testing --no-incremental --framework net6.0 /WarnAsError
     - name: Build Hosting.AspNetCore
-      run: dotnet build src/Framework/Hosting.AspNetCore --no-incremental /WarnAsError --framework net5.0
+      run: dotnet build src/Framework/Hosting.AspNetCore --no-incremental /WarnAsError --framework net6.0
     - name: Build Tracing.MiniProfiler
-      run: dotnet build src/Tracing/MiniProfiler.AspNetCore --no-incremental /WarnAsError
+      run: dotnet build src/Tracing/MiniProfiler.AspNetCore --no-incremental /WarnAsError --framework net6.0
     - name: Build Tracing.ApplicationInsights
-      run: dotnet build src/Tracing/ApplicationInsights.AspNetCore --no-incremental /WarnAsError
+      run: dotnet build src/Tracing/ApplicationInsights.AspNetCore --no-incremental /WarnAsError --framework net6.0
     - name: Build Dynamic Data
-      run: dotnet build src/DynamicData/DynamicData --no-incremental --framework netstandard2.1 /WarnAsError
+      run: dotnet build src/DynamicData/DynamicData --no-incremental --framework net6.0 /WarnAsError
     - name: Build Compiler
-      run: dotnet build src/Tools/Compiler --no-incremental /WarnAsError
+      run: dotnet build src/Tools/Compiler --no-incremental /WarnAsError --framework net6.0
 
   unit-tests:
     name: dotnet unit tests

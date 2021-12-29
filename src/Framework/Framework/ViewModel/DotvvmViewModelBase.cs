@@ -55,22 +55,22 @@ namespace DotVVM.Framework.ViewModel
         }
 
         public virtual Task Init()
-            => Task.FromResult(0);
+            => Task.CompletedTask;
 
         public virtual Task Load()
-            => Task.FromResult(0);
+            => Task.CompletedTask;
 
         public virtual Task PreRender()
-            => Task.FromResult(0);
+            => Task.CompletedTask;
 
         protected virtual IEnumerable<IDotvvmViewModel> GetChildViewModels()
         {
             // PERF: precompile ViewModels getter
             var thisType = GetType();
-            var properties = ChildViewModelsCache.GetChildViewModelsProperties(thisType).Select(p => (IDotvvmViewModel)p.GetValue(this, null));
-            var collection = ChildViewModelsCache.GetChildViewModelsCollection(thisType).SelectMany(p => (IEnumerable<IDotvvmViewModel>)p.GetValue(this, null) ?? new IDotvvmViewModel[0]);
+            var properties = ChildViewModelsCache.GetChildViewModelsProperties(thisType).Select(p => (IDotvvmViewModel?)p.GetValue(this, null));
+            var collection = ChildViewModelsCache.GetChildViewModelsCollection(thisType).SelectMany(p => (IEnumerable<IDotvvmViewModel?>?)p.GetValue(this, null) ?? new IDotvvmViewModel[0]);
 
-            return properties.Concat(collection).Where(c => c != null).ToArray();
+            return properties.Concat(collection).Where(c => c != null).ToArray()!;
         }
 
 

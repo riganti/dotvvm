@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Hosting
         {
             void redirect(IDotvvmRequestContext context)
             {
-                var routeParameters = context.Parameters.ToDictionary(e => e.Key, e => e.Value);
+                var routeParameters = context.Parameters!.ToDictionary(e => e.Key, e => e.Value);
                 if (context.Configuration.DefaultCulture.Equals(routeParameters[name]))
                     throw new Exception($"The specified default culture is probably invalid");
                 routeParameters[name] = context.Configuration.DefaultCulture;
@@ -78,7 +78,7 @@ namespace DotVVM.Framework.Hosting
                     context.HttpContext.Request.Query
                     .Where(q => q.Key != name)
                     .Concat(new[]{ new KeyValuePair<string, string>(name, context.Configuration.DefaultCulture) })
-                    .Select(q => Uri.EscapeUriString(q.Key) + "=" + Uri.EscapeUriString(q.Value)).Apply(s => string.Join("&", s));
+                    .Select(q => Uri.EscapeDataString(q.Key) + "=" + Uri.EscapeDataString(q.Value)).Apply(s => string.Join("&", s));
                 if (url.ToString() == context.HttpContext.Request.Url.ToString())
                     throw new Exception($"The specified default culture is probably invalid");
                 context.RedirectToUrl(url.ToString());

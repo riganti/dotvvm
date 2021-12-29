@@ -31,11 +31,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                 var itemEnumerator = dict.GetEnumerator();
 
-                var keyProp = dictionaryEntryType.GetProperty(nameof(DictionaryEntry.Key));
-                var valueProp = dictionaryEntryType.GetProperty(nameof(DictionaryEntry.Value));
+                var keyProp = dictionaryEntryType.GetProperty(nameof(DictionaryEntry.Key))!;
+                var valueProp = dictionaryEntryType.GetProperty(nameof(DictionaryEntry.Value))!;
 
                 var list = Activator.CreateInstance(listType);
-                var invokeMethod = listType.GetMethod(nameof(List<object>.Add));
+                var invokeMethod = listType.GetMethod(nameof(List<object>.Add))!;
                 while (itemEnumerator.MoveNext())
                 {
                     var item = Activator.CreateInstance(keyValuePair, keyProp.GetValue(itemEnumerator.Current), valueProp.GetValue(itemEnumerator.Current));
@@ -60,16 +60,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 var listType = listGenericType.MakeGenericType(keyValuePair);
 
                 var dict = existingValue as IDictionary;
-                dict ??= (IDictionary)Activator.CreateInstance(objectType);
+                dict ??= (IDictionary)Activator.CreateInstance(objectType)!;
 
-                var keyProp = keyValuePair.GetProperty(nameof(KeyValuePair<object, object>.Key));
-                var valueProp = keyValuePair.GetProperty(nameof(KeyValuePair<object, object>.Value));
+                var keyProp = keyValuePair.GetProperty(nameof(KeyValuePair<object, object>.Key))!;
+                var valueProp = keyValuePair.GetProperty(nameof(KeyValuePair<object, object>.Value))!;
 
                 var value = serializer.Deserialize(reader, listType) as IEnumerable;
                 if (value is null) throw new Exception($"Could not deserialize object with path '{reader.Path}' as IEnumerable.");
                 foreach (var item in value)
                 {
-                    dict.Add(keyProp.GetValue(item), valueProp.GetValue(item));
+                    dict.Add(keyProp.GetValue(item)!, valueProp.GetValue(item));
                 }
                 return dict;
             }

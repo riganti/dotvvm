@@ -106,13 +106,13 @@ namespace DotVVM.Framework.ViewModel.Validation
                 return base.VisitMember(node);
             }
 
-            private object? Expand(Expression current)
+            private object? Expand(Expression? current)
             {
                 if (current is ConstantExpression constant)
                 {
                     return constant.Value;
                 }
-                if (!(current is MemberExpression member))
+                if (current is not MemberExpression member)
                 {
                     return null;
                 }

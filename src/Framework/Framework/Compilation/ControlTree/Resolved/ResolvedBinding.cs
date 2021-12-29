@@ -84,6 +84,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         {
         }
 
-        public override string ToString() => Binding.ToString();
+        public override string? ToString() => Binding.ToString();
     }
 }

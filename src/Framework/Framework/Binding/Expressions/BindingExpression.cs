@@ -346,8 +346,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 fromDataContext.IsEmpty && attributes is null or { Length: 0 } ?
                     new BindingResolverCollection(Enumerable.Empty<Delegate>()) :
                     new BindingResolverCollection(
-                        attributes
-                        .SelectMany(o => o.GetResolvers())
+                        (attributes?.SelectMany(o => o.GetResolvers()) ?? Enumerable.Empty<Delegate>())
                         .Concat(fromDataContext)
                         .ToArray());
 

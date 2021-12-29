@@ -6,6 +6,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -26,7 +27,7 @@ namespace DotVVM.Framework.Compilation
             protected override Expression VisitMember(MemberExpression node)
             {
                 if (typeof(DotvvmProperty).IsAssignableFrom(node.Type) && node.Member is FieldInfo { IsStatic: true } field)
-                    UsedProperties.Add((DotvvmProperty)field.GetValue(null));
+                    UsedProperties.Add((DotvvmProperty)field.GetValue(null).NotNull());
                 return base.VisitMember(node);
             }
 

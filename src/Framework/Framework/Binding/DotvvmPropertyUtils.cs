@@ -36,10 +36,12 @@ public static class DotvvmPropertyUtils
                 return (This, null);
             case ExpressionType.MemberAccess: {
                 var me = (MemberExpression)expression;
+                if (me.Expression is null)
+                    goto default;
                 var prop = me.Member;
                 // just skip ValueOrBinding unwrapping
                 if (prop.Name is nameof(ValueOrBinding<int>.ValueOrDefault) or nameof(ValueOrBinding<int>.BindingOrDefault) && 
-                    prop.DeclaringType.IsGenericType && prop.DeclaringType.GetGenericTypeDefinition() == typeof(ValueOrBinding<>))
+                    prop.DeclaringType!.IsGenericType && prop.DeclaringType.GetGenericTypeDefinition() == typeof(ValueOrBinding<>))
                     return ParsePropReference(me.Expression);
                 return ParseProperty(me.Expression, prop);
             }
@@ -63,7 +65,7 @@ public static class DotvvmPropertyUtils
                 var ne = (NewExpression)expression;
 
                 // skip new ValueOrBinding(myProperty)
-                if (ne.Constructor.DeclaringType.IsGenericType && ne.Constructor.DeclaringType.GetGenericTypeDefinition() == typeof(ValueOrBinding<>))
+                if (ne.Constructor!.DeclaringType!.IsGenericType && ne.Constructor.DeclaringType.GetGenericTypeDefinition() == typeof(ValueOrBinding<>))
                     return ParsePropReference(ne.Arguments.Single());
 
                 goto default;
@@ -111,9 +113,11 @@ public static class DotvvmPropertyUtils
         else throw null!;
     }
 
-    static (ReferenceType, DotvvmProperty) ParseIndexer(Expression targetExpr, Expression index)
+    static (ReferenceType, DotvvmProperty) ParseIndexer(Expression? targetExpr, Expression index)
     {
         var me = targetExpr as MemberExpression ?? throw new NotSupportedException($"Can not parse property from {targetExpr}[{index}]");
+        if (me.Expression is null)
+            throw new NotSupportedException($"Expression {targetExpr} is not supported, accesssing static properties isn't allowed.");
         var prop = me.Member;
         var name = GetConstant<string>(index);
         var target = ParsePropReference(me.Expression);

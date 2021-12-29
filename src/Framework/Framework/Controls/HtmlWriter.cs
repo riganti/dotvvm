@@ -161,7 +161,7 @@ namespace DotVVM.Framework.Controls
 
             if (dataBindAttributes.Contains(name))
             {
-                var currentGroup = (KnockoutBindingGroup)dataBindAttributes[name];
+                var currentGroup = (KnockoutBindingGroup)dataBindAttributes[name]!;
                 currentGroup.AddFrom(bindingGroup);
             }
             else

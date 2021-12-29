@@ -83,7 +83,7 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
-        protected virtual ResolvedPropertySetter EmitConstant(object value, DotvvmProperty property, ref string? error)
+        protected virtual ResolvedPropertySetter EmitConstant(object? value, DotvvmProperty property, ref string? error)
         {
             return new ResolvedPropertyValue(property, value);
         }
@@ -131,7 +131,7 @@ namespace DotVVM.Framework.Compilation
                 CSharpBinderFlags.None, name, null, context,
                 new[] { CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.UseCompileTimeType | CSharpArgumentInfoFlags.IsStaticType, null) }
                 .Concat(ExpressionHelper.GetBinderArguments(parameters.Length)));
-            var result = binder.Bind(DynamicMetaObject.Create(context, Expression.Constant(context)), parameters.Select(e => DynamicMetaObject.Create(null, e)).ToArray());
+            var result = binder.Bind(DynamicMetaObject.Create(context, Expression.Constant(context)), parameters.Select(e => DynamicMetaObject.Create(null!, e)).ToArray());
             if (result.Expression.NodeType == ExpressionType.Throw) return null;
             Expression expr = result.Expression;
             if (expr.NodeType == ExpressionType.Convert)
