@@ -60,10 +60,9 @@ fileName: "control.dotcontrol");
 
             Assert.AreEqual(new Guid("645f970d-2879-4fff-a19d-ba7b4c4a4853"), declarationDirective.InitialValue);
         }
-
         private static ResolvedPropertyDeclarationDirective EnsureSingleResolvedDeclarationDirective(ResolvedTreeRoot root) =>
-                    root.Directives["property"]
-                        .Single()
-                        .CastTo<ResolvedPropertyDeclarationDirective>();
+                root.Directives["property"]
+                    .Single()
+                    .CastTo<ResolvedPropertyDeclarationDirective>();
     }
 }
