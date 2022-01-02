@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Compilation.Styles
         public StyleBuilder<DotvvmBindableObject> Register(Type type, Func<IStyleMatchContext, bool>? matcher = null, bool allowDerived = true)
         {
             ThrowIfFrozen();
-            var styleBuilder = new StyleBuilder<DotvvmBindableObject>(matcher, allowDerived);
+            var styleBuilder = new StyleBuilder<DotvvmBindableObject>(matcher, allowDerived, type);
             Styles.Add(styleBuilder.GetStyle());
             return styleBuilder;
         }
