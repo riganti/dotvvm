@@ -5,12 +5,21 @@
 
 @property string Heading
 @property System.Collections.Generic.IList<string> Items
+@property string[][] Array = [ ["a"], ["b", "c"], ["d"] ]
 @property DotVVM.Framework.Binding.Expressions.Command AddCommand
 
 <h2>{{value: _control.Heading}}</h2>
 
 <dot:Repeater WrapperTagName="ol" DataSource="{value: _control.Items }">
     <li>{{value: _this}}</li>
+</dot:Repeater>
+
+<dot:Repeater WrapperTagName="ol" DataSource="{value: _control.Array }">
+    <li>
+    <dot:Repeater WrapperTagName="ol" DataSource="{value: _this }">
+        <li>{{value: _this}}</li>
+    </dot:Repeater>
+    </li>
 </dot:Repeater>
 
 <dot:Button Click="{command: _control.AddCommand()}" Text="Add item" />
