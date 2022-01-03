@@ -1190,6 +1190,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             tokenizer.Tokenize(rawExpression);
             var parser = new BindingParser() { Tokens = tokenizer.Tokens };
             expression = parser.ReadFormattedExpression();
+            expression.StartPosition = start;
+
             if (expression.HasNodeErrors)
             {
                 error = string.Join(" ", new[] { $"Error while parsing expression \"{rawExpression}\"." }.Concat(expression.NodeErrors));
