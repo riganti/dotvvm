@@ -583,19 +583,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 name = new SimpleNameBindingParserNode("");
             }
 
-            var initializer = declaration?.Initializer as LiteralExpressionBindingParserNode;
-            if (declaration?.Initializer != null && initializer == null)
-            {
-                initializer = new LiteralExpressionBindingParserNode(null);
-                directiveNode.AddError("Property initializer must be a constant.");
-            }
-
             var attributeSyntaxes = (declaration?.Attributes ?? new List<BindingParserNode>());
             var resolvedAttributes = ProcessPropertyDirectiveAttributeReference(directiveNode, attributeSyntaxes)
                 .Select(a => treeBuilder.BuildPropertyDeclarationAttributeReferenceDirective(directiveNode, a.name, a.type, a.initializer))
                 .ToList();
 
-            return treeBuilder.BuildPropertyDeclarationDirective(directiveNode, type, name, initializer, resolvedAttributes, valueSyntaxRoot);
+            return treeBuilder.BuildPropertyDeclarationDirective(directiveNode, type, name, declaration?.Initializer, resolvedAttributes, valueSyntaxRoot);
         }
 
         private List<(ActualTypeReferenceBindingParserNode type, IdentifierNameBindingParserNode name, LiteralExpressionBindingParserNode initializer)> ProcessPropertyDirectiveAttributeReference(DothtmlDirectiveNode directiveNode, List<BindingParserNode> attributeReferences)

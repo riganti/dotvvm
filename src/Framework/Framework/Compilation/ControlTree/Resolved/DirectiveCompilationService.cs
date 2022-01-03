@@ -54,9 +54,25 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return null;
         }
 
-        public object? ResolvePropertyInitializer(DothtmlDirectiveNode directive, Type? propertyType, LiteralExpressionBindingParserNode? initializer)
+        public object? ResolvePropertyInitializer(DothtmlDirectiveNode directive, Type? propertyType, BindingParserNode? initializer)
         {
-            return CreatePropertyInitializerValue(directive, propertyType, initializer) ?? CreateDefaultValue(propertyType);
+            if (initializer == null) return null;
+
+            var registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache);
+
+            var visitor = new ExpressionBuildingVisitor(registry, new MemberExpressionFactory(extensionMethodsCache)) {
+                ResolveOnlyTypeName = false,
+                Scope = null
+            };
+
+            var initializerExpression = visitor.Visit(initializer);
+
+            var returnValueParameter = Expression.Parameter(propertyType, "returnValue");
+
+            var lambda = Expression.Lambda(Expression.Block(new[] { returnValueParameter }, Expression.Assign(returnValueParameter, initializerExpression)));
+            var lambdaDelegate = lambda.Compile();
+
+            return lambdaDelegate.DynamicInvoke() ?? CreateDefaultValue(propertyType);
         }
 
         private object? CreatePropertyInitializerValue(DothtmlDirectiveNode directive, Type? propertyType, LiteralExpressionBindingParserNode? initializer)

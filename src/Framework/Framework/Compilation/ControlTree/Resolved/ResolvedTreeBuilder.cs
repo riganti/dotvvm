@@ -117,7 +117,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             DothtmlDirectiveNode directive,
             TypeReferenceBindingParserNode typeSyntax,
             SimpleNameBindingParserNode nameSyntax,
-            LiteralExpressionBindingParserNode? initializer,
+            BindingParserNode? initializer,
             IList<IAbstractDirectiveAttributeReference> resolvedAttributes,
             BindingParserNode valueSyntaxRoot)
         {
