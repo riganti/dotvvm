@@ -1,32 +1,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
-using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
-using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Utils;
 using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Compilation.ViewCompiler;
-using System.Reflection;
-using System.Reflection.Emit;
-using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     public class ResolvedTreeBuilder : IAbstractTreeBuilder
     {
         private readonly BindingCompilationService bindingService;
-        private readonly CompiledAssemblyCache compiledAssemblyCache;
-        private readonly ExtensionMethodsCache extensionMethodsCache;
+        private readonly DirectiveCompilationService directiveService;
 
-        public ResolvedTreeBuilder(BindingCompilationService bindingService, CompiledAssemblyCache compiledAssemblyCache, ExtensionMethodsCache extensionsMethodsCache)
+        public ResolvedTreeBuilder(BindingCompilationService bindingService, DirectiveCompilationService directiveService)
         {
             this.bindingService = bindingService;
-            this.compiledAssemblyCache = compiledAssemblyCache;
-            this.extensionMethodsCache = extensionsMethodsCache;
+            this.directiveService = directiveService;
         }
 
         public IAbstractTreeRoot BuildTreeRoot(IControlTreeResolver controlTreeResolver, IControlResolverMetadata metadata, DothtmlRootNode node, IDataContextStack dataContext, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, IAbstractControlBuilderDescriptor? masterPage)
@@ -81,18 +73,15 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 syntaxNode.NodeErrors.ForEach(node.AddError);
             }
 
-            var expression = ParseDirectiveExpression(node, typeSyntax);
+            var typeDescriptor = directiveService.ResolveType(node, typeSyntax);
 
-            if (expression is UnknownStaticClassIdentifierExpression)
+            if (typeDescriptor is null)
             {
                 node.AddError($"{typeSyntax.ToDisplayString()} is not a valid type.");
                 return new ResolvedServiceInjectDirective(nameSyntax, typeSyntax, null) { DothtmlNode = node };
             }
-            else if (expression is StaticClassIdentifierExpression)
-            {
-                return new ResolvedServiceInjectDirective(nameSyntax, typeSyntax, expression.Type) { DothtmlNode = node };
-            }
-            else throw new NotSupportedException();
+
+            return new ResolvedServiceInjectDirective(nameSyntax, typeSyntax, typeDescriptor.Type) { DothtmlNode = node };
         }
 
         public IAbstractImportDirective BuildImportDirective(
@@ -105,40 +94,20 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 syntaxNode.NodeErrors.ForEach(node.AddError);
             }
 
-            var expression = ParseDirectiveExpression(node, nameSyntax);
+            var type = directiveService.ResolveTypeOrNamespace(node, nameSyntax);
 
-            if (expression is UnknownStaticClassIdentifierExpression)
-            {
-                var namespaceValid = expression
-                    .CastTo<UnknownStaticClassIdentifierExpression>().Name
-                    .Apply(compiledAssemblyCache.IsAssemblyNamespace);
-
-                if (!namespaceValid)
-                {
-                    node.AddError($"{nameSyntax.ToDisplayString()} is unknown type or namespace.");
-                }
-
-                return new ResolvedImportDirective(aliasSyntax, nameSyntax, null) { DothtmlNode = node };
-
-            }
-            else if (expression is StaticClassIdentifierExpression)
-            {
-                return new ResolvedImportDirective(aliasSyntax, nameSyntax, expression.Type) { DothtmlNode = node };
-            }
-
-            node.AddError($"{nameSyntax.ToDisplayString()} is not a type or namespace.");
-            return new ResolvedImportDirective(aliasSyntax, nameSyntax, null) { DothtmlNode = node };
+            return new ResolvedImportDirective(aliasSyntax, nameSyntax, type) { DothtmlNode = node };
         }
 
         public IAbstractViewModelDirective BuildViewModelDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
         {
-            var type = ResolveTypeNameDirective(directive, nameSyntax);
+            var type = directiveService.ResolveType(directive, nameSyntax);
             return new ResolvedViewModelDirective(nameSyntax, type!) { DothtmlNode = directive };
         }
 
         public IAbstractBaseTypeDirective BuildBaseTypeDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
         {
-            var type = ResolveTypeNameDirective(directive, nameSyntax);
+            var type = directiveService.ResolveType(directive, nameSyntax);
             return new ResolvedBaseTypeDirective(nameSyntax, type!) { DothtmlNode = directive };
         }
         public IAbstractDirective BuildViewModuleDirective(DothtmlDirectiveNode directiveNode, string modulePath, string resourceName) =>
@@ -152,7 +121,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             IList<IAbstractDirectiveAttributeReference> resolvedAttributes,
             BindingParserNode valueSyntaxRoot)
         {
-            var propertyTypeDescriptor = ResolveTypeNameDirective(directive, typeSyntax);
+            var propertyTypeDescriptor = directiveService.ResolveType(directive, typeSyntax);
 
             if (propertyTypeDescriptor == null)
             {
@@ -160,46 +129,13 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             }
 
             //Chack that I am not asigning incompatible types 
-            var initialValue = CreateInitializerValue(directive, propertyTypeDescriptor?.Type, initializer) ?? CreateDefaultValue(propertyTypeDescriptor);
+            var initialValue = directiveService.ResolvePropertyInitializer(directive, propertyTypeDescriptor?.Type, initializer);
 
             var attributeInstances = InstantiateAttributes(resolvedAttributes).ToList();
 
             return new ResolvedPropertyDeclarationDirective(nameSyntax, typeSyntax, propertyTypeDescriptor, initialValue, resolvedAttributes, attributeInstances) {
                 DothtmlNode = directive
             };
-        }
-
-        private object? CreateInitializerValue(DothtmlDirectiveNode directive, Type? propertyType, LiteralExpressionBindingParserNode? initializer)
-        {
-            if (initializer == null || propertyType == null) { return null; }
-            var originalLiteralType = initializer.Value.GetType();
-
-            if (originalLiteralType != typeof(string)) { return initializer.Value; }
-
-            var initializerValueString = initializer.Value.ToString();
-
-            if (propertyType == typeof(char))
-            {
-                if (initializerValueString.Length != 1)
-                {
-                    directive.AddError($"Could not convert \"{initializerValueString}\" to char when initializing property {directive.Name}.");
-                    return default(char);
-                }
-
-                return initializerValueString.Single();
-            }
-
-            if (propertyType == typeof(Guid))
-            {
-                if (Guid.TryParse(initializerValueString, out var guid))
-                {
-                    return guid;
-                }
-                directive.AddError($"Could not convert \"{initializerValueString}\" to Guid when initializing property {directive.Name}.");
-                return default(Guid);
-            }
-
-            return initializerValueString;
         }
 
         private IEnumerable<object> InstantiateAttributes(IList<IAbstractDirectiveAttributeReference> resolvedAttributes)
@@ -234,7 +170,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             ActualTypeReferenceBindingParserNode typeSyntax,
             LiteralExpressionBindingParserNode initializer)
         {
-            var typeDescriptor = ResolveTypeNameDirective(directiveNode, typeSyntax);
+            var typeDescriptor = directiveService.ResolveType(directiveNode, typeSyntax);
 
             if (typeDescriptor == null)
             {
@@ -244,63 +180,10 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return new ResolvedPropertyDirectiveAttributeReference(typeSyntax, propertyNameSyntax, typeDescriptor, initializer);
         }
 
-
-
-        private object? CreateDefaultValue(ResolvedTypeDescriptor descriptor)
-        {
-            if (descriptor != null && descriptor.Type.IsValueType)
-            {
-                return Activator.CreateInstance(descriptor.Type);
-            }
-            return null;
-        }
-
         public IAbstractBaseTypeDirective Build(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
         {
-            var type = ResolveTypeNameDirective(directive, nameSyntax);
+            var type = directiveService.ResolveType(directive, nameSyntax);
             return new ResolvedBaseTypeDirective(nameSyntax, type) { DothtmlNode = directive };
-        }
-
-        private ResolvedTypeDescriptor? ResolveTypeNameDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
-        {
-            if (ParseDirectiveExpression(directive, nameSyntax) is not StaticClassIdentifierExpression expression)
-            {
-                directive.AddError($"Could not resolve type '{nameSyntax.ToDisplayString()}'.");
-                return null;
-            }
-            else return new ResolvedTypeDescriptor(expression.Type);
-        }
-
-
-        private Expression? ParseDirectiveExpression(DothtmlDirectiveNode directive, BindingParserNode expressionSyntax)
-        {
-            TypeRegistry registry;
-            if (expressionSyntax is TypeOrFunctionReferenceBindingParserNode typeOrFunction)
-                expressionSyntax = typeOrFunction.ToTypeReference();
-
-            if (expressionSyntax is AssemblyQualifiedNameBindingParserNode assemblyQualifiedName)
-            {
-                registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache, assemblyQualifiedName.AssemblyName.ToDisplayString());
-            }
-            else
-            {
-                registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache);
-            }
-
-            var visitor = new ExpressionBuildingVisitor(registry, new MemberExpressionFactory(extensionMethodsCache)) {
-                ResolveOnlyTypeName = true,
-                Scope = null
-            };
-
-            try
-            {
-                return visitor.Visit(expressionSyntax);
-            }
-            catch (Exception ex)
-            {
-                directive.AddError($"{expressionSyntax.ToDisplayString()} is not a valid type or namespace: {ex.Message}");
-                return null;
-            }
         }
 
         public IAbstractDirective BuildDirective(DothtmlDirectiveNode node)
