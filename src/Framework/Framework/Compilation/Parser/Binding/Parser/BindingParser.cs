@@ -14,6 +14,14 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     public class BindingParser : ParserBase<BindingToken, BindingTokenType>
     {
         protected override bool IsWhiteSpace(BindingToken t) => t.Type == BindingTokenType.WhiteSpace;
+        private readonly int bindingOffset;
+
+        public BindingParser(int bindingOffset = 0)
+        {
+            // Note: this can be useful when making additional pass for certain tokens
+            // - setting this argument ensures that all created nodes have correctly shifted start positions
+            this.bindingOffset = bindingOffset;
+        }
 
         public BindingParserNode ReadDirectiveValue()
         {
@@ -1092,7 +1100,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             }
         }
 
-        private static (string, List<BindingParserNode>) ParseInterpolatedString(string text, out string? error)
+        private (string, List<BindingParserNode>) ParseInterpolatedString(string text, out string? error)
         {
             error = null;
             var sb = new StringBuilder();
@@ -1143,7 +1151,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return (sb.ToString(), arguments);
         }
 
-        private static bool TryParseInterpolationExpression(string text, int start, out int end, out BindingParserNode? expression, out string? error)
+        private bool TryParseInterpolationExpression(string text, int start, out int end, out BindingParserNode? expression, out string? error)
         {
             var index = start;
             var foundEnd = false;
@@ -1188,9 +1196,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var rawExpression = text.Substring(start, end - start);
             var tokenizer = new BindingTokenizer();
             tokenizer.Tokenize(rawExpression);
-            var parser = new BindingParser() { Tokens = tokenizer.Tokens };
-            expression = parser.ReadFormattedExpression();
-            expression.StartPosition = start;
+            var innerExpressionParser = new BindingParser(bindingOffset: bindingOffset + start) { Tokens = tokenizer.Tokens };
+            expression = innerExpressionParser.ReadFormattedExpression();
 
             if (expression.HasNodeErrors)
             {
@@ -1208,11 +1215,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
             if (startIndex < Tokens.Count)
             {
-                node.StartPosition = Tokens[startIndex].StartPosition;
+                node.StartPosition = Tokens[startIndex].StartPosition + bindingOffset;
             }
             else if (startIndex == Tokens.Count && Tokens.Count > 0)
             {
-                node.StartPosition = Tokens[startIndex - 1].EndPosition;
+                node.StartPosition = Tokens[startIndex - 1].EndPosition + bindingOffset;
             }
             node.Length = node.Tokens.Sum(t => (int?)t.Length) ?? 0;
 

@@ -178,7 +178,18 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        public void BindingParser_InterpolatedString_Valid()
+        public void BindingParser_InterpolatedString_BinaryOperationInterpolation()
+        {
+            var result = bindingParserNodeFactory.Parse("$'{'x' + 'y' + 'z'}'") as InterpolatedStringBindingParserNode;
+            Assert.AreEqual("{0}", result.Format);
+            Assert.IsFalse(result.HasNodeErrors);
+            Assert.AreEqual(1, result.Arguments.Count);
+            Assert.AreEqual(typeof(BinaryOperatorBindingParserNode), result.Arguments[0].GetType());
+            Assert.AreEqual("x + y + z", result.Arguments[0].ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_InterpolatedString_MultipleInterpolations()
         {
             var result = bindingParserNodeFactory.Parse("$\"Hello {Argument1} with {Argument2}!\"") as InterpolatedStringBindingParserNode;
             Assert.AreEqual("Hello {0} with {1}!", result.Format);
@@ -190,6 +201,15 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(26, ((SimpleNameBindingParserNode)result.Arguments[1]).StartPosition);
             Assert.AreEqual("Argument2".Length, ((SimpleNameBindingParserNode)result.Arguments[1]).Length);
             Assert.AreEqual("Argument2", ((SimpleNameBindingParserNode)result.Arguments[1]).Name);
+        }
+
+        [TestMethod]
+        public void BindingParser_InterpolatedString_NestedExpressions_StartPositions()
+        {
+            var result = bindingParserNodeFactory.Parse("$'ABC{$'DEF{'GHI!'}'}'") as InterpolatedStringBindingParserNode;
+            Assert.AreEqual(0, result.StartPosition);
+            Assert.AreEqual(6, result.Arguments.First().StartPosition /* $'DEF{'GHI!'}' */);
+            Assert.AreEqual(12, (result.Arguments.First() as InterpolatedStringBindingParserNode).Arguments.First().StartPosition /* 'GHI!'' */);
         }
 
         [TestMethod]
