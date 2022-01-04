@@ -8,6 +8,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 using Microsoft.CodeAnalysis;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
@@ -28,7 +29,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public Expression? Expression => Binding.GetProperty<ParsedExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression;
 
-        public DataContextStack DataContextTypeStack => Binding.GetProperty<DataContextStack>();
+        public DataContextStack DataContextTypeStack => Binding.DataContext.NotNull();
 
         public BindingErrorReporterProperty Errors => Binding.GetProperty<BindingErrorReporterProperty>();
 

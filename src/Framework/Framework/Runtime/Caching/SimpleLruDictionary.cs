@@ -18,12 +18,13 @@ namespace DotVVM.Framework.Runtime.Caching
         where TValue : class?
         where TKey : notnull
     {
+        // concurrencyLevel: 1, we don't write in parallel anyway
         // new generation
-        private ConcurrentDictionary<TKey, TValue> hot = new ConcurrentDictionary<TKey, TValue>();
+        private ConcurrentDictionary<TKey, TValue> hot = new ConcurrentDictionary<TKey, TValue>(concurrencyLevel: 1, capacity: 1);
         // old generation
-        private ConcurrentDictionary<TKey, TValue> cold = new ConcurrentDictionary<TKey, TValue>();
+        private ConcurrentDictionary<TKey, TValue> cold = new ConcurrentDictionary<TKey, TValue>(concurrencyLevel: 1, capacity: 1);
         // free to take for GC. however, if the GC does not want to collect, we can still use it
-        private readonly ConcurrentDictionary<TKey, WeakReference<TValue>> dead = new ConcurrentDictionary<TKey, WeakReference<TValue>>();
+        private readonly ConcurrentDictionary<TKey, WeakReference<TValue>> dead = new ConcurrentDictionary<TKey, WeakReference<TValue>>(concurrencyLevel: 1, capacity: 1);
         private TimeSpan lastCleanupTime = TimeSpan.MinValue;
 
         private readonly int generationSize;

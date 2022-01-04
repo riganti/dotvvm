@@ -8,5 +8,6 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
     {
         public IEnumerable<DothtmlToken> WhitespacesBefore { get; set; } = Enumerable.Empty<DothtmlToken>();
         public IEnumerable<DothtmlToken> WhitespacesAfter { get; set; } = Enumerable.Empty<DothtmlToken>();
+        
     }
 }

@@ -34,15 +34,39 @@ namespace DotVVM.Framework.Binding.Expressions
             AddNullResolvers();
         }
 
-        public BindingDelegate BindingDelegate => this.GetProperty<BindingDelegate>();
+        private protected MaybePropValue<KnockoutExpressionBindingProperty> knockoutExpressions;
 
-        public BindingUpdateDelegate UpdateDelegate => this.GetProperty<BindingUpdateDelegate>();
+        private protected override void StoreProperty(object p)
+        {
+            if (p is KnockoutExpressionBindingProperty knockoutExpressions)
+                this.knockoutExpressions.SetValue(new(knockoutExpressions));
+            else
+                base.StoreProperty(p);
+        }
 
-        public ParametrizedCode KnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().Code;
-        public ParametrizedCode UnwrappedKnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().UnwrappedCode;
-        public ParametrizedCode WrappedKnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().WrappedCode;
+        public override object? GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
+        {
+            if (type == typeof(KnockoutExpressionBindingProperty))
+                return knockoutExpressions.GetValue(this).GetValue(errorMode, this, type);
+            return base.GetProperty(type, errorMode);
+        }
 
-        public Type ResultType => this.GetProperty<ResultTypeBindingProperty>().Type;
+        private protected override IEnumerable<object?> GetOutOfDictionaryProperties() =>
+            base.GetOutOfDictionaryProperties().Concat(new object?[] {
+                knockoutExpressions.Value.Value
+            });
+
+        public BindingDelegate BindingDelegate => this.bindingDelegate.GetValueOrThrow(this);
+
+        public BindingUpdateDelegate UpdateDelegate => this.updateDelegate.GetValueOrThrow(this);
+
+        public KnockoutExpressionBindingProperty KnockoutExpressionBindingProperty => this.knockoutExpressions.GetValueOrThrow(this);
+
+        public ParametrizedCode KnockoutExpression => KnockoutExpressionBindingProperty.Code;
+        public ParametrizedCode UnwrappedKnockoutExpression => KnockoutExpressionBindingProperty.UnwrappedCode;
+        public ParametrizedCode WrappedKnockoutExpression => KnockoutExpressionBindingProperty.WrappedCode;
+
+        public Type ResultType => this.resultType.GetValueOrThrow(this).Type;
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {

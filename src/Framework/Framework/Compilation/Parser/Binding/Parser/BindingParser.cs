@@ -13,10 +13,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 {
     public class BindingParser : ParserBase<BindingToken, BindingTokenType>
     {
-        protected override bool IsWhiteSpace(BindingToken t) => t.Type == BindingTokenType.WhiteSpace;
         private readonly int bindingOffset;
 
-        public BindingParser(int bindingOffset = 0)
+        public BindingParser(int bindingOffset = 0) : base(BindingTokenType.WhiteSpace)
         {
             // Note: this can be useful when making additional pass for certain tokens
             // - setting this argument ensures that all created nodes have correctly shifted start positions
@@ -57,7 +56,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var typeName = ReadNamespaceOrTypeName();
-            if (Peek()?.Type == BindingTokenType.Comma)
+            if (PeekType() == BindingTokenType.Comma)
             {
                 Read();
                 var assemblyName = ReadNamespaceOrTypeName();
@@ -381,7 +380,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             SetRestorePoint();
 
             // Try to read lambda parameters
-            if (!TryReadLambdaParametersExpression(out var parameters) || Peek()?.Type != BindingTokenType.LambdaOperator)
+            if (!TryReadLambdaParametersExpression(out var parameters) || PeekType() != BindingTokenType.LambdaOperator)
             {
                 // Fail - we should try to parse as an expression
                 Restore();
@@ -403,13 +402,13 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var startIndex = CurrentIndex;
             var waitingForParameter = false;
             parameters = new List<LambdaParameterBindingParserNode>();
-            if (Peek()?.Type == BindingTokenType.OpenParenthesis)
+            if (PeekType() == BindingTokenType.OpenParenthesis)
             {
                 // Begin parameters parsing - read opening parenthesis
                 Read();
                 SkipWhiteSpace();
 
-                while (Peek()?.Type != BindingTokenType.CloseParenthesis)
+                while (PeekType() != BindingTokenType.CloseParenthesis)
                 {
                     // Try read parameter definition (either implicitly defined type or explicitly)
                     if (!TryReadLambdaParameterDefinition(out var typeDef, out var nameDef))
@@ -417,7 +416,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     parameters.Add(new LambdaParameterBindingParserNode(typeDef, nameDef!));
                     waitingForParameter = false;
 
-                    if (Peek()?.Type == BindingTokenType.Comma)
+                    if (PeekType() == BindingTokenType.Comma)
                     {
                         Read();
                         SkipWhiteSpace();
@@ -431,7 +430,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 }
 
                 // End parameters parsing - read closing parenthesis
-                if (Peek()?.Type != BindingTokenType.CloseParenthesis)
+                if (PeekType() != BindingTokenType.CloseParenthesis)
                     return false;
                 Read();
                 SkipWhiteSpace();
@@ -456,14 +455,14 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             name = null;
             type = null;
-            if (Peek()?.Type != BindingTokenType.Identifier)
+            if (PeekType() != BindingTokenType.Identifier)
                 return false;
 
             if (!TryReadTypeReference(out type))
                 return false;
             SkipWhiteSpace();
 
-            if (Peek()?.Type != BindingTokenType.Identifier)
+            if (PeekType() != BindingTokenType.Identifier)
             {
                 name = type;
                 type = null;
@@ -812,11 +811,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     arguments.Add(argument);
                 SkipWhiteSpace();
 
-                if (Peek()?.Type != BindingTokenType.Comma) { break; }
+                if (PeekType() != BindingTokenType.Comma) { break; }
                 Read();
             }
 
-            failure |= Peek()?.Type != BindingTokenType.GreaterThanOperator;
+            failure |= PeekType() != BindingTokenType.GreaterThanOperator;
 
             if (!failure)
             {

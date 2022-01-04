@@ -123,7 +123,10 @@ namespace System.Diagnostics.CodeAnalysis
         public bool ParameterValue { get; }
     }
 
-        /// <summary>Specifies that the method or property will ensure that the listed field and property members have not-null values.</summary>
+#endif
+#if !NET5_0_OR_GREATER
+
+    /// <summary>Specifies that the method or property will ensure that the listed field and property members have not-null values.</summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, Inherited = false, AllowMultiple = true)]
     internal sealed class MemberNotNullAttribute : Attribute
     {
@@ -143,9 +146,8 @@ namespace System.Diagnostics.CodeAnalysis
         public string[] Members { get; }
     }
 
-#endif
 
-#if !NET5_0_OR_GREATER
+ 
     /// <summary>Specifies that the method or property will ensure that the listed field and property members have not-null values when returning with the specified return value condition.</summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, Inherited = false, AllowMultiple = true)]
     internal sealed class MemberNotNullWhenAttribute : Attribute

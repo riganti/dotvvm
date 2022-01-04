@@ -50,7 +50,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
     }",
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule)
-                .WithLocation(0).WithArguments("System.IO.FileInfo"));
+                .WithLocation(0).WithArguments("this.NonSerializableProperty"));
         }
 
         [Fact]
@@ -72,7 +72,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
     }",
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule)
-                .WithLocation(0).WithArguments("System.Collections.Generic.List<System.IO.Stream>"));
+                .WithLocation(0).WithArguments("this.NonSerializableList"));
         }
 
         [Fact]
@@ -88,13 +88,12 @@ namespace DotVVM.Analyzers.Tests.Serializability
     {
         public class DefaultViewModel : DotvvmViewModelBase
         {
-            public int SerializableProperty { get; set; }
-            {|#0:public IList<Stream> NonSerializableList { get; set; }|}
+            {|#0:public IList<IDisposable> PotentiallyNonSerializableList { get; set; }|}
         }
     }",
 
-            VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.DoNotUseUninstantiablePropertiesRule)
-                .WithLocation(0).WithArguments("System.Collections.Generic.IList<System.IO.Stream>"));
+            VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule)
+                .WithLocation(0).WithArguments("this.PotentiallyNonSerializableList"));
         }
 
         [Fact]
@@ -220,6 +219,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         public class DefaultViewModel : DotvvmViewModelBase
         {
             public DateTime? DateTime { get; set; }
+            public DateTimeOffset? DateTimeOffset { get; set; }
             public TimeSpan? TimeSpan { get; set; }
             public Guid? Guid { get; set; }
         }
@@ -264,6 +264,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
             public object Object { get; set; }
             public string String { get; set; }
             public DateTime DateTime { get; set; }
+            public DateTimeOffset DateTimeOffset { get; set; }
             public TimeSpan TimeSpan { get; set; }
             public Guid Guid { get; set; }
         }
@@ -294,6 +295,28 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
+        public async void Test_NoWarningsForEnumerables_ViewModel()
+        {
+            var test = @"
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.Collections.Generic;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public IEnumerable<int> Enumerable { get; set; }
+            public IList<int> List { get; set; }
+            public ICollection<int> Collection { get; set; }
+            public ICollection<IList<IEnumerable<int>>> WowCollection { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [Fact]
         public async void Test_UserTypesAreSerializableAndSupported_ViewModel()
         {
             var test = @"
@@ -311,6 +334,11 @@ namespace DotVVM.Analyzers.Tests.Serializability
         public class UserType
         {
             public string Property { get; set; }
+            public int? NullableProp { get; set; }
+            public DateTime? NullableDateTime { get; set; }
+            public DateTimeOffset? NullableDateTimeOffset { get; set; }
+            public bool FlagProp { get; set; }
+            public IList<int> List { get; set; }
         }
     }";
 
@@ -330,12 +358,12 @@ namespace DotVVM.Analyzers.Tests.Serializability
         public class DefaultViewModel : DotvvmViewModelBase
         {
             public int SerializableProperty { get; set; }
-            {|#0:public LinkedList<object> LinkedList { get; set; }|}
+            {|#0:public Action Action { get; set; }|}
         }
     }",
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule)
-                .WithLocation(0).WithArguments("System.Collections.Generic.LinkedList<object>"));
+                .WithLocation(0).WithArguments("this.Action"));
         }
 
         [Fact]
@@ -454,6 +482,57 @@ namespace DotVVM.Analyzers.Tests.Serializability
     }";
 
             await VerifyCS.VerifyAnalyzerAsync(text);
+        }
+
+
+        [Fact]
+        public async void Test_WhiteListedDotvvmTypes_Properties_ViewModel()
+        {
+            var text = @"
+    using DotVVM.Framework.Controls;
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.Collections.Generic;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public GridViewDataSet<int> DataSet { get; set; }
+            public UploadedFilesCollection UploadedFiles { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(text);
+        }
+
+        [Fact]
+        public async void Test_GenericReferenceType_Properties_ViewModel()
+        {
+            await VerifyCS.VerifyAnalyzerAsync(@"
+    using DotVVM.Framework.Controls;
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.IO;
+    using System.Collections.Generic;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public WrappedValue<int> Value { get; set; }
+            {|#0:public WrappedValue<Stream> NonSerializable { get; set; }|}
+        }
+
+        public class WrappedValue<T>
+        {
+            public string Name { get; set; }
+            public T Value { get; set; }
+        }
+    }",
+
+            VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule).WithLocation(0)
+                .WithArguments("this.NonSerializable.Value"));
         }
     }
 }

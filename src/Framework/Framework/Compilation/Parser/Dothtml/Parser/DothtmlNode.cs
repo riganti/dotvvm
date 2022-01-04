@@ -40,6 +40,12 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
         public abstract void Accept(IDothtmlSyntaxTreeVisitor visitor);
 
+        internal void AcceptIfCondition(IDothtmlSyntaxTreeVisitor visitor)
+        {
+            if (visitor.Condition(this))
+                this.Accept(visitor);
+        }
+
         public abstract IEnumerable<DothtmlNode> EnumerateChildNodes();
 
         public DothtmlNode FindNodeByPosition(int position)

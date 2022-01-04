@@ -16,9 +16,13 @@ namespace DotVVM.Framework.Compilation.Parser
         public void Add(Part p)
         {
             if (p.len == 0) return;
+            if (firstPart.len == 0)
+            {
+                firstPart = p;
+                return;
+            }
             var last = (parts == null ? firstPart : parts[parts.Count - 1]);
-            if (firstPart.len == 0) firstPart = p;
-            else if (last.list == p.list && last.from + last.len == p.from)
+            if (last.list == p.list && last.from + last.len == p.from)
             {
                 if (parts == null) firstPart = firstPart.AddLen(p.len);
                 else
@@ -182,6 +186,8 @@ namespace DotVVM.Framework.Compilation.Parser
             public IEnumerator<T> GetEnumerator() => new AggregateList<T>.Enumerator(this, null);
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+            public bool Any => len > 0;
 
             public T Last() => len > 0 ? list[from + len - 1] : throw new InvalidOperationException("AggregateList does not contain any element.");
             [return: MaybeNull]

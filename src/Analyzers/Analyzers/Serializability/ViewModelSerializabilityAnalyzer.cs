@@ -20,9 +20,6 @@ namespace DotVVM.Analyzers.Serializability
         private static readonly LocalizableResourceString doNotUseFieldsTitle = new LocalizableResourceString(nameof(Resources.Serializability_DoNotUseFields_Title), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableResourceString doNotUseFieldsMessage = new LocalizableResourceString(nameof(Resources.Serializability_DoNotUseFields_Message), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableResourceString doNotUseFieldsDescription = new LocalizableResourceString(nameof(Resources.Serializability_DoNotUseFields_Description), Resources.ResourceManager, typeof(Resources));
-        private static readonly LocalizableResourceString uninstantiableTypeTitle = new LocalizableResourceString(nameof(Resources.Serializability_UninstantiableType_Title), Resources.ResourceManager, typeof(Resources));
-        private static readonly LocalizableResourceString uninstantiableTypeMessage = new LocalizableResourceString(nameof(Resources.Serializability_UninstantiableType_Message), Resources.ResourceManager, typeof(Resources));
-        private static readonly LocalizableResourceString uninstantiableTypeDescription = new LocalizableResourceString(nameof(Resources.Serializability_UninstantiableType_Description), Resources.ResourceManager, typeof(Resources));
         private const string dotvvmViewModelInterfaceMetadataName =  "DotVVM.Framework.ViewModel.IDotvvmViewModel";
         private const string dotvvmBindAttributeMetadataName = "DotVVM.Framework.ViewModel.BindAttribute";
         private const string newtonsoftJsonIgnoreAttributeMetadataName = "Newtonsoft.Json.JsonIgnoreAttribute";
@@ -45,20 +42,10 @@ namespace DotVVM.Analyzers.Serializability
             isEnabledByDefault: true,
             doNotUseFieldsDescription);
 
-        public static DiagnosticDescriptor DoNotUseUninstantiablePropertiesRule = new DiagnosticDescriptor(
-            DotvvmDiagnosticIds.DoNotUseUninstantiablePropertiesInViewModelRuleId,
-            uninstantiableTypeTitle,
-            uninstantiableTypeMessage,
-            DiagnosticCategory.Serializability,
-            DiagnosticSeverity.Warning,
-            isEnabledByDefault: true,
-            uninstantiableTypeDescription);
-
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
             => ImmutableArray.Create(
                 UseSerializablePropertiesRule,
-                DoNotUseFieldsRule,
-                DoNotUseUninstantiablePropertiesRule);
+                DoNotUseFieldsRule);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -86,9 +73,19 @@ namespace DotVVM.Analyzers.Serializability
                 if (!classInfo.AllInterfaces.Any(symbol => SymbolEqualityComparer.Default.Equals(symbol, viewModelInterface)))
                     continue;
 
+                // TODO: not sure if this is necessary anymore, but keeping it here to not report many false-positives
+                if (!SanityCheck(context.SemanticModel))
+                    return;
+
                 AnalyzeViewModelProperties(classDeclaration, bindAttribute, jsonIgnoreAttribute, context);
                 AnalyzeViewModelFields(classDeclaration, context);
             }
+        }
+
+        private static bool SanityCheck(SemanticModel semanticModel)
+        {
+            var testType = semanticModel.Compilation.GetSpecialType(SpecialType.System_String);
+            return testType.IsSerializationSupported(semanticModel.Compilation, out _);
         }
 
         /// <summary>
@@ -107,13 +104,14 @@ namespace DotVVM.Analyzers.Serializability
                 if (semanticModel.GetSymbolInfo(property.Type).Symbol is not ITypeSymbol propertyTypeSymbol)
                     continue;
 
+                // Determine whether this property participates in serialization
                 if (IsSerializationIgnored(propertySymbol, bindAttribute, jsonIgnoreAttribute))
                     continue;
 
-                if (propertyTypeSymbol.IsAbstract)
+                if (propertyTypeSymbol.IsAbstract && !propertyTypeSymbol.IsEnumerable(semanticModel.Compilation))
                 {
                     // Serialization of abstract classes can fail
-                    var diagnostic = Diagnostic.Create(DoNotUseUninstantiablePropertiesRule, property.GetLocation(), propertyTypeSymbol.ToDisplayString());
+                    var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), $"this.{propertySymbol.Name}");
                     context.ReportDiagnostic(diagnostic);
                     continue;
                 }
@@ -122,17 +120,17 @@ namespace DotVVM.Analyzers.Serializability
                     if (semanticModel.GetSymbolInfo(nullableTypeSyntax.ElementType).Symbol is not ITypeSymbol elementInfo)
                         continue;
 
-                    else if (!elementInfo.IsReferenceTypeSerializationSupported(semanticModel.Compilation) && !elementInfo.IsValueTypeSerializationSupported(semanticModel.Compilation))
+                    else if (!elementInfo.IsSerializationSupported(semanticModel.Compilation, out var errorPath))
                     {
                         // Serialization of this specific type is not supported by DotVVM
-                        var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), propertyTypeSymbol.ToDisplayString());
+                        var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), $"this.{propertySymbol.Name}{errorPath}");
                         context.ReportDiagnostic(diagnostic);
                     }
                 }
-                else if (!propertyTypeSymbol.IsSerializationSupported(semanticModel))
+                else if (!propertyTypeSymbol.IsSerializationSupported(semanticModel.Compilation, out var errorPath))
                 {
                     // Serialization of this specific type is not supported by DotVVM
-                    var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), propertyTypeSymbol.ToDisplayString());
+                    var diagnostic = Diagnostic.Create(UseSerializablePropertiesRule, property.GetLocation(), $"this.{propertySymbol.Name}{errorPath}");
                     context.ReportDiagnostic(diagnostic);
                 }
             }

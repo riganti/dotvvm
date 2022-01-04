@@ -18,12 +18,12 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Additional namespace imports that will be added to imports defined in Dotvvm page just before the binding is resolved
         /// </summary>
-        public ImmutableList<NamespaceImport> ImportNamespaces { get; }
+        public ImmutableArray<NamespaceImport> ImportNamespaces { get; }
 
         /// <summary>
         /// Additional export parameters that will be added to export parameters defined in Dotvvm page just before the binding is resolved
         /// </summary>
-        public ImmutableList<BindingExtensionParameter> ExtensionParameters { get; }
+        public ImmutableArray<BindingExtensionParameter> ExtensionParameters { get; }
 
         public virtual TypeRegistry AddImportedTypes(TypeRegistry reg, CompiledAssemblyCache compiledAssemblyCache)
         {
@@ -51,37 +51,45 @@ namespace DotVVM.Framework.Compilation
             else return t => TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(import.Namespace + "." + t));
         }
 
-        public BindingParserOptions(Type bindingType, string scopeParameter = "_this", ImmutableList<NamespaceImport>? importNamespaces = null, ImmutableList<BindingExtensionParameter>? extParameters = null)
+        public BindingParserOptions(Type bindingType, string scopeParameter = "_this", ImmutableArray<NamespaceImport>? importNamespaces = null, ImmutableArray<BindingExtensionParameter>? extParameters = null)
         {
             BindingType = bindingType;
             ScopeParameter = scopeParameter;
-            ImportNamespaces = importNamespaces ?? ImmutableList<NamespaceImport>.Empty;
-            ExtensionParameters = extParameters ?? ImmutableList<BindingExtensionParameter>.Empty;
+            ImportNamespaces = importNamespaces ?? ImmutableArray<NamespaceImport>.Empty;
+            ExtensionParameters = extParameters ?? ImmutableArray<BindingExtensionParameter>.Empty;
         }
 
-        public static BindingParserOptions Create<TBinding>(string scopeParameter = "_this", IEnumerable<NamespaceImport>? importNs = null, ImmutableList<BindingExtensionParameter>? extParameters = null)
+        public static BindingParserOptions Create<TBinding>(string scopeParameter = "_this", IEnumerable<NamespaceImport>? importNs = null, ImmutableArray<BindingExtensionParameter>? extParameters = null)
             => new BindingParserOptions(typeof(TBinding), scopeParameter, 
-                importNamespaces: importNs?.ToImmutableList(),
+                importNamespaces: importNs?.ToImmutableArray(),
                 extParameters: extParameters);
 
-        public static BindingParserOptions Create(Type bindingType, string scopeParameter = "_this", IEnumerable<NamespaceImport>? importNs = null, ImmutableList<BindingExtensionParameter>? extParameters = null)
+        public static BindingParserOptions Create(Type bindingType, string scopeParameter = "_this", IEnumerable<NamespaceImport>? importNs = null, ImmutableArray<BindingExtensionParameter>? extParameters = null)
             => new BindingParserOptions(bindingType, scopeParameter,
-                importNamespaces: importNs?.ToImmutableList(), 
+                importNamespaces: importNs?.ToImmutableArray(), 
                 extParameters: extParameters);
 
         public static readonly BindingParserOptions Value = Create(typeof(ValueBindingExpression<>));
+        public static readonly BindingParserOptions ControlProperty = Create(typeof(ControlPropertyBindingExpression<>));
         public static readonly BindingParserOptions Resource = Create(typeof(ResourceBindingExpression<>));
         public static readonly BindingParserOptions Command = Create(typeof(CommandBindingExpression<>));
+        public static readonly BindingParserOptions ControlCommand = Create(typeof(ControlCommandBindingExpression<>));
         public static readonly BindingParserOptions StaticCommand = Create(typeof(StaticCommandBindingExpression<>));
 
         public BindingParserOptions AddImports(params NamespaceImport[]? imports)
             => AddImports((IEnumerable<NamespaceImport>?)imports);
         public BindingParserOptions AddImports(IEnumerable<NamespaceImport>? imports)
-            => imports == null ? this :
-               new BindingParserOptions(BindingType, ScopeParameter, ImportNamespaces.AddRange(imports), ExtensionParameters);
+        {
+            if (imports == null)
+                return this;
+            var union = ImportNamespaces.Union(imports).ToImmutableArray();
+            if (union.Length == ImportNamespaces.Length)
+                return this;
+            return new BindingParserOptions(BindingType, ScopeParameter, union, ExtensionParameters);
+        }
 
         public BindingParserOptions AddParameters(IEnumerable<BindingExtensionParameter>? extParams)
-            => extParams == null ? this :
+            => extParams == null || !extParams.Any() ? this :
                new BindingParserOptions(BindingType, ScopeParameter, ImportNamespaces, ExtensionParameters.AddRange(extParams));
 
         public BindingParserOptions WithScopeParameter(string scopeParameter)

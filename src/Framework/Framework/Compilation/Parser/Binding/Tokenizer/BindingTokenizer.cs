@@ -9,9 +9,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
     {
         private readonly ISet<char> operatorCharacters = new HashSet<char> { '+', '-', '*', '/', '^', '\\', '%', '<', '>', '=', '&', '|', '~', '!', ';' };
 
-        protected override BindingTokenType TextTokenType => BindingTokenType.Identifier;
-
-        protected override BindingTokenType WhiteSpaceTokenType => BindingTokenType.WhiteSpace;
+        public BindingTokenizer() : base(BindingTokenType.Identifier, BindingTokenType.WhiteSpace)
+        {
+        }
 
         public bool IsOperator(char c) => operatorCharacters.Contains(c);
 
@@ -30,52 +30,52 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                 switch (ch)
                 {
                     case '.':
-                        if (CurrentTokenChars.Length > 0 && Enumerable.Range(0, CurrentTokenChars.Length).All(i => Char.IsDigit(CurrentTokenChars[i])))
+                        if (DistanceSinceLastToken > 0 && GetCurrentTokenText().All(c => Char.IsDigit(c)))
                         {
                             // treat dot in a number as part of the number
                             Read();
                             if (!char.IsDigit(Peek()))
                             {
                                 CreateToken(BindingTokenType.Identifier, 1);
-                                CreateToken(BindingTokenType.Dot);
+                                CreateToken(BindingTokenType.Dot, ".");
                             }
                         }
                         else
                         {
                             FinishIncompleteIdentifier();
                             Read();
-                            CreateToken(BindingTokenType.Dot);
+                            CreateToken(BindingTokenType.Dot, ".");
                         }
                         break;
 
                     case ',':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.Comma);
+                        CreateToken(BindingTokenType.Comma, ",");
                         break;
 
                     case '(':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.OpenParenthesis);
+                        CreateToken(BindingTokenType.OpenParenthesis, "(");
                         break;
 
                     case ')':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.CloseParenthesis);
+                        CreateToken(BindingTokenType.CloseParenthesis, ")");
                         break;
 
                     case '[':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.OpenArrayBrace);
+                        CreateToken(BindingTokenType.OpenArrayBrace, "[");
                         break;
 
                     case ']':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.CloseArrayBrace);
+                        CreateToken(BindingTokenType.CloseArrayBrace, "]");
                         break;
 
                     case '+':
@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                     case ':':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.ColonOperator);
+                        CreateToken(BindingTokenType.ColonOperator, ":");
                         break;
 
                     case '=':
@@ -247,7 +247,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                     case ';':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.Semicolon);
+                        CreateToken(BindingTokenType.Semicolon, ";");
                         break;
 
                     default:

@@ -254,7 +254,9 @@ namespace DotVVM.Framework.Binding
         internal static object InitializeArgument(ICustomAttributeProvider attributeProvider, string propertyName, Type propertyType, Type declaringType, DotvvmCapabilityProperty? declaringCapability, ValueOrBinding<object>? defaultValue)
         {
             var capabilityType = declaringCapability?.PropertyType;
-            propertyName = char.ToUpperInvariant(propertyName[0]) + propertyName.Substring(1);
+            if (char.IsLower(propertyName[0]))
+                propertyName = char.ToUpperInvariant(propertyName[0]) + propertyName.Substring(1);
+            propertyName = propertyName.DotvvmInternString(trySystemIntern: true);
 
             if (attributeProvider.GetCustomAttribute<DefaultValueAttribute>() is DefaultValueAttribute defaultAttribute)
             {

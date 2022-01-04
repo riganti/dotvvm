@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
@@ -130,14 +131,14 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             if (parameters == null || parameters.Count == 0) return new ParametrizedCode(result.ToString(), operatorPrecedence);
             var parts = new string[parameters.Count + 1];
-            parts[0] = result.ToString(0, parameters[0].index);
+            parts[0] = result.ToString(0, parameters[0].index).DotvvmInternString();
             for (int i = 1; i < parameters.Count; i++)
             {
                 var from = parameters[i - 1].index;
-                parts[i] = result.ToString(from, parameters[i].index - from);
+                parts[i] = result.ToString(from, parameters[i].index - from).DotvvmInternString();
             }
             int lastFrom = parameters[parameters.Count - 1].index;
-            parts[parts.Length - 1] = result.ToString(lastFrom, result.Length - lastFrom);
+            parts[parts.Length - 1] = result.ToString(lastFrom, result.Length - lastFrom).DotvvmInternString();
             return new ParametrizedCode(parts, parameters.Select(p => p.parameter).ToArray(), operatorPrecedence);
         }
 
