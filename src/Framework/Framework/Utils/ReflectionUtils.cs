@@ -137,6 +137,8 @@ namespace DotVVM.Framework.Utils
                     return null;
             }
 
+            if (type.IsInstanceOfType(value)) return value;
+
             // handle nullable types
             if (type.IsGenericType && Nullable.GetUnderlyingType(type) is Type nullableElementType)
             {
