@@ -139,7 +139,9 @@ namespace DotVVM.Framework.Compilation.Binding
             }
 
             // If the method is an extension method, we need to check the first argument for null.
-            if (node.Method.IsDefined(typeof(ExtensionAttribute)) && node.Object == null && node.Arguments.Any())
+            var nullPropagateMethod = node.Method.IsDefined(typeof(ExtensionAttribute)) || node.Method.DeclaringType == typeof(BoxingUtils);
+
+            if (nullPropagateMethod && node.Object == null && node.Arguments.Any())
                 return CheckForNull(Visit(node.Arguments.First()), target =>
                     Expression.Call(node.Method, UnwrapNullableTypes(node.Arguments.Skip(1)).Prepend(target)),
                     suppress: node.Arguments.First().Type.IsNullable()
