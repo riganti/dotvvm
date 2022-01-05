@@ -309,3 +309,17 @@ hr {
     .compile-progress span:nth-child(3) {
         animation-delay: 500ms
     }
+
+ul {
+    margin: 1em;
+}
+    ul li {
+        margin: .25em 1em;
+    }
+
+code.element {
+    color: var(--error-dark-color);
+}
+code.location {
+    font-weight: bold;
+}

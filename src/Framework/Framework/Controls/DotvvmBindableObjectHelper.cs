@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using DotVVM.Framework.Binding;
@@ -335,7 +336,7 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary> Returns somewhat readable string representing this dotvvm control. </summary>
-        public static string DebugString(this DotvvmBindableObject control, DotvvmConfiguration? config = null, bool multiline = true)
+        public static string DebugString(this DotvvmBindableObject control, DotvvmConfiguration? config = null, bool multiline = true, bool useHtml = false)
         {
             if (control == null) return "null";
 
@@ -377,13 +378,30 @@ namespace DotVVM.Framework.Controls
                 dothtmlString += $"{p.name}={p.croppedValue}";
             }
             dothtmlString += " />";
-
-            var from = (location.file)
+            
+            var fileLocation = (location.file)
                      + (location.line >= 0 ? ":" + location.line : "");
-            if (!String.IsNullOrWhiteSpace(from))
-                from = (multiline ? "\n" : " ") + "from " + from.Trim();
 
-            return dothtmlString + from;
+            if (useHtml)
+            {
+                dothtmlString = $"<code class='element'>{WebUtility.HtmlEncode(dothtmlString)}</code>";
+
+                if (!string.IsNullOrWhiteSpace(fileLocation))
+                {
+                    fileLocation = $"<code class='location'>{WebUtility.HtmlEncode(fileLocation)}</code>";
+                }
+            }
+
+            var endOfLine = useHtml ? "<br />" : Environment.NewLine;
+
+            if (!string.IsNullOrWhiteSpace(fileLocation))
+            {
+                return dothtmlString + (multiline ? endOfLine : " ") + "from " + fileLocation;
+            }
+            else
+            {
+                return dothtmlString;
+            }
         }
     }
 }

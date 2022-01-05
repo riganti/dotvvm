@@ -166,6 +166,8 @@ namespace DotVVM.Testing.Abstractions
         public const string Errors_CorruptedContentBetweenContentControls = "Errors/CorruptedContentBetweenContentControls";
         public const string Errors_EmptyBinding = "Errors/EmptyBinding";
         public const string Errors_EncryptedPropertyInValueBinding = "Errors/EncryptedPropertyInValueBinding";
+        public const string Errors_ExceptionInLifecycle = "Errors/ExceptionInLifecycle";
+        public const string Errors_ExceptionInRender = "Errors/ExceptionInRender";
         public const string Errors_FieldInValueBinding = "Errors/FieldInValueBinding";
         public const string Errors_InvalidLocationFallback = "Errors/InvalidLocationFallback";
         public const string Errors_InvalidRouteName = "Errors/InvalidRouteName";
