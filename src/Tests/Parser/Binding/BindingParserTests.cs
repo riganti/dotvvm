@@ -213,6 +213,20 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
+        public void BindingParser_InterpolatedString_ComplexNestedExpressions_StartPositions()
+        {
+            var result = bindingParserNodeFactory.Parse("Method($'ABC{Method($'DEF{'GHI!'}')}')") as FunctionCallBindingParserNode;
+            Assert.AreEqual(0, result.StartPosition);
+
+            var interpolationOuter = result.ArgumentExpressions.First() as InterpolatedStringBindingParserNode;
+            Assert.AreEqual(7, interpolationOuter.StartPosition);
+            var innerMethodCall = interpolationOuter.Arguments.First() as FunctionCallBindingParserNode;
+            Assert.AreEqual(13, innerMethodCall.StartPosition);
+            var interpolationInner = innerMethodCall.ArgumentExpressions.First() as InterpolatedStringBindingParserNode;
+            Assert.AreEqual(20, interpolationInner.StartPosition);
+        }
+
+        [TestMethod]
         [DataRow("$'{DateProperty:dd/MM/yyyy}'", "DateProperty:dd/MM/yyyy", "{0:dd/MM/yyyy}")]
         [DataRow("$'{IntProperty:####}'", "IntProperty:####", "{0:####}")]
         public void BindingParser_InterpolatedString_WithFormattingComponent_Valid(string interpolatedString, string interpolation, string formatOptions)
