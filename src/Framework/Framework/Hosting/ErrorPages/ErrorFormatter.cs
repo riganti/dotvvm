@@ -408,8 +408,8 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     return null;
                 return new ExceptionAdditionalInfo(
                     "Control Hierarchy",
-                    control.GetAllAncestors(includingThis: true).Select(c => c.DebugString()).ToArray(),
-                    ExceptionAdditionalInfo.DisplayMode.ToHtmlList
+                    control.GetAllAncestors(includingThis: true).Select(c => c.DebugString(useHtml: true, multiline: false)).ToArray(),
+                    ExceptionAdditionalInfo.DisplayMode.ToHtmlListUnencoded
                 );
             });
 
