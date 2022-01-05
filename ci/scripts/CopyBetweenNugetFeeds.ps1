@@ -21,13 +21,13 @@ $packages = @(
     [pscustomobject]@{ Package = "DotVVM.HotReload"; Directory = "Tools/HotReload/Common"; Type = "standard" },
     [pscustomobject]@{ Package = "DotVVM.HotReload.AspNetCore"; Directory = "Tools/HotReload/AspNetCore"; Type = "standard" },
     [pscustomobject]@{ Package = "DotVVM.HotReload.Owin"; Directory = "Tools/HotReload/Owin"; Type = "standard" },
-	[pscustomobject]@{ Package = "DotVVM.DynamicData"; Directory = "DynamicData/DynamicData"; Type = "standard" },
-	[pscustomobject]@{ Package = "DotVVM.DynamicData.Annotations"; Directory = "DynamicData/Annotations"; Type = "standard" },
-	[pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights"; Directory = "Tracing/ApplicationInsights"; Type = "standard" },
-	[pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights.AspNetCore"; Directory = "Tracing/ApplicationInsights.AspNetCore"; Type = "standard" },
-	[pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights.Owin"; Directory = "Tracing/ApplicationInsights.Owin"; Type = "standard" }
-	[pscustomobject]@{ Package = "DotVVM.Tracing.MiniProfiler.AspNetCore"; Directory = "Tracing/MiniProfiler.AspNetCore"; Type = "standard" },
-	[pscustomobject]@{ Package = "DotVVM.Tracing.MiniProfiler.Owin"; Directory = "Tracing/MiniProfiler.Owin"; Type = "standard" }
+    [pscustomobject]@{ Package = "DotVVM.DynamicData"; Directory = "DynamicData/DynamicData"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.DynamicData.Annotations"; Directory = "DynamicData/Annotations"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights"; Directory = "Tracing/ApplicationInsights"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights.AspNetCore"; Directory = "Tracing/ApplicationInsights.AspNetCore"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights.Owin"; Directory = "Tracing/ApplicationInsights.Owin"; Type = "standard" }
+    [pscustomobject]@{ Package = "DotVVM.Tracing.MiniProfiler.AspNetCore"; Directory = "Tracing/MiniProfiler.AspNetCore"; Type = "standard" },
+    [pscustomobject]@{ Package = "DotVVM.Tracing.MiniProfiler.Owin"; Directory = "Tracing/MiniProfiler.Owin"; Type = "standard" }
 )
 
 Write-Host "Current directory: $PWD"
