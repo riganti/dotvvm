@@ -18,6 +18,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using FastExpressionCompiler;
+using RecordExceptions;
 
 namespace DotVVM.Framework.Utils
 {
@@ -124,6 +125,7 @@ namespace DotVVM.Framework.Utils
         /// <summary>
         /// Converts a value to a specified type
         /// </summary>
+        /// <exception cref="TypeConvertException" />
         public static object? ConvertValue(object? value, Type type)
         {
             // handle null values
@@ -134,6 +136,8 @@ namespace DotVVM.Framework.Utils
                 else
                     return null;
             }
+
+            if (type.IsInstanceOfType(value)) return value;
 
             // handle nullable types
             if (type.IsGenericType && Nullable.GetUnderlyingType(type) is Type nullableElementType)
@@ -218,7 +222,19 @@ namespace DotVVM.Framework.Utils
             }
 
             // convert
-            return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
+            try
+            {
+                return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
+            }
+            catch (Exception e)
+            {
+                throw new TypeConvertException(value, type, e);
+            }
+        }
+
+        public record TypeConvertException(object Value, Type Type, Exception InnerException): RecordException(InnerException)
+        {
+            public override string Message => $"Can not convert value '{Value}' to {Type}: {InnerException.Message}";
         }
 
         public static Type? GetEnumerableType(this Type collectionType)
