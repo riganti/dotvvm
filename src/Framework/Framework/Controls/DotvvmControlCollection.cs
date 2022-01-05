@@ -218,7 +218,6 @@ namespace DotVVM.Framework.Controls
             }
             item.Parent = parent;
 
-            SetLifecycleRequirements(item);
 
             if (!item.properties.Contains(Internal.UniqueIDProperty) &&
                 parent.properties.TryGet(Internal.UniqueIDProperty, out var parentId) &&
@@ -227,7 +226,7 @@ namespace DotVVM.Framework.Controls
                 AssignUniqueIds(item, parentId);
             }
 
-            item.Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent, isMissingInvoke: true);
+            SetLifecycleRequirements(item);
 
             ValidateParentsLifecycleEvents();
         }
@@ -263,6 +262,9 @@ namespace DotVVM.Framework.Controls
                     currentParent = GetClosestDotvvmControlAncestor(currentParent);
                 }
             }
+
+            if (lastLifeCycleEvent > LifeCycleEventType.None)
+                item.Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent, isMissingInvoke: true);
         }
 
         void AssignUniqueIds(DotvvmControl item, object parentId)
