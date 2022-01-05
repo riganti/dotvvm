@@ -108,9 +108,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public override bool Equals(object? obj) =>
             obj is DataContextStack other && Equals(other);
 
-        public bool Equals(DataContextStack stack)
+        public bool Equals(DataContextStack? stack)
         {
-            return ReferenceEquals(this, stack) || hashCode == stack.hashCode
+            return ReferenceEquals(this, stack) || stack is not null
+                && hashCode == stack.hashCode
                 && DataContextType == stack.DataContextType
                 && NamespaceImports.SequenceEqual(stack.NamespaceImports)
                 && ExtensionParameters.SequenceEqual(stack.ExtensionParameters)

@@ -53,7 +53,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             {
                 methods = methods.Where(m => {
                     var mp = m.GetParameters();
-                    return mp.Length == parameters.Length && parameters.Zip(mp, (specified, method) => method.ParameterType.IsAssignableFrom(specified)).All(t => t);
+                    return mp.Length == parameters.Length && parameters.Zip(mp, (specified, method) => method.ParameterType == specified).All(t => t);
                 });
             }
 
@@ -122,6 +122,11 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddPropertyGetterTranslator(typeof(IReadOnlyCollection<>), nameof(ICollection.Count), lengthMethod);
             AddPropertyGetterTranslator(typeof(string), nameof(string.Length), lengthMethod);
             AddMethodTranslator(typeof(Enums), "GetNames", new EnumGetNamesMethodTranslator(), 0);
+            var identityTranslator = new GenericMethodCompiler(a => a[1]);
+            AddMethodTranslator(typeof(BoxingUtils), "Box", identityTranslator, new [] { typeof(bool) });
+            AddMethodTranslator(typeof(BoxingUtils), "Box", identityTranslator, new [] { typeof(bool?) });
+            AddMethodTranslator(typeof(BoxingUtils), "Box", identityTranslator, new [] { typeof(int) });
+            AddMethodTranslator(typeof(BoxingUtils), "Box", identityTranslator, new [] { typeof(int?) });
 
             JsExpression listGetIndexer(JsExpression[] args, MethodInfo method) =>
                 BuildIndexer(args[0], args[1], method.DeclaringType.GetProperty("Item"));

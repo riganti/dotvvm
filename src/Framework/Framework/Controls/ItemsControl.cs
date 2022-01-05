@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="ItemsControl"/> class.
         /// </summary>
-        public ItemsControl(string tagName) : base(tagName)
+        public ItemsControl(string tagName) : base(tagName, false)
         {
         }
 

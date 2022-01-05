@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsReturnStatement : JsStatement
+    public sealed class JsReturnStatement : JsStatement
     {
         public JsExpression Expression
         {

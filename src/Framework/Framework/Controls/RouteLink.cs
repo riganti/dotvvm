@@ -84,7 +84,7 @@ namespace DotVVM.Framework.Controls
                 }
             );
 
-        public RouteLink() : base("a")
+        public RouteLink() : base("a", false)
         {
         }
 

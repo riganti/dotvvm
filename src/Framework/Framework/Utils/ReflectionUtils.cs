@@ -22,7 +22,6 @@ using RecordExceptions;
 
 namespace DotVVM.Framework.Utils
 {
-
     public static class ReflectionUtils
     {
         /// <summary>
@@ -131,7 +130,11 @@ namespace DotVVM.Framework.Utils
             // handle null values
             if (value == null)
             {
-                if (type.IsValueType)
+                if (type == typeof(bool))
+                    return BoxingUtils.False;
+                else if (type == typeof(int))
+                    return BoxingUtils.Zero;
+                else if (type.IsValueType)
                     return Activator.CreateInstance(type);
                 else
                     return null;
@@ -209,7 +212,11 @@ namespace DotVVM.Framework.Utils
             const NumberStyles numberStyle = NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent | NumberStyles.AllowLeadingSign | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite;
             if (value is string str2)
             {
-                if (type == typeof(double))
+                if (type == typeof(bool))
+                    return BoxingUtils.Box(bool.Parse(str2));
+                else if (type == typeof(int))
+                    return BoxingUtils.Box(int.Parse(str2, numberStyle & NumberStyles.Integer, CultureInfo.InvariantCulture));
+                else if (type == typeof(double))
                     return double.Parse(str2, numberStyle & NumberStyles.Float, CultureInfo.InvariantCulture);
                 else if (type == typeof(float))
                     return float.Parse(str2, numberStyle & NumberStyles.Float, CultureInfo.InvariantCulture);

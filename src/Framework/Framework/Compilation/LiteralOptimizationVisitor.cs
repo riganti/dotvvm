@@ -100,7 +100,7 @@ namespace DotVVM.Framework.Compilation
                     controls[0].Metadata,
                     controls[0].DothtmlNode,
                     controls[0].DataContextTypeStack
-                ) { ConstructorParameters = new object[] { text, unencodedText, isWhitespace } };
+                ) { ConstructorParameters = new object[] { text, unencodedText, BoxingUtils.Box(isWhitespace) } };
             }
             else
             {

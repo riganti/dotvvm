@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupControl"/> class.
         /// </summary>
-        public DotvvmMarkupControl(string? wrapperTagName) : base(wrapperTagName)
+        public DotvvmMarkupControl(string? wrapperTagName) : base(wrapperTagName, false)
         {
             LifecycleRequirements |= ControlLifecycleRequirements.PreInit;
             SetValue(Internal.IsNamingContainerProperty, true);

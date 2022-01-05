@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 
@@ -52,6 +53,16 @@ namespace DotVVM.Framework.Controls
         public void Add(DotvvmControl item)
         {
             Insert(controls.Count, item);
+        }
+
+        /// <summary>
+        /// Adds an item to the child collection, but does not create unique ids, does not invoke missing events, ... Intended for internal use only.
+        /// </summary>
+        internal void AddUnchecked(DotvvmControl item)
+        {
+            controls.Add(item);
+            item.Parent = parent;
+            SetLifecycleRequirements(item);
         }
 
         /// <summary>
@@ -207,6 +218,21 @@ namespace DotVVM.Framework.Controls
             }
             item.Parent = parent;
 
+
+            if (!item.properties.Contains(Internal.UniqueIDProperty) &&
+                parent.properties.TryGet(Internal.UniqueIDProperty, out var parentId) &&
+                parentId is not null)
+            {
+                AssignUniqueIds(item, parentId);
+            }
+
+            SetLifecycleRequirements(item);
+
+            ValidateParentsLifecycleEvents();
+        }
+
+        private void SetLifecycleRequirements(DotvvmControl item)
+        {
             // Iterates through all parents and ORs the LifecycleRequirements
             var updatedLastEvent = lastLifeCycleEvent;
             {
@@ -237,29 +263,23 @@ namespace DotVVM.Framework.Controls
                 }
             }
 
-            if (!item.properties.Contains(Internal.UniqueIDProperty) && parent.properties.Contains(Internal.UniqueIDProperty))
-            {
-                AssignUniqueIds(item);
-            }
-
-            item.Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent, isMissingInvoke: true);
-
-
-
-            ValidateParentsLifecycleEvents();
+            if (lastLifeCycleEvent > LifeCycleEventType.None)
+                item.Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent, isMissingInvoke: true);
         }
 
-        void AssignUniqueIds(DotvvmControl item)
+        void AssignUniqueIds(DotvvmControl item, object parentId)
         {
             Debug.Assert(parent.properties.Contains(Internal.UniqueIDProperty));
             Debug.Assert(!item.properties.Contains(Internal.UniqueIDProperty));
-
-            item.SetValue(Internal.UniqueIDProperty, parent.GetValue(Internal.UniqueIDProperty) + "a" + uniqueIdCounter);
+            Debug.Assert(parentId is string);
+            
+            var id = parentId.ToString() + "a" + uniqueIdCounter.ToString();
             uniqueIdCounter++;
-            foreach (var c in item.Children)
+            item.properties.Set(Internal.UniqueIDProperty, id);
+            foreach (var c in item.Children.controls)
             {
                 if (!c.properties.Contains(Internal.UniqueIDProperty))
-                    item.Children.AssignUniqueIds(c);
+                    item.Children.AssignUniqueIds(c, id);
             }
         }
 
@@ -271,6 +291,19 @@ namespace DotVVM.Framework.Controls
                 throw new Exception("Internal bug in Lifecycle events.");
         }
 
+        private IDotvvmRequestContext? GetContext()
+        {
+            DotvvmBindableObject? c = parent;
+            while (c != null)
+            {
+                if (c.properties.TryGet(Internal.RequestContextProperty, out var context))
+                    return (IDotvvmRequestContext?)context;
+                c = c.Parent;
+            }
+            // when not found, fallback to this slow method:
+            return (IDotvvmRequestContext?)parent.GetValue(Internal.RequestContextProperty);
+        }
+
         /// <summary>
         /// Invokes missed page life cycle events on the control.
         /// </summary>
@@ -279,7 +312,7 @@ namespace DotVVM.Framework.Controls
             // just a quick check to save GetValue call
             if (lastLifeCycleEvent >= targetEventType || parent.LifecycleRequirements == ControlLifecycleRequirements.None) return;
 
-            var context = (IDotvvmRequestContext?)parent.GetValue(Internal.RequestContextProperty);
+            var context = GetContext();
             if (context == null)
                 throw new DotvvmControlException(parent, "InvokeMissedPageLifeCycleEvents must be called on a control rooted in a view.");
 

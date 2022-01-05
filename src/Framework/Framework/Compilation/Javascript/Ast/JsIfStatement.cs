@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsIfStatement: JsStatement
+    public sealed class JsIfStatement: JsStatement
     {
         public JsExpression Condition
         {
