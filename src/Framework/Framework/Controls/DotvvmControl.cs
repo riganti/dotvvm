@@ -617,6 +617,15 @@ namespace DotVVM.Framework.Controls
             return Children;
         }
 
+        protected internal override DotvvmBindableObject CloneControl()
+        {
+            var newControl = (DotvvmControl)base.CloneControl();
+            newControl.Children = new DotvvmControlCollection(newControl);
+            foreach (var child in Children)
+                newControl.Children.Add((DotvvmControl)child.CloneControl());
+            return newControl;
+        }
+
         IEnumerable<DotvvmBindableObject> IDotvvmControl.GetAllAncestors(bool includingThis) => this.GetAllAncestors(includingThis);
     }
 }

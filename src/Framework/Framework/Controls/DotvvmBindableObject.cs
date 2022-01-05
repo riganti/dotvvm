@@ -360,6 +360,14 @@ namespace DotVVM.Framework.Controls
             return GetAllAncestors().Last();
         }
 
+        /// <summary> Does a deep clone of the control. </summary>
+        protected internal virtual DotvvmBindableObject CloneControl()
+        {
+            var newThis = (DotvvmBindableObject)this.MemberwiseClone();
+            this.properties.CloneInto(ref newThis.properties);
+            return newThis;
+        }
+
         /// <summary>
         /// Gets the logical children of this control (including controls that are not in the visual tree but which can contain command bindings).
         /// </summary>
