@@ -209,6 +209,24 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
 
         [TestMethod]
+        public async Task CloneTemplateTranslation()
+        {
+            var cth = createHelper(c => {
+                c.Styles.Register<HtmlGenericControl>(c => c.GetHtmlAttributeValue("data-xx") == "a")
+                    .AppendContent(new AuthenticatedView {
+                        RenderWrapperTag = true,
+                        NotAuthenticatedTemplate = new CloneTemplate(new Literal("You are not authorized, btw.")),
+                        AuthenticatedTemplate = new CloneTemplate(new Literal("You are authorized, yay.")),
+                    });
+            });
+
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <div data-xx=a></div>
+            ");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
         public async Task CapabilitySetting()
         {
             var cth = createHelper(c => {

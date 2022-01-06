@@ -21,19 +21,29 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         StringBuilder result = new StringBuilder();
         List<(int index, CodeParameterInfo parameter)>? parameters;
+
+
+        protected int? lastParameterIndex => parameters is null or { Count: 0 } ? null : parameters[parameters.Count - 1].index;
+        protected bool endsWithParameter => lastParameterIndex == result.Length;
+
         protected void Emit(string str)
         {
             Debug.Assert(!str.Contains("\n"));
             result.Append(str);
+        }
+        protected void Emit(char ch)
+        {
+            Debug.Assert(ch != '\n');
+            result.Append(ch);
         }
 
         protected void CommitLine()
         {
             if (NiceMode)
             {
-                while (result.Length > 0 && result[result.Length - 1] == ' ' && parameters?.LastOrDefault().index != result.Length) result.Remove(result.Length - 1, 1);
+                while (result.Length > 0 && result[result.Length - 1] == ' ' && !endsWithParameter) result.Remove(result.Length - 1, 1);
 
-                result.Append("\n");
+                result.Append('\n');
                 for (int i = 0; i < indentLevel; i++)
                 {
                     result.Append(IndentString);
@@ -43,16 +53,15 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         protected void OptionalSpace()
         {
+            if (!NiceMode) return;
             var endsWithCharacter =
                 result.Length > 0 && !char.IsWhiteSpace(result[result.Length - 1]);
-            var endsWithParameter =
-                parameters != null && parameters.Count > 0 && parameters[parameters.Count - 1].index == result.Length;
-            if (NiceMode && (endsWithCharacter || endsWithParameter)) Emit(" ");
+            if (endsWithCharacter || endsWithParameter) Emit(' ');
         }
 
-        static bool IsOperatorChar(char ch) => ch == '+' || ch == '-' || ch == '&' || ch == '|' || ch == '?' || ch == '=' || ch == '*' || ch == '/';
-        static bool IsIdentifierChar(char ch) => char.IsLetterOrDigit(ch) || ch == '_' || ch == '$';
-        static bool IsDangerousTuple(char a, char b) => IsOperatorChar(a) && (a == b || b == '=') || IsIdentifierChar(a) && IsIdentifierChar(b);
+        static bool IsOperatorChar(char ch) => ch == '+' | ch == '-' | ch == '&' | ch == '|' | ch == '?' | ch == '=' | ch == '*' | ch == '/';
+        static bool IsIdentifierChar(char ch) => char.IsLetterOrDigit(ch) | ch == '_' | ch == '$';
+        static bool IsDangerousTuple(char a, char b) => IsOperatorChar(a) && (a == b | b == '=') || IsIdentifierChar(a) && IsIdentifierChar(b);
 
         public static bool NeedSpaceBetween(StringBuilder a, string b)
         {
@@ -66,10 +75,10 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             var needsSpace =
                 NeedSpaceBetween(result, op) &&
-                parameters?.LastOrDefault().index != result.Length;
+                !endsWithParameter;
 
             if (needsSpace)
-                Emit(" ");
+                Emit(' ');
             else if (allowCosmeticSpace) OptionalSpace();
         }
 
@@ -82,7 +91,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         protected void EndStatement()
         {
-            Emit(";");
+            Emit(';');
             CommitLine();
         }
 
@@ -197,20 +206,20 @@ namespace DotVVM.Framework.Compilation.Javascript
         public void VisitInvocationExpression(JsInvocationExpression invocationExpression)
         {
             invocationExpression.Target.AcceptVisitor(this);
-            Emit("(");
+            Emit('(');
             int i = 0;
             foreach (var arg in invocationExpression.Arguments)
             {
-                if (i++ > 0) { Emit(","); OptionalSpace(); }
+                if (i++ > 0) { Emit(','); OptionalSpace(); }
                 arg.AcceptVisitor(this);
             }
-            Emit(")");
+            Emit(')');
         }
 
         public void VisitParenthesizedExpression(JsParenthesizedExpression parenthesizedExpression)
         {
             bool isSequenceBlock = parenthesizedExpression.Expression is JsBinaryExpression binaryExpression && binaryExpression.Operator == BinaryOperatorType.Sequence;
-            Emit("(");
+            Emit('(');
             if (isSequenceBlock)
             {
                 Indent();
@@ -222,7 +231,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 CommitLine();
                 Dedent();
             }
-            Emit(")");
+            Emit(')');
         }
 
         public void VisitUnaryExpression(JsUnaryExpression unaryExpression)
@@ -244,15 +253,15 @@ namespace DotVVM.Framework.Compilation.Javascript
         public void VisitIndexerExpression(JsIndexerExpression indexerExpression)
         {
             indexerExpression.Target.AcceptVisitor(this);
-            Emit("[");
+            Emit('[');
             indexerExpression.Argument.AcceptVisitor(this);
-            Emit("]");
+            Emit(']');
         }
 
         public void VisitLiteral(JsLiteral jsLiteral)
         {
             var literalValue = jsLiteral.LiteralValue;
-            if (char.IsLetterOrDigit(literalValue.FirstOrDefault())) SpaceBeforeOp(literalValue, allowCosmeticSpace: false);
+            if (char.IsLetterOrDigit(literalValue[0])) SpaceBeforeOp(literalValue, allowCosmeticSpace: false);
             Emit(literalValue);
         }
 
@@ -265,20 +274,20 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public void VisitSymbolicParameter(JsSymbolicParameter symbolicParameter)
         {
-            if (parameters == null) parameters = new List<(int, CodeParameterInfo)>();
             SpaceBeforeOp("X", allowCosmeticSpace: false);
+            if (parameters == null) parameters = new List<(int, CodeParameterInfo)>();
             parameters.Add((result.Length, CodeParameterInfo.FromExpression(symbolicParameter)));
         }
 
         public void VisitObjectExpression(JsObjectExpression objectExpression)
         {
-            if (objectExpression.Parent is JsExpressionStatement) Emit("(");
-            Emit("{");
+            if (objectExpression.Parent is JsExpressionStatement) Emit('(');
+            Emit('{');
             Indent();
             var first = true;
             foreach (var item in objectExpression.Properties)
             {
-                if (!first) { Emit(","); OptionalSpace(); }
+                if (!first) { Emit(','); OptionalSpace(); }
                 else first = false;
 
                 if (objectExpression.Properties.Count > 1) CommitLine();
@@ -287,8 +296,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
             Dedent();
             if (objectExpression.Properties.Count > 1) CommitLine();
-            Emit("}");
-            if (objectExpression.Parent is JsExpressionStatement) Emit(")");
+            Emit('}');
+            if (objectExpression.Parent is JsExpressionStatement) Emit(')');
         }
 
         public void VisitExpressionStatement(JsExpressionStatement jsExpressionStatement)
@@ -306,25 +315,25 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public void VisitArrayExpression(JsArrayExpression jsArrayExpression)
         {
-            Emit("[");
+            Emit('[');
             Indent();
             var first = true;
             foreach (var item in jsArrayExpression.Arguments)
             {
                 if (jsArrayExpression.Arguments.Count > 1) CommitLine();
-                if (!first) { Emit(","); OptionalSpace(); }
+                if (!first) { Emit(','); OptionalSpace(); }
                 else first = false;
 
                 item.AcceptVisitor(this);
             }
             Dedent();
             if (jsArrayExpression.Arguments.Count > 1) CommitLine();
-            Emit("]");
+            Emit(']');
         }
 
         public void VisitBlockStatement(JsBlockStatement blockStatement)
         {
-            Emit("{");
+            Emit('{');
             Indent();
             CommitLine();
             foreach (var ss in blockStatement.Body)
@@ -332,14 +341,14 @@ namespace DotVVM.Framework.Compilation.Javascript
                 ss.AcceptVisitor(this);
             }
             Dedent();
-            Emit("}");
+            Emit('}');
 
         }
 
         public void VisitVariableDefStatement(JsVariableDefStatement variableDefStatement)
         {
             Emit(variableDefStatement.Keyword);
-            Emit(" ");
+            Emit(' ');
             variableDefStatement.NameIdentifier.AcceptVisitor(this);
             if (variableDefStatement.Initialization is object)
             {
@@ -353,7 +362,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             Emit("if(");
             ifStatement.Condition.AcceptVisitor(this);
-            Emit(")");
+            Emit(')');
             OptionalSpace();
             ifStatement.TrueBranch.AcceptVisitor(this);
             CommitLine();
@@ -374,12 +383,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             var first = true;
             foreach (var item in functionExpression.Parameters)
             {
-                if (!first) { Emit(","); OptionalSpace(); }
+                if (!first) { Emit(','); OptionalSpace(); }
                 else first = false;
 
                 item.AcceptVisitor(this);
             }
-            Emit(")");
+            Emit(')');
             OptionalSpace();
             Emit("=>");
             OptionalSpace();
@@ -391,12 +400,12 @@ namespace DotVVM.Framework.Compilation.Javascript
                                   exprBody is JsObjectExpression ||
                                   exprBody is JsLiteral literal && literal.LiteralValue.StartsWith("{");
                 if (needsParens)
-                    Emit("(");
+                    Emit('(');
                 
                 exprBody.AcceptVisitor(this);
 
                 if (needsParens)
-                    Emit(")");
+                    Emit(')');
             }
             else
             {
@@ -414,12 +423,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             var first = true;
             foreach (var item in functionExpression.Parameters)
             {
-                if (!first) { Emit(","); OptionalSpace(); }
+                if (!first) { Emit(','); OptionalSpace(); }
                 else first = false;
 
                 item.AcceptVisitor(this);
             }
-            Emit(")");
+            Emit(')');
             OptionalSpace();
             functionExpression.Block.AcceptVisitor(this);
         }
@@ -429,7 +438,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (objectProperty.Identifier.IsValidName())
                 objectProperty.Identifier.AcceptVisitor(this);
             else new JsLiteral(objectProperty.Identifier.Name).AcceptVisitor(this);
-            Emit(":");
+            Emit(':');
             OptionalSpace();
             objectProperty.Expression.AcceptVisitor(this);
         }
@@ -438,14 +447,14 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             EmitOperator("new ", allowCosmeticSpace: false);
             newExpression.Target.AcceptVisitor(this);
-            Emit("(");
+            Emit('(');
             int i = 0;
             foreach (var arg in newExpression.Arguments)
             {
-                if (i++ > 0) { Emit(","); OptionalSpace(); }
+                if (i++ > 0) { Emit(','); OptionalSpace(); }
                 arg.AcceptVisitor(this);
             }
-            Emit(")");
+            Emit(')');
         }
     }
 }

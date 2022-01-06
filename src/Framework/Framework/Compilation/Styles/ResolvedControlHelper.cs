@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
             if (obj is RawLiteral literal)
             {
-                rc.ConstructorParameters = new object[] { literal.EncodedText, literal.UnencodedText, literal.IsWhitespace };
+                rc.ConstructorParameters = new object[] { literal.EncodedText, literal.UnencodedText, BoxingUtils.Box(literal.IsWhitespace) };
             }
             else if (type == typeof(HtmlGenericControl) && obj is HtmlGenericControl htmlControl)
             {
@@ -139,6 +139,12 @@ namespace DotVVM.Framework.Compilation.Styles
                     return new ResolvedPropertyTemplate(property, cs.ToList());
                 else
                     return new ResolvedPropertyControlCollection(property, cs.ToList());
+            }
+            else if (value is ITemplate template)
+            {
+                if (template is not CloneTemplate cloneTemplate)
+                    throw new Exception($"Template of type {template.GetType().Name} are not supported in server side styles, use CloneTemplate instead.");
+                return new ResolvedPropertyTemplate(property, cloneTemplate.Controls.Select(c => FromRuntimeControl(c, dataContext, config)).ToList());
             }
             else if (value is IBinding binding)
             {

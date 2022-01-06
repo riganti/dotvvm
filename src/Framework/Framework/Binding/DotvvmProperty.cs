@@ -163,6 +163,16 @@ namespace DotVVM.Framework.Binding
             this == capability ||
             OwningCapability?.IsOwnedByCapability(capability) == true;
 
+        private object? GetInheritedValue(DotvvmBindableObject control)
+        {
+            for (var p = control.Parent; p is not null; p = p.Parent)
+            {
+                if (p.properties.TryGet(this, out var v))
+                    return v;
+            }
+            return DefaultValue;
+        }
+
         /// <summary>
         /// Gets the value of the property.
         /// </summary>
@@ -172,9 +182,9 @@ namespace DotVVM.Framework.Binding
             {
                 return value;
             }
-            if (IsValueInherited && inherit && control.Parent != null)
+            if (IsValueInherited & inherit)
             {
-                return GetValue(control.Parent);
+                return GetInheritedValue(control);
             }
             return DefaultValue;
         }
@@ -236,7 +246,7 @@ namespace DotVVM.Framework.Binding
             var field = typeof(TDeclaringType).GetField(propertyName + "Property", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
             if (field == null) throw new ArgumentException($"'{typeof(TDeclaringType).Name}' does not contain static field '{propertyName}Property'.");
 
-            return Register(propertyName, typeof(TPropertyType), typeof(TDeclaringType), defaultValue, isValueInherited, property, field);
+            return Register(propertyName, typeof(TPropertyType), typeof(TDeclaringType), BoxingUtils.BoxGeneric(defaultValue), isValueInherited, property, field);
         }
 
         public static DotvvmProperty Register(string propertyName, Type propertyType, Type declaringType, object? defaultValue, bool isValueInherited, DotvvmProperty? property, ICustomAttributeProvider attributeProvider, bool throwOnDuplicateRegistration = true)

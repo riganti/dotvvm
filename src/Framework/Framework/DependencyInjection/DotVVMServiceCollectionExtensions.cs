@@ -36,6 +36,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
         public static IServiceCollection RegisterDotVVMServices(IServiceCollection services)
         {
+            // init dotvvm controls in the background, they will be needed no matter what
+            DefaultControlResolver.InvokeStaticConstructorsOnDotvvmControls();
+
             services.AddOptions();
 
             services.TryAddSingleton<CompiledAssemblyCache>();

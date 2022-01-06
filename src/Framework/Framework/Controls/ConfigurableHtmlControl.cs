@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Controls
         protected override bool RendersHtmlTag => RenderWrapperTag;
 
         public ConfigurableHtmlControl(string? tagName)
-            : base(tagName)
+            : base(tagName, false)
         {
             WrapperTagName = tagName;
             RenderWrapperTag = !string.IsNullOrEmpty(tagName);

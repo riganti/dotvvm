@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsIdentifierExpression: JsExpression
+    public sealed class JsIdentifierExpression: JsExpression
     {
         public string Identifier
         {

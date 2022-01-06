@@ -122,7 +122,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
 
             emitter.CommitDotvvmProperties(controlName);
 
-            emitter.EmitAddCollectionItem(parentName, controlName);
+            emitter.EmitAddChildControl(parentName, controlName);
             controlName = parentName;
         }
 
@@ -189,7 +189,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
 
                 // add to collection in property
                 emitter.EmitSetProperty(controlName, nameof(DotvvmControl.Parent), emitter.GetParameterOrVariable(parentName));
-                emitter.EmitAddCollectionItem(collectionName, controlName, null);
+                emitter.EmitAddCollectionItem(collectionName, controlName);
             }
             controlName = parentName;
         }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsParenthesizedExpression : JsExpression
+    public sealed class JsParenthesizedExpression : JsExpression
     {
         public JsExpression Expression
         {

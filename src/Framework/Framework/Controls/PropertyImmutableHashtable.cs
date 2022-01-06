@@ -158,5 +158,13 @@ namespace DotVVM.Framework.Controls
             var (hashSeed, keys, valueTable) = CreateTableWithValues(properties, values);
             return (obj) => obj.properties.AssignBulk(keys, valueTable, hashSeed);
         }
+
+        public class DotvvmPropertyComparer : IComparer<DotvvmProperty>
+        {
+            public int Compare(DotvvmProperty a, DotvvmProperty b) =>
+                string.Compare(a.FullName, b.FullName, StringComparison.Ordinal);
+
+            public static readonly DotvvmPropertyComparer Instance = new();
+        }
     }
 }

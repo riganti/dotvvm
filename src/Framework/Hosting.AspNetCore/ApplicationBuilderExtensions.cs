@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using DotVVM.Framework.Diagnostics;
+using DotVVM.Framework.Compilation.ControlTree;
 
 #if NET5_0_OR_GREATER
 using HostingEnv = Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
@@ -61,7 +62,10 @@ namespace Microsoft.AspNetCore.Builder
         public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, IDotvvmStartup startup, string applicationRootPath, bool? useErrorPages, Action<DotvvmConfiguration> modifyConfiguration = null)
         {
             var env = app.ApplicationServices.GetRequiredService<HostingEnv>();
+            var tokenMiddleware = Task.Run(() => ActivatorUtilities.CreateInstance<DotvvmCsrfTokenMiddleware>(app.ApplicationServices));
             var config = app.ApplicationServices.GetRequiredService<DotvvmConfiguration>();
+            // warm up the translator
+            _ = Task.Run(() => config.Markup.JavascriptTranslator);
             config.Debug = env.IsDevelopment();
             config.ApplicationPhysicalPath = applicationRootPath ?? env.ContentRootPath;
 
@@ -73,10 +77,13 @@ namespace Microsoft.AspNetCore.Builder
             modifyConfiguration?.Invoke(config);
             config.Diagnostics.Apply(config);
             config.Freeze();
+            // warm up the resolver in the background
+            Task.Run(() => app.ApplicationServices.GetService(typeof(IControlResolver)));
+            Task.Run(() => VisualStudioHelper.DumpConfiguration(config, config.ApplicationPhysicalPath));
 
             startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmStarted);
             app.UseMiddleware<DotvvmMiddleware>(config, new List<IMiddleware> {
-                ActivatorUtilities.CreateInstance<DotvvmCsrfTokenMiddleware>(config.ServiceProvider),
+                tokenMiddleware.Result,
                 ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(app.ApplicationServices),
                 DotvvmFileUploadMiddleware.TryCreate(app.ApplicationServices),
                 new DotvvmReturnedFileMiddleware(),

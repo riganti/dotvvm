@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsUnaryExpression : JsExpression
+    public sealed class JsUnaryExpression : JsExpression
     {
         public JsExpression Expression
         {

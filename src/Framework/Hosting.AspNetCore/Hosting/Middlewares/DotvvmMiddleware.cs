@@ -24,8 +24,6 @@ namespace DotVVM.Framework.Hosting
         private readonly bool useErrorPage;
         private readonly RequestDelegate next;
 
-        private int configurationSaved;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMiddleware" /> class.
         /// </summary>
@@ -42,10 +40,6 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public async Task Invoke(HttpContext context)
         {
-            if (Interlocked.Exchange(ref configurationSaved, 1) == 0)
-            {
-                VisualStudioHelper.DumpConfiguration(Configuration, Configuration.ApplicationPhysicalPath);
-            }
             // create the context
             var dotvvmContext = CreateDotvvmContext(context);
             context.RequestServices.GetRequiredService<DotvvmRequestContextStorage>().Context = dotvvmContext;

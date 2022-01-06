@@ -6,6 +6,7 @@ using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -161,6 +162,15 @@ namespace DotVVM.Framework.Controls
             value = ValueOrBindingExtensions.UnwrapToObject(value);
 
             SetValueRaw(property, value);
+        }
+
+        /// <summary>
+        /// Sets the value of a specified property.
+        /// </summary>
+        public void SetValue<T>(DotvvmProperty property, T value)
+            where T: struct
+        {
+            SetValue(property, BoxingUtils.BoxGeneric(value));
         }
 
         /// <summary> Sets the value of specified property by updating the view model this property is bound to. Throws if the property does not contain binding </summary>
@@ -358,6 +368,14 @@ namespace DotVVM.Framework.Controls
         {
             if (Parent == null) return this;
             return GetAllAncestors().Last();
+        }
+
+        /// <summary> Does a deep clone of the control. </summary>
+        protected internal virtual DotvvmBindableObject CloneControl()
+        {
+            var newThis = (DotvvmBindableObject)this.MemberwiseClone();
+            this.properties.CloneInto(ref newThis.properties);
+            return newThis;
         }
 
         /// <summary>

@@ -132,8 +132,7 @@ namespace DotVVM.Framework.Security
                     {
                         HttpOnly = true,                                // Don't allow client script access
                         Secure = context.HttpContext.Request.IsHttps,   // If request goes trough HTTPS, mark as secure only
-                        SameSite = canUseSameSite ? SameSiteMode.Lax : SameSiteMode.None,
-                        Domain = context.HttpContext.Request.Url.Host
+                        SameSite = canUseSameSite ? SameSiteMode.Lax : SameSiteMode.None
                     });
 
                 // Return newly generated SID

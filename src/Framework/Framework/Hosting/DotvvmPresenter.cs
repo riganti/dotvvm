@@ -470,7 +470,7 @@ namespace DotVVM.Framework.Hosting
                 if (SecurityConfiguration.FrameOptionsCrossOrigin.IsEnabledForRoute(route))
                 { // fine
                 }
-                else if (SecurityConfiguration.FrameOptionsSameOrigin.IsEnabledForRoute(route) && site != "same-origin")
+                else if (SecurityConfiguration.FrameOptionsSameOrigin.IsEnabledForRoute(route) && site == "same-origin")
                 { // samesite allowed - also fine
                 }
                 else

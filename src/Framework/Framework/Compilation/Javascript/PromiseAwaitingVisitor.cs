@@ -66,11 +66,11 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         /// Adds annotations about the value of the expression (if it may be null, type of the expression, ...)
         private JsExpression AddAnnotations(JsExpression expr, JsExpression originalNode) =>
-            expr.WithAnnotation(originalNode.Annotation<ResultIsObservableAnnotation>(), append: false)
-                .WithAnnotation(originalNode.Annotation<ResultIsObservableArrayAnnotation>(), append: false)
-                .WithAnnotation(originalNode.Annotation<ResultMayBeObservableAnnotation>(), append: false)
+            expr.WithConditionalAnnotation(originalNode.HasAnnotation(ResultIsObservableAnnotation.Instance), ResultIsObservableAnnotation.Instance, append: false)
+                .WithConditionalAnnotation(originalNode.HasAnnotation(ResultIsObservableArrayAnnotation.Instance), ResultIsObservableArrayAnnotation.Instance, append: false)
+                .WithConditionalAnnotation(originalNode.HasAnnotation(ResultMayBeObservableAnnotation.Instance), ResultMayBeObservableAnnotation.Instance, append: false)
                 .WithAnnotation(originalNode.Annotation<VMPropertyInfoAnnotation>(), append: false)
                 .WithAnnotation(originalNode.Annotation<ViewModelInfoAnnotation>(), append: false)
-                .WithAnnotation(originalNode.Annotation<MayBeNullAnnotation>(), append: false);
+                .WithConditionalAnnotation(originalNode.HasAnnotation(MayBeNullAnnotation.Instance), MayBeNullAnnotation.Instance, append: false);
     }
 }

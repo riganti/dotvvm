@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsConditionalExpression: JsExpression
+    public sealed class JsConditionalExpression: JsExpression
     {
         public static JsTreeRole<JsExpression> ConditionRole => JsTreeRoles.Condition;
         public readonly static JsTreeRole<JsExpression> TrueRole = new JsTreeRole<JsExpression>("True");
