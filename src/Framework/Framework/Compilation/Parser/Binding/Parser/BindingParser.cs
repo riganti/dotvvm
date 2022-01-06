@@ -1191,10 +1191,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var rawExpression = text.Substring(positionInToken, end - positionInToken);
             var innerExpressionTokenizer = new BindingTokenizer(tokenPositionInBinding + positionInToken);
             innerExpressionTokenizer.Tokenize(rawExpression);
-            var innerExpressionParser = new BindingParser()
-            {
-                Tokens = innerExpressionTokenizer.Tokens
-            };
+            var innerExpressionParser = new BindingParser() { Tokens = innerExpressionTokenizer.Tokens };
             expression = innerExpressionParser.ReadFormattedExpression();
 
             if (expression.HasNodeErrors)

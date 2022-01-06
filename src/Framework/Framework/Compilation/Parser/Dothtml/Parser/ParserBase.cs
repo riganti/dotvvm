@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
@@ -30,7 +29,8 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
         public List<TToken> Tokens { get; set; } = new List<TToken>();
         protected int CurrentIndex { get; set; }
-        
+
+
         /// <summary>
         /// Skips the whitespace.
         /// </summary>
