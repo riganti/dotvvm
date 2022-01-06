@@ -178,26 +178,66 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        public void BindingParser_InterpolatedString_Valid()
+        public void BindingParser_InterpolatedString_BinaryOperationInterpolation()
+        {
+            var result = bindingParserNodeFactory.Parse("$'{'x' + 'y' + 'z'}'") as InterpolatedStringBindingParserNode;
+            Assert.AreEqual("{0}", result.Format);
+            Assert.IsFalse(result.HasNodeErrors);
+            Assert.AreEqual(1, result.Arguments.Count);
+            Assert.AreEqual(typeof(BinaryOperatorBindingParserNode), result.Arguments[0].GetType());
+            Assert.AreEqual("x + y + z", result.Arguments[0].ToDisplayString());
+        }
+
+        [TestMethod]
+        public void BindingParser_InterpolatedString_MultipleInterpolations()
         {
             var result = bindingParserNodeFactory.Parse("$\"Hello {Argument1} with {Argument2}!\"") as InterpolatedStringBindingParserNode;
             Assert.AreEqual("Hello {0} with {1}!", result.Format);
             Assert.IsFalse(result.HasNodeErrors);
             Assert.AreEqual(2, result.Arguments.Count);
             Assert.AreEqual("Argument1", ((SimpleNameBindingParserNode)result.Arguments[0]).Name);
+            Assert.AreEqual(9, ((SimpleNameBindingParserNode)result.Arguments[0]).StartPosition);
+            Assert.AreEqual("Argument1".Length, ((SimpleNameBindingParserNode)result.Arguments[0]).Length);
+            Assert.AreEqual(26, ((SimpleNameBindingParserNode)result.Arguments[1]).StartPosition);
+            Assert.AreEqual("Argument2".Length, ((SimpleNameBindingParserNode)result.Arguments[1]).Length);
             Assert.AreEqual("Argument2", ((SimpleNameBindingParserNode)result.Arguments[1]).Name);
         }
 
         [TestMethod]
-        [DataRow("$'{DateProperty:dd/MM/yyyy}'", "{0:dd/MM/yyyy}")]
-        [DataRow("$'{IntProperty:####}'", "{0:####}")]
-        public void BindingParser_InterpolatedString_WithFormattingComponent_Valid(string expression, string formatOptions)
+        public void BindingParser_InterpolatedString_NestedExpressions_StartPositions()
         {
-            var result = bindingParserNodeFactory.Parse(expression) as InterpolatedStringBindingParserNode;
+            var result = bindingParserNodeFactory.Parse("$'ABC{$'DEF{'GHI!'}'}'") as InterpolatedStringBindingParserNode;
+            Assert.AreEqual(0, result.StartPosition);
+            Assert.AreEqual(6, result.Arguments.First().StartPosition /* $'DEF{'GHI!'}' */);
+            Assert.AreEqual(12, (result.Arguments.First() as InterpolatedStringBindingParserNode).Arguments.First().StartPosition /* 'GHI!'' */);
+        }
+
+        [TestMethod]
+        public void BindingParser_InterpolatedString_ComplexNestedExpressions_StartPositions()
+        {
+            var result = bindingParserNodeFactory.Parse("Method($'ABC{Method($'DEF{'GHI!'}')}')") as FunctionCallBindingParserNode;
+            Assert.AreEqual(0, result.StartPosition);
+
+            var interpolationOuter = result.ArgumentExpressions.First() as InterpolatedStringBindingParserNode;
+            Assert.AreEqual(7, interpolationOuter.StartPosition);
+            var innerMethodCall = interpolationOuter.Arguments.First() as FunctionCallBindingParserNode;
+            Assert.AreEqual(13, innerMethodCall.StartPosition);
+            var interpolationInner = innerMethodCall.ArgumentExpressions.First() as InterpolatedStringBindingParserNode;
+            Assert.AreEqual(20, interpolationInner.StartPosition);
+        }
+
+        [TestMethod]
+        [DataRow("$'{DateProperty:dd/MM/yyyy}'", "DateProperty:dd/MM/yyyy", "{0:dd/MM/yyyy}")]
+        [DataRow("$'{IntProperty:####}'", "IntProperty:####", "{0:####}")]
+        public void BindingParser_InterpolatedString_WithFormattingComponent_Valid(string interpolatedString, string interpolation, string formatOptions)
+        {
+            var result = bindingParserNodeFactory.Parse(interpolatedString) as InterpolatedStringBindingParserNode;
             Assert.IsFalse(result.HasNodeErrors);
             Assert.AreEqual(1, result.Arguments.Count);
             Assert.AreEqual(typeof(FormattedBindingParserNode), result.Arguments.First().GetType());
             Assert.AreEqual(formatOptions, ((FormattedBindingParserNode)result.Arguments.First()).Format);
+            Assert.AreEqual(3, ((FormattedBindingParserNode)result.Arguments.First()).StartPosition);
+            Assert.AreEqual(interpolation.Length, ((FormattedBindingParserNode)result.Arguments.First()).Length);
         }
 
         [TestMethod]
