@@ -18,3 +18,4 @@ runs:
       --no-build
       --logger "GitHubActions;report-warnings=true"
       --configuration "${{ inputs.configuration }}"
+    shell: bash

@@ -21,7 +21,7 @@ jobs:
       run: msbuild src/DotVVM.sln -v:m -t:Rebuild -p:Configuration=Release -warnAsError
 
   csharp-unit-tests:
-    name: C# unit tests
+    name: .NET unit tests
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     strategy:
