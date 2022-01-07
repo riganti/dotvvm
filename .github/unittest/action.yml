@@ -1,0 +1,20 @@
+name: Run .NET unit tests
+
+inputs:
+  project:
+    default: null
+  configuration:
+    default: Debug
+
+runs:
+  using: composite
+  steps:
+  - run: dotnet msbuild "${{ inputs.project }}"
+      -t:Rebuild
+      -p:WarningLevel=0
+      -p:Configuration=${{ inputs.configuration }}
+    shell: bash
+  - run: dotnet test "${{ inputs.projects }}"
+      --no-build
+      --logger "GitHubActions;report-warnings=true"
+      --configuration "${{ inputs.configuration }}"

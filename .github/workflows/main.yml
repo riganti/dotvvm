@@ -28,22 +28,32 @@ jobs:
       fail-fast: false # don't kill tests when one environment fails
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        configuration: [Debug, Release]
     steps:
     - uses: actions/checkout@v2
     - name: Set up
       uses: ./.github/setup
       with:
         sln: .github/DotVVM.Crossplatform.sln
-    - name: Build tests
-      run: |
-        dotnet msbuild src/Tests -t:Rebuild -p:WarningLevel=0 -p:Configuration=${{ matrix.configuration }}
-        dotnet msbuild src/Analyzers/Analyzers.Tests -t:Rebuild -p:WarningLevel=0 -p:Configuration=${{ matrix.configuration }}
-    - name: Run tests
-      run: |
-        dotnet test src/Tests --no-build --logger "GitHubActions;report-warnings=true" --configuration ${{ matrix.configuration }}
-        dotnet test src/Analyzers/Analyzers.Tests --no-build --logger "GitHubActions;report-warnings=true" --configuration ${{ matrix.configuration }}
-
+    - name: Tests (Debug)
+      uses: ./.github/unittest
+      with:
+        project: src/Tests
+        configuration: Debug
+    - name: Tests (Release)
+      uses: ./.github/unittest
+      with:
+        project: src/Tests
+        configuration: Release
+    - name: Analyzers.Tests (Debug)
+      uses: ./.github/unittest
+      with:
+        project: src/Analyzers/Analyzers.Tests
+        configuration: Debug
+    - name: Analyzers.Tests (Debug)
+      uses: ./.github/unittest
+      with:
+        project: src/Analyzers/Analyzers.Tests
+        configuration: Release
 
   js-tests:
     runs-on: ubuntu-latest
