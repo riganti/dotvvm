@@ -699,7 +699,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 Read();
                 SkipWhiteSpace();
 
-                var (format, arguments) = ParseInterpolatedString(token.Text, out var error);
+                var (format, arguments) = ParseInterpolatedString(token, out var error);
                 var node = CreateNode(new InterpolatedStringBindingParserNode(format, arguments), startIndex);
                 if (error != null)
                 {
@@ -1094,12 +1094,13 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             }
         }
 
-        private static (string, List<BindingParserNode>) ParseInterpolatedString(string text, out string? error)
+        private static (string, List<BindingParserNode>) ParseInterpolatedString(BindingToken token, out string? error)
         {
             error = null;
             var sb = new StringBuilder();
             var arguments = new List<BindingParserNode>();
 
+            var text = token.Text;
             var index = 2;
             while (index < text.Length - 1)
             {
@@ -1114,7 +1115,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     }
                     else if (current == '{')
                     {
-                        if (!TryParseInterpolationExpression(text, index, out var end, out var argument, out innerError))
+                        if (!TryParseInterpolationExpression(text, index, token.StartPosition, out var end, out var argument, out innerError))
                         {
                             arguments.Clear();
                             error = string.Concat(error, " Interpolation expression is malformed. ", innerError).TrimStart();
@@ -1145,9 +1146,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return (sb.ToString(), arguments);
         }
 
-        private static bool TryParseInterpolationExpression(string text, int start, out int end, out BindingParserNode? expression, out string? error)
+        private static bool TryParseInterpolationExpression(string text, int positionInToken, int tokenPositionInBinding, out int end, out BindingParserNode? expression, out string? error)
         {
-            var index = start;
+            var index = positionInToken;
             var foundEnd = false;
 
             var exprDepth = 0;
@@ -1178,7 +1179,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             }
 
             end = index - 1;
-            if (start == end)
+            if (positionInToken == end)
             {
                 // Provided expression is empty
                 expression = null;
@@ -1187,11 +1188,12 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             }
 
             error = null;
-            var rawExpression = text.Substring(start, end - start);
-            var tokenizer = new BindingTokenizer();
-            tokenizer.Tokenize(rawExpression);
-            var parser = new BindingParser() { Tokens = tokenizer.Tokens };
-            expression = parser.ReadFormattedExpression();
+            var rawExpression = text.Substring(positionInToken, end - positionInToken);
+            var innerExpressionTokenizer = new BindingTokenizer(tokenPositionInBinding + positionInToken);
+            innerExpressionTokenizer.Tokenize(rawExpression);
+            var innerExpressionParser = new BindingParser() { Tokens = innerExpressionTokenizer.Tokens };
+            expression = innerExpressionParser.ReadFormattedExpression();
+
             if (expression.HasNodeErrors)
             {
                 error = string.Join(" ", new[] { $"Error while parsing expression \"{rawExpression}\"." }.Concat(expression.NodeErrors));
