@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Binding;
@@ -14,7 +15,7 @@ namespace DotVVM.Framework.Compilation
 
         class ExpressionInspectingVisitor: ExpressionVisitor
         {
-            public List<DotvvmProperty> UsedProperties { get; } = new();
+            public HashSet<DotvvmProperty> UsedProperties { get; } = new();
             public bool UsesViewModel { get; set; }
             protected override Expression VisitConstant(ConstantExpression node)
             {
@@ -57,7 +58,8 @@ namespace DotVVM.Framework.Compilation
 
             base.VisitView(view);
 
-            var info = new ControlUsedPropertiesInfo(exprVisitor.UsedProperties.ToArray(), exprVisitor.UsesViewModel);
+            var props = exprVisitor.UsedProperties.OrderBy(p => p.Name).ToArray();
+            var info = new ControlUsedPropertiesInfo(props, exprVisitor.UsesViewModel);
 
             view.SetProperty(new ResolvedPropertyValue(Internal.UsedPropertiesInfoProperty, info));
         }
