@@ -93,9 +93,19 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             if (src.Type.IsValueType && src.Type != typeof(void) && destType == typeof(object))
             {
-                return Expression.Convert(src, destType);
+                return BoxToObject(src);
             }
             return null;
+        }
+
+        public static Expression BoxToObject(Expression src)
+        {
+            var type = src.Type;
+            if (type == typeof(bool) || type == typeof(bool?) || type == typeof(int) || type == typeof(int?))
+                return Expression.Call(typeof(BoxingUtils), "Box", Type.EmptyTypes, src);
+            if (src is ConstantExpression { Value: var constant })
+                return Expression.Constant(constant, typeof(object));
+            return Expression.Convert(src, typeof(object));
         }
 
         //6.1.4 Nullable Type conversions

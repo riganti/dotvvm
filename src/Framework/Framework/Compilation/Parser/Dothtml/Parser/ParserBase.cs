@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         public List<TToken> Tokens { get; set; } = new List<TToken>();
         protected int CurrentIndex { get; set; }
 
-        
+
         /// <summary>
         /// Skips the whitespace.
         /// </summary>

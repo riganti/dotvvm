@@ -59,19 +59,25 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="Literal"/> class.
         /// </summary>
-        public Literal(bool allowImplicitLifecycleRequirements = true) : base("span")
+        public Literal() : base("span", false)
         {
-            if (allowImplicitLifecycleRequirements) LifecycleRequirements = ControlLifecycleRequirements.PreRender;
+            LifecycleRequirements = ControlLifecycleRequirements.None;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Literal"/> class.
         /// </summary>
-        public Literal(string text, bool allowImplicitLifecycleRequirements = true) : base("span", false)
+        public Literal(string text, bool renderSpan = false) : base("span", false)
         {
             Text = text;
-            RenderSpanElement = false;
-            if (allowImplicitLifecycleRequirements) LifecycleRequirements = ControlLifecycleRequirements.None;
+            RenderSpanElement = renderSpan;
+            LifecycleRequirements = ControlLifecycleRequirements.None;
+        }
+
+        public Literal(ValueOrBinding<string> text, bool renderSpan = false): this()
+        {
+            SetValue(TextProperty, text);
+            RenderSpanElement = renderSpan;
         }
 
         public Literal(ValueOrBinding text, bool renderSpan = false): this()

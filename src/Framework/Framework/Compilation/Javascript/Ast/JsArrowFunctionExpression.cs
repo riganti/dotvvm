@@ -6,14 +6,14 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsArrowFunctionExpression: JsBaseFunctionExpression
+    public sealed class JsArrowFunctionExpression: JsBaseFunctionExpression
     {
 
         public JsExpression? ExpressionBody
         {
             get {
                 if (Block.Body.Count == 1 &&
-                    Block.Body.Single() is JsReturnStatement { Expression: var exprBody })
+                    Block.Body.FirstOrDefault() is JsReturnStatement { Expression: var exprBody })
                     return exprBody;
                 else
                     return null;

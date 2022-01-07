@@ -182,11 +182,11 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public static JsExpression EnsureObservableWrapped(this JsExpression expression)
         {
             // It's not needed to wrap if none of the descendants return an observable
-            if (!expression.DescendantNodes().Any(n => (n.HasAnnotation<ResultIsObservableAnnotation>() && !n.HasAnnotation<ShouldBeObservableAnnotation>()) || n.HasAnnotation<ObservableUnwrapInvocationAnnotation>()))
+            if (!expression.DescendantNodes().Any(n => (n.HasAnnotation(ResultIsObservableAnnotation.Instance) && !n.HasAnnotation(ShouldBeObservableAnnotation.Instance)) || n.HasAnnotation(ObservableUnwrapInvocationAnnotation.Instance)))
             {
                 return expression.WithAnnotation(ShouldBeObservableAnnotation.Instance);
             }
-            else if (expression.SatisfyResultCondition(n => n.HasAnnotation<ResultIsObservableAnnotation>()))
+            else if (expression.SatisfyResultCondition(n => n.HasAnnotation(ResultIsObservableAnnotation.Instance)))
             {
                 var arguments = new List<JsExpression>(2) {
                     new JsArrowFunctionExpression(
@@ -195,7 +195,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                     )
                 };
 
-                if (expression.SatisfyResultCondition(n => n.HasAnnotation<ResultIsObservableArrayAnnotation>()))
+                if (expression.SatisfyResultCondition(n => n.HasAnnotation(ResultIsObservableArrayAnnotation.Instance)))
                 {
                     arguments.Add(new JsLiteral(true));
                 }

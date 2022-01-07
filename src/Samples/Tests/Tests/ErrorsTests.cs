@@ -453,6 +453,34 @@ namespace DotVVM.Samples.Tests
             });
         }
 
+        [Fact]
+        public void Error_ExceptionInRender()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_ExceptionInRender);
+
+                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("ExceptionThrower"));
+                browser.First("label[for=menu_radio_stack_trace]").Click();
+
+                AssertUI.InnerText(browser.First(".exceptionAdditionalInfo"), s => s.Contains("<strong />"));
+                AssertUI.InnerText(browser.First(".exceptionAdditionalInfo"), s => s.Contains("ExceptionInRender.dothtml"));
+            });
+        }
+
+        [Fact]
+        public void Error_ExceptionInLifecycle()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_ExceptionInLifecycle);
+
+                AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("ExceptionThrower"));
+                browser.First("label[for=menu_radio_stack_trace]").Click();
+
+                AssertUI.InnerText(browser.First(".exceptionAdditionalInfo"), s => s.Contains("<strong />"));
+                AssertUI.InnerText(browser.First(".exceptionAdditionalInfo"), s => s.Contains("ExceptionInLifecycle.dothtml"));
+            });
+        }
+
         public ErrorsTests(ITestOutputHelper output) : base(output)
         {
         }

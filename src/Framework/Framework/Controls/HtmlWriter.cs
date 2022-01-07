@@ -551,6 +551,7 @@ namespace DotVVM.Framework.Controls
         }
 
         // from Char.cs
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsInRange(char c, char min, char max) => (uint)(c - min) <= (uint)(max - min);
 
         /// <summary>

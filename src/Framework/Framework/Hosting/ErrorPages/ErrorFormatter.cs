@@ -407,9 +407,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 if (control is null)
                     return null;
                 return new ExceptionAdditionalInfo(
-                    "DotVVM Control",
-                    new [] { control.DebugString() },
-                    ExceptionAdditionalInfo.DisplayMode.ToString
+                    "Control Hierarchy",
+                    control.GetAllAncestors(includingThis: true).Select(c => c.DebugString(useHtml: true, multiline: false)).ToArray(),
+                    ExceptionAdditionalInfo.DisplayMode.ToHtmlListUnencoded
                 );
             });
 

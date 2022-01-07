@@ -18,10 +18,10 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using FastExpressionCompiler;
+using RecordExceptions;
 
 namespace DotVVM.Framework.Utils
 {
-
     public static class ReflectionUtils
     {
         /// <summary>
@@ -124,16 +124,23 @@ namespace DotVVM.Framework.Utils
         /// <summary>
         /// Converts a value to a specified type
         /// </summary>
+        /// <exception cref="TypeConvertException" />
         public static object? ConvertValue(object? value, Type type)
         {
             // handle null values
             if (value == null)
             {
-                if (type.IsValueType)
+                if (type == typeof(bool))
+                    return BoxingUtils.False;
+                else if (type == typeof(int))
+                    return BoxingUtils.Zero;
+                else if (type.IsValueType)
                     return Activator.CreateInstance(type);
                 else
                     return null;
             }
+
+            if (type.IsInstanceOfType(value)) return value;
 
             // handle nullable types
             if (type.IsGenericType && Nullable.GetUnderlyingType(type) is Type nullableElementType)
@@ -205,7 +212,11 @@ namespace DotVVM.Framework.Utils
             const NumberStyles numberStyle = NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent | NumberStyles.AllowLeadingSign | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite;
             if (value is string str2)
             {
-                if (type == typeof(double))
+                if (type == typeof(bool))
+                    return BoxingUtils.Box(bool.Parse(str2));
+                else if (type == typeof(int))
+                    return BoxingUtils.Box(int.Parse(str2, numberStyle & NumberStyles.Integer, CultureInfo.InvariantCulture));
+                else if (type == typeof(double))
                     return double.Parse(str2, numberStyle & NumberStyles.Float, CultureInfo.InvariantCulture);
                 else if (type == typeof(float))
                     return float.Parse(str2, numberStyle & NumberStyles.Float, CultureInfo.InvariantCulture);
@@ -218,7 +229,19 @@ namespace DotVVM.Framework.Utils
             }
 
             // convert
-            return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
+            try
+            {
+                return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
+            }
+            catch (Exception e)
+            {
+                throw new TypeConvertException(value, type, e);
+            }
+        }
+
+        public record TypeConvertException(object Value, Type Type, Exception InnerException): RecordException(InnerException)
+        {
+            public override string Message => $"Can not convert value '{Value}' to {Type}: {InnerException.Message}";
         }
 
         public static Type? GetEnumerableType(this Type collectionType)

@@ -314,7 +314,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
 
             var literal = treeBuilder.BuildControl(rawLiteralMetadata.Value, node, dataContext);
-            literal.ConstructorParameters = new object[] { text.Replace("\r\n", "\n"), literalNode.Value.Replace("\r\n", "\n"), whitespace };
+            literal.ConstructorParameters = new object[] { text.Replace("\r\n", "\n"), literalNode.Value.Replace("\r\n", "\n"), BoxingUtils.Box(whitespace) };
             return literal;
         }
 
@@ -323,7 +323,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var text = commentNode.IsServerSide ? "" : "<!--" + commentNode.Value + "-->";
 
             var literal = treeBuilder.BuildControl(rawLiteralMetadata.Value, node, dataContext);
-            literal.ConstructorParameters = new object[] { text.Replace("\r\n", "\n"), "", true };
+            literal.ConstructorParameters = new object[] { text.Replace("\r\n", "\n"), "", BoxingUtils.True };
             return literal;
         }
 
@@ -336,7 +336,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var textProperty = treeBuilder.BuildPropertyBinding(Literal.TextProperty, textBinding, null);
             treeBuilder.AddProperty(literal, textProperty, out _); // this can't fail
 
-            var renderSpanElement = treeBuilder.BuildPropertyValue(Literal.RenderSpanElementProperty, false, null);
+            var renderSpanElement = treeBuilder.BuildPropertyValue(Literal.RenderSpanElementProperty, BoxingUtils.False, null);
             treeBuilder.AddProperty(literal, renderSpanElement, out _);
 
             return literal;
@@ -577,7 +577,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 // implicitly set boolean property
                 if (property.PropertyType.IsEqualTo(new ResolvedTypeDescriptor(typeof(bool))) || property.PropertyType.IsEqualTo(new ResolvedTypeDescriptor(typeof(bool?))))
                 {
-                    if (!treeBuilder.AddProperty(control, treeBuilder.BuildPropertyValue(property, true, attribute), out var error)) attribute.AddError(error);
+                    if (!treeBuilder.AddProperty(control, treeBuilder.BuildPropertyValue(property, BoxingUtils.True, attribute), out var error)) attribute.AddError(error);
                 }
                 else if (property.MarkupOptions.AllowAttributeWithoutValue)
                 {

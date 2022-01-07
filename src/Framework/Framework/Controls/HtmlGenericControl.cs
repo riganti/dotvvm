@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public HtmlGenericControl(string? tagName, bool allowImplicitLifecycleRequirements = true) : this(allowImplicitLifecycleRequirements)
         {
-            if (tagName?.Trim() == "")
+            if (tagName is not null && string.IsNullOrWhiteSpace(tagName))
             {
                 throw new DotvvmControlException("The tagName must not be empty!");
             }

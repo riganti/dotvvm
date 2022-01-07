@@ -7,10 +7,12 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
 {
     public class BindingTokenizer : TokenizerBase<BindingToken, BindingTokenType>
     {
-        private readonly ISet<char> operatorCharacters = new HashSet<char> { '+', '-', '*', '/', '^', '\\', '%', '<', '>', '=', '&', '|', '~', '!', ';' };
+        private static readonly HashSet<char> operatorCharacters = new HashSet<char> { '+', '-', '*', '/', '^', '\\', '%', '<', '>', '=', '&', '|', '~', '!', ';' };
+        internal readonly int bindingPositionOffset;
 
-        public BindingTokenizer() : base(BindingTokenType.Identifier, BindingTokenType.WhiteSpace)
+        public BindingTokenizer(int bindingPositionOffset = 0) : base(BindingTokenType.Identifier, BindingTokenType.WhiteSpace)
         {
+            this.bindingPositionOffset = bindingPositionOffset;
         }
 
         public bool IsOperator(char c) => operatorCharacters.Contains(c);
@@ -272,7 +274,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
 
         protected override BindingToken NewToken(string text, BindingTokenType type, int lineNumber, int columnNumber, int length, int startPosition)
         {
-            return new BindingToken(text, type, lineNumber, columnNumber, length, startPosition);
+            return new BindingToken(text, type, lineNumber, columnNumber, length, startPosition + bindingPositionOffset);
         }
 
         private void FinishIncompleteIdentifier()

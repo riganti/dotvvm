@@ -5,7 +5,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsVariableDefStatement : JsStatement
+    public sealed class JsVariableDefStatement : JsStatement
     {
         private string keyword = "let";
         public string Keyword

@@ -20,8 +20,8 @@ namespace DotVVM.Framework.Compilation.Javascript
         public override void VisitConditionalExpression(JsConditionalExpression conditionalExpression)
         {
             base.VisitConditionalExpression(conditionalExpression);
-            if (conditionalExpression.TrueExpression.HasAnnotation<MayBeNullAnnotation>() ||
-                conditionalExpression.FalseExpression.HasAnnotation<MayBeNullAnnotation>())
+            if (conditionalExpression.TrueExpression.HasAnnotation(MayBeNullAnnotation.Instance) ||
+                conditionalExpression.FalseExpression.HasAnnotation(MayBeNullAnnotation.Instance))
                 conditionalExpression.AddAnnotation(MayBeNullAnnotation.Instance);
         }
 
@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         protected void ProcessTargetedExpression(JsExpression expression, JsExpression? defaultValue)
         {
             var target = expression.GetChildByRole(JsTreeRoles.TargetExpression)!;
-            if (target.HasAnnotation<MayBeNullAnnotation>())
+            if (target.HasAnnotation(MayBeNullAnnotation.Instance))
             {
                 // A().B -> A()?.B
                 if (expression is JsMemberAccessExpression memberAccessExpression)
@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 }
                 // A()[index] -> (A() || []).[index]
                 else if (defaultValue != null &&
-                    (expression.HasAnnotation<MayBeNullAnnotation>() || expression.IsRootResultExpression()) &&
+                    (expression.HasAnnotation(MayBeNullAnnotation.Instance) || expression.IsRootResultExpression()) &&
                     IntroduceVariableFor(target, 1))
                 {
                     target.ReplaceWith(_ =>
@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (expression is JsIdentifierExpression) return false;
             if (expression is JsSymbolicParameter symbol) return false;
             if (limit > 0 && (expression is JsMemberAccessExpression memberAccess ||
-                              expression is JsInvocationExpression invocation && invocation.Arguments.Count == 0 && invocation.HasAnnotation<ObservableUnwrapInvocationAnnotation>()))
+                              expression is JsInvocationExpression invocation && invocation.Arguments.Count == 0 && invocation.HasAnnotation(ObservableUnwrapInvocationAnnotation.Instance)))
                 return IntroduceVariableFor(expression.GetChildByRole(JsTreeRoles.TargetExpression)!, limit - 1);
             return true;
         }
@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         JsExpression GetDependentAncestorNode(JsExpression expr)
         {
-            while (expr.Parent is JsExpression parent && !expr.HasAnnotation<MayBeNullAnnotation>() && expr.Role == JsTreeRoles.TargetExpression)
+            while (expr.Parent is JsExpression parent && !expr.HasAnnotation(MayBeNullAnnotation.Instance) && expr.Role == JsTreeRoles.TargetExpression)
                 expr = parent;
             return expr;
         }
@@ -129,7 +129,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
     }
 
-    public class MayBeNullAnnotation
+    public sealed class MayBeNullAnnotation
     {
         public static MayBeNullAnnotation Instance = new MayBeNullAnnotation();
         MayBeNullAnnotation() { }

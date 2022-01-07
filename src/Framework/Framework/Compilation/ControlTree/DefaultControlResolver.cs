@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Configuration;
@@ -23,6 +24,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         private static object locker = new object();
         private static bool isInitialized = false;
+        private static object dotvvmLocker = new object();
+        private static bool isDotvvmInitialized = false;
 
 
         public DefaultControlResolver(DotvvmConfiguration configuration, IControlBuilderFactory controlBuilderFactory, CompiledAssemblyCache compiledAssemblyCache) : base(configuration.Markup)
@@ -50,39 +53,60 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
         }
 
+        internal static Task InvokeStaticConstructorsOnDotvvmControls()
+        {
+            if (isDotvvmInitialized) return Task.CompletedTask;
+            return Task.Run(() => {
+                if (isDotvvmInitialized) return;
+                lock(dotvvmLocker) {
+                    if (isDotvvmInitialized) return;
+                    InvokeStaticConstructorsOnAllControls(typeof(DotvvmControl).Assembly);
+                }
+            });
+        }
+
         /// <summary>
         /// Invokes the static constructors on all controls to register all <see cref="DotvvmProperty"/>.
         /// </summary>
         private void InvokeStaticConstructorsOnAllControls()
         {
             var dotvvmAssembly = typeof(DotvvmControl).Assembly.GetName().Name;
+            var dotvvmInitTask = InvokeStaticConstructorsOnDotvvmControls();
 
             if (configuration.ExperimentalFeatures.ExplicitAssemblyLoading.Enabled)
             {
                 // use only explicitly specified assemblies from configuration
                 // and do not call GetTypeInfo to prevent unnecessary dependent assemblies from loading
-                var allTypes = compiledAssemblyCache.GetAllAssemblies()
+                var assemblies = compiledAssemblyCache.GetAllAssemblies()
                     .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly))
-                    .Concat(new[] { typeof(DotvvmControl).Assembly })
-                    .Distinct()
-                    .SelectMany(a => a.GetLoadableTypes()).Where(t => t.IsClass);
+                    .Distinct();
 
-                foreach (var type in allTypes)
-                {
-                    if (type.IsDefined(typeof(ContainsDotvvmPropertiesAttribute), true))
-                        InitType(type);
-                }
+                Parallel.ForEach(assemblies, a => {
+                    InvokeStaticConstructorsOnAllControls(a);
+                });
             }
             else
             {
-                var allTypes = GetAllLoadableTypes(dotvvmAssembly);
-                foreach (var type in allTypes)
-                {
-                    if (type.IsDefined(typeof(ContainsDotvvmPropertiesAttribute), true))
-                        InitType(type);
-                }
+                var assemblies = GetAllRelevantAssemblies(dotvvmAssembly);
+                Parallel.ForEach(assemblies, a => {
+                    InvokeStaticConstructorsOnAllControls(a);
+                });
+            }
+            dotvvmInitTask.Wait();
+        }
+
+        private static void InvokeStaticConstructorsOnAllControls(Assembly assembly)
+        {
+            foreach (var c in assembly.GetLoadableTypes())
+            {
+                if (!c.IsClass || c.ContainsGenericParameters)
+                    continue;
+
+                if (c.IsDefined(typeof(ContainsDotvvmPropertiesAttribute), true))
+                    InitType(c);
             }
         }
+        
 
         private static void InitType(Type type)
         {
@@ -123,14 +147,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
         }
 
-        private IEnumerable<Type> GetAllLoadableTypes(string dotvvmAssembly)
+        private IEnumerable<Assembly> GetAllRelevantAssemblies(string dotvvmAssembly)
         {
 
 #if DotNetCore
-            var allTypes = compiledAssemblyCache.GetAllAssemblies()
-                   .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly))
-                   .Concat(new[] { typeof(DotvvmControl).Assembly })
-                   .SelectMany(a => a.GetLoadableTypes()).Where(t => t.IsClass).ToList();
+            var assemblies = compiledAssemblyCache.GetAllAssemblies()
+                   .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly));
 #else
 
             var loadedAssemblies = compiledAssemblyCache.GetAllAssemblies()
@@ -140,14 +162,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             // ReflectionUtils.GetAllAssemblies() in netframework returns only assemblies which have already been loaded into
             // the current AppDomain, to return all assemblies we traverse recursively all referenced Assemblies
-            var allTypes = loadedAssemblies
+            var assemblies = loadedAssemblies
                 .SelectRecursively(a => a.GetReferencedAssemblies().Where(an => visitedAssemblies.Add(an.FullName)).Select(an => Assembly.Load(an)))
                 .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly))
-                .Distinct()
-                .Concat(new[] { typeof(DotvvmControl).Assembly })
-                .SelectMany(a => a.GetLoadableTypes()).Where(t => t.IsClass);
+                .Distinct();
 #endif
-            return allTypes;
+            return assemblies;
         }
 
         /// <summary>
