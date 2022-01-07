@@ -1,0 +1,44 @@
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.JsComponentIntegration.ReactComponentIntegrationViewModel, DotVVM.Samples.Common
+@js FeatureSamples_Resources_SvelteAppModule
+@import viewModelType =DotVVM.Samples.Common.ViewModels.FeatureSamples.JsComponentIntegration.ReactComponentIntegrationViewModel
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <div data-ui="rechart-control">
+        <js:chart IncludeInPage={value: IncludeInPage}
+                     data={value: Data}
+                     onSelected={staticCommand: (string n) => CurrentThing = n} />
+    </div>
+
+
+    <dot:Button data-ui="command-regenerate" Click={command: Regenerate()} Text="Regenerate chart"></dot:Button>
+    <dot:Button data-ui="command-removeDOM" Click={staticCommand: IncludeInPage = false} Text="Remove from DOM"></dot:Button>
+    <dot:Button data-ui="command-addDOM" Click={staticCommand: IncludeInPage = true} Text="Add to DOM"></dot:Button>
+
+    <p>
+        CurrentThing:<span data-ui="result">{{value: CurrentThing}}</span>
+    </p>
+
+
+    <h3> Two way binding: </h3>
+
+    <div>
+        <js:incrementer i={value: Counter} />
+
+        <div>
+            DotVVM: {{value: Counter}}
+            <dot:Button Click={command: Counter = Counter + 1} Text="+" />
+            <dot:Button Click={staticCommand: Counter = Counter - 1} Text="-" />
+        </div>
+
+    </div>
+</body>
+</html>
+
+
