@@ -11,6 +11,13 @@ inputs:
 runs:
   using: composite
   steps:
+  # browser setup
+  - if: matrix.browser == 'chromium'
+    uses: browser-actions/setup-chromium@latest
+  - if: matrix.browser == 'firefox'
+    uses: browser-actions/setup-firefox@latest
+
+  # run the appropriate uitest script
   - if: ${{ runner.os != 'Windows' }}
     name: uitest.sh
     run: bash ./.github/uitest/uitest.sh
@@ -23,6 +30,8 @@ runs:
       -SamplesProfile "${{ inputs.profile }}.${{ inputs.browser }}.json"
       -TrxName "ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx"
     shell: pwsh
+
+  # publish the result to github
   - name: Parse test results
     uses: NasAmin/trx-parser@v0.2.0
     id: trx-parser
