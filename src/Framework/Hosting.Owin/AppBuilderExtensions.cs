@@ -128,6 +128,7 @@ namespace Owin
             config.Freeze();
 
             // warm up the resolver in the background
+            Task.Run(() => app.ApplicationServices.GetService(typeof(IControlResolver)));
             Task.Run(() => VisualStudioHelper.DumpConfiguration(config, config.ApplicationPhysicalPath));
 
             startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmStarted);
