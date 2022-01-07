@@ -1,123 +1,150 @@
 param(
-    [string] $Root,
-    [string] $Config,
-    [string] $SamplesProfile = "seleniumconfig.owin.chrome.json",
-    [string] $SamplesPort = "5407",
-    [string] $SamplesPortApi = "61453",
-    [string] $TrxName = "ui-test-results.trx")
-
-# ==================
-# config var setting
-# ==================
-
-$Root = $env:DOTVVM_ROOT
-if ([string]::IsNullOrEmpty($Root)) {
-    $Root = "$PWD"
-}
-$env:DOTVVM_ROOT = $Root
-
-$Config = $env:CONFIGURATION
-if ([string]::IsNullOrEmpty($Config)) {
-    $Config = "Release"
-}
-
-$packagesDir = "$Root\src\packages\"
-$testResultsDir = "$Root\artifacts\test\"
-$samplesDir = "$Root\src\Samples\Tests\Tests\"
-$ciDir = "$Root\ci\windows\"
+    [string] $root,
+    [string] $config,
+    [string] $samplesProfile = "seleniumconfig.owin.chrome.json",
+    [string] $samplesPort = "5407",
+    [string] $samplesPortApi = "61453",
+    [string] $trxName = "ui-test-results.trx")
 
 # set the codepage to UTF-8
 chcp 65001
 
-Write-Host "ROOT=$Root"
-Write-Host "CONFIGURATION=$Config"
-Write-Host "TEST_RESULTS_DIR=$testResultsDir"
-Write-Host "SAMPLES_DIR=$samplesDir"
-Write-Host "SAMPLES_PROFILE=$SamplesProfile"
-Write-Host "SAMPLES_PORT=$SamplesPort"
-Write-Host "SAMPLES_PORT_API=$SamplesPortApi"
+$root = $env:DOTVVM_ROOT
+if ([string]::IsNullOrEmpty($root)) {
+    $root = "$PWD"
+}
+$env:DOTVVM_ROOT = $root
 
-# ================
-# helper functions
-# ================
-
-function Run-Command {
-    param (
-        [string][parameter(Position=0)]$Name,
-        [scriptblock][parameter(Position=1)]$Command
-    )
-    Write-Host "::group::$Name"
-    Write-Host -ForegroundColor Blue "$Command".Trim()
-    Invoke-Command $Command
-    Write-Host "::endgroup::"
+$config = $env:CONFIGURATION
+if ([string]::IsNullOrEmpty($config)) {
+    $config = "Release"
 }
 
-function Ensure-Command {
+Write-Host -ForegroundColor Blue @"
+Root: $root
+Config: $config
+SamplesProfile: $samplesProfile
+samplesPort: $samplesPort
+samplesPortApi: $samplesPortApi
+TrxName: $trxName
+"@
+
+$testResultsDir = "$root\artifacts\test\"
+$testDir = "$root\src\Samples\Tests\Tests\"
+$profilePath="$testDir\Profiles\$samplesProfile"
+
+function Invoke-Cmds {
     param (
-        [string][parameter(Position=0)]$Name,
-        [scriptblock][parameter(Position=1)]$Command
+        [string][parameter(Position=0)]$name,
+        [scriptblock][parameter(Position=1)]$command
     )
-    Run-Command $Name $Command
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host -ForegroundColor Red "$Name failed"
+    Write-Host "::group::$name"
+    Write-Host -ForegroundColor Blue "$command".Trim()
+
+    $LASTEXITCODE = 0
+    Invoke-Command $command | Write-Host
+    $Result = ($LASTEXITCODE -eq 0) -and $?
+
+    Write-Host "::endgroup::"
+    return $Result
+}
+
+function Invoke-RequiredCmds {
+    param (
+        [string][parameter(Position=0)]$name,
+        [scriptblock][parameter(Position=1)]$command
+    )
+    $ErrorActionPreference = "Stop"
+    if (!(Invoke-Cmds $name $command)) {
+        Write-Error "$name failed"
         exit 1
     }
 }
 
-function Clean-UITest {
-    Stop-Process -Force -Name chrome -ErrorAction SilentlyContinue
-    Stop-Process -Force -Name chromedriver -ErrorAction SilentlyContinue
-    Remove-IISSite -Confirm:$false -Name dotvvm.owin
-    Remove-IISSite -Confirm:$false -Name dotvvm.owin.api
+function Publish-Sample {
+    param ([string][parameter(Position=0)]$path)
+    Invoke-RequiredCmds "Publish sample '$path'" {
+        $msBuildProcess = Start-Process -PassThru -NoNewWindow -FilePath "msbuild.exe" -ArgumentList `
+            "$path", `
+            "-v:m",`
+            "-noLogo",`
+            "-p:PublishProfile=$root\ci\windows\GenericPublish.pubxml", `
+            "-p:DeployOnBuild=true", `
+            "-p:Configuration=$config", `
+            "-p:SourceLinkCreate=true"
+        Wait-Process -Id "$($msBuildProcess.Id)"
+        if ($msBuildProcess.ExitCode -ne 0) {
+            throw "MSBuild failed."
+        }
+    }
 }
 
-# seleniumconfig.json needs to be copied before the build of the sln
-$profilePath="$samplesDir\Profiles\$SamplesProfile"
+function Start-Sample {
+    param (
+        [string][parameter(Position=0)]$sampleName,
+        [string][parameter(Position=1)]$path,
+        [int][parameter(Position=2)]$port
+    )
+    Invoke-RequiredCmds "Start sample '$sampleName'" {
+        Remove-IISSite -Confirm:$false -Name $sampleName  -ErrorAction SilentlyContinue
 
-if (-Not(Test-Path -PathType Leaf -Path $profilePath)) {
-    Write-Host -ForegroundColor Red "Profile '$profilePath' doesn't exist."
-    exit 1
-}
-Copy-Item -Force "$profilePath" "$samplesDir\seleniumconfig.json"
+        icacls "$root\artifacts\" /grant "IIS_IUSRS:(OI)(CI)F"
 
-Ensure-Command "Build samples" {
-    msbuild "$Root\src\Samples\Owin\DotVVM.Samples.BasicSamples.Owin.csproj" -v:m `
-        -p:PublishProfile="$Root\ci\windows\GenericPublish.pubxml" `
-        -p:DeployOnBuild=true `
-        -p:Configuration="$Config" `
-        -p:SourceLinkCreate=true
-    msbuild "$Root\src\Samples\Api.Owin\DotVVM.Samples.BasicSamples.Api.Owin.csproj" -v:m `
-        -p:PublishProfile="$Root\ci\windows\GenericPublish.pubxml" `
-        -p:DeployOnBuild=true `
-        -p:Configuration="$Config" `
-        -p:SourceLinkCreate=true
+        New-IISSite -Name "$sampleName" `
+            -PhysicalPath "$path" `
+            -BindingInformation "*:${port}:"
+    }
 }
 
-Ensure-Command "Configure IIS" {
-    Import-Module IISAdministration
-    Clean-UITest
+function Stop-Sample {
+    param ([string][parameter(Position=0)]$name)
+    Invoke-RequiredCmds "Stop sample '$name'" {
+        Stop-Process -Force -Name chrome -ErrorAction SilentlyContinue
+        Stop-Process -Force -Name chromedriver -ErrorAction SilentlyContinue
+        # Stop-Process -Force -Name firefox -ErrorAction SilentlyContinue
+        # Stop-Process -Force -Name geckodriver -ErrorAction SilentlyContinue
+        Remove-IISSite -Confirm:$false -Name $name -ErrorAction SilentlyContinue
+    }
+}
 
-    icacls "$Root\artifacts\" /grant "IIS_IUSRS:(OI)(CI)F"
+Invoke-RequiredCmds "Copy profile" {
+    if (-Not(Test-Path -PathType Leaf -Path $profilePath)) {
+        Write-Host -ForegroundColor Red "Profile '$profilePath' doesn't exist."
+        exit 1
+    }
+    Copy-Item -Force "$profilePath" "$testDir\seleniumconfig.json"
+}
 
-    New-IISSite -Name "dotvvm.owin" `
-        -PhysicalPath "$Root\artifacts\DotVVM.Samples.BasicSamples.Owin" `
-        -BindingInformation "*:${SamplesPort}:"
+Publish-Sample "$root\src\Samples\Owin\DotVVM.Samples.BasicSamples.Owin.csproj"
+Publish-Sample "$root\src\Samples\Api.Owin\DotVVM.Samples.BasicSamples.Api.Owin.csproj"
 
-    New-IISSite -Name "dotvvm.owin.api" `
-        -PhysicalPath "$Root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin" `
-        -BindingInformation "*:${SamplesPortApi}:"
-
+Invoke-RequiredCmds "Copy common" {
     Copy-Item -Force -Recurse `
-        "$Root\src\Samples\Common" `
-        "$Root\artifacts"
+        "$root\src\Samples\Common" `
+        "$root\artifacts"
 }
 
-Ensure-Command "Run UI tests" {
+Invoke-RequiredCmds "Configure IIS" {
+    Import-Module IISAdministration
+}
+
+$samplesOwinName = "dotvvm.owin"
+$samplesOwinPath = "$root\artifacts\DotVVM.Samples.BasicSamples.Owin"
+
+$samplesApiOwinName = "dotvvm.owin.api"
+$samplesApiOwinPath = "$root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin"
+
+Stop-Sample $samplesOwinName
+Stop-Sample $samplesApiOwinName
+Start-Sample $samplesOwinName $samplesOwinPath $samplesPort
+Start-Sample $samplesApiOwinName $samplesApiOwinPath $samplesApiPort
+
+Invoke-RequiredCmds "Run UI tests" {
     $uiTestProcess = Start-Process -PassThru -NoNewWindow -FilePath "dotnet.exe" -ArgumentList `
         "test", `
-        "$samplesDir", `
+        "$testDir", `
         "--configuration", `
-        "$Config", `
+        "$config", `
         "--no-restore",`
         "--logger", `
         "trx;LogFileName=$TrxName", `
@@ -125,6 +152,7 @@ Ensure-Command "Run UI tests" {
         "$testResultsDir"
 
     Wait-Process -Id "$($uiTestProcess.Id)"
-
-    Clean-UITest
 }
+
+Stop-Sample $samplesOwinName
+Stop-Sample $samplesApiOwinName
