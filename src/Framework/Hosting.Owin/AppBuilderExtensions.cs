@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Hosting;
@@ -128,7 +129,7 @@ namespace Owin
             config.Freeze();
 
             // warm up the resolver in the background
-            Task.Run(() => app.ApplicationServices.GetService(typeof(IControlResolver)));
+            Task.Run(() => config.ServiceProvider.GetService(typeof(IControlResolver)));
             Task.Run(() => VisualStudioHelper.DumpConfiguration(config, config.ApplicationPhysicalPath));
 
             startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmStarted);
@@ -141,7 +142,7 @@ namespace Owin
                 new DotvvmRoutingMiddleware()
             }.Where(t => t != null).ToArray(), useErrorPages);
 
-            startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmFinished); 
+            startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmFinished);
 
             var compilationConfiguration = config.Markup.ViewCompilation;
             compilationConfiguration.HandleViewCompilation(config, startupTracer);
