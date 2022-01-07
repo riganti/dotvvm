@@ -64,15 +64,14 @@ function Invoke-RequiredCmds {
 function Publish-Sample {
     param ([string][parameter(Position=0)]$path)
     Invoke-RequiredCmds "Publish sample '$path'" {
-        $msBuildProcess = Start-Process -PassThru -NoNewWindow -FilePath "msbuild.exe" -ArgumentList `
+        $msBuildProcess = Start-Process -PassThru -NoNewWindow -FilePath "msbuild.exe" -Wait -ArgumentList `
             "$path", `
-            "-v:m",`
+            "-v:m", `
             "-noLogo",`
             "-p:PublishProfile=$root\ci\windows\GenericPublish.pubxml", `
             "-p:DeployOnBuild=true", `
             "-p:Configuration=$config", `
             "-p:SourceLinkCreate=true"
-        Wait-Process -Id "$($msBuildProcess.Id)"
         if ($msBuildProcess.ExitCode -ne 0) {
             throw "MSBuild failed."
         }
@@ -97,13 +96,13 @@ function Start-Sample {
 }
 
 function Stop-Sample {
-    param ([string][parameter(Position=0)]$name)
-    Invoke-RequiredCmds "Stop sample '$name'" {
+    param ([string][parameter(Position=0)]$sampleName)
+    Invoke-RequiredCmds "Stop sample '$sampleName'" {
         Stop-Process -Force -Name chrome -ErrorAction SilentlyContinue
         Stop-Process -Force -Name chromedriver -ErrorAction SilentlyContinue
         # Stop-Process -Force -Name firefox -ErrorAction SilentlyContinue
         # Stop-Process -Force -Name geckodriver -ErrorAction SilentlyContinue
-        Remove-IISSite -Confirm:$false -Name $name -ErrorAction SilentlyContinue
+        Remove-IISSite -Confirm:$false -Name $sampleName -ErrorAction SilentlyContinue
     }
 }
 
@@ -140,7 +139,7 @@ Start-Sample $samplesOwinName $samplesOwinPath $samplesPort
 Start-Sample $samplesApiOwinName $samplesApiOwinPath $samplesApiPort
 
 Invoke-RequiredCmds "Run UI tests" {
-    $uiTestProcess = Start-Process -PassThru -NoNewWindow -FilePath "dotnet.exe" -ArgumentList `
+    $uiTestProcess = Start-Process -PassThru -NoNewWindow -FilePath "dotnet.exe" -Wait -ArgumentList `
         "test", `
         "$testDir", `
         "--configuration", `
@@ -150,8 +149,9 @@ Invoke-RequiredCmds "Run UI tests" {
         "trx;LogFileName=$TrxName", `
         "--results-directory", `
         "$testResultsDir"
-
-    Wait-Process -Id "$($uiTestProcess.Id)"
+    if ($uiTestProcess.ExitCode -ne 0) {
+        throw "dotnet test failed."
+    }
 }
 
 Stop-Sample $samplesOwinName
