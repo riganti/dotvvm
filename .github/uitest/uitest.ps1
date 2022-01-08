@@ -2,8 +2,8 @@ param(
     [string] $root,
     [string] $config,
     [string] $samplesProfile = "seleniumconfig.owin.chrome.json",
-    [string] $samplesPort = "5407",
-    [string] $samplesPortApi = "61453",
+    [string] $samplesOwinPort = "5407",
+    [string] $samplesApiOwinPort = "61453",
     [string] $trxName = "ui-test-results.trx")
 
 # set the codepage to UTF-8
@@ -24,14 +24,18 @@ Write-Host -ForegroundColor Blue @"
 Root: $root
 Config: $config
 SamplesProfile: $samplesProfile
-samplesPort: $samplesPort
-samplesPortApi: $samplesPortApi
+SamplesOwinPort: $samplesOwinPort
+SamplesApiOwinPort: $samplesApiOwinPort
 TrxName: $trxName
 "@
 
 $testResultsDir = "$root\artifacts\test\"
 $testDir = "$root\src\Samples\Tests\Tests\"
 $profilePath="$testDir\Profiles\$samplesProfile"
+$samplesOwinName = "dotvvm.owin"
+$samplesOwinPath = "$root\artifacts\DotVVM.Samples.BasicSamples.Owin"
+$samplesApiOwinName = "dotvvm.owin.api"
+$samplesApiOwinPath = "$root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin"
 
 function Invoke-Cmds {
     param (
@@ -56,8 +60,7 @@ function Invoke-RequiredCmds {
     )
     $ErrorActionPreference = "Stop"
     if (!(Invoke-Cmds $name $command)) {
-        Write-Error "$name failed"
-        exit 1
+        throw "$name failed"
     }
 }
 
@@ -106,53 +109,61 @@ function Stop-Sample {
     }
 }
 
-Invoke-RequiredCmds "Copy profile" {
-    if (-Not(Test-Path -PathType Leaf -Path $profilePath)) {
-        Write-Host -ForegroundColor Red "Profile '$profilePath' doesn't exist."
-        exit 1
+try {
+    # this is needed because of IIS
+    Invoke-RequiredCmds "Check if Administrator" {
+        $user = [Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
+        if (!($user.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))) {
+            throw "Please run this script as an Administrator."
+        }
     }
-    Copy-Item -Force "$profilePath" "$testDir\seleniumconfig.json"
-}
 
-Publish-Sample "$root\src\Samples\Owin\DotVVM.Samples.BasicSamples.Owin.csproj"
-Publish-Sample "$root\src\Samples\Api.Owin\DotVVM.Samples.BasicSamples.Api.Owin.csproj"
-
-Invoke-RequiredCmds "Copy common" {
-    Copy-Item -Force -Recurse `
-        "$root\src\Samples\Common" `
-        "$root\artifacts"
-}
-
-Invoke-RequiredCmds "Configure IIS" {
-    Import-Module IISAdministration
-}
-
-$samplesOwinName = "dotvvm.owin"
-$samplesOwinPath = "$root\artifacts\DotVVM.Samples.BasicSamples.Owin"
-
-$samplesApiOwinName = "dotvvm.owin.api"
-$samplesApiOwinPath = "$root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin"
-
-Stop-Sample $samplesOwinName
-Stop-Sample $samplesApiOwinName
-Start-Sample $samplesOwinName $samplesOwinPath $samplesPort
-Start-Sample $samplesApiOwinName $samplesApiOwinPath $samplesApiPort
-
-Invoke-RequiredCmds "Run UI tests" {
-    $uiTestProcess = Start-Process -PassThru -NoNewWindow -FilePath "dotnet.exe" -Wait -ArgumentList `
-        "test", `
-        "$testDir", `
-        "--configuration", `
-        "$config", `
-        "--no-restore",`
-        "--logger", `
-        "trx;LogFileName=$TrxName", `
-        "--results-directory", `
-        "$testResultsDir"
-    if ($uiTestProcess.ExitCode -ne 0) {
-        throw "dotnet test failed."
+    Invoke-RequiredCmds "Copy profile" {
+        if (-Not(Test-Path -PathType Leaf -Path $profilePath)) {
+            throw "Profile '$profilePath' doesn't exist."
+        }
+        Copy-Item -Force "$profilePath" "$testDir\seleniumconfig.json"
     }
+
+    Publish-Sample "$root\src\Samples\Owin\DotVVM.Samples.BasicSamples.Owin.csproj"
+    Publish-Sample "$root\src\Samples\Api.Owin\DotVVM.Samples.BasicSamples.Api.Owin.csproj"
+
+    Invoke-RequiredCmds "Copy common" {
+        Copy-Item -Force -Recurse `
+            "$root\src\Samples\Common" `
+            "$root\artifacts"
+    }
+
+    Invoke-RequiredCmds "Configure IIS" {
+        if ($PSVersionTable.PSVersion.Major -gt 5) {
+            Import-Module -Name IISAdministration -UseWindowsPowerShell
+        } else {
+            Import-Module -Name IISAdministration
+        }
+    }
+
+    Stop-Sample $samplesOwinName
+    Stop-Sample $samplesApiOwinName
+    Start-Sample $samplesOwinName $samplesOwinPath $samplesOwinPort
+    Start-Sample $samplesApiOwinName $samplesApiOwinPath $samplesApiOwinPort
+
+    Invoke-RequiredCmds "Run UI tests" {
+        $uiTestProcess = Start-Process -PassThru -NoNewWindow -FilePath "dotnet.exe" -Wait -ArgumentList `
+            "test", `
+            "$testDir", `
+            "--configuration", `
+            "$config", `
+            "--no-restore",`
+            "--logger", `
+            "trx;LogFileName=$TrxName", `
+            "--results-directory", `
+            "$testResultsDir"
+        if ($uiTestProcess.ExitCode -ne 0) {
+            throw "dotnet test failed."
+        }
+    }
+} finally {
+    Stop-Sample $samplesOwinName
+    Stop-Sample $samplesApiOwinName
 }
 
-Stop-Sample $samplesOwinName
-Stop-Sample $samplesApiOwinName
