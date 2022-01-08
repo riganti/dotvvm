@@ -67,16 +67,13 @@ jobs:
         sln: .github/DotVVM.Crossplatform.sln
     - name: yarn install
       run: yarn install --immutable
-      env:
-        working-directory: src/Framework/Framework/
+      working-directory: src/Framework/Framework/
     - name: TypeScript check
       run: yarn tsc-check
-      env:
-        working-directory: src/Framework/Framework/
+      working-directory: src/Framework/Framework/
     - name: yarn jest
       run: yarn jest --ci --reporters=default --reporters=jest-github-actions-reporter
-      env:
-        working-directory: src/Framework/Framework/
+      working-directory: src/Framework/Framework/
 
   ui-tests:
     name: UI tests
