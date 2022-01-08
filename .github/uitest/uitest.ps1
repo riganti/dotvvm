@@ -31,7 +31,7 @@ TrxName: $trxName
 
 $testResultsDir = "$root\artifacts\test\"
 $testDir = "$root\src\Samples\Tests\Tests\"
-$profilePath="$testDir\Profiles\$samplesProfile"
+$profilePath = "$testDir\Profiles\$samplesProfile"
 $samplesOwinName = "dotvvm.owin"
 $samplesOwinPath = "$root\artifacts\DotVVM.Samples.BasicSamples.Owin"
 $samplesApiOwinName = "dotvvm.owin.api"
@@ -39,8 +39,8 @@ $samplesApiOwinPath = "$root\artifacts\DotVVM.Samples.BasicSamples.Api.Owin"
 
 function Invoke-Cmds {
     param (
-        [string][parameter(Position=0)]$name,
-        [scriptblock][parameter(Position=1)]$command
+        [string][parameter(Position = 0)]$name,
+        [scriptblock][parameter(Position = 1)]$command
     )
     Write-Host "::group::$name"
     Write-Host -ForegroundColor Blue "$command".Trim()
@@ -55,8 +55,8 @@ function Invoke-Cmds {
 
 function Invoke-RequiredCmds {
     param (
-        [string][parameter(Position=0)]$name,
-        [scriptblock][parameter(Position=1)]$command
+        [string][parameter(Position = 0)]$name,
+        [scriptblock][parameter(Position = 1)]$command
     )
     $ErrorActionPreference = "Stop"
     if (!(Invoke-Cmds $name $command)) {
@@ -65,12 +65,12 @@ function Invoke-RequiredCmds {
 }
 
 function Publish-Sample {
-    param ([string][parameter(Position=0)]$path)
+    param ([string][parameter(Position = 0)]$path)
     Invoke-RequiredCmds "Publish sample '$path'" {
         $msBuildProcess = Start-Process -PassThru -NoNewWindow -FilePath "msbuild.exe" -Wait -ArgumentList `
             "$path", `
             "-v:m", `
-            "-noLogo",`
+            "-noLogo", `
             "-p:PublishProfile=$root\ci\windows\GenericPublish.pubxml", `
             "-p:DeployOnBuild=true", `
             "-p:Configuration=$config", `
@@ -83,33 +83,63 @@ function Publish-Sample {
 
 function Start-Sample {
     param (
-        [string][parameter(Position=0)]$sampleName,
-        [string][parameter(Position=1)]$path,
-        [int][parameter(Position=2)]$port
+        [string][parameter(Position = 0)]$sampleName,
+        [string][parameter(Position = 1)]$path,
+        [int][parameter(Position = 2)]$port
     )
     Invoke-RequiredCmds "Start sample '$sampleName'" {
-        Remove-IISSite -Confirm:$false -Name $sampleName  -ErrorAction SilentlyContinue
+        Remove-IISSite -Confirm:$false -Name $sampleName -ErrorAction SilentlyContinue
 
         icacls "$root\artifacts\" /grant "IIS_IUSRS:(OI)(CI)F"
 
         New-IISSite -Name "$sampleName" `
             -PhysicalPath "$path" `
             -BindingInformation "*:${port}:"
-        $state = (Get-IISSite -Name $sampleName).State
-        if ($state -ne "Started") {
-            throw "Site '${sampleName}' could not be started. State: '${state}'."
+
+        # ensure IIS created the site
+        while ($true) {
+            $state = (Get-IISSite -Name $sampleName).State
+            if ($state -eq "Started") {
+                break
+            }
+            elseif ([string]::IsNullOrEmpty($state)) {
+                continue
+            }
+            else {
+                throw "Site '${sampleName}' could not be started. State: '${state}'."
+            }
         }
     }
 }
 
 function Stop-Sample {
-    param ([string][parameter(Position=0)]$sampleName)
-    Invoke-RequiredCmds "Stop sample '$sampleName'" {
+    param ([string][parameter(Position = 0)]$sampleName)
+    Invoke-Cmds "Stop sample '$sampleName'" {
+        $ErrorActionPreference = "SilentlyContinue"
         Stop-Process -Force -Name chrome -ErrorAction SilentlyContinue
         Stop-Process -Force -Name chromedriver -ErrorAction SilentlyContinue
         # Stop-Process -Force -Name firefox -ErrorAction SilentlyContinue
         # Stop-Process -Force -Name geckodriver -ErrorAction SilentlyContinue
         Remove-IISSite -Confirm:$false -Name $sampleName -ErrorAction SilentlyContinue
+    }
+}
+
+function Test-Sample {
+    param (
+        [string][parameter(Position = 0)]$sampleName,
+        [int][parameter(Position = 1)]$port
+    )
+    Invoke-RequiredCmds "Test the front page of '${sampleName}'" {
+        # ensure the site runs and can serve the front page
+        while ($true) {
+            $httpStatus = (Invoke-WebRequest "http://localhost:${port}" -ErrorAction SilentlyContinue).StatusCode
+            if ($httpStatus -eq 200) {
+                break
+            }
+            elseif ($httpStatus -eq 500) {
+                throw "Site '${sampleName}' returned 500 Internal Server Error."
+            }
+        }
     }
 }
 
@@ -125,7 +155,8 @@ try {
     Invoke-RequiredCmds "Configure IIS" {
         if ($PSVersionTable.PSVersion.Major -gt 5) {
             Import-Module -Name IISAdministration -UseWindowsPowerShell
-        } else {
+        }
+        else {
             Import-Module -Name IISAdministration
         }
     }
@@ -146,9 +177,8 @@ try {
             "$root\artifacts"
     }
 
-    Stop-Sample $samplesOwinName
-    Stop-Sample $samplesApiOwinName
     Start-Sample $samplesOwinName $samplesOwinPath $samplesOwinPort
+    Test-Sample $samplesOwinName $samplesOwinPort
     Start-Sample $samplesApiOwinName $samplesApiOwinPath $samplesApiOwinPort
 
     Invoke-RequiredCmds "Run UI tests" {
@@ -157,7 +187,7 @@ try {
             "$testDir", `
             "--configuration", `
             "$config", `
-            "--no-restore",`
+            "--no-restore", `
             "--logger", `
             "trx;LogFileName=$TrxName", `
             "--results-directory", `
@@ -166,7 +196,8 @@ try {
             throw "dotnet test failed."
         }
     }
-} finally {
+}
+finally {
     Stop-Sample $samplesOwinName
     Stop-Sample $samplesApiOwinName
 }
