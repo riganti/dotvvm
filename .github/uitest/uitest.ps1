@@ -95,6 +95,10 @@ function Start-Sample {
         New-IISSite -Name "$sampleName" `
             -PhysicalPath "$path" `
             -BindingInformation "*:${port}:"
+        $state = (Get-IISSite -Name $sampleName).State
+        if ($state -ne "Started") {
+            throw "Site '${sampleName}' could not be started. State: '${state}'."
+        }
     }
 }
 
