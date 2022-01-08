@@ -66,7 +66,7 @@ jobs:
       with:
         sln: .github/DotVVM.Crossplatform.sln
     - name: yarn install
-      run: yarn --cwd src/Framework/Framework/ install --frozen-lockfile
+      run: yarn install --cwd src/Framework/Framework/ install --immutable
     - name: TypeScript check
       run: yarn --cwd src/Framework/Framework/ tsc-check
     - name: yarn jest
