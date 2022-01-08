@@ -92,6 +92,9 @@ jobs:
       uses: ./.github/setup
       with:
         sln: ${{ env.SLN }}
+    - name: Test chrome
+      run: chrome --enable-logging --headless --disable-gpu --log-level=10 --dump-dom 'https://www.google.com/'
+      if: ${{ matrix.os == 'windows-latest' && matrix.browser == 'chrome' }}
     - name: Run UI tests
       uses: ./.github/uitest
       with:
