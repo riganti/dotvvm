@@ -114,6 +114,11 @@ function Stop-Sample {
 }
 
 try {
+    Invoke-RequiredCmds "List fonts" {
+        [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
+        (New-Object System.Drawing.Text.InstalledFontCollection).Families
+    }
+
     # this is needed because of IIS
     Invoke-RequiredCmds "Check if Administrator" {
         $user = [Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
