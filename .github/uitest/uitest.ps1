@@ -114,16 +114,19 @@ function Stop-Sample {
 }
 
 try {
-    Invoke-RequiredCmds "List fonts" {
-        [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
-        (New-Object System.Drawing.Text.InstalledFontCollection).Families
-    }
-
     # this is needed because of IIS
     Invoke-RequiredCmds "Check if Administrator" {
         $user = [Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
         if (!($user.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))) {
             throw "Please run this script as an Administrator."
+        }
+    }
+
+    Invoke-RequiredCmds "Configure IIS" {
+        if ($PSVersionTable.PSVersion.Major -gt 5) {
+            Import-Module -Name IISAdministration -UseWindowsPowerShell
+        } else {
+            Import-Module -Name IISAdministration
         }
     }
 
@@ -141,14 +144,6 @@ try {
         Copy-Item -Force -Recurse `
             "$root\src\Samples\Common" `
             "$root\artifacts"
-    }
-
-    Invoke-RequiredCmds "Configure IIS" {
-        if ($PSVersionTable.PSVersion.Major -gt 5) {
-            Import-Module -Name IISAdministration -UseWindowsPowerShell
-        } else {
-            Import-Module -Name IISAdministration
-        }
     }
 
     Stop-Sample $samplesOwinName
