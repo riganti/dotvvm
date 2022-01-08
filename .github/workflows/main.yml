@@ -61,6 +61,10 @@ jobs:
     timeout-minutes: 10
     steps:
     - uses: actions/checkout@v2
+    - name: Set up
+      uses: ./.github/setup
+      with:
+        sln: .github/DotVVM.Crossplatform.sln
     - name: yarn install
       run: yarn --cwd src/Framework/Framework/ install --frozen-lockfile
     - name: TypeScript check
