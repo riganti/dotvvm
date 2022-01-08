@@ -22,6 +22,10 @@ runs:
   - uses: actions/setup-node@v2
     with:
       node-version: "16"
+  - uses: |
+      corepack enable
+      yarn set version stable
+    shell: bash
 
   # .NET-related
   - uses: actions/setup-dotnet@v1
