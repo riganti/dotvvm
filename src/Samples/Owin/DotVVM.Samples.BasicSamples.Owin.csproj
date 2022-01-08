@@ -1,6 +1,6 @@
 ﻿<Project Sdk="MSBuild.SDK.SystemWeb/4.0.63">
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
