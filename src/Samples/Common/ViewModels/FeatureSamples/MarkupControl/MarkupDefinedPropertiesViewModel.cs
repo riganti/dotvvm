@@ -11,6 +11,8 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
     {
         public IList<string> Buildings { get; set; } = new List<string> { "Barn", "House", "Skyscraper", "Town Hall" };
 
+        public int Counter { get; set; }
+
         public string Name { get; set; }
         public void AddBuilding()
         {
