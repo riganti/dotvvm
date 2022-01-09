@@ -67,12 +67,10 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
             var initializerExpression = visitor.Visit(initializer);
 
-            var returnValueParameter = Expression.Parameter(propertyType, "returnValue");
+            var lambda = Expression.Lambda<Func<object?>>(Expression.Convert(Expression.Block(initializerExpression), typeof(object)));
+            var lambdaDelegate = lambda.Compile(true);
 
-            var lambda = Expression.Lambda(Expression.Block(new[] { returnValueParameter }, Expression.Assign(returnValueParameter, initializerExpression)));
-            var lambdaDelegate = lambda.Compile();
-
-            return lambdaDelegate.DynamicInvoke() ?? CreateDefaultValue(propertyType);
+            return lambdaDelegate.Invoke() ?? CreateDefaultValue(propertyType);
         }
 
         private object? CreatePropertyInitializerValue(DothtmlDirectiveNode directive, Type? propertyType, LiteralExpressionBindingParserNode? initializer)

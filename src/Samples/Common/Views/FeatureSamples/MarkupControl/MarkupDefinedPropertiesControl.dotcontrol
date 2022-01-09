@@ -3,12 +3,14 @@
 @import System
 @import DotVVM.Framework.Binding.Expressions
 
-@property string Heading
+@property string Heading, DotVVM.Framework.Controls.MarkupOptionsAttribute.AllowBinding = false
 @property System.Collections.Generic.IList<string> Items
 @property string[][] Array = [ ["a"], ["b", "c"], ["d"] ]
 @property DotVVM.Framework.Binding.Expressions.Command AddCommand
+@property System.Func<int, int> AddOne = (int index) => index = index+1
+@property int Counter = 0
 
-<h2>{{value: _control.Heading}}</h2>
+<h2>{{value: _control.Heading}}</h2> 
 
 <dot:Repeater WrapperTagName="ol" DataSource="{value: _control.Items }">
     <li>{{value: _this}}</li>
@@ -21,5 +23,9 @@
     </dot:Repeater>
     </li>
 </dot:Repeater>
-
+s
 <dot:Button Click="{command: _control.AddCommand()}" Text="Add item" />
+
+{{value: _control.Counter}}
+
+<dot:Button Click="{command: _control.Counter = _control.AddOne(_control.Counter) }" Text="Add item" />

@@ -145,7 +145,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 a => a,
                 (name, attributes) => {
 
-                    var attributeType = attributes.First().CastTo<ResolvedTypeDescriptor>().Type;
+                    var attributeType = attributes.First().Type.CastTo<ResolvedTypeDescriptor>().Type;
                     var properties = attributes.Select(a => (name: a.NameSyntax.Name, value: a.Initializer.Value));
 
 
