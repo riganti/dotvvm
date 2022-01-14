@@ -236,9 +236,9 @@ try {
         }
     }
 
-    Test-Sample $samplesOwinName $samplesOwinPort
 }
 finally {
+    Test-Sample $samplesOwinName $samplesOwinPort
     Stop-Sample $samplesOwinName
     Stop-Sample $samplesApiOwinName
 }
