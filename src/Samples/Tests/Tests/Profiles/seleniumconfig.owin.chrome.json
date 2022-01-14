@@ -13,9 +13,7 @@
   },
   "logging": {
     "loggers": {
-      "debug": {},
-      "Stdout": {},
-      "trace": {}
+      "testContext": {}
     }
   }
 }
