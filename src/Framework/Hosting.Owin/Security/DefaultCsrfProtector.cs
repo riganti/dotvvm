@@ -84,6 +84,9 @@ namespace DotVVM.Framework.Security
             var sessionIdCookieName = GetSessionIdCookieName(context);
             if (string.IsNullOrWhiteSpace(sessionIdCookieName)) throw new FormatException("Configured SessionIdCookieName is missing or empty.");
 
+            if (context.HttpContext.Request.IsHttps)
+                sessionIdCookieName = "__Host-" + sessionIdCookieName;
+
             // Construct protector with purposes
             var protector = this.protectionProvider.Create(PURPOSE_SID);
 
