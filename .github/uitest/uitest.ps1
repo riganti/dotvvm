@@ -67,39 +67,6 @@ function Invoke-RequiredCmds {
 function Publish-Sample {
     param ([string][parameter(Position = 0)]$path)
     Invoke-RequiredCmds "Publish sample '$path'" {
-        # $msBuildProcess = Start-Process -PassThru -NoNewWindow -FilePath "msbuild.exe" -ArgumentList `
-        #     "$path", `
-        #     "-v:m", `
-        #     "-noLogo", `
-        #     "-p:PublishProfile=$root\ci\windows\GenericPublish.pubxml", `
-        #     "-p:DeployOnBuild=true", `
-        #     "-p:Configuration=$config", `
-        #     "-p:SourceLinkCreate=true"
-        # $info = New-Object System.Diagnostics.ProcessStartInfo
-        # $info.FileName = "msbuild.exe"
-        # $info.RedirectStandardError = $true
-        # $info.RedirectStandardOutput = $true
-        # $info.UseShellExecute = $false
-        # $info.Arguments = "$path -v:m -noLogo -p:PublishProfile=$root\ci\windows\GenericPublish.pubxml -p:DeployOnBuild=true -p:Configuration=$config -p:SourceLinkCreate=true"
-        # $process = New-Object System.Diagnostics.Process
-        # $process.StartInfo = $info
-        # $process.Start() | Out-Host
-        # $msBuildProcessHandle = $process.Handle
-        # Write-Host "Handle: $msBuildProcessHandle"
-        # $process.WaitForExit()
-        # Write-Host "ExitCode: ${$process.ExitCode}"
-        # if ($process.ExitCode -ne 0) {
-        #     throw "MSBuild failed."
-        # }
-
-        # $job = Start-Job -Name "Build '$path'" - -ScriptBlock {
-        #     Write-Host "Path: $path"
-        #     msbuild $path -v:m -noLogo -p:PublishProfile="$root\ci\windows\GenericPublish.pubxml" -p:DeployOnBuild=true -p:Configuration="$config" -p:SourceLinkCreate=true
-        #     Write-Output $LASTEXITCODE
-        # }
-        # Wait-Job -Id $job.Id | Receive-Job
-        # Write-Host $job
-
         $msBuildProcess = Start-Process -PassThru -NoNewWindow -FilePath "msbuild.exe" -ArgumentList `
             "$path", `
             "-v:m", `
@@ -152,8 +119,8 @@ function Stop-Sample {
         $ErrorActionPreference = "SilentlyContinue"
         Stop-Process -Force -Name chrome -ErrorAction SilentlyContinue
         Stop-Process -Force -Name chromedriver -ErrorAction SilentlyContinue
-        # Stop-Process -Force -Name firefox -ErrorAction SilentlyContinue
-        # Stop-Process -Force -Name geckodriver -ErrorAction SilentlyContinue
+        Stop-Process -Force -Name firefox -ErrorAction SilentlyContinue
+        Stop-Process -Force -Name geckodriver -ErrorAction SilentlyContinue
         Remove-IISSite -Confirm:$false -Name $sampleName -ErrorAction SilentlyContinue
     }
 }
@@ -227,9 +194,7 @@ try {
             "--logger", `
             "trx;LogFileName=$TrxName", `
             "--results-directory", `
-            "$testResultsDir", `
-            "--filter", `
-            "Control_ValidationSummary_HideWhenValid"
+            "$testResultsDir"
         Wait-Process -InputObject $uiTestProcess
         if ($uiTestProcess.ExitCode -ne 0) {
             throw "dotnet test failed with exit code '$($uiTestProcess.ExitCode)'."
