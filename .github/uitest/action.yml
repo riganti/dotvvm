@@ -24,13 +24,13 @@ runs:
   - if: ${{ runner.os != 'Windows' }}
     name: uitest.sh
     run: bash ./.github/uitest/uitest.sh
-      --samples-profile "seleniumconfig.owin.${{ inputs.browser }}.json"
+      --samples-profile "seleniumconfig.aspnetcorelatest.${{ inputs.browser }}.json"
       --trx-name "ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx"
     shell: bash
   - if: ${{ runner.os == 'Windows' }}
     name: uitest.ps1
     run: .\.github\uitest\uitest.ps1
-      -SamplesProfile "seleniumconfig.aspnetcorelatest.${{ inputs.browser }}.json"
+      -SamplesProfile "seleniumconfig.owin.${{ inputs.browser }}.json"
       -TrxName "ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx"
     shell: pwsh
 
