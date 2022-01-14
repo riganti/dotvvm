@@ -134,7 +134,6 @@ function Test-Sample {
         # ensure the site runs and can serve the front page
         while ($true) {
             $request = Invoke-WebRequest "http://localhost:${port}" -ErrorAction SilentlyContinue
-            Write-Host $request.Content
             $httpStatus = $request.StatusCode
             if ($httpStatus -eq 200) {
                 break
