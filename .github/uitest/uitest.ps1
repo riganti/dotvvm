@@ -71,7 +71,7 @@ function Publish-Sample {
             "$path", `
             "-v:m", `
             "-noLogo", `
-            "-p:PublishProfile=$root\ci\windows\GenericPublish.pubxml", `
+            "-p:PublishProfile=$root\.github\uitest\GenericPublish.pubxml", `
             "-p:DeployOnBuild=true", `
             "-p:Configuration=$config", `
             "-p:SourceLinkCreate=true"
