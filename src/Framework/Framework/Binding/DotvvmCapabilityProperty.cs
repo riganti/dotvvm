@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
@@ -255,8 +256,8 @@ namespace DotVVM.Framework.Binding
                 p;
 
         private static readonly ParameterExpression currentControlParameter = Expression.Parameter(typeof(DotvvmBindableObject), "control");
-        /// <summary> Returns DotvvmProperty, DotvvmCapabilityProperty or DotvvmPRopertyGroup </summary>
-        internal static object InitializeArgument(ICustomAttributeProvider attributeProvider, string propertyName, Type propertyType, Type declaringType, DotvvmCapabilityProperty? declaringCapability, ValueOrBinding<object>? defaultValue)
+        /// <summary> Returns DotvvmProperty, DotvvmCapabilityProperty or DotvvmPropertyGroup </summary>
+        internal static IControlAttributeDescriptor InitializeArgument(ICustomAttributeProvider attributeProvider, string propertyName, Type propertyType, Type declaringType, DotvvmCapabilityProperty? declaringCapability, ValueOrBinding<object>? defaultValue)
         {
             // we need to make sure that base type is initialized, otherwise we might miss that some properties are already defined in base type
             // and we'd redefine them for the second time here (HtmlGenericControl.Id vs DotvvmControl.Id, see https://github.com/riganti/dotvvm/issues/1387)

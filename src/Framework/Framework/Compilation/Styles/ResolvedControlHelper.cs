@@ -15,6 +15,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Immutable;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
@@ -55,6 +56,11 @@ namespace DotVVM.Framework.Compilation.Styles
                     }
                 }
                 return control;
+            }
+
+            if (obj is LazyRuntimeControl wrapper)
+            {
+                return wrapper.ResolvedControl;
             }
 
             var content = (obj as DotvvmControl)?.Children.Select(c => FromRuntimeControl(c, dataContext, config)).ToList();
@@ -143,13 +149,21 @@ namespace DotVVM.Framework.Compilation.Styles
             }
             else if (value is ITemplate template)
             {
+                if (template is ResolvedControlTemplate resolvedTemplate)
+                    return new ResolvedPropertyTemplate(property, resolvedTemplate.Controls.ToList());
+
                 if (template is not CloneTemplate cloneTemplate)
                     throw new Exception($"Template of type {template.GetType().Name} are not supported in server side styles, use CloneTemplate instead.");
                 return new ResolvedPropertyTemplate(property, cloneTemplate.Controls.Select(c => FromRuntimeControl(c, dataContext, config)).ToList());
             }
             else if (value is IBinding binding)
             {
-                return new ResolvedPropertyBinding(property, new ResolvedBinding(binding));
+                var resolvedBinding = binding.GetProperty<ResolvedBinding>(ErrorHandlingMode.ReturnNull);
+                return new ResolvedPropertyBinding(property, resolvedBinding ?? new ResolvedBinding(binding));
+            }
+            else if (value is ResolvedBinding resolvedBinding)
+            {
+                return new ResolvedPropertyBinding(property, resolvedBinding);
             }
             else if (IsAllowedPropertyValue(value))
             {
@@ -216,6 +230,121 @@ namespace DotVVM.Framework.Compilation.Styles
             else
             {
                 throw new DotvvmCompilationException($"Could not set content on {control.Metadata.Type} as it does not allow children and does not have a DefaultContentProperty.");
+            }
+        }
+
+        static DotvvmBindableObject ToLazyRuntimeControl(this ResolvedControl c, Type expectedType, IServiceProvider services)
+        {
+            if (expectedType == typeof(DotvvmControl))
+                return new LazyRuntimeControl(c);
+            else
+                return ToRuntimeControl(c, services);
+        }
+
+        static object? ToRuntimeValue(this ResolvedPropertySetter setter, IServiceProvider services)
+        {
+            if (setter is ResolvedPropertyValue valueSetter)
+                return valueSetter.Value;
+            if (setter is ResolvedPropertyBinding bindingSetter)
+                return bindingSetter.Binding.Binding;
+
+                // ResolvedPropertyTemplate value => value.Content,
+                // ResolvedPropertyControl value => value.Control,
+                // ResolvedPropertyControlCollection value => value.Controls,
+                // ResolvedPropertyCapability value => value.ToCapabilityObject(throwExceptions: false),
+            var expectedType = setter.Property.PropertyType;
+
+            if (setter is ResolvedPropertyControl controlSetter)
+                return controlSetter.Control?.ToLazyRuntimeControl(expectedType, services);
+            else if (setter is ResolvedPropertyControlCollection controlCollectionSetter)
+            {
+                var expectedControlType = ReflectionUtils.GetEnumerableType(expectedType)!;
+                return controlCollectionSetter.Controls.Select(c => c.ToLazyRuntimeControl(expectedControlType, services)).ToList();
+            }
+            else if (setter is ResolvedPropertyTemplate templateSetter)
+            {
+                return new ResolvedControlTemplate(templateSetter.Content.ToArray());
+            }
+            else
+                throw new NotSupportedException($"Property setter {setter.GetType().Name} is not supported.");
+        }
+
+
+        public static DotvvmBindableObject ToRuntimeControl(this ResolvedControl c, IServiceProvider? services)
+        {
+            _ = services ?? throw new NotImplementedException("TODO");
+            var control = (DotvvmBindableObject)ActivatorUtilities.CreateInstance(services, c.Metadata.Type, c.ConstructorParameters ?? Array.Empty<object>());
+
+            foreach (var p in c.Properties.Values)
+            {
+                if (p.Property is CompileTimeOnlyDotvvmProperty)
+                {
+                    // preserve this property too, but we have to set it directly to the dictionary. Also, don't worry about type conversions too much.
+                    control.properties.Set(p.Property, p.GetValue());
+                    continue;
+                }
+
+                control.SetValueRaw(p.Property, p.ToRuntimeValue(services));
+            }
+
+            foreach (var child in c.Content)
+            {
+                ((DotvvmControl)control).Children.Add((DotvvmControl)child.ToLazyRuntimeControl(typeof(DotvvmControl), services));
+            }
+
+            return control;
+        }
+
+        public sealed class LazyRuntimeControl: DotvvmControl
+        {
+            public ResolvedControl ResolvedControl { get; set; }
+            private bool initialized = false;
+
+            public LazyRuntimeControl(ResolvedControl resolvedControl)
+            {
+                ResolvedControl = resolvedControl;
+                LifecycleRequirements = ControlLifecycleRequirements.Init;
+            }
+
+            void InitializeChildren(IDotvvmRequestContext? context)
+            {
+                if (initialized) return;
+                // lock just to be safe. Someone could quite reasonably expect that reading control in parallel is safe
+                lock (this)
+                {
+                    if (initialized) return;
+                    Children.Add((DotvvmControl)ResolvedControl.ToRuntimeControl(context?.Services));
+                    initialized = true;
+                }
+            }
+
+            public override IEnumerable<DotvvmBindableObject> GetLogicalChildren()
+            {
+                InitializeChildren(this.GetValue(Internal.RequestContextProperty) as IDotvvmRequestContext);
+                return base.GetLogicalChildren();
+            }
+
+            protected internal override void OnInit(IDotvvmRequestContext context)
+            {
+                InitializeChildren(context);
+            }
+        }
+
+        public sealed class ResolvedControlTemplate: ITemplate
+        {
+            public ResolvedControl[] Controls { get; set; }
+
+            public ResolvedControlTemplate(ResolvedControl[] controls)
+            {
+                Controls = controls;
+            }
+
+            public void BuildContent(IDotvvmRequestContext context, DotvvmControl container)
+            {
+                foreach (var c in Controls)
+                {
+                    container.Children.Add((DotvvmControl)c.ToRuntimeControl(context.Services));
+                }
             }
         }
     }

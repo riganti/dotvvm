@@ -32,6 +32,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
         [JsonIgnore]
         public IEnumerable<string> PropertyNames => Properties.Keys;
 
+        public ControlPrecompilationMode PrecompilationMode => attribute?.Precompile ?? ControlPrecompilationMode.IfPossibleAndIgnoreExceptions;
+
         public bool TryGetProperty(string name, [NotNullWhen(true)] out IPropertyDescriptor? value)
         {
             return Properties.TryGetValue(name, out value);
