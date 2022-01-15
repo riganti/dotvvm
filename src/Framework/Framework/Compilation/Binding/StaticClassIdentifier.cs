@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
-    public class StaticClassIdentifierExpression: Expression
+    public sealed class StaticClassIdentifierExpression: Expression
     {
         public override Type Type { get; }
         public override ExpressionType NodeType => ExpressionType.Extension;

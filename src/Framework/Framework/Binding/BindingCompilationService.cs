@@ -156,7 +156,7 @@ namespace DotVVM.Framework.Binding
             from t in objects
             from m in t.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance)
             where m.DeclaringType != typeof(object)
-            select t is Delegate ? (Delegate)t : m.CreateDelegate(MethodGroupExpression.GetDelegateType(m), t)
+            select t is Delegate ? (Delegate)t : m.CreateDelegate(ReflectionUtils.GetDelegateType(m), t)
         ).ToArray();
 
         class NoInitService : BindingCompilationService
