@@ -285,6 +285,9 @@ namespace DotVVM.Framework.Tests.ControlTests
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
                 async static command with arg
                 <dot:NamedCommand Name=1
+                                  Command={staticCommand: (int s) => _js.InvokeAsync<int>('myCmd', s)} />
+                async static command with Invoke&lt;Task&gt;
+                <dot:NamedCommand Name=1
                                   Command={staticCommand: (int s) => _js.Invoke<System.Threading.Tasks.Task<int>>('myCmd', s)} />
                 Command with arg
                 <dot:NamedCommand Name=2
