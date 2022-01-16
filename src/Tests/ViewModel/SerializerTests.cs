@@ -51,6 +51,13 @@ namespace DotVVM.Framework.Tests.ViewModel
             return serializer.Deserialize<T>(new JsonTextReader(new StringReader(json)));
         }
 
+        static (T vm, JObject json) SerializeAndDeserialize<T>(T viewModel, bool isPostback = false)
+        {
+            var json = Serialize<T>(viewModel, out var encryptedValues, isPostback);
+            var viewModel2 = Populate<T>(json, encryptedValues);
+            return (viewModel2, JObject.Parse(json));
+        }
+
         [TestMethod]
         public void Support_NestedProtectedData()
         {
@@ -178,6 +185,21 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
+        public void ViewModelWithByteArray()
+        {
+            var obj = new TestViewModelWithByteArray() {
+                Bytes = new byte[] { 1, 2, 3 }
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            CollectionAssert.AreEqual(obj.Bytes, obj2.Bytes);
+            Assert.AreEqual(1, (int)json["Bytes"][0]);
+            Assert.AreEqual(2, (int)json["Bytes"][1]);
+            Assert.AreEqual(3, (int)json["Bytes"][2]);
+
+        }
+
+        [TestMethod]
         public void SupportTuples()
         {
             var obj = new TestViewModelWithTuples() {
@@ -197,7 +219,7 @@ namespace DotVVM.Framework.Tests.ViewModel
                     }
                 )
             };
-            var obj2 = Populate<TestViewModelWithTuples>(Serialize(obj, out var _, isPostback: true));
+            var obj2 = SerializeAndDeserialize(obj, isPostback: true).vm;
 
             Assert.AreEqual(obj.P1, obj2.P1);
             Assert.AreEqual(obj.P2, obj2.P2);
@@ -206,7 +228,74 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual(obj.P4.b.P1, obj2.P4.b.P1);
             Assert.AreEqual(obj.P4.b.P2, obj2.P4.b.P2);
             Assert.AreEqual("default", obj2.P4.b.ServerToClient);
-            Assert.AreEqual("default", obj2.P4.b.ClientToServer);
+            Assert.AreEqual(null, obj2.P4.b.ClientToServer);
+        }
+
+        [TestMethod]
+        public void SupportBasicRecord()
+        {
+            var obj = new TestViewModelWithRecords() {
+                Primitive = 10
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual(obj.Primitive, obj2.Primitive);
+            Assert.AreEqual(obj.A, obj2.A);
+            Assert.AreEqual(obj.Primitive, (int)json["Primitive"]);
+        }
+        [TestMethod]
+        public void SupportConstructorRecord()
+        {
+            var obj = new TestViewModelWithRecords() {
+                A = new (1, "ahoj")
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual(obj.A, obj2.A);
+            Assert.AreEqual(obj.A.X, obj2.A.X);
+            Assert.AreEqual(1, (int)json["A"]["X"]);
+            Assert.AreEqual("ahoj", (string)json["A"]["Y"]);
+        }
+        [TestMethod]
+        public void SupportConstructorRecordWithProperty()
+        {
+            var obj = new TestViewModelWithRecords() {
+                B = new (1, "ahoj") { Z = "zz" }
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual(obj.B, obj2.B);
+            Assert.AreEqual(1, obj2.B.X);
+            Assert.AreEqual("zz", obj2.B.Z);
+            Assert.AreEqual("zz", (string)json["B"]["Z"]);
+            Assert.AreEqual("ahoj", (string)json["B"]["Y"]);
+        }
+        [TestMethod]
+        public void SupportStructRecord()
+        {
+            var obj = new TestViewModelWithRecords() {
+                C = new (1, "ahoj")
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual(obj.C, obj2.C);
+            Assert.AreEqual(1, obj2.C.X);
+            Assert.AreEqual(1, (int)json["C"]["X"]);
+            Assert.AreEqual("ahoj", (string)json["C"]["Y"]);
+        }
+        [TestMethod]
+        public void SupportMutableStruct()
+        {
+            var obj = new TestViewModelWithRecords() {
+                D = new() { X = 1, Y = "ahoj" }
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual(1, (int)json["D"]["X"]);
+            Assert.AreEqual("ahoj", (string)json["D"]["Y"]);
+            Assert.AreEqual(obj.D.Y, obj2.D.Y);
+            Assert.AreEqual(obj.D.X, obj2.D.X);
+            Assert.AreEqual(1, obj2.D.X);
         }
     }
 
@@ -259,5 +348,31 @@ namespace DotVVM.Framework.Tests.ViewModel
         public string ClientToServer { get; set; } = "default";
         [Bind(Direction.ServerToClient)]
         public string ServerToClient { get; set; } = "default";
+    }
+
+    public record TestViewModelWithRecords
+    {
+        public ImmutableRecord A { get; set; }
+        public RecordWithAdditionalField B { get; set; }
+        public StructRecord C { get; set; }
+        public MutableStruct D { get; set; }
+
+        public int Primitive { get; set; }
+
+        public record ImmutableRecord(int X, string Y);
+
+        public record RecordWithAdditionalField(int X, string Y)
+        {
+            public string Z { get; set; }
+        }
+
+
+        public record struct StructRecord(int X, string Y);
+
+        public struct MutableStruct
+        {
+            public int X { get; set; }
+            public string Y { get; set; }
+        }
     }
 }
