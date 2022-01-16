@@ -54,7 +54,7 @@ namespace DotVVM.Framework.Utils
             }
             catch (ReflectionTypeLoadException e)
             {
-                return e.Types.Where(t => t != null);
+                return e.Types.Where(t => t != null)!;
             }
         }
 
@@ -82,10 +82,7 @@ namespace DotVVM.Framework.Utils
         /// </summary>
         public static string? GetCodeBasePath(this Assembly assembly)
         {
-            var codeBase = assembly.CodeBase;
-            if (codeBase == null) return null;
-            UriBuilder uri = new UriBuilder(codeBase);
-            return Uri.UnescapeDataString(uri.Path);
+            return assembly.Location;
         }
 
         /// <summary>
@@ -241,7 +238,7 @@ namespace DotVVM.Framework.Utils
 
         public record TypeConvertException(object Value, Type Type, Exception InnerException): RecordException(InnerException)
         {
-            public override string Message => $"Can not convert value '{Value}' to {Type}: {InnerException.Message}";
+            public override string Message => $"Can not convert value '{Value}' to {Type}: {InnerException!.Message}";
         }
 
         public static Type? GetEnumerableType(this Type collectionType)
@@ -345,19 +342,28 @@ namespace DotVVM.Framework.Utils
             return !IsPrimitiveType(type);
         }
 
-        public static bool IsDelegate(this Type type)
+        public static bool IsDelegate(this Type type) =>
+            typeof(Delegate).IsAssignableFrom(type);
+        public static bool IsDelegate(this Type type, [NotNullWhen(true)] out MethodInfo? invokeMethod)
         {
-            return typeof(Delegate).IsAssignableFrom(type);
+            if (type.IsDelegate())
+            {
+                invokeMethod = type.GetMethod("Invoke", BindingFlags.Public | BindingFlags.Instance).NotNull("Could not find delegate Invoke method");
+                return true;
+            }
+            else
+            {
+                invokeMethod = null;
+                return false;
+            }
         }
 
         public static ParameterInfo[]? GetDelegateArguments(this Type type) =>
-            type.IsDelegate() ?
-            type.GetMethod("Invoke")!.GetParameters() :
-            null;
+            type.IsDelegate(out var m) ? m.GetParameters() : null;
 
 
         public static bool Implements(this Type type, Type ifc) => Implements(type, ifc, out var _);
-        public static bool Implements(this Type type, Type ifc, out Type concreteInterface)
+        public static bool Implements(this Type type, Type ifc, [NotNullWhen(true)] out Type? concreteInterface)
         {
             bool isInterface(Type a, Type b) => a == b || a.IsGenericType && a.GetGenericTypeDefinition() == b;
             if (isInterface(type, ifc))
@@ -418,8 +424,8 @@ namespace DotVVM.Framework.Utils
         public static Type UnwrapValueOrBinding(this Type type) =>
             type.IsValueOrBinding(out var x) ? x : type;
 
-        public static T GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
-            (T)attributeProvider.GetCustomAttributes(typeof(T), inherit).FirstOrDefault();
+        public static T? GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
+            (T?)attributeProvider.GetCustomAttributes(typeof(T), inherit).FirstOrDefault();
 
         public static T[] GetCustomAttributes<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true)
         {
@@ -475,8 +481,8 @@ namespace DotVVM.Framework.Utils
             var field = enumType.GetField(name);
             if (field != null)
             {
-                var attr = (EnumMemberAttribute)field.GetCustomAttributes(typeof(EnumMemberAttribute), false).SingleOrDefault();
-                if (attr != null)
+                var attr = (EnumMemberAttribute?)field.GetCustomAttributes(typeof(EnumMemberAttribute), false).SingleOrDefault();
+                if (attr is { Value: {} })
                 {
                     return attr.Value;
                 }

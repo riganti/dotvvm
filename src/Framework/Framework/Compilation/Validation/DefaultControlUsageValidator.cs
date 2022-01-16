@@ -79,13 +79,13 @@ namespace DotVVM.Framework.Compilation.Validation
                     }
                 }
                 var r = method.Invoke(null, args);
-                if (r is IEnumerable<ControlUsageError>)
+                if (r is IEnumerable<ControlUsageError> errors)
                 {
-                    result.AddRange((IEnumerable<ControlUsageError>)r);
+                    result.AddRange(errors);
                 }
-                else if (r is IEnumerable<string>)
+                else if (r is IEnumerable<string> stringErrors)
                 {
-                    result.AddRange((r as IEnumerable<string>).Select(e => new ControlUsageError(e)));
+                    result.AddRange(stringErrors.Select(e => new ControlUsageError(e)));
                 }
                 continue;
                 Error:;
@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Compilation.Validation
                 throw new Exception($"ControlUsageValidator attributes on '{type.FullName}' are in an inconsistent state. Make sure all attributes have an Override property set to the same value.");
 
             if (overrideValidation.Any() && overrideValidation[0]) return methods;
-            var ancestorMethods = FindMethods(type.BaseType);
+            var ancestorMethods = FindMethods(type.BaseType!);
             return ancestorMethods.Concat(methods).ToArray();
         }
 

@@ -34,7 +34,7 @@ namespace DotVVM.Framework.ResourceManagement
         {
             if (reader.Value is string name)
             {
-                return Type.GetType(name);
+                return Type.GetType(name) ?? throw new Exception($"Cannot find type {name}.");
             }
             else throw new NotSupportedException();
         }

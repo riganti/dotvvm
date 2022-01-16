@@ -20,6 +20,7 @@ using DotVVM.Framework.Controls;
 using System.Diagnostics;
 using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Utils;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -52,7 +53,8 @@ namespace DotVVM.Framework.Compilation
                 this.AssertAllReplaced = assertAllReplaced;
             }
 
-            public override Expression Visit(Expression node)
+            [return: NotNullIfNotNull("node")]
+            public override Expression? Visit(Expression? node)
             {
                 if (node?.GetParameterAnnotation() is BindingParameterAnnotation ann)
                 {
@@ -138,7 +140,7 @@ namespace DotVVM.Framework.Compilation
             return (IBinding)Activator.CreateInstance(binding.GetType(), new object[] {
                 bindingService,
                 properties
-            });
+            })!;
 
             T? cloneNestedBinding<T>(T b)
                 where T: class, IBinding =>

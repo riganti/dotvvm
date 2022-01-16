@@ -226,7 +226,7 @@ namespace DotVVM.Framework.Compilation.Binding
             //	A constant-expression (§7.19) of type int can be converted to type sbyte, byte, short, ushort, uint, or ulong, provided the value of the constant-expression is within the range of the destination type.
             if (src.Type == typeof(int))
             {
-                var value = (int)srcValue;
+                var value = (int)srcValue!;
                 if (destType == typeof(sbyte))
                 {
                     if (value >= SByte.MinValue && value <= SByte.MinValue)
@@ -273,7 +273,7 @@ namespace DotVVM.Framework.Compilation.Binding
             //	A constant-expression of type long can be converted to type ulong, provided the value of the constant-expression is not negative.
             if (src.Type == typeof(long))
             {
-                var value = (long)srcValue;
+                var value = (long)srcValue!;
                 if (destType == typeof(ulong))
                 {
                     if (value >= 0)
@@ -286,7 +286,7 @@ namespace DotVVM.Framework.Compilation.Binding
             // nonstandard implicit string conversions
             if (src.Type == typeof(string))
             {
-                var value = (string)srcValue;
+                var value = (string)srcValue!;
                 // to enum
                 if (destType.IsEnum)
                 {
@@ -313,8 +313,7 @@ namespace DotVVM.Framework.Compilation.Binding
         /// </summary>
         public static Expression? ImplicitNumericConversion(Expression src, Type target)
         {
-            List<Type> allowed;
-            if (ImplicitNumericConversions.TryGetValue(src.Type, out allowed))
+            if (ImplicitNumericConversions.TryGetValue(src.Type, out var allowed))
             {
                 if (allowed.Contains(target))
                 {
@@ -329,13 +328,12 @@ namespace DotVVM.Framework.Compilation.Binding
         /// It also replaces special ExtensionParameters attached to the expression for lambda parameters
         public static Expression? MagicLambdaConversion(Expression expr, Type expectedType)
         {
-            if (expectedType.IsDelegate())
+            if (expectedType.IsDelegate(out var invokeMethod))
             {
                 if (expr.Type.IsDelegate())
                     return expr;
-                var resultType = expectedType.GetMethod("Invoke").ReturnType;
-                var delegateArgs = expectedType
-                                      .GetMethod("Invoke")
+                var resultType = invokeMethod.ReturnType;
+                var delegateArgs = invokeMethod
                                       .GetParameters()
                                       .Select(p => Expression.Parameter(p.ParameterType, p.Name))
                                       .ToArray();

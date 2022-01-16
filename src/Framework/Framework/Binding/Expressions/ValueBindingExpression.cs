@@ -12,6 +12,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
@@ -167,14 +168,16 @@ namespace DotVVM.Framework.Binding.Expressions
                 }
             }
 
-            public override Expression Visit(Expression node)
+            [return: NotNullIfNotNull("node")]
+            public override Expression? Visit(Expression? node)
             {
+                if (node is null) return null;
                 if (node.NodeType == ExpressionType.Convert && node is UnaryExpression unary &&
                     unary.Operand.NodeType == ExpressionType.ArrayIndex && unary.Operand is BinaryExpression indexer &&
                     indexer.Right is ConstantExpression indexConstant &&
                     indexer.Left == vmParameter)
                 {
-                    int index = (int)indexConstant.Value;
+                    int index = (int)indexConstant.Value!;
                     while (VmTypes.Count <= index) VmTypes.Add(null);
                     if (VmTypes[index]?.IsAssignableFrom(unary.Type) != true)
                     {

@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public BindingExtensionParameter(string identifier, ITypeDescriptor? type, bool inherit)
         {
-            this.Identifier = identifier;
+            this.Identifier = identifier ?? throw new ArgumentNullException(nameof(identifier));
             this.ParameterType = type ?? ResolvedTypeDescriptor.Create(typeof(object));
             this.Inherit = inherit;
         }
@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// Returns a JS expression that is put into the emitted JS code on the place of the parameter
         public abstract JsExpression GetJsTranslation(JsExpression dataContext);
 
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             obj is BindingExtensionParameter other && Equals(other);
 
         public virtual bool Equals(BindingExtensionParameter other) =>

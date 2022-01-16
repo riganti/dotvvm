@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Compilation.Binding
         public bool HasExtensionCandidates { get; }
         public bool IsStatic => Target is StaticClassIdentifierExpression;
 
-        private static MethodInfo CreateDelegateMethodInfo = typeof(Delegate).GetMethod("CreateDelegate", new[] { typeof(Type), typeof(object), typeof(MethodInfo) });
+        private static MethodInfo CreateDelegateMethodInfo = typeof(Delegate).GetMethod("CreateDelegate", new[] { typeof(Type), typeof(object), typeof(MethodInfo) })!;
 
         public MethodGroupExpression(Expression target, string methodName, Type[]? typeArgs = null, List<MethodInfo>? candidates = null, bool hasExtensionCandidates = false)
         {
@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             if (delegateType == null || delegateType == typeof(object)) return CreateDelegateExpression();
             if (!typeof(Delegate).IsAssignableFrom(delegateType)) if (throwException) throw new Exception("Could not convert method group expression to a non delegate type."); else return null;
-            var invokeMethod = delegateType.GetMethod("Invoke");
+            var invokeMethod = delegateType.GetMethod("Invoke")!;
             var args = invokeMethod.GetParameters().Select(p => p.ParameterType).ToArray();
             var method = Target.Type.GetMethods(BindingFlags.Public | (IsStatic ? BindingFlags.Static : BindingFlags.Instance))
                 .FirstOrDefault(m => m.Name == MethodName && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(args) && m.ReturnType == invokeMethod.ReturnType);
@@ -55,11 +55,11 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             if (returnType == null || returnType == typeof(void))
             {
-                return Type.GetType("System.Action`" + args.Length).MakeGenericType(args);
+                return Type.GetType("System.Action`" + args.Length)!.MakeGenericType(args);
             }
             else
             {
-                return Type.GetType("System.Func`" + (args.Length + 1)).MakeGenericType(args.Concat(new[] { returnType }).ToArray());
+                return Type.GetType("System.Func`" + (args.Length + 1))!.MakeGenericType(args.Concat(new[] { returnType }).ToArray());
             }
         }
 
@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return GetDelegateType(methodInfo.ReturnType, methodInfo.GetParameters().Select(a => a.ParameterType).ToArray());
         }
 
-        protected MethodInfo GetMethod()
+        protected MethodInfo? GetMethod()
             => Target.Type.GetMethod(MethodName, BindingFlags.Public | (IsStatic ? BindingFlags.Static : BindingFlags.Instance));
 
         public Expression CreateDelegateExpression()

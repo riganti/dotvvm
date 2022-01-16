@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -83,10 +84,11 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
         }
 
-        public void AddMethodTranslator(MethodInfo method, IJavascriptMethodTranslator translator)
+        public void AddMethodTranslator([AllowNull] MethodInfo method, IJavascriptMethodTranslator translator)
         {
+            if (method is null) throw new ArgumentNullException(nameof(method));
             MethodTranslators.Add(method, translator);
-            if (method.DeclaringType.IsInterface)
+            if (method.DeclaringType!.IsInterface)
                 Interfaces.Add(method.DeclaringType);
         }
 
@@ -110,8 +112,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(property.GetMethod, translator);
         }
 
-        public static JsExpression BuildIndexer(JsExpression target, JsExpression index, MemberInfo member) =>
-            target.Indexer(index).WithAnnotation(new VMPropertyInfoAnnotation(member));
+        public static JsExpression BuildIndexer(JsExpression target, JsExpression index, [AllowNull] MemberInfo member) =>
+            target.Indexer(index).WithAnnotation(new VMPropertyInfoAnnotation(member.NotNull()));
 
         public void AddDefaultMethodTranslators()
         {
@@ -129,7 +131,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(BoxingUtils), "Box", identityTranslator, new [] { typeof(int?) });
 
             JsExpression listGetIndexer(JsExpression[] args, MethodInfo method) =>
-                BuildIndexer(args[0], args[1], method.DeclaringType.GetProperty("Item"));
+                BuildIndexer(args[0], args[1], method.DeclaringType!.GetProperty("Item"));
             JsExpression listSetIndexer(JsExpression[] args, MethodInfo method) =>
                 new JsIdentifierExpression("dotvvm").Member("translations").Member("array").Member("setItem").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1], args[2]);
             JsExpression arrayElementSetter(JsExpression[] args, MethodInfo method) =>
@@ -666,7 +668,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     return result;
             }
 
-            foreach (var iface in method.DeclaringType.GetInterfaces())
+            foreach (var iface in method.DeclaringType!.GetInterfaces())
             {
                 if (Interfaces.Contains(iface))
                 {

@@ -49,7 +49,8 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
 
             var pageName =
                 isPageView ? emitter.EmitCreateObject(emitter.ResultControlType).Name :
-                                           EmitCreateControl(view.Metadata.Type, new object[0]).Name;
+                             EmitCreateControl(view.Metadata.Type, new object[0]).Name;
+            pageName.NotNull();
             emitter.RegisterDotvvmProperties(pageName);
 
             emitter.EmitSetDotvvmProperty(pageName, Internal.UniqueIDProperty, pageName);
@@ -176,7 +177,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
                 return;
 
             var parentName = controlName.NotNull();
-            var collectionName = emitter.EmitEnsureCollectionInitialized(parentName, propertyControlCollection.Property).Name;
+            var collectionName = emitter.EmitEnsureCollectionInitialized(parentName, propertyControlCollection.Property).Name.NotNull();
 
             foreach (var control in propertyControlCollection.Controls)
             {
@@ -230,12 +231,12 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             if (control.Metadata.VirtualPath == null)
             {
                 // compiled control
-                name = EmitCreateControl(control.Metadata.Type, control.ConstructorParameters).Name;
+                name = EmitCreateControl(control.Metadata.Type, control.ConstructorParameters).Name.NotNull();
             }
             else
             {
                 // markup control
-                name = emitter.EmitInvokeControlBuilder(control.Metadata.Type, control.Metadata.VirtualPath).Name;
+                name = emitter.EmitInvokeControlBuilder(control.Metadata.Type, control.Metadata.VirtualPath).Name.NotNull();
             }
 
             emitter.RegisterDotvvmProperties(name);

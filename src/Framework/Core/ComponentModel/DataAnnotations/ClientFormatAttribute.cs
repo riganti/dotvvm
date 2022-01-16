@@ -27,12 +27,12 @@ namespace System.ComponentModel.DataAnnotations
 
         public bool AllowEmptyString { get; set; } = true;
 
-        public override bool IsValid(object value)
+        public override bool IsValid(object? value)
         {
             return true;
         }
 
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
             return ValidationResult.Success;
         }

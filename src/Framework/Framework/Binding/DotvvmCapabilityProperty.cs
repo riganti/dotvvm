@@ -66,7 +66,7 @@ namespace DotVVM.Framework.Binding
             attributeProvider ??=
                 declaringType.GetProperty(dotnetFieldName) ??
                 declaringType.GetField(dotnetFieldName) ??
-                (ICustomAttributeProvider)declaringType.GetField(dotnetFieldName + "Property") ??
+                (ICustomAttributeProvider?)declaringType.GetField(dotnetFieldName + "Property") ??
                 throw new Exception($"Capability backing field could not be found and capabilityAttributeProvider argument was not provided. Property: {declaringType.Name}.{name}. Please declare a field or property named {dotnetFieldName}.");
 
             DotvvmProperty.InitializeProperty(this, attributeProvider);
@@ -82,7 +82,7 @@ namespace DotVVM.Framework.Binding
         
         /// <summary> Looks up a capability on the specified control (<paramref name="declaringType"/>).
         /// If multiple capabilities of this type are registered, <see cref="Find(Type, Type, string)" /> method must be used to retrieve the one with specified prefix. </summary>
-        public static DotvvmCapabilityProperty? Find(Type declaringType, Type capabilityType)
+        public static DotvvmCapabilityProperty? Find(Type? declaringType, Type capabilityType)
         {
             var c = GetCapabilities(declaringType, capabilityType);
             if (c.Length == 1) return c[0];
@@ -90,7 +90,7 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary> Looks up a capability on the specified control (<paramref name="declaringType"/>). </summary>
-        public static DotvvmCapabilityProperty? Find(Type declaringType, Type capabilityType, string? globalPrefix)
+        public static DotvvmCapabilityProperty? Find(Type? declaringType, Type capabilityType, string? globalPrefix)
         {
             if (globalPrefix is null)
                 return Find(declaringType, capabilityType);
@@ -108,7 +108,7 @@ namespace DotVVM.Framework.Binding
             capabilityRegistry.Values.Where(c => c.DeclaringType.IsAssignableFrom(declaringType));
 
         /// <summary> Lists capabilities of the selected type on the specified control (<paramref name="declaringType"/>). </summary>
-        public static ImmutableArray<DotvvmCapabilityProperty> GetCapabilities(Type declaringType, Type capabilityType)
+        public static ImmutableArray<DotvvmCapabilityProperty> GetCapabilities(Type? declaringType, Type capabilityType)
         {
             var r = ImmutableArray<DotvvmCapabilityProperty>.Empty;
             while (declaringType != typeof(DotvvmBindableObject) && declaringType is not null)

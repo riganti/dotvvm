@@ -65,9 +65,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 {
                     value = value as IBinding ?? convertValue(value, elementType);
                     if (value is IBinding)
-                        return t.GetConstructor(new [] { typeof(IBinding) }).Invoke(new [] { value });
+                        return t.GetConstructor(new [] { typeof(IBinding) })!.Invoke(new [] { value });
                     else
-                        return t.GetConstructor(new [] { elementType }).Invoke(new [] { value });
+                        return t.GetConstructor(new [] { elementType })!.Invoke(new [] { value });
                 }
                 // TODO: controls and templates
                 if (throwExceptions)
@@ -98,7 +98,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 var dictionaryElementType = DotvvmCapabilityProperty.Helpers.GetDictionaryElement(prop.PropertyType);
                 var dictionary = (System.Collections.IDictionary)(
                     propertyOriginalValue ??
-                    Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(typeof(string), dictionaryElementType))
+                    Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(typeof(string), dictionaryElementType))!
                 );
 
                 if (properties.Length > 0)
@@ -117,7 +117,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         private static string DebugFormatValue(object? v) =>
             v is null ? "null" :
             v is IEnumerable<object> vs ? $"[{string.Join(", ", vs.Select(DebugFormatValue))}]" :
-            v.ToString();
+            $"{v}";
 
         public override string ToString() =>
             $"{{{string.Join(", ", Values.Select(x => x.Key.Name + "." + DebugFormatValue(x.Value)))}}}";

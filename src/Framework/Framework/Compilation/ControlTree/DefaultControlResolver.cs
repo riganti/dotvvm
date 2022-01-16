@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         private void InvokeStaticConstructorsOnAllControls()
         {
-            var dotvvmAssembly = typeof(DotvvmControl).Assembly.GetName().Name;
+            var dotvvmAssembly = typeof(DotvvmControl).Assembly.GetName().Name!;
             var dotvvmInitTask = InvokeStaticConstructorsOnDotvvmControls();
 
             if (configuration.ExperimentalFeatures.ExplicitAssemblyLoading.Enabled)

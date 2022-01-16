@@ -50,7 +50,7 @@ namespace DotVVM.Framework.ViewModel
         public static void SetViewModelClientPath(IDotvvmViewModel viewModel, ParametrizedCode path) =>
             viewModelPaths.Add(viewModel, path);
 
-        public static ParametrizedCode GetViewModelClientPath(IDotvvmViewModel viewModel) =>
+        public static ParametrizedCode? GetViewModelClientPath(IDotvvmViewModel viewModel) =>
             viewModelPaths.TryGetValue(viewModel, out var p) ? p : p;
 
         /// <summary> Clear cache when hot reload happens </summary>

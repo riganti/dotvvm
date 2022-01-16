@@ -102,8 +102,11 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             w.WriteUnencoded("</div>");
         }
 
-        protected virtual string FormatMethod(MethodBase method)
+        protected virtual string FormatMethod(MethodBase? method)
         {
+            if (method == null)
+                return "Unknown method";
+
             var sb = new StringBuilder();
             if (method.DeclaringType != null)
             {

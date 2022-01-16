@@ -287,7 +287,7 @@ public static class StyleMatchContextExtensionMethods
 
     private static T GetDefault<T>(DotvvmProperty p)
     {
-        var def = p is DotvvmCapabilityProperty ? (T)Activator.CreateInstance(p.PropertyType) : p.DefaultValue;
+        var def = p is DotvvmCapabilityProperty ? (T)Activator.CreateInstance(p.PropertyType)! : p.DefaultValue;
         if (def is T d) return d;
         if (def is null && !typeof(T).IsValueType) return default!;
         throw new Exception($"Property {p} is probably not of type {typeof(T).Name}, its default value {def ?? "null"} is not assignable to the requested type.");

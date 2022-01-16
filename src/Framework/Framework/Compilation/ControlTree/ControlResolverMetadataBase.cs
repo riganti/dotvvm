@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             get
             {
-                IPropertyDescriptor result;
+                IPropertyDescriptor? result;
                 if (Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(CompositeControl))))
                 {
                     // properties Content and ContentTemplate are used as content by default, if they exist

@@ -51,13 +51,13 @@ namespace DotVVM.Framework.Configuration
             var value = reader.ReadAsString();
             if (value == null)
             {
-                ThrowInvalidFormatException();
+                throw InvalidFormatException();
             }
 
             var match = Regex.Match(value, @"^([a-zA-Z0-9]+)\[([a-zA-Z0-9]+)\]$");
             if (!match.Success)
             {
-                ThrowInvalidFormatException();
+                throw InvalidFormatException();
             }
 
             if (existingValue == null)
@@ -70,10 +70,8 @@ namespace DotVVM.Framework.Configuration
             return pair;
         }
 
-        private static void ThrowInvalidFormatException()
-        {
-            throw new JsonSerializationException("HTML attribute definition expected! Correct syntax is 'a[href]': { }");
-        }
+        private static Exception InvalidFormatException() =>
+            new JsonSerializationException("HTML attribute definition expected! Correct syntax is 'a[href]': { }");
 
         public override bool CanConvert(Type objectType)
         {

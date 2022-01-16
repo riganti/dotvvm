@@ -8,6 +8,7 @@ using System.Collections.Generic;
 namespace Microsoft.AspNet.WebUtilities
 {
     public class KeyValueAccumulator<TKey, TValue>
+        where TKey : notnull
     {
         private Dictionary<TKey, List<TValue>> _accumulator;
         IEqualityComparer<TKey> _comparer;
@@ -20,8 +21,7 @@ namespace Microsoft.AspNet.WebUtilities
 
         public void Append(TKey key, TValue value)
         {
-            List<TValue> values;
-            if (_accumulator.TryGetValue(key, out values))
+            if (_accumulator.TryGetValue(key, out var values))
             {
                 values.Add(value);
             }

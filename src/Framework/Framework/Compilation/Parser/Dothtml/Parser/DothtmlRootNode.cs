@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         }
 
 
-        public string GetDirectiveValue(string directiveName)
+        public string? GetDirectiveValue(string directiveName)
         {
             return Directives.Where(d => string.Equals(d.Name, directiveName, StringComparison.OrdinalIgnoreCase))
                 .Select(d => d.Value)

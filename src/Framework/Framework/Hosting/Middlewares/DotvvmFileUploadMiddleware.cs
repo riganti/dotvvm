@@ -61,22 +61,23 @@ namespace DotVVM.Framework.Hosting.Middlewares
         {
             var context = request.HttpContext;
 
-            // verify the request
-            var isPost = context.Request.Method == "POST";
-            if (isPost && !context.Request.ContentType!.StartsWith("multipart/form-data", StringComparison.Ordinal))
-            {
-                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return;
-            }
-
             var uploadedFiles = new List<UploadedFile>();
             var errorMessage = "";
+            var isPost = context.Request.Method == "POST";
             if (isPost)
             {
+                var contentType = context.Request.ContentType;
+                if (contentType is null || !contentType.StartsWith("multipart/form-data", StringComparison.Ordinal))
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return;
+                }
+                // verify the request
+
                 try
                 {
                     // get the boundary
-                    var boundary = Regex.Match(context.Request.ContentType, @"boundary=""?(?<boundary>[^\n\;\"" ]*)").Groups["boundary"];
+                    var boundary = Regex.Match(contentType, @"boundary=""?(?<boundary>[^\n\;\"" ]*)").Groups["boundary"];
                     if (!boundary.Success || string.IsNullOrWhiteSpace(boundary.Value))
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
