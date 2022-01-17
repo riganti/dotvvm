@@ -26,7 +26,6 @@ namespace DotVVM.Framework.Compilation.Directives
 
         protected override ViewModelCompilationResult CreateArtefact(IReadOnlyList<IAbstractViewModelDirective> resolvedDirectives)
         {
-            var errors = new List<string>();
             if (resolvedDirectives.Count == 0)
             {
                 return new ViewModelCompilationResult(null, $"The @viewModel directive is missing in the page '{fileName}'!");

@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Compilation.Directives
 
         protected override IAbstractPropertyDeclarationDirective Resolve(DothtmlDirectiveNode directiveNode)
         {
-            var valueSyntaxRoot = ParseDirective(directiveNode, p => p.ReadDirectiveTypeName());
+            var valueSyntaxRoot = ParseDirective(directiveNode, p => p.ReadPropertyDirectiveValue());
 
             var declaration = valueSyntaxRoot as PropertyDeclarationBindingParserNode;
             if (declaration == null)

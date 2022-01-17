@@ -46,6 +46,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 dothtmlDirective.AddError($"Could not resolve type {typeSyntax.ToDisplayString()}.");
             }
 
+            PropertyType = propertyTypeDescriptor;
+
             //Chack that I am not asigning incompatible types 
             InitialValue = service.ResolvePropertyInitializer(dothtmlDirective, propertyTypeDescriptor?.Type, initializerSyntax);
 

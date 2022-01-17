@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public BindingParserNode NameSyntax { get; }
         public ResolvedTypeDescriptor? ResolvedType { get; }
 
-        ITypeDescriptor IAbstractTypeSpecificationDirective.ResolvedType { get; }
+        ITypeDescriptor? IAbstractTypeSpecificationDirective.ResolvedType => ResolvedType;
 
         public ResolvedTypeSpecificationDirective(DirectiveCompilationService compilationService, DothtmlDirectiveNode dothtmlNode, BindingParserNode nameSyntax)
         {
