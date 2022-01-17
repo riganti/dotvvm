@@ -1,16 +1,8 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Directives;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
-using DotVVM.Framework.Compilation.ViewCompiler;
-using DotVVM.Framework.Configuration;
-using DotVVM.Framework.ResourceManagement;
-using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree
@@ -23,7 +15,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultControlTreeResolver"/> class.
         /// </summary>
-        public DefaultControlTreeResolver(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder, MarkupDirectiveCompilerPipeline direrectiveCompilerPipeline)
+        public DefaultControlTreeResolver(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder, IMarkupDirectiveCompilerPipeline direrectiveCompilerPipeline)
             : base(controlResolver, treeBuilder, direrectiveCompilerPipeline)
         {
         }
