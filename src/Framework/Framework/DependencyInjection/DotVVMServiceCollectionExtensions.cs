@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Directives;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
@@ -66,6 +65,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IControlBuilderFactory, DefaultControlBuilderFactory>();
             services.TryAddSingleton<IControlResolver, DefaultControlResolver>();
             services.TryAddSingleton<IControlTreeResolver, DefaultControlTreeResolver>();
+            services.TryAddSingleton<IMarkupDirectiveCompilerPipeline, MarkupDirectiveCompilerPipeline>();
             services.TryAddSingleton<IAbstractTreeBuilder, ResolvedTreeBuilder>();
             services.TryAddSingleton<Func<ControlUsageValidationVisitor>>(s => () => ActivatorUtilities.CreateInstance<ControlUsageValidationVisitor>(s));
             services.TryAddSingleton<IViewCompiler, DefaultViewCompiler>();

@@ -33,9 +33,11 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             BindingParserNode initializerSyntax,
             IList<IAbstractDirectiveAttributeReference> attributes)
         {
+            DothtmlNode = dothtmlDirective;
             NameSyntax = nameSyntax;
             PropertyTypeSyntax = typeSyntax;
             InitializerSyntax = initializerSyntax;
+            Attributes = attributes;
 
             var propertyTypeDescriptor = service.ResolveType(dothtmlDirective, typeSyntax);
 

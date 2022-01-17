@@ -1,26 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Net;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
-using DotVVM.Framework.Runtime;
-using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
-using DotVVM.Framework.Compilation.Parser.Binding.Parser;
-using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Utils;
-using System.Collections.ObjectModel;
 using DotVVM.Framework.Binding;
 using System.Diagnostics.CodeAnalysis;
-using DotVVM.Framework.Compilation.ViewCompiler;
-using DotVVM.Framework.ResourceManagement;
-using System.Reflection.Emit;
-using System.Reflection;
 using DotVVM.Framework.Compilation.Directives;
 
 namespace DotVVM.Framework.Compilation.ControlTree
@@ -32,7 +21,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
     {
         protected readonly IControlResolver controlResolver;
         protected readonly IAbstractTreeBuilder treeBuilder;
-        private readonly MarkupDirectiveCompilerPipeline markupDirectiveCompilerPipeline;
+        private readonly IMarkupDirectiveCompilerPipeline markupDirectiveCompilerPipeline;
         protected Lazy<IControlResolverMetadata> rawLiteralMetadata;
         protected Lazy<IControlResolverMetadata> literalMetadata;
         protected Lazy<IControlResolverMetadata> placeholderMetadata;
@@ -40,7 +29,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlTreeResolverBase"/> class.
         /// </summary>
-        public ControlTreeResolverBase(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder, MarkupDirectiveCompilerPipeline markupDirectiveCompilerPipeline)
+        public ControlTreeResolverBase(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder, IMarkupDirectiveCompilerPipeline markupDirectiveCompilerPipeline)
         {
             this.controlResolver = controlResolver;
             this.treeBuilder = treeBuilder;
