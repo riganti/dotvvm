@@ -32,6 +32,7 @@ const config = ({ minify, input, output, spa, legacy }) => ({
         replace({
             "compileConstants.isSpa": spa,
             "compileConstants.nomodules": legacy,
+            "compileConstants.debug": !production,
         }),
 
         minify && terser({
