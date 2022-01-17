@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
     public interface IAbstractTypeSpecificationDirective: IAbstractDirective
     {
         BindingParserNode NameSyntax { get; }
-        ITypeDescriptor ResolvedType { get; }
+        ITypeDescriptor? ResolvedType { get; }
     }
     public interface IAbstractViewModelDirective : IAbstractTypeSpecificationDirective { }
     public interface IAbstractBaseTypeDirective : IAbstractTypeSpecificationDirective { }
