@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
@@ -20,11 +21,12 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public bool IsNamespace => Type == null && !HasError;
         public bool IsType => Type != null;
 
-        public ResolvedImportDirective(BindingParserNode? aliasSyntax, BindingParserNode nameSyntax, Type? type)
+        public ResolvedImportDirective(DirectiveCompilationService directiveService, DothtmlDirectiveNode node, BindingParserNode? aliasSyntax, BindingParserNode nameSyntax)
         {
+            DothtmlNode = node;
             AliasSyntax = aliasSyntax;
             NameSyntax = nameSyntax;
-            Type = type;
+            Type = directiveService.ResolveTypeOrNamespace(node, nameSyntax);
         }
     }
 }

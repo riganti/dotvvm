@@ -26,10 +26,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         IAbstractBaseTypeDirective BuildBaseTypeDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax);
 
-        IAbstractDirective BuildViewModuleDirective(DothtmlDirectiveNode directiveNode, string modulePath, string resourceName);
-        IAbstractDirective BuildPropertyDeclarationDirective(DothtmlDirectiveNode directive, TypeReferenceBindingParserNode typeSyntax, SimpleNameBindingParserNode nameSyntax, BindingParserNode? initializer, IList<IAbstractDirectiveAttributeReference> resolvedAttributes, BindingParserNode valueSyntaxRoot);
-        IAbstractDirectiveAttributeReference BuildPropertyDeclarationAttributeReferenceDirective(DothtmlDirectiveNode directiveNode, IdentifierNameBindingParserNode name, ActualTypeReferenceBindingParserNode type, LiteralExpressionBindingParserNode initializer);
-
+        IAbstractViewModuleDirective BuildViewModuleDirective(DothtmlDirectiveNode directiveNode, string modulePath, string resourceName);
+        IAbstractPropertyDeclarationDirective BuildPropertyDeclarationDirective(DothtmlDirectiveNode directive, TypeReferenceBindingParserNode typeSyntax, SimpleNameBindingParserNode nameSyntax, BindingParserNode? initializer, IList<IAbstractDirectiveAttributeReference> resolvedAttributes, BindingParserNode valueSyntaxRoot);
+        IAbstractDirectiveAttributeReference BuildPropertyDeclarationAttributeReference(DothtmlDirectiveNode directiveNode, IdentifierNameBindingParserNode propertyNameSyntax, ActualTypeReferenceBindingParserNode typeSyntax, LiteralExpressionBindingParserNode initializer);
         IAbstractPropertyBinding BuildPropertyBinding(IPropertyDescriptor property, IAbstractBinding binding, DothtmlAttributeNode? sourceAttributeNode);
 
         IAbstractPropertyControl BuildPropertyControl(IPropertyDescriptor property, IAbstractControl? control, DothtmlElementNode? wrapperElementNode);
