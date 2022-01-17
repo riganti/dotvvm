@@ -373,6 +373,14 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     ).ToArray());
             });
             f.Formatters.Add((e, o) => new CookiesSection(o.Request.Cookies));
+            f.Formatters.Add((e, o) => new DictionarySection<string, string>(
+                "Assemblies",
+                "assemblies",
+                AppDomain.CurrentDomain.GetAssemblies().OrderBy(a => a.GetName().Name).Select(a =>
+                    new KeyValuePair<string, string>(a.GetName().Name,
+                        $"Version={a.GetName().Version}, Culture={a.GetName().CultureInfo.DisplayName}, " +
+                        $"PublicKeyToken={a.GetName().GetPublicKeyToken().Select(b => string.Format("{0:x2}", b)).StringJoin(string.Empty)}"))
+            ));
             f.Formatters.Add((e, o) => new DictionarySection<string, string[]>(
                 "Request Headers",
                 "reqHeaders",
