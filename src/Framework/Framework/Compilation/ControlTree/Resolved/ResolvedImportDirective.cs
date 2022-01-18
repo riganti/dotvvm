@@ -22,8 +22,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public bool IsType => Type != null;
 
         public ResolvedImportDirective(DirectiveCompilationService directiveService, DothtmlDirectiveNode node, BindingParserNode? aliasSyntax, BindingParserNode nameSyntax)
+            : base(node)
         {
-            DothtmlNode = node;
             AliasSyntax = aliasSyntax;
             NameSyntax = nameSyntax;
             Type = directiveService.ResolveTypeOrNamespace(node, nameSyntax);

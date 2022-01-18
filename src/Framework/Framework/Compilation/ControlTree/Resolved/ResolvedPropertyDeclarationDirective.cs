@@ -14,8 +14,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
     {
         public SimpleNameBindingParserNode NameSyntax { get; }
         public TypeReferenceBindingParserNode PropertyTypeSyntax { get; }
-        public BindingParserNode InitializerSyntax { get; }
-
+        public BindingParserNode? InitializerSyntax { get; }
         public ITypeDescriptor? PropertyType { get; set; }
         public ITypeDescriptor? DeclaringType { get; set; }
         public object? InitialValue { get; }
@@ -30,10 +29,10 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             DothtmlDirectiveNode dothtmlDirective,
             SimpleNameBindingParserNode nameSyntax,
             TypeReferenceBindingParserNode typeSyntax,
-            BindingParserNode initializerSyntax,
+            BindingParserNode? initializerSyntax,
             IList<IAbstractDirectiveAttributeReference> attributes)
+            : base(dothtmlDirective)
         {
-            DothtmlNode = dothtmlDirective;
             NameSyntax = nameSyntax;
             PropertyTypeSyntax = typeSyntax;
             InitializerSyntax = initializerSyntax;

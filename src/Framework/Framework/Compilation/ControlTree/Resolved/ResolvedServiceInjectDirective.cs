@@ -18,6 +18,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             DothtmlDirectiveNode node,
             SimpleNameBindingParserNode nameSyntax,
             BindingParserNode typeSyntax)
+            : base(node)
         {
             NameSyntax = nameSyntax;
             TypeSyntax = typeSyntax;
