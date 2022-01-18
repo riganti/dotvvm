@@ -27,26 +27,6 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
     public class DefaultControlTreeResolverTests : DefaultControlTreeResolverTestsBase
     {
         [TestMethod]
-        public void ResolvedTree_MissingViewModelDirective()
-        {
-            var root = ParseSource(@"");
-
-            Assert.IsTrue(root.DothtmlNode.HasNodeErrors);
-            Assert.IsTrue(root.DothtmlNode.NodeErrors.First().Contains("missing"));
-        }
-
-        [TestMethod]
-        public void ResolvedTree_UnknownViewModelType()
-        {
-            var root = ParseSource(@"@viewModel invalid
-");
-
-            var directiveNode = ((DothtmlRootNode)root.DothtmlNode).Directives.First();
-            Assert.IsTrue(directiveNode.HasNodeErrors);
-            Assert.IsTrue(directiveNode.NodeErrors.First().Contains("Could not resolve type"));
-        }
-
-        [TestMethod]
         public void ResolvedTree_WhiteSpaceLiteral()
         {
             var root = ParseSource(@"     ");
@@ -627,22 +607,6 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var control = root.Content.First(n => n.Metadata.Type == typeof(GridView));
             Assert.AreEqual(0, control.Content.Count);
             Assert.AreEqual(1, control.Properties[GridView.ColumnsProperty].CastTo<ResolvedPropertyControlCollection>().Controls.Count);
-        }
-
-
-        [TestMethod]
-        public void ResolvedTree_ViewModel_GenericType()
-        {
-            var root = ParseSource(@"@viewModel System.Collections.Generic.List<System.Collections.Generic.Dictionary<System.String, System.Int32>>");
-            Assert.AreEqual(typeof(List<Dictionary<string, int>>), root.DataContextTypeStack.DataContextType);
-        }
-
-        [TestMethod]
-        public void ResolvedTree_ViewModel_InvalidAssemblyQualified()
-        {
-            var root = ParseSource(@"@viewModel System.String, whatever");
-            Assert.IsTrue(root.Directives.Any(d => d.Value.Any(dd => dd.DothtmlNode.HasNodeErrors)));
-            Assert.AreEqual(typeof(UnknownTypeSentinel), root.DataContextTypeStack.DataContextType);
         }
 
         private ResolvedBinding[] GetLiteralBindings(ResolvedContentNode node) =>
