@@ -56,7 +56,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public object? ResolvePropertyInitializer(DothtmlDirectiveNode directive, Type? propertyType, BindingParserNode? initializer)
         {
-            if (initializer == null) return null;
+            if (initializer == null) { return null; }
 
             var registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache);
 

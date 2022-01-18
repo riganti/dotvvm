@@ -69,7 +69,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             SimpleNameBindingParserNode nameSyntax,
             BindingParserNode typeSyntax)
         {
-
             return new ResolvedServiceInjectDirective(directiveService, node, nameSyntax, typeSyntax);
         }
 
@@ -94,7 +93,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return new ResolvedBaseTypeDirective(directiveService, directive, nameSyntax);
         }
         public IAbstractViewModuleDirective BuildViewModuleDirective(DothtmlDirectiveNode directiveNode, string modulePath, string resourceName) =>
-            new ResolvedViewModuleDirective(modulePath, resourceName) { DothtmlNode = directiveNode };
+            new ResolvedViewModuleDirective(directiveNode, modulePath, resourceName);
 
         public IAbstractPropertyDeclarationDirective BuildPropertyDeclarationDirective(
             DothtmlDirectiveNode directive,
@@ -119,7 +118,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public IAbstractDirective BuildDirective(DothtmlDirectiveNode node)
         {
-            return new ResolvedDirective() { DothtmlNode = node };
+            return new ResolvedDirective(node);
         }
 
         public bool AddProperty(IAbstractControl control, IAbstractPropertySetter setter, [NotNullWhen(false)] out string? error)

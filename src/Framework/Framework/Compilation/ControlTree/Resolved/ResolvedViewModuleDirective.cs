@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
@@ -16,7 +17,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         /// <summary>The imported resource that will be referenced at runtime</summary>
         public string ImportedResourceName { get; }
-        public ResolvedViewModuleDirective(string importedModule, string importedResourceName)
+        public ResolvedViewModuleDirective(DothtmlDirectiveNode node, string importedModule, string importedResourceName)
+            : base(node)
         {
             ImportedResourceName = importedResourceName;
             ImportedModule = importedModule;

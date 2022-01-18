@@ -11,10 +11,10 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         ITypeDescriptor? IAbstractTypeSpecificationDirective.ResolvedType => ResolvedType;
 
         public ResolvedTypeSpecificationDirective(DirectiveCompilationService compilationService, DothtmlDirectiveNode dothtmlNode, BindingParserNode nameSyntax)
+            : base(dothtmlNode)
         {
             NameSyntax = nameSyntax;
             ResolvedType = compilationService.ResolveType(dothtmlNode, nameSyntax);
-            DothtmlNode = dothtmlNode;
         }
     }
     public sealed class ResolvedViewModelDirective : ResolvedTypeSpecificationDirective, IAbstractViewModelDirective
