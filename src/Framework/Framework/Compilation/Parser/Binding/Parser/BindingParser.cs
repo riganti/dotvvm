@@ -84,7 +84,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var startIndex = CurrentIndex;
             SkipWhiteSpace();
 
-            TryReadTypeReference(out var propertyType);
+            var propertyType = TryReadTypeReference(out var resultType)
+                ? resultType
+                : new ActualTypeReferenceBindingParserNode(new SimpleNameBindingParserNode(""));
 
             var propertyName = ReadNamespaceOrTypeName();
             var propertyDeclaration = new PropertyDeclarationBindingParserNode(propertyType, propertyName);
