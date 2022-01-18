@@ -55,12 +55,14 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         private IEnumerable<object> InstantiateAttributes(IList<IAbstractDirectiveAttributeReference> resolvedAttributes)
         {
-            var attributePropertyGrouping = resolvedAttributes.GroupBy(
-                a => a.Type.FullName,
+            var attributePropertyGrouping = resolvedAttributes
+                .Where(a=> a.Type != null)
+                .GroupBy(
+                a => a.Type?.FullName,
                 a => a,
                 (name, attributes) => {
 
-                    var attributeType = attributes.First().Type.CastTo<ResolvedTypeDescriptor>().Type;
+                    var attributeType = attributes.First().Type.CastTo<ResolvedTypeDescriptor>()?.Type;
                     var properties = attributes.Select(a => (name: a.NameSyntax.Name, value: a.Initializer.Value));
 
 
@@ -73,7 +75,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
                 foreach (var property in grouping.properties)
                 {
-                    grouping.attributeType.GetProperty(property.name).SetValue(attributeInstance, property.value);
+                    grouping.attributeType?.GetProperty(property.name).SetValue(attributeInstance, property.value);
                 }
                 yield return attributeInstance;
             }

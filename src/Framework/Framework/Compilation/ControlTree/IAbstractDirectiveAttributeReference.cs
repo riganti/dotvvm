@@ -9,6 +9,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public TypeReferenceBindingParserNode TypeSyntax { get; }
         public IdentifierNameBindingParserNode NameSyntax { get; }
         public LiteralExpressionBindingParserNode Initializer { get; }
-        public ITypeDescriptor Type { get; }
+        public ITypeDescriptor? Type { get; }
     }
 }

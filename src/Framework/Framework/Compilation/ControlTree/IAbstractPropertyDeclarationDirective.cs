@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
     {
         SimpleNameBindingParserNode NameSyntax { get; }
         TypeReferenceBindingParserNode PropertyTypeSyntax { get; }
-        ITypeDescriptor PropertyType { get; }
+        ITypeDescriptor? PropertyType { get; }
         ITypeDescriptor? DeclaringType { get; set; }
         object? InitialValue { get; }
     }
