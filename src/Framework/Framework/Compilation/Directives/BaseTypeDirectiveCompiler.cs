@@ -14,7 +14,7 @@ using DotVVM.Framework.Compilation.ViewCompiler;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
-    public class BaseTypeDirectiveCompiler : DirectiveCompiler<IAbstractBaseTypeDirective, ITypeDescriptor?>
+    public class BaseTypeDirectiveCompiler : DirectiveCompiler<IAbstractBaseTypeDirective, ITypeDescriptor>
     {
         private readonly string fileName;
         public override string DirectiveName => ParserConstants.BaseTypeDirective;
@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Compilation.Directives
         protected override IAbstractBaseTypeDirective Resolve(DothtmlDirectiveNode directiveNode)
             => TreeBuilder.BuildBaseTypeDirective(directiveNode, ParseDirective(directiveNode, p => p.ReadDirectiveTypeName()));
 
-        protected override ITypeDescriptor? CreateArtefact(IReadOnlyList<IAbstractBaseTypeDirective> resolvedDirectives) {
+        protected override ITypeDescriptor CreateArtefact(IReadOnlyList<IAbstractBaseTypeDirective> resolvedDirectives) {
             var wrapperType = GetDefaultWrapperType();
 
             var baseControlDirective = resolvedDirectives.SingleOrDefault();

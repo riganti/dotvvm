@@ -56,7 +56,7 @@ namespace DotVVM.Framework.Compilation.Directives
                 directivesByName,
                 treeBuilder,
                 masterPage,
-                baseType?.IsEqualTo(ResolvedTypeDescriptor.Create(typeof(DotvvmView))) == true,
+                baseType.IsEqualTo(ResolvedTypeDescriptor.Create(typeof(DotvvmView))),
                 resourceRepository);
             var viewModuleResult = viewModuleDirectiveCompiler.Compile();
             resolvedDirectives.AddIfAny(viewModuleDirectiveCompiler.DirectiveName, viewModuleResult.Diractives);
