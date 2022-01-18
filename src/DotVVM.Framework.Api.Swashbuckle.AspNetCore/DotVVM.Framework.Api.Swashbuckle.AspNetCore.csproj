@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>DotVVM.Api.Swashbuckle.AspNetCore</PackageId>
-    <PackageVersion>3.2.2-preview01-145421</PackageVersion>
+    <PackageVersion>3.2.2-preview01-195341</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>Swashbuckle.AspNetCore extensions for DotVVM.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
