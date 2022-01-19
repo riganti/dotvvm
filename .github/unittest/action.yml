@@ -1,10 +1,15 @@
 name: Run .NET unit tests
+description: Runs .NET unit tests under a specified configuration
 
 inputs:
   project:
-    default: null
+    default: ""
+    description: The test project
+    required: true
   configuration:
     default: Debug
+    description: The build configuration
+    required: false
 
 runs:
   using: composite

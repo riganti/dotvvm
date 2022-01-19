@@ -1,12 +1,14 @@
 name: Run UI tests
+description: Runs DotVVM UI test with a specific profile
 
 inputs:
-  profile:
-    default: seleniumconfig.aspnetcorelatest
   browser:
     default: chrome
+    description: The name of the browser to be tested in
+    required: false
   token:
-    default: null
+    description: GitHub token so that test results can be uploaded
+    required: true
 
 runs:
   using: composite
@@ -16,19 +18,19 @@ runs:
   #   uses: browser-actions/setup-chromium@latest
   # - if: matrix.browser == 'firefox'
   #   uses: browser-actions/setup-firefox@latest
-  - uses: nanasess/setup-chromedriver@v1
+  # - uses: nanasess/setup-chromedriver@v1
 
   # run the appropriate uitest script
   - if: ${{ runner.os != 'Windows' }}
     name: uitest.sh
     run: bash ./.github/uitest/uitest.sh
-      --samples-profile "${{ inputs.profile }}.${{ inputs.browser }}.json"
+      --samples-profile "seleniumconfig.aspnetcorelatest.${{ inputs.browser }}.json"
       --trx-name "ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx"
     shell: bash
   - if: ${{ runner.os == 'Windows' }}
     name: uitest.ps1
     run: .\.github\uitest\uitest.ps1
-      -SamplesProfile "${{ inputs.profile }}.${{ inputs.browser }}.json"
+      -SamplesProfile "seleniumconfig.owin.${{ inputs.browser }}.json"
       -TrxName "ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx"
     shell: pwsh
 

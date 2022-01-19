@@ -214,4 +214,7 @@ sample.db
 **/JsComponent*/dist
 *.exclude
 *.tgz
+
+# yarn
 .yarn/
+/.yarnrc.yml

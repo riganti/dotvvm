@@ -1,8 +1,11 @@
 name: Set up DotVVM build
+description: Sets up the build environment for the DotVVM repo.
 
 inputs:
   sln:
     default: src/DotVVM.sln
+    description: Path to a Visual Studio solution
+    required: false
 
 runs:
   using: composite

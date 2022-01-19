@@ -84,6 +84,10 @@ jobs:
       matrix:
         browser: [firefox, chrome]
         os: [windows-latest, ubuntu-latest]
+        exclude:
+          - browser: firefox
+            os: windows-latest
+
     env:
       SLN: "${{ matrix.os == 'windows-latest' && '.github/DotVVM.Windows.sln' || '.github/DotVVM.Crossplatform.sln' }}"
     steps:
@@ -100,5 +104,4 @@ jobs:
       uses: ./.github/uitest
       with:
         browser: ${{ matrix.browser }}
-        profile: seleniumconfig.aspnetcorelatest
         token: ${{ secrets.GITHUB_TOKEN }}

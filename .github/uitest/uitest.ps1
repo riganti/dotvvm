@@ -67,16 +67,17 @@ function Invoke-RequiredCmds {
 function Publish-Sample {
     param ([string][parameter(Position = 0)]$path)
     Invoke-RequiredCmds "Publish sample '$path'" {
-        $msBuildProcess = Start-Process -PassThru -NoNewWindow -FilePath "msbuild.exe" -Wait -ArgumentList `
+        $msBuildProcess = Start-Process -PassThru -NoNewWindow -FilePath "msbuild.exe" -ArgumentList `
             "$path", `
             "-v:m", `
             "-noLogo", `
-            "-p:PublishProfile=$root\ci\windows\GenericPublish.pubxml", `
+            "-p:PublishProfile=$root\.github\uitest\GenericPublish.pubxml", `
             "-p:DeployOnBuild=true", `
             "-p:Configuration=$config", `
             "-p:SourceLinkCreate=true"
+        Wait-Process -InputObject $msBuildProcess
         if ($msBuildProcess.ExitCode -ne 0) {
-            throw "MSBuild failed."
+            throw "MSBuild failed with exit code $($msBuildProcess.ExitCode)."
         }
     }
 }
@@ -118,8 +119,8 @@ function Stop-Sample {
         $ErrorActionPreference = "SilentlyContinue"
         Stop-Process -Force -Name chrome -ErrorAction SilentlyContinue
         Stop-Process -Force -Name chromedriver -ErrorAction SilentlyContinue
-        # Stop-Process -Force -Name firefox -ErrorAction SilentlyContinue
-        # Stop-Process -Force -Name geckodriver -ErrorAction SilentlyContinue
+        Stop-Process -Force -Name firefox -ErrorAction SilentlyContinue
+        Stop-Process -Force -Name geckodriver -ErrorAction SilentlyContinue
         Remove-IISSite -Confirm:$false -Name $sampleName -ErrorAction SilentlyContinue
     }
 }
@@ -133,7 +134,6 @@ function Test-Sample {
         # ensure the site runs and can serve the front page
         while ($true) {
             $request = Invoke-WebRequest "http://localhost:${port}" -ErrorAction SilentlyContinue
-            Write-Host $request.Content
             $httpStatus = $request.StatusCode
             if ($httpStatus -eq 200) {
                 break
@@ -184,7 +184,7 @@ try {
     Start-Sample $samplesApiOwinName $samplesApiOwinPath $samplesApiOwinPort
 
     Invoke-RequiredCmds "Run UI tests" {
-        $uiTestProcess = Start-Process -PassThru -NoNewWindow -FilePath "dotnet.exe" -Wait -ArgumentList `
+        $uiTestProcess = Start-Process -PassThru -NoNewWindow -FilePath "dotnet.exe" -ArgumentList `
             "test", `
             "$testDir", `
             "--configuration", `
@@ -194,12 +194,15 @@ try {
             "trx;LogFileName=$TrxName", `
             "--results-directory", `
             "$testResultsDir"
+        Wait-Process -InputObject $uiTestProcess
         if ($uiTestProcess.ExitCode -ne 0) {
-            throw "dotnet test failed."
+            Write-Host "The test process returned $($uiTestProcess.ExitCode). Ignoring."
         }
     }
+
 }
 finally {
+    Test-Sample $samplesOwinName $samplesOwinPort
     Stop-Sample $samplesOwinName
     Stop-Sample $samplesApiOwinName
 }
