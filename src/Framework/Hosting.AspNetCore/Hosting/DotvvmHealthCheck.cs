@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -12,10 +13,15 @@ namespace DotVVM.Framework.Hosting
     public class DotvvmHealthCheck : IHealthCheck
     {
         private readonly IDotvvmViewCompilationService compilationService;
+        private readonly DotvvmConfiguration configuration;
 
-        public DotvvmHealthCheck(IDotvvmViewCompilationService compilationService)
+        public DotvvmHealthCheck(
+            IDotvvmViewCompilationService compilationService,
+            DotvvmConfiguration configuration
+        )
         {
             this.compilationService = compilationService;
+            this.configuration = configuration;
         }
 
         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
@@ -35,7 +41,8 @@ namespace DotVVM.Framework.Hosting
             
             var views = c.Where(p => p.Status == CompilationState.CompilationFailed)
                          .Select(c => c.VirtualPath);
-            return Task.FromResult(new HealthCheckResult(state, $"Dothtml pages can not be compiled: {views.Take(10).StringJoin(", ")}. See /_dotvvm/diagnostics/compilation for more information."));
+            var statusPageUrl = configuration.Diagnostics.CompilationPage.Url;
+            return Task.FromResult(new HealthCheckResult(state, $"Dothtml pages can not be compiled: {views.Take(10).StringJoin(", ")}. See {statusPageUrl} for more information."));
         }
 
         public static void RegisterHealthCheck(IServiceCollection services)
