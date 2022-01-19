@@ -38,34 +38,18 @@ namespace DotVVM.Framework.Compilation.Binding
             if (delegateType == null || delegateType == typeof(object)) return CreateDelegateExpression();
             if (!typeof(Delegate).IsAssignableFrom(delegateType)) if (throwException) throw new Exception("Could not convert method group expression to a non delegate type."); else return null;
             var invokeMethod = delegateType.GetMethod("Invoke")!;
-            var args = invokeMethod.GetParameters().Select(p => p.ParameterType).ToArray();
+            var parameters = invokeMethod.GetParameters().Select(p => p.ParameterType).ToArray();
             var method = Target.Type.GetMethods(BindingFlags.Public | (IsStatic ? BindingFlags.Static : BindingFlags.Instance))
-                .FirstOrDefault(m => m.Name == MethodName && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(args) && m.ReturnType == invokeMethod.ReturnType);
+                .FirstOrDefault(m => m.Name == MethodName && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameters) && m.ReturnType == invokeMethod.ReturnType);
             if (method == null)
                 if (throwException) throw new Exception($"Could not convert method group '{Target.Type.Name}.{ MethodName }' to delegate '{ delegateType.FullName }'");
                 else return null;
-            if (IsStatic)
-                return Expression.Constant(method.CreateDelegate(delegateType));
-            else
-                return Expression.Call(CreateDelegateMethodInfo, Expression.Constant(delegateType), Target, Expression.Constant(method))
-                    .Apply(e => Expression.Convert(e, delegateType));
-        }
 
-        public static Type GetDelegateType(Type returnType, Type[] args)
-        {
-            if (returnType == null || returnType == typeof(void))
-            {
-                return Type.GetType("System.Action`" + args.Length)!.MakeGenericType(args);
-            }
-            else
-            {
-                return Type.GetType("System.Func`" + (args.Length + 1))!.MakeGenericType(args.Concat(new[] { returnType }).ToArray());
-            }
-        }
+            // create lambda expression
+            var args = method.GetParameters().Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToArray();
 
-        public static Type GetDelegateType(MethodInfo methodInfo)
-        {
-            return GetDelegateType(methodInfo.ReturnType, methodInfo.GetParameters().Select(a => a.ParameterType).ToArray());
+            var call = IsStatic ? Expression.Call(method, args) : Expression.Call(Target, method, args);
+            return Expression.Lambda(delegateType, call, args);
         }
 
         protected MethodInfo? GetMethod()
@@ -76,12 +60,10 @@ namespace DotVVM.Framework.Compilation.Binding
             var methodInfo = GetMethod();
             if (methodInfo == null) throw new Exception($"cannot create delegate from method '{ MethodName }' on type '{ Target.Type.FullName }'");
 
-            var delegateType = GetDelegateType(methodInfo);
-            if (IsStatic)
-                return Expression.Constant(methodInfo.CreateDelegate(delegateType));
-            else
-                return Expression.Call(CreateDelegateMethodInfo, Expression.Constant(delegateType), Target, Expression.Constant(methodInfo))
-                    .Apply(e => Expression.Convert(e, delegateType));
+            var args = methodInfo.GetParameters().Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToArray();
+
+            var call = IsStatic ? Expression.Call(methodInfo, args) : Expression.Call(Target, methodInfo, args);
+            return Expression.Lambda(call, args);
         }
         public Expression CreateMethodCall(IEnumerable<Expression> args, MemberExpressionFactory memberExpressionFactory)
         {

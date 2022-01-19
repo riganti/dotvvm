@@ -490,6 +490,11 @@ namespace DotVVM.Framework.Utils
             return name;
         }
 
+        public static Type GetDelegateType(MethodInfo methodInfo)
+        {
+            return Expression.GetDelegateType(methodInfo.GetParameters().Select(a => a.ParameterType).Append(methodInfo.ReturnType).ToArray());
+        }
+
         /// <summary> Clear cache when hot reload happens </summary>
         internal static void ClearCaches(Type[] types)
         {
