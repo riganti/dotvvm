@@ -58,7 +58,7 @@ namespace DotVVM.Framework.Compilation
                     .Concat(configuration.Markup.Assemblies)
                     .Distinct()
                     .Where(s => !string.IsNullOrWhiteSpace(s))
-                    .Select(n => Assembly.Load(new AssemblyName(n)));
+                    .Select(n => Assembly.Load(new AssemblyName(n!)));
 
             var references = diAssembly.GetReferencedAssemblies().Select(Assembly.Load)
                 .Concat(markupAssemblies)

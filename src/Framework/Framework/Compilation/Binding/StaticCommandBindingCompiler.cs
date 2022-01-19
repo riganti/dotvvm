@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     variables.Select(v => {
                         var tmpVar = new JsTemporaryVariableParameter();
                         return Expression.Parameter(v.Type, v.Name).AddParameterAnnotation(new BindingParameterAnnotation(extensionParameter:
-                            new JavascriptTranslationVisitor.FakeExtensionParameter(_ => new JsSymbolicParameter(tmpVar), v.Name, new ResolvedTypeDescriptor(v.Type))
+                            new JavascriptTranslationVisitor.FakeExtensionParameter(_ => new JsSymbolicParameter(tmpVar), v.Name!, new ResolvedTypeDescriptor(v.Type))
                         ));
                     }).ToArray()
                 );

@@ -434,6 +434,9 @@ namespace DotVVM.Framework.Binding
             protected override Expression VisitParameter(ParameterExpression node)
             {
                 if (node.GetParameterAnnotation() != null) return node;
+
+                if (node.Name is null) return base.VisitParameter(node);
+
                 if (node.Name == "_this") return node.AddParameterAnnotation(new BindingParameterAnnotation(DataContext));
                 else if (node.Name == "_parent") return node.AddParameterAnnotation(new BindingParameterAnnotation(DataContext.Parent));
                 else if (node.Name == "_root") return node.AddParameterAnnotation(new BindingParameterAnnotation(DataContext.EnumerableItems().Last()));

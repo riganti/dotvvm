@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Utils
             (comparer2?.Equals(x.Item2, y.Item2) ?? x.Item2?.Equals(y.Item2) ?? y.Item2 == null);
 
         public int GetHashCode((T1, T2) x) =>
-            (comparer1?.GetHashCode(x.Item1) ?? x.Item1?.GetHashCode() ?? 1906945227) * 101265739 ^
-            (comparer2?.GetHashCode(x.Item2) ?? x.Item2?.GetHashCode() ?? 652178751) * 540893449;
+            (x.Item1 == null ? 1906945227 : comparer1?.GetHashCode(x.Item1) ?? x.Item1.GetHashCode()) * 101265739 ^
+            (x.Item2 == null ? 0652178751 : comparer2?.GetHashCode(x.Item2) ?? x.Item2.GetHashCode()) * 540893449;
     }
 }

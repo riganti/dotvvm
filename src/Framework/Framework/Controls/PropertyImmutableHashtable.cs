@@ -55,10 +55,12 @@ namespace DotVVM.Framework.Controls
 
         class EqCmp : IEqualityComparer<DotvvmProperty[]>
         {
-            public bool Equals(DotvvmProperty[] x, DotvvmProperty[] y)
+            public bool Equals(DotvvmProperty[]? x, DotvvmProperty[]? y)
             {
+                if (object.ReferenceEquals(x, y)) return true;
+                if (x == null || y == null) return false;
                 if (x.Length != y.Length) return false;
-                if (x == y) return true;
+
                 for (int i = 0; i < x.Length; i++)
                     if (x[i] != y[i]) return false;
                 return true;
@@ -161,8 +163,8 @@ namespace DotVVM.Framework.Controls
 
         public class DotvvmPropertyComparer : IComparer<DotvvmProperty>
         {
-            public int Compare(DotvvmProperty a, DotvvmProperty b) =>
-                string.Compare(a.FullName, b.FullName, StringComparison.Ordinal);
+            public int Compare(DotvvmProperty? a, DotvvmProperty? b) =>
+                string.Compare(a?.FullName, b?.FullName, StringComparison.Ordinal);
 
             public static readonly DotvvmPropertyComparer Instance = new();
         }

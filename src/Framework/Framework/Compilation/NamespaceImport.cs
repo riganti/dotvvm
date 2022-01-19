@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Compilation
 			this.Alias = alias;
 		}
 
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             obj is NamespaceImport other && Equals(other);
 
         public bool Equals(NamespaceImport other) =>

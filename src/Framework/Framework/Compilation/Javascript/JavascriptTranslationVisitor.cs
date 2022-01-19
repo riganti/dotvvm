@@ -101,7 +101,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         private Expression ReplaceVariables(Expression node, IReadOnlyList<ParameterExpression> variables, CodeSymbolicParameter[] args)
         {
             return ExpressionUtils.Replace(Expression.Lambda(node, variables), args.Zip(variables, (o, a) => Expression.Parameter(a.Type, a.Name).AddParameterAnnotation(
-                new BindingParameterAnnotation(extensionParameter: new FakeExtensionParameter(_ => new JsSymbolicParameter(o), a.Name, new ResolvedTypeDescriptor(a.Type)))
+                new BindingParameterAnnotation(extensionParameter: new FakeExtensionParameter(_ => new JsSymbolicParameter(o), a.Name!, new ResolvedTypeDescriptor(a.Type)))
             )).ToArray());
         }
 
@@ -149,6 +149,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             var property = expression.Left as MemberExpression;
             if (property != null)
             {
+                if (property.Expression is null)
+                    throw new NotSupportedException($"Assignment of static property {expression} is not supported.");
                 var target = Translate(property.Expression);
                 var value = Translate(expression.Right);
                 return TryTranslateMethodCall((property.Member as PropertyInfo)?.SetMethod, property.Expression, new[] { expression.Right }) ??
@@ -176,6 +178,10 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public JsExpression TranslateIndex(IndexExpression expression, bool setter = false)
         {
+            if (expression.Object is null)
+                throw new NotSupportedException($"Static indexer {expression} is not supported.");
+            if (expression.Indexer is null)
+                throw new NotSupportedException($"IndexExpression does not have indexer."); // wtf, but it's nullable
             var target = Translate(expression.Object);
             var args = expression.Arguments.Select(Translate).ToArray();
             var method = setter ? expression.Indexer.SetMethod : expression.Indexer.GetMethod;
@@ -233,7 +239,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             var result = TryTranslateMethodCall(expression.Method, expression.Object, expression.Arguments.ToArray());
             if (result == null)
-                throw new NotSupportedException($"Method { expression.Method.DeclaringType.Name }.{ expression.Method.Name } cannot be translated to Javascript");
+                throw new NotSupportedException($"Method { expression.Method.DeclaringType!.Name }.{ expression.Method.Name } cannot be translated to Javascript");
             return result;
         }
 

@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
         public abstract IEnumerable<DothtmlNode> EnumerateChildNodes();
 
-        public DothtmlNode FindNodeByPosition(int position)
+        public DothtmlNode? FindNodeByPosition(int position)
         {
             return EnumerateNodes().LastOrDefault(n => n.StartPosition <= position && position < n.EndPosition);
         }

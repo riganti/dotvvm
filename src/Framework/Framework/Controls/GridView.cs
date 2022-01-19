@@ -544,7 +544,11 @@ namespace DotVVM.Framework.Controls
 
         public override IEnumerable<DotvvmBindableObject> GetLogicalChildren()
         {
-            return base.GetLogicalChildren().Concat(Columns).Concat(RowDecorators);
+            return base.GetLogicalChildren().Concat(
+                Columns ?? Enumerable.Empty<GridViewColumn>()
+            ).Concat(
+                RowDecorators ?? Enumerable.Empty<Decorator>()
+            );
         }
     }
 }

@@ -222,6 +222,17 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void StaticCommandCompilation_Service_DelegateInvocation()
+        {
+            var result = CompileBinding("injectedService.LoadAsync", niceMode: true, new[] { typeof(TestViewModel) });
+
+            Console.WriteLine(result);
+            var control = @"await dotvvm.staticCommandPostback(""XXXX"", [], options)";
+
+            AreEqual(control, result);
+        }
+
+        [TestMethod]
         public void StaticCommandCompilation_ExpressionBetweenPostbacks_WithParameters()
         {
             var result = CompileBinding("StringProp = injectedService.Load(StringProp, StringProp); \"Test\"; StringProp = injectedService.Load(StringProp)", niceMode: false, new[] { typeof(TestViewModel) });

@@ -1,10 +1,12 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Utils
 {
     internal class ReadOnlyDictionaryWrapper<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>
+        where TKey: notnull
     {
         private ConcurrentDictionary<TKey, TValue> dictionary;
 
@@ -25,7 +27,8 @@ namespace DotVVM.Framework.Utils
 
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => dictionary.GetEnumerator();
 
-        public bool TryGetValue(TKey key, out TValue value) => dictionary.TryGetValue(key, out value);
+        public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value) =>
+            dictionary.TryGetValue(key, out value);
 
         IEnumerator IEnumerable.GetEnumerator() => dictionary.GetEnumerator();
 

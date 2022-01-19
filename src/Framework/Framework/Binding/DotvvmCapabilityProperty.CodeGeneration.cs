@@ -76,19 +76,19 @@ namespace DotVVM.Framework.Binding
                 var valueParameter = Expression.Parameter(type, "value");
                 var ctor = typeof(VirtualPropertyGroupDictionary<>)
                     .MakeGenericType(propType)
-                    .GetConstructor(new [] { typeof(DotvvmBindableObject), typeof(DotvvmPropertyGroup) });
+                    .GetConstructor(new [] { typeof(DotvvmBindableObject), typeof(DotvvmPropertyGroup) })!;
                 var createMethod = typeof(VirtualPropertyGroupDictionary<>)
                     .MakeGenericType(propType)
                     .GetMethod(
                         typeof(ValueOrBinding).IsAssignableFrom(elementType) ? nameof(VirtualPropertyGroupDictionary<int>.CreatePropertyDictionary) :
                         nameof(VirtualPropertyGroupDictionary<int>.CreateValueDictionary),
                         BindingFlags.Public | BindingFlags.Static
-                    );
+                    )!;
                 var enumerableType = typeof(IEnumerable<>).MakeGenericType(typeof(KeyValuePair<,>).MakeGenericType(typeof(string), elementType));
                 var copyFromMethod =
                     typeof(VirtualPropertyGroupDictionary<>)
                     .MakeGenericType(propType)
-                    .GetMethod("CopyFrom", new [] { enumerableType, typeof(bool) });
+                    .GetMethod("CopyFrom", new [] { enumerableType, typeof(bool) })!;
                 return (
                     Lambda(
                         Convert(Call(createMethod, currentControlParameter, Constant(pgroup)), type),
@@ -142,11 +142,11 @@ namespace DotVVM.Framework.Binding
                     var getValueOrBindingMethod =
                         typeof(Helpers).GetMethod(
                             isNullable ? "GetOptionalValueOrBinding" : "GetValueOrBinding"
-                        ).MakeGenericMethod(innerType);
+                        )!.MakeGenericMethod(innerType);
                     var setValueOrBindingMethod =
                         typeof(Helpers).GetMethod(
                             isNullable ? "SetOptionalValueOrBinding" : "SetValueOrBinding"
-                        ).MakeGenericMethod(innerType);
+                        )!.MakeGenericMethod(innerType);
                     return (
                         Expression.Lambda(
                             Expression.Call(
@@ -166,7 +166,7 @@ namespace DotVVM.Framework.Binding
                     var getValueMethod = (from m in typeof(DotvvmBindableObject).GetMethods()
                                         where m.Name == "GetValue" && !m.IsGenericMethod
                                         select m).Single();
-                    var setValueMethod = typeof(DotvvmBindableObject).GetMethod("SetValue", new[] { typeof(DotvvmProperty), typeof(object) });
+                    var setValueMethod = typeof(DotvvmBindableObject).GetMethod("SetValue", new[] { typeof(DotvvmProperty), typeof(object) })!;
                     return (
                         Expression.Lambda(
                             Expression.Convert(

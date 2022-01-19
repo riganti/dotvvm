@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -14,7 +16,7 @@ namespace DotVVM.Framework.Compilation
 
         class ExpressionInspectingVisitor: ExpressionVisitor
         {
-            public List<DotvvmProperty> UsedProperties { get; } = new();
+            public HashSet<DotvvmProperty> UsedProperties { get; } = new();
             public bool UsesViewModel { get; set; }
             protected override Expression VisitConstant(ConstantExpression node)
             {
@@ -25,7 +27,7 @@ namespace DotVVM.Framework.Compilation
             protected override Expression VisitMember(MemberExpression node)
             {
                 if (typeof(DotvvmProperty).IsAssignableFrom(node.Type) && node.Member is FieldInfo { IsStatic: true } field)
-                    UsedProperties.Add((DotvvmProperty)field.GetValue(null));
+                    UsedProperties.Add((DotvvmProperty)field.GetValue(null).NotNull());
                 return base.VisitMember(node);
             }
 
@@ -57,7 +59,8 @@ namespace DotVVM.Framework.Compilation
 
             base.VisitView(view);
 
-            var info = new ControlUsedPropertiesInfo(exprVisitor.UsedProperties.ToArray(), exprVisitor.UsesViewModel);
+            var props = exprVisitor.UsedProperties.OrderBy(p => p.Name).ToArray();
+            var info = new ControlUsedPropertiesInfo(props, exprVisitor.UsesViewModel);
 
             view.SetProperty(new ResolvedPropertyValue(Internal.UsedPropertiesInfoProperty, info));
         }

@@ -15,14 +15,18 @@ namespace DotVVM.Framework.Compilation
                 return;
             }
 
+            var message = $"Property {setter.Property.Name} is obsolete";
+            if (setter.Property.ObsoleteAttribute.Message is {} workaroundMessage)
+                message += ": " + workaroundMessage;
+
             // NB: the obsolete attribute should NEVER cause a compilation error in dothtml if the property is an alias
             if (setter.Property.ObsoleteAttribute.IsError && setter.Property is not DotvvmPropertyAlias)
             {
-                setter.DothtmlNode.AddError(setter.Property.ObsoleteAttribute.Message);
+                setter.DothtmlNode.AddError(message);
             }
             else
             {
-                setter.DothtmlNode.AddWarning(setter.Property.ObsoleteAttribute.Message);
+                setter.DothtmlNode.AddWarning(message);
             }
         }
     }

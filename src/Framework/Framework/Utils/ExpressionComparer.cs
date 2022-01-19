@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Utils
             if (cacheHashValues) CacheHashValues();
         }
 
-        public static bool Equals(MemberInfo a, MemberInfo b)
+        public static bool Equals(MemberInfo? a, MemberInfo? b)
         {
             if (a == b) return true;
             if (a == null || b == null) return false;
@@ -31,14 +31,14 @@ namespace DotVVM.Framework.Utils
             return mi.MetadataToken * 17 + (mi.DeclaringType?.GetTypeInfo()?.MetadataToken ?? 0);
         }
 
-        bool IEqualityComparer<MemberInfo>.Equals(MemberInfo a, MemberInfo b) => Equals(a, b);
+        bool IEqualityComparer<MemberInfo>.Equals(MemberInfo? a, MemberInfo? b) => Equals(a, b);
         int IEqualityComparer<MemberInfo>.GetHashCode(MemberInfo a) => GetHashCode(a);
 
 
         [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
-        public bool Equals(Expression x, Expression y)
+        public bool Equals(Expression? x, Expression? y)
         {
-            if ((object)x == (object)y) return true;
+            if (object.ReferenceEquals(x, y)) return true;
             if (x == null || y == null) return false;
             var type = x.NodeType;
             if (y.NodeType != type) return false;
@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Utils
                 case ExpressionType.Constant:
                     var constX = (ConstantExpression)x;
                     var constY = (ConstantExpression)y;
-                    return constX.Value == constY.Value || constX.Value.Equals(constY.Value);
+                    return Object.Equals(constX.Value, constY.Value);
                 case ExpressionType.Invoke:
                     var invX = (InvocationExpression)x;
                     var invY = (InvocationExpression)y;
@@ -197,7 +197,7 @@ namespace DotVVM.Framework.Utils
             return hash;
         }
         [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
-        public int GetHashCode(Expression obj)
+        public int GetHashCode(Expression? obj)
         {
             unchecked
             {
@@ -356,8 +356,11 @@ namespace DotVVM.Framework.Utils
                     //return Equals(minitX, minitY) && minitX.Bindings.Zip(minitY.Bindings, (a, b) => a.BindingType == b.BindingType && a.Member == b.Member).All(f => f);
                     case ExpressionType.New:
                         var newe = (NewExpression)obj;
-                        hash *= 31;
-                        hash += GetHashCode(newe.Constructor);
+                        if (newe.Constructor != null)
+                        {
+                            hash *= 31;
+                            hash += GetHashCode(newe.Constructor);
+                        }
                         foreach (var arg in newe.Arguments)
                         {
                             hash *= 29;

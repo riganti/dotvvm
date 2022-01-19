@@ -142,13 +142,13 @@ public static class ValueOrBindingExtensions
     }
 
     internal static IBinding CreateConstantBinding(
-        object constant,
+        object? constant,
         Type type,
         BindingCompilationService service,
         BindingParserOptions bpo) =>
         service.Cache.CreateCachedBinding(
             "dotvvm-ConstantBinding",
-            new object [] { type, constant, bpo },
+            new object? [] { type, constant, bpo },
             () => {
                 var expr = Expression.Constant(constant, type);
                 return service.CreateBinding(bpo.BindingType, new object[] {

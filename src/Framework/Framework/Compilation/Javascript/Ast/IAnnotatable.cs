@@ -125,7 +125,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             if (annotation == null)
                 throw new ArgumentNullException("annotation");
             retry: // Retry until successful
-            object oldAnnotation = Interlocked.CompareExchange(ref this.annotations, annotation, null);
+            object? oldAnnotation = Interlocked.CompareExchange(ref this.annotations, annotation, null);
             if (oldAnnotation == null)
             {
                 return annotation; // we successfully added a single annotation

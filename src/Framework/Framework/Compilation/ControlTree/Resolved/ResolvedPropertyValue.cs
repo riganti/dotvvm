@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         private static string DebugFormatValue(object? v) =>
             v is null ? "null" :
             v is IEnumerable<object> vs ? $"[{string.Join(", ", vs.Select(DebugFormatValue))}]" :
-            v.ToString();
+            $"{v}";
 
         public override string ToString() => $"{Property}=\"{DebugFormatValue(Value)}\"";
     }

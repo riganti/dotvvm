@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -107,14 +108,14 @@ namespace DotVVM.Framework.Controls
         {
             if (user != null)
             {
-                return Values?.Any(v => user.HasClaim(Claim, v.Trim()))
-                    ?? user.HasClaim(ClaimIsOfRequiredType);
+                var claimType = Claim.NotNull("ClaimView.Claim must not be null");
+                if (Values is {} allowedValues)
+                    return allowedValues.Any(v => user.HasClaim(claimType, v.Trim()));
+                else
+                    return user.HasClaim(c => string.Equals(c.Type, claimType, StringComparison.OrdinalIgnoreCase));
             }
 
             return false;
         }
-
-        private bool ClaimIsOfRequiredType(Claim claim)
-            => string.Equals(claim.Type, Claim, StringComparison.OrdinalIgnoreCase);
     }
 }
