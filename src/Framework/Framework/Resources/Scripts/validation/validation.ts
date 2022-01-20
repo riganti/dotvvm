@@ -169,7 +169,7 @@ function validateRecursive(observable: KnockoutObservable<any>, propertyValue: a
         if (!propertyValue) return;
         let i = 0;
         for (const item of propertyValue) {
-            validateRecursive(item, ko.unwrap(item), type[0], propertyPath + "/" + "[" + i + "]");
+            validateRecursive(item, ko.unwrap(item), type[0], `${propertyPath}/[${i}]`);
             i++;
         }
         
