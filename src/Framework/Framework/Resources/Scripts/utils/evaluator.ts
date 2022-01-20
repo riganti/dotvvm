@@ -40,20 +40,19 @@ export function findPathToChildObject(vm: any, child: any, path: string): string
         return path;
     }
 
-    vm = ko.unwrap(vm);
     if (typeof vm !== "object" || vm == null) {
         return null;
     }
 
     if (Array.isArray(vm)) {
         // Iterate over its elements
-        vm.forEach(function (value, index) {
-            let result = findPathToChildObject(value, child, path + "/" + `[${index}]`)
+        let index = 0;
+        for (const value of vm) {
+            let result = findPathToChildObject(value, child, path + `/[${index}]`)
             if (result != null)
                 return result;
-
             index++;
-        })
+        }
     }
     else {
         // Iterate over its properties

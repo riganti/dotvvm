@@ -11,7 +11,7 @@ import { DotvvmPostbackError } from "../shared-classes"
 import { getObjectTypeInfo } from "../metadata/typeMap"
 import { tryCoerce } from "../metadata/coercer"
 import { primitiveTypes } from "../metadata/primitiveTypes"
-import { lastSetErrorSymbol } from "../state-manager"
+import { currentStateSymbol, lastSetErrorSymbol } from "../state-manager"
 import { logError } from "../utils/logging"
 
 type ValidationSummaryBinding = {
@@ -62,8 +62,9 @@ const runClientSideValidation = (validationTarget: any, options: PostbackOptions
     watchAndTriggerValidationErrorChanged(options,
         () => {
             detachAllErrors();
-            const root = dotvvm.viewModelObservables['root'];
-            const path = evaluator.findPathToChildObject(root, validationTarget, "")!;
+            const root = dotvvm.state;
+            const target = ko.unwrap(validationTarget)[currentStateSymbol];
+            const path = evaluator.findPathToChildObject(root, target, "")!;
             validateViewModel(validationTarget, path);
         });
 }
