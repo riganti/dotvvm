@@ -376,10 +376,16 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             f.Formatters.Add((e, o) => new DictionarySection<string, string>(
                 "Assemblies",
                 "assemblies",
-                AppDomain.CurrentDomain.GetAssemblies().OrderBy(a => a.GetName().Name).Select(a =>
-                    new KeyValuePair<string, string>(a.GetName().Name,
-                        $"Version={a.GetName().Version}, Culture={a.GetName().CultureInfo.DisplayName}, " +
-                        $"PublicKeyToken={a.GetName().GetPublicKeyToken().Select(b => string.Format("{0:x2}", b)).StringJoin(string.Empty)}"))
+                AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name != null).OrderBy(a => a.GetName().Name).Select(a => {
+                    var info = a.GetName();
+                    var versionString = (info.Version != null) ? info.Version.ToString() : "unknown version";
+                    var cultureString = (info.CultureInfo != null) ? info.CultureInfo.DisplayName : "unknown culture";
+                    var publicKeyString = (info.GetPublicKeyToken() != null) ? info.GetPublicKeyToken()!
+                        .Select(b => string.Format("{0:x2}", b)).StringJoin(string.Empty) : "unknown public key";
+
+                    return new KeyValuePair<string, string>(info.Name!,
+                        $"Version={versionString}, Culture={cultureString}, PublicKeyToken={publicKeyString}");
+                })
             ));
             f.Formatters.Add((e, o) => new DictionarySection<string, string[]>(
                 "Request Headers",
