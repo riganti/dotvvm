@@ -185,7 +185,7 @@ function validateRecursive(observable: KnockoutObservable<any>, propertyValue: a
             if (Array.isArray(propertyValue)) {
                 let i = 0;
                 for (const item of propertyValue) {
-                    validateRecursive(item, ko.unwrap(item), { type: "dynamic" }, propertyPath + "/" + "[" + i + "]");
+                    validateRecursive(item, ko.unwrap(item), { type: "dynamic" }, `${propertyPath}/[${i}]`);
                     i++;
                 }
             } else if (propertyValue && typeof propertyValue === "object") {
