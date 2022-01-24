@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
@@ -30,7 +31,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             SimpleNameBindingParserNode nameSyntax,
             TypeReferenceBindingParserNode typeSyntax,
             BindingParserNode? initializerSyntax,
-            IList<IAbstractDirectiveAttributeReference> attributes)
+            IList<IAbstractDirectiveAttributeReference> attributes,
+            ImmutableList<NamespaceImport> imports)
             : base(dothtmlDirective)
         {
             NameSyntax = nameSyntax;
@@ -38,7 +40,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             InitializerSyntax = initializerSyntax;
             Attributes = attributes;
 
-            var propertyTypeDescriptor = service.ResolveType(dothtmlDirective, typeSyntax);
+            var propertyTypeDescriptor = service.ResolveType(dothtmlDirective, typeSyntax, imports);
 
             if (propertyTypeDescriptor == null)
             {
@@ -48,7 +50,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             PropertyType = propertyTypeDescriptor;
 
             //Chack that I am not asigning incompatible types 
-            InitialValue = service.ResolvePropertyInitializer(dothtmlDirective, propertyTypeDescriptor?.Type, initializerSyntax);
+            InitialValue = service.ResolvePropertyInitializer(dothtmlDirective, propertyTypeDescriptor?.Type, initializerSyntax, imports);
 
             AttributeInstances = InstantiateAttributes(attributes).ToList();
         }

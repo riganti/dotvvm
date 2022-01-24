@@ -6,6 +6,7 @@ using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Compilation.ViewCompiler;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -20,15 +21,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
         IAbstractDirective BuildDirective(DothtmlDirectiveNode node);
 
         IAbstractImportDirective BuildImportDirective(DothtmlDirectiveNode node, BindingParserNode? aliasSyntax, BindingParserNode nameSyntax);
-        IAbstractServiceInjectDirective BuildServiceInjectDirective(DothtmlDirectiveNode node, SimpleNameBindingParserNode nameSyntax, BindingParserNode typeSyntax);
+        IAbstractServiceInjectDirective BuildServiceInjectDirective(DothtmlDirectiveNode node, SimpleNameBindingParserNode nameSyntax, BindingParserNode typeSyntax, ImmutableList<NamespaceImport> imports);
 
-        IAbstractViewModelDirective BuildViewModelDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax);
+        IAbstractViewModelDirective BuildViewModelDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax, ImmutableList<NamespaceImport> imports);
 
-        IAbstractBaseTypeDirective BuildBaseTypeDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax);
+        IAbstractBaseTypeDirective BuildBaseTypeDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax, ImmutableList<NamespaceImport> imports);
 
         IAbstractViewModuleDirective BuildViewModuleDirective(DothtmlDirectiveNode directiveNode, string modulePath, string resourceName);
-        IAbstractPropertyDeclarationDirective BuildPropertyDeclarationDirective(DothtmlDirectiveNode directive, TypeReferenceBindingParserNode typeSyntax, SimpleNameBindingParserNode nameSyntax, BindingParserNode? initializer, IList<IAbstractDirectiveAttributeReference> resolvedAttributes, BindingParserNode valueSyntaxRoot);
-        IAbstractDirectiveAttributeReference BuildPropertyDeclarationAttributeReference(DothtmlDirectiveNode directiveNode, IdentifierNameBindingParserNode propertyNameSyntax, ActualTypeReferenceBindingParserNode typeSyntax, LiteralExpressionBindingParserNode initializer);
+        IAbstractPropertyDeclarationDirective BuildPropertyDeclarationDirective(DothtmlDirectiveNode directive, TypeReferenceBindingParserNode typeSyntax, SimpleNameBindingParserNode nameSyntax, BindingParserNode? initializer, IList<IAbstractDirectiveAttributeReference> resolvedAttributes, BindingParserNode valueSyntaxRoot, ImmutableList<NamespaceImport> imports);
+        IAbstractDirectiveAttributeReference BuildPropertyDeclarationAttributeReference(DothtmlDirectiveNode directiveNode, IdentifierNameBindingParserNode propertyNameSyntax, ActualTypeReferenceBindingParserNode typeSyntax, LiteralExpressionBindingParserNode initializer, ImmutableList<NamespaceImport> imports);
         IAbstractPropertyBinding BuildPropertyBinding(IPropertyDescriptor property, IAbstractBinding binding, DothtmlAttributeNode? sourceAttributeNode);
 
         IAbstractPropertyControl BuildPropertyControl(IPropertyDescriptor property, IAbstractControl? control, DothtmlElementNode? wrapperElementNode);

@@ -8,6 +8,7 @@ using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Compilation.ViewCompiler;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
@@ -15,13 +16,15 @@ namespace DotVVM.Framework.Compilation.Directives
     public class ViewModelDirectiveCompiler : DirectiveCompiler<IAbstractViewModelDirective, ViewModelCompilationResult>
     {
         private readonly string fileName;
+        private readonly ImmutableList<NamespaceImport> imports;
 
         public override string DirectiveName => ParserConstants.ViewModelDirectiveName;
 
-        public ViewModelDirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, string fileName)
+        public ViewModelDirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, string fileName, ImmutableList<NamespaceImport> imports)
             : base(directiveNodesByName, treeBuilder)
         {
             this.fileName = fileName;
+            this.imports = imports;
         }
 
         protected override ViewModelCompilationResult CreateArtefact(IReadOnlyList<IAbstractViewModelDirective> resolvedDirectives)
@@ -30,6 +33,7 @@ namespace DotVVM.Framework.Compilation.Directives
             {
                 return new ViewModelCompilationResult(null, $"The @viewModel directive is missing in the page '{fileName}'!");
             }
+
             var viewModelDirective = resolvedDirectives.First();
             if (viewModelDirective?.ResolvedType is object && viewModelDirective.ResolvedType.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmBindableObject))))
             {
@@ -40,7 +44,7 @@ namespace DotVVM.Framework.Compilation.Directives
         }
 
         protected override IAbstractViewModelDirective Resolve(DothtmlDirectiveNode directive)
-            => TreeBuilder.BuildViewModelDirective(directive, ParseDirective(directive, p => p.ReadDirectiveTypeName()));
+            => TreeBuilder.BuildViewModelDirective(directive, ParseDirective(directive, p => p.ReadDirectiveTypeName()), imports);
     }
 
 }
