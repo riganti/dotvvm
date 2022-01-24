@@ -3,9 +3,10 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Utils;
 using System;
+using System.Collections.Generic;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
-{
+{ 
     [TestClass]
     public class MarkupDeclaredPropertyTests : DefaultControlTreeResolverTestsBase
     {
@@ -60,9 +61,41 @@ fileName: "control.dotcontrol");
 
             Assert.AreEqual(new Guid("645f970d-2879-4fff-a19d-ba7b4c4a4853"), declarationDirective.InitialValue);
         }
+
+        [TestMethod]
+        public void ResolvedTree_MarkupDeclaredProperty_ImportUsed()
+        {
+            var root = ParseSource(@$"
+@viewModel object
+@import System.Collections.Generic
+@property List<int> Items
+
+<dot:Repeater DataSource={{value: _control.Items}}>
+   <li>{{{{value: _this}}}}</li>
+</dot:Repeater>
+",
+fileName: "control.dotcontrol");
+
+            var declarationDirective = EnsureSingleResolvedDeclarationDirective(root);
+            var binding = EnsureSingleResolvedBinding(root);
+
+            Assert.IsFalse(declarationDirective.DothtmlNode.HasNodeErrors);
+            Assert.AreEqual(typeof(List<int>).FullName, declarationDirective.PropertyType.FullName);
+            Assert.AreEqual("Items", declarationDirective.NameSyntax.Name);
+
+            Assert.IsNotNull(binding.ResultType);
+            Assert.AreEqual(typeof(List<int>).FullName, binding.ResultType.FullName);
+        }
+
         private static ResolvedPropertyDeclarationDirective EnsureSingleResolvedDeclarationDirective(ResolvedTreeRoot root) =>
                 root.Directives["property"]
                     .Single()
                     .CastTo<ResolvedPropertyDeclarationDirective>();
+
+        private static ResolvedBinding EnsureSingleResolvedBinding(ResolvedTreeRoot root) =>
+              root.Content[0].CastTo<ResolvedControl>()
+                   .Content[2].CastTo<ResolvedControl>()
+                   .Properties.First().Value.CastTo<ResolvedPropertyBinding>()
+                   .Binding;
     }
 }

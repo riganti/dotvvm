@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
     public class ServiceDirectiveTests : DefaultControlTreeResolverTestsBase
     {
         [TestMethod]
-        public void ResolvedTree_ImportDirective_CorrectBindingTypeFromImportedNamespace()
+        public void ResolvedTree_ServiceDirective_CorrectBindingFromInjectedService()
         {
             var root = ParseSource(@$"
 @viewModel object
@@ -19,7 +19,38 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
 <dot:Button Click={{staticCommand: testService.TestCall()}} Text=""Test"" />
 ");
-            var serviceDirective = EnsureSingleResolvedImportDirective(root);
+            CheckServiceAndBinding(root);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_ServiceDirective_CorrectBindingFromInjectedService_UsingImportedNamespace()
+        {
+            var root = ParseSource(@$"
+@viewModel object
+@import DotVVM.Framework.Tests.Runtime.ControlTree.DefaultControlTreeResolver
+@service testService = {nameof(TestService)}
+
+<dot:Button Click={{staticCommand: testService.TestCall()}} Text=""Test"" />
+");
+            CheckServiceAndBinding(root);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_ServiceDirective_CorrectBindingFromInjectedService_UsingImportedAliasedNamespace()
+        {
+            var root = ParseSource(@$"
+@viewModel object
+@import testServiceAlias = DotVVM.Framework.Tests.Runtime.ControlTree.DefaultControlTreeResolver.{nameof(TestService)}
+@service testService = testServiceAlias
+
+<dot:Button Click={{staticCommand: testService.TestCall()}} Text=""Test"" />
+");
+            CheckServiceAndBinding(root);
+        }
+
+        private static void CheckServiceAndBinding(ResolvedTreeRoot root)
+        {
+            var serviceDirective = EnsureSingleResolvedServiceDirective(root);
             var binding = EnsureSingleResolvedBinding(root);
 
             var serviceExtensionParameters = root.DataContextTypeStack.ExtensionParameters.OfType<InjectedServiceExtensionParameter>().First();
@@ -35,7 +66,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(typeof(void).FullName, binding.ResultType.FullName);
         }
 
-        private static ResolvedServiceInjectDirective EnsureSingleResolvedImportDirective(ResolvedTreeRoot root) =>
+        private static ResolvedServiceInjectDirective EnsureSingleResolvedServiceDirective(ResolvedTreeRoot root) =>
                 root.Directives["service"]
                     .Single()
                     .CastTo<ResolvedServiceInjectDirective>();
