@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,14 +22,15 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             DothtmlDirectiveNode directiveNode,
             TypeReferenceBindingParserNode typeReferenceBindingParserNode,
             IdentifierNameBindingParserNode attributePropertyNameReference,
-            LiteralExpressionBindingParserNode initializer)
+            LiteralExpressionBindingParserNode initializer,
+            ImmutableList<NamespaceImport> imports)
         {
             DirectiveNode = directiveNode;
             TypeSyntax = typeReferenceBindingParserNode;
             NameSyntax = attributePropertyNameReference;
             Initializer = initializer;
 
-            var typeDescriptor = directiveService.ResolveType(directiveNode, TypeSyntax);
+            var typeDescriptor = directiveService.ResolveType(directiveNode, TypeSyntax, imports);
 
             if (typeDescriptor == null)
             {

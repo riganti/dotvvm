@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Compilation.Binding;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
@@ -18,10 +19,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             this.extensionMethodsCache = extensionMethodsCache;
         }
 
-
-        public ResolvedTypeDescriptor? ResolveType(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
+        public ResolvedTypeDescriptor? ResolveType(DothtmlDirectiveNode directive, BindingParserNode nameSyntax, ImmutableList<NamespaceImport> imports)
         {
-            if (CompileDirectiveExpression(directive, nameSyntax) is not StaticClassIdentifierExpression expression)
+            if (CompileDirectiveExpression(directive, nameSyntax, imports) is not StaticClassIdentifierExpression expression)
             {
                 directive.AddError($"Could not resolve type '{nameSyntax.ToDisplayString()}'.");
                 return null;
@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public Type? ResolveTypeOrNamespace(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
         {
-            var expression = CompileDirectiveExpression(directive, nameSyntax);
+            var expression = CompileDirectiveExpression(directive, nameSyntax, ImmutableList<NamespaceImport>.Empty);
 
             if (expression is UnknownStaticClassIdentifierExpression unknownStaticClassIdentifier)
             {
@@ -54,13 +54,13 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return null;
         }
 
-        public object? ResolvePropertyInitializer(DothtmlDirectiveNode directive, Type? propertyType, BindingParserNode? initializer)
+        public object? ResolvePropertyInitializer(DothtmlDirectiveNode directive, Type? propertyType, BindingParserNode? initializer, ImmutableList<NamespaceImport> imports)
         {
             if (initializer == null) { return null; }
 
             var registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache);
 
-            var visitor = new ExpressionBuildingVisitor(registry, new MemberExpressionFactory(extensionMethodsCache)) {
+            var visitor = new ExpressionBuildingVisitor(registry, new MemberExpressionFactory(extensionMethodsCache, imports)) {
                 ResolveOnlyTypeName = false,
                 Scope = null
             };
@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return null;
         }
 
-        private Expression? CompileDirectiveExpression(DothtmlDirectiveNode directive, BindingParserNode expressionSyntax)
+        private Expression? CompileDirectiveExpression(DothtmlDirectiveNode directive, BindingParserNode expressionSyntax, ImmutableList<NamespaceImport> imports)
         {
             TypeRegistry registry;
             if (expressionSyntax is TypeOrFunctionReferenceBindingParserNode typeOrFunction)
@@ -131,7 +131,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache);
             }
 
-            var visitor = new ExpressionBuildingVisitor(registry, new MemberExpressionFactory(extensionMethodsCache)) {
+            var visitor = new ExpressionBuildingVisitor(registry, new MemberExpressionFactory(extensionMethodsCache, imports)) {
                 ResolveOnlyTypeName = true,
                 Scope = null
             };

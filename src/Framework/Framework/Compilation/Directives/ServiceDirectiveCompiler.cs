@@ -11,10 +11,14 @@ namespace DotVVM.Framework.Compilation.Directives
 {
     public class ServiceDirectiveCompiler : DirectiveCompiler<IAbstractServiceInjectDirective, ImmutableList<InjectedServiceExtensionParameter>>
     {
+        private readonly ImmutableList<NamespaceImport> imports;
+
         public override string DirectiveName => ParserConstants.ServiceInjectDirective;
 
-        public ServiceDirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder) : base(directiveNodesByName, treeBuilder)
+        public ServiceDirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, ImmutableList<NamespaceImport> imports)
+            : base(directiveNodesByName, treeBuilder)
         {
+            this.imports = imports;
         }
 
         protected override IAbstractServiceInjectDirective Resolve(DothtmlDirectiveNode directiveNode)
@@ -30,12 +34,12 @@ namespace DotVVM.Framework.Compilation.Directives
                     name = new SimpleNameBindingParserNode("service");
                 }
                 var type = assignment.SecondExpression;
-                return TreeBuilder.BuildServiceInjectDirective(directiveNode, name, type);
+                return TreeBuilder.BuildServiceInjectDirective(directiveNode, name, type, imports);
             }
             else
             {
                 directiveNode.AddError($"Assignment operation expected - the correct form is `@{ParserConstants.ServiceInjectDirective} myStringService = ISomeService<string>`");
-                return TreeBuilder.BuildServiceInjectDirective(directiveNode, new SimpleNameBindingParserNode("service"), valueSyntaxRoot);
+                return TreeBuilder.BuildServiceInjectDirective(directiveNode, new SimpleNameBindingParserNode("service"), valueSyntaxRoot, imports);
             }
         }
 

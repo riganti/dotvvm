@@ -15,13 +15,15 @@ namespace DotVVM.Framework.Compilation.Directives
     public class PropertyDeclarationDirectiveCompiler : DirectiveCompiler<IAbstractPropertyDeclarationDirective, ImmutableList<DotvvmProperty>>
     {
         private readonly ITypeDescriptor controlWrapperType;
+        private readonly ImmutableList<NamespaceImport> imports;
 
         public override string DirectiveName => ParserConstants.PropertyDeclarationDirective;
 
-        public PropertyDeclarationDirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, ITypeDescriptor controlWrapperType)
+        public PropertyDeclarationDirectiveCompiler(IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, ITypeDescriptor controlWrapperType, ImmutableList<NamespaceImport> imports)
             : base(directiveNodesByName, treeBuilder)
         {
             this.controlWrapperType = controlWrapperType;
+            this.imports = imports;
         }
 
         protected override IAbstractPropertyDeclarationDirective Resolve(DothtmlDirectiveNode directiveNode)
@@ -50,10 +52,10 @@ namespace DotVVM.Framework.Compilation.Directives
 
             var attributeSyntaxes = (declaration?.Attributes ?? new List<BindingParserNode>());
             var resolvedAttributes = ProcessPropertyDirectiveAttributeReference(directiveNode, attributeSyntaxes)
-                .Select(a => TreeBuilder.BuildPropertyDeclarationAttributeReference(directiveNode, a.name, a.type, a.initializer))
+                .Select(a => TreeBuilder.BuildPropertyDeclarationAttributeReference(directiveNode, a.name, a.type, a.initializer, imports))
                 .ToList();
 
-            return TreeBuilder.BuildPropertyDeclarationDirective(directiveNode, type, name, declaration?.Initializer, resolvedAttributes, valueSyntaxRoot);
+            return TreeBuilder.BuildPropertyDeclarationDirective(directiveNode, type, name, declaration?.Initializer, resolvedAttributes, valueSyntaxRoot, imports);
         }
 
         private List<(ActualTypeReferenceBindingParserNode type, IdentifierNameBindingParserNode name, LiteralExpressionBindingParserNode initializer)> ProcessPropertyDirectiveAttributeReference(DothtmlDirectiveNode directiveNode, List<BindingParserNode> attributeReferences)

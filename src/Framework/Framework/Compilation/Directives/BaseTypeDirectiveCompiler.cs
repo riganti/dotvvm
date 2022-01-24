@@ -11,23 +11,27 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Utils;
 using System.Linq;
 using DotVVM.Framework.Compilation.ViewCompiler;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
     public class BaseTypeDirectiveCompiler : DirectiveCompiler<IAbstractBaseTypeDirective, ITypeDescriptor>
     {
         private readonly string fileName;
+        private readonly ImmutableList<NamespaceImport> imports;
+
         public override string DirectiveName => ParserConstants.BaseTypeDirective;
 
         public BaseTypeDirectiveCompiler(
-            IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, string fileName)
+            IReadOnlyDictionary<string, IReadOnlyList<DothtmlDirectiveNode>> directiveNodesByName, IAbstractTreeBuilder treeBuilder, string fileName, ImmutableList<NamespaceImport> imports)
             : base(directiveNodesByName, treeBuilder)
         {
             this.fileName = fileName;
+            this.imports = imports;
         }
 
         protected override IAbstractBaseTypeDirective Resolve(DothtmlDirectiveNode directiveNode)
-            => TreeBuilder.BuildBaseTypeDirective(directiveNode, ParseDirective(directiveNode, p => p.ReadDirectiveTypeName()));
+            => TreeBuilder.BuildBaseTypeDirective(directiveNode, ParseDirective(directiveNode, p => p.ReadDirectiveTypeName()), imports);
 
         protected override ITypeDescriptor CreateArtefact(IReadOnlyList<IAbstractBaseTypeDirective> resolvedDirectives) {
             var wrapperType = GetDefaultWrapperType();

@@ -7,6 +7,7 @@ using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Utils;
 using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Compilation.ViewCompiler;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
@@ -67,9 +68,10 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public IAbstractServiceInjectDirective BuildServiceInjectDirective(
             DothtmlDirectiveNode node,
             SimpleNameBindingParserNode nameSyntax,
-            BindingParserNode typeSyntax)
+            BindingParserNode typeSyntax,
+            ImmutableList<NamespaceImport> imports)
         {
-            return new ResolvedServiceInjectDirective(directiveService, node, nameSyntax, typeSyntax);
+            return new ResolvedServiceInjectDirective(directiveService, node, nameSyntax, typeSyntax, imports);
         }
 
         //TODO: Copy errors from aliasSyntax and nameSyntax
@@ -82,15 +84,15 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         }
 
         //TODO: Copy errors from nameSyntax
-        public IAbstractViewModelDirective BuildViewModelDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
+        public IAbstractViewModelDirective BuildViewModelDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax, ImmutableList<NamespaceImport> imports)
         {
-            return new ResolvedViewModelDirective(directiveService, directive, nameSyntax);
+            return new ResolvedViewModelDirective(directiveService, directive, nameSyntax, imports);
         }
 
         //TODO: Copy errors from nameSyntax
-        public IAbstractBaseTypeDirective BuildBaseTypeDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
+        public IAbstractBaseTypeDirective BuildBaseTypeDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax, ImmutableList<NamespaceImport> imports)
         {
-            return new ResolvedBaseTypeDirective(directiveService, directive, nameSyntax);
+            return new ResolvedBaseTypeDirective(directiveService, directive, nameSyntax, imports);
         }
         public IAbstractViewModuleDirective BuildViewModuleDirective(DothtmlDirectiveNode directiveNode, string modulePath, string resourceName) =>
             new ResolvedViewModuleDirective(directiveNode, modulePath, resourceName);
@@ -101,19 +103,21 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             SimpleNameBindingParserNode nameSyntax,
             BindingParserNode? initializer,
             IList<IAbstractDirectiveAttributeReference> resolvedAttributes,
-            BindingParserNode valueSyntaxRoot)
+            BindingParserNode valueSyntaxRoot,
+            ImmutableList<NamespaceImport> imports)
         {
 
-            return new ResolvedPropertyDeclarationDirective(directiveService, directive, nameSyntax, typeSyntax, initializer, resolvedAttributes);
+            return new ResolvedPropertyDeclarationDirective(directiveService, directive, nameSyntax, typeSyntax, initializer, resolvedAttributes, imports);
         }
 
         public IAbstractDirectiveAttributeReference BuildPropertyDeclarationAttributeReference(
             DothtmlDirectiveNode directiveNode,
             IdentifierNameBindingParserNode propertyNameSyntax,
             ActualTypeReferenceBindingParserNode typeSyntax,
-            LiteralExpressionBindingParserNode initializer)
+            LiteralExpressionBindingParserNode initializer,
+            ImmutableList<NamespaceImport> imports)
         {
-            return new ResolvedPropertyDirectiveAttributeReference(directiveService, directiveNode, typeSyntax, propertyNameSyntax, initializer);
+            return new ResolvedPropertyDirectiveAttributeReference(directiveService, directiveNode, typeSyntax, propertyNameSyntax, initializer, imports);
         }
 
         public IAbstractDirective BuildDirective(DothtmlDirectiveNode node)

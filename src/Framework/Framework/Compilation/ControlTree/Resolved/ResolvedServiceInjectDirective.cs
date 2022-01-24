@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
@@ -17,12 +18,13 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             DirectiveCompilationService directiveService,
             DothtmlDirectiveNode node,
             SimpleNameBindingParserNode nameSyntax,
-            BindingParserNode typeSyntax)
+            BindingParserNode typeSyntax,
+            ImmutableList<NamespaceImport> imports)
             : base(node)
         {
             NameSyntax = nameSyntax;
             TypeSyntax = typeSyntax;
-            Type = directiveService.ResolveType(node, typeSyntax);
+            Type = directiveService.ResolveType(node, typeSyntax, imports);
 
         }
     }
