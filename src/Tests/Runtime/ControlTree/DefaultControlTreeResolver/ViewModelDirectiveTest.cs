@@ -48,8 +48,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         public void ResolvedTree_ViewModel_TypeFromImportedNamespace()
         {
             var root = ParseSource(@"
-@import System.Collections.Generic.List<System.Collections.Generic
-@viewModel Dictionary<System.String, System.Int32>>
+@import System.Collections.Generic
+@viewModel List<Dictionary<System.String, System.Int32>>
 ");
             Assert.IsFalse(root.Directives.Any(d => d.Value.Any(dd => dd.DothtmlNode.HasNodeErrors)));
             Assert.AreEqual(typeof(List<Dictionary<string, int>>), root.DataContextTypeStack.DataContextType);
@@ -59,11 +59,11 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         public void ResolvedTree_ViewModel_TypeFromImportedAliasedType()
         {
             var root = ParseSource(@"
-@import viewModelAlias = System.Collections.Generic.List<System.Collections.Generic.Dictionary<System.String, System.Int32>>
+@import viewModelAlias = DotVVM.Framework.Tests.Runtime.ControlTree.TestViewModel
 @viewModel viewModelAlias
 ");
             Assert.IsFalse(root.Directives.Any(d => d.Value.Any(dd => dd.DothtmlNode.HasNodeErrors)));
-            Assert.AreEqual(typeof(List<Dictionary<string, int>>), root.DataContextTypeStack.DataContextType);
+            Assert.AreEqual(typeof(TestViewModel), root.DataContextTypeStack.DataContextType);
         }
     }
 }

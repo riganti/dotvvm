@@ -102,5 +102,25 @@ namespace DotVVM.Framework.Compilation.Binding
            ImmutableArray.Create<Func<string, Expression?>>(
                type => CreateStatic(compiledAssemblyCache.FindType(type + (assemblyName != null ? $", {assemblyName}" : "")))
            ));
+
+        public TypeRegistry AddImportedTypes(CompiledAssemblyCache compiledAssemblyCache, ImmutableArray<NamespaceImport> importNamespaces)
+                => AddSymbols(importNamespaces.Select(ns => CreateTypeLoader(ns, compiledAssemblyCache)));
+
+        private static Func<string, Expression?> CreateTypeLoader(NamespaceImport import, CompiledAssemblyCache compiledAssemblyCache)
+        {
+            if (import.Alias is not null)
+                return t => {
+                    if (t.Length >= import.Alias.Length && t.StartsWith(import.Alias, StringComparison.Ordinal))
+                    {
+                        string name;
+                        if (t == import.Alias) name = import.Namespace;
+                        else if (t.Length > import.Alias.Length + 1 && t[import.Alias.Length] == '.') name = import.Namespace + "." + t.Substring(import.Alias.Length + 1);
+                        else return null;
+                        return TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(name));
+                    }
+                    else return null;
+                };
+            else return t => TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(import.Namespace + "." + t));
+        }
     }
 }

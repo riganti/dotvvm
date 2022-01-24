@@ -58,7 +58,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         {
             if (initializer == null) { return null; }
 
-            var registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache);
+            var registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache)
+                .AddImportedTypes(compiledAssemblyCache, imports.ToImmutableArray());
 
             var visitor = new ExpressionBuildingVisitor(registry, new MemberExpressionFactory(extensionMethodsCache, imports)) {
                 ResolveOnlyTypeName = false,
@@ -130,6 +131,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             {
                 registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache);
             }
+
+            registry = registry
+                .AddImportedTypes(compiledAssemblyCache, imports.ToImmutableArray());
 
             var visitor = new ExpressionBuildingVisitor(registry, new MemberExpressionFactory(extensionMethodsCache, imports)) {
                 ResolveOnlyTypeName = true,

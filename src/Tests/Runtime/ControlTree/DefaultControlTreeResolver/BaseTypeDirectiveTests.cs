@@ -85,25 +85,25 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
               root.Content[0].CastTo<ResolvedControl>()
                   .Content[controlIndex].CastTo<ResolvedControl>()
                   .Properties.First().Value.CastTo<ResolvedPropertyBinding>()
-                  .Binding;
+                  .Binding; 
+    }
 
-        public class TestControl : DotvvmMarkupControl
+    public class TestControl : DotvvmMarkupControl
+    {
+        public string MyProperty
         {
-            public string MyProperty
-            {
-                get { return (string)GetValue(MyPropertyProperty); }
-                set { SetValue(MyPropertyProperty, value); }
-            }
-            public static readonly DotvvmProperty MyPropertyProperty
-                = DotvvmProperty.Register<string, TestControl>(c => c.MyProperty, null);
-
-            public Command MyCommand
-            {
-                get { return (Command)GetValue(MyCommandProperty); }
-                set { SetValue(MyCommandProperty, value); }
-            }
-            public static readonly DotvvmProperty MyCommandProperty
-                = DotvvmProperty.Register<Command, TestControl>(c => c.MyCommand, null);
+            get { return (string)GetValue(MyPropertyProperty); }
+            set { SetValue(MyPropertyProperty, value); }
         }
+        public static readonly DotvvmProperty MyPropertyProperty
+            = DotvvmProperty.Register<string, TestControl>(c => c.MyProperty, null);
+
+        public Command MyCommand
+        {
+            get { return (Command)GetValue(MyCommandProperty); }
+            set { SetValue(MyCommandProperty, value); }
+        }
+        public static readonly DotvvmProperty MyCommandProperty
+            = DotvvmProperty.Register<Command, TestControl>(c => c.MyCommand, null);
     }
 }
