@@ -9,6 +9,8 @@ using DotVVM.Framework.Configuration;
 using FastExpressionCompiler;
 using static System.Linq.Expressions.Expression;
 using System.Collections.Immutable;
+using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -70,6 +72,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         private Expression CallConstructor(Expression services, Expression[] properties)
         {
+            Debug.Assert(properties.Select(p => p.Type).SequenceEqual(Properties.Select(p => p.Type)));
             if (constructorFactory != null)
                 return Convert(Invoke(Constant(constructorFactory), services), Type);
 
@@ -85,7 +88,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (Constructor is null)
                 throw new Exception($"Can not deserialize {Type.FullName}, no constructor or multiple constructors found. Use the [JsonConstructor] attribute to specify the constructor used for deserialization.");
 
-            var parameters = Constructor.GetParameters().Select(p => properties[Properties.FindIndex(pp => pp.ConstructorParameter == p)]).ToArray();
+            var parameters = Constructor.GetParameters().Select(p => {
+                var pIndex = Properties.FindIndex(pp => pp.ConstructorParameter == p);
+
+                if (pIndex < 0)
+                    return Call(typeof(ServiceProviderServiceExtensions), "GetRequiredService", new [] { p.ParameterType }, services);
+                    // throw new Exception($"Can not deserialize {Type.FullName}, constructor parameter {p.Name} is not mapped to any property.");
+                return properties[pIndex];
+            }).ToArray();
             return Constructor switch {
                 ConstructorInfo c =>
                     New(c, parameters),

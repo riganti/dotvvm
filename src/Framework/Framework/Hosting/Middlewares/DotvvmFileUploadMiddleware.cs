@@ -111,8 +111,8 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 }
                 else
                 {
-                    await outputRenderer.RenderPlainTextResponse(context, errorMessage);
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    await outputRenderer.RenderPlainTextResponse(context, errorMessage);
                 }
             }
             
