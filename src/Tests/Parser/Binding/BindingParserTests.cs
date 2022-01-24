@@ -185,7 +185,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.IsFalse(result.HasNodeErrors);
             Assert.AreEqual(1, result.Arguments.Count);
             Assert.AreEqual(typeof(BinaryOperatorBindingParserNode), result.Arguments[0].GetType());
-            Assert.AreEqual("x + y + z", result.Arguments[0].ToDisplayString());
+            Assert.AreEqual("\"x\" + \"y\" + \"z\"", result.Arguments[0].ToDisplayString());
         }
 
         [TestMethod]
