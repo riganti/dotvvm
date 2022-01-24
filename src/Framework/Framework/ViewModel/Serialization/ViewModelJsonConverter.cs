@@ -9,6 +9,7 @@ using DotVVM.Framework.Configuration;
 using System.Reflection;
 using DotVVM.Framework.Utils;
 using System.Security;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -68,6 +69,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
+            if (existingValue is {})
+            {
+                Debug.Assert(objectType.IsInstanceOfType(existingValue));
+
+                // the existingValue might be more specific type than objectType.
+                // this important for deserialization of IPagingOptions which are pre-populated with PagingOptions
+                // otherwise, we'd not be able to deserialize the interface, because it has no constructor
+
+                objectType = existingValue.GetType();
+            }
             // handle null keyword
             if (reader.TokenType == JsonToken.Null)
             {

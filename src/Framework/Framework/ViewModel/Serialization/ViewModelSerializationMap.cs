@@ -79,6 +79,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 return Default(Type);
             }
 
+            if (Constructor is null && (Type.IsInterface || Type.IsAbstract))
+                throw new Exception($"Can not deserialize {Type.FullName} because it's abstact. Please avoid using abstract types in view model. If you really mean it, you can add a static factory method and mark it with [JsonConstructor] attribute.");
+
             if (Constructor is null)
                 throw new Exception($"Can not deserialize {Type.FullName}, no constructor or multiple constructors found. Use the [JsonConstructor] attribute to specify the constructor used for deserialization.");
 
@@ -110,20 +113,23 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // we first read all values into local variables and only then we either call the constructor or set the properties on the object
             var propertyVars = Properties.Select(p => Variable(p.Type, "prop_" + p.Name)).ToArray();
 
+            var hasConstructorProperties = Properties.Any(p => p.ConstructorParameter is {});
+            var constructorCall = CallConstructor(servicesParameter, propertyVars);
+
             // curly brackets are used for variables and methods from the context of this factory method
             // value = ({Type})valueParam;
-            block.Add(Expression.Assign(value,
-                Type.IsValueType
-                    ? Condition(Equal(valueParam, Constant(null)),
-                        Default(Type),
-                        Expression.Convert(valueParam, Type)
-                    )
-                    : Expression.Convert(valueParam, Type)));
+            block.Add(Assign(value,
+                Condition(Equal(valueParam, Constant(null)),
+                    hasConstructorProperties
+                        ? Default(Type)
+                        : constructorCall,
+                    Convert(valueParam, Type)
+                )));
 
             // get existing values into the local variables
             block.Add(IfThen(
-                Expression.NotEqual(valueParam, Expression.Constant(null)),
-                Expression.Block(
+                Type.IsValueType ? Constant(true) : NotEqual(value, Constant(null)),
+                Block(
                     Properties
                         .Zip(propertyVars, (p, v) => p.PropertyInfo.GetMethod != null ? Expression.Assign(v, Expression.Property(value, p.PropertyInfo)) : null)
                         .Where(e => e != null)!
@@ -286,19 +292,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.AssertEnd), Type.EmptyTypes));
 
             // call the constructor
-            var hasConstructorProperties = Properties.Any(p => p.ConstructorParameter is {});
-
-            var constructorCall = CallConstructor(servicesParameter, propertyVars);
             if (hasConstructorProperties)
             {
                 block.Add(Assign(value, constructorCall));
-            }
-            else
-            {
-                block.Add(IfThen(
-                    Equal(valueParam, Constant(null)),
-                    Expression.Assign(value, constructorCall))
-                );
             }
 
             var setProperties = Expression.Block(
@@ -318,7 +314,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var ex = Expression.Lambda<ReaderDelegate>(
                 Expression.Block(typeof(object), new[] { value, currentProperty, readerTmp }.Concat(propertyVars), block).OptimizeConstants(),
                 reader, serializer, valueParam, encryptedValuesReader, servicesParameter);
-            return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
+            return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression | CompilerFlags.EnableDelegateDebugInfo);
             //return null;
         }
 

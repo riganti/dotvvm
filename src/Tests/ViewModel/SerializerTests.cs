@@ -12,6 +12,7 @@ using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Testing;
 using System.Text;
+using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Tests.ViewModel
 {
@@ -228,7 +229,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual(obj.P4.b.P1, obj2.P4.b.P1);
             Assert.AreEqual(obj.P4.b.P2, obj2.P4.b.P2);
             Assert.AreEqual("default", obj2.P4.b.ServerToClient);
-            Assert.AreEqual(null, obj2.P4.b.ClientToServer);
+            Assert.AreEqual("default", obj2.P4.b.ClientToServer);
         }
 
         [TestMethod]
@@ -297,6 +298,36 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual(obj.D.X, obj2.D.X);
             Assert.AreEqual(1, obj2.D.X);
         }
+
+        [TestMethod]
+        public void SupportRecordWithGridDataSet()
+        {
+            var obj = new TestViewModelWithRecords() {
+                E = new(new GridViewDataSet<string>() { Items = new List<string> { "a", "b", "c" } })
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual(0, (int)json["E"]["Dataset"]["PagingOptions"]["PageIndex"]);
+            CollectionAssert.AreEqual(obj.E.Dataset.Items.ToArray(), obj2.E.Dataset.Items.ToArray());
+            Assert.AreEqual(obj.E.Dataset.PagingOptions.PageIndex, obj2.E.Dataset.PagingOptions.PageIndex);
+        }
+
+        [TestMethod]
+        public void SupportViewModelWithGridDataSet()
+        {
+            var obj = new TestViewModelWithDataset() {
+                NoInit = new GridViewDataSet<string>() { Items = new List<string> { "a", "b", "c" } },
+                Preinitialized = { Items = new List<string> { "d", "e", "f" }, PagingOptions = { PageSize = 1 } }
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual(1, (int)json["Preinitialized"]["PagingOptions"]["PageSize"]);
+            CollectionAssert.AreEqual(obj.NoInit.Items.ToArray(), obj2.NoInit.Items.ToArray());
+            CollectionAssert.AreEqual(obj.Preinitialized.Items.ToArray(), obj2.Preinitialized.Items.ToArray());
+            Assert.AreEqual(obj.Preinitialized.PagingOptions.PageSize, obj2.Preinitialized.PagingOptions.PageSize);
+            Assert.AreEqual("AAA", obj.Preinitialized.SortingOptions.SortExpression);
+            Assert.AreEqual("AAA", obj2.Preinitialized.SortingOptions.SortExpression);
+        }
     }
 
     public class DataNode
@@ -330,6 +361,12 @@ namespace DotVVM.Framework.Tests.ViewModel
         public List<List<DataNode>> Matrix { get; set; }
     }
 
+    public class TestViewModelWithDataset
+    {
+        public GridViewDataSet<string> Preinitialized { get; set; } = new GridViewDataSet<string> { SortingOptions = { SortExpression = "AAA" } };
+        public GridViewDataSet<string> NoInit { get; set; }
+    }
+
     public class TestViewModelWithTuples
     {
         public Tuple<int, int, int, int> P1 { get; set; }
@@ -356,6 +393,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         public RecordWithAdditionalField B { get; set; }
         public StructRecord C { get; set; }
         public MutableStruct D { get; set; }
+        public WithDataset E { get; set; }
 
         public int Primitive { get; set; }
 
@@ -374,5 +412,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             public int X { get; set; }
             public string Y { get; set; }
         }
+
+        public record WithDataset(GridViewDataSet<string> Dataset);
     }
 }
