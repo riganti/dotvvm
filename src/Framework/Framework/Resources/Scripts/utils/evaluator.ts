@@ -1,5 +1,6 @@
 import { isObservableArray } from "./knockout";
 import { logError } from "./logging";
+import { keys } from "./objects";
 
 /**
  * Traverses provided context according to given path.
@@ -31,6 +32,43 @@ export function traverseContext(context: any, path: string): any {
     }
 
     return currentLevel
+}
+
+export function findPathToChildObject(vm: any, child: any, path: string): string | null {
+    if (vm == child) {
+        // We found the child
+        return path;
+    }
+
+    if (typeof vm !== "object" || vm == null) {
+        return null;
+    }
+
+    if (Array.isArray(vm)) {
+        // Iterate over its elements
+        let index = 0;
+        for (const value of vm) {
+            let result = findPathToChildObject(value, child, path + `/[${index}]`)
+            if (result != null)
+                return result;
+            index++;
+        }
+    }
+    else {
+        // Iterate over its properties
+        for (const propertyName of keys(vm)) {
+            if (propertyName.startsWith('$')) {
+                continue;
+            }
+
+            var propertyValue = vm[propertyName];
+            let result = findPathToChildObject(propertyValue, child, path + "/" + propertyName);
+            if (result != null)
+                return result;
+        }
+    }
+
+    return null;
 }
 
 export function evaluateOnViewModel(context: any, expression: string): any {

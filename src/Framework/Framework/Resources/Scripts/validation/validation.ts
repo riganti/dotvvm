@@ -11,7 +11,7 @@ import { DotvvmPostbackError } from "../shared-classes"
 import { getObjectTypeInfo } from "../metadata/typeMap"
 import { tryCoerce } from "../metadata/coercer"
 import { primitiveTypes } from "../metadata/primitiveTypes"
-import { lastSetErrorSymbol } from "../state-manager"
+import { currentStateSymbol, lastSetErrorSymbol } from "../state-manager"
 import { logError } from "../utils/logging"
 
 type ValidationSummaryBinding = {
@@ -57,12 +57,15 @@ const createValidationHandler = (path: string) => ({
     }
 })
 
-const runClientSideValidation = (validationTarget:any,options:PostbackOptions) => {
+const runClientSideValidation = (validationTarget: any, options: PostbackOptions) => {
 
     watchAndTriggerValidationErrorChanged(options,
         () => {
             detachAllErrors();
-            validateViewModel(validationTarget);
+            const root = dotvvm.state;
+            const target = ko.unwrap(validationTarget)[currentStateSymbol];
+            const path = evaluator.findPathToChildObject(root, target, "")!;
+            validateViewModel(validationTarget, path);
         });
 }
 
@@ -117,7 +120,7 @@ export function init() {
     }
 }
 
-function validateViewModel(viewModel: any): void {
+function validateViewModel(viewModel: any, path: string): void {
     if (ko.isObservable(viewModel)) {
         viewModel = ko.unwrap(viewModel);
     }
@@ -146,33 +149,34 @@ function validateViewModel(viewModel: any): void {
         const propertyValue = observable();
 
         // run validators
+        const propertyPath = path + "/" + propertyName;
         const propInfo = typeInfo?.properties[propertyName];
     
         if (propInfo?.validationRules) {
-            validateProperty(viewModel, observable, propertyValue, propInfo.validationRules);
+            validateProperty(viewModel, observable, propertyValue, propertyPath, propInfo.validationRules);
         }
-        
-        validateRecursive(propertyName, observable, propertyValue, propInfo?.type || { type: "dynamic" });
+
+        validateRecursive(observable, propertyValue, propInfo?.type || { type: "dynamic" }, propertyPath);
     }
 }
 
-function validateRecursive(propertyName: string, observable: KnockoutObservable<any>, propertyValue: any, type: TypeDefinition) {
+function validateRecursive(observable: KnockoutObservable<any>, propertyValue: any, type: TypeDefinition, propertyPath: string) {
     const lastSetError: CoerceResult = (observable as any)[lastSetErrorSymbol];
     if (lastSetError && lastSetError.isError) {
-        ValidationError.attach(lastSetError.message, observable);
+        ValidationError.attach(lastSetError.message, propertyPath, observable);
     }
     
     if (Array.isArray(type)) {
         if (!propertyValue) return;
         let i = 0;
         for (const item of propertyValue) {
-            validateRecursive("[" + i + "]", item, ko.unwrap(item), type[0]);
+            validateRecursive(item, ko.unwrap(item), type[0], `${propertyPath}/[${i}]`);
             i++;
         }
         
     } else if (typeof type === "string") {
         if (!(type in primitiveTypes)) {
-            validateViewModel(propertyValue);
+            validateViewModel(propertyValue, propertyPath);
         }
 
     } else if (typeof type === "object") {
@@ -181,15 +185,15 @@ function validateRecursive(propertyName: string, observable: KnockoutObservable<
             if (Array.isArray(propertyValue)) {
                 let i = 0;
                 for (const item of propertyValue) {
-                    validateRecursive("[" + i + "]", item, ko.unwrap(item), { type: "dynamic" });
+                    validateRecursive(item, ko.unwrap(item), { type: "dynamic" }, `${propertyPath}/[${i}]`);
                     i++;
                 }
             } else if (propertyValue && typeof propertyValue === "object") {
                 if (propertyValue["$type"]) {
-                    validateViewModel(propertyValue);
+                    validateViewModel(propertyValue, propertyPath);
                 } else {
                     for (const k of keys(propertyValue)) {
-                        validateRecursive(k, ko.unwrap(propertyValue[k]), propertyValue[k], { type: "dynamic" });
+                        validateRecursive(ko.unwrap(propertyValue[k]), propertyValue[k], { type: "dynamic" }, propertyPath + "/" + k);
                     }
                 }
             }
@@ -198,15 +202,8 @@ function validateRecursive(propertyName: string, observable: KnockoutObservable<
     }
 }
 
-function validateArray(propertyValue: any[], type: TypeDefinition) {
-    // handle collections
-    for (const item of propertyValue) {
-        validateViewModel(item);
-    }
-}
-
 /** validates the specified property in the viewModel */
-function validateProperty(viewModel: any, property: KnockoutObservable<any>, value: any, propertyRules: PropertyValidationRuleInfo[]) {
+function validateProperty(viewModel: any, property: KnockoutObservable<any>, value: any, propertyPath: string, propertyRules: PropertyValidationRuleInfo[]) {
     for (const rule of propertyRules) {
         // validate the rules
         const validator = validators[rule.ruleName];
@@ -217,7 +214,7 @@ function validateProperty(viewModel: any, property: KnockoutObservable<any>, val
         };
 
         if (!validator.isValid(value, context, property)) {
-            ValidationError.attach(rule.errorMessage, property);
+            ValidationError.attach(rule.errorMessage, propertyPath, property);
         }
     }
 }
@@ -299,7 +296,7 @@ export function showValidationErrorsFromServer(serverResponseObject: any, option
             const propertyPath = prop.propertyPath;
             const property = evaluator.traverseContext(observableRootVM, propertyPath);
 
-            ValidationError.attach(prop.errorMessage, property);
+            ValidationError.attach(prop.errorMessage, propertyPath, property);
         }
     });
 }
