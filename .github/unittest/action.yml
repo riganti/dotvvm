@@ -14,7 +14,7 @@ inputs:
 runs:
   using: composite
   steps:
-  - run: dotnet msbuild "${{ inputs.project }}"
+  - run: dotnet build "${{ inputs.project }}"
       -t:Rebuild
       -p:WarningLevel=0
       -p:Configuration=${{ inputs.configuration }}

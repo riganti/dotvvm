@@ -51,16 +51,3 @@ runs:
   - if: ${{ runner.os != 'Windows' }}
     run: dotnet restore ${{ inputs.sln }}
     shell: bash
-
-  # add the build-dotvvm function
-  - if: ${{ runner.os == 'Windows' }}
-    run: |
-      function build-dotvvm {
-      param (
-          [string][parameter(Position = 0)]$configuration,
-          [string][parameter(Position = 0)]$targetFramework,
-          [string][parameter(Position = 0)]$project)
-          & "msbuild.exe" -t:Clean,Build -v:m -warnAsError `
-              -p:Configuration=$configuration -p:TargetFramework=$targetFramework "$project"
-      }
-    shell: pwsh

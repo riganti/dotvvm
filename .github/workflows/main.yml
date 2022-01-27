@@ -15,12 +15,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        configuration: [ "Release", "Debug" ]
+        configuration: [Release, Debug]
     timeout-minutes: 20
     steps:
     - uses: actions/checkout@v2
     - name: Set up
       uses: ./.github/setup
+
+    - run: |
+        function build-dotvvm {
+        param (
+            [string][parameter(Position = 0)]$configuration,
+            [string][parameter(Position = 0)]$targetFramework,
+            [string][parameter(Position = 0)]$project)
+            & "msbuild.exe" -t:Clean,Build -v:m -warnAsError `
+                -p:Configuration=$configuration -p:TargetFramework=$targetFramework "$project"
+        }
+
     # framework
     - name: Core
       run: build-dotvvm ${{ matrix.configuration }} net6.0 src/Framework/Core
@@ -80,7 +91,7 @@ jobs:
     - name: Set up
       uses: ./.github/setup
     - name: MSBuild build
-      run: msbuild src/DotVVM.sln -v:m -t:Clean,Build -p:Configuration=Release -warnAsError -p:WarningLevel=0
+      run: msbuild src/DotVVM.sln -v:m -t:Clean,Build -p:Configuration=Release -p:WarningLevel=0
 
 
   dotnet-unit-tests:
@@ -91,32 +102,23 @@ jobs:
       fail-fast: false # don't kill tests when one environment fails
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
+        configuration: [Debug, Release]
     steps:
     - uses: actions/checkout@v2
     - name: Set up
       uses: ./.github/setup
       with:
         sln: .github/DotVVM.Crossplatform.sln
-    - name: Tests (Debug)
+    - name: Tests
       uses: ./.github/unittest
       with:
         project: src/Tests
-        configuration: Debug
-    - name: Tests (Release)
-      uses: ./.github/unittest
-      with:
-        project: src/Tests
-        configuration: Release
-    - name: Analyzers.Tests (Debug)
+        configuration: ${{ matrix.configuration }}
+    - name: Analyzers.Tests
       uses: ./.github/unittest
       with:
         project: src/Analyzers/Analyzers.Tests
-        configuration: Debug
-    - name: Analyzers.Tests (Debug)
-      uses: ./.github/unittest
-      with:
-        project: src/Analyzers/Analyzers.Tests
-        configuration: Release
+        configuration: ${{ matrix.configuration }}
 
   js-tests:
     runs-on: ubuntu-latest
