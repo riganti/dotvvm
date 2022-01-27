@@ -28,7 +28,7 @@ jobs:
             [string][parameter(Position = 0)]$project)
             & "msbuild.exe" -t:Clean,Build -v:m -warnAsError `
                 -p:Configuration=$configuration -p:TargetFramework=$targetFramework "$project"
-        }' | Out-File "${{ github.workspace }}/build-dotvvm.ps1"
+        ' | Out-File "${{ github.workspace }}/build-dotvvm.ps1"
 
     # framework
     - name: Core
