@@ -24,8 +24,8 @@ jobs:
     - run: |
         'param (
             [string][parameter(Position = 0)]$configuration,
-            [string][parameter(Position = 0)]$targetFramework,
-            [string][parameter(Position = 0)]$project)
+            [string][parameter(Position = 1)]$targetFramework,
+            [string][parameter(Position = 2)]$project)
             & "msbuild.exe" -t:Clean,Build -v:m -warnAsError `
                 -p:Configuration=$configuration -p:TargetFramework=$targetFramework "$project"
         ' | Out-File "${{ github.workspace }}/build-dotvvm.ps1"
@@ -107,15 +107,11 @@ jobs:
       with:
         sln: src/DotVVM.Crossplatform.slnf
     - name: Tests
-      uses: ./.github/unittest
-      with:
-        project: src/Tests
-        configuration: ${{ matrix.configuration }}
+      run: dotnet test --no-restore -p:WarningLevel=0 --configuration ${{ matrix.configuration }}
+        --logger "GitHubActions;report-warnings=true" src/Tests
     - name: Analyzers.Tests
-      uses: ./.github/unittest
-      with:
-        project: src/Analyzers/Analyzers.Tests
-        configuration: ${{ matrix.configuration }}
+      run: dotnet test --no-restore -p:WarningLevel=0 --configuration ${{ matrix.configuration }}
+        --logger "GitHubActions;report-warnings=true" src/Analyzers/Analyzers.Tests
 
   js-tests:
     runs-on: ubuntu-latest
