@@ -23,13 +23,13 @@
 	<body>
 		<div data-bind="dotvvm-with-view-modules: { modules: [&quot;controlModule&quot;] }">
 			<input onclick="dotvvm.applyPostbackHandlers((options) => {
-	dotvvm.viewModules.call(this, &quot;name&quot;, [1]);
+	dotvvm.viewModules.call(this, &quot;name&quot;, [1], false);
 },this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
 		</div>
 		<div data-bind="foreach: { data: Collection }">
 			<div data-bind="dotvvm-with-view-modules: { modules: [&quot;controlModule&quot;] }">
 				<input onclick="dotvvm.applyPostbackHandlers((options) => {
-	dotvvm.viewModules.call(this, &quot;name&quot;, [1]);
+	dotvvm.viewModules.call(this, &quot;name&quot;, [1], false);
 },this).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button" value="">
 			</div>
 			This control should not have any module, it's just a text
