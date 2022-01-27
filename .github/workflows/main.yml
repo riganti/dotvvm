@@ -32,7 +32,7 @@ jobs:
 
     # framework
     - name: Core
-      run: msbuild ${{ matrix.configuration }} net6.0 src/Framework/Core
+      run: build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Core
     - name: Framework
       run: build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Framework
     - name: Testing
