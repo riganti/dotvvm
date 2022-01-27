@@ -105,7 +105,7 @@ jobs:
     - name: Set up
       uses: ./.github/setup
       with:
-        sln: .github/DotVVM.Crossplatform.sln
+        sln: src/DotVVM.Crossplatform.slnf
     - name: Tests
       uses: ./.github/unittest
       with:
@@ -126,7 +126,7 @@ jobs:
     - name: Set up
       uses: ./.github/setup
       with:
-        sln: .github/DotVVM.Crossplatform.sln
+        sln: src/DotVVM.Crossplatform.slnf
     - name: yarn install
       run: yarn install --immutable
       working-directory: src/Framework/Framework/
