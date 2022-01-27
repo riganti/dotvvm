@@ -43,3 +43,14 @@ runs:
   - if: ${{ runner.os != 'Windows' }}
     run: dotnet restore ${{ inputs.sln }}
     shell: bash
+
+  # add powershell build helper
+  - run: |
+      'param (
+          [string][parameter(Position = 0)]$configuration,
+          [string][parameter(Position = 1)]$targetFramework,
+          [string][parameter(Position = 2)]$project)
+          & "msbuild.exe" -t:Clean,Build -v:m -warnAsError `
+              -p:Configuration=$configuration -p:TargetFramework=$targetFramework "$project"
+      ' | Out-File "${{ github.workspace }}/build-dotvvm.ps1"
+    shell: pwsh

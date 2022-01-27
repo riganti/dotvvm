@@ -21,14 +21,6 @@ jobs:
     - uses: actions/checkout@v2
     - name: Set up
       uses: ./.github/setup
-    - run: |
-        'param (
-            [string][parameter(Position = 0)]$configuration,
-            [string][parameter(Position = 1)]$targetFramework,
-            [string][parameter(Position = 2)]$project)
-            & "msbuild.exe" -t:Clean,Build -v:m -warnAsError `
-                -p:Configuration=$configuration -p:TargetFramework=$targetFramework "$project"
-        ' | Out-File "${{ github.workspace }}/build-dotvvm.ps1"
 
     # framework
     - name: Core
@@ -149,10 +141,6 @@ jobs:
     env:
       SLN: "${{ matrix.os == 'windows-2022' && 'src/DotVVM.sln' || 'src/DotVVM.Crossplatform.slnf' }}"
     steps:
-    - name: Test chrome
-      run: start chrome --enable-logging --headless --disable-gpu --log-level=10 --dump-dom 'https://www.google.com/'
-      shell: cmd
-      if: ${{ matrix.os == 'windows-2022' && matrix.browser == 'chrome' }}
     - uses: actions/checkout@v2
     - name: Set up
       uses: ./.github/setup

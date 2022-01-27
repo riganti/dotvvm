@@ -35,6 +35,9 @@ runs:
     shell: pwsh
 
   # publish the result to github
+  - name: Make the _TMP dir
+    run: mkdir ${{ github.workspace }}/_TMP
+    shell: bash
   - name: Parse test results
     uses: zyborg/dotnet-tests-report@v1
     with:
