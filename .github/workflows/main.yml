@@ -11,7 +11,7 @@ env:
 jobs:
   build-published:
     name: Build published projects without warnings
-    runs-on: windows-latest
+    runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:
@@ -84,7 +84,7 @@ jobs:
 
   build-all:
     name: Build all projects without errors
-    runs-on: windows-latest
+    runs-on: windows-2022
     timeout-minutes: 20
     steps:
     - uses: actions/checkout@v2
@@ -101,7 +101,7 @@ jobs:
     strategy:
       fail-fast: false # don't kill tests when one environment fails
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, windows-2022, macOS-latest]
         configuration: [Debug, Release]
     steps:
     - uses: actions/checkout@v2
@@ -148,18 +148,18 @@ jobs:
       fail-fast: false # don't kill tests when one environment fails
       matrix:
         browser: [firefox, chrome]
-        os: [windows-latest, ubuntu-latest]
+        os: [windows-2022, ubuntu-latest]
         exclude:
           - browser: firefox
-            os: windows-latest
+            os: windows-2022
 
     env:
-      SLN: "${{ matrix.os == 'windows-latest' && '.github/DotVVM.Windows.sln' || '.github/DotVVM.Crossplatform.sln' }}"
+      SLN: "${{ matrix.os == 'windows-2022' && '.github/DotVVM.Windows.sln' || '.github/DotVVM.Crossplatform.sln' }}"
     steps:
     - name: Test chrome
       run: start chrome --enable-logging --headless --disable-gpu --log-level=10 --dump-dom 'https://www.google.com/'
       shell: cmd
-      if: ${{ matrix.os == 'windows-latest' && matrix.browser == 'chrome' }}
+      if: ${{ matrix.os == 'windows-2022' && matrix.browser == 'chrome' }}
     - uses: actions/checkout@v2
     - name: Set up
       uses: ./.github/setup
