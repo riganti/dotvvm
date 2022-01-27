@@ -28,57 +28,57 @@ jobs:
             [string][parameter(Position = 0)]$project)
             & "msbuild.exe" -t:Clean,Build -v:m -warnAsError `
                 -p:Configuration=$configuration -p:TargetFramework=$targetFramework "$project"
-        }' | Out-File "build-dotvvm.ps1"
+        }' | Out-File "${{ github.workspace }}/build-dotvvm.ps1"
 
     # framework
     - name: Core
-      run: build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Core
+      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Core
     - name: Framework
-      run: build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Framework
+      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Framework
     - name: Testing
-      run: build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Testing
+      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Testing
 
     # hosting
     - name: Hosting.AspNetCore
-      run: build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Hosting.AspNetCore
+      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Hosting.AspNetCore
     - name: Hosting.Owin
-      run: build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Framework/Hosting.Owin
+      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Framework/Hosting.Owin
 
     # command-line
     - name: CommandLine
-      run: build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tools/CommandLine
+      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tools/CommandLine
 
     # swashbuckle
     - name: Api.Swashbuckle.AspNetCore
-      run: build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Api/Swashbuckle.AspNetCore
+      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Api/Swashbuckle.AspNetCore
     - name: Api.Swashbuckle.Owin
-      run: build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Api/Swashbuckle.Owin
+      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Api/Swashbuckle.Owin
 
     # hot reload
     - name: HotReload.Common
-      run: build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tools/HotReload/Common
+      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tools/HotReload/Common
     - name: HotReload.AspNetCore
-      run: build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tools/HotReload/AspNetCore
+      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tools/HotReload/AspNetCore
     - name: HotReload.Owin
-      run: build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Tools/HotReload/Owin
+      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Tools/HotReload/Owin
 
     # application insights
     - name: Tracing.ApplicationInsights
-      run: build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tracing/ApplicationInsights
+      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tracing/ApplicationInsights
     - name: Tracing.ApplicationInsights.AspNetCore
-      run: build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tracing/ApplicationInsights.AspNetCore
+      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tracing/ApplicationInsights.AspNetCore
     - name: Tracing.ApplicationInsights.Owin
-      run: build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Tracing/ApplicationInsights.Owin
+      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Tracing/ApplicationInsights.Owin
 
     # miniprofiler
     - name: Tracing.MiniProfiler.AspNetCore
-      run: build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tracing/MiniProfiler.AspNetCore
+      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tracing/MiniProfiler.AspNetCore
     - name: Tracing.MiniProfiler.Owin
-      run: build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Tracing/MiniProfiler.Owin
+      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Tracing/MiniProfiler.Owin
 
     # dynamic data
     - name: DynamicData
-      run: build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/DynamicData/DynamicData
+      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/DynamicData/DynamicData
 
   build-all:
     name: Build all projects without errors
