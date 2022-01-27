@@ -76,13 +76,13 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         private object? CreatePropertyInitializerValue(DothtmlDirectiveNode directive, Type? propertyType, LiteralExpressionBindingParserNode? initializer)
         {
-            if (initializer?.Value == null || propertyType == null) { return null; }
+            if (initializer?.Value is null || propertyType is null) { return null; }
 
             var originalLiteralType = initializer.Value.GetType();
 
             if (originalLiteralType != typeof(string)) { return initializer.Value; }
 
-            var initializerValueString = initializer.Value.ToString();
+            var initializerValueString = initializer.Value.ToString() ?? "";
 
             if (propertyType == typeof(char))
             {

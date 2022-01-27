@@ -58,18 +58,19 @@ namespace DotVVM.Framework.Compilation.Directives
 
             if (DirectiveNodesByName.TryGetValue(ParserConstants.PropertyDeclarationDirective, out var abstractDirectives) && abstractDirectives.Any())
             {
-                wrapperType = CreateDymanicDeclaringType(wrapperType);
+                wrapperType = CreateDymanicDeclaringType(wrapperType) ?? wrapperType;
             }
 
             return wrapperType;
         }
 
-        protected virtual ITypeDescriptor CreateDymanicDeclaringType(ITypeDescriptor? originalWrapperType)
+        protected virtual ITypeDescriptor? CreateDymanicDeclaringType(ITypeDescriptor? originalWrapperType)
         {
             var baseType = originalWrapperType?.CastTo<ResolvedTypeDescriptor>().Type ?? typeof(DotvvmMarkupControl);
             AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Guid.NewGuid().ToString()), AssemblyBuilderAccess.Run);
 
-            var assemblyName = new AssemblyName($"DotvvmMarkupControlDynamicAssembly-{Guid.NewGuid()}");
+            var newDynamicAssemblyName = $"DotvvmMarkupControlDynamicAssembly-{Guid.NewGuid()}";
+            var assemblyName = new AssemblyName(newDynamicAssemblyName);
             var assemblyBuilder =
                 AssemblyBuilder.DefineDynamicAssembly(
                     assemblyName,
@@ -78,13 +79,17 @@ namespace DotVVM.Framework.Compilation.Directives
             // For a single-module assembly, the module name is usually
             // the assembly name plus an extension.
             var mb =
-                assemblyBuilder.DefineDynamicModule(assemblyName.Name);
+                assemblyBuilder.DefineDynamicModule(newDynamicAssemblyName);
 
             var declaringTypeBuilder = mb.DefineType(
                 $"DotvvmMarkupControl-{Guid.NewGuid()}",
                  TypeAttributes.Public, baseType);
-            var declaringTypeDecriptor = new ResolvedTypeDescriptor(declaringTypeBuilder.CreateTypeInfo().AsType());
-            return declaringTypeDecriptor;
+
+            var createdTypeInfo = declaringTypeBuilder.CreateTypeInfo()?.AsType(); 
+
+            return createdTypeInfo is not null
+                ? new ResolvedTypeDescriptor(createdTypeInfo)
+                : null;
         }
 
         /// <summary>

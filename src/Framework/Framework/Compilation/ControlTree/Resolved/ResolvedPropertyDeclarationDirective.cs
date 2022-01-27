@@ -52,32 +52,46 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             //Chack that I am not asigning incompatible types 
             InitialValue = service.ResolvePropertyInitializer(dothtmlDirective, propertyTypeDescriptor?.Type, initializerSyntax, imports);
 
-            AttributeInstances = InstantiateAttributes(attributes).ToList();
+            AttributeInstances = InstantiateAttributes( dothtmlDirective, attributes).ToList();
         }
 
-        private IEnumerable<object> InstantiateAttributes(IList<IAbstractDirectiveAttributeReference> resolvedAttributes)
+        private IEnumerable<object> InstantiateAttributes(DothtmlDirectiveNode dothtmlDirective, IList<IAbstractDirectiveAttributeReference> resolvedAttributes)
         {
-            var attributePropertyGrouping = resolvedAttributes
-                .Where(a=> a.Type != null)
+            var attributePropertiesByType = resolvedAttributes
                 .GroupBy(
                 a => a.Type?.FullName,
                 a => a,
                 (name, attributes) => {
 
-                    var attributeType = attributes.First().Type.CastTo<ResolvedTypeDescriptor>()?.Type;
+                    var attributeType = (attributes.First().Type as ResolvedTypeDescriptor)?.Type;
                     var properties = attributes.Select(a => (name: a.NameSyntax.Name, value: a.Initializer.Value));
-
 
                     return (attributeType, properties);
                 }).ToList();
 
-            foreach (var grouping in attributePropertyGrouping)
+            foreach (var attribute in attributePropertiesByType)
             {
-                var attributeInstance = Activator.CreateInstance(grouping.attributeType);
+                if (attribute.attributeType is null) { continue; }
 
-                foreach (var property in grouping.properties)
+                var attributeInstance = Activator.CreateInstance(attribute.attributeType);
+
+                if (attributeInstance is null)
                 {
-                    grouping.attributeType?.GetProperty(property.name).SetValue(attributeInstance, property.value);
+                    dothtmlDirective.AddError($"Could not create insstance of the attribute {attribute.attributeType}.");
+                    continue;
+                }
+
+                foreach (var property in attribute.properties)
+                {
+                    var reflectedProperty = attribute.attributeType.GetProperty(property.name);
+
+                    if (reflectedProperty is null)
+                    {
+                        dothtmlDirective.AddError($"Could not find property {property.name} insstance of the attribute {attribute.attributeType}.");
+                        continue;
+                    }
+
+                    reflectedProperty.SetValue(attributeInstance, property.value);
                 }
                 yield return attributeInstance;
             }
