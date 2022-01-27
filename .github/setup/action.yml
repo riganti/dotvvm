@@ -10,16 +10,11 @@ inputs:
 runs:
   using: composite
   steps:
-  # nuget-related
+  # nuget
   - uses: actions/cache@v2
     with:
       path: ~/.nuget/packages
       key: ${{ runner.os }}-nuget
-  - if: ${{ runner.os == 'Windows' }}
-    uses: actions/cache@v2
-    with:
-      path: src/packages
-      key: nuget-old-style-packages
 
   # Node.js
   - uses: actions/setup-node@v2
@@ -30,7 +25,7 @@ runs:
       yarn set version stable
     shell: bash
 
-  # .NET-related
+  # .NET
   - uses: actions/setup-dotnet@v1
     with:
       dotnet-version: 6.0.100
@@ -40,9 +35,6 @@ runs:
   # restore packages
   - if: ${{ runner.os == 'Windows' }}
     uses: nuget/setup-nuget@v1
-  - if: ${{ runner.os == 'Windows' }}
-    run: nuget restore ${{ inputs.sln }}
-    shell: pwsh
   - if: ${{ runner.os == 'Windows' }}
     run: msbuild ${{ inputs.sln }} -t:Restore
     shell: pwsh
