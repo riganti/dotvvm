@@ -36,8 +36,9 @@ runs:
 
   # publish the result to github
   - name: Parse test results
-    uses: NasAmin/trx-parser@v0.2.0
-    id: trx-parser
+    uses: zyborg/dotnet-tests-report@v1
     with:
-      TRX_PATH: ${{ github.workspace }}/artifacts/test
-      REPO_TOKEN: ${{ inputs.token }}
+      test_results_path: artifacts/test/ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx
+      report_name: ui-test-results-${{ inputs.browser }}-${{ runner.os }}
+      report_title: UI Test Results from ${{ inputs.browser }} on ${{ runner.os }}
+      github_token: ${{ inputs.token }}
