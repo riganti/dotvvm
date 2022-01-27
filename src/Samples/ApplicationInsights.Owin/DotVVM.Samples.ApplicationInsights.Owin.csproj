@@ -3,6 +3,7 @@
     <TargetFramework>net472</TargetFramework>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <OverwriteAppConfigWithBindingRedirects>true</OverwriteAppConfigWithBindingRedirects>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup>
