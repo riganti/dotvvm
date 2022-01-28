@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Security
         {
             var user = context.HttpContext.User;
             
-            if (user is { Identity.IsAuthenticated: true })
+            if (user is { Identity: { IsAuthenticated: true } })
             {
                 return "user" + user.Identity.Name ?? "";
             }
