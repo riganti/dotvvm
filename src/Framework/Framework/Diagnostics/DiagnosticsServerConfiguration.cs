@@ -36,6 +36,8 @@ namespace DotVVM.Framework.Diagnostics
             try
             {
                 var path = DiagnosticsFilePath;
+                if (path is null)
+                    return;
                 var info = new FileInfo(path);
                 if (info.Exists && configurationLastWriteTimeUtc != info.LastWriteTimeUtc)
                 {

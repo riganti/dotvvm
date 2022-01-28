@@ -822,7 +822,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             var baseControlDirective = !directives.ContainsKey(ParserConstants.BaseTypeDirective)
                 ? null
-                : (IAbstractBaseTypeDirective)directives[ParserConstants.BaseTypeDirective].SingleOrDefault();
+                : (IAbstractBaseTypeDirective?)directives[ParserConstants.BaseTypeDirective].SingleOrDefault();
 
             if (baseControlDirective != null)
             {

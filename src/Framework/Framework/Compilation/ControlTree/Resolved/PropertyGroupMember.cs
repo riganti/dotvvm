@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 			this.Name = name;
 		}
 
-		public override bool Equals(object obj) => obj is PropertyGroupMember && Equals((PropertyGroupMember)obj);
+		public override bool Equals(object? obj) => obj is PropertyGroupMember && Equals((PropertyGroupMember)obj);
 		public bool Equals(PropertyGroupMember other) => other.Group == Group && Name == other.Name;
 
 		public override int GetHashCode() =>

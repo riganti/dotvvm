@@ -266,7 +266,7 @@ namespace DotVVM.Framework.Compilation.Binding
             inferer.EndFunctionCall();
             ThrowOnErrors();
 
-            return memberExpressionFactory.Call(target, args);
+            return memberExpressionFactory.Call(target!, args);
         }
 
         protected override Expression VisitSimpleName(SimpleNameBindingParserNode node)
@@ -299,7 +299,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 falseExpr = TypeConversion.ImplicitConversion(falseExpr, trueExpr.Type, allowToString: true) ?? falseExpr;
             }
 
-            return Expression.Condition(condition, trueExpr, falseExpr);
+            return Expression.Condition(condition!, trueExpr, falseExpr);
         }
 
         protected override Expression VisitMemberAccess(MemberAccessBindingParserNode node)
@@ -308,8 +308,8 @@ namespace DotVVM.Framework.Compilation.Binding
             var typeParameters = nameNode is GenericNameBindingParserNode
                 ? ResolveGenericArguments(nameNode.CastTo<GenericNameBindingParserNode>().TypeArguments)
                 : null;
-            var identifierName = (typeParameters?.Count() ?? 0) > 0
-                ? $"{nameNode.Name}`{typeParameters.Count()}"
+            var identifierName = (typeParameters?.Length ?? 0) > 0
+                ? $"{nameNode.Name}`{typeParameters!.Length}"
                 : nameNode.Name;
 
             var target = Visit(node.TargetExpression);
@@ -420,7 +420,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 throw new BindingCompilationException("Parameter identifiers must be unique.", node);
 
             // Make sure that parameter identifiers do not collide with existing symbols within registry
-            var collision = lambdaParameters.FirstOrDefault(param => Registry.Resolve(param.Name, false) != null);
+            var collision = lambdaParameters.FirstOrDefault(param => Registry.Resolve(param.Name!, false) != null);
             if (collision != null)
             {
                 throw new BindingCompilationException($"Identifier \"{collision.Name}\" is already in use. Choose a different " +
@@ -505,7 +505,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 return ExpressionHelper.RewriteTaskSequence(left, right);
             }
 
-            var variables = new [] { variable }.Where(x => x != null);
+            var variables = variable is null ? Array.Empty<ParameterExpression>() : new [] { variable };
             if (right is BlockExpression rightBlock)
             {
                 // flat the `(a; b; c; d; e; ...)` expression down

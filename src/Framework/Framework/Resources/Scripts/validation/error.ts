@@ -20,10 +20,10 @@ export function getErrors<T>(o: KnockoutObservable<T> | null): ValidationError[]
 
 export class ValidationError {
 
-    private constructor(public errorMessage: string, public validatedObservable: KnockoutObservable<any>) {
+    private constructor(public errorMessage: string, public propertyPath: string, public validatedObservable: KnockoutObservable<any>) {
     }
 
-    public static attach(errorMessage: string, observable: KnockoutObservable<any>): ValidationError {
+    public static attach(errorMessage: string, propertyPath: string, observable: KnockoutObservable<any>): ValidationError {
         if (!errorMessage) {
             throw new Error(`String "${errorMessage}" is not a valid ValidationError message.`);
         }
@@ -35,7 +35,7 @@ export class ValidationError {
         if (!unwrapped.hasOwnProperty(errorsSymbol)) {
             unwrapped[errorsSymbol] = [];
         }
-        const error = new ValidationError(errorMessage, unwrapped);
+        const error = new ValidationError(errorMessage, propertyPath, unwrapped);
         unwrapped[errorsSymbol].push(error);
         allErrors.push(error);
         return error;

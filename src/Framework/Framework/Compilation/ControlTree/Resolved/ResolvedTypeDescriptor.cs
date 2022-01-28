@@ -58,7 +58,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             }
 
             // handle iEnumerables
-            Type iEnumerable;
+            Type? iEnumerable;
             if (Type.IsGenericType && Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
             {
                 iEnumerable = Type;

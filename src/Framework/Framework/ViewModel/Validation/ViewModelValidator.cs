@@ -12,12 +12,12 @@ namespace DotVVM.Framework.ViewModel.Validation
     public class ViewModelValidator : IViewModelValidator
     {
         private readonly IViewModelSerializationMapper viewModelSerializationMapper;
-        private readonly Dictionary<object, object> validationItems;
+        private readonly Dictionary<object, object?> validationItems;
 
         public ViewModelValidator(IViewModelSerializationMapper viewModelMapper, DotvvmConfiguration dotvvmConfiguration)
         {
             this.viewModelSerializationMapper = viewModelMapper;
-            this.validationItems = new Dictionary<object, object> { { typeof(DotvvmConfiguration), dotvvmConfiguration} };
+            this.validationItems = new Dictionary<object, object?> { { typeof(DotvvmConfiguration), dotvvmConfiguration} };
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace DotVVM.Framework.ViewModel.Validation
 
                     foreach (var memberPath in paths)
                     {
-                        yield return new ViewModelValidationError(error.ErrorMessage, memberPath, viewModel);
+                        yield return new ViewModelValidationError(error.ErrorMessage ?? "An unknown error.", memberPath, viewModel);
                     }
                 }
             }

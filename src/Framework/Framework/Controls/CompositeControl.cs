@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Controls
                     parameter.HasDefaultValue ?
                         (ValueOrBinding<object>?)ValueOrBinding<object>.FromBoxedValue(parameter.DefaultValue) :
                         (ValueOrBinding<object>?)null;
-                var newProperty = DotvvmCapabilityProperty.InitializeArgument(parameter, parameter.Name, parameter.ParameterType, controlType, null, defaultValue);
+                var newProperty = DotvvmCapabilityProperty.InitializeArgument(parameter, parameter.Name!, parameter.ParameterType, controlType, null, defaultValue);
 
                 var (getter, setter) =
                     newProperty is DotvvmProperty p ? DotvvmCapabilityProperty.CodeGeneration.CreatePropertyAccessors(parameter.ParameterType, p) :

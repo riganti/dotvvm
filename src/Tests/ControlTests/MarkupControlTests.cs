@@ -20,6 +20,7 @@ namespace DotVVM.Framework.Tests.ControlTests
     public class MarkupControlTests
     {
         static readonly ControlTestHelper cth = new ControlTestHelper(config: config => {
+            config.Markup.AddMarkupControl("cc", "CustomControl", "CustomControl.dotcontrol");
             config.Markup.AddMarkupControl("cc", "CustomControlWithCommand", "CustomControlWithCommand.dotcontrol");
             config.Markup.AddMarkupControl("cc", "CustomControlWithProperty", "CustomControlWithProperty.dotcontrol");
             config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);
@@ -28,6 +29,31 @@ namespace DotVVM.Framework.Tests.ControlTests
         });
         OutputChecker check = new OutputChecker(
             "testoutputs");
+
+        [TestMethod]
+        public async Task MarkupControl_PropertyUsedManyTimes()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+
+                <cc:CustomControl Another={value: Integer} Another2={value: Integer} />
+                <cc:CustomControl Another=10 Another2=10 />
+                ",
+                directives: $"@service s = {typeof(TestService)}",
+                markupFiles: new Dictionary<string, string> {
+                    ["CustomControl.dotcontrol"] = @"
+                        @viewModel object
+                        @baseType DotVVM.Framework.Tests.ControlTests.CustomControlWithCommand
+                        @wrapperTag div
+
+                        {{value: _control.Another}}  {{resource: _control.Another2}} {{controlProperty: Another}}
+
+                        <span class-x={controlProperty: Another > 10} />
+                        "
+                }
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
 
         [TestMethod]
         public async Task MarkupControl_PassingStaticCommand()
@@ -122,6 +148,9 @@ namespace DotVVM.Framework.Tests.ControlTests
 
         public static readonly DotvvmProperty AnotherProperty =
             DotvvmProperty.Register<int, CustomControlWithCommand>("Another");
+
+        public static readonly DotvvmProperty Another2Property =
+            DotvvmProperty.Register<int, CustomControlWithCommand>("Another2");
     }
 
     public class CustomControlWithProperty : DotvvmMarkupControl

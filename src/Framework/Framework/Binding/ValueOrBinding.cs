@@ -172,7 +172,7 @@ namespace DotVVM.Framework.Binding
         public override int GetHashCode() => throw new NotSupportedException(EqualsDisabledReason);
 #pragma warning restore CS0809
 
-        public override string ToString() =>
+        public override string? ToString() =>
             HasBinding ? binding.ToString() :
             value is null ? "null" : value.ToString();
 

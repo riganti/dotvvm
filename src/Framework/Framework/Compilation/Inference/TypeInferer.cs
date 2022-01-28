@@ -79,7 +79,7 @@ namespace DotVVM.Framework.Compilation.Inference
             // Check if we can remove some candidates
             // Also try to infer generics based on provided argument
             var tempInstantiations = new Dictionary<string, Type>();
-            foreach (var candidate in context.Target.Candidates.Where(c => c.GetParameters().Length > index))
+            foreach (var candidate in context.Target.Candidates!.Where(c => c.GetParameters().Length > index))
             {
                 var parameters = candidate.GetParameters();
                 var parameterType = parameters[index].ParameterType;

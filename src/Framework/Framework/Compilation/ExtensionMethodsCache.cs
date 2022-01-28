@@ -88,7 +88,7 @@ namespace DotVVM.Framework.Compilation
         internal void ClearCaches(Type[] types)
         {
             foreach (var t in types)
-                methodsCache.TryRemove(t.Namespace, out _);
+                methodsCache.TryRemove(t.Namespace ?? "", out _);
         }
 
     }

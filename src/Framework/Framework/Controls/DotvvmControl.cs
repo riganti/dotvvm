@@ -416,7 +416,7 @@ namespace DotVVM.Framework.Controls
         public DotvvmControl? FindControlByUniqueId(string controlUniqueId)
         {
             var parts = controlUniqueId.Split('_');
-            DotvvmControl result = this;
+            DotvvmControl? result = this;
             for (var i = 0; i < parts.Length; i++)
             {
                 result = result.GetAllDescendants(c => !IsNamingContainer(c))

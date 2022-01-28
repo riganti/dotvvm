@@ -303,11 +303,11 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             if (expression.Expression.Type.Implements(typeof(ICollection), out var ifc) || expression.Expression.Type.Implements(typeof(ICollection<>), out ifc))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
-                    Expression.Property(expression.Expression, ifc.GetProperty(nameof(ICollection.Count)))
+                    Expression.Property(expression.Expression, ifc.GetProperty(nameof(ICollection.Count))!)
                 ));
             else if (expression.Expression.Type.Implements(typeof(IBaseGridViewDataSet), out var igridviewdataset))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
-                    Expression.Property(Expression.Property(expression.Expression, igridviewdataset.GetProperty(nameof(IBaseGridViewDataSet.Items))), typeof(ICollection).GetProperty(nameof(ICollection.Count)))
+                    Expression.Property(Expression.Property(expression.Expression, igridviewdataset.GetProperty(nameof(IBaseGridViewDataSet.Items))!), typeof(ICollection).GetProperty(nameof(ICollection.Count))!)
                 ));
             else if (expression.Expression.Type == typeof(string))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
@@ -315,7 +315,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 ));
             else if (expression.Expression.Type.Implements(typeof(IEnumerable<>)))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
-                    Expression.Call(typeof(Enumerable), "Count", new[] { ReflectionUtils.GetEnumerableType(expression.Expression.Type) }, expression.Expression)
+                    Expression.Call(typeof(Enumerable), "Count", new[] { ReflectionUtils.GetEnumerableType(expression.Expression.Type)! }, expression.Expression)
                 ));
             else throw new NotSupportedException($"Cannot find collection length from binding '{expression.Expression}'.");
         }

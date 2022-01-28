@@ -35,7 +35,8 @@ namespace DotVVM.Framework.Testing
         {
         }
 
-        public bool Equals(TestQueryCollection other) =>
-            other.OrderBy(k => k.Key).SequenceEqual(this.OrderBy(k => k.Key));
+        public bool Equals(TestQueryCollection? other) =>
+            Object.ReferenceEquals(this, other) ||
+            other != null && other.OrderBy(k => k.Key).SequenceEqual(this.OrderBy(k => k.Key));
     }
 }

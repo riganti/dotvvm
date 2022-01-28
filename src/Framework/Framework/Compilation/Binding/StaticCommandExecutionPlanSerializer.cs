@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             var hasOverloads = HasOverloads(plan.Method);
             var array = new JArray(
-                new JValue(GetTypeFullName(plan.Method.DeclaringType)),
+                new JValue(GetTypeFullName(plan.Method.DeclaringType!)),
                 new JValue(plan.Method.Name),
                 new JArray(plan.Method.GetGenericArguments().Select(GetTypeFullName)),
                 new JValue(plan.Method.GetParameters().Length),
@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 if (arg.Type == StaticCommandParameterType.Argument)
                 {
-                    if ((parameter?.ParameterType ?? plan.Method.DeclaringType).Equals(arg.Arg))
+                    if ((parameter?.ParameterType ?? plan.Method.DeclaringType!).Equals(arg.Arg))
                         array.Add(JValue.CreateNull());
                     else
                         array.Add(new JValue(arg.Arg!.CastTo<Type>().Apply(GetTypeFullName)));
@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else if (arg.Type == StaticCommandParameterType.Inject)
                 {
-                    if ((parameter?.ParameterType ?? plan.Method.DeclaringType).Equals(arg.Arg))
+                    if ((parameter?.ParameterType ?? plan.Method.DeclaringType!).Equals(arg.Arg))
                         array.Add(JValue.CreateNull());
                     else
                         array.Add(new JValue(arg.Arg!.CastTo<Type>().Apply(GetTypeFullName)));
@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private static bool HasOverloads(MethodInfo method)
         {
-            return method.DeclaringType.GetMethods().Where(m => m.Name == method.Name && m.GetParameters().Length == method.GetParameters().Length).Take(2).Count() > 1;
+            return method.DeclaringType!.GetMethods().Where(m => m.Name == method.Name && m.GetParameters().Length == method.GetParameters().Length).Take(2).Count() > 1;
         }
 
         private static string GetTypeFullName(Type type) => $"{type.FullName}, {type.Assembly.GetName().Name}";
@@ -92,17 +92,17 @@ namespace DotVVM.Framework.Compilation.Binding
             var hasOtherOverloads = parameterTypeNames != null;
             var argTypes = jarray[5].ToObject<byte[]>().Select(a => (StaticCommandParameterType)a).ToArray();
 
-            MethodInfo method;
+            MethodInfo? method;
             if (hasOtherOverloads)
             {
                 // There are multiple overloads available, therefore exact parameters need to be resolved first
-                var parameters = parameterTypeNames.Select(n => Type.GetType(n.Value<string>())).ToArray();
-                method = Type.GetType(typeName).GetMethod(methodName, parameters);
+                var parameters = parameterTypeNames!.Select(n => Type.GetType(n.Value<string>()).NotNull()).ToArray();
+                method = Type.GetType(typeName)?.GetMethod(methodName, parameters);
             }
             else
             {
                 // There are no overloads
-                method = Type.GetType(typeName).GetMethods().SingleOrDefault(m => m.Name == methodName && m.GetParameters().Length == parametersCount);
+                method = Type.GetType(typeName)?.GetMethods().SingleOrDefault(m => m.Name == methodName && m.GetParameters().Length == parametersCount);
             }
             
             if (method == null || !method.IsDefined(typeof(AllowStaticCommandAttribute)))
@@ -110,7 +110,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
             if (method.IsGenericMethod)
             {
-                var generics = genericTypeNames.Select(n => Type.GetType(n.Value<string>())).ToArray();
+                var generics = genericTypeNames.Select(n => Type.GetType(n.Value<string>()).NotNull()).ToArray();
                 method = method.MakeGenericMethod(generics);
             }
 

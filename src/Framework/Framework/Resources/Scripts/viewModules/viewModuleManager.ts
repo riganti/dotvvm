@@ -73,7 +73,7 @@ function* getModules(viewIdOrElement: string | HTMLElement) {
     }
 }
 
-export function callViewModuleCommand(viewIdOrElement: string | HTMLElement, commandName: string, args: any[]) {
+export function callViewModuleCommand(viewIdOrElement: string | HTMLElement, commandName: string, args: any[], allowAsync: boolean = true) {
     if (compileConstants.debug && commandName == null) { throw new Error("commandName has to have a value"); }
     if (compileConstants.debug && !(args instanceof Array)) { throw new Error("args must be an array"); }
 
@@ -94,7 +94,11 @@ export function callViewModuleCommand(viewIdOrElement: string | HTMLElement, com
     }
 
     try {
-        return foundModules[0].module[commandName](...args.map(v => serialize(v)));
+        var result = foundModules[0].module[commandName](...args.map(v => serialize(v)));
+        if (!allowAsync && result instanceof Promise) {
+            throw compileConstants.debug ? `Command returned Promise even though it was called through _js.Invoke("${commandName}", ...). Use the _js.InvokeAsync method to call commands which (may) return a promise.` : "Command returned Promise";
+        }
+        return result
     }
     catch (e: unknown) {
         throw new Error(`While executing command ${commandName}(${args.map(v => JSON.stringify(serialize(v)))}), an error occurred. ${e}`);

@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Compilation.Javascript
     {
         protected override Expression VisitInvocation(InvocationExpression node)
         {
-            var invokeMethod = node.Expression.Type.GetMethod("Invoke");
+            var invokeMethod = node.Expression.Type.GetMethod("Invoke")!;
 
             return Expression.Call(node.Expression, invokeMethod, node.Arguments); ;
         }

@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 {
     public class DotvvmPropertyGroup : IPropertyGroupDescriptor
     {
-        public FieldInfo DescriptorField { get; }
+        public FieldInfo? DescriptorField { get; }
 
         public ICustomAttributeProvider AttributeProvider { get; }
 
@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary> The capabilities which use this property. </summary>
         public ImmutableArray<DotvvmCapabilityProperty> UsedInCapabilities { get; internal set; } = ImmutableArray<DotvvmCapabilityProperty>.Empty;
 
-        internal DotvvmPropertyGroup(PrefixArray prefixes, Type valueType, Type declaringType, FieldInfo descriptorField, ICustomAttributeProvider attributeProvider, string name, object? defaultValue)
+        internal DotvvmPropertyGroup(PrefixArray prefixes, Type valueType, Type declaringType, FieldInfo? descriptorField, ICustomAttributeProvider attributeProvider, string name, object? defaultValue)
         {
             this.DescriptorField = descriptorField;
             this.DeclaringType = declaringType;
@@ -56,7 +56,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             (this.MarkupOptions, this.DataContextChangeAttributes, this.DataContextManipulationAttribute, this.ObsoleteAttribute) = InitFromAttributes(attributeProvider, name);
             if (MarkupOptions.AllowValueMerging)
             {
-                ValueMerger = (IAttributeValueMerger)Activator.CreateInstance(MarkupOptions.AttributeValueMerger);
+                ValueMerger = (IAttributeValueMerger?)Activator.CreateInstance(MarkupOptions.AttributeValueMerger);
             }
         }
 
@@ -154,7 +154,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             RuntimeHelpers.RunClassConstructor(type.TypeHandle);
             if (type.BaseType != typeof(object))
-                RunClassConstructor(type.BaseType);
+                RunClassConstructor(type.BaseType!);
         }
 
         public static IEnumerable<DotvvmPropertyGroup> GetPropertyGroups(Type controlType)

@@ -115,8 +115,8 @@ namespace DotVVM.Framework.Compilation.Binding
                 if (ifTrue.Type != ifFalse.Type)
                 {
                     var nullable = ifTrue.Type.IsNullable() ? ifTrue.Type : ifFalse.Type;
-                    ifTrue = TypeConversion.ImplicitConversion(ifTrue, nullable);
-                    ifFalse = TypeConversion.ImplicitConversion(ifFalse, nullable);
+                    ifTrue = TypeConversion.ImplicitConversion(ifTrue, nullable, throwException: true)!;
+                    ifFalse = TypeConversion.ImplicitConversion(ifFalse, nullable, throwException: true)!;
                 }
                 return Expression.Condition(test, ifTrue, ifFalse);
             });
@@ -173,7 +173,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     return CheckForNull(Visit(node.Arguments.First()), index =>
                     {
-                        var convertedIndex = TypeConversion.ImplicitConversion(index, node.Method.GetParameters().First().ParameterType);
+                        var convertedIndex = TypeConversion.ImplicitConversion(index, node.Method.GetParameters().First().ParameterType, throwException: true)!;
                         return Expression.Call(target, node.Method, new[] { convertedIndex }.Concat(node.Arguments.Skip(1)));
                     });
                 }, suppress: node.Object?.Type?.IsNullable() ?? true);
@@ -184,7 +184,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitNew(NewExpression node)
         {
-            return Expression.New(node.Constructor, UnwrapNullableTypes(node.Arguments));
+            return node.Update(UnwrapNullableTypes(node.Arguments));
         }
 
         protected Expression[] UnwrapNullableTypes(IEnumerable<Expression> uncheckedArguments) =>
@@ -198,7 +198,7 @@ namespace DotVVM.Framework.Compilation.Binding
             else if (expression.Type == typeof(Nullable<>).MakeGenericType(expectedType))
             {
                 var tmp = Expression.Parameter(expression.Type);
-                var nreCtor = typeof(NullReferenceException).GetConstructor(new [] { typeof(string) });
+                var nreCtor = typeof(NullReferenceException).GetConstructor(new [] { typeof(string) })!;
                 return Expression.Block(new [] { tmp },
                     Expression.Assign(tmp, expression),
                     Expression.Condition(

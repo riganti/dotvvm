@@ -71,7 +71,7 @@ namespace DotVVM.Framework.Controls
 
         public string GetSpaContentPlaceHolderUniqueId()
         {
-            var dotvvmViewId = GetAllAncestors().FirstOrDefault(a => a is DotvvmView).GetType().ToString();
+            var dotvvmViewId = GetAllAncestors().First(a => a is DotvvmView).GetType().ToString();
             var markupRelativeFilePath = (string?)GetValue(Internal.MarkupFileNameProperty);
 
             return HashUtils.HashAndBase64Encode(

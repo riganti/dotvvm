@@ -47,15 +47,14 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             var additionalInfos = InfoLoaders.Select(info => info(exception))
                 .Where(info => info != null && info.Objects != null).ToArray()
                 .Union(InfoCollectionLoader.Select(infoCollection => infoCollection(exception))
-                    .Where(infoCollection => infoCollection != null)
-                    .SelectMany(infoCollection => infoCollection)
+                    .SelectMany(infoCollection => infoCollection ?? Enumerable.Empty<ExceptionAdditionalInfo>())
                     .Where(info => info != null && info.Objects != null).ToArray())
                 .ToArray();
 
             stack.Reverse();
 
             var m = new ExceptionModel(
-                exception.GetType().FullName,
+                exception.GetType().FullName ?? "Unknown exception",
                 exception.Message,
                 stack.ToArray(),
                 exception,
@@ -121,7 +120,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 else
                 {
                     // guess by method name
-                    var urlFileName = frame.Method.DeclaringType.FullName.Replace("DotVVM.Framework", "")
+                    var urlFileName = frame.Method.DeclaringType.FullName!.Replace("DotVVM.Framework", "")
                         .Replace('.', '/');
                     if (urlFileName.Contains("+"))
                         urlFileName = urlFileName.Remove(urlFileName.IndexOf('+')); // remove nested class
@@ -187,7 +186,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             const string DotNetIcon = "http://referencesource.microsoft.com/favicon.ico";
             const string SourceUrl = "http://referencesource.microsoft.com/";
             if (frame.Method?.DeclaringType?.Assembly != null &&
-                ReferenceSourceAssemblies.Contains(frame.Method.DeclaringType.Assembly.GetName().Name))
+                ReferenceSourceAssemblies.Contains(frame.Method.DeclaringType.Assembly.GetName().Name ?? ""))
             {
                 if (!String.IsNullOrEmpty(frame.At?.FileName))
                 {
@@ -205,7 +204,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     else
                     {
                         var url = SourceUrl + "#q=" +
-                                  WebUtility.HtmlEncode(frame.Method.DeclaringType.FullName.Replace('+', '.') + "." +
+                                  WebUtility.HtmlEncode(frame.Method.DeclaringType.FullName!.Replace('+', '.') + "." +
                                                         frame.Method.Name);
                         return FrameMoreInfo.CreateThumbLink(url, DotNetIcon);
                     }
@@ -216,9 +215,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         protected static string GetGenericFullName(Type type)
         {
-            if (!type.IsGenericType) return type.FullName;
+            var name = type.FullName ?? type.Name;
+            if (!type.IsGenericType) return name;
 
-            var name = type.FullName;
             name = name.Remove(name.IndexOf("`", StringComparison.Ordinal));
             var typeInfo = type.GetTypeInfo();
 
@@ -317,7 +316,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return template.TransformText();
         }
 
-        static (string name, object value) StripBindingProperty(string name, object value)
+        static (string name, object? value) StripBindingProperty(string name, object value)
         {
             var t = value.GetType();
             var props = t.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
@@ -365,15 +364,29 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             f.Formatters.Add((e, o) => {
                 var b = e.AllInnerExceptions().OfType<IDotvvmException>().Select(a => a.RelatedBinding).OfType<ICloneableBinding>().FirstOrDefault();
                 if (b == null) return null;
-                return new DictionarySection<object, object>("Binding", "binding",
-                    new []{ new KeyValuePair<object, object>("Type", b.GetType().FullName) }
+                return new DictionarySection<object, object?>("Binding", "binding",
+                    new []{ new KeyValuePair<object, object?>("Type", b.GetType().FullName!) }
                     .Concat(
                         b.GetAllComputedProperties()
                         .Select(a => StripBindingProperty(a.GetType().Name, a))
-                        .Select(a => new KeyValuePair<object, object>(a.name, a.value))
+                        .Select(a => new KeyValuePair<object, object?>(a.name, a.value))
                     ).ToArray());
             });
             f.Formatters.Add((e, o) => new CookiesSection(o.Request.Cookies));
+            f.Formatters.Add((e, o) => new DictionarySection<string, string>(
+                "Assemblies",
+                "assemblies",
+                AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name != null).OrderBy(a => a.GetName().Name).Select(a => {
+                    var info = a.GetName();
+                    var versionString = (info.Version != null) ? info.Version.ToString() : "unknown version";
+                    var cultureString = (info.CultureInfo != null) ? info.CultureInfo.DisplayName : "unknown culture";
+                    var publicKeyString = (info.GetPublicKeyToken() != null) ? info.GetPublicKeyToken()!
+                        .Select(b => string.Format("{0:x2}", b)).StringJoin(string.Empty) : "unknown public key";
+
+                    return new KeyValuePair<string, string>(info.Name!,
+                        $"Version={versionString}, Culture={cultureString}, PublicKeyToken={publicKeyString}");
+                })
+            ));
             f.Formatters.Add((e, o) => new DictionarySection<string, string[]>(
                 "Request Headers",
                 "reqHeaders",
@@ -384,7 +397,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             ));
             f.AddInfoLoader<ReflectionTypeLoadException>(e => new ExceptionAdditionalInfo(
                 "Loader Exceptions",
-                e.LoaderExceptions.Select(lde => lde.GetType().Name + ": " + lde.Message).ToArray(),
+                e.LoaderExceptions.Select(lde => lde!.GetType().Name + ": " + lde.Message).ToArray(),
                 ExceptionAdditionalInfo.DisplayMode.ToString
             ));
             f.AddInfoLoader<DotvvmCompilationException>(e => {
