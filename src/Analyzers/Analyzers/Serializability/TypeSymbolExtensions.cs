@@ -13,9 +13,10 @@ namespace DotVVM.Analyzers.Serializability
     {
         private static readonly ConditionalWeakTable<Compilation, ImmutableHashSet<ISymbol>> symbolsCache = new();
 
-        public static bool IsSerializationSupported(this ITypeSymbol typeSymbol, Compilation compilation, out string? errorPath)
+        public static bool IsKnownSerializableType(this ITypeSymbol typeSymbol, Compilation compilation)
         {
-            return IsSerializationSupportedImpl(typeSymbol, compilation, out errorPath);
+            var cache = GetSymbolsCache(compilation);
+            return cache.Contains(typeSymbol);
         }
 
         public static bool IsEnumerable(this ITypeSymbol typeSymbol, Compilation compilation)
@@ -118,6 +119,11 @@ namespace DotVVM.Analyzers.Serializability
                             // User types are supported if all their properties are supported
                             foreach (var property in currentSymbol.GetMembers().Where(m => m.Kind == SymbolKind.Property).Cast<IPropertySymbol>())
                             {
+                                if (property.IsStatic || property.DeclaredAccessibility != Accessibility.Public)
+                                {
+
+                                }
+
                                 if (!visited.Contains(property.Type))
                                 {
                                     stack.Push((property.Type, $"{currentPath}.{property.Name}"));

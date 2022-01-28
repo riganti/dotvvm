@@ -54,6 +54,33 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
+        public async void Test_SerializableRecordProperty_ViewModel()
+        {
+            var test = @"
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.IO;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public Employee Employee { get; set; }
+        }
+
+        public record Employee(int Id, string Name);
+    }
+
+    namespace System.Runtime.CompilerServices
+    {
+          internal static class IsExternalInit {}
+    }
+";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [Fact]
         public async void Test_NotSerializableList_ViewModel()
         {
             await VerifyCS.VerifyAnalyzerAsync(@"
@@ -384,6 +411,50 @@ namespace DotVVM.Analyzers.Tests.Serializability
     }",
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.DoNotUseFieldsRule).WithLocation(0));
+        }
+
+        [Fact]
+        public async void Test_StaticPropertiesInViewModel()
+        {
+            var text = @"
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.IO;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public static Stream PublicProperty { get; set; }
+            internal static Stream InternalProperty { get; set; }
+            protected static Stream ProtectedProperty { get; set; }
+            private static Stream privateProperty { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(text);
+        }
+
+        [Fact]
+        public async void Test_StaticFieldsInViewModel()
+        {
+            var text = @"
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.IO;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public static Stream PublicField { get; set; }
+            internal static Stream InternalField { get; set; }
+            protected static Stream ProtectedField { get; set; }
+            private static Stream privateField { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(text);
         }
 
         [Fact]
