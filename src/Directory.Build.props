@@ -4,7 +4,7 @@
     <AutomaticallyUseReferenceAssemblyPackages>false</AutomaticallyUseReferenceAssemblyPackages>
     <!-- Disable warning for missing XML doc comments. -->
     <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
-    <LangVersion>10.0</LangVersion>
+    <LangVersion>10</LangVersion>
     <DefaultTargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.1;net6.0;net472</DefaultTargetFrameworks>
     <DefaultTargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.1;net6.0</DefaultTargetFrameworks>
     <Version>4.0.0-preview01-122136</Version>
