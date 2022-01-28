@@ -63,6 +63,10 @@ namespace DotVVM.Analyzers.Serializability
             var jsonIgnoreAttribute = semanticModel.Compilation.GetTypeByMetadataName(newtonsoftJsonIgnoreAttributeMetadataName);
             var serializabilityContext = new SerializabilityAnalysisContext(context, viewModelInterface, bindAttribute, jsonIgnoreAttribute);
 
+            // Check if we found required types
+            if (viewModelInterface == null || bindAttribute == null || jsonIgnoreAttribute == null)
+                return;
+
             // Check all classes
             foreach (var classDeclaration in syntaxTree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
             {
@@ -97,7 +101,7 @@ namespace DotVVM.Analyzers.Serializability
         private static void AnalyzeViewModelProperties(ClassDeclarationSyntax viewModel, SerializabilityAnalysisContext context)
         {
             var semanticModel = context.SemanticModel;
-            foreach (var property in viewModel.DescendantNodes().OfType<PropertyDeclarationSyntax>())
+            foreach (var property in viewModel.ChildNodes().OfType<PropertyDeclarationSyntax>())
             {
                 if (semanticModel.GetDeclaredSymbol(property) is not IPropertySymbol propertySymbol)
                     continue;
@@ -206,11 +210,13 @@ namespace DotVVM.Analyzers.Serializability
                     {
                         // Something unsupported from BCL detected
                         context.ReportDiagnostic(Diagnostic.Create(UseSerializablePropertiesRule, location, path));
+                        context.MarkAsNotSerializable(propertyType, UseSerializablePropertiesRule);
                     }
                     break;
 
                 default:
                     context.ReportDiagnostic(Diagnostic.Create(UseSerializablePropertiesRule, location, path));
+                    context.MarkAsNotSerializable(propertyType, UseSerializablePropertiesRule);
                     break;
             }
         }
