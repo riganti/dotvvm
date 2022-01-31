@@ -135,7 +135,21 @@ namespace DotVVM.Analyzers.Serializability
 
             // Unwrap type if it is nullable
             if (propertyType.NullableAnnotation == NullableAnnotation.Annotated)
-                propertyType = (propertyType as INamedTypeSymbol)!.TypeArguments.First();
+            {
+                if (propertyType is not INamedTypeSymbol namedTypeSymbol)
+                    return;
+
+                if (namedTypeSymbol.TypeArguments.Any())
+                {
+                    // Nullable value type
+                    propertyType = namedTypeSymbol.TypeArguments.First();
+                }
+                else
+                {
+                    // Nullable reference type
+                    propertyType = namedTypeSymbol.ConstructedFrom;
+                }
+            }
 
             // Issue warning if type is abstract (but omit enumerables - we can serialize these in 99% of cases)
             if (propertyType.IsAbstract && !propertyType.IsEnumerable(context.SemanticModel.Compilation))
@@ -262,7 +276,7 @@ namespace DotVVM.Analyzers.Serializability
                 return false;
 
             // Get value provided to ctor
-            if (attribute.ConstructorArguments.First().Value is not int direction)
+            if (!attribute.ConstructorArguments.Any() || attribute.ConstructorArguments.First().Value is not int direction)
                 return false;
 
             // Direction.None has value 0 (zero)

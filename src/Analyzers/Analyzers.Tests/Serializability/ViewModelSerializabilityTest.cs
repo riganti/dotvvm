@@ -270,6 +270,12 @@ namespace DotVVM.Analyzers.Tests.Serializability
         {
             public object? Object { get; set; }
             public string? String { get; set; }
+            public Test? Test { get; set; }
+        }
+
+        public class Test
+        {
+
         }
     }";
 
