@@ -17,9 +17,8 @@ New-Item -Name $tmpDir -ItemType Directory -Force -ErrorAction Ignore
 Write-ActionInfo "Resolved tmpDir as '$tmpDir'"
 
 function Build-MarkdownReport {
-    $script:report_name = $inputs.report_name
-    $script:report_title = $inputs.report_title
-    $script:trx_xsl_path = $inputs.trx_xsl_path
+    $script:report_name = $reportName
+    $script:report_title = $reportTitle
 
     if (-not $script:report_name) {
         $script:report_name = "TEST_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
@@ -36,19 +35,6 @@ function Build-MarkdownReport {
             reportTitle = $script:report_title
         }
     }
-    if ($script:trx_xsl_path) {
-        $script:trx_xsl_path = "$(Resolve-Path $script:trx_xsl_path)"
-        Write-ActionInfo "Override TRX XSL Path Provided"
-        Write-ActionInfo "  resolved as: $($script:trx_xsl_path)"
-
-        if (Test-Path $script:trx_xsl_path) {
-            ## If XSL path is provided and exists, override the default
-            $trx2mdParams.xslFile = $script:trx_xsl_path
-        }
-        else {
-            Write-ActionWarning "Could not find TRX XSL at resolved path; IGNORING"
-        }
-    }
     & "$PSScriptRoot/trx2md.ps1" @trx2mdParams -Verbose
 
 }
@@ -60,7 +46,6 @@ function Publish-ToCheckRun {
 
     Write-ActionInfo "Publishing Report to GH Workflow"
 
-    $ghToken = $inputs.github_token
     $ctx = Get-ActionContext
     $repo = Get-ActionRepo
     $repoFullName = "$($repo.Owner)/$($repo.Repo)"
@@ -105,7 +90,7 @@ function Publish-ToCheckRun {
     $url = "https://api.github.com/repos/$repoFullName/check-runs"
     $hdr = @{
         Accept = 'application/vnd.github.antiope-preview+json'
-        Authorization = "token $ghToken"
+        Authorization = "token $githubToken"
     }
 
     if ($reportData.Length -gt 65535 ) {
@@ -116,12 +101,12 @@ function Publish-ToCheckRun {
 
 
     $bdy = @{
-        name       = $report_name
+        name       = $reportName
         head_sha   = $ref
         status     = 'completed'
         conclusion = $conclusion
         output     = @{
-            title   = $report_title
+            title   = $reportTitle
             summary = "This run completed at ``$([datetime]::Now)``"
             text    = $reportData
         }
@@ -130,7 +115,7 @@ function Publish-ToCheckRun {
 }
 
 Write-ActionInfo "Compiling Test Result object"
-$testResultXml = Select-Xml -Path $test_results_path -XPath /
+$testResultXml = Select-Xml -Path $trxPath -XPath /
 $testResult = [psobject]::new()
 $testResultXml.Node.TestRun.Attributes | % { $testResult |
     Add-Member -MemberType NoteProperty -Name "TestRun_$($_.Name)" -Value $_.Value }
@@ -147,11 +132,8 @@ Export-Clixml -InputObject $testResult -Path $result_clixml_path
 
 Write-ActionInfo "Generating Markdown Report from TRX file"
 Build-MarkdownReport
-$reportData = [System.IO.File]::ReadAllText($test_report_path)
+$reportData = [System.IO.File]::ReadAllText($trxPath)
 
 if ($inputs.skip_check_run -ne $true) {
     Publish-ToCheckRun -ReportData $reportData
-}
-if ($inputs.gist_name -and $inputs.gist_token) {
-    Publish-ToGist -ReportData $reportData
 }
