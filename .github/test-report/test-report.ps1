@@ -129,8 +129,6 @@ function Publish-ToCheckRun {
     Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
 }
 
-Set-ActionOutput -Name test_results_path -Value $test_results_path
-
 Write-ActionInfo "Compiling Test Result object"
 $testResultXml = Select-Xml -Path $test_results_path -XPath /
 $testResult = [psobject]::new()
@@ -146,12 +144,6 @@ Write-ActionInfo "$($testResult|Out-Default)"
 
 $result_clixml_path = Join-Path $tmpDir dotnet-test-result.clixml
 Export-Clixml -InputObject $testResult -Path $result_clixml_path
-
-Set-ActionOutput -Name result_clixml_path -Value $result_clixml_path
-Set-ActionOutput -Name result_value -Value ($testResult.ResultSummary_outcome)
-Set-ActionOutput -Name total_count -Value ($testResult.Counters_total)
-Set-ActionOutput -Name passed_count -Value ($testResult.Counters_passed)
-Set-ActionOutput -Name failed_count -Value ($testResult.Counters_failed)
 
 Write-ActionInfo "Generating Markdown Report from TRX file"
 Build-MarkdownReport
