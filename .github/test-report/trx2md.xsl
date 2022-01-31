@@ -74,7 +74,7 @@ Expand the following summaries for more details:
 
 ## Tests:
 
-        <xsl:apply-templates select="/trx:TestRun/trx:TestDefinitions"/>
+        <xsl:apply-templates select="/trx:TestRun/trx:TestDefinitions[@outcome='Failed']"/>
     </xsl:template>
 
     <xsl:template match="trx:UnitTest">
