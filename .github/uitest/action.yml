@@ -1,4 +1,4 @@
-name: Run UI tests
+name: uitest
 description: Runs DotVVM UI test with a specific profile
 
 inputs:
@@ -13,12 +13,6 @@ inputs:
 runs:
   using: composite
   steps:
-  # browser setup
-  # - if: matrix.browser == 'chromium'
-  #   uses: browser-actions/setup-chromium@latest
-  # - if: matrix.browser == 'firefox'
-  #   uses: browser-actions/setup-firefox@latest
-  # - uses: nanasess/setup-chromedriver@v1
 
   # run the appropriate uitest script
   - if: ${{ runner.os != 'Windows' }}

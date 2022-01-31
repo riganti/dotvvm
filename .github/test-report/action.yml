@@ -1,0 +1,24 @@
+name: test-report
+description: |
+  Writes a short test report to GitHub Actions.
+  Heavily inspired by https://github.com/zyborg/dotnet-tests-report.
+
+inputs:
+  trx-path:
+    required: true
+    description: Path to the TRX file.
+  report-name:
+    required: true
+    description: A filename for the report.
+  report-title:
+    required: true
+    description: Human-friendly title of the report.
+  github-token:
+    required: true
+    description: A GitHub token.
+
+runs:
+  using: composite
+  steps:
+    - run: ./.github/test-report/test-report.ps1
+      shell: pwsh

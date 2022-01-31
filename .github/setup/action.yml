@@ -1,4 +1,4 @@
-name: Set up DotVVM build
+name: setup
 description: Sets up the build environment for the DotVVM repo.
 
 inputs:
