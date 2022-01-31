@@ -99,11 +99,19 @@ jobs:
       with:
         sln: src/DotVVM.Crossplatform.slnf
     - name: Tests
-      run: dotnet test --no-restore -p:WarningLevel=0 --configuration ${{ matrix.configuration }}
-        --logger "GitHubActions;report-warnings=true" src/Tests
+      uses: ./.github/unittest
+      with:
+        project: src/Tests
+        configuration: ${{ matrix.configuration }}
+        name: framework-tests
+        title: Framework Tests
     - name: Analyzers.Tests
-      run: dotnet test --no-restore -p:WarningLevel=0 --configuration ${{ matrix.configuration }}
-        --logger "GitHubActions;report-warnings=true" src/Analyzers/Analyzers.Tests
+      uses: ./.github/unittest
+      with:
+        project: src/Analyzers/Analyzers.Tests
+        configuration: ${{ matrix.configuration }}
+        name: analyzers-tests
+        title: Analyzer Tests
 
   js-tests:
     runs-on: ubuntu-latest

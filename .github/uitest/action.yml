@@ -29,13 +29,9 @@ runs:
     shell: pwsh
 
   # publish the result to github
-  - name: Make the _TMP dir
-    run: mkdir ${{ github.workspace }}/_TMP
-    shell: bash
-  - name: Parse test results
-    uses: zyborg/dotnet-tests-report@v1
+  - uses: ./.github/test-report
     with:
-      test_results_path: artifacts/test/ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx
-      report_name: ui-test-results-${{ inputs.browser }}-${{ runner.os }}
-      report_title: UI Test Results from ${{ inputs.browser }} on ${{ runner.os }}
-      github_token: ${{ inputs.token }}
+      trx-path: artifacts/test/ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx
+      report-name: ui-test-results-${{ inputs.browser }}-${{ runner.os }}
+      report-title: UI Test Results from ${{ inputs.browser }} on ${{ runner.os }}
+      github-token: ${{ inputs.token }}
