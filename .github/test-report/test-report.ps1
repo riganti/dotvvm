@@ -106,6 +106,14 @@ function Publish-ToCheckRun {
         Accept = 'application/vnd.github.antiope-preview+json'
         Authorization = "token $ghToken"
     }
+
+    if ($reportData.Length -gt 65535 ) {
+        $tooLongError = "...`nThe test report is too long to display.`n"
+        $reportData = $reportData.Substring(0, [System.Math]::Min($reportData.Length, 65535 - $tooLongError.Length)) `
+            + $tooLongError
+    }
+
+
     $bdy = @{
         name       = $report_name
         head_sha   = $ref
