@@ -1,3 +1,6 @@
+# Heavily inspired by https://github.com/zyborg/dotnet-tests-report
+# and https://github.com/NasAmin/trx-parser.
+
 if (-not (Get-Module -ListAvailable GitHubActions)) {
     Install-Module GitHubActions -Force
 }
@@ -45,7 +48,7 @@ function Build-MarkdownReport {
             Write-ActionWarning "Could not find TRX XSL at resolved path; IGNORING"
         }
     }
-    & "$PSScriptRoot/trx-report/trx2md.ps1" @trx2mdParams -Verbose
+    & "$PSScriptRoot/trx2md.ps1" @trx2mdParams -Verbose
 
 }
 

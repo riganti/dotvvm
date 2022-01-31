@@ -1,7 +1,8 @@
 name: test-report
 description: |
   Writes a short test report to GitHub Actions.
-  Heavily inspired by https://github.com/zyborg/dotnet-tests-report.
+  Heavily inspired by https://github.com/zyborg/dotnet-tests-report
+  and https://github.com/NasAmin/trx-parser.
 
 inputs:
   trx-path:
