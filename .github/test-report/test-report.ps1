@@ -1,15 +1,16 @@
 # Heavily inspired by https://github.com/zyborg/dotnet-tests-report
 # and https://github.com/NasAmin/trx-parser.
 
+param(
+    [string] $trxPath,
+    [string] $reportName,
+    [string] $reportTitle,
+    [string] $githubToken)
+
 if (-not (Get-Module -ListAvailable GitHubActions)) {
     Install-Module GitHubActions -Force
 }
 Import-Module GitHubActions
-
-$trxPath = Get-ActionInput trx-path -Required
-$reportName = Get-ActionInput report-name -Required
-$reportTitle = Get-ActionInput report-title -Required
-$githubToken = Get-ActionInput github-token -Required
 
 $tmpDir = [System.IO.Path]::Combine($PWD, '_TMP')
 New-Item -Name $tmpDir -ItemType Directory -Force -ErrorAction Ignore
