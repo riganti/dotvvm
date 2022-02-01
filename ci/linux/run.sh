@@ -233,7 +233,15 @@ if [ $UNIT_TESTS -eq 1 ]; then
         "dotnet test \"$ROOT/src/Tests\" \
             --no-build \
             --configuration $CONFIGURATION \
-            --logger 'trx;LogFileName=unit-test-results.trx' \
+            --logger 'trx;LogFileName=framework-unit-test-results.trx' \
+            --results-directory \"$TEST_RESULTS_DIR\" \
+            --collect \"Code Coverage\""
+
+    run_named_command "unit tests" \
+        "dotnet test \"$ROOT/src/Analyzers/Analyzers.Tests\" \
+            --no-build \
+            --configuration $CONFIGURATION \
+            --logger 'trx;LogFileName=analyzers-unit-test-results.trx' \
             --results-directory \"$TEST_RESULTS_DIR\" \
             --collect \"Code Coverage\""
 fi

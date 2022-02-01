@@ -135,7 +135,14 @@ if ($NoUnitTests -ne $true) {
         dotnet test "$Root\src\Tests" `
             --no-build `
             --configuration "$Config" `
-            --logger "trx;LogFileName=unit-test-results.trx" `
+            --logger "trx;LogFileName=framework-unit-test-results.trx" `
+            --results-directory "$testResultsDir" `
+            --collect "Code Coverage"
+
+        dotnet test "$Root\src\Analyzers\Analyzers.Tests" `
+            --no-build `
+            --configuration "$Config" `
+            --logger "trx;LogFileName=analyzers-unit-test-results.trx" `
             --results-directory "$testResultsDir" `
             --collect "Code Coverage"
     }
