@@ -95,12 +95,12 @@ jobs:
     - name: Unit tests (Release)
       run: |
           dotnet test src/Tests --no-build --logger "GitHubActions;report-warnings=true" --configuration Release
-          dotnet test src/Analyzers/Analyzers.Tests --no-build --logger "GitHubActions;report-warnings=true" --configuration
+          dotnet test src/Analyzers/Analyzers.Tests --no-build --logger "GitHubActions;report-warnings=true" --configuration Release
 
     - name: Unit tests (Debug)
       run: |
           dotnet test src/Tests --no-build --logger "GitHubActions;report-warnings=true" --configuration Debug
-          dotnet test src/Analyzers/Analyzers.Tests --no-build --logger "GitHubActions;report-warnings=true" --configuration
+          dotnet test src/Analyzers/Analyzers.Tests --no-build --logger "GitHubActions;report-warnings=true" --configuration Debug
 
   js-tests:
     runs-on: ubuntu-latest
