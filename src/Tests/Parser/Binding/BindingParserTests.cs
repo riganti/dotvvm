@@ -204,6 +204,18 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
+        public void BindingParser_InterpolatedString_Expression_WithWhitespaces_StartPositions()
+        {
+            var result = bindingParserNodeFactory.Parse("$'ABC{ x }'") as InterpolatedStringBindingParserNode;
+            Assert.AreEqual(0, result.StartPosition);
+            Assert.AreEqual(6, result.Arguments.First().StartPosition /* $' x ' */);
+            Assert.AreEqual(3, result.Arguments.First().Tokens.Count);
+            Assert.AreEqual(BindingTokenType.WhiteSpace, result.Arguments.First().Tokens.First().Type /* 1 whitespace */);
+            Assert.AreEqual(BindingTokenType.Identifier, result.Arguments.First().Tokens.Skip(1).First().Type /* identifier x */);
+            Assert.AreEqual(BindingTokenType.WhiteSpace, result.Arguments.First().Tokens.Skip(2).First().Type /* 1 whitespace */);
+        }
+
+        [TestMethod]
         public void BindingParser_InterpolatedString_NestedExpressions_StartPositions()
         {
             var result = bindingParserNodeFactory.Parse("$'ABC{$'DEF{'GHI!'}'}'") as InterpolatedStringBindingParserNode;
