@@ -99,7 +99,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
                         a.ParameterType == typeof(bool) && a.Name == "allowImplicitLifecycleRequirements" ? false :
                         a.DefaultValue
                     );
-                return emitter.EmitCreateObject(type, arguments == null ? optionalArguments.ToArray() : arguments.Concat(optionalArguments).ToArray());
+                return emitter.EmitCreateObject(constructor, arguments == null ? optionalArguments.ToArray() : arguments.Concat(optionalArguments).ToArray());
             }
             // otherwise invoke DI factory
             else

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
@@ -47,7 +48,21 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
         public ParameterExpression EmitCreateObject(Type type, object?[]? constructorArguments = null)
         {
             constructorArguments ??= new object[0];
-            return EmitCreateObject(type, constructorArguments.Select(EmitValue));
+            var arguments = constructorArguments.Select(EmitValue);
+            var argumentTypes = arguments.Select(a => a.Type).ToArray();
+            var constructor = type.GetConstructor(argumentTypes).NotNull($"Could not find constructor of {type} with arguments ({string.Join(", ", argumentTypes.Select(a => a.Name))})");
+            return EmitCreateObject(constructor, arguments);
+        }
+        /// <summary>
+        /// Emits the create object expression.
+        /// </summary>
+        public ParameterExpression EmitCreateObject(ConstructorInfo ctor, object?[]? constructorArguments = null)
+        {
+            constructorArguments ??= new object[0];
+            var parameters = ctor.GetParameters();
+            if (parameters.Length != constructorArguments.Length)
+                throw new ArgumentException($"Constructor {ctor.DeclaringType.Name}.{ctor.Name} has {parameters.Length} parameters, but {constructorArguments.Length} arguments were provided.");
+            return EmitCreateObject(ctor, constructorArguments.Zip(parameters, (a, p) => Expression.Constant(a, p.ParameterType)));
         }
 
         public ParameterExpression EmitCustomInjectionFactoryInvocation(Type factoryType, Type controlType)
@@ -75,17 +90,14 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             return EmitCreateVariable(Expression.Convert(factoryInvoke, type));
         }
 
-        private ParameterExpression EmitCreateObject(Type type, IEnumerable<Expression> arguments)
+        private ParameterExpression EmitCreateObject(ConstructorInfo ctor, IEnumerable<Expression> arguments)
         {
-            return EmitCreateVariable(EmitCreateObjectExpression(type, arguments));
+            return EmitCreateVariable(EmitCreateObjectExpression(ctor, arguments));
         }
 
-        private Expression EmitCreateObjectExpression(Type type, IEnumerable<Expression> arguments)
+        private Expression EmitCreateObjectExpression(ConstructorInfo ctor, IEnumerable<Expression> arguments)
         {
-            var argumentTypes = arguments.Select(a => a.Type).ToArray();
-            var constructor = type.GetConstructor(argumentTypes).NotNull($"Could not find constructor of {type}");
-
-            return Expression.New(constructor, arguments.ToArray());
+            return Expression.New(ctor, arguments.ToArray());
         }
 
         public static Expression EmitCreateArray(Type elementType, IEnumerable<Expression> values)
@@ -289,7 +301,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
                 "SetValue",
                 emptyTypeArguments,
                 /*property*/ EmitValue(property),
-                /*value*/ EmitCreateObjectExpression(property.PropertyType, new Expression[] { }));
+                /*value*/ EmitCreateObject(property.PropertyType));
 
             var ifStatement = Expression.IfThen(ifCondition, statement);
 
