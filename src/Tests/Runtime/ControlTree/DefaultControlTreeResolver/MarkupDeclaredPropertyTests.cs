@@ -28,7 +28,7 @@ fileName: "control.dotcontrol");
         [DataTestMethod]
         [DataRow("true", "bool", typeof(bool), true)]
         [DataRow("30", "int", typeof(int), 30)]
-        [DataRow("10", "long", typeof(long), 10)]
+        [DataRow("10", "long", typeof(long), (long)10)]
         [DataRow("3.14", "double", typeof(double), 3.14)]
         [DataRow("'a'", "char", typeof(char), 'a')]
         [DataRow("\"t\"+\"e\"+$\"{\"s\"}t{1+1}\"+DotVVM.Framework.Tests.Runtime.ControlTree.TestConstants.Test", "string", typeof(string), "test2test")]
@@ -120,6 +120,30 @@ fileName: "control.dotcontrol");
 
             Assert.IsNotNull(binding.ResultType);
             Assert.AreEqual(typeof(List<int>).FullName, binding.ResultType.FullName);
+        }
+
+        [DataTestMethod]
+        [DataRow("true", "System.Collections.Generic.List<int>", typeof(List<int>), default(List<int>))]
+        [DataRow("true", "System.Guid", typeof(System.Guid), default(System.Guid))]
+        [DataRow("30", "bool", typeof(bool), default(bool))]
+        [DataRow("\"test\"", "long", typeof(long), default(long))]
+        [DataRow("3.14", "string", typeof(string), default(string))]
+        [DataRow("\"test\"", "int []", typeof(int []), default(int []))]
+        [DataRow("[ 1, 2, 3, 4 ]", "string []", typeof(string[]), default(string[]))]
+        public void ResolvedTree_MarkupDeclaredProperty_IncompatibleTypes(string initializer, string typeName, Type propertyType, object? testedValue)
+        {
+            var root = ParseSource(@$"@viewModel object
+@property {typeName} MisstypedProperty = {initializer}
+",
+fileName: "control.dotcontrol");
+            var declarationDirective = EnsureSingleResolvedDeclarationDirective(root);
+
+            Assert.AreEqual(propertyType.FullName, declarationDirective.PropertyType.FullName);
+            Assert.AreEqual(testedValue, declarationDirective.InitialValue);
+
+            Assert.IsTrue(declarationDirective.DothtmlNode.HasNodeErrors);
+            Assert.IsTrue(declarationDirective.DothtmlNode.NodeErrors.Any(e => e.Contains("initialize") && e.Contains("value")));
+            Assert.IsTrue(declarationDirective.DothtmlNode.NodeErrors.Any(e=> e.Contains("type")));
         }
 
         private static ResolvedPropertyDeclarationDirective EnsureSingleResolvedDeclarationDirective(ResolvedTreeRoot root) =>

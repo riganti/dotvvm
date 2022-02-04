@@ -54,7 +54,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return null;
         }
 
-        public object? ResolvePropertyInitializer(DothtmlDirectiveNode directive, Type? propertyType, BindingParserNode? initializer, ImmutableList<NamespaceImport> imports)
+        public object? ResolvePropertyInitializer(DothtmlDirectiveNode directive, Type propertyType, BindingParserNode? initializer, ImmutableList<NamespaceImport> imports)
         {
             if (initializer == null) { return null; }
 
@@ -63,15 +63,26 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
             var visitor = new ExpressionBuildingVisitor(registry, new MemberExpressionFactory(extensionMethodsCache, imports)) {
                 ResolveOnlyTypeName = false,
-                Scope = null
+                Scope = null,
+                ExpectedType = propertyType
             };
 
-            var initializerExpression = visitor.Visit(initializer);
+            try {
+                var initializerExpression = visitor.Visit(initializer);
 
-            var lambda = Expression.Lambda<Func<object?>>(Expression.Convert(Expression.Block(initializerExpression), typeof(object)));
-            var lambdaDelegate = lambda.Compile(true);
+                var funcType = typeof(Func<>).MakeGenericType(propertyType);
 
-            return lambdaDelegate.Invoke() ?? CreateDefaultValue(propertyType);
+                var lambda = Expression.Lambda(funcType, Expression.Convert(Expression.Block(initializerExpression), propertyType));
+                var lambdaDelegate = lambda.Compile(true);
+
+                return lambdaDelegate.DynamicInvoke() ?? CreateDefaultValue(propertyType);
+            }
+            catch (Exception ex)
+            {
+                directive.AddError("Could not initialize property value.");
+                directive.AddError(ex.Message);
+                return CreateDefaultValue(propertyType);
+            }
         }
 
         private object? CreatePropertyInitializerValue(DothtmlDirectiveNode directive, Type? propertyType, LiteralExpressionBindingParserNode? initializer)

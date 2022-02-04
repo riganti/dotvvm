@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             PropertyType = propertyTypeDescriptor;
 
             //Chack that I am not asigning incompatible types 
-            InitialValue = service.ResolvePropertyInitializer(dothtmlDirective, propertyTypeDescriptor?.Type, initializerSyntax, imports);
+            InitialValue = service.ResolvePropertyInitializer(dothtmlDirective, propertyTypeDescriptor?.Type ?? typeof(object), initializerSyntax, imports);
 
             AttributeInstances = InstantiateAttributes( dothtmlDirective, attributes).ToList();
         }
