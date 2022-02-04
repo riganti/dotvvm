@@ -105,6 +105,7 @@ jobs:
         configuration: ${{ matrix.configuration }}
         name: framework-tests
         title: Framework Tests
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Analyzers.Tests
       uses: ./.github/unittest
       with:

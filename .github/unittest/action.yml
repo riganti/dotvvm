@@ -35,5 +35,5 @@ runs:
     with:
       trx-path: artifacts/test/unit-test-results-${{ inputs.name }}-${{ inputs.configuration }}.trx
       report-name: unit-test-results-${{ inputs.name }}-${{ inputs.configuration }}
-      report-title: Unit Test Results from ${{ inputs.browser }} on ${{ runner.os }}
-      github-token: ${{ inputs.token }}
+      report-title: Unit Test Results of ${{ inputs.title }} (${{ inputs.configuration }})
+      github-token: ${{ inputs.github-token }}
