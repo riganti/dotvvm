@@ -21,11 +21,10 @@ inputs:
 runs:
   using: composite
   steps:
-    - run: |
-        Write-Host "::add-mask::${{ inputs.github-token }}" ;
+    - run: Write-Host "::add-mask::${{ inputs.github-token }}" ;
         ./.github/test-report/test-report.ps1
-          -trxPath "${{ inputs.trx-path }}"
-          -reportName "${{ inputs.report-name }}"
-          -reportTitle "${{ inputs.report-title }}"
-          -githubToken "${{ inputs.github-token }}"
+          -TrxPath "${{ inputs.trx-path }}"
+          -ReportName "${{ inputs.report-name }}"
+          -ReportTitle "${{ inputs.report-title }}"
+          -GithubToken "${{ inputs.github-token }}"
       shell: pwsh

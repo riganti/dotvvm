@@ -16,6 +16,9 @@ inputs:
   title:
     required: true
     description: Human-friendly name of the test project
+  github-token:
+    description: GitHub token so that test results can be uploaded
+    required: true
 
 runs:
   using: composite

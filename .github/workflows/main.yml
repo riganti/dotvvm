@@ -112,6 +112,7 @@ jobs:
         configuration: ${{ matrix.configuration }}
         name: analyzers-tests
         title: Analyzer Tests
+        github-token: ${{ secrets.GITHUB_TOKEN }}
 
   js-tests:
     runs-on: ubuntu-latest
@@ -158,4 +159,4 @@ jobs:
       uses: ./.github/uitest
       with:
         browser: ${{ matrix.browser }}
-        token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}

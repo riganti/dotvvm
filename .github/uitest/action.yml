@@ -6,7 +6,7 @@ inputs:
     default: chrome
     description: The name of the browser to be tested in
     required: false
-  token:
+  github-token:
     description: GitHub token so that test results can be uploaded
     required: true
 
@@ -34,4 +34,4 @@ runs:
       trx-path: artifacts/test/ui-test-results-${{ inputs.browser }}-${{ runner.os }}.trx
       report-name: ui-test-results-${{ inputs.browser }}-${{ runner.os }}
       report-title: UI Test Results from ${{ inputs.browser }} on ${{ runner.os }}
-      github-token: ${{ inputs.token }}
+      github-token: ${{ inputs.github-token }}
