@@ -2,7 +2,7 @@
 # and https://github.com/NasAmin/trx-parser.
 
 param(
-    [string] $trxPath,
+    [string] $trxPath = "C:\dev\riganti\dotvvm\src\Tests\TestResults\test.trx",
     [string] $reportName,
     [string] $reportTitle,
     [string] $githubToken)
@@ -12,28 +12,28 @@ if (-not (Get-Module -ListAvailable GitHubActions)) {
 }
 Import-Module GitHubActions
 
-$tmpDir = [System.IO.Path]::Combine($PWD, '_TMP')
-New-Item -Name $tmpDir -ItemType Directory -Force -ErrorAction Ignore
+$tmpDir = Join-Path (Get-Location) "tmp"
+New-Item -Path $tmpDir -ItemType Directory -Force -ErrorAction Ignore
+if (!(Test-Path -Path $tmpDir -PathType Container)) {
+    throw "Could not create a temporary directory."
+}
 Write-ActionInfo "Resolved tmpDir as '$tmpDir'"
 Write-ActionInfo "Reporting results from '$trxPath' as '$reportTitle [$reportName]'."
 
 function Build-MarkdownReport {
-    $script:report_name = $reportName
-    $script:report_title = $reportTitle
-
-    if (-not $script:report_name) {
-        $script:report_name = "TEST_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
+    if (-not $reportName) {
+        $reportName = "TEST_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
     }
-    if (-not $report_title) {
-        $script:report_title = $report_name
+    if (-not $reportTitle) {
+        $reportTitle = $reportName
     }
 
-    $script:test_report_path = Join-Path $tmpDir test-results.md
+    $reportPath = Join-Path $tmpDir test-results.md
     $trx2mdParams = @{
-        trxFile   = $script:test_results_path
-        mdFile    = $script:test_report_path
+        trxFile   = $trxPath
+        mdFile    = $reportPath
         xslParams = @{
-            reportTitle = $script:report_title
+            reportTitle = $reportTitle
         }
     }
     & "$PSScriptRoot/trx2md.ps1" @trx2mdParams -Verbose
@@ -134,7 +134,4 @@ Export-Clixml -InputObject $testResult -Path $result_clixml_path
 Write-ActionInfo "Generating Markdown Report from TRX file"
 Build-MarkdownReport
 $reportData = [System.IO.File]::ReadAllText($trxPath)
-
-if ($inputs.skip_check_run -ne $true) {
-    Publish-ToCheckRun -ReportData $reportData
-}
+Publish-ToCheckRun -ReportData $reportData
