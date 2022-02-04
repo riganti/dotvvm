@@ -1,0 +1,2 @@
+DotvvmControlException occurred: Cannot set HTML attributes, Visible, ID, Postback.Update, ... bindings on a control which does not render its own element!
+    at void DotVVM.Framework.Controls.HtmlGenericControl.EnsureNoAttributesSet(in RenderState r)
