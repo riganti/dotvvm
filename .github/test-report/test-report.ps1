@@ -15,6 +15,7 @@ Import-Module GitHubActions
 $tmpDir = [System.IO.Path]::Combine($PWD, '_TMP')
 New-Item -Name $tmpDir -ItemType Directory -Force -ErrorAction Ignore
 Write-ActionInfo "Resolved tmpDir as '$tmpDir'"
+Write-ActionInfo "Reporting results from '$trxPath' as '$reportTitle [$reportName]'."
 
 function Build-MarkdownReport {
     $script:report_name = $reportName
