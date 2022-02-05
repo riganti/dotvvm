@@ -86,7 +86,7 @@ jobs:
   dotnet-unit-tests:
     name: .NET unit tests
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+    timeout-minutes: 20
     strategy:
       fail-fast: false # don't kill tests when one environment fails
       matrix:
@@ -118,7 +118,7 @@ jobs:
   js-tests:
     runs-on: ubuntu-latest
     name: JS unit tests
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
     - uses: actions/checkout@v2
     - name: Set up

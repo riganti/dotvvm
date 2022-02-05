@@ -129,6 +129,7 @@ $trxNamespace = @{
 $notPassedTests = Select-Xml -Path $trxPath -Namespace $trxNamespace -XPath "//trx:UnitTestResult[@outcome!='Passed']"
 if ($notPassedTests.Length -eq 0) {
     Write-ActionInfo "All tests have passed. No report needed."
+    exit 0
 }
 
 Write-ActionInfo "Generating Markdown Report from TRX file"
@@ -139,3 +140,4 @@ if (-not $githubToken) {
 } else {
     Publish-ToCheckRun -reportText $reportText
 }
+
