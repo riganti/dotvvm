@@ -138,6 +138,7 @@ Build-MarkdownReport
 if (-not $githubToken) {
     Write-Warning "GitHub token is missing. Skipping upload to GitHub."
 } else {
+    $reportText = Get-ReportText
     Publish-ToCheckRun -reportText $reportText
 }
 
