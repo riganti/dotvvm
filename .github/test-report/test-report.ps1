@@ -1,8 +1,10 @@
 # Heavily inspired by https://github.com/zyborg/dotnet-tests-report
 # and https://github.com/NasAmin/trx-parser.
 
+# NB: Action inputs are not obtained using the GitHubActions PS module,
+#     because we use a composite action.
 param(
-    [string] $trxPath,
+    [string] $trxPath = "tmp/test.trx",
     [string] $reportName,
     [string] $reportTitle,
     [string] $githubToken)
@@ -17,17 +19,21 @@ New-Item -Path $tmpDir -ItemType Directory -Force -ErrorAction Ignore
 if (!(Test-Path -Path $tmpDir -PathType Container)) {
     throw "Could not create a temporary directory."
 }
-Write-ActionInfo "Resolved tmpDir as '$tmpDir'"
-Write-ActionInfo "Reporting results from '$trxPath' as '$reportTitle [$reportName]'."
 
 if (-not $reportName) {
-    $reportName = "TEST_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
+    $reportName = "tests-$([datetime]::Now.ToString('yyyy-MM-ddThh-mm-ss'))"
 }
 if (-not $reportTitle) {
     $reportTitle = $reportName
 }
 
-$reportPath = Join-Path $tmpDir test-results.md
+$reportPath = Join-Path $tmpDir "$reportName.md"
+
+Write-ActionInfo "Temporary directory: '$tmpDir'"
+Write-ActionInfo "Test results path: '$trxPath'"
+Write-ActionInfo "Report name: '$reportName'"
+Write-ActionInfo "Report title: '$reportTitle'"
+Write-ActionInfo "Report path: '$reportPath'"
 
 function Build-MarkdownReport {
     $trx2mdParams = @{
@@ -38,21 +44,23 @@ function Build-MarkdownReport {
         }
     }
     & "$PSScriptRoot/trx2md.ps1" @trx2mdParams -Verbose
+}
 
+function Get-ReportText {
+    $reportText =
+    if ($reportText.Length -gt 65535 ) {
+        $tooLongError = "...`nThe test report is too long to display.`n"
+        $reportText = $reportText.Substring(0, [System.Math]::Min($reportText.Length, 65535 - $tooLongError.Length)) `
+            + $tooLongError
+        Write-ActionWarning "Report is $($reportText.Length) characters long. Shortening to 65535."
+    }
+    return $reportText;
 }
 
 function Publish-ToCheckRun {
     param(
-        [string]$reportData
+        [string]$reportText
     )
-
-    Write-ActionInfo "Publishing Report to GH Workflow"
-
-    if ($reportData.Length -gt 65535 ) {
-        $tooLongError = "...`nThe test report is too long to display.`n"
-        $reportData = $reportData.Substring(0, [System.Math]::Min($reportData.Length, 65535 - $tooLongError.Length)) `
-            + $tooLongError
-    }
 
     $ctx = Get-ActionContext
     $repo = Get-ActionRepo
@@ -101,7 +109,6 @@ function Publish-ToCheckRun {
         Authorization = "token $githubToken"
     }
 
-
     $bdy = @{
         name       = $reportName
         head_sha   = $ref
@@ -110,29 +117,25 @@ function Publish-ToCheckRun {
         output     = @{
             title   = $reportTitle
             summary = "This run completed at ``$([datetime]::Now)``"
-            text    = $reportData
+            text    = $reportText
         }
     }
     Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
 }
 
-Write-ActionInfo "Compiling Test Result object"
-$testResultXml = Select-Xml -Path $trxPath -XPath /
-$testResult = [psobject]::new()
-$testResultXml.Node.TestRun.Attributes | % { $testResult |
-    Add-Member -MemberType NoteProperty -Name "TestRun_$($_.Name)" -Value $_.Value }
-$testResultXml.Node.TestRun.Times.Attributes | % { $testResult |
-    Add-Member -MemberType NoteProperty -Name "Times_$($_.Name)" -Value $_.Value }
-$testResultXml.Node.TestRun.ResultSummary.Attributes | % { $testResult |
-    Add-Member -MemberType NoteProperty -Name "ResultSummary_$($_.Name)" -Value $_.Value }
-$testResultXml.Node.TestRun.ResultSummary.Counters.Attributes | % { $testResult |
-    Add-Member -MemberType NoteProperty -Name "Counters_$($_.Name)" -Value $_.Value }
-Write-ActionInfo "$($testResult|Out-Default)"
-
-$result_clixml_path = Join-Path $tmpDir dotnet-test-result.clixml
-Export-Clixml -InputObject $testResult -Path $result_clixml_path
+$trxNamespace = @{
+    trx = "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"
+}
+$notPassedTests = Select-Xml -Path $trxPath -Namespace $trxNamespace -XPath "//trx:UnitTestResult[@outcome!='Passed']"
+if ($notPassedTests.Length -eq 0) {
+    Write-ActionInfo "All tests have passed. No report needed."
+}
 
 Write-ActionInfo "Generating Markdown Report from TRX file"
 Build-MarkdownReport
-$reportData = [System.IO.File]::ReadAllText($reportPath)
-Publish-ToCheckRun -ReportData $reportData
+
+if (-not $githubToken) {
+    Write-Warning "GitHub token is missing. Skipping upload to GitHub."
+} else {
+    Publish-ToCheckRun -reportText $reportText
+}

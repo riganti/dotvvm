@@ -90,8 +90,7 @@ Expand the following summaries for more details:
                 <xsl:otherwise>:grey_question:</xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-<xsl:if test="$testResult/@outcome = 'Failed'">
-
+<xsl:if test="$testResult/@outcome != 'Passed'">
 &lt;details&gt;
     &lt;summary&gt;
 <xsl:value-of select="$testOutcomeIcon" />
@@ -101,55 +100,28 @@ Expand the following summaries for more details:
 
 | | |
 |-|-|
-| **ID:**            | `<xsl:value-of select="@id" />`
 | **Name:**          | `<xsl:value-of select="@name" />`
+| **Class Name:**    | `<xsl:value-of select="trx:TestMethod/@className" />`
 | **Outcome:**       | `<xsl:value-of select="$testResult/@outcome" />` <xsl:value-of select="$testOutcomeIcon" />
-| **Computer Name:** | `<xsl:value-of select="$testResult/@computerName" />`
-| **Start:**         | `<xsl:value-of select="$testResult/@startTime" />`
-| **End:**           | `<xsl:value-of select="$testResult/@endTime" />`
 | **Duration:**      | `<xsl:value-of select="$testResult/@duration" />`
 
-&lt;details&gt;
-    &lt;summary&gt;Test Method Details:&lt;/summary&gt;
+<xsl:if test="$testResult/@outcome = 'Failed'">
 
-* Code Base:  `<xsl:value-of select="trx:TestMethod/@codeBase" />`
-* Class Name: `<xsl:value-of select="trx:TestMethod/@className" />`
-* Method Name:  `<xsl:value-of select="trx:TestMethod/@name" />`
-
-&lt;/details&gt;
-
-
-
-&lt;details&gt;
-    &lt;summary&gt;Error Message:&lt;/summary&gt;
+Error Message
 
 ```text
 <xsl:value-of select="$testResult/trx:Output/trx:ErrorInfo/trx:Message" />
 ```
-&lt;/details&gt;
 
-&lt;details&gt;
-    &lt;summary&gt;Error Stack Trace:&lt;/summary&gt;
+Error Stack Trace:
 
 ```text
 <xsl:value-of select="$testResult/trx:Output/trx:ErrorInfo/trx:StackTrace" />
 ```
-&lt;/details&gt;
-
-<!--
-      <Output>
-        <ErrorInfo>
-          <Message>Assert.AreNotEqual failed. Expected any value except:&lt;CN=foo.example.com&gt;. Actual:&lt;CN=foo.example.com&gt;. </Message>
-          <StackTrace>   at PKISharp.SimplePKI.UnitTests.PkiCertificateSigningRequestTests.ExportImportCsr(PkiAsymmetricAlgorithm algor, Int32 bits, PkiEncodingFormat format) in C:\local\prj\bek\ACMESharp\ACMESharpCore\test\PKISharp.SimplePKI.UnitTests\PkiCertificateSigningRequestTests.cs:line 284&#xD;
-</StackTrace>
-        </ErrorInfo>
-      </Output>
--->
+</xsl:if>
 
 -----
-
 &lt;/details&gt;
-
 </xsl:if>
     </xsl:template>
 

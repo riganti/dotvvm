@@ -218,3 +218,7 @@ sample.db
 # yarn
 .yarn/
 /.yarnrc.yml
+
+
+# GitHub Actions tmp dir
+/tmp
