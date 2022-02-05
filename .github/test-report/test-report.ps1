@@ -126,7 +126,8 @@ function Publish-ToCheckRun {
 $trxNamespace = @{
     trx = "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"
 }
-$notPassedTests = Select-Xml -Path $trxPath -Namespace $trxNamespace -XPath "//trx:UnitTestResult[@outcome!='Passed']"
+$trxXml = [xml][System.IO.File]::ReadAllText($trxPath)
+$notPassedTests = Select-Xml -Xml $trxXml -Namespace $trxNamespace -XPath "//trx:UnitTestResult[@outcome!='Passed']"
 if ($notPassedTests.Length -eq 0) {
     Write-ActionInfo "All tests have passed. No report needed."
     exit 0
@@ -145,3 +146,7 @@ if (-not $githubToken) {
     Publish-ToCheckRun -reportText $reportText
 }
 
+$failedTests = Select-Xml -Xml $trxXml -Namespace $trxNamespace -XPath "//trx:UnitTestResult[@outcome='Failed']"
+if ($failedTests.Length -gt 0) {
+    Set-ActionFailed "Action failed since $($failedTests.Length) tests failed."
+}
