@@ -15,7 +15,7 @@ if (-not (Get-Module -ListAvailable GitHubActions)) {
 Import-Module GitHubActions
 
 $tmpDir = Join-Path (Get-Location) "tmp"
-New-Item -Path $tmpDir -ItemType Directory -Force -ErrorAction Ignore
+New-Item -Path $tmpDir -ItemType Directory -Force -ErrorAction Ignore > $null
 if (!(Test-Path -Path $tmpDir -PathType Container)) {
     throw "Could not create a temporary directory."
 }
@@ -47,7 +47,7 @@ function Build-MarkdownReport {
 }
 
 function Get-ReportText {
-    $reportText =
+    $reportText = [System.IO.File]::ReadAllText($reportPath)
     if ($reportText.Length -gt 65535 ) {
         $tooLongError = "...`nThe test report is too long to display.`n"
         $reportText = $reportText.Substring(0, [System.Math]::Min($reportText.Length, 65535 - $tooLongError.Length)) `
@@ -135,8 +135,11 @@ if ($notPassedTests.Length -eq 0) {
 Write-ActionInfo "Generating Markdown Report from TRX file"
 Build-MarkdownReport
 
+$reportText = Get-ReportText
+Write-ActionInfo "Report true length: $($reportText.Length)"
+
 if (-not $githubToken) {
-    Write-Warning "GitHub token is missing. Skipping upload to GitHub."
+    Write-ActionInfo "GitHub token is missing. Skipping upload to GitHub."
 } else {
     $reportText = Get-ReportText
     Publish-ToCheckRun -reportText $reportText
