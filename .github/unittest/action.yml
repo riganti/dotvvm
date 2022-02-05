@@ -34,6 +34,6 @@ runs:
   - uses: ./.github/test-report
     with:
       trx-path: artifacts/test/unit-test-results-${{ inputs.name }}-${{ inputs.configuration }}.trx
-      report-name: tests-${{ inputs.name }}-${{ inputs.configuration }}-${{ runner.os }}
+      report-name: ${{ inputs.name }}-${{ inputs.configuration }}-${{ runner.os }}
       report-title: ${{ inputs.title }} (${{ inputs.configuration }}) on ${{ runner.os }}
       github-token: ${{ inputs.github-token }}
