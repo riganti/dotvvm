@@ -127,9 +127,9 @@ $trxNamespace = @{
     trx = "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"
 }
 $trxXml = [xml][System.IO.File]::ReadAllText($trxPath)
-$notPassedTests = Select-Xml -Xml $trxXml -Namespace $trxNamespace -XPath "//trx:UnitTestResult[@outcome!='Passed']"
-if ($notPassedTests.Length -eq 0) {
-    Write-ActionInfo "All tests have passed. No report needed."
+$failedTests = Select-Xml -Xml $trxXml -Namespace $trxNamespace -XPath "//trx:UnitTestResult[@outcome='Failed']"
+if ($failedTests.Length -eq 0) {
+    Write-ActionInfo "All tests have passed. No report is needed."
     exit 0
 }
 
@@ -145,8 +145,4 @@ if (-not $githubToken) {
     $reportText = Get-ReportText
     Publish-ToCheckRun -reportText $reportText
 }
-
-$failedTests = Select-Xml -Xml $trxXml -Namespace $trxNamespace -XPath "//trx:UnitTestResult[@outcome='Failed']"
-if ($failedTests.Length -gt 0) {
-    Set-ActionFailed "Action failed since $($failedTests.Length) tests failed."
-}
+Set-ActionFailed "Action failed since $($failedTests.Length) tests failed."
