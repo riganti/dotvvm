@@ -74,7 +74,7 @@ Expand the following summaries for more details:
 
 ## Tests:
 
-        <xsl:apply-templates select="/trx:TestRun/trx:TestDefinitions[@outcome='Failed']"/>
+        <xsl:apply-templates select="/trx:TestRun/trx:TestDefinitions"/>
     </xsl:template>
 
     <xsl:template match="trx:UnitTest">
@@ -90,27 +90,7 @@ Expand the following summaries for more details:
                 <xsl:otherwise>:grey_question:</xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-
-<!--
-  <xs:simpleType name="TestOutcome">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="Error"/>
-      <xs:enumeration value="Failed"/>
-      <xs:enumeration value="Timeout"/>
-      <xs:enumeration value="Aborted"/>
-      <xs:enumeration value="Inconclusive"/>
-      <xs:enumeration value="PassedButRunAborted"/>
-      <xs:enumeration value="NotRunnable"/>
-      <xs:enumeration value="NotExecuted"/>
-      <xs:enumeration value="Disconnected"/>
-      <xs:enumeration value="Warning"/>
-      <xs:enumeration value="Passed"/>
-      <xs:enumeration value="Completed"/>
-      <xs:enumeration value="InProgress"/>
-      <xs:enumeration value="Pending"/>
-    </xs:restriction>
-  </xs:simpleType>
- -->
+<xsl:if test="$testResult/@outcome = 'Failed'">
 
 &lt;details&gt;
     &lt;summary&gt;
@@ -139,7 +119,6 @@ Expand the following summaries for more details:
 &lt;/details&gt;
 
 
-<xsl:if test="$testResult/@outcome = 'Failed'">
 
 &lt;details&gt;
     &lt;summary&gt;Error Message:&lt;/summary&gt;
@@ -166,12 +145,12 @@ Expand the following summaries for more details:
         </ErrorInfo>
       </Output>
 -->
-</xsl:if>
 
 -----
 
 &lt;/details&gt;
 
+</xsl:if>
     </xsl:template>
 
 </xsl:stylesheet>

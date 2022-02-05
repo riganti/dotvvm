@@ -2,7 +2,7 @@
 # and https://github.com/NasAmin/trx-parser.
 
 param(
-    [string] $trxPath = "C:\dev\riganti\dotvvm\src\Tests\TestResults\test.trx",
+    [string] $trxPath,
     [string] $reportName,
     [string] $reportTitle,
     [string] $githubToken)
@@ -20,15 +20,16 @@ if (!(Test-Path -Path $tmpDir -PathType Container)) {
 Write-ActionInfo "Resolved tmpDir as '$tmpDir'"
 Write-ActionInfo "Reporting results from '$trxPath' as '$reportTitle [$reportName]'."
 
-function Build-MarkdownReport {
-    if (-not $reportName) {
-        $reportName = "TEST_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
-    }
-    if (-not $reportTitle) {
-        $reportTitle = $reportName
-    }
+if (-not $reportName) {
+    $reportName = "TEST_RESULTS_$([datetime]::Now.ToString('yyyyMMdd_hhmmss'))"
+}
+if (-not $reportTitle) {
+    $reportTitle = $reportName
+}
 
-    $reportPath = Join-Path $tmpDir test-results.md
+$reportPath = Join-Path $tmpDir test-results.md
+
+function Build-MarkdownReport {
     $trx2mdParams = @{
         trxFile   = $trxPath
         mdFile    = $reportPath
@@ -46,6 +47,12 @@ function Publish-ToCheckRun {
     )
 
     Write-ActionInfo "Publishing Report to GH Workflow"
+
+    if ($reportData.Length -gt 65535 ) {
+        $tooLongError = "...`nThe test report is too long to display.`n"
+        $reportData = $reportData.Substring(0, [System.Math]::Min($reportData.Length, 65535 - $tooLongError.Length)) `
+            + $tooLongError
+    }
 
     $ctx = Get-ActionContext
     $repo = Get-ActionRepo
@@ -94,12 +101,6 @@ function Publish-ToCheckRun {
         Authorization = "token $githubToken"
     }
 
-    if ($reportData.Length -gt 65535 ) {
-        $tooLongError = "...`nThe test report is too long to display.`n"
-        $reportData = $reportData.Substring(0, [System.Math]::Min($reportData.Length, 65535 - $tooLongError.Length)) `
-            + $tooLongError
-    }
-
 
     $bdy = @{
         name       = $reportName
@@ -133,5 +134,5 @@ Export-Clixml -InputObject $testResult -Path $result_clixml_path
 
 Write-ActionInfo "Generating Markdown Report from TRX file"
 Build-MarkdownReport
-$reportData = [System.IO.File]::ReadAllText($trxPath)
+$reportData = [System.IO.File]::ReadAllText($reportPath)
 Publish-ToCheckRun -ReportData $reportData
