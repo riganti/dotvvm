@@ -74,10 +74,10 @@ export default {
             var newContext: any = { $control: value }
 
             // we have to merge these two bindings, since knockout does not support multiple binding to change the data context
-            const viewModuleBinding = allBindings['dotvvm-with-view-modules']
+            const viewModuleBinding = allBindings.get('dotvvm-with-view-modules')
             if (viewModuleBinding)
             {
-                newContext.$viewModules = prepareViewModuleContexts(element, viewModuleBinding())
+                newContext.$viewModules = prepareViewModuleContexts(element, viewModuleBinding)
             }
 
             const innerBindingContext = bindingContext!.extend(newContext);
@@ -87,7 +87,7 @@ export default {
     },
     'dotvvm-with-view-modules': {
         init: (element: HTMLElement, valueAccessor: () => any, allBindings?: any, viewModel?: any, bindingContext?: KnockoutBindingContext) => {
-            if (allBindings['dotvvm-with-control-properties'])
+            if (allBindings.has('dotvvm-with-control-properties'))
                 return;
 
             const contexts = prepareViewModuleContexts(element, valueAccessor());
