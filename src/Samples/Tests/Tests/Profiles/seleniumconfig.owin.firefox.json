@@ -11,7 +11,10 @@
   },
   "logging": {
     "loggers": {
-      "testContext": {}
+      "testContext": {},
+      "debug": {},
+      "Stdout": {},
+      "trace": {}
     }
   }
 }

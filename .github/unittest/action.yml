@@ -1,0 +1,39 @@
+name: unittest
+description: Runs .NET unit tests under a specified configuration
+
+inputs:
+  project:
+    default: ""
+    description: The test project
+    required: true
+  configuration:
+    default: Debug
+    description: The build configuration
+    required: false
+  name:
+    required: true
+    description: Machine-friendly name of the test project
+  title:
+    required: true
+    description: Human-friendly name of the test project
+  github-token:
+    description: GitHub token so that test results can be uploaded
+    required: true
+
+runs:
+  using: composite
+  steps:
+  - run: dotnet test
+      --no-restore
+      --logger "GitHubActions;report-warnings=true"
+      --logger "trx;LogFileName=${{ github.workspace }}/artifacts/test/unit-test-results-${{ inputs.name }}-${{ inputs.configuration }}.trx"
+      --configuration "${{ inputs.configuration }}"
+      -p:WarningLevel=0
+      "${{ inputs.project }}"
+    shell: bash
+  - uses: ./.github/test-report
+    with:
+      trx-path: artifacts/test/unit-test-results-${{ inputs.name }}-${{ inputs.configuration }}.trx
+      report-name: ${{ inputs.name }}-${{ inputs.configuration }}-${{ runner.os }}
+      report-title: ${{ inputs.title }} (${{ inputs.configuration }}) on ${{ runner.os }}
+      github-token: ${{ inputs.github-token }}
