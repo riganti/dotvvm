@@ -11,21 +11,18 @@ using DotVVM.Framework.Runtime.Filters;
 namespace DotVVM.Framework.Binding.Expressions
 {
     [BindingCompilationRequirements(
-        required: new[] { typeof(StaticCommandJavascriptProperty), /*typeof(BindingDelegate)*/ }
+        required: new[] { typeof(StaticCommandOptionsLambdaJavascriptProperty), /*typeof(BindingDelegate)*/ }
     )]
     [Options]
     public class StaticCommandBindingExpression : BindingExpression, IStaticCommandBinding
     {
         public StaticCommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
 
-        private protected MaybePropValue<StaticCommandJavascriptProperty> staticCommandJs;
         private protected MaybePropValue<StaticCommandOptionsLambdaJavascriptProperty> staticCommandLambdaJs;
         private protected MaybePropValue<ActionFiltersBindingProperty> actionFilters;
 
         private protected override void StoreProperty(object p)
         {
-            if (p is StaticCommandJavascriptProperty staticCommandJs)
-                this.staticCommandJs.SetValue(new(staticCommandJs));
             if (p is StaticCommandOptionsLambdaJavascriptProperty staticCommandLambdaJs)
                 this.staticCommandLambdaJs.SetValue(new(staticCommandLambdaJs));
             if (p is ActionFiltersBindingProperty actionFilters)
@@ -36,8 +33,6 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public override object? GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
         {
-            if (type == typeof(StaticCommandJavascriptProperty))
-                return staticCommandJs.GetValue(this).GetValue(errorMode, this, type);
             if (type == typeof(StaticCommandOptionsLambdaJavascriptProperty))
                 return staticCommandLambdaJs.GetValue(this).GetValue(errorMode, this, type);
             if (type == typeof(ActionFiltersBindingProperty))
@@ -47,7 +42,6 @@ namespace DotVVM.Framework.Binding.Expressions
 
         private protected override IEnumerable<object?> GetOutOfDictionaryProperties() =>
             base.GetOutOfDictionaryProperties().Concat(new object?[] {
-                staticCommandJs.Value.Value,
                 staticCommandLambdaJs.Value.Value,
                 actionFilters.Value.Value,
             });
@@ -57,7 +51,9 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public BindingDelegate BindingDelegate => this.bindingDelegate.GetValueOrThrow(this);
 
-        public ParametrizedCode CommandJavascript => staticCommandJs.GetValueOrThrow(this).Code;
+        [Obsolete("StaticCommandBindingExpression.CommandJavascript is no longer supported. Use KnockoutHelper.GenerateClientPostBackExpression instead.")]
+        public ParametrizedCode CommandJavascript =>
+            this.GetProperty<StaticCommandJavascriptProperty>().Code;
 
         public ParametrizedCode OptionsLambdaJavascript => staticCommandLambdaJs.GetValueOrThrow(this).Code;
 
