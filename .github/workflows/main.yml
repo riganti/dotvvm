@@ -25,52 +25,69 @@ jobs:
     # framework
     - name: Core
       run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Core
+      if: ${{ always() }}
     - name: Framework
       run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Framework
+      if: ${{ always() }}
     - name: Testing
       run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Testing
+      if: ${{ always() }}
 
     # hosting
     - name: Hosting.AspNetCore
       run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Hosting.AspNetCore
+      if: ${{ always() }}
     - name: Hosting.Owin
       run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Framework/Hosting.Owin
+      if: ${{ always() }}
 
     # command-line
     - name: CommandLine
       run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tools/CommandLine
+      if: ${{ always() }}
 
     # swashbuckle
     - name: Api.Swashbuckle.AspNetCore
       run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Api/Swashbuckle.AspNetCore
+      if: ${{ always() }}
     - name: Api.Swashbuckle.Owin
       run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Api/Swashbuckle.Owin
+      if: ${{ always() }}
 
     # hot reload
     - name: HotReload.Common
       run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tools/HotReload/Common
+      if: ${{ always() }}
     - name: HotReload.AspNetCore
       run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tools/HotReload/AspNetCore
+      if: ${{ always() }}
     - name: HotReload.Owin
       run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Tools/HotReload/Owin
+      if: ${{ always() }}
 
     # application insights
     - name: Tracing.ApplicationInsights
       run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tracing/ApplicationInsights
+      if: ${{ always() }}
     - name: Tracing.ApplicationInsights.AspNetCore
       run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tracing/ApplicationInsights.AspNetCore
+      if: ${{ always() }}
     - name: Tracing.ApplicationInsights.Owin
       run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Tracing/ApplicationInsights.Owin
+      if: ${{ always() }}
 
     # miniprofiler
     - name: Tracing.MiniProfiler.AspNetCore
       run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tracing/MiniProfiler.AspNetCore
+      if: ${{ always() }}
     - name: Tracing.MiniProfiler.Owin
       run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Tracing/MiniProfiler.Owin
+      if: ${{ always() }}
 
     # dynamic data
     - name: DynamicData
       run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/DynamicData/DynamicData
+      if: ${{ always() }}
 
   build-all:
     name: Build all projects without errors
