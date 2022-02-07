@@ -70,6 +70,7 @@ namespace DotVVM.Framework.Binding.Properties
     /// <summary>
     /// Contains JS code, that will invoke the static command. May contain symbolic parameters from `JavascriptTranslator` and `CommandBindingExpression`
     /// </summary>
+    [Obsolete("Deprecated in favor of StaticCommandOptionsLambdaJavascriptProperty. It should contain the same code as this property, but wrapped in a lambda function taking PostbackOption. It will use options.knockoutContext and options.viewModel instead of ko.contextFor(this)")]
     public sealed record StaticCommandJavascriptProperty(
         ParametrizedCode Code
     );
