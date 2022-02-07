@@ -74,7 +74,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
                 var funcType = typeof(Func<>).MakeGenericType(propertyType);
 
-                var lambda = Expression.Lambda(funcType, Expression.Convert(Expression.Block(initializerExpression), propertyType));
+                var lambda = Expression.Lambda(funcType, Expression.Block(TypeConversion.ImplicitConversion(initializerExpression, propertyType, throwException: true)));
                 var lambdaDelegate = lambda.Compile(true);
 
                 return lambdaDelegate.DynamicInvoke() ?? CreateDefaultValue(propertyType);

@@ -49,23 +49,6 @@ fileName: "control.dotcontrol");
         }
 
         [TestMethod]
-        public void ResolvedTree_MarkupDeclaredProperty_GuidInitializer()
-        {
-            var root = ParseSource(@$"@viewModel object
-@property System.Guid ItemId = ""645f970d-2879-4fff-a19d-ba7b4c4a4853""
-",
-fileName: "control.dotcontrol");
-            var declarationDirective = EnsureSingleResolvedDeclarationDirective(root);
-
-            Assert.IsFalse(declarationDirective.DothtmlNode.HasNodeErrors);
-            Assert.AreEqual(typeof(Guid).FullName, declarationDirective.PropertyType.FullName);
-            Assert.AreEqual("ItemId", declarationDirective.NameSyntax.Name);
-
-            Assert.IsInstanceOfType(declarationDirective.InitialValue, typeof(Guid));
-            Assert.AreEqual(new Guid("645f970d-2879-4fff-a19d-ba7b4c4a4853"), declarationDirective.InitialValue);
-        }
-
-        [TestMethod]
         public void ResolvedTree_MarkupDeclaredProperty_ArrayInitializer_Array()
         {
             var root = ParseSource(@$"@viewModel object
@@ -91,12 +74,12 @@ fileName: "control.dotcontrol");
 fileName: "control.dotcontrol");
             var declarationDirective = EnsureSingleResolvedDeclarationDirective(root);
 
-            Assert.IsFalse(declarationDirective.DothtmlNode.HasNodeErrors);
+            Assert.IsTrue(declarationDirective.DothtmlNode.HasNodeErrors);
+            Assert.IsTrue(declarationDirective.DothtmlNode.NodeErrors.Any(e => e.Contains("initialize") && e.Contains("value")));
+            Assert.IsTrue(declarationDirective.DothtmlNode.NodeErrors.Any(e => e.Contains("type")));
+
             Assert.AreEqual(typeof(List<int>).FullName, declarationDirective.PropertyType.FullName);
             Assert.AreEqual("Items", declarationDirective.NameSyntax.Name);
-
-            Assert.IsInstanceOfType(declarationDirective.InitialValue, typeof(List<int>));
-            CollectionAssert.AreEqual(new List<int> { 1, 2, 3, 4, 5 }, (List<int>)declarationDirective.InitialValue);
         }
 
         [TestMethod]

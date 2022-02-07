@@ -360,5 +360,13 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.WaitFor(() => AssertUI.All(browser.FindElements("article>span")).TextNotEquals("changed"), 2000);
             });
         }
+
+        [Fact]
+        public void Feature_MarkupControl_MarkupDeclaredProperties()
+        {
+            RunInAllBrowsers(browser => {
+               //TODO: UI Test here
+            });
+        }
     }
 }
