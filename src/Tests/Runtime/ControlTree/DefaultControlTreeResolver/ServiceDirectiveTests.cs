@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Tests.Runtime.ControlTree.DefaultControlTreeResolver;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -42,6 +43,38 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 @viewModel object
 @import testServiceAlias = DotVVM.Framework.Tests.Runtime.ControlTree.DefaultControlTreeResolver.{nameof(TestService)}
 @service testService = testServiceAlias
+
+<dot:Button Click={{staticCommand: testService.TestCall()}} Text=""Test"" />
+");
+            CheckServiceAndBinding(root);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_ServiceDirective_CorrectBindingFromInjectedService_UsingGlobalImportedAliasedNamespace()
+        {
+            configuration.Markup.ImportedNamespaces.Add(new NamespaceImport(
+                $"DotVVM.Framework.Tests.Runtime.ControlTree.DefaultControlTreeResolver.{nameof(TestService)}",
+                "testServiceAlias"));
+
+            var root = ParseSource(@$"
+@viewModel object
+@service testService = testServiceAlias
+
+<dot:Button Click={{staticCommand: testService.TestCall()}} Text=""Test"" />
+");
+            CheckServiceAndBinding(root);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_ServiceDirective_CorrectBindingFromInjectedService_UsingGlobalImportedNamespace()
+        {
+            configuration.Markup.ImportedNamespaces.Add(new NamespaceImport(
+                $"DotVVM.Framework.Tests.Runtime.ControlTree.DefaultControlTreeResolver",
+                "testServiceAlias"));
+
+            var root = ParseSource(@$"
+@viewModel object
+@service testService = {nameof(TestService)}
 
 <dot:Button Click={{staticCommand: testService.TestCall()}} Text=""Test"" />
 ");

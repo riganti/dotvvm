@@ -3,6 +3,7 @@ using System.Linq;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Compilation.Binding;
+using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -62,6 +63,28 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 @import viewModelAlias = DotVVM.Framework.Tests.Runtime.ControlTree.TestViewModel
 @viewModel viewModelAlias
 ");
+            Assert.IsFalse(root.Directives.Any(d => d.Value.Any(dd => dd.DothtmlNode.HasNodeErrors)));
+            Assert.AreEqual(typeof(TestViewModel), root.DataContextTypeStack.DataContextType);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_ViewModel_TypeFromGlobalImportedAliasedType()
+        {
+            configuration.Markup.ImportedNamespaces.Add(new NamespaceImport("DotVVM.Framework.Tests.Runtime.ControlTree.TestViewModel", "viewModelAlias"));
+
+            var root = ParseSource(@"@viewModel viewModelAlias");
+
+            Assert.IsFalse(root.Directives.Any(d => d.Value.Any(dd => dd.DothtmlNode.HasNodeErrors)));
+            Assert.AreEqual(typeof(TestViewModel), root.DataContextTypeStack.DataContextType);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_ViewModel_TypeFromGlobalImportedNamespace()
+        {
+            configuration.Markup.ImportedNamespaces.Add(new NamespaceImport("DotVVM.Framework.Tests.Runtime.ControlTree"));
+
+            var root = ParseSource(@"@viewModel TestViewModel");
+
             Assert.IsFalse(root.Directives.Any(d => d.Value.Any(dd => dd.DothtmlNode.HasNodeErrors)));
             Assert.AreEqual(typeof(TestViewModel), root.DataContextTypeStack.DataContextType);
         }

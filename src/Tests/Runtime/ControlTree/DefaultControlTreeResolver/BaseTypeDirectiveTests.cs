@@ -6,6 +6,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using System.Threading.Tasks;
+using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -46,6 +47,35 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 @viewModel object
 @import controlAlias = DotVVM.Framework.Tests.Runtime.ControlTree.{nameof(TestControl)}
 @baseType controlAlias
+
+<dot:TextBox Text={{value: _control.MyProperty }} />
+<dot:Button Click={{staticCommand: _control.MyCommand()}} Text=""Test"" />
+");
+            CheckServiceAndBinding(root);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_BaseTypeDirective_CorrectBindings_UsingGlobalAliasedType()
+        {
+            configuration.Markup.ImportedNamespaces.Add(new NamespaceImport($"DotVVM.Framework.Tests.Runtime.ControlTree.{nameof(TestControl)}", "controlAlias"));
+            var root = ParseSource(@$"
+@viewModel object
+@baseType controlAlias
+
+<dot:TextBox Text={{value: _control.MyProperty }} />
+<dot:Button Click={{staticCommand: _control.MyCommand()}} Text=""Test"" />
+");
+            CheckServiceAndBinding(root);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_BaseTypeDirective_CorrectBindings_UsingGlobalImportedNamespace()
+        {
+            configuration.Markup.ImportedNamespaces.Add(new NamespaceImport("DotVVM.Framework.Tests.Runtime.ControlTree"));
+
+            var root = ParseSource(@$"
+@viewModel object
+@baseType {nameof(TestControl)}
 
 <dot:TextBox Text={{value: _control.MyProperty }} />
 <dot:Button Click={{staticCommand: _control.MyCommand()}} Text=""Test"" />
