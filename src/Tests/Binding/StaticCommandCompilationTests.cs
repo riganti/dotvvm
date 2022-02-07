@@ -233,6 +233,17 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void StaticCommandCompilation_TaskConversion()
+        {
+            var result = CompileBinding("injectedService.Load()", niceMode: true, new[] { typeof(TestViewModel) }, expectedType: typeof(Task<object>));
+
+            Console.WriteLine(result);
+            var control = @"await dotvvm.staticCommandPostback(""XXXX"", [], options)";
+
+            AreEqual(control, result);
+        }
+
+        [TestMethod]
         public void StaticCommandCompilation_ExpressionBetweenPostbacks_WithParameters()
         {
             var result = CompileBinding("StringProp = injectedService.Load(StringProp, StringProp); \"Test\"; StringProp = injectedService.Load(StringProp)", niceMode: false, new[] { typeof(TestViewModel) });
