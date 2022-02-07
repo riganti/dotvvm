@@ -171,7 +171,8 @@ namespace DotVVM.Framework.Compilation.Binding
                   NullableConversion(src, destType) ??
                   NullLiteralConversion(src, destType) ??
                   BoxingConversion(src, destType) ??
-                  ReferenceConversion(src, destType);
+                  ReferenceConversion(src, destType) ??
+                  TaskConversion(src, destType);
             if (allowToString && destType == typeof(string) && result == null)
             {
                 result = ToStringConversion(src);
