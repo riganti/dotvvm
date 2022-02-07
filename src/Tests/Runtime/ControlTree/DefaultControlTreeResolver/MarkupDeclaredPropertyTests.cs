@@ -124,7 +124,6 @@ fileName: "control.dotcontrol");
 
         [DataTestMethod]
         [DataRow("true", "System.Collections.Generic.List<int>", typeof(List<int>), default(List<int>))]
-        [DataRow("true", "System.Guid", typeof(System.Guid), default(System.Guid))]
         [DataRow("30", "bool", typeof(bool), default(bool))]
         [DataRow("\"test\"", "long", typeof(long), default(long))]
         [DataRow("3.14", "string", typeof(string), default(string))]
