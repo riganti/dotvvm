@@ -1773,6 +1773,7 @@ ko.observableArray['fn'] = {
             }
         }
         if (removedValues.length) {
+            applyObservableValidatorIfExists.call(this, underlyingArray);
             this.valueHasMutated();
         }
         return removedValues;
@@ -1805,6 +1806,7 @@ ko.observableArray['fn'] = {
             if (predicate(value))
                 value["_destroy"] = true;
         }
+        applyObservableValidatorIfExists.call(this, underlyingArray);
         this.valueHasMutated();
     },
 
@@ -1830,7 +1832,9 @@ ko.observableArray['fn'] = {
         var index = this['indexOf'](oldItem);
         if (index >= 0) {
             this.valueWillMutate();
-            this.peek()[index] = newItem;
+            var underlyingArray = this.peek();
+            underlyingArray[index] = newItem;
+            applyObservableValidatorIfExists.call(this, underlyingArray);
             this.valueHasMutated();
         }
     },
@@ -1851,6 +1855,15 @@ if (ko.utils.canSetPrototype) {
     ko.utils.setPrototypeOf(ko.observableArray['fn'], ko.observable['fn']);
 }
 
+function applyObservableValidatorIfExists(underlyingArray) {
+    if (this[observableValidator]) {
+        var newValue = this[observableValidator].call(this, underlyingArray).newValue;
+        if (newValue !== underlyingArray) {
+            this[observableLatestValue] = newValue;
+        }
+    }
+}
+
 // Populate ko.observableArray.fn with read/write functions from native arrays
 // Important: Do not add any additional functions here that may reasonably be used to *read* data from the array
 // because we'll eval them without causing subscriptions, so ko.computed output could end up getting stale
@@ -1863,12 +1876,7 @@ ko.utils.arrayForEach(["pop", "push", "reverse", "shift", "sort", "splice", "uns
         this.cacheDiffForKnownOperation(underlyingArray, methodName, arguments);
         var methodCallResult = underlyingArray[methodName].apply(underlyingArray, arguments);
 
-        if (this[observableValidator]) {
-            var newValue = this[observableValidator].call(this, underlyingArray).newValue;
-            if (newValue !== underlyingArray) {
-                this[observableLatestValue] = newValue;
-            }
-        }
+        applyObservableValidatorIfExists.call(this, underlyingArray);
         this.valueHasMutated();
 
         // The native sort and reverse methods return a reference to the array, but it makes more sense to return the observable array instead.
