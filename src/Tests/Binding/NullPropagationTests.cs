@@ -11,6 +11,7 @@ using DotVVM.Framework.Compilation.Binding;
 using System.Diagnostics;
 using Newtonsoft.Json;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Binding.HelperNamespace;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -292,6 +293,9 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.IsNull(EvalExpression<int[]>(v => v.Where(v => v % 2 == 0), null));
             Assert.IsNull(EvalExpression<int[]>(v => v.Where(v => v % 2 == 0).Count(), null));
             Assert.AreEqual(1, EvalExpression<int[]>(v => v.Where(v => v % 2 == 0).Count(), new [] { 1, 2 }));
+            Assert.IsNull(EvalExpression<Tuple<DateTime>>(v => v.Item1.ToBrowserLocalTime(), null));
+            Assert.IsNull(EvalExpression<Tuple<DateTime?>>(v => v.Item1.ToBrowserLocalTime(), null));
+            Assert.IsNull(EvalExpression<DateTime?>(v => v.ToBrowserLocalTime(), null));
         }
 
         [TestMethod]

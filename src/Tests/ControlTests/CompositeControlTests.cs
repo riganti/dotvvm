@@ -64,10 +64,12 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <!-- simple list -->
                 <cc:RepeatedButton DataSource={value: List}
                                    WrapperTagName=p
+                                   ID=test-id
                                    Text={value: _parent.Label + _this}
                                    ItemClick={command: _parent.Integer = _index}
                                    class=css-class-from-markup
                                    button:class=the-only-class-for-button-element
+                                   button:ID=inner-button
                                    />
                 "
             );
