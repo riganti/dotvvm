@@ -1,0 +1,43 @@
+{
+  "solution": {
+    "path": "DotVVM.sln",
+    "projects": [
+      "Analyzers\\Analyzers.CodeFixes\\DotVVM.Analyzers.CodeFixes.csproj",
+      "Analyzers\\Analyzers.Package\\DotVVM.Analyzers.Package.csproj",
+      "Analyzers\\Analyzers.Tests\\DotVVM.Analyzers.Tests.csproj",
+      "Analyzers\\Analyzers\\DotVVM.Analyzers.csproj",
+      "Api\\Swashbuckle.AspNetCore.Tests\\DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests.csproj",
+      "Api\\Swashbuckle.AspNetCore\\DotVVM.Framework.Api.Swashbuckle.AspNetCore.csproj",
+      "DynamicData\\Annotations\\DotVVM.Framework.Controls.DynamicData.Annotations.csproj",
+      "DynamicData\\DynamicData\\DotVVM.Framework.Controls.DynamicData.csproj",
+      "Framework\\Core\\DotVVM.Core.csproj",
+      "Framework\\Framework\\DotVVM.Framework.csproj",
+      "Framework\\Hosting.AspNetCore\\DotVVM.Framework.Hosting.AspNetCore.csproj",
+      "Framework\\Testing.SeleniumHelpers\\DotVVM.Framework.Testing.SeleniumHelpers.csproj",
+      "Framework\\Testing\\DotVVM.Framework.Testing.csproj",
+      "Samples\\Api.AspNetCoreLatest\\DotVVM.Samples.BasicSamples.Api.AspNetCoreLatest.csproj",
+      "Samples\\Api.AspNetCore\\DotVVM.Samples.BasicSamples.Api.AspNetCore.csproj",
+      "Samples\\Api.Common\\DotVVM.Samples.BasicSamples.Api.Common.csproj",
+      "Samples\\ApplicationInsights.AspNetCore\\DotVVM.Samples.ApplicationInsights.AspNetCore.csproj",
+      "Samples\\AspNetCoreLatest\\DotVVM.Samples.BasicSamples.AspNetCoreLatest.csproj",
+      "Samples\\AspNetCore\\DotVVM.Samples.BasicSamples.AspNetCore.csproj",
+      "Samples\\Common\\DotVVM.Samples.Common.csproj",
+      "Samples\\EmbeddedResourceControls\\EmbeddedResourceControls.csproj",
+      "Samples\\MiniProfiler.AspNetCore\\DotVVM.Samples.MiniProfiler.AspNetCore.csproj",
+      "Samples\\Tests\\Abstractions\\DotVVM.Testing.Abstractions.csproj",
+      "Samples\\Tests\\CompletenessChecker\\DotVVM.Samples.Tests.CompletenessChecker.csproj",
+      "Samples\\Tests\\Tests\\DotVVM.Samples.Tests.csproj",
+      "Tests\\DotVVM.Framework.Tests.csproj",
+      "Tools\\CommandLine\\DotVVM.CommandLine.csproj",
+      "Tools\\Compiler\\DotVVM.Compiler.csproj",
+      "Tools\\HotReload\\AspNetCore\\DotVVM.HotReload.AspNetCore.csproj",
+      "Tools\\HotReload\\Common\\DotVVM.HotReload.csproj",
+      "Tools\\StartupPerfTester\\DotVVM.Tools.StartupPerfTester.csproj",
+      "Tracing\\ApplicationInsights.AspNetCore\\DotVVM.Tracing.ApplicationInsights.AspNetCore.csproj",
+      "Tracing\\ApplicationInsights\\DotVVM.Tracing.ApplicationInsights.csproj",
+      "Tracing\\MiniProfiler.AspNetCore\\DotVVM.Tracing.MiniProfiler.AspNetCore.csproj",
+      "Tracing\\MiniProfiler.Shared\\DotVVM.Tracing.MiniProfiler.Shared.shproj",
+      "Tracing\\MiniProfiler.Tests\\DotVVM.Tracing.MiniProfiler.Tests.csproj"
+    ]
+  }
+}

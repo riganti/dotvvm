@@ -358,7 +358,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
         {
             var markupLoader = dotvvmConfig.ServiceProvider.GetService<IMarkupFileLoader>();
             var markupFile = markupLoader.GetMarkup(dotvvmConfig, filePath);
-            var fileContent = markupFile.ContentsReaderFactory();
+            var fileContent = markupFile.ReadContent();
 
             var tokenizer = new DothtmlTokenizer();
             tokenizer.Tokenize(fileContent);

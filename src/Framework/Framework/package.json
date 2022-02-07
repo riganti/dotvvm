@@ -1,5 +1,6 @@
 {
   "license": "Apache-2.0",
+  "packageManager": "yarn@3.1.1",
   "devDependencies": {
     "@rollup/plugin-replace": "2.3.3",
     "@rollup/plugin-typescript": "6.0.0",

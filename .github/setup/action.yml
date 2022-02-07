@@ -1,0 +1,56 @@
+name: setup
+description: Sets up the build environment for the DotVVM repo.
+
+inputs:
+  sln:
+    default: src/DotVVM.sln
+    description: Path to a Visual Studio solution
+    required: false
+
+runs:
+  using: composite
+  steps:
+  # nuget
+  - uses: actions/cache@v2
+    with:
+      path: ~/.nuget/packages
+      key: ${{ runner.os }}-nuget
+
+  # Node.js
+  - uses: actions/setup-node@v2
+    with:
+      node-version: 16
+  - run: |
+      corepack enable
+      yarn set version stable
+    shell: bash
+
+  # .NET
+  - uses: actions/setup-dotnet@v1
+    with:
+      dotnet-version: |
+        5.0.403
+        6.0.100
+  - if: ${{ runner.os == 'Windows' }}
+    uses: microsoft/setup-msbuild@v1.1
+
+  # restore packages
+  - if: ${{ runner.os == 'Windows' }}
+    uses: nuget/setup-nuget@v1
+  - if: ${{ runner.os == 'Windows' }}
+    run: msbuild ${{ inputs.sln }} -t:Restore
+    shell: pwsh
+  - if: ${{ runner.os != 'Windows' }}
+    run: dotnet restore ${{ inputs.sln }}
+    shell: bash
+
+  # add powershell build helper
+  - run: |
+      'param (
+          [string][parameter(Position = 0)]$configuration,
+          [string][parameter(Position = 1)]$targetFramework,
+          [string][parameter(Position = 2)]$project)
+          & "msbuild.exe" -t:Clean,Build -v:m -warnAsError `
+              -p:Configuration=$configuration -p:TargetFramework=$targetFramework "$project"
+      ' | Out-File "${{ github.workspace }}/build-dotvvm.ps1"
+    shell: pwsh
