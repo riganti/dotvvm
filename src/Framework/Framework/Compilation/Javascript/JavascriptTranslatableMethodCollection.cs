@@ -208,16 +208,19 @@ namespace DotVVM.Framework.Compilation.Javascript
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString")
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
+                        .WithAnnotation(ResultIsObservableAnnotation.Instance)
             ));
             AddMethodTranslator(typeof(DateTime).GetMethod("ToString", new[] { typeof(string) }), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString")
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+                        .WithAnnotation(ResultIsObservableAnnotation.Instance)
             ));
             AddMethodTranslator(typeof(DateTime?).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString")
                         .WithAnnotation(new GlobalizeResourceBindingProperty())
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
+                        .WithAnnotation(ResultIsObservableAnnotation.Instance)
             ));
 
             foreach (var num in ReflectionUtils.NumericTypes.Except(new[] { typeof(char) }))
