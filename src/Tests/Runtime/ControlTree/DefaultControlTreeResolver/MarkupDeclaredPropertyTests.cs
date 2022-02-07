@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Generic;
+using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -60,6 +61,7 @@ fileName: "control.dotcontrol");
             Assert.AreEqual(typeof(Guid).FullName, declarationDirective.PropertyType.FullName);
             Assert.AreEqual("ItemId", declarationDirective.NameSyntax.Name);
 
+            Assert.IsInstanceOfType(declarationDirective.InitialValue, typeof(Guid));
             Assert.AreEqual(new Guid("645f970d-2879-4fff-a19d-ba7b4c4a4853"), declarationDirective.InitialValue);
         }
 
@@ -111,15 +113,27 @@ fileName: "control.dotcontrol");
 ",
 fileName: "control.dotcontrol");
 
-            var declarationDirective = EnsureSingleResolvedDeclarationDirective(root);
-            var binding = EnsureSingleResolvedBinding(root);
+            CheckPropertyAndBinding(root, typeof(List<int>), "Items");
+        }
 
-            Assert.IsFalse(declarationDirective.DothtmlNode.HasNodeErrors);
-            Assert.AreEqual(typeof(List<int>).FullName, declarationDirective.PropertyType.FullName);
-            Assert.AreEqual("Items", declarationDirective.NameSyntax.Name);
+       
+        [TestMethod]
+        public void ResolvedTree_MarkupDeclaredProperty_GlobalImportUsed()
+        {
+            configuration.Markup.ImportedNamespaces.Add(new NamespaceImport("System.Collections.Generic"));
+            configuration.Markup.ImportedNamespaces.Add(new NamespaceImport("System"));
 
-            Assert.IsNotNull(binding.ResultType);
-            Assert.AreEqual(typeof(List<int>).FullName, binding.ResultType.FullName);
+            var root = ParseSource(@$"
+@viewModel object
+@property List<Guid> Items
+
+<dot:Repeater DataSource={{value: _control.Items}}>
+   <li>{{{{value: _this}}}}</li>
+</dot:Repeater>
+",
+fileName: "control.dotcontrol");
+
+            CheckPropertyAndBinding(root, typeof(List<Guid>), "Items");
         }
 
         [DataTestMethod]
@@ -143,6 +157,19 @@ fileName: "control.dotcontrol");
             Assert.IsTrue(declarationDirective.DothtmlNode.HasNodeErrors);
             Assert.IsTrue(declarationDirective.DothtmlNode.NodeErrors.Any(e => e.Contains("initialize") && e.Contains("value")));
             Assert.IsTrue(declarationDirective.DothtmlNode.NodeErrors.Any(e=> e.Contains("type")));
+        }
+
+        private static void CheckPropertyAndBinding(ResolvedTreeRoot root, Type expectedType, string expectedName)
+        {
+            var declarationDirective = EnsureSingleResolvedDeclarationDirective(root);
+            var binding = EnsureSingleResolvedBinding(root);
+
+            Assert.IsFalse(declarationDirective.DothtmlNode.HasNodeErrors);
+            Assert.AreEqual(expectedType.FullName, declarationDirective.PropertyType.FullName);
+            Assert.AreEqual(expectedName, declarationDirective.NameSyntax.Name);
+
+            Assert.IsNotNull(binding.ResultType);
+            Assert.AreEqual(expectedType.FullName, binding.ResultType.FullName);
         }
 
         private static ResolvedPropertyDeclarationDirective EnsureSingleResolvedDeclarationDirective(ResolvedTreeRoot root) =>
