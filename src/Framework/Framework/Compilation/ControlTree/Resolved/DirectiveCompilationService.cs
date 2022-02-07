@@ -5,6 +5,7 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Compilation.Binding;
 using System.Collections.Immutable;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
@@ -12,11 +13,13 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
     {
         private readonly CompiledAssemblyCache compiledAssemblyCache;
         private readonly ExtensionMethodsCache extensionMethodsCache;
+        private readonly DotvvmConfiguration configuration;
 
-        public DirectiveCompilationService(CompiledAssemblyCache compiledAssemblyCache, ExtensionMethodsCache extensionMethodsCache)
+        public DirectiveCompilationService(CompiledAssemblyCache compiledAssemblyCache, ExtensionMethodsCache extensionMethodsCache, DotvvmConfiguration configuration)
         {
             this.compiledAssemblyCache = compiledAssemblyCache;
             this.extensionMethodsCache = extensionMethodsCache;
+            this.configuration = configuration;
         }
 
         public ResolvedTypeDescriptor? ResolveType(DothtmlDirectiveNode directive, BindingParserNode nameSyntax, ImmutableList<NamespaceImport> imports)
@@ -58,9 +61,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         {
             if (initializer == null) { return null; }
 
-            var registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache)
-                .AddImportedTypes(compiledAssemblyCache, imports.ToImmutableArray());
-
+            var registry = RegisterImports(TypeRegistry.DirectivesDefault(compiledAssemblyCache), imports);
+                
             var visitor = new ExpressionBuildingVisitor(registry, new MemberExpressionFactory(extensionMethodsCache, imports)) {
                 ResolveOnlyTypeName = false,
                 Scope = null,
@@ -143,8 +145,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 registry = TypeRegistry.DirectivesDefault(compiledAssemblyCache);
             }
 
-            registry = registry
-                .AddImportedTypes(compiledAssemblyCache, imports.ToImmutableArray());
+            registry = RegisterImports(registry, imports);
 
             var visitor = new ExpressionBuildingVisitor(registry, new MemberExpressionFactory(extensionMethodsCache, imports)) {
                 ResolveOnlyTypeName = true,
@@ -160,6 +161,15 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 directive.AddError($"{expressionSyntax.ToDisplayString()} is not a valid type or namespace: {ex.Message}");
                 return null;
             }
+        }
+
+        private TypeRegistry RegisterImports(TypeRegistry registry, ImmutableList<NamespaceImport> imports)
+        {
+            var allImports = imports.Concat(configuration.Markup.ImportedNamespaces).ToImmutableArray();
+
+            registry = registry
+                .AddImportedTypes(compiledAssemblyCache, allImports);
+            return registry;
         }
     }
 }

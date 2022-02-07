@@ -68,9 +68,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         [TestMethod]
         public void ResolvedTree_ServiceDirective_CorrectBindingFromInjectedService_UsingGlobalImportedNamespace()
         {
-            configuration.Markup.ImportedNamespaces.Add(new NamespaceImport(
-                $"DotVVM.Framework.Tests.Runtime.ControlTree.DefaultControlTreeResolver",
-                "testServiceAlias"));
+            configuration.Markup.ImportedNamespaces.Add(new NamespaceImport($"DotVVM.Framework.Tests.Runtime.ControlTree.DefaultControlTreeResolver"));
 
             var root = ParseSource(@$"
 @viewModel object
