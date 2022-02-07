@@ -4,13 +4,25 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using DotVVM.Framework.Configuration;
+using Newtonsoft.Json;
+using RecordExceptions;
 
 // Tree architecture is inspired by NRefactory, large pieces of code are copy-pasted, see https://github.com/icsharpcode/NRefactory for source
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
     public abstract class JsNode: AbstractAnnotatable
     {
-        public override string ToString() => this.Clone().FormatScript(isDebugString: true);
+        public override string ToString()
+        {
+            try
+            {
+                return this.Clone().FormatScript(isDebugString: true);
+            }
+            catch (Exception e)
+            {
+                return $"{GetType().Name} (ToString failed: {e.Message})";
+            }
+        }
 
         private bool isFrozen;
         public bool IsFrozen => isFrozen;
@@ -39,13 +51,20 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             set { role = value; }
         }
 
+        [JsonIgnore]
         public JsNode? Parent => parent;
+        [JsonIgnore]
         public JsNode? NextSibling => nextSibling;
+        [JsonIgnore]
         public JsNode? PrevSibling => prevSibling;
+        [JsonIgnore]
         public JsNode? FirstChild => firstChild;
+        [JsonIgnore]
         public JsNode? LastChild => lastChild;
+        [JsonIgnore]
         public bool HasChildren => firstChild != null;
 
+        [JsonIgnore]
         public ChildrenCollection Children => new ChildrenCollection(this);
 
         public struct ChildrenCollection : IEnumerable<JsNode>
@@ -91,6 +110,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// <summary>
         /// Gets the ancestors of this node (excluding this node itself)
         /// </summary>
+        [JsonIgnore]
         public IEnumerable<JsNode> Ancestors
         {
             get {
@@ -103,6 +123,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// <summary>
         /// Gets the ancestors of this node (including this node itself)
         /// </summary>
+        [JsonIgnore]
         public IEnumerable<JsNode> AncestorsAndSelf
         {
             get {
@@ -116,11 +137,13 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// <summary>
         /// Gets all descendants of this node (excluding this node itself) in pre-order.
         /// </summary>
+        [JsonIgnore]
         public IEnumerable<JsNode> Descendants => GetDescendantsImpl(false);
 
         /// <summary>
         /// Gets all descendants of this node (including this node itself) in pre-order.
         /// </summary>
+        [JsonIgnore]
         public IEnumerable<JsNode> DescendantsAndSelf => GetDescendantsImpl(true);
 
         public IEnumerable<JsNode> DescendantNodes(Func<JsNode, bool>? descendIntoChildren = null)
@@ -201,9 +224,9 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             if (child == null)
                 return;
             ThrowIfFrozen();
-            if (child == this) throw new ArgumentException("Cannot add a node to itself as a child.", "child");
-            if (child.parent != null) throw new ArgumentException("Node is already used in another tree.", "child");
-            if (child.IsFrozen) throw new ArgumentException("Cannot add a frozen node.", "child");
+            if (child == this) throw new CannotNodeAddToItself(child);
+            if (child.parent != null) throw new NodeUsedInAnotherTree(child);
+            if (child.IsFrozen) throw new CannotAddFrozenNode(child);
             AddChildUnsafe(child, role);
         }
 
@@ -213,11 +236,11 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                 return;
             ThrowIfFrozen();
             if (child == this)
-                throw new ArgumentException("Cannot add a node to itself as a child.", "child");
+                throw new CannotNodeAddToItself(child);
             if (child.parent != null)
-                throw new ArgumentException("Node is already used in another tree.", "child");
+                throw new NodeUsedInAnotherTree(child);
             if (child.IsFrozen)
-                throw new ArgumentException("Cannot add a frozen node.", "child");
+                throw new CannotAddFrozenNode(child);
             AddChildUnsafe(child, child.Role);
         }
 
@@ -250,9 +273,9 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                 return;
             ThrowIfFrozen();
             if (child.parent != null)
-                throw new ArgumentException("Node is already used in another tree.", "child");
+                throw new NodeUsedInAnotherTree(child);
             if (child.IsFrozen)
-                throw new ArgumentException("Cannot add a frozen node.", "child");
+                throw new CannotAddFrozenNode(child);
             if (nextSibling.parent != this)
                 throw new ArgumentException("NextSibling is not a child of this node.", "nextSibling");
             // No need to test for "Cannot add children to null nodes",
@@ -321,7 +344,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             }
             if (newNode == this) return; // nothing to do...
             if (parent == null) {
-                throw new InvalidOperationException("Cannot replace the root node");
+                throw new CannotReplaceRoot(this, newNode);
             }
             ThrowIfFrozen();
             // Because this method doesn't statically check the new node's type with the role,
@@ -336,11 +359,11 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                     // enable automatic removal
                     newNode.Remove();
                 } else {
-                    throw new ArgumentException("Node is already used in another tree.", "newNode");
+                    throw new NodeUsedInAnotherTree(newNode);
                 }
             }
             if (newNode.IsFrozen)
-                throw new ArgumentException("Cannot add a frozen node.", "newNode");
+                throw new CannotAddFrozenNode(newNode);
 
             newNode.parent = parent;
             newNode.role = this.Role;
@@ -458,6 +481,23 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             while (prev != null && !pred(prev))
                 prev = prev.PrevSibling;
             return prev;
+        }
+
+        public record CannotReplaceRoot(JsNode RootNode, JsNode Node): RecordException
+        {
+            public override string Message => $"Cannot replace the root node {RootNode} with {Node}";
+        }
+        public record CannotNodeAddToItself(JsNode Node): RecordException
+        {
+            public override string Message => $"Cannot add a node to itself as a child: {Node}";
+        }
+        public record NodeUsedInAnotherTree(JsNode Node): RecordException
+        {
+            public override string Message => $"Node {Node} is already used in another tree.";
+        }
+        public record CannotAddFrozenNode(JsNode Node): RecordException
+        {
+            public override string Message => $"Cannot add a frozen node {Node}.";
         }
     }
 }

@@ -142,6 +142,18 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             return (TNode)node.CloneImpl();
         }
 
+        /// <summary>
+        /// Clones the whole subtree starting at this AST node, but only if the node is already used in a tree
+        /// </summary>
+        public static TNode CloneIfAlreadyUsed<TNode>(this TNode node)
+            where TNode: JsNode
+        {
+            if (node.Parent is null)
+                return node;
+            else
+                return (TNode)node.CloneImpl();
+        }
+
         public static JsNode AssignParameters(this JsNode node, Func<CodeSymbolicParameter, JsNode?> parameterAssignment)
         {
             foreach (var sp in node.Descendants.OfType<JsSymbolicParameter>())
@@ -238,7 +250,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             if (expression is JsIdentifierExpression { Identifier: var id } && id == identifier)
             {
                 if (expression.Parent != null)
-                    expression.ReplaceWith(replacement);
+                    expression.ReplaceWith(replacement.CloneIfAlreadyUsed());
                 return replacement;
             }
 
@@ -250,7 +262,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             }).OfType<JsIdentifierExpression>()
                 .Where(id => id.Identifier == identifier))
             {
-                identifierExpr.ReplaceWith(replacement);
+                identifierExpr.ReplaceWith(replacement.CloneIfAlreadyUsed());
             }
 
             return expression;
