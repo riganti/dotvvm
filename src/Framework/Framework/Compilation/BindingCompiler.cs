@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Compilation
                     else
                     {
                         var dc = ann.DataContext.NotNull("Invalid BindingParameterAnnotation");
-                        var lengthPropertyGetter = typeof(object[]).GetProperty("Length").GetGetMethod();
+                        var lengthPropertyGetter = typeof(object[]).GetProperty("Length")!.GetGetMethod()!;
 
                         return Expression.Block(
 
