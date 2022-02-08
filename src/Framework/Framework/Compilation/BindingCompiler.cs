@@ -78,7 +78,8 @@ namespace DotVVM.Framework.Compilation
                         var lengthPropertyGetter = typeof(object[]).GetProperty("Length").GetGetMethod();
 
                         return Expression.Block(
-                            // Test if array element exists
+
+                            // Test whether an array element with given index exists
                             Expression.IfThen(
                                 Expression.MakeBinary(
                                     ExpressionType.LessThanOrEqual,
@@ -86,6 +87,14 @@ namespace DotVVM.Framework.Compilation
                                     Expression.Constant(ContextMap[dc])),
                                 Expression.Throw(Expression.Constant(new DotvvmCompilationException($"Expected data-context item with index {ContextMap[dc]} is not available.")))),
 
+                            // Test whether the required cast is correct
+                            Expression.IfThen(
+                                Expression.Not(
+                                    Expression.TypeIs(Expression.ArrayIndex(ViewModelsParameter, Expression.Constant(ContextMap[dc])), dc.DataContextType)),
+                                Expression.Throw(Expression.Constant(
+                                    new DotvvmCompilationException($"Expected data-context item with index {ContextMap[dc]} to be of type {dc.DataContextType}.")))),
+
+                            // Access the array element and cast it to the required type
                             Expression.Convert(Expression.ArrayIndex(ViewModelsParameter, Expression.Constant(ContextMap[dc])), dc.DataContextType));
                     }
                 }
