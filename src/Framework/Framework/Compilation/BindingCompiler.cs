@@ -75,7 +75,18 @@ namespace DotVVM.Framework.Compilation
                     else
                     {
                         var dc = ann.DataContext.NotNull("Invalid BindingParameterAnnotation");
-                        return Expression.Convert(Expression.ArrayIndex(ViewModelsParameter, Expression.Constant(ContextMap[dc])), dc.DataContextType);
+                        var lengthPropertyGetter = typeof(object[]).GetProperty("Length").GetGetMethod();
+
+                        return Expression.Block(
+                            // Test if array element exists
+                            Expression.IfThen(
+                                Expression.MakeBinary(
+                                    ExpressionType.LessThanOrEqual,
+                                    Expression.Call(ViewModelsParameter, lengthPropertyGetter),
+                                    Expression.Constant(ContextMap[dc])),
+                                Expression.Throw(Expression.Constant(new DotvvmCompilationException($"Expected data-context item with index {ContextMap[dc]} is not available.")))),
+
+                            Expression.Convert(Expression.ArrayIndex(ViewModelsParameter, Expression.Constant(ContextMap[dc])), dc.DataContextType));
                     }
                 }
                 return base.Visit(node);
