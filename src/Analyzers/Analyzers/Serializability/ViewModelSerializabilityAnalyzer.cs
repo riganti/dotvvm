@@ -83,7 +83,7 @@ namespace DotVVM.Analyzers.Serializability
                     return;
                 
                 AnalyzeViewModelProperties(classDeclaration, serializabilityContext);
-                AnalyzeViewModelFields(classDeclaration, context);
+                AnalyzeViewModelFields(classDeclaration, serializabilityContext);
             }
         }
 
@@ -250,14 +250,34 @@ namespace DotVVM.Analyzers.Serializability
         /// </summary>
         /// <param name="viewModel">ViewModel class declaration</param>
         /// <param name="context">Semantic context</param>
-        private static void AnalyzeViewModelFields(ClassDeclarationSyntax viewModel, SemanticModelAnalysisContext context)
+        private static void AnalyzeViewModelFields(ClassDeclarationSyntax viewModel, SerializabilityAnalysisContext context)
         {
-            foreach (var field in viewModel.DescendantNodes().OfType<FieldDeclarationSyntax>()
-                .Where(f => f.Modifiers.Any(m => m.Kind() == SyntaxKind.PublicKeyword)))
+            var semanticModel = context.SemanticModel;
+            foreach (var field in viewModel.ChildNodes().OfType<FieldDeclarationSyntax>())
             {
-                var diagnostic = Diagnostic.Create(DoNotUseFieldsRule, field.GetLocation());
-                context.ReportDiagnostic(diagnostic);
+                var location = field.GetLocation();
+                foreach (var variable in field.Declaration.Variables)
+                {
+                    if (semanticModel.GetDeclaredSymbol(variable) is not IFieldSymbol fieldSymbol)
+                        continue;
+
+                    AnalyzeField(fieldSymbol, location, context);
+                }
             }
+        }
+
+        private static void AnalyzeField(IFieldSymbol fieldSymbol, Location location, SerializabilityAnalysisContext context)
+        {
+            // Static, const and non-public fields do not participate in serialization
+            if (fieldSymbol.IsStatic || fieldSymbol.IsConst || fieldSymbol.DeclaredAccessibility != Accessibility.Public)
+                return;
+
+            // Serialization might be ignored using attributes
+            if (IsSerializationIgnoredUsingJsonIgnoreAttribute(fieldSymbol, context))
+                return;
+
+            var diagnostic = Diagnostic.Create(DoNotUseFieldsRule, location);
+            context.ReportDiagnostic(diagnostic);
         }
 
         private static bool IsSerializationIgnored(IPropertySymbol property, SerializabilityAnalysisContext context)
@@ -265,13 +285,13 @@ namespace DotVVM.Analyzers.Serializability
             return IsSerializationIgnoredUsingBindAttribute(property, context) || IsSerializationIgnoredUsingJsonIgnoreAttribute(property, context);
         }
 
-        private static bool IsSerializationIgnoredUsingBindAttribute(IPropertySymbol property, SerializabilityAnalysisContext context)
+        private static bool IsSerializationIgnoredUsingBindAttribute(ISymbol propertyOrFieldSymbol, SerializabilityAnalysisContext context)
         {
             if (context.BindAttributeSymbol == null)
                 return false;
 
             // Try find attached attribute
-            var attribute = property.GetAttributes().SingleOrDefault(a => a.AttributeClass != null && a.AttributeClass.MetadataName == context.BindAttributeSymbol.MetadataName);
+            var attribute = propertyOrFieldSymbol.GetAttributes().SingleOrDefault(a => a.AttributeClass != null && a.AttributeClass.MetadataName == context.BindAttributeSymbol.MetadataName);
             if (attribute == null || attribute.ConstructorArguments.Length == 0)
                 return false;
 
@@ -283,13 +303,13 @@ namespace DotVVM.Analyzers.Serializability
             return direction == 0;
         }
 
-        private static bool IsSerializationIgnoredUsingJsonIgnoreAttribute(IPropertySymbol property, SerializabilityAnalysisContext context)
+        private static bool IsSerializationIgnoredUsingJsonIgnoreAttribute(ISymbol propertyOrFieldSymbol, SerializabilityAnalysisContext context)
         {
             if (context.JsonIgnoreAttributeSymbol == null)
                 return false;
 
             // Try find attached attribute
-            if (property.GetAttributes().SingleOrDefault(a => a.AttributeClass != null && a.AttributeClass.MetadataName == context.JsonIgnoreAttributeSymbol.MetadataName) == null)
+            if (propertyOrFieldSymbol.GetAttributes().SingleOrDefault(a => a.AttributeClass != null && a.AttributeClass.MetadataName == context.JsonIgnoreAttributeSymbol.MetadataName) == null)
                 return false;
 
             return true;

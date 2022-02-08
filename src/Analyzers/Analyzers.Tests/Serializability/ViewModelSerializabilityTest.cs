@@ -418,6 +418,25 @@ namespace DotVVM.Analyzers.Tests.Serializability
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.DoNotUseFieldsRule).WithLocation(0));
         }
+        [Fact]
+        public async void Test_ConstFieldsInViewModel()
+        {
+            var text = @"
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.IO;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public const int Constant = 1;
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(text);
+        }
+
 
         [Fact]
         public async void Test_StaticPropertiesInViewModel()
