@@ -39,10 +39,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Core/DotVVM.Core.csproj" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.1" />
-    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
-    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
@@ -58,7 +54,6 @@
     <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.0.2" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <Reference Include="System" />
     <Reference Include="System.Runtime" />
     <Reference Include="System.Net.Http" />
