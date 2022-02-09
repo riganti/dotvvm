@@ -1194,6 +1194,15 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var innerExpressionParser = new BindingParser() { Tokens = innerExpressionTokenizer.Tokens };
             expression = innerExpressionParser.ReadFormattedExpression();
 
+            // For Visual Studio extension we need to know also leading whitespaces
+            // Note that these are by default omitted by binding parser
+            if (innerExpressionTokenizer.Tokens.FirstOrDefault()?.Type == BindingTokenType.WhiteSpace)
+            {
+                var token = innerExpressionTokenizer.Tokens.First();
+                expression.StartPosition -= token.Length;
+                expression.Tokens.Insert(0, token);
+            }
+
             if (expression.HasNodeErrors)
             {
                 error = string.Join(" ", new[] { $"Error while parsing expression \"{rawExpression}\"." }.Concat(expression.NodeErrors));
