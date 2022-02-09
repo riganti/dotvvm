@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             constructorArguments ??= new object[0];
             var parameters = ctor.GetParameters();
             if (parameters.Length != constructorArguments.Length)
-                throw new ArgumentException($"Constructor {ctor.DeclaringType.Name}.{ctor.Name} has {parameters.Length} parameters, but {constructorArguments.Length} arguments were provided.");
+                throw new ArgumentException($"Constructor {ctor.DeclaringType?.Name}.{ctor.Name} has {parameters.Length} parameters, but {constructorArguments.Length} arguments were provided.");
             return EmitCreateObject(ctor, constructorArguments.Zip(parameters, (a, p) => Expression.Constant(a, p.ParameterType)));
         }
 

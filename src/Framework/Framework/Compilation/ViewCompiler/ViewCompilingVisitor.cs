@@ -80,31 +80,31 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
             BuildCompiledView = emitter.PopMethod<Func<IControlBuilderFactory, IServiceProvider, DotvvmControl>>();
         }
 
-        protected ParameterExpression EmitCreateControl(Type type, object[]? arguments)
+        protected ParameterExpression EmitCreateControl(Type type, object[] arguments)
         {
             // if marked with [RequireDependencyInjection] attribute, invoke injected factory
             if (type.GetCustomAttribute(typeof(DependencyInjection.RequireDependencyInjectionAttribute)) is DependencyInjection.RequireDependencyInjectionAttribute requireDiAttr)
                 return emitter.EmitCustomInjectionFactoryInvocation(requireDiAttr.FactoryType, type);
             // if matching ctor exists, invoke it directly
             else if (type.GetConstructors().FirstOrDefault(ctor =>
-                ctor.GetParameters().Count(p => !p.HasDefaultValue) <= (arguments?.Length ?? 0) &&
-                ctor.GetParameters().Length >= (arguments?.Length ?? 0) &&
-                ctor.GetParameters().Zip(arguments ?? Enumerable.Empty<object>(),
+                ctor.GetParameters().Count(p => !p.HasDefaultValue) <= arguments.Length &&
+                ctor.GetParameters().Length >= arguments.Length &&
+                ctor.GetParameters().Zip(arguments,
                         (p, a) => TypeConversion.ImplicitConversion(Expression.Constant(a), p.ParameterType))
                     .All(a => a != null)) is ConstructorInfo constructor)
             {
                 var optionalArguments =
-                    constructor.GetParameters().Skip(arguments?.Length ?? 0)
+                    constructor.GetParameters().Skip(arguments.Length)
                     .Select(a =>
                         a.ParameterType == typeof(bool) && a.Name == "allowImplicitLifecycleRequirements" ? false :
                         a.DefaultValue
                     );
-                return emitter.EmitCreateObject(constructor, arguments == null ? optionalArguments.ToArray() : arguments.Concat(optionalArguments).ToArray());
+                return emitter.EmitCreateObject(constructor, arguments.Concat(optionalArguments).ToArray());
             }
             // otherwise invoke DI factory
             else
             {
-                return emitter.EmitInjectionFactoryInvocation(type, arguments ?? new object[0]);
+                return emitter.EmitInjectionFactoryInvocation(type, arguments);
             }
         }
 
@@ -230,8 +230,9 @@ namespace DotVVM.Framework.Compilation.ViewCompiler
 
             if (control.Metadata.VirtualPath == null)
             {
+                var arguments = control.ConstructorParameters ?? Array.Empty<object>();
                 // compiled control
-                name = EmitCreateControl(control.Metadata.Type, control.ConstructorParameters).Name.NotNull();
+                name = EmitCreateControl(control.Metadata.Type, arguments).Name.NotNull();
             }
             else
             {
