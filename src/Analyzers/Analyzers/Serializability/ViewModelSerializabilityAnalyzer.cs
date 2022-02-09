@@ -176,20 +176,8 @@ namespace DotVVM.Analyzers.Serializability
                     break;
 
                 case TypeKind.Enum:
-                    // We need to ensure underlying enum type is serializable
-                    var underlyingTypeSymbol = ((INamedTypeSymbol)propertyType).EnumUnderlyingType;
-                    if (underlyingTypeSymbol != null)
-                    {
-                        if (!context.IsVisited(underlyingTypeSymbol))
-                        {
-                            AnalyzePropertyType(underlyingTypeSymbol, location, path, context);
-                        }
-                        else
-                        {
-                            ReportIfNotSerializable(underlyingTypeSymbol, location, path, context);
-                        }
-                    }
-                    break;
+                    // This is always serializable
+                    return;
 
                 case TypeKind.Interface:
                 case TypeKind.Class:
