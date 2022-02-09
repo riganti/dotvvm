@@ -158,6 +158,9 @@ namespace DotVVM.Framework.Compilation.Binding
             return null;
         }
 
+        public static Expression EnsureImplicitConversion(Expression src, Type destType)
+            => ImplicitConversion(src, destType, true, false)!;
+
         // 6.1 Implicit Conversions
         public static Expression? ImplicitConversion(Expression src, Type destType, bool throwException = false, bool allowToString = false)
         {

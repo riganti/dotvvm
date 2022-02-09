@@ -74,7 +74,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
                 var funcType = typeof(Func<>).MakeGenericType(propertyType);
 
-                var lambda = Expression.Lambda(funcType, Expression.Block(TypeConversion.ImplicitConversion(initializerExpression, propertyType, throwException: true)));
+                var lambda = Expression.Lambda(funcType, Expression.Block(TypeConversion.EnsureImplicitConversion(initializerExpression, propertyType)));
                 var lambdaDelegate = lambda.Compile(true);
 
                 return lambdaDelegate.DynamicInvoke() ?? CreateDefaultValue(propertyType);
@@ -85,40 +85,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 directive.AddError(ex.Message);
                 return CreateDefaultValue(propertyType);
             }
-        }
-
-        private object? CreatePropertyInitializerValue(DothtmlDirectiveNode directive, Type? propertyType, LiteralExpressionBindingParserNode? initializer)
-        {
-            if (initializer?.Value is null || propertyType is null) { return null; }
-
-            var originalLiteralType = initializer.Value.GetType();
-
-            if (originalLiteralType != typeof(string)) { return initializer.Value; }
-
-            var initializerValueString = initializer.Value.ToString() ?? "";
-
-            if (propertyType == typeof(char))
-            {
-                if (initializerValueString.Length != 1)
-                {
-                    directive.AddError($"Could not convert \"{initializerValueString}\" to char when initializing property {directive.Name}.");
-                    return default(char);
-                }
-
-                return initializerValueString.Single();
-            }
-
-            if (propertyType == typeof(Guid))
-            {
-                if (Guid.TryParse(initializerValueString, out var guid))
-                {
-                    return guid;
-                }
-                directive.AddError($"Could not convert \"{initializerValueString}\" to Guid when initializing property {directive.Name}.");
-                return default(Guid);
-            }
-
-            return initializerValueString;
         }
 
         private object? CreateDefaultValue(Type? type)

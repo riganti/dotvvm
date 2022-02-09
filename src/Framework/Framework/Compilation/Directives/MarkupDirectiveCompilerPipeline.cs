@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Compilation.Directives
             var viewModelDirectiveCompiler = new ViewModelDirectiveCompiler(directivesByName, treeBuilder, fileName, imports);
             var viewModelTypeResult = viewModelDirectiveCompiler.Compile();
             var viewModelType = viewModelTypeResult.Artefact;
-            if (!string.IsNullOrEmpty(viewModelType.Error)) { dothtmlRoot.AddError(viewModelType.Error); }
+            if (!string.IsNullOrEmpty(viewModelType.Error)) { dothtmlRoot.AddError(viewModelType.Error!); }
             resolvedDirectives.AddIfAny(viewModelDirectiveCompiler.DirectiveName, viewModelTypeResult.Diractives);
 
             var masterPageDirectiveCompiler = new MasterPageDirectiveCompiler(directivesByName, treeBuilder, controlBuilderFactory, viewModelType.TypeDescriptor);
