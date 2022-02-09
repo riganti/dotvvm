@@ -186,6 +186,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void StaticCommandCompilation_CommandArgumentSoubleUsage()
+        {
+            var result = CompileBinding("StringProp = (arg + arg).ToString()", niceMode: false, new[] { typeof(TestViewModel) }, typeof(Func<int, Task>));
+            Assert.AreEqual("{let arg=commandArguments[0];options.viewModel.StringProp(dotvvm.globalize.bindingNumberToString(arg+arg)());}", result);
+        }
+
+        [TestMethod]
         public void StaticCommandCompilation_PossibleAmniguousMatch()
         {
             var result = CompileBinding("SomeString = injectedService.Load(SomeString)", niceMode: false, new[] { typeof(TestViewModel3) }, typeof(Func<string, string>));
