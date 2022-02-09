@@ -19,13 +19,13 @@ namespace DotVVM.Framework.ViewModel.Validation
             return error;
         }
 
-        public static ViewModelValidationError AddModelError(this IDotvvmRequestContext context, string propertyPath, string message)
+        public static ViewModelValidationError AddRawModelError(this IDotvvmRequestContext context, string absolutePath, string message)
         {
-            EnsurePathIsRooted(propertyPath);
+            EnsurePathIsRooted(absolutePath);
             var error = new ViewModelValidationError(message)
             {
                 IsResolved = true,
-                PropertyPath = propertyPath ?? "/"
+                PropertyPath = absolutePath ?? "/"
             };
             context.ModelState.ErrorsInternal.Add(error);
             return error;
