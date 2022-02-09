@@ -10,15 +10,17 @@ namespace DotVVM.Analyzers.Serializability
         public INamedTypeSymbol? ViewModelSymbol { get; set; }
         public INamedTypeSymbol? BindAttributeSymbol { get; set; }
         public INamedTypeSymbol? JsonIgnoreAttributeSymbol { get; set; }
+        public INamedTypeSymbol? JsonConvertAttributeSymbol { get; set; }
         private readonly SemanticModelAnalysisContext semanticAnalysisContext;
         private readonly Dictionary<ITypeSymbol, DiagnosticDescriptor?> symbolsLookup;
 
-        public SerializabilityAnalysisContext(SemanticModelAnalysisContext context, INamedTypeSymbol? viewModel, INamedTypeSymbol? bindAttr, INamedTypeSymbol? jsonIgnoreAttr)
+        public SerializabilityAnalysisContext(SemanticModelAnalysisContext context, INamedTypeSymbol? viewModel, INamedTypeSymbol? bindAttr, INamedTypeSymbol? jsonIgnoreAttr, INamedTypeSymbol? jsonConvertAttr)
         {
             SemanticModel = context.SemanticModel;
             ViewModelSymbol = viewModel;
             BindAttributeSymbol = bindAttr;
             JsonIgnoreAttributeSymbol = jsonIgnoreAttr;
+            JsonConvertAttributeSymbol = jsonConvertAttr;
             semanticAnalysisContext = context;
 #pragma warning disable RS1024 // Compare symbols correctly
             // This is a false positive: https://github.com/dotnet/roslyn-analyzers/issues/4568

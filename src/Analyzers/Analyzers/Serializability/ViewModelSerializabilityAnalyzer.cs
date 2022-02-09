@@ -23,6 +23,7 @@ namespace DotVVM.Analyzers.Serializability
         private const string dotvvmViewModelInterfaceMetadataName =  "DotVVM.Framework.ViewModel.IDotvvmViewModel";
         private const string dotvvmBindAttributeMetadataName = "DotVVM.Framework.ViewModel.BindAttribute";
         private const string newtonsoftJsonIgnoreAttributeMetadataName = "Newtonsoft.Json.JsonIgnoreAttribute";
+        private const string newtonsoftJsonConvertAttributeMetadataName = "Newtonsoft.Json.JsonConverterAttribute";
 
         public static DiagnosticDescriptor UseSerializablePropertiesRule = new DiagnosticDescriptor(
             DotvvmDiagnosticIds.UseSerializablePropertiesInViewModelRuleId,
@@ -61,7 +62,8 @@ namespace DotVVM.Analyzers.Serializability
             var viewModelInterface = semanticModel.Compilation.GetTypeByMetadataName(dotvvmViewModelInterfaceMetadataName);
             var bindAttribute = semanticModel.Compilation.GetTypeByMetadataName(dotvvmBindAttributeMetadataName);
             var jsonIgnoreAttribute = semanticModel.Compilation.GetTypeByMetadataName(newtonsoftJsonIgnoreAttributeMetadataName);
-            var serializabilityContext = new SerializabilityAnalysisContext(context, viewModelInterface, bindAttribute, jsonIgnoreAttribute);
+            var jsonConvertAttribute = semanticModel.Compilation.GetTypeByMetadataName(newtonsoftJsonConvertAttributeMetadataName);
+            var serializabilityContext = new SerializabilityAnalysisContext(context, viewModelInterface, bindAttribute, jsonIgnoreAttribute, jsonConvertAttribute);
 
             // Check if we found required types
             if (viewModelInterface == null || bindAttribute == null || jsonIgnoreAttribute == null)
@@ -118,6 +120,10 @@ namespace DotVVM.Analyzers.Serializability
 
             // Serialization might be ignored using attributes
             if (IsSerializationIgnored(propertySymbol, context))
+                return;
+
+            // If user tried to override serialization, let's assume it is correct
+            if (IsSerializationOverriden(propertySymbol, context))
                 return;
 
             AnalyzePropertyType(propertySymbol.Type, location, $"{path}.{propertySymbol.Name}", context);
@@ -266,6 +272,24 @@ namespace DotVVM.Analyzers.Serializability
 
             var diagnostic = Diagnostic.Create(DoNotUseFieldsRule, location);
             context.ReportDiagnostic(diagnostic);
+        }
+
+        private static bool IsSerializationOverriden(IPropertySymbol property, SerializabilityAnalysisContext context)
+        {
+            if (context.JsonConvertAttributeSymbol == null)
+                return false;
+
+            // Try find attached attribute on the property
+            var attribute = property.GetAttributes().SingleOrDefault(a => a.AttributeClass != null && a.AttributeClass.MetadataName == context.JsonConvertAttributeSymbol.MetadataName);
+            if (attribute != null)
+                return true;
+
+            // Try find attached attribute on the type definition of the property type
+            attribute = property.Type.GetAttributes().SingleOrDefault(a => a.AttributeClass != null && a.AttributeClass.MetadataName == context.JsonConvertAttributeSymbol.MetadataName);
+            if (attribute != null)
+                return true;
+
+            return false;
         }
 
         private static bool IsSerializationIgnored(IPropertySymbol property, SerializabilityAnalysisContext context)

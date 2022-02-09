@@ -527,6 +527,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         {
             var text = @"
     using DotVVM.Framework.ViewModel;
+    using Newtonsoft.Json;
     using System;
     using System.IO;
 
@@ -535,7 +536,13 @@ namespace DotVVM.Analyzers.Tests.Serializability
         public class DefaultViewModel : DotvvmViewModelBase
         {
             [Bind(Direction.None)]
-            public Stream Property { get; set; }
+            public Stream Property1 { get; set; }
+
+            [JsonIgnore]
+            public Stream Property2 { get; set; }
+
+            [JsonIgnore]
+            public int Field;
         }
     }";
 
@@ -596,6 +603,62 @@ namespace DotVVM.Analyzers.Tests.Serializability
         {
             public GridViewDataSet<int> DataSet { get; set; }
             public UploadedFilesCollection UploadedFiles { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(text);
+        }
+
+        [Fact]
+        public async void Test_OverridenSerialization_OnProperty_ViewModel()
+        {
+            var text = @"
+    using DotVVM.Framework.Controls;
+    using DotVVM.Framework.ViewModel;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
+    using System;
+    using System.IO;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            [JsonConverter(typeof(StringEnumConverter))]
+            public NonSerializable Property { get; set; }
+        }
+
+        public class NonSerializable
+        {
+            public Stream Stream { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(text);
+        }
+
+        [Fact]
+        public async void Test_OverridenSerialization_OnTypeDeclaration_ViewModel()
+        {
+            var text = @"
+    using DotVVM.Framework.Controls;
+    using DotVVM.Framework.ViewModel;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
+    using System;
+    using System.IO;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public NonSerializable Property { get; set; }
+        }
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public class NonSerializable
+        {
+            public Stream Stream { get; set; }
         }
     }";
 
