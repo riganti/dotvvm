@@ -7,13 +7,7 @@
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.Tracing.MiniProfiler.AspNetCore</PackageId>
-    <Authors>RIGANTI</Authors>
     <Description>MiniProfiler Tracing module for ASP.NET Core and DotVVM</Description>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageTags>dotvvm;asp.net;mvvm;owin</PackageTags>
-    <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PreserveCompilationContext>true</PreserveCompilationContext>
     <DefineConstants>TRACE;AspNetCore</DefineConstants>
   </PropertyGroup>
   <ItemGroup>

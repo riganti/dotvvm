@@ -2,7 +2,7 @@
   <PropertyGroup Label="Basic info">
     <Authors>RIGANTI</Authors>
     <Description>DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.</Description>
-    <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore;dnx;dynamic data;annotations;metadata;ui generation</PackageTags>
+    <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore</PackageTags>
     <Version>4.0.0-preview01-122136</Version>
 
     <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>

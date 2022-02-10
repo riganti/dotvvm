@@ -2,10 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <AssemblyName>DotVVM.Samples.Common</AssemblyName>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="compiler\resources\**\*" />
@@ -197,6 +193,10 @@
   <ItemGroup>
     <!-- the wildcard would not work in Target.Inputs, it only works in Include -->
     <TypescriptFile Include="Resources/Scripts/**/*.tsx" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <!-- BeforeBuild is ran for every target framework. However, unless its input files change, this target is skipped. -->
   <Target Name="CompileJS" Inputs="@(TypescriptFile)" Outputs="script/react-app.js" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
