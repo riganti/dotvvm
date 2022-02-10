@@ -19,6 +19,7 @@ namespace DotVVM.CommandLine.OpenApi
         {
             this.settings = settings;
             this.document = document;
+            pairs = new Dictionary<string, string>();
             GenerateTypeNamesPairs(document);
         }
 
@@ -63,13 +64,12 @@ namespace DotVVM.CommandLine.OpenApi
         {
             settings.ExcludedTypeNames = (settings.ExcludedTypeNames ?? Array.Empty<string>());
 
-            pairs = new Dictionary<string, string>();
             foreach (var definition in document.Definitions)
             {
                 var extensionData = definition.Value.ExtensionData;
                 if (extensionData != null && extensionData.TryGetValue(ApiConstants.DotvvmKnownTypeKey, out var type))
                 {
-                    pairs.Add(definition.Key, type.ToString());
+                    pairs.Add(definition.Key, type.ToString()!);
                 }
             }
         }
