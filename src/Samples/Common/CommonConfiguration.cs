@@ -16,6 +16,7 @@ using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBack;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBackSpaNavigation;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand;
+using DotVVM.Samples.Common.Views.FeatureSamples.MarkupControl.ServiceDependency;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Samples.Common
@@ -53,6 +54,9 @@ namespace DotVVM.Samples.Common
             services.AddSingleton<CompaniesClient>();
             services.AddSingleton<TestWebApiClientOwin>();
             services.AddSingleton<TestWebApiClientAspNetCore>();
+
+            services.AddSingleton<SingletonTestService>();
+            services.AddScoped<ScopedTestService>();
 
             services.AddSingleton<DenyPostbacksOnSpaNavigationService>();
 
@@ -92,7 +96,7 @@ namespace DotVVM.Samples.Common
             resources.RegisterScriptModuleFile("FeatureSamples_Resources_TestViewModule", "Scripts/testViewModule.js");
             resources.RegisterScriptModuleFile("FeatureSamples_Resources_TestViewModule2", "Scripts/testViewModule2.js");
             resources.RegisterScriptModuleFile("FeatureSamples_Resources_TestViewModule3", "Scripts/testViewModule3.js");
-            
+
             resources.Register("FeatureSamples_Resources_Incrementer", new ScriptModuleResource(new FileResourceLocation("~/Scripts/incrementerModule.js")));
 
             resources.RegisterScript("testJsModule", new InlineResourceLocation("export const commands = { myCommand() { console.info(\"Hello from page module\") } }"), module: true);
@@ -104,7 +108,7 @@ namespace DotVVM.Samples.Common
             resources.Register("Errors_ResourceCircularDependency", circular);
             var circular2 = new ScriptResource {
                 Location = new FileResourceLocation("~/Scripts/testResource2.js"),
-                Dependencies = new [] { "Errors_ResourceCircularDependency" }
+                Dependencies = new[] { "Errors_ResourceCircularDependency" }
             };
             resources.Register("Errors_ResourceCircularDependency2", circular2);
             circular.Dependencies = new[] { "Errors_ResourceCircularDependency" };
@@ -115,9 +119,9 @@ namespace DotVVM.Samples.Common
             ));
 
             resources.RegisterScriptFile(nameof(StopwatchPostbackHandler), $"~/Scripts/{nameof(StopwatchPostbackHandler)}.js", dependencies: new[] { "dotvvm" });
-            resources.RegisterScriptFile(nameof(ErrorCountPostbackHandler), $"~/Scripts/{nameof(ErrorCountPostbackHandler)}.js", dependencies:  new[] { "dotvvm" });
+            resources.RegisterScriptFile(nameof(ErrorCountPostbackHandler), $"~/Scripts/{nameof(ErrorCountPostbackHandler)}.js", dependencies: new[] { "dotvvm" });
 
-            resources.RegisterScriptFile(nameof(PostBackHandlerCommandTypes), $"~/Scripts/{nameof(PostBackHandlerCommandTypes)}.js", dependencies: new [] { "dotvvm"});
+            resources.RegisterScriptFile(nameof(PostBackHandlerCommandTypes), $"~/Scripts/{nameof(PostBackHandlerCommandTypes)}.js", dependencies: new[] { "dotvvm" });
 
             // dev files
             resources.SetEmbeddedResourceDebugFile("knockout", "../../Framework/Framework/Resources/Scripts/knockout-latest.debug.js");

@@ -1,0 +1,3 @@
+﻿@viewModel System.Object, mscorlib
+@baseType DotVVM.Samples.Common.Views.FeatureSamples.MarkupControl.ServiceDependency.ServiceDependencyControl, DotVVM.Samples.Common
+This control has scoped dependency in constructor. This sample tests that compilation page can resolve this dependency and compile the control correctly.

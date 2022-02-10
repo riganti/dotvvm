@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -44,7 +45,7 @@ namespace DotVVM.Framework.Compilation
         private readonly Lazy<ImmutableArray<DotHtmlFileInfo>> controls;
         private ImmutableArray<DotHtmlFileInfo> InitControls()
         {
-            return 
+            return
                 dotvvmConfiguration.Markup.Controls.Where(s => !string.IsNullOrWhiteSpace(s.Src))
                     .Select(s => new DotHtmlFileInfo(s.Src!, tagPrefix: s.TagPrefix, tagName: s.TagName,
                         nameSpace: s.Namespace, assembly: s.Assembly)).ToImmutableArray();
@@ -103,7 +104,7 @@ namespace DotVVM.Framework.Compilation
                 var discoveredMasterPages = new ConcurrentDictionary<string, DotHtmlFileInfo>();
 
 
-                Func<DotHtmlFileInfo, Action> compilationTaskFactory = t=>new Action(() => {
+                Func<DotHtmlFileInfo, Action> compilationTaskFactory = t => new Action(() => {
                     BuildView(t, out var masterPage);
                     if (masterPage != null && masterPage.Status == CompilationState.None) discoveredMasterPages.TryAdd(masterPage.VirtualPath, masterPage);
                 });
@@ -151,7 +152,8 @@ namespace DotVVM.Framework.Compilation
                 {
                     var pageBuilder = controlBuilderFactory.GetControlBuilder(file.VirtualPath);
 
-                    var compiledControl = pageBuilder.builder.Value.BuildControl(controlBuilderFactory, dotvvmConfiguration.ServiceProvider);
+                    using var scopedServiceProvider = dotvvmConfiguration.ServiceProvider.CreateScope(); // dependencies that are configured as scoped cannot be resolved from root service provider
+                    var compiledControl = pageBuilder.builder.Value.BuildControl(controlBuilderFactory, scopedServiceProvider.ServiceProvider);
 
                     if (compiledControl is DotvvmView view &&
                         view.Directives!.TryGetValue(ParserConstants.MasterPageDirective, out var masterPagePath))

@@ -209,7 +209,7 @@ namespace DotVVM.Framework.Compilation
             var assemblies = GetAllAssemblies();
             if (split.Length > 1)
             {
-                var assembly = split[1];
+                var assembly = split[1].Trim();
                 return assemblies.Where(a => a.GetName().Name == assembly).Select(a => a.GetType(name))
                     .FirstOrDefault(t => t != null);
             }

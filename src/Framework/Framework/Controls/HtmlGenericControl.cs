@@ -52,7 +52,16 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="HtmlGenericControl"/> class.
         /// </summary>
-        public HtmlGenericControl(string? tagName, TextOrContentCapability? content, bool allowImplicitLifecycleRequirements = true)
+        public HtmlGenericControl(string? tagName, HtmlCapability? html, bool allowImplicitLifecycleRequirements = true) : this(tagName, allowImplicitLifecycleRequirements)
+        {
+            if (html is {})
+                HtmlCapabilityProperty.SetValue(this, html);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HtmlGenericControl"/> class.
+        /// </summary>
+        public HtmlGenericControl(string? tagName, TextOrContentCapability? content, HtmlCapability? html = null)
         {
             if (GetType() != typeof(HtmlGenericControl))
                 throw new("HtmlGenericControl can only use InnerText (and thus TextOrContentCapability) property when used directly, it cannot be inherited.");
@@ -67,10 +76,12 @@ namespace DotVVM.Framework.Controls
             {
                 SetValue(RenderSettings.ModeProperty, RenderMode.Server);
             }
-            if (allowImplicitLifecycleRequirements)
-                LifecycleRequirements = ControlLifecycleRequirements.None;
+            LifecycleRequirements = ControlLifecycleRequirements.None;
 
             content?.WriteToChildren(this, InnerTextProperty);
+
+            if (html is {})
+                HtmlCapabilityProperty.SetValue(this, html);
         }
 
         /// <summary>
@@ -169,7 +180,7 @@ namespace DotVVM.Framework.Controls
                 r.Visible = value;
             else if (prop == ClientIDProperty)
                 r.ClientId = value;
-            else if (prop == IDProperty)
+            else if (prop == IDProperty && value != null)
                 r.HasId = true;
             else if (prop == InnerTextProperty)
                 r.InnerText = value;
@@ -484,5 +495,7 @@ namespace DotVVM.Framework.Controls
         [PropertyGroup("Style-")]
         public IDictionary<string, ValueOrBinding<object>> CssStyles { get; init; } = new Dictionary<string, ValueOrBinding<object>>();
         public ValueOrBinding<bool> Visible { get; init; } = true;
+
+        public ValueOrBinding<string?> ID { get; init; }
     }
 }
