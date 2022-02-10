@@ -1,4 +1,4 @@
-<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyTitle>DotVVM</AssemblyTitle>
     <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
@@ -13,6 +13,9 @@
     <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore;dnx</PackageTags>
     <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/riganti/dotvvm.git</RepositoryUrl>
+    <PackageProjectUrl>https://dotvvm.com/</PackageProjectUrl>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
