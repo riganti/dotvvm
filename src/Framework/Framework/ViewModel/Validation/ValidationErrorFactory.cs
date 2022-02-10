@@ -21,10 +21,23 @@ namespace DotVVM.Framework.ViewModel.Validation
 {
     public static class ValidationErrorFactory
     {
+        /// <summary>
+        /// Adds a new validation error with the given message and attaches it to the provided viewmodel. 
+        /// The target viewmodel must be reachable from the root viewmodel, otherwise the error won't be attached.
+        /// </summary>
+        /// <param name="vm">Viewmodel</param>
+        /// <param name="message">Validation error message</param>
         public static ViewModelValidationError AddModelError<T>(this T vm, string message)
             where T : class, IDotvvmViewModel
             => vm.Context.AddModelError(vm, a => a, message);
 
+        /// <summary>
+        /// Adds a new validation error with the given message and attaches it to the property determined by the provided expression. 
+        /// The target property must be reachable from the root viewmodel, otherwise the error won't be attached.
+        /// </summary>
+        /// <param name="vm">Viewmodel or one of its descendant (reachable objects)</param>
+        /// <param name="expr">Expression that determines the target property from the provided object</param>
+        /// <param name="message">Validation error message</param>
         public static ViewModelValidationError AddModelError<T, TProp>(this T vm, Expression<Func<T, TProp>> expr, string message)
             where T : IDotvvmViewModel
         {

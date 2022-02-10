@@ -265,7 +265,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var validationTarget = testViewModel;
             modelState.ValidationTarget = validationTarget;
 
-            testViewModel.Context.AddModelError("Child()", "Validation target path as a knockout expression");
+            testViewModel.Context.AddRawModelError("Child()", "Validation target path as a knockout expression");
             var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
             modelState.ErrorsInternal.AddRange(errors);
             expander.Expand(modelState, testViewModel);
@@ -404,7 +404,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var validationTarget = testViewModel;
             modelState.ValidationTarget = validationTarget;
 
-            context.AddModelError(path, "Invalid error path");
+            context.AddRawModelError(path, "Invalid error path");
 
             var errors = validator.ValidateViewModel(validationTarget).OrderBy(n => n.PropertyPath);
             modelState.ErrorsInternal.AddRange(errors);
