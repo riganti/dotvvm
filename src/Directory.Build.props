@@ -39,6 +39,8 @@
     <DefaultTargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.1;net6.0</DefaultTargetFrameworks>
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
     <AutomaticallyUseReferenceAssemblyPackages>false</AutomaticallyUseReferenceAssemblyPackages>
+    <!-- Pack pdb symbol files -->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(DOTVVM_ROOT) != ''">
