@@ -625,6 +625,16 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsInstanceOfType(exception.InnerException, typeof(NotSupportedException));
             StringAssert.Contains(exception.InnerException.Message, "Control 'ClassWithDefaultDotvvmControlContent_NoDotvvmProperty' has properties that are not registered as a DotvvmProperty but have a MarkupOptionsAttribute: Property.");
         }
+        
+        [TestMethod]
+        public void ResolvedTree_VirtualPropertyGroupsNotSupported()
+        {
+            var exception = Assert.ThrowsException<NotSupportedException>(() => ParseSource(@"
+@viewModel object
+<cc:ClassWithUnsupportedPropertyGroup />"));
+            // Assert.IsInstanceOfType(exception, typeof(NotSupportedException));
+            StringAssert.Contains(exception.Message, "Control 'ClassWithUnsupportedPropertyGroup' has property groups that are not registered: MyGroup");
+        }
 
         [TestMethod]
         public void ResolvedTree_GridViewWithColumns()
@@ -807,6 +817,11 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
     {
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
         public List<DotvvmControl> Property { get; set; }
+    }
+    public class ClassWithUnsupportedPropertyGroup: HtmlGenericControl
+    {
+        [PropertyGroup("MyGroup:")]
+        public Dictionary<string, bool> MyGroup { get; set; }
     }
 
     [DataContextChanger]

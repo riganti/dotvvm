@@ -43,6 +43,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         protected override void LoadProperties(Dictionary<string, IPropertyDescriptor> result)
         {
             DotvvmProperty.CheckAllPropertiesAreRegistered(controlType.Type);
+            DotvvmPropertyGroup.CheckAllPropertiesAreRegistered(controlType.Type);
             foreach (var property in DotvvmProperty.ResolveProperties(controlType.Type))
             {
                 result.Add(property.Name, property);

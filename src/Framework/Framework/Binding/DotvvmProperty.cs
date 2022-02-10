@@ -421,7 +421,7 @@ namespace DotVVM.Framework.Binding
             var properties =
                (from p in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 where !registeredProperties.ContainsKey((p.DeclaringType!, p.Name))
-                where p.GetCustomAttribute<PropertyGroupAttribute>() == null
+                where !p.IsDefined(typeof(PropertyGroupAttribute))
                 let markupOptions = p.GetCustomAttribute<MarkupOptionsAttribute>()
                 where markupOptions != null && markupOptions.MappingMode != MappingMode.Exclude
                 select p).ToArray();

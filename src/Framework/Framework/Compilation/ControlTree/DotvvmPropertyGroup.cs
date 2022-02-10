@@ -169,6 +169,22 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
         }
 
+        public static void CheckAllPropertiesAreRegistered(Type controlType)
+        {
+            var properties =
+               (from p in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                where !descriptorDictionary.ContainsKey((p.DeclaringType!, p.Name))
+                where p.IsDefined(typeof(PropertyGroupAttribute))
+                select p).ToArray();
+
+            if (properties.Any())
+            {
+                var deprecationHelp = " DotVVM version <= 3.x did support this, but this feature was removed as it lead to many issues. Please register the property group using DotvvmPropertyGroup.Register and then use VirtualPropertyGroupDictionary<T> to access the values.";
+                throw new NotSupportedException($"Control '{controlType.Name}' has property groups that are not registered: {string.Join(", ", properties.Select(p => p.Name))}." + deprecationHelp);
+            }
+        }
+
+
         public struct PrefixArray
         {
             public readonly string[] Values;
