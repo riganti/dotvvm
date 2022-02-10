@@ -78,6 +78,7 @@ namespace DotVVM.Framework.Compilation.Styles
             }
 
             DotvvmProperty.CheckAllPropertiesAreRegistered(type);
+            DotvvmPropertyGroup.CheckAllPropertiesAreRegistered(type);
 
             return rc;
         }
