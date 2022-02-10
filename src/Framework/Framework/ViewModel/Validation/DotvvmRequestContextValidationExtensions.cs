@@ -23,6 +23,12 @@ namespace DotVVM.Framework.ViewModel.Validation
             return error;
         }
 
+        [Obsolete("Use a different method. Preferably one where you can provide a (lambda) expression. If you really need a manually written property path, use the AddRawModelError(...) method instead.", error: true)]
+        public static ViewModelValidationError AddModelError(this IDotvvmRequestContext context, string propertyPath, string message)
+        {
+            return context.AddRawModelError(propertyPath, message);
+        }
+
         /// <summary>
         /// Adds a new raw validation error. This method is intended only for advanced use-cases and it partially bypasses the validation framework. 
         /// Users of this method must provide an absolute validation path from the root viewmodel. Individual path segments need to be delimited using the '/' character. 

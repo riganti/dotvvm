@@ -25,7 +25,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Validation
             {
                 if (UseKnockoutNotation)
                 {
-                    Context.AddModelError("/Detail/Name", "This error uses a hand-written property path.");
+                    Context.AddRawModelError("/Detail/Name", "This error uses a hand-written property path.");
                 }
                 else
                 {
