@@ -54,6 +54,33 @@ namespace DotVVM.Analyzers.Tests.Serializability
         }
 
         [Fact]
+        public async void Test_SerializableRecordProperty_ViewModel()
+        {
+            var test = @"
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.IO;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public Employee Employee { get; set; }
+        }
+
+        public record Employee(int Id, string Name);
+    }
+
+    namespace System.Runtime.CompilerServices
+    {
+          internal static class IsExternalInit {}
+    }
+";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [Fact]
         public async void Test_NotSerializableList_ViewModel()
         {
             await VerifyCS.VerifyAnalyzerAsync(@"
@@ -243,6 +270,12 @@ namespace DotVVM.Analyzers.Tests.Serializability
         {
             public object? Object { get; set; }
             public string? String { get; set; }
+            public Test? Test { get; set; }
+        }
+
+        public class Test
+        {
+
         }
     }";
 
@@ -385,6 +418,69 @@ namespace DotVVM.Analyzers.Tests.Serializability
 
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.DoNotUseFieldsRule).WithLocation(0));
         }
+        [Fact]
+        public async void Test_ConstFieldsInViewModel()
+        {
+            var text = @"
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.IO;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public const int Constant = 1;
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(text);
+        }
+
+
+        [Fact]
+        public async void Test_StaticPropertiesInViewModel()
+        {
+            var text = @"
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.IO;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public static Stream PublicProperty { get; set; }
+            internal static Stream InternalProperty { get; set; }
+            protected static Stream ProtectedProperty { get; set; }
+            private static Stream privateProperty { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(text);
+        }
+
+        [Fact]
+        public async void Test_StaticFieldsInViewModel()
+        {
+            var text = @"
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.IO;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public static Stream PublicField { get; set; }
+            internal static Stream InternalField { get; set; }
+            protected static Stream ProtectedField { get; set; }
+            private static Stream privateField { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(text);
+        }
 
         [Fact]
         public async void Test_NonPublicFieldsInViewModel()
@@ -431,6 +527,7 @@ namespace DotVVM.Analyzers.Tests.Serializability
         {
             var text = @"
     using DotVVM.Framework.ViewModel;
+    using Newtonsoft.Json;
     using System;
     using System.IO;
 
@@ -439,7 +536,13 @@ namespace DotVVM.Analyzers.Tests.Serializability
         public class DefaultViewModel : DotvvmViewModelBase
         {
             [Bind(Direction.None)]
-            public Stream Property { get; set; }
+            public Stream Property1 { get; set; }
+
+            [JsonIgnore]
+            public Stream Property2 { get; set; }
+
+            [JsonIgnore]
+            public int Field;
         }
     }";
 
@@ -504,6 +607,89 @@ namespace DotVVM.Analyzers.Tests.Serializability
     }";
 
             await VerifyCS.VerifyAnalyzerAsync(text);
+        }
+
+        [Fact]
+        public async void Test_OverridenSerialization_OnProperty_ViewModel()
+        {
+            var text = @"
+    using DotVVM.Framework.Controls;
+    using DotVVM.Framework.ViewModel;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
+    using System;
+    using System.IO;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            [JsonConverter(typeof(StringEnumConverter))]
+            public NonSerializable Property { get; set; }
+        }
+
+        public class NonSerializable
+        {
+            public Stream Stream { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(text);
+        }
+
+        [Fact]
+        public async void Test_OverridenSerialization_OnTypeDeclaration_ViewModel()
+        {
+            var text = @"
+    using DotVVM.Framework.Controls;
+    using DotVVM.Framework.ViewModel;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
+    using System;
+    using System.IO;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            public NonSerializable Property { get; set; }
+        }
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public class NonSerializable
+        {
+            public Stream Stream { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(text);
+        }
+
+        [Fact]
+        public async void Test_InnerTypesWithNonSerializableProperties_RegularClass()
+        {
+            await VerifyCS.VerifyAnalyzerAsync(@"
+    using DotVVM.Framework.Controls;
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.IO;
+    using System.Collections.Generic;
+
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel : DotvvmViewModelBase
+        {
+            {|#0:public List<Entry> Entries { get; set; }|}
+
+            public class Entry
+            {
+                public Stream Stream { get; set; }
+            }
+        }
+    }",
+            VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule).WithLocation(0)
+                .WithArguments("this.Entries.Stream"));
         }
 
         [Fact]
