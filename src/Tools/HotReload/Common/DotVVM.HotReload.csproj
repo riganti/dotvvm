@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <AssemblyTitle>DotVVM.HotReload</AssemblyTitle>
-    <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' " >netstandard2.1;net472</TargetFrameworks>
-    <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' " >netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>

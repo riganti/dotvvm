@@ -11,7 +11,7 @@ env:
 jobs:
   build-published:
     name: Build published projects without warnings
-    runs-on: windows-2022
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -21,73 +21,52 @@ jobs:
     - uses: actions/checkout@v2
     - name: Set up
       uses: ./.github/setup
+      with:
+        sln: src/DotVVM.Crossplatform.slnf
+
+    # no reason to Spam with warnings when normal build fails
+    - name: Build Framework (without /WarnAsError)
+      run: dotnet build src/Framework/Framework --configuration ${{ matrix.configuration }} --no-restore --no-incremental /property:WarningLevel=0
 
     # framework
     - name: Core
-      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Core
-      if: ${{ always() }}
+      run: dotnet build src/Framework/Framework --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
     - name: Framework
-      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Framework
-      if: ${{ always() }}
+      run: dotnet build src/Framework/Framework --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
     - name: Testing
-      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Testing
-      if: ${{ always() }}
+      run: dotnet build src/Framework/Testing --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
 
     # hosting
     - name: Hosting.AspNetCore
-      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Framework/Hosting.AspNetCore
-      if: ${{ always() }}
-    - name: Hosting.Owin
-      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Framework/Hosting.Owin
-      if: ${{ always() }}
+      run: dotnet build src/Framework/Hosting.AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
 
     # command-line
     - name: CommandLine
-      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tools/CommandLine
-      if: ${{ always() }}
+      run: dotnet build src/Tools/CommandLine --configuration ${{ matrix.configuration }} --no-restore --framework netcoreapp3.1 /WarnAsError
 
     # swashbuckle
     - name: Api.Swashbuckle.AspNetCore
-      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Api/Swashbuckle.AspNetCore
-      if: ${{ always() }}
-    - name: Api.Swashbuckle.Owin
-      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Api/Swashbuckle.Owin
-      if: ${{ always() }}
+      run: dotnet build src/Api/Swashbuckle.AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
 
     # hot reload
     - name: HotReload.Common
-      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tools/HotReload/Common
-      if: ${{ always() }}
+      run: dotnet build src/Tools/HotReload/Common --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
     - name: HotReload.AspNetCore
-      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tools/HotReload/AspNetCore
-      if: ${{ always() }}
-    - name: HotReload.Owin
-      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Tools/HotReload/Owin
-      if: ${{ always() }}
+      run: dotnet build src/Tools/HotReload/AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
 
     # application insights
     - name: Tracing.ApplicationInsights
-      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tracing/ApplicationInsights
-      if: ${{ always() }}
+      run: dotnet build src/Tracing/ApplicationInsights --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
     - name: Tracing.ApplicationInsights.AspNetCore
-      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tracing/ApplicationInsights.AspNetCore
-      if: ${{ always() }}
-    - name: Tracing.ApplicationInsights.Owin
-      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Tracing/ApplicationInsights.Owin
-      if: ${{ always() }}
+      run: dotnet build src/Tracing/ApplicationInsights.AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
 
     # miniprofiler
     - name: Tracing.MiniProfiler.AspNetCore
-      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/Tracing/MiniProfiler.AspNetCore
-      if: ${{ always() }}
-    - name: Tracing.MiniProfiler.Owin
-      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net472 src/Tracing/MiniProfiler.Owin
-      if: ${{ always() }}
+      run: dotnet build src/Tracing/MiniProfiler.AspNetCore --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
 
     # dynamic data
     - name: DynamicData
-      run: ./build-dotvvm.ps1 ${{ matrix.configuration }} net6.0 src/DynamicData/DynamicData
-      if: ${{ always() }}
+      run: dotnet build src/DynamicData/DynamicData --configuration ${{ matrix.configuration }} --no-restore --no-incremental --framework net6.0 /WarnAsError
 
   build-all:
     name: Build all projects without errors
@@ -108,7 +87,6 @@ jobs:
       fail-fast: false # don't kill tests when one environment fails
       matrix:
         os: [ubuntu-latest, windows-2022, macOS-latest]
-        configuration: [Debug, Release]
     steps:
     - uses: actions/checkout@v2
     - name: Set up
@@ -119,7 +97,6 @@ jobs:
       uses: ./.github/unittest
       with:
         project: src/Tests
-        configuration: ${{ matrix.configuration }}
         name: framework-tests
         title: Framework Tests
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -127,7 +104,6 @@ jobs:
       uses: ./.github/unittest
       with:
         project: src/Analyzers/Analyzers.Tests
-        configuration: ${{ matrix.configuration }}
         name: analyzers-tests
         title: Analyzer Tests
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -138,10 +114,14 @@ jobs:
     timeout-minutes: 20
     steps:
     - uses: actions/checkout@v2
-    - name: Set up
-      uses: ./.github/setup
+    # Node.js
+    - uses: actions/setup-node@v2
       with:
-        sln: src/DotVVM.Crossplatform.slnf
+        node-version: 16
+    - run: |
+        corepack enable
+        yarn set version stable
+      shell: bash
     - name: yarn install
       run: yarn install --immutable
       working-directory: src/Framework/Framework/

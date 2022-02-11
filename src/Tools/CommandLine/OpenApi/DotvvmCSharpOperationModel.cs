@@ -16,7 +16,7 @@ namespace DotVVM.CommandLine.OpenApi
 
         public IEnumerable<DotvvmCSharpParameterModel> ActualQueryParameters => this.QueryParameters.OfType<DotvvmCSharpParameterModel>().Where(p => !p.ExcludeFromQuery);
 
-        public string AutoRefreshKey { get; set; }
+        public string? AutoRefreshKey { get; set; }
 
         public DotvvmCSharpOperationModel(
             OpenApiOperation operation,
