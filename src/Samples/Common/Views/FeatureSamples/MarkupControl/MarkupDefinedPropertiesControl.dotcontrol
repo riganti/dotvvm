@@ -17,7 +17,7 @@
 <section>
     <h2>Collections</h2>
     <dot:Repeater data-ui="list" WrapperTagName="ol" DataSource="{value: _control.Items }">
-        <li>{{value: _this}}</li>
+        <li data-ui="list-item">{{value: _this}}</li>
     </dot:Repeater>
 
     <dot:Button data-ui="add-item" Click="{command: _control.AddCommand()}" Text="Add item" />
@@ -26,9 +26,9 @@
 <section>
     <h2>2D Array</h2>
     <dot:Repeater WrapperTagName="ol" DataSource="{value: _control.Array }">
-        <li>
+        <li data-ui="2d-array-x">
             <dot:Repeater WrapperTagName="ol" DataSource="{value: _this }">
-                <li>{{value: _this}}</li>
+                <li data-ui="2d-array-y">{{value: _this}}</li>
             </dot:Repeater>
         </li>
     </dot:Repeater>

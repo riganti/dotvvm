@@ -10,7 +10,7 @@
 <body>
     <div>
         <label>New item:</label>
-        <dot:TextBox Text="{value: Name}" />
+        <dot:TextBox data-ui=item-name Text="{value: Name}" />
     </div>
     <sample:MarkupDefinedPropertiesControl Heading="Buildings" Items="{value: Buildings}" Counter={value: Counter} AddCommand="{command: AddBuilding()}"/>
 
