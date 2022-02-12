@@ -365,13 +365,14 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_MarkupControl_MarkupDeclaredProperties()
         {
             RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_MarkupDefinedProperties);
+                browser.WaitUntilDotvvmInited();
 
-                Func<int, IElementWrapper> listElement = (int index) => browser.FindElements("li[data-ui=list-item]").ElementAt(index);
-                Func<int> listLenght = () => browser.FindElements("li[data-ui=list-item]").Count;
+                Func<int, IElementWrapper> listElement = (int index) => browser.Single($"li[data-ui='list-item']:nth-child({index + 1})");
+                Func<int> listLenght = () => browser.FindElements("li[data-ui='list-item']").Count;
 
                 Func<int, int, IElementWrapper> arrayElement = (int x, int y) =>
-                    browser.ElementAt("[data-ui=2d-array-x]",x)
-                        .ElementAt("[data-ui=2d-array-y]", y);
+                    browser.Single($"li[data-ui='2d-array-x']:nth-child({x + 1}) li[data-ui='2d-array-y']:nth-child({y + 1})");
 
                 browser.WaitFor(() => {
                     AssertUI.InnerTextEquals(arrayElement(0, 0), "a");
@@ -389,25 +390,22 @@ namespace DotVVM.Samples.Tests.Feature
                     AssertUI.InnerTextEquals(listElement(3), "Town Hall");
                 }, 2000);
 
-                browser.First("input[data-ui=item-name]").SendKeys("Cabin");
-                browser.First("input[data-ui=add-item]").Click();
+                browser.Single("input[data-ui='item-name']").SendKeys("Cabin");
+                browser.Single("input[data-ui='add-item']").Click();
 
-                browser.WaitFor(() => {
-                    Assert.Equal(5, listLenght());
+                browser.WaitFor(() => Assert.Equal(5, listLenght()), 2000);
 
-                    AssertUI.InnerTextEquals(listElement(0), "Barn");
-                    AssertUI.InnerTextEquals(listElement(1), "House");
-                    AssertUI.InnerTextEquals(listElement(2), "Skyscraper");
-                    AssertUI.InnerTextEquals(listElement(3), "Town Hall");
-                    AssertUI.InnerTextEquals(listElement(3), "Cabin");
-                }, 2000);
 
-                browser.First("input[data-ui=increase-counter]").Click();
-                browser.First("input[data-ui=increase-counter]").Click();
+                browser.WaitFor(() => AssertUI.InnerTextEquals(listElement(0), "Barn"), 2000);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(listElement(1), "House"), 2000);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(listElement(2), "Skyscraper"), 2000);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(listElement(3), "Town Hall"), 2000);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(listElement(4), "Cabin"), 2000);
 
-                browser.WaitFor(() => {
-                    AssertUI.InnerTextEquals(browser.First("data-ui=counter"), "2");
-                }, 2000);
+                browser.Single("input[data-ui='increase-counter']").Click();
+                browser.Single("input[data-ui='increase-counter']").Click();
+
+                browser.WaitFor(() => AssertUI.InnerTextEquals(browser.First("[data-ui=counter]"), "2"), 2000);
             });
         }
     }
