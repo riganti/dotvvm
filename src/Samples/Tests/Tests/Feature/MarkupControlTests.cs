@@ -403,8 +403,9 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.WaitFor(() => AssertUI.InnerTextEquals(listElement(4), "Cabin"), 2000);
 
                 browser.Single("input[data-ui='increase-counter']").Click();
-                browser.Single("input[data-ui='increase-counter']").Click();
+                browser.WaitFor(() => AssertUI.InnerTextEquals(browser.First("[data-ui=counter]"), "1"), 2000);
 
+                browser.Single("input[data-ui='increase-counter']").Click();
                 browser.WaitFor(() => AssertUI.InnerTextEquals(browser.First("[data-ui=counter]"), "2"), 2000);
             });
         }
