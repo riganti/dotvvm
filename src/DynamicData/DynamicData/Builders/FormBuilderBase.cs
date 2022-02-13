@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         /// </summary>
         protected virtual IEnumerable<PropertyDisplayMetadata> GetPropertiesToDisplay(DynamicDataContext dynamicDataContext, IEntityPropertyListProvider entityPropertyListProvider)
         {
-            var viewContext = dynamicDataContext.CreateViewContext(dynamicDataContext.RequestContext);
+            var viewContext = dynamicDataContext.CreateViewContext();
             var properties = entityPropertyListProvider.GetProperties(dynamicDataContext.EntityType, viewContext);
             if (!string.IsNullOrEmpty(dynamicDataContext.GroupName))
             {
@@ -33,6 +33,6 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
                 .FirstOrDefault(e => e.CanHandleProperty(property.PropertyInfo, dynamicDataContext));
         }
 
-        public abstract void BuildForm(DotvvmControl hostControl, DynamicDataContext dynamicDataContext);
+        public abstract DotvvmControl BuildForm(DynamicDataContext dynamicDataContext);
     }
 }

@@ -2,6 +2,6 @@
 {
     public interface IFormBuilder
     {
-        void BuildForm(DotvvmControl hostControl, DynamicDataContext dynamicDataContext);
+        DotvvmControl BuildForm(DynamicDataContext dynamicDataContext);
     }
 }

@@ -6,8 +6,15 @@ using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls.DynamicData
 {
-    public class DynamicEntity : HtmlGenericControl
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.Always)]
+    public class DynamicEntity : CompositeControl
     {
+        private readonly IServiceProvider services;
+        public DynamicEntity(IServiceProvider services)
+        {
+            this.services = services;
+        }
+
         /// <summary>
         /// Gets or sets the custom layout of the form.
         /// </summary>
@@ -57,55 +64,29 @@ namespace DotVVM.Framework.Controls.DynamicData
             = DotvvmProperty.Register<string, DynamicEntity>(c => c.FormBuilderName, "");
 
 
-        /// <summary>
-        /// Gets or sets whether the controls in the form are enabled or disabled.
-        /// </summary>
-        public bool Enabled
+        public DotvvmControl GetContents()
         {
-            get { return (bool)GetValue(EnabledProperty); }
-            set { SetValue(EnabledProperty, value); }
-        }
-        public static readonly DotvvmProperty EnabledProperty
-            = DotvvmProperty.Register<bool, DynamicEntity>(c => c.Enabled, true, isValueInherited: true);
-
-
-
-
-
-        internal static readonly DotvvmProperty DynamicDataContextProperty
-            = DotvvmProperty.Register<DynamicDataContext, DynamicEntity>("DynamicDataContext", null);
-
-
-        public DynamicEntity() : base("div")
-        {
-        }
-
-        protected override void OnInit(IDotvvmRequestContext context)
-        {
-            var dynamicDataContext = CreateDynamicDataContext(context);
-            SetValue(DynamicDataContextProperty, dynamicDataContext);
 
             if (ContentTemplate != null)
             {
-                ContentTemplate.BuildContent(context, this);
+                return new TemplateHost(ContentTemplate);
             }
             else
             {
-                BuildForm(dynamicDataContext);
+                var dynamicDataContext = CreateDynamicDataContext();
+                return BuildForm(dynamicDataContext);
             }
-
-            base.OnInit(context);
         }
 
-        protected virtual void BuildForm(DynamicDataContext dynamicDataContext)
+        protected virtual DotvvmControl BuildForm(DynamicDataContext dynamicDataContext)
         {
             var builder = dynamicDataContext.DynamicDataConfiguration.GetFormBuilder(FormBuilderName);
-            builder.BuildForm(this, dynamicDataContext);
+            return builder.BuildForm(dynamicDataContext);
         }
 
-        private DynamicDataContext CreateDynamicDataContext(IDotvvmRequestContext context)
+        private DynamicDataContext CreateDynamicDataContext()
         {
-            return new DynamicDataContext(this.GetDataContextType(), context)
+            return new DynamicDataContext(this.GetDataContextType(), this.services)
             {
                 ViewName = ViewName,
                 GroupName = GroupName

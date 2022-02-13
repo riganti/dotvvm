@@ -16,9 +16,11 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         public string LabelCssClass { get; set; } = "control-label";
 
 
-        public override void BuildForm(DotvvmControl hostControl, DynamicDataContext dynamicDataContext)
+        public override DotvvmControl BuildForm(DynamicDataContext dynamicDataContext)
         {
-            var entityPropertyListProvider = dynamicDataContext.RequestContext.Configuration.ServiceProvider.GetService<IEntityPropertyListProvider>();
+            var entityPropertyListProvider = dynamicDataContext.Services.GetService<IEntityPropertyListProvider>();
+
+            var resultPlaceholder = new PlaceHolder();
 
             // create the rows
             var properties = GetPropertiesToDisplay(dynamicDataContext, entityPropertyListProvider);
@@ -30,7 +32,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
 
                 // create the row
                 HtmlGenericControl labelElement, controlElement;
-                var formGroup = InitializeFormGroup(hostControl, property, dynamicDataContext, out labelElement, out controlElement);
+                var formGroup = InitializeFormGroup(property, dynamicDataContext, out labelElement, out controlElement);
 
                 // create the label
                 InitializeControlLabel(formGroup, labelElement, editorProvider, property, dynamicDataContext);
@@ -40,16 +42,18 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
 
                 // create the validator
                 InitializeValidation(formGroup, labelElement, controlElement, editorProvider, property, dynamicDataContext);
+
+                resultPlaceholder.Children.Add(formGroup);
             }
+            return resultPlaceholder;
         }
 
 
 
-        protected virtual HtmlGenericControl InitializeFormGroup(DotvvmControl hostControl, PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext, out HtmlGenericControl labelElement, out HtmlGenericControl controlElement)
+        protected virtual HtmlGenericControl InitializeFormGroup(PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext, out HtmlGenericControl labelElement, out HtmlGenericControl controlElement)
         {
             var formGroup = new HtmlGenericControl("div");
             formGroup.Attributes.Set("class", ControlHelpers.ConcatCssClasses(FormGroupCssClass, property.Styles?.FormRowCssClass));
-            hostControl.Children.Add(formGroup);
 
             labelElement = new HtmlGenericControl("label");
             labelElement.Attributes.Set("class", LabelCssClass);
@@ -72,7 +76,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
 
         protected virtual void InitializeControlEditor(HtmlGenericControl formGroup, HtmlGenericControl controlElement, IFormEditorProvider editorProvider, PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext)
         {
-            editorProvider.CreateControl(controlElement, property, dynamicDataContext);
+            controlElement.AppendChildren(editorProvider.CreateControl(property, dynamicDataContext));
 
             // set CSS classes
             foreach (var control in controlElement.GetAllDescendants())

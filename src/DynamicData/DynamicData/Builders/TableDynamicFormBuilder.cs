@@ -18,12 +18,12 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         public string EditorCellCssClass { get; set; }
 
 
-        public override void BuildForm(DotvvmControl hostControl, DynamicDataContext dynamicDataContext)
+        public override DotvvmControl BuildForm(DynamicDataContext dynamicDataContext)
         {
-            var entityPropertyListProvider = dynamicDataContext.RequestContext.Configuration.ServiceProvider.GetService<IEntityPropertyListProvider>();
+            var entityPropertyListProvider = dynamicDataContext.Services.GetRequiredService<IEntityPropertyListProvider>();
 
             // create the table
-            var table = InitializeTable(hostControl, dynamicDataContext);
+            var table = InitializeTable(dynamicDataContext);
             
             // create the rows
             var properties = GetPropertiesToDisplay(dynamicDataContext, entityPropertyListProvider);
@@ -46,6 +46,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
                 // create the validator
                 InitializeValidation(row, labelCell, editorCell, editorProvider, property, dynamicDataContext);
             }
+            return table;
         }
 
         /// <summary>
@@ -67,12 +68,11 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         /// <summary>
         /// Creates the table element for the form.
         /// </summary>
-        protected virtual HtmlGenericControl InitializeTable(DotvvmControl hostControl, DynamicDataContext dynamicDataContext)
+        protected virtual HtmlGenericControl InitializeTable(DynamicDataContext dynamicDataContext)
         {
             var table = new HtmlGenericControl("table");
             table.Attributes.Set("class", "dotvvm-dynamicdata-form-table");
 
-            hostControl.Children.Add(table);
             return table;
         }
 
@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         /// </summary>
         protected virtual void InitializeControlEditor(HtmlGenericControl row, HtmlGenericControl editorCell, IFormEditorProvider editorProvider, PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext)
         {
-            editorProvider.CreateControl(editorCell, property, dynamicDataContext);
+            editorCell.AppendChildren(editorProvider.CreateControl(property, dynamicDataContext));
         }
 
     }

@@ -18,19 +18,17 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             return TextBoxHelper.CanHandleProperty(propertyInfo, context);
         }
 
-        public override void CreateControl(DotvvmControl container, PropertyDisplayMetadata property, DynamicDataContext context)
+        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicDataContext context)
         {
             if (!property.IsEditAllowed)
             {
                 var literal = new Literal();
-                container.Children.Add(literal);
                 literal.SetBinding(Literal.TextProperty, context.CreateValueBinding(property.PropertyInfo.Name));
 
-                return;
+                return literal;
             }
 
             var textBox = new TextBox();
-            container.Children.Add(textBox);
 
             var cssClass = ControlHelpers.ConcatCssClasses(ControlCssClass, property.Styles?.FormControlCssClass);
             if (!string.IsNullOrEmpty(cssClass))
@@ -50,10 +48,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
                 textBox.Type = TextBoxType.MultiLine;
             }
 
-            if (textBox.IsPropertySet(DynamicEntity.EnabledProperty))
-            {
-                ControlHelpers.CopyProperty(textBox, DynamicEntity.EnabledProperty, textBox, TextBox.EnabledProperty);
-            }
+            return textBox;
         }
     }
 }

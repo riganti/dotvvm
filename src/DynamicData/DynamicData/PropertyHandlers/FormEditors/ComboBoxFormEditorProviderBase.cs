@@ -16,13 +16,12 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             return GetSettings(propertyInfo) != null;
         }
 
-        public override void CreateControl(DotvvmControl container, PropertyDisplayMetadata property, DynamicDataContext context)
+        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicDataContext context)
         {
             var comboBox = new ComboBox()
             {
                 EmptyItemText = GetEmptyItemText(property, context)
             };
-            container.Children.Add(comboBox);
 
             comboBox.SetBinding(SelectorBase.ItemTextBindingProperty, context.CreateValueBinding(GetDisplayMember(property, context)));
             comboBox.SetBinding(SelectorBase.ItemValueBindingProperty, context.CreateValueBinding(GetValueMember(property, context)));
@@ -38,10 +37,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
                 comboBox.Attributes.Set("class", cssClass);
             }
 
-            if (container.IsPropertySet(DynamicEntity.EnabledProperty))
-            {
-                ControlHelpers.CopyProperty(container, DynamicEntity.EnabledProperty, comboBox, SelectorBase.EnabledProperty);
-            }
+            return comboBox;
         }
 
         /// <summary>

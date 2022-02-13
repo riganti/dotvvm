@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
 
         ValueBindingExpression GetValidationValueBinding(PropertyDisplayMetadata property, DynamicDataContext context);
 
-        void CreateControl(DotvvmControl container, PropertyDisplayMetadata property, DynamicDataContext context);
+        DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicDataContext context);
 
     }
 }

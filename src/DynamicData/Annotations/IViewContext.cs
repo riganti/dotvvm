@@ -20,11 +20,6 @@ namespace DotVVM.Framework.Controls.DynamicData.Annotations
         /// Gets the name of the current field group.
         /// </summary>
         string GroupName { get; }
-        
-        /// <summary>
-        /// Gets the current principal.
-        /// </summary>
-        IPrincipal CurrentUser { get; }
 
     }
 }

@@ -35,12 +35,12 @@ namespace DotVVM.Framework.Testing
 
         IControlBuilderFactory controlBuilderFactory => Configuration.ServiceProvider.GetRequiredService<IControlBuilderFactory>();
 
-        public ControlTestHelper(bool debug = true, Action<DotvvmConfiguration>? config = null, Action<IServiceCollection>? services = null)
+        public ControlTestHelper(bool debug = true, Action<DotvvmConfiguration>? config = null, Action<IDotvvmServiceCollection>? services = null)
         {
             fileLoader = new FakeMarkupFileLoader(null);
             this.Configuration = DotvvmTestHelper.CreateConfiguration(s => {
                 s.AddSingleton<IMarkupFileLoader>(fileLoader);
-                services?.Invoke(s);
+                services?.Invoke(new DotvvmServiceCollection(s));
             });
             this.Configuration.Markup.AddCodeControls("tc", exampleControl: typeof(FakeHeadResourceLink));
             this.Configuration.ApplicationPhysicalPath = Path.GetTempPath();

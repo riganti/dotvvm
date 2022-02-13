@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             return context.CreateValueBinding(property.PropertyInfo.Name);
         }
 
-        public abstract void CreateControl(DotvvmControl container, PropertyDisplayMetadata property, DynamicDataContext context);
+        public abstract DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicDataContext context);
 
         protected virtual void SetValidatorValueBinding(DotvvmBindableObject textBox, BindingExpression valueBindingExpression)
         {

@@ -9,12 +9,9 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
     /// </summary>
     public interface IEntityPropertyListProvider
     {
-
-
         /// <summary>
         /// Gets a list of properties for the specified entity and view name.
         /// </summary>
         IList<PropertyDisplayMetadata> GetProperties(Type entityType, IViewContext viewContext);
-
     }
 }

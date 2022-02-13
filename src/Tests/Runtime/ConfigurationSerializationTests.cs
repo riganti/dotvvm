@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Tests.Runtime
 
             var jobject = JObject.Parse(serialized);
             if (jobject["properties"] is object)
-                foreach (var testControl in ((JObject)jobject["properties"]).Properties().Where(p => p.Name.Contains(".Tests.")).ToArray())
+                foreach (var testControl in ((JObject)jobject["properties"]).Properties().Where(p => p.Name.Contains(".Tests.") || p.Name.Contains(".DynamicData.")).ToArray())
                     testControl.Remove();
             check.CheckString(jobject.ToString(), checkName, fileExtension, memberName, sourceFilePath);
         }

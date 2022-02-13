@@ -52,14 +52,14 @@ namespace DotVVM.Framework.Controls.DynamicData
             var grid = FindGridView();
 
             var itemDataContextStack = grid.GetItemDataContextStack(ItemsControl.DataSourceProperty);
-            var dynamicDataContext = new DynamicDataContext(itemDataContextStack, context)
+            var dynamicDataContext = new DynamicDataContext(itemDataContextStack, context.Services)
             {
                 ViewName = ViewName
             };
 
             // generate columns
             var entityPropertyListProvider = context.Configuration.ServiceProvider.GetService<IEntityPropertyListProvider>();
-            var viewContext = dynamicDataContext.CreateViewContext(context);
+            var viewContext = dynamicDataContext.CreateViewContext();
             var entityProperties = entityPropertyListProvider.GetProperties(itemDataContextStack.DataContextType, viewContext);
 
             // create columns

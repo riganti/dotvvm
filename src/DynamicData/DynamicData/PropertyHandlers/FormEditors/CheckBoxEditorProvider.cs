@@ -19,10 +19,9 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
 
         public override bool RenderDefaultLabel => false;
 
-        public override void CreateControl(DotvvmControl container, PropertyDisplayMetadata property, DynamicDataContext context)
+        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicDataContext context)
         {
             var checkBox = new CheckBox();
-            container.Children.Add(checkBox);
 
             var cssClass = ControlHelpers.ConcatCssClasses(ControlCssClass, property.Styles?.FormControlCssClass);
             if (!string.IsNullOrEmpty(cssClass))
@@ -30,13 +29,10 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
                 checkBox.Attributes.Set("class", cssClass);
             }
 
-            checkBox.Text = property.DisplayName;
+            checkBox.Text = property.DisplayName ?? "";
             checkBox.SetBinding(CheckBox.CheckedProperty, context.CreateValueBinding(property.PropertyInfo.Name));
 
-            if (checkBox.IsPropertySet(DynamicEntity.EnabledProperty))
-            {
-                ControlHelpers.CopyProperty(checkBox, DynamicEntity.EnabledProperty, checkBox, CheckableControlBase.EnabledProperty);
-            }
+            return checkBox;
         }
     }
 }

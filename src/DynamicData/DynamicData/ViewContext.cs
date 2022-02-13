@@ -7,6 +7,5 @@ namespace DotVVM.Framework.Controls.DynamicData
     {
         public string ViewName { get; set; }
         public string GroupName { get; set; }
-        public IPrincipal CurrentUser { get; set; }
     }
 }

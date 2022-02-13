@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Tests.ControlTests
     {
         static readonly ControlTestHelper cth = new ControlTestHelper(config: config => {
         }, services: s => {
-            s.AddSingleton<TestService>();
+            s.Services.AddSingleton<TestService>();
         });
         OutputChecker check = new OutputChecker(
             "testoutputs");

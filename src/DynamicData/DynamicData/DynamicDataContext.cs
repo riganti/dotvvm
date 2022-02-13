@@ -26,8 +26,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         private static ConcurrentDictionary<BindingDescriptor, IBinding> bindingCache = new ConcurrentDictionary<BindingDescriptor, IBinding>();
 
         public DataContextStack DataContextStack { get; }
-
-        public IDotvvmRequestContext RequestContext { get; }
+        public IServiceProvider Services { get; }
 
         public IViewModelValidationMetadataProvider ValidationMetadataProvider { get; }
 
@@ -43,15 +42,15 @@ namespace DotVVM.Framework.Controls.DynamicData
         public Dictionary<StateBagKey, object> StateBag { get; } = new Dictionary<StateBagKey, object>();
         public BindingCompilationService BindingCompilationService { get; }
 
-        public DynamicDataContext(DataContextStack dataContextStack, IDotvvmRequestContext requestContext)
+        public DynamicDataContext(DataContextStack dataContextStack, IServiceProvider services)
         {
             DataContextStack = dataContextStack;
-            RequestContext = requestContext;
+            Services = services;
 
-            ValidationMetadataProvider = requestContext.Services.GetRequiredService<IViewModelValidationMetadataProvider>();
-            PropertyDisplayMetadataProvider = requestContext.Services.GetRequiredService<IPropertyDisplayMetadataProvider>();
-            DynamicDataConfiguration = requestContext.Services.GetRequiredService<DynamicDataConfiguration>();
-            BindingCompilationService = requestContext.Services.GetRequiredService<BindingCompilationService>();
+            ValidationMetadataProvider = services.GetRequiredService<IViewModelValidationMetadataProvider>();
+            PropertyDisplayMetadataProvider = services.GetRequiredService<IPropertyDisplayMetadataProvider>();
+            DynamicDataConfiguration = services.GetRequiredService<DynamicDataConfiguration>();
+            BindingCompilationService = services.GetRequiredService<BindingCompilationService>();
         }
 
         public ValueBindingExpression CreateValueBinding(string expression, params Type[] nestedDataContextTypes)
@@ -114,13 +113,12 @@ namespace DotVVM.Framework.Controls.DynamicData
             return dataContextStack;
         }
 
-        public IViewContext CreateViewContext(IDotvvmRequestContext context)
+        public IViewContext CreateViewContext()
         {
             return new ViewContext()
             {
                 ViewName = ViewName,
-                GroupName = GroupName,
-                CurrentUser = context.HttpContext.User
+                GroupName = GroupName
             };
         }
 
