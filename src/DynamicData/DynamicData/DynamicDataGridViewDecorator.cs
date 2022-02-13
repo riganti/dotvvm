@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         public static readonly DotvvmProperty ColumnPlacementProperty
             = DotvvmProperty.Register<ColumnPlacement, DynamicDataGridViewDecorator>(c => c.ColumnPlacement, ColumnPlacement.Left);
 
-        protected override void OnInit(IDotvvmRequestContext context)
+        protected internal override void OnInit(IDotvvmRequestContext context)
         {
             base.OnInit(context);
 

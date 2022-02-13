@@ -7,18 +7,18 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
 {
     public class PropertyDisplayMetadata
     {
+        
+        public PropertyInfo PropertyInfo { get; }
 
-        public PropertyInfo PropertyInfo { get; set; }
+        public string? DisplayName { get; set; }
 
-        public string DisplayName { get; set; }
-
-        public string GroupName { get; set; }
+        public string? GroupName { get; set; }
 
         public int? Order { get; set; }
 
-        public string FormatString { get; set; }
+        public string? FormatString { get; set; }
 
-        public string NullDisplayText { get; set; }
+        public string? NullDisplayText { get; set; }
 
         public bool AutoGenerateField { get; set; }
 
@@ -33,5 +33,11 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         public SelectorAttribute? SelectorConfiguration { get; set; }
 
         public bool IsDefaultLabelAllowed { get; set; }
+
+        public PropertyDisplayMetadata(PropertyInfo propertyInfo)
+        {
+            PropertyInfo = propertyInfo;
+        }
+
     }
 }

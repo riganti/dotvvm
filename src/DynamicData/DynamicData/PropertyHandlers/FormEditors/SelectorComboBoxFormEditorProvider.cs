@@ -10,7 +10,7 @@ using DotVVM.Framework.Controls.DynamicData.ViewModel;
 
 namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
 {
-    public class SelectorFormEditorProvider : FormEditorProviderBase
+    public class SelectorComboBoxFormEditorProvider : FormEditorProviderBase
     {
         public override bool CanHandleProperty(PropertyInfo propertyInfo, DynamicDataContext context)
         {

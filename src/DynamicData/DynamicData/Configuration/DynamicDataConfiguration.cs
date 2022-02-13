@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls.DynamicData.Builders;
+using DotVVM.Framework.Controls.DynamicData.Metadata.Builder;
 using DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors;
 using DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns;
 
@@ -51,14 +52,22 @@ namespace DotVVM.Framework.Controls.DynamicData.Configuration
         /// </summary>
         public Type ErrorMessagesResourceFile { get; set; }
 
+        /// <summary>
+        /// Gets or sets the collection of rules applied on the auto-generated fields.
+        /// </summary>
+        public PropertyMetadataModifierCollection PropertyMetadataRules { get; set; }
+
         public DynamicDataConfiguration()
         {
-            FormEditorProviders.Add(new SelectorFormEditorProvider());
-            FormEditorProviders.Add(new CheckBoxEditorProvider());
+            FormEditorProviders.Add(new SelectorComboBoxFormEditorProvider());
             FormEditorProviders.Add(new TextBoxEditorProvider());
+            FormEditorProviders.Add(new CheckBoxEditorProvider());
+            FormEditorProviders.Add(new EnumComboBoxFormEditorProvider());
 
             GridColumnProviders.Add(new CheckBoxGridColumnProvider());
             GridColumnProviders.Add(new TextGridColumnProvider());
+
+            PropertyMetadataRules = new PropertyMetadataModifierCollection();
         }
 
         public IFormBuilder GetFormBuilder(string formBuilderName = "")

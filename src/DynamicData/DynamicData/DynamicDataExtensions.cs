@@ -16,12 +16,10 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// <summary>
         /// Registers all services required by DotVVM Dynamic Data.
         /// </summary>
-        public static IDotvvmServiceCollection AddDynamicData(this IDotvvmServiceCollection services, DynamicDataConfiguration dynamicDataConfiguration = null)
+        public static IDotvvmServiceCollection AddDynamicData(this IDotvvmServiceCollection services, Action<DynamicDataConfiguration> configure = null)
         {
-            if (dynamicDataConfiguration == null)
-            {
-                dynamicDataConfiguration = new DynamicDataConfiguration();
-            }
+            var dynamicDataConfiguration = new DynamicDataConfiguration();
+            configure?.Invoke(dynamicDataConfiguration);
             
             // add the configuration of Dynamic Data to the service collection
             services.Services.AddSingleton(serviceProvider => dynamicDataConfiguration);
@@ -40,7 +38,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         private static void RegisterDefaultProviders(IServiceCollection services, DynamicDataConfiguration dynamicDataConfiguration)
         {
             services.AddSingleton<IPropertyDisplayMetadataProvider>(
-                serviceProvider => new DataAnnotationsPropertyDisplayMetadataProvider()
+                serviceProvider => new DataAnnotationsPropertyDisplayMetadataProvider(dynamicDataConfiguration)
             );
 
             services.AddSingleton<IEntityPropertyListProvider>(

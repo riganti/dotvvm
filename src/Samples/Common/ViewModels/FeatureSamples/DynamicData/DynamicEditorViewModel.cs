@@ -34,7 +34,6 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData
 
         public bool DateTimeProp { get; set; }
 
-        [Selector(typeof(ProductSelectorItem))]
         public int ProductId { get; set; }
 
         public ServiceType ServiceType { get; set; }

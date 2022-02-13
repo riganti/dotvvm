@@ -49,8 +49,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData
         [Display(GroupName = "BasicInfo")]
         [Selector(typeof(CountrySelectorItem))]
         public int CountryId { get; set; }
-
-
+        
 
         [Display(GroupName = "ContactInfo")]
         public string Email { get; set; }
@@ -58,6 +57,18 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData
         [Display(GroupName = "ContactInfo")]
         public string Phone { get; set; }
 
+        [Display(GroupName = "ContactInfo")]
+        public PreferredContactMethod? PreferredContactMethod { get; set; }
+
+    }
+
+    public enum PreferredContactMethod
+    {
+        [Display(Name = "E-mail")]
+        Email,
+
+        [Display(Name = "Telephone")]
+        Phone
     }
 
     public record CountrySelectorItem : SelectorItem<int>;

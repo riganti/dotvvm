@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
 using DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors;
 
@@ -32,7 +34,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
                 new DynamicEditor(ddContext.Services)
                 .SetProperty(p => p.Property, ddContext.CreateValueBinding(property.PropertyInfo.Name))
                 .SetProperty("Changed", props.Changed.GetValueOrDefault(property.PropertyInfo.Name))
-                .SetProperty("Enabled", props.Enabled.GetValueOrDefault(property.PropertyInfo.Name, new(true)));
+                .SetProperty("Enabled", props.Enabled.GetValueOrDefault(property.PropertyInfo.Name, new ValueOrBinding<bool>(true)));
         }
     }
 }

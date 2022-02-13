@@ -70,9 +70,11 @@ namespace DotVVM.Samples.Common
 
             services.AddSingleton<ViewModels.ControlSamples.NamedCommand.TestService>();
 
-            dotvvmServices.AddDynamicData(new ()
-            {
-                PropertyDisplayNamesResourceFile = typeof(DynamicDataTexts)
+            dotvvmServices.AddDynamicData(config => {
+                config.PropertyDisplayNamesResourceFile = typeof(DynamicDataTexts);
+                config.PropertyMetadataRules
+                    .For("IsCompany", r => r.SetDisplayName("Hello"))
+                    .For("ProductId", r => r.UseSelector<ProductSelectorItem>());
             });
             services.AddTransient<ISelectorDataProvider<ProductSelectorItem>, ProductSelectorDataProvider>();
             services.AddTransient<ISelectorDataProvider<CountrySelectorItem>, CountrySelectorDataProvider>();
