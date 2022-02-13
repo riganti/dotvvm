@@ -18,33 +18,29 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         public string EditorCellCssClass { get; set; }
 
 
-        public override DotvvmControl BuildForm(DynamicDataContext dynamicDataContext)
+        public override DotvvmControl BuildForm(DynamicDataContext ddContext)
         {
-            var entityPropertyListProvider = dynamicDataContext.Services.GetRequiredService<IEntityPropertyListProvider>();
+            var entityPropertyListProvider = ddContext.Services.GetRequiredService<IEntityPropertyListProvider>();
 
             // create the table
-            var table = InitializeTable(dynamicDataContext);
+            var table = InitializeTable(ddContext);
             
             // create the rows
-            var properties = GetPropertiesToDisplay(dynamicDataContext, entityPropertyListProvider);
+            var properties = GetPropertiesToDisplay(ddContext, entityPropertyListProvider);
             foreach (var property in properties)
             {
-                // find the editorProvider for cell
-                var editorProvider = FindEditorProvider(property, dynamicDataContext);
-                if (editorProvider == null) continue;
-
                 // create the row
                 HtmlGenericControl labelCell, editorCell;
-                var row = InitializeTableRow(table, property, dynamicDataContext, out labelCell, out editorCell);
+                var row = InitializeTableRow(table, property, ddContext, out labelCell, out editorCell);
                 
                 // create the label
-                InitializeControlLabel(row, labelCell, editorProvider, property, dynamicDataContext);
+                labelCell.AppendChildren(InitializeControlLabel(property, ddContext));
                 
                 // create the editorProvider
-                InitializeControlEditor(row, editorCell, editorProvider, property, dynamicDataContext);
+                editorCell.AppendChildren(InitializeControlEditor(property, ddContext));
 
                 // create the validator
-                InitializeValidation(row, labelCell, editorCell, editorProvider, property, dynamicDataContext);
+                InitializeValidation(row, labelCell, property, ddContext);
             }
             return table;
         }
@@ -52,17 +48,14 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         /// <summary>
         /// Initializes the validation on the row.
         /// </summary>
-        protected virtual void InitializeValidation(HtmlGenericControl row, HtmlGenericControl labelCell, HtmlGenericControl editorCell, IFormEditorProvider editorProvider, PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext)
+        protected virtual void InitializeValidation(HtmlGenericControl row, HtmlGenericControl labelCell, PropertyDisplayMetadata property, DynamicDataContext ddContext)
         {
-            if (dynamicDataContext.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
+            if (ddContext.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
             {
                 labelCell.Attributes.Set("class", " dynamicdata-required");
             }
 
-            if (editorProvider.CanValidate)
-            {
-                row.SetValue(Validator.ValueProperty, editorProvider.GetValidationValueBinding(property, dynamicDataContext));
-            }
+            row.SetValue(Validator.ValueProperty, ddContext.CreateValueBinding(property.PropertyInfo.Name));
         }
 
         /// <summary>
@@ -99,20 +92,22 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         /// <summary>
         /// Creates the contents of the label cell for the specified property.
         /// </summary>
-        protected virtual void InitializeControlLabel(HtmlGenericControl row, HtmlGenericControl labelCell, IFormEditorProvider editorProvider, PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext)
+        protected virtual DotvvmControl? InitializeControlLabel(PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext)
         {
-            if (editorProvider.RenderDefaultLabel)
+            if (property.IsDefaultLabelAllowed)
             {
-                labelCell.Children.Add(new Literal(property.DisplayName));
+                return new Literal(property.DisplayName ?? property.PropertyInfo.Name);
             }
+            return null;
         }
 
         /// <summary>
         /// Creates the contents of the editor cell for the specified property.
         /// </summary>
-        protected virtual void InitializeControlEditor(HtmlGenericControl row, HtmlGenericControl editorCell, IFormEditorProvider editorProvider, PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext)
+        protected virtual DotvvmControl InitializeControlEditor(PropertyDisplayMetadata property, DynamicDataContext ddContext)
         {
-            editorCell.AppendChildren(editorProvider.CreateControl(property, dynamicDataContext));
+            return new DynamicEditor(ddContext.Services)
+                .SetProperty(DynamicEditor.PropertyProperty, ddContext.CreateValueBinding(property.PropertyInfo.Name));
         }
 
     }

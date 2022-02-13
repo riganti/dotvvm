@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
 
 namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
@@ -11,8 +12,6 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
     /// </summary>
     public class TextBoxEditorProvider : FormEditorProviderBase
     {
-        public override bool CanValidate => true;
-
         public override bool CanHandleProperty(PropertyInfo propertyInfo, DynamicDataContext context)
         {
             return TextBoxHelper.CanHandleProperty(propertyInfo, context);
@@ -28,16 +27,10 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
                 return literal;
             }
 
-            var textBox = new TextBox();
-
-            var cssClass = ControlHelpers.ConcatCssClasses(ControlCssClass, property.Styles?.FormControlCssClass);
-            if (!string.IsNullOrEmpty(cssClass))
-            {
-                textBox.Attributes.Set("class", cssClass);
-            }
-
-            textBox.FormatString = property.FormatString;
-            textBox.SetBinding(TextBox.TextProperty, context.CreateValueBinding(property.PropertyInfo.Name));
+            var textBox = new TextBox()
+                .AddCssClasses(ControlCssClass, property.Styles?.FormControlCssClass)
+                .SetProperty(TextBox.TextProperty, context.CreateValueBinding(property.PropertyInfo.Name))
+                .SetProperty(TextBox.FormatStringProperty, new ValueOrBinding<string>(property.FormatString));
 
             if (property.DataType == DataType.Password)
             {

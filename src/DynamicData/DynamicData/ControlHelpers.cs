@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             }
         }
 
-        public static string ConcatCssClasses(params string[] fragments)
+        public static string ConcatCssClasses(params string?[] fragments)
         {
             return string.Join(" ", fragments.Select(f => f?.Trim() ?? "").Where(f => !string.IsNullOrEmpty(f)));
         }

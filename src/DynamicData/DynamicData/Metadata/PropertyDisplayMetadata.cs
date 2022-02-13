@@ -32,5 +32,6 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
 
         public SelectorAttribute? SelectorConfiguration { get; set; }
 
+        public bool IsDefaultLabelAllowed { get; set; }
     }
 }

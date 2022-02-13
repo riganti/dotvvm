@@ -35,9 +35,9 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         public Type EntityType => DataContextStack.DataContextType;
 
-        public string ViewName { get; set; }
+        public string? ViewName { get; set; }
 
-        public string GroupName { get; set; }
+        public string? GroupName { get; set; }
 
         public Dictionary<StateBagKey, object> StateBag { get; } = new Dictionary<StateBagKey, object>();
         public BindingCompilationService BindingCompilationService { get; }

@@ -228,10 +228,12 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary> Appends a css class to this control. Note that it is currently not supported if multiple bindings would have to be joined together. Returns <paramref name="control"/> for fluent API usage. </summary>
-        public static TControl AddCssClass<TControl>(this TControl control, ValueOrBinding<string> className)
+        public static TControl AddCssClass<TControl>(this TControl control, ValueOrBinding<string?> className)
             where TControl : IControlWithHtmlAttributes
         {
-            return AddAttribute(control, "class", className.UnwrapToObject());
+            var classNameObj = className.UnwrapToObject();
+            if (classNameObj is null or "") return control;
+            return AddAttribute(control, "class", classNameObj);
         }
 
         /// <summary> Appends a css class to this control. Note that it is currently not supported if multiple bindings would have to be joined together. Returns <paramref name="control"/> for fluent API usage. </summary>
@@ -242,12 +244,12 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary> Appends a list of css classes to this control. Returns <paramref name="control"/> for fluent API usage. </summary>
-        public static TControl AddCssClasses<TControl>(this TControl control, params string[] classes)
+        public static TControl AddCssClasses<TControl>(this TControl control, params string?[] classes)
             where TControl : IControlWithHtmlAttributes
         {
             if (classes is null || classes.Length == 0)
                 return control;
-            return AddCssClass(control, string.Join(" ", classes));
+            return AddCssClass(control, string.Join(" ", classes.Where(c => !String.IsNullOrWhiteSpace(c))));
         }
 
         /// <summary> Adds a css inline style - the `style` attribute. Returns <paramref name="control"/> for fluent API usage. </summary>

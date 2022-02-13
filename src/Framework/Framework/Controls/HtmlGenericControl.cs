@@ -585,6 +585,11 @@ namespace DotVVM.Framework.Controls
         public ValueOrBinding<bool> Visible { get; init; } = new(true);
 
         public ValueOrBinding<string?> ID { get; init; }
+
+
+
+
+        public bool IsEmpty() => Attributes.Count == 0 && CssClasses.Count == 0 && CssStyles.Count == 0 && Visible.ValueOrDefault == true && ID.ValueOrDefault == null;
     }
 
     [DotvvmControlCapability]

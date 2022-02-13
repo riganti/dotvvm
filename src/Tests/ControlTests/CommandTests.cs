@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         static readonly ControlTestHelper cth = new ControlTestHelper(config: config => {
 
         }, services: services => {
-            services.AddTransient<OmgViewModelWithIsAlsoAService>();
+            services.Services.AddTransient<OmgViewModelWithIsAlsoAService>();
         });
         OutputChecker check = new OutputChecker("testoutputs");
 

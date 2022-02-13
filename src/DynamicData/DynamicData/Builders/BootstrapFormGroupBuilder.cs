@@ -28,17 +28,16 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
             {
                 // find the editorProvider for cell
                 var editorProvider = FindEditorProvider(property, dynamicDataContext);
-                if (editorProvider == null) continue;
 
                 // create the row
                 HtmlGenericControl labelElement, controlElement;
                 var formGroup = InitializeFormGroup(property, dynamicDataContext, out labelElement, out controlElement);
 
                 // create the label
-                InitializeControlLabel(formGroup, labelElement, editorProvider, property, dynamicDataContext);
+                labelElement.AppendChildren(InitializeControlLabel(property, dynamicDataContext));
 
                 // create the editorProvider
-                InitializeControlEditor(formGroup, controlElement, editorProvider, property, dynamicDataContext);
+                controlElement.AppendChildren(InitializeControlEditor(editorProvider, property, dynamicDataContext));
 
                 // create the validator
                 InitializeValidation(formGroup, labelElement, controlElement, editorProvider, property, dynamicDataContext);
@@ -53,52 +52,43 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         protected virtual HtmlGenericControl InitializeFormGroup(PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext, out HtmlGenericControl labelElement, out HtmlGenericControl controlElement)
         {
             var formGroup = new HtmlGenericControl("div");
-            formGroup.Attributes.Set("class", ControlHelpers.ConcatCssClasses(FormGroupCssClass, property.Styles?.FormRowCssClass));
+            formGroup.AddCssClass(FormGroupCssClass).AddCssClass(property.Styles?.FormRowCssClass);
 
             labelElement = new HtmlGenericControl("label");
-            labelElement.Attributes.Set("class", LabelCssClass);
+            labelElement.Attributes.Add("class", LabelCssClass);
             formGroup.Children.Add(labelElement);
 
             controlElement = new HtmlGenericControl("div");
-            controlElement.Attributes.Set("class", ControlHelpers.ConcatCssClasses(property.Styles?.FormControlContainerCssClass));
+            controlElement.Attributes.Add("class", property.Styles?.FormControlContainerCssClass?.Trim());
             formGroup.Children.Add(controlElement);
 
             return formGroup;
         }
 
-        protected virtual void InitializeControlLabel(HtmlGenericControl formGroup, HtmlGenericControl labelElement, IFormEditorProvider editorProvider, PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext)
+        protected virtual DotvvmControl? InitializeControlLabel(PropertyDisplayMetadata property, DynamicDataContext ddContext)
         {
-            if (editorProvider.RenderDefaultLabel)
-            {
-                labelElement.Children.Add(new Literal(property.DisplayName));
-            }
+            if (property.IsDefaultLabelAllowed)
+                return new Literal(property.DisplayName);
+            return null;
         }
 
-        protected virtual void InitializeControlEditor(HtmlGenericControl formGroup, HtmlGenericControl controlElement, IFormEditorProvider editorProvider, PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext)
+        protected virtual DotvvmControl InitializeControlEditor(IFormEditorProvider editorProvider, PropertyDisplayMetadata property, DynamicDataContext ddContext)
         {
-            controlElement.AppendChildren(editorProvider.CreateControl(property, dynamicDataContext));
-
-            // set CSS classes
-            foreach (var control in controlElement.GetAllDescendants())
-            {
-                if (control is TextBox || control is ComboBox)
-                {
-                    ((HtmlGenericControl) control).Attributes.Set("class", "form-control");
-                }
-            }
+            var editor =
+                new DynamicEditor(ddContext.Services)
+                    .SetProperty(DynamicEditor.PropertyProperty, ddContext.CreateValueBinding(property.PropertyInfo.Name));
+            editor.AddAttribute("class", "form-control");
+            return editor;
         }
 
-        protected virtual void InitializeValidation(HtmlGenericControl formGroup, HtmlGenericControl labelElement, HtmlGenericControl controlElement, IFormEditorProvider editorProvider, PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext)
+        protected virtual void InitializeValidation(HtmlGenericControl formGroup, HtmlGenericControl labelElement, HtmlGenericControl controlElement, IFormEditorProvider editorProvider, PropertyDisplayMetadata property, DynamicDataContext ddContext)
         {
-            if (dynamicDataContext.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
+            if (ddContext.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
             {
                 labelElement.Attributes.Set("class", ControlHelpers.ConcatCssClasses(labelElement.Attributes["class"] as string, "dynamicdata-required"));
             }
 
-            if (editorProvider.CanValidate)
-            {
-                controlElement.SetValue(Validator.ValueProperty, editorProvider.GetValidationValueBinding(property, dynamicDataContext));
-            }
+            controlElement.SetValue(Validator.ValueProperty, ddContext.CreateValueBinding(property.PropertyInfo.Name));
         }
 
     }

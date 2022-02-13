@@ -3,6 +3,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls.DynamicData.Builders;
 using DotVVM.Framework.Controls.DynamicData.Configuration;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls.DynamicData
 {
@@ -19,9 +20,9 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// Gets or sets the custom layout of the form.
         /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
-        public ITemplate ContentTemplate
+        public ITemplate? ContentTemplate
         {
-            get { return (ITemplate)GetValue(ContentTemplateProperty); }
+            get { return (ITemplate?)GetValue(ContentTemplateProperty); }
             set { SetValue(ContentTemplateProperty, value); }
         }
         public static readonly DotvvmProperty ContentTemplateProperty
@@ -31,9 +32,9 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// <summary>
         /// Gets or sets the view name (e.g. Insert, Edit, ReadOnly). Some fields may have different metadata for each view.
         /// </summary>
-        public string ViewName
+        public string? ViewName
         {
-            get { return (string)GetValue(ViewNameProperty); }
+            get { return (string?)GetValue(ViewNameProperty); }
             set { SetValue(ViewNameProperty, value); }
         }
         public static readonly DotvvmProperty ViewNameProperty
@@ -43,9 +44,9 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// <summary>
         /// Gets or sets the group of fields that should be rendered. If not set, fields from all groups will be rendered.
         /// </summary>
-        public string GroupName
+        public string? GroupName
         {
-            get { return (string)GetValue(GroupNameProperty); }
+            get { return (string?)GetValue(GroupNameProperty); }
             set { SetValue(GroupNameProperty, value); }
         }
         public static readonly DotvvmProperty GroupNameProperty
@@ -57,8 +58,8 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// </summary>
         public string FormBuilderName
         {
-            get { return (string)GetValue(FormBuilderNameProperty); }
-            set { SetValue(FormBuilderNameProperty, value); }
+            get { return (string?)GetValue(FormBuilderNameProperty) ?? ""; }
+            set { SetValue(FormBuilderNameProperty, value ?? ""); }
         }
         public static readonly DotvvmProperty FormBuilderNameProperty
             = DotvvmProperty.Register<string, DynamicEntity>(c => c.FormBuilderName, "");
@@ -86,7 +87,7 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         private DynamicDataContext CreateDynamicDataContext()
         {
-            return new DynamicDataContext(this.GetDataContextType(), this.services)
+            return new DynamicDataContext(this.GetDataContextType().NotNull(), this.services)
             {
                 ViewName = ViewName,
                 GroupName = GroupName

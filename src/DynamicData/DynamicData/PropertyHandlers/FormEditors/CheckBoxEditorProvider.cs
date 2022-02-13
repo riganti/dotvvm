@@ -15,10 +15,6 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             return ReflectionUtils.UnwrapNullableType(propertyInfo.PropertyType) == typeof(bool);
         }
         
-        public override bool CanValidate => true;
-
-        public override bool RenderDefaultLabel => false;
-
         public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicDataContext context)
         {
             var checkBox = new CheckBox();

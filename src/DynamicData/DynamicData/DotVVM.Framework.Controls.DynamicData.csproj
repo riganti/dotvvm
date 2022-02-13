@@ -5,6 +5,7 @@
     <PackageProjectUrl>https://www.dotvvm.com/docs/3.0/pages/community-add-ons/dotvvm-dynamic-data</PackageProjectUrl>
     <PackageTags>($PackageTags);dynamic data;annotations;metadata;ui generation</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <Reference Include="System" />
