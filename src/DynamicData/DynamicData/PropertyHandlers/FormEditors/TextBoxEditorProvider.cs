@@ -17,20 +17,23 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             return TextBoxHelper.CanHandleProperty(propertyInfo, context);
         }
 
-        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicDataContext context)
+        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicEditor.Props props, DynamicDataContext context)
         {
             if (!property.IsEditAllowed)
             {
                 var literal = new Literal();
-                literal.SetBinding(Literal.TextProperty, context.CreateValueBinding(property.PropertyInfo.Name));
+                literal.SetBinding(Literal.TextProperty, props.Property);
 
                 return literal;
             }
 
             var textBox = new TextBox()
                 .AddCssClasses(ControlCssClass, property.Styles?.FormControlCssClass)
-                .SetProperty(TextBox.TextProperty, context.CreateValueBinding(property.PropertyInfo.Name))
-                .SetProperty(TextBox.FormatStringProperty, new ValueOrBinding<string>(property.FormatString));
+                .SetProperty(t => t.Text, props.Property)
+                .SetProperty(t => t.FormatString, property.FormatString)
+                .SetProperty(t => t.Enabled, props.Enabled)
+                .SetProperty(t => t.Changed, props.Changed)
+                .SetCapability(props.Html);
 
             if (property.DataType == DataType.Password)
             {

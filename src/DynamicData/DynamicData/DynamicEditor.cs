@@ -41,13 +41,16 @@ namespace DotVVM.Framework.Controls.DynamicData
             this.services = services;
         }
 
-        public DotvvmControl GetContents(HtmlCapability html)
+        public DotvvmControl GetContents(Props props)
         {
             var context = new DynamicDataContext(this.GetDataContextType().NotNull(), this.services)
             {
                 ViewName = null,
                 GroupName = null
             };
+
+            if (Property is null)
+                throw new DotvvmControlException(this, $"{nameof(Property)} is not set.");
 
             var prop = Property.GetProperty<ReferencedViewModelPropertiesBindingProperty>();
 
@@ -60,10 +63,17 @@ namespace DotVVM.Framework.Controls.DynamicData
                 context.DynamicDataConfiguration.FormEditorProviders
                     .FirstOrDefault(e => e.CanHandleProperty(prop.MainProperty, context));
 
-            var control = editorProvider.CreateControl(propertyMetadata, context);
-            if (!html.IsEmpty())
-                control.SetCapability(html);
+            var control = editorProvider.CreateControl(propertyMetadata, props, context);
             return control;
+        }
+
+        [DotvvmControlCapability]
+        public sealed record Props
+        {
+            public IValueBinding? Property { get; init; }
+            public ICommandBinding? Changed { get; init; }
+            public ValueOrBinding<bool> Enabled { get; init; } = true;
+            public HtmlCapability Html { get; init; } = new();
         }
     }
 }

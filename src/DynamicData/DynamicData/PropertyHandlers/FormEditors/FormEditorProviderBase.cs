@@ -6,8 +6,8 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
 {
     public abstract class FormEditorProviderBase : DynamicDataPropertyHandlerBase, IFormEditorProvider
     {
-        public string ControlCssClass { get; set; }
+        public string? ControlCssClass { get; set; }
 
-        public abstract DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicDataContext context);
+        public abstract DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicEditor.Props props, DynamicDataContext context);
     }
 }

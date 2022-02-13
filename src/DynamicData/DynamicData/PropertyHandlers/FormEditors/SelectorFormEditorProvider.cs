@@ -17,16 +17,19 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             return context.PropertyDisplayMetadataProvider.GetPropertyMetadata(propertyInfo).SelectorConfiguration != null;
         }
 
-        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicDataContext context)
+        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicEditor.Props props, DynamicDataContext context)
         {
             var selectorConfiguration = property.SelectorConfiguration!;
             var selectorDataSourceBinding = DiscoverSelectorDataSourceBinding(context, selectorConfiguration.PropertyType);
 
             return new ComboBox()
                 .SetProperty(c => c.DataSource, selectorDataSourceBinding)
-                .SetProperty(c => c.ItemTextBinding, (IValueBinding)context.CreateValueBinding("DisplayName", selectorConfiguration.PropertyType))
-                .SetProperty(c => c.ItemValueBinding, (IValueBinding)context.CreateValueBinding("Id", selectorConfiguration.PropertyType))
-                .SetProperty(c => c.SelectedValue, (IValueBinding)context.CreateValueBinding(property.PropertyInfo.Name));
+                .SetProperty(c => c.ItemTextBinding, context.CreateValueBinding("DisplayName", selectorConfiguration.PropertyType))
+                .SetProperty(c => c.ItemValueBinding, context.CreateValueBinding("Id", selectorConfiguration.PropertyType))
+                .SetProperty(c => c.SelectedValue, props.Property)
+                .SetProperty(c => c.Enabled, props.Enabled)
+                .SetProperty(c => c.SelectionChanged, props.Changed)
+                .SetCapability(props.Html);
         }
 
         private IValueBinding DiscoverSelectorDataSourceBinding(DynamicDataContext dynamicDataContext, Type propertyType)

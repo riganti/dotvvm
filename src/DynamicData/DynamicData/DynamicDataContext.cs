@@ -53,7 +53,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             BindingCompilationService = services.GetRequiredService<BindingCompilationService>();
         }
 
-        public ValueBindingExpression CreateValueBinding(string expression, params Type[] nestedDataContextTypes)
+        public IValueBinding CreateValueBinding(string expression, params Type[] nestedDataContextTypes)
         {
             var dataContextStack = CreateDataContextStack(DataContextStack, nestedDataContextTypes);
 

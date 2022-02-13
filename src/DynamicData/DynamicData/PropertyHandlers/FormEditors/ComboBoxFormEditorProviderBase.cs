@@ -17,26 +17,21 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             return GetSettings(propertyInfo) != null;
         }
 
-        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicDataContext context)
+        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicEditor.Props props, DynamicDataContext context)
         {
             var comboBox = new ComboBox()
-            {
-                EmptyItemText = GetEmptyItemText(property, context)
-            };
+                .SetProperty(c => c.EmptyItemText, GetEmptyItemText(property, context))
+                .AddCssClasses(ControlCssClass, property.Styles?.FormControlCssClass)
+                .SetCapability(props.Html)
+                .SetProperty(c => c.SelectionChanged, props.Changed)
+                .SetProperty(c => c.Enabled, props.Enabled)
+                .SetProperty(c => c.ItemTextBinding, context.CreateValueBinding(GetDisplayMember(property, context)))
+                .SetProperty(c => c.ItemValueBinding, context.CreateValueBinding(GetValueMember(property, context)));
 
             comboBox.SetBinding(SelectorBase.ItemTextBindingProperty, context.CreateValueBinding(GetDisplayMember(property, context)));
             comboBox.SetBinding(SelectorBase.ItemValueBindingProperty, context.CreateValueBinding(GetValueMember(property, context)));
-
-            comboBox.SetBinding(SelectorBase.ItemTextBindingProperty, context.CreateValueBinding(GetDisplayMember(property, context)));
-            comboBox.SetBinding(SelectorBase.ItemValueBindingProperty, context.CreateValueBinding(GetValueMember(property, context)));
-            comboBox.SetBinding(Selector.SelectedValueProperty, context.CreateValueBinding(property.PropertyInfo.Name));
+            comboBox.SetBinding(Selector.SelectedValueProperty, props.Property);
             comboBox.SetBinding(ItemsControl.DataSourceProperty, GetDataSourceBinding(property, context, comboBox));
-
-            var cssClass = ControlHelpers.ConcatCssClasses(ControlCssClass, property.Styles?.FormControlCssClass);
-            if (!string.IsNullOrEmpty(cssClass))
-            {
-                comboBox.Attributes.Set("class", cssClass);
-            }
 
             return comboBox;
         }
@@ -44,7 +39,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
         /// <summary>
         /// Compiles the DataSource binding expression to a value binding.
         /// </summary>
-        protected virtual ValueBindingExpression GetDataSourceBinding(PropertyDisplayMetadata property, DynamicDataContext context, ComboBox comboBox)
+        protected virtual IValueBinding GetDataSourceBinding(PropertyDisplayMetadata property, DynamicDataContext context, ComboBox comboBox)
         {
             var dataSourceBindingExpression = GetDataSourceBindingExpression(property, context);
             if (string.IsNullOrEmpty(dataSourceBindingExpression))

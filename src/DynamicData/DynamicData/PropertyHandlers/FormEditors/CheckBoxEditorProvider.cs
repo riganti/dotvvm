@@ -15,19 +15,14 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             return ReflectionUtils.UnwrapNullableType(propertyInfo.PropertyType) == typeof(bool);
         }
         
-        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicDataContext context)
+        public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicEditor.Props props, DynamicDataContext context)
         {
-            var checkBox = new CheckBox();
-
-            var cssClass = ControlHelpers.ConcatCssClasses(ControlCssClass, property.Styles?.FormControlCssClass);
-            if (!string.IsNullOrEmpty(cssClass))
-            {
-                checkBox.Attributes.Set("class", cssClass);
-            }
-
-            checkBox.Text = property.DisplayName ?? "";
-            checkBox.SetBinding(CheckBox.CheckedProperty, context.CreateValueBinding(property.PropertyInfo.Name));
-
+            var checkBox = new CheckBox()
+                .AddCssClasses(ControlCssClass, property.Styles?.FormControlCssClass)
+                .SetProperty(c => c.Changed, props.Changed)
+                .SetProperty(c => c.Checked, props.Property)
+                .SetProperty(c => c.Text, property.DisplayName ?? "")
+                .SetProperty(c => c.Enabled, props.Enabled);
             return checkBox;
         }
     }
