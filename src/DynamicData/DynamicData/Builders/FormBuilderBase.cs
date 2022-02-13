@@ -24,15 +24,15 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
             return properties;
         }
 
-        /// <summary>
-        /// Finds the editor provider for the specified property.
-        /// </summary>
-        protected virtual IFormEditorProvider FindEditorProvider(PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext)
-        {
-            return dynamicDataContext.DynamicDataConfiguration.FormEditorProviders
-                .FirstOrDefault(e => e.CanHandleProperty(property.PropertyInfo, dynamicDataContext));
-        }
+        public abstract DotvvmControl BuildForm(DynamicDataContext dynamicDataContext, DynamicEntity.FieldProps fieldProps);
 
-        public abstract DotvvmControl BuildForm(DynamicDataContext dynamicDataContext);
+        protected virtual DynamicEditor CreateEditor(PropertyDisplayMetadata property, DynamicDataContext ddContext, DynamicEntity.FieldProps props)
+        {
+            return
+                new DynamicEditor(ddContext.Services)
+                .SetProperty(p => p.Property, ddContext.CreateValueBinding(property.PropertyInfo.Name))
+                .SetProperty("Changed", props.Changed.GetValueOrDefault(property.PropertyInfo.Name))
+                .SetProperty("Enabled", props.Enabled.GetValueOrDefault(property.PropertyInfo.Name, new(true)));
+        }
     }
 }

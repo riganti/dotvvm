@@ -2,6 +2,6 @@
 {
     public interface IFormBuilder
     {
-        DotvvmControl BuildForm(DynamicDataContext dynamicDataContext);
+        DotvvmControl BuildForm(DynamicDataContext dynamicDataContext, DynamicEntity.FieldProps fieldProps);
     }
 }

@@ -34,7 +34,8 @@ namespace DotVVM.Framework.Tests.ControlTests
         public async Task BasicDynamicEntity()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
-                    <dd:DynamicEntity DataContext={value: Entity} />
+                    <dd:DynamicEntity DataContext={value: Entity}
+                            Changed-Name={command: 0} />
                 "
             );
 

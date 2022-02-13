@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Controls.DynamicData.Builders;
 using DotVVM.Framework.Controls.DynamicData.Configuration;
 using DotVVM.Framework.Hosting;
@@ -65,9 +67,10 @@ namespace DotVVM.Framework.Controls.DynamicData
             = DotvvmProperty.Register<string, DynamicEntity>(c => c.FormBuilderName, "");
 
 
-        public DotvvmControl GetContents()
+        public DotvvmControl GetContents(
+            FieldProps fieldProps
+        )
         {
-
             if (ContentTemplate != null)
             {
                 return new TemplateHost(ContentTemplate);
@@ -75,14 +78,14 @@ namespace DotVVM.Framework.Controls.DynamicData
             else
             {
                 var dynamicDataContext = CreateDynamicDataContext();
-                return BuildForm(dynamicDataContext);
+                return BuildForm(dynamicDataContext, fieldProps);
             }
         }
 
-        protected virtual DotvvmControl BuildForm(DynamicDataContext dynamicDataContext)
+        protected virtual DotvvmControl BuildForm(DynamicDataContext dynamicDataContext, FieldProps fieldProps)
         {
             var builder = dynamicDataContext.DynamicDataConfiguration.GetFormBuilder(FormBuilderName);
-            return builder.BuildForm(dynamicDataContext);
+            return builder.BuildForm(dynamicDataContext, fieldProps);
         }
 
         private DynamicDataContext CreateDynamicDataContext()
@@ -92,6 +95,19 @@ namespace DotVVM.Framework.Controls.DynamicData
                 ViewName = ViewName,
                 GroupName = GroupName
             };
+        }
+
+        [DotvvmControlCapability]
+        public sealed record FieldProps
+        {
+            [PropertyGroup("Changed-")]
+            public IReadOnlyDictionary<string, ICommandBinding> Changed { get; init; } = new Dictionary<string, ICommandBinding>();
+            [PropertyGroup("Enabled-")]
+            public IReadOnlyDictionary<string, ValueOrBinding<bool>> Enabled { get; init; } = new Dictionary<string, ValueOrBinding<bool>>();
+            [PropertyGroup("FieldTemplate-")]
+            public IReadOnlyDictionary<string, ITemplate> FieldTemplate { get; init; } = new Dictionary<string, ITemplate>();
+            [PropertyGroup("EditorTemplate-")]
+            public IReadOnlyDictionary<string, ITemplate> EditorTemplate { get; init; } = new Dictionary<string, ITemplate>();
         }
     }
 }

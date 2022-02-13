@@ -10,13 +10,10 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
 {
     public class BootstrapFormGroupBuilder : FormBuilderBase
     {
-
         public string FormGroupCssClass { get; set; } = "form-group";
-
         public string LabelCssClass { get; set; } = "control-label";
 
-
-        public override DotvvmControl BuildForm(DynamicDataContext dynamicDataContext)
+        public override DotvvmControl BuildForm(DynamicDataContext dynamicDataContext, DynamicEntity.FieldProps props)
         {
             var entityPropertyListProvider = dynamicDataContext.Services.GetService<IEntityPropertyListProvider>();
 
@@ -26,9 +23,6 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
             var properties = GetPropertiesToDisplay(dynamicDataContext, entityPropertyListProvider);
             foreach (var property in properties)
             {
-                // find the editorProvider for cell
-                var editorProvider = FindEditorProvider(property, dynamicDataContext);
-
                 // create the row
                 HtmlGenericControl labelElement, controlElement;
                 var formGroup = InitializeFormGroup(property, dynamicDataContext, out labelElement, out controlElement);
@@ -37,10 +31,10 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
                 labelElement.AppendChildren(InitializeControlLabel(property, dynamicDataContext));
 
                 // create the editorProvider
-                controlElement.AppendChildren(InitializeControlEditor(editorProvider, property, dynamicDataContext));
+                controlElement.AppendChildren(InitializeControlEditor(property, dynamicDataContext));
 
                 // create the validator
-                InitializeValidation(formGroup, labelElement, controlElement, editorProvider, property, dynamicDataContext);
+                InitializeValidation(formGroup, labelElement, controlElement, property, dynamicDataContext);
 
                 resultPlaceholder.Children.Add(formGroup);
             }
@@ -72,7 +66,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
             return null;
         }
 
-        protected virtual DotvvmControl InitializeControlEditor(IFormEditorProvider editorProvider, PropertyDisplayMetadata property, DynamicDataContext ddContext)
+        protected virtual DotvvmControl InitializeControlEditor(PropertyDisplayMetadata property, DynamicDataContext ddContext)
         {
             var editor =
                 new DynamicEditor(ddContext.Services)
@@ -81,7 +75,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
             return editor;
         }
 
-        protected virtual void InitializeValidation(HtmlGenericControl formGroup, HtmlGenericControl labelElement, HtmlGenericControl controlElement, IFormEditorProvider editorProvider, PropertyDisplayMetadata property, DynamicDataContext ddContext)
+        protected virtual void InitializeValidation(HtmlGenericControl formGroup, HtmlGenericControl labelElement, HtmlGenericControl controlElement, PropertyDisplayMetadata property, DynamicDataContext ddContext)
         {
             if (ddContext.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
             {

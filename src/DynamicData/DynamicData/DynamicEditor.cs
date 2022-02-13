@@ -72,7 +72,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         {
             public IValueBinding? Property { get; init; }
             public ICommandBinding? Changed { get; init; }
-            public ValueOrBinding<bool> Enabled { get; init; } = true;
+            public ValueOrBinding<bool> Enabled { get; init; } = new(true);
             public HtmlCapability Html { get; init; } = new();
         }
     }

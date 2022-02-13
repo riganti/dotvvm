@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         public string EditorCellCssClass { get; set; }
 
 
-        public override DotvvmControl BuildForm(DynamicDataContext ddContext)
+        public override DotvvmControl BuildForm(DynamicDataContext ddContext, DynamicEntity.FieldProps props)
         {
             var entityPropertyListProvider = ddContext.Services.GetRequiredService<IEntityPropertyListProvider>();
 
@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
                 labelCell.AppendChildren(InitializeControlLabel(property, ddContext));
                 
                 // create the editorProvider
-                editorCell.AppendChildren(InitializeControlEditor(property, ddContext));
+                editorCell.AppendChildren(CreateEditor(property, ddContext, props));
 
                 // create the validator
                 InitializeValidation(row, labelCell, property, ddContext);
@@ -52,7 +52,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         {
             if (ddContext.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
             {
-                labelCell.Attributes.Set("class", " dynamicdata-required");
+                labelCell.AddCssClass("dynamicdata-required");
             }
 
             row.SetValue(Validator.ValueProperty, ddContext.CreateValueBinding(property.PropertyInfo.Name));
@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         protected virtual HtmlGenericControl InitializeTable(DynamicDataContext dynamicDataContext)
         {
             var table = new HtmlGenericControl("table");
-            table.Attributes.Set("class", "dotvvm-dynamicdata-form-table");
+            table.AddCssClass("dotvvm-dynamicdata-form-table");
 
             return table;
         }
@@ -75,15 +75,15 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         protected virtual HtmlGenericControl InitializeTableRow(HtmlGenericControl table, PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext, out HtmlGenericControl labelCell, out HtmlGenericControl editorCell)
         {
             var row = new HtmlGenericControl("tr");
-            row.Attributes.Set("class", property.Styles?.FormRowCssClass);
+            row.AddCssClass(property.Styles?.FormRowCssClass);
             table.Children.Add(row);
 
             labelCell = new HtmlGenericControl("td");
-            labelCell.Attributes.Set("class", ControlHelpers.ConcatCssClasses("dynamicdata-label", LabelCellCssClass));
+            labelCell.AddCssClass(ControlHelpers.ConcatCssClasses("dynamicdata-label", LabelCellCssClass));
             row.Children.Add(labelCell);
 
             editorCell = new HtmlGenericControl("td");
-            editorCell.Attributes.Set("class", ControlHelpers.ConcatCssClasses("dynamicdata-editor", EditorCellCssClass, property.Styles?.FormControlContainerCssClass));
+            editorCell.AddCssClass(ControlHelpers.ConcatCssClasses("dynamicdata-editor", EditorCellCssClass, property.Styles?.FormControlContainerCssClass));
             row.Children.Add(editorCell);
             
             return row;
@@ -99,15 +99,6 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
                 return new Literal(property.DisplayName ?? property.PropertyInfo.Name);
             }
             return null;
-        }
-
-        /// <summary>
-        /// Creates the contents of the editor cell for the specified property.
-        /// </summary>
-        protected virtual DotvvmControl InitializeControlEditor(PropertyDisplayMetadata property, DynamicDataContext ddContext)
-        {
-            return new DynamicEditor(ddContext.Services)
-                .SetProperty(DynamicEditor.PropertyProperty, ddContext.CreateValueBinding(property.PropertyInfo.Name));
         }
 
     }
