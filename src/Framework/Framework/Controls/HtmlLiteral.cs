@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Controls
 
             if (!RenderWrapperTag && !RenderOnServer && HasValueBinding(HtmlProperty))
             {
-                throw new DotvvmControlException(this, "The HtmlLiteral control doesn't support client-side rendering without wrapper tag. Enable server rendering or the wrapper tag.");
+                throw new DotvvmControlException(this, "The HtmlLiteral control doesn't support client-side rendering without wrapper tag. Use resource binding to render the value on server or allow the wrapper tag.");
             }
             
             if (RenderWrapperTag && HasValueBinding(HtmlProperty))

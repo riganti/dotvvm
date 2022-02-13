@@ -59,18 +59,32 @@ namespace DotVVM.Framework.Controls
         [ControlUsageValidator]
         public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
         {
-            var renderWrapperTag = (control.GetValue(RenderWrapperTagProperty) as ResolvedPropertyValue)?.Value as bool? ?? false;
+            var type = control.Metadata.Type;
+            // control can set the default value of RenderWrapperTag in constructor, so we have no way to know it in general
+            // However, we know about some built-in controls
+            var defaultValue =
+                type == typeof(HtmlLiteral) ? true :
+                type == typeof(SpaContentPlaceHolder) ? true :
+                type == typeof(ContentPlaceHolder) ? false :
+                type == typeof(ClaimView) ? false :
+                type == typeof(EnvironmentView) ? false :
+                type == typeof(RoleView) ? false :
+                type == typeof(AuthenticatedView) ? false :
+                (bool?)null;
+            var hasDefaultTagName =
+                type != typeof(ContentPlaceHolder);
+            var renderWrapperTag = (control.GetValue(RenderWrapperTagProperty) as ResolvedPropertyValue)?.Value as bool? ?? defaultValue;
             var wrapperTagName = (control.GetValue(WrapperTagNameProperty) as ResolvedPropertyValue)?.Value as string;
 
             if (wrapperTagName?.Trim() == "")
             {
                 yield return new ControlUsageError("The WrapperTagName must not be an empty string!");
             }
-            else if (renderWrapperTag && (wrapperTagName == null))
+            else if (renderWrapperTag == true && (wrapperTagName == null) && !hasDefaultTagName)
             {
                 yield return new ControlUsageError("The WrapperTagName property must be set when RenderWrapperTag is true!");
             }
-            else if (!renderWrapperTag && (wrapperTagName != null))
+            else if (renderWrapperTag == false && (wrapperTagName != null))
             {
                 yield return new ControlUsageError("The WrapperTagName property cannot be set when RenderWrapperTag is false!");
             }
