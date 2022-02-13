@@ -2,6 +2,8 @@ using System.Net.Http;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls.DynamicData;
+using DotVVM.Framework.Controls.DynamicData.Configuration;
 using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.ViewModel.Serialization;
@@ -10,9 +12,11 @@ using DotVVM.Samples.BasicSamples.Controls;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 using DotVVM.Samples.Common.Api.AspNetCore;
 using DotVVM.Samples.Common.Api.Owin;
+using DotVVM.Samples.Common.Resources;
 using DotVVM.Samples.Common.Utilities;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingVariables;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBack;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBackSpaNavigation;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand;
@@ -64,6 +68,14 @@ namespace DotVVM.Samples.Common
             services.AddTransient<VariablesStaticCommand>();
 
             services.AddSingleton<ViewModels.ControlSamples.NamedCommand.TestService>();
+
+            dotvvmServices.AddDynamicData(new ()
+            {
+                PropertyDisplayNamesResourceFile = typeof(DynamicDataTexts)
+            });
+            services.AddTransient<ISelectorDataProvider<ProductSelectorItem>, ProductSelectorDataProvider>();
+            services.AddTransient<ISelectorDataProvider<CountrySelectorItem>, CountrySelectorDataProvider>();
+            services.AddTransient<ISelectorDataProvider<StateSelectorItem, AddressDTO>, StateSelectorDataProvider>();
         }
 
         private static void RegisterResources(DotvvmResourceRepository resources)

@@ -32,6 +32,8 @@ namespace DotVVM.Framework.Controls.DynamicData
                 RegisterResourceFileProviders(services.Services, dynamicDataConfiguration);
             }
 
+            services.Services.Configure<DotvvmConfiguration>(AddDynamicDataConfiguration);
+
             return services;
         }
 
@@ -74,10 +76,9 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// <summary>
         /// Registers the Dynamic Data controls and return the Dynamic Data configuration.
         /// </summary>
-        public static DynamicDataConfiguration AddDynamicDataConfiguration(this DotvvmConfiguration config)
+        private static void AddDynamicDataConfiguration(DotvvmConfiguration config)
         {
-            config.Markup.AddCodeControls("dd", typeof(DynamicDataExtensions).Namespace, typeof(DynamicDataExtensions).GetTypeInfo().Assembly.GetName().Name);
-            return config.ServiceProvider.GetService<DynamicDataConfiguration>();
+            config.Markup.AddCodeControls("dd", typeof(DynamicDataExtensions).Namespace, typeof(DynamicDataExtensions).Assembly.GetName().Name);
         }
         
     }

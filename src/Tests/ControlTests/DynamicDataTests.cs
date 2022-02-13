@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using CheckTestOutput;
 using DotVVM.Framework.Binding;
@@ -24,8 +25,6 @@ namespace DotVVM.Framework.Tests.ControlTests
         static readonly ControlTestHelper cth = new ControlTestHelper(config: config => {
             _ = Repeater.RenderAsNamedTemplateProperty;
             config.Styles.Register<Repeater>().SetProperty(r => r.RenderAsNamedTemplate, false, StyleOverrideOptions.Ignore);
-            config.AddDynamicDataConfiguration();
-            
         }, services: s => {
             s.AddDynamicData();
         });

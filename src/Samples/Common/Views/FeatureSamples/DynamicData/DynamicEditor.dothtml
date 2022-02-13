@@ -1,0 +1,39 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData.DynamicEditorViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h2>DynamicEditor</h2>
+
+    <div DataContext="{value: Customer}">
+        <h3>String</h3>
+        <dd:DynamicEditor Value="{value: StringProp}" data-ui="string" />
+
+        <h3>Int</h3>
+        <dd:DynamicEditor Value="{value: IntProp}" data-ui="int" />
+
+        <h3>Int with range</h3>
+        <dd:DynamicEditor Value="{value: IntRangeProp}" data-ui="int-range" />
+
+        <h3>Bool</h3>
+        <dd:DynamicEditor Value="{value: BoolProp}" data-ui="bool" />
+
+        <h3>DateTime</h3>
+        <dd:DynamicEditor Value="{value: DateTimeProp}" data-ui="datetime" />
+
+        <h3>Selector ProductId</h3>
+        <dd:DynamicEditor Value="{value: ProductId}" data-ui="product-id" />
+
+        <h3>Selector ServiceType</h3>
+        <dd:DynamicEditor Value="{value: ServiceType}" data-ui="product-id" />
+    </div>
+</body>
+</html>
+
+

@@ -1,0 +1,28 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData.DynamicEntityViewModel, DotVVM.Samples.Common
+@service statesDataProvider = DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData.StateSelectorDataProvider
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h2>DynamicEntity</h2>
+
+    <div>
+        <div style="display: inline-block; vertical-align: top">
+            <dd:DynamicEntity DataContext="{value: Address}"
+                              GroupName="BasicInfo"
+                              Changed-CountryId="{staticCommand: States.Items = statesDataProvider.GetItems(Address).Result}" />
+        </div>
+        <div style="display: inline-block; vertical-align: top">
+            <dd:DynamicEntity DataContext="{value: Address}"
+                              GroupName="ContactInfo" />
+        </div>
+    </div>
+</body>
+</html>
+
+
