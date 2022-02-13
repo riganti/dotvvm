@@ -32,9 +32,9 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData
 
         public bool BoolProp { get; set; }
 
-        public bool DateTimeProp { get; set; }
+        public DateTime DateTimeProp { get; set; }
 
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
 
         public ServiceType ServiceType { get; set; }
 

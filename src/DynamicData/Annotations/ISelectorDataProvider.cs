@@ -1,14 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls.DynamicData.Annotations;
 
 public interface ISelectorDataProvider<TItem>
 {
+    [AllowStaticCommand]
     Task<List<TItem>> GetItems();
 }
 
 public interface ISelectorDataProvider<TItem, TParam>
 {
+    [AllowStaticCommand]
     Task<List<TItem>> GetItems(TParam parameter);
 }

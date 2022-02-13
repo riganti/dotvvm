@@ -1,5 +1,5 @@
 ﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData.DynamicEntityViewModel, DotVVM.Samples.Common
-@service statesDataProvider = DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData.StateSelectorDataProvider
+@service statesDataProvider = DotVVM.Framework.Controls.DynamicData.Annotations.ISelectorDataProvider<DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData.StateSelectorItem, DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData.AddressDTO>
 <!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -15,7 +15,7 @@
         <div style="display: inline-block; vertical-align: top">
             <dd:DynamicEntity DataContext="{value: Address}"
                               GroupName="BasicInfo"
-                              <%--Changed-CountryId="{staticCommand: States.Items = statesDataProvider.GetItems(Address).Result}"--%> >
+                              Changed-CountryId="{staticCommand: _root.States.Items = statesDataProvider.GetItems(_root.Address).Result}">
                 <%--<Template-CountryId>
                     pre-text
                     <dd:DynamicEditor />

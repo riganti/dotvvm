@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData
     public class DynamicEntityViewModel : DotvvmViewModelBase
     {
 
-        public AddressDTO Address { get; set; } = new();
+        public AddressDTO Address { get; set; } = new() { CountryId = 1 };
 
         public SelectorViewModel<StateSelectorItem, AddressDTO> States { get; set; }
 
