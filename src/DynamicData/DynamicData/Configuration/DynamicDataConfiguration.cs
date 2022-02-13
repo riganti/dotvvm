@@ -53,6 +53,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Configuration
 
         public DynamicDataConfiguration()
         {
+            FormEditorProviders.Add(new SelectorFormEditorProvider());
             FormEditorProviders.Add(new CheckBoxEditorProvider());
             FormEditorProviders.Add(new TextBoxEditorProvider());
 

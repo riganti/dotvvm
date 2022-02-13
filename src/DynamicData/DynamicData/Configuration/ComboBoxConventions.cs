@@ -6,6 +6,7 @@ using DotVVM.Framework.Controls.DynamicData.Utils;
 
 namespace DotVVM.Framework.Controls.DynamicData.Configuration
 {
+    [Obsolete("Please use SelectorAttribute instead.")]
     public class ComboBoxConventions
     {
 

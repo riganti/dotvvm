@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Controls.DynamicData.Annotations;
 
 namespace DotVVM.Framework.Controls.DynamicData.Metadata
@@ -26,6 +27,10 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         public IVisibilityFilter[] VisibilityFilters { get; set; }
 
         public StyleAttribute Styles { get; set; }
+
         public bool IsEditAllowed { get; set; }
+
+        public SelectorAttribute? SelectorConfiguration { get; set; }
+
     }
 }

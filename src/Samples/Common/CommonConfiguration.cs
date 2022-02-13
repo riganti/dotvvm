@@ -3,6 +3,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls.DynamicData;
+using DotVVM.Framework.Controls.DynamicData.Annotations;
 using DotVVM.Framework.Controls.DynamicData.Configuration;
 using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.ResourceManagement;

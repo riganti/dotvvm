@@ -9,6 +9,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
     /// <summary>
     /// A base class for ComboBox form editor providers.
     /// </summary>
+    [Obsolete("Please use SelectorFormEditorProvider instead.")]
     public abstract class ComboBoxFormEditorProvider : FormEditorProviderBase
     {
         public override bool CanHandleProperty(PropertyInfo propertyInfo, DynamicDataContext context)

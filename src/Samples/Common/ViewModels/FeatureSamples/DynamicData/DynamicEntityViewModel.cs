@@ -4,6 +4,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Controls.DynamicData.Annotations;
+using DotVVM.Framework.Controls.DynamicData.ViewModel;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Samples.Common.Resources;
 

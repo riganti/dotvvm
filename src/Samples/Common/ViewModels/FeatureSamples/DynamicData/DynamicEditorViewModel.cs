@@ -5,8 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Controls.DynamicData.Annotations;
+using DotVVM.Framework.Controls.DynamicData.ViewModel;
 using DotVVM.Framework.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
+using SelectorItem = DotVVM.Framework.Controls.DynamicData.Annotations.SelectorItem;
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData
 {
@@ -60,100 +63,5 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData
         Support
     }
 
-
-    public class SelectorViewModel<TItem> : DotvvmViewModelBase, ISelectorViewModel<TItem>
-        where TItem : SelectorItem
-    {
-
-        public List<TItem>? Items { get; set; }
-
-        public override async Task PreRender()
-        {
-            if (Items == null)
-            {
-                await LoadItems();
-            }
-            await base.PreRender();
-        }
-
-        protected virtual async Task LoadItems()
-        {
-            var selectorDataProvider = Context.Services.GetService<ISelectorDataProvider<TItem>>();
-            if (selectorDataProvider != null)
-            {
-                Items = await selectorDataProvider.GetItems();
-            }
-            else
-            {
-                throw new DotvvmControlException($"Cannot resolve ISelectorDataProvider<{typeof(TItem).FullName}> service! Either load data into {GetType()}.Items collection manually, or register a service which can provide the selector items.");
-            }
-        }
-    }
-
-    public class SelectorViewModel<TItem, TParam> : SelectorViewModel<TItem>
-        where TItem : SelectorItem
-    {
-        private readonly Func<TParam> parameterProvider;
-
-        public SelectorViewModel(Func<TParam> parameterProvider)
-        {
-            this.parameterProvider = parameterProvider;
-        }
-
-        protected override async Task LoadItems()
-        {
-            var selectorDataProvider = Context.Services.GetService<ISelectorDataProvider<TItem, TParam>>();
-            if (selectorDataProvider != null)
-            {
-                var parameter = parameterProvider();
-                Items = await selectorDataProvider.GetItems(parameter);
-            }
-            else
-            {
-                throw new DotvvmControlException($"Cannot resolve ISelectorDataProvider<{typeof(TItem).FullName}> service! Either load data into {GetType()}.Items collection manually, or register a service which can provide the selector items.");
-            }
-        }
-    }
-
-    public interface ISelectorDataProvider<TItem>
-    {
-        Task<List<TItem>> GetItems();
-    }
-
-    public interface ISelectorDataProvider<TItem, TParam>
-    {
-        Task<List<TItem>> GetItems(TParam parameter);
-    }
-
-    public interface ISelectorViewModel<TItem>
-        where TItem : SelectorItem
-    {
-        List<TItem> Items { get; }
-    }
-
-    public abstract record SelectorItem<TKey> : SelectorItem
-    {
-        public TKey Id { get; set; }
-
-        private protected override void SorryWeCannotAllowYouToInheritThisClass() => throw new NotImplementedException("Mischief managed.");
-    }
-
-    public abstract record SelectorItem
-    {
-        public string DisplayName { get; set; }
-
-        private protected abstract void SorryWeCannotAllowYouToInheritThisClass();
-    }
-
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public class SelectorAttribute : System.Attribute
-    {
-        public Type PropertyType { get; }
-
-        public SelectorAttribute(Type propertyType)
-        {
-            PropertyType = propertyType;
-        }
-    }
 }
 

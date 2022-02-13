@@ -11,6 +11,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
     /// <summary>
     /// Convention-based ComboBox form editor provider.
     /// </summary>
+    [Obsolete("Please use SelectorFormEditorProvider instead.")]
     public class ComboBoxConventionFormEditorProvider : ComboBoxFormEditorProvider
     {
         private readonly ComboBoxConventions comboBoxConventions;

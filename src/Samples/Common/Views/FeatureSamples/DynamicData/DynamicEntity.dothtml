@@ -15,7 +15,13 @@
         <div style="display: inline-block; vertical-align: top">
             <dd:DynamicEntity DataContext="{value: Address}"
                               GroupName="BasicInfo"
-                              Changed-CountryId="{staticCommand: States.Items = statesDataProvider.GetItems(Address).Result}" />
+                              <%--Changed-CountryId="{staticCommand: States.Items = statesDataProvider.GetItems(Address).Result}"--%> >
+                <%--<Template-CountryId>
+                    pre-text
+                    <dd:DynamicEditor />
+                    post-text
+                </Template-CountryId>--%>
+            </dd:DynamicEntity>
         </div>
         <div style="display: inline-block; vertical-align: top">
             <dd:DynamicEntity DataContext="{value: Address}"
