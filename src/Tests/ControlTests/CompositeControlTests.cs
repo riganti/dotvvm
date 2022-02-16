@@ -301,7 +301,8 @@ namespace DotVVM.Framework.Tests.ControlTests
                 "c" => new MarkupControlContainer<CustomControlWithSomeProperty>("cc:CustomControlWithSomeProperty", c => c.SomeProperty = "ahoj"),
                 "d" => new MarkupControlContainer("cc:CustomControlWithSomeProperty", c => {
                         c.SetValue(CustomControlWithSomeProperty.SomePropertyProperty, "test");
-                    })
+                    }),
+                _ => throw null
             };
         }
     }

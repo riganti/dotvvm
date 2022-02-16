@@ -17,6 +17,10 @@ namespace DotVVM.Framework.Controls
         {
             this.Text = text;
         }
+        public TextOrContentCapability(string text)
+        {
+            this.Text = new(text);
+        }
         public TextOrContentCapability(IEnumerable<DotvvmControl> content)
         {
             this.Content = content.ToList();

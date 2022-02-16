@@ -135,7 +135,7 @@ namespace DotVVM.Framework.Tests.ControlTests
                     );
                 c.Styles.RegisterAnyControl(c => c.HasTag("b"))
                     .AddPostbackHandler(
-                        c => new ConfirmPostBackHandler(c.GetHtmlAttribute("data-msg") ?? "default message")
+                        c => new ConfirmPostBackHandler(c.GetHtmlAttribute("data-msg") ?? new("default message"))
                     )
                     .AddPostbackHandler(
                         c => new ConfirmPostBackHandler("Handler for some other property") { EventName = "Bazmek" }

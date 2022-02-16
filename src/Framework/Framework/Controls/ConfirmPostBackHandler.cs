@@ -33,5 +33,9 @@ namespace DotVVM.Framework.Controls
         {
             this.SetValue(MessageProperty, message);
         }
+        public ConfirmPostBackHandler(string message)
+        {
+            this.SetValue(MessageProperty, message);
+        }
     }
 }
