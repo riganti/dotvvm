@@ -8,6 +8,10 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <AssemblyName>DotVVM.Framework.Hosting.Owin</AssemblyName>
     <PackageId>DotVVM.Owin</PackageId>
+    <Description>
+      This package contains OWIN middleware and hosting infrastructure for DotVVM apps.
+      $(Description)
+    </Description>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="compiler\resources\**\*" />
@@ -33,9 +37,6 @@
     <Reference Include="System" />
     <Reference Include="System.Net" />
     <Reference Include="System.Web" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>

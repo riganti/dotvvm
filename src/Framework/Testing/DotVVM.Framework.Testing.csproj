@@ -4,6 +4,10 @@
     <TargetFrameworks>netstandard2.1;net6.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <PackageId>DotVVM.Testing</PackageId>
+    <Description>
+      This package contains helpers for testing DotVVM controls and other components.
+      $(Description)
+    </Description>
   </PropertyGroup>
   <ItemGroup>
     <None Include="dotvvmwizard.snk" />
