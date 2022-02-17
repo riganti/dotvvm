@@ -163,6 +163,7 @@ namespace DotVVM.Framework.Controls
                 control.Attributes.Add(attribute, value);
             return control;
         }
+
         /// <summary> Appends a value into the specified html attribute. If the attribute already exists, the old and new values are merged. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl AddAttribute<TControl, TValue>(this TControl control, string attribute, ValueOrBinding<TValue>? value)
             where TControl : IControlWithHtmlAttributes
@@ -186,6 +187,13 @@ namespace DotVVM.Framework.Controls
             foreach (var a in attributes.RawValues)
                 AddAttribute(control, a.Key, a.Value);
             return control;
+        }
+
+        /// <summary> Appends a css class to this control. Note that it is currently not supported if multiple bindings would have to be joined together. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl AddCssClass<TControl, TValue>(this TControl control, ValueOrBinding<TValue>? value)
+            where TControl : IControlWithHtmlAttributes
+        {
+            return AddAttribute(control, "class", value?.UnwrapToObject());
         }
 
         /// <summary> Appends a css class to this control. Note that it is currently not supported if multiple bindings would have to be joined together. Returns <paramref name="control"/> for fluent API usage. </summary>
