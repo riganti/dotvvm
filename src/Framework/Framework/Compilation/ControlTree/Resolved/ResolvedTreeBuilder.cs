@@ -89,7 +89,10 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             {
                 return new ResolvedServiceInjectDirective(nameSyntax, typeSyntax, expression.Type) { DothtmlNode = node };
             }
-            else throw new NotSupportedException();
+            else
+            {
+                return new ResolvedServiceInjectDirective(nameSyntax, typeSyntax, null) { DothtmlNode = node };
+            }
         }
 
         public IAbstractImportDirective BuildImportDirective(
