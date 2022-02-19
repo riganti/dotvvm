@@ -1,0 +1,15 @@
+<html>
+	<head></head>
+	<body>
+		<div data-bind="css: { &quot;test-class&quot;: Status() == &quot;Failed&quot; }"></div>
+		
+		<!-- value binding -->
+		<i class="fas" data-bind="css: { &quot;fa-times&quot;: dotvvm.translations.enums.toInt(Status(), &quot;04DbAklKZFDZLCQg&quot;) == 2 }"></i>
+		
+		<!-- resource binding (should be false) -->
+		<i class="fas"></i>
+		
+		<!-- hardcoded value (should be true) -->
+		<i class="fa-times fas"></i>
+	</body>
+</html>
