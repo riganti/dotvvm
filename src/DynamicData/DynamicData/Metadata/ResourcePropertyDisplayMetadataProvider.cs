@@ -14,8 +14,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
     {
         private readonly IPropertyDisplayMetadataProvider basePropertyDisplayMetadataProvider;
         private readonly ResourceManager propertyDisplayNames;
-
-        private readonly ConcurrentDictionary<PropertyCulturePair, PropertyDisplayMetadata> cache = new ConcurrentDictionary<PropertyCulturePair, PropertyDisplayMetadata>();
+        private readonly ConcurrentDictionary<PropertyInfo, PropertyDisplayMetadata> cache = new();
 
         /// <summary>
         /// Gets the type of the resource file that contains the property names.
@@ -38,35 +37,22 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         /// </summary>
         public PropertyDisplayMetadata GetPropertyMetadata(PropertyInfo property)
         {
-            return cache.GetOrAdd(new PropertyCulturePair(property, CultureInfo.CurrentUICulture), GetPropertyMetadataCore);
+            return cache.GetOrAdd(property, GetPropertyMetadataCore);
         }
 
 
-        private PropertyDisplayMetadata GetPropertyMetadataCore(PropertyCulturePair pair)
+        private PropertyDisplayMetadata GetPropertyMetadataCore(PropertyInfo property)
         {
-            var metadata = basePropertyDisplayMetadataProvider.GetPropertyMetadata(pair.PropertyInfo);
+            var metadata = basePropertyDisplayMetadataProvider.GetPropertyMetadata(property);
 
-            if (string.IsNullOrEmpty(metadata.DisplayName))
+            if (metadata.DisplayName is null)
             {
-                metadata.DisplayName = propertyDisplayNames.GetString(pair.PropertyInfo.DeclaringType!.Name + "_" + pair.PropertyInfo.Name)
-                                       ?? propertyDisplayNames.GetString(pair.PropertyInfo.Name);
+                // TODO support also the second case
+                metadata.DisplayName = LocalizableString.Localized(PropertyDisplayNameResourceFile, property.DeclaringType!.Name + "_" + property.Name);
+                //                        ?? propertyDisplayNames.GetString(pair.PropertyInfo.Name);
             }
 
             return metadata;
         }
-
-
-        private struct PropertyCulturePair
-        {
-            public CultureInfo Culture;
-            public PropertyInfo PropertyInfo;
-
-            public PropertyCulturePair(PropertyInfo propertyInfo, CultureInfo culture)
-            {
-                Culture = culture;
-                PropertyInfo = propertyInfo;
-            }
-        }
-
     }
 }

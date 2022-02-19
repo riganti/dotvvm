@@ -11,7 +11,8 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         
         public PropertyInfo PropertyInfo { get; }
 
-        public string? DisplayName { get; set; }
+        public LocalizableString? DisplayName { get; set; }
+        public LocalizableString? Placeholder { get; set; }
 
         public string? GroupName { get; set; }
 

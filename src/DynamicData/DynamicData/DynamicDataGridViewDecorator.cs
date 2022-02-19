@@ -110,7 +110,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// </summary>
         protected virtual void SetColumnCommonProperties(GridView grid, PropertyDisplayMetadata property, GridViewColumn column, DynamicDataContext dynamicDataContext)
         {
-            column.HeaderText = property.DisplayName;
+            column.SetValue(GridViewColumn.HeaderTextProperty, property.DisplayName?.ToBinding(dynamicDataContext.BindingCompilationService));
         }
 
         /// <summary>

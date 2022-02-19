@@ -96,7 +96,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         {
             if (property.IsDefaultLabelAllowed)
             {
-                return new Literal(property.DisplayName ?? property.PropertyInfo.Name);
+                return new Literal(property.DisplayName?.ToBinding(dynamicDataContext.BindingCompilationService) ?? new(property.PropertyInfo.Name));
             }
             return null;
         }

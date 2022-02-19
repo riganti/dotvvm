@@ -17,13 +17,13 @@ public class PropertyDisplayMetadataModifier
 
     public PropertyDisplayMetadataModifier SetDisplayName(Func<string> displayName)
     {
-        actions.Add(m => m.DisplayName = displayName());
+        actions.Add(m => m.DisplayName = LocalizableString.Constant(displayName()));
         return this;
     }
 
     public PropertyDisplayMetadataModifier SetDisplayName(string displayName)
     {
-        actions.Add(m => m.DisplayName = displayName);
+        actions.Add(m => m.DisplayName = LocalizableString.Constant(displayName));
         return this;
     }
 

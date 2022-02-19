@@ -46,7 +46,8 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
 
             return new PropertyDisplayMetadata(pair.PropertyInfo)
             {
-                DisplayName = displayAttribute?.GetName(),
+                DisplayName = displayAttribute?.Name is null ? null : LocalizableString.Create(displayAttribute.Name, displayAttribute.ResourceType),
+                Placeholder = displayAttribute?.Prompt is null ? null : LocalizableString.Create(displayAttribute.Prompt, displayAttribute.ResourceType),
                 Order = displayAttribute?.GetOrder(),
                 GroupName = displayAttribute?.GetGroupName(),
                 FormatString = displayFormatAttribute?.DataFormatString,

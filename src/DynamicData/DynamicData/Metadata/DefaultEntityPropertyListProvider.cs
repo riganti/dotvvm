@@ -42,9 +42,9 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
 
             foreach (var property in metadata)
             {
-                if (string.IsNullOrEmpty(property.DisplayName))
+                if (property.DisplayName is null)
                 {
-                    property.DisplayName = property.PropertyInfo.Name;
+                    property.DisplayName = LocalizableString.Constant(property.PropertyInfo.Name);
                 }
             }
             
