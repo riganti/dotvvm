@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
                         );
                     return ValueBindingExpression.CreateBinding(
                         dynamicDataContext.BindingCompilationService,
-                        Expression.Lambda<Func<object[], object>>(body, param),
+                        Expression.Lambda<Func<object?[], object>>(body, param),
                         dynamicDataContext.DataContextStack);
                 }
 

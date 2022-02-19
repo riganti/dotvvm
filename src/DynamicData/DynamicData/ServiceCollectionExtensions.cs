@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -10,6 +11,7 @@ namespace DotVVM.Framework.Controls.DynamicData
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection Decorate<TService>(this IServiceCollection services, Func<TService, IServiceProvider, TService> decorator)
+            where TService: notnull
         {
             var descriptors = services.GetDescriptors<TService>();
 
@@ -22,6 +24,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         }
 
         public static IServiceCollection Decorate<TService>(this IServiceCollection services, Func<TService, TService> decorator)
+            where TService: notnull
         {
             var descriptors = services.GetDescriptors<TService>();
 
@@ -54,13 +57,15 @@ namespace DotVVM.Framework.Controls.DynamicData
         }
 
         private static ServiceDescriptor Decorate<TService>(this ServiceDescriptor descriptor, Func<TService, IServiceProvider, TService> decorator)
+            where TService : notnull
         {
-            return descriptor.WithFactory(provider => decorator((TService)descriptor.GetInstance(provider), provider));
+            return descriptor.WithFactory(provider => decorator((TService)descriptor.GetInstance(provider).NotNull($"Service {descriptor.ServiceType} could not be found."), provider));
         }
 
         private static ServiceDescriptor Decorate<TService>(this ServiceDescriptor descriptor, Func<TService, TService> decorator)
+            where TService : notnull
         {
-            return descriptor.WithFactory(provider => decorator((TService)descriptor.GetInstance(provider)));
+            return descriptor.WithFactory(provider => decorator((TService)descriptor.GetInstance(provider).NotNull($"Service {descriptor.ServiceType} could not be found.")));
         }
 
         private static ServiceDescriptor WithFactory(this ServiceDescriptor descriptor, Func<IServiceProvider, object> factory)

@@ -13,9 +13,9 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
     public class TableDynamicFormBuilder : FormBuilderBase
     {
 
-        public string LabelCellCssClass { get; set; }
+        public string? LabelCellCssClass { get; set; }
 
-        public string EditorCellCssClass { get; set; }
+        public string? EditorCellCssClass { get; set; }
 
 
         public override DotvvmControl BuildForm(DynamicDataContext ddContext, DynamicEntity.FieldProps props)

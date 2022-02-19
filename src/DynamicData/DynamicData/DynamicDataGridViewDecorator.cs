@@ -8,6 +8,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
 using DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls.DynamicData
 {
@@ -16,9 +17,9 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// <summary>
         /// Gets or sets the view name (e.g. Insert, Edit, ReadOnly). Some fields may have different metadata for each view.
         /// </summary>
-        public string ViewName
+        public string? ViewName
         {
-            get { return (string)GetValue(ViewNameProperty); }
+            get { return (string?)GetValue(ViewNameProperty); }
             set { SetValue(ViewNameProperty, value); }
         }
 
@@ -30,7 +31,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// </summary>
         public ColumnPlacement ColumnPlacement
         {
-            get { return (ColumnPlacement)GetValue(ColumnPlacementProperty); }
+            get { return (ColumnPlacement)GetValue(ColumnPlacementProperty)!; }
             set { SetValue(ColumnPlacementProperty, value); }
         }
 
@@ -51,7 +52,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         {
             var grid = FindGridView();
 
-            var itemDataContextStack = grid.GetItemDataContextStack(ItemsControl.DataSourceProperty);
+            var itemDataContextStack = grid.GetItemDataContextStack(ItemsControl.DataSourceProperty).NotNull();
             var dynamicDataContext = new DynamicDataContext(itemDataContextStack, context.Services)
             {
                 ViewName = ViewName
@@ -84,11 +85,11 @@ namespace DotVVM.Framework.Controls.DynamicData
         {
             if (ColumnPlacement == ColumnPlacement.Left)
             {
-                grid.Columns.InsertRange(0, newColumns);
+                grid.Columns.NotNull().InsertRange(0, newColumns);
             }
             else
             {
-                grid.Columns.AddRange(newColumns);
+                grid.Columns.NotNull().AddRange(newColumns);
             }
         }
 
@@ -115,7 +116,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// <summary>
         /// Finds the grid column provider.
         /// </summary>
-        protected virtual IGridColumnProvider FindGridColumnProvider(DynamicDataContext dynamicDataContext, PropertyDisplayMetadata property)
+        protected virtual IGridColumnProvider? FindGridColumnProvider(DynamicDataContext dynamicDataContext, PropertyDisplayMetadata property)
         {
             return dynamicDataContext.DynamicDataConfiguration.GridColumnProviders.FirstOrDefault(p => p.CanHandleProperty(property.PropertyInfo, dynamicDataContext));
         }

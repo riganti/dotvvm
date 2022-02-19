@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
 
             if (string.IsNullOrEmpty(metadata.DisplayName))
             {
-                metadata.DisplayName = propertyDisplayNames.GetString(pair.PropertyInfo.DeclaringType.Name + "_" + pair.PropertyInfo.Name)
+                metadata.DisplayName = propertyDisplayNames.GetString(pair.PropertyInfo.DeclaringType!.Name + "_" + pair.PropertyInfo.Name)
                                        ?? propertyDisplayNames.GetString(pair.PropertyInfo.Name);
             }
 

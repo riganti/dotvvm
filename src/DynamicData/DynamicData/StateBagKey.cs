@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             Property = property;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is StateBagKey key && Equals(key);
         }

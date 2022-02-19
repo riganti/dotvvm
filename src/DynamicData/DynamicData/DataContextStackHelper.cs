@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Controls.DynamicData
 {
     public static class DataContextStackHelper
     {
-        public static DataContextStack GetItemDataContextStack(this DotvvmBindableObject bindableObject, DotvvmProperty dataSourceProperty)
+        public static DataContextStack? GetItemDataContextStack(this DotvvmBindableObject bindableObject, DotvvmProperty dataSourceProperty)
         {
             return bindableObject.GetValueBinding(dataSourceProperty)
                 ?.GetProperty<CollectionElementDataContextBindingProperty>()?.DataContext;
@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         public static DataContextStack CreateChildStack(this DotvvmBindableObject bindableObject, Type viewModelType)
         {
-            var dataContextTypeStack = bindableObject.GetDataContextType();
+            var dataContextTypeStack = bindableObject.GetDataContextType().NotNull("Unexpected null DataContextTypeStack");
 
             return DataContextStack.Create(
                 viewModelType,

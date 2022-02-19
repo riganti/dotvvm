@@ -8,6 +8,7 @@ using DotVVM.Framework.Controls.DynamicData.Builders;
 using DotVVM.Framework.Controls.DynamicData.Metadata.Builder;
 using DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors;
 using DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls.DynamicData.Configuration
 {
@@ -45,12 +46,12 @@ namespace DotVVM.Framework.Controls.DynamicData.Configuration
         /// <summary>
         /// Gets or sets the RESX file class with display names of the fields.
         /// </summary>
-        public Type PropertyDisplayNamesResourceFile { get; set; }
+        public Type? PropertyDisplayNamesResourceFile { get; set; }
 
         /// <summary>
         /// Gets or sets the RESX file class with localized error messages.
         /// </summary>
-        public Type ErrorMessagesResourceFile { get; set; }
+        public Type? ErrorMessagesResourceFile { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of rules applied on the auto-generated fields.
@@ -72,8 +73,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Configuration
 
         public IFormBuilder GetFormBuilder(string formBuilderName = "")
         {
-            IFormBuilder builder;
-            if (!FormBuilders.TryGetValue(formBuilderName, out builder))
+            if (!FormBuilders.TryGetValue(formBuilderName, out var builder))
             {
                 throw new ArgumentException($"The {nameof(IFormBuilder)} with name '{formBuilderName}' was not found! Make sure it is registered in the {nameof(DynamicDataExtensions.AddDynamicData)} method.");
             }
@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Configuration
             {
                 try
                 {
-                    var instance = Activator.CreateInstance(type);
+                    var instance = Activator.CreateInstance(type).NotNull();
                     targetCollection.Insert(0, (T)instance);
                 }
                 catch (TargetInvocationException ex)

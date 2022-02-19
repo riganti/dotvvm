@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// <summary>
         /// Registers all services required by DotVVM Dynamic Data.
         /// </summary>
-        public static IDotvvmServiceCollection AddDynamicData(this IDotvvmServiceCollection services, Action<DynamicDataConfiguration> configure = null)
+        public static IDotvvmServiceCollection AddDynamicData(this IDotvvmServiceCollection services, Action<DynamicDataConfiguration>? configure = null)
         {
             var dynamicDataConfiguration = new DynamicDataConfiguration();
             configure?.Invoke(dynamicDataConfiguration);
@@ -76,7 +76,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// </summary>
         private static void AddDynamicDataConfiguration(DotvvmConfiguration config)
         {
-            config.Markup.AddCodeControls("dd", typeof(DynamicDataExtensions).Namespace, typeof(DynamicDataExtensions).Assembly.GetName().Name);
+            config.Markup.AddCodeControls("dd", typeof(DynamicDataExtensions).Namespace!, typeof(DynamicDataExtensions).Assembly!.GetName().Name!);
         }
         
     }

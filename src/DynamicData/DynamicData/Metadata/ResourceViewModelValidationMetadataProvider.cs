@@ -51,7 +51,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         private List<ValidationAttribute> GetAttributesForPropertyCore(PropertyInfoCulturePair pair)
         {
             // determine property name
-            var propertyDisplayName = propertyDisplayMetadataProvider.GetPropertyMetadata(pair.PropertyInfo).DisplayName;
+            var propertyDisplayName = propertyDisplayMetadataProvider.GetPropertyMetadata(pair.PropertyInfo).DisplayName ?? "";
 
             // process all validation attributes
             var results = new List<ValidationAttribute>();
@@ -84,8 +84,8 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         protected virtual ValidationAttribute CloneAttribute(ValidationAttribute attribute)
         {
             return (ValidationAttribute)attribute.GetType()
-                .GetMethod("MemberwiseClone", BindingFlags.NonPublic | BindingFlags.Instance)
-                .Invoke(attribute, null);
+                .GetMethod("MemberwiseClone", BindingFlags.NonPublic | BindingFlags.Instance)!
+                .Invoke(attribute, null)!;
         }
         
         /// <summary>

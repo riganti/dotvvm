@@ -63,6 +63,9 @@ namespace DotVVM.Framework.Controls.DynamicData
                 context.DynamicDataConfiguration.FormEditorProviders
                     .FirstOrDefault(e => e.CanHandleProperty(prop.MainProperty, context));
 
+            if (editorProvider is null)
+                throw new DotvvmControlException(this, $"Editor provider for property {prop.MainProperty} could not be found.");
+
             var control = editorProvider.CreateControl(propertyMetadata, props, context);
             return control;
         }

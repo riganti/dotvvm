@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         protected virtual DotvvmControl? InitializeControlLabel(PropertyDisplayMetadata property, DynamicDataContext ddContext)
         {
             if (property.IsDefaultLabelAllowed)
-                return new Literal(property.DisplayName);
+                return new Literal(property.DisplayName ?? "");
             return null;
         }
 

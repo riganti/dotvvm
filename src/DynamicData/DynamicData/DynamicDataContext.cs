@@ -136,7 +136,7 @@ namespace DotVVM.Framework.Controls.DynamicData
                 DataContextStack = dataContextStack ?? throw new ArgumentNullException(nameof(dataContextStack)); ;
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
                 var descriptor = obj as BindingDescriptor;
 
