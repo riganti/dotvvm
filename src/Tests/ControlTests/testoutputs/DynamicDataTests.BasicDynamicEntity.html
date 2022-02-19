@@ -8,13 +8,25 @@
 				<tr data-bind="dotvvm-validation: Id, dotvvm-validationOptions: {}">
 					<td class="dynamicdata-label">Id</td>
 					<td class="dynamicdata-editor">
-						<input data-bind="dotvvm-textbox-text: Id" data-dotvvm-format="G" data-dotvvm-value-type="number" type="text">
+						<input data-bind="dotvvm-textbox-text: Id" type="number">
 					</td>
 				</tr>
 				<tr data-bind="dotvvm-validation: Name, dotvvm-validationOptions: {}">
 					<td class="dynamicdata-label">Name</td>
 					<td class="dynamicdata-editor">
 						<input data-bind="dotvvm-textbox-text: Name" onchange="dotvvm.postBack(this,[&quot;$parent.Entity&quot;],&quot;8KduwYBGMdLIliU4&quot;,&quot;&quot;,null,[&quot;timeout&quot;,&quot;suppressOnUpdating&quot;],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="text">
+					</td>
+				</tr>
+				<tr data-bind="dotvvm-validation: Email, dotvvm-validationOptions: {}">
+					<td class="dynamicdata-label">Email</td>
+					<td class="dynamicdata-editor">
+						<input data-bind="dotvvm-textbox-text: Email" type="email">
+					</td>
+				</tr>
+				<tr data-bind="dotvvm-validation: Sometime, dotvvm-validationOptions: {}">
+					<td class="dynamicdata-label">Sometime</td>
+					<td class="dynamicdata-editor">
+						<input data-bind="dotvvm-textbox-text: Sometime" data-dotvvm-format="yyyy-MM-ddTHH:mm" data-dotvvm-value-type="datetime" type="datetime-local">
 					</td>
 				</tr>
 			</tbody>

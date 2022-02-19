@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
 {
@@ -27,6 +28,8 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
                 return literal;
             }
 
+            var propertyType = property.PropertyInfo.PropertyType;
+            var hasFormatstring = !string.IsNullOrEmpty(property.FormatString);
             var textBox = new TextBox()
                 .AddCssClasses(ControlCssClass, property.Styles?.FormControlCssClass)
                 .SetProperty(t => t.Text, props.Property)
@@ -35,14 +38,18 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
                 .SetProperty(t => t.Changed, props.Changed)
                 .SetCapability(props.Html);
 
-            if (property.DataType == DataType.Password)
-            {
-                textBox.Type = TextBoxType.Password;
-            }
-            else if (property.DataType == DataType.MultilineText)
-            {
-                textBox.Type = TextBoxType.MultiLine;
-            }
+            textBox.Type = property.DataType switch {
+                DataType.Password => TextBoxType.Password,
+                DataType.MultilineText => TextBoxType.MultiLine,
+                DataType.Date => TextBoxType.Date,
+                DataType.Time => TextBoxType.Time,
+                DataType.DateTime => TextBoxType.DateTimeLocal,
+                DataType.EmailAddress => TextBoxType.Email,
+                DataType.PhoneNumber => TextBoxType.Telephone,
+                _ => propertyType.UnwrapNullableType() == typeof(DateTime) && !hasFormatstring ? TextBoxType.DateTimeLocal :
+                     ReflectionUtils.IsNumericType(propertyType.UnwrapNullableType()) && !hasFormatstring ? TextBoxType.Number :
+                     TextBoxType.Normal
+            };
 
             return textBox;
         }
