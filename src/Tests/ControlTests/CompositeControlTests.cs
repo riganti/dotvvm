@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using CheckTestOutput;
 using DotVVM.Framework.Binding;
@@ -143,6 +144,21 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
+        [TestMethod]
+        public async Task BindingMappingWithEnum()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <div class-test-class={value: Status == 'Failed'} />
+                <!-- value binding -->
+                <cc:TestStatusIcon TestStatus={value: Status} />
+                <!-- resource binding (should be false) -->
+                <cc:TestStatusIcon TestStatus={resource: Status} />
+                <!-- hardcoded value (should be true) -->
+                <cc:TestStatusIcon TestStatus='Failed' />
+                ");
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
 
         public class BasicTestViewModel: DotvvmViewModelBase
         {
@@ -154,6 +170,8 @@ namespace DotVVM.Framework.Tests.ControlTests
             public DateTime DateTime { get; set; } = DateTime.Parse("2020-08-11T16:01:44.5141480");
             public string Label { get; } = "My Label";
             public bool AfterPreRender { get; set; } = false;
+
+            public TestStatusEnum Status { get; set; } = TestStatusEnum.StillRunning;
 
             public List<string> List { get; set; } = new List<string> { "list-item1", "list-item2" };
 
@@ -303,6 +321,19 @@ namespace DotVVM.Framework.Tests.ControlTests
                         c.SetValue(CustomControlWithSomeProperty.SomePropertyProperty, "test");
                     })
             };
+        }
+    }
+
+    public enum TestStatusEnum { Ok, StillRunning, Failed }
+
+    public class TestStatusIcon : CompositeControl
+    {
+        public static DotvvmControl GetContents(ValueOrBinding<TestStatusEnum> testStatus)
+        {
+            var icon = new HtmlGenericControl("i");
+            icon.AddCssClass("fas");
+            icon.CssClasses.Add("fa-times", testStatus.Select(t => t == TestStatusEnum.Failed));
+            return icon;
         }
     }
 }
