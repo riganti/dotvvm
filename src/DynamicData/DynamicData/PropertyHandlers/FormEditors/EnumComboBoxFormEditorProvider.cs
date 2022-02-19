@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
                 .Select(e => new SelectorItem(e.DisplayName, Enum.Parse(enumType, e.Name)));
 
             var control = new ComboBox()
-                .SetProperty(c => c.SelectedValue, (IValueBinding)context.CreateValueBinding(property.PropertyInfo.Name));
+                .SetProperty(c => c.SelectedValue, (IValueBinding)context.CreateValueBinding(property));
 
             if (isNullable)
             {

@@ -1,113 +1,96 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Controls.DynamicData.Builders;
-using DotVVM.Framework.Controls.DynamicData.Configuration;
-using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Utils;
+using DotVVM.Framework.Controls.DynamicData.Metadata;
 
 namespace DotVVM.Framework.Controls.DynamicData
 {
     [ControlMarkupOptions(Precompile = ControlPrecompilationMode.Always)]
-    public class DynamicEntity : CompositeControl
+    public class DynamicEntity : DynamicEntityBase
     {
-        private readonly IServiceProvider services;
-        public DynamicEntity(IServiceProvider services)
+        public DynamicEntity(IServiceProvider services) : base(services)
         {
-            this.services = services;
         }
 
-        /// <summary>
-        /// Gets or sets the custom layout of the form.
-        /// </summary>
-        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
-        public ITemplate? ContentTemplate
+        public string? LabelCellCssClass
         {
-            get { return (ITemplate?)GetValue(ContentTemplateProperty); }
-            set { SetValue(ContentTemplateProperty, value); }
+            get { return (string?)GetValue(LabelCellCssClassProperty); }
+            set { SetValue(LabelCellCssClassProperty, value); }
         }
-        public static readonly DotvvmProperty ContentTemplateProperty
-            = DotvvmProperty.Register<ITemplate, DynamicEntity>(c => c.ContentTemplate, null);
+        public static readonly DotvvmProperty LabelCellCssClassProperty =
+            DotvvmProperty.Register<string, DynamicEntity>(nameof(LabelCellCssClass));
 
-
-        /// <summary>
-        /// Gets or sets the view name (e.g. Insert, Edit, ReadOnly). Some fields may have different metadata for each view.
-        /// </summary>
-        public string? ViewName
+        public string? EditorCellCssClass
         {
-            get { return (string?)GetValue(ViewNameProperty); }
-            set { SetValue(ViewNameProperty, value); }
+            get { return (string?)GetValue(EditorCellCssClassProperty); }
+            set { SetValue(EditorCellCssClassProperty, value); }
         }
-        public static readonly DotvvmProperty ViewNameProperty
-            = DotvvmProperty.Register<string, DynamicEntity>(c => c.ViewName, null);
+        public static readonly DotvvmProperty EditorCellCssClassProperty =
+            DotvvmProperty.Register<string, DynamicEntity>(nameof(EditorCellCssClass));
 
-
-        /// <summary>
-        /// Gets or sets the group of fields that should be rendered. If not set, fields from all groups will be rendered.
-        /// </summary>
-        public string? GroupName
+        public DotvvmControl GetContents(FieldProps props)
         {
-            get { return (string?)GetValue(GroupNameProperty); }
-            set { SetValue(GroupNameProperty, value); }
-        }
-        public static readonly DotvvmProperty GroupNameProperty
-            = DotvvmProperty.Register<string, DynamicEntity>(c => c.GroupName, null);
+            var context = this.CreateDynamicDataContext();
 
-
-        /// <summary>
-        /// Gets or sets the name of the form builder to be used. If not set, the default form builder is used.
-        /// </summary>
-        public string FormBuilderName
-        {
-            get { return (string?)GetValue(FormBuilderNameProperty) ?? ""; }
-            set { SetValue(FormBuilderNameProperty, value ?? ""); }
-        }
-        public static readonly DotvvmProperty FormBuilderNameProperty
-            = DotvvmProperty.Register<string, DynamicEntity>(c => c.FormBuilderName, "");
-
-
-        public DotvvmControl GetContents(
-            FieldProps fieldProps
-        )
-        {
-            if (ContentTemplate != null)
+            // create the table
+            var table = InitializeTable(context);
+            
+            // create the rows
+            foreach (var property in GetPropertiesToDisplay(context))
             {
-                return new TemplateHost(ContentTemplate);
+                // create the row
+                var row = InitializeTableRow(property, context, out var labelCell, out var editorCell);
+                
+                // create the label
+                labelCell.AppendChildren(InitializeControlLabel(property, context, props));
+                
+                // create the editorProvider
+                editorCell.AppendChildren(CreateEditor(property, context, props));
+
+                // create the validator
+                InitializeValidation(row, labelCell, property, context);
+
+                table.Children.Add(row);
             }
-            else
+            return table;
+        }
+
+        /// <summary>
+        /// Creates the table element for the form.
+        /// </summary>
+        protected virtual HtmlGenericControl InitializeTable(DynamicDataContext dynamicDataContext) =>
+            new HtmlGenericControl("table")
+                .AddCssClass("dotvvm-dynamicdata-form-table");
+
+
+        /// <summary>
+        /// Creates the table row for the specified property.
+        /// </summary>
+        protected virtual HtmlGenericControl InitializeTableRow(PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext, out HtmlGenericControl labelCell, out HtmlGenericControl editorCell)
+        {
+            labelCell = new HtmlGenericControl("td")
+                .AddCssClasses("dynamicdata-label", LabelCellCssClass);
+
+            editorCell = new HtmlGenericControl("td")
+                .AddCssClasses("dynamicdata-editor", EditorCellCssClass, property.Styles?.FormControlContainerCssClass);
+            
+            return new HtmlGenericControl("tr")
+                .AddCssClass(property.Styles?.FormRowCssClass)
+                .AppendChildren(labelCell, editorCell);
+        }
+
+        /// <summary>
+        /// Initializes the validation on the row.
+        /// </summary>
+        protected virtual void InitializeValidation(HtmlGenericControl row, HtmlGenericControl labelCell, PropertyDisplayMetadata property, DynamicDataContext ddContext)
+        {
+            if (ddContext.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
             {
-                var dynamicDataContext = CreateDynamicDataContext();
-                return BuildForm(dynamicDataContext, fieldProps);
+                labelCell.AddCssClass("dynamicdata-required");
             }
-        }
 
-        protected virtual DotvvmControl BuildForm(DynamicDataContext dynamicDataContext, FieldProps fieldProps)
-        {
-            var builder = dynamicDataContext.DynamicDataConfiguration.GetFormBuilder(FormBuilderName);
-            return builder.BuildForm(dynamicDataContext, fieldProps);
-        }
-
-        private DynamicDataContext CreateDynamicDataContext()
-        {
-            return new DynamicDataContext(this.GetDataContextType().NotNull(), this.services)
-            {
-                ViewName = ViewName,
-                GroupName = GroupName
-            };
-        }
-
-        [DotvvmControlCapability]
-        public sealed record FieldProps
-        {
-            [PropertyGroup("Changed-")]
-            public IReadOnlyDictionary<string, ICommandBinding> Changed { get; init; } = new Dictionary<string, ICommandBinding>();
-            [PropertyGroup("Enabled-")]
-            public IReadOnlyDictionary<string, ValueOrBinding<bool>> Enabled { get; init; } = new Dictionary<string, ValueOrBinding<bool>>();
-            [PropertyGroup("FieldTemplate-")]
-            public IReadOnlyDictionary<string, ITemplate> FieldTemplate { get; init; } = new Dictionary<string, ITemplate>();
-            [PropertyGroup("EditorTemplate-")]
-            public IReadOnlyDictionary<string, ITemplate> EditorTemplate { get; init; } = new Dictionary<string, ITemplate>();
+            row.SetValue(Validator.ValueProperty, ddContext.CreateValueBinding(property));
         }
     }
 }

@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
             return properties;
         }
 
-        public abstract DotvvmControl BuildForm(DynamicDataContext dynamicDataContext, DynamicEntity.FieldProps fieldProps);
+        public abstract DotvvmControl BuildForm(DynamicDataContext dynamicDataContext, DynamicEntityBase.FieldProps fieldProps);
 
         protected virtual DynamicEditor CreateEditor(PropertyDisplayMetadata property, DynamicDataContext ddContext, DynamicEntity.FieldProps props)
         {

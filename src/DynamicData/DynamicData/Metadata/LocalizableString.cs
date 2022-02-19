@@ -60,7 +60,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
             if (!IsLocalized)
                 return Value ?? "";
             else
-                return new ResourceManager(ResourceType).GetString(ResourceKey) ?? Value ?? ResourceKey ?? "";
+                return new ResourceManager(ResourceType!).GetString(ResourceKey!) ?? Value ?? ResourceKey ?? "";
         }
     }
 }

@@ -48,6 +48,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
             {
                 DisplayName = string.IsNullOrEmpty(displayAttribute?.Name) ? null : LocalizableString.Create(displayAttribute.Name, displayAttribute.ResourceType),
                 Placeholder = string.IsNullOrEmpty(displayAttribute?.Prompt) ? null : LocalizableString.Create(displayAttribute.Prompt, displayAttribute.ResourceType),
+                Description = string.IsNullOrEmpty(displayAttribute?.Description) ? null : LocalizableString.Create(displayAttribute.Description, displayAttribute.ResourceType),
                 Order = displayAttribute?.GetOrder(),
                 GroupName = displayAttribute?.GetGroupName(),
                 FormatString = displayFormatAttribute?.DataFormatString,

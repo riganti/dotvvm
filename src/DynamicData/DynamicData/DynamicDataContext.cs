@@ -18,6 +18,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Binding.Properties;
 using System.Collections.Concurrent;
+using System.Linq.Expressions;
 
 namespace DotVVM.Framework.Controls.DynamicData
 {
@@ -40,7 +41,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         public string? GroupName { get; set; }
 
         public Dictionary<StateBagKey, object> StateBag { get; } = new Dictionary<StateBagKey, object>();
-        public BindingCompilationService BindingCompilationService { get; }
+        public BindingCompilationService BindingService { get; }
 
         public DynamicDataContext(DataContextStack dataContextStack, IServiceProvider services)
         {
@@ -50,7 +51,20 @@ namespace DotVVM.Framework.Controls.DynamicData
             ValidationMetadataProvider = services.GetRequiredService<IViewModelValidationMetadataProvider>();
             PropertyDisplayMetadataProvider = services.GetRequiredService<IPropertyDisplayMetadataProvider>();
             DynamicDataConfiguration = services.GetRequiredService<DynamicDataConfiguration>();
-            BindingCompilationService = services.GetRequiredService<BindingCompilationService>();
+            BindingService = services.GetRequiredService<BindingCompilationService>();
+        }
+
+        public IValueBinding CreateValueBinding(PropertyDisplayMetadata property)
+        {
+            var s = this.BindingService;
+            return s.Cache.CreateCachedBinding("DD-Value", new object[] { property.PropertyInfo, DataContextStack }, () => {
+                var _this = Expression.Parameter(DataContextStack.DataContextType, "_this").AddParameterAnnotation(new BindingParameterAnnotation(DataContextStack));
+                var expr = Expression.Property(_this, property.PropertyInfo);
+                return (IValueBinding)BindingService.CreateBinding(typeof(ValueBindingExpression<>), new object[] {
+                    DataContextStack,
+                    new ParsedExpressionBindingProperty(expr)
+                });
+            });
         }
 
         public IValueBinding CreateValueBinding(string expression, params Type[] nestedDataContextTypes)
@@ -62,7 +76,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             return (ValueBindingExpression)bindingCache.GetOrAdd(descriptor, bd => CompileValueBindingExpression(descriptor));
         }
 
-        public ValueBindingExpression<T> CreateValueBinding<T>(string expression, params Type[] nestedDataContextTypes)
+        public IValueBinding<T> CreateValueBinding<T>(string expression, params Type[] nestedDataContextTypes)
         {
             var dataContextStack = CreateDataContextStack(DataContextStack, nestedDataContextTypes);
 
@@ -90,7 +104,7 @@ namespace DotVVM.Framework.Controls.DynamicData
                 new IdBindingProperty(bindingId)
             };
 
-            return BindingCompilationService.CreateBinding(descriptor.BindingType, properties);
+            return BindingService.CreateBinding(descriptor.BindingType, properties);
         }
 
         private IBinding CompileValueBindingExpression(BindingDescriptor bindingDescriptor)
@@ -101,7 +115,7 @@ namespace DotVVM.Framework.Controls.DynamicData
                 new OriginalStringBindingProperty(bindingDescriptor.Expression)
             };
 
-            return BindingCompilationService.CreateBinding(bindingDescriptor.BindingType, properties);
+            return BindingService.CreateBinding(bindingDescriptor.BindingType, properties);
         }
 
         private DataContextStack CreateDataContextStack(DataContextStack dataContextStack, Type[] nestedDataContextTypes)

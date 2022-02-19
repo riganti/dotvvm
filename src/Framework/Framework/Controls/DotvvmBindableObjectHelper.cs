@@ -237,7 +237,7 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary> Appends a css class to this control. Note that it is currently not supported if multiple bindings would have to be joined together. Returns <paramref name="control"/> for fluent API usage. </summary>
-        public static TControl AddCssClass<TControl>(this TControl control, string className)
+        public static TControl AddCssClass<TControl>(this TControl control, string? className)
             where TControl : IControlWithHtmlAttributes
         {
             return AddAttribute(control, "class", className);

@@ -8,11 +8,11 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
 {
     public class PropertyDisplayMetadata
     {
-        
         public PropertyInfo PropertyInfo { get; }
 
         public LocalizableString? DisplayName { get; set; }
         public LocalizableString? Placeholder { get; set; }
+        public LocalizableString? Description { get; set; }
 
         public string? GroupName { get; set; }
 
@@ -40,6 +40,5 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         {
             PropertyInfo = propertyInfo;
         }
-
     }
 }

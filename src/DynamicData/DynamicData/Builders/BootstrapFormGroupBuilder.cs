@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         public string FormGroupCssClass { get; set; } = "form-group";
         public string LabelCssClass { get; set; } = "control-label";
 
-        public override DotvvmControl BuildForm(DynamicDataContext dynamicDataContext, DynamicEntity.FieldProps props)
+        public override DotvvmControl BuildForm(DynamicDataContext dynamicDataContext, DynamicEntityBase.FieldProps props)
         {
             var entityPropertyListProvider = dynamicDataContext.Services.GetService<IEntityPropertyListProvider>();
 
@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         protected virtual DotvvmControl? InitializeControlLabel(PropertyDisplayMetadata property, DynamicDataContext ddContext)
         {
             if (property.IsDefaultLabelAllowed)
-                return new Literal(property.DisplayName?.ToBinding(ddContext.BindingCompilationService) ?? new(""));
+                return new Literal(property.DisplayName?.ToBinding(ddContext.BindingService) ?? new(""));
             return null;
         }
 
@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         {
             var editor =
                 new DynamicEditor(ddContext.Services)
-                    .SetProperty(DynamicEditor.PropertyProperty, ddContext.CreateValueBinding(property.PropertyInfo.Name));
+                    .SetProperty(DynamicEditor.PropertyProperty, ddContext.CreateValueBinding(property));
             editor.AddAttribute("class", "form-control");
             return editor;
         }
@@ -82,7 +82,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
                 labelElement.Attributes.Set("class", ControlHelpers.ConcatCssClasses(labelElement.Attributes["class"] as string, "dynamicdata-required"));
             }
 
-            controlElement.SetValue(Validator.ValueProperty, ddContext.CreateValueBinding(property.PropertyInfo.Name));
+            controlElement.SetValue(Validator.ValueProperty, ddContext.CreateValueBinding(property));
         }
 
     }

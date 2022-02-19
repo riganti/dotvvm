@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns
         protected override GridViewColumn CreateColumnCore(GridView gridView, PropertyDisplayMetadata property, DynamicDataContext context)
         {
             var column = new GridViewCheckBoxColumn();
-            column.SetBinding(GridViewCheckBoxColumn.ValueBindingProperty, context.CreateValueBinding(property.PropertyInfo.Name));
+            column.SetBinding(GridViewCheckBoxColumn.ValueBindingProperty, context.CreateValueBinding(property));
             return column;
         }
     }
