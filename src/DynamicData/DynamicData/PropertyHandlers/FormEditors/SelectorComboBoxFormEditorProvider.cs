@@ -23,13 +23,13 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             var selectorDataSourceBinding = DiscoverSelectorDataSourceBinding(context, selectorConfiguration.PropertyType);
 
             return new ComboBox()
+                .SetCapability(props.Html)
                 .SetProperty(c => c.DataSource, selectorDataSourceBinding)
                 .SetProperty(c => c.ItemTextBinding, context.CreateValueBinding("DisplayName", selectorConfiguration.PropertyType))
                 .SetProperty(c => c.ItemValueBinding, context.CreateValueBinding("Id", selectorConfiguration.PropertyType))
                 .SetProperty(c => c.SelectedValue, props.Property)
                 .SetProperty(c => c.Enabled, props.Enabled)
-                .SetProperty(c => c.SelectionChanged, props.Changed)
-                .SetCapability(props.Html);
+                .SetProperty(c => c.SelectionChanged, props.Changed);
         }
 
         private IValueBinding DiscoverSelectorDataSourceBinding(DynamicDataContext dynamicDataContext, Type propertyType)

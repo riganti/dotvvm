@@ -2,7 +2,7 @@
 	<head></head>
 	<body>
 		
-		<!-- ko if: List()?.length -->
+		<!-- ko if: List()?.Items()?.length -->
 		<table data-bind="dotvvm-gridviewdataset: {'mapping':{},'dataSet':List()}">
 			<thead>
 				<tr>
@@ -21,9 +21,13 @@
 					<th class="">
 						<span>Sometime</span>
 					</th>
+					<th class="">
+						<span>Age</span>
+					</th>
 				</tr>
 			</thead>
-			<tbody data-bind="foreach: List">
+			<tbody data-bind="foreach: List()?.Items">
+				<!-- ko if: !$gridViewDataSetHelper.isInEditMode($context) -->
 				<tr>
 					<td></td>
 					<td>
@@ -38,7 +42,31 @@
 					<td>
 						<span data-bind="text: dotvvm.globalize.formatString(&quot;&quot;, Sometime)"></span>
 					</td>
+					<td>
+						<span data-bind="text: Age"></span>
+					</td>
 				</tr>
+				<!-- /ko -->
+				<!-- ko if: $gridViewDataSetHelper.isInEditMode($context) -->
+				<tr>
+					<td></td>
+					<td>
+						<span data-bind="text: Id"></span>
+					</td>
+					<td>
+						<input class="" data-bind="dotvvm-textbox-text: Name" type="text">
+					</td>
+					<td>
+						<input class="" data-bind="dotvvm-textbox-text: Email" required="required" type="email">
+					</td>
+					<td>
+						<input class="" data-bind="dotvvm-textbox-text: Sometime" data-dotvvm-format="yyyy-MM-ddTHH:mm" data-dotvvm-value-type="datetime" type="datetime-local">
+					</td>
+					<td>
+						<input class="" data-bind="dotvvm-textbox-text: Age" max="150" min="0" type="number">
+					</td>
+				</tr>
+				<!-- /ko -->
 			</tbody>
 		</table>
 		<!-- /ko -->

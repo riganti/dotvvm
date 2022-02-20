@@ -28,16 +28,15 @@ namespace DotVVM.Framework.Controls.DynamicData
         {
             var context = new DynamicDataContext(col.Control.DataContextTypeStack, col.Configuration.ServiceProvider);
 
-            var propBinding = col.Property(c => c.Property);
-            if (propBinding is null)
+            var props = col.PropertyValue<Props>(DynamicGridColumn.PropsProperty).NotNull();
+            if (props.Property is null)
                 throw new DotvvmControlException($"DynamicGridColumn.Property is not set.");
 
-            var props = col.PropertyValue<Props>(DynamicGridColumn.PropsProperty).NotNull();
 
-            var prop = propBinding.GetProperty<ReferencedViewModelPropertiesBindingProperty>();
+            var prop = props.Property.GetProperty<ReferencedViewModelPropertiesBindingProperty>();
 
             if (prop.MainProperty is null)
-                throw new NotSupportedException($"The binding {propBinding} must be bound to a single property. Alternatively, you can write a custom server-side style rule for your expression.");
+                throw new NotSupportedException($"The binding {props.Property} must be bound to a single property. Alternatively, you can write a custom server-side style rule for your expression.");
 
             var propertyMetadata = context.PropertyDisplayMetadataProvider.GetPropertyMetadata(prop.MainProperty);
 
@@ -58,6 +57,20 @@ namespace DotVVM.Framework.Controls.DynamicData
             {
                 control.SetValue(HeaderTextProperty, props.HeaderText);
             }
+
+            // editor
+
+            if (props.EditTemplate is null)
+            {
+                control.EditTemplate = new CloneTemplate(
+                    new DynamicEditor(context.Services)
+                        .SetProperty(p => p.Property, props.Property)
+                        .SetProperty("Enabled", props.IsEditable)
+                );
+            }
+            else
+                control.EditTemplate = props.EditTemplate;
+
             return control;
 
         }
@@ -72,6 +85,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             public ValueOrBinding<bool> IsEditable { get; init; } = new(true);
             public ValueOrBinding<string>? HeaderText { get; init; }
             public ITemplate? HeaderTemplate { get; init; }
+            public ITemplate? EditTemplate { get; init; }
         }
     }
 }

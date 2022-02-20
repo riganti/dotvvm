@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         {
             if (!metadata.IsEditable)
             {
-                return new ValueOrBinding<bool>(false);
+                return new(false);
             }
             return ConditionalFieldBindingProvider.GetPropertyBinding(metadata.EnabledAttributes, context);
         }

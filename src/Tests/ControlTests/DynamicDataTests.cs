@@ -101,7 +101,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         public async Task BasicDynamicGrid()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
-                    <dot:GridView DataSource={value: List}>
+                    <dot:GridView DataSource={value: List} InlineEditing>
                         <dd:DynamicColumns />
                     </dot:GridView>
                 "
@@ -112,11 +112,15 @@ namespace DotVVM.Framework.Tests.ControlTests
 
         public class SimpleEntity
         {
+            [Editable(false)]
             public int Id { get; set; }
             public string Name { get; set; }
             [EmailAddress]
+            [Required]
             public string Email { get; set; }
             public DateTime Sometime { get; set; }
+            [Range(0, 150)]
+            public int Age { get; set; }
         }
 
         public class BasicTestViewModel: DotvvmViewModelBase
@@ -128,7 +132,12 @@ namespace DotVVM.Framework.Tests.ControlTests
             public SimpleEntity Entity { get; set; }
             public bool AfterPreRender { get; set; }
 
-            public List<SimpleEntity> List { get; set; } = new List<string> { "list-item1", "list-item2" }.Select((s, i) => new SimpleEntity { Id = i, Name = s }).ToList();
+            public GridViewDataSet<SimpleEntity> List { get; set; } = new GridViewDataSet<SimpleEntity> {
+                RowEditOptions = { PrimaryKeyPropertyName = "Id" },
+                Items = 
+                    new [] {"list-item1", "list-item2" }
+                    .Select((s, i) => new SimpleEntity { Id = i, Name = s }).ToList()
+            };
 
             public override Task PreRender()
             {

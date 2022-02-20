@@ -33,6 +33,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             var propertyType = property.PropertyInfo.PropertyType;
             var hasFormatstring = !string.IsNullOrEmpty(property.FormatString);
             var textBox = new TextBox()
+                .SetCapability(props.Html)
                 .AddCssClasses(ControlCssClass, property.Styles?.FormControlCssClass)
                 .SetProperty(t => t.Text, props.Property)
                 .SetAttribute("placeholder", property.Placeholder?.ToBinding(context.BindingService))
@@ -80,33 +81,31 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             {
                 if (stringLength.MinimumLength > 0)
                 {
-                    textBox.SetAttribute("minlength", stringLength.MinimumLength);
+                    textBox.SetAttribute("minlength", stringLength.MinimumLength.ToString());
                 }
-                textBox.SetAttribute("maxlength", stringLength.MaximumLength);
+                textBox.SetAttribute("maxlength", stringLength.MaximumLength.ToString());
             }
             else
             {
                 if (validators.OfType<MaxLengthAttribute>().FirstOrDefault() is {} maxLength)
                 {
-                    textBox.SetAttribute("maxlength", maxLength.Length);
+                    textBox.SetAttribute("maxlength", maxLength.Length.ToString());
                 }
 
                 if (validators.OfType<MinLengthAttribute>().FirstOrDefault() is {} minLength)
                 {
-                    textBox.SetAttribute("minlength", minLength.Length);
+                    textBox.SetAttribute("minlength", minLength.Length.ToString());
                 }
             }
 
             if (textBox.Type == TextBoxType.Number && validators.OfType<RangeAttribute>().FirstOrDefault() is {} range)
             {
                 if (range.Minimum is {})
-                    textBox.SetAttribute("min", range.Minimum);
+                    textBox.SetAttribute("min", range.Minimum.ToString());
                 if (range.Maximum is {})
-                    textBox.SetAttribute("max", range.Minimum);
+                    textBox.SetAttribute("max", range.Maximum.ToString());
             }
 
-            // last thing is the capability so it can overwrite the default attributes we set
-            textBox.SetCapability(props.Html);
             return textBox;
         }
     }

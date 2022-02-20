@@ -2,7 +2,7 @@
 	<head></head>
 	<body>
 		
-		<!-- ko if: List()?.length -->
+		<!-- ko if: List()?.Items()?.length -->
 		<table data-bind="dotvvm-gridviewdataset: {'mapping':{},'dataSet':List()}">
 			<thead>
 				<tr>
@@ -11,7 +11,7 @@
 					</th>
 				</tr>
 			</thead>
-			<tbody data-bind="foreach: List">
+			<tbody data-bind="foreach: List()?.Items">
 				<tr>
 					<td>
 						<span data-bind="text: Name"></span>
