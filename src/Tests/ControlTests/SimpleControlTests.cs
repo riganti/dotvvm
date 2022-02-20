@@ -10,6 +10,7 @@ using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.ViewModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Testing;
+using System.Security.Claims;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -377,6 +378,32 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <dot:FileUpload UploadedFiles={{value: Files}}
                     RenderSettings.Mode={renderMode} />
             ", fileName: $"FileUpload-{renderMode}");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
+        [TestMethod]
+        public async Task Auth()
+        {
+            var testUser = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { 
+                new Claim(ClaimTypes.Role, "admin"),
+                new Claim(ClaimTypes.Role, "tester"), 
+                new Claim("custom-claim", "trolllololololo"), 
+                new Claim(ClaimTypes.NameIdentifier, "test.user")
+            }, "Basic"));
+
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+            
+                IsAuthenticated: {{resource: _user.Identity.IsAuthenticated}}
+
+                <div IncludeInPage={resource: _user.IsInRole('admin')}> Only for admins </div>
+
+                <div IncludeInPage={resource: _user.IsInRole('premium')}> Only for premium users </div>
+
+
+                <dot:AuthenticatedView> Only for authenticated users </dot:AuthenticatedView>
+
+                <dot:RoleView Roles='a,b,c'><IsNotMemberTemplate> not member </IsNotMemberTemplate> <IsMemberTemplate> Only for some random roles </IsMemberTemplate> </dot:RoleView> 
+            ", user: testUser);
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 

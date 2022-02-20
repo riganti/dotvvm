@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var dataContextTypeStack = CreateDataContextTypeStack(viewModelType, null, namespaceImports, new BindingExtensionParameter[] {
                 new CurrentMarkupControlExtensionParameter(wrapperType),
                 new BindingPageInfoExtensionParameter(),
-                new BindingApiExtensionParameter(),
+                new BindingApiExtensionParameter()
             }.Concat(injectedServices)
              .Concat(viewModule is null ? new BindingExtensionParameter[0] : new[] { viewModule.Value.extensionParameter }).ToArray());
 

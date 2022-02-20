@@ -23,6 +23,7 @@ using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.ViewCompiler;
 using Newtonsoft.Json;
 using DotVVM.Framework.ResourceManagement;
+using System.Security.Claims;
 
 namespace DotVVM.Framework.Testing
 {
@@ -67,7 +68,8 @@ namespace DotVVM.Framework.Testing
 
         private TestDotvvmRequestContext PrepareRequest(
             string fileName,
-            PostbackRequestModel? postback = null
+            PostbackRequestModel? postback = null,
+            ClaimsPrincipal? user = null
         )
         {
             var context = DotvvmTestHelper.CreateContext(
@@ -87,13 +89,17 @@ namespace DotVVM.Framework.Testing
                 );
             }
 
+            if (user is {})
+                httpContext.User = user;
+
             return context;
         }
 
         private TestDotvvmRequestContext PreparePage(
             string markup,
             Dictionary<string, string>? markupFiles,
-            string? fileName
+            string? fileName,
+            ClaimsPrincipal? user = null
         )
         {
             CultureInfo.CurrentCulture = new CultureInfo("en-US");
@@ -102,7 +108,7 @@ namespace DotVVM.Framework.Testing
             Configuration.Freeze();
             fileName = (fileName ?? "testpage") + ".dothtml";
             var (_, controlBuilder) = CompilePage(markup, fileName, markupFiles);
-            return PrepareRequest(fileName);
+            return PrepareRequest(fileName, user: user);
         }
 
         public async Task<PageRunResult> RunPage(
@@ -111,7 +117,8 @@ namespace DotVVM.Framework.Testing
             Dictionary<string, string>? markupFiles = null,
             string directives = "",
             bool renderResources = false,
-            [CallerMemberName] string? fileName = null)
+            [CallerMemberName] string? fileName = null,
+            ClaimsPrincipal? user = null)
         {
             if (!markup.Contains("<body"))
             {
@@ -130,7 +137,7 @@ namespace DotVVM.Framework.Testing
                 markup = "<tc:FakeHeadResourceLink />" + markup;
             }
             markup = $"@viewModel {viewModel.ToString().Replace("+", ".")}\n{directives}\n\n{markup}";
-            var request = PreparePage(markup, markupFiles, fileName);
+            var request = PreparePage(markup, markupFiles, fileName, user);
             await presenter.ProcessRequest(request);
             return CreatePageResult(request);
         }
