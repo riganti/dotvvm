@@ -75,9 +75,9 @@ namespace DotVVM.Framework.Controls.DynamicData
 
             return
                 new HtmlGenericControl("div")
-                .AddCssClasses(FormGroupCssClass, property.Styles?.FormRowCssClass)
-                .SetProperty(c => c.IncludeInPage, GetVisibleResourceBinding(property, dynamicDataContext))
-                .AppendChildren(labelElement, controlElement);
+                    .AddCssClasses(FormGroupCssClass, property.Styles?.FormRowCssClass)
+                    .SetProperty(c => c.IncludeInPage, GetVisibleResourceBinding(property, dynamicDataContext))
+                    .AppendChildren(labelElement, controlElement);
         }
 
         protected virtual DotvvmControl? InitializeControlLabel(PropertyDisplayMetadata property, DynamicDataContext ddContext)

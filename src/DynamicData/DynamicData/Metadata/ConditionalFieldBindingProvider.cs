@@ -16,8 +16,11 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls.DynamicData.Metadata
 {
-    public class ConditionalFieldBindingProvider
+    public static class ConditionalFieldBindingProvider
     {
+        public static ValueOrBinding<bool> IsEnabledBinding(this PropertyDisplayMetadata property, DynamicDataContext context) =>
+            ConditionalFieldBindingProvider.GetPropertyBinding(property.EnabledAttributes, context)
+                .And(new ValueOrBinding<bool>(property.IsEditable));
 
         public static ValueOrBinding<bool> GetPropertyBinding(IEnumerable<IConditionalFieldAttribute> attributes, DynamicDataContext context)
         {

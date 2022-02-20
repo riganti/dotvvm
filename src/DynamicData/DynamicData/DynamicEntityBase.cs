@@ -142,25 +142,20 @@ namespace DotVVM.Framework.Controls.DynamicData
             return ConditionalFieldBindingProvider.GetPropertyBinding(metadata.VisibleAttributes, context);
         }
 
-        protected virtual ValueOrBinding<bool> GetEnabledResourceBinding(PropertyDisplayMetadata metadata, DynamicDataContext context)
-        {
-            if (!metadata.IsEditable)
-            {
-                return new(false);
-            }
-            return ConditionalFieldBindingProvider.GetPropertyBinding(metadata.EnabledAttributes, context);
-        }
+        protected virtual ValueOrBinding<bool> GetEnabledResourceBinding(PropertyDisplayMetadata metadata, DynamicDataContext context) =>
+            metadata.IsEnabledBinding(context);
 
         [DotvvmControlCapability]
         public sealed record FieldSelectorProps
         {
-            /// <summary> Only the specified properties will be included in this form. Using ViewName, GroupName or ExcludedProperties at the same time as IncludedProperties does not make sense. </summary>
+            /// <summary> Only the specified properties will be included in this form. Using ViewName, GroupName or ExcludedProperties at the same time as IncludedProperties does not make sense. The properties will be listed in the exact order defined in this property. </summary>
             public string[]? IncludeProperties { get; init; }
+
             /// <summary> The specified properties will not be included in this form. </summary>
             public string[] ExcludeProperties { get; init; } = new string[0];
+
             /// <summary> Gets or sets the view name (e.g. Insert, Edit, ReadOnly). Some fields may have different metadata for each view. </summary>
             public string? ViewName { get; init; }
-
 
             /// <summary> Gets or sets the group of fields that should be rendered. If not set, fields from all groups will be rendered. </summary>
             public string? GroupName { get; init; }
@@ -182,7 +177,6 @@ namespace DotVVM.Framework.Controls.DynamicData
             public IReadOnlyDictionary<string, ValueOrBinding<string>> Label { get; init; } = new Dictionary<string, ValueOrBinding<string>>();
 
             /// <summary> Overrides how the entire form field (editor, label, ...) looks like. </summary>
-
             [PropertyGroup("FieldTemplate-")]
             [MarkupOptions(MappingMode = MappingMode.InnerElement)]
             public IReadOnlyDictionary<string, ITemplate> FieldTemplate { get; init; } = new Dictionary<string, ITemplate>();
@@ -192,7 +186,6 @@ namespace DotVVM.Framework.Controls.DynamicData
             [PropertyGroup("EditorTemplate-")]
             [MarkupOptions(MappingMode = MappingMode.InnerElement)]
             public IReadOnlyDictionary<string, ITemplate> EditorTemplate { get; init; } = new Dictionary<string, ITemplate>();
-
 
             public FieldSelectorProps FieldSelector { get; init; } = new FieldSelectorProps();
 

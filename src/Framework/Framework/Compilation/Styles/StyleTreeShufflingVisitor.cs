@@ -175,7 +175,7 @@ namespace DotVVM.Framework.Compilation.Styles
                 // if it was an attached property, we won't translate by name
                 if (p.Property.DeclaringType.IsAssignableFrom(control.Metadata.Type))
                 {
-                    newControl.SetProperty(p);
+                    newControl.SetProperty(p, StyleOverrideOptions.Ignore, out _);
                     continue;
                 }
 
