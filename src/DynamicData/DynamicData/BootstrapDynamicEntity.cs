@@ -78,7 +78,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         protected virtual DotvvmControl? InitializeControlLabel(PropertyDisplayMetadata property, DynamicDataContext ddContext)
         {
             if (property.IsDefaultLabelAllowed)
-                return new Literal(property.DisplayName?.ToBinding(ddContext.BindingService) ?? new ValueOrBinding<string>(""));
+                return new Literal(property.DisplayName?.ToBinding(ddContext) ?? new ValueOrBinding<string>(""));
             return null;
         }
 

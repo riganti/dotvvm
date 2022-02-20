@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
                 .AddCssClasses(ControlCssClass, property.Styles?.FormControlCssClass)
                 .SetProperty(c => c.Changed, props.Changed)
                 .SetProperty(c => c.Checked, props.Property)
-                .SetProperty(c => c.Text, property.DisplayName?.ToBinding(context.BindingService) ?? new(""))
+                .SetProperty(c => c.Text, property.DisplayName?.ToBinding(context) ?? new(""))
                 .SetProperty(c => c.Enabled, props.Enabled);
             return checkBox;
         }

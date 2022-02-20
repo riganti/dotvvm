@@ -104,7 +104,7 @@ namespace DotVVM.Framework.Controls.DynamicData
 
             if (property.IsDefaultLabelAllowed)
             {
-                return new Label(id).AppendChildren(new Literal(property.DisplayName?.ToBinding(dynamicDataContext.BindingService) ?? new(property.PropertyInfo.Name)));
+                return new Label(id).AppendChildren(new Literal(property.DisplayName?.ToBinding(dynamicDataContext) ?? new(property.PropertyInfo.Name)));
             }
             return null;
         }

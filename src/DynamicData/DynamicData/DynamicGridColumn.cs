@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Controls.DynamicData
 
             if (props.HeaderTemplate is null && props.HeaderText is null)
             {
-                props = props with { HeaderText = propertyMetadata.DisplayName?.ToBinding(context.BindingService) ?? new(propertyMetadata.PropertyInfo.Name) };
+                props = props with { HeaderText = propertyMetadata.DisplayName?.ToBinding(context) ?? new(propertyMetadata.PropertyInfo.Name) };
             }
 
             var control = provider.CreateColumn(propertyMetadata, props, context);

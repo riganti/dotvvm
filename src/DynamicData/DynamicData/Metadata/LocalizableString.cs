@@ -33,18 +33,20 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
             }
         }
 
-        public ValueOrBinding<string> ToBinding(BindingCompilationService s)
+        public ValueOrBinding<string> ToBinding(DynamicDataContext context)
         {
             if (IsLocalized)
             {
                 var binding = new ResourceBindingExpression<string>(
-                    s,
+                    context.BindingService,
                     new object[] {
                         new ParsedExpressionBindingProperty(
                             Expression.Call(
                                 Expression.Constant(this),
                                 "Localize",
-                                Type.EmptyTypes))
+                                Type.EmptyTypes)
+                        ),
+                        context.DataContextStack
                     }
                 );
                 return new ValueOrBinding<string>(binding);
