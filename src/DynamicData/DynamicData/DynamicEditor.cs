@@ -9,6 +9,8 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Controls.DynamicData
 {
@@ -29,7 +31,11 @@ namespace DotVVM.Framework.Controls.DynamicData
             set { SetValue(PropertyProperty, value); }
         }
 
-        public VirtualPropertyGroupDictionary<object?> Attributes => throw new NotImplementedException();
+        public VirtualPropertyGroupDictionary<object?> Attributes =>
+            new(this, AttributesGroupDescriptor);
+        [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger), AllowAttributeWithoutValue = true)]
+        public static DotvvmPropertyGroup AttributesGroupDescriptor =
+            DotvvmPropertyGroup.Register<object, DynamicEditor>(new [] { "", "html:" }, nameof(Attributes));
 
         public static readonly DotvvmProperty PropertyProperty
             = DotvvmProperty.Register<IValueBinding, DynamicEditor>(c => c.Property, null);
