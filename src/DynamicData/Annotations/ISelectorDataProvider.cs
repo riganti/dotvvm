@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Annotations;
 public interface ISelectorDataProvider<TItem>
 {
     [AllowStaticCommand]
-    Task<List<TItem>> GetItems();
+    Task<List<TItem>> GetSelectorItems();
 }
 
 public interface ISelectorDataProvider<TItem, TParam>

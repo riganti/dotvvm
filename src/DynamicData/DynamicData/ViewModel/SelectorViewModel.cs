@@ -27,7 +27,7 @@ public class SelectorViewModel<TItem> : DotvvmViewModelBase, ISelectorViewModel<
         var selectorDataProvider = Context.Services.GetService<ISelectorDataProvider<TItem>>();
         if (selectorDataProvider != null)
         {
-            Items = await selectorDataProvider.GetItems();
+            Items = await selectorDataProvider.GetSelectorItems();
         }
         else
         {

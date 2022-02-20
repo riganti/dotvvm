@@ -163,7 +163,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         [DotvvmControlCapability]
         public sealed record FieldProps
         {
-            /// <summary> Calls the command when the user makes changes to the specified field. For example `Changed-CountryId="{staticCommand: _root.States.Items = statesDataProvider.GetItems(_root.Address).Result}"` will reload the list of states whenever CountryId is changed. </summary>
+            /// <summary> Calls the command when the user makes changes to the specified field. For example `Changed-CountryId="{staticCommand: _root.States.Items = statesDataProvider.GetSelectorItems(_root.Address).Result}"` will reload the list of states whenever CountryId is changed. </summary>
             [PropertyGroup("Changed-")]
             public IReadOnlyDictionary<string, ICommandBinding> Changed { get; init; } = new Dictionary<string, ICommandBinding>();
         

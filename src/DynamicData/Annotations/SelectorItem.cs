@@ -9,7 +9,7 @@ public abstract record SelectorItem
 
 public abstract record SelectorItem<TKey> : SelectorItem
 {
-    public TKey Id { get; set; }
+    public TKey Value { get; set; }
 
     private protected override void SorryWeCannotAllowYouToInheritThisClass() => throw new System.NotImplementedException("Mischief managed.");
 }
