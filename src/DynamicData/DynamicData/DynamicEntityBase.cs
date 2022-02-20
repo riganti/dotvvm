@@ -72,19 +72,22 @@ namespace DotVVM.Framework.Controls.DynamicData
             return properties.ToArray();
         }
 
+        protected virtual string GetEditorId(PropertyDisplayMetadata property) => property.PropertyInfo.Name + ".input";
+
         /// <summary>
         /// Creates the contents of the label cell for the specified property.
         /// </summary>
         protected virtual DotvvmControl? InitializeControlLabel(PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext, FieldProps props)
         {
+            var id = GetEditorId(property);
             if (props.Label.ContainsKey(property.PropertyInfo.Name))
             {
-                return new Literal(props.Label[property.PropertyInfo.Name]);
+                return new Label(id).AppendChildren(new Literal(props.Label[property.PropertyInfo.Name]));
             }
 
             if (property.IsDefaultLabelAllowed)
             {
-                return new Literal(property.DisplayName?.ToBinding(dynamicDataContext.BindingService) ?? new(property.PropertyInfo.Name));
+                return new Label(id).AppendChildren(new Literal(property.DisplayName?.ToBinding(dynamicDataContext.BindingService) ?? new(property.PropertyInfo.Name)));
             }
             return null;
         }
@@ -93,6 +96,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         {
             return
                 new DynamicEditor(ddContext.Services)
+                .SetProperty(p => p.ID, GetEditorId(property))
                 .SetProperty(p => p.Property, ddContext.CreateValueBinding(property))
                 .SetProperty("Changed", props.Changed.GetValueOrDefault(property.PropertyInfo.Name))
                 .SetProperty("Enabled",

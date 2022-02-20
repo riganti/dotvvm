@@ -110,6 +110,19 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task RepeateredEditor()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                    <dot:Repeater DataSource={value: List}>
+                        <dd:DynamicEntity />
+                    </dot:Repeater>
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class SimpleEntity
         {
             [Editable(false)]

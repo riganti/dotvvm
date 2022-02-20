@@ -781,6 +781,12 @@
         "type": "System.String"
       }
     },
+    "DotVVM.Framework.Controls.Label": {
+      "For": {
+        "type": "System.String",
+        "required": true
+      }
+    },
     "DotVVM.Framework.Controls.ListBox": {
       "Size": {
         "type": "System.Int32"

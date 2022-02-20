@@ -1,0 +1,51 @@
+<html>
+	<head></head>
+	<body>
+		<div data-bind="foreach: { data: List()?.Items }">
+			<table class="dotvvm-dynamicdata-form-table">
+				<tbody>
+					<tr data-bind="dotvvm-validation: Id, dotvvm-validationOptions: {}">
+						<td class="dynamicdata-label">
+							<label data-bind="attr: { for: &quot;c7&quot;+'_'+$index()+'_'+&quot;Id.input&quot; }">Id</label>
+						</td>
+						<td class="dynamicdata-editor">
+							<span data-bind="text: Id"></span>
+						</td>
+					</tr>
+					<tr data-bind="dotvvm-validation: Name, dotvvm-validationOptions: {}">
+						<td class="dynamicdata-label">
+							<label data-bind="attr: { for: &quot;c7&quot;+'_'+$index()+'_'+&quot;Name.input&quot; }">Name</label>
+						</td>
+						<td class="dynamicdata-editor">
+							<input class="" data-bind="attr: { id: &quot;c7&quot;+'_'+$index()+'_'+&quot;Name.input&quot; }, dotvvm-textbox-text: Name" type="text">
+						</td>
+					</tr>
+					<tr data-bind="dotvvm-validation: Email, dotvvm-validationOptions: {}">
+						<td class="dynamicdata-label dynamicdata-required">
+							<label data-bind="attr: { for: &quot;c7&quot;+'_'+$index()+'_'+&quot;Email.input&quot; }">Email</label>
+						</td>
+						<td class="dynamicdata-editor">
+							<input class="" data-bind="attr: { id: &quot;c7&quot;+'_'+$index()+'_'+&quot;Email.input&quot; }, dotvvm-textbox-text: Email" required="required" type="email">
+						</td>
+					</tr>
+					<tr data-bind="dotvvm-validation: Sometime, dotvvm-validationOptions: {}">
+						<td class="dynamicdata-label">
+							<label data-bind="attr: { for: &quot;c7&quot;+'_'+$index()+'_'+&quot;Sometime.input&quot; }">Sometime</label>
+						</td>
+						<td class="dynamicdata-editor">
+							<input class="" data-bind="attr: { id: &quot;c7&quot;+'_'+$index()+'_'+&quot;Sometime.input&quot; }, dotvvm-textbox-text: Sometime" data-dotvvm-format="yyyy-MM-ddTHH:mm" data-dotvvm-value-type="datetime" type="datetime-local">
+						</td>
+					</tr>
+					<tr data-bind="dotvvm-validation: Age, dotvvm-validationOptions: {}">
+						<td class="dynamicdata-label">
+							<label data-bind="attr: { for: &quot;c7&quot;+'_'+$index()+'_'+&quot;Age.input&quot; }">Age</label>
+						</td>
+						<td class="dynamicdata-editor">
+							<input class="" data-bind="attr: { id: &quot;c7&quot;+'_'+$index()+'_'+&quot;Age.input&quot; }, dotvvm-textbox-text: Age" max="150" min="0" type="number">
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</body>
+</html>
