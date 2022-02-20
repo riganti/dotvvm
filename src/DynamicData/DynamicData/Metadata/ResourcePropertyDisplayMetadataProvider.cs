@@ -47,9 +47,10 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
 
             if (metadata.DisplayName is null)
             {
-                // TODO support also the second case
-                metadata.DisplayName = LocalizableString.Localized(PropertyDisplayNameResourceFile, property.DeclaringType!.Name + "_" + property.Name);
-                //                        ?? propertyDisplayNames.GetString(pair.PropertyInfo.Name);
+                var key1 = property.DeclaringType!.Name + "_" + property.Name;
+                var key2 = property.Name;
+                var key = propertyDisplayNames.GetString(key1) is not null ? key1 : key2;
+                metadata.DisplayName = LocalizableString.Localized(PropertyDisplayNameResourceFile, key);
             }
 
             return metadata;
