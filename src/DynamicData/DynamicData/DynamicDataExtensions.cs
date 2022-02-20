@@ -85,6 +85,9 @@ namespace DotVVM.Framework.Controls.DynamicData
         private static void RegisterDynamicDataStyles(DotvvmConfiguration config)
         {
             var s = config.Styles;
+            s.Register<DynamicColumns>()
+                .SetDotvvmProperty(Styles.AppendProperty, c => DynamicColumns.Replace(c))
+                .ReplaceWith(new DummyColumnThatDoesNothing());
             s.Register<DynamicGridColumn>()
                 .ReplaceWith(c => DynamicGridColumn.Replace(c));
         }

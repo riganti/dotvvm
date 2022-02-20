@@ -154,7 +154,7 @@ public static class StyleMatchContextExtensionMethods
     /// <summary>
     /// Determines whether the control has the given <see cref="DotvvmProperty"/>.
     /// </summary>
-    public static bool HasProperty<TControl>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, object>> property)
+    public static bool HasProperty<TControl>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, object?>> property)
     {
         var prop = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(property);
         return c.HasProperty(prop);
@@ -171,7 +171,7 @@ public static class StyleMatchContextExtensionMethods
     /// <summary>
     /// Determines whether the control has the given <see cref="DotvvmProperty"/>.
     /// </summary>
-    public static bool HasBinding<TControl>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, object>> property)
+    public static bool HasBinding<TControl>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, object?>> property)
     {
         var prop = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(property);
         return c.HasBinding(prop);

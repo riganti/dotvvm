@@ -87,6 +87,12 @@ namespace DotVVM.Framework.Controls
 
         public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container)
         {
+            if (EditTemplate is {} editTemplate)
+            {
+                editTemplate.BuildContent(context, container);
+                return;
+            }
+
             var textBox = new TextBox();
             textBox.FormatString = FormatString;
 

@@ -502,6 +502,10 @@
         "type": "System.Collections.Generic.List`1[[DotVVM.Framework.Controls.Decorator, DotVVM.Framework, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da]]",
         "mappingMode": "InnerElement"
       },
+      "EditTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
       "FilterTemplate": {
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
         "dataContextManipulation": {
@@ -588,10 +592,6 @@
         "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
         "mappingMode": "InnerElement",
         "required": true
-      },
-      "EditTemplate": {
-        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
-        "mappingMode": "InnerElement"
       }
     },
     "DotVVM.Framework.Controls.GridViewTextColumn": {

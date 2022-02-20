@@ -60,7 +60,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// <summary>
         /// Gets the list of properties that should be displayed.
         /// </summary>
-        protected virtual PropertyDisplayMetadata[] GetPropertiesToDisplay(DynamicDataContext context)
+        internal static PropertyDisplayMetadata[] GetPropertiesToDisplay(DynamicDataContext context)
         {
             var entityPropertyListProvider = context.Services.GetRequiredService<IEntityPropertyListProvider>();
             var viewContext = context.CreateViewContext();

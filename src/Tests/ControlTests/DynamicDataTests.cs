@@ -94,12 +94,20 @@ namespace DotVVM.Framework.Tests.ControlTests
                     <dd:DynamicEntity ViewName={viewName} />
                 ",
                 user: new ClaimsPrincipal(user),
-                fileName: $"{nameof(DynamicEntityWithVisibleEnabledFields)}-{viewName}-{userRoleName}-{isAuthenticated}"
+                fileName: $"{nameof(DynamicEntityWithVisibleEnabledFields)}-{viewName}-{userRoleName}-{isAuthenticated}");
+            check.CheckString(r.FormattedHtml, $"{viewName}-{userRoleName}-{isAuthenticated}", fileExtension: "html");
+        }
+        [TestMethod]
+        public async Task BasicDynamicGrid()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                    <dot:GridView DataSource={value: List}>
+                        <dd:DynamicColumns />
+                    </dot:GridView>
+                "
             );
 
-            CollectionAssert.AreEqual(new WrappedHtmlControl2[0], r.View.GetAllDescendants().OfType<WrappedHtmlControl2>().ToArray());
-
-            check.CheckString(r.FormattedHtml, $"{viewName}-{userRoleName}-{isAuthenticated}", fileExtension: "html");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
         public class SimpleEntity

@@ -157,6 +157,15 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty EditCellDecoratorsProperty =
             DotvvmProperty.Register<List<Decorator>?, GridViewColumn>(c => c.EditCellDecorators);
 
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
+        public ITemplate? EditTemplate
+        {
+            get { return (ITemplate?)GetValue(EditTemplateProperty); }
+            set { SetValue(EditTemplateProperty, value); }
+        }
+        public static readonly DotvvmProperty EditTemplateProperty
+            = DotvvmProperty.Register<ITemplate?, GridViewColumn>(c => c.EditTemplate, null);
+
         /// <summary>
         /// Gets or sets a list of decorators that will be applied on each header cell.
         /// </summary>
@@ -173,7 +182,11 @@ namespace DotVVM.Framework.Controls
 
         public abstract void CreateControls(IDotvvmRequestContext context, DotvvmControl container);
 
-        public abstract void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container);
+        public virtual void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container)
+        {
+            if (EditTemplate == null) throw new DotvvmControlException(this, $"{this.GetType().Name}.EditTemplate must be set when editing is allowed in a GridView.");
+            EditTemplate.BuildContent(context, container);
+        }
 
         public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string?>? sortCommand, HtmlGenericControl cell, IGridViewDataSet? gridViewDataSet)
         {
