@@ -46,7 +46,6 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
                                 "Localize",
                                 Type.EmptyTypes)
                         ),
-                        context.DataContextStack
                     }
                 );
                 return new ValueOrBinding<string>(binding);

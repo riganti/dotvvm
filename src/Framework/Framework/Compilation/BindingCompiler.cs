@@ -38,19 +38,32 @@ namespace DotVVM.Framework.Compilation
             this.bindingService = bindingService;
         }
 
-        public static Expression ReplaceParameters(Expression expression, DataContextStack dataContext, bool assertAllReplaced = true) =>
+        public static Expression ReplaceParameters(Expression expression, DataContextStack? dataContext, bool assertAllReplaced = true) =>
             new ParameterReplacementVisitor(dataContext, assertAllReplaced).Visit(expression);
 
         class ParameterReplacementVisitor: ExpressionVisitor
         {
             private readonly Dictionary<DataContextStack, int> ContextMap;
+            private readonly DataContextStack? DataContext;
             private readonly bool AssertAllReplaced;
             private readonly HashSet<ParameterExpression> contextParameters = new HashSet<ParameterExpression>();
 
-            public ParameterReplacementVisitor(DataContextStack dataContext, bool assertAllReplaced = true)
+            public ParameterReplacementVisitor(DataContextStack? dataContext, bool assertAllReplaced = true)
             {
-                this.ContextMap = dataContext.EnumerableItems().Select((a, i) => (a, i)).ToDictionary(a => a.Item1, a => a.Item2);
+                this.DataContext = dataContext;
+                this.ContextMap =
+                    (dataContext?.EnumerableItems() ?? Enumerable.Empty<DataContextStack>())
+                        .Select((a, i) => (a, i))
+                        .ToDictionary(a => a.Item1, a => a.Item2);
                 this.AssertAllReplaced = assertAllReplaced;
+            }
+
+            private int FindContext(DataContextStack context)
+            {
+                if (this.ContextMap.TryGetValue(context, out var result))
+                    return result;
+
+                throw new InvalidOperationException($"Cannot find data context of a binding parameter: {context}. Binding data context is {this.DataContext?.ToString() ?? "null"}");
             }
 
             [return: NotNullIfNotNull("node")]
@@ -63,7 +76,7 @@ namespace DotVVM.Framework.Compilation
                         // handle data context hierarchy
                         var friendlyIdentifier = $"extension parameter {ann.ExtensionParameter.Identifier}";
                         var targetControl =
-                            ann.DataContext is null || ContextMap[ann.DataContext] == 0
+                            ann.DataContext is null || FindContext(ann.DataContext) == 0
                                 ? CurrentControlParameter
                                 : ExpressionUtils.Replace(
                                     (DotvvmBindableObject control) => BindingHelper.FindDataContextTarget(control, ann.DataContext, friendlyIdentifier).target,
@@ -75,7 +88,7 @@ namespace DotVVM.Framework.Compilation
                     else
                     {
                         var dc = ann.DataContext.NotNull("Invalid BindingParameterAnnotation");
-                        return Expression.Convert(Expression.ArrayIndex(ViewModelsParameter, Expression.Constant(ContextMap[dc])), dc.DataContextType);
+                        return Expression.Convert(Expression.ArrayIndex(ViewModelsParameter, Expression.Constant(FindContext(dc))), dc.DataContextType);
                     }
                 }
                 return base.Visit(node);
