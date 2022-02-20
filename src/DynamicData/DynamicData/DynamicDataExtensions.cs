@@ -25,10 +25,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             services.Services.AddSingleton(serviceProvider => dynamicDataConfiguration);
 
             RegisterDefaultProviders(services.Services, dynamicDataConfiguration);
-            if (dynamicDataConfiguration.UseLocalizationResourceFiles)
-            {
-                RegisterResourceFileProviders(services.Services, dynamicDataConfiguration);
-            }
+            RegisterResourceFileProviders(services.Services, dynamicDataConfiguration);
 
             services.Services.Configure<DotvvmConfiguration>(AddDynamicDataConfiguration);
 
@@ -48,26 +45,23 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         private static void RegisterResourceFileProviders(IServiceCollection services, DynamicDataConfiguration dynamicDataConfiguration)
         {
-            if (dynamicDataConfiguration.PropertyDisplayNamesResourceFile == null)
+            if (dynamicDataConfiguration.PropertyDisplayNamesResourceFile != null)
             {
-                throw new ArgumentException($"The {nameof(DynamicDataConfiguration)} must specify the {nameof(DynamicDataConfiguration.PropertyDisplayNamesResourceFile)} resource class!");
-            }
-            if (dynamicDataConfiguration.ErrorMessagesResourceFile == null)
-            {
-                throw new ArgumentException($"The {nameof(DynamicDataConfiguration)} must specify the {nameof(DynamicDataConfiguration.ErrorMessagesResourceFile)} resource class!");
+                services.Decorate<IPropertyDisplayMetadataProvider>(
+                    baseService => new ResourcePropertyDisplayMetadataProvider(
+                        dynamicDataConfiguration.PropertyDisplayNamesResourceFile, baseService)
+                );
             }
 
-            services.Decorate<IPropertyDisplayMetadataProvider>(
-                baseService => new ResourcePropertyDisplayMetadataProvider(
-                    dynamicDataConfiguration.PropertyDisplayNamesResourceFile, baseService)
-            );
-
-            services.Decorate<IViewModelValidationMetadataProvider>(
-                (baseService, serviceProvider) => new ResourceViewModelValidationMetadataProvider(
-                    dynamicDataConfiguration.ErrorMessagesResourceFile, 
-                    serviceProvider.GetService<IPropertyDisplayMetadataProvider>(), 
-                    baseService)
-            );
+            if (dynamicDataConfiguration.ErrorMessagesResourceFile != null)
+            {
+                services.Decorate<IViewModelValidationMetadataProvider>(
+                    (baseService, serviceProvider) => new ResourceViewModelValidationMetadataProvider(
+                        dynamicDataConfiguration.ErrorMessagesResourceFile,
+                        serviceProvider.GetService<IPropertyDisplayMetadataProvider>(),
+                        baseService)
+                );
+            }
         }
 
 

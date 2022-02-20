@@ -29,11 +29,6 @@ namespace DotVVM.Framework.Controls.DynamicData.Configuration
         public List<IGridColumnProvider> GridColumnProviders { get; private set; } = new List<IGridColumnProvider>();
 
         /// <summary>
-        /// Gets or sets whether the localization resource files for field display names and error messages will be used.
-        /// </summary>
-        public bool UseLocalizationResourceFiles { get; set; }
-
-        /// <summary>
         /// Gets or sets the RESX file class with display names of the fields.
         /// </summary>
         public Type? PropertyDisplayNamesResourceFile { get; set; }
