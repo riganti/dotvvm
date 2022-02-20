@@ -109,6 +109,10 @@ namespace DotVVM.Framework.Controls.DynamicData
             return null;
         }
 
+        protected virtual DotvvmControl? TryGetFieldTemplate(PropertyDisplayMetadata property, FieldProps props) =>
+            props.FieldTemplate.TryGetValue(property.PropertyInfo.Name, out var template) ?
+                new TemplateHost(template) : null;
+
         protected virtual DynamicEditor CreateEditor(PropertyDisplayMetadata property, DynamicDataContext ddContext, FieldProps props)
         {
             var name = property.PropertyInfo.Name;

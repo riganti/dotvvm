@@ -38,6 +38,11 @@ namespace DotVVM.Framework.Controls.DynamicData
             // create the rows
             foreach (var property in GetPropertiesToDisplay(context, props.FieldSelector))
             {
+                if (this.TryGetFieldTemplate(property, props) is {} field)
+                {
+                    resultPlaceholder.AppendChildren(field);
+                    continue;
+                }
                 // create the row
                 HtmlGenericControl labelElement, controlElement;
                 var formGroup = InitializeFormGroup(property, context, out labelElement, out controlElement);

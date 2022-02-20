@@ -39,6 +39,11 @@ namespace DotVVM.Framework.Controls.DynamicData
             // create the rows
             foreach (var property in GetPropertiesToDisplay(context, props.FieldSelector))
             {
+                if (this.TryGetFieldTemplate(property, props) is {} field)
+                {
+                    table.AppendChildren(field);
+                    continue;
+                }
                 // create the row
                 var row = InitializeTableRow(property, context, out var labelCell, out var editorCell);
                 
