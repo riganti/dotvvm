@@ -40,7 +40,6 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
             var displayFormatAttribute = pair.PropertyInfo.GetCustomAttribute<DisplayFormatAttribute>();
             var dataTypeAttribute = pair.PropertyInfo.GetCustomAttribute<DataTypeAttribute>();
             var styleAttribute = pair.PropertyInfo.GetCustomAttribute<StyleAttribute>();
-            var visibilityFilters = pair.PropertyInfo.GetCustomAttributes().OfType<IVisibilityFilter>().ToArray();
             var editableFilter = pair.PropertyInfo.GetCustomAttribute<EditableAttribute>();
             var selectorAttribute = pair.PropertyInfo.GetCustomAttribute<SelectorAttribute>();
 
@@ -54,10 +53,11 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
                 FormatString = displayFormatAttribute?.DataFormatString,
                 NullDisplayText = displayFormatAttribute?.NullDisplayText,
                 AutoGenerateField = displayAttribute?.GetAutoGenerateField() ?? true,
+                VisibleAttributes = pair.PropertyInfo.GetCustomAttributes<VisibleAttribute>(),
                 DataType = dataTypeAttribute?.DataType,
-                VisibilityFilters = visibilityFilters,
                 Styles = styleAttribute,
-                IsEditAllowed = editableFilter?.AllowEdit != false,
+                IsEditable = editableFilter?.AllowEdit != false,
+                EnabledAttributes = pair.PropertyInfo.GetCustomAttributes<EnabledAttribute>(),
                 SelectorConfiguration = selectorAttribute,
                 IsDefaultLabelAllowed = pair.PropertyInfo.PropertyType.UnwrapNullableType() != typeof(bool) // TODO: make this configurable, maybe?
             };

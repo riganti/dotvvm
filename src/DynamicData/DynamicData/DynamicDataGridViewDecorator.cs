@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             // generate columns
             var entityPropertyListProvider = context.Configuration.ServiceProvider.GetService<IEntityPropertyListProvider>();
             var viewContext = dynamicDataContext.CreateViewContext();
-            var entityProperties = entityPropertyListProvider.GetProperties(itemDataContextStack.DataContextType, viewContext);
+            var entityProperties = entityPropertyListProvider.GetProperties(itemDataContextStack.DataContextType);
 
             // create columns
             var newColumns = new List<GridViewColumn>();

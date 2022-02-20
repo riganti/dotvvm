@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Controls.DynamicData.Annotations;
 
@@ -24,15 +27,18 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
 
         public bool AutoGenerateField { get; set; }
 
+        public IEnumerable<VisibleAttribute> VisibleAttributes { get; set; }
+
         public DataType? DataType { get; set; }
 
-        public IVisibilityFilter[] VisibilityFilters { get; set; } = Array.Empty<IVisibilityFilter>();
+        public bool IsEditable { get; set; }
+
+        public IEnumerable<EnabledAttribute> EnabledAttributes { get; set; }
 
         public StyleAttribute? Styles { get; set; }
 
-        public bool IsEditAllowed { get; set; }
-
         public SelectorAttribute? SelectorConfiguration { get; set; }
+
 
         public bool IsDefaultLabelAllowed { get; set; }
 

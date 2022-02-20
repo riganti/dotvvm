@@ -57,15 +57,74 @@ public class PropertyDisplayMetadataModifier
         return this;
     }
 
+    public PropertyDisplayMetadataModifier ShowForViews(string viewNames)
+    {
+        actions.Add(m =>
+        {
+            m.AutoGenerateField = true;
+            m.VisibleAttributes = new[] { new VisibleAttribute() { ViewNames = viewNames } };
+        });
+        return this;
+    }
+
+    public PropertyDisplayMetadataModifier ShowForRoles(string roles)
+    {
+        actions.Add(m =>
+        {
+            m.AutoGenerateField = true;
+            m.VisibleAttributes = new[] { new VisibleAttribute() { Roles = roles } };
+        });
+        return this;
+    }
+
+    public PropertyDisplayMetadataModifier ShowIfAuthenticated(AuthenticationMode mode)
+    {
+        actions.Add(m =>
+        {
+            m.AutoGenerateField = true;
+            m.VisibleAttributes = new[] { new VisibleAttribute() { IsAuthenticated = mode } };
+        });
+        return this;
+    }
+
     public PropertyDisplayMetadataModifier SetDataType(DataType dataType)
     {
         actions.Add(m => m.DataType = dataType);
         return this;
     }
 
-    public PropertyDisplayMetadataModifier AllowEdit(bool allowEdit = true)
+    public PropertyDisplayMetadataModifier Enable(bool allowEdit = true)
     {
-        actions.Add(m => m.IsEditAllowed = allowEdit);
+        actions.Add(m => m.IsEditable = allowEdit);
+        return this;
+    }
+
+    public PropertyDisplayMetadataModifier EnableForViews(string viewNames)
+    {
+        actions.Add(m =>
+        {
+            m.IsEditable = true;
+            m.EnabledAttributes = new[] { new EnabledAttribute() { ViewNames = viewNames } };
+        });
+        return this;
+    }
+
+    public PropertyDisplayMetadataModifier EnableForRoles(string roles)
+    {
+        actions.Add(m =>
+        {
+            m.IsEditable = true;
+            m.EnabledAttributes = new[] { new EnabledAttribute() { Roles = roles } };
+        });
+        return this;
+    }
+
+    public PropertyDisplayMetadataModifier EnableIfAuthenticated(AuthenticationMode mode)
+    {
+        actions.Add(m => {
+            m.IsEditable = true;
+            m.EnabledAttributes = new[] { new EnabledAttribute() { IsAuthenticated = mode } };
+        });
         return this;
     }
 
@@ -132,6 +191,12 @@ public class PropertyDisplayMetadataModifier
     public PropertyDisplayMetadataModifier SetGridHeaderCellCssClass(string cssClass)
     {
         actions.Add(m => (m.Styles = (m.Styles ?? new StyleAttribute())).GridHeaderCellCssClass = cssClass);
+        return this;
+    }
+
+    public PropertyDisplayMetadataModifier Configure(Action<PropertyDisplayMetadata> configurationAction)
+    {
+        actions.Add(configurationAction);
         return this;
     }
 

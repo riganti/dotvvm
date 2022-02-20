@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
 
         public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicEditor.Props props, DynamicDataContext context)
         {
-            if (!property.IsEditAllowed)
+            if (!property.IsEditable)
             {
                 var literal = new Literal();
                 literal.SetBinding(Literal.TextProperty, props.Property);

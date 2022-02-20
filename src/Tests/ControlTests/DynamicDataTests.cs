@@ -16,6 +16,8 @@ using DotVVM.Framework.ViewModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Controls.DynamicData;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
+using DotVVM.Framework.Controls.DynamicData.Annotations;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -58,6 +60,32 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [DataTestMethod]
+        [DataRow("Default", "", false)]
+        [DataRow("Insert", "", false)]
+        [DataRow("Insert", "Admin", true)]
+        [DataRow("Edit", "Admin", true)]
+        public async Task DynamicEntityWithVisibleEnabledFields(string viewName, string userRoleName, bool isAuthenticated)
+        {
+            var user = isAuthenticated
+                ? new ClaimsIdentity("myAuth")
+                : new ClaimsIdentity();
+            if (!string.IsNullOrEmpty(userRoleName))
+            {
+                user.AddClaim(new Claim(ClaimTypes.Role, userRoleName));
+            }
+
+            var r = await cth.RunPage(typeof(VisibleEnabledTestViewModel), $@"
+                    <dd:DynamicEntity ViewName={viewName} />
+                ",
+                user: new ClaimsPrincipal(user)
+            );
+
+            CollectionAssert.AreEqual(new WrappedHtmlControl2[0], r.View.GetAllDescendants().OfType<WrappedHtmlControl2>().ToArray());
+
+            check.CheckString(r.FormattedHtml, $"{viewName}-{userRoleName}-{isAuthenticated}", fileExtension: "html");
+        }
+
         public class SimpleEntity
         {
             public int Id { get; set; }
@@ -83,6 +111,28 @@ namespace DotVVM.Framework.Tests.ControlTests
                 AfterPreRender = true;
                 return base.PreRender();
             }
+        }
+
+        public class VisibleEnabledTestViewModel
+        {
+            [Display(AutoGenerateField = false)]
+            public bool CompletelyHidden { get; set; }
+
+            [Visible(ViewNames = "Insert")]
+            public bool InsertOnly { get; set; }
+
+            [Visible(Roles = "Admin | Moderator")]
+            public bool AdminOrModeratorOnly { get; set; }
+
+            [Editable(false)]
+            public bool AlwaysReadOnly { get; set; }
+
+            [Enabled(ViewNames = "Edit", IsAuthenticated = AuthenticationMode.Authenticated)]
+            public bool AuthenticatedEditOnly { get; set; }
+
+            [Enabled(IsAuthenticated = AuthenticationMode.NonAuthenticated)]
+            public bool AnonymousOnly { get; set; }
+
         }
     }
 

@@ -1,0 +1,54 @@
+<html>
+	<head></head>
+	<body>
+		<table class="dotvvm-dynamicdata-form-table">
+			<tbody>
+				<tr data-bind="dotvvm-validation: InsertOnly, dotvvm-validationOptions: {}">
+					<td class="dynamicdata-label"></td>
+					<td class="dynamicdata-editor">
+						<label>
+							<input data-bind="dotvvm-CheckState: InsertOnly" type="checkbox">
+							<span>InsertOnly</span>
+						</label>
+					</td>
+				</tr>
+				<tr data-bind="dotvvm-validation: AdminOrModeratorOnly, dotvvm-validationOptions: {}">
+					<td class="dynamicdata-label"></td>
+					<td class="dynamicdata-editor">
+						<label>
+							<input data-bind="dotvvm-CheckState: AdminOrModeratorOnly" type="checkbox">
+							<span>AdminOrModeratorOnly</span>
+						</label>
+					</td>
+				</tr>
+				<tr data-bind="dotvvm-validation: AlwaysReadOnly, dotvvm-validationOptions: {}">
+					<td class="dynamicdata-label"></td>
+					<td class="dynamicdata-editor">
+						<label>
+							<input data-bind="dotvvm-CheckState: AlwaysReadOnly" disabled="disabled" type="checkbox">
+							<span>AlwaysReadOnly</span>
+						</label>
+					</td>
+				</tr>
+				<tr data-bind="dotvvm-validation: AuthenticatedEditOnly, dotvvm-validationOptions: {}">
+					<td class="dynamicdata-label"></td>
+					<td class="dynamicdata-editor">
+						<label>
+							<input data-bind="dotvvm-CheckState: AuthenticatedEditOnly" disabled="disabled" type="checkbox">
+							<span>AuthenticatedEditOnly</span>
+						</label>
+					</td>
+				</tr>
+				<tr data-bind="dotvvm-validation: AnonymousOnly, dotvvm-validationOptions: {}">
+					<td class="dynamicdata-label"></td>
+					<td class="dynamicdata-editor">
+						<label>
+							<input data-bind="dotvvm-CheckState: AnonymousOnly" disabled="disabled" type="checkbox">
+							<span>AnonymousOnly</span>
+						</label>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</body>
+</html>

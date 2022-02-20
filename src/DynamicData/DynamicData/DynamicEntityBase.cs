@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         {
             var entityPropertyListProvider = context.Services.GetRequiredService<IEntityPropertyListProvider>();
             var viewContext = context.CreateViewContext();
-            var properties = entityPropertyListProvider.GetProperties(context.EntityType, viewContext);
+            var properties = entityPropertyListProvider.GetProperties(context.EntityType);
             if (!string.IsNullOrEmpty(context.GroupName))
             {
                 return properties.Where(p => p.GroupName == context.GroupName).ToArray();
@@ -95,7 +95,9 @@ namespace DotVVM.Framework.Controls.DynamicData
                 new DynamicEditor(ddContext.Services)
                 .SetProperty(p => p.Property, ddContext.CreateValueBinding(property))
                 .SetProperty("Changed", props.Changed.GetValueOrDefault(property.PropertyInfo.Name))
-                .SetProperty("Enabled", props.Enabled.GetValueOrDefault(property.PropertyInfo.Name, new ValueOrBinding<bool>(true)));
+                .SetProperty("Enabled",
+                    props.Enabled.GetValueOrDefault(property.PropertyInfo.Name,
+                            GetEnabledResourceBinding(property, ddContext)));
         }
 
         protected virtual void InitializeValidation(HtmlGenericControl validatedElement, HtmlGenericControl labelElement, PropertyDisplayMetadata property, DynamicDataContext context)
@@ -108,6 +110,19 @@ namespace DotVVM.Framework.Controls.DynamicData
             validatedElement.SetValue(Validator.ValueProperty, context.CreateValueBinding(property));
         }
 
+        protected virtual ValueOrBinding<bool> GetVisibleResourceBinding(PropertyDisplayMetadata metadata, DynamicDataContext context)
+        {
+            return ConditionalFieldBindingProvider.GetPropertyBinding(metadata.VisibleAttributes, context);
+        }
+
+        protected virtual ValueOrBinding<bool> GetEnabledResourceBinding(PropertyDisplayMetadata metadata, DynamicDataContext context)
+        {
+            if (!metadata.IsEditable)
+            {
+                return new ValueOrBinding<bool>(false);
+            }
+            return ConditionalFieldBindingProvider.GetPropertyBinding(metadata.EnabledAttributes, context);
+        }
 
         [DotvvmControlCapability]
         public sealed record FieldProps
