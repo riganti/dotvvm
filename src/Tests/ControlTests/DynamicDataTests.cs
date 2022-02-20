@@ -37,7 +37,11 @@ namespace DotVVM.Framework.Tests.ControlTests
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
                     <dd:DynamicEntity DataContext={value: Entity} ExcludeProperties='Id'
-                            Changed-Name={command: 0} />
+                            Changed-Name={command: 0}>
+                        <EditorTemplate-Sometime>
+                            Nah, I'm lazy and we don't support date times
+                        </EditorTemplate-Sometime>
+                    </dd:DynamicEntity>
                 "
             );
 

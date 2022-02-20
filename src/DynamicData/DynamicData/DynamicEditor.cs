@@ -40,6 +40,15 @@ namespace DotVVM.Framework.Controls.DynamicData
         public static readonly DotvvmProperty PropertyProperty
             = DotvvmProperty.Register<IValueBinding, DynamicEditor>(c => c.Property, null);
 
+
+        public ITemplate? OverrideTemplate
+        {
+            get { return (ITemplate?)GetValue(OverrideTemplateProperty); }
+            set { SetValue(OverrideTemplateProperty, value); }
+        }
+        public static readonly DotvvmProperty OverrideTemplateProperty =
+            DotvvmProperty.Register<ITemplate, DynamicEditor>(c => c.OverrideTemplate, null);
+
         private readonly IServiceProvider services;
 
         public DynamicEditor(IServiceProvider services)
@@ -49,6 +58,11 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         public DotvvmControl GetContents(Props props)
         {
+            if (props.OverrideTemplate is {})
+            {
+                return new TemplateHost(props.OverrideTemplate);
+            }
+
             var context = new DynamicDataContext(this.GetDataContextType().NotNull(), this.services)
             {
                 ViewName = null,
@@ -83,6 +97,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             public ICommandBinding? Changed { get; init; }
             public ValueOrBinding<bool> Enabled { get; init; } = new(true);
             public HtmlCapability Html { get; init; } = new();
+            public ITemplate? OverrideTemplate { get; init; }
         }
     }
 }

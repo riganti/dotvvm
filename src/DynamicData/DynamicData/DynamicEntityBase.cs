@@ -111,13 +111,15 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         protected virtual DynamicEditor CreateEditor(PropertyDisplayMetadata property, DynamicDataContext ddContext, FieldProps props)
         {
+            var name = property.PropertyInfo.Name;
             return
                 new DynamicEditor(ddContext.Services)
                 .SetProperty(p => p.ID, GetEditorId(property))
                 .SetProperty(p => p.Property, ddContext.CreateValueBinding(property))
-                .SetProperty("Changed", props.Changed.GetValueOrDefault(property.PropertyInfo.Name))
+                .SetProperty("OverrideTemplate", props.EditorTemplate.GetValueOrDefault(name))
+                .SetProperty("Changed", props.Changed.GetValueOrDefault(name))
                 .SetProperty("Enabled",
-                    props.Enabled.GetValueOrDefault(property.PropertyInfo.Name,
+                    props.Enabled.GetValueOrDefault(name,
                             GetEnabledResourceBinding(property, ddContext)));
         }
 
@@ -178,11 +180,13 @@ namespace DotVVM.Framework.Controls.DynamicData
             /// <summary> Overrides how the entire form field (editor, label, ...) looks like. </summary>
 
             [PropertyGroup("FieldTemplate-")]
+            [MarkupOptions(MappingMode = MappingMode.InnerElement)]
             public IReadOnlyDictionary<string, ITemplate> FieldTemplate { get; init; } = new Dictionary<string, ITemplate>();
 
 
             /// <summary> Overrides which component is used as an editor. </summary>
             [PropertyGroup("EditorTemplate-")]
+            [MarkupOptions(MappingMode = MappingMode.InnerElement)]
             public IReadOnlyDictionary<string, ITemplate> EditorTemplate { get; init; } = new Dictionary<string, ITemplate>();
 
 
