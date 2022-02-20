@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             var table = InitializeTable(context);
             
             // create the rows
-            foreach (var property in GetPropertiesToDisplay(context))
+            foreach (var property in GetPropertiesToDisplay(context, props.FieldSelector))
             {
                 // create the row
                 var row = InitializeTableRow(property, context, out var labelCell, out var editorCell);

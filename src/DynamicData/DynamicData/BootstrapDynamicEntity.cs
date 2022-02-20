@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             var resultPlaceholder = new PlaceHolder();
 
             // create the rows
-            foreach (var property in GetPropertiesToDisplay(context))
+            foreach (var property in GetPropertiesToDisplay(context, props.FieldSelector))
             {
                 // create the row
                 HtmlGenericControl labelElement, controlElement;

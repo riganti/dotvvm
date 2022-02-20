@@ -60,11 +60,28 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// <summary>
         /// Gets the list of properties that should be displayed.
         /// </summary>
-        internal static PropertyDisplayMetadata[] GetPropertiesToDisplay(DynamicDataContext context)
+        internal static PropertyDisplayMetadata[] GetPropertiesToDisplay(DynamicDataContext context, FieldSelectorProps props)
         {
             var entityPropertyListProvider = context.Services.GetRequiredService<IEntityPropertyListProvider>();
             var viewContext = context.CreateViewContext();
             var properties = entityPropertyListProvider.GetProperties(context.EntityType);
+
+            if (props.IncludeProperties is { Length: > 0})
+            {
+                if (props.ExcludeProperties is { Length: > 0})
+                    throw new NotSupportedException("Only one of IncludeProperties and ExcludeProperties can be specified.");
+
+                return props.IncludeProperties.Select(prop =>
+                    properties.FirstOrDefault(p => p.PropertyInfo.Name == prop)
+                        ?? throw new Exception($"Property {prop} not found on entity type {context.EntityType}.")
+                ).ToArray();
+            }
+
+            if (props.ExcludeProperties is {})
+            {
+                properties = properties.Where(p => !props.ExcludeProperties.Contains(p.PropertyInfo.Name)).ToArray();
+            }
+
             if (!string.IsNullOrEmpty(context.GroupName))
             {
                 return properties.Where(p => p.GroupName == context.GroupName).ToArray();
@@ -129,22 +146,48 @@ namespace DotVVM.Framework.Controls.DynamicData
         }
 
         [DotvvmControlCapability]
+        public sealed record FieldSelectorProps
+        {
+            /// <summary> Only the specified properties will be included in this form. Using ViewName, GroupName or ExcludedProperties at the same time as IncludedProperties does not make sense. </summary>
+            public string[]? IncludeProperties { get; init; }
+            /// <summary> The specified properties will not be included in this form. </summary>
+            public string[] ExcludeProperties { get; init; } = new string[0];
+            /// <summary> Gets or sets the view name (e.g. Insert, Edit, ReadOnly). Some fields may have different metadata for each view. </summary>
+            public string? ViewName { get; init; }
+
+
+            /// <summary> Gets or sets the group of fields that should be rendered. If not set, fields from all groups will be rendered. </summary>
+            public string? GroupName { get; init; }
+        }
+
+        [DotvvmControlCapability]
         public sealed record FieldProps
         {
+            /// <summary> Calls the command when the user makes changes to the specified field. For example `Changed-CountryId="{staticCommand: _root.States.Items = statesDataProvider.GetItems(_root.Address).Result}"` will reload the list of states whenever CountryId is changed. </summary>
             [PropertyGroup("Changed-")]
             public IReadOnlyDictionary<string, ICommandBinding> Changed { get; init; } = new Dictionary<string, ICommandBinding>();
         
+            /// <summary> Controls if the specified property is editable. </summary>
             [PropertyGroup("Enabled-")]
             public IReadOnlyDictionary<string, ValueOrBinding<bool>> Enabled { get; init; } = new Dictionary<string, ValueOrBinding<bool>>();
 
+            /// <summary> Overrides which text is used as a field label. </summary>
             [PropertyGroup("Label-")]
             public IReadOnlyDictionary<string, ValueOrBinding<string>> Label { get; init; } = new Dictionary<string, ValueOrBinding<string>>();
+
+            /// <summary> Overrides how the entire form field (editor, label, ...) looks like. </summary>
 
             [PropertyGroup("FieldTemplate-")]
             public IReadOnlyDictionary<string, ITemplate> FieldTemplate { get; init; } = new Dictionary<string, ITemplate>();
 
+
+            /// <summary> Overrides which component is used as an editor. </summary>
             [PropertyGroup("EditorTemplate-")]
             public IReadOnlyDictionary<string, ITemplate> EditorTemplate { get; init; } = new Dictionary<string, ITemplate>();
+
+
+            public FieldSelectorProps FieldSelector { get; init; } = new FieldSelectorProps();
+
         }
     }
 }

@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         public async Task BasicDynamicEntity()
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
-                    <dd:DynamicEntity DataContext={value: Entity}
+                    <dd:DynamicEntity DataContext={value: Entity} ExcludeProperties='Id'
                             Changed-Name={command: 0} />
                 "
             );
@@ -115,7 +115,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         {
             var r = await cth.RunPage(typeof(BasicTestViewModel), @"
                     <dot:Repeater DataSource={value: List}>
-                        <dd:DynamicEntity />
+                        <dd:DynamicEntity IncludeProperties='Email, Name' />
                     </dot:Repeater>
                 "
             );

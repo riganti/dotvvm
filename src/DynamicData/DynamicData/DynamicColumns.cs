@@ -34,11 +34,11 @@ namespace DotVVM.Framework.Controls.DynamicData
 
             var context = new DynamicDataContext(col.Control.DataContextTypeStack, col.Configuration.ServiceProvider)
             {
-                ViewName = props.ViewName,
-                GroupName = props.GroupName
+                ViewName = props.FieldSelector.ViewName,
+                GroupName = props.FieldSelector.GroupName
             };
 
-            var properties = DynamicEntityBase.GetPropertiesToDisplay(context);
+            var properties = DynamicEntityBase.GetPropertiesToDisplay(context, props.FieldSelector);
 
             var columns = properties.Select(p => CreateColumn(p, context, props)).ToArray();
             return columns;
@@ -59,19 +59,10 @@ namespace DotVVM.Framework.Controls.DynamicData
         [DotvvmControlCapability]
         public sealed record Props
         {
-            /// <summary>
-            /// Gets or sets the view name (e.g. Insert, Edit, ReadOnly). Some fields may have different metadata for each view.
-            /// </summary>
-            public string? ViewName { get; init; }
-
-
-            /// <summary>
-            /// Gets or sets the group of fields that should be rendered. If not set, fields from all groups will be rendered.
-            /// </summary>
-            public string? GroupName { get; init; }
-
             public IValueBinding? Property { get; init; }
             public ValueOrBinding<bool> IsEditable { get; init; } = new(true);
+
+            public DynamicEntityBase.FieldSelectorProps FieldSelector { get; init; } = new();
         }
     }
 }
