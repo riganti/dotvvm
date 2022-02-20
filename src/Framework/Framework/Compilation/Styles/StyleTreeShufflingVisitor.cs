@@ -89,11 +89,11 @@ namespace DotVVM.Framework.Compilation.Styles
                 list[i] = ProcessWrapping(list[i]);
                 list[i] = ProcessReplacement(list[i]);
             }
-            ProcessAppendAndPrepend(list);
+            ProcessAppendAndPrepend(list, parent);
             SetParent(list, parent);
         }
 
-        void ProcessAppendAndPrepend(List<ResolvedControl> list)
+        void ProcessAppendAndPrepend(List<ResolvedControl> list, ResolvedTreeNode parent)
         {
             var controls = list.ToArray();
             list.Clear();
@@ -102,7 +102,8 @@ namespace DotVVM.Framework.Compilation.Styles
                 if (c.Properties.TryGetValue(PrependProperty, out var prependSetter))
                 {
                     c.Properties.Remove(PrependProperty);
-                    var prepend = ((ResolvedPropertyControlCollection)prependSetter).Controls.ToArray();
+                    var prepend = ((ResolvedPropertyControlCollection)prependSetter).Controls.ToList();
+                    ProcessControlList(prepend, parent);
                     list.AddRange(prepend);
                 }
                 if (!ShouldRemove(c))
@@ -112,7 +113,8 @@ namespace DotVVM.Framework.Compilation.Styles
                 if (c.Properties.TryGetValue(AppendProperty, out var appendSetter))
                 {
                     c.Properties.Remove(AppendProperty);
-                    var append = ((ResolvedPropertyControlCollection)appendSetter).Controls.ToArray();
+                    var append = ((ResolvedPropertyControlCollection)appendSetter).Controls.ToList();
+                    ProcessControlList(append, parent);
                     list.AddRange(append);
                 }
             }
