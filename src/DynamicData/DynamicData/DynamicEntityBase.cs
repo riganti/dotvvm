@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Controls.DynamicData.Builders;
 using DotVVM.Framework.Controls.DynamicData.Configuration;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
 using DotVVM.Framework.Hosting;
@@ -97,6 +97,17 @@ namespace DotVVM.Framework.Controls.DynamicData
                 .SetProperty("Changed", props.Changed.GetValueOrDefault(property.PropertyInfo.Name))
                 .SetProperty("Enabled", props.Enabled.GetValueOrDefault(property.PropertyInfo.Name, new ValueOrBinding<bool>(true)));
         }
+
+        protected virtual void InitializeValidation(HtmlGenericControl validatedElement, HtmlGenericControl labelElement, PropertyDisplayMetadata property, DynamicDataContext context)
+        {
+            if (context.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
+            {
+                labelElement.AddCssClass("dynamicdata-required");
+            }
+
+            validatedElement.SetValue(Validator.ValueProperty, context.CreateValueBinding(property));
+        }
+
 
         [DotvvmControlCapability]
         public sealed record FieldProps

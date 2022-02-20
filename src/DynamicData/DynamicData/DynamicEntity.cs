@@ -79,18 +79,5 @@ namespace DotVVM.Framework.Controls.DynamicData
                 .AddCssClass(property.Styles?.FormRowCssClass)
                 .AppendChildren(labelCell, editorCell);
         }
-
-        /// <summary>
-        /// Initializes the validation on the row.
-        /// </summary>
-        protected virtual void InitializeValidation(HtmlGenericControl row, HtmlGenericControl labelCell, PropertyDisplayMetadata property, DynamicDataContext ddContext)
-        {
-            if (ddContext.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
-            {
-                labelCell.AddCssClass("dynamicdata-required");
-            }
-
-            row.SetValue(Validator.ValueProperty, ddContext.CreateValueBinding(property));
-        }
     }
 }
