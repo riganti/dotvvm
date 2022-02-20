@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
 using DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns;
 using DotVVM.Framework.Hosting;
@@ -72,7 +71,7 @@ namespace DotVVM.Framework.Controls.DynamicData
                 if (columnProvider == null) continue;
 
                 // create the column
-                var column = columnProvider.CreateColumn(grid, property, dynamicDataContext);
+                var column = columnProvider.CreateColumn(property, null, dynamicDataContext);
                 SetColumnCommonProperties(grid, property, column, dynamicDataContext);
 
                 // add the column to the GridView

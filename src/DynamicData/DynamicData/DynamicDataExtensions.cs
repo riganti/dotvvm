@@ -77,6 +77,16 @@ namespace DotVVM.Framework.Controls.DynamicData
         private static void AddDynamicDataConfiguration(DotvvmConfiguration config)
         {
             config.Markup.AddCodeControls("dd", typeof(DynamicDataExtensions).Namespace!, typeof(DynamicDataExtensions).Assembly!.GetName().Name!);
+
+            RegisterDynamicDataStyles(config);
+        }
+
+
+        private static void RegisterDynamicDataStyles(DotvvmConfiguration config)
+        {
+            var s = config.Styles;
+            s.Register<DynamicGridColumn>()
+                .ReplaceWith(c => DynamicGridColumn.Replace(c));
         }
         
     }

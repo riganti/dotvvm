@@ -4,9 +4,9 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns
 {
     public abstract class GridColumnProviderBase : DynamicDataPropertyHandlerBase, IGridColumnProvider
     {
-        public GridViewColumn CreateColumn(GridView gridView, PropertyDisplayMetadata property, DynamicDataContext context)
+        public GridViewColumn CreateColumn(PropertyDisplayMetadata property, DynamicGridColumn.Props props, DynamicDataContext context)
         {
-            var column = CreateColumnCore(gridView, property, context);
+            var column = CreateColumnCore(property, props, context);
 
             column.CssClass = ControlHelpers.ConcatCssClasses(column.CssClass, property.Styles?.GridCellCssClass);
             column.HeaderCssClass = ControlHelpers.ConcatCssClasses(column.HeaderCssClass, property.Styles?.GridHeaderCellCssClass);
@@ -14,6 +14,6 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns
             return column;
         }
 
-        protected abstract GridViewColumn CreateColumnCore(GridView gridView, PropertyDisplayMetadata property, DynamicDataContext context);
+        protected abstract GridViewColumn CreateColumnCore(PropertyDisplayMetadata property, DynamicGridColumn.Props props, DynamicDataContext context);
     }
 }

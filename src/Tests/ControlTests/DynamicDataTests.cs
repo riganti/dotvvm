@@ -59,6 +59,21 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
+        
+        [TestMethod]
+        public async Task BasicDynamicGridColumn()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                    <dot:GridView DataSource={value: List}>
+                        <dd:DynamicGridColumn Property={value: Name} />
+                    </dot:GridView>
+                "
+            );
+
+            CollectionAssert.AreEqual(new WrappedHtmlControl2[0], r.View.GetAllDescendants().OfType<WrappedHtmlControl2>().ToArray());
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
 
         [DataTestMethod]
         [DataRow("Default", "", false)]
@@ -78,7 +93,8 @@ namespace DotVVM.Framework.Tests.ControlTests
             var r = await cth.RunPage(typeof(VisibleEnabledTestViewModel), $@"
                     <dd:DynamicEntity ViewName={viewName} />
                 ",
-                user: new ClaimsPrincipal(user)
+                user: new ClaimsPrincipal(user),
+                fileName: $"{nameof(DynamicEntityWithVisibleEnabledFields)}-{viewName}-{userRoleName}-{isAuthenticated}"
             );
 
             CollectionAssert.AreEqual(new WrappedHtmlControl2[0], r.View.GetAllDescendants().OfType<WrappedHtmlControl2>().ToArray());
