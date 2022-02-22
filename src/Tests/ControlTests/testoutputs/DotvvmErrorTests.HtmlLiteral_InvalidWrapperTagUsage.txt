@@ -1,0 +1,2 @@
+DotvvmCompilationException occurred: Validation error in HtmlLiteral at line 6: The WrapperTagName property cannot be set when RenderWrapperTag is false!
+    at void DotVVM.Framework.Compilation.Validation.ControlUsageValidationVisitor.VisitAndAssert(ResolvedTreeRoot view)

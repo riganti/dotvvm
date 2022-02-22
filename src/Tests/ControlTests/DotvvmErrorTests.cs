@@ -13,6 +13,7 @@ using DotVVM.Framework.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Testing;
+using DotVVM.Framework.Tests.Runtime;
 
 namespace DotVVM.Framework.Tests.ControlTests
 {
@@ -41,6 +42,28 @@ namespace DotVVM.Framework.Tests.ControlTests
 
             Assert.AreEqual("Cannot find resource named 'ResourceDoesNotExist' referenced by the @js directive!", r.Message);
             Assert.AreEqual("ResourceDoesNotExist", r.AffectedSpans.Single().Trim());
+        }
+
+        [TestMethod]
+        public async Task HtmlLiteral_InvalidWrapperTagUsage()
+        {
+            await check.CheckExceptionAsync(() =>
+                cth.RunPage(typeof(object), @" <dot:HtmlLiteral Html='' RenderWrapperTag=false WrapperTagName=span />"));
+        }
+
+        [TestMethod]
+        public async Task HtmlLiteral_InvalidWrapperTagUsage2()
+        {
+            var e = await Assert.ThrowsExceptionAsync<DotvvmControlException>(() =>
+                cth.RunPage(typeof(object), @" <dot:HtmlLiteral Html='' RenderWrapperTag=false class=my-class />"));
+            Assert.AreEqual("Cannot set HTML attributes, Visible, ID, Postback.Update, ... bindings on a control which does not render its own element!", e.Message);
+        }
+
+        [TestMethod]
+        public async Task AuthView_InvalidWrapperTagUsage()
+        {
+            await check.CheckExceptionAsync(() =>
+                cth.RunPage(typeof(object), @" <dot:AuthenticatedView WrapperTagName=span> </dot:AuthenticatedView>"));
         }
     }
 }

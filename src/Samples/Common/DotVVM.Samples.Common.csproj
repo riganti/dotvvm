@@ -193,7 +193,7 @@
   
   <ItemGroup>
     <!-- the wildcard would not work in Target.Inputs, it only works in Include -->
-    <TypescriptFile Include="Resources/Scripts/**/*.tsx" />
+    <TypescriptFile Include="Scripts/**/*.tsx;Scripts/**/*.ts" />
   </ItemGroup>
   
   <ItemGroup>
@@ -212,7 +212,7 @@
       <Output TaskParameter="ExitCode" PropertyName="YarnVersionExitCode" />
     </Exec>
 
-    <Exec Command="yarnpkg install --frozen-lockfile" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)" />
+    <Exec Command="yarnpkg install --immutable" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)" />
     <Exec Command="npm ci" Condition="'$(YarnVersionExitCode)' != '0'" ContinueOnError="true" EnvironmentVariables="$(EnvOverrides)" />
 
     <Exec Command="yarnpkg build-production" Condition="'$(YarnVersionExitCode)' == '0'" ContinueOnError="true" YieldDuringToolExecution="True" ConsoleToMSBuild="true" EnvironmentVariables="$(EnvOverrides)" />

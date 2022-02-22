@@ -12,7 +12,7 @@ namespace DotVVM.CommandLine.OpenApi
     {
         private readonly DotvvmCSharpOperationModel operation;
 
-        public string CustomInitializer { get; set; }
+        public string? CustomInitializer { get; set; }
 
         public bool ExcludeFromQuery { get; set; }
 

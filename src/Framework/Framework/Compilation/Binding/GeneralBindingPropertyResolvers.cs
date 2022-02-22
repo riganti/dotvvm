@@ -352,6 +352,7 @@ namespace DotVVM.Framework.Compilation.Binding
         public StaticCommandJsAstProperty CompileStaticCommand(DataContextStack dataContext, CastedExpressionBindingProperty expression) =>
             new StaticCommandJsAstProperty(this.staticCommandBindingCompiler.CompileToJavascript(dataContext, expression.Expression));
 
+        [Obsolete("Deprecated in favor of StaticCommandOptionsLambdaJavascriptProperty.")]
         public StaticCommandJavascriptProperty FormatStaticCommand(StaticCommandJsAstProperty code) =>
             new StaticCommandJavascriptProperty(FormatJavascript(code.Expression, allowObservableResult: false, configuration.Debug, AddNullChecks));
 

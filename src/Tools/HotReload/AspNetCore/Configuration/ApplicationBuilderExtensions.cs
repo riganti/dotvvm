@@ -10,9 +10,9 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static void UseDotvvmHotReload(this IApplicationBuilder app)
         {
-            app.UseSignalR(builder =>
+            app.UseEndpoints(e =>
             {
-                builder.MapHub<DotvvmHotReloadHub>("/_dotvvm/hotReloadHub");
+                e.MapHub<DotvvmHotReloadHub>("/_dotvvm/hotReloadHub");
             });
         }
 

@@ -349,6 +349,22 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task HtmlLiteral()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <!-- Static text -->
+                <dot:HtmlLiteral class=c1 Html='some text' />
+                <!-- Resource binding -->
+                <dot:HtmlLiteral class=c1 Html={resource: Label} />
+                <!-- Value binding in <span> -->
+                <dot:HtmlLiteral class=c1 Html={value: Label} WrapperTagName=span />
+                <!-- Static text, no wrapper -->
+                <dot:HtmlLiteral Html='some text' RenderWrapperTag=false />
+            ");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]

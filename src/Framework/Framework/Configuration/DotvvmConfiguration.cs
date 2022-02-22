@@ -125,7 +125,7 @@ namespace DotVVM.Framework.Configuration
 
         /// <summary>
         /// Gets or sets whether the application should run in debug mode.
-        /// For ASP.NET Core check out <see cref="!:https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments" >https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments</see>
+        /// For ASP.NET Core check out <see href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments" />
         /// </summary>
         [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Include)]
         public bool Debug

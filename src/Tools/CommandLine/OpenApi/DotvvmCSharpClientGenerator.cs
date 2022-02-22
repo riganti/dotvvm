@@ -54,7 +54,7 @@ namespace DotVVM.CommandLine.OpenApi
             {
                 var typeNameWithAssembly = group.First()
                     .Schema.ExtensionData[ApiConstants.DotvvmWrapperTypeKey].ToString();
-                var typeName = typeNameWithAssembly.Substring(0, typeNameWithAssembly.IndexOf(','));
+                var typeName = typeNameWithAssembly!.Substring(0, typeNameWithAssembly.IndexOf(','));
 
                 var swaggerParameter = new OpenApiParameter()
                 {

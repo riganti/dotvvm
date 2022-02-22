@@ -21,7 +21,7 @@ namespace DotVVM.CommandLine.OpenApi
             if (property.ExtensionData != null
                 && property.ExtensionData.TryGetValue(ApiConstants.DotvvmNameKey, out var name))
             {
-                return name.ToString();
+                return name.ToString()!;
             }
 
             if (!property.Name.All(c => char.IsLetterOrDigit(c) || c == '.' || c == '-' || c == '_' || c == '+'))
