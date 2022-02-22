@@ -77,8 +77,14 @@ public static class ValueOrBindingExtensions
             return new ValueOrBinding<string>(
                 binding.GetProperty<ExpectedAsStringBindingExpression>().Binding
             );
+        else if (typeof(T).UnwrapNullableType().IsEnum)
+        {
+            return new ValueOrBinding<string>(ReflectionUtils.ToEnumString(typeof(T), v.ValueOrDefault?.ToString()) ?? "");
+        }
         else
+        {
             return new ValueOrBinding<string>("" + v.ValueOrDefault);
+        }
     }
     /// <summary> Returns ValueOrBinding with the value of `a is object`. The resulting binding is cached, so it's safe to use this method at runtime. </summary>
     public static ValueOrBinding<bool> NotNull<T>(this ValueOrBinding<T> v) =>

@@ -472,12 +472,14 @@ namespace DotVVM.Framework.Utils
             member is TypeInfo type ? type.AsType() :
             throw new NotImplementedException($"Could not get return type of member {member.GetType().FullName}");
 
-        public static string ToEnumString<T>(this T instance) where T : Enum
+        public static string? ToEnumString<T>(this T? instance) where T : Enum
         {
-            return ToEnumString(instance.GetType(), instance.ToString());
+            return ToEnumString(typeof(T), instance?.ToString());
         }
-        public static string ToEnumString(Type enumType, string name)
+        public static string? ToEnumString(Type enumType, string? name)
         {
+            if (name == null) return null;
+
             var field = enumType.GetField(name);
             if (field != null)
             {
