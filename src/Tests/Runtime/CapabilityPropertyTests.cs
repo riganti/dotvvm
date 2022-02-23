@@ -78,7 +78,7 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.AreEqual("Z", control.GetValue<string>("SomethingElse"));
             Assert.AreEqual("Z", control.GetValue(c => c.GetCapability<TestCapability>().SomethingElse));
 
-            control.SetCapability(new HtmlCapability { Attributes = { ["attr"] = "a" } });
+            control.SetCapability(new HtmlCapability { Attributes = { ["attr"] = new("a") } });
             Assert.AreEqual("a", control.Attributes["attr"]);
             control.AddAttribute("class", "x");
             control.AddAttribute("class", "y");

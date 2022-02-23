@@ -61,6 +61,14 @@ namespace DotVVM.Framework.Controls
         }
 
         public Button(
+            string text,
+            ICommandBinding click,
+            ButtonTagName tagName = ButtonTagName.input
+        ) : this(new TextOrContentCapability(text), click, tagName)
+        {
+        }
+
+        public Button(
             TextOrContentCapability content,
             ICommandBinding click,
             ButtonTagName tagName = ButtonTagName.button

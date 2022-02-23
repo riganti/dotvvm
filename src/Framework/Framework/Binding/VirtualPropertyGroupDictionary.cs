@@ -137,6 +137,10 @@ namespace DotVVM.Framework.Binding
         {
             control.properties.Set(group.GetDotvvmProperty(key), value.UnwrapToObject());
         }
+        public void Set(string key, TValue value) =>
+            this.Set(key, new ValueOrBinding<TValue>(value));
+        public void SetBinding(string key, IBinding binding) =>
+            this.Set(key, new ValueOrBinding<TValue>(binding));
 
         public bool ContainsKey(string key)
         {
@@ -159,8 +163,8 @@ namespace DotVVM.Framework.Binding
             if (!control.properties.TryAdd(prop, val))
                 AddOnConflict(prop, val);
         }
-        void IDictionary<string, TValue>.Add(string key, TValue value) =>
-            this.Add(key, value);
+        public void Add(string key, TValue value) =>
+            this.Add(key, new ValueOrBinding<TValue>(value));
 
         public void AddBinding(string key, IBinding? binding)
         {

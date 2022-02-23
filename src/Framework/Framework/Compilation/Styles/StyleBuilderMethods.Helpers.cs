@@ -34,7 +34,7 @@ public static partial class StyleBuilderExtensionMethods
     public static T ReplaceWith<T, TControl>(
         this T sb,
         TControl newControl,
-        Action<StyleBuilder<TControl>>? styleBuilder = null,
+        Action<IStyleBuilder<TControl>>? styleBuilder = null,
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
         where T: IStyleBuilder
         where TControl: DotvvmBindableObject =>
@@ -57,7 +57,7 @@ public static partial class StyleBuilderExtensionMethods
     public static T WrapWith<T, TControl>(
         this T sb,
         TControl wrapperControl,
-        Action<StyleBuilder<TControl>>? styleBuilder = null,
+        Action<IStyleBuilder<TControl>>? styleBuilder = null,
         StyleOverrideOptions options = StyleOverrideOptions.Append)
         where T: IStyleBuilder
         where TControl: DotvvmBindableObject =>
@@ -80,7 +80,7 @@ public static partial class StyleBuilderExtensionMethods
     public static T Append<T, TControl>(
         this T sb,
         TControl control,
-        Action<StyleBuilder<TControl>>? styleBuilder = null,
+        Action<IStyleBuilder<TControl>>? styleBuilder = null,
         StyleOverrideOptions options = StyleOverrideOptions.Append)
         where T: IStyleBuilder
         where TControl: DotvvmBindableObject =>
@@ -103,7 +103,7 @@ public static partial class StyleBuilderExtensionMethods
     public static T Prepend<T, TControl>(
         this T sb,
         TControl control,
-        Action<StyleBuilder<TControl>>? styleBuilder = null,
+        Action<IStyleBuilder<TControl>>? styleBuilder = null,
         StyleOverrideOptions options = StyleOverrideOptions.Append)
         where T: IStyleBuilder
         where TControl: DotvvmBindableObject =>
