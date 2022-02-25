@@ -1,13 +1,46 @@
 ﻿<Project>
-  <PropertyGroup>
-    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
-    <AutomaticallyUseReferenceAssemblyPackages>false</AutomaticallyUseReferenceAssemblyPackages>
+  <PropertyGroup Label="Basic info">
+    <Authors>RIGANTI</Authors>
+    <Description>DotVVM is an open source ASP.NET-based framework which allows to build interactive web apps easily by using mostly C# and HTML.</Description>
+    <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore</PackageTags>
+    <Version>4.0.0-preview01-122136</Version>
+
+    <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/riganti/dotvvm.git</RepositoryUrl>
+    <PackageProjectUrl>https://dotvvm.com/</PackageProjectUrl>
+  </PropertyGroup>
+
+  <!-- Set SourceRevisionId to current git commit hash -->
+  <Target Name="GetGitVersion" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
+    <Exec Command="git rev-parse HEAD"
+          ConsoleToMsBuild="true"
+          ContinueOnError="true"
+          StandardOutputImportance="low" StandardErrorImportance="low">
+      <Output TaskParameter="ConsoleOutput" PropertyName="SourceRevisionId" />
+    </Exec>
+    <PropertyGroup>
+      <RepositoryCommit>$(SourceRevisionId)</RepositoryCommit>
+    </PropertyGroup>
+  </Target>
+
+  <PropertyGroup Label="Licensing">
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+  
+  <PropertyGroup Label="Building">
+    <LangVersion>10.0</LangVersion>
     <!-- Disable warning for missing XML doc comments. -->
     <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
-    <LangVersion>10</LangVersion>
+    <Deterministic>true</Deterministic>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
     <DefaultTargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">netstandard2.1;net6.0;net472</DefaultTargetFrameworks>
     <DefaultTargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.1;net6.0</DefaultTargetFrameworks>
-    <Version>4.0.0-preview01-122136</Version>
+    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
+    <AutomaticallyUseReferenceAssemblyPackages>false</AutomaticallyUseReferenceAssemblyPackages>
+    <!-- Pack pdb symbol files -->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(DOTVVM_ROOT) != ''">
