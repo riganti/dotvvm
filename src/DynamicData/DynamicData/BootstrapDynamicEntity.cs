@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Controls.DynamicData
                 var formGroup = InitializeFormGroup(property, context, out labelElement, out controlElement);
 
                 // create the label
-                labelElement.AppendChildren(InitializeControlLabel(property, context));
+                labelElement.AppendChildren(InitializeControlLabel(property, context, props));
 
                 // create the editorProvider
                 controlElement.AppendChildren(
@@ -79,13 +79,5 @@ namespace DotVVM.Framework.Controls.DynamicData
                     .SetProperty(c => c.IncludeInPage, GetVisibleResourceBinding(property, dynamicDataContext))
                     .AppendChildren(labelElement, controlElement);
         }
-
-        protected virtual DotvvmControl? InitializeControlLabel(PropertyDisplayMetadata property, DynamicDataContext ddContext)
-        {
-            if (property.IsDefaultLabelAllowed)
-                return new Literal(property.DisplayName?.ToBinding(ddContext) ?? new ValueOrBinding<string>(""));
-            return null;
-        }
-
     }
 }

@@ -84,6 +84,15 @@ namespace DotVVM.Framework.Controls.DynamicData
                 .ReplaceWith(new DummyColumnThatDoesNothing());
             s.Register<DynamicGridColumn>()
                 .ReplaceWith(c => DynamicGridColumn.Replace(c));
+
+
+            // bulma styles
+
+            s.Register<CheckBox>(c => c.PropertyValue<string[]>(DynamicEditor.TagsProperty).Contains("bulma"))
+                .AddClass("checkbox");
+            s.Register<SelectorBase>(c => c.PropertyValue<string[]>(DynamicEditor.TagsProperty).Contains("bulma"))
+                .AddClass("select");
+
         }
         
     }

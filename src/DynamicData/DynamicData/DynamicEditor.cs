@@ -49,6 +49,15 @@ namespace DotVVM.Framework.Controls.DynamicData
         public static readonly DotvvmProperty OverrideTemplateProperty =
             DotvvmProperty.Register<ITemplate, DynamicEditor>(c => c.OverrideTemplate, null);
 
+        public string[] Tags
+        {
+            get { return (string[]?)GetValue(TagsProperty) ?? Array.Empty<string>(); }
+            set { SetValue(TagsProperty, value); }
+        }
+
+        public static readonly DotvvmProperty TagsProperty =
+            DotvvmProperty.Register<string[], DynamicEditor>("Tags", Array.Empty<string>());
+
         private readonly IServiceProvider services;
 
         public DynamicEditor(IServiceProvider services)
@@ -87,6 +96,8 @@ namespace DotVVM.Framework.Controls.DynamicData
                 throw new DotvvmControlException(this, $"Editor provider for property {prop.MainProperty} could not be found.");
 
             var control = editorProvider.CreateControl(propertyMetadata, props, context);
+            if (props.Tags.Length > 0)
+                control.SetValue(DynamicEditor.TagsProperty, props.Tags);
             return control;
         }
 
@@ -98,6 +109,8 @@ namespace DotVVM.Framework.Controls.DynamicData
             public ValueOrBinding<bool> Enabled { get; init; } = new(true);
             public HtmlCapability Html { get; init; } = new();
             public ITemplate? OverrideTemplate { get; init; }
+            /// <summary> Internal tags for styles to match on. </summary>
+            public string[] Tags { get; init; } = new string[0];
         }
     }
 }

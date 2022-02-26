@@ -94,7 +94,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// <summary>
         /// Creates the contents of the label cell for the specified property.
         /// </summary>
-        protected virtual DotvvmControl? InitializeControlLabel(PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext, FieldProps props)
+        protected virtual Label? InitializeControlLabel(PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext, FieldProps props)
         {
             var id = GetEditorId(property);
             if (props.Label.ContainsKey(property.PropertyInfo.Name))
