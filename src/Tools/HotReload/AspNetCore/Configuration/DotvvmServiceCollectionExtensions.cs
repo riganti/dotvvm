@@ -20,7 +20,17 @@ namespace DotVVM.Framework.Configuration
             services.Services.AddSignalR();
 
             services.Services.AddSingleton<IMarkupFileChangeNotifier, AspNetCoreMarkupFileChangeNotifier>();
-            services.Services.AddSingleton<IMarkupFileLoader, HotReloadAggregateMarkupFileLoader>();
+            services.Services.Configure<AggregateMarkupFileLoaderOptions>(options =>
+            {
+                var index = options.LoaderTypes.FindIndex(l => l == typeof(DefaultMarkupFileLoader));
+                if (index < 0)
+                {
+                    throw new InvalidOperationException("DotVVM Hot reload could not be initialized - the DefaultMarkupLoader was not found in the AggregateMarkupFileLoader Loaders collection.");
+                }
+
+                options.LoaderTypes[index] = typeof(HotReloadMarkupFileLoader);
+            });
+            services.Services.AddSingleton<HotReloadMarkupFileLoader>();
 
             services.Services.Configure<DotvvmConfiguration>(RegisterResources);
             services.Services.AddTransient<ResourceManager>(provider =>
