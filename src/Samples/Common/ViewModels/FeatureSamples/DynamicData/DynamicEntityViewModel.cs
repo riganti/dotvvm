@@ -76,49 +76,49 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData
 
     public class CountrySelectorDataProvider : ISelectorDataProvider<CountrySelectorItem>
     {
-        public Task<List<CountrySelectorItem>> GetItems() => Task.FromResult(new List<CountrySelectorItem>()
+        public Task<List<CountrySelectorItem>> GetSelectorItems() => Task.FromResult(new List<CountrySelectorItem>()
         {
-            new CountrySelectorItem() { Id = 1, DisplayName = "USA" },
-            new CountrySelectorItem() { Id = 2, DisplayName = "Czech Republic" }
+            new CountrySelectorItem() { Value = 1, DisplayName = "USA" },
+            new CountrySelectorItem() { Value = 2, DisplayName = "Czech Republic" }
         });
     }
 
     public class StateSelectorDataProvider : ISelectorDataProvider<StateSelectorItem, AddressDTO>
     {
-        public Task<List<StateSelectorItem>> GetItems(AddressDTO parameter)
+        public Task<List<StateSelectorItem>> GetSelectorItems(AddressDTO parameter)
         {
             if (parameter.CountryId == 1)
             {
                 return Task.FromResult(new List<StateSelectorItem>() {
-                    new StateSelectorItem() { Id = "AL", DisplayName = "Alabama" },
-                    new StateSelectorItem() { Id = "AK", DisplayName = "Alaska" },
-                    new StateSelectorItem() { Id = "AZ", DisplayName = "Arizona" },
-                    new StateSelectorItem() { Id = "AZ", DisplayName = "Arkansas" },
-                    new StateSelectorItem() { Id = "CA", DisplayName = "California" },
-                    new StateSelectorItem() { Id = "CO", DisplayName = "Colorado" },
-                    new StateSelectorItem() { Id = "CT", DisplayName = "Connecticut" },
-                    new StateSelectorItem() { Id = "DE", DisplayName = "Delaware" },
-                    new StateSelectorItem() { Id = "FL", DisplayName = "Florida" },
-                    new StateSelectorItem() { Id = "GA", DisplayName = "Georgia" },
-                    new StateSelectorItem() { Id = "HI", DisplayName = "Hawaii" },
-                    new StateSelectorItem() { Id = "ID", DisplayName = "Idaho" },
-                    new StateSelectorItem() { Id = "IL", DisplayName = "Illinois" },
-                    new StateSelectorItem() { Id = "IN", DisplayName = "Indiana" },
-                    new StateSelectorItem() { Id = "IA", DisplayName = "Iowa" },
-                    new StateSelectorItem() { Id = "KS", DisplayName = "Kansas" },
-                    new StateSelectorItem() { Id = "KY", DisplayName = "Kentucky" },
-                    new StateSelectorItem() { Id = "LA", DisplayName = "Louisiana" },
-                    new StateSelectorItem() { Id = "ME", DisplayName = "Maine" },
-                    new StateSelectorItem() { Id = "MD", DisplayName = "Maryland" },
-                    new StateSelectorItem() { Id = "MA", DisplayName = "Massachusetts" },
-                    new StateSelectorItem() { Id = "MI", DisplayName = "Michigan" },
-                    new StateSelectorItem() { Id = "MN", DisplayName = "Minnesota" },
-                    new StateSelectorItem() { Id = "MS", DisplayName = "Mississippi" },
-                    new StateSelectorItem() { Id = "MO", DisplayName = "Missouri" },
-                    new StateSelectorItem() { Id = "MT", DisplayName = "Montana" },
-                    new StateSelectorItem() { Id = "NE", DisplayName = "Nebraska" },
-                    new StateSelectorItem() { Id = "NV", DisplayName = "Nevada" },
-                    new StateSelectorItem() { Id = "NH", DisplayName = "New Hampshire" }
+                    new StateSelectorItem() { Value = "AL", DisplayName = "Alabama" },
+                    new StateSelectorItem() { Value = "AK", DisplayName = "Alaska" },
+                    new StateSelectorItem() { Value = "AZ", DisplayName = "Arizona" },
+                    new StateSelectorItem() { Value = "AZ", DisplayName = "Arkansas" },
+                    new StateSelectorItem() { Value = "CA", DisplayName = "California" },
+                    new StateSelectorItem() { Value = "CO", DisplayName = "Colorado" },
+                    new StateSelectorItem() { Value = "CT", DisplayName = "Connecticut" },
+                    new StateSelectorItem() { Value = "DE", DisplayName = "Delaware" },
+                    new StateSelectorItem() { Value = "FL", DisplayName = "Florida" },
+                    new StateSelectorItem() { Value = "GA", DisplayName = "Georgia" },
+                    new StateSelectorItem() { Value = "HI", DisplayName = "Hawaii" },
+                    new StateSelectorItem() { Value = "ID", DisplayName = "Idaho" },
+                    new StateSelectorItem() { Value = "IL", DisplayName = "Illinois" },
+                    new StateSelectorItem() { Value = "IN", DisplayName = "Indiana" },
+                    new StateSelectorItem() { Value = "IA", DisplayName = "Iowa" },
+                    new StateSelectorItem() { Value = "KS", DisplayName = "Kansas" },
+                    new StateSelectorItem() { Value = "KY", DisplayName = "Kentucky" },
+                    new StateSelectorItem() { Value = "LA", DisplayName = "Louisiana" },
+                    new StateSelectorItem() { Value = "ME", DisplayName = "Maine" },
+                    new StateSelectorItem() { Value = "MD", DisplayName = "Maryland" },
+                    new StateSelectorItem() { Value = "MA", DisplayName = "Massachusetts" },
+                    new StateSelectorItem() { Value = "MI", DisplayName = "Michigan" },
+                    new StateSelectorItem() { Value = "MN", DisplayName = "Minnesota" },
+                    new StateSelectorItem() { Value = "MS", DisplayName = "Mississippi" },
+                    new StateSelectorItem() { Value = "MO", DisplayName = "Missouri" },
+                    new StateSelectorItem() { Value = "MT", DisplayName = "Montana" },
+                    new StateSelectorItem() { Value = "NE", DisplayName = "Nebraska" },
+                    new StateSelectorItem() { Value = "NV", DisplayName = "Nevada" },
+                    new StateSelectorItem() { Value = "NH", DisplayName = "New Hampshire" }
                 });
             }
             else

@@ -52,7 +52,7 @@ public class SelectorViewModel<TItem, TParam> : SelectorViewModel<TItem>
         if (selectorDataProvider != null)
         {
             var parameter = parameterProvider();
-            Items = await selectorDataProvider.GetItems(parameter);
+            Items = await selectorDataProvider.GetSelectorItems(parameter);
         }
         else
         {

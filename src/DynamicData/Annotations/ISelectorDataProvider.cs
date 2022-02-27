@@ -13,5 +13,5 @@ public interface ISelectorDataProvider<TItem>
 public interface ISelectorDataProvider<TItem, TParam>
 {
     [AllowStaticCommand]
-    Task<List<TItem>> GetItems(TParam parameter);
+    Task<List<TItem>> GetSelectorItems(TParam parameter);
 }

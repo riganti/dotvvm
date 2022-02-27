@@ -44,12 +44,12 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData
 
     public class ProductSelectorDataProvider : ISelectorDataProvider<ProductSelectorItem>
     {
-        public Task<List<ProductSelectorItem>> GetItems() =>
+        public Task<List<ProductSelectorItem>> GetSelectorItems() =>
             Task.FromResult(new List<ProductSelectorItem>()
             {
-                new ProductSelectorItem() { Id = new Guid("00000000-0000-0000-0000-000000000001"), DisplayName = "First product" },
-                new ProductSelectorItem() { Id = new Guid("00000000-0000-0000-0000-000000000002"), DisplayName = "Second product" },
-                new ProductSelectorItem() { Id = new Guid("00000000-0000-0000-0000-000000000003"), DisplayName = "Third product" }
+                new ProductSelectorItem() { Value = new Guid("00000000-0000-0000-0000-000000000001"), DisplayName = "First product" },
+                new ProductSelectorItem() { Value = new Guid("00000000-0000-0000-0000-000000000002"), DisplayName = "Second product" },
+                new ProductSelectorItem() { Value = new Guid("00000000-0000-0000-0000-000000000003"), DisplayName = "Third product" }
             });
     }
 
