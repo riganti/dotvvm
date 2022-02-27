@@ -63,6 +63,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IOutputRenderer, DefaultOutputRenderer>();
             services.TryAddSingleton<IDotvvmPresenter, DotvvmPresenter>();
             services.TryAddSingleton<IMarkupFileLoader, AggregateMarkupFileLoader>();
+            services.TryAddSingleton<DefaultMarkupFileLoader>();
+            services.TryAddSingleton<EmbeddedMarkupFileLoader>();
             services.TryAddSingleton<IControlBuilderFactory, DefaultControlBuilderFactory>();
             services.TryAddSingleton<IControlResolver, DefaultControlResolver>();
             services.TryAddSingleton<IControlTreeResolver, DefaultControlTreeResolver>();
