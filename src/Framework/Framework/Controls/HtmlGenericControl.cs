@@ -494,7 +494,7 @@ namespace DotVVM.Framework.Controls
         public IDictionary<string, ValueOrBinding<bool>> CssClasses { get; init; } = new Dictionary<string, ValueOrBinding<bool>>();
         [PropertyGroup("Style-")]
         public IDictionary<string, ValueOrBinding<object>> CssStyles { get; init; } = new Dictionary<string, ValueOrBinding<object>>();
-        public ValueOrBinding<bool> Visible { get; init; } = true;
+        public ValueOrBinding<bool> Visible { get; init; } = new(true);
 
         public ValueOrBinding<string?> ID { get; init; }
     }

@@ -21,17 +21,40 @@ public static partial class StyleBuilderExtensionMethods
     public static IStyleBuilder<TControl> SetProperty<TControl, TProperty>(
         this IStyleBuilder<TControl> sb,
         Expression<Func<TControl, TProperty>> property,
+        ValueOrBinding<TProperty>? value,
+        StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
+    {
+        var dotprop = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(property);
+        return sb.SetDotvvmProperty(dotprop, value, options);
+    }
+
+    /// <summary> Sets a specified property on the matching controls. The referenced property must be a wrapper around a DotvvmProperty. </summary>
+    public static IStyleBuilder<TControl> SetProperty<TControl, TProperty>(
+        this IStyleBuilder<TControl> sb,
+        Expression<Func<TControl, TProperty>> property,
+        TProperty value,
+        StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
+    {
+        var dotprop = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(property);
+        return sb.SetDotvvmProperty(dotprop, value, options);
+    }
+
+    /// <summary> Sets a specified property on the matching controls. The referenced property must be a wrapper around a DotvvmProperty. </summary>
+    public static IStyleBuilder<TControl> SetProperty<TControl, TProperty>(
+        this IStyleBuilder<TControl> sb,
+        Expression<Func<TControl, ValueOrBinding<TProperty>>> property,
         ValueOrBinding<TProperty> value,
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
     {
         var dotprop = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(property);
         return sb.SetDotvvmProperty(dotprop, value, options);
     }
+
     /// <summary> Sets a specified property on the matching controls. The referenced property must be a wrapper around a DotvvmProperty. </summary>
     public static IStyleBuilder<TControl> SetProperty<TControl, TProperty>(
         this IStyleBuilder<TControl> sb,
         Expression<Func<TControl, ValueOrBinding<TProperty>>> property,
-        ValueOrBinding<TProperty> value,
+        TProperty value,
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
     {
         var dotprop = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(property);
@@ -44,7 +67,7 @@ public static partial class StyleBuilderExtensionMethods
         this T sb,
         DotvvmProperty property,
         TControl prototypeControl,
-        Action<StyleBuilder<TControl>>? styleBuilder = null,
+        Action<IStyleBuilder<TControl>>? styleBuilder = null,
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
         where T: IStyleBuilder
         where TControl: DotvvmBindableObject
@@ -63,7 +86,7 @@ public static partial class StyleBuilderExtensionMethods
         this IStyleBuilder<TControl> sb,
         Expression<Func<TControl, object>> property,
         TInnerControl prototypeControl,
-        Action<StyleBuilder<TInnerControl>>? styleBuilder = null,
+        Action<IStyleBuilder<TInnerControl>>? styleBuilder = null,
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
         where TInnerControl: DotvvmBindableObject
     {
@@ -78,7 +101,7 @@ public static partial class StyleBuilderExtensionMethods
         this IStyleBuilder<TControl> sb,
         Expression<Func<TControl, object>> property,
         TInnerControl prototypeControl,
-        Action<StyleBuilder<TInnerControl>>? styleBuilder = null)
+        Action<IStyleBuilder<TInnerControl>>? styleBuilder = null)
         where TInnerControl: DotvvmBindableObject =>
         sb.SetControlProperty(property, prototypeControl, styleBuilder, StyleOverrideOptions.Append);
 
@@ -88,7 +111,7 @@ public static partial class StyleBuilderExtensionMethods
         this T sb,
         DotvvmProperty property,
         TControl controlPrototype,
-        Action<StyleBuilder<TControl>>? styleBuilder = null)
+        Action<IStyleBuilder<TControl>>? styleBuilder = null)
         where T: IStyleBuilder
         where TControl: DotvvmBindableObject =>
         sb.SetControlProperty(property, controlPrototype, styleBuilder, StyleOverrideOptions.Append);
@@ -98,7 +121,7 @@ public static partial class StyleBuilderExtensionMethods
         this T sb,
         DotvvmProperty property,
         string tag,
-        Action<StyleBuilder<HtmlGenericControl>>? styleBuilder = null,
+        Action<IStyleBuilder<HtmlGenericControl>>? styleBuilder = null,
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
         where T: IStyleBuilder
     {
@@ -154,10 +177,10 @@ public static partial class StyleBuilderExtensionMethods
         sb.AddApplicator(new GenericPropertyStyleApplicator<T>(property, value, options));
 
     /// <summary> Sets a specified property on the matching controls. The value can be computed from any property on the control using the IStyleMatchContext. </summary>
-    public static IStyleBuilder<TControl> SetProperty<TControl, TProperty>(
+    public static IStyleBuilder<TControl> SetProperty<TControl>(
         this IStyleBuilder<TControl> sb,
-        Expression<Func<TControl, TProperty>> property,
-        Func<IStyleMatchContext<TControl>, TProperty> value,
+        Expression<Func<TControl, object?>> property,
+        Func<IStyleMatchContext<TControl>, object?> value,
         StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
     {
         var dotprop = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(property);
@@ -304,8 +327,17 @@ public static partial class StyleBuilderExtensionMethods
         sb.SetPropertyGroupMember("html:", attribute, value, StyleOverrideOptions.Append);
 
     /// <summary> Appends value to the specified attribute. </summary>
-    public static IStyleBuilder<T> AppendAttribute<T>(this IStyleBuilder<T> sb, string attribute, Func<IStyleMatchContext<T>, ValueOrBinding<string>> value) =>
+    public static T AppendAttribute<T>(this T sb, string attribute, string value)
+        where T: IStyleBuilder =>
 
+        sb.SetPropertyGroupMember("html:", attribute, value, StyleOverrideOptions.Append);
+
+    /// <summary> Appends value to the specified attribute. </summary>
+    public static IStyleBuilder<T> AppendAttribute<T>(this IStyleBuilder<T> sb, string attribute, Func<IStyleMatchContext<T>, ValueOrBinding<string>> value) =>
+        sb.SetPropertyGroupMember("html:", attribute, c => value(c), StyleOverrideOptions.Append);
+
+    /// <summary> Appends value to the specified attribute. </summary>
+    public static IStyleBuilder<T> AppendAttribute<T>(this IStyleBuilder<T> sb, string attribute, Func<IStyleMatchContext<T>, string> value) =>
         sb.SetPropertyGroupMember("html:", attribute, c => value(c), StyleOverrideOptions.Append);
 
     /// <summary> Sets HTML attribute of the control. </summary>

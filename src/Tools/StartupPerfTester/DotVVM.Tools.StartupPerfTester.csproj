@@ -8,12 +8,8 @@
     <ToolCommandName>dotvvm-startup-perf</ToolCommandName>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.Tools.StartupPerf</PackageId>
-    <Authors>RIGANTI</Authors>
     <Description>Command-line tool for measuring startup performance of DotVVM apps.</Description>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore;dnx;cli</PackageTags>
-    <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageTags>$(PackageTags);cli</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MedallionShell.StrongName" Version="1.6.1" />
