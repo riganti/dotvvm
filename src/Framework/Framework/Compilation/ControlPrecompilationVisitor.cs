@@ -42,11 +42,12 @@ namespace DotVVM.Framework.Compilation
             var mode = control.Metadata.PrecompilationMode;
             if (typeof(CompositeControl).IsAssignableFrom(control.Metadata.Type) && mode != ControlPrecompilationMode.Never)
             {
+                Debug.Assert(control.Metadata.PrecompilationMode != ControlPrecompilationMode.InServerSideStyles);
                 var name = control.Metadata.Type.Name;
                 try
                 {
                     var type = control.Metadata.Type;
-                    var replacement = Precompile(control, mode);
+                    var replacement = Precompile(control, mode, services);
 
                     if (replacement is not null)
                     {
@@ -62,7 +63,7 @@ namespace DotVVM.Framework.Compilation
                 }
                 catch (SkipPrecompilationException ex)
                 {
-                    if (mode == ControlPrecompilationMode.Always)
+                    if (mode is ControlPrecompilationMode.Always or ControlPrecompilationMode.InServerSideStyles)
                     {
                         var error = $"Failed to precompile control {name}, precompilation is mandatory but it was skipped: {ex.Message}";
                         control.DothtmlNode?.AddError(error);
@@ -91,13 +92,16 @@ namespace DotVVM.Framework.Compilation
             base.VisitControl(control);
         }
 
-        ResolvedControl[]? Precompile(ResolvedControl control, ControlPrecompilationMode mode)
+        internal static ResolvedControl[]? Precompile(
+            ResolvedControl control,
+            ControlPrecompilationMode mode,
+            IServiceProvider services)
         {
             var controlInfo = CompositeControl.GetControlInfo(control.Metadata.Type);
 
             if (controlInfo.Properties.Contains(Internal.RequestContextProperty))
             {
-                if (mode == ControlPrecompilationMode.Always)
+                if (mode is ControlPrecompilationMode.Always or ControlPrecompilationMode.InServerSideStyles)
                     throw new Exception($"The GetContents references IDotvvmRequestContext, which is not allowed during precompilation.");
                 else
                     return null;
@@ -111,7 +115,7 @@ namespace DotVVM.Framework.Compilation
             {
                 if (!AllowsBindings(targetType))
                 {
-                    if (mode == ControlPrecompilationMode.Always)
+                    if (mode is ControlPrecompilationMode.Always or ControlPrecompilationMode.InServerSideStyles)
                         throw new Exception($"The property '{property.Name}' does not allow bindings.");
                     else
                         abortCompilation = true;
@@ -145,6 +149,7 @@ namespace DotVVM.Framework.Compilation
 
             var content = runtimeControl.ExecuteGetContents(null!);
 
+            var config = services.GetService<DotvvmConfiguration>();
             return content.Select(c => ResolvedControlHelper.FromRuntimeControl(c, control.DataContextTypeStack, config)).ToArray();
         }
 

@@ -257,7 +257,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
     }
 
-    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.Always)]
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
     public class WrappedHtmlControl2: CompositeControl
     {
         public static DotvvmControl GetContents(
@@ -272,7 +272,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         }
     }
 
-    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.Always)]
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
     public class RepeatedButton: CompositeControl
     {
         public static DotvvmControl GetContents(

@@ -270,9 +270,11 @@ namespace DotVVM.Framework.Compilation.Styles
         }
 
 
-        public static DotvvmBindableObject ToRuntimeControl(this ResolvedControl c, IServiceProvider? services)
+        public static DotvvmBindableObject ToRuntimeControl(this ResolvedControl c, IServiceProvider services)
         {
-            _ = services ?? throw new NotImplementedException("TODO");
+            if (services is null)
+                throw new ArgumentNullException(nameof(services));
+
             var control = (DotvvmBindableObject)ActivatorUtilities.CreateInstance(services, c.Metadata.Type, c.ConstructorParameters ?? Array.Empty<object>());
 
             foreach (var p in c.Properties.Values)
