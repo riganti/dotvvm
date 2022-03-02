@@ -1,5 +1,5 @@
 import { deserialize } from '../serialization/deserialize'
-import { unmapKnockoutObservables } from '../state-manager';
+import { currentStateSymbol, unmapKnockoutObservables } from '../state-manager';
 import { logWarning } from '../utils/logging';
 import { keys } from '../utils/objects';
 import * as manager from '../viewModules/viewModuleManager';
@@ -65,8 +65,10 @@ export default {
                 } else {
                     value[prop] = createWrapperComputed(
                         () => {
-                            const property = valueAccessor()[prop];
-                            return !ko.isObservable(property) ? deserialize(property) : property
+                            const value = valueAccessor()[prop];
+                            // if it's observable or FakeObservableObject, we assume that we don't need to wrap it in observables.
+                            const isWrapped = ko.isObservable(value) || (value && typeof value == 'object' && currentStateSymbol in value)
+                            return isWrapped ? value : deserialize(value)
                         },
                         `'${prop}' at '${valueAccessor.toString()}'`);
                 }
