@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Controls.DynamicData
     /// <summary>
     /// Creates the editor for the specified property using the metadata information.
     /// </summary>
-    [ControlMarkupOptions(AllowContent = false, Precompile = ControlPrecompilationMode.Always)]
+    [ControlMarkupOptions(AllowContent = false, Precompile = ControlPrecompilationMode.InServerSideStyles)]
     public sealed class DynamicEditor: CompositeControl, IObjectWithCapability<HtmlCapability>, IControlWithHtmlAttributes
     {
         /// <summary>

@@ -6,25 +6,26 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
+    <dot:RequiredResource Name=bulma />
 </head>
 <body>
 
-    <h2>DynamicEntity</h2>
+    <h2 class="title">DynamicEntity</h2>
 
-    <div>
-        <div style="display: inline-block; vertical-align: top">
-            <dd:DynamicEntity DataContext="{value: Address}"
+    <div class="columns">
+        <div class="column">
+            <dd:BulmaDynamicEntity DataContext="{value: Address}"
                               GroupName="BasicInfo"
-                              Changed-CountryId="{staticCommand: _root.States.Items = statesDataProvider.GetItems(_root.Address).Result}">
+                              Changed-CountryId="{staticCommand: _root.States.Items = statesDataProvider.GetSelectorItems(_root.Address).Result}">
                 <%--<Template-CountryId>
                     pre-text
                     <dd:DynamicEditor />
                     post-text
                 </Template-CountryId>--%>
-            </dd:DynamicEntity>
+            </dd:BulmaDynamicEntity>
         </div>
-        <div style="display: inline-block; vertical-align: top">
-            <dd:DynamicEntity DataContext="{value: Address}"
+        <div class="column">
+            <dd:BulmaDynamicEntity DataContext="{value: Address}"
                               GroupName="ContactInfo" />
         </div>
     </div>

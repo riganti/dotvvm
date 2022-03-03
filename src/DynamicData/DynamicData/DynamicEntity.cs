@@ -6,7 +6,7 @@ using DotVVM.Framework.Controls.DynamicData.Metadata;
 
 namespace DotVVM.Framework.Controls.DynamicData
 {
-    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.Always)]
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
     public class DynamicEntity : DynamicEntityBase
     {
         public DynamicEntity(IServiceProvider services) : base(services)

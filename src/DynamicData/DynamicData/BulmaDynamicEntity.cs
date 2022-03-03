@@ -7,7 +7,7 @@ using DotVVM.Framework.Controls.DynamicData.Metadata;
 namespace DotVVM.Framework.Controls.DynamicData
 {
     /// <summary> Renders a bulma table-like form: https://bulma.io/documentation/form/general/#horizontal-form </summary>
-    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.Always)]
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
     public class BulmaDynamicEntity : DynamicEntityBase
     {
         public BulmaDynamicEntity(IServiceProvider services) : base(services)

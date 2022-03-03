@@ -87,11 +87,12 @@ namespace DotVVM.Framework.Controls.DynamicData
 
 
             // bulma styles
-
             s.Register<CheckBox>(c => c.PropertyValue<string[]>(DynamicEditor.TagsProperty).Contains("bulma"))
                 .AddClass("checkbox");
+
             s.Register<SelectorBase>(c => c.PropertyValue<string[]>(DynamicEditor.TagsProperty).Contains("bulma"))
-                .AddClass("select");
+                .SetAttribute("class", "")
+                .WrapWith(new HtmlGenericControl("div").AddCssClass("select"));
 
         }
         

@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Controls.DynamicData
 {
-    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.Always)]
+    [ControlMarkupOptions(Precompile = ControlPrecompilationMode.InServerSideStyles)]
     public abstract class DynamicEntityBase : CompositeControl
     {
         protected readonly IServiceProvider services;
