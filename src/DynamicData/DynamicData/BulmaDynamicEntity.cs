@@ -73,6 +73,7 @@ namespace DotVVM.Framework.Controls.DynamicData
                     .AddCssClass("field is-horizontal")
                     .AppendChildren(fieldLabel, fieldBody);
 
+                SetFieldVisibility(wrapperField, property, props, context);
                 resultPlaceholder.Children.Add(wrapperField);
             }
             return resultPlaceholder;

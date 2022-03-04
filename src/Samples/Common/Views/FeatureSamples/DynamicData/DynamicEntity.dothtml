@@ -14,9 +14,10 @@
 
     <div class="columns">
         <div class="column">
-            <dd:BulmaDynamicEntity DataContext="{value: Address}"
+            <dd:BulmaDynamicEntity
+                              DataContext="{value: Address}"
                               GroupName="BasicInfo"
-                              Changed-CountryId="{staticCommand: _root.States.Items = statesDataProvider.GetSelectorItems(_root.Address).Result}">
+                              Changed-CountryId="{staticCommand: _root.States.Items = statesDataProvider.GetSelectorItems(_root.Address).Result}" >
                 <%--<Template-CountryId>
                     pre-text
                     <dd:DynamicEditor />

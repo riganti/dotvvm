@@ -56,6 +56,7 @@ namespace DotVVM.Framework.Controls.DynamicData
                 // create the validator
                 InitializeValidation(row, labelCell, property, context);
 
+                SetFieldVisibility(row, property, props, context);
                 table.Children.Add(row);
             }
             return table;
@@ -82,7 +83,6 @@ namespace DotVVM.Framework.Controls.DynamicData
             
             return new HtmlGenericControl("tr")
                 .AddCssClass(property.Styles?.FormRowCssClass)
-                .SetProperty(c => c.IncludeInPage, GetVisibleResourceBinding(property, dynamicDataContext))
                 .AppendChildren(labelCell, editorCell);
         }
     }

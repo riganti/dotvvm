@@ -7,6 +7,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Controls.DynamicData.Configuration;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
+using DotVVM.Framework.Controls.DynamicData.PropertyHandlers;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
@@ -177,6 +178,43 @@ namespace DotVVM.Framework.Controls.DynamicData
         protected virtual ValueOrBinding<bool> GetEnabledResourceBinding(PropertyDisplayMetadata metadata, DynamicDataContext context) =>
             metadata.IsEnabledBinding(context);
 
+        protected virtual void SetFieldVisibility(HtmlGenericControl field, PropertyDisplayMetadata property, FieldProps props, DynamicDataContext context)
+        {
+            var visibleResourceBinding = GetVisibleResourceBinding(property, context);
+            if (props.Visible.TryGetValue(property.Name, out var visible))
+            {
+                if (visible.BindingOrDefault is IValueBinding)
+                {
+                    field.SetValueRaw(HtmlGenericControl.VisibleProperty, visible.BindingOrDefault);
+                }
+                else
+                {
+                    // static values and resource bindings should be in IncludeInPage to avoid sending then to the client
+                    visibleResourceBinding = visibleResourceBinding.And(visible);
+                }
+            }
+            else if (property.SelectorConfiguration is {} selector)
+            {
+                try
+                {
+                    var dataSource = SelectorHelper.DiscoverSelectorDataSourceBinding(context, selector.PropertyType);
+                    var nonEmptyBinding =
+                        dataSource.GetProperty<DataSourceLengthBinding>().Binding.GetProperty<IsMoreThanZeroBindingProperty>().Binding;
+                    field.SetValueRaw(HtmlGenericControl.VisibleProperty, nonEmptyBinding);
+                }
+                catch
+                {
+                    // nvm, we just tried it. It will fail properly later in DynamicEditor which should be easier to understand.
+                }
+            }
+
+            if (visibleResourceBinding.HasBinding || visibleResourceBinding.ValueOrDefault is not true)
+            {
+                field.SetValue(HtmlGenericControl.VisibleProperty, visibleResourceBinding);
+            }
+
+        }
+
         [DotvvmControlCapability]
         public sealed record FieldSelectorProps
         {
@@ -207,6 +245,11 @@ namespace DotVVM.Framework.Controls.DynamicData
             /// <summary> Controls if the specified property is editable. </summary>
             [PropertyGroup("Enabled-")]
             public IReadOnlyDictionary<string, ValueOrBinding<bool>> Enabled { get; init; } = new Dictionary<string, ValueOrBinding<bool>>();
+
+            /// <summary> Controls if the specified field is visible </summary>
+            [PropertyGroup("Visible-")]
+            public IReadOnlyDictionary<string, ValueOrBinding<bool>> Visible { get; init; } = new Dictionary<string, ValueOrBinding<bool>>();
+            
 
             /// <summary> Overrides which text is used as a field label. </summary>
             [PropertyGroup("Label-")]
