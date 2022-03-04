@@ -429,5 +429,43 @@ namespace DotVVM.Framework.Compilation.Binding
                 Expression.GreaterThan(expr.Expression, Expression.Constant(0))
             ));
         }
+
+        public ReferencedViewModelPropertiesBindingProperty GetReferencedViewModelProperties(ParsedExpressionBindingProperty expression)
+        {
+            var allProperties = new List<PropertyInfo>();
+            var expr = expression.Expression;
+
+            expr.ForEachMember(m => {
+                if (m is PropertyInfo property)
+                {
+                    allProperties.Add(property);
+                }
+            });
+
+            while (true)
+            {
+                // unwrap type conversions, negations, ...
+                if (expr is UnaryExpression unary)
+                    expr = unary.Operand;
+                // unwrap some method invocations
+                else if (expr is MethodCallExpression boxCall && boxCall.Method.DeclaringType == typeof(BoxingUtils))
+                    expr = boxCall.Arguments.First();
+                else if (expr is MethodCallExpression { Method.Name: "ToBrowserLocalTime" or "ToString" } methodCall)
+                    expr = methodCall.Object ?? methodCall.Arguments.First();
+                // unwrap binary operation with a constant
+                else if (expr is BinaryExpression { Right.NodeType: ExpressionType.Constant } binaryLeft)
+                    expr = binaryLeft.Left;
+                else if (expr is BinaryExpression { Left.NodeType: ExpressionType.Constant } binaryRight)
+                    expr = binaryRight.Right;
+                else
+                    break;
+            }
+            var mainProperty = (expr as MemberExpression)?.Member as PropertyInfo;
+
+            return new(
+                mainProperty,
+                allProperties.ToArray()
+            );
+        }
     }
 }
