@@ -27,14 +27,6 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
                 .OrderBy(p => p.Order)
                 .Where(p => p.AutoGenerateField)
                 .ToList();
-
-            foreach (var property in metadata)
-            {
-                if (property.DisplayName is null)
-                {
-                    property.DisplayName = LocalizableString.Constant(property.PropertyInfo.Name);
-                }
-            }
             
             return metadata;
         }

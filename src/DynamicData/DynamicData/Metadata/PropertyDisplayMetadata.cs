@@ -2,10 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Controls.DynamicData.Annotations;
+using Humanizer;
 
 namespace DotVVM.Framework.Controls.DynamicData.Metadata
 {
@@ -27,13 +29,13 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
 
         public bool AutoGenerateField { get; set; }
 
-        public IEnumerable<VisibleAttribute> VisibleAttributes { get; set; }
+        public IEnumerable<VisibleAttribute> VisibleAttributes { get; set; } = Enumerable.Empty<VisibleAttribute>();
 
         public DataType? DataType { get; set; }
 
         public bool IsEditable { get; set; }
 
-        public IEnumerable<EnabledAttribute> EnabledAttributes { get; set; }
+        public IEnumerable<EnabledAttribute> EnabledAttributes { get; set; } = Enumerable.Empty<EnabledAttribute>();
 
         public StyleAttribute? Styles { get; set; }
 
@@ -42,9 +44,16 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
 
         public bool IsDefaultLabelAllowed { get; set; }
 
+
         public PropertyDisplayMetadata(PropertyInfo propertyInfo)
         {
             PropertyInfo = propertyInfo;
         }
+
+
+
+        /// <summary> Returns DisplayName or a default name derived from the PropertyInfo if it is not set. </summary>
+        public LocalizableString GetDisplayName() =>
+            DisplayName ?? LocalizableString.Constant(PropertyInfo.Name.Humanize());
     }
 }

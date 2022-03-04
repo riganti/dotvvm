@@ -51,7 +51,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         private List<ValidationAttribute> GetAttributesForPropertyCore(PropertyInfoCulturePair pair)
         {
             // determine property name
-            var propertyDisplayName = propertyDisplayMetadataProvider.GetPropertyMetadata(pair.PropertyInfo).DisplayName?.Localize() ?? "";
+            var propertyDisplayName = propertyDisplayMetadataProvider.GetPropertyMetadata(pair.PropertyInfo).GetDisplayName().Localize();
 
             // process all validation attributes
             var results = new List<ValidationAttribute>();

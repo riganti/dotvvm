@@ -19,6 +19,8 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         public static LocalizableString Localized(Type type, string resourceKey) => new() { ResourceKey = resourceKey, ResourceType = type };
 
 
+        public static LocalizableString? CreateNullable(string? value, Type? resourceType) =>
+            String.IsNullOrEmpty(value) ? null : Create(value, resourceType);
         public static LocalizableString Create(string value, Type? resourceType)
         {
             if (value is null) throw new ArgumentNullException(nameof(value), "LocalizableString.Create need a value - it is either the displayed value or the resource key");

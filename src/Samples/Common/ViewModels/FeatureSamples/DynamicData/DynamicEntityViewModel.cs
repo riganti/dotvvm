@@ -42,14 +42,14 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData
         [Display(GroupName = "BasicInfo")]
         public string City { get; set; }
 
-        [Display(GroupName = "BasicInfo")]
-        [Selector(typeof(StateSelectorItem))]
-        public string State { get; set; }
 
         [Display(GroupName = "BasicInfo")]
         [Selector(typeof(CountrySelectorItem))]
         public int CountryId { get; set; }
         
+        [Display(GroupName = "BasicInfo")]
+        [Selector(typeof(StateSelectorItem))]
+        public string State { get; set; }
 
         [Display(GroupName = "ContactInfo")]
         public string Email { get; set; }
@@ -67,7 +67,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData
         [Display(Name = "E-mail")]
         Email,
 
-        [Display(Name = "Telephone")]
+        [Display(Name = "Telephone", Description = "The old school thing which can transfer voice much more reliably than what we can do now with all the computers.")]
         Phone
     }
 

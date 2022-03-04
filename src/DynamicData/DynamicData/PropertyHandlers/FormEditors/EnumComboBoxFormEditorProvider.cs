@@ -7,6 +7,7 @@ using System.Text;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
 using DotVVM.Framework.Utils;
+using Humanizer;
 
 namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
 {
@@ -23,15 +24,18 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             var isNullable = property.PropertyInfo.PropertyType.IsNullable();
 
             var options = Enum.GetNames(enumType)
-                .Select(name => new
-                {
-                    Name = name,
-                    DisplayName = enumType
+                .Select(name => {
+                    var displayAttribute = enumType
                         .GetField(name)
-                        ?.GetCustomAttribute<DisplayAttribute>()
-                        ?.GetName() ?? name
+                        ?.GetCustomAttribute<DisplayAttribute>();
+                    var displayName =
+                        LocalizableString.CreateNullable(displayAttribute?.Name, displayAttribute?.ResourceType) ??
+                        LocalizableString.Constant(name.Humanize());
+                    var title = LocalizableString.CreateNullable(displayAttribute?.Description, displayAttribute?.ResourceType);
+                    return (name, displayName, title);
                 })
-                .Select(e => new SelectorItem(e.DisplayName, Enum.Parse(enumType, e.Name)));
+                .Select(e => new SelectorItem(e.displayName.ToBinding(context), new(Enum.Parse(enumType, e.name)))
+                                .AddAttribute("title", e.title?.ToBinding(context)));
 
             var control = new ComboBox()
                 .SetCapability(props.Html)

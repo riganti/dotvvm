@@ -15,9 +15,9 @@ public class PropertyDisplayMetadataModifier
         return this;
     }
 
-    public PropertyDisplayMetadataModifier SetDisplayName(Func<string> displayName)
+    public PropertyDisplayMetadataModifier SetDisplayName(Type resourceName, string displayNameKey)
     {
-        actions.Add(m => m.DisplayName = LocalizableString.Constant(displayName()));
+        actions.Add(m => m.DisplayName = LocalizableString.Localized(resourceName, displayNameKey));
         return this;
     }
 

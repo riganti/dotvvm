@@ -49,8 +49,10 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
             {
                 var key1 = property.DeclaringType!.Name + "_" + property.Name;
                 var key2 = property.Name;
-                var key = propertyDisplayNames.GetString(key1) is not null ? key1 : key2;
-                metadata.DisplayName = LocalizableString.Localized(PropertyDisplayNameResourceFile, key);
+                if (propertyDisplayNames.GetString(key1) is not null)
+                    metadata.DisplayName = LocalizableString.Localized(PropertyDisplayNameResourceFile, key1);
+                else if (propertyDisplayNames.GetString(key2) is not null)
+                    metadata.DisplayName = LocalizableString.Localized(PropertyDisplayNameResourceFile, key2);
             }
 
             return metadata;
