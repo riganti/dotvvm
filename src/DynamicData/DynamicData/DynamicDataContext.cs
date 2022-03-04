@@ -56,8 +56,14 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         public IValueBinding CreateValueBinding(PropertyDisplayMetadata property)
         {
+            if (property.ValueBinding is not null)
+                return property.ValueBinding;
+
+            if (property.PropertyInfo is null)
+                throw new ArgumentException("property.PropertyInfo is null => cannot create value binding for this property");
+
             var s = this.BindingService;
-            return s.Cache.CreateCachedBinding("DD-Value", new object[] { property.PropertyInfo, DataContextStack }, () => {
+            return s.Cache.CreateCachedBinding("DD-Value", new object?[] { property.PropertyInfo, DataContextStack }, () => {
                 var _this = Expression.Parameter(DataContextStack.DataContextType, "_this").AddParameterAnnotation(new BindingParameterAnnotation(DataContextStack));
                 var expr = Expression.Property(_this, property.PropertyInfo);
                 return (IValueBinding)BindingService.CreateBinding(typeof(ValueBindingExpression<>), new object[] {

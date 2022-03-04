@@ -6,14 +6,20 @@ using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Controls.DynamicData.Annotations;
 using Humanizer;
 
 namespace DotVVM.Framework.Controls.DynamicData.Metadata
 {
-    public class PropertyDisplayMetadata
+    public record PropertyDisplayMetadata
     {
-        public PropertyInfo PropertyInfo { get; }
+        public PropertyInfo? PropertyInfo { get; }
+
+        public string Name { get; init; }
+        public Type Type { get; init; }
+
+        public IValueBinding? ValueBinding { get; init; }
 
         public LocalizableString? DisplayName { get; set; }
         public LocalizableString? Placeholder { get; set; }
@@ -48,12 +54,19 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         public PropertyDisplayMetadata(PropertyInfo propertyInfo)
         {
             PropertyInfo = propertyInfo;
+            this.Name = propertyInfo.Name;
+            this.Type = propertyInfo.PropertyType;
         }
-
+        public PropertyDisplayMetadata(string name, IValueBinding binding)
+        {
+            this.Name = name;
+            this.Type = binding.ResultType;
+            this.PropertyInfo = binding.GetProperty<ReferencedViewModelPropertiesBindingProperty>()?.MainProperty;
+        }
 
 
         /// <summary> Returns DisplayName or a default name derived from the PropertyInfo if it is not set. </summary>
         public LocalizableString GetDisplayName() =>
-            DisplayName ?? LocalizableString.Constant(PropertyInfo.Name.Humanize());
+            DisplayName ?? LocalizableString.Constant(Name.Humanize());
     }
 }

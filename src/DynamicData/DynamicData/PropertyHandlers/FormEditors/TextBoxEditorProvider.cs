@@ -14,9 +14,9 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
     /// </summary>
     public class TextBoxEditorProvider : FormEditorProviderBase
     {
-        public override bool CanHandleProperty(PropertyInfo propertyInfo, DynamicDataContext context)
+        public override bool CanHandleProperty(PropertyDisplayMetadata property, DynamicDataContext context)
         {
-            return TextBoxHelper.CanHandleProperty(propertyInfo, context);
+            return TextBoxHelper.CanHandleProperty(property.Type);
         }
 
         public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicEditor.Props props, DynamicDataContext context)
@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             }
 
 
-            var propertyType = property.PropertyInfo.PropertyType;
+            var propertyType = property.Type;
             var hasFormatstring = !string.IsNullOrEmpty(property.FormatString);
             var textBox = new TextBox()
                 .SetCapability(props.Html)
@@ -66,7 +66,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
                 }
             }
 
-            var validators = context.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).ToArray();
+            var validators = property.PropertyInfo?.Apply(context.ValidationMetadataProvider.GetAttributesForProperty)?.ToArray() ?? Array.Empty<ValidationAttribute>();
             if (validators.OfType<RequiredAttribute>().Any())
             {
                 textBox.SetAttribute("required", true);

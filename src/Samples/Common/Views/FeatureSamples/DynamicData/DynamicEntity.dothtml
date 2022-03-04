@@ -26,7 +26,8 @@
         </div>
         <div class="column">
             <dd:BulmaDynamicEntity DataContext="{value: Address}"
-                              GroupName="ContactInfo" />
+                              GroupName="ContactInfo" 
+                              Property-Something={value: _root.Something} />
         </div>
     </div>
 </body>

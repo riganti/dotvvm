@@ -232,11 +232,13 @@ namespace DotVVM.Framework.Controls
         public static TControl AddCssClass<TControl>(this TControl control, string? className)
             where TControl : IControlWithHtmlAttributes
         {
+            if (className is null or "") return control;
+
             return AddAttribute(control, "class", className);
         }
 
         /// <summary> Appends a list of css classes to this control. Returns <paramref name="control"/> for fluent API usage. </summary>
-        public static TControl AddCssClasses<TControl>(this TControl control, params string?[] classes)
+        public static TControl AddCssClasses<TControl>(this TControl control, params string?[]? classes)
             where TControl : IControlWithHtmlAttributes
         {
             if (classes is null || classes.Length == 0)

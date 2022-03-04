@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Controls.DynamicData
                 props = props with { HeaderText = propertyMetadata.GetDisplayName().ToBinding(context) };
             }
 
-            var control = CreateColumn(context, props, prop, propertyMetadata);
+            var control = CreateColumn(context, props, propertyMetadata);
             if (!control.IsPropertySet(HeaderTextProperty) && !control.IsPropertySet(HeaderTemplateProperty))
             {
                 control.SetValue(HeaderTextProperty, props.HeaderText);
@@ -69,18 +69,18 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         }
 
-        private static GridViewColumn CreateColumn(DynamicDataContext context, Props props, ReferencedViewModelPropertiesBindingProperty prop, Metadata.PropertyDisplayMetadata propertyMetadata)
+        private static GridViewColumn CreateColumn(DynamicDataContext context, Props props, Metadata.PropertyDisplayMetadata property)
         {
             if (props.ContentTemplate is {})
                 return new GridViewTemplateColumn { ContentTemplate = props.ContentTemplate };
 
             var provider =
                 context.DynamicDataConfiguration.GridColumnProviders
-                    .FirstOrDefault(e => e.CanHandleProperty(prop.MainProperty!, context));
+                    .FirstOrDefault(e => e.CanHandleProperty(property, context));
             if (provider is null)
-                throw new DotvvmControlException($"GridViewColumn provider for property {prop.MainProperty} could not be found.");
+                throw new DotvvmControlException($"GridViewColumn provider for property {property.Name} or type {property.Type} could not be found.");
 
-            var control = provider.CreateColumn(propertyMetadata, props, context);
+            var control = provider.CreateColumn(property, props, context);
             return control;
         }
 

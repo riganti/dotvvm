@@ -11,10 +11,10 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
 {
     public class SelectorComboBoxFormEditorProvider : FormEditorProviderBase
     {
-        public override bool CanHandleProperty(PropertyInfo propertyInfo, DynamicDataContext context)
+        public override bool CanHandleProperty(PropertyDisplayMetadata property, DynamicDataContext context)
         {
-            return context.PropertyDisplayMetadataProvider.GetPropertyMetadata(propertyInfo).SelectorConfiguration != null
-                && ReflectionUtils.IsPrimitiveType(propertyInfo.PropertyType);
+            return property.SelectorConfiguration != null
+                && ReflectionUtils.IsPrimitiveType(property.Type);
         }
 
         public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicEditor.Props props, DynamicDataContext context)

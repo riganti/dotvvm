@@ -16,8 +16,12 @@ namespace DotVVM.Framework.Controls
         {
             For = forId;
         }
+        public Label(ValueOrBinding<string> forId) : this()
+        {
+            SetValue(ForProperty, forId);
+        }
 
-        [MarkupOptions(Required = true, AllowBinding = false)]
+        [MarkupOptions(Required = true)]
         public string For
         {
             get { return (string)GetValue(ForProperty)!; }

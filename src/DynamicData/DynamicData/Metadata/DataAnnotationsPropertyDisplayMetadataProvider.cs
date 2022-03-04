@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
     {
         private readonly DynamicDataConfiguration dynamicDataConfiguration;
 
-        private readonly ConcurrentDictionary<PropertyCulturePair, PropertyDisplayMetadata> cache = new ConcurrentDictionary<PropertyCulturePair, PropertyDisplayMetadata>();
+        private readonly ConcurrentDictionary<PropertyInfo, PropertyDisplayMetadata> cache = new();
 
         public DataAnnotationsPropertyDisplayMetadataProvider(DynamicDataConfiguration dynamicDataConfiguration)
         {
@@ -30,20 +30,20 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         public PropertyDisplayMetadata GetPropertyMetadata(PropertyInfo property)
         {
             return cache.GetOrAdd(
-                new PropertyCulturePair(property, CultureInfo.CurrentUICulture),
+                property,
                 p => dynamicDataConfiguration.PropertyMetadataRules.ApplyRules(GetPropertyMetadataCore(p)));
         }
 
-        private PropertyDisplayMetadata GetPropertyMetadataCore(PropertyCulturePair pair)
+        private PropertyDisplayMetadata GetPropertyMetadataCore(PropertyInfo p)
         {
-            var displayAttribute = pair.PropertyInfo.GetCustomAttribute<DisplayAttribute>();
-            var displayFormatAttribute = pair.PropertyInfo.GetCustomAttribute<DisplayFormatAttribute>();
-            var dataTypeAttribute = pair.PropertyInfo.GetCustomAttribute<DataTypeAttribute>();
-            var styleAttribute = pair.PropertyInfo.GetCustomAttribute<StyleAttribute>();
-            var editableFilter = pair.PropertyInfo.GetCustomAttribute<EditableAttribute>();
-            var selectorAttribute = pair.PropertyInfo.GetCustomAttribute<SelectorAttribute>();
+            var displayAttribute = p.GetCustomAttribute<DisplayAttribute>();
+            var displayFormatAttribute = p.GetCustomAttribute<DisplayFormatAttribute>();
+            var dataTypeAttribute = p.GetCustomAttribute<DataTypeAttribute>();
+            var styleAttribute = p.GetCustomAttribute<StyleAttribute>();
+            var editableFilter = p.GetCustomAttribute<EditableAttribute>();
+            var selectorAttribute = p.GetCustomAttribute<SelectorAttribute>();
 
-            return new PropertyDisplayMetadata(pair.PropertyInfo)
+            return new PropertyDisplayMetadata(p)
             {
                 DisplayName = LocalizableString.CreateNullable(displayAttribute?.Name, displayAttribute?.ResourceType),
                 Placeholder = LocalizableString.CreateNullable(displayAttribute?.Prompt, displayAttribute?.ResourceType),
@@ -53,13 +53,13 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
                 FormatString = displayFormatAttribute?.DataFormatString,
                 NullDisplayText = displayFormatAttribute?.NullDisplayText,
                 AutoGenerateField = displayAttribute?.GetAutoGenerateField() ?? true,
-                VisibleAttributes = pair.PropertyInfo.GetCustomAttributes<VisibleAttribute>(),
+                VisibleAttributes = p.GetCustomAttributes<VisibleAttribute>(),
                 DataType = dataTypeAttribute?.DataType,
                 Styles = styleAttribute,
                 IsEditable = editableFilter?.AllowEdit != false,
-                EnabledAttributes = pair.PropertyInfo.GetCustomAttributes<EnabledAttribute>(),
+                EnabledAttributes = p.GetCustomAttributes<EnabledAttribute>(),
                 SelectorConfiguration = selectorAttribute,
-                IsDefaultLabelAllowed = pair.PropertyInfo.PropertyType.UnwrapNullableType() != typeof(bool) // TODO: make this configurable, maybe?
+                IsDefaultLabelAllowed = p.PropertyType.UnwrapNullableType() != typeof(bool) // TODO: make this configurable, maybe?
             };
         }
 

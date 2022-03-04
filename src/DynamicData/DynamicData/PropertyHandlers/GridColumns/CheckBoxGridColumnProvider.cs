@@ -6,9 +6,9 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns
 {
     public class CheckBoxGridColumnProvider : GridColumnProviderBase
     {
-        public override bool CanHandleProperty(PropertyInfo propertyInfo, DynamicDataContext context)
+        public override bool CanHandleProperty(PropertyDisplayMetadata property, DynamicDataContext context)
         {
-            return ReflectionUtils.UnwrapNullableType(propertyInfo.PropertyType) == typeof(bool);
+            return property.Type.UnwrapNullableType() == typeof(bool);
         }
 
         protected override GridViewColumn CreateColumnCore(PropertyDisplayMetadata property, DynamicGridColumn.Props props, DynamicDataContext context)

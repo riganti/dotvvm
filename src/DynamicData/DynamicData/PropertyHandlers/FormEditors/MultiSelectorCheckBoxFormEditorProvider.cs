@@ -7,10 +7,10 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors;
 
 public class MultiSelectorCheckBoxFormEditorProvider : FormEditorProviderBase
 {
-    public override bool CanHandleProperty(PropertyInfo propertyInfo, DynamicDataContext context)
+    public override bool CanHandleProperty(PropertyDisplayMetadata property, DynamicDataContext context)
     {
-        return context.PropertyDisplayMetadataProvider.GetPropertyMetadata(propertyInfo).SelectorConfiguration != null
-               && ReflectionUtils.IsCollection(propertyInfo.PropertyType) && ReflectionUtils.IsPrimitiveType(ReflectionUtils.GetEnumerableType(propertyInfo.PropertyType)!);
+        return property.SelectorConfiguration != null
+               && ReflectionUtils.IsCollection(property.Type) && ReflectionUtils.IsPrimitiveType(ReflectionUtils.GetEnumerableType(property.Type)!);
     }
 
     public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicEditor.Props props, DynamicDataContext context)

@@ -117,7 +117,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// </summary>
         protected virtual IGridColumnProvider? FindGridColumnProvider(DynamicDataContext dynamicDataContext, PropertyDisplayMetadata property)
         {
-            return dynamicDataContext.DynamicDataConfiguration.GridColumnProviders.FirstOrDefault(p => p.CanHandleProperty(property.PropertyInfo, dynamicDataContext));
+            return dynamicDataContext.DynamicDataConfiguration.GridColumnProviders.FirstOrDefault(p => p.CanHandleProperty(property, dynamicDataContext));
         }
     }
 }

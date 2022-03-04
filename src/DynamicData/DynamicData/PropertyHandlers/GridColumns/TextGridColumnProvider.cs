@@ -5,9 +5,9 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns
 {
     public class TextGridColumnProvider : GridColumnProviderBase
     {
-        public override bool CanHandleProperty(PropertyInfo propertyInfo, DynamicDataContext context)
+        public override bool CanHandleProperty(PropertyDisplayMetadata property, DynamicDataContext context)
         {
-            return TextBoxHelper.CanHandleProperty(propertyInfo, context);
+            return TextBoxHelper.CanHandleProperty(property.Type);
         }
 
         protected override GridViewColumn CreateColumnCore(PropertyDisplayMetadata property, DynamicGridColumn.Props props, DynamicDataContext context)

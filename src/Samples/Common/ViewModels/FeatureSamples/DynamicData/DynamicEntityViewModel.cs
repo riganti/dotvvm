@@ -20,6 +20,10 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.DynamicData
 
         public SelectorViewModel<CountrySelectorItem> Countries { get; set; }
 
+        [Display(Name = "Some additional field.")]
+        [MaxLength(10)]
+        public string Something { get; set; } = "test";
+
         public DynamicEntityViewModel()
         {
             States = new(() => Address);

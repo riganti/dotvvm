@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Controls.DynamicData
                 }
 
                 DotvvmControl control;
-                if (props.EditorTemplate.TryGetValue(property.PropertyInfo.Name, out var editorTemplate))
+                if (props.EditorTemplate.TryGetValue(property.Name, out var editorTemplate))
                     control = new TemplateHost(editorTemplate);
                 else
                 {

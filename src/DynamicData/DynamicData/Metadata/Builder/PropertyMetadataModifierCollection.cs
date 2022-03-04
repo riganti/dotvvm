@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata.Builder
         {
             foreach (var rule in rules)
             {
-                if (rule.matcher(metadata.PropertyInfo))
+                if (metadata.PropertyInfo is {} && rule.matcher(metadata.PropertyInfo))
                 {
                     var modifier = new PropertyDisplayMetadataModifier();
                     rule.rule(modifier);

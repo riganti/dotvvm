@@ -10,7 +10,7 @@
 						<label for="Name.input">Name</label>
 					</td>
 					<td class="dynamicdata-editor">
-						<input class="" data-bind="dotvvm-textbox-text: Name" id="Name.input" onchange="dotvvm.postBack(this,[&quot;$parent.Entity&quot;],&quot;R5g/uvjur+aWJQa4&quot;,&quot;&quot;,null,[&quot;timeout&quot;,&quot;suppressOnUpdating&quot;],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="text">
+						<input data-bind="dotvvm-textbox-text: Name" id="Name.input" onchange="dotvvm.postBack(this,[&quot;$parent.Entity&quot;],&quot;R5g/uvjur+aWJQa4&quot;,&quot;&quot;,null,[&quot;timeout&quot;,&quot;suppressOnUpdating&quot;],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="text">
 					</td>
 				</tr>
 				<tr data-bind="dotvvm-validation: Email, dotvvm-validationOptions: {}">
@@ -18,7 +18,7 @@
 						<label for="Email.input">Email</label>
 					</td>
 					<td class="dynamicdata-editor">
-						<input class="" data-bind="dotvvm-textbox-text: Email" id="Email.input" required="required" type="email">
+						<input data-bind="dotvvm-textbox-text: Email" id="Email.input" required="required" type="email">
 					</td>
 				</tr>
 				<tr data-bind="dotvvm-validation: Sometime, dotvvm-validationOptions: {}">
@@ -34,7 +34,7 @@
 						<label for="Age.input">Age</label>
 					</td>
 					<td class="dynamicdata-editor">
-						<input class="" data-bind="dotvvm-textbox-text: Age" id="Age.input" max="150" min="0" type="number">
+						<input data-bind="dotvvm-textbox-text: Age" id="Age.input" max="150" min="0" type="number">
 					</td>
 				</tr>
 			</tbody>

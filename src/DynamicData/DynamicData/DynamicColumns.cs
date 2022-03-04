@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         protected static DynamicGridColumn CreateColumn(PropertyDisplayMetadata property, DynamicDataContext context, Props props)
         {
-            var name = property.PropertyInfo.Name;
+            var name = property.Name;
             return
                 new DynamicGridColumn()
                     .SetProperty(p => p.HeaderText, props.Header.GetValueOrDefault(name)!)

@@ -10,9 +10,9 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
     /// </summary>
     public class CheckBoxEditorProvider : FormEditorProviderBase
     {
-        public override bool CanHandleProperty(PropertyInfo propertyInfo, DynamicDataContext context)
+        public override bool CanHandleProperty(PropertyDisplayMetadata property, DynamicDataContext context)
         {
-            return ReflectionUtils.UnwrapNullableType(propertyInfo.PropertyType) == typeof(bool);
+            return ReflectionUtils.UnwrapNullableType(property.Type) == typeof(bool);
         }
         
         public override DotvvmControl CreateControl(PropertyDisplayMetadata property, DynamicEditor.Props props, DynamicDataContext context)

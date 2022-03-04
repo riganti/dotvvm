@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Controls.DynamicData.Configuration;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
 using DotVVM.Framework.Hosting;
@@ -66,30 +67,45 @@ namespace DotVVM.Framework.Controls.DynamicData
             var viewContext = context.CreateViewContext();
             var properties = entityPropertyListProvider.GetProperties(context.EntityType);
 
+            if (props.ExcludeProperties is {})
+            {
+                properties = properties.Where(p => !props.ExcludeProperties.Contains(p.Name)).ToArray();
+            }
+
+            var localProperties = props.Property.Select(p => MapLocalProperty(p.Key, props, context)!).ToDictionary(p => p.Name);
+            properties = properties.Select(p => {
+                if (localProperties.TryGetValue(p.Name, out var localProperty))
+                {
+                    localProperties.Remove(p.Name);
+                    if (localProperty.PropertyInfo is null)
+                        return p with { ValueBinding = localProperty.ValueBinding, Type = localProperty.Type, IsEditable = p.IsEditable && localProperty.IsEditable };
+                    return localProperty;
+                }
+                return p;
+            }).Concat(
+                localProperties.Values
+            ).ToArray();
+
+
             if (props.IncludeProperties is { Length: > 0})
             {
                 if (props.ExcludeProperties is { Length: > 0})
                     throw new NotSupportedException("Only one of IncludeProperties and ExcludeProperties can be specified.");
 
                 return props.IncludeProperties.Select(prop =>
-                    properties.FirstOrDefault(p => p.PropertyInfo.Name == prop)
+                    properties.FirstOrDefault(p => p.Name == prop)
                         ?? throw new Exception($"Property {prop} not found on entity type {context.EntityType}.")
                 ).ToArray();
             }
 
-            if (props.ExcludeProperties is {})
-            {
-                properties = properties.Where(p => !props.ExcludeProperties.Contains(p.PropertyInfo.Name)).ToArray();
-            }
-
             if (!string.IsNullOrEmpty(context.GroupName))
             {
-                return properties.Where(p => p.GroupName == context.GroupName).ToArray();
+                return properties.Where(p => p.GroupName == context.GroupName || props.Property.ContainsKey(p.Name)).ToArray();
             }
             return properties.ToArray();
         }
 
-        protected virtual string GetEditorId(PropertyDisplayMetadata property) => property.PropertyInfo.Name + ".input";
+        protected virtual string GetEditorId(PropertyDisplayMetadata property) => property.Name + ".input";
 
         /// <summary>
         /// Creates the contents of the label cell for the specified property.
@@ -97,9 +113,9 @@ namespace DotVVM.Framework.Controls.DynamicData
         protected virtual Label? InitializeControlLabel(PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext, FieldProps props)
         {
             var id = GetEditorId(property);
-            if (props.Label.ContainsKey(property.PropertyInfo.Name))
+            if (props.Label.ContainsKey(property.Name))
             {
-                return new Label(id).AppendChildren(new Literal(props.Label[property.PropertyInfo.Name]));
+                return new Label(id).AppendChildren(new Literal(props.Label[property.Name]));
             }
 
             if (property.IsDefaultLabelAllowed)
@@ -110,12 +126,12 @@ namespace DotVVM.Framework.Controls.DynamicData
         }
 
         protected virtual DotvvmControl? TryGetFieldTemplate(PropertyDisplayMetadata property, FieldProps props) =>
-            props.FieldTemplate.TryGetValue(property.PropertyInfo.Name, out var template) ?
+            props.FieldTemplate.TryGetValue(property.Name, out var template) ?
                 new TemplateHost(template) : null;
 
         protected virtual DynamicEditor CreateEditor(PropertyDisplayMetadata property, DynamicDataContext ddContext, FieldProps props)
         {
-            var name = property.PropertyInfo.Name;
+            var name = property.Name;
             return
                 new DynamicEditor(ddContext.Services)
                 .SetProperty(p => p.ID, GetEditorId(property))
@@ -129,12 +145,28 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         protected virtual void InitializeValidation(HtmlGenericControl validatedElement, HtmlGenericControl labelElement, PropertyDisplayMetadata property, DynamicDataContext context)
         {
-            if (context.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
+            if (property.PropertyInfo is {} &&
+                context.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
             {
                 labelElement.AddCssClass("dynamicdata-required");
             }
 
             validatedElement.SetValue(Validator.ValueProperty, context.CreateValueBinding(property));
+        }
+
+        protected static PropertyDisplayMetadata? MapLocalProperty(string name, FieldSelectorProps props, DynamicDataContext context)
+        {
+            if (!props.Property.TryGetValue(name, out var binding))
+                return null;
+            
+            var property = binding.GetProperty<ReferencedViewModelPropertiesBindingProperty>()?.MainProperty;
+
+            var isEditable = binding.GetProperty<BindingUpdateDelegate>(ErrorHandlingMode.ReturnNull) is {};
+
+            var metadata =
+                property is not null ? context.PropertyDisplayMetadataProvider.GetPropertyMetadata(property)
+                                     : new PropertyDisplayMetadata(name, binding) { IsEditable = isEditable };
+            return metadata with { Name = name, ValueBinding = binding };
         }
 
         protected virtual ValueOrBinding<bool> GetVisibleResourceBinding(PropertyDisplayMetadata metadata, DynamicDataContext context)
@@ -153,6 +185,10 @@ namespace DotVVM.Framework.Controls.DynamicData
 
             /// <summary> The specified properties will not be included in this form. </summary>
             public string[] ExcludeProperties { get; init; } = new string[0];
+
+            /// <summary> Adds or overrides the property binding. </summary>
+            [PropertyGroup("Property-")]
+            public IReadOnlyDictionary<string, IValueBinding> Property { get; init; } = new Dictionary<string, IValueBinding>();
 
             /// <summary> Gets or sets the view name (e.g. Insert, Edit, ReadOnly). Some fields may have different metadata for each view. </summary>
             public string? ViewName { get; init; }
