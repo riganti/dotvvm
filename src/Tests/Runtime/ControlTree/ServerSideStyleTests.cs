@@ -392,7 +392,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
                 .Single(c => c.Metadata.Type == typeof(HtmlGenericControl));
 
             var r = div.Properties.Values.OfType<ResolvedPropertyBinding>().Single().Binding;
-            Assert.AreEqual("\"a class1-\"+$data[0]()+\" class2-\"+$data[1]()", r.Binding.CastTo<IValueBinding>().KnockoutExpression.ToDefaultString());
+            Assert.AreEqual("\"a class1-\"+($data[0]()??\"\")+\" class2-\"+($data[1]()??\"\")", r.Binding.CastTo<IValueBinding>().KnockoutExpression.ToDefaultString());
         }
 
         [TestMethod]

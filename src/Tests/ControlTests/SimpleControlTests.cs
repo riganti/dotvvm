@@ -72,12 +72,14 @@ namespace DotVVM.Framework.Tests.ControlTests
                     {{value: Integer}}
                     {{value: Float}}
                     {{value: DateTime}}
+                    {{value: NullableString}}
                 </span>
                 <!-- literal syntax, server rendering -->
                 <span RenderSettings.Mode=Server>
                     {{value: Integer}}
                     {{value: Float}}
                     {{value: DateTime}}
+                    {{value: NullableString}}
                 </span>
                 <!-- control syntax, client rendering -->
                 <span RenderSettings.Mode=Client>
@@ -374,6 +376,8 @@ namespace DotVVM.Framework.Tests.ControlTests
             [Bind(Name = "date")]
             public DateTime DateTime { get; set; } = DateTime.Parse("2020-08-11T16:01:44.5141480");
             public string Label { get; } = "My Label";
+
+            public string NullableString { get; } = null;
 
             public GridViewDataSet<CustomerData> Customers { get; set; } = new GridViewDataSet<CustomerData>() {
                 RowEditOptions = {

@@ -301,8 +301,48 @@ namespace DotVVM.Framework.Compilation.Javascript
                     // round to zero, by trimming a string...
                     return new JsIdentifierExpression("parseInt").Invoke(result);
             }
+            if (expression.NodeType == ExpressionType.Add && expression.Type == typeof(string))
+            {
+                // when adding strings in JS `"a" + null` will equal to `"anull"` while in C# it equals to `"a"`.
+                // we need to replace null values with an empty string to avoid the difference:
+
+                ReplaceNullValue(result.Left, expression.Left, new JsLiteral(""));
+                ReplaceNullValue(result.Right, expression.Right, new JsLiteral(""));
+            }
+            
+            return result;
+        }
+
+        private void ReplaceNullValue(JsExpression js, Expression expr, JsExpression replacement)
+        {
+            if (!PrimitiveToStringTranslator.CanBeNull(expr))
+            {
+            }
+            else if (js is JsLiteral literal)
+            {
+                if (literal.Value is null)
+                    js.ReplaceWith(replacement);
+            }
+            // avoid doing it if the result can't be null
+
+            // these JS expressions can't be null
+            else if (js is JsBinaryExpression or JsUnaryExpression or JsBaseFunctionExpression or JsObjectExpression or JsNewExpression)
+            {
+            }
+            // view model is never null
+            else if (js is JsSymbolicParameter symbolicParam && symbolicParam.Symbol is JavascriptTranslator.ContextSymbolicParameter or JavascriptTranslator.ViewModelSymbolicParameter)
+            {
+            }
+            // dotvvm.globalize.bindingNumberToString(), dotvvm.globalize.format(), String() never return null
+            else if (js is JsInvocationExpression { Target: JsMemberAccessExpression { MemberName: "bindingNumberToString", Target: JsMemberAccessExpression { MemberName: "globalize", Target: JsIdentifierExpression { Identifier: "dotvvm" } } } }
+                        or JsInvocationExpression { Target: JsMemberAccessExpression { MemberName: "format", Target: JsMemberAccessExpression { MemberName: "globalize", Target: JsIdentifierExpression { Identifier: "dotvvm" } } } }
+                        or JsInvocationExpression { Target: JsIdentifierExpression { Identifier: "String" } })
+            {
+            }
             else
-                return result;
+            {
+                js.ReplaceWith(x => new JsBinaryExpression(x, BinaryOperatorType.NullishCoalescing, replacement));
+            }
         }
 
         public JsExpression TranslateUnary(UnaryExpression expression)
