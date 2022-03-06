@@ -25,6 +25,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
         public static JsExpression Unary(this JsExpression target, UnaryOperatorType type, bool isPrefix = true) =>
             new JsUnaryExpression(type, target, isPrefix);
+        public static JsExpression Binary(this JsExpression left, BinaryOperatorType type, JsExpression right) =>
+            new JsBinaryExpression(left, type, right);
         public static JsExpression Await(this JsExpression target) =>
             target.Unary(UnaryOperatorType.Await);
 

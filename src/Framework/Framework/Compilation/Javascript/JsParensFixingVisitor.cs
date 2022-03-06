@@ -20,6 +20,11 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public bool NeedsParens(byte parentPrecedence)
         {
+            // there is an exception to the rule: ?? can not be chained with && and ||, even though it has lower precedence
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator#no_chaining_with_and_or_or_operators
+            if (parentPrecedence == 4 && Precedence is 5 or 6)
+                return true;
+
             return Precedence < parentPrecedence ||
                 (Precedence == parentPrecedence & !IsPreferredSide);
         }
