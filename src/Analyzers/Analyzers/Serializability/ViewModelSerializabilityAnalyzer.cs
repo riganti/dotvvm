@@ -101,6 +101,10 @@ namespace DotVVM.Analyzers.Serializability
             var semanticModel = context.SemanticModel;
             foreach (var property in viewModel.ChildNodes().OfType<PropertyDeclarationSyntax>())
             {
+                // Make sure there are not compilation errors attached
+                if (HasCSharpCompilerErrorsAttached(property))
+                    continue;
+
                 // Resolve property symbol
                 if (semanticModel.GetDeclaredSymbol(property) is not IPropertySymbol propertySymbol)
                     continue;
@@ -253,6 +257,10 @@ namespace DotVVM.Analyzers.Serializability
             var semanticModel = context.SemanticModel;
             foreach (var field in viewModel.ChildNodes().OfType<FieldDeclarationSyntax>())
             {
+                // Make sure there are not compilation errors attached
+                if (HasCSharpCompilerErrorsAttached(field))
+                    continue;
+
                 var location = field.GetLocation();
                 foreach (var variable in field.Declaration.Variables)
                 {
@@ -276,6 +284,19 @@ namespace DotVVM.Analyzers.Serializability
 
             var diagnostic = Diagnostic.Create(DoNotUseFieldsRule, location);
             context.ReportDiagnostic(diagnostic);
+        }
+
+        private static bool HasCSharpCompilerErrorsAttached(MemberDeclarationSyntax declarationSyntax)
+        {
+            var diagnostics = declarationSyntax.GetDiagnostics();
+            if (diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error && d.Id.StartsWith("CS")))
+            {
+                // If given node has compilation errors we do not want it to participate in analysis
+                // This can get otherwise a bit annoying when users get warnings on incomplete type members
+                return true;
+            }
+
+            return false;
         }
 
         private static bool IsSerializationOverriden(IPropertySymbol property, SerializabilityAnalysisContext context)
