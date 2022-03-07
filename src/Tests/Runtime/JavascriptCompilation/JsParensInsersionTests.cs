@@ -11,6 +11,7 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
     [TestClass]
     public class JsParensInsertionTests
     {
+        static JsExpression id(string identifier) => new JsIdentifierExpression(identifier);
         public static void AssertFormatting(string expectedString, JsNode node, bool niceMode = false)
         {
             Assert.AreEqual(expectedString, node.Clone().FormatScript(niceMode));
@@ -38,6 +39,16 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
             AssertFormatting("a.b(4+b,5)", new JsIdentifierExpression("a").Member("b").Invoke(
                 new JsBinaryExpression(new JsLiteral(4), BinaryOperatorType.Plus, new JsIdentifierExpression("b")),
                 new JsLiteral(5)));
+        }
+
+        [TestMethod]
+        public void JsParens_NullCoallesing()
+        {
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator#no_chaining_with_and_or_or_operators
+            AssertFormatting("(a&&b)??c", id("a").Binary(BinaryOperatorType.ConditionalAnd, id("b")).Binary(BinaryOperatorType.NullishCoalescing, id("c")));
+            AssertFormatting("c??(a&&b)", id("c").Binary(BinaryOperatorType.NullishCoalescing, id("a").Binary(BinaryOperatorType.ConditionalAnd, id("b"))));
+            AssertFormatting("a&&(b??c)", id("a").Binary(BinaryOperatorType.ConditionalAnd, id("b").Binary(BinaryOperatorType.NullishCoalescing, id("c"))));
+            AssertFormatting("(a??b)&&c", id("a").Binary(BinaryOperatorType.NullishCoalescing, id("b")).Binary(BinaryOperatorType.ConditionalAnd, id("c")));
         }
 
         [TestMethod]
