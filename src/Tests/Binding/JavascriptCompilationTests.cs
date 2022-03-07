@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_UnwrappedObservables()
         {
             var js = CompileBinding("TestViewModel2.Collection[0].StringValue.Length + TestViewModel2.Collection[8].StringValue", new[] { typeof(TestViewModel) });
-            Assert.AreEqual("TestViewModel2().Collection()[0]().StringValue().length+TestViewModel2().Collection()[8]().StringValue()", js);
+            Assert.AreEqual("(TestViewModel2().Collection()[0]().StringValue().length??\"\")+(TestViewModel2().Collection()[8]().StringValue()??\"\")", js);
         }
 
         [TestMethod]
@@ -304,7 +304,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JsTranslator_LambdaWithDelegateInvocation()
         {
             var result = this.CompileBinding("arg(12) + _this", new [] { typeof(string) }, typeof(Func<Func<int, string>, string>));
-            Assert.AreEqual("(arg)=>ko.unwrap(arg)(12)+$data", result);
+            Assert.AreEqual("(arg)=>(ko.unwrap(arg)(12)??\"\")+$data", result);
         }
 
         [TestMethod]
@@ -1007,7 +1007,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_AssignAndUse()
         {
             var result = CompileBinding("StringProp2 = (_this.StringProp = _this.StringProp2 = 'lol') + 'hmm'", typeof(TestViewModel));
-            Assert.AreEqual("StringProp2(StringProp(StringProp2(\"lol\").StringProp2()).StringProp()+\"hmm\").StringProp2", result);
+            Assert.AreEqual("StringProp2((StringProp(StringProp2(\"lol\").StringProp2()).StringProp()??\"\")+\"hmm\").StringProp2", result);
         }
 
         [TestMethod]
@@ -1028,14 +1028,14 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_AssignmentExpectsObservable()
         {
             var result = CompileBinding("_api.RefreshOnChange(StringProp = StringProp2, StringProp + StringProp2)", typeof(TestViewModel));
-            Assert.AreEqual("dotvvm.api.refreshOn(StringProp(StringProp2()).StringProp,ko.pureComputed(()=>StringProp()+StringProp2()))", result);
+            Assert.AreEqual("dotvvm.api.refreshOn(StringProp(StringProp2()).StringProp,ko.pureComputed(()=>(StringProp()??\"\")+(StringProp2()??\"\")))", result);
         }
 
         [TestMethod]
         public void JavascriptCompilation_ApiRefreshOn()
         {
             var result = CompileBinding("_api.RefreshOnChange('here would be the API invocation', StringProp + StringProp2)", typeof(TestViewModel));
-            Assert.AreEqual("dotvvm.api.refreshOn(\"here would be the API invocation\",ko.pureComputed(()=>StringProp()+StringProp2()))", result);
+            Assert.AreEqual("dotvvm.api.refreshOn(\"here would be the API invocation\",ko.pureComputed(()=>(StringProp()??\"\")+(StringProp2()??\"\")))", result);
         }
 
         [DataTestMethod]

@@ -50,12 +50,21 @@ namespace DotVVM.Framework.Controls
             control.SetBinding(control.GetDotvvmProperty(propName), binding);
             return control;
         }
-
         /// <summary> Sets value or binding into the DotvvmProperty referenced in the lambda expression. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetProperty<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop, ValueOrBinding<TProperty> value)
             where TControl : DotvvmBindableObject
         {
             control.SetValue(control.GetDotvvmProperty(prop), value.UnwrapToObject());
+            return control;
+        }
+        /// <summary> Sets value or binding into the DotvvmProperty referenced in the lambda expression. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl SetProperty<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop, ValueOrBinding<TProperty>? value)
+            where TControl : DotvvmBindableObject
+        {
+            if (value.HasValue)
+            {
+                control.SetProperty(prop, value.Value);
+            }
             return control;
         }
         /// <summary> Sets value or binding into the DotvvmProperty referenced in the lambda expression. Returns <paramref name="control"/> for fluent API usage. </summary>
