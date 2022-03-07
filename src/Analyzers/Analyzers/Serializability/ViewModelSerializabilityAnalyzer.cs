@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
-using DotVVM.Analyzers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -105,6 +101,7 @@ namespace DotVVM.Analyzers.Serializability
             var semanticModel = context.SemanticModel;
             foreach (var property in viewModel.ChildNodes().OfType<PropertyDeclarationSyntax>())
             {
+                // Resolve property symbol
                 if (semanticModel.GetDeclaredSymbol(property) is not IPropertySymbol propertySymbol)
                     continue;
 
@@ -220,6 +217,13 @@ namespace DotVVM.Analyzers.Serializability
                         context.ReportDiagnostic(Diagnostic.Create(UseSerializablePropertiesRule, location, path));
                         context.MarkAsNotSerializable(propertyType, UseSerializablePropertiesRule);
                     }
+                    break;
+
+                case TypeKind.TypeParameter:
+                    // Assume this is correct. This gets otherwise complicated. Possible solution:
+                    // 1.) Check for available generic type constraints (these might hint whether the type is serializable or not)
+                    // 2.) Check the context this viewmodel is used in (i.e. analyze only concrete instantiations of the generic type definition)
+                    // TODO: Maybe add (partial) support for this in future
                     break;
 
                 default:

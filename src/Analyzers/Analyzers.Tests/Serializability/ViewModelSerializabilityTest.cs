@@ -720,5 +720,26 @@ namespace DotVVM.Analyzers.Tests.Serializability
             VerifyCS.Diagnostic(ViewModelSerializabilityAnalyzer.UseSerializablePropertiesRule).WithLocation(0)
                 .WithArguments("this.NonSerializable.Value"));
         }
+
+        [Fact]
+        public async void Test_GenericViewModelType_Properties_ViewModel()
+        {
+            var text = @"
+    using DotVVM.Framework.Controls;
+    using DotVVM.Framework.ViewModel;
+    using System;
+    using System.IO;
+    using System.Collections.Generic;
+
+    namespace ConsoleApplication1
+    {
+        public class DefaultViewModel<T> : DotvvmViewModelBase
+        {
+            public T Property { get; set; }
+        }
+    }";
+
+            await VerifyCS.VerifyAnalyzerAsync(text);
+        }
     }
 }
