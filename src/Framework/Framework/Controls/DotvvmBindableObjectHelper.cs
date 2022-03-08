@@ -244,9 +244,11 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary> Adds a css inline style - the `style` attribute. Returns <paramref name="control"/> for fluent API usage. </summary>
-        public static TControl AddCssStyle<TControl>(this TControl control, string name, string styleValue)
+        public static TControl AddCssStyle<TControl>(this TControl control, string name, string? styleValue)
             where TControl : IControlWithHtmlAttributes
         {
+            if (styleValue == null)
+                return control;
             return AddAttribute(control, "style", name + ":" + styleValue);
         }
 

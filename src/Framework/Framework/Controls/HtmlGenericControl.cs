@@ -344,7 +344,11 @@ namespace DotVVM.Framework.Controls
 
         private void AddHtmlAttribute(IHtmlWriter writer, string name, object? value)
         {
-            if (value is string || value == null)
+            if (value == null)
+            {
+                return;
+            }
+            else if (value is string)
             {
                 writer.AddAttribute(name, (string?)value, true);
             }
