@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Controls
             if (Text.HasValue)
                 return new DotvvmControl[] { new Literal(Text.Value) };
             else
-                return Content.NotNull();
+                return Content.NotNull().Select(c => (DotvvmControl)c.CloneControl());
         }
     }
 }
