@@ -164,7 +164,19 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public static void SetContent(ResolvedControl control, ResolvedControl[] innerControls, StyleOverrideOptions options)
         {
-            if (control.Metadata.DefaultContentProperty is DotvvmProperty defaultProp)
+            if (innerControls.Length == 0)
+            {
+                if (options == StyleOverrideOptions.Overwrite)
+                {
+                    // remove the existing value
+                    control.Content.Clear();
+                    if (control.Metadata.DefaultContentProperty is {} dp)
+                    {
+                        control.RemoveProperty(dp);
+                    }
+                }
+            }
+            else if (control.Metadata.DefaultContentProperty is {} defaultProp)
             {
                 var setter = ResolvedControlHelper.TranslateProperty(defaultProp, innerControls, control.DataContextTypeStack, null);
 
