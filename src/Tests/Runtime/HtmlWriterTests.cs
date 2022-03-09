@@ -30,5 +30,17 @@ namespace DotVVM.Framework.Tests.Runtime
             });
             Assert.AreEqual("<b data-bind=\"a: {}\" />", text);
         }
+
+        [TestMethod]
+        public void ImgTagWithChildren()
+        {
+            var text = WriteHtml(a => {
+                a.RenderBeginTag("img");
+                a.RenderBeginTag("div");
+                a.RenderEndTag();
+                a.RenderEndTag();
+            });
+            Assert.AreEqual("<img><div></div></img>", text);
+        }
     }
 }
