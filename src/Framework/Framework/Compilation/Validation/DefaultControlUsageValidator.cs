@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Compilation.Validation
             if (missingProperties.Any())
             {
                 yield return new ControlUsageError(
-                    $"The control '{ control.Metadata.Type.FullName }' is missing required properties: { string.Join(", ", missingProperties.Select(p => "'" + p.Name + "'")) }.",
+                    $"The control '{ control.Metadata.Type.CSharpName }' is missing required properties: { string.Join(", ", missingProperties.Select(p => "'" + p.Name + "'")) }.",
                     control.DothtmlNode
                 );
             }
@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Compilation.Validation
             foreach (var unknownControl in unknownContent)
             {
                 yield return new ControlUsageError(
-                    $"The control '{ unknownControl.Metadata.Type.FullName }' does not inherit from DotvvmControl and thus cannot be used in content.",
+                    $"The control '{ unknownControl.Metadata.Type.CSharpName }' does not inherit from DotvvmControl and thus cannot be used in content.",
                     control.DothtmlNode
                 );
             }

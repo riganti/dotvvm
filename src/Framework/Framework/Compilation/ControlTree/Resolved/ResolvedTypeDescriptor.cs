@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
+using FastExpressionCompiler;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
@@ -28,6 +29,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public string? Assembly => Type.Assembly?.FullName;
 
         public string FullName => Type.FullName ?? (string.IsNullOrEmpty(Namespace) ? Name : (Namespace + "." + Name));
+
+        public string CSharpName => Type.ToCode(stripNamespace: true);
+        public string CSharpFullName => Type.ToCode();
 
         public bool IsAssignableTo(ITypeDescriptor typeDescriptor)
         {

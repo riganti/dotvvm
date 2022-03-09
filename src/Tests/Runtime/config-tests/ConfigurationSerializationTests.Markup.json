@@ -48,7 +48,9 @@
             "Name": "ConfigurationSerializationTests",
             "Namespace": "DotVVM.Framework.Tests.Runtime",
             "Assembly": "DotVVM.Framework.Tests, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
-            "FullName": "DotVVM.Framework.Tests.Runtime.ConfigurationSerializationTests"
+            "FullName": "DotVVM.Framework.Tests.Runtime.ConfigurationSerializationTests",
+            "CSharpName": "ConfigurationSerializationTests",
+            "CSharpFullName": "DotVVM.Framework.Tests.Runtime.ConfigurationSerializationTests"
           },
           "Inherit": true
         },
@@ -61,7 +63,9 @@
             "Name": "Func`1",
             "Namespace": "System",
             "Assembly": "CoreLibrary",
-            "FullName": "System.Func`1[[System.Collections.Generic.IEnumerable`1[[System.Lazy`1[[System.IServiceProvider, ComponentLibrary]], CoreLibrary]], CoreLibrary]]"
+            "FullName": "System.Func`1[[System.Collections.Generic.IEnumerable`1[[System.Lazy`1[[System.IServiceProvider, ComponentLibrary]], CoreLibrary]], CoreLibrary]]",
+            "CSharpName": "Func<IEnumerable<Lazy<IServiceProvider>>>",
+            "CSharpFullName": "System.Func<System.Collections.Generic.IEnumerable<System.Lazy<System.IServiceProvider>>>"
           },
           "Inherit": true
         }

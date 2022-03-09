@@ -61,5 +61,10 @@ namespace DotVVM.Framework.Controls
             else
                 return Content.NotNull();
         }
+
+        public ITemplate ToTemplate()
+        {
+            return new CloneTemplate();
+        }
     }
 }

@@ -236,7 +236,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             if (controlMetadata.DataContextConstraint != null && dataContext != null && !controlMetadata.DataContextConstraint.IsAssignableFrom(dataContext.DataContextType))
             {
                 ((DothtmlNode?)dataContextAttribute ?? element)
-                   .AddError($"The control '{controlMetadata.Type.Name}' requires a DataContext of type '{controlMetadata.DataContextConstraint.FullName}'!");
+                   .AddError($"The control '{controlMetadata.Type.CSharpName}' requires a DataContext of type '{controlMetadata.DataContextConstraint.CSharpFullName}'!");
             }
 
             ProcessAttributeProperties(control, element.Attributes.Where(a => a.AttributeName != "DataContext").ToArray(), dataContext!);
@@ -247,7 +247,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var unknownContent = control.Content.Where(c => !c.Metadata.Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmControl))));
             foreach (var unknownControl in unknownContent)
             {
-                unknownControl.DothtmlNode!.AddError($"The control '{ unknownControl.Metadata.Type.FullName }' does not inherit from DotvvmControl and thus cannot be used in content.");
+                unknownControl.DothtmlNode!.AddError($"The control '{ unknownControl.Metadata.Type.CSharpName }' does not inherit from DotvvmControl and thus cannot be used in content.");
             }
 
             return control;
@@ -327,7 +327,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 {
                     if (!treeBuilder.AddProperty(control, treeBuilder.BuildPropertyValue(property, (property as DotVVM.Framework.Binding.DotvvmProperty)?.DefaultValue, attribute), out var error)) attribute.AddError(error);
                 }
-                else attribute.AddError($"The attribute '{property.Name}' on the control '{control.Metadata.Type.FullName}' must have a value!");
+                else attribute.AddError($"The attribute '{property.Name}' on the control '{control.Metadata.Type.CSharpName}' must have a value!");
             }
             else if (attribute.ValueNode is DothtmlValueBindingNode valueBindingNode)
             {
@@ -422,7 +422,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                                 control.Metadata.Type.IsAssignableTo(new ResolvedTypeDescriptor
                             (typeof(CompositeControl))) ?
                                 " CompositeControls don't allow content by default and Content or ContentTemplate property is missing on this control." : "";
-                            item.AddError($"Content not allowed inside {control.Metadata.Type.Name}.{compositeControlHelp}");
+                            item.AddError($"Content not allowed inside {control.Metadata.Type.CSharpName}.{compositeControlHelp}");
                         }
                     }
                 }
@@ -460,7 +460,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         c => {
                             // empty nodes are only filtered, non-empty nodes cause errors
                             if (c.DothtmlNode.IsNotEmpty())
-                                c.DothtmlNode.AddError($"Control type {c.Metadata.Type.FullName} can't be used in collection of type {type.FullName}.");
+                                c.DothtmlNode.AddError($"Control type {c.Metadata.Type.CSharpFullName} can't be used in collection of type {type.CSharpFullName}.");
                         });
 
             // resolve data context
@@ -472,18 +472,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 // template
                 return treeBuilder.BuildPropertyTemplate(property, ProcessTemplate(control, elementContent, dataContext), propertyWrapperElement);
-            }
-            else if (IsCollectionProperty(property))
-            {
-                var collectionType = GetCollectionType(property);
-                // collection of elements
-                var collection = elementContent.Select(childObject => ProcessNode(control, childObject, control.Metadata, dataContext)!);
-                if (collectionType != null)
-                {
-                    collection = filterByType(collectionType, collection);
-                }
-
-                return treeBuilder.BuildPropertyControlCollection(property, collection.ToArray(), propertyWrapperElement);
             }
             else if (property.PropertyType.IsEqualTo(new ResolvedTypeDescriptor(typeof(string))))
             {
@@ -514,9 +502,29 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     return treeBuilder.BuildPropertyControl(property, null, propertyWrapperElement);
                 }
             }
+            else if (IsCollectionProperty(property))
+            {
+                var collectionType = GetCollectionType(property);
+                    
+                // collection of elements
+                var collection = elementContent.Select(childObject => ProcessNode(control, childObject, control.Metadata, dataContext)!);
+                if (collectionType is null)
+                {
+                    control.DothtmlNode!.AddError($"The property '{property.FullName}' is a collection, but the collection type could not be determined.");
+                }
+                else
+                {
+                    if (!collectionType.IsAssignableTo(ResolvedTypeDescriptor.Create(typeof(IDotvvmObjectLike))))
+                        control.DothtmlNode!.AddError($"The property '{property.FullName}' of type '{property.PropertyType.CSharpName}' cannot be used as an inner element. It is not a collection of DotvvmControl or IDotvvmObjectLike.");
+
+                    collection = filterByType(collectionType, collection);
+                }
+
+                return treeBuilder.BuildPropertyControlCollection(property, collection.ToArray(), propertyWrapperElement);
+            }
             else
             {
-                control.DothtmlNode!.AddError($"The property '{property.FullName}' is not supported!");
+                control.DothtmlNode!.AddError($"The property '{property.FullName}' cannot be used as an inner element. The type '{property.PropertyType.CSharpName}' is not supported.");
                 return treeBuilder.BuildPropertyValue(property, null, propertyWrapperElement);
             }
         }
@@ -559,7 +567,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         protected virtual bool IsCollectionProperty(IPropertyDescriptor property)
         {
-            return property.PropertyType.IsAssignableTo(new ResolvedTypeDescriptor(typeof(ICollection)));
+            return property.PropertyType.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IEnumerable)));
         }
 
         protected virtual ITypeDescriptor? GetCollectionType(IPropertyDescriptor property)

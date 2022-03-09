@@ -11,6 +11,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         string? Assembly { get; }
 
         string FullName { get; }
+        /// <summary> Returns type name with generic arguments in the C# style. Does not include namespaces. </summary>
+        string CSharpName { get; }
+        /// <summary> Returns type name including namespace with generic arguments in the C# style. </summary>
+        string CSharpFullName { get; }
 
         bool IsAssignableTo(ITypeDescriptor typeDescriptor);
 
