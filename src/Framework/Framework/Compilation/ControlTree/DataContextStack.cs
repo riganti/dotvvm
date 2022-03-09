@@ -57,18 +57,17 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public ImmutableArray<Delegate> GetAllBindingPropertyResolvers()
         {
-            // most likely, there aren't any so just quickly scan the link list
+            var builder = ImmutableArray.CreateBuilder<Delegate>();
+
             var c = this;
             while (c is {})
             {
-                if (!c.BindingPropertyResolvers.IsEmpty)
-                    break;
+                builder.AddRange(c.BindingPropertyResolvers);
                 c = c.Parent;
             }
-            if (c is null)
-                return ImmutableArray<Delegate>.Empty;
 
-            return c.EnumerableItems().Reverse().SelectMany(s => s.BindingPropertyResolvers).ToImmutableArray();
+            builder.Reverse();
+            return builder.ToImmutable();
         }
 
 
