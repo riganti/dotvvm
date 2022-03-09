@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Compilation
         public static BindingParserOptions Create(Type bindingType, string scopeParameter = "_this", IEnumerable<NamespaceImport>? importNs = null, ImmutableArray<BindingExtensionParameter>? extParameters = null)
             => new BindingParserOptions(bindingType, scopeParameter,
                 importNamespaces: importNs?.ToImmutableArray(), 
-                extParameters: extParameters);
+                extParameters: extParameters).AddParameters(new [] { new CurrentUserExtensionParameter() });
 
         public static readonly BindingParserOptions Value = Create(typeof(ValueBindingExpression<>));
         public static readonly BindingParserOptions ControlProperty = Create(typeof(ControlPropertyBindingExpression<>));

@@ -307,6 +307,20 @@ public static class StyleMatchContextExtensionMethods
         return c.Property<TProp>(property);
     }
 
+    /// <summary> Gets the property value or null if it's not defined. </summary>
+    public static IValueBinding<TProp>? Property<TControl, TProp>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, IValueBinding<TProp>?>> pp)
+    {
+        var property = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(pp);
+        return (IValueBinding<TProp>?) c.Property<TProp>(property).BindingOrDefault;
+    }
+
+    /// <summary> Gets the property value or null if it's not defined. </summary>
+    public static IValueBinding? Property<TControl>(this IStyleMatchContext<TControl> c, Expression<Func<TControl, IValueBinding?>> pp)
+    {
+        var property = DotvvmPropertyUtils.GetDotvvmPropertyFromExpression(pp);
+        return (IValueBinding?) c.Property<object>(property).BindingOrDefault;
+    }
+
     private static IStyleMatchContext ChildContext(this IStyleMatchContext c, ResolvedControl control) =>
         new StyleMatchContext<DotvvmBindableObject>(c, control, c.Configuration);
 

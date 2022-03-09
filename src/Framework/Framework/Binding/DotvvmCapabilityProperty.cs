@@ -263,6 +263,7 @@ namespace DotVVM.Framework.Binding
                 defaultValue = ValueOrBinding<object>.FromBoxedValue(defaultAttribute.Value);
             }
             var boxedDefaultValue = defaultValue?.UnwrapToObject();
+            var globalPrefix = declaringCapability?.Prefix ?? "";
 
             // Property Group
             if (attributeProvider.GetCustomAttribute<PropertyGroupAttribute>() is PropertyGroupAttribute groupAttribute)
@@ -270,7 +271,6 @@ namespace DotVVM.Framework.Binding
                 var elementType = Helpers.GetDictionaryElement(propertyType);
                 var unwrappedType = elementType.UnwrapValueOrBinding();
 
-                var globalPrefix = declaringCapability?.Prefix ?? "";
                 var propertyGroup = DotvvmPropertyGroup.Register(
                     declaringType,
                     groupAttribute.Prefixes.Select(p => globalPrefix + p).ToArray(),
@@ -290,7 +290,7 @@ namespace DotVVM.Framework.Binding
             // Control Capability
             else if (propertyType.IsDefined(typeof(DotvvmControlCapabilityAttribute)) || attributeProvider.IsDefined(typeof(DotvvmControlCapabilityAttribute), true))
             {
-                var prefix = attributeProvider.GetCustomAttribute<DotvvmControlCapabilityAttribute>()?.Prefix ?? "";
+                var prefix = globalPrefix + attributeProvider.GetCustomAttribute<DotvvmControlCapabilityAttribute>()?.Prefix;
 
                 DotvvmCapabilityProperty capability;
                 if (Find(declaringType, propertyType, prefix) is {} existingProperty)

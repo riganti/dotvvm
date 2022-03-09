@@ -1203,6 +1203,25 @@
       "TestNestedCapability": {
         "type": "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestNestedCapability, DotVVM.Framework.Tests"
       }
+    },
+    "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestControl5": {
+      "AnotherTest:TestCapability": {
+        "type": "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestCapability, DotVVM.Framework.Tests",
+        "fromCapability": "TestNestedCapabilityWithPrefix",
+        "capabilityPrefix": "AnotherTest:"
+      },
+      "ItemTestCapability": {
+        "type": "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestCapability, DotVVM.Framework.Tests",
+        "fromCapability": "TestNestedCapabilityWithPrefix",
+        "capabilityPrefix": "Item"
+      },
+      "TestCapability": {
+        "type": "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestCapability, DotVVM.Framework.Tests",
+        "fromCapability": "TestNestedCapabilityWithPrefix"
+      },
+      "TestNestedCapabilityWithPrefix": {
+        "type": "DotVVM.Framework.Tests.Runtime.CapabilityPropertyTests+TestNestedCapabilityWithPrefix, DotVVM.Framework.Tests"
+      }
     }
   },
   "propertyGroups": {

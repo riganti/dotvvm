@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.HelperNamespace;
@@ -207,6 +208,28 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
             public string Id { get; }
             public bool IsMarkupControl { get; }
+        }
+    }
+
+    public class CurrentUserExtensionParameter : BindingExtensionParameter
+    {
+        public CurrentUserExtensionParameter() : base("_user", new ResolvedTypeDescriptor(typeof(ClaimsPrincipal)), true)
+        {
+        }
+        public override Expression GetServerEquivalent(Expression controlParameter)
+        {
+            return Expression.Call(typeof(CurrentUserExtensionParameter), "GetUser", Type.EmptyTypes, controlParameter);
+        }
+
+        internal static ClaimsPrincipal? GetUser(DotvvmBindableObject control)
+        {
+            var context = control.GetValue(Internal.RequestContextProperty) as IDotvvmRequestContext;
+            return context?.HttpContext?.User ?? new ClaimsPrincipal();
+        }
+
+        public override JsExpression GetJsTranslation(JsExpression dataContext)
+        {
+            throw new NotSupportedException($"_user cannot be used in value or staticCommand bindings. Use `resource` binding instead to evaluate it on the server.");
         }
     }
 }

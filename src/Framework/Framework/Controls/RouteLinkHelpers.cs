@@ -19,7 +19,15 @@ namespace DotVVM.Framework.Controls
     {
         public static void WriteRouteLinkHrefAttribute(RouteLink control, IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            EnsureUsesOnlyDefinedParameters(control, context);
+            var routeName = control.RouteName;
+            if (string.IsNullOrEmpty(routeName))
+            {
+                if (control.HasBinding(RouteLink.RouteNameProperty))
+                    throw new DotvvmControlException(control, $"RouteName property is set to a binding {control.GetBinding(RouteLink.RouteNameProperty)} which evaluates to null. If you have placed the RouteLink in a Repeater, use server rendering - client-side rendering of variable RouteName is not supported.");
+                else
+                    throw new DotvvmControlException(control, "RouteName property is set to null.");
+            }
+            EnsureUsesOnlyDefinedParameters(routeName, control, context);
 
             // Render client-side knockout expression only if there exists a parameter with value binding
             var containsBinding =
@@ -30,13 +38,13 @@ namespace DotVVM.Framework.Controls
             if (containsBinding)
             {
                 var group = new KnockoutBindingGroup();
-                group.Add("href", GenerateKnockoutHrefExpression(control.RouteName, control, context));
+                group.Add("href", GenerateKnockoutHrefExpression(routeName, control, context));
                 writer.AddKnockoutDataBind("attr", group);
             }
 
             try
             {
-                writer.AddAttribute("href", EvaluateRouteUrl(control.RouteName, control, context));
+                writer.AddAttribute("href", EvaluateRouteUrl(routeName, control, context));
             }
             catch when (!control.RenderOnServer && containsBinding)
             {
@@ -44,10 +52,10 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private static void EnsureUsesOnlyDefinedParameters(RouteLink control, IDotvvmRequestContext context)
+        private static void EnsureUsesOnlyDefinedParameters(string routeName, RouteLink control, IDotvvmRequestContext context)
         {
             var parameterReferences = control.Params;
-            var route = context.Configuration.RouteTable[control.RouteName];
+            var route = context.Configuration.RouteTable[routeName];
             var parameterDefinitions = route.ParameterNames;
 
             var invalidReferences = parameterReferences.Where(param =>
