@@ -147,7 +147,12 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.AddKnockoutDataBind("with", this, UploadedFilesProperty, () => { throw new DotvvmControlException(this, "The UploadedFiles property of the FileUpload control must be bound!"); });
+            var uploadedFiles = GetValueBinding(UploadedFilesProperty);
+            if (uploadedFiles is null)
+            {
+                throw new DotvvmControlException(this, "The UploadedFiles property of the FileUpload control must be bound using a value binding!");
+            }
+            writer.AddKnockoutDataBind("with", uploadedFiles, this);
             writer.AddAttribute("class", "dotvvm-upload", true);
 
             var uploadCompletedBinding = GetCommandBinding(UploadCompletedProperty);

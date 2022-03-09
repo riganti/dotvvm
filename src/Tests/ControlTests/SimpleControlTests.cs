@@ -367,6 +367,19 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [DataTestMethod]
+        [DataRow("Client")]
+        [DataRow("Server")]
+        public async Task FileUpload(string renderMode)
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @$"
+                <!-- output should be the same in Client/Server rendering -->
+                <dot:FileUpload UploadedFiles={{value: Files}}
+                    RenderSettings.Mode={renderMode} />
+            ", fileName: $"FileUpload-{renderMode}");
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
@@ -389,6 +402,8 @@ namespace DotVVM.Framework.Tests.ControlTests
                     new CustomerData() { Id = 2, Name = "Two" }
                 }
             };
+
+            public UploadedFilesCollection Files { get; set; } = new UploadedFilesCollection();
 
             public class CustomerData
             {

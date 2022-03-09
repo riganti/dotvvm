@@ -1,0 +1,18 @@
+<html>
+	<head></head>
+	<body>
+		
+		<!-- output should be the same in Client/Server rendering -->
+		<div class="dotvvm-upload" data-bind="with: Files">
+			<span class="dotvvm-upload-button" data-bind="visible: !IsBusy()">
+				<a href="javascript:;" onclick="dotvvm.fileUpload.showUploadDialog(this); return false;">Upload</a>
+			</span>
+			<input data-bind="dotvvm-FileUpload: {&quot;url&quot;:&quot;/dotvvmFileUpload?multiple=true&quot;}" multiple="multiple" style="display:none" type="file">
+			<span class="dotvvm-upload-files" data-bind="html: dotvvm.globalize.format(&quot;{0} files&quot;, Files().length)"></span>
+			<span class="dotvvm-upload-progress-wrapper" data-bind="visible: IsBusy">
+				<span class="dotvvm-upload-progress" data-bind="style: { 'width': (Progress() == -1 ? '50' : Progress()) + '%' }"></span>
+			</span>
+			<span class="dotvvm-upload-result" data-bind="html: Error() ? &quot;Error occurred.&quot; : &quot;The files were uploaded successfully.&quot;, attr: { title: Error }, css: { 'dotvvm-upload-result-success': !Error(), 'dotvvm-upload-result-error': Error }, visible: !IsBusy() &amp;&amp; Files().length > 0"></span>
+		</div>
+	</body>
+</html>
