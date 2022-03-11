@@ -237,8 +237,10 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         private void RenderBeginTagCore(string name)
         {
-            writer.Write("<");
             AssertIsValidHtmlName(name);
+
+            EnsureTagFullyOpen();
+            writer.Write("<");
             writer.Write(name);
 
 #pragma warning disable CS8605
