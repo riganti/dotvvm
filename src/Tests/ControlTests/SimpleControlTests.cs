@@ -42,18 +42,18 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <dot:RouteLink RenderSettings.Mode=Server RouteName=Simple Text={value: Label} />
 
                 <!-- client rendering, static params -->
-                <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A=A Param-B=1 Text='Click me' />
+                <dot:RouteLink RenderSettings.Mode=Client RouteName={resource: 'WithParams'} Param-A=A Param-B={resource: 1} Text='Click me' />
                 <!-- client rendering, static params, query and suffix -->
-                <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A=A Param-B=1 Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
+                <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A=A Param-B={resource: 1} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- client rendering, dynamic params, query and suffix -->
                 <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A={value: Label} Param-B={value: Integer} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- client rendering, static params, text binding -->
                 <dot:RouteLink RenderSettings.Mode=Client RouteName=WithParams Param-A=A Param-B=1 Text={value: Label} />
 
                 <!-- server rendering, static params -->
-                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A=A Param-B=1 Text='Click me' />
+                <dot:RouteLink RenderSettings.Mode=Server RouteName={resource: 'WithParams'} Param-A=A Param-B={resource: 1} Text='Click me' />
                 <!-- server rendering, static params, query and suffix -->
-                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-a=A Param-B=1 Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
+                <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-a=A Param-B={resource: 1} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- server rendering, dynamic params, query and suffix -->
                 <dot:RouteLink RenderSettings.Mode=Server RouteName=WithParams Param-A={value: Label} Param-b={value: Integer} Text='Click me' Query-Binding={value: Integer} Query-Constant='c/y' UrlSuffix='#mySuffix' />
                 <!-- server rendering, static params, text binding -->
