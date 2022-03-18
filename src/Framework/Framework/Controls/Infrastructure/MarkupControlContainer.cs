@@ -6,7 +6,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DotVVM.Framework.Controls
+namespace DotVVM.Framework.Controls.Infrastructure
 {
     /// <summary> Allows using markup controls from code controls or from server-side styles. Use like this <code>new MarkupControlContainer("cc:MyControl", c => c.SetValue(MyControl.NameProperty, "X"))</code> </summary>
     /// <seealso cref="MarkupControlContainer{TMarkupControl}"/>
