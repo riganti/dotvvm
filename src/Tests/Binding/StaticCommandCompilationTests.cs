@@ -407,6 +407,16 @@ namespace DotVVM.Framework.Tests.Binding
             AreEqual(expectedResult, result);
         }
 
+        [TestMethod]
+        public void StaticCommandCompilation_FailReasonablyOnInvalidMethod()
+        {
+            TestMarkupControl.CreateInitialized();
+
+            var result = Assert.ThrowsException<BindingPropertyException>(() => CompileBinding("TestViewModel.GetCharCode", false, typeof(TestViewModel)));
+
+            Assert.AreEqual("Static method 'TestViewModel.GetCharCode' not found, but an instance method exists.", result.GetBaseException().Message);
+        }
+
         public void AreEqual(string expected, string actual)
         => Assert.AreEqual(RemoveWhitespaces(expected), RemoveWhitespaces(actual));
 
