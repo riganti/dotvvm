@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
-    public class UnknownStaticClassIdentifierExpression: Expression
+    public sealed class UnknownStaticClassIdentifierExpression: Expression
     {
         public UnknownStaticClassIdentifierExpression(string name)
         {
