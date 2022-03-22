@@ -246,14 +246,32 @@ namespace DotVVM.Framework.Binding
 
         public void Clear()
         {
+            // we want to avoid allocating the list if there is only one property
+            DotvvmProperty? toRemove = null;
+            List<DotvvmProperty>? toRemoveRest = null;
+
             foreach (var (p, _) in control.properties)
             {
                 var pg = p as GroupedDotvvmProperty;
                 if (pg != null && pg.PropertyGroup == group)
                 {
-                    control.Properties.Remove(p);
+                    if (toRemove is null)
+                        toRemove = p;
+                    else
+                    {
+                        if (toRemoveRest is null)
+                            toRemoveRest = new List<DotvvmProperty>();
+                        toRemoveRest.Add(p);
+                    }
                 }
             }
+
+            if (toRemove is {})
+                control.Properties.Remove(toRemove);
+
+            if (toRemoveRest is {})
+                foreach (var p in toRemoveRest)
+                    control.Properties.Remove(p);
         }
 
         public bool Contains(KeyValuePair<string, TValue> item)
