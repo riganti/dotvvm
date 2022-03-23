@@ -120,8 +120,6 @@ function GitPush() {
     if ($pushTag) {
         invoke-git tag "v$($version)" HEAD
     }
-    invoke-git commit -am "NuGet package version $version"
-    invoke-git rebase HEAD $branchName
     invoke-git push --follow-tags $repoUrl $branchName
 }
 
