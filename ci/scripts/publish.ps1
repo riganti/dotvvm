@@ -42,33 +42,6 @@ function RestoreSignClient() {
     & dotnet tool restore | Out-Host
 }
 
-function SetVersion() {
-    Write-Host "Setting version: $version ..."
-    
-    
-    $filePath = Join-Path $currentDirectory ".\Directory.Build.props" -Resolve
-    Write-Host "Updating $filePath" 
-
-    $file = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
-    $file = [System.Text.RegularExpressions.Regex]::Replace($file, "\<DotvvmVersion\>([^<]+)\</DotvvmVersion\>", "<DotvvmVersion>" + $version + "</DotvvmVersion>")
-    [System.IO.File]::WriteAllText($filePath, $file, [System.Text.Encoding]::UTF8)
-    
-    Write-Host "Current directory: $currentDirectory"  
-    foreach ($package in $packages) {
-
-        Write-Host --------------------------------
-
-        $filePath = Join-Path $currentDirectory ".\$($package.Directory)\Properties\AssemblyInfo.cs" 
-        if (Test-Path $filePath) {
-            Write-Host "Updating $filePath" 
-            $file = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
-            $file = [System.Text.RegularExpressions.Regex]::Replace($file, "\[assembly: AssemblyVersion\(""([^""]+)""\)\]", "[assembly: AssemblyVersion(""" + $versionWithoutPre + """)]")
-            $file = [System.Text.RegularExpressions.Regex]::Replace($file, "\[assembly: AssemblyFileVersion\(""([^""]+)""\)]", "[assembly: AssemblyFileVersion(""" + $versionWithoutPre + """)]")
-            [System.IO.File]::WriteAllText($filePath, $file, [System.Text.Encoding]::UTF8)
-        }
-    }  
-}
-
 function BuildPackages() {
     Write-Host "Build started"
     $originDirecotry = $PWD
@@ -84,7 +57,7 @@ function BuildPackages() {
         }
         Write-Host "Packing project in directory $PWD"
         
-        & dotnet pack -p:SymbolPackageFormat=snupkg -c $configuration --include-symbols --include-source | Out-Host
+        & dotnet pack -p:version=$version -p:SymbolPackageFormat=snupkg -c $configuration --include-symbols --include-source | Out-Host
         cd $originDirecotry
     }
 }
