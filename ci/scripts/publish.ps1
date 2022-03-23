@@ -164,7 +164,6 @@ if ($branchName.StartsWith("refs/heads/") -eq $true) {
 CleanOldGeneratedPackages;
 RestoreSignClient;
 GitCheckout;
-SetVersion;
 BuildPackages;
 
 SignPackages;
