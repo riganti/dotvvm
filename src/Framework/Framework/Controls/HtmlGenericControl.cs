@@ -368,7 +368,7 @@ namespace DotVVM.Framework.Controls
             }
             else if (value is Enum enumValue)
             {
-                writer.AddAttribute(name, enumValue.ToEnumString());
+                writer.AddAttribute(name, ReflectionUtils.ToEnumString(enumValue.GetType(), enumValue.ToString()));
             }
             else if (value is Guid)
             {
