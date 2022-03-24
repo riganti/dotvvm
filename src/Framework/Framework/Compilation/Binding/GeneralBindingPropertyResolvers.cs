@@ -29,7 +29,6 @@ namespace DotVVM.Framework.Compilation.Binding
         private readonly StaticCommandBindingCompiler staticCommandBindingCompiler;
         private readonly JavascriptTranslator javascriptTranslator;
         private readonly ExtensionMethodsCache extensionsMethodCache;
-        private readonly MethodInfo toEnumStringMethod;
 
         // few switches for testing (and maybe some hacks)
         internal bool AddNullChecks { get; set; } = true;
@@ -41,9 +40,6 @@ namespace DotVVM.Framework.Compilation.Binding
             this.staticCommandBindingCompiler = staticCommandBindingCompiler;
             this.javascriptTranslator = javascriptTranslator;
             this.extensionsMethodCache = extensionsCache;
-
-            this.toEnumStringMethod = typeof(ReflectionUtils).GetMethods()
-                .Single(m => m.Name == "ToEnumString" && m.IsGenericMethod);
         }
 
         public ActionFiltersBindingProperty GetActionFilters(ParsedExpressionBindingProperty parsedExpression)
@@ -262,13 +258,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (expectedType.Type == typeof(string))
                 return new(binding);
 
-            var result = e;
-            if (e.Expression.Type.UnwrapNullableType().IsEnum)
-            {
-                result = new ParsedExpressionBindingProperty(Expression.Call(null, toEnumStringMethod.MakeGenericMethod(e.Expression.Type), e.Expression));
-            }
-
-            return new(binding.DeriveBinding(new ExpectedTypeBindingProperty(typeof(string)), result));
+            return new(binding.DeriveBinding(new ExpectedTypeBindingProperty(typeof(string)), e));
         }
         public IsNullBindingExpression IsNull(ParsedExpressionBindingProperty eprop, IBinding binding)
         {

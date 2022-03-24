@@ -19,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Testing;
 using System.Collections.ObjectModel;
+using System.Runtime.Serialization;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -524,6 +525,18 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(ExecuteBinding("EnumProperty == TestEnum.Underscore_hhh", viewModel), true);
             Assert.AreEqual(ExecuteBinding("StringProp == 'abc' ? TestEnum.A : TestEnum.Underscore_hhh", viewModel), TestEnum.A);
             Assert.AreEqual(ExecuteBinding("StringProp == 'abcd' ? TestEnum.A : TestEnum.Underscore_hhh", viewModel), TestEnum.Underscore_hhh);
+        }
+        [TestMethod]
+        public void BindingCompiler_EnumToStringConversion()
+        {
+            var result1 = ExecuteBinding("DotVVM.Framework.Tests.Binding.TestEnum.Underscore_hhh", new object[0], null, expectedType: typeof(string));
+            Assert.AreEqual("Underscore_hhh", result1);
+            var result2 = ExecuteBinding("DotVVM.Framework.Tests.Binding.TestEnum.SpecialField", new object[0], null, expectedType: typeof(string));
+            Assert.AreEqual("xxx", result2);
+            var result3 = ExecuteBinding("EnumProperty", new object[] { new TestViewModel { EnumProperty = TestEnum.A } }, null, expectedType: typeof(string));
+            Assert.AreEqual("A", result3);
+            var result4 = ExecuteBinding("EnumProperty", new object[] { new TestViewModel { EnumProperty = TestEnum.SpecialField } }, null, expectedType: typeof(string));
+            Assert.AreEqual("xxx", result4);
         }
 
         [TestMethod]
@@ -1153,7 +1166,9 @@ namespace DotVVM.Framework.Tests.Binding
         B,
         C,
         D,
-        Underscore_hhh
+        Underscore_hhh,
+        [EnumMember(Value = "xxx")]
+        SpecialField
     }
 
 

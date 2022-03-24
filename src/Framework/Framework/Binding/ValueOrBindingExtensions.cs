@@ -74,16 +74,20 @@ public static class ValueOrBindingExtensions
     public static ValueOrBinding<string> AsString<T>(this ValueOrBinding<T> v)
     {
         if (v.BindingOrDefault is IBinding binding)
-            return new ValueOrBinding<string>(
+            return new(
                 binding.GetProperty<ExpectedAsStringBindingExpression>().Binding
             );
-        else if (typeof(T).UnwrapNullableType().IsEnum)
+        else if (v.ValueOrDefault is null)
         {
-            return new ValueOrBinding<string>(ReflectionUtils.ToEnumString(typeof(T), v.ValueOrDefault?.ToString()) ?? "");
+            return new("");
+        }
+        else if (typeof(T).IsValueType && typeof(T).UnwrapNullableType().IsEnum)
+        {
+            return new(ReflectionUtils.ToEnumString(typeof(T), v.ValueOrDefault.ToString()) ?? "");
         }
         else
         {
-            return new ValueOrBinding<string>("" + v.ValueOrDefault);
+            return new(v.ValueOrDefault.ToString());
         }
     }
     /// <summary> Returns ValueOrBinding with the value of `a is object`. The resulting binding is cached, so it's safe to use this method at runtime. </summary>
