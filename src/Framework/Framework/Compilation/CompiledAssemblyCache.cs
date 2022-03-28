@@ -153,7 +153,7 @@ namespace DotVVM.Framework.Compilation
                     var newA = DependencyContext.Default.GetDefaultAssemblyNames().Select(Assembly.Load).ToArray();
 #else
                     // this doesn't load new assemblies, but it is done in InvokeStaticConstructorsOnAllControls
-                    var newA = AppDomain.CurrentDomain.GetAssemblies();
+                    var newA = AppDomain.CurrentDomain.GetAssemblies().Where(a => !a.IsDynamic).ToArray();
 #endif
                     allAssembliesCache.SetTarget(newA);
                     return newA;
