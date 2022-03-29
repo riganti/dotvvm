@@ -1,4 +1,4 @@
-import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture, getState, getStateManager, getRouteName, getRouteParameters } from "./dotvvm-base"
+import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture, getState, getStateManager, getRouteName, getRouteParameters, setCustomFetch, customFetch } from "./dotvvm-base"
 import * as events from './events'
 import * as spa from "./spa/spa"
 import * as validation from './validation/validation'
@@ -133,6 +133,8 @@ const dotvvmExports = {
     } as any,
     StateManager,
     DotvvmEvent,
+    get customFetch(): (url: string, init: RequestInit) => Promise<Response> { return customFetch },
+    set customFetch(implementation: (url: string, init: RequestInit) => Promise<Response>) { setCustomFetch(implementation); }
 }
 
 if (compileConstants.isSpa) {

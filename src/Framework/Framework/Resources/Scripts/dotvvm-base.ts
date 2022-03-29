@@ -134,3 +134,11 @@ function persistViewModel() {
 
     getViewModelStorageElement().value = JSON.stringify(persistedViewModel);
 }
+
+let _customFetch: (url: string, init: RequestInit) => Promise<Response> = fetch;
+export function customFetch(url: string, init: RequestInit): Promise<Response> {
+    return _customFetch(url, init);
+}
+export function setCustomFetch(fetchImplementation: (url: string, init: RequestInit) => Promise<Response>) {
+    _customFetch = fetchImplementation;
+}
