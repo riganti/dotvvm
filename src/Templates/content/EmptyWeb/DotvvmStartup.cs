@@ -17,7 +17,8 @@ namespace DotvvmApplication1
 
         private void ConfigureRoutes(DotvvmConfiguration config, string applicationPath)
         {
-            config.RouteTable.Add("Default", "", "Views/default.dothtml");
+            config.RouteTable.Add("Default", "", "Views/Default/default.dothtml");
+            config.RouteTable.Add("Error", "error", "Views/Error/error.dothtml");
 
             // Uncomment the following line to auto-register all dothtml files in the Views folder
             // config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));    

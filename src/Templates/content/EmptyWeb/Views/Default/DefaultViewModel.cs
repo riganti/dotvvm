@@ -15,6 +15,7 @@ namespace DotvvmApplication1.ViewModels
         public DefaultViewModel()
         {
             Title = "Hello from DotVVM!";
+            throw null;
         }
     }
 }
