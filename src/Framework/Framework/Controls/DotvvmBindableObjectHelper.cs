@@ -8,6 +8,8 @@ using System.Reflection;
 using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
@@ -16,6 +18,21 @@ namespace DotVVM.Framework.Controls
 {
     public static class DotvvmBindableObjectHelper
     {
+        /// <summary> Sets binding into the SetDataContextType property. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl SetDataContextTypeFromDataSource<TControl>(this TControl control, IBinding dataSourceBinding)
+            where TControl : DotvvmBindableObject
+        {
+            control.SetDataContextType(dataSourceBinding.GetProperty<CollectionElementDataContextBindingProperty>().DataContext);
+            return control;
+        }
+
+        /// <summary> Sets binding into the DataContextTypeProperty. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl SetDataContextType<TControl>(this TControl control, DataContextStack? stack)
+            where TControl : DotvvmBindableObject
+        {
+            control.properties.Set(Internal.DataContextTypeProperty, stack);
+            return control;
+        }
         /// <summary> Gets the DotvvmProperty referenced by the lambda expression. </summary>
         public static DotvvmProperty GetDotvvmProperty<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject =>
