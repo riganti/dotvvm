@@ -14,19 +14,6 @@
     <None Include="$(MSBuildThisFileDirectory)package-icon.png" Pack="true" PackagePath="/" />
   </ItemGroup>
 
-  <!-- Set SourceRevisionId to current git commit hash -->
-  <Target Name="GetGitVersion" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
-    <Exec Command="git rev-parse HEAD"
-          ConsoleToMsBuild="true"
-          ContinueOnError="true"
-          StandardOutputImportance="low" StandardErrorImportance="low">
-      <Output TaskParameter="ConsoleOutput" PropertyName="SourceRevisionId" />
-    </Exec>
-    <PropertyGroup>
-      <RepositoryCommit>$(SourceRevisionId)</RepositoryCommit>
-    </PropertyGroup>
-  </Target>
-
   <PropertyGroup Label="Licensing">
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -42,9 +29,19 @@
     <DefaultTargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.1;net6.0</DefaultTargetFrameworks>
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
     <AutomaticallyUseReferenceAssemblyPackages>false</AutomaticallyUseReferenceAssemblyPackages>
-    <!-- Pack pdb symbol files -->
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
+
+  <PropertyGroup Label="SourceLink">
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <DebugType>portable</DebugType>
+    <EmbedAllSources>true</EmbedAllSources>
+  </PropertyGroup>
+
+  <ItemGroup Label="SourceLink">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
+  </ItemGroup>
 
   <PropertyGroup Condition="$(DOTVVM_ROOT) != ''">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>

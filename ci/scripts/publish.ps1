@@ -1,4 +1,17 @@
-param([String]$version, [String]$apiKey, [String]$server, [String]$branchName, [String]$repoUrl, [String]$nugetRestoreAltSource = "", [bool]$pushTag, [String]$configuration, [String]$apiKeyInternal, [String]$internalServer, [String]$signUser = "", [String]$signSecret = "", $signConfigPath = "")
+param(
+    [String]$version,
+    [String]$apiKey,
+    [String]$server,
+    [String]$branchName,
+    [String]$repoUrl,
+    [String]$nugetRestoreAltSource = "",
+    [bool]$pushTag,
+    [String]$configuration,
+    [String]$apiKeyInternal,
+    [String]$internalServer,
+    [String]$signUser = "",
+    [String]$signSecret = "",
+    $signConfigPath = "")
 $currentDirectory = $PWD
 
 ### Helper Functions
@@ -56,17 +69,17 @@ function BuildPackages() {
             & dotnet restore --source $nugetRestoreAltSource --source https://nuget.org/api/v2/ | Out-Host
         }
         Write-Host "Packing project in directory $PWD"
-        
-        & dotnet pack -p:version=$version -p:SymbolPackageFormat=snupkg -c $configuration --include-symbols --include-source | Out-Host
+
+        & dotnet pack -p:version=$version -p:ContinuousIntegrationBuild=true -c $configuration | Out-Host
         cd $originDirecotry
     }
 }
 
 function SignPackages() {
-    if ($signUser -ne "") {        
+    if ($signUser -ne "") {
         Write-Host "Signing packages ..."
         foreach ($package in $packages) {
-            $baseDir = Join-Path $currentDirectory ".\$($package.Directory)\bin\$configuration\" 
+            $baseDir = Join-Path $currentDirectory ".\$($package.Directory)\bin\$configuration\"
             Write-Host "Signing $($package.Package + " " + $version) (Base dir: $baseDir)"
             & dotnet signclient sign --baseDirectory "$baseDir" --input *.nupkg  --config "$signConfigPath" --user "$signUser" --secret "$signSecret" --name "$($package.Package)" --description "$($package.Package + " " + $version)" --descriptionUrl "https://github.com/riganti/dotvvm" | Out-Host
         }
@@ -86,26 +99,26 @@ function BuildTemplates() {
 
     Write-Host "Building templates ..."
     del .\Templates\*.nupkg  -ErrorAction SilentlyContinue
-    
+
     $filePath = ".\Templates\DotVVM.Templates.nuspec"
     $file = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
     $file = [System.Text.RegularExpressions.Regex]::Replace($file, "\<version\>([^<]+)\</version\>", "<version>" + $version + "</version>")
     [System.IO.File]::WriteAllText($filePath, $file, [System.Text.Encoding]::UTF8)
-    
+
     & ../ci/scripts/nuget.exe pack .\Templates\DotVVM.Templates.nuspec -outputdirectory .\Templates | Out-Host
 }
 
 function SignTemplates() {
     Write-Host "Signing templates ..."
     if ($signUser -ne "") {
-        $baseDir = Join-Path $currentDirectory ".\Templates\" 
+        $baseDir = Join-Path $currentDirectory ".\Templates\"
         & dotnet signclient sign --baseDirectory "$baseDir" --input *.nupkg --config "$signConfigPath" --user "$signUser" --secret "$signSecret" --name "DotVVM.Templates" --description "DotVVM.Templates $version" --descriptionUrl "https://github.com/riganti/dotvvm" | Out-Host
     }
 }
 
 function PublishTemplates() {
     Write-Host "Publishing templates ..."
-    & ../ci/scripts/nuget.exe push .\Templates\DotVVM.Templates.$version.nupkg -source $server -apiKey $apiKey | Out-Host 
+    & ../ci/scripts/nuget.exe push .\Templates\DotVVM.Templates.$version.nupkg -source $server -apiKey $apiKey | Out-Host
 }
 
 function GitCheckout() {
