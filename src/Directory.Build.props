@@ -39,14 +39,6 @@
     <EmbedAllSources>true</EmbedAllSources>
   </PropertyGroup>
 
-  <Target Name="ResetSourceLinkForPrivateProjects" BeforeTargets="BeforeBuild;DispatchToInnerBuilds;Pack">
-    <PropertyGroup Condition=" '$(PackageId)' == '' ">
-      <PublishRepositoryUrl>false</PublishRepositoryUrl>
-      <IncludeSymbols>false</IncludeSymbols>
-      <EmbedAllSources>false</EmbedAllSources>
-    </PropertyGroup>
-  </Target>
-
   <ItemGroup Label="SourceLink">
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
   </ItemGroup>
