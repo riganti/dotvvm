@@ -1,0 +1,108 @@
+name: Publish packages
+
+on: workflow_dispatch
+
+jobs:
+  pack-projects:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up
+      uses: ./.github/setup
+
+    - name: DotVVM.Core
+      uses: ./.github/pack
+      with:
+        project: src/Framework/Core
+
+    - name: DotVVM
+      uses: ./.github/pack
+      with:
+        project: src/Framework/Framework
+
+    - name: DotVVM.Owin
+      uses: ./.github/pack
+      with:
+        project: src/Framework/Hosting.Owin
+
+    - name: DotVVM.AspNetCore
+      uses: ./.github/pack
+      with:
+        project: src/Framework/Hosting.AspNetCore
+
+    - name: DotVVM.CommandLine
+      uses: ./.github/pack
+      with:
+        project: src/Tools/CommandLine
+
+    - name: DotVVM.Tools.StartupPerf
+      uses: ./.github/pack
+      with:
+        project: src/Tools/StartupPerfTester
+
+    - name: DotVVM.Api.Swashbuckle.AspNetCore
+      uses: ./.github/pack
+      with:
+        project: src/Api/Swashbuckle.AspNetCore
+
+    - name: DotVVM.Api.Swashbuckle.Owin
+      uses: ./.github/pack
+      with:
+        project: src/Api/Swashbuckle.Owin
+
+    - name: DotVVM.HotReload
+      uses: ./.github/pack
+      with:
+        project: src/Tools/HotReload/Common
+
+    - name: DotVVM.HotReload.AspNetCore
+      uses: ./.github/pack
+      with:
+        project: src/Tools/HotReload/AspNetCore
+
+    - name: DotVVM.HotReload.Owin
+      uses: ./.github/pack
+      with:
+        project: src/Tools/HotReload/Owin
+
+    - name: DotVVM.Testing
+      uses: ./.github/pack
+      with:
+        project: src/Framework/Testing
+
+    - name: DotVVM.DynamicData
+      uses: ./.github/pack
+      with:
+        project: src/DynamicData/DynamicData
+
+    - name: DotVVM.DynamicData.Annotations
+      uses: ./.github/pack
+      with:
+        project: src/DynamicData/Annotations
+
+    - name: DotVVM.Tracing.ApplicationInsights
+      uses: ./.github/pack
+      with:
+        project: src/Tracing/ApplicationInsights
+
+    - name: DotVVM.Tracing.ApplicationInsights.AspNetCore
+      uses: ./.github/pack
+      with:
+        project: src/Tracing/ApplicationInsights.AspNetCore
+
+    - name: DotVVM.Tracing.ApplicationInsights.Owin
+      uses: ./.github/pack
+      with:
+        project: src/Tracing/ApplicationInsights.Owin
+
+    - name: DotVVM.Tracing.MiniProfiler.AspNetCore
+      uses: ./.github/pack
+      with:
+        project: src/Tracing/MiniProfiler.AspNetCore
+
+    - name: DotVVM.Tracing.MiniProfiler.Owin
+      uses: ./.github/pack
+      with:
+        project: src/Tracing/MiniProfiler.Owin
