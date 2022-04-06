@@ -10,7 +10,7 @@ inputs:
 runs:
   using: composite
   steps:
-  - run: |
+  - run: >
       dotnet build
         --nologo
         --configuration Release
@@ -24,7 +24,7 @@ runs:
       DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
       DOTNET_CLI_TELEMETRY_OPTOUT: "1"
 
-  - run: |
+  - run: >
       dotnet pack
         --configuration Release
         --no-build
