@@ -1,6 +1,13 @@
 name: Publish packages
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      test:
+        type: boolean
+        default: false
+        description: A test input.
+        required: false
 
 jobs:
   pack-projects:
