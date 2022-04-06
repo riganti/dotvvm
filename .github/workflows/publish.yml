@@ -11,7 +11,7 @@ on:
 
 jobs:
   pack-projects:
-    name: Publish packages
+    name: Pack projects
     runs-on: windows-2022
     timeout-minutes: 20
     steps:

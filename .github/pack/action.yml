@@ -1,7 +1,6 @@
 name: setup
 description: Packs a .NET project
 
-
 inputs:
   project:
     description: Path to a .NET project
