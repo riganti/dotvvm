@@ -9,7 +9,6 @@
     <PackageId>DotVVM</PackageId>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <Nullable>enable</Nullable>
-    <!-- <BeforePack>$(BeforePack);PackDotvvmAnalyzers</BeforePack> -->
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="node_modules\**" />
@@ -92,12 +91,6 @@
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
   </PropertyGroup>
 
-  <!-- <ItemGroup>
-    <None Include="../../Analyzers/Analyzers.Package/bin/$(Configuration)/netstandard2.0/DotVVM.Analyzers.dll" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
-    <None Include="../../Analyzers/Analyzers.Package/bin/$(Configuration)/netstandard2.0/DotVVM.Analyzers.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
-    <None Include="../../Analyzers/Analyzers.Package/tools/*.ps1" PackagePath="tools" Pack="true" />
-  </ItemGroup> -->
-
   <ItemGroup>
     <ProjectReference Include="../../Analyzers/Analyzers.Package/DotVVM.Analyzers.Package.csproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
@@ -116,25 +109,6 @@
     <None Include="../../Analyzers/Analyzers.Package/bin/$(Configuration)/netstandard2.0/DotVVM.Analyzers.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
     <None Include="../../Analyzers/Analyzers.Package/tools/*.ps1" PackagePath="tools" Pack="true" />
   </ItemGroup>
-
-  <!-- <Target Name="PackDotvvmAnalyzers" BeforeTargets="Pack" AfterTargets="Build">
-    <Message Text="PackDotvvmAnalyzers" Importance="High" />
-    <Message Text="@(DotvvmAnalyzer)" Importance="High" />
-    <ItemGroup>
-      <None Include="@(DotvvmAnalyzer)" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
-    </ItemGroup>
-  </Target> -->
-
-  <Target Name="IncludeAnalyzersWat">
-    <Message Text="Packing analyzers" Importance="High" />
-    <!-- Pack analyzers together with the main DotVVM package -->
-    <MSBuild Projects="../../Analyzers/Analyzers.Package/DotVVM.Analyzers.Package.csproj"
-      Targets="Restore;Build;Publish"
-      Properties="TargetFramework=netstandard2.0;Configuration=$(Configuration);PublishDir=$(OutputPath)analyzers\dotnet\cs" />
-    <None Include="$(OutputPath)analyzers\dotnet\cs" Pack="true" Visible="false" />
-    <!-- Add install / uninstall scripts for .NET Framework -->
-    <None Include="../../Analyzers/Analyzers.Package/tools/*.ps1" PackagePath="tools" Pack="true" />
-  </Target>
 
   <ItemGroup>
     <!-- the wildcard would not work in Target.Inputs, it only works in Include -->
