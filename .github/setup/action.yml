@@ -14,7 +14,9 @@ runs:
   - uses: actions/cache@v2
     with:
       path: ~/.nuget/packages
-      key: ${{ runner.os }}-nuget
+      key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+      restore-keys: |
+        ${{ runner.os }}-nuget-
 
   # Node.js
   - uses: actions/setup-node@v2
