@@ -54,7 +54,7 @@
         <AdditionalProperties>PublishDir=$(OutputPath)tools\netcoreapp3.1\any</AdditionalProperties>
         <Targets>Publish</Targets>
     </ProjectReference>
-    <ProjectReference Include="..\Compiler\DotVVM.Compiler.csproj">
+    <ProjectReference Include="..\Compiler\DotVVM.Compiler.csproj" Condition=" '$(OS)' == 'Windows_NT' ">
         <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
         <SetTargetFramework>TargetFramework=net472</SetTargetFramework>
         <AdditionalProperties>PublishDir=$(OutputPath)tools\net472\any</AdditionalProperties>
@@ -66,7 +66,7 @@
     <ItemGroup>
       <ToolsFile Include="$(OutputPath)\tools\**" />
     </ItemGroup>
-    <Message Text="$(PublishDir)" Importance="High" />
+    <Warning Text="CommandLine should be packaged on Windows because of its dependency on Compiler!" Condition=" '$(OS)' != 'Windows_NT' "/>
     <Copy SourceFiles="@(ToolsFile)" DestinationFolder="$(PublishDir)\tools\%(RecursiveDir)" />
   </Target>
 
