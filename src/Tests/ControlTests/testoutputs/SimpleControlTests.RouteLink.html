@@ -24,7 +24,7 @@
 		<a href="/WithParams/A-1" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
 		
 		<!-- client rendering, static params, query and suffix -->
-		<a data-bind="attr: { href: '/' + dotvvm.buildRouteUrl(&quot;WithParams/{a}-{b}/{c}&quot;, {&quot;b&quot;: &quot;1&quot;,&quot;a&quot;: &quot;A&quot;}) + dotvvm.buildUrlSuffix(&quot;#mySuffix&quot;, {&quot;Binding&quot;: int,&quot;Constant&quot;: &quot;c/y&quot;}) }" href="/WithParams/A-1?Binding=10000000&amp;Constant=c%2Fy#mySuffix" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
+		<a data-bind="attr: { href: '/' + dotvvm.buildRouteUrl(&quot;WithParams/{a}-{b}/{c}&quot;, {&quot;b&quot;: 1,&quot;a&quot;: &quot;A&quot;}) + dotvvm.buildUrlSuffix(&quot;#mySuffix&quot;, {&quot;Binding&quot;: int,&quot;Constant&quot;: &quot;c/y&quot;}) }" href="/WithParams/A-1?Binding=10000000&amp;Constant=c%2Fy#mySuffix" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
 		
 		<!-- client rendering, dynamic params, query and suffix -->
 		<a data-bind="attr: { href: '/' + dotvvm.buildRouteUrl(&quot;WithParams/{a}-{b}/{c}&quot;, {&quot;b&quot;: int,&quot;a&quot;: Label}) + dotvvm.buildUrlSuffix(&quot;#mySuffix&quot;, {&quot;Binding&quot;: int,&quot;Constant&quot;: &quot;c/y&quot;}) }" href="/WithParams/My%20Label-10000000?Binding=10000000&amp;Constant=c%2Fy#mySuffix" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
@@ -36,7 +36,7 @@
 		<a href="/WithParams/A-1" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
 		
 		<!-- server rendering, static params, query and suffix -->
-		<a data-bind="attr: { href: '/' + dotvvm.buildRouteUrl(&quot;WithParams/{a}-{b}/{c}&quot;, {&quot;b&quot;: &quot;1&quot;,&quot;a&quot;: &quot;A&quot;}) + dotvvm.buildUrlSuffix(&quot;#mySuffix&quot;, {&quot;Binding&quot;: int,&quot;Constant&quot;: &quot;c/y&quot;}) }" href="/WithParams/A-1?Binding=10000000&amp;Constant=c%2Fy#mySuffix" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
+		<a data-bind="attr: { href: '/' + dotvvm.buildRouteUrl(&quot;WithParams/{a}-{b}/{c}&quot;, {&quot;b&quot;: 1,&quot;a&quot;: &quot;A&quot;}) + dotvvm.buildUrlSuffix(&quot;#mySuffix&quot;, {&quot;Binding&quot;: int,&quot;Constant&quot;: &quot;c/y&quot;}) }" href="/WithParams/A-1?Binding=10000000&amp;Constant=c%2Fy#mySuffix" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
 		
 		<!-- server rendering, dynamic params, query and suffix -->
 		<a data-bind="attr: { href: '/' + dotvvm.buildRouteUrl(&quot;WithParams/{a}-{b}/{c}&quot;, {&quot;b&quot;: int,&quot;a&quot;: Label}) + dotvvm.buildUrlSuffix(&quot;#mySuffix&quot;, {&quot;Binding&quot;: int,&quot;Constant&quot;: &quot;c/y&quot;}) }" href="/WithParams/My%20Label-10000000?Binding=10000000&amp;Constant=c%2Fy#mySuffix" onclick="event.stopPropagation();return !this.hasAttribute('disabled');">Click me</a>
