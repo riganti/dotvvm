@@ -6,16 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
 
-namespace DotvvmApplication1.ViewModels
+namespace DotvvmApplication1.ViewModels;
+public class DefaultViewModel : DotvvmViewModelBase
 {
-    public class DefaultViewModel : DotvvmViewModelBase
-    {
-        public string Title { get; set; }
+    public string Title { get; set; }
 
-        public DefaultViewModel()
-        {
-            Title = "Hello from DotVVM!";
-            throw null;
-        }
+    public DefaultViewModel()
+    {
+        Title = "Hello from DotVVM!";
     }
 }
