@@ -10,6 +10,8 @@ using System.Linq;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Text;
+using DotVVM.Framework.Compilation.Javascript;
 
 namespace DotVVM.Framework.Controls
 {
@@ -344,9 +346,18 @@ namespace DotVVM.Framework.Controls
 
         private void AddHtmlAttribute(IHtmlWriter writer, string name, object? value)
         {
-            if (value is string || value == null)
+            if (value is null)
+                writer.AddAttribute(name, null, append: true);
+            if (value is string str)
             {
-                writer.AddAttribute(name, (string?)value, true);
+                writer.AddAttribute(name, str, append: true);
+            }
+            else if (value is AttributeList list)
+            {
+                for (var i = list; i is not null; i = i.Next)
+                {
+                    AddHtmlAttribute(writer, name, i.Value);
+                }
             }
             else if (value is IEnumerable<string>)
             {
@@ -366,46 +377,53 @@ namespace DotVVM.Framework.Controls
                     writer.AddAttribute(name, name);
                 }
             }
-            else if (value is Enum enumValue)
-            {
-                writer.AddAttribute(name, enumValue.ToEnumString());
-            }
-            else if (value is Guid)
-            {
-                writer.AddAttribute(name, value.ToString());
-            }
-            else if (ReflectionUtils.IsNumericType(value.GetType()))
-            {
-                writer.AddAttribute(name, Convert.ToString(value, CultureInfo.InvariantCulture));
-            }
             else
             {
-                // DateTime and related are not supported here intentionally.
-                // It is not clear in which format it should be rendered - on some places, the HTML specs requires just yyyy-MM-dd,
-                // but in case of Web Components, the users may want to pass the whole date, or use a specific format
-
-                throw new NotSupportedException($"Attribute value of type '{value.GetType().FullName}' is not supported. Please convert the value to string, e. g. by using ToString()");
+                writer.AddAttribute(name, AttributeValueToString(value), append: true);
             }
         }
+
+        private static string AttributeValueToString(object? value) =>
+            value switch {
+                null => "",
+                string str => str,
+                Enum enumValue => enumValue.ToEnumString(),
+                Guid guid => guid.ToString(),
+                _ when ReflectionUtils.IsNumericType(value.GetType()) => Convert.ToString(value, CultureInfo.InvariantCulture) ?? "",
+                _ =>
+
+                    // DateTime and related are not supported here intentionally.
+                    // It is not clear in which format it should be rendered - on some places, the HTML specs requires just yyyy-MM-dd,
+                    // but in case of Web Components, the users may want to pass the whole date, or use a specific format
+
+                    throw new NotSupportedException($"Attribute value of type '{value.GetType().FullName}' is not supported. Please convert the value to string, e. g. by using ToString()")
+            };
 
         private void AddHtmlAttributesToRender(ref RenderState r, IHtmlWriter writer)
         {
             KnockoutBindingGroup? attributeBindingGroup = null;
+
             if (r.HasAttributes) foreach (var (prop, valueRaw) in this.properties)
             {
                 if (prop is not GroupedDotvvmProperty gprop || gprop.PropertyGroup != AttributesGroupDescriptor)
                     continue;
 
-                if (valueRaw is IValueBinding binding)
+                var knockoutExpression = valueRaw switch {
+                    AttributeList list => list.GetKnockoutBindingExpression(this, HtmlWriter.GetSeparatorForAttribute(gprop.GroupMemberName)),
+                    IValueBinding binding => binding.GetKnockoutBindingExpression(this),
+                    _ => null
+                };
+
+                if (knockoutExpression is {})
                 {
                     if (gprop.GroupMemberName == "class")
                     {
-                        writer.AddKnockoutDataBind("class", binding, this);
+                        writer.AddKnockoutDataBind("class", knockoutExpression);
                     }
                     else
                     {
-                        if (attributeBindingGroup == null) attributeBindingGroup = new KnockoutBindingGroup();
-                        attributeBindingGroup.Add(gprop.GroupMemberName, binding.GetKnockoutBindingExpression(this));
+                        attributeBindingGroup ??= new KnockoutBindingGroup();
+                        attributeBindingGroup.Add(gprop.GroupMemberName, knockoutExpression);
                     }
                     if (!r.RenderOnServer(this))
                         continue;
@@ -479,6 +497,73 @@ namespace DotVVM.Framework.Controls
             if (r.InnerText != null && GetType() != typeof(HtmlGenericControl))
             {
                 throw new DotvvmControlException(this, "The DotVVM controls do not support the 'InnerText' property. It can be only used on HTML elements.");
+            }
+        }
+
+
+        /// <summary> Linked list of attribute values, used when at least one attribute value is a binding, so the values can't be concatenated. </summary>
+        public sealed record AttributeList(object Value, AttributeList? Next)
+        {
+            /// <summary> Returns concatenation expression from all the list values. If the list contains no bindings, returns null. </summary>
+            public string? GetKnockoutBindingExpression(DotvvmBindableObject c, string separator)
+            {
+                var separatorLiteral = KnockoutHelper.MakeStringLiteral(separator);
+                var sb = new StringBuilder();
+
+                var hasBinding = false;
+                bool needsSeparator = false;
+                for (var i = this; i != null; i = i.Next)
+                {
+                    var isLast = i.Next == null;
+                    if (i.Value is IValueBinding binding)
+                    {
+                        var koExpression = binding.UnwrappedKnockoutExpression;
+                        hasBinding = true;
+                        if (needsSeparator)
+                            sb.Append($"{separatorLiteral}+");
+
+                        var needsParens = koExpression.OperatorPrecedence.NeedsParens(parentPrecedence: OperatorPrecedence.Addition);
+
+                        if (needsParens)
+                            sb.Append('(');
+
+                        sb.Append(koExpression.FormatKnockoutScript(c, binding));
+                        needsSeparator = true;
+
+                        if (needsParens)
+                            sb.Append(')');
+                    }
+                    else
+                    {
+                        var value = AttributeValueToString(
+                            i.Value is IStaticValueBinding staticValue ? staticValue.Evaluate(c) : i.Value);
+                        if (needsSeparator)
+                            value = separator + value;
+                        if (!isLast)
+                            // prefer to join the separator with a constant value to avoid unnecessary string concatenation in the generated code
+                            value = value + separator;
+
+                        sb.Append(KnockoutHelper.MakeStringLiteral(value));
+                    }
+
+                    if (!isLast)
+                        sb.Append("+");
+                }
+
+                if (!hasBinding) return null;
+                else return sb.ToString();
+            }
+
+            public override string ToString()
+            {
+                var sb = new StringBuilder().Append("[ ");
+                for (var i = this; i != null; i = i.Next)
+                {
+                    if (i != this)
+                        sb.Append(", ");
+                    sb.Append(i.Value);
+                }
+                return sb.Append(" ]").ToString();
             }
         }
     }

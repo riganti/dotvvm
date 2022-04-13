@@ -494,7 +494,9 @@ namespace DotVVM.Framework.Controls
 
         private object JoinValuesOrBindings(IList<object?> fragments)
         {
-            if (fragments.All(f => f is string))
+            if (fragments.Count == 1)
+                return fragments[0] ?? "";
+            else if (fragments.All(f => f is string or null))
             {
                 return string.Join("_", fragments);
             }
@@ -510,12 +512,12 @@ namespace DotVVM.Framework.Controls
                     if (f is IValueBinding binding)
                     {
                         service = service ?? binding.GetProperty<BindingCompilationService>(ErrorHandlingMode.ReturnNull);
-                        result.Add(binding.GetParametrizedKnockoutExpression(this, unwrapped: true), 14);
+                        result.Add(binding.GetParametrizedKnockoutExpression(this, unwrapped: true), OperatorPrecedence.Addition);
                     }
                     else result.Add(JavascriptCompilationHelper.CompileConstant(f));
                 }
                 if (service == null) throw new NotSupportedException();
-                return ValueBindingExpression.CreateBinding<string?>(service.WithoutInitialization(), h => null, result.Build(new OperatorPrecedence()), this.GetDataContextType());
+                return ValueBindingExpression.CreateBinding<string?>(service.WithoutInitialization(), h => null, result.Build(new OperatorPrecedence(OperatorPrecedence.Addition, false)), this.GetDataContextType());
             }
         }
 
