@@ -331,9 +331,9 @@ namespace DotVVM.Framework.Binding
                     else if (!typeof(ValueOrBinding).IsAssignableFrom(propertyType.UnwrapNullableType()))
                         dotvvmProperty.MarkupOptions.AllowBinding = false;
 
-                    if (typeof(DotvvmBindableObject).IsAssignableFrom(type) ||
+                    if (typeof(IDotvvmObjectLike).IsAssignableFrom(type) ||
                         typeof(ITemplate).IsAssignableFrom(type) ||
-                        typeof(IEnumerable<DotvvmBindableObject>).IsAssignableFrom(type))
+                        typeof(IEnumerable<IDotvvmObjectLike>).IsAssignableFrom(type))
                         dotvvmProperty.MarkupOptions.MappingMode = MappingMode.Both;
 
                     DotvvmProperty.Register(dotvvmProperty);
