@@ -12,6 +12,7 @@
     <AssemblyName>DotVVM.Analyzers.Package</AssemblyName>
     <PackageId>DotVVM.Analyzers</PackageId>
     <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
