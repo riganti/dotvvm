@@ -208,9 +208,7 @@ artifacts/
 
 launchSettings.json
 sample.db
-/src/Samples/Common/script/react.js
-/src/Samples/Common/script/react-app.js.map
-/src/Samples/Common/script/react-app.js
+/src/Samples/Common/script/*
 **/JsComponent*/dist
 *.exclude
 *.tgz

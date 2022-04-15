@@ -4,20 +4,22 @@
     "noEmitOnError": true,
     "removeComments": false,
     "sourceMap": true,
-    "jsx": "react",
     "target": "ES6",
     "moduleResolution": "node",
     "lib": [
       "dom",
       "ES6"
-    ]
+    ],
+    "types": ["node", "svelte"],
+    "module": "esnext"
   },
   "include": [
-    "Scripts/react/**/*"
+    "Scripts/svelte/**/*"
   ],
   
   "exclude": [
     "node_modules",
-    "wwwroot",
-  ]
+    "wwwroot"
+  ],
+  "extends": "@tsconfig/svelte/tsconfig.json"
 }
