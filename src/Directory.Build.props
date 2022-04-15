@@ -3,32 +3,22 @@
     <Authors>RIGANTI</Authors>
     <Description>DotVVM is an open source ASP.NET-based framework which allows to build interactive web apps easily by using mostly C# and HTML.</Description>
     <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore</PackageTags>
-    <Version>4.0.0-preview01-122136</Version>
-
-    <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
+    <Version>4.0.0</Version>
+    <PackageIcon>package-icon.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/riganti/dotvvm.git</RepositoryUrl>
     <PackageProjectUrl>https://dotvvm.com/</PackageProjectUrl>
   </PropertyGroup>
 
-  <!-- Set SourceRevisionId to current git commit hash -->
-  <Target Name="GetGitVersion" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
-    <Exec Command="git rev-parse HEAD"
-          ConsoleToMsBuild="true"
-          ContinueOnError="true"
-          StandardOutputImportance="low" StandardErrorImportance="low">
-      <Output TaskParameter="ConsoleOutput" PropertyName="SourceRevisionId" />
-    </Exec>
-    <PropertyGroup>
-      <RepositoryCommit>$(SourceRevisionId)</RepositoryCommit>
-    </PropertyGroup>
-  </Target>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)package-icon.png" Pack="true" PackagePath="/" />
+  </ItemGroup>
 
   <PropertyGroup Label="Licensing">
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
-  
+
   <PropertyGroup Label="Building">
     <LangVersion>10.0</LangVersion>
     <!-- Disable warning for missing XML doc comments. -->
@@ -39,9 +29,19 @@
     <DefaultTargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netstandard2.1;net6.0</DefaultTargetFrameworks>
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
     <AutomaticallyUseReferenceAssemblyPackages>false</AutomaticallyUseReferenceAssemblyPackages>
-    <!-- Pack pdb symbol files -->
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
+
+  <PropertyGroup Label="SourceLink">
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <!-- NB: Don't generate symbol packages. Symbols and sources are packed into the dlls. -->
+    <IncludeSymbols>false</IncludeSymbols>
+    <DebugType>embedded</DebugType>
+    <EmbedAllSources>true</EmbedAllSources>
+  </PropertyGroup>
+
+  <ItemGroup Label="SourceLink">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
+  </ItemGroup>
 
   <PropertyGroup Condition="$(DOTVVM_ROOT) != ''">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>

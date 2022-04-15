@@ -91,10 +91,10 @@ namespace DotVVM.Framework.Controls
             var parameters = ComposeNewRouteParameters(control, context, route);
 
             // evaluate bindings on server
-            foreach (var param in parameters.Where(p => p.Value is IStaticValueBinding).ToList())
+            foreach (var param in parameters)
             {
-                EnsureValidBindingType((IBinding)param.Value!);
-                parameters[param.Key] = ((IValueBinding)param.Value!).Evaluate(control);   // TODO: see below
+                if (param.Value is IStaticValueBinding binding)
+                    parameters[param.Key] = binding.Evaluate(control);
             }
 
             // generate the URL
