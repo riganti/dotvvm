@@ -60,6 +60,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         private (ControlBuilderDescriptor, Lazy<IControlBuilder>) CreateControlBuilder(MarkupFile file)
         {
+            var compilationService = configuration.ServiceProvider.GetService<IDotvvmViewCompilationService>();
             void editCompilationException(DotvvmCompilationException ex)
             {
                 if (ex.FileName == null)
@@ -90,11 +91,18 @@ namespace DotVVM.Framework.Compilation
                             configuration.Resources.RegisterViewModuleResources(import, init);
                         }
 
+                        compilationService.RegisterCompiledView(file.FileName, descriptor, null);
                         return result;
                     }
                     catch (DotvvmCompilationException ex)
                     {
                         editCompilationException(ex);
+                        compilationService.RegisterCompiledView(file.FileName, descriptor, ex);
+                        throw;
+                    }
+                    catch (Exception ex)
+                    {
+                        compilationService.RegisterCompiledView(file.FileName, descriptor, ex);
                         throw;
                     }
                 });
@@ -111,6 +119,12 @@ namespace DotVVM.Framework.Compilation
             catch (DotvvmCompilationException ex)
             {
                 editCompilationException(ex);
+                compilationService.RegisterCompiledView(file.FileName, null, ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                compilationService.RegisterCompiledView(file.FileName, null, ex);
                 throw;
             }
         }

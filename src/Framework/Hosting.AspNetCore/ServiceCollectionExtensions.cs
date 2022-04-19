@@ -88,6 +88,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IDotvvmWarningSink, AspNetCoreLoggerWarningSink>();
 
             services.TryAddSingleton<IStartupTracer>(startupTracer);
+
+            DotvvmHealthCheck.RegisterHealthCheck(services);
         }
     }
 }
