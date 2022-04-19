@@ -328,6 +328,58 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual("AAA", obj.Preinitialized.SortingOptions.SortExpression);
             Assert.AreEqual("AAA", obj2.Preinitialized.SortingOptions.SortExpression);
         }
+
+        [TestMethod]
+        public void SupportConstructorInjection()
+        {
+            var service = DotvvmTestHelper.DefaultConfig.ServiceProvider.GetRequiredService<DotvvmTestHelper.ITestSingletonService>();
+            var obj = new ViewModelWithService("test", service);
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual(obj.Property1, obj2.Property1);
+            Assert.AreEqual(obj.GetService(), obj2.GetService());
+            Assert.AreEqual(obj.Property1, (string)json["Property1"]);
+            Assert.IsFalse(json.ContainsKey("Service"));
+        }
+        public class ViewModelWithService
+        {
+            public string Property1 { get; }
+            private DotvvmTestHelper.ITestSingletonService Service { get; }
+            public DotvvmTestHelper.ITestSingletonService GetService() => Service;
+
+            public ViewModelWithService(string property1, DotvvmTestHelper.ITestSingletonService service)
+            {
+                Property1 = property1;
+                Service = service;
+            }
+        }
+
+        [TestMethod]
+        public void FailsReasonablyOnUnmatchedConstructorProperty1()
+        {
+            var obj = new ViewModelWithUnmatchedConstuctorProperty1("test");
+            var x = Assert.ThrowsException<Exception>(() => SerializeAndDeserialize(obj));
+            Assert.AreEqual("Can not deserialize DotVVM.Framework.Tests.ViewModel.SerializerTests.ViewModelWithUnmatchedConstuctorProperty1, constructor parameter x is not mapped to any property.", x.Message);
+        }
+
+        public class ViewModelWithUnmatchedConstuctorProperty1
+        {
+            public ViewModelWithUnmatchedConstuctorProperty1(string x) { }
+        }
+
+        [TestMethod]
+        public void FailsReasonablyOnUnmatchedConstructorProperty2()
+        {
+            var obj = new ViewModelWithUnmatchedConstuctorProperty2(null!);
+            var x = Assert.ThrowsException<Exception>(() => SerializeAndDeserialize(obj));
+            Assert.AreEqual("Can not deserialize DotVVM.Framework.Tests.ViewModel.SerializerTests.ViewModelWithUnmatchedConstuctorProperty2, constructor parameter x is not mapped to any property and service TestViewModelWithByteArray was not found in ServiceProvider.", x.Message);
+        }
+
+        public class ViewModelWithUnmatchedConstuctorProperty2
+        {
+            public ViewModelWithUnmatchedConstuctorProperty2(TestViewModelWithByteArray x) { }
+        }
+
     }
 
     public class DataNode

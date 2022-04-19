@@ -27,13 +27,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Gets or sets the object type for this serialization map.
         /// </summary>
-        public Type Type { get; private set; }
-        public MethodBase? Constructor { get; set; }
-        public ImmutableArray<ViewModelPropertyMap> Properties { get; private set; }
+        public Type Type { get; }
+        public MethodBase? Constructor { get; }
+        public ImmutableArray<ViewModelPropertyMap> Properties { get; }
 
 
         /// <summary> Rough structure of Properties when the object was initialized. This is used for hot reload to judge if it can be flushed from the cache. </summary>
-        internal (string name, Type t, Direction direction, ProtectMode protection)[] OriginalProperties { get; private set; }
+        internal (string name, Type t, Direction direction, ProtectMode protection)[] OriginalProperties { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewModelSerializationMap"/> class.
@@ -83,17 +83,29 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
 
             if (Constructor is null && (Type.IsInterface || Type.IsAbstract))
-                throw new Exception($"Can not deserialize {Type.FullName} because it's abstact. Please avoid using abstract types in view model. If you really mean it, you can add a static factory method and mark it with [JsonConstructor] attribute.");
+                throw new Exception($"Can not deserialize {Type.ToCode()} because it's abstact. Please avoid using abstract types in view model. If you really mean it, you can add a static factory method and mark it with [JsonConstructor] attribute.");
 
             if (Constructor is null)
-                throw new Exception($"Can not deserialize {Type.FullName}, no constructor or multiple constructors found. Use the [JsonConstructor] attribute to specify the constructor used for deserialization.");
+                throw new Exception($"Can not deserialize {Type.ToCode()}, no constructor or multiple constructors found. Use the [JsonConstructor] attribute to specify the constructor used for deserialization.");
 
             var parameters = Constructor.GetParameters().Select(p => {
                 var pIndex = Properties.FindIndex(pp => pp.ConstructorParameter == p);
-
                 if (pIndex < 0)
-                    return Call(typeof(ServiceProviderServiceExtensions), "GetRequiredService", new [] { p.ParameterType }, services);
-                    // throw new Exception($"Can not deserialize {Type.FullName}, constructor parameter {p.Name} is not mapped to any property.");
+                {
+                    var mayBeService = !ReflectionUtils.IsPrimitiveType(p.ParameterType) && !typeof(IDotvvmViewModel).IsAssignableFrom(p.ParameterType);
+                    if (!mayBeService)
+                        throw new Exception($"Can not deserialize {Type.ToCode()}, constructor parameter {p.Name} is not mapped to any property.");
+
+                    var errorMessage = $"Can not deserialize {Type.ToCode()}, constructor parameter {p.Name} is not mapped to any property and service {p.ParameterType.ToCode(stripNamespace: true)} was not found in ServiceProvider.";
+                    return ExpressionUtils.WrapException(
+                        Call(typeof(ServiceProviderServiceExtensions), "GetRequiredService", new [] { p.ParameterType }, services),
+                        e => throw new Exception(errorMessage, e)
+                    );
+                }
+
+                if (!Properties[pIndex].TransferToServer)
+                    throw new Exception($"Can not deserialize {Type.ToCode()}, property {Properties[pIndex].Name} is not transferred to server, but it's used in constructor.");
+
                 return properties[pIndex];
             }).ToArray();
             return Constructor switch {
@@ -121,7 +133,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var readerTmp = Expression.Variable(typeof(JsonReader), "readerTmp");
 
             // we first read all values into local variables and only then we either call the constructor or set the properties on the object
-            var propertyVars = Properties.Select(p => Variable(p.Type, "prop_" + p.Name)).ToArray();
+            var propertyVars = Properties.Select(p => Expression.Variable(p.Type, "prop_" + p.Name)).ToArray();
 
             var hasConstructorProperties = Properties.Any(p => p.ConstructorParameter is {});
             var constructorCall = CallConstructor(servicesParameter, propertyVars);
@@ -324,8 +336,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var ex = Expression.Lambda<ReaderDelegate>(
                 Expression.Block(typeof(object), new[] { value, currentProperty, readerTmp }.Concat(propertyVars), block).OptimizeConstants(),
                 reader, serializer, valueParam, encryptedValuesReader, servicesParameter);
-            return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression | CompilerFlags.EnableDelegateDebugInfo);
-            //return null;
+            return ex.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
         }
 
         private static Dictionary<Type, MethodInfo> writeValueMethods =
