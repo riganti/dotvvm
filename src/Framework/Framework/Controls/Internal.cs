@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
-using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
@@ -92,7 +87,13 @@ namespace DotVVM.Framework.Controls
             else
                 return null;
         }
+
         /// Sets an expected data context type
-        public static void SetDataContextType(this DotvvmBindableObject obj, DataContextStack? stack) => obj.properties.Set(Internal.DataContextTypeProperty, stack);
+        public static TControl SetDataContextType<TControl>(this TControl control, DataContextStack? stack)
+            where TControl : DotvvmBindableObject
+        {
+            control.properties.Set(Internal.DataContextTypeProperty, stack);
+            return control;
+        }
     }
 }
