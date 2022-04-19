@@ -4,16 +4,35 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
-
+using System.Reflection;
+using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
     public static class DotvvmBindableObjectHelper
     {
+        /// <summary> Sets binding into the SetDataContextType property. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl SetDataContextTypeFromDataSource<TControl>(this TControl control, IBinding dataSourceBinding)
+            where TControl : DotvvmBindableObject
+        {
+            control.SetDataContextType(dataSourceBinding.GetProperty<CollectionElementDataContextBindingProperty>().DataContext);
+            return control;
+        }
+
+        /// <summary> Sets binding into the DataContextTypeProperty. Returns <paramref name="control"/> for fluent API usage. </summary>
+        public static TControl SetDataContextType<TControl>(this TControl control, DataContextStack? stack)
+            where TControl : DotvvmBindableObject
+        {
+            control.properties.Set(Internal.DataContextTypeProperty, stack);
+            return control;
+        }
         /// <summary> Gets the DotvvmProperty referenced by the lambda expression. </summary>
         public static DotvvmProperty GetDotvvmProperty<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject =>
@@ -82,7 +101,7 @@ namespace DotVVM.Framework.Controls
 
         /// <summary> Sets value or binding into the DotvvmProperty. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetProperty<TControl, TProperty>(this TControl control, DotvvmProperty property, ValueOrBinding<TProperty> valueOrBinding)
-            where TControl : DotvvmBindableObject
+            where TControl: DotvvmBindableObject
         {
             if (valueOrBinding.BindingOrDefault == null)
                 control.SetValue(property, valueOrBinding.BoxedValue);
@@ -93,7 +112,7 @@ namespace DotVVM.Framework.Controls
 
         /// <summary> Sets value or binding into the DotvvmProperty. If the <paramref name="valueOrBinding"/> is null, the property is removed. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetProperty<TControl, TProperty>(this TControl control, DotvvmProperty property, ValueOrBinding<TProperty>? valueOrBinding)
-            where TControl : DotvvmBindableObject
+            where TControl: DotvvmBindableObject
         {
             if (valueOrBinding.HasValue)
                 control.SetProperty(property, valueOrBinding.GetValueOrDefault());
@@ -112,7 +131,7 @@ namespace DotVVM.Framework.Controls
 
         /// <summary> Sets value or binding into the DotvvmProperty. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetProperty<TControl>(this TControl control, DotvvmProperty property, object? value)
-            where TControl : DotvvmBindableObject
+            where TControl: DotvvmBindableObject
         {
             control.SetValue(property, value);
             return control;
@@ -214,7 +233,7 @@ namespace DotVVM.Framework.Controls
                 AddAttribute(control, a.Key, a.Value);
             return control;
         }
-
+        
         /// <summary> Appends a list of css attributes to the control. If the attributes already exist, the old and new values are merged. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl AddAttributes<TControl, TValue>(this TControl control, VirtualPropertyGroupDictionary<TValue> attributes)
             where TControl : IControlWithHtmlAttributes
@@ -256,7 +275,7 @@ namespace DotVVM.Framework.Controls
 
         /// <summary> Sets all properties from the capability into this control. If the control does not support the capability, exception is thrown. Returns <paramref name="control"/> for fluent API usage. </summary>
         public static TControl SetCapability<TControl, TCapability>(this TControl control, [AllowNull] TCapability capability, string prefix = "")
-            where TControl : DotvvmBindableObject
+            where TControl: DotvvmBindableObject
         {
             if (capability != null)
             {
@@ -287,7 +306,7 @@ namespace DotVVM.Framework.Controls
 
         /// <summary> Adds all <paramref name="children"/> into control.Children (nulls are skipped). Returns <paramref name="control"/> for fluent API usage. </summary>
         public static T AppendChildren<T>(this T control, IEnumerable<DotvvmControl?>? children)
-            where T : DotvvmControl
+            where T : DotvvmControl 
         {
             if (children != null)
             {
@@ -335,7 +354,7 @@ namespace DotVVM.Framework.Controls
         [return: MaybeNull]
         public static ValueOrBinding<TProperty> GetValueOrBinding<TProperty>(this DotvvmBindableObject control, string propName)
             => control.GetValueOrBinding<TProperty>(control.GetDotvvmProperty(propName));
-
+            
         /// <summary>
         /// Gets the value binding set to dotvvm property of the specified <paramref name="propName" />. Returns null if the property is not a binding, throws if the binding some kind of command.
         /// </summary>
@@ -421,7 +440,7 @@ namespace DotVVM.Framework.Controls
                 dothtmlString += $"{p.name}={p.croppedValue}";
             }
             dothtmlString += " />";
-
+            
             var fileLocation = (location.file)
                      + (location.line >= 0 ? ":" + location.line : "");
 

@@ -1,22 +1,23 @@
+using DotVVM.Framework.Controls;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation.ControlTree;
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-
-using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Binding.Properties;
-using DotVVM.Framework.Compilation;
-using DotVVM.Framework.Compilation.Binding;
-using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using DotVVM.Framework.Compilation.Javascript;
-using DotVVM.Framework.Controls;
-using DotVVM.Framework.Runtime;
+using System.Diagnostics.CodeAnalysis;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Compilation.Binding;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Binding
 {
@@ -308,7 +309,7 @@ namespace DotVVM.Framework.Binding
         /// It thread-safe.
         /// </summary>
         public static Func<TParam, TResult> Cache<TParam, TResult>(this Func<TParam, TResult> func)
-            where TParam : notnull
+            where TParam: notnull
         {
             var cache = new ConcurrentDictionary<TParam, TResult>();
             return f => cache.GetOrAdd(f, func);
@@ -332,9 +333,9 @@ namespace DotVVM.Framework.Binding
         public static BindingParameterAnnotation? GetParameterAnnotation(this Expression expr) =>
             _expressionAnnotations.TryGetValue(expr, out var annotation) ? annotation : null;
 
-        public static TControl SetDataContextTypeFromDataSource<TControl>(this TControl control,
-            IBinding dataSourceBinding) where TControl : DotvvmBindableObject =>
-            control.SetDataContextType(dataSourceBinding.GetProperty<CollectionElementDataContextBindingProperty>().DataContext);
+        public static void SetDataContextTypeFromDataSource(this DotvvmBindableObject obj, IBinding dataSourceBinding) =>
+            obj.SetDataContextType(dataSourceBinding.GetProperty<CollectionElementDataContextBindingProperty>().DataContext);
+
 
         /// <summary> Return the expected data context type for this property. Returns null if the type is unknown. </summary>
         public static DataContextStack? GetDataContextType(this DotvvmProperty property, DotvvmBindableObject obj)
