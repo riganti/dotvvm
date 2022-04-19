@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -74,15 +75,24 @@ namespace DotVVM.Framework.Controls
         /// Gets id of the control that will be written in 'id' attribute. Returns null if the IDProperty is not set.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public string? ClientID => (string?)GetValue(ClientIDProperty) ?? CreateAndSaveClientId();
+        public ValueOrBinding<string>? ClientID => EnsureClientId();
         public static readonly DotvvmProperty ClientIDProperty
             = DotvvmProperty.Register<string?, DotvvmControl>(c => c.ClientID, null);
 
-        string? CreateAndSaveClientId()
+        ValueOrBinding<string>? EnsureClientId()
         {
-            var id = CreateClientId();
-            if (id != null) SetValue(ClientIDProperty, id);
-            return (string?)id;
+            if (!IsPropertySet(IDProperty))
+            {
+                return null;
+            }
+            if (IsPropertySet(ClientIDProperty))
+            {
+                return GetValueOrBinding<string>(ClientIDProperty);
+            }
+
+            var id = CreateClientId().NotNull();
+            SetValue(ClientIDProperty, id);
+            return ValueOrBinding<string>.FromBoxedValue(id);
         }
 
 
@@ -389,7 +399,7 @@ namespace DotVVM.Framework.Controls
         {
             if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
 
-            var control = GetAllDescendants().SingleOrDefault(c => c.ClientID == id);
+            var control = GetAllDescendants().SingleOrDefault(c => c.ClientID?.ValueOrDefault == id);
             if (control == null && throwIfNotFound)
             {
                 throw new Exception(string.Format("The control with ID '{0}' was not found.", id));
@@ -488,23 +498,28 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the internal unique ID of the control. Returns either string or IValueBinding.
         /// </summary>
-        public object GetDotvvmUniqueId() =>
+        public object GetDotvvmUniqueId(string prefix = null, string suffix = null) =>
             // build the client ID
-            JoinValuesOrBindings(GetUniqueIdFragments());
+            JoinValuesOrBindings(GetUniqueIdFragments(), prefix, suffix);
 
-        private object JoinValuesOrBindings(IList<object?> fragments)
+        private object JoinValuesOrBindings(IList<object?> fragments, string prefix, string suffix)
         {
             if (fragments.Count == 1)
                 return fragments[0] ?? "";
             else if (fragments.All(f => f is string or null))
             {
-                return string.Join("_", fragments);
+                return prefix + string.Join("_", fragments) + suffix;
             }
             else
             {
                 BindingCompilationService? service = null;
                 var result = new ParametrizedCode.Builder();
                 var first = true;
+                if (prefix != null)
+                {
+                    result.Add(JavascriptCompilationHelper.CompileConstant(prefix));
+                    result.Add("+");
+                }
                 foreach (var f in fragments)
                 {
                     if (!first | (first = false))
@@ -516,18 +531,24 @@ namespace DotVVM.Framework.Controls
                     }
                     else result.Add(JavascriptCompilationHelper.CompileConstant(f));
                 }
+                if (suffix != null)
+                {
+                    Debug.Assert(fragments.Any());
+                    result.Add("+");
+                    result.Add(JavascriptCompilationHelper.CompileConstant(suffix));
+                }
                 if (service == null) throw new NotSupportedException();
                 return ValueBindingExpression.CreateBinding<string?>(service.WithoutInitialization(), h => null, result.Build(new OperatorPrecedence(OperatorPrecedence.Addition, false)), this.GetDataContextType());
             }
         }
 
         /// <summary>
-        /// Adds the corresponding attribute for the Id property.
+        /// Calculates the corresponding attribute for the Id property.
         /// </summary>
-        protected virtual object? CreateClientId() =>
+        public object? CreateClientId(string prefix = null, string suffix = null) =>
             !this.IsPropertySet(IDProperty) ? null :
                 // build the client ID
-                GetClientIdFragments()?.Apply(JoinValuesOrBindings);
+                GetClientIdFragments()?.Apply(list => JoinValuesOrBindings(list, prefix, suffix));
 
         private IList<object?> GetUniqueIdFragments()
         {
