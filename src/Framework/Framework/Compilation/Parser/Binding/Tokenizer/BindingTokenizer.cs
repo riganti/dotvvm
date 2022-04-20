@@ -8,6 +8,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
     public class BindingTokenizer : TokenizerBase<BindingToken, BindingTokenType>
     {
         private static readonly HashSet<char> operatorCharacters = new HashSet<char> { '+', '-', '*', '/', '^', '\\', '%', '<', '>', '=', '&', '|', '~', '!', ';' };
+        private static readonly HashSet<char> unaryOperatorCharacters = new HashSet<char> { '~', '!' };
         internal readonly int bindingPositionOffset;
 
         public BindingTokenizer(int bindingPositionOffset = 0) : base(BindingTokenType.Identifier, BindingTokenType.WhiteSpace)
@@ -16,6 +17,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
         }
 
         public bool IsOperator(char c) => operatorCharacters.Contains(c);
+
+        public bool IsUnaryOperator(char c) => unaryOperatorCharacters.Contains(c);
 
         public override void Tokenize(string sourceText)
         {
@@ -287,17 +290,17 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
 
         internal void EnsureUnsupportedOperator(BindingTokenType preferredOperatorToken)
         {
-            if (IsOperator(Peek()))
+            if (IsUnaryOperator(Peek()) || !IsOperator(Peek()))
+            {
+                CreateToken(preferredOperatorToken);
+            }
+            else
             {
                 while (IsOperator(Peek()))
                 {
                     Read();
                 }
                 CreateToken(BindingTokenType.UnsupportedOperator);
-            }
-            else
-            {
-                CreateToken(preferredOperatorToken);
             }
         }
 

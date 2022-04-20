@@ -51,6 +51,19 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
+        public void BindingTokenizer_OperatorPrecedence_NegationAfterAssignment()
+        {
+            var tokens = Tokenize("a=!a");
+
+            var index = 0;
+            Assert.AreEqual(4, tokens.Count);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.AssignOperator, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.NotOperator, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+        }
+
+        [TestMethod]
         public void BindingTokenizer_AllOperators_Valid()
         {
             var tokens = Tokenize("+ - * / % < > <= >= == != ! & && | || ? : ?? . , =>");
