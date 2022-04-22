@@ -70,8 +70,8 @@ jobs:
           -buildNumber "${{ github.run_id }}" `
           -additionalSuffix "${{ github.event.inputs.additionalSuffix }}" `
           -isFinalPreview ${{ format('${0}', github.event.inputs.is-final-preview) }} `
-          -useBuildNumber ${{ format('${0}', github.event.inputs.use-build-number) }})
-        echo "Version is set to '$version'"
+          -useBuildNumber ${{ format('${0}', github.event.inputs.use-build-number) }}) ;
+        echo "Version is set to '$version'" ;
         echo "DOTVVM_VERSION=$version" >> $GITHUB_ENV
 
     - name: Set up
