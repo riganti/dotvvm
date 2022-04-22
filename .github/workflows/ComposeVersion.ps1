@@ -12,16 +12,30 @@ if ($isFinalPreview -and -not ($preview)) {
     throw "The preview version must be set if a release is a final preview!"
 }
 
-$major = [int]::Parse($major)
-$minor = [int]::Parse($minor)
-$patch = [int]::Parse($patch)
-$preview = [int]::Parse($preview)
-$preview = ([string]$preview).PadLeft(2, '0');
+function Get-Number {
+    param(
+        [Parameter(Position = 0)]
+        [string]$arg,
+
+        [Parameter(Position = 1)]
+        [string]$desc = "required"
+    )
+    $argInt = 0
+    if (-not([int]::TryParse($arg, [ref]$argInt))) {
+        throw "Failed to parse '$arg' as a $desc version."
+    }
+    return [string]$argInt
+}
+
+$major = Get-Number $major "major"
+$minor = Get-Number $minor "minor"
+$patch = Get-Number $patch "patch"
 
 $versionCore = "$major.$minor.$patch"
 $_previewSuffix = $_buildNumberSuffix = $_finalSuffix = $_additionalSuffix = "";
 
 if ($preview) {
+    $preview = ([string](Get-Number $preview "preview")).PadLeft(2, '0')
     $_previewSuffix = "-preview$preview";
 }
 
