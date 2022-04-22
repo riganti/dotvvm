@@ -72,8 +72,8 @@ jobs:
           -isFinalPreview ${{ format('${0}', github.event.inputs.is-final-preview) }} `
           -useBuildNumber ${{ format('${0}', github.event.inputs.use-build-number) }}) ;
         echo "Version is set to '$version'" ;
-        echo "DOTVVM_VERSION=$version" >> "${{ env.GITHUB_ENV}}"" ;
-        cat "${{ env.GITHUB_ENV}}"
+        echo "DOTVVM_VERSION=$version" >> "${{ github.env }}"" ;
+        cat "${{ github.env }}"
 
     - name: Compose version
       run: echo ${{ env.DOTVVM_VERSION }}
