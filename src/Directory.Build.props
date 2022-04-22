@@ -49,4 +49,8 @@
     <BaseOutputPath>$(RepoRoot)artifacts\bin\$(MSBuildProjectName)\</BaseOutputPath>
     <PackageOutputPath>$(RepoRoot)artifacts\packages\</PackageOutputPath>
   </PropertyGroup>
+
+  <PropertyGroup Condition="$(DOTVVM_VERSION) != ''">
+    <Version>$(DOTVVM_VERSION)</Version>
+  </PropertyGroup>
 </Project>

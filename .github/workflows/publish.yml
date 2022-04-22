@@ -13,6 +13,41 @@ on:
         default: false
         description: Push to NuGet.org?
         required: true
+      major:
+        type: string
+        default: "4"
+        description: Major version
+        required: true
+      minor:
+        type: string
+        default: "0"
+        description: Minor version
+        required: true
+      patch:
+        type: string
+        default: "0"
+        description: Patch version
+        required: true
+      preview:
+        type: string
+        default: ""
+        description: Preview number
+        required: false
+      is-final-preview:
+        type: boolean
+        default: false
+        description: Is this a final preview version?
+        required: true
+      use-build-number:
+        type: boolean
+        default: true
+        description: Append the build number?
+        required: true
+      additional-suffix:
+        type: string
+        default: ""
+        description: Additional suffix
+        required: false
 
 env:
   AZURE_ARTIFACTS_FEED_URL: https://pkgs.dev.azure.com/rigantitfs/DotVVM/_packaging/GitHubPublishTest/nuget/v3/index.json
@@ -30,6 +65,20 @@ jobs:
       with:
         azure-artifacts-feed: ${{ env.AZURE_ARTIFACTS_FEED_URL }}
         azure-artifacts-pat: ${{ secrets.AZURE_ARTIFACTS_PAT }}
+
+    - name: Compose version
+      run: >
+        $version = $(./.github/workflows/ComposeVersion.ps1
+          -major "${{ inputs.major }}"
+          -minor "${{ inputs.minor }}"
+          -patch "${{ inputs.patch }}"
+          -preview "${{ inputs.preview }}"
+          -buildNumber "${{ github.run_id }}"
+          -additionalSuffix ${{ inputs.additionalSuffix }}
+          -isFinalPreview ${{ inputs.is-final-preview }}
+          -useBuildNumber ${{ inputs.use-build-number }}) ;
+        echo "Version is set to '$version'" ;
+        echo "DOTVVM_VERSION=$version" >> $GITHUB_ENV
 
     - name: DotVVM.Core
       uses: ./.github/pack
