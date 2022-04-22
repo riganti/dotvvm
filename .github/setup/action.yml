@@ -6,6 +6,12 @@ inputs:
     default: src/DotVVM.sln
     description: Path to a Visual Studio solution
     required: false
+  azure-artifacts-feed:
+    required: false
+    description: An URL to an Azure Artifacts NuGet feed
+  azure-artifacts-pat:
+    required: false
+    description: A PAT to publish on Azure Artifacts
 
 runs:
   using: composite

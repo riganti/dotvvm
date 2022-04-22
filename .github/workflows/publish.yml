@@ -9,6 +9,9 @@ on:
         description: A test input.
         required: false
 
+env:
+  AZURE_ARTIFACTS_FEED_URL: https://pkgs.dev.azure.com/rigantitfs/DotVVM/_packaging/GitHubPublishTest/nuget/v3/index.json
+
 jobs:
   pack-projects:
     name: Pack projects
@@ -19,6 +22,9 @@ jobs:
 
     - name: Set up
       uses: ./.github/setup
+      with:
+        azure-artifacts-feed: ${{ env.AZURE_ARTIFACTS_FEED_URL }}
+        azure-artifacts-pat: ${{ secrets.AZURE_ARTIFACTS_PAT }}
 
     - name: DotVVM.Core
       uses: ./.github/pack
@@ -114,3 +120,6 @@ jobs:
       uses: ./.github/pack
       with:
         project: src/Tracing/MiniProfiler.Owin
+
+    - name: Publish to the GitHubPublishTest feed
+      run: dotnet nuget push --api-key AzureArtifacts --source "${{ env.AZURE_ARTIFACTS_FEED_URL }}" "${{ github.workspace }}/artifacts/packages/*.nupkg"
