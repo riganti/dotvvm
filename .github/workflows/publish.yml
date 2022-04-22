@@ -122,4 +122,4 @@ jobs:
         project: src/Tracing/MiniProfiler.Owin
 
     - name: Publish to the GitHubPublishTest feed
-      run: dotnet nuget push --api-key AzureArtifacts --source "${{ env.AZURE_ARTIFACTS_FEED_URL }}" "${{ github.workspace }}/artifacts/packages/*.nupkg"
+      run: dotnet nuget push --api-key AzureArtifacts --source "${{ env.AZURE_ARTIFACTS_FEED_URL }}" ${{ github.workspace }}/artifacts/packages/*.nupkg
