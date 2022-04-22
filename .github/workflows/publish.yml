@@ -53,8 +53,8 @@ env:
   AZURE_ARTIFACTS_FEED_URL: https://pkgs.dev.azure.com/rigantitfs/DotVVM/_packaging/GitHubPublishTest/nuget/v3/index.json
 
 jobs:
-  pack-projects:
-    name: Pack projects
+  publish:
+    name: Publish
     runs-on: windows-2022
     timeout-minutes: 20
     steps:
