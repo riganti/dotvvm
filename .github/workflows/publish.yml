@@ -68,11 +68,15 @@ jobs:
           -patch "${{ github.event.inputs.patch }}" `
           -preview "${{ github.event.inputs.preview }}" `
           -buildNumber "${{ github.run_id }}" `
-          -additionalSuffix "${{ github.event.inputs.additionalSuffix }}" `
+          -additionalSuffix "${{ github.event.inputs.additional-suffix }}" `
           -isFinalPreview ${{ format('${0}', github.event.inputs.is-final-preview) }} `
           -useBuildNumber ${{ format('${0}', github.event.inputs.use-build-number) }}) ;
         echo "Version is set to '$version'" ;
-        echo "DOTVVM_VERSION=$version" >> $GITHUB_ENV
+        echo "DOTVVM_VERSION=$version" >> $GITHUB_ENV ;
+        cat $GITHUB_ENV
+
+    - name: Compose version
+      run: echo ${{ env.DOTVVM_VERSION }}
 
     - name: Set up
       uses: ./.github/setup
