@@ -63,14 +63,14 @@ jobs:
     - name: Compose version
       run: >
         $version = $(./.github/workflows/ComposeVersion.ps1 `
-          -major "${{ inputs.major }}" `
-          -minor "${{ inputs.minor }}" `
-          -patch "${{ inputs.patch }}" `
-          -preview "${{ inputs.preview }}" `
+          -major "${{ github.event.inputs.major }}" `
+          -minor "${{ github.event.inputs.minor }}" `
+          -patch "${{ github.event.inputs.patch }}" `
+          -preview "${{ github.event.inputs.preview }}" `
           -buildNumber "${{ github.run_id }}" `
-          -additionalSuffix "${{ inputs.additionalSuffix }}" `
-          -isFinalPreview ${{ fromJSON('["$true", "$false"]')[inputs.is-final-preview] }} `
-          -useBuildNumber ${{ fromJSON('["$true", "$false"]')[inputs.use-build-number] }})
+          -additionalSuffix "${{ github.event.inputs.additionalSuffix }}" `
+          -isFinalPreview ${{ fromJSON('["$true", "$false"]')[github.event.inputs.is-final-preview] }} `
+          -useBuildNumber ${{ fromJSON('["$true", "$false"]')[github.event.inputs.use-build-number] }})
         echo "Version is set to '$version'"
         echo "DOTVVM_VERSION=$version" >> $GITHUB_ENV
 
