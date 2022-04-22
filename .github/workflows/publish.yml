@@ -122,5 +122,8 @@ jobs:
         project: src/Tracing/MiniProfiler.Owin
 
     - name: Publish to the GitHubPublishTest feed
-      run: dotnet nuget push --api-key AzureArtifacts --source "${{ env.AZURE_ARTIFACTS_FEED_URL }}" "artifacts/packages/*.nupkg"
+      run: >
+        Get-ChildItem -Path "${{ github.workspace}}/artifacts/packages" -Filter "*.nupkg" | ForEach-Object {
+          dotnet nuget push --api-key AzureArtifacts --source "${{ env.AZURE_ARTIFACTS_FEED_URL }}" $_.FullName
+        }
       working-directory: ${{ github.workspace }}
