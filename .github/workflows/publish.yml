@@ -68,7 +68,7 @@ jobs:
           -patch "${{ inputs.patch }}" `
           -preview "${{ inputs.preview }}" `
           -buildNumber "${{ github.run_id }}" `
-          -additionalSuffix ${{ inputs.additionalSuffix }} `
+          -additionalSuffix "${{ inputs.additionalSuffix }}" `
           -isFinalPreview ${{ inputs.is-final-preview }} `
           -useBuildNumber ${{ inputs.use-build-number }})
         echo "Version is set to '$version'"
