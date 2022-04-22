@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using CheckTestOutput;
 using DotVVM.Framework.Binding;
@@ -48,7 +49,7 @@ namespace DotVVM.Framework.Tests.ControlTests
                 <cc:WrappedHtmlControl TagName=div Text={value: Label} />
                 <!-- Content -->
                 <cc:WrappedHtmlControl TagName=div> <!-- empty content --> </cc:WrappedHtmlControl>
-                <cc:WrappedHtmlControl TagName=div> Something here </cc:WrappedHtmlControl>
+                <cc:WrappedHtmlControl TagName=div> <Content> Something here </Content> </cc:WrappedHtmlControl>
 
                 <cc:WithPrivateGetContents TagName=article />
                 "
@@ -144,6 +145,31 @@ namespace DotVVM.Framework.Tests.ControlTests
             check.CheckString(r.FormattedHtml, fileExtension: "html");
         }
 
+        [TestMethod]
+        public async Task ControlWithMultipleEnumClasses()
+        {
+            var r = await cth.RunPage(typeof(BasicTestViewModel), @"
+                <dot:Placeholder RenderSettings.Mode=Server>
+
+
+                    <!-- static value -->
+                    <cc:ControlWithMultipleEnumClasses Type1=A Type2=D />
+                    <!-- value binding + resource binding -->
+                    <cc:ControlWithMultipleEnumClasses Type1={value: EnumForCssClasses} Type2={resource: TrueBool ? 'D' : 'A'} />
+                    <!-- value binding + static -->
+                    <cc:ControlWithMultipleEnumClasses Type1={value: EnumForCssClasses} Type2=D />
+                    <!-- static + value binding -->
+                    <cc:ControlWithMultipleEnumClasses Type1=D Type2={value: EnumForCssClasses} />
+                    <!-- both value bindings -->
+                    <cc:ControlWithMultipleEnumClasses Type1={value: TrueBool ? 'D' : 'A'} Type2={value: EnumForCssClasses} />
+
+                </dot:Placeholder>
+                "
+            );
+
+            check.CheckString(r.FormattedHtml, fileExtension: "html");
+        }
+
         public class BasicTestViewModel: DotvvmViewModelBase
         {
             [Bind(Name = "int")]
@@ -156,6 +182,10 @@ namespace DotVVM.Framework.Tests.ControlTests
             public bool AfterPreRender { get; set; } = false;
 
             public List<string> List { get; set; } = new List<string> { "list-item1", "list-item2" };
+
+            public bool TrueBool { get; set; } = true;
+
+            public EnumForCssClasses EnumForCssClasses { get; set; } = EnumForCssClasses.C;
 
             public override Task PreRender()
             {
@@ -170,6 +200,7 @@ namespace DotVVM.Framework.Tests.ControlTests
         public static DotvvmControl GetContents(
             string tagName,
             HtmlCapability html,
+            [MarkupOptions(MappingMode = MappingMode.InnerElement)]
             TextOrContentCapability content
         )
         {
@@ -305,5 +336,30 @@ namespace DotVVM.Framework.Tests.ControlTests
                 _ => throw null
             };
         }
+    }
+
+    public class ControlWithMultipleEnumClasses: CompositeControl
+    {
+        public static DotvvmControl GetContents(
+            ValueOrBinding<EnumForCssClasses> type1,
+            ValueOrBinding<EnumForCssClasses> type2
+        )
+        {
+            return new HtmlGenericControl("div")
+                .AddAttribute("class", type1)
+                .AddAttribute("class", type2);
+        }
+    }
+
+    public enum EnumForCssClasses
+    {
+        [EnumMember(Value = "class-a")]
+        A,
+        [EnumMember(Value = "class-b")]
+        B,
+        [EnumMember(Value = "class-c")]
+        C,
+        [EnumMember(Value = "class-d")]
+        D
     }
 }
