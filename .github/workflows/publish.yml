@@ -3,11 +3,16 @@ name: Publish packages
 on:
   workflow_dispatch:
     inputs:
-      test:
+      push-internal-feed:
+        type: boolean
+        default: true
+        description: Push to internal feed?
+        required: true
+      push-public-feed:
         type: boolean
         default: false
-        description: A test input.
-        required: false
+        description: Push to NuGet.org?
+        required: true
 
 env:
   AZURE_ARTIFACTS_FEED_URL: https://pkgs.dev.azure.com/rigantitfs/DotVVM/_packaging/GitHubPublishTest/nuget/v3/index.json
@@ -121,9 +126,18 @@ jobs:
       with:
         project: src/Tracing/MiniProfiler.Owin
 
-    - name: Publish to the GitHubPublishTest feed
+    - name: Publish to the internal feed
       run: >
         Get-ChildItem -Path "${{ github.workspace}}/artifacts/packages" -Filter "*.nupkg" | ForEach-Object {
           dotnet nuget push --api-key AzureArtifacts --source "${{ env.AZURE_ARTIFACTS_FEED_URL }}" $_.FullName
         }
       working-directory: ${{ github.workspace }}
+      if: ${{ inputs.push-internal-feed }}
+
+    - name: Publish to the public feed
+      run: >
+        Get-ChildItem -Path "${{ github.workspace}}/artifacts/packages" -Filter "*.nupkg" | ForEach-Object {
+          Write-Host "Pretending to push '$($_.FullName)' to NuGet.org."
+        }
+      working-directory: ${{ github.workspace }}
+      if: ${{ inputs.push-public-feed }}
