@@ -185,7 +185,7 @@ jobs:
           dotnet nuget push --api-key AzureArtifacts --source "${{ env.AZURE_ARTIFACTS_FEED_URL }}" $_.FullName
         }
       working-directory: ${{ github.workspace }}
-      if: ${{ inputs.push-internal-feed }}
+      if: ${{ github.event.inputs.push-internal-feed }}
 
     - name: Publish to the public feed
       run: >
@@ -193,4 +193,4 @@ jobs:
           Write-Host "Pretending to push '$($_.FullName)' to NuGet.org."
         }
       working-directory: ${{ github.workspace }}
-      if: ${{ inputs.push-public-feed }}
+      if: ${{ github.event.inputs.push-public-feed }}
