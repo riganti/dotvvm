@@ -60,25 +60,25 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Compose version
+      run: >
+        $version = $(./.github/workflows/ComposeVersion.ps1 `
+          -major "${{ inputs.major }}" `
+          -minor "${{ inputs.minor }}" `
+          -patch "${{ inputs.patch }}" `
+          -preview "${{ inputs.preview }}" `
+          -buildNumber "${{ github.run_id }}" `
+          -additionalSuffix ${{ inputs.additionalSuffix }} `
+          -isFinalPreview ${{ inputs.is-final-preview }} `
+          -useBuildNumber ${{ inputs.use-build-number }})
+        echo "Version is set to '$version'"
+        echo "DOTVVM_VERSION=$version" >> $GITHUB_ENV
+
     - name: Set up
       uses: ./.github/setup
       with:
         azure-artifacts-feed: ${{ env.AZURE_ARTIFACTS_FEED_URL }}
         azure-artifacts-pat: ${{ secrets.AZURE_ARTIFACTS_PAT }}
-
-    - name: Compose version
-      run: >
-        $version = $(./.github/workflows/ComposeVersion.ps1
-          -major "${{ inputs.major }}"
-          -minor "${{ inputs.minor }}"
-          -patch "${{ inputs.patch }}"
-          -preview "${{ inputs.preview }}"
-          -buildNumber "${{ github.run_id }}"
-          -additionalSuffix ${{ inputs.additionalSuffix }}
-          -isFinalPreview ${{ inputs.is-final-preview }}
-          -useBuildNumber ${{ inputs.use-build-number }}) ;
-        echo "Version is set to '$version'" ;
-        echo "DOTVVM_VERSION=$version" >> $GITHUB_ENV
 
     - name: DotVVM.Core
       uses: ./.github/pack
