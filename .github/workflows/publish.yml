@@ -69,8 +69,8 @@ jobs:
           -preview "${{ inputs.preview }}" `
           -buildNumber "${{ github.run_id }}" `
           -additionalSuffix "${{ inputs.additionalSuffix }}" `
-          -isFinalPreview ${{ fromJSON("['$true', '$false']")[inputs.is-final-preview] }} `
-          -useBuildNumber ${{ fromJSON("['$true', '$false']")[inputs.use-build-number] }})
+          -isFinalPreview ${{ fromJSON('["$true", "$false"]')[inputs.is-final-preview] }} `
+          -useBuildNumber ${{ fromJSON('["$true", "$false"]')[inputs.use-build-number] }})
         echo "Version is set to '$version'"
         echo "DOTVVM_VERSION=$version" >> $GITHUB_ENV
 
