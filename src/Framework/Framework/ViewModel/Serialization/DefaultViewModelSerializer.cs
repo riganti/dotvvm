@@ -149,6 +149,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 result["renderedResources"] = JArray.FromObject(context.ResourceManager.GetNamedResourcesInOrder().Select(r => r.Name));
             }
 
+            if (context.Route != null)
+            {
+                result["routeName"] = context.Route.RouteName;
+                result["routeParameters"] = new JObject(context.Parameters.Select(p => new JProperty(p.Key, p.Value)).ToArray());
+            }
+
             // TODO: do not send on postbacks
             if (validationRules?.Count > 0) result["validationRules"] = validationRules;
 

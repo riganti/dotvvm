@@ -1,4 +1,4 @@
-import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture, getState, getStateManager } from "./dotvvm-base"
+import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture, getState, getStateManager, getRouteName, getRouteParameters } from "./dotvvm-base"
 import * as events from './events'
 import * as spa from "./spa/spa"
 import * as validation from './validation/validation'
@@ -86,6 +86,8 @@ const dotvvmExports = {
             get viewModel() { return getViewModel() }
         }
     },
+    get routeName() { return getRouteName() },
+    get routeParameters() { return getRouteParameters() },
     get state() { return getState() },
     patchState(a: any) {
         getStateManager().patchState(a)
