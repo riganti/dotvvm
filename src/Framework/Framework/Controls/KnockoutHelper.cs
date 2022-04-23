@@ -248,9 +248,9 @@ namespace DotVVM.Framework.Controls
                     p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
                     p == CommandBindingExpression.CurrentPathParameter ? CodeParameterAssignment.FromIdentifier(getContextPath(control)) :
                     p == CommandBindingExpression.ControlUniqueIdParameter ? (
-                        uniqueControlId is IValueBinding ?
-                            ((IValueBinding)uniqueControlId).GetParametrizedKnockoutExpression(control) :
-                            CodeParameterAssignment.FromIdentifier(MakeStringLiteral((string)uniqueControlId!))
+                        uniqueControlId?.BindingOrDefault is IValueBinding binding ?
+                            binding.GetParametrizedKnockoutExpression(control) :
+                            CodeParameterAssignment.FromIdentifier(MakeStringLiteral(uniqueControlId?.ValueOrDefault!))
                         ) :
                     p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
                     p == JavascriptTranslator.KnockoutViewModelParameter ? viewModel :
