@@ -30,6 +30,7 @@ import * as string from './utils/stringHelper'
 import { StateManager } from "./state-manager"
 import { DotvvmEvent } from "./events"
 import * as dateTime from './utils/dateTimeHelper'
+import * as webview from './webview/webview'
 
 if (window["dotvvm"]) {
     throw new Error('DotVVM is already loaded!')
@@ -138,13 +139,18 @@ if (compileConstants.isSpa) {
     (dotvvmExports as any).isSpaReady = isSpaReady;
     (dotvvmExports as any).handleSpaNavigation = handleSpaNavigation;
 }
-
+if (compileConstants.isWebview) {
+    (dotvvmExports as any).webview = webview;
+}
 if (compileConstants.debug) {
     (dotvvmExports as any).debug = true
 }
 
 declare global {
-    const dotvvm: typeof dotvvmExports & {debug?: true, isSpaReady?: typeof isSpaReady, handleSpaNavigation?: typeof handleSpaNavigation};
+    const dotvvm: typeof dotvvmExports &
+        { isSpaReady?: typeof isSpaReady, handleSpaNavigation?: typeof handleSpaNavigation } &
+        { webview?: typeof webview } &
+        { debug?: true };
 
     interface Window {
         dotvvm: typeof dotvvmExports
