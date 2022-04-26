@@ -71,20 +71,6 @@ export function findPathToChildObject(vm: any, child: any, path: string): string
     return null;
 }
 
-export function evaluateOnViewModel(context: any, expression: string): any {
-    // todo: reimplement
-    let result;
-    if (context && context.$data) {
-        result = new Function("$context", "with($context) { with ($data) { return " + expression + "; } }")(context);
-    } else {
-        result = new Function("$context", "var $data=$context; with($context) { return " + expression + "; }")(context);
-    }
-    if (result && result.$data) {
-        result = result.$data;
-    }
-    return result;
-}
-
 export function getDataSourceItems(viewModel: any): Array<KnockoutObservable<any>> {
     const value = ko.unwrap(viewModel);
     if (value == null) {
