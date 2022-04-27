@@ -125,15 +125,23 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public static Type? ToSystemType(ITypeDescriptor? typeDescriptor)
         {
             if (typeDescriptor == null) return null;
-            else if (typeDescriptor is ResolvedTypeDescriptor)
+            
+            return TryToSystemType(typeDescriptor) ??
+                    throw new InvalidOperationException($"Type {typeDescriptor.FullName}, {typeDescriptor.Assembly} could not be found using reflection.");
+        }
+
+        public static Type? TryToSystemType(ITypeDescriptor? typeDescriptor)
+        {
+            if (typeDescriptor == null) return null;
+            else if (typeDescriptor is ResolvedTypeDescriptor { Type: var type })
             {
-                return ((ResolvedTypeDescriptor)typeDescriptor).Type;
+                return type;
             }
             else
             {
                 return
-                    Type.GetType(typeDescriptor.FullName + ", " + typeDescriptor.Assembly)
-                    ?? throw new InvalidOperationException($"Type {typeDescriptor.FullName} could not be found using reflection.");
+                    Type.GetType(typeDescriptor.FullName + ", " + typeDescriptor.Assembly) ??
+                    Type.GetType(typeDescriptor.FullName);
             }
         }
 
