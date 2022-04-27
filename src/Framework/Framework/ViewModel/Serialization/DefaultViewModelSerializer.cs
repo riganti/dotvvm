@@ -64,7 +64,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], false, i => ShouldIncludeProperty(i.TypeId, i.Property));
                 context.ViewModelJson.Remove("viewModel");
             }
-            return context.ViewModelJson.ToString(JsonFormatting);
+            var result = context.ViewModelJson.ToString(JsonFormatting);
+            context.HttpContext.SetItem("dotvvm-viewmodel-size-bytes", result.Length);
+            return result;
         }
 
         private bool? ShouldIncludeProperty(string typeId, string property)

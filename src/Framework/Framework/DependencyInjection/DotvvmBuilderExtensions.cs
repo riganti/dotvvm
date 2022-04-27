@@ -98,7 +98,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Services.AddScoped<DiagnosticsRequestTracer>();
             services.Services.AddScoped<IRequestTracer>(s => {
                 var config = s.GetRequiredService<DotvvmConfiguration>();
-                return (config.Debug ? (IRequestTracer)s.GetService<DiagnosticsRequestTracer>() : null) ?? new NullRequestTracer();
+                return (config.Debug ? (IRequestTracer)s.GetService<DiagnosticsRequestTracer>() : null) ?? NullRequestTracer.Instance;
             });
 
             return services;
