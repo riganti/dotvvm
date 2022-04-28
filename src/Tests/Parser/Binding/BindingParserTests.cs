@@ -367,6 +367,38 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
+        public void BindingParser_AssignOperator_ValueWithUnaryMinus()
+        {
+            var result = (BinaryOperatorBindingParserNode)bindingParserNodeFactory.Parse("a=-5");
+            Assert.AreEqual(BindingTokenType.AssignOperator, result.Operator);
+
+            var first = (IdentifierNameBindingParserNode)result.FirstExpression;
+            Assert.AreEqual("a", first.Name);
+
+            var second = (UnaryOperatorBindingParserNode)result.SecondExpression;
+            Assert.AreEqual(BindingTokenType.SubtractOperator, second.Operator);
+
+            var literal = (LiteralExpressionBindingParserNode)second.InnerExpression;
+            Assert.AreEqual(5, (int)literal.Value);
+        }
+
+        [TestMethod]
+        public void BindingParser_AssignOperator_ValueWithUnaryNegation()
+        {
+            var result = (BinaryOperatorBindingParserNode)bindingParserNodeFactory.Parse("a=!b");
+            Assert.AreEqual(BindingTokenType.AssignOperator, result.Operator);
+
+            var first = (IdentifierNameBindingParserNode)result.FirstExpression;
+            Assert.AreEqual("a", first.Name);
+
+            var second = (UnaryOperatorBindingParserNode)result.SecondExpression;
+            Assert.AreEqual(BindingTokenType.NotOperator, second.Operator);
+
+            var identifier = (IdentifierNameBindingParserNode)second.InnerExpression;
+            Assert.AreEqual("b", identifier.Name);
+        }
+
+        [TestMethod]
         public void BindingParser_AssignOperator_Incomplete()
         {
             var result = (BinaryOperatorBindingParserNode)bindingParserNodeFactory.Parse("a = ");

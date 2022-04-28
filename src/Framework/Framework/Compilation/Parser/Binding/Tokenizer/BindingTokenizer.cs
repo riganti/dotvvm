@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
     public class BindingTokenizer : TokenizerBase<BindingToken, BindingTokenType>
     {
         private static readonly HashSet<char> operatorCharacters = new HashSet<char> { '+', '-', '*', '/', '^', '\\', '%', '<', '>', '=', '&', '|', '~', '!', ';' };
-        private static readonly HashSet<char> unaryOperatorCharacters = new HashSet<char> { '~', '!' };
+        private static readonly HashSet<char> unaryOperatorCharacters = new HashSet<char> { '+', '-', '~', '!' };
         internal readonly int bindingPositionOffset;
 
         public BindingTokenizer(int bindingPositionOffset = 0) : base(BindingTokenType.Identifier, BindingTokenType.WhiteSpace)
