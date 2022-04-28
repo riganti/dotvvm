@@ -1,4 +1,5 @@
 {
+  "dotvvmVersion": "*.*.*.*",
   "config": {
     "applicationPhysicalPath": "/opt/myApp",
     "markup": {
