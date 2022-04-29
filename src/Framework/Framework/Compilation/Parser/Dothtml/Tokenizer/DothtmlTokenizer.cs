@@ -633,9 +633,8 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
                         // -- we may need to ignore some curly brackets
                         // -- additionally also some quotes might be ignored
                         BindingTokenizer.ReadInterpolatedString(Peek, Read, out _);
-                        continue;
                     }
-                    if (current == '\'' || current == '"')
+                    else if (current == '\'' || current == '"')
                     {
                         // string literal - ignore curly braces inside
                         BindingTokenizer.ReadStringLiteral(Peek, Read, out _);
