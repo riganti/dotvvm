@@ -9,6 +9,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using System;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
@@ -104,8 +105,8 @@ namespace DotVVM.Framework.Compilation.Directives
 
         protected virtual DotvvmProperty TryCreateDotvvmPropertyFromDirective(IAbstractPropertyDeclarationDirective propertyDeclarationDirective)
         {
-            var propertyType = propertyDeclarationDirective.PropertyType.As<ResolvedTypeDescriptor>()!;
-            var declaringType = propertyDeclarationDirective.DeclaringType.As<ResolvedTypeDescriptor>()!;
+            if(propertyDeclarationDirective.PropertyType is not ResolvedTypeDescriptor { Type: not null } propertyType) { throw new ArgumentException("propertyDeclarationDirective.PropertyType must be of type ResolvedTypeDescriptor and have non null type."); }
+            if(propertyDeclarationDirective.DeclaringType is not ResolvedTypeDescriptor { Type: not null } declaringType) { throw new ArgumentException("propertyDeclarationDirective.DeclaringType must be of type ResolvedTypeDescriptor and have non null type."); }
 
             return DotvvmProperty.Register(
                 propertyDeclarationDirective.NameSyntax.Name,
