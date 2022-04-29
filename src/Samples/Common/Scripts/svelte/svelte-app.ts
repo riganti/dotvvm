@@ -1,8 +1,9 @@
-﻿/// <reference path="../../../../Framework/Framework/obj/typescript-types/dotvvm.d.ts" />
-
-import Chart from './Chart.svelte'
+﻿import Chart from './Chart.svelte'
 import Incrementer from './Incrementer2.svelte'
+import TemplateSelector from './TemplateSelector.svelte'
 
+// copy pasted from generated svelte code,
+// they don't currently have a public API for two way data bindings
 function svelte_bind(component, name, callback) {
     const index = component.$$.props[name];
     if (index !== undefined) {
@@ -14,7 +15,7 @@ function svelte_bind(component, name, callback) {
 export const registerSvelteControl = (Control, defaultProps = {}) => ({
     create: (elm, props, commands, templates, setProps) => {
         const initialProps = { ...defaultProps, ...commands, ...templates }
-        let currentProps = { ...initialProps, ...props };
+        let currentProps = { ...initialProps, ...props }
 
         const c = new Control({
             target: elm,
@@ -28,7 +29,6 @@ export const registerSvelteControl = (Control, defaultProps = {}) => ({
                 setProps(updateObj)
             }
         }
-
         for (const p of Object.keys(props)) {
             svelte_bind(c, p, propertyUpdated(p))
         }
@@ -42,11 +42,8 @@ export const registerSvelteControl = (Control, defaultProps = {}) => ({
         }
 
 
-        // ReactDOM.render(<ReactControl {...currentProps} />, elm);
         return {
             updateProps(updatedProps) {
-                // currentProps = { ...currentProps, ...updatedProps }
-                // ReactDOM.render(<ReactControl {...currentProps} />, elm)
                 currentProps = { ...currentProps, ...updatedProps }
                 c.$set(updatedProps)
             },
@@ -62,6 +59,7 @@ export const registerSvelteControl = (Control, defaultProps = {}) => ({
 export default (context) => ({
     $controls: {
         chart: registerSvelteControl(Chart, { context, onMouse() { /* default empty method */ } }),
-        incrementer: registerSvelteControl(Incrementer)
+        incrementer: registerSvelteControl(Incrementer),
+        TemplateSelector: registerSvelteControl(TemplateSelector)
     }
 })
