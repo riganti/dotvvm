@@ -194,7 +194,7 @@ namespace DotVVM.Framework.Controls
                 var uniqueId = GetDotvvmUniqueId() is string id ? id : Guid.NewGuid().ToString();
                 clientItemTemplateId = $"{uniqueId}-item";
                 clientItemTemplate = GetClientItemTemplate(context);
-                AddTemplateResource(context, clientItemTemplate, clientItemTemplateId);
+                context.ResourceManager.AddTemplateResource(context, clientItemTemplate, clientItemTemplateId);
                 if (string.IsNullOrEmpty(LevelTagName))
                 {
                     clientRootLevel = new PlaceHolder();
@@ -377,18 +377,6 @@ namespace DotVVM.Framework.Controls
             emptyDataContainer.SetBinding(DataSourceProperty, GetDataSourceBinding());
             EmptyDataTemplate!.BuildContent(context, emptyDataContainer);
             return emptyDataContainer;
-        }
-
-        private void AddTemplateResource(IDotvvmRequestContext context, DotvvmControl template, string id)
-        {
-            if (context.ResourceManager.RequiredResources.Contains(id))
-            {
-                return;
-            }
-
-            using var text = new StringWriter();
-            template.Render(new HtmlWriter(text, context), context);
-            context.ResourceManager.AddRequiredResource(id, new TemplateResource(text.ToString()));
         }
 
         private IEnumerable<object> GetItemChildren(object item)
