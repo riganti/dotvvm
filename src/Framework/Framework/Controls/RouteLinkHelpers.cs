@@ -91,7 +91,12 @@ namespace DotVVM.Framework.Controls
             var parameters = ComposeNewRouteParameters(control, context, route);
 
             // evaluate bindings on server
-            foreach (var param in parameters)
+            foreach (var param in parameters
+#if !DotNetCore
+// .NET framework does not allow dictionary modification while it's being enumerated.
+                .ToArray()
+#endif
+            )
             {
                 if (param.Value is IStaticValueBinding binding)
                     parameters[param.Key] = binding.Evaluate(control);
