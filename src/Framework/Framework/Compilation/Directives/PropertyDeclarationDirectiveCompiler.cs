@@ -63,16 +63,16 @@ namespace DotVVM.Framework.Compilation.Directives
             var result = new List<(ActualTypeReferenceBindingParserNode, IdentifierNameBindingParserNode, LiteralExpressionBindingParserNode)>();
             foreach (var attributeReference in attributeReferences)
             {
-                if (!(attributeReference is BinaryOperatorBindingParserNode assigment && assigment.Operator == BindingTokenType.AssignOperator))
+                if (attributeReference is not BinaryOperatorBindingParserNode { Operator: BindingTokenType.AssignOperator } assignment)
                 {
                     directiveNode.AddError("Property attributes must be in the form Attribute.Property = value.");
                     continue;
                 }
 
-                var attributePropertyReference = assigment.FirstExpression as MemberAccessBindingParserNode;
+                var attributePropertyReference = assignment.FirstExpression as MemberAccessBindingParserNode;
                 var attributeTypeReference = attributePropertyReference?.TargetExpression;
                 var attributePropertyNameReference = attributePropertyReference?.MemberNameExpression;
-                var initializer = assigment.SecondExpression as LiteralExpressionBindingParserNode;
+                var initializer = assignment.SecondExpression as LiteralExpressionBindingParserNode;
 
                 if (attributeTypeReference == null || attributePropertyNameReference == null)
                 {
@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Compilation.Directives
             }
 
             return directives
-            .Where(d => d.PropertyType is ResolvedTypeDescriptor resolvedTypeDescriptor && resolvedTypeDescriptor.Type is not null)
+            .Where(d => d.PropertyType is ResolvedTypeDescriptor { Type: not null })
             .Select(d => TryCreateDotvvmPropertyFromDirective(d))
             .ToImmutableList();
         }

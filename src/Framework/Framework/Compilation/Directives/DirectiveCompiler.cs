@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Compilation.Directives
             return valueSyntaxRoot;
         }
 
-        public record DirectiveCompilationResult(ImmutableList<TDirective> Diractives, TArtefact Artefact);
+        public record DirectiveCompilationResult(ImmutableList<TDirective> Directives, TArtefact Artefact);
     }
 
 }

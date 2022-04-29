@@ -97,16 +97,12 @@ namespace DotVVM.Framework.Compilation.Directives
         /// </summary>
         private ITypeDescriptor GetDefaultWrapperType()
         {
-            ITypeDescriptor wrapperType;
             if (fileName.EndsWith(".dotcontrol", StringComparison.Ordinal))
             {
-                wrapperType = new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl));
+                return new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl));
             }
-            else
-            {
-                wrapperType = new ResolvedTypeDescriptor(typeof(DotvvmView));
-            }
-            return wrapperType;
+
+            return new ResolvedTypeDescriptor(typeof(DotvvmView));
         }
     }
 

@@ -31,27 +31,27 @@ namespace DotVVM.Framework.Compilation.Directives
             var importCompiler = new ImportDirectiveCompiler(directivesByName, treeBuilder);
             var importResult = importCompiler.Compile();
             var imports = importResult.Artefact;
-            resolvedDirectives.AddIfAny(importCompiler.DirectiveName, importResult.Diractives);
+            resolvedDirectives.AddIfAny(importCompiler.DirectiveName, importResult.Directives);
 
             var viewModelDirectiveCompiler = new ViewModelDirectiveCompiler(directivesByName, treeBuilder, fileName, imports);
             var viewModelTypeResult = viewModelDirectiveCompiler.Compile();
             var viewModelType = viewModelTypeResult.Artefact;
             if (!string.IsNullOrEmpty(viewModelType.Error)) { dothtmlRoot.AddError(viewModelType.Error!); }
-            resolvedDirectives.AddIfAny(viewModelDirectiveCompiler.DirectiveName, viewModelTypeResult.Diractives);
+            resolvedDirectives.AddIfAny(viewModelDirectiveCompiler.DirectiveName, viewModelTypeResult.Directives);
 
             var masterPageDirectiveCompiler = new MasterPageDirectiveCompiler(directivesByName, treeBuilder, controlBuilderFactory, viewModelType.TypeDescriptor);
             var masterPageDirectiveResult = masterPageDirectiveCompiler.Compile();
             var masterPage = masterPageDirectiveResult.Artefact;
-            resolvedDirectives.AddIfAny(masterPageDirectiveCompiler.DirectiveName, masterPageDirectiveResult.Diractives);
+            resolvedDirectives.AddIfAny(masterPageDirectiveCompiler.DirectiveName, masterPageDirectiveResult.Directives);
 
             var serviceCompiler = new ServiceDirectiveCompiler(directivesByName, treeBuilder, imports);
             var injectedServicesResult = serviceCompiler.Compile();
-            resolvedDirectives.AddIfAny(serviceCompiler.DirectiveName, injectedServicesResult.Diractives);
+            resolvedDirectives.AddIfAny(serviceCompiler.DirectiveName, injectedServicesResult.Directives);
 
             var baseTypeCompiler = new BaseTypeDirectiveCompiler(directivesByName, treeBuilder, fileName, imports);
             var baseTypeResult = baseTypeCompiler.Compile();
             var baseType = baseTypeResult.Artefact;
-            resolvedDirectives.AddIfAny(baseTypeCompiler.DirectiveName, baseTypeResult.Diractives);
+            resolvedDirectives.AddIfAny(baseTypeCompiler.DirectiveName, baseTypeResult.Directives);
 
             var viewModuleDirectiveCompiler = new ViewModuleDirectiveCompiler(
                 directivesByName,
@@ -60,11 +60,11 @@ namespace DotVVM.Framework.Compilation.Directives
                 !baseType.IsEqualTo(ResolvedTypeDescriptor.Create(typeof(DotvvmView))),
                 resourceRepository);
             var viewModuleResult = viewModuleDirectiveCompiler.Compile();
-            resolvedDirectives.AddIfAny(viewModuleDirectiveCompiler.DirectiveName, viewModuleResult.Diractives);
+            resolvedDirectives.AddIfAny(viewModuleDirectiveCompiler.DirectiveName, viewModuleResult.Directives);
 
             var propertyDirectiveCompiler = new PropertyDeclarationDirectiveCompiler(directivesByName, treeBuilder, baseType, imports);
             var propertyResult = propertyDirectiveCompiler.Compile();
-            resolvedDirectives.AddIfAny(propertyDirectiveCompiler.DirectiveName, propertyResult.Diractives);
+            resolvedDirectives.AddIfAny(propertyDirectiveCompiler.DirectiveName, propertyResult.Directives);
 
             var defaultResolver = new DefaultDirectiveResolver(directivesByName, treeBuilder);
 
