@@ -7,9 +7,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class ArrayInitializerExpression : BindingParserNode
     {
-        public IList<BindingParserNode> ElementInitializers { get; private set; }
+        public List<BindingParserNode> ElementInitializers { get; }
 
-        public ArrayInitializerExpression(IList<BindingParserNode> elementInitializers)
+        public ArrayInitializerExpression(List<BindingParserNode> elementInitializers)
         {
             ElementInitializers = elementInitializers;
         }
