@@ -67,7 +67,6 @@ namespace DotVVM.Framework.Compilation.Directives
         protected virtual ITypeDescriptor? CreateDymanicDeclaringType(ITypeDescriptor? originalWrapperType)
         {
             var baseType = originalWrapperType?.CastTo<ResolvedTypeDescriptor>().Type ?? typeof(DotvvmMarkupControl);
-            AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Guid.NewGuid().ToString()), AssemblyBuilderAccess.Run);
 
             var newDynamicAssemblyName = $"DotvvmMarkupControlDynamicAssembly-{Guid.NewGuid()}";
             var assemblyName = new AssemblyName(newDynamicAssemblyName);
