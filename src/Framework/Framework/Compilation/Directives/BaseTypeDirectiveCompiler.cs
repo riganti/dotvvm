@@ -10,13 +10,14 @@ using System.Reflection.Emit;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Utils;
 using System.Linq;
-using DotVVM.Framework.Compilation.ViewCompiler;
 using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Compilation.Directives
 {
     public class BaseTypeDirectiveCompiler : DirectiveCompiler<IAbstractBaseTypeDirective, ITypeDescriptor>
     {
+        private static readonly Lazy<ModuleBuilder> DynamicMarkupControlAssembly = new (CreateDynamicMarkupControlAssembly);
+
         private readonly string fileName;
         private readonly ImmutableList<NamespaceImport> imports;
 
@@ -68,29 +69,17 @@ namespace DotVVM.Framework.Compilation.Directives
         {
             var baseType = originalWrapperType?.CastTo<ResolvedTypeDescriptor>().Type ?? typeof(DotvvmMarkupControl);
 
-            var newDynamicAssemblyName = $"DotvvmMarkupControlDynamicAssembly-{Guid.NewGuid()}";
-            var assemblyName = new AssemblyName(newDynamicAssemblyName);
-            var assemblyBuilder =
-                AssemblyBuilder.DefineDynamicAssembly(
-                    assemblyName,
-                    AssemblyBuilderAccess.Run);
-
-            // For a single-module assembly, the module name is usually
-            // the assembly name plus an extension.
-            var mb =
-                assemblyBuilder.DefineDynamicModule(newDynamicAssemblyName);
-
-            var declaringTypeBuilder = mb.DefineType(
+            var declaringTypeBuilder = DynamicMarkupControlAssembly.Value.DefineType(
                 $"DotvvmMarkupControl-{Guid.NewGuid()}",
                  TypeAttributes.Public, baseType);
 
-            var createdTypeInfo = declaringTypeBuilder.CreateTypeInfo()?.AsType(); 
+            var createdTypeInfo = declaringTypeBuilder.CreateTypeInfo()?.AsType();
 
             return createdTypeInfo is not null
                 ? new ResolvedTypeDescriptor(createdTypeInfo)
                 : null;
         }
-
+        
         /// <summary>
         /// Gets the default type of the wrapper for the view.
         /// </summary>
@@ -102,6 +91,22 @@ namespace DotVVM.Framework.Compilation.Directives
             }
 
             return new ResolvedTypeDescriptor(typeof(DotvvmView));
+        }
+
+        private static ModuleBuilder CreateDynamicMarkupControlAssembly()
+        {
+            var newDynamicAssemblyName = $"DotvvmMarkupControlDynamicAssembly-{Guid.NewGuid()}";
+            var assemblyName = new AssemblyName(newDynamicAssemblyName);
+            var assemblyBuilder =
+                AssemblyBuilder.DefineDynamicAssembly(
+                    assemblyName,
+                    AssemblyBuilderAccess.Run);
+
+            // For a single-module assembly, the module name is usually
+            // the assembly name plus an extension.
+            var mb =
+                assemblyBuilder.DefineDynamicModule(newDynamicAssemblyName);
+            return mb;
         }
     }
 
