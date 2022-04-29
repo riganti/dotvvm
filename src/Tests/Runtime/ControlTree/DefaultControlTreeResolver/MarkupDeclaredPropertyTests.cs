@@ -142,6 +142,22 @@ fileName: "control.dotcontrol");
             Assert.IsTrue(declarationDirective.DothtmlNode.NodeErrors.Any(e=> e.Contains("type")));
         }
 
+        [DataTestMethod]
+        [DataRow("[ 1, '', '', '' ]", "string []")]
+        [DataRow("[ 1, 0.0, 0.0, 0.0 ]", "int []")]
+        public void ResolvedTree_MarkupDeclaredProperty_ElementTypeCannotBeDetermined(string initializer, string typeName)
+        {
+            var root = ParseSource(@$"@viewModel object
+@property {typeName} MisstypedProperty = {initializer}
+",
+fileName: "control.dotcontrol");
+            var declarationDirective = EnsureSingleResolvedDeclarationDirective(root);
+
+            Assert.IsTrue(declarationDirective.DothtmlNode.HasNodeErrors);
+            Assert.IsTrue(declarationDirective.DothtmlNode.NodeErrors.Any(e => e.Contains("initialize") && e.Contains("value")));
+            Assert.IsTrue(declarationDirective.DothtmlNode.NodeErrors.Any(e => e.Contains("same type")));
+        }
+
         private static void CheckPropertyAndBinding(ResolvedTreeRoot root, Type expectedType, string expectedName)
         {
             var declarationDirective = EnsureSingleResolvedDeclarationDirective(root);

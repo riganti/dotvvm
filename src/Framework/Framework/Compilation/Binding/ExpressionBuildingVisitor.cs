@@ -533,9 +533,9 @@ namespace DotVVM.Framework.Compilation.Binding
 
             var firstInitializer = initializers.FirstOrDefault();
 
-            var firstElementType = firstInitializer?.Type ?? typeof(object);
+            var firstElementType = firstInitializer?.Type ?? throw new DotvvmCompilationException($"Could not get the determine type of array element.");
 
-            var arrayElementType = initializers.All(i => i.Type.IsAssignableFrom(firstElementType)) ? firstElementType : typeof(object);
+            var arrayElementType = initializers.All(i => i.Type.IsAssignableFrom(firstElementType)) ? firstElementType : throw new DotvvmCompilationException($"All elements of the array initializer must be of the same type.");
 
             return Expression.NewArrayInit(arrayElementType, initializers.Select(i => Expression.Convert(i, arrayElementType)));
         }
