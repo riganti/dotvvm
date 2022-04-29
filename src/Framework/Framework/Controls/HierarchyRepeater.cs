@@ -326,18 +326,10 @@ namespace DotVVM.Framework.Controls
                     ? new PlaceHolder()
                     : new HtmlGenericControl(ItemTagName);
                 dataItem.Children.Add(itemWrapper);
-                // TODO: this is horrible, find a better way to render the begin and end tags
-                itemWrapper.AppendChildren(new HtmlLiteral {
-                    RenderWrapperTag = false,
-                    Html = "<!-- ko with: $item -->"
-                });
 
-                ItemTemplate.BuildContent(context, itemWrapper);
-
-                itemWrapper.AppendChildren(new HtmlLiteral {
-                    RenderWrapperTag = false,
-                    Html = "<!-- /ko -->"
-                });
+                var dataContextChangeItemWrapper = new HierarchyRepeaterItem();
+                itemWrapper.Children.Add(dataContextChangeItemWrapper);
+                ItemTemplate.BuildContent(context, dataContextChangeItemWrapper);
 
                 var foreachExpression = ((IValueBinding)ItemChildrenBinding!
                         .GetProperty<DataSourceAccessBinding>()
@@ -367,7 +359,6 @@ namespace DotVVM.Framework.Controls
                     ForeachExpression = foreachExpression
                 };
                 levelWrapper.Children.Add(level);
-                level.SetProperty(RenderSettings.ModeProperty, new ValueOrBinding<RenderMode>(RenderMode.Client));
                 level.SetProperty(IncludeInPageProperty,
                     (IValueBinding)ItemChildrenBinding!.GetProperty<DataSourceLengthBinding>().Binding);
             }
@@ -394,7 +385,8 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// A container for a level of the <see cref="HierarchyRepeater"/>.
+        /// An internal control for a level of the <see cref="HierarchyRepeater"/> that renders
+        /// the appropriate foreach binding.
         /// </summary>
         private class HierarchyRepeaterLevel : DotvvmControl
         {
@@ -430,6 +422,20 @@ namespace DotVVM.Framework.Controls
 
                 base.RenderControl(writer, context);
 
+                writer.WriteKnockoutDataBindEndComment();
+            }
+        }
+
+        /// <summary>
+        /// An internal control for an item of the <see cref="HierarchyRepeater"/>. Always renders a simple wit
+        /// binding.
+        /// </summary>
+        private class HierarchyRepeaterItem : DotvvmControl
+        {
+            protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
+            {
+                writer.WriteKnockoutDataBindComment("with", "$item");
+                base.RenderControl(writer, context);
                 writer.WriteKnockoutDataBindEndComment();
             }
         }
