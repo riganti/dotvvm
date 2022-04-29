@@ -77,32 +77,6 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<ITemplate?, HierarchyRepeater>(t => t.EmptyDataTemplate);
 
         /// <summary>
-        /// Gets or sets the name of the tag that wraps each hierarchy level (eg. <c>ul</c>).
-        /// </summary>
-        [MarkupOptions(AllowBinding = false)]
-        public string? LevelTagName
-        {
-            get => (string?)GetValue(LevelTagNameProperty);
-            set => SetValue(LevelTagNameProperty, value);
-        }
-
-        public static readonly DotvvmProperty LevelTagNameProperty =
-            DotvvmProperty.Register<string?, HierarchyRepeater>(t => t.LevelTagName);
-
-        /// <summary>
-        /// Gets or sets the name of the tag that wraps each hierarchy item (eg. <c>li</c>).
-        /// </summary>
-        [MarkupOptions(AllowBinding = false)]
-        public string? ItemTagName
-        {
-            get => (string?)GetValue(ItemTagNameProperty);
-            set => SetValue(ItemTagNameProperty, value);
-        }
-
-        public static readonly DotvvmProperty ItemTagNameProperty
-            = DotvvmProperty.Register<string, HierarchyRepeater>(c => c.ItemTagName);
-
-        /// <summary>
         /// Gets or sets whether the control should render a wrapper element.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
@@ -128,21 +102,21 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty WrapperTagNameProperty =
             DotvvmProperty.Register<string, HierarchyRepeater>(t => t.WrapperTagName, "div");
 
-        public HtmlCapability LevelHtmlCapability
+        public WrapperCapability LevelWrapperCapability
         {
-            get => (HtmlCapability)this.GetValue(Level_HtmlCapabilityProperty)!;
-            set => this.SetValue(Level_HtmlCapabilityProperty, value);
+            get => (WrapperCapability)this.GetValue(LevelWrapperCapabilityProperty)!;
+            set => this.SetValue(LevelWrapperCapabilityProperty, value);
         }
-        public static readonly DotvvmCapabilityProperty Level_HtmlCapabilityProperty =
-            DotvvmCapabilityProperty.RegisterCapability<HtmlCapability, HierarchyRepeater>("Level:");
+        public static readonly DotvvmCapabilityProperty LevelWrapperCapabilityProperty =
+            DotvvmCapabilityProperty.RegisterCapability<WrapperCapability, HierarchyRepeater>("Level");
 
-        public HtmlCapability ItemHtmlCapability
+        public WrapperCapability ItemWrapperCapability
         {
-            get => (HtmlCapability)this.GetValue(Item_HtmlCapabilityProperty)!;
-            set => this.SetValue(Item_HtmlCapabilityProperty, value);
+            get => (WrapperCapability)this.GetValue(ItemWrapperCapabilityProperty)!;
+            set => this.SetValue(ItemWrapperCapabilityProperty, value);
         }
-        public static readonly DotvvmCapabilityProperty Item_HtmlCapabilityProperty =
-            DotvvmCapabilityProperty.RegisterCapability<HtmlCapability, HierarchyRepeater>("Item:");
+        public static readonly DotvvmCapabilityProperty ItemWrapperCapabilityProperty =
+            DotvvmCapabilityProperty.RegisterCapability<WrapperCapability, HierarchyRepeater>("Item");
 
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
@@ -205,9 +179,7 @@ namespace DotVVM.Framework.Controls
                 clientItemTemplateId = $"{uniqueId}-item";
                 clientItemTemplate = GetClientItemTemplate(context);
                 context.ResourceManager.AddTemplateResource(context, clientItemTemplate, clientItemTemplateId);
-                clientRootLevel = string.IsNullOrEmpty(LevelTagName)
-                    ? new PlaceHolder()
-                    : new HtmlGenericControl(LevelTagName, LevelHtmlCapability);
+                clientRootLevel = LevelWrapperCapability.GetWrapper();
 
                 Children.Add(clientRootLevel);
                 clientRootLevel.AppendChildren(new HierarchyRepeaterLevel {
@@ -242,9 +214,7 @@ namespace DotVVM.Framework.Controls
             var level = new HierarchyRepeaterLevel {
                 ForeachExpression = foreachExpression
             };
-            DotvvmControl levelWrapper = string.IsNullOrEmpty(LevelTagName)
-                ? new PlaceHolder()
-                : new HtmlGenericControl(LevelTagName, LevelHtmlCapability);
+            var levelWrapper = LevelWrapperCapability.GetWrapper();
 
             level.Children.Add(levelWrapper);
             {
@@ -264,9 +234,7 @@ namespace DotVVM.Framework.Controls
             ImmutableArray<int> parentPath,
             int index)
         {
-            DotvvmControl itemWrapper = string.IsNullOrEmpty(ItemTagName)
-                ? new PlaceHolder()
-                : new HtmlGenericControl(ItemTagName, ItemHtmlCapability);
+            var itemWrapper = ItemWrapperCapability.GetWrapper();
             var dataItem = new DataItemContainer { DataItemIndex = index };
             itemWrapper.Children.Add(dataItem);
             dataItem.SetDataContextTypeFromDataSource(GetDataSourceBinding());
@@ -320,9 +288,7 @@ namespace DotVVM.Framework.Controls
                     dataItem.GetDataContextType());
                 dataItem.SetValue(Internal.ClientIDFragmentProperty, clientIdFragmentProperty);
 
-                DotvvmControl itemWrapper = string.IsNullOrEmpty(ItemTagName)
-                    ? new PlaceHolder()
-                    : new HtmlGenericControl(ItemTagName, ItemHtmlCapability);
+                var itemWrapper = ItemWrapperCapability.GetWrapper();
                 dataItem.Children.Add(itemWrapper);
 
                 var dataContextChangeItemWrapper = new HierarchyRepeaterItem();
@@ -340,9 +306,7 @@ namespace DotVVM.Framework.Controls
                             default
                         );
 
-                DotvvmControl levelWrapper = string.IsNullOrEmpty(LevelTagName)
-                    ? new PlaceHolder()
-                    : new HtmlGenericControl(LevelTagName, LevelHtmlCapability);
+                var levelWrapper = LevelWrapperCapability.GetWrapper();
 
                 itemWrapper.Children.Add(levelWrapper);
 

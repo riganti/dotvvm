@@ -7,10 +7,10 @@
     <h2>Server Rendering</h2>
     <dot:HierarchyRepeater DataSource="{value: Roots}"
                            ItemChildrenBinding="{value: Children}"
-                           LevelTagName="ul"
-                           Level:class="level"
-                           ItemTagName="li"
-                           Item:class="item"
+                           LevelWrapperTagName="ul"
+                           LevelClass="level"
+                           ItemWrapperTagName="li"
+                           ItemClass="item"
                            RenderSettings.Mode="Server"
                            PostBack.Update="true">
         <span RenderSettings.Mode="Client" title={value: _root.GlobalLabel}>{{value: Name}}</span>
@@ -20,10 +20,10 @@
     <h2>Client Rendering</h2>
     <dot:HierarchyRepeater DataSource="{value: Roots}"
                            ItemChildrenBinding="{value: Children}"
-                           LevelTagName="ul"
-                           Level:class="level"
-                           ItemTagName="li"
-                           Item:class="item"
+                           LevelWrapperTagName="ul"
+                           LevelClass="level"
+                           ItemWrapperTagName="li"
+                           ItemClass="item"
                            RenderSettings.Mode="Client">
         <span title={value: _root.GlobalLabel}>{{value: Name}}</span>
         <dot:Button Click="{command: _root.ClickNode(_this)}" Text="{value: ClickCount}" />
