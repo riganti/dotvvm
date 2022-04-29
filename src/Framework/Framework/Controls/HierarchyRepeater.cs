@@ -75,12 +75,6 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<ITemplate?, HierarchyRepeater>(t => t.EmptyDataTemplate);
 
         /// <summary>
-        /// Gets or sets an action used to build the element that wraps each hierarchy level (eg. <c>ul</c>).
-        /// </summary>
-        [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public Action<HtmlGenericControl>? BuildLevelWrapper { get; set; }
-
-        /// <summary>
         /// Gets or sets the name of the tag that wraps each hierarchy level (eg. <c>ul</c>).
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
@@ -92,12 +86,6 @@ namespace DotVVM.Framework.Controls
 
         public static readonly DotvvmProperty LevelTagNameProperty =
             DotvvmProperty.Register<string?, HierarchyRepeater>(t => t.LevelTagName);
-
-        /// <summary>
-        /// Gets or sets an action used to build the element that wraps each hierarchy item (eg. <c>li</c>).
-        /// </summary>
-        [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public Action<DataItemContainer, HtmlGenericControl>? BuildItemWrapper { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the tag that wraps each hierarchy item (eg. <c>li</c>).
@@ -137,6 +125,14 @@ namespace DotVVM.Framework.Controls
 
         public static readonly DotvvmProperty WrapperTagNameProperty =
             DotvvmProperty.Register<string, HierarchyRepeater>(t => t.WrapperTagName, "div");
+
+        public HtmlCapability LevelHtmlCapability
+        {
+            get => (HtmlCapability)this.GetValue(Level_HtmlCapabilityProperty)!;
+            set => this.SetValue(Level_HtmlCapabilityProperty, value);
+        }
+        public static readonly DotvvmCapabilityProperty Level_HtmlCapabilityProperty =
+            DotvvmCapabilityProperty.RegisterCapability<HtmlCapability, HierarchyRepeater>("Level:");
 
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
@@ -199,10 +195,15 @@ namespace DotVVM.Framework.Controls
                 clientItemTemplateId = $"{uniqueId}-item";
                 clientItemTemplate = GetClientItemTemplate(context);
                 AddTemplateResource(context, clientItemTemplate, clientItemTemplateId);
-                clientRootLevel = string.IsNullOrEmpty(LevelTagName)
-                    ? new PlaceHolder()
-                    : new HtmlGenericControl(LevelTagName);
-                
+                if (string.IsNullOrEmpty(LevelTagName))
+                {
+                    clientRootLevel = new PlaceHolder();
+                }
+                else
+                {
+                    clientRootLevel = new HtmlGenericControl(LevelTagName, LevelHtmlCapability);
+                }
+
                 Children.Add(clientRootLevel);
                 clientRootLevel.AppendChildren(new HierarchyRepeaterLevel {
                     IsRoot = true,
@@ -236,18 +237,22 @@ namespace DotVVM.Framework.Controls
             var level = new HierarchyRepeaterLevel {
                 ForeachExpression = foreachExpression
             };
+            DotvvmControl? levelWrapper;
+            if (string.IsNullOrEmpty(LevelTagName))
             {
-                DotvvmControl levelWrapper = string.IsNullOrEmpty(LevelTagName)
-                            ? new PlaceHolder()
-                            : new HtmlGenericControl(LevelTagName);
-                level.Children.Add(levelWrapper);
+                levelWrapper = new PlaceHolder();
+            }
+            else
+            {
+                levelWrapper = new HtmlGenericControl(LevelTagName, LevelHtmlCapability);
+            }
+            level.Children.Add(levelWrapper);
+            {
+                var index = 0;
+                foreach (var item in items)
                 {
-                    var index = 0;
-                    foreach (var item in items)
-                    {
-                        levelWrapper.AppendChildren(CreateServerItem(context, item, parentPath, index));
-                        index++;
-                    }
+                    levelWrapper.AppendChildren(CreateServerItem(context, item, parentPath, index));
+                    index++;
                 }
             }
             return level;
@@ -338,9 +343,16 @@ namespace DotVVM.Framework.Controls
                             default
                         );
 
-                DotvvmControl levelWrapper = string.IsNullOrEmpty(LevelTagName)
-                    ? new PlaceHolder()
-                    : new HtmlGenericControl(LevelTagName);
+                DotvvmControl? levelWrapper = null;
+                if (string.IsNullOrEmpty(LevelTagName))
+                {
+                    levelWrapper = new PlaceHolder();
+                }
+                else
+                {
+                    levelWrapper = new HtmlGenericControl(LevelTagName, LevelHtmlCapability);
+                }
+
                 itemWrapper.Children.Add(levelWrapper);
 
                 var level = new HierarchyRepeaterLevel {

@@ -8,6 +8,7 @@
     <dot:HierarchyRepeater DataSource="{value: Roots}"
                            ItemChildrenBinding="{value: Children}"
                            LevelTagName="ul"
+                           Level:class="test"
                            ItemTagName="li"
                            RenderSettings.Mode="Server"
                            PostBack.Update="true">
