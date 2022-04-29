@@ -12,6 +12,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Controls
 {
@@ -312,9 +313,14 @@ namespace DotVVM.Framework.Controls
             {
                 dataItem.DataContext = null;
                 dataItem.SetValue(Internal.PathFragmentProperty, $"{GetPathFragmentExpression()}/[$indexPath]");
-                // TODO: this does not work, we need to set a data binding into the Internal.ClientIDFragmentProperty
-                dataItem.SetValue(Internal.ClientIDFragmentProperty, "$indexPath.map(function(i){return i();}).join(\"_\")");
+                var bindingService = context.Services.GetRequiredService<BindingCompilationService>();
                 dataItem.SetDataContextTypeFromDataSource(GetDataSourceBinding());
+                var clientIdFragmentProperty = ValueBindingExpression.CreateBinding<string?>(
+                    bindingService.WithoutInitialization(),
+                    h => null,
+                    new ParametrizedCode("$indexPath.map(ko.unwrap).join(\"_\")", OperatorPrecedence.Max),
+                    dataItem.GetDataContextType());
+                dataItem.SetValue(Internal.ClientIDFragmentProperty, clientIdFragmentProperty);
 
                 DotvvmControl itemWrapper = string.IsNullOrEmpty(ItemTagName)
                     ? new PlaceHolder()
