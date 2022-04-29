@@ -3,6 +3,12 @@ using System.Reflection;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
+    /// <summary>
+    /// Abstract tree node representing semantic for control property declaration in DotHTML markup.
+    ///
+    /// Example:
+    /// @property string MyProperty = "Initial value", MyAttribute.Property = true
+    /// </summary>
     public interface IAbstractPropertyDeclarationDirective : IAbstractDirective, ICustomAttributeProvider
     {
         SimpleNameBindingParserNode NameSyntax { get; }
