@@ -239,15 +239,13 @@ namespace DotVVM.Framework.Controls
             // NB: the placeholder is needed because during data context resolution DataItemContainers are looked up
             //     only among parents
             var placeholder = new PlaceHolder { DataContext = item };
-            {
-                var parentSegment = parentPath.IsDefaultOrEmpty
-                    ? string.Empty
-                    : $"/[{string.Join("]/[", parentPath)}]";
-                placeholder.SetValue(
-                    Internal.PathFragmentProperty,
-                    $"{GetPathFragmentExpression()}{parentSegment}/[{index}]");
-                ItemTemplate.BuildContent(context, placeholder);
-            }
+            var parentSegment = parentPath.IsDefaultOrEmpty
+                ? string.Empty
+                : $"/[{string.Join("]/[", parentPath)}]";
+            placeholder.SetValue(
+                Internal.PathFragmentProperty,
+                $"{GetPathFragmentExpression()}{parentSegment}/[{index}]");
+            ItemTemplate.BuildContent(context, placeholder);
             dataItem.Children.Add(placeholder);
 
             // if the item has children then recurse down
