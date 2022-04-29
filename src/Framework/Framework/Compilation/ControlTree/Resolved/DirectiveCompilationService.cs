@@ -72,12 +72,10 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             try {
                 var initializerExpression = visitor.Visit(initializer);
 
-                var funcType = typeof(Func<>).MakeGenericType(propertyType);
-
-                var lambda = Expression.Lambda(funcType, Expression.Block(TypeConversion.EnsureImplicitConversion(initializerExpression, propertyType)));
+                var lambda = Expression.Lambda<Func<object?>>(Expression.Block(Expression.Convert(TypeConversion.EnsureImplicitConversion(initializerExpression, propertyType), typeof(object))));
                 var lambdaDelegate = lambda.Compile(true);
 
-                return lambdaDelegate.DynamicInvoke() ?? CreateDefaultValue(propertyType);
+                return lambdaDelegate.Invoke() ?? CreateDefaultValue(propertyType);
             }
             catch (Exception ex)
             {
