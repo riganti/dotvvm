@@ -211,21 +211,19 @@ namespace DotVVM.Framework.Controls
                 .Binding)
                 .GetKnockoutBindingExpression(this);
 
-            var level = new HierarchyRepeaterLevel {
+            var dataContextLevelWrapper = new HierarchyRepeaterLevel {
                 ForeachExpression = foreachExpression
             };
             var levelWrapper = LevelWrapperCapability.GetWrapper();
+            dataContextLevelWrapper.Children.Add(levelWrapper);
 
-            level.Children.Add(levelWrapper);
+            var index = 0;
+            foreach (var item in items)
             {
-                var index = 0;
-                foreach (var item in items)
-                {
-                    levelWrapper.AppendChildren(CreateServerItem(context, item, parentPath, index));
-                    index++;
-                }
+                levelWrapper.AppendChildren(CreateServerItem(context, item, parentPath, index));
+                index++;
             }
-            return level;
+            return dataContextLevelWrapper;
         }
 
         private DotvvmControl CreateServerItem(
@@ -238,19 +236,20 @@ namespace DotVVM.Framework.Controls
             var dataItem = new DataItemContainer { DataItemIndex = index };
             itemWrapper.Children.Add(dataItem);
             dataItem.SetDataContextTypeFromDataSource(GetDataSourceBinding());
+            // NB: the placeholder is needed because during data context resolution DataItemContainers are looked up
+            //     only among parents
+            var placeholder = new PlaceHolder { DataContext = item };
             {
-                var placeholder = new PlaceHolder { DataContext = item };
-                {
-                    var parentSegment = parentPath.IsDefaultOrEmpty
-                        ? string.Empty
-                        : $"/[{string.Join("]/[", parentPath)}]";
-                    placeholder.SetValue(
-                        Internal.PathFragmentProperty,
-                        $"{GetPathFragmentExpression()}{parentSegment}/[{index}]");
-                    ItemTemplate.BuildContent(context, placeholder);
-                }
-                dataItem.Children.Add(placeholder);
+                var parentSegment = parentPath.IsDefaultOrEmpty
+                    ? string.Empty
+                    : $"/[{string.Join("]/[", parentPath)}]";
+                placeholder.SetValue(
+                    Internal.PathFragmentProperty,
+                    $"{GetPathFragmentExpression()}{parentSegment}/[{index}]");
+                ItemTemplate.BuildContent(context, placeholder);
             }
+            dataItem.Children.Add(placeholder);
+
             // if the item has children then recurse down
             var itemChildren = GetItemChildren(item);
             if (itemChildren.Any())
@@ -276,48 +275,47 @@ namespace DotVVM.Framework.Controls
         private DotvvmControl GetClientItemTemplate(IDotvvmRequestContext context)
         {
             var dataItem = new DataItemContainer();
-            {
-                dataItem.DataContext = null;
-                dataItem.SetValue(Internal.PathFragmentProperty, $"{GetPathFragmentExpression()}/[$indexPath]");
-                var bindingService = context.Services.GetRequiredService<BindingCompilationService>();
-                dataItem.SetDataContextTypeFromDataSource(GetDataSourceBinding());
-                var clientIdFragmentProperty = ValueBindingExpression.CreateBinding<string?>(
-                    bindingService.WithoutInitialization(),
-                    h => null,
-                    new ParametrizedCode("$indexPath.map(ko.unwrap).join(\"_\")", OperatorPrecedence.Max),
-                    dataItem.GetDataContextType());
-                dataItem.SetValue(Internal.ClientIDFragmentProperty, clientIdFragmentProperty);
+            dataItem.DataContext = null;
+            dataItem.SetValue(Internal.PathFragmentProperty, $"{GetPathFragmentExpression()}/[$indexPath]");
+            var bindingService = context.Services.GetRequiredService<BindingCompilationService>();
+            dataItem.SetDataContextTypeFromDataSource(GetDataSourceBinding());
+            var clientIdFragmentProperty = ValueBindingExpression.CreateBinding<string?>(
+                bindingService.WithoutInitialization(),
+                h => null,
+                new ParametrizedCode("$indexPath.map(ko.unwrap).join(\"_\")", OperatorPrecedence.Max),
+                dataItem.GetDataContextType());
+            dataItem.SetValue(Internal.ClientIDFragmentProperty, clientIdFragmentProperty);
 
-                var itemWrapper = ItemWrapperCapability.GetWrapper();
-                dataItem.Children.Add(itemWrapper);
+            var itemWrapper = ItemWrapperCapability.GetWrapper();
+            dataItem.Children.Add(itemWrapper);
 
-                var dataContextChangeItemWrapper = new HierarchyRepeaterItem();
-                itemWrapper.Children.Add(dataContextChangeItemWrapper);
-                ItemTemplate.BuildContent(context, dataContextChangeItemWrapper);
+            var dataContextChangeItemWrapper = new HierarchyRepeaterItem();
+            itemWrapper.Children.Add(dataContextChangeItemWrapper);
+            ItemTemplate.BuildContent(context, dataContextChangeItemWrapper);
 
-                var foreachExpression = ((IValueBinding)ItemChildrenBinding!
-                        .GetProperty<DataSourceAccessBinding>()
-                        .Binding)
-                        .GetParametrizedKnockoutExpression(dataItem)
-                        .ToString(p =>
-                            p == JavascriptTranslator.KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("$item()") :
-                            p is JavascriptTranslator.ViewModelSymbolicParameter vm ?
-                                JavascriptTranslator.GetKnockoutViewModelParameter(vm.ParentIndex - 1).DefaultAssignment :
-                            default
-                        );
+            var foreachExpression = ((IValueBinding)ItemChildrenBinding!
+                .GetProperty<DataSourceAccessBinding>()
+                .Binding)
+                .GetParametrizedKnockoutExpression(dataItem)
+                .ToString(p =>
+                    p == JavascriptTranslator.KnockoutViewModelParameter ?
+                        CodeParameterAssignment.FromIdentifier("$item()") :
+                    p is JavascriptTranslator.ViewModelSymbolicParameter vm ?
+                        JavascriptTranslator.GetKnockoutViewModelParameter(vm.ParentIndex - 1).DefaultAssignment :
+                    default
+                );
 
-                var levelWrapper = LevelWrapperCapability.GetWrapper();
+            var levelWrapper = LevelWrapperCapability.GetWrapper();
 
-                itemWrapper.Children.Add(levelWrapper);
+            itemWrapper.Children.Add(levelWrapper);
 
-                var level = new HierarchyRepeaterLevel {
-                    ItemTemplateId = clientItemTemplateId,
-                    ForeachExpression = foreachExpression
-                };
-                levelWrapper.Children.Add(level);
-                level.SetProperty(IncludeInPageProperty,
-                    (IValueBinding)ItemChildrenBinding!.GetProperty<DataSourceLengthBinding>().Binding);
-            }
+            var dataContextLevelWrapper = new HierarchyRepeaterLevel {
+                ItemTemplateId = clientItemTemplateId,
+                ForeachExpression = foreachExpression
+            };
+            levelWrapper.Children.Add(dataContextLevelWrapper);
+            dataContextLevelWrapper.SetProperty(IncludeInPageProperty,
+                (IValueBinding)ItemChildrenBinding!.GetProperty<DataSourceLengthBinding>().Binding);
 
             return dataItem;
         }
