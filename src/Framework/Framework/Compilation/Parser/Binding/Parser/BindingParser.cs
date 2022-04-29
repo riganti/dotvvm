@@ -52,7 +52,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var startIndex = CurrentIndex;
             SkipWhiteSpace();
 
-            if (Peek() is BindingToken openBraceToken && openBraceToken.Type == BindingTokenType.OpenArrayBrace)
+            if (PeekType() == BindingTokenType.OpenArrayBrace)
             {
                 var initializerExpressions = new List<BindingParserNode>();
                 Read();
@@ -65,9 +65,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     Read();
                     SkipWhiteSpace();
                     initializerExpressions.Add(ReadArrayInitializerValue());
+                    SkipWhiteSpace();
                 }
 
-                if(Peek() is BindingToken closeBraceToken && closeBraceToken.Type == BindingTokenType.CloseArrayBrace)
+                if(PeekType() == BindingTokenType.CloseArrayBrace)
                 {
                     Read();
                     SkipWhiteSpace();
