@@ -136,6 +136,14 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmCapabilityProperty Level_HtmlCapabilityProperty =
             DotvvmCapabilityProperty.RegisterCapability<HtmlCapability, HierarchyRepeater>("Level:");
 
+        public HtmlCapability ItemHtmlCapability
+        {
+            get => (HtmlCapability)this.GetValue(Item_HtmlCapabilityProperty)!;
+            set => this.SetValue(Item_HtmlCapabilityProperty, value);
+        }
+        public static readonly DotvvmCapabilityProperty Item_HtmlCapabilityProperty =
+            DotvvmCapabilityProperty.RegisterCapability<HtmlCapability, HierarchyRepeater>("Item:");
+
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
             if (context.IsPostBack)
@@ -197,14 +205,9 @@ namespace DotVVM.Framework.Controls
                 clientItemTemplateId = $"{uniqueId}-item";
                 clientItemTemplate = GetClientItemTemplate(context);
                 context.ResourceManager.AddTemplateResource(context, clientItemTemplate, clientItemTemplateId);
-                if (string.IsNullOrEmpty(LevelTagName))
-                {
-                    clientRootLevel = new PlaceHolder();
-                }
-                else
-                {
-                    clientRootLevel = new HtmlGenericControl(LevelTagName, LevelHtmlCapability);
-                }
+                clientRootLevel = string.IsNullOrEmpty(LevelTagName)
+                    ? new PlaceHolder()
+                    : new HtmlGenericControl(LevelTagName, LevelHtmlCapability);
 
                 Children.Add(clientRootLevel);
                 clientRootLevel.AppendChildren(new HierarchyRepeaterLevel {
@@ -239,15 +242,10 @@ namespace DotVVM.Framework.Controls
             var level = new HierarchyRepeaterLevel {
                 ForeachExpression = foreachExpression
             };
-            DotvvmControl? levelWrapper;
-            if (string.IsNullOrEmpty(LevelTagName))
-            {
-                levelWrapper = new PlaceHolder();
-            }
-            else
-            {
-                levelWrapper = new HtmlGenericControl(LevelTagName, LevelHtmlCapability);
-            }
+            DotvvmControl levelWrapper = string.IsNullOrEmpty(LevelTagName)
+                ? new PlaceHolder()
+                : new HtmlGenericControl(LevelTagName, LevelHtmlCapability);
+
             level.Children.Add(levelWrapper);
             {
                 var index = 0;
@@ -268,7 +266,7 @@ namespace DotVVM.Framework.Controls
         {
             DotvvmControl itemWrapper = string.IsNullOrEmpty(ItemTagName)
                 ? new PlaceHolder()
-                : new HtmlGenericControl(ItemTagName);
+                : new HtmlGenericControl(ItemTagName, ItemHtmlCapability);
             var dataItem = new DataItemContainer { DataItemIndex = index };
             itemWrapper.Children.Add(dataItem);
             dataItem.SetDataContextTypeFromDataSource(GetDataSourceBinding());
@@ -324,7 +322,7 @@ namespace DotVVM.Framework.Controls
 
                 DotvvmControl itemWrapper = string.IsNullOrEmpty(ItemTagName)
                     ? new PlaceHolder()
-                    : new HtmlGenericControl(ItemTagName);
+                    : new HtmlGenericControl(ItemTagName, ItemHtmlCapability);
                 dataItem.Children.Add(itemWrapper);
 
                 var dataContextChangeItemWrapper = new HierarchyRepeaterItem();
@@ -342,15 +340,9 @@ namespace DotVVM.Framework.Controls
                             default
                         );
 
-                DotvvmControl? levelWrapper = null;
-                if (string.IsNullOrEmpty(LevelTagName))
-                {
-                    levelWrapper = new PlaceHolder();
-                }
-                else
-                {
-                    levelWrapper = new HtmlGenericControl(LevelTagName, LevelHtmlCapability);
-                }
+                DotvvmControl levelWrapper = string.IsNullOrEmpty(LevelTagName)
+                    ? new PlaceHolder()
+                    : new HtmlGenericControl(LevelTagName, LevelHtmlCapability);
 
                 itemWrapper.Children.Add(levelWrapper);
 
