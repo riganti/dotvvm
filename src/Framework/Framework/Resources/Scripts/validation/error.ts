@@ -14,12 +14,11 @@ export function detachErrors(...paths: string[]) {
         return prefixPath == path || path.startsWith(prefixPath)
     }
 
-
     const errorsCopy = Array.from(allErrors)
     errorsCopy.reverse()
     for (const e of errorsCopy) {
-        if (paths.some(p => pathStartsWith(e.propertyPath, p))) {
-            e.detach()
+        if (paths.some(p => pathStartsWith(p, e.propertyPath))) {
+            e.detach();
         }
     }
 }
@@ -67,6 +66,9 @@ export class ValidationError {
         errors.splice(observableIndex, 1);
 
         const arrayIndex = allErrors.indexOf(this);
+
+
+
         allErrors.splice(arrayIndex, 1);
     }
 }
