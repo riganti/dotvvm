@@ -66,9 +66,6 @@ export class ValidationError {
         errors.splice(observableIndex, 1);
 
         const arrayIndex = allErrors.indexOf(this);
-
-
-
         allErrors.splice(arrayIndex, 1);
     }
 }
