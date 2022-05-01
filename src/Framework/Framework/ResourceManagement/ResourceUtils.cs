@@ -19,6 +19,19 @@ namespace DotVVM.Framework.ResourceManagement
             }
         }
 
+        public static string AddTemplateResource(
+            this ResourceManager manager,
+            IDotvvmRequestContext context,
+            DotvvmControl control,
+            string resourceId)
+        {
+            using (var text = new StringWriter())
+            {
+                control.Render(new HtmlWriter(text, context), context);
+                return manager.AddTemplateResource(text.ToString(), resourceId);
+            }
+        }
+
         public static string ReadToString(this ILocalResourceLocation location, IDotvvmRequestContext context)
         {
             using (var resourceStream = location.LoadResource(context))

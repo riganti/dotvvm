@@ -43,6 +43,7 @@
     <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_StringToObject.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\Nullable.dothtml" />
     <None Remove="Views\ControlSamples\GridView\GridViewCellDecorators.dothtml" />
+    <None Remove="Views\ControlSamples\HierarchyRepeater\Basic.dothtml" />
     <None Remove="Views\ControlSamples\Literal\Literal_NumberBinding.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\binded.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />

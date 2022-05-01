@@ -579,4 +579,23 @@ namespace DotVVM.Framework.Controls
 
         public ValueOrBinding<string?> ID { get; init; }
     }
+
+    [DotvvmControlCapability]
+    public sealed record WrapperCapability
+    {
+        /// <summary>
+        /// Gets or sets the name of the wrapper element.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public string? WrapperTagName { get; init; }
+
+        public HtmlCapability Html { get; init; } = new HtmlCapability();
+
+        public DotvvmControl GetWrapper()
+        {
+            return string.IsNullOrEmpty(WrapperTagName)
+                ? new PlaceHolder()
+                : new HtmlGenericControl(WrapperTagName, Html);
+        }
+    }
 }
