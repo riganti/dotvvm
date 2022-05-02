@@ -1,6 +1,6 @@
 {
   "name": "dotvvm-types",
-  "version": "3.1.0",
+  "version": "",
   "description": "MVVM framework for ASP.NET",
   "types": "index.d.ts",
   "repository": {
@@ -14,7 +14,7 @@
   },
   "homepage": "https://github.com/riganti/dotvvm#readme",
   "devDependencies": {
-    "typescript": "^4.0.3"
+    "typescript": "^4.5.1-rc"
   },
   "dependencies": {
     "@types/knockout": "^3.4.69"
