@@ -41,30 +41,53 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         protected virtual ViewModelSerializationMap CreateMap(Type type)
         {
-            return new ViewModelSerializationMap(type, GetProperties(type), configuration);
+            var constructor = GetConstructor(type);
+            return new ViewModelSerializationMap(type, GetProperties(type, constructor), constructor, configuration);
+        }
+
+        protected virtual MethodBase? GetConstructor(Type type)
+        {
+            if (ReflectionUtils.IsPrimitiveType(type) || ReflectionUtils.IsEnumerable(type))
+                return null;
+
+            if (type.GetConstructors().FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorAttribute))) is {} ctor)
+                return ctor;
+            if (type.GetMethods(BindingFlags.Static | BindingFlags.Public).FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorAttribute))) is {} factory)
+                return factory;
+            
+            if (type.GetConstructor(Type.EmptyTypes) is {} emptyCtor)
+                return emptyCtor;
+            var constructors = type.GetConstructors();
+            if (constructors.Length == 1)
+                return constructors[0];
+            return null;
         }
 
         /// <summary>
         /// Gets the properties of the specified type.
         /// </summary>
-        protected virtual IEnumerable<ViewModelPropertyMap> GetProperties(Type type)
+        protected virtual IEnumerable<ViewModelPropertyMap> GetProperties(Type type, MethodBase? constructor)
         {
+            var ctorParams = constructor?.GetParameters().ToDictionary(p => p.Name.NotNull(), StringComparer.OrdinalIgnoreCase);
             var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             Array.Sort(properties, (a, b) => StringComparer.Ordinal.Compare(a.Name, b.Name));
             foreach (var property in properties)
             {
                 if (property.IsDefined(typeof(JsonIgnoreAttribute))) continue;
 
+                var ctorParam = ctorParams?.GetValueOrDefault(property.Name);
+
                 var propertyMap = new ViewModelPropertyMap(
                     property,
                     propertySerialization.ResolveName(property),
                     ProtectMode.None,
                     property.PropertyType,
-                    transferToServer: IsSetterSupported(property),
+                    transferToServer: ctorParam is {} || IsSetterSupported(property),
                     transferAfterPostback: property.GetMethod != null && property.GetMethod.IsPublic,
                     transferFirstRequest: property.GetMethod != null && property.GetMethod.IsPublic,
                     populate: ViewModelJsonConverter.CanConvertType(property.PropertyType) && property.GetMethod != null
                 );
+                propertyMap.ConstructorParameter = ctorParam;
                 propertyMap.JsonConverter = GetJsonConverter(property);
 
                 foreach (ISerializationInfoAttribute attr in property.GetCustomAttributes().OfType<ISerializationInfoAttribute>())
@@ -136,7 +159,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             
             // we want to check if the cached metadata was changed manually
             // it there are changes, we don't clear the cache as that would cause more trouble than leaving outdated metadata there
-            var freshProperties = GetProperties(t).Select(p => (p.Name, p.Type, p.BindDirection, p.ViewModelProtection)).ToHashSet();
+            var freshProperties = GetProperties(t, GetConstructor(t)).Select(p => (p.Name, p.Type, p.BindDirection, p.ViewModelProtection)).ToHashSet();
 
             // if freshly mapping the type produces the same result, no need to clear the cache
             if (freshProperties.SetEquals(cachedItem.OriginalProperties))

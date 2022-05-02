@@ -51,6 +51,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public JsonConverter? JsonConverter { get; set; }
 
+        public ParameterInfo? ConstructorParameter { get; set; }
+
         /// <summary>
         /// Gets whether the property is transferred both ways.
         /// </summary>

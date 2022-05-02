@@ -12,6 +12,7 @@ using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Testing;
 using System.Text;
+using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Tests.ViewModel
 {
@@ -49,6 +50,13 @@ namespace DotVVM.Framework.Tests.ViewModel
 
             //serializer.Populate(new StringReader(json), viewModel);
             return serializer.Deserialize<T>(new JsonTextReader(new StringReader(json)));
+        }
+
+        static (T vm, JObject json) SerializeAndDeserialize<T>(T viewModel, bool isPostback = false)
+        {
+            var json = Serialize<T>(viewModel, out var encryptedValues, isPostback);
+            var viewModel2 = Populate<T>(json, encryptedValues);
+            return (viewModel2, JObject.Parse(json));
         }
 
         [TestMethod]
@@ -178,6 +186,21 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
+        public void ViewModelWithByteArray()
+        {
+            var obj = new TestViewModelWithByteArray() {
+                Bytes = new byte[] { 1, 2, 3 }
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            CollectionAssert.AreEqual(obj.Bytes, obj2.Bytes);
+            Assert.AreEqual(1, (int)json["Bytes"][0]);
+            Assert.AreEqual(2, (int)json["Bytes"][1]);
+            Assert.AreEqual(3, (int)json["Bytes"][2]);
+
+        }
+
+        [TestMethod]
         public void SupportTuples()
         {
             var obj = new TestViewModelWithTuples() {
@@ -197,7 +220,7 @@ namespace DotVVM.Framework.Tests.ViewModel
                     }
                 )
             };
-            var obj2 = Populate<TestViewModelWithTuples>(Serialize(obj, out var _, isPostback: true));
+            var obj2 = SerializeAndDeserialize(obj, isPostback: true).vm;
 
             Assert.AreEqual(obj.P1, obj2.P1);
             Assert.AreEqual(obj.P2, obj2.P2);
@@ -208,6 +231,155 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual("default", obj2.P4.b.ServerToClient);
             Assert.AreEqual("default", obj2.P4.b.ClientToServer);
         }
+
+        [TestMethod]
+        public void SupportBasicRecord()
+        {
+            var obj = new TestViewModelWithRecords() {
+                Primitive = 10
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual(obj.Primitive, obj2.Primitive);
+            Assert.AreEqual(obj.A, obj2.A);
+            Assert.AreEqual(obj.Primitive, (int)json["Primitive"]);
+        }
+        [TestMethod]
+        public void SupportConstructorRecord()
+        {
+            var obj = new TestViewModelWithRecords() {
+                A = new (1, "ahoj")
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual(obj.A, obj2.A);
+            Assert.AreEqual(obj.A.X, obj2.A.X);
+            Assert.AreEqual(1, (int)json["A"]["X"]);
+            Assert.AreEqual("ahoj", (string)json["A"]["Y"]);
+        }
+        [TestMethod]
+        public void SupportConstructorRecordWithProperty()
+        {
+            var obj = new TestViewModelWithRecords() {
+                B = new (1, "ahoj") { Z = "zz" }
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual(obj.B, obj2.B);
+            Assert.AreEqual(1, obj2.B.X);
+            Assert.AreEqual("zz", obj2.B.Z);
+            Assert.AreEqual("zz", (string)json["B"]["Z"]);
+            Assert.AreEqual("ahoj", (string)json["B"]["Y"]);
+        }
+        [TestMethod]
+        public void SupportStructRecord()
+        {
+            var obj = new TestViewModelWithRecords() {
+                C = new (1, "ahoj")
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual(obj.C, obj2.C);
+            Assert.AreEqual(1, obj2.C.X);
+            Assert.AreEqual(1, (int)json["C"]["X"]);
+            Assert.AreEqual("ahoj", (string)json["C"]["Y"]);
+        }
+        [TestMethod]
+        public void SupportMutableStruct()
+        {
+            var obj = new TestViewModelWithRecords() {
+                D = new() { X = 1, Y = "ahoj" }
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual(1, (int)json["D"]["X"]);
+            Assert.AreEqual("ahoj", (string)json["D"]["Y"]);
+            Assert.AreEqual(obj.D.Y, obj2.D.Y);
+            Assert.AreEqual(obj.D.X, obj2.D.X);
+            Assert.AreEqual(1, obj2.D.X);
+        }
+
+        [TestMethod]
+        public void SupportRecordWithGridDataSet()
+        {
+            var obj = new TestViewModelWithRecords() {
+                E = new(new GridViewDataSet<string>() { Items = new List<string> { "a", "b", "c" } })
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual(0, (int)json["E"]["Dataset"]["PagingOptions"]["PageIndex"]);
+            CollectionAssert.AreEqual(obj.E.Dataset.Items.ToArray(), obj2.E.Dataset.Items.ToArray());
+            Assert.AreEqual(obj.E.Dataset.PagingOptions.PageIndex, obj2.E.Dataset.PagingOptions.PageIndex);
+        }
+
+        [TestMethod]
+        public void SupportViewModelWithGridDataSet()
+        {
+            var obj = new TestViewModelWithDataset() {
+                NoInit = new GridViewDataSet<string>() { Items = new List<string> { "a", "b", "c" } },
+                Preinitialized = { Items = new List<string> { "d", "e", "f" }, PagingOptions = { PageSize = 1 } }
+            };
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual(1, (int)json["Preinitialized"]["PagingOptions"]["PageSize"]);
+            CollectionAssert.AreEqual(obj.NoInit.Items.ToArray(), obj2.NoInit.Items.ToArray());
+            CollectionAssert.AreEqual(obj.Preinitialized.Items.ToArray(), obj2.Preinitialized.Items.ToArray());
+            Assert.AreEqual(obj.Preinitialized.PagingOptions.PageSize, obj2.Preinitialized.PagingOptions.PageSize);
+            Assert.AreEqual("AAA", obj.Preinitialized.SortingOptions.SortExpression);
+            Assert.AreEqual("AAA", obj2.Preinitialized.SortingOptions.SortExpression);
+        }
+
+        [TestMethod]
+        public void SupportConstructorInjection()
+        {
+            var service = DotvvmTestHelper.DefaultConfig.ServiceProvider.GetRequiredService<DotvvmTestHelper.ITestSingletonService>();
+            var obj = new ViewModelWithService("test", service);
+            var (obj2, json) = SerializeAndDeserialize(obj);
+
+            Assert.AreEqual(obj.Property1, obj2.Property1);
+            Assert.AreEqual(obj.GetService(), obj2.GetService());
+            Assert.AreEqual(obj.Property1, (string)json["Property1"]);
+            Assert.IsFalse(json.ContainsKey("Service"));
+        }
+        public class ViewModelWithService
+        {
+            public string Property1 { get; }
+            private DotvvmTestHelper.ITestSingletonService Service { get; }
+            public DotvvmTestHelper.ITestSingletonService GetService() => Service;
+
+            public ViewModelWithService(string property1, DotvvmTestHelper.ITestSingletonService service)
+            {
+                Property1 = property1;
+                Service = service;
+            }
+        }
+
+        [TestMethod]
+        public void FailsReasonablyOnUnmatchedConstructorProperty1()
+        {
+            var obj = new ViewModelWithUnmatchedConstuctorProperty1("test");
+            var x = Assert.ThrowsException<Exception>(() => SerializeAndDeserialize(obj));
+            Assert.AreEqual("Can not deserialize DotVVM.Framework.Tests.ViewModel.SerializerTests.ViewModelWithUnmatchedConstuctorProperty1, constructor parameter x is not mapped to any property.", x.Message);
+        }
+
+        public class ViewModelWithUnmatchedConstuctorProperty1
+        {
+            public ViewModelWithUnmatchedConstuctorProperty1(string x) { }
+        }
+
+        [TestMethod]
+        public void FailsReasonablyOnUnmatchedConstructorProperty2()
+        {
+            var obj = new ViewModelWithUnmatchedConstuctorProperty2(null!);
+            var x = Assert.ThrowsException<Exception>(() => SerializeAndDeserialize(obj));
+            Assert.AreEqual("Can not deserialize DotVVM.Framework.Tests.ViewModel.SerializerTests.ViewModelWithUnmatchedConstuctorProperty2, constructor parameter x is not mapped to any property and service TestViewModelWithByteArray was not found in ServiceProvider.", x.Message);
+        }
+
+        public class ViewModelWithUnmatchedConstuctorProperty2
+        {
+            public ViewModelWithUnmatchedConstuctorProperty2(TestViewModelWithByteArray x) { }
+        }
+
     }
 
     public class DataNode
@@ -241,6 +413,12 @@ namespace DotVVM.Framework.Tests.ViewModel
         public List<List<DataNode>> Matrix { get; set; }
     }
 
+    public class TestViewModelWithDataset
+    {
+        public GridViewDataSet<string> Preinitialized { get; set; } = new GridViewDataSet<string> { SortingOptions = { SortExpression = "AAA" } };
+        public GridViewDataSet<string> NoInit { get; set; }
+    }
+
     public class TestViewModelWithTuples
     {
         public Tuple<int, int, int, int> P1 { get; set; }
@@ -259,5 +437,34 @@ namespace DotVVM.Framework.Tests.ViewModel
         public string ClientToServer { get; set; } = "default";
         [Bind(Direction.ServerToClient)]
         public string ServerToClient { get; set; } = "default";
+    }
+
+    public record TestViewModelWithRecords
+    {
+        public ImmutableRecord A { get; set; }
+        public RecordWithAdditionalField B { get; set; }
+        public StructRecord C { get; set; }
+        public MutableStruct D { get; set; }
+        public WithDataset E { get; set; }
+
+        public int Primitive { get; set; }
+
+        public record ImmutableRecord(int X, string Y);
+
+        public record RecordWithAdditionalField(int X, string Y)
+        {
+            public string Z { get; set; }
+        }
+
+
+        public record struct StructRecord(int X, string Y);
+
+        public struct MutableStruct
+        {
+            public int X { get; set; }
+            public string Y { get; set; }
+        }
+
+        public record WithDataset(GridViewDataSet<string> Dataset);
     }
 }
