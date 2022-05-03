@@ -13,7 +13,6 @@ pop-location
 
 push-location dotvvm-types
 
-npm install typescript@$typescriptVersion --save-dev
 npm version $version --no-git-tag-version
 
 pop-location

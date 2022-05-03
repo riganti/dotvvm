@@ -13,9 +13,6 @@
     "url": "https://github.com/riganti/dotvvm/issues"
   },
   "homepage": "https://github.com/riganti/dotvvm#readme",
-  "devDependencies": {
-    "typescript": "^4.5.1-rc"
-  },
   "dependencies": {
     "@types/knockout": "^3.4.69"
   }
