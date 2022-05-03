@@ -223,5 +223,3 @@ sample.db
 
 # NPM publish dir
 /ci/scripts/npm/dotvvm-types/index.d.ts
-/ci/scripts/npm/dotvvm-types/package.lock.json
-/ci/scripts/npm/dotvvm-types/node_modules/
