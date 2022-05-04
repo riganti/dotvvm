@@ -309,6 +309,14 @@ namespace DotVVM.Framework.Compilation.Javascript
                 ReplaceNullValue(result.Left, expression.Left, new JsLiteral(""));
                 ReplaceNullValue(result.Right, expression.Right, new JsLiteral(""));
             }
+            if (expression.NodeType == ExpressionType.ExclusiveOr && expression.Left.Type == typeof(bool) && expression.Right.Type == typeof(bool))
+            {
+                // Whenever operator ^ is applied on two booleans in .NET, the result is also boolean
+                // Convert to "!!result" - the first negation coerces the value to boolean and inverts it. The second negation returns the correct value
+
+                return new JsUnaryExpression(UnaryOperatorType.LogicalNot,
+                    new JsUnaryExpression(UnaryOperatorType.LogicalNot, result));
+            }
             
             return result;
         }

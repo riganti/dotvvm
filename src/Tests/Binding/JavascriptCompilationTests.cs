@@ -129,12 +129,20 @@ namespace DotVVM.Framework.Tests.Binding
         [DataRow("IntProp & 2+2", "IntProp()&2+2", DisplayName = "IntProp & 2+2")]
         [DataRow("IntProp & -1", "IntProp()&-1", DisplayName = "IntProp & -1")]
         [DataRow("'a' + 'b'", "\"ab\"", DisplayName = "'a' + 'b'")]
+        [DataRow("IntProp ^ 1", "IntProp()^1", DisplayName = "IntProp ^ 1")]
         [DataRow("'xx' + IntProp", "\"xx\"+IntProp()", DisplayName = "'xx' + IntProp")]
         [DataRow("true == (IntProp == 1)", "true==(IntProp()==1)", DisplayName = "true == (IntProp == 1)")]
         public void JavascriptCompilation_BinaryExpressions(string expr, string expectedJs)
         {
             var js = CompileBinding(expr, new [] { typeof(TestViewModel) });
             Assert.AreEqual(expectedJs, js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_ExclusiveOr_ReturnsBooleanIfOperandsAreBooleans()
+        {
+            var js = CompileBinding("BoolProp = BoolProp ^ true", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("BoolProp(!!(BoolProp()^true)).BoolProp", js);
         }
 
         [TestMethod]

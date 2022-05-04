@@ -211,17 +211,6 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(BindingTokenType.Identifier, tokens[2].Type);
         }
 
-        [TestMethod]
-        public void BindingTokenizer_UnsupportedOperator_Carret()
-        {
-            var tokens = Tokenize("Test^3");
-
-            Assert.AreEqual(3, tokens.Count);
-            Assert.AreEqual(BindingTokenType.Identifier, tokens[0].Type);
-            Assert.AreEqual(BindingTokenType.UnsupportedOperator, tokens[1].Type);
-            Assert.AreEqual(BindingTokenType.Identifier, tokens[2].Type);
-        }
-
         [DataTestMethod]
         [DataRow("StringProp = StringProp + 1;;test", false)]
         [DataRow("StringProp = StringProp + 1; ;test", true)]

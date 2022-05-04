@@ -322,12 +322,25 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         private BindingParserNode ReadOrExpression()
         {
             var startIndex = CurrentIndex;
-            var first = ReadAndExpression();
+            var first = ReadExclusiveOrExpression();
             while (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.OrOperator)
             {
                 Read();
-                var second = ReadAndExpression();
+                var second = ReadExclusiveOrExpression();
                 first = CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.OrOperator), startIndex);
+            }
+            return first;
+        }
+
+        private BindingParserNode ReadExclusiveOrExpression()
+        {
+            var startIndex = CurrentIndex;
+            var first = ReadAndExpression();
+            while (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.ExclusiveOrOperator)
+            {
+                Read();
+                var second = ReadAndExpression();
+                first = CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.ExclusiveOrOperator), startIndex);
             }
             return first;
         }

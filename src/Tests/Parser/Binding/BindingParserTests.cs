@@ -140,6 +140,20 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual("b", ((IdentifierNameBindingParserNode)add.SecondExpression).Name);
         }
 
+        [TestMethod]
+        public void BindingParser_BinaryOperatorExclusiveOr_Valid()
+        {
+            var result = bindingParserNodeFactory.Parse("a ^ b");
+
+            var root = (BinaryOperatorBindingParserNode)result;
+            Assert.AreEqual(BindingTokenType.ExclusiveOrOperator, root.Operator);
+
+            var a = (IdentifierNameBindingParserNode)root.FirstExpression;
+            var b = (IdentifierNameBindingParserNode)root.SecondExpression;
+            Assert.AreEqual("a", a.Name);
+            Assert.AreEqual("b", b.Name);
+        }
+
 
         [TestMethod]
         public void BindingParser_MemberAccess_ArrayIndexer_Chain_Valid()
@@ -442,9 +456,9 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        public void BindingParser_MultipleUnsupportedBinaryOperators_Valid()
+        public void BindingParser_UnsupportedBinaryOperator_Valid()
         {
-            var parser = bindingParserNodeFactory.SetupParser("_root.MyCoolProperty += _this.Number1 + Number2^_parent0.Exponent * Multiplikator");
+            var parser = bindingParserNodeFactory.SetupParser("_root.MyCoolProperty += _this.Number1 * Multiplikator");
             var node = parser.ReadExpression();
 
             Assert.IsTrue(parser.OnEnd());
@@ -454,19 +468,10 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             CheckBinaryOperatorNodeType<MemberAccessBindingParserNode, BinaryOperatorBindingParserNode>(plusAssignNode, BindingTokenType.UnsupportedOperator);
 
-            var caretNode = plusAssignNode.SecondExpression as BinaryOperatorBindingParserNode;
-
-            CheckBinaryOperatorNodeType<BinaryOperatorBindingParserNode, BinaryOperatorBindingParserNode>(caretNode, BindingTokenType.UnsupportedOperator);
-
-            var plusNode = caretNode.FirstExpression as BinaryOperatorBindingParserNode;
-
-            CheckBinaryOperatorNodeType<MemberAccessBindingParserNode, IdentifierNameBindingParserNode>(plusNode, BindingTokenType.AddOperator);
-
-            var multiplyNode = caretNode.SecondExpression as BinaryOperatorBindingParserNode;
+            var multiplyNode = plusAssignNode.SecondExpression as BinaryOperatorBindingParserNode;
 
             CheckBinaryOperatorNodeType<MemberAccessBindingParserNode, IdentifierNameBindingParserNode>(multiplyNode, BindingTokenType.MultiplyOperator);
 
-            Assert.IsTrue(caretNode.NodeErrors.Any());
             Assert.IsTrue(plusAssignNode.NodeErrors.Any());
         }
 

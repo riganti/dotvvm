@@ -40,6 +40,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
         AndAlsoOperator,
         OrOperator,
         OrElseOperator,
+        ExclusiveOrOperator,
 
         AssignOperator,
 

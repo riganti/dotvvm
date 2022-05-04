@@ -212,6 +212,9 @@ namespace DotVVM.Framework.Compilation.Binding
                 case BindingTokenType.OrElseOperator:
                     eop = ExpressionType.OrElse;
                     break;
+                case BindingTokenType.ExclusiveOrOperator:
+                    eop = ExpressionType.ExclusiveOr;
+                    break;
                 case BindingTokenType.AssignOperator:
                     eop = ExpressionType.Assign;
                     break;
