@@ -307,8 +307,8 @@ export function removeErrors(...paths: string[]) {
     function pathStartsWith(prefixPath: string, path: string) {
         // normalize paths = append / to each path and remove duplicated slashes
         const normRegex = /(\/+)/g
-        prefixPath = prefixPath.replace(normRegex + "/", "/")
-        path = path.replace(normRegex + "/", "/")
+        prefixPath = (prefixPath + "/").replace(normRegex, "/")
+        path = (path + "/").replace(normRegex, "/")
 
         return prefixPath == path || path.startsWith(prefixPath)
     }
