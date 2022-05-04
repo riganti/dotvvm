@@ -313,15 +313,19 @@ export function removeErrors(...paths: string[]) {
         return prefixPath == path || path.startsWith(prefixPath)
     }
 
+    let changed = false;
+
     const errorsCopy = Array.from(allErrors)
     errorsCopy.reverse()
     for (const e of errorsCopy) {
         if (paths.some(p => pathStartsWith(p, e.propertyPath))) {
             e.detach();
+            changed = true;
         }
     }
 
-    validationErrorsChanged.trigger({ allErrors })
+    if (changed)
+        validationErrorsChanged.trigger({ allErrors })
 }
 
 
@@ -335,7 +339,7 @@ export function addErrors(errors: ValidationErrorDescriptor[], options: AddError
         ValidationError.attach(prop.errorMessage, propertyPath, property);
     }
 
-    if (options.triggerErrorsChanged !== false) {
+    if (options.triggerErrorsChanged !== false && errors.length > 0) {
         validationErrorsChanged.trigger({ allErrors });
     }
 }
