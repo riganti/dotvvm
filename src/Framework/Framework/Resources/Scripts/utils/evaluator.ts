@@ -25,7 +25,7 @@ export function traverseContext(context: any, path: string): any {
 
         var nextNode = ko.unwrap(currentLevel)[expressionPart];
         if (nextNode == undefined) {
-            throw `Validation error could not been applied to property specified by propertyPath ${path}. Property with name ${expressionPart} does not exist on ${currentPath}.`;
+            throw `Validation error could not been applied to property specified by propertyPath ${path}. Property with name ${expressionPart} does not exist on ${!currentPath ? "root" : currentPath}.`;
         }
         currentPath += `/${expressionPart}`;
         currentLevel = nextNode;
