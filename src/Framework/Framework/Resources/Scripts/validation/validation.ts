@@ -1,6 +1,6 @@
 import * as evaluator from "../utils/evaluator"
 import { validators } from './validators'
-import { allErrors, detachAllErrors, detachErrors, ValidationError, getErrors } from "./error"
+import { allErrors, detachAllErrors, ValidationError, getErrors } from "./error"
 import { DotvvmEvent } from '../events'
 import * as spaEvents from '../spa/events'
 import { postbackHandlers } from "../postback/handlers"
