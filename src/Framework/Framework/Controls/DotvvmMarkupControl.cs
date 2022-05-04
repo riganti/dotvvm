@@ -42,15 +42,12 @@ namespace DotVVM.Framework.Controls
 
         internal override void OnPreInit(IDotvvmRequestContext context)
         {
-            string? wrapperTagName;
-
-            if (Directives.ContainsKey(ParserConstants.WrapperTagNameDirective) &&
-                Directives.ContainsKey(ParserConstants.NoWrapperTagNameDirective))
+            if (Directives.ContainsKey(ParserConstants.WrapperTagNameDirective) && Directives.ContainsKey(ParserConstants.NoWrapperTagNameDirective))
             {
                 throw new DotvvmControlException(this, $"Control cannot have {ParserConstants.WrapperTagNameDirective} and {ParserConstants.NoWrapperTagNameDirective} at the same time");
             }
 
-            if (Directives.TryGetValue(ParserConstants.WrapperTagNameDirective, out wrapperTagName))
+            if (Directives.TryGetValue(ParserConstants.WrapperTagNameDirective, out var wrapperTagName))
             {
                 TagName = wrapperTagName;
             }
@@ -59,7 +56,7 @@ namespace DotVVM.Framework.Controls
                 TagName = null;
             }
 
-            var viewModule = this.GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
+            var viewModule = GetValue<ViewModuleReferenceInfo>(Internal.ReferencedViewModuleInfoProperty);
             if (viewModule is object)
             {
                 Debug.Assert(viewModule.IsMarkupControl);
@@ -180,8 +177,8 @@ namespace DotVVM.Framework.Controls
         {
             public PropertySerializeInfo(DotvvmProperty property, string? js)
             {
-                this.Js = js;
-                this.Property = property;
+                Js = js;
+                Property = property;
             }
             public string? Js { get; set; }
             public DotvvmProperty Property { get; set; }

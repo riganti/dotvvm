@@ -16,47 +16,16 @@ using System.Linq.Expressions;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Binding;
-using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation;
 using Microsoft.Extensions.DependencyInjection;
-using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Testing;
+using DotVVM.Framework.Tests.Runtime.ControlTree.DefaultControlTreeResolver;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
     [TestClass]
-    public class DefaultControlTreeResolverTests
+    public class DefaultControlTreeResolverTests : DefaultControlTreeResolverTestsBase
     {
-        private static readonly DotvvmConfiguration configuration;
-
-        static DefaultControlTreeResolverTests()
-        {
-            configuration = DotvvmTestHelper.CreateConfiguration();
-            configuration.Markup.AddCodeControls("cc", typeof(ClassWithInnerElementProperty));
-            configuration.Freeze();
-        }
-
-        [TestMethod]
-        public void ResolvedTree_MissingViewModelDirective()
-        {
-            var root = ParseSource(@"");
-
-            Assert.IsTrue(root.DothtmlNode.HasNodeErrors);
-            Assert.IsTrue(root.DothtmlNode.NodeErrors.First().Contains("missing"));
-        }
-
-        [TestMethod]
-        public void ResolvedTree_UnknownViewModelType()
-        {
-            var root = ParseSource(@"@viewModel invalid
-");
-
-            var directiveNode = ((DothtmlRootNode)root.DothtmlNode).Directives.First();
-            Assert.IsTrue(directiveNode.HasNodeErrors);
-            Assert.IsTrue(directiveNode.NodeErrors.First().Contains("Could not resolve type"));
-        }
-
         [TestMethod]
         public void ResolvedTree_WhiteSpaceLiteral()
         {
@@ -650,30 +619,14 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(1, control.Properties[GridView.ColumnsProperty].CastTo<ResolvedPropertyControlCollection>().Controls.Count);
         }
 
-
-        [TestMethod]
-        public void ResolvedTree_ViewModel_GenericType()
-        {
-            var root = ParseSource(@"@viewModel System.Collections.Generic.List<System.Collections.Generic.Dictionary<System.String, System.Int32>>");
-            Assert.AreEqual(typeof(List<Dictionary<string, int>>), root.DataContextTypeStack.DataContextType);
-        }
-
-        [TestMethod]
-        public void ResolvedTree_ViewModel_InvalidAssemblyQualified()
-        {
-            var root = ParseSource(@"@viewModel System.String, whatever");
-            Assert.IsTrue(root.Directives.Any(d => d.Value.Any(dd => dd.DothtmlNode.HasNodeErrors)));
-            Assert.AreEqual(typeof(UnknownTypeSentinel), root.DataContextTypeStack.DataContextType);
-        }
-
         private ResolvedBinding[] GetLiteralBindings(ResolvedContentNode node) =>
             (from c in node.Content.SelectRecursively(c => c.Content)
-            where c.Metadata.Type == typeof(Literal)
-            let text = c.Properties.GetValueOrDefault(Literal.TextProperty)
-            where text is ResolvedPropertyBinding
-            select ((ResolvedPropertyBinding)text).Binding).ToArray();
+             where c.Metadata.Type == typeof(Literal)
+             let text = c.Properties.GetValueOrDefault(Literal.TextProperty)
+             where text is ResolvedPropertyBinding
+             select ((ResolvedPropertyBinding)text).Binding).ToArray();
 
-   [TestMethod]
+        [TestMethod]
         public void ResolvedTree_ContentDataContextChange()
         {
             var root = ParseSource(@"@viewModel System.String
@@ -749,156 +702,6 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsFalse(control3[0].DothtmlNode.HasNodeErrors);
             Assert.IsFalse(control3[1].DothtmlNode.HasNodeErrors);
             Assert.IsFalse(control3[2].DothtmlNode.HasNodeErrors);
-        }
-
-        private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml", bool checkErrors = false) =>
-            DotvvmTestHelper.ParseResolvedTree(markup, fileName, configuration, checkErrors);
-
-    }
-
-    public class DefaultControlResolverTestViewModel
-    {
-        public List<string> Items { get; set; }
-    }
-    [ControlMarkupOptions(DefaultContentProperty = nameof(Property))]
-    public class ClassWithInnerElementProperty : PostBackHandler
-    {
-        [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        public string Property
-        {
-            get { return (string)GetValue(PropertyProperty); }
-            set { SetValue(PropertyProperty, value); }
-        }
-        public static readonly DotvvmProperty PropertyProperty
-            = DotvvmProperty.Register<string, ClassWithInnerElementProperty>(c => c.Property, null);
-
-        protected internal override string ClientHandlerName => null;
-
-        protected internal override Dictionary<string, object> GetHandlerOptions()
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class ClassWithoutInnerElementProperty : PostBackHandler
-    {
-        [MarkupOptions(MappingMode = MappingMode.Attribute)]
-        public string Property
-        {
-            get { return (string)GetValue(PropertyProperty); }
-            set { SetValue(PropertyProperty, value); }
-        }
-        public static readonly DotvvmProperty PropertyProperty
-            = DotvvmProperty.Register<string, ClassWithoutInnerElementProperty>(c => c.Property, null);
-
-        protected internal override string ClientHandlerName => null;
-
-        protected internal override Dictionary<string, object> GetHandlerOptions()
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    [ControlMarkupOptions(DefaultContentProperty = nameof(Property))]
-    public class ClassWithDefaultDotvvmControlContent: HtmlGenericControl
-    {
-        [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        public List<DotvvmControl> Property
-        {
-            get { return (List<DotvvmControl>)GetValue(PropertyProperty); }
-            set { SetValue(PropertyProperty, value); }
-        }
-        public static readonly DotvvmProperty PropertyProperty
-            = DotvvmProperty.Register<List<DotvvmControl>, ClassWithDefaultDotvvmControlContent>(c => c.Property, null);
-    }
-
-    [ControlMarkupOptions(DefaultContentProperty = nameof(Property))]
-    public class ClassWithDefaultDotvvmControlContent_NoDotvvmProperty: HtmlGenericControl
-    {
-        [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        public List<DotvvmControl> Property { get; set; }
-    }
-    public class ClassWithUnsupportedPropertyGroup: HtmlGenericControl
-    {
-        [PropertyGroup("MyGroup:")]
-        public Dictionary<string, bool> MyGroup { get; set; }
-    }
-
-    [DataContextChanger]
-    public class ControlWithContentDataContext : DotvvmControl
-    {
-        public class DataContextChanger : DataContextChangeAttribute
-        {
-            public override int Order => 0;
-
-            public override ITypeDescriptor GetChildDataContextType(ITypeDescriptor dataContext, IDataContextStack controlContextStack, IAbstractControl control, IPropertyDescriptor property = null)
-            {
-                return new ResolvedTypeDescriptor(typeof(int));
-            }
-
-            public override Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, DotvvmBindableObject control, DotvvmProperty property = null)
-            {
-                return typeof(int);
-            }
-        }
-    }
-
-    [DataContextChanger]
-    public class ControlWithSpecialBindingsInside : DotvvmControl
-    {
-        public class DataContextChanger : DataContextStackManipulationAttribute
-        {
-            public override IDataContextStack ChangeStackForChildren(IDataContextStack original, IAbstractControl control, IPropertyDescriptor property, Func<IDataContextStack, ITypeDescriptor, IDataContextStack> createNewFrame)
-            {
-                return DataContextStack.Create(ResolvedTypeDescriptor.ToSystemType(original.DataContextType), (DataContextStack)original.Parent,
-                    bindingPropertyResolvers: new Delegate[]{
-                        new Func<ParsedExpressionBindingProperty, ParsedExpressionBindingProperty>(e => {
-                            if (e.Expression.NodeType == ExpressionType.Constant && (string)((ConstantExpression)e.Expression).Value == "abc") return new ParsedExpressionBindingProperty(Expression.Constant("def"));
-                            else return e;
-                        })
-                    });
-            }
-
-            public override DataContextStack ChangeStackForChildren(DataContextStack original, DotvvmBindableObject obj, DotvvmProperty property, Func<DataContextStack, Type, DataContextStack> createNewFrame)
-            {
-                return DataContextStack.Create(original.DataContextType, original.Parent,
-                    bindingPropertyResolvers: new Delegate[]{
-                        new Func<ParsedExpressionBindingProperty, ParsedExpressionBindingProperty>(e => {
-                            if (e.Expression.NodeType == ExpressionType.Constant && (string)((ConstantExpression)e.Expression).Value == "abc") return new ParsedExpressionBindingProperty(Expression.Constant("def"));
-                            else return e;
-                        })
-                    });
-            }
-        }
-    }
-
-    public class ControlWithValidationRules : HtmlGenericControl
-    {
-        [ControlUsageValidator]
-        public static IEnumerable<ControlUsageError> Validate1(ResolvedControl control)
-        {
-            if (!control.Properties.ContainsKey(VisibleProperty))
-                yield return new ControlUsageError($"The Visible property is required");
-        }
-
-        [ControlUsageValidator]
-        public static IEnumerable<string> Validate2(DothtmlElementNode control)
-        {
-            if (control.Attributes.Count != 2)
-                yield return $"The control has to have exactly two attributes";
-        }
-    }
-
-    public class ControlWithInheritedRules : ControlWithValidationRules
-    {
-    }
-
-    public class ControlWithOverriddenRules : ControlWithValidationRules
-    {
-        [ControlUsageValidator(Override = true)]
-        public static IEnumerable<ControlUsageError> Validate(ResolvedControl control)
-        {
-            yield break;
         }
     }
 }

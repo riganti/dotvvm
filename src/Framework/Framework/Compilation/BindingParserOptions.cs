@@ -27,28 +27,9 @@ namespace DotVVM.Framework.Compilation
 
         public virtual TypeRegistry AddImportedTypes(TypeRegistry reg, CompiledAssemblyCache compiledAssemblyCache)
         {
-            if (ImportNamespaces != null)
-            {
-                return reg.AddSymbols(ImportNamespaces.Select(ns => CreateTypeLoader(ns, compiledAssemblyCache)));
-            }
-            else return reg;
-        }
-
-        private static Func<string, Expression?> CreateTypeLoader(NamespaceImport import, CompiledAssemblyCache compiledAssemblyCache)
-        {
-            if (import.Alias is not null)
-                return t => {
-                    if (t.Length >= import.Alias.Length && t.StartsWith(import.Alias, StringComparison.Ordinal))
-                    {
-                        string name;
-                        if (t == import.Alias) name = import.Namespace;
-                        else if (t.Length > import.Alias.Length + 1 && t[import.Alias.Length] == '.') name = import.Namespace + "." + t.Substring(import.Alias.Length + 1);
-                        else return null;
-                        return TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(name));
-                    }
-                    else return null;
-                };
-            else return t => TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(import.Namespace + "." + t));
+            return ImportNamespaces != null
+                ? reg.AddImportedTypes(compiledAssemblyCache, ImportNamespaces)
+                : reg;
         }
 
         public BindingParserOptions(Type bindingType, string scopeParameter = "_this", ImmutableArray<NamespaceImport>? importNamespaces = null, ImmutableArray<BindingExtensionParameter>? extParameters = null)
