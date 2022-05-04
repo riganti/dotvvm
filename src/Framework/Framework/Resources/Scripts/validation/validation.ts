@@ -42,7 +42,7 @@ export const globalValidationObject = {
     /** Removes errors from the specified properties.
      *  The errors are removed recursively, so calling `dotvvm.validation.removeErrors("/")` removes all errors in the page,
      *  `dotvvm.validation.removeErrors("/Detail")` removes all errors from the object in property root.Detail */
-    removeErrors: detachErrors
+    removeErrors
 }
 
 const createValidationHandler = (path: string) => ({
@@ -302,6 +302,28 @@ export type AddErrorsOptions = {
      *  The validationErrorsChanged event controls the `Validator`s in the DotHTML page, so when it's not triggered, the change won't be visible. */
     triggerErrorsChanged?: false
 }
+
+export function removeErrors(...paths: string[]) {
+    function pathStartsWith(prefixPath: string, path: string) {
+        // normalize paths = append / to each path and remove duplicated slashes
+        const normRegex = /(\/+)/g
+        prefixPath = prefixPath.replace(normRegex + "/", "/")
+        path = path.replace(normRegex + "/", "/")
+
+        return prefixPath == path || path.startsWith(prefixPath)
+    }
+
+    const errorsCopy = Array.from(allErrors)
+    errorsCopy.reverse()
+    for (const e of errorsCopy) {
+        if (paths.some(p => pathStartsWith(p, e.propertyPath))) {
+            e.detach();
+        }
+    }
+
+    validationErrorsChanged.trigger({ allErrors })
+}
+
 
 export function addErrors(errors: ValidationErrorDescriptor[], options: AddErrorsOptions = {}): void {
     const root = options.root ?? dotvvm.viewModelObservables.root

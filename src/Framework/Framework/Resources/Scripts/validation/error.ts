@@ -4,25 +4,6 @@ import { unwrapComputedProperty } from "../utils/evaluator";
 
 export const allErrors: ValidationError[] = []
 
-export function detachErrors(...paths: string[]) {
-    function pathStartsWith(prefixPath: string, path: string) {
-        // normalize paths = append / to each path and remove duplicated slashes
-        const normRegex = /(\/+)/g
-        prefixPath = prefixPath.replace(normRegex + "/", "/")
-        path = path.replace(normRegex + "/", "/")
-
-        return prefixPath == path || path.startsWith(prefixPath)
-    }
-
-    const errorsCopy = Array.from(allErrors)
-    errorsCopy.reverse()
-    for (const e of errorsCopy) {
-        if (paths.some(p => pathStartsWith(p, e.propertyPath))) {
-            e.detach();
-        }
-    }
-}
-
 export function detachAllErrors() {
     while (allErrors.length > 0) {
         allErrors[allErrors.length - 1].detach();
