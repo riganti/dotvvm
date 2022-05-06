@@ -142,7 +142,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_ExclusiveOr_ReturnsBooleanIfOperandsAreBooleans()
         {
             var js = CompileBinding("BoolProp = BoolProp ^ true", new[] { typeof(TestViewModel) });
-            Assert.AreEqual("BoolProp(!!(BoolProp()^true)).BoolProp", js);
+            Assert.AreEqual("BoolProp(BoolProp()!=true).BoolProp", js);
         }
 
         [TestMethod]
