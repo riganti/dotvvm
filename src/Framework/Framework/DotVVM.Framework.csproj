@@ -26,6 +26,8 @@
     <EmbeddedResource Include="obj/javascript/root-only-debug/dotvvm-root.js" />
     <EmbeddedResource Include="obj/javascript/root-spa/dotvvm-root.js" />
     <EmbeddedResource Include="obj/javascript/root-spa-debug/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-webview/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-webview-debug/dotvvm-root.js" />
     <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.min.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.debug.js" />
@@ -114,8 +116,21 @@
     <TypescriptFile Include="Resources/Scripts/**/*.ts" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Resources\Scripts\webview\webview.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypescriptFile Remove="Resources\Scripts\webview\messaging.ts" />
+    <TypescriptFile Remove="Resources\Scripts\webview\webview.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Resources\Scripts\webview\webview.ts" />
+  </ItemGroup>
+
   <!-- BeforeBuild is ran for every target framework. However, unless its input files change, this target is skipped. -->
-  <Target Name="CompileJS" Inputs="@(TypescriptFile)" Outputs="obj/javascript/root-only/dotvvm-root.js;obj/javascript/root-only-debug/dotvvm-root.js;obj/javascript/root-spa/dotvvm-root.js;obj/javascript/root-spa-debug/dotvvm-root.js" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
+  <Target Name="CompileJS" Inputs="@(TypescriptFile)" Outputs="obj/javascript/root-only/dotvvm-root.js;obj/javascript/root-only-debug/dotvvm-root.js;obj/javascript/root-spa/dotvvm-root.js;obj/javascript/root-spa-debug/dotvvm-root.js;obj/javascript/root-webview/dotvvm-root.js;obj/javascript/root-webview-debug/dotvvm-root.js" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
 
     <PropertyGroup>
       <EnvOverrides>NO_COLOR=1;FORCE_COLOR=0;TERM=dumb</EnvOverrides>

@@ -364,6 +364,13 @@ namespace DotVVM.Framework.Configuration
                     debugName: "DotVVM.Framework.obj.javascript.root_spa_debug.dotvvm-root.js"),
                 dependencies: new[] { ResourceConstants.KnockoutJSResourceName },
                 module: true);
+            configuration.Resources.RegisterScript(ResourceConstants.DotvvmResourceName + ".internal-webview",
+                new EmbeddedResourceLocation(
+                    typeof(DotvvmConfiguration).Assembly,
+                    "DotVVM.Framework.obj.javascript.root_webview.dotvvm-root.js",
+                    debugName: "DotVVM.Framework.obj.javascript.root_webview_debug.dotvvm-root.js"),
+                dependencies: new[] { ResourceConstants.KnockoutJSResourceName },
+                module: true);
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName,
                 new InlineScriptResource(@"", ResourceRenderPosition.Anywhere, defer: true) {
                     Dependencies = new[] { ResourceConstants.DotvvmResourceName + ".internal" }

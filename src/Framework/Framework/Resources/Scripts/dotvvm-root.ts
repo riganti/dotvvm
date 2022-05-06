@@ -1,4 +1,4 @@
-import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture, getState, getStateManager } from "./dotvvm-base"
+import { initCore, getViewModel, getViewModelObservable, initBindings, getCulture, getState, getStateManager, getRouteName, getRouteParameters } from "./dotvvm-base"
 import * as events from './events'
 import * as spa from "./spa/spa"
 import * as validation from './validation/validation'
@@ -30,6 +30,7 @@ import * as string from './utils/stringHelper'
 import { StateManager } from "./state-manager"
 import { DotvvmEvent } from "./events"
 import * as dateTime from './utils/dateTimeHelper'
+import * as webview from './webview/webview'
 
 if (window["dotvvm"]) {
     throw new Error('DotVVM is already loaded!')
@@ -86,6 +87,8 @@ const dotvvmExports = {
             get viewModel() { return getViewModel() }
         }
     },
+    get routeName() { return getRouteName() },
+    get routeParameters() { return getRouteParameters() },
     get state() { return getState() },
     patchState(a: any) {
         getStateManager().patchState(a)
@@ -136,13 +139,18 @@ if (compileConstants.isSpa) {
     (dotvvmExports as any).isSpaReady = isSpaReady;
     (dotvvmExports as any).handleSpaNavigation = handleSpaNavigation;
 }
-
+if (compileConstants.isWebview) {
+    (dotvvmExports as any).webview = webview;
+}
 if (compileConstants.debug) {
     (dotvvmExports as any).debug = true
 }
 
 declare global {
-    const dotvvm: typeof dotvvmExports & {debug?: true, isSpaReady?: typeof isSpaReady, handleSpaNavigation?: typeof handleSpaNavigation};
+    const dotvvm: typeof dotvvmExports &
+        { isSpaReady?: typeof isSpaReady, handleSpaNavigation?: typeof handleSpaNavigation } &
+        { webview?: typeof webview } &
+        { debug?: true };
 
     interface Window {
         dotvvm: typeof dotvvmExports

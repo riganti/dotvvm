@@ -8,7 +8,7 @@ const build = process.env.BUILD || "debug";
 const production = build == "production";
 const suffix = production ? "" : "-debug";
 
-const config = ({ minify, input, output, spa }) => ({
+const config = ({ minify, input, output, spa, webview }) => ({
     input,
 
     output: [
@@ -30,7 +30,8 @@ const config = ({ minify, input, output, spa }) => ({
         commonjs(),
         replace({
             "compileConstants.isSpa": spa,
-            "compileConstants.debug": !minify,
+            "compileConstants.isWebview": webview,
+            "compileConstants.debug": !minify
         }),
 
         minify && terser({
@@ -82,23 +83,25 @@ const config = ({ minify, input, output, spa }) => ({
 })
 
 export default [
-    // config({ minify: production, input: ['./Resources/Scripts/dotvvm-root.ts', './Resources/Scripts/dotvvm-light.ts'], output: "default" }),
     config({
         minify: production,
         input: ['./Resources/Scripts/dotvvm-root.ts'],
         output: "root-only" + suffix,
-        spa: false
+        spa: false,
+        webview: false
     }),
     config({
         minify: production,
         input: ['./Resources/Scripts/dotvvm-root.ts'],
         output: "root-spa" + suffix,
         spa: true,
+        webview: false
     }),
-    //config({
-    //  minify: production,
-    //  input: ['./Resources/Scripts/dotvvm-light.ts'],
-    //  output: "root-light",
-    //  spa: false
-    //})
+    config({
+        minify: production,
+        input: ['./Resources/Scripts/dotvvm-root.ts'],
+        output: "root-webview" + suffix,
+        spa: true,
+        webview: true
+    })
 ]

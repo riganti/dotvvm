@@ -3,11 +3,14 @@ import { DotvvmPostbackError } from '../shared-classes';
 import { logInfoVerbose, logWarning } from '../utils/logging';
 import { keys } from '../utils/objects';
 import { addLeadingSlash, concatUrl } from '../utils/uri';
+import { webMessageFetch } from '../webview/messaging';
 
 export type WrappedResponse<T> = {
     readonly result: T,
     readonly response?: Response
 }
+
+const fetch = compileConstants.isWebview ? webMessageFetch : window.fetch;
 
 export async function getJSON<T>(url: string, spaPlaceHolderUniqueId?: string, signal?: AbortSignal, additionalHeaders?: { [key: string]: string }): Promise<WrappedResponse<T>> {
     const headers = new Headers();
