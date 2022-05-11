@@ -82,7 +82,14 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IHttpRedirectService, DefaultHttpRedirectService>();
             services.TryAddSingleton<IExpressionToDelegateCompiler, DefaultExpressionToDelegateCompiler>();
 
+            services.AddScoped<IRequestTracer>(s => {
+                var config = s.GetRequiredService<DotvvmConfiguration>();
+                return (config.Diagnostics.PerfWarnings.IsEnabled ? (IRequestTracer)s.GetService<PerformanceWarningTracer>() : null) ?? NullRequestTracer.Instance;
+            });
+            services.TryAddSingleton<JsonSizeAnalyzer>();
+            services.TryAddScoped<PerformanceWarningTracer>();
             services.TryAddScoped<RuntimeWarningCollector>();
+            services.AddTransient<IDotvvmWarningSink, AspNetCoreLoggerWarningSink>();
             services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
             services.TryAddScoped<ResourceManager, ResourceManager>();
             services.TryAddSingleton<StaticCommandMethodTranslator>();
@@ -118,6 +125,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<DotvvmErrorPageRenderer>();
             services.AddSingleton<IDotvvmViewCompilationService, DotvvmViewCompilationService>();
             services.AddSingleton<CompilationPageApiPresenter>();
+
 
             return services;
         }
