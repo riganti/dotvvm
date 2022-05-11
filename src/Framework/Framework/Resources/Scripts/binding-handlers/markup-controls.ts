@@ -25,8 +25,8 @@ function createWrapperComputed<T>(accessor: () => KnockoutObservable<T> | T, pro
     computed["wrappedProperty"] = accessor;
     Object.defineProperty(computed, "state", {
         get: () => {
-            const x = (accessor() as any || {})
-            return x.state ?? unmapKnockoutObservables(x)
+            const x = accessor() as any
+            return (x && x.state) ?? unmapKnockoutObservables(x)
         },
         configurable: false,
         enumerable: false
@@ -54,26 +54,30 @@ function prepareViewModuleContexts(element: HTMLElement, value: any) {
 ko.virtualElements.allowedBindings["dotvvm-with-control-properties"] = true;
 ko.virtualElements.allowedBindings["dotvvm-with-view-modules"] = true;
 
+export function wrapControlProperties(valueAccessor: () => any) {
+    const value = valueAccessor();
+    for (const prop of keys(value)) {
+        if (isCommand(value, prop)) {
+            const commandFunction = value[prop];
+            value[prop] = createWrapperComputed(() => commandFunction);
+        } else {
+            value[prop] = createWrapperComputed(
+                () => {
+                    const value = valueAccessor()[prop];
+                    // if it's observable or FakeObservableObject, we assume that we don't need to wrap it in observables.
+                    const isWrapped = ko.isObservable(value) || (value && typeof value == 'object' && currentStateSymbol in value)
+                    return isWrapped ? value : deserialize(value)
+                },
+                `'${prop}' at '${valueAccessor.toString()}'`);
+        }
+    }
+    return value
+}
+
 export default {
     'dotvvm-with-control-properties': {
         init: (element: HTMLElement, valueAccessor: () => any, allBindings?: any, viewModel?: any, bindingContext?: KnockoutBindingContext) => {
-            const value = valueAccessor();
-            for (const prop of keys(value)) {
-                if (isCommand(value, prop)) {
-                    const commandFunction = value[prop];
-                    value[prop] = createWrapperComputed(() => commandFunction);
-                } else {
-                    value[prop] = createWrapperComputed(
-                        () => {
-                            const value = valueAccessor()[prop];
-                            // if it's observable or FakeObservableObject, we assume that we don't need to wrap it in observables.
-                            const isWrapped = ko.isObservable(value) || (value && typeof value == 'object' && currentStateSymbol in value)
-                            return isWrapped ? value : deserialize(value)
-                        },
-                        `'${prop}' at '${valueAccessor.toString()}'`);
-                }
-            }
-            var newContext: any = { $control: value }
+            var newContext: any = { $control: wrapControlProperties(valueAccessor) }
 
             // we have to merge these two bindings, since knockout does not support multiple binding to change the data context
             const viewModuleBinding = allBindings.get('dotvvm-with-view-modules')
