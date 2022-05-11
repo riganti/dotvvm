@@ -4,7 +4,7 @@
 		
 		<!-- simple list -->
 		<p class="css-class-from-markup my-repeated-button" data-bind="foreach: { data: List }" id="test-id">
-			<button class="the-only-class-for-button-element" data-bind="text: ($parent.Label() ?? &quot;&quot;) + $data" id="test-id_c9a0_c9a0a0_inner-button" onclick="dotvvm.postBack(this,[&quot;List/[$index]&quot;],&quot;WHRHt9Mi4BuLdRIz&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button"></button>
+			<button class="the-only-class-for-button-element" data-bind="text: ($parent.Label() ?? &quot;&quot;) + $data, attr: { id: &quot;test-id&quot;+'_'+$index()+'_'+&quot;inner-button&quot; }" onclick="dotvvm.postBack(this,[&quot;List/[$index]&quot;],&quot;WHRHt9Mi4BuLdRIz&quot;,&quot;&quot;,null,[],[],undefined).catch(dotvvm.log.logPostBackScriptError);event.stopPropagation();return false;" type="button"></button>
 		</p>
 	</body>
 </html>

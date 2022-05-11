@@ -260,7 +260,7 @@ namespace DotVVM.Framework.Controls
             container.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty)!);
             if (item == null && index == null)
             {
-                SetUpClientItem(container);
+                SetUpClientItem(context, container);
             }
             else
             {
@@ -330,11 +330,11 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void SetUpClientItem(DataItemContainer container)
+        private void SetUpClientItem(IDotvvmRequestContext context, DataItemContainer container)
         {
             container.DataContext = null;
             container.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
-            container.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
+            container.SetValue(Internal.ClientIDFragmentProperty, this.GetIndexBinding(context));
         }
 
         private void SetUpServerItem(IDotvvmRequestContext context, object item, int index, DataItemContainer container)
