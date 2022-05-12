@@ -40,7 +40,10 @@ namespace DotVVM.HotReload
                     watcher.Changed += (s, a) => OnFileChanged(configuration, a.FullPath);
                     watcher.Renamed += (s, a) => {
                         // VS doesn't update the actual file, it writes in the temp file, moves the old file away, and then renames the temp file to the original file
-                        OnFileChanged(configuration, a.FullPath);
+                        if (!string.Equals(Path.GetExtension(a.FullPath), ".tmp", StringComparison.OrdinalIgnoreCase))
+                        {
+                            OnFileChanged(configuration, a.FullPath);
+                        }
                     };
                     watcher.EnableRaisingEvents = true;
                     return watcher;
@@ -54,8 +57,15 @@ namespace DotVVM.HotReload
             Task.Factory.StartNew(() =>
             {
                 // cannot use DI - there is cyclic dependency
-                var controlBuilderFactory = configuration.ServiceProvider.GetRequiredService<IControlBuilderFactory>();
-                controlBuilderFactory.GetControlBuilder(fullPath);
+                try
+                {
+                    var controlBuilderFactory = configuration.ServiceProvider.GetRequiredService<IControlBuilderFactory>();
+                    controlBuilderFactory.GetControlBuilder(fullPath);
+                }
+                catch (Exception)
+                {
+                    // ignore errors - this is triggered on the background so the subsequent HTTP request from the browser will have the page already compiled
+                }
             });
 
             // notify about the changes
