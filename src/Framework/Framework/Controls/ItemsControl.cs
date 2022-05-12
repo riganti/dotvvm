@@ -107,11 +107,14 @@ namespace DotVVM.Framework.Controls
                 var bindingService = context.Services.GetRequiredService<BindingCompilationService>();
                 var dataContext = GetDataSourceBinding().GetProperty<CollectionElementDataContextBindingProperty>().DataContext;
                 return bindingService.Cache.CreateCachedBinding("_index", new object[] { dataContext }, () =>
-                    new ValueBindingExpression<int>(bindingService, new object?[] {
+                    new ValueBindingExpression<string>(bindingService, new object?[] {
                         dataContext,
                         new ParsedExpressionBindingProperty(
-                            Expression.Parameter(typeof(int), "_index").AddParameterAnnotation(
-                                new BindingParameterAnnotation(dataContext, new CurrentCollectionIndexExtensionParameter()))
+                            Expression.Call(
+                                IndexToStringNoGlobalizeMethod,
+                                Expression.Parameter(typeof(int), "_index")
+                                    .AddParameterAnnotation(new BindingParameterAnnotation(dataContext, new CurrentCollectionIndexExtensionParameter()))
+                            )
                         )
                     }
                 ));
