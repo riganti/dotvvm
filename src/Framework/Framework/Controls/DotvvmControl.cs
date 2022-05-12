@@ -538,10 +538,8 @@ namespace DotVVM.Framework.Controls
                     result.Add(JavascriptCompilationHelper.CompileConstant(suffix));
                 }
                 if (service == null) throw new NotSupportedException();
-
-                var resultBinding = ValueBindingExpression.CreateBinding<string?>(service.WithoutInitialization(), _ => null, result.Build(new OperatorPrecedence()), this.GetDataContextType());
+                var resultBinding = ValueBindingExpression.CreateBinding<string>(service.WithoutInitialization(), h => null!, result.Build(new OperatorPrecedence(OperatorPrecedence.Addition, false)), this.GetDataContextType());
                 return ValueOrBinding<string>.FromBoxedValue(resultBinding);
->>>>>>> 3ee04e407 (Changed unique ID to ValueOrBinding<string>)
             }
         }
 
