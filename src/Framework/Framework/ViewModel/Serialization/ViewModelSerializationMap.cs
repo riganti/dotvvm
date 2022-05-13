@@ -149,14 +149,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 )));
 
             // get existing values into the local variables
-            block.Add(IfThen(
-                Type.IsValueType ? Constant(true) : NotEqual(value, Constant(null)),
-                Block(
-                    Properties
-                        .Zip(propertyVars, (p, v) => p.PropertyInfo.GetMethod != null ? Expression.Assign(v, Expression.Property(value, p.PropertyInfo)) : null)
-                        .Where(e => e != null)!
-                )
-            ));
+            if (propertyVars.Length > 0)
+            {
+                block.Add(IfThen(
+                    Type.IsValueType ? Constant(true) : NotEqual(value, Constant(null)),
+                    Block(
+                        Properties
+                            .Zip(propertyVars, (p, v) => p.PropertyInfo.GetMethod != null ? Expression.Assign(v, Expression.Property(value, p.PropertyInfo)) : null)
+                            .Where(e => e != null)!
+                    )
+                ));
+            }
 
             // add current object to encrypted values, this is needed because one property can potentially contain more objects (is a collection)
             block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes));
@@ -319,15 +322,18 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 block.Add(Assign(value, constructorCall));
             }
 
-            var setProperties = Expression.Block(
-                Properties
-                    .Zip(propertyVars, (p, v) =>
-                        p is { PropertyInfo.SetMethod: not null, ConstructorParameter: null, TransferToServer: true }
-                            ? Expression.Assign(Expression.Property(value, p.PropertyInfo), v)
-                            : null)
-                    .Where(e => e != null)!
-            );
-            block.Add(setProperties);
+            if (propertyVars.Length > 0)
+            {
+                var setProperties = Expression.Block(
+                    Properties
+                        .Zip(propertyVars, (p, v) =>
+                            p is { PropertyInfo.SetMethod: not null, ConstructorParameter: null, TransferToServer: true }
+                                ? Expression.Assign(Expression.Property(value, p.PropertyInfo), v)
+                                : null)
+                        .Where(e => e != null)!
+                );
+                block.Add(setProperties);
+            }
 
             // return value
             block.Add(Convert(value, typeof(object)));
