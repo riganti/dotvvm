@@ -324,15 +324,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             if (propertyVars.Length > 0)
             {
-                var setProperties = Expression.Block(
-                    Properties
-                        .Zip(propertyVars, (p, v) =>
-                            p is { PropertyInfo.SetMethod: not null, ConstructorParameter: null, TransferToServer: true }
-                                ? Expression.Assign(Expression.Property(value, p.PropertyInfo), v)
-                                : null)
-                        .Where(e => e != null)!
-                );
-                block.Add(setProperties);
+                var propertySettingExpressions = Properties
+                    .Zip(propertyVars, (p, v) =>
+                        p is { PropertyInfo.SetMethod: not null, ConstructorParameter: null, TransferToServer: true }
+                            ? Assign(Property(value, p.PropertyInfo), v)
+                            : null)
+                    .Where(e => e != null).ToList();
+
+                if (propertySettingExpressions.Any())
+                {
+                    block.Add(Block(propertySettingExpressions!));
+                }
             }
 
             // return value
