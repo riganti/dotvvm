@@ -474,7 +474,18 @@ namespace DotVVM.Framework.Utils
 
         public static string ToEnumString<T>(this T instance) where T : Enum
         {
-            return ToEnumString(instance.GetType(), instance.ToString());
+            if (typeof(T).GetCustomAttribute<FlagsAttribute>() != null)
+            {
+                var values = Enum.GetValues(typeof(T));
+                return string.Join(", ",
+                    values.OfType<T>()
+                    .Where(v => instance.HasFlag(v))
+                    .Select(v => ToEnumString(typeof(T), v.ToString())));
+            }
+            else
+            {
+                return ToEnumString(instance.GetType(), instance.ToString());
+            }
         }
         public static string ToEnumString(Type enumType, string name)
         {
