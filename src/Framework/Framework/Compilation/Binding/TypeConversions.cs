@@ -195,8 +195,6 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             if (src.Type.UnwrapNullableType().IsEnum)
             {
-                if (!src.Type.IsNullable())
-                    src = Expression.Convert(src, typeof(Nullable<>).MakeGenericType(src.Type));
                 return Expression.Call(typeof(ReflectionUtils), "ToEnumString", new [] { src.Type.UnwrapNullableType() }, src);
             }
             var toStringMethod = src.Type.GetMethod("ToString", Type.EmptyTypes);

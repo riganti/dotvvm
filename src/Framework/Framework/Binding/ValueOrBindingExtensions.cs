@@ -83,11 +83,11 @@ public static class ValueOrBindingExtensions
         }
         else if (typeof(T).IsValueType && typeof(T).UnwrapNullableType().IsEnum)
         {
-            return new(ReflectionUtils.ToEnumString(typeof(T), v.ValueOrDefault.ToString()) ?? "");
+            return new(ReflectionUtils.ToEnumString(typeof(T), v.ValueOrDefault.ToString() ?? ""));
         }
         else
         {
-            return new(v.ValueOrDefault.ToString());
+            return new(v.ValueOrDefault.ToString() ?? "");
         }
     }
     /// <summary> Returns ValueOrBinding with the value of `a is object`. The resulting binding is cached, so it's safe to use this method at runtime. </summary>
