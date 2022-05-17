@@ -442,7 +442,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 var @operator = operatorToken.Type;
                 var isOperatorUnsupported = @operator == BindingTokenType.UnsupportedOperator;
 
-                if (@operator == BindingTokenType.NotOperator || @operator == BindingTokenType.SubtractOperator || isOperatorUnsupported)
+                if (@operator == BindingTokenType.NotOperator || @operator == BindingTokenType.SubtractOperator || @operator == BindingTokenType.OnesComplementOperator || isOperatorUnsupported)
                 {
                     Read();
                     var target = ReadUnaryExpression();

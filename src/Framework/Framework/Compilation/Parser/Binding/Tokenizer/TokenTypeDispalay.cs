@@ -35,6 +35,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                 case BindingTokenType.GreaterThanEqualsOperator: return ">=";
                 case BindingTokenType.NotEqualsOperator: return "!=";
                 case BindingTokenType.NotOperator: return "!";
+                case BindingTokenType.OnesComplementOperator: return "~";
                 case BindingTokenType.StringLiteralToken: return "Literal";
                 case BindingTokenType.NullCoalescingOperator: return "?.";
                 case BindingTokenType.QuestionMarkOperator: return "?";

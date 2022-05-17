@@ -146,6 +146,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JavascriptCompilation_OnesComplementOperator()
+        {
+            var js = CompileBinding("IntProp = ~IntProp", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("IntProp(~IntProp()).IntProp", js);
+        }
+
+        [TestMethod]
         public void JavascriptCompilation_BindingPageInfo_IsPostbackRunning()
         {
             var js = CompileBinding("_page.IsPostbackRunning");

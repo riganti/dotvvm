@@ -377,6 +377,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                         op = UnaryOperatorType.LogicalNot;
                     else op = UnaryOperatorType.BitwiseNot;
                     break;
+
+                case ExpressionType.OnesComplement:
+                    op = UnaryOperatorType.BitwiseNot;
+                    break;
+
                 case ExpressionType.Convert:
                 case ExpressionType.TypeAs:
                     // convert does not make sense in Javascript

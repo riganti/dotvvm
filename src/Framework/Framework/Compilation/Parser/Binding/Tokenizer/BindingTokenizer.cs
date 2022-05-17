@@ -215,6 +215,12 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         }
                         break;
 
+                    case '~':
+                        FinishIncompleteIdentifier();
+                        Read();
+                        CreateToken(BindingTokenType.OnesComplementOperator);
+                        break;
+
                     case '$':
                     case '\'':
                     case '"':

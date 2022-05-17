@@ -79,7 +79,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingTokenizer_AllOperators_Valid()
         {
-            var tokens = Tokenize("+ - * / % < > <= >= == != ! & && | || ? : ?? . , => ^");
+            var tokens = Tokenize("+ - * / % < > <= >= == != ! & && | || ? : ?? . , => ^ ~");
 
             var index = 0;
             Assert.AreEqual(BindingTokenType.AddOperator, tokens[index++].Type);
@@ -127,6 +127,8 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(BindingTokenType.LambdaOperator, tokens[index++].Type);
             Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
             Assert.AreEqual(BindingTokenType.ExclusiveOrOperator, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.OnesComplementOperator, tokens[index++].Type);
             Assert.AreEqual(index, tokens.Count);
         }
 
