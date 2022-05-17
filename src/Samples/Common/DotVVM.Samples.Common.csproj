@@ -98,6 +98,7 @@
     <None Remove="Views\FeatureSamples\Serialization\EnumSerializationCoercion.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\SerializationDateTimeOffset.dothtml" />
     <None Remove="Views\FeatureSamples\StringInterpolation\StringInterpolation.dothtml" />
+    <None Remove="Views\FeatureSamples\Validation\ValidatorValueComplexExpressions.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\Incrementer.dotcontrol" />
     <None Remove="Views\FeatureSamples\ViewModules\IncrementerInRepeater.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModules\InnerModuleControl.dotcontrol" />
