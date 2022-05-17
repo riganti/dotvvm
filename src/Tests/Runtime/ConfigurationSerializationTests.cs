@@ -29,6 +29,7 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             var serialized = DotVVM.Framework.Hosting.VisualStudioHelper.SerializeConfig(config, includeProperties);
             serialized = Regex.Replace(serialized, "Version=[0-9.]+", "Version=***");
+            serialized = Regex.Replace(serialized, "\"dotvvmVersion\": \"[0-9]\\.[0-9]\\.[0-9]\\.[0-9]\"", "\"dotvvmVersion\": \"*.*.*.*\"");
             var jobject = JObject.Parse(serialized);
             if (jobject["properties"] is object)
                 foreach (var testControl in ((JObject)jobject["properties"]).Properties().Where(p => p.Name.Contains(".Tests.")).ToArray())

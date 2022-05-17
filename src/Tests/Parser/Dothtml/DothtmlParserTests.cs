@@ -723,6 +723,15 @@ test";
         }
 
         [TestMethod]
+        public void DothtmlParser_BindingInnerInterpolatedExpression_BindingCorrectlyClosed()
+        {
+            var markup = "{{value: $'Hello {$'Innner {'Another interpolation'}'}'}}";
+            var root = ParseMarkup(markup);
+
+            Assert.AreEqual(1, root.Content.Count);
+        }
+
+        [TestMethod]
         public void DothtmlParser_AngleCharsInsideBinding()
         {
             var markup = "<div class-active='{value: Activity > 3 && Activity < 100}' />";

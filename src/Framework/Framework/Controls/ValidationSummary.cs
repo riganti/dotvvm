@@ -65,11 +65,12 @@ namespace DotVVM.Framework.Controls
         {
             base.AddAttributesToRender(writer, context);
 
-            var expression = KnockoutHelper.GetValidationTargetExpression(this);
-            if(expression == null)
+            if (false.Equals(this.GetValue(Validation.EnabledProperty)))
             {
                 return;
             }
+
+            var expression = this.GetValueBinding(Validation.TargetProperty)?.GetKnockoutBindingExpression(this) ?? "dotvvm.viewModelObservables.root";
 
             var group = new KnockoutBindingGroup();
             {

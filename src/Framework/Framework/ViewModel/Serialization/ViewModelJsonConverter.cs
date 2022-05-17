@@ -9,6 +9,7 @@ using DotVVM.Framework.Configuration;
 using System.Reflection;
 using DotVVM.Framework.Utils;
 using System.Security;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -68,6 +69,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
+            if (existingValue is {})
+            {
+                Debug.Assert(objectType.IsInstanceOfType(existingValue));
+
+                // the existingValue might be more specific type than objectType.
+                // this important for deserialization of IPagingOptions which are pre-populated with PagingOptions
+                // otherwise, we'd not be able to deserialize the interface, because it has no constructor
+
+                objectType = existingValue.GetType();
+            }
             // handle null keyword
             if (reader.TokenType == JsonToken.Null)
             {
@@ -83,9 +94,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 // deserialize
                 var serializationMap = GetSerializationMapForType(objectType);
-                var instance = serializationMap.ConstructorFactory(Services);
-                serializationMap.ReaderFactory(reader, serializer, instance, evReader.Value);
-                return instance;
+                return serializationMap.ReaderFactory(reader, serializer, existingValue, evReader.Value, Services);
             }
             finally
             {
@@ -126,14 +135,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Populates the specified JObject.
         /// </summary>
-        public virtual void Populate(JsonReader reader, JsonSerializer serializer, object value)
+        public virtual object Populate(JsonReader reader, JsonSerializer serializer, object value)
         {
             var evSuppressed = evReader.Value.Suppressed;
             try
             {
                 if (reader.TokenType == JsonToken.None) reader.Read();
                 var serializationMap = GetSerializationMapForType(value.GetType());
-                serializationMap.ReaderFactory(reader, serializer, value, evReader.Value);
+                return serializationMap.ReaderFactory(reader, serializer, value, evReader.Value, Services);
             }
             finally
             {

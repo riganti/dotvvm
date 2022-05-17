@@ -71,7 +71,9 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public TypeRegistry InitSymbols(DataContextStack dataContext)
         {
-            return AddTypeSymbols(TypeRegistry.Default(compiledAssemblyCache).AddSymbols(GetParameters(dataContext).Select(d => new KeyValuePair<string, Expression>(d.Name!, d))), dataContext);
+            return AddTypeSymbols(TypeRegistry.Default(compiledAssemblyCache)
+                .AddSymbols(GetParameters(dataContext)
+                .Select(d => new KeyValuePair<string, Expression>(d.Name!, d))), dataContext);
         }
 
         public TypeRegistry AddTypeSymbols(TypeRegistry reg, DataContextStack dataContext)

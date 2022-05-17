@@ -384,7 +384,7 @@ namespace DotVVM.Samples.Tests
                 AssertUI.TextEquals(browser.First("exceptionType", By.ClassName),
                     "DotVVM.Framework.Compilation.DotvvmCompilationException");
                 AssertUI.TextEquals(browser.First("exceptionMessage", By.ClassName),
-                    "DotVVM.InvalidNamespace.NonExistingService is not a valid type.");
+                    "Could not resolve type 'DotVVM.InvalidNamespace.NonExistingService'.");
             });
         }
 

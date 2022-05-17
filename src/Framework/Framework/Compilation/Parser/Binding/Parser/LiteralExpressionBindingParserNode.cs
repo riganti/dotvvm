@@ -9,6 +9,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     public class LiteralExpressionBindingParserNode : BindingParserNode
     {
         public object? Value { get; set; }
+        public bool IsUnexpectedToken { get; set; }
 
         public LiteralExpressionBindingParserNode(object? value)
         {
@@ -19,6 +20,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             => Enumerable.Empty<BindingParserNode>();
 
         public override string ToDisplayString()
-            => Value is null ? "<null>" : Value.ToString()!;
+            => Value is null ? "null" :
+               Value is string && !IsUnexpectedToken ? $"\"{Value}\"" :
+               Value.ToString()!;
     }
 }

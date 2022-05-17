@@ -35,7 +35,7 @@ export default {
                     const { props, update } = valueAccessor()
                     for (const [name, val] of Object.entries(newProps)) {
                         lastProps[name] = val
-                        if (name in update) {
+                        if (update && name in update) {
                             update[name](val)
                         } else {
                             const prop = props[name]

@@ -630,6 +630,22 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_Valid_MemberAssignmentWithUnaryMinus()
+        {
+            var vm = new TestViewModel();
+            var result = ExecuteBinding($"IntProp=-42", vm);
+            Assert.AreEqual(-42, vm.IntProp);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_MemberAssignmentWithUnaryNegation()
+        {
+            var vm = new TestViewModel();
+            var result = ExecuteBinding($"true==!false", vm);
+            Assert.IsTrue((bool)result);
+        }
+
+        [TestMethod]
         public void BindingCompiler_Valid_NamespaceAlias()
         {
             var result = ExecuteBinding("Alias.TestClass2.Property", new object[0], null, new NamespaceImport[] { new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace2", "Alias") });

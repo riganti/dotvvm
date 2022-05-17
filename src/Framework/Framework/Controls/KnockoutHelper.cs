@@ -156,13 +156,13 @@ namespace DotVVM.Framework.Controls
             {
                 if (!options.AllowPostbackHandlers) return "[]";
                 // turn validation off for static commands
-                var validationPath = expression is IStaticCommandBinding ? null : GetValidationTargetExpression(control);
+                var validationPathExpr = expression is IStaticCommandBinding ? null : GetValidationTargetExpression(control);
                 return GetPostBackHandlersScript(control, propertyName,
                     // validation handler
-                    validationPath == null ? null :
-                    validationPath == RootValidationTargetExpression ? "\"validate-root\"" :
-                    validationPath == "$data" ? "\"validate-this\"" :
-                    $"[\"validate\", {{path:{JsonConvert.ToString(validationPath)}}}]",
+                    validationPathExpr == null ? null :
+                    validationPathExpr == RootValidationTargetExpression ? "\"validate-root\"" :
+                    validationPathExpr == "c => c.$data" ? "\"validate-this\"" :
+                    $"[\"validate\", {{path:{validationPathExpr}}}]",
 
                     // use window.setTimeout
                     options.UseWindowSetTimeout ? "\"timeout\"" : null,
@@ -376,8 +376,19 @@ namespace DotVVM.Framework.Controls
                 return $"[{JsonConvert.ToString(handlerName)},{GenerateHandlerOptions(obj, new Dictionary<string, object?> { ["q"] = queueName })}]";
             }
         }
+        
+        /// <summary> Returns a lambda function taking the knockout context as its single argument, returning the result of the IValueBinding. </summary>
+        public static string GetValueBindingContextLambda(this IValueBinding binding, DotvvmBindableObject contextControl, bool unwrapped = false)
+        {
+            var expr = binding.GetParametrizedKnockoutExpression(contextControl, unwrapped);
+            var body = expr.ToString(a =>
+                a == JavascriptTranslator.KnockoutContextParameter ? new("c", OperatorPrecedence.Max) :
+                a == JavascriptTranslator.KnockoutViewModelParameter ? new("c.$data", OperatorPrecedence.Max) :
+                default);
+            return $"c => {body}";
+        }
 
-        public const string RootValidationTargetExpression = "dotvvm.viewModelObservables['root']";
+        public const string RootValidationTargetExpression = "c => dotvvm.viewModelObservables.root";
 
         /// <summary>
         /// Gets the validation target expression.
@@ -389,7 +400,7 @@ namespace DotVVM.Framework.Controls
                 return null;
             }
 
-            return control.GetValueBinding(Validation.TargetProperty)?.GetKnockoutBindingExpression(control) ??
+            return control.GetValueBinding(Validation.TargetProperty)?.GetValueBindingContextLambda(control) ??
                 RootValidationTargetExpression;
         }
 

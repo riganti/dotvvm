@@ -23,6 +23,7 @@ namespace DotVVM.Framework.Compilation.Parser
         public const string RootSpecialBindingProperty = "_root";
         public const string ParentSpecialBindingProperty = "_parent";
         public const string ThisSpecialBindingProperty = "_this";
+        public const string PropertyDeclarationDirective = "property";
     }
     
 }

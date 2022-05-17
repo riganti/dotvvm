@@ -25,7 +25,7 @@ export function traverseContext(context: any, path: string): any {
 
         var nextNode = ko.unwrap(currentLevel)[expressionPart];
         if (nextNode == undefined) {
-            throw `Validation error could not been applied to property specified by propertyPath ${path}. Property with name ${expressionPart} does not exist on ${currentPath}.`;
+            throw `Validation error could not been applied to property specified by propertyPath ${path}. Property with name ${expressionPart} does not exist on ${!currentPath ? "root" : currentPath}.`;
         }
         currentPath += `/${expressionPart}`;
         currentLevel = nextNode;
@@ -69,20 +69,6 @@ export function findPathToChildObject(vm: any, child: any, path: string): string
     }
 
     return null;
-}
-
-export function evaluateOnViewModel(context: any, expression: string): any {
-    // todo: reimplement
-    let result;
-    if (context && context.$data) {
-        result = new Function("$context", "with($context) { with ($data) { return " + expression + "; } }")(context);
-    } else {
-        result = new Function("$context", "var $data=$context; with($context) { return " + expression + "; }")(context);
-    }
-    if (result && result.$data) {
-        result = result.$data;
-    }
-    return result;
 }
 
 export function getDataSourceItems(viewModel: any): Array<KnockoutObservable<any>> {

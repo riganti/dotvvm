@@ -118,6 +118,25 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("$parent+$parents[1]+$data+$parent+$parents[2]", js);
         }
 
+        [DataTestMethod]
+        [DataRow("2+2", "2+2", DisplayName = "2+2")]
+        [DataRow("2+2+2", "2+2+2", DisplayName = "2+2+2")]
+        [DataRow("(2+2)+2", "2+2+2", DisplayName = "(2+2)+2")]
+        [DataRow("2+(2+2)", "2+(2+2)", DisplayName = "2+(2+2)")]
+        [DataRow("2+(2*2)", "2+2*2", DisplayName = "2+(2*2)")]
+        [DataRow("2*(2+2)", "2*(2+2)", DisplayName = "2*(2+2)")]
+        [DataRow("IntProp & (2+2)", "IntProp()&2+2", DisplayName = "IntProp & (2+2)")]
+        [DataRow("IntProp & 2+2", "IntProp()&2+2", DisplayName = "IntProp & 2+2")]
+        [DataRow("IntProp & -1", "IntProp()&-1", DisplayName = "IntProp & -1")]
+        [DataRow("'a' + 'b'", "\"ab\"", DisplayName = "'a' + 'b'")]
+        [DataRow("'xx' + IntProp", "\"xx\"+IntProp()", DisplayName = "'xx' + IntProp")]
+        [DataRow("true == (IntProp == 1)", "true==(IntProp()==1)", DisplayName = "true == (IntProp == 1)")]
+        public void JavascriptCompilation_BinaryExpressions(string expr, string expectedJs)
+        {
+            var js = CompileBinding(expr, new [] { typeof(TestViewModel) });
+            Assert.AreEqual(expectedJs, js);
+        }
+
         [TestMethod]
         public void JavascriptCompilation_BindingPageInfo_IsPostbackRunning()
         {

@@ -4,12 +4,27 @@ import * as ReactDOM from 'react-dom';
 import type { StateManager } from 'state-manager';
 
 export type KnockoutTemplateReactComponent_Props = {
+    /** HTML element name which will contain the knockout template. By default a `<div>` wrapper tag is used. */
     wrapperTag: string
+
+    /** ID of the knockout template to be rendered, knockout will search for a matching `<template id="...">` element.
+     * You can get this ID in a DotVVM JsComponent as a property when you use inner element in the dothtml markup. */
     templateName: string
+
+    /** A function which returns the knockout context for the rendered template. This property can not be updated after initialization
+     *  @example getChildContext={c => c.extend({ $myTag: 1234 })} */
     getChildContext?: (context: KnockoutBindingContext) => KnockoutBindingContext
+
+    /** When set, a new knockout binding context with `$this` being the specified viewModel.
+     * Parent context will be the context of the parent element.
+     * Note that this viewModel is expected to be a plain JS object, not wrapped in knockout observables.
+     * Upading this property will update the template's data context. */
     viewModel?: any
 }
 
+/** React wrapper for knockout `ko.renderTemplate` function.
+ * Specify the `templateName` property to select which template should be rendered.
+ * Optionally, you can use the `viewModel` or `getChildContext` property to set a data context for the template. */
 export class KnockoutTemplateReactComponent extends React.Component<KnockoutTemplateReactComponent_Props> {
     static defaultProps = {
         wrapperTag: "div"

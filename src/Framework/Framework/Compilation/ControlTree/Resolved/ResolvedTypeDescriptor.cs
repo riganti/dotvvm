@@ -25,9 +25,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public string? Namespace => Type.Namespace;
 
-        public string? Assembly => Type.AssemblyQualifiedName;
+        public string? Assembly => Type.Assembly?.FullName;
 
-        public string FullName => string.IsNullOrEmpty(Namespace) ? Name : (Namespace + "." + Name);
+        public string FullName => Type.FullName ?? (string.IsNullOrEmpty(Namespace) ? Name : (Namespace + "." + Name));
 
         public bool IsAssignableTo(ITypeDescriptor typeDescriptor)
         {

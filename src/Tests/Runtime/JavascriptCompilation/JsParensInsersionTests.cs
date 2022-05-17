@@ -51,17 +51,31 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
             AssertFormatting("(a??b)&&c", id("a").Binary(BinaryOperatorType.NullishCoalescing, id("b")).Binary(BinaryOperatorType.ConditionalAnd, id("c")));
         }
 
-        [TestMethod]
-        public void JsParens_OperatorPriority()
+        [DataTestMethod]
+        [DataRow(BinaryOperatorType.Times, BinaryOperatorType.Plus, "a*b+c")]
+        [DataRow(BinaryOperatorType.Plus, BinaryOperatorType.Times, "(a+b)*c")]
+        [DataRow(BinaryOperatorType.Plus, BinaryOperatorType.Plus, "a+b+c")]
+        [DataRow(BinaryOperatorType.Plus, BinaryOperatorType.Minus, "a+b-c")]
+        [DataRow(BinaryOperatorType.Minus, BinaryOperatorType.Plus, "a-b+c")]
+        [DataRow(BinaryOperatorType.ConditionalAnd, BinaryOperatorType.ConditionalOr, "a&&b||c")]
+        [DataRow(BinaryOperatorType.ConditionalOr, BinaryOperatorType.ConditionalAnd, "(a||b)&&c")]
+        [DataRow(BinaryOperatorType.BitwiseOr, BinaryOperatorType.ConditionalAnd, "a|b&&c")]
+        [DataRow(BinaryOperatorType.BitwiseOr, BinaryOperatorType.BitwiseAnd, "(a|b)&c")]
+        [DataRow(BinaryOperatorType.GreaterOrEqual, BinaryOperatorType.ConditionalAnd, "a>=b&&c")]
+        [DataRow(BinaryOperatorType.GreaterOrEqual, BinaryOperatorType.ConditionalOr, "a>=b||c")]
+        [DataRow(BinaryOperatorType.GreaterOrEqual, BinaryOperatorType.BitwiseAnd, "a>=b&c")]
+        [DataRow(BinaryOperatorType.LeftShift, BinaryOperatorType.Plus, "(a<<b)+c")]
+        [DataRow(BinaryOperatorType.LeftShift, BinaryOperatorType.Greater, "a<<b>c")]
+        [DataRow(BinaryOperatorType.Greater, BinaryOperatorType.Greater, "a>b>c")]
+        [DataRow(BinaryOperatorType.Greater, BinaryOperatorType.GreaterOrEqual, "a>b>=c")]
+        [DataRow(BinaryOperatorType.Plus, BinaryOperatorType.Sequence, "a+b,c")]
+        [DataRow(BinaryOperatorType.Sequence, BinaryOperatorType.Plus, "(a,b)+c")]
+        public void JsParens_OperatorPriority(BinaryOperatorType firstOp, BinaryOperatorType secondOp, string expectedJs)
         {
-            AssertFormatting("a*b+c", new JsBinaryExpression(
-                new JsBinaryExpression(new JsIdentifierExpression("a"), BinaryOperatorType.Times, new JsIdentifierExpression("b")),
-                BinaryOperatorType.Plus,
-                new JsIdentifierExpression("c")));
-            AssertFormatting("(a+b)*c", new JsBinaryExpression(
-                new JsBinaryExpression(new JsIdentifierExpression("a"), BinaryOperatorType.Plus, new JsIdentifierExpression("b")),
-                BinaryOperatorType.Times,
-                new JsIdentifierExpression("c")));
+            AssertFormatting(expectedJs,
+                new JsIdentifierExpression("a")
+                    .Binary(firstOp, new JsIdentifierExpression("b"))
+                    .Binary(secondOp, new JsIdentifierExpression("c")));
         }
 
         [TestMethod]
@@ -113,17 +127,34 @@ namespace DotVVM.Framework.Tests.Runtime.JavascriptCompilation
             );
         }
 
-        [TestMethod]
-        public void JsParent_ParametrizedCodeBuilder()
+        [DataTestMethod]
+        [DataRow(BinaryOperatorType.Times, "a+b+(a*b)", "a+b+a*b")]
+        [DataRow(BinaryOperatorType.Minus, "a+b+(a-b)", "a+b+(a-b)")]
+        [DataRow(BinaryOperatorType.BitwiseXOr, "a+b+(a^b)", "a+b+(a^b)")]
+        [DataRow(BinaryOperatorType.BitwiseOr, "a+b+(a|b)", "a+b+(a|b)")]
+        [DataRow(BinaryOperatorType.BitwiseAnd, "a+b+(a&b)", "a+b+(a&b)")]
+        [DataRow(BinaryOperatorType.NullishCoalescing, "a+b+(a??b)", "a+b+(a??b)")]
+        [DataRow(BinaryOperatorType.InstanceOf, "a+b+(a instanceof b)", "a+b+(a instanceof b)")]
+        public void JsParent_ParametrizedCodeBuilder(BinaryOperatorType binaryOp, string resultParanoidVersion, string resultOptimalVersion)
         {
-            Assert.AreEqual("a+b+(a*b)", new ParametrizedCode.Builder { 
+            Assert.AreEqual(resultParanoidVersion, new ParametrizedCode.Builder { 
                 new JsIdentifierExpression("a").FormatParametrizedScript(),
                 "+b+",
                 new JsBinaryExpression(
                     new JsIdentifierExpression("a"),
-                    BinaryOperatorType.Times,
+                    binaryOp,
                     new JsIdentifierExpression("b")
                 ).FormatParametrizedScript()
+            }.Build(default).ToDefaultString());
+
+            Assert.AreEqual(resultOptimalVersion, new ParametrizedCode.Builder { 
+                new JsIdentifierExpression("a").FormatParametrizedScript(),
+                "+b+",
+                { new JsBinaryExpression(
+                    new JsIdentifierExpression("a"),
+                    binaryOp,
+                    new JsIdentifierExpression("b")
+                ).FormatParametrizedScript(), OperatorPrecedence.Addition }
             }.Build(default).ToDefaultString());
         }
     }

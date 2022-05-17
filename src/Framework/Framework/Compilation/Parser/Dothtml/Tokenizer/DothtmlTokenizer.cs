@@ -623,15 +623,23 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             }
             else
             {
-                char ch;
-                while ((ch = Peek()) != '}')
+                char current;
+                while ((current = Peek()) != '}')
                 {
-                    if (ch == '\'' || ch == '"')
+                    char next = Peek(delta: 1);
+                    if (current == '$' && (next == '"' || next == '\''))
+                    {
+                        // interpolated string
+                        // -- we may need to ignore some curly brackets
+                        // -- additionally also some quotes might be ignored
+                        BindingTokenizer.ReadInterpolatedString(Peek, Read, out _);
+                    }
+                    else if (current == '\'' || current == '"')
                     {
                         // string literal - ignore curly braces inside
                         BindingTokenizer.ReadStringLiteral(Peek, Read, out _);
                     }
-                    else if (ch == NullChar)
+                    else if (current == NullChar)
                     {
                         CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError());
                         CreateToken(DothtmlTokenType.CloseBinding, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenBinding, DothtmlTokenizerErrors.BindingNotClosed));

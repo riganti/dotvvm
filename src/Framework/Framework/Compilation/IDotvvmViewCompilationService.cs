@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
@@ -43,5 +44,7 @@ namespace DotVVM.Framework.Compilation
         /// <param name="forceRecompile">If set, than everything will be recompiled.</param>
         /// <returns>Returns whether compilation was successful.</returns>
         Task<bool> CompileAll(bool buildInParallel=true, bool forceRecompile = false);
+
+        void RegisterCompiledView(string filePath, ViewCompiler.ControlBuilderDescriptor? descriptor, Exception? exception);
     }
 }

@@ -1,4 +1,5 @@
 {
+  "dotvvmVersion": "*.*.*.*",
   "config": {
     "markup": {
       "controls": [
@@ -142,7 +143,10 @@
     "experimentalFeatures": {},
     "debug": false,
     "diagnostics": {
-      "compilationPage": {}
+      "compilationPage": {},
+      "perfWarnings": {
+        "bigViewModelBytes": 5242880.0
+      }
     }
   },
   "properties": {
@@ -603,6 +607,81 @@
       "ValueBinding": {
         "type": "DotVVM.Framework.Binding.Expressions.IValueBinding, DotVVM.Framework",
         "required": true
+      }
+    },
+    "DotVVM.Framework.Controls.HierarchyRepeater": {
+      "EmptyDataTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "mappingMode": "InnerElement"
+      },
+      "ItemChildrenBinding": {
+        "type": "DotVVM.Framework.Binding.Expressions.IValueBinding`1[[System.Collections.Generic.IEnumerable`1[[System.Object, System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=***, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ],
+        "required": true
+      },
+      "ItemID": {
+        "type": "System.String",
+        "fromCapability": "ItemHtmlCapability"
+      },
+      "ItemTemplate": {
+        "type": "DotVVM.Framework.Controls.ITemplate, DotVVM.Framework",
+        "dataContextChange": [
+          {
+            "$type": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework",
+            "Order": 1,
+            "TypeId": "DotVVM.Framework.Binding.CollectionElementDataContextChangeAttribute, DotVVM.Framework"
+          },
+          {
+            "$type": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework",
+            "PropertyName": "DataSource",
+            "PropertyDependsOn": [
+              "DataSource"
+            ],
+            "TypeId": "DotVVM.Framework.Binding.ControlPropertyBindingDataContextChangeAttribute, DotVVM.Framework"
+          }
+        ],
+        "mappingMode": "InnerElement",
+        "required": true
+      },
+      "ItemVisible": {
+        "type": "System.Boolean",
+        "fromCapability": "ItemHtmlCapability"
+      },
+      "ItemWrapperTagName": {
+        "type": "System.String",
+        "fromCapability": "ItemWrapperCapability"
+      },
+      "LevelID": {
+        "type": "System.String",
+        "fromCapability": "LevelHtmlCapability"
+      },
+      "LevelVisible": {
+        "type": "System.Boolean",
+        "fromCapability": "LevelHtmlCapability"
+      },
+      "LevelWrapperTagName": {
+        "type": "System.String",
+        "fromCapability": "LevelWrapperCapability"
+      },
+      "RenderWrapperTag": {
+        "type": "System.Boolean"
+      },
+      "WrapperTagName": {
+        "type": "System.String"
       }
     },
     "DotVVM.Framework.Controls.HtmlGenericControl": {
@@ -1100,6 +1179,26 @@
         "type": "DotVVM.Framework.Controls.TextOrContentCapability, DotVVM.Framework"
       }
     },
+    "DotVVM.Framework.Controls.HierarchyRepeater": {
+      "ItemHtmlCapability": {
+        "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework",
+        "fromCapability": "ItemWrapperCapability",
+        "capabilityPrefix": "Item"
+      },
+      "ItemWrapperCapability": {
+        "type": "DotVVM.Framework.Controls.WrapperCapability, DotVVM.Framework",
+        "capabilityPrefix": "Item"
+      },
+      "LevelHtmlCapability": {
+        "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework",
+        "fromCapability": "LevelWrapperCapability",
+        "capabilityPrefix": "Level"
+      },
+      "LevelWrapperCapability": {
+        "type": "DotVVM.Framework.Controls.WrapperCapability, DotVVM.Framework",
+        "capabilityPrefix": "Level"
+      }
+    },
     "DotVVM.Framework.Controls.HtmlGenericControl": {
       "HtmlCapability": {
         "type": "DotVVM.Framework.Controls.HtmlCapability, DotVVM.Framework"
@@ -1225,6 +1324,44 @@
     }
   },
   "propertyGroups": {
+    "DotVVM.Framework.Controls.HierarchyRepeater": {
+      "ItemAttributes": {
+        "prefixes": [
+          "Item",
+          "Itemhtml:"
+        ],
+        "type": "System.Object",
+        "fromCapability": "ItemHtmlCapability"
+      },
+      "ItemCssClasses": {
+        "prefix": "ItemClass-",
+        "type": "System.Boolean",
+        "fromCapability": "ItemHtmlCapability"
+      },
+      "ItemCssStyles": {
+        "prefix": "ItemStyle-",
+        "type": "System.Object",
+        "fromCapability": "ItemHtmlCapability"
+      },
+      "LevelAttributes": {
+        "prefixes": [
+          "Level",
+          "Levelhtml:"
+        ],
+        "type": "System.Object",
+        "fromCapability": "LevelHtmlCapability"
+      },
+      "LevelCssClasses": {
+        "prefix": "LevelClass-",
+        "type": "System.Boolean",
+        "fromCapability": "LevelHtmlCapability"
+      },
+      "LevelCssStyles": {
+        "prefix": "LevelStyle-",
+        "type": "System.Object",
+        "fromCapability": "LevelHtmlCapability"
+      }
+    },
     "DotVVM.Framework.Controls.HtmlGenericControl": {
       "Attributes": {
         "prefixes": [

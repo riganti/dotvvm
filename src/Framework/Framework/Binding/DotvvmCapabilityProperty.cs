@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Binding
 
             AssertPropertyNotDefined(this, postContent: false);
 
-            var dotnetFieldName = name.Replace("-", "_").Replace(":", "_");
+            var dotnetFieldName = ToPascalCase(name.Replace("-", "_").Replace(":", "_"));
             attributeProvider ??=
                 declaringType.GetProperty(dotnetFieldName) ??
                 declaringType.GetField(dotnetFieldName) ??
@@ -249,14 +249,17 @@ namespace DotVVM.Framework.Binding
             resultProperty.Setter = accessors.setter.CompileFast(flags: CompilerFlags.ThrowOnNotSupportedExpression);
         }
 
+        static string ToPascalCase(string p) =>
+            p.Length > 0 && char.IsLower(p[0]) ?
+                char.ToUpperInvariant(p[0]) + p.Substring(1) :
+                p;
+
         private static readonly ParameterExpression currentControlParameter = Expression.Parameter(typeof(DotvvmBindableObject), "control");
         /// <summary> Returns DotvvmProperty, DotvvmCapabilityProperty or DotvvmPRopertyGroup </summary>
         internal static object InitializeArgument(ICustomAttributeProvider attributeProvider, string propertyName, Type propertyType, Type declaringType, DotvvmCapabilityProperty? declaringCapability, ValueOrBinding<object>? defaultValue)
         {
             var capabilityType = declaringCapability?.PropertyType;
-            if (char.IsLower(propertyName[0]))
-                propertyName = char.ToUpperInvariant(propertyName[0]) + propertyName.Substring(1);
-            propertyName = propertyName.DotvvmInternString(trySystemIntern: true);
+            propertyName = ToPascalCase(propertyName).DotvvmInternString(trySystemIntern: true);
 
             if (attributeProvider.GetCustomAttribute<DefaultValueAttribute>() is DefaultValueAttribute defaultAttribute)
             {
@@ -331,9 +334,9 @@ namespace DotVVM.Framework.Binding
                     else if (!typeof(ValueOrBinding).IsAssignableFrom(propertyType.UnwrapNullableType()))
                         dotvvmProperty.MarkupOptions.AllowBinding = false;
 
-                    if (typeof(DotvvmBindableObject).IsAssignableFrom(type) ||
+                    if (typeof(IDotvvmObjectLike).IsAssignableFrom(type) ||
                         typeof(ITemplate).IsAssignableFrom(type) ||
-                        typeof(IEnumerable<DotvvmBindableObject>).IsAssignableFrom(type))
+                        typeof(IEnumerable<IDotvvmObjectLike>).IsAssignableFrom(type))
                         dotvvmProperty.MarkupOptions.MappingMode = MappingMode.Both;
 
                     DotvvmProperty.Register(dotvvmProperty);

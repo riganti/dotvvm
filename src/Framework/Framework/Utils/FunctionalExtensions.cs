@@ -85,6 +85,17 @@ namespace DotVVM.Framework.Utils
         public static IEnumerable<(int, T)> Indexed<T>(this IEnumerable<T> enumerable) =>
             enumerable.Select((a, b) => (b, a));
 
+        public static int FindIndex<T>(this IEnumerable<T> enumerable, Func<T, bool> predicate)
+        {
+            int i = 0;
+            foreach (var x in enumerable)
+            {
+                if (predicate(x)) return i;
+                i++;
+            }
+            return -1;
+        }
+
         public static T NotNull<T>([NotNull] this T? target, string message = "Unexpected null value.")
             where T : class =>
             target ?? throw new Exception(message);

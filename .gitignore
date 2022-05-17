@@ -208,9 +208,7 @@ artifacts/
 
 launchSettings.json
 sample.db
-/src/Samples/Common/script/react.js
-/src/Samples/Common/script/react-app.js.map
-/src/Samples/Common/script/react-app.js
+/src/Samples/Common/script/*
 **/JsComponent*/dist
 *.exclude
 *.tgz
@@ -222,3 +220,6 @@ sample.db
 
 # GitHub Actions tmp dir
 /tmp
+
+# NPM publish dir
+/ci/scripts/npm/dotvvm-types/index.d.ts

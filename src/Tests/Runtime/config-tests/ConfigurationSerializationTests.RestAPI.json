@@ -1,4 +1,5 @@
 {
+  "dotvvmVersion": "*.*.*.*",
   "config": {
     "markup": {
       "importedNamespaces": [
@@ -18,7 +19,7 @@
             "Type": "DotVVM.Framework.Tests.Binding.TestApiClient, DotVVM.Framework.Tests",
             "Name": "TestApiClient",
             "Namespace": "DotVVM.Framework.Tests.Binding",
-            "Assembly": "DotVVM.Framework.Tests.Binding.TestApiClient, DotVVM.Framework.Tests, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
+            "Assembly": "DotVVM.Framework.Tests, Version=***, Culture=neutral, PublicKeyToken=23f3607db32275da",
             "FullName": "DotVVM.Framework.Tests.Binding.TestApiClient"
           },
           "Inherit": true
@@ -75,7 +76,10 @@
     "experimentalFeatures": {},
     "debug": false,
     "diagnostics": {
-      "compilationPage": {}
+      "compilationPage": {},
+      "perfWarnings": {
+        "bigViewModelBytes": 5242880.0
+      }
     }
   }
 }

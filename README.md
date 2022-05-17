@@ -3,12 +3,10 @@
 Component-based MVVM framework for ASP.NET
 ==================
 
-[![license](https://img.shields.io/github/license/riganti/dotvvm.svg?maxAge=2592000?style=plastic)]()
-[![Join the chat at https://gitter.im/riganti/dotvvm](https://badges.gitter.im/riganti/dotvvm.svg)](https://gitter.im/riganti/dotvvm)
-
-| ASP.NET Core 2.1          | .NET 5.0                  | OWIN                |
-|---------------------------|---------------------------|---------------------|
-| [![Build status: ASP.NET Core 2.1](https://dev.azure.com/rigantitfs/DotVVM/_apis/build/status/CI/%5B2.1.0%5D%20DotVVM%20Framework%20-%20AspNet%20Core)](https://dev.azure.com/rigantitfs/DotVVM/_build/latest?definitionId=122) | [![Build status: .NET 5.0](https://dev.azure.com/rigantitfs/DotVVM/_apis/build/status/CI/%5B2.1.0%5D%20DotVVM%20Framework%20-%20AspNet%20Core%20Latest)](https://dev.azure.com/rigantitfs/DotVVM/_build/latest?definitionId=208) | [![Build status: OWIN](https://dev.azure.com/rigantitfs/DotVVM/_apis/build/status/CI/%5B2.1.0%5D%20DotVVM%20Framework%20-%20Owin)](https://dev.azure.com/rigantitfs/DotVVM/_build/latest?definitionId=181) |
+[![License](https://img.shields.io/github/license/riganti/dotvvm)](https://github.com/riganti/dotvvm/blob/main/LICENSE)
+[![Gitter](https://badges.gitter.im/riganti/dotvvm.svg)](https://gitter.im/riganti/dotvvm)
+[![GitHub Actions](https://github.com/riganti/dotvvm/actions/workflows/main.yml/badge.svg)](https://github.com/riganti/dotvvm/actions/)
+[![NuGet](https://img.shields.io/nuget/v/DotVVM?logo=nuget)](https://www.nuget.org/packages/DotVVM/)
 
 [DotVVM](https://www.dotvvm.com) lets you build interactive web UIs with **just C# and HTML** using the **MVVM** approach.
 
@@ -90,7 +88,7 @@ There is also [dotnet new template](https://www.dotvvm.com/docs/tutorials/how-to
 
 |                         | ASP.NET Core                | OWIN                  |
 |-------------------------|-----------------------------|-----------------------|
-| Current stable version  | `DotVVM.AspNetCore 3.2.0`   | `DotVVM.Owin 3.2.0`   |
+| Current stable version  | `DotVVM.AspNetCore 4.0.2`   | `DotVVM.Owin 4.0.2`   |
 | Minimum runtime version | `.NET Core 3.1`             | `.NET 4.7.2`          |
 | Minimum ASP.NET version | `ASP.NET Core 3.1`          | `OWIN 3.0.1`          |
 

@@ -21,7 +21,7 @@ type ValidationSummaryBinding = {
     hideWhenValid: boolean
 }
 
-type DotvvmValidationErrorsChangedEventArgs = PostbackOptions & {
+type DotvvmValidationErrorsChangedEventArgs = Partial<PostbackOptions> & {
     readonly allErrors: ValidationError[]
 }
 
@@ -32,19 +32,27 @@ export const events = {
 };
 
 export const globalValidationObject = {
+    /** Dictionary of client-side validation rules. Add new items to this object if you want to add support for new validation rules */
     rules: validators,
+    /** List of all currently active errors */
     errors: allErrors,
-    events
+    events,
+    /** Add the specified list of validation errors. `dotvvm.validation.addErrors([ { errorMessage: "test error", propertyPath: "/LoginForm/Name" } ])` */
+    addErrors,
+    /** Removes errors from the specified properties.
+     *  The errors are removed recursively, so calling `dotvvm.validation.removeErrors("/")` removes all errors in the page,
+     *  `dotvvm.validation.removeErrors("/Detail")` removes all errors from the object in property root.Detail */
+    removeErrors
 }
 
-const createValidationHandler = (path: string) => ({
+const createValidationHandler = (pathFunction: (context: KnockoutBindingContext) => any) => ({
     name: "validate",
     execute: (callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) => {
-        if (path) {
-            options.validationTargetPath = path;
+        if (pathFunction) {
+            options.validationTargetPath = pathFunction.toString();
             // resolve target
             const context = ko.contextFor(options.sender);
-            const validationTarget = evaluator.evaluateOnViewModel(context, path);
+            const validationTarget = pathFunction(context);
 
             runClientSideValidation(validationTarget, options);
 
@@ -71,8 +79,8 @@ const runClientSideValidation = (validationTarget: any, options: PostbackOptions
 
 export function init() {
     postbackHandlers["validate"] = (opt) => createValidationHandler(opt.path);
-    postbackHandlers["validate-root"] = () => createValidationHandler("dotvvm.viewModelObservables['root']");
-    postbackHandlers["validate-this"] = () => createValidationHandler("$data");
+    postbackHandlers["validate-root"] = () => createValidationHandler(c => dotvvm.viewModelObservables.root);
+    postbackHandlers["validate-this"] = () => createValidationHandler(c => c.$data);
 
     if (compileConstants.isSpa) {
         spaEvents.spaNavigating.subscribe(args => {
@@ -280,24 +288,71 @@ function getValidationErrors<T>(
     return errors;
 }
 
+export type ValidationErrorDescriptor = {
+    /** Error to be displayed to the user */
+    errorMessage: string
+    /** Path in the view model to the annotated property, for example `/LoginPage/Name` */
+    propertyPath: string
+}
+
+export type AddErrorsOptions = {
+    /** Root object from which are the property paths resolved. By default it's the root view model of the page */
+    root?: KnockoutObservable<any> | any
+    /** When set to false, the validationErrorsChanged is not triggered. By default it's true -> the error is triggered.
+     *  The validationErrorsChanged event controls the `Validator`s in the DotHTML page, so when it's not triggered, the change won't be visible. */
+    triggerErrorsChanged?: false
+}
+
+export function removeErrors(...paths: string[]) {
+    function pathStartsWith(prefixPath: string, path: string) {
+        // normalize paths = append / to each path and remove duplicated slashes
+        const normRegex = /(\/+)/g
+        prefixPath = (prefixPath + "/").replace(normRegex, "/")
+        path = (path + "/").replace(normRegex, "/")
+
+        return prefixPath == path || path.startsWith(prefixPath)
+    }
+
+    let changed = false;
+
+    const errorsCopy = Array.from(allErrors)
+    errorsCopy.reverse()
+    for (const e of errorsCopy) {
+        if (paths.some(p => pathStartsWith(p, e.propertyPath))) {
+            e.detach();
+            changed = true;
+        }
+    }
+
+    if (changed)
+        validationErrorsChanged.trigger({ allErrors })
+}
+
+
+export function addErrors(errors: ValidationErrorDescriptor[], options: AddErrorsOptions = {}): void {
+    const root = options.root ?? dotvvm.viewModelObservables.root
+    for (const prop of errors) {
+        // find the property
+        const propertyPath = prop.propertyPath;
+        const property = evaluator.traverseContext(root, propertyPath);
+
+        ValidationError.attach(prop.errorMessage, propertyPath, property);
+    }
+
+    if (options.triggerErrorsChanged !== false && errors.length > 0) {
+        validationErrorsChanged.trigger({ allErrors });
+    }
+}
+
 /**
  * Adds validation errors from the server to the appropriate arrays
  */
 export function showValidationErrorsFromServer(serverResponseObject: any, options: PostbackOptions) {
     watchAndTriggerValidationErrorChanged(options, () => {
-        detachAllErrors();
+        detachAllErrors()
 
         // add validation errors
-        for (const prop of serverResponseObject.modelState) {
-            
-            let observableRootVM = dotvvm.viewModelObservables.root;
-
-            // find the property
-            const propertyPath = prop.propertyPath;
-            const property = evaluator.traverseContext(observableRootVM, propertyPath);
-
-            ValidationError.attach(prop.errorMessage, propertyPath, property);
-        }
+        addErrors(serverResponseObject.modelState, { triggerErrorsChanged: false })
     });
 }
 

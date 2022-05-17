@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Binding
     /// <summary>
     /// Reference to a javascript file.
     /// </summary>
-    [HandleAsImmutableObjectInDotvvmPropertyAttribute]
+    [HandleAsImmutableObjectInDotvvmProperty]
     public sealed class ViewModuleReferenceInfo
     {
         public string[] ReferencedModules { get; }

@@ -9,6 +9,6 @@
 
   <files>
     <file src="$SettingsFile$" target="tools\$TargetFramework$\any" />
-    <file src="$Output$**\*" target="tools\$TargetFramework$\any" />
+    <file src="$Output$" target="tools\$TargetFramework$\any" />
   </files>
 </package>
