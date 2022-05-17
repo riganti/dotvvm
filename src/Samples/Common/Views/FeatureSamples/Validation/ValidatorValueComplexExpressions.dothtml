@@ -1,0 +1,27 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Validation.ValidatorValueComplexExpressionsViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        .error {
+            background-color: #ffaaaa;
+        }
+    </style>
+</head>
+<body>
+
+    <dot:TextBox ID="textbox"
+                 Validator.InvalidCssClass="error"
+                 Validator.Value="{value: DateTime.ToBrowserLocalTime().ToString()}"
+                 Text="{value: DateTime.ToBrowserLocalTime().ToString()}" />
+
+    <dot:Button Text="Postback" Click="{command: ;}" />
+
+</body>
+</html>
+
+

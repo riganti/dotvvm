@@ -790,6 +790,23 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Validation_ComplexExpressionInValidatorValue()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidatorValueComplexExpressions);
+                var textbox = browser.First("input[type=text]");
+                var button = browser.First("input[type=button]");
+
+                // Clear DateTime which is marked as [Required]
+                textbox.Clear();
+                // Perform postback to trigger validation
+                button.Click();
+
+                AssertUI.HasClass(textbox, "error");
+            });
+        }
+
         public ValidationTests(ITestOutputHelper output) : base(output)
         {
         }
