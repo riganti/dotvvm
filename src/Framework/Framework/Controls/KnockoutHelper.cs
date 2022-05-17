@@ -25,16 +25,28 @@ namespace DotVVM.Framework.Controls
             var expression = control.GetValueBinding(property);
             if (expression != null && (!control.RenderOnServer || renderEvenInServerRenderingMode))
             {
-                writer.AddKnockoutDataBind(name, expression.GetKnockoutBindingExpression(control));
-                if (valueUpdate != null)
-                {
-                    writer.AddKnockoutDataBind("valueUpdate", $"'{valueUpdate}'");
-                }
+                writer.AddKnockoutDataBind(name, control, expression, valueUpdate, renderEvenInServerRenderingMode);
             }
             else
             {
                 nullBindingAction?.Invoke();
                 if (setValueBack && expression != null) control.SetValue(property, expression.Evaluate(control));
+            }
+        }
+
+        /// <summary>
+        /// Adds the data-bind attribute to the next HTML element that is being rendered. If in server rendering mode, the binding is also not rendered.
+        /// </summary>
+        /// <param name="renderEvenInServerRenderingMode">When set to true, the binding is rendered even in server rendering mode. By default, the data-bind attribute is only added in client-rendering mode.</param>
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableObject control, IValueBinding expression, string? valueUpdate = null, bool renderEvenInServerRenderingMode = false)
+        {
+            if (!control.RenderOnServer || renderEvenInServerRenderingMode)
+            {
+                writer.AddKnockoutDataBind(name, expression.GetKnockoutBindingExpression(control));
+                if (valueUpdate != null)
+                {
+                    writer.AddKnockoutDataBind("valueUpdate", $"'{valueUpdate}'");
+                }
             }
         }
 

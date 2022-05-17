@@ -9,6 +9,9 @@ using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Binding.Expressions;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation.Binding;
+using System.Linq.Expressions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -83,7 +86,18 @@ namespace DotVVM.Framework.Controls
 
         private static void AddValidatedValue(IHtmlWriter writer, IDotvvmRequestContext context, DotvvmProperty prop, DotvvmControl control)
         {
-            writer.AddKnockoutDataBind("dotvvm-validation", control, ValueProperty, renderEvenInServerRenderingMode: true);
+            const string validationDataBindName = "dotvvm-validation";
+            var validationValueBinding = TryUnwrapValidationValue(control);
+            if (validationValueBinding is not null)
+            {
+                // We were able to unwrap the the provided expression
+                writer.AddKnockoutDataBind(validationDataBindName, control, validationValueBinding, renderEvenInServerRenderingMode: true);
+            }
+            else
+            {
+                // We are passing the binding "as-is"
+                writer.AddKnockoutDataBind(validationDataBindName, control, ValueProperty, renderEvenInServerRenderingMode: true);
+            }
 
             // render options
             var bindingGroup = new KnockoutBindingGroup();
@@ -98,6 +112,24 @@ namespace DotVVM.Framework.Controls
                 }
             }
             writer.AddKnockoutDataBind("dotvvm-validationOptions", bindingGroup);
+        }
+
+        private static IValueBinding? TryUnwrapValidationValue(DotvvmControl control)
+        {
+            var binding = control.GetValueBinding(ValueProperty);
+            if (binding == null)
+                return null;
+
+            var parsedExpression = binding.GetProperty<ParsedExpressionBindingProperty>();
+            var bindingInfo = BindingPropertyResolvers.GetReferencedViewModelProperties(parsedExpression);
+            if (bindingInfo.UnwrappedExpression is Expression unwrappedExpression && unwrappedExpression != parsedExpression.Expression)
+            {
+                // Derive binding that leads to the main property
+                var unwrappedBinding = binding.DeriveBinding(bindingInfo.UnwrappedExpression);
+                binding = unwrappedBinding;
+            }
+
+            return binding;
         }
 
         /// <summary>
