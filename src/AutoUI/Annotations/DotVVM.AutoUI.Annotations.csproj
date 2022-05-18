@@ -4,7 +4,7 @@
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <PackageId>DotVVM.DynamicData.Annotations</PackageId>
+    <PackageId>DotVVM.AutoUI.Annotations</PackageId>
     <Description>Annotation attributes for DotVVM Dynamic Data that provide additional features.</Description>
     <PackageProjectUrl>https://www.dotvvm.com/docs/3.0/pages/community-add-ons/dotvvm-dynamic-data</PackageProjectUrl>
     <PackageTags>($PackageTags);dnx;dynamic data;annotations;metadata;ui generation</PackageTags>

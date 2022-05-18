@@ -170,7 +170,7 @@
     <ProjectReference Include="../../Framework/Framework/DotVVM.Framework.csproj" />
     <ProjectReference Include="../Api.Common/DotVVM.Samples.BasicSamples.Api.Common.csproj" />
     <ProjectReference Include="../EmbeddedResourceControls/EmbeddedResourceControls.csproj" />
-    <ProjectReference Include="..\..\DynamicData\DynamicData\DotVVM.AutoUI.csproj" />
+    <ProjectReference Include="../../AutoUI/Core/DotVVM.AutoUI.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">
